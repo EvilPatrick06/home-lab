@@ -15,7 +15,7 @@ vi.mock('@supabase/supabase-js', () => ({
 vi.stubEnv('VITE_SUPABASE_URL', 'https://test.supabase.co');
 vi.stubEnv('VITE_SUPABASE_PUBLISHABLE_KEY', 'test-key');
 
-const { consumeOAuthCallback } = await import('./supabase.js');
+const { consumeOAuthCallback, detectBaseMismatch } = await import('./supabase.js');
 
 describe('consumeOAuthCallback', () => {
   beforeEach(() => {
@@ -40,5 +40,35 @@ describe('consumeOAuthCallback', () => {
     expect(window.location.search).not.toContain('code=');
     expect(window.location.search).not.toContain('state=');
     expect(window.location.search).toContain('keep=this');
+  });
+});
+
+describe('detectBaseMismatch (PHASE-18 18D / L13)', () => {
+  it('github.io: matching first segment ⇒ null', () => {
+    expect(detectBaseMismatch({ hostname: 'user.github.io', pathname: '/dungeon-scholar/', baseUrl: '/dungeon-scholar/' })).toBeNull();
+  });
+
+  it('github.io: mismatched first segment ⇒ message naming both', () => {
+    const msg = detectBaseMismatch({ hostname: 'user.github.io', pathname: '/home-lab/', baseUrl: '/dungeon-scholar/' });
+    expect(msg).toContain('/home-lab/');
+    expect(msg).toContain('/dungeon-scholar/');
+  });
+
+  it('github.io: deep path under the base ⇒ null', () => {
+    expect(detectBaseMismatch({ hostname: 'user.github.io', pathname: '/dungeon-scholar/some/route', baseUrl: '/dungeon-scholar/' })).toBeNull();
+  });
+
+  it('non-github host: served path under the base ⇒ null', () => {
+    expect(detectBaseMismatch({ hostname: 'example.com', pathname: '/app/page', baseUrl: '/app/' })).toBeNull();
+  });
+
+  it('non-github host: served path outside the base ⇒ message', () => {
+    const msg = detectBaseMismatch({ hostname: 'example.com', pathname: '/other/', baseUrl: '/app/' });
+    expect(msg).toContain('/other/');
+    expect(msg).toContain('/app/');
+  });
+
+  it('root base ("/") ⇒ null (dev / root deploy)', () => {
+    expect(detectBaseMismatch({ hostname: 'localhost', pathname: '/anything', baseUrl: '/' })).toBeNull();
   });
 });

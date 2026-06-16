@@ -17,6 +17,28 @@ export async function pullSave(userId) {
 }
 
 /**
+ * Probe for a missing-RLS misconfiguration (PHASE-18 18C / M11): with correct
+ * own-row policies a cross-user select returns zero rows (policies are implicit
+ * WHERE clauses); any row coming back means RLS is disabled or mis-policied and
+ * every authenticated user can read everyone's saves. Read-only and cheap
+ * (limit 1). Limitation: cannot detect the problem before a second user has a row.
+ */
+export async function checkRlsExposure(userId) {
+  if (!supabase || !userId) return { checked: false, exposed: false };
+  try {
+    const { data, error } = await supabase
+      .from('saves')
+      .select('user_id')
+      .neq('user_id', userId)
+      .limit(1);
+    if (error) return { checked: false, exposed: false };
+    return { checked: true, exposed: Array.isArray(data) && data.length > 0 };
+  } catch {
+    return { checked: false, exposed: false };
+  }
+}
+
+/**
  * Upsert the player state for a user. Caller is responsible for
  * ensuring `userId` matches the authenticated user.
  *
@@ -48,12 +70,26 @@ export async function pushSave(userId, blob) {
  * `alter publication supabase_realtime add table saves;` once in the
  * SQL editor.
  */
+/** FNV-1a 32-bit, base36 (PHASE-18 18E / L9). Label obfuscation for channel
+ *  topics — the topic appears in Realtime metadata/inspector; the raw UUID stays
+ *  only in the postgres_changes filter, which the server requires. Not cryptographic. */
+export function hashChannelTopic(s) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return (h >>> 0).toString(36);
+}
+
 export function subscribeSaves(userId, onUpdate) {
   if (!supabase || !userId) return () => {};
   const channel = supabase
-    .channel(`saves:${userId}`)
+    .channel(`saves:${hashChannelTopic(userId)}`)
     .on(
       'postgres_changes',
+      // The raw UUID MUST stay in this filter — the server uses it to scope rows.
+      // Only the channel topic above is hashed (it's a label, not an authenticator).
       { event: '*', schema: 'public', table: 'saves', filter: `user_id=eq.${userId}` },
       (payload) => {
         const row = payload.new;

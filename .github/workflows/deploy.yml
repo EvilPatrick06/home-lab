@@ -36,6 +36,11 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          # Optional Oracle proxy Worker (AI grading + chat). Unset secrets render
+          # as empty strings and fork-triggered workflows never receive secrets,
+          # so forks build with the Oracle disabled (local fallback) automatically.
+          # See dungeon-scholar/docs/oracle-setup.md.
+          VITE_ORACLE_ENDPOINT: ${{ secrets.VITE_ORACLE_ENDPOINT }}
           # GitHub Pages serves under /<repo-name>/. This owner's repo is
           # `home-lab` (monorepo), so we override the default. Forks whose
           # repo is named `dungeon-scholar` can delete this line entirely —

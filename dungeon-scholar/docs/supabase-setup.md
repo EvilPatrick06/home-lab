@@ -105,3 +105,24 @@ Repo → Settings → Secrets and variables → Actions → New repository secre
 - `VITE_SUPABASE_PUBLISHABLE_KEY`
 
 (The deploy workflow will inject these at build time.)
+
+## 8. Verify Row Level Security
+
+**Do not skip this.** Without RLS active on the `saves` table, every signed-in
+user can read and overwrite every other user's saves — silently (the app still
+works). Run this in the SQL editor:
+
+```sql
+select c.relname as table, c.relrowsecurity as rls_enabled
+from pg_class c
+join pg_namespace n on n.oid = c.relnamespace
+where n.nspname = 'public' and c.relname in ('profiles', 'saves');
+```
+
+Both rows must show `rls_enabled = t`. If either is `f`, re-run the
+`alter table … enable row level security;` lines from step 2.
+
+The app also probes for this at runtime: if a signed-in user can read another
+user's row, a red **"Cloud misconfiguration"** banner appears at the top of the
+screen. Note the banner can only fire once a *second* user's row exists in the
+table — the SQL check above is the reliable one.

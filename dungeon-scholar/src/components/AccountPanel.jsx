@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { LogOut, CloudOff, Trash2, RotateCcw } from 'lucide-react';
 import { signOut } from '../services/supabase.js';
 import { deleteCloudSave, deleteAccount } from '../services/cloudSync.js';
+import { logError } from '../services/logger.js';
 
 function relativeTimeFrom(date) {
   if (!date) return 'never';
@@ -31,7 +32,7 @@ export function AccountPanel({ user, syncStatus, lastSyncedAt, onClose, onAfterD
       await deleteCloudSave(user.id);
       onAfterDeleteCloud?.();
       setConfirmKind(null);
-    } catch (err) { console.error(err); }
+    } catch (err) { logError('Delete cloud save failed', err); }
     setBusy(false);
   };
 
@@ -42,7 +43,7 @@ export function AccountPanel({ user, syncStatus, lastSyncedAt, onClose, onAfterD
       await signOut();
       onAfterDeleteAccount?.();
       onClose();
-    } catch (err) { console.error(err); }
+    } catch (err) { logError('Delete account failed', err); }
     setBusy(false);
   };
 

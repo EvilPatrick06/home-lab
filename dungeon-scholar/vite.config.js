@@ -10,8 +10,45 @@ import react from '@vitejs/plugin-react'
 // dungeon-scholar (zero-config) or set VITE_BASE to their own repo path.
 const BASE = process.env.VITE_BASE || '/dungeon-scholar/'
 
+// PHASE-18 18F / M8 — CSP injected at BUILD time only. GitHub Pages cannot set
+// HTTP response headers, so a <meta http-equiv> tag is the only delivery option;
+// meta-CSP ignores frame-ancestors/report-uri/sandbox (browser limitation). Dev
+// is exempt (apply: 'build') so Vite HMR (ws://localhost) keeps working. If a
+// fork hosts its Oracle off *.workers.dev, the exact origin is whitelisted here
+// automatically from VITE_ORACLE_ENDPOINT at build.
+const oracleOrigin = (() => {
+  try { return new URL(process.env.VITE_ORACLE_ENDPOINT || '').origin } catch { return '' }
+})()
+
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline'", // Tailwind runtime + React style={{}} attributes
+  "img-src 'self' data: https://avatars.githubusercontent.com", // GH avatars + data: SVG noise bg
+  "font-src 'self' data:", // KaTeX fonts are bundled same-origin
+  `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.workers.dev${oracleOrigin ? ` ${oracleOrigin}` : ''}`,
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+].join('; ')
+
+const cspPlugin = () => ({
+  name: 'dungeon-scholar:csp-meta',
+  apply: 'build',
+  transformIndexHtml(html) {
+    return {
+      html,
+      tags: [{
+        tag: 'meta',
+        attrs: { 'http-equiv': 'Content-Security-Policy', content: CSP },
+        injectTo: 'head-prepend',
+      }],
+    }
+  },
+})
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), cspPlugin()],
   base: BASE,
   build: {
     // Polish: split vendor chunks so the initial bundle drops below the

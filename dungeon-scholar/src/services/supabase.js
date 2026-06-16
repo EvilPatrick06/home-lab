@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { logWarn } from './logger.js';
 
 const url = import.meta.env.VITE_SUPABASE_URL;
 const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -34,6 +35,45 @@ export async function signInWithGitHub() {
 export async function signOut() {
   if (!supabase) return;
   await supabase.auth.signOut();
+}
+
+/**
+ * Returns a human-readable mismatch description, or null when the base looks
+ * right (L13 / 18D). On *.github.io, Pages serves project sites under /<repo>/,
+ * so the first path segment must equal the Vite base; elsewhere the served path
+ * must start with the base. A mismatch breaks the OAuth redirectTo
+ * (window.location.origin + BASE_URL) with an opaque Supabase error.
+ */
+export function detectBaseMismatch({ hostname, pathname, baseUrl }) {
+  if (!baseUrl || baseUrl === '/') return null; // dev server / root deploys
+  const normBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  if (hostname.endsWith('.github.io')) {
+    const firstSegment = `/${pathname.split('/')[1] || ''}/`;
+    if (firstSegment !== normBase) {
+      return `app is served from "${firstSegment}" but built with base "${normBase}"`;
+    }
+    return null;
+  }
+  if (!pathname.startsWith(normBase) && `${pathname}/` !== normBase) {
+    return `app is served from "${pathname}" which is outside the built base "${normBase}"`;
+  }
+  return null;
+}
+
+export function warnIfBaseMismatch() {
+  const mismatch = detectBaseMismatch({
+    hostname: window.location.hostname,
+    pathname: window.location.pathname,
+    baseUrl: import.meta.env.BASE_URL,
+  });
+  if (mismatch) {
+    logWarn(
+      'Base path mismatch',
+      `${mismatch}. GitHub OAuth sign-in will fail (redirectTo = origin + base). ` +
+      'Fix: set VITE_BASE (deploy.yml / .env.local) or vite.config.js base to "/<repo-name>/", ' +
+      'and list the same URL in Supabase → Authentication → URL Configuration.'
+    );
+  }
 }
 
 /**

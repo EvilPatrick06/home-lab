@@ -76,6 +76,18 @@ Without configuration the app skips the sign-in button and runs as a pure local 
 2. Copy `.env.example` → `.env.local` and fill in the Supabase URL + anon key.
 3. Add the same two values as repo secrets at **Settings → Secrets → Actions** so the deploy workflow picks them up.
 
+The AI **Oracle** (free-text answer grading + Oracle chat) is separately optional — see [`docs/oracle-setup.md`](./docs/oracle-setup.md). Without it the app grades by local string matching and the chat defaults to Tome Search.
+
+## Answer keys are not secret (by design)
+
+Tomes are plain JSON — every `correctAnswer` / `acceptedAnswers` field ships in
+readable text, both in the sample tome files in this repo and inside your
+browser's `localStorage` / cloud save after import. Anyone using DevTools can
+read the key for any question. That's fine for self-study; it makes the app
+unsuitable for **proctored or graded exams** as-is. A "sealed tome" format
+(server-held or encrypted keys) is tracked as future work — until it ships,
+don't use Dungeon Scholar as an assessment platform.
+
 ## Deploy
 
 Every push to `main` triggers `.github/workflows/deploy.yml`. First-time setup (only once per fork):

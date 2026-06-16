@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 // (button text retains the GitHub context).
 import { LogIn } from 'lucide-react';
 import { signInWithGitHub, isSupabaseConfigured } from '../services/supabase.js';
+import { logError } from '../services/logger.js';
 
 export function SignInButton() {
   const [busy, setBusy] = useState(false);
@@ -15,7 +16,7 @@ export function SignInButton() {
       await signInWithGitHub();
       setTimeout(() => setBusy(false), 4000);
     } catch (err) {
-      console.error('Sign-in failed:', err);
+      logError('Sign-in failed', err);
       setBusy(false);
     }
   };

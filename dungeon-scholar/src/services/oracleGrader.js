@@ -2,7 +2,20 @@
 // to a tolerant string match against the tome's canonical answers if the Oracle
 // is unreachable. (Dungeon battles are MC/TF and never call gradeAnswer.)
 
-const ORACLE_ENDPOINT = 'https://dungeon-scholar-oracle.patrick-home-lab.workers.dev';
+// The Oracle endpoint is deployment-specific (PHASE-18 18B / M9). Unset/empty ⇒
+// Oracle features are disabled and grading falls back to local string matching.
+// See docs/oracle-setup.md for hosting your own proxy Worker.
+export const ORACLE_MODEL = 'claude-sonnet-4-6'; // claude-sonnet-4-20250514 retired 2026-06-15
+
+export function getOracleEndpoint() {
+  const raw = import.meta.env.VITE_ORACLE_ENDPOINT;
+  const url = typeof raw === 'string' ? raw.trim() : '';
+  return /^https?:\/\//.test(url) ? url : '';
+}
+
+export function isOracleConfigured() {
+  return getOracleEndpoint() !== '';
+}
 
 const norm = (s) => String(s || '').trim().toLowerCase();
 
@@ -144,13 +157,19 @@ export async function gradeAnswer({
     };
   }
 
+  // M9 (18B): no endpoint configured ⇒ Oracle disabled; grade by local string match.
+  const endpoint = getOracleEndpoint();
+  if (!endpoint) {
+    return fallbackResult({ userAnswer, expectedAnswer, acceptedAnswers, reason: 'Oracle not configured' });
+  }
+
   let response;
   try {
-    response = await fetchImpl(ORACLE_ENDPOINT, {
+    response = await fetchImpl(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: ORACLE_MODEL,
         max_tokens: 300,
         system: GRADER_SYSTEM,
         messages: [

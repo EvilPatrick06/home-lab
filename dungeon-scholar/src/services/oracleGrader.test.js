@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
-import { gradeAnswer, stringMatchAnswer } from './oracleGrader.js';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { gradeAnswer, stringMatchAnswer, isOracleConfigured } from './oracleGrader.js';
 
 const okOracleResponse = (verdict) => ({
   ok: true,
@@ -34,6 +34,11 @@ describe('stringMatchAnswer', () => {
 });
 
 describe('gradeAnswer', () => {
+  // 18B: the Oracle path is gated on VITE_ORACLE_ENDPOINT — stub it so the
+  // existing fetch-path assertions keep exercising the configured branch.
+  beforeEach(() => vi.stubEnv('VITE_ORACLE_ENDPOINT', 'https://oracle.test.example'));
+  afterEach(() => vi.unstubAllEnvs());
+
   it('returns local verdict on empty user answer without calling fetch', async () => {
     const fetchImpl = vi.fn();
     const result = await gradeAnswer({
@@ -138,6 +143,9 @@ const oracleText = (text) => ({
 });
 
 describe('gradeAnswer — balanced JSON extraction + abort (PHASE-17 17A)', () => {
+  beforeEach(() => vi.stubEnv('VITE_ORACLE_ENDPOINT', 'https://oracle.test.example'));
+  afterEach(() => vi.unstubAllEnvs());
+
   it('takes the LAST verdict when a prose example precedes the real one', async () => {
     const fetchImpl = vi.fn().mockResolvedValue(oracleText(
       'For example a pass looks like {"correct": true, "feedback": "example only"}. ' +
@@ -189,5 +197,38 @@ describe('gradeAnswer — balanced JSON extraction + abort (PHASE-17 17A)', () =
     const result = await gradeAnswer({ question: 'q', acceptedAnswers: ['phishing'], userAnswer: 'phishing', fetchImpl });
     expect(result.source).toBe('fallback');
     expect(result.fallbackReason).toBe('boom');
+  });
+});
+
+describe('Oracle endpoint config (PHASE-18 18B / M9)', () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it('falls back without a network call when the endpoint is unset', async () => {
+    vi.stubEnv('VITE_ORACLE_ENDPOINT', '');
+    const fetchImpl = vi.fn();
+    const result = await gradeAnswer({ question: 'q', acceptedAnswers: ['phishing'], userAnswer: 'phishing', fetchImpl });
+    expect(result.source).toBe('fallback');
+    expect(result.fallbackReason).toBe('Oracle not configured');
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it('POSTs to the configured endpoint with the current model id', async () => {
+    vi.stubEnv('VITE_ORACLE_ENDPOINT', 'https://my-worker.example.dev');
+    const fetchImpl = vi.fn().mockResolvedValue({
+      ok: true, status: 200,
+      json: async () => ({ content: [{ type: 'text', text: '{"correct": true, "feedback": "ok"}' }] }),
+    });
+    await gradeAnswer({ question: 'q', expectedAnswer: 'x', userAnswer: 'x', fetchImpl });
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    expect(fetchImpl.mock.calls[0][0]).toBe('https://my-worker.example.dev');
+    const body = JSON.parse(fetchImpl.mock.calls[0][1].body);
+    expect(body.model).toBe('claude-sonnet-4-6');
+  });
+
+  it('isOracleConfigured: false for empty/whitespace/garbage, true for an http(s) URL', () => {
+    vi.stubEnv('VITE_ORACLE_ENDPOINT', '');           expect(isOracleConfigured()).toBe(false);
+    vi.stubEnv('VITE_ORACLE_ENDPOINT', '   ');         expect(isOracleConfigured()).toBe(false);
+    vi.stubEnv('VITE_ORACLE_ENDPOINT', 'not a url');   expect(isOracleConfigured()).toBe(false);
+    vi.stubEnv('VITE_ORACLE_ENDPOINT', 'https://x.dev'); expect(isOracleConfigured()).toBe(true);
   });
 });

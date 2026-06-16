@@ -8,9 +8,11 @@ import {
   SESSION_KIND,
 } from './services/sessionResume.js';
 import { SignInButton } from './components/SignInButton.jsx';
-import { consumeOAuthCallback, signOut } from './services/supabase.js';
+import { consumeOAuthCallback, signOut, warnIfBaseMismatch } from './services/supabase.js';
 import { useAuth } from './hooks/useAuth.js';
 import { MergeChooser } from './components/MergeChooser.jsx';
+import { RlsWarningBanner } from './components/RlsWarningBanner.jsx';
+import { checkRlsExposure } from './services/cloudSync.js';
 import { ProfileChip } from './components/ProfileChip.jsx';
 import { AccountPanel } from './components/AccountPanel.jsx';
 import PromptModal from './components/PromptModal.jsx';
@@ -22,7 +24,8 @@ const ExamMode = React.lazy(() => import('./components/ExamMode.jsx'));
 const DungeonExplore = React.lazy(() => import('./components/DungeonExplore.jsx'));
 import { Shield, Zap, Brain, FlaskConical, MessageSquare, Upload, Download, Trophy, Flame, Heart, Star, Target, BookOpen, ChevronRight, X, Check, RotateCcw, Sparkles, Lock, Award, TrendingUp, Clock, AlertTriangle, Skull, Crown, Eye, EyeOff, Play, Home, Settings, FileJson, Plus, Minus, ArrowLeft, Send, Loader2, HelpCircle, Calendar, Swords, Scroll, Wand2, Castle, Gem, Library, Trash2, Copy, Edit2, BookMarked, Share2, Tag, User, Hash, ChevronDown, ChevronUp, Compass, ScrollText, CheckCircle2, Gift, Coins, Package, ShoppingBag } from 'lucide-react';
 import { TUTORIAL_STEPS, snapshotBaselines, migrateTutorialIndex } from './tutorial';
-import { gradeAnswer } from './services/oracleGrader.js';
+import { gradeAnswer, getOracleEndpoint, isOracleConfigured, ORACLE_MODEL } from './services/oracleGrader.js';
+import { logError } from './services/logger.js';
 import { getAudioSettings, setMuted, setBgmVolume, setSfxVolume, armOnFirstGesture, playSfx, getDefaultAudioSettings, setAudioPersistErrorHandler } from './audio/sound.js';
 import { PETS, PET_LEVEL_XP, PET_MAX_LEVEL, petLevelFromXp, findPet } from './services/pets.js';
 import { SPELLS, findSpell } from './services/spells.js';
@@ -1055,8 +1058,9 @@ class ErrorBoundary extends React.Component {
     return { hasError: true, error };
   }
   componentDidCatch(error, info) {
+    logError('ErrorBoundary caught', error);
     // eslint-disable-next-line no-console
-    console.error('[Dungeon Scholar] ErrorBoundary caught:', error, info);
+    if (!import.meta.env.PROD) console.error(info?.componentStack);
   }
   resetError = () => {
     this.setState({ hasError: false, error: null });
@@ -1344,6 +1348,15 @@ export default function DungeonScholarApp() {
   const { user } = useAuth();
   const [playerState, setPlayerState, sync] = usePlayerState(DEFAULT_STATE, user);
   const [notification, setNotification] = useState(null);
+  // M11 (18C): after sign-in, probe whether other users' saves rows are readable
+  // (RLS off / mis-policied). Read-only, so StrictMode double-invoke is harmless.
+  const [rlsExposed, setRlsExposed] = useState(false);
+  useEffect(() => {
+    if (!user?.id) { setRlsExposed(false); return; }
+    let active = true;
+    checkRlsExposure(user.id).then((r) => { if (active && r.checked) setRlsExposed(r.exposed); }).catch(() => {});
+    return () => { active = false; };
+  }, [user?.id]);
   // Phase 33c QA P3: pending in-app confirmation (replaces window.confirm
   // which was unreliable — headless QA tools auto-dismissed it, making the
   // Trial-of-Hours abandon guard look silent). When non-null, renders an
@@ -1377,8 +1390,9 @@ export default function DungeonScholarApp() {
 
   // Consume OAuth ?code=... on mount (returns false if no callback in URL).
   useEffect(() => {
+    warnIfBaseMismatch(); // 18D / L13: one startup warning if BASE_URL can't match the served path
     consumeOAuthCallback().catch((err) => {
-      console.error('OAuth callback exchange failed:', err);
+      logError('OAuth callback exchange failed', err);
     });
   }, []);
 
@@ -3014,6 +3028,8 @@ export default function DungeonScholarApp() {
       <div aria-hidden="true" className="sr-only" data-katex-sentinel>
         <RichContent text="$x$" as="span" />
       </div>
+
+      {rlsExposed && <RlsWarningBanner onDismiss={() => setRlsExposed(false)} />}
 
       {sync.mergeRequired && (
         <MergeChooser
@@ -6138,7 +6154,7 @@ function ChatMode({ courseSet, tomeProgress, updateTomeProgress, checkAchievemen
 
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState('oracle'); // 'oracle' or 'search'
+  const [mode, setMode] = useState(isOracleConfigured() ? 'oracle' : 'search'); // 18B: default to Tome Search when no Oracle
   const [expandedSources, setExpandedSources] = useState({});
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const messagesEndRef = useRef(null);
@@ -6322,17 +6338,27 @@ ${fullKb}
       return;
     }
 
+    // M9 (18B): Oracle requested but not configured on this deployment ⇒ notice + Tome Search.
+    if (!isOracleConfigured()) {
+      const result = renderSearchResults(query);
+      updateTomeProgress((prev) => ({ chatHistory: [...(prev.chatHistory || []),
+        { role: 'system_notice', content: 'The Oracle is not configured on this deployment. Falling back to Tome Search.' },
+        result,
+      ] }));
+      return;
+    }
+
     // Oracle mode: search tome, send to AI, fall back to search on failure
     setLoading(true);
     const relevantSources = searchTome(query, 5);
 
     let fallbackReason = null;
     try {
-      const response = await fetch("https://dungeon-scholar-oracle.patrick-home-lab.workers.dev", {
+      const response = await fetch(getOracleEndpoint(), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
+          model: ORACLE_MODEL,
           max_tokens: 1000,
           system: buildSystemPrompt(relevantSources),
           messages: newMessages.filter(m => m.role === 'user' || m.role === 'assistant'),

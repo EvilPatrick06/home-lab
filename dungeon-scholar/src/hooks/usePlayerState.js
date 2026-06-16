@@ -13,6 +13,7 @@ import {
 } from '../services/persistence.js';
 import { pullSave, pushSave, upsertProfile, subscribeSaves } from '../services/cloudSync.js';
 import { applyBackfills } from '../services/backfill.js';
+import { logError } from '../services/logger.js';
 
 const LOCAL_DEBOUNCE_MS = 500;
 // Phase 37d QA round-6 suggestion: bumped cloud debounce from 500ms → 1500ms
@@ -349,7 +350,7 @@ export function usePlayerState(defaultState, user = null) {
         setCloudPreview(cloudData);
         setMergeRequired(true);
       } catch (err) {
-        console.error('Cloud pull failed:', err);
+        logError('Cloud pull failed', err);
         setStatus('offline');
       }
     })();
