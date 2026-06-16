@@ -1561,8 +1561,9 @@ class BmoAgent:
         if music:
             level = max(0, min(100, int(params.get("level", 50))))
             music.set_volume(level)
-            # Persist and broadcast so sliders stay in sync
-            from app import _save_setting, socketio
+            # Persist and broadcast so sliders stay in sync (PHASE-16 16A — settings_store)
+            from services.settings_store import save_setting as _save_setting
+            from app import socketio
             _save_setting("volume.music", level)
             socketio.emit("volume_update", {"category": "music", "level": level})
             return f"Volume set to {level}%"

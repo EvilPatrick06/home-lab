@@ -8,7 +8,11 @@ claims unless the request explicitly carries `source_voice=True` (set only by
 the voice pipeline). This test file exercises that normalizer.
 """
 
-from app import ALLOWED_CHAT_SPEAKERS, _is_voice_speaker, _normalize_chat_speaker
+from services.chat_history import (
+    ALLOWED_CHAT_SPEAKERS,
+    is_voice_speaker as _is_voice_speaker,
+    normalize_chat_speaker as _normalize_chat_speaker,
+)
 
 
 def test_text_and_system_in_allowed_enum():

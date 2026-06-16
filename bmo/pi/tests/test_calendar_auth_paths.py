@@ -1,7 +1,9 @@
 import unittest
 from unittest.mock import patch
 
-from app import (
+import os
+
+from routes.calendar_api import (
     _calendar_config_dir,
     _calendar_legacy_config_dir,
     _calendar_merge_token_data,
@@ -20,9 +22,9 @@ class CalendarPathResolutionTests(unittest.TestCase):
     def _normalize(path: str) -> str:
         return path.replace("/", "\\")
 
-    @patch("app.shutil.copy2")
-    @patch("app.os.path.exists")
-    @patch("app.os.makedirs")
+    @patch("routes.calendar_api.shutil.copy2")
+    @patch("routes.calendar_api.os.path.exists")
+    @patch("routes.calendar_api.os.makedirs")
     def test_ensure_calendar_credentials_migrates_legacy(self, _makedirs, mock_exists, mock_copy):
         local = self._as_windows(_calendar_config_dir() + "/credentials.json")
         legacy = self._as_windows(_calendar_legacy_config_dir() + "/credentials.json")
@@ -61,9 +63,9 @@ class CalendarPathResolutionTests(unittest.TestCase):
         self.assertEqual(self._as_windows(cred_path), local_credentials_win)
         self.assertEqual(self._as_windows(token_path), local_token_win)
 
-    @patch("app.shutil.copy2")
-    @patch("app.os.path.exists")
-    @patch("app.os.makedirs")
+    @patch("routes.calendar_api.shutil.copy2")
+    @patch("routes.calendar_api.os.path.exists")
+    @patch("routes.calendar_api.os.makedirs")
     def test_ensure_calendar_token_migrates_legacy(self, _makedirs, mock_exists, mock_copy):
         local = self._as_windows(_calendar_config_dir() + "/token.json")
         legacy = self._as_windows(_calendar_legacy_config_dir() + "/token.json")
@@ -85,6 +87,12 @@ class CalendarPathResolutionTests(unittest.TestCase):
         copied_from, copied_to = mock_copy.call_args[0]
         self.assertEqual(self._normalize(copied_from), legacy)
         self.assertEqual(self._normalize(copied_to), local)
+
+    def test_config_dirs_resolve_under_bmo_pi_after_relocation(self):
+        # PHASE-16 16E — calendar helpers moved to routes/calendar_api.py; the extra dirname
+        # must keep the config dir at bmo/pi/config (+ legacy bmo/config), not routes/config.
+        self.assertTrue(_calendar_config_dir().endswith(os.path.join("pi", "config")))
+        self.assertTrue(_calendar_legacy_config_dir().endswith(os.path.join("bmo", "config")))
 
     def test_calendar_merge_preserves_existing_refresh_token(self):
         merged = _calendar_merge_token_data(

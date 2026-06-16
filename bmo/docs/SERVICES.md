@@ -66,12 +66,15 @@ Service modules in `bmo/pi/services/` — business logic used by agents + Flask 
 | `build_rag_indexes.py` | Offline script to rebuild RAG indexes. |
 | `personality_engine.py` | Injects personality from `data/personality/{quips,adventure_time_quotes}.json`. |
 
-### Infrastructure (2)
+### Infrastructure (5)
 
 | Module | Purpose |
 |---|---|
 | `bmo_logging.py` | Structured logging shim over stdlib `logging` — BMO defaults via `get_logger()`. |
 | `face_state.py` | Unified BMO face state machine — single source of truth for the expression the OLED + web ambient face both render. |
+| `settings_store.py` | Dotted-key get/set on `data/settings.json`; used by app routes (system_api) + agent volume handlers (PHASE-16). |
+| `chat_history.py` | Chat persistence (recent-buffer + DnD session log) + speaker-tag normalization; used by chat/realtime blueprints + app startup (PHASE-16). |
+| `system_audio.py` | PipeWire/`wpctl` system volume + mute helpers; used by `routes/system_api.py` volume routes + `routes/music_api.py` auto-unmute (PHASE-16). |
 
 ## Ports
 

@@ -31,15 +31,16 @@ What does NOT live here:
 - **Singleton service objects** (`_terminal_mgr`, `_file_watcher`,
   `voice`, `weather`, `agent`, etc.) — those are lazy-initialized service
   handles, not "state." They live in their owning module.
-- **TV remote / Pairing remote / Bluetooth** — also singletons, in
-  `app.py` for now (will move to `routes/tv.py` when that blueprint
-  extracts).
+- **TV remote / Pairing remote / Bluetooth** — service handles
+  (`_tv_proc`, `_tv_remote`, `_tv_pairing_remote`, thread handles) live in
+  `routes/tv_api.py` (PHASE-16 16F). Only the single-value `tv_is_on` /
+  `tv_auto_skip` toggles are AppState fields here.
 - **App config** — env-var-driven constants (`MAX_CHAT_MESSAGE_LEN`,
   `BMO_API_KEY`, etc.) live next to the handlers that use them.
 
-Pairs with the planned remaining-blueprint splits — `routes/chat.py`,
-`routes/calendar.py`, etc. all import `from state import STATE` instead
-of growing back the same globals each in their own file.
+Used by the routes/ blueprint modules (`routes/chat_api.py`, `routes/tv_api.py`,
+`routes/ide.py`, …): they import `from state import STATE` instead of growing
+back the same globals each in their own file.
 """
 
 from __future__ import annotations
@@ -76,6 +77,14 @@ class AppState:
     ide_job_counter: int = 0
     current_running_job_id: Optional[str] = None
     win_proxy_sid: Optional[str] = None
+    # PHASE-16 — TTS output target ("pi" local ffplay vs "browser"); was app.py's
+    # _tts_output global (16C).
+    tts_output: str = "pi"
+    # PHASE-16 16F — TV power + auto-skip toggles (were app.py _tv_is_on / _tv_auto_skip
+    # globals). The TV process/connection HANDLES (_tv_proc, _tv_remote, …) are NOT here —
+    # they are service handles living in routes/tv_api.py.
+    tv_is_on: bool = True
+    tv_auto_skip: bool = False
 
 
 # The single canonical instance. Import as `from state import STATE`.
