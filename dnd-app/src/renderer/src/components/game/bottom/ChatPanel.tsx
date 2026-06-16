@@ -144,6 +144,9 @@ export default function ChatPanel({
   const aiPaused = useAiDmStore((s) => s.paused)
   const aiStreamingText = useAiDmStore((s) => s.streamingText)
   const aiStreamStatus = useAiDmStore((s) => s.streamStatus)
+  const aiConnectionStatus = useAiDmStore((s) => s.connectionStatus)
+  const aiLastContextTruncated = useAiDmStore((s) => s.lastContextTruncated)
+  const aiFileReadStatus = useAiDmStore((s) => s.fileReadStatus)
   const aiEnabled = useAiDmStore((s) => s.enabled)
   const aiLastError = useAiDmStore((s) => s.lastError)
   const aiClearLastError = useAiDmStore((s) => s.clearLastError)
@@ -428,7 +431,19 @@ export default function ChatPanel({
                 <span className="w-1 h-1 bg-accent rounded-full animate-bounce [animation-delay:150ms]" />
                 <span className="w-1 h-1 bg-accent rounded-full animate-bounce [animation-delay:300ms]" />
               </span>
-              {aiStreamStatus === 'loading_model' ? t('game.chatPanel.aiLoadingModel') : t('game.chatPanel.aiTyping')}
+              {/* PHASE-14 14D — file-read first (names the file, basename only; full path in title),
+                  then cold-model load, then generic typing. */}
+              {aiFileReadStatus?.status === 'reading' ? (
+                <span title={aiFileReadStatus.path}>
+                  {t('game.chatPanel.aiReadingFile', {
+                    file: aiFileReadStatus.path.split(/[\\/]/).pop() ?? aiFileReadStatus.path
+                  })}
+                </span>
+              ) : aiStreamStatus === 'loading_model' ? (
+                t('game.chatPanel.aiLoadingModel')
+              ) : (
+                t('game.chatPanel.aiTyping')
+              )}
             </div>
             {aiStreamingText && (
               <div className="text-sm text-gray-200 mt-0.5 max-h-20 overflow-hidden font-sans">
@@ -474,6 +489,8 @@ export default function ChatPanel({
           usedTokens={Math.ceil(aiMessages.reduce((sum, m) => sum + m.content.length, 0) / 4)}
           maxTokens={aiConversationBudget}
           onRecheck={aiRecheck}
+          connection={aiConnectionStatus}
+          contextTruncated={aiLastContextTruncated}
         />
       )}
 

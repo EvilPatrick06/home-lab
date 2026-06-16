@@ -891,6 +891,24 @@
       "view": "Ver",
       "empty": "(vacío)"
     },
+    "aiStatusBar": {
+      "connDegraded": "Conexión de IA inestable — reintentando",
+      "connDisconnected": "IA inaccesible — revisa el proveedor",
+      "contextTrimmed": "Contexto recortado en el último turno",
+      "contextTrimmedTitle": "La última respuesta de la IA no vio el contexto completo — se descartó historial o secciones de contexto para caber en la ventana del modelo. Abre el Inspector de Contexto en la pestaña del DM."
+    },
+    "contextInspector": {
+      "previewNote": "Vista previa — aún no se ha enviado ninguna solicitud de IA en esta sesión",
+      "window": "Ventana de contexto del modelo",
+      "windowUnknown": "desconocida",
+      "estimate": "Última solicitud (sistema + historial)",
+      "estimateNote": "Todos los recuentos son estimaciones de ~4 caracteres por token.",
+      "truncatedWarning": "Se descartaron partes del contexto — el modelo no vio todo lo siguiente.",
+      "truncatedNo": "Nada recortado en el último turno",
+      "chunks": "Fragmentos de reglas usados en el último turno ({{count}})",
+      "chunksNone": "No se recuperaron fragmentos de reglas en el último turno",
+      "chunksNote": "Identificadores de depuración — estables solo hasta que se reconstruya el índice de reglas."
+    },
     "chatPanel": {
       "dungeonMaster": "Dungeon Master",
       "speak": "Hablar",
@@ -906,6 +924,7 @@
       "send": "Enviar",
       "noMessages": "Aún no hay mensajes",
       "aiTyping": "El DM de IA está escribiendo...",
+      "aiReadingFile": "El DM de IA está leyendo {{file}}…",
       "aiLoadingModel": "Cargando modelo… (la primera respuesta puede tardar)",
       "aiError": "Error del DM de IA: {{error}}",
       "aiResponding": "El DM de IA está respondiendo",
@@ -5112,6 +5131,7 @@
       "modelSwitched": "El modelo de IA \"{{from}}\" no está instalado — se cambió a \"{{to}}\". Para usar \"{{from}}\", ejecuta: ollama pull {{from}}",
       "modelAutoSelected": "No se configuró ningún modelo de IA — usando el modelo instalado \"{{to}}\".",
       "aiDmError": "DM de IA: {{error}}",
+      "contextTruncated": "El contexto de la IA fue recortado — el modelo no vio todo el contexto en este turno. Consulta el Inspector de Contexto en la pestaña del DM.",
       "approvedActionFailed": "La acción de IA aprobada falló: {{action}} — {{reason}}",
       "rulingQueued": "Nueva decisión de la IA en cola — {{count}} pendientes de revisión",
       "webSearchAutoRejected": "La búsqueda web \"{{query}}\" se rechazó automáticamente (sin decisión en 30 s).",

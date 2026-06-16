@@ -98,6 +98,10 @@ interface AiDmState {
   // Rule citations from last response
   lastRuleCitations: AiRuleCitation[]
 
+  // PHASE-14 14C — context-truncation state of the most recent completed turn (DM alerting).
+  lastContextTruncated: boolean
+  lastTokenEstimate: number | null
+
   // Scene preparation
   sceneStatus: 'idle' | 'preparing' | 'ready' | 'error'
   // S-2 — the reason scene prep failed (e.g. Ollama unreachable / model missing),
@@ -120,6 +124,10 @@ interface AiDmState {
   // touch isTyping, but each 'loading_model' heartbeat DOES reset the inactivity safety
   // backstop (rearmSafetyTimeout) so a valid-but-slow prefill isn't wrongly cancelled.
   streamStatus: 'loading_model' | null
+
+  // PHASE-14 14B — live AI provider connection health (global, NOT per-stream). null = unknown
+  // (pre-seed). Describes the provider link, so it is NOT cleared on reset()/initFromCampaign().
+  connectionStatus: 'connected' | 'degraded' | 'disconnected' | null
 
   // Stat mutation approval
   pendingMutations: PendingMutationSet[]
@@ -254,10 +262,13 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
     lastStatChanges: [],
     lastDmActions: [],
     lastRuleCitations: [],
+    lastContextTruncated: false,
+    lastTokenEstimate: null,
     fileReadStatus: null,
     webSearchStatus: null,
     webSearchDecided: false,
     streamStatus: null,
+    connectionStatus: null,
     pendingMutations: [],
     autoApproveAiMutations: false,
     queuedMessages: [],
@@ -417,7 +428,9 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
           queuedMessages: [],
           enabled: false,
           webSearchStatus: null,
-          fileReadStatus: null
+          fileReadStatus: null,
+          lastContextTruncated: false,
+          lastTokenEstimate: null
         })
         return
       }
@@ -439,6 +452,8 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
         lastStatChanges: [],
         lastDmActions: [],
         lastRuleCitations: [],
+        lastContextTruncated: false,
+        lastTokenEstimate: null,
         lastError: null
         // sceneStatus NOT reset — preserved from lobby
       })
@@ -659,6 +674,8 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
         lastStatChanges: [],
         lastDmActions: [],
         lastRuleCitations: [],
+        lastContextTruncated: false,
+        lastTokenEstimate: null,
         lastError: null
       })
     },
@@ -709,12 +726,22 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
         statChanges: AiStatChange[]
         dmActions: AiDmAction[]
         ruleCitations?: AiRuleCitation[]
+        contextTruncated?: boolean
+        tokenEstimate?: number
       }): void => {
         const state = get()
         if (data.streamId === state.activeStreamId) {
           // Clear the safety timeout since stream completed successfully
           if (state.safetyTimeoutId) {
             clearTimeout(state.safetyTimeoutId)
+          }
+
+          // PHASE-14 14C — rising-edge truncation alert: a campaign permanently over budget
+          // alerts ONCE (entering the truncated state), not every turn; the persistent chip
+          // carries the ongoing signal.
+          const truncated = data.contextTruncated ?? false
+          if (truncated && !state.lastContextTruncated) {
+            pushDmAlert('warning', i18n.t('notify.aiDmStore.contextTruncated'))
           }
 
           const dmActions = data.dmActions ?? []
@@ -744,6 +771,8 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
             lastStatChanges: data.statChanges,
             lastDmActions: dmActions,
             lastRuleCitations: ruleCitations,
+            lastContextTruncated: truncated,
+            lastTokenEstimate: data.tokenEstimate ?? null,
             messages: [...state.messages, newMessage]
           })
           // The current reply finished — answer the next queued player message (FIFO). (05F)
@@ -802,7 +831,17 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
         })
       }
 
-      // Collect per-listener unsubscribes (05A) so cleanup removes ONLY the six listeners
+      // PHASE-14 14B — connection health is global (no streamId gate). Seed the current value
+      // so the badge isn't blank until the first transition event.
+      const handleConnectionStatus = (data: { status: string; consecutiveFailures: number }): void => {
+        set({ connectionStatus: data.status as AiDmState['connectionStatus'] })
+      }
+      void window.api.ai
+        .getConnectionStatus()
+        .then((r) => set({ connectionStatus: r.status }))
+        .catch(() => {})
+
+      // Collect per-listener unsubscribes (05A) so cleanup removes ONLY the listeners
       // this call registered — never the global nuke, which would deafen any other consumer
       // and (because the old effect ran cleanup on every campaign-identity change) leave the
       // renderer permanently deaf (F1). Per-listener removal makes re-registration safe (05C).
@@ -812,7 +851,8 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
         window.api.ai.onStreamError(handleError),
         window.api.ai.onStreamFileRead(handleFileRead),
         window.api.ai.onStreamWebSearch(handleWebSearch),
-        window.api.ai.onStreamStatus(handleStreamStatus)
+        window.api.ai.onStreamStatus(handleStreamStatus),
+        window.api.ai.onConnectionStatus(handleConnectionStatus)
       ]
 
       return () => {

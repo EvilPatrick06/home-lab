@@ -222,6 +222,7 @@ vi.mock('./web-search', () => ({
 
 import { existsSync, readFileSync } from 'node:fs'
 import { rename, writeFile } from 'node:fs/promises'
+import { BrowserWindow } from 'electron'
 import {
   cancelChat,
   cancelScenePrep,
@@ -832,6 +833,45 @@ describe('ai-service', () => {
         // Retrying a prefill timeout just re-runs prefill — wasteful and hopeless.
         expect(attempts).toBe(1)
         expect(terminalError).toHaveBeenCalledWith('Ollama timed out (no first token within 300s)')
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('PHASE-14 14A: pushes connection-status transitions (degraded → disconnected → connected), gated', async () => {
+      vi.useFakeTimers()
+      const send = vi.fn()
+      vi.mocked(BrowserWindow.getAllWindows).mockReturnValue([{ webContents: { send } }] as never)
+      const statusOf = (channel: string) =>
+        send.mock.calls
+          .filter((c) => c[0] === channel)
+          .map((c) => c[1] as { status: string; consecutiveFailures: number })
+      const CHANGED = 'ai:connection-status-changed'
+      try {
+        // Normalize module state: a success forces consecutiveFailures=0 + lastEmitted='connected'.
+        await streamWithRetry(async () => {}, new AbortController(), vi.fn())
+        send.mockClear()
+
+        // 3 consecutive non-timeout failures in ONE call → degraded (1st) then disconnected (3rd).
+        const p = streamWithRetry(
+          async () => {
+            throw new Error('boom')
+          },
+          new AbortController(),
+          vi.fn()
+        )
+        await vi.runAllTimersAsync()
+        await p
+        const fail = statusOf(CHANGED)
+        expect(fail.map((e) => e.status)).toEqual(['degraded', 'disconnected'])
+        expect(fail[0]).toMatchObject({ status: 'degraded', consecutiveFailures: 1 })
+        expect(fail[1]).toMatchObject({ status: 'disconnected', consecutiveFailures: 3 })
+
+        // A success → one 'connected' event; a second success → no further event (transition-gated).
+        send.mockClear()
+        await streamWithRetry(async () => {}, new AbortController(), vi.fn())
+        await streamWithRetry(async () => {}, new AbortController(), vi.fn())
+        expect(statusOf(CHANGED).map((e) => e.status)).toEqual(['connected'])
       } finally {
         vi.useRealTimers()
       }

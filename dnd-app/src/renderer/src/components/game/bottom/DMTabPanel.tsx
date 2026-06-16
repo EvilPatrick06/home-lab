@@ -1,5 +1,5 @@
 import dmTabsJson from '@data/ui/dm-tabs.json'
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { AI_PROVIDER_LABELS } from '../../../constants'
 import { useT } from '../../../i18n'
 import { load5eDmTabs } from '../../../services/data-provider'
@@ -10,6 +10,7 @@ import type { Campaign } from '../../../types/campaign'
 const DMAudioPanel = lazy(() => import('./DMAudioPanel'))
 const DMToolsTabContent = lazy(() => import('./DMToolsTabContent'))
 const AiContextPanel = lazy(() => import('./AiContextPanel'))
+const ContextInspectorPanel = lazy(() => import('./ContextInspectorPanel'))
 const CombatLogPanel = lazy(() => import('../sidebar/CombatLogPanel'))
 const JournalPanel = lazy(() => import('../sidebar/JournalPanel'))
 
@@ -59,56 +60,8 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
   const narrationTtsEnabled = useNarrationTtsStore((s) => s.enabled)
   const setNarrationTtsEnabled = useNarrationTtsStore((s) => s.setEnabled)
 
-  // Token budget state (for AI DM tab)
-  const [tokenBudget, setTokenBudget] = useState<{
-    rulebookChunks: number
-    srdData: number
-    characterData: number
-    campaignData: number
-    creatures: number
-    gameState: number
-    memory: number
-    total: number
-  } | null>(null)
-  const [showTokenDetail, setShowTokenDetail] = useState(false)
-
-  const refreshTokenBudget = useCallback(async () => {
-    try {
-      // First try to get the cached breakdown from THIS campaign's last live build (07A)
-      const data = await window.api.ai.getTokenBudget(campaign.id)
-      if (data && data.total > 0) {
-        setTokenBudget(data)
-        return
-      }
-
-      // No breakdown yet (no chat sent) — run a preview build so the user
-      // can see realistic token counts for characters, campaign, SRD, etc.
-      const characterIds = campaign.players.map((p) => p.characterId).filter((id): id is string => id !== null)
-      const preview = await window.api.ai.previewTokenBudget(campaign.id, characterIds)
-      if (preview) {
-        setTokenBudget(preview)
-      }
-    } catch {
-      // Non-fatal
-    }
-  }, [campaign.id, campaign.players])
-
-  // Refresh token budget when switching to AI DM tab
-  useEffect(() => {
-    if (activeTab === 'aidm' && aiEnabled) {
-      refreshTokenBudget()
-    }
-  }, [activeTab, aiEnabled, refreshTokenBudget])
-
-  // Auto-refresh token budget after AI stream completes
-  const wasTypingRef = useRef(false)
-  useEffect(() => {
-    if (wasTypingRef.current && !aiIsTyping && activeTab === 'aidm') {
-      // Stream just finished — refresh the token budget
-      refreshTokenBudget()
-    }
-    wasTypingRef.current = aiIsTyping
-  }, [aiIsTyping, activeTab, refreshTokenBudget])
+  // PHASE-14 14E — the token-budget block moved to ContextInspectorPanel (lazy-mounted below);
+  // it owns its own refresh-on-mount + refresh-on-stream-end effects now.
 
   function renderTabContent(): JSX.Element {
     switch (activeTab) {
@@ -239,41 +192,16 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
                   {t('game.dmTabPanel.speakNarration')}{' '}
                   {narrationTtsEnabled ? t('game.dmTabPanel.on') : t('game.dmTabPanel.off')}
                 </button>
-                <button
-                  className={btnClass}
-                  onClick={() => {
-                    refreshTokenBudget()
-                    setShowTokenDetail((t) => !t)
-                  }}
+                <Suspense
+                  fallback={
+                    <div className="text-xs text-gray-500 w-full">{t('game.dmTabPanel.loadingContextPanel')}</div>
+                  }
                 >
-                  {t('game.dmTabPanel.tokenBudget')}{' '}
-                  {tokenBudget ? t('game.dmTabPanel.tokenCount', { count: tokenBudget.total.toLocaleString() }) : ''}
-                </button>
-
-                {showTokenDetail && tokenBudget && (
-                  <div className="w-full bg-surface/60 border border-border/40 rounded-lg px-3 py-2 space-y-0.5">
-                    {(
-                      [
-                        [t('game.dmTabPanel.budgetRulebook'), tokenBudget.rulebookChunks],
-                        [t('game.dmTabPanel.budgetSrdData'), tokenBudget.srdData],
-                        [t('game.dmTabPanel.budgetCharacters'), tokenBudget.characterData],
-                        [t('game.dmTabPanel.budgetCampaign'), tokenBudget.campaignData],
-                        [t('game.dmTabPanel.budgetCreatures'), tokenBudget.creatures],
-                        [t('game.dmTabPanel.budgetGameState'), tokenBudget.gameState],
-                        [t('game.dmTabPanel.budgetMemory'), tokenBudget.memory]
-                      ] as const
-                    ).map(([label, val]) => (
-                      <div key={label} className="flex justify-between text-xs">
-                        <span className="text-gray-500">{label}</span>
-                        <span className="text-muted">{val.toLocaleString()}</span>
-                      </div>
-                    ))}
-                    <div className="flex justify-between text-xs border-t border-border pt-0.5 mt-0.5">
-                      <span className="text-purple-400 font-semibold">{t('game.dmTabPanel.totalContext')}</span>
-                      <span className="text-purple-400 font-semibold">{tokenBudget.total.toLocaleString()}</span>
-                    </div>
-                  </div>
-                )}
+                  <ContextInspectorPanel
+                    campaignId={campaign.id}
+                    characterIds={campaign.players.map((p) => p.characterId).filter((id): id is string => id !== null)}
+                  />
+                </Suspense>
 
                 <Suspense
                   fallback={

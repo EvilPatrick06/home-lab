@@ -223,6 +223,27 @@ export function getConsecutiveFailures(): number {
   return consecutiveFailures
 }
 
+// PHASE-14 14A — push the derived connection status to the renderer on transition only,
+// so the badge needs no polling and steady state generates no traffic.
+let lastEmittedConnectionStatus: AiConnectionStatus = 'connected'
+
+/** Broadcast AI_CONNECTION_STATUS_CHANGED when the derived status transitions. */
+function notifyConnectionStatusChanged(): void {
+  const status = getConnectionStatus()
+  if (status === lastEmittedConnectionStatus) return
+  lastEmittedConnectionStatus = status
+  try {
+    for (const win of BrowserWindow.getAllWindows()) {
+      win.webContents.send(IPC_CHANNELS.AI_CONNECTION_STATUS_CHANGED, {
+        status,
+        consecutiveFailures: getConsecutiveFailures()
+      })
+    }
+  } catch {
+    // Non-fatal: status push is best-effort observability (e.g. windows gone during shutdown).
+  }
+}
+
 function getRetryDelay(attempt: number): number {
   // Exponential backoff: 1s, 2s, 4s, 8s, ... capped at 30s
   return Math.min(1000 * 2 ** attempt, MAX_RETRY_DELAY_MS)
@@ -243,9 +264,11 @@ export async function streamWithRetry(
     try {
       await streamFn(abortController.signal)
       consecutiveFailures = 0 // Success resets counter
+      notifyConnectionStatusChanged()
       return
     } catch (error) {
       consecutiveFailures++
+      notifyConnectionStatusChanged()
       const msg = error instanceof Error ? error.message : String(error)
 
       // Don't retry on abort
@@ -956,6 +979,17 @@ async function handleStreamCompletion(
       conv.addMessage('assistant', strippedText)
       conv.addMessage('user', fileContent)
 
+      // PHASE-14 14D — terminal event so the "Reading file…" indicator reverts the moment the
+      // read finishes, instead of persisting through the whole post-read restream. (Store
+      // clearing on cancel/done/etc. stays PHASE-04's; this is an emit, not store clearing.)
+      if (win) {
+        win.webContents.send(IPC_CHANNELS.AI_STREAM_FILE_READ, {
+          streamId,
+          path: fileReq.path,
+          status: 'done'
+        })
+      }
+
       await restreamConversation()
       return
     }
@@ -1198,6 +1232,21 @@ export function wasContextTruncated(campaignId: string): boolean {
 export function getLastTokenEstimate(campaignId: string): number {
   const conv = conversations.get(campaignId)
   return conv?.lastTokenEstimate ?? 0
+}
+
+/**
+ * PHASE-14 14E — chunk ids attached to the most recent assistant message (RAG provenance for
+ * the context inspector; read-only). Uses `conversations.get` (NOT getConversation) so a read
+ * never instantiates a manager (PHASE-07 CQS rule).
+ */
+export function getLastAssistantContextChunkIds(campaignId: string): string[] {
+  const conv = conversations.get(campaignId)
+  if (!conv) return []
+  const msgs = conv.getMessages()
+  for (let i = msgs.length - 1; i >= 0; i--) {
+    if (msgs[i].role === 'assistant') return msgs[i].contextChunkIds ?? []
+  }
+  return []
 }
 
 // Re-export mutation functions

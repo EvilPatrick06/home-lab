@@ -119,8 +119,12 @@ export const IPC_CHANNELS = {
 
   // === AI DM: Connection Status ===
   AI_CONNECTION_STATUS: 'ai:connection-status',
+  // PHASE-14 14A — pushed (main→renderer) whenever the derived status transitions.
+  AI_CONNECTION_STATUS_CHANGED: 'ai:connection-status-changed',
   AI_TOKEN_BUDGET: 'ai:token-budget',
   AI_TOKEN_BUDGET_PREVIEW: 'ai:token-budget-preview',
+  // PHASE-14 14E — richer per-campaign context snapshot for the Context Inspector panel.
+  AI_GET_CONTEXT_INSPECTOR: 'ai:get-context-inspector',
   AI_GET_TOKEN_METER: 'ai:get-token-meter',
   AI_GENERATE_END_OF_SESSION_RECAP: 'ai:generate-end-of-session-recap',
 

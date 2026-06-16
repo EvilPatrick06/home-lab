@@ -69,7 +69,6 @@ import { handle, withArgsSchema } from './_safe'
 // Ensure imported types are used for type-safety
 type _ValidatedAiChatRequest = ValidatedAiChatRequest
 type _ValidatedAiConfig = ValidatedAiConfig
-type _AiConnectionStatus = AiConnectionStatus
 type _StreamResult = StreamResult
 type _DmAction = DmAction
 type _CuratedModel = CuratedModel
@@ -237,7 +236,11 @@ export function registerAiHandlers(): void {
           displayText,
           statChanges,
           dmActions,
-          ruleCitations
+          ruleCitations,
+          // PHASE-14 14C — surface the truncation/estimate the manager already computed for this
+          // campaign's final getMessagesForApi assembly (read-only getters; restreams re-set them).
+          contextTruncated: aiService.wasContextTruncated(parsed.data.campaignId),
+          tokenEstimate: aiService.getLastTokenEstimate(parsed.data.campaignId)
         })
       },
       // onError
@@ -334,11 +337,33 @@ export function registerAiHandlers(): void {
     }
   })
 
-  // Phase 17d (NET-17) — AI_CONNECTION_STATUS handler removed: no preload/renderer caller exists.
-  // Re-add with a preload entry if a consumer is ever introduced.
+  // PHASE-14 14A — connection-status invoke (the "consumer introduced" the Phase 17d removal
+  // comment anticipated). Seeds the renderer badge; transitions arrive via AI_CONNECTION_STATUS_CHANGED.
+  handle(
+    IPC_CHANNELS.AI_CONNECTION_STATUS,
+    async (): Promise<{ status: AiConnectionStatus; consecutiveFailures: number }> => ({
+      status: aiService.getConnectionStatus(),
+      consecutiveFailures: aiService.getConsecutiveFailures()
+    })
+  )
 
   handle(IPC_CHANNELS.AI_TOKEN_BUDGET, async (_event, campaignId?: string) => {
     return getLastTokenBreakdown(typeof campaignId === 'string' ? campaignId : undefined)
+  })
+
+  // PHASE-14 14E — composed context snapshot for the DM Context Inspector: per-section tokens of
+  // the last LIVE build (null if none yet), truthful truncation flag + last token estimate, the
+  // active context window + conversation budget, and the last assistant turn's chunk-id provenance.
+  handle(IPC_CHANNELS.AI_GET_CONTEXT_INSPECTOR, async (_event, campaignId: string) => {
+    sanitizeCampaignId(campaignId) // path-traversal guard from day one (PHASE-14 dep note vs PHASE-13)
+    return {
+      breakdown: getLastTokenBreakdown(campaignId),
+      contextTruncated: aiService.wasContextTruncated(campaignId),
+      lastTokenEstimate: aiService.getLastTokenEstimate(campaignId),
+      contextWindow: getActiveContextWindow(),
+      conversationBudget: getEffectiveBudgets().conversationHistory,
+      chunkIds: aiService.getLastAssistantContextChunkIds(campaignId)
+    }
   })
 
   // PHASE-10 10C — the chat token meter's max. `conversationBudget` is the slice of the

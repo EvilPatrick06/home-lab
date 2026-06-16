@@ -4,6 +4,8 @@ import { i18n } from '../i18n'
 
 // Capture the listener callbacks setupListeners registers so tests can drive events.
 const aiHandlers: Record<string, (data: unknown) => void> = {}
+// PHASE-14 14B — captured unsubscribe for the connection-status listener (cleanup assertion).
+const connUnsub = vi.fn()
 
 vi.stubGlobal('window', {
   dispatchEvent: vi.fn(),
@@ -41,6 +43,11 @@ vi.stubGlobal('window', {
         aiHandlers.status = cb
         return vi.fn()
       }),
+      onConnectionStatus: vi.fn((cb: (d: unknown) => void) => {
+        aiHandlers.connection = cb
+        return connUnsub
+      }),
+      getConnectionStatus: vi.fn().mockResolvedValue({ status: 'connected', consecutiveFailures: 0 }),
       removeAllAiListeners: vi.fn()
     }
   }
@@ -52,6 +59,10 @@ vi.mock('../services/game-action-executor', () => ({
   executeDmActions: vi.fn(() => ({ executed: [], failed: [] }))
 }))
 
+// PHASE-14 14C — spy on the DM alert sink so the rising-edge truncation alert is assertable.
+vi.mock('../components/game/overlays/DmAlertTray', () => ({ pushDmAlert: vi.fn() }))
+
+import { pushDmAlert } from '../components/game/overlays/DmAlertTray'
 import { executeDmActions } from '../services/game-action-executor'
 import { useAiDmStore } from './use-ai-dm-store'
 
@@ -190,6 +201,37 @@ describe('useAiDmStore', () => {
       } finally {
         vi.useRealTimers()
       }
+    })
+  })
+
+  describe('connection status (PHASE-14 14B)', () => {
+    afterEach(() => {
+      connUnsub.mockClear()
+      useAiDmStore.setState({ connectionStatus: null })
+    })
+
+    it('sets connectionStatus from an onConnectionStatus event (no streamId gate)', () => {
+      const cleanupListeners = useAiDmStore.getState().setupListeners()
+      aiHandlers.connection?.({ status: 'degraded', consecutiveFailures: 1 })
+      expect(useAiDmStore.getState().connectionStatus).toBe('degraded')
+      aiHandlers.connection?.({ status: 'disconnected', consecutiveFailures: 3 })
+      expect(useAiDmStore.getState().connectionStatus).toBe('disconnected')
+      cleanupListeners()
+    })
+
+    it('cleanup unsubscribes the connection listener', () => {
+      const cleanupListeners = useAiDmStore.getState().setupListeners()
+      expect(connUnsub).not.toHaveBeenCalled()
+      cleanupListeners()
+      expect(connUnsub).toHaveBeenCalledTimes(1)
+    })
+
+    it('seeds connectionStatus from getConnectionStatus on setup', async () => {
+      const cleanupListeners = useAiDmStore.getState().setupListeners()
+      await Promise.resolve()
+      await Promise.resolve()
+      expect(useAiDmStore.getState().connectionStatus).toBe('connected')
+      cleanupListeners()
     })
   })
 
@@ -403,6 +445,40 @@ describe('useAiDmStore', () => {
       seedStatuses('sid-r')
       useAiDmStore.getState().reset()
       expectCleared()
+    })
+
+    it('PHASE-14 14C: truncated turn fires ONE rising-edge alert + sets state, clean turn clears', () => {
+      vi.mocked(pushDmAlert).mockClear()
+      const cleanupListeners = useAiDmStore.getState().setupListeners()
+      useAiDmStore.setState({ activeStreamId: 'sid-tr', lastContextTruncated: false })
+      const done = (truncated: boolean, est: number): void => {
+        useAiDmStore.setState({ activeStreamId: 'sid-tr' })
+        aiHandlers.done?.({
+          streamId: 'sid-tr',
+          fullText: 'x',
+          displayText: 'x',
+          statChanges: [],
+          dmActions: [],
+          ruleCitations: [],
+          contextTruncated: truncated,
+          tokenEstimate: est
+        })
+      }
+      done(true, 1234)
+      expect(useAiDmStore.getState().lastContextTruncated).toBe(true)
+      expect(useAiDmStore.getState().lastTokenEstimate).toBe(1234)
+      expect(pushDmAlert).toHaveBeenCalledTimes(1)
+      // Still truncated next turn → no second alert (rising-edge only).
+      done(true, 1300)
+      expect(pushDmAlert).toHaveBeenCalledTimes(1)
+      // A clean turn clears the flag.
+      done(false, 800)
+      expect(useAiDmStore.getState().lastContextTruncated).toBe(false)
+      // reset() clears both fields.
+      useAiDmStore.getState().reset()
+      expect(useAiDmStore.getState().lastContextTruncated).toBe(false)
+      expect(useAiDmStore.getState().lastTokenEstimate).toBeNull()
+      cleanupListeners()
     })
 
     it('clearWebSearchStatus nulls just the web-search status', () => {

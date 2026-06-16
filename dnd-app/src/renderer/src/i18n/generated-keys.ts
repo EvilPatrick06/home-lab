@@ -3,7 +3,7 @@
  * Run `npm run i18n:gen-keys` (scripts/i18n/gen-key-union.mjs) to regenerate
  * after changing en.json. Source: src/renderer/src/i18n/locales/en.json.
  *
- * A literal union of every dotted leaf key in en.json (6080 keys),
+ * A literal union of every dotted leaf key in en.json (6096 keys),
  * so `t()` calls are checked at compile time instead of silently rendering a
  * raw key string when a key is typo'd or missing.
  */
@@ -885,6 +885,10 @@ export type TranslationKey =
   | 'game.aiMapAnalysisModal.tokenCount'
   | 'game.aiMapAnalysisModal.tokenCount_one'
   | 'game.aiMapAnalysisModal.tokenCount_other'
+  | 'game.aiStatusBar.connDegraded'
+  | 'game.aiStatusBar.connDisconnected'
+  | 'game.aiStatusBar.contextTrimmed'
+  | 'game.aiStatusBar.contextTrimmedTitle'
   | 'game.aoeDismissButton.clear'
   | 'game.aoeTemplateModal.affectedCells'
   | 'game.aoeTemplateModal.direction'
@@ -1049,6 +1053,7 @@ export type TranslationKey =
   | 'game.chatPanel.aiNoModel'
   | 'game.chatPanel.aiPaused'
   | 'game.chatPanel.aiProviderUnavailable'
+  | 'game.chatPanel.aiReadingFile'
   | 'game.chatPanel.aiReady'
   | 'game.chatPanel.aiRecheckTitle'
   | 'game.chatPanel.aiResponding'
@@ -1176,6 +1181,16 @@ export type TranslationKey =
   | 'game.conditionTracker.roundsRemaining'
   | 'game.conditionTracker.roundsRemaining_one'
   | 'game.conditionTracker.roundsRemaining_other'
+  | 'game.contextInspector.chunks'
+  | 'game.contextInspector.chunksNone'
+  | 'game.contextInspector.chunksNote'
+  | 'game.contextInspector.estimate'
+  | 'game.contextInspector.estimateNote'
+  | 'game.contextInspector.previewNote'
+  | 'game.contextInspector.truncatedNo'
+  | 'game.contextInspector.truncatedWarning'
+  | 'game.contextInspector.window'
+  | 'game.contextInspector.windowUnknown'
   | 'game.counterspellReactionPrompt.autoSuccess'
   | 'game.counterspellReactionPrompt.castCounterspell'
   | 'game.counterspellReactionPrompt.countdown'
@@ -4337,6 +4352,7 @@ export type TranslationKey =
   | 'lobby.usernamePrompt.title'
   | 'notify.aiDmStore.aiDmError'
   | 'notify.aiDmStore.approvedActionFailed'
+  | 'notify.aiDmStore.contextTruncated'
   | 'notify.aiDmStore.creatureMutationFailed'
   | 'notify.aiDmStore.creatureMutationsNoMap'
   | 'notify.aiDmStore.dmOverrideRejected'

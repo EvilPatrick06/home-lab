@@ -73,3 +73,34 @@ describe('AiDmStatusBar precedence (PHASE-10 10B)', () => {
     expect(meter.className).toContain('text-amber-500')
   })
 })
+
+describe('AiDmStatusBar connection chip (PHASE-14 14B)', () => {
+  it('renders the degraded label inside a status region', () => {
+    render(<AiDmStatusBar {...defaults({ connection: 'degraded' })} />)
+    const chip = screen.getByText(/AI connection unstable/)
+    expect(chip).toBeTruthy()
+    expect(chip.closest('[role="status"]')).toBeTruthy()
+  })
+
+  it('renders the disconnected label', () => {
+    render(<AiDmStatusBar {...defaults({ connection: 'disconnected' })} />)
+    expect(screen.getByText(/AI unreachable/)).toBeTruthy()
+  })
+
+  it('renders no connection chip when connected/null', () => {
+    render(<AiDmStatusBar {...defaults({ connection: 'connected' })} />)
+    expect(screen.queryByText(/AI connection unstable|AI unreachable/)).toBeNull()
+  })
+})
+
+describe('AiDmStatusBar context-trimmed chip (PHASE-14 14C)', () => {
+  it('renders the trimmed chip when contextTruncated', () => {
+    render(<AiDmStatusBar {...defaults({ contextTruncated: true })} />)
+    expect(screen.getByText(/Context trimmed last turn/)).toBeTruthy()
+  })
+
+  it('renders no trimmed chip by default', () => {
+    render(<AiDmStatusBar {...defaults({ contextTruncated: false })} />)
+    expect(screen.queryByText(/Context trimmed last turn/)).toBeNull()
+  })
+})

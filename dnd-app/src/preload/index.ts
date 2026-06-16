@@ -119,6 +119,8 @@ const api = {
     updateOllama: () => ipcRenderer.invoke(IPC_CHANNELS.AI_OLLAMA_UPDATE),
     deleteModel: (model: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_DELETE_MODEL, model),
     getTokenBudget: (campaignId?: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_TOKEN_BUDGET, campaignId),
+    getContextInspector: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_GET_CONTEXT_INSPECTOR, campaignId),
+    getConnectionStatus: () => ipcRenderer.invoke(IPC_CHANNELS.AI_CONNECTION_STATUS),
     getTokenMeter: () => ipcRenderer.invoke(IPC_CHANNELS.AI_GET_TOKEN_METER),
     previewTokenBudget: (campaignId: string, characterIds: string[]) =>
       ipcRenderer.invoke(IPC_CHANNELS.AI_TOKEN_BUDGET_PREVIEW, campaignId, characterIds),
@@ -250,6 +252,11 @@ const api = {
       ipcRenderer.on(IPC_CHANNELS.AI_STREAM_STATUS, listener)
       return () => ipcRenderer.removeListener(IPC_CHANNELS.AI_STREAM_STATUS, listener)
     },
+    onConnectionStatus: (cb: (data: { status: string; consecutiveFailures: number }) => void) => {
+      const listener = (_e: IpcRendererEvent, data: { status: string; consecutiveFailures: number }): void => cb(data)
+      ipcRenderer.on(IPC_CHANNELS.AI_CONNECTION_STATUS_CHANGED, listener)
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.AI_CONNECTION_STATUS_CHANGED, listener)
+    },
     approveWebSearch: (streamId: string, approved: boolean) =>
       ipcRenderer.invoke(IPC_CHANNELS.AI_WEB_SEARCH_APPROVE, streamId, approved),
     removeAllAiListeners: () => {
@@ -261,6 +268,7 @@ const api = {
       ipcRenderer.removeAllListeners(IPC_CHANNELS.AI_STREAM_FILE_READ)
       ipcRenderer.removeAllListeners(IPC_CHANNELS.AI_STREAM_WEB_SEARCH)
       ipcRenderer.removeAllListeners(IPC_CHANNELS.AI_STREAM_STATUS)
+      ipcRenderer.removeAllListeners(IPC_CHANNELS.AI_CONNECTION_STATUS_CHANGED)
     }
   },
 

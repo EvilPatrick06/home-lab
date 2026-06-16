@@ -891,6 +891,24 @@
       "view": "View",
       "empty": "(empty)"
     },
+    "aiStatusBar": {
+      "connDegraded": "AI connection unstable — retrying",
+      "connDisconnected": "AI unreachable — check the provider",
+      "contextTrimmed": "Context trimmed last turn",
+      "contextTrimmedTitle": "The last AI reply did not see the full context — older history or context sections were dropped to fit the model's window. Open the Context Inspector in the DM tab for the breakdown."
+    },
+    "contextInspector": {
+      "previewNote": "Preview — no AI request sent yet this session",
+      "window": "Model context window",
+      "windowUnknown": "unknown",
+      "estimate": "Last request (system + history)",
+      "estimateNote": "All counts are ~4-chars-per-token estimates.",
+      "truncatedWarning": "Parts of the context were dropped to fit — the model did not see everything below.",
+      "truncatedNo": "Nothing trimmed last turn",
+      "chunks": "Rules chunks used last turn ({{count}})",
+      "chunksNone": "No rules chunks retrieved last turn",
+      "chunksNote": "Debug identifiers — stable only until the rules index is rebuilt."
+    },
     "chatPanel": {
       "dungeonMaster": "Dungeon Master",
       "speak": "Speak",
@@ -906,6 +924,7 @@
       "send": "Send",
       "noMessages": "No messages yet",
       "aiTyping": "AI DM is typing...",
+      "aiReadingFile": "AI DM is reading {{file}}…",
       "aiLoadingModel": "Loading model… (first response can take a while)",
       "aiError": "AI DM error: {{error}}",
       "aiResponding": "AI DM responding",
@@ -5112,6 +5131,7 @@
       "modelSwitched": "AI model \"{{from}}\" isn't installed — switched to \"{{to}}\". To use \"{{from}}\", run: ollama pull {{from}}",
       "modelAutoSelected": "No AI model was set — using installed model \"{{to}}\".",
       "aiDmError": "AI DM: {{error}}",
+      "contextTruncated": "AI context was trimmed — the model did not see the full conversation/context this turn. See the DM tab's Context Inspector.",
       "approvedActionFailed": "Approved AI action failed: {{action}} — {{reason}}",
       "rulingQueued": "New AI ruling queued — {{count}} awaiting review",
       "webSearchAutoRejected": "Web search \"{{query}}\" was auto-rejected (no decision within 30s).",

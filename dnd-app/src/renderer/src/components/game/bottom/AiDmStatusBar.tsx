@@ -11,6 +11,10 @@ interface AiDmStatusBarProps {
   /** Conversation-history budget from the live token meter (PHASE-10 10C); null = unavailable. */
   maxTokens: number | null
   onRecheck: () => void
+  /** PHASE-14 14B — provider connection health. Only degraded/disconnected render a chip. */
+  connection?: 'connected' | 'degraded' | 'disconnected' | null
+  /** PHASE-14 14C — the last completed turn's context was trimmed to fit the window. */
+  contextTruncated?: boolean
 }
 
 /**
@@ -27,7 +31,9 @@ export function AiDmStatusBar({
   provider,
   usedTokens,
   maxTokens,
-  onRecheck
+  onRecheck,
+  connection,
+  contextTruncated
 }: AiDmStatusBarProps): JSX.Element {
   const { t } = useT()
 
@@ -70,6 +76,30 @@ export function AiDmStatusBar({
         <span className={`w-1.5 h-1.5 rounded-full ${dotClass}`} />
         <span className="text-gray-500">{label}</span>
       </button>
+
+      {/* PHASE-14 14B/14C — health chips. role=status announces transitions politely. Shape+
+          border+color+label together (never color alone). Only renders when something is wrong. */}
+      <span role="status" className="flex items-center gap-1.5">
+        {connection === 'degraded' && (
+          <span className="px-1.5 py-0.5 rounded border border-amber-500/60 text-amber-400 leading-none">
+            ▲ {t('game.aiStatusBar.connDegraded')}
+          </span>
+        )}
+        {connection === 'disconnected' && (
+          <span className="px-1.5 py-0.5 rounded border border-red-500/60 text-red-400 leading-none">
+            ■ {t('game.aiStatusBar.connDisconnected')}
+          </span>
+        )}
+        {contextTruncated && (
+          <span
+            className="px-1.5 py-0.5 rounded border border-amber-500/60 text-amber-400 leading-none"
+            title={t('game.aiStatusBar.contextTrimmedTitle')}
+          >
+            ✂ {t('game.aiStatusBar.contextTrimmed')}
+          </span>
+        )}
+      </span>
+
       <span
         className={`ml-auto ${overBudget ? 'text-amber-500' : 'text-gray-600'}`}
         title={t('game.chatPanel.tokensTitle')}

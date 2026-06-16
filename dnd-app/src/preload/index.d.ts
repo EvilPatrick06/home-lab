@@ -113,6 +113,9 @@ interface AiStreamDoneData {
   statChanges: AiStatChange[]
   dmActions: AiDmAction[]
   ruleCitations?: AiRuleCitation[]
+  // PHASE-14 14C — whether this turn's context was trimmed + its token estimate (DM alerting).
+  contextTruncated?: boolean
+  tokenEstimate?: number
 }
 
 interface AiStreamErrorData {
@@ -260,6 +263,28 @@ interface AiAPI {
     total: number
   } | null>
   getTokenMeter: () => Promise<{ conversationBudget: number; contextWindow: number }>
+  getContextInspector: (campaignId: string) => Promise<{
+    breakdown: {
+      rulebookChunks: number
+      srdData: number
+      characterData: number
+      campaignData: number
+      creatures: number
+      gameState: number
+      memory: number
+      total: number
+      truncated?: boolean
+    } | null
+    contextTruncated: boolean
+    lastTokenEstimate: number
+    contextWindow: number | null
+    conversationBudget: number
+    chunkIds: string[]
+  }>
+  getConnectionStatus: () => Promise<{
+    status: 'connected' | 'degraded' | 'disconnected'
+    consecutiveFailures: number
+  }>
   previewTokenBudget: (
     campaignId: string,
     characterIds: string[]
@@ -341,6 +366,9 @@ interface AiAPI {
   onStreamFileRead: (cb: (data: { streamId: string; path: string; status: string }) => void) => () => void
   onStreamWebSearch: (cb: (data: { streamId: string; query: string; status: string }) => void) => () => void
   onStreamStatus: (cb: (data: { streamId: string; status: string; from?: string; to?: string }) => void) => () => void
+  onConnectionStatus: (
+    cb: (data: { status: 'connected' | 'degraded' | 'disconnected'; consecutiveFailures: number }) => void
+  ) => () => void
   approveWebSearch: (streamId: string, approved: boolean) => Promise<{ success: boolean; error?: string }>
   removeAllAiListeners: () => void
 }

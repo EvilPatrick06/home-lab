@@ -65,6 +65,9 @@ vi.mock('../ai/ai-service', () => ({
   cancelStreamsForCampaign: mocked.cancelStreamsMock,
   getConnectionStatus: vi.fn(() => 'connected'),
   getConsecutiveFailures: vi.fn(() => 0),
+  wasContextTruncated: vi.fn(() => false),
+  getLastTokenEstimate: vi.fn(() => 0),
+  getLastAssistantContextChunkIds: vi.fn(() => []),
   getConversationManager: mocked.getConversationManagerMock
 }))
 
@@ -265,6 +268,101 @@ describe('registerAiHandlers AI_GET_TOKEN_METER channel (PHASE-10 10C)', () => {
     expect(res.conversationBudget).toBeGreaterThan(0)
     expect(typeof res.contextWindow).toBe('number')
     expect(res.contextWindow).toBeGreaterThan(0)
+  })
+})
+
+describe('registerAiHandlers AI_STREAM_DONE truncation fields (PHASE-14 14C)', () => {
+  beforeEach(() => mocked.ipcHandleMock.mockClear())
+
+  it('appends contextTruncated/tokenEstimate sourced per-campaign', async () => {
+    const aiService = await import('../ai/ai-service')
+    const schemas = await import('../../shared/ipc-schemas')
+    const { BrowserWindow } = await import('electron')
+
+    vi.mocked(schemas.AiChatRequestSchema.safeParse).mockReturnValueOnce({
+      success: true,
+      data: { campaignId: 'camp-xyz' }
+    } as never)
+    vi.mocked(aiService.wasContextTruncated).mockReturnValue(true)
+    vi.mocked(aiService.getLastTokenEstimate).mockReturnValue(4242)
+    const send = vi.fn()
+    vi.mocked(BrowserWindow.fromWebContents).mockReturnValue({
+      isDestroyed: () => false,
+      webContents: { send }
+    } as never)
+    // Capture onDone and fire it AFTER startChat returns — the real stream runs later, so the
+    // handler's `const streamId = startChat(...)` is assigned before onDone references it (firing
+    // synchronously inside startChat would hit the streamId TDZ).
+    let capturedOnDone: ((a: string, b: string, c: unknown[], d: unknown[], e: unknown[]) => void) | undefined
+    vi.mocked(aiService.startChat).mockImplementationOnce(((_data: unknown, _onChunk: unknown, onDone: unknown) => {
+      capturedOnDone = onDone as typeof capturedOnDone
+      return 'stream-x'
+    }) as never)
+
+    registerAiHandlers()
+    const reg = mocked.ipcHandleMock.mock.calls.find(([c]) => c === IPC_CHANNELS.AI_CHAT_STREAM)
+    const handler = reg?.[1] as (e: unknown, input: unknown) => Promise<unknown>
+    await handler({ sender: {} }, { campaignId: 'camp-xyz', message: 'hi' })
+    capturedOnDone?.('full', 'display', [], [], [])
+
+    const doneCall = send.mock.calls.find(([c]) => c === IPC_CHANNELS.AI_STREAM_DONE)
+    expect(doneCall).toBeTruthy()
+    expect(doneCall?.[1]).toMatchObject({ contextTruncated: true, tokenEstimate: 4242 })
+    expect(aiService.wasContextTruncated).toHaveBeenCalledWith('camp-xyz')
+    expect(aiService.getLastTokenEstimate).toHaveBeenCalledWith('camp-xyz')
+  })
+})
+
+describe('registerAiHandlers AI_GET_CONTEXT_INSPECTOR channel (PHASE-14 14E)', () => {
+  const UUID = '11111111-1111-1111-1111-111111111111'
+  const findHandler = (): ((e: unknown, id: unknown) => Promise<unknown>) => {
+    registerAiHandlers()
+    const reg = mocked.ipcHandleMock.mock.calls.find(([c]) => c === IPC_CHANNELS.AI_GET_CONTEXT_INSPECTOR)
+    expect(reg).toBeTruthy()
+    return reg?.[1] as (e: unknown, id: unknown) => Promise<unknown>
+  }
+  beforeEach(() => mocked.ipcHandleMock.mockClear())
+
+  it('composes the snapshot from the per-campaign sources', async () => {
+    const aiService = await import('../ai/ai-service')
+    vi.mocked(aiService.getLastAssistantContextChunkIds).mockReturnValue(['phb-1'])
+    vi.mocked(aiService.wasContextTruncated).mockReturnValue(false)
+    vi.mocked(aiService.getLastTokenEstimate).mockReturnValue(0)
+    const handler = findHandler()
+    const res = (await handler({}, UUID)) as {
+      breakdown: unknown
+      contextTruncated: boolean
+      lastTokenEstimate: number
+      contextWindow: number
+      conversationBudget: number
+      chunkIds: string[]
+    }
+    expect(res).toMatchObject({ breakdown: null, contextTruncated: false, lastTokenEstimate: 0, chunkIds: ['phb-1'] })
+    expect(typeof res.contextWindow).toBe('number')
+    expect(typeof res.conversationBudget).toBe('number')
+    expect(aiService.getLastAssistantContextChunkIds).toHaveBeenCalledWith(UUID)
+  })
+
+  it('rejects a path-traversal campaignId', async () => {
+    const handler = findHandler()
+    const res = (await handler({}, '../../evil')) as { success?: boolean }
+    expect(res.success).toBe(false)
+  })
+})
+
+describe('registerAiHandlers AI_CONNECTION_STATUS channel (PHASE-14 14A)', () => {
+  beforeEach(() => mocked.ipcHandleMock.mockClear())
+
+  it('returns the derived status + consecutiveFailures from ai-service', async () => {
+    const aiService = await import('../ai/ai-service')
+    vi.mocked(aiService.getConnectionStatus).mockReturnValue('disconnected')
+    vi.mocked(aiService.getConsecutiveFailures).mockReturnValue(4)
+    registerAiHandlers()
+    const reg = mocked.ipcHandleMock.mock.calls.find(([c]) => c === IPC_CHANNELS.AI_CONNECTION_STATUS)
+    expect(reg).toBeDefined()
+    const handler = reg?.[1] as () => Promise<{ status: string; consecutiveFailures: number }>
+    const res = await handler()
+    expect(res).toEqual({ status: 'disconnected', consecutiveFailures: 4 })
   })
 })
 

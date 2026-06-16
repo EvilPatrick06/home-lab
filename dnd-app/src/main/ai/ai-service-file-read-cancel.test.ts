@@ -200,6 +200,34 @@ describe('ai-service stream-cancel cleanup (05E)', () => {
     expect(getActiveStreamCount()).toBe(0)
   })
 
+  it('PHASE-14 14D: emits reading then done for a completed file read (same path/streamId)', async () => {
+    mocked.streamResponses = ['Reading. [FILE_READ]{"path": "notes/intro.md"}[/FILE_READ]', 'Done.']
+    let doneText = ''
+    const streamId = startChat(
+      { campaignId: 'c-fr3', message: 'read', characterIds: [] },
+      () => {},
+      (_full, display) => {
+        doneText = display
+      },
+      () => {}
+    )
+
+    await waitFor(() => mocked.readResolve !== null, 'file read invoked')
+    mocked.readResolve?.({ success: true, path: 'notes/intro.md', content: 'x' })
+    await waitFor(() => doneText === 'Done.', 'terminal onDone')
+
+    const fileReadEvents = mocked.sendMock.mock.calls.filter(
+      ([channel, payload]) =>
+        channel === IPC_CHANNELS.AI_STREAM_FILE_READ && (payload as { streamId?: string })?.streamId === streamId
+    )
+    const statuses = fileReadEvents.map(([, p]) => (p as { status: string }).status)
+    expect(statuses).toContain('reading')
+    expect(statuses).toContain('done')
+    expect(statuses.indexOf('reading')).toBeLessThan(statuses.indexOf('done'))
+    const paths = new Set(fileReadEvents.map(([, p]) => (p as { path: string }).path))
+    expect([...paths]).toEqual(['notes/intro.md'])
+  })
+
   it('cancel during a web search: no dangling assistant message, no restream, no leak', async () => {
     mocked.streamResponses = ['[WEB_SEARCH]{"query":"q"}[/WEB_SEARCH]']
     const streamId = startChat(

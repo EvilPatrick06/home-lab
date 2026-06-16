@@ -31,8 +31,11 @@ beforeEach(() => {
   vi.stubGlobal('window', {
     api: {
       ai: {
+        // PHASE-14 14E — DMTabPanel no longer calls getTokenBudget itself (the lazy
+        // ContextInspectorPanel owns the token block now); keep the stubs harmless.
         getTokenBudget: vi.fn(async () => null),
-        previewTokenBudget: vi.fn(async () => null)
+        previewTokenBudget: vi.fn(async () => null),
+        getContextInspector: vi.fn(async () => null)
       }
     }
   })
@@ -40,7 +43,7 @@ beforeEach(() => {
 
 // biome-ignore lint/suspicious/noExplicitAny: minimal campaign fixture
 function makeCampaign(aiDm: any) {
-  return { id: 'c1', name: 'Test', aiDm } as any
+  return { id: 'c1', name: 'Test', players: [], aiDm } as any
 }
 
 describe('DMTabPanel AI DM label (PHASE-10 10A)', () => {
