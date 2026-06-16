@@ -800,6 +800,7 @@
     },
     "campaignWizard": {
       "aiConfigFailed": "Campaña creada, pero falló la configuración del DM de IA. Puedes reconfigurarlo desde los ajustes de la campaña.",
+      "audioUploadFailed": "No se pudo subir el audio «{{name}}». Puedes volver a añadirlo desde el panel de audio de la campaña.",
       "createFailed": "No se pudo crear la campaña. Inténtalo de nuevo.",
       "stepIndicator": "Paso {{current}} de {{total}}: {{name}}",
       "steps": {
@@ -1661,6 +1662,9 @@
       "requestRollPrefix": "Solicitar tirada —",
       "dcSuffix": "(CD {{dc}})",
       "waiting": "Esperando las tiradas de los jugadores...",
+      "waitingForPlayers": "Esperando a {{count}} jugador(es)…",
+      "allResponded": "Todos los jugadores respondieron",
+      "rollForRemaining": "Tirar por los restantes",
       "colPlayer": "Jugador",
       "colRoll": "Tirada",
       "colMod": "Mod",
@@ -2300,6 +2304,12 @@
       "soundEventIdPlaceholder": "p. ej., combat.hit.critical",
       "creatureId": "ID de criatura",
       "creatureIdPlaceholder": "ID de creatures.json",
+      "gridX": "Cuadrícula X",
+      "gridY": "Cuadrícula Y",
+      "spawnCoordsHint": "En blanco = centro del mapa",
+      "pauseAll": "Pausar todos los activadores",
+      "resumeAll": "Reanudar todos los activadores",
+      "pausedBadge": "Activadores en pausa",
       "lightingLevel": "Nivel de iluminación",
       "bright": "Brillante",
       "dim": "Tenue",
@@ -4921,28 +4931,6 @@
       "classes": "Clases: "
     }
   },
-  "settings": {
-    "microphoneSettings": {
-      "permissionDefault": "Permiso de micrófono denegado o no hay dispositivo de entrada disponible.",
-      "intro": "Elige el micrófono que vas a usar, observa los niveles de entrada en vivo, configura una tecla de pulsar para hablar y ajusta la ganancia de entrada. Los ajustes persisten entre sesiones.",
-      "unavailable": "Micrófono no disponible",
-      "inputDevice": "Dispositivo de entrada",
-      "systemDefault": "Predeterminado del sistema",
-      "microphoneN": "Micrófono {{n}}",
-      "liveLevel": "Nivel en vivo",
-      "micLevelAria": "Nivel de micrófono {{percent}}%",
-      "speakHint": "Habla por el micrófono — la barra debería moverse con tu voz.",
-      "inputGain": "Ganancia de entrada ({{percent}}%)",
-      "inputGainAria": "Ganancia de entrada del micrófono",
-      "pushToTalk": "Pulsar para hablar",
-      "pressAnyKey": "Pulsa cualquier tecla… (Esc para cancelar)",
-      "keyBound": "Tecla: {{key}}",
-      "bindKey": "Asignar una tecla",
-      "clear": "Borrar",
-      "pttHint": "Se mantiene mientras la tecla asignada está pulsada; se libera en caso contrario.",
-      "resetSettings": "Restablecer ajustes de micrófono"
-    }
-  },
   "lobby": {
     "characterSelector": {
       "heading": "Tu personaje",
@@ -6153,7 +6141,6 @@
       "muteAllSounds": "Silenciar todos los sonidos",
       "masterVolume": "Volumen general",
       "ambientMusic": "Música ambiental",
-      "microphone": "Micrófono",
       "accessibility": "Accesibilidad",
       "resetAccessibilityDefaults": "Restablecer valores de accesibilidad predeterminados",
       "uiScale": "Escala de la interfaz",

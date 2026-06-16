@@ -129,6 +129,8 @@ export const IPC_CHANNELS = {
 
   // === AI DM: Proactive Triggers ===
   AI_TRIGGER_STATE_UPDATE: 'ai:trigger-state-update',
+  AI_TRIGGER_SET_ENABLED: 'ai:trigger-set-enabled',
+  AI_TRIGGER_GET_ENABLED: 'ai:trigger-get-enabled',
 
   // === AI DM: Events (main → renderer) ===
   AI_STREAM_CHUNK: 'ai:stream-chunk',

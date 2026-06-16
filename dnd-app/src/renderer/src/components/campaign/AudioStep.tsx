@@ -1,6 +1,5 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useT } from '../../i18n'
-import { logger } from '../../utils/logger'
 import { Button } from '../ui'
 
 type AudioCategory = 'ambient' | 'effect' | 'music'
@@ -15,6 +14,9 @@ export interface CustomAudioEntry {
 interface AudioStepProps {
   audioEntries: CustomAudioEntry[]
   onChange: (entries: CustomAudioEntry[]) => void
+  // PHASE-13 13F — surface the picked File bytes so the wizard can upload them on create
+  // and so this step can preview them via object URLs. Keyed by entry id.
+  onFilesChange?: (files: Map<string, File>) => void
 }
 
 const CATEGORIES: Array<{ value: AudioCategory; label: string }> = [
@@ -29,30 +31,56 @@ const CATEGORY_COLORS: Record<AudioCategory, string> = {
   music: 'bg-purple-900/40 text-purple-300'
 }
 
-export default function AudioStep({ audioEntries, onChange }: AudioStepProps): JSX.Element {
+export default function AudioStep({ audioEntries, onChange, onFilesChange }: AudioStepProps): JSX.Element {
   const { t } = useT()
   const [isDragOver, setIsDragOver] = useState(false)
   const [previewingId, setPreviewingId] = useState<string | null>(null)
   const audioElRef = useRef<HTMLAudioElement | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  // PHASE-13 13F — entry id → picked File (the wizard uploads these on create; previews
+  // play them via object URLs). File objects can't be persisted, so a restored draft has
+  // metadata but no bytes here — preview then no-ops for those entries.
+  const filesRef = useRef<Map<string, File>>(new Map())
+  const previewUrlRef = useRef<string | null>(null)
+
+  const stopPreview = useCallback(() => {
+    if (audioElRef.current) {
+      audioElRef.current.pause()
+    }
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current)
+      previewUrlRef.current = null
+    }
+  }, [])
+
+  // Revoke any live object URL on unmount.
+  useEffect(() => {
+    return () => {
+      stopPreview()
+    }
+  }, [stopPreview])
 
   const handleFilesAdded = useCallback(
     (files: FileList | File[]) => {
       const fileArray = Array.from(files)
       const audioFiles = fileArray.filter((f) => /\.(mp3|ogg|wav|webm|m4a)$/i.test(f.name))
+      if (audioFiles.length === 0) return
 
-      for (const file of audioFiles) {
+      const newEntries: CustomAudioEntry[] = audioFiles.map((file) => {
         const entry: CustomAudioEntry = {
           id: crypto.randomUUID(),
           fileName: file.name,
           displayName: file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' '),
           category: 'effect'
         }
-        // We store the entry for the wizard; actual upload happens on campaign create
-        onChange([...audioEntries, entry])
-      }
+        filesRef.current.set(entry.id, file)
+        return entry
+      })
+      // Batch all picked files into one update (the old per-file loop dropped all but the last).
+      onChange([...audioEntries, ...newEntries])
+      onFilesChange?.(new Map(filesRef.current))
     },
-    [audioEntries, onChange]
+    [audioEntries, onChange, onFilesChange]
   )
 
   const handleDrop = useCallback(
@@ -95,12 +123,14 @@ export default function AudioStep({ audioEntries, onChange }: AudioStepProps): J
   const handleRemove = useCallback(
     (id: string) => {
       if (previewingId === id) {
-        audioElRef.current?.pause()
+        stopPreview()
         setPreviewingId(null)
       }
+      filesRef.current.delete(id)
+      onFilesChange?.(new Map(filesRef.current))
       onChange(audioEntries.filter((e) => e.id !== id))
     },
-    [audioEntries, onChange, previewingId]
+    [audioEntries, onChange, onFilesChange, previewingId, stopPreview]
   )
 
   const handleDisplayNameChange = useCallback(
@@ -118,25 +148,34 @@ export default function AudioStep({ audioEntries, onChange }: AudioStepProps): J
   )
 
   const handlePreviewToggle = useCallback(
-    (id: string, fileName: string) => {
+    (id: string) => {
       if (previewingId === id) {
-        audioElRef.current?.pause()
+        stopPreview()
         setPreviewingId(null)
         return
       }
 
-      // Stop any current preview
-      if (audioElRef.current) {
-        audioElRef.current.pause()
+      // Stop any current preview (and revoke its URL) before starting a new one.
+      stopPreview()
+
+      const file = filesRef.current.get(id)
+      if (!file) {
+        // Restored-draft entry with no in-memory bytes — nothing to play.
+        setPreviewingId(null)
+        return
       }
 
-      // For local preview before upload, we cannot play from disk.
-      // This will work for files already uploaded (in DM Audio Panel).
-      // In the wizard, this is a no-op placeholder.
-      setPreviewingId(null)
-      logger.debug('[AudioStep] Preview not available in wizard for:', fileName)
+      if (!audioElRef.current) {
+        audioElRef.current = new Audio()
+        audioElRef.current.addEventListener('ended', () => setPreviewingId(null))
+      }
+      const url = URL.createObjectURL(file)
+      previewUrlRef.current = url
+      audioElRef.current.src = url
+      void audioElRef.current.play()
+      setPreviewingId(id)
     },
-    [previewingId]
+    [previewingId, stopPreview]
   )
 
   return (
@@ -183,7 +222,7 @@ export default function AudioStep({ audioEntries, onChange }: AudioStepProps): J
               >
                 {/* Preview button */}
                 <button
-                  onClick={() => handlePreviewToggle(entry.id, entry.fileName)}
+                  onClick={() => handlePreviewToggle(entry.id)}
                   className="w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-surface-2 hover:bg-gray-700 text-gray-300 transition-colors cursor-pointer text-sm"
                   title={
                     previewingId === entry.id

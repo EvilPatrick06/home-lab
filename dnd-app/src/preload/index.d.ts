@@ -321,6 +321,8 @@ interface AiAPI {
     }>
     error?: string
   }>
+  setTriggerObserverEnabled: (enabled: boolean) => Promise<{ enabled: boolean }>
+  getTriggerObserverEnabled: () => Promise<{ enabled: boolean }>
   onTriggerFired: (
     cb: (data: {
       triggerId: string

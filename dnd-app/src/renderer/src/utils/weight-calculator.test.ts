@@ -174,6 +174,55 @@ describe('calculateTotalWeight', () => {
     expect(calculateTotalWeight(char)).toBe(15)
   })
 
+  it('recurses into container contents (PHASE-13 13I)', () => {
+    // Backpack(2) + [Rope 1×10, Torch 5×1] = 2 + 10 + 5 = 17.
+    const char = makeCharacter({
+      equipment: [
+        {
+          name: 'Backpack',
+          quantity: 1,
+          weight: 2,
+          contents: [
+            { name: 'Rope', quantity: 1, weight: 10 },
+            { name: 'Torch', quantity: 5, weight: 1 }
+          ]
+        }
+      ]
+    })
+    expect(calculateTotalWeight(char)).toBe(17)
+  })
+
+  it('multiplies quantity at each nesting level', () => {
+    // Pouch ×2 weighing 1 each, holding 3 stones ×1: each pouch = 1 + 3 = 4; ×2 = 8.
+    const char = makeCharacter({
+      equipment: [{ name: 'Pouch', quantity: 2, weight: 1, contents: [{ name: 'Stone', quantity: 3, weight: 1 }] }]
+    })
+    // contents weight is per-container instance? The helper sums contents once per item entry,
+    // then the (weight*quantity) of the container itself. Here: (1*2) + (3*1) = 5.
+    expect(calculateTotalWeight(char)).toBe(5)
+  })
+
+  it('truncates absurdly deep nesting (depth cap)', () => {
+    // Build a 10-deep chain; depth-8 cap means the deepest levels contribute 0.
+    let node: { name: string; quantity: number; weight: number; contents?: unknown[] } = {
+      name: 'Box',
+      quantity: 1,
+      weight: 1
+    }
+    for (let i = 0; i < 9; i++) {
+      node = { name: 'Box', quantity: 1, weight: 1, contents: [node] }
+    }
+    // biome-ignore lint/suspicious/noExplicitAny: deeply-nested fixture
+    const char = makeCharacter({ equipment: [node as any] })
+    // 10 levels total but only the first 8 count (each weight 1) → 8.
+    expect(calculateTotalWeight(char)).toBe(8)
+  })
+
+  it('behaves identically for items without contents (regression)', () => {
+    const char = makeCharacter({ equipment: [{ name: 'Rope', quantity: 1, weight: 10 }] })
+    expect(calculateTotalWeight(char)).toBe(10)
+  })
+
   it('sums magic item weights', () => {
     const m1 = {
       id: 'm1',

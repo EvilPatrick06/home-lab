@@ -45,56 +45,6 @@ export {
 
 // ─── Types ────────────────────────────────────────────────────
 
-export type AttackType = 'melee_weapon' | 'ranged_weapon' | 'melee_spell' | 'ranged_spell'
-
-export interface AttackRequest {
-  attackerToken: MapToken
-  targetToken: MapToken
-  attackType: AttackType
-  /** Attack roll bonus (STR/DEX mod + proficiency + magic) */
-  attackBonus: number
-  /** Damage formula (e.g. "1d8+4") */
-  damageFormula: string
-  /** Damage type (e.g. "slashing") */
-  damageType: string
-  /** Full attacker character (for feat mechanics), optional */
-  attackerCharacter?: Character5e
-  /** Multi-attack tracker for this turn, optional */
-  attackTracker?: AttackTracker
-  /** Whether the weapon/attack is magical */
-  isMagical?: boolean
-  /** Whether the weapon is silvered */
-  isSilvered?: boolean
-  /** Weapon mastery property, if any */
-  weaponMastery?: string
-  /** Ability modifier used for attack (for weapon mastery calculations) */
-  abilityModifier: number
-  /** Attacker's proficiency bonus */
-  proficiencyBonus: number
-  /** Weapon normal range (for ranged only) */
-  normalRange?: number
-  /** Weapon long range (for ranged only) */
-  longRange?: number
-  /** Melee reach in feet (default 5) */
-  reach?: number
-  /** Additional damage dice from effects (e.g. Sneak Attack, Smite) */
-  extraDamageDice?: Array<{ formula: string; damageType: string }>
-  /** Extra flat damage bonuses from feats/effects */
-  extraDamageBonus?: number
-  /** Override advantage/disadvantage */
-  forceAdvantage?: boolean
-  /** Override advantage/disadvantage */
-  forceDisadvantage?: boolean
-  /** Attacker's name for display */
-  attackerName: string
-  /** Target's name for display */
-  targetName: string
-  /** Weapon/spell name for display */
-  weaponName: string
-  /** Is this a DM roll (hidden from players)? */
-  isSecretRoll?: boolean
-}
-
 export interface AttackResult {
   /** Whether the attack hit */
   hit: boolean

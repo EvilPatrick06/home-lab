@@ -49,8 +49,6 @@ export interface MapPin {
   /** Hex color string for the pin chrome (e.g. `#f59e0b`). */
   color: string
   linkedJournalId?: string
-  linkedNpcId?: string
-  linkedLocationId?: string
   /** When false, hidden from non-DM players. Default true. */
   visibleToPlayers?: boolean
   floor?: number

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { useT } from '../../../../i18n'
 import { useGameStore } from '../../../../stores/use-game-store'
@@ -49,6 +49,22 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
   const [showForm, setShowForm] = useState(false)
   const [history, setHistory] = useState<Array<{ triggerId: string; triggerName: string; timestamp: number }>>([])
 
+  // PHASE-13 13D — global kill switch for proactive trigger processing (main-side observer).
+  const [triggersPaused, setTriggersPaused] = useState(false)
+  useEffect(() => {
+    let cancelled = false
+    void window.api.ai.getTriggerObserverEnabled().then((r) => {
+      if (!cancelled) setTriggersPaused(!r.enabled)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+  const handleTogglePaused = async (): Promise<void> => {
+    const res = await window.api.ai.setTriggerObserverEnabled(triggersPaused) // currently paused → enable
+    setTriggersPaused(!res.enabled)
+  }
+
   // Form state
   const [name, setName] = useState('')
   const [event, setEvent] = useState<TriggerEvent>('combat_start')
@@ -66,6 +82,8 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
   const [messageText, setMessageText] = useState('')
   const [soundId, setSoundId] = useState('')
   const [creatureId, setCreatureId] = useState('')
+  const [spawnGridX, setSpawnGridX] = useState('')
+  const [spawnGridY, setSpawnGridY] = useState('')
   const [lightingLevel, setLightingLevel] = useState<'bright' | 'dim' | 'darkness'>('dim')
 
   const handleCreate = (): void => {
@@ -87,9 +105,17 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
       case 'play_sound':
         actionPayload.soundId = soundId
         break
-      case 'spawn_creature':
+      case 'spawn_creature': {
         actionPayload.creatureId = creatureId
+        // PHASE-13 13D — write coords only when BOTH are valid non-negative integers.
+        const gx = Number.parseInt(spawnGridX, 10)
+        const gy = Number.parseInt(spawnGridY, 10)
+        if (Number.isInteger(gx) && gx >= 0 && Number.isInteger(gy) && gy >= 0) {
+          actionPayload.gridX = gx
+          actionPayload.gridY = gy
+        }
         break
+      }
       case 'change_lighting':
         actionPayload.level = lightingLevel
         break
@@ -152,14 +178,31 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-          <h2 className="text-lg font-semibold text-fg">{t('game.triggerManagerModal.title')}</h2>
-          <button
-            onClick={onClose}
-            className="text-muted hover:text-white text-xl leading-none cursor-pointer"
-            aria-label={t('common.actions.close')}
-          >
-            x
-          </button>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-fg">{t('game.triggerManagerModal.title')}</h2>
+            {triggersPaused && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-amber-900/40 text-amber-300 border border-amber-700/40">
+                {t('game.triggerManagerModal.pausedBadge')}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            {/* PHASE-13 13D — global pause/resume for all proactive trigger processing. */}
+            <button
+              type="button"
+              onClick={() => void handleTogglePaused()}
+              className="px-2 py-1 text-xs rounded border border-border text-gray-300 hover:bg-surface-2 cursor-pointer"
+            >
+              {triggersPaused ? t('game.triggerManagerModal.resumeAll') : t('game.triggerManagerModal.pauseAll')}
+            </button>
+            <button
+              onClick={onClose}
+              className="text-muted hover:text-white text-xl leading-none cursor-pointer"
+              aria-label={t('common.actions.close')}
+            >
+              x
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -412,6 +455,25 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
                       placeholder={t('game.triggerManagerModal.creatureIdPlaceholder')}
                       className={inputClass}
                     />
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      <input
+                        type="number"
+                        min={0}
+                        value={spawnGridX}
+                        onChange={(e) => setSpawnGridX(e.target.value)}
+                        placeholder={t('game.triggerManagerModal.gridX')}
+                        className={inputClass}
+                      />
+                      <input
+                        type="number"
+                        min={0}
+                        value={spawnGridY}
+                        onChange={(e) => setSpawnGridY(e.target.value)}
+                        placeholder={t('game.triggerManagerModal.gridY')}
+                        className={inputClass}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">{t('game.triggerManagerModal.spawnCoordsHint')}</p>
                   </div>
                 )}
 

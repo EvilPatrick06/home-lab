@@ -168,6 +168,8 @@ const api = {
     // Proactive Triggers
     triggerStateUpdate: (state: Record<string, unknown>) =>
       ipcRenderer.invoke(IPC_CHANNELS.AI_TRIGGER_STATE_UPDATE, state),
+    setTriggerObserverEnabled: (enabled: boolean) => ipcRenderer.invoke(IPC_CHANNELS.AI_TRIGGER_SET_ENABLED, enabled),
+    getTriggerObserverEnabled: () => ipcRenderer.invoke(IPC_CHANNELS.AI_TRIGGER_GET_ENABLED),
     onTriggerFired: (
       cb: (data: {
         triggerId: string

@@ -3,6 +3,7 @@ import type { MessageType } from '../../../network'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { Campaign } from '../../../types/campaign'
 import type { Character } from '../../../types/character'
+import type { LibraryCategory } from '../../../types/library'
 import type { GameMap } from '../../../types/map'
 import type { ActiveModal } from '../active-modal-types'
 
@@ -35,6 +36,9 @@ interface UtilityModalsProps {
   disputeContext: { ruling: string; citation: string } | null
   setDisputeContext: (ctx: { ruling: string; citation: string } | null) => void
   localPeerId: string
+  // PHASE-13 13H — deep-link targets for the compendium + shared journal.
+  compendiumTarget?: { category: string; name: string } | null
+  journalFocusEntryId?: string | null
 }
 
 export default function UtilityModals({
@@ -49,7 +53,9 @@ export default function UtilityModals({
   sendMessage,
   disputeContext,
   setDisputeContext,
-  localPeerId
+  localPeerId,
+  compendiumTarget,
+  journalFocusEntryId
 }: UtilityModalsProps): JSX.Element {
   const gameStore = useGameStore()
 
@@ -125,10 +131,22 @@ export default function UtilityModals({
       )}
 
       {activeModal === 'sharedJournal' && (
-        <SharedJournalModal isDM={effectiveIsDM} playerName={playerName} localPeerId={localPeerId} onClose={close} />
+        <SharedJournalModal
+          isDM={effectiveIsDM}
+          playerName={playerName}
+          localPeerId={localPeerId}
+          onClose={close}
+          initialEntryId={journalFocusEntryId ?? undefined}
+        />
       )}
 
-      {activeModal === 'compendium' && <CompendiumModal onClose={close} />}
+      {activeModal === 'compendium' && (
+        <CompendiumModal
+          onClose={close}
+          initialCategory={compendiumTarget?.category as LibraryCategory | undefined}
+          initialQuery={compendiumTarget?.name}
+        />
+      )}
 
       {activeModal === 'partyInventory' && <PartyInventoryModal isDM={effectiveIsDM} onClose={close} />}
 

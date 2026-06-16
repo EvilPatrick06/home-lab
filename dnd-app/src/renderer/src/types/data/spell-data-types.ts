@@ -37,7 +37,7 @@ export interface SpellIndexEntry {
   path: string
 }
 
-// === Structured spell types (for future migration) ===
+// === Structured spell types (consumed by services/character/spell-data.ts) ===
 
 export interface SpellAction {
   type: 'Action' | 'BonusAction' | 'Reaction' | 'Minute' | 'Hour' | string

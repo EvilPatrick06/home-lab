@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { addToast } from '../../../../hooks/use-toast'
 import { useT } from '../../../../i18n'
@@ -13,13 +13,17 @@ interface SharedJournalModalProps {
   playerName: string
   localPeerId: string
   onClose: () => void
+  // PHASE-13 13H — when a journal-linked map pin is clicked, open scrolled to + highlighting
+  // this entry.
+  initialEntryId?: string
 }
 
 export default function SharedJournalModal({
   isDM,
   playerName,
   localPeerId,
-  onClose
+  onClose,
+  initialEntryId
 }: SharedJournalModalProps): JSX.Element {
   const { t } = useT()
   useEscapeKey(onClose)
@@ -35,6 +39,22 @@ export default function SharedJournalModal({
   const visibleEntries = isDM
     ? journal
     : journal.filter((e) => e.authorPeerId === localPeerId || e.visibility === 'public')
+
+  // PHASE-13 13H — scroll the deep-linked entry into view + flash a highlight ring once.
+  const entryRefs = useRef<Record<string, HTMLDivElement | null>>({})
+  const didFocusRef = useRef(false)
+  const [highlightId, setHighlightId] = useState<string | null>(null)
+  useEffect(() => {
+    if (!initialEntryId || didFocusRef.current) return
+    if (!visibleEntries.some((e) => e.id === initialEntryId)) return
+    const node = entryRefs.current[initialEntryId]
+    if (!node) return
+    didFocusRef.current = true
+    node.scrollIntoView({ block: 'center' })
+    setHighlightId(initialEntryId)
+    const tmo = setTimeout(() => setHighlightId(null), 2000)
+    return () => clearTimeout(tmo)
+  }, [initialEntryId, visibleEntries])
 
   const resetForm = useCallback(() => {
     setTitle('')
@@ -215,7 +235,15 @@ export default function SharedJournalModal({
             <p className="text-xs text-gray-500 text-center py-4">{t('game.sharedJournalModal.noEntries')}</p>
           ) : (
             visibleEntries.map((entry) => (
-              <div key={entry.id} className="bg-surface-2/60 border border-border/40 rounded-lg p-3">
+              <div
+                key={entry.id}
+                ref={(el) => {
+                  entryRefs.current[entry.id] = el
+                }}
+                className={`bg-surface-2/60 border border-border/40 rounded-lg p-3 transition-shadow ${
+                  highlightId === entry.id ? 'ring-2 ring-amber-400' : ''
+                }`}
+              >
                 <div className="flex items-start justify-between gap-2 mb-1">
                   <div className="min-w-0">
                     <h4 className="text-xs font-semibold text-gray-200 truncate">{entry.title}</h4>

@@ -80,6 +80,9 @@ export default function CampaignWizard(): JSX.Element {
   const [calendar, setCalendar] = useState<CalendarConfig | null>(null)
   const [maps, setMaps] = useState<GameMap[]>([])
   const [customAudio, setCustomAudio] = useState<CustomAudioEntry[]>([])
+  // PHASE-13 13F — the actual picked File bytes (entry id → File), uploaded after the
+  // campaign is created. Not persisted in the draft (File objects don't serialize).
+  const audioFilesRef = useRef<Map<string, File>>(new Map())
   const [sessionZero, setSessionZero] = useState<SessionZeroData>({ ...DEFAULT_SESSION_ZERO })
 
   // Adventure exclusion state
@@ -410,9 +413,44 @@ export default function CampaignWizard(): JSX.Element {
             ]
           : campaign.players
 
+      // PHASE-13 13F — upload the picked custom-audio files now that we have the campaign id,
+      // then rewrite each entry's fileName to the SANITIZED name the handler stored on disk
+      // (so DMAudioPanel resolves it later). Per-file failures warn and continue — never block.
+      let resolvedCustomAudio = campaign.customAudio
+      if (campaign.customAudio && campaign.customAudio.length > 0 && audioFilesRef.current.size > 0) {
+        const sanitizedById = new Map<string, string>()
+        for (const entry of campaign.customAudio) {
+          const file = audioFilesRef.current.get(entry.id)
+          if (!file) continue
+          try {
+            const result = await window.api.audioUploadCustom(
+              campaign.id,
+              file.name,
+              await file.arrayBuffer(),
+              entry.displayName,
+              entry.category
+            )
+            if (result.success && result.data) {
+              sanitizedById.set(entry.id, result.data.fileName)
+            } else {
+              addToast(t('campaign.campaignWizard.audioUploadFailed', { name: entry.displayName }), 'warning')
+            }
+          } catch (audioErr) {
+            logger.error('Failed to upload custom audio:', entry.fileName, audioErr)
+            addToast(t('campaign.campaignWizard.audioUploadFailed', { name: entry.displayName }), 'warning')
+          }
+        }
+        if (sanitizedById.size > 0) {
+          resolvedCustomAudio = campaign.customAudio.map((a) =>
+            sanitizedById.has(a.id) ? { ...a, fileName: sanitizedById.get(a.id) as string } : a
+          )
+        }
+      }
+
+      const audioChanged = resolvedCustomAudio !== campaign.customAudio
       const mapsChanged = resolvedMaps.some((map, index) => map.campaignId !== campaign.maps[index].campaignId)
-      if (mapsChanged || players !== campaign.players) {
-        await saveCampaign({ ...campaign, maps: resolvedMaps, players })
+      if (mapsChanged || players !== campaign.players || audioChanged) {
+        await saveCampaign({ ...campaign, maps: resolvedMaps, players, customAudio: resolvedCustomAudio })
       }
 
       if (aiEnabled) {
@@ -566,7 +604,15 @@ export default function CampaignWizard(): JSX.Element {
         />
       )}
 
-      {stepKey === 'audio' && <AudioStep audioEntries={customAudio} onChange={setCustomAudio} />}
+      {stepKey === 'audio' && (
+        <AudioStep
+          audioEntries={customAudio}
+          onChange={setCustomAudio}
+          onFilesChange={(files) => {
+            audioFilesRef.current = files
+          }}
+        />
+      )}
 
       {stepKey === 'review' && system && (
         <ReviewStep

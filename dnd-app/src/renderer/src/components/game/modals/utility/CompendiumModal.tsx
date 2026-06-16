@@ -10,6 +10,10 @@ import Modal from '../../../ui/Modal'
 
 interface CompendiumModalProps {
   onClose: () => void
+  // PHASE-13 13H — deep-link target: open on this category's tab (when it has one) and
+  // auto-select the first exact name match so chat-link clicks land on the entry.
+  initialCategory?: LibraryCategory
+  initialQuery?: string
 }
 
 const TABS: { id: LibraryCategory; label: string }[] = [
@@ -33,15 +37,19 @@ const TABS: { id: LibraryCategory; label: string }[] = [
   { id: 'metamagic', label: 'Metamagic' }
 ]
 
-export default function CompendiumModal({ onClose }: CompendiumModalProps): JSX.Element {
+export default function CompendiumModal({ onClose, initialCategory, initialQuery }: CompendiumModalProps): JSX.Element {
   const { t } = useT()
-  const [activeTab, setActiveTab] = useState<LibraryCategory>('actions')
-  const [search, setSearch] = useState('')
+  const [activeTab, setActiveTab] = useState<LibraryCategory>(
+    initialCategory && TABS.some((tab) => tab.id === initialCategory) ? initialCategory : 'actions'
+  )
+  const [search, setSearch] = useState(initialQuery ?? '')
   const [tabData, setTabData] = useState<LibraryItem[]>([])
   const [loading, setLoading] = useState(false)
   const [selectedItem, setSelectedItem] = useState<LibraryItem | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const cache = useRef(new Map<LibraryCategory, LibraryItem[]>())
+  // PHASE-13 13H — one-shot auto-select for a deep-linked entry (first non-empty load only).
+  const didSeedRef = useRef(false)
 
   // Allow drag-through: make modal backdrop transparent during drags so drop targets underneath are reachable
   useEffect(() => {
@@ -64,9 +72,19 @@ export default function CompendiumModal({ onClose }: CompendiumModalProps): JSX.
 
   // Load data for active tab
   useEffect(() => {
+    // PHASE-13 13H — once the deep-linked tab's data lands, auto-select the exact name
+    // match. Skip empty loads so the homebrew-populated re-run still gets a chance.
+    const seedSelection = (items: LibraryItem[]): void => {
+      if (!initialQuery || didSeedRef.current || items.length === 0) return
+      didSeedRef.current = true
+      const match = items.find((it) => it.name?.toLowerCase() === initialQuery.toLowerCase())
+      if (match) setSelectedItem(match)
+    }
     const loadTabData = async (): Promise<void> => {
       if (cache.current.has(activeTab)) {
-        setTabData(cache.current.get(activeTab)!)
+        const items = cache.current.get(activeTab)!
+        setTabData(items)
+        seedSelection(items)
         return
       }
 
@@ -75,6 +93,7 @@ export default function CompendiumModal({ onClose }: CompendiumModalProps): JSX.
         const items = await loadCategoryItems(activeTab, homebrewEntries)
         cache.current.set(activeTab, items)
         setTabData(items)
+        seedSelection(items)
       } catch {
         setTabData([])
       } finally {
@@ -82,7 +101,7 @@ export default function CompendiumModal({ onClose }: CompendiumModalProps): JSX.
       }
     }
     loadTabData()
-  }, [activeTab, homebrewEntries])
+  }, [activeTab, homebrewEntries, initialQuery])
 
   // Fuse.js fuzzy search
   const fuse = useMemo(

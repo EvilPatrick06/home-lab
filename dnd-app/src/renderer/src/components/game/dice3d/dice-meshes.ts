@@ -2,6 +2,7 @@ import diceColorsJson from '@data/ui/dice-colors.json'
 import * as THREE from 'three'
 import { load5eDiceColors } from '../../../services/data-provider'
 import {
+  buildPlanarFaceUVs,
   computeFaceNormalsFromGeo as genComputeFaceNormals,
   createD4 as genD4,
   createD6 as genD6,
@@ -107,7 +108,9 @@ function buildTriangularFaceDie(
 
   const materials = solidOnly
     ? faceLabels.map(() => _createSolidMaterial(colors))
-    : createFaceMaterials(faceLabels, colors, isHidden)
+    : // PHASE-13 13M — the UV triangle (0.5,1)(0,0)(1,0) has centroid v=1/3, so draw the
+      // number there (centerV) instead of texture-centre so it lands on the face centroid.
+      createFaceMaterials(faceLabels, colors, isHidden, { centerV: 1 / 3 })
   const mesh = new THREE.Mesh(nonIndexedGeo, materials)
   mesh.castShadow = true
 
@@ -272,20 +275,8 @@ function _createD12(colors: DiceColors, isHidden: boolean): DieDefinition {
 
   assignFaceGroups(nonIndexedGeo, 12, vertsPerFace)
 
-  // UVs — same triangle UV pattern tiled across all sub-triangles per face
-  const uvCount = totalVerts
-  const uvs = new Float32Array(uvCount * 2)
-  for (let f = 0; f < 12; f++) {
-    for (let t = 0; t < trisPerFace; t++) {
-      const base = (f * vertsPerFace + t * 3) * 2
-      uvs[base] = 0.5
-      uvs[base + 1] = 1.0
-      uvs[base + 2] = 0.0
-      uvs[base + 3] = 0.0
-      uvs[base + 4] = 1.0
-      uvs[base + 5] = 0.0
-    }
-  }
+  // PHASE-13 13M — planar per-face UVs (number centred once per pentagon).
+  const uvs = buildPlanarFaceUVs(nonIndexedGeo, 12, vertsPerFace)
   nonIndexedGeo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2))
 
   const faceLabels = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']

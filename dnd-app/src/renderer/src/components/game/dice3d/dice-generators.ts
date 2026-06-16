@@ -9,10 +9,67 @@ function makeMaterials(
   faceLabels: string[],
   colors: DiceColors,
   isHidden: boolean,
-  solidOnly: boolean
+  solidOnly: boolean,
+  // PHASE-13 13M — texture placement opts forwarded per face (triangular faces use centerV 1/3).
+  opts?: { centerV?: number; fontScale?: number }
 ): THREE.MeshStandardMaterial[] {
   if (solidOnly) return faceLabels.map(() => _createSolidMaterial(colors))
-  return createFaceMaterials(faceLabels, colors, isHidden)
+  return createFaceMaterials(faceLabels, colors, isHidden, opts)
+}
+
+/**
+ * PHASE-13 13M — per-face planar UVs for flat-faced polyhedra (the d12). Projects each
+ * face's vertices onto an in-plane orthonormal basis and box-normalizes into [0.1, 0.9],
+ * so each pentagon samples the texture ONCE with the number centred — replacing the tiled
+ * triangle UVs that drew the texture three times per pentagon. Standard per-face mapping for
+ * flat-faced polyhedra (three.js BufferGeometry UV attribute semantics).
+ */
+export function buildPlanarFaceUVs(geo: THREE.BufferGeometry, faceCount: number, vertsPerFace: number): Float32Array {
+  const pos = geo.getAttribute('position')
+  const uvs = new Float32Array(faceCount * vertsPerFace * 2)
+  const a = new THREE.Vector3()
+  const b = new THREE.Vector3()
+  const c = new THREE.Vector3()
+  const u = new THREE.Vector3()
+  const v = new THREE.Vector3()
+  const n = new THREE.Vector3()
+  const tmp = new THREE.Vector3()
+
+  for (let f = 0; f < faceCount; f++) {
+    const start = f * vertsPerFace
+    a.fromBufferAttribute(pos, start)
+    b.fromBufferAttribute(pos, start + 1)
+    c.fromBufferAttribute(pos, start + 2)
+    u.subVectors(b, a).normalize() // first in-plane axis
+    tmp.subVectors(c, a)
+    n.crossVectors(u, tmp).normalize() // face normal
+    v.crossVectors(n, u).normalize() // second in-plane axis (orthonormal to u)
+
+    const coords: Array<[number, number]> = []
+    let minU = Number.POSITIVE_INFINITY
+    let maxU = Number.NEGATIVE_INFINITY
+    let minV = Number.POSITIVE_INFINITY
+    let maxV = Number.NEGATIVE_INFINITY
+    for (let i = 0; i < vertsPerFace; i++) {
+      tmp.fromBufferAttribute(pos, start + i).sub(a)
+      const pu = tmp.dot(u)
+      const pv = tmp.dot(v)
+      coords.push([pu, pv])
+      if (pu < minU) minU = pu
+      if (pu > maxU) maxU = pu
+      if (pv < minV) minV = pv
+      if (pv > maxV) maxV = pv
+    }
+    const spanU = maxU - minU || 1
+    const spanV = maxV - minV || 1
+    for (let i = 0; i < vertsPerFace; i++) {
+      const [pu, pv] = coords[i]
+      const o = (start + i) * 2
+      uvs[o] = 0.1 + 0.8 * ((pu - minU) / spanU)
+      uvs[o + 1] = 0.1 + 0.8 * ((pv - minV) / spanV)
+    }
+  }
+  return uvs
 }
 
 export function computeFaceNormalsFromGeo(geo: THREE.BufferGeometry, faceCount: number): THREE.Vector3[] {
@@ -66,7 +123,8 @@ export function createD4(colors: DiceColors, isHidden: boolean, solidOnly: boole
   }
   nonIndexedGeo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2))
 
-  const materials = makeMaterials(faceLabels, colors, isHidden, solidOnly)
+  // PHASE-13 13M — triangular faces: centroid v=1/3, draw the number there so it sits centred.
+  const materials = makeMaterials(faceLabels, colors, isHidden, solidOnly, { centerV: 1 / 3 })
   const mesh = new THREE.Mesh(nonIndexedGeo, materials)
   mesh.castShadow = true
 
@@ -126,7 +184,8 @@ export function createD8(colors: DiceColors, isHidden: boolean, solidOnly: boole
   nonIndexedGeo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2))
 
   const faceLabels = ['1', '2', '3', '4', '5', '6', '7', '8']
-  const materials = makeMaterials(faceLabels, colors, isHidden, solidOnly)
+  // PHASE-13 13M — triangular faces: centroid v=1/3, draw the number there so it sits centred.
+  const materials = makeMaterials(faceLabels, colors, isHidden, solidOnly, { centerV: 1 / 3 })
   const mesh = new THREE.Mesh(nonIndexedGeo, materials)
   mesh.castShadow = true
 
@@ -237,22 +296,13 @@ export function createD12(colors: DiceColors, isHidden: boolean, solidOnly: bool
     nonIndexedGeo.addGroup(i * vertsPerFace, vertsPerFace, i)
   }
 
-  const uvCount = totalVerts
-  const uvs = new Float32Array(uvCount * 2)
-  for (let f = 0; f < 12; f++) {
-    for (let t = 0; t < trisPerFace; t++) {
-      const base = (f * vertsPerFace + t * 3) * 2
-      uvs[base] = 0.5
-      uvs[base + 1] = 1.0
-      uvs[base + 2] = 0.0
-      uvs[base + 3] = 0.0
-      uvs[base + 4] = 1.0
-      uvs[base + 5] = 0.0
-    }
-  }
+  // PHASE-13 13M — planar per-face UVs so each pentagon samples the texture ONCE with the
+  // number centred, replacing the tiled triangle UVs that drew it three times per face.
+  const uvs = buildPlanarFaceUVs(nonIndexedGeo, 12, vertsPerFace)
   nonIndexedGeo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2))
 
   const faceLabels = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+  // d12 keeps centre placement — planar UVs box-normalize the number to the pentagon centroid.
   const materials = makeMaterials(faceLabels, colors, isHidden, solidOnly)
   const mesh = new THREE.Mesh(nonIndexedGeo, materials)
   mesh.castShadow = true
@@ -287,7 +337,9 @@ export function createD20(colors: DiceColors, isHidden: boolean, solidOnly: bool
   nonIndexedGeo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2))
 
   const faceLabels = Array.from({ length: 20 }, (_, i) => String(i + 1))
-  const materials = makeMaterials(faceLabels, colors, isHidden, solidOnly)
+  // PHASE-13 13M — triangular faces: centroid v=1/3; createDieTexture shrinks 2-digit labels
+  // (0.26·size) so they stay inside the smaller inscribed circle.
+  const materials = makeMaterials(faceLabels, colors, isHidden, solidOnly, { centerV: 1 / 3 })
   const mesh = new THREE.Mesh(nonIndexedGeo, materials)
   mesh.castShadow = true
 

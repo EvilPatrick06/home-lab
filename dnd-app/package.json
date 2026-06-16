@@ -29,6 +29,7 @@
     "build:index": "node scripts/build/build-chunk-index.mjs",
     "verify:build": "node scripts/build/verify-build.mjs",
     "check:electron-eol": "node scripts/maintenance/electron-eol-check.mjs",
+    "check:bundle-size": "node scripts/maintenance/check-bundle-size.mjs",
     "validate:5e": "node scripts/audit/check-5e-cross-refs.mjs",
     "validate:content": "tsx scripts/audit/validate-content-vs-schemas.ts",
     "i18n:gen-keys": "node scripts/i18n/gen-key-union.mjs",
@@ -221,7 +222,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.100.1",
-    "@google/generative-ai": "^0.24.1",
+    "@google/genai": "^2.8.0",
     "bonjour-service": "^1.4.0",
     "electron-updater": "^6.8.3",
     "extract-zip": "^2.0.1",

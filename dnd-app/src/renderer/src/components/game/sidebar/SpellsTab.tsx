@@ -2,31 +2,10 @@ import { useMemo, useState } from 'react'
 import { SPELL_SCHOOLS } from '../../../constants'
 import { useAsyncData } from '../../../hooks/use-async-data'
 import { useT } from '../../../i18n'
-import type {
-  HigherLevelCasting,
-  HigherLevelScalingEntry,
-  SpellAction,
-  SpellComponents,
-  SpellD20Modifier,
-  SpellDamageData,
-  SpellDuration,
-  SpellHealingData,
-  SpellRange
-} from '../../../services/character/spell-data'
 import { CANTRIPS_KNOWN, getWarlockMaxSpellLevel } from '../../../services/character/spell-preparation-analyzer'
 import { load5eSpells } from '../../../services/data-provider'
 import { playSpellSound } from '../../../services/sound-manager'
 import type { SpellIndexEntry } from '../../../types/data/spell-data-types'
-
-type _SpellAction = SpellAction
-type _SpellRange = SpellRange
-type _SpellComponents = SpellComponents
-type _SpellDuration = SpellDuration
-type _SpellDamageData = SpellDamageData
-type _SpellHealingData = SpellHealingData
-type _SpellD20Modifier = SpellD20Modifier
-type _HigherLevelScalingEntry = HigherLevelScalingEntry
-type _HigherLevelCasting = HigherLevelCasting
 
 const SPELL_LEVELS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 

@@ -1,5 +1,6 @@
-import { type ReactNode, useCallback, useEffect, useId, useRef } from 'react'
+import { type ReactNode, useId } from 'react'
 import { useT } from '../../i18n'
+import { ModalScaffold } from './ModalScaffold'
 
 interface ModalProps {
   open: boolean
@@ -10,6 +11,12 @@ interface ModalProps {
   hideHeader?: boolean
 }
 
+/**
+ * Thin header-chrome wrapper around ModalScaffold (PHASE-13 13L). The dialog
+ * semantics + focus management live in ModalScaffold; Modal adds the pinned header
+ * + scrolling body. NOTE: the root layer moved from Tailwind `z-50` to `Z.MODAL`
+ * (60, via ModalScaffold) so modals sit above MODAL_BACKDROP-level overlays.
+ */
 export default function Modal({
   open,
   onClose,
@@ -19,67 +26,16 @@ export default function Modal({
   hideHeader = false
 }: ModalProps): JSX.Element | null {
   const { t } = useT()
-  const dialogRef = useRef<HTMLDivElement>(null)
-  const previousFocusRef = useRef<HTMLElement | null>(null)
   const titleId = useId()
 
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose()
-        return
-      }
-      if (e.key === 'Tab' && dialogRef.current) {
-        const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        )
-        if (focusable.length === 0) return
-        const first = focusable[0]
-        const last = focusable[focusable.length - 1]
-        if (e.shiftKey) {
-          if (document.activeElement === first) {
-            e.preventDefault()
-            last.focus()
-          }
-        } else {
-          if (document.activeElement === last) {
-            e.preventDefault()
-            first.focus()
-          }
-        }
-      }
-    },
-    [onClose]
-  )
-
-  useEffect(() => {
-    if (!open) return
-    previousFocusRef.current = document.activeElement as HTMLElement
-    const timer = requestAnimationFrame(() => {
-      const focusable = dialogRef.current?.querySelectorAll<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      )
-      focusable?.[0]?.focus()
-    })
-    document.addEventListener('keydown', handleKeyDown)
-    return () => {
-      cancelAnimationFrame(timer)
-      document.removeEventListener('keydown', handleKeyDown)
-      previousFocusRef.current?.focus()
-    }
-  }, [open, handleKeyDown])
-
-  if (!open) return null
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/70" onClick={onClose} aria-hidden="true" role="presentation" />
+    <ModalScaffold
+      open={open}
+      onClose={onClose}
+      labelledBy={title && !hideHeader ? titleId : undefined}
+      ariaLabel={title && hideHeader ? title : undefined}
+    >
       <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={title && !hideHeader ? titleId : undefined}
-        aria-label={title && hideHeader ? title : undefined}
         className={`relative bg-surface border border-border rounded-lg w-full mx-4 max-h-[80vh] flex flex-col ${className}`}
       >
         {/* Phase 17e (GUI-9) — header is a non-scrolling sibling; only the body scrolls, so the
@@ -102,6 +58,6 @@ export default function Modal({
         )}
         <div className={`flex-1 overflow-y-auto px-6 pb-6 ${hideHeader ? 'pt-6' : ''}`}>{children}</div>
       </div>
-    </div>
+    </ModalScaffold>
   )
 }

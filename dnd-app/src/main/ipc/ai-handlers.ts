@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from 'electron'
 import { promises as fs } from 'fs'
 import path from 'path'
+import { z } from 'zod'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import {
   AiChatRequestSchema,
@@ -13,7 +14,12 @@ import { isValidUUID } from '../../shared/utils/uuid'
 import { validateStatChanges } from '../ai/ai-schemas'
 import type { AiConnectionStatus, StreamResult } from '../ai/ai-service'
 import * as aiService from '../ai/ai-service'
-import { type GameStateSnapshot, processStateUpdate } from '../ai/ai-trigger-observer'
+import {
+  type GameStateSnapshot,
+  isTriggerObserverEnabled,
+  processStateUpdate,
+  setTriggerObserverEnabled
+} from '../ai/ai-trigger-observer'
 import { analyzeMapState, type MapStateForVisionAnalysis } from '../ai/ai-vision'
 import { setClaudeApiKey } from '../ai/claude-client'
 import { buildContext, getLastTokenBreakdown } from '../ai/context-builder'
@@ -58,7 +64,7 @@ import type {
 import { getDmStatus, sendNarration, startDiscordDm, stopDiscordDm } from '../bmo-bridge'
 import { logToFile } from '../log'
 import { deleteConversation, loadConversation, saveConversation } from '../storage/ai-conversation-storage'
-import { handle } from './_safe'
+import { handle, withArgsSchema } from './_safe'
 
 // Ensure imported types are used for type-safety
 type _ValidatedAiChatRequest = ValidatedAiChatRequest
@@ -306,11 +312,15 @@ export function registerAiHandlers(): void {
   // ── Scene Preparation ──
 
   handle(IPC_CHANNELS.AI_PREPARE_SCENE, async (_event, campaignId: string, characterIds: string[]) => {
+    // PHASE-13 13A — prepareScene ends in a conversation auto-save under campaigns/<id>/;
+    // reject a path-traversal id before any filesystem reach (the _safe wrapper surfaces the throw).
+    sanitizeCampaignId(campaignId)
     const streamId = aiService.prepareScene(campaignId, characterIds)
     return { success: true, streamId }
   })
 
   handle(IPC_CHANNELS.AI_GET_SCENE_STATUS, async (_event, campaignId: string) => {
+    sanitizeCampaignId(campaignId) // PHASE-13 13A — uniform campaignId validation (defense-in-depth)
     return aiService.getSceneStatus(campaignId)
   })
 
@@ -347,6 +357,7 @@ export function registerAiHandlers(): void {
     // Build context without sending a message — return THIS build's breakdown without recording
     // it, so a preview can't clobber a live stream's per-campaign breakdown. (07A / F4)
     try {
+      sanitizeCampaignId(campaignId) // PHASE-13 13A — buildContext reads memory files under campaigns/<id>/
       const built = await buildContext('preview query for token budget', characterIds, campaignId)
       return built.breakdown
     } catch {
@@ -356,6 +367,7 @@ export function registerAiHandlers(): void {
 
   handle(IPC_CHANNELS.AI_GENERATE_END_OF_SESSION_RECAP, async (_event, campaignId: string) => {
     try {
+      sanitizeCampaignId(campaignId) // PHASE-13 13A — generateSessionSummary reads/writes the conversation file
       const summary = await aiService.generateSessionSummary(campaignId)
       if (summary) {
         return { success: true, data: summary }
@@ -492,6 +504,7 @@ export function registerAiHandlers(): void {
 
   handle(IPC_CHANNELS.AI_SYNC_WORLD_STATE, async (_event, campaignId: string, state: Record<string, unknown>) => {
     try {
+      sanitizeCampaignId(campaignId) // PHASE-13 13A — reject path-traversal ids before the filesystem path.join
       const memMgr = getMemoryManager(campaignId)
       await memMgr.updateWorldState(state as Partial<WorldState>)
       return { success: true }
@@ -503,6 +516,7 @@ export function registerAiHandlers(): void {
 
   handle(IPC_CHANNELS.AI_SYNC_COMBAT_STATE, async (_event, campaignId: string, state: Record<string, unknown>) => {
     try {
+      sanitizeCampaignId(campaignId) // PHASE-13 13A — reject path-traversal ids before the filesystem path.join
       const memMgr = getMemoryManager(campaignId)
       // IPC boundary: renderer payload is type-erased Record; assert the domain shape.
       await memMgr.updateCombatState(state as unknown as CombatState)
@@ -522,6 +536,7 @@ export function registerAiHandlers(): void {
       if (!validAttitudes.includes(attitudeAfter as (typeof validAttitudes)[number])) {
         return { success: false, error: `Invalid attitude: ${attitudeAfter}` }
       }
+      sanitizeCampaignId(campaignId) // PHASE-13 13A — reject path-traversal ids before the filesystem path.join
       const memMgr = getMemoryManager(campaignId)
       await memMgr.logNpcInteraction(npcName, summary, attitudeAfter as 'friendly' | 'neutral' | 'hostile')
       return { success: true }
@@ -542,6 +557,7 @@ export function registerAiHandlers(): void {
       if (!validDispositions.includes(disposition as (typeof validDispositions)[number])) {
         return { success: false, error: `Invalid disposition: ${disposition}` }
       }
+      sanitizeCampaignId(campaignId) // PHASE-13 13A — reject path-traversal ids before the filesystem path.join
       const memMgr = getMemoryManager(campaignId)
       await memMgr.addNpcRelationship(
         npcName,
@@ -561,6 +577,7 @@ export function registerAiHandlers(): void {
       npcName: string,
       fields: { faction?: string; location?: string; secretMotivation?: string }
     ) => {
+      sanitizeCampaignId(campaignId) // PHASE-13 13A — reject path-traversal ids before the filesystem path.join
       const memMgr = getMemoryManager(campaignId)
       await memMgr.updateNpcFields(npcName, fields)
       return { success: true }
@@ -578,6 +595,7 @@ export function registerAiHandlers(): void {
     ) => {
       const validOps = ['add', 'update', 'complete', 'remove'] as const
       if (!validOps.includes(operation)) return { success: false, error: `Invalid quest operation: ${operation}` }
+      sanitizeCampaignId(campaignId) // PHASE-13 13A — reject path-traversal ids before the filesystem path.join
       const memMgr = getMemoryManager(campaignId)
       await memMgr.updateQuestLog(operation, name, description)
       return { success: true }
@@ -587,6 +605,7 @@ export function registerAiHandlers(): void {
   handle(
     IPC_CHANNELS.AI_ADJUST_FACTION_STANDING,
     async (_event, campaignId: string, factionName: string, delta: number) => {
+      sanitizeCampaignId(campaignId) // PHASE-13 13A — reject path-traversal ids before the filesystem path.join
       const memMgr = getMemoryManager(campaignId)
       await memMgr.adjustFactionReputation(factionName, delta)
       return { success: true }
@@ -709,6 +728,19 @@ export function registerAiHandlers(): void {
     } catch (error) {
       return { success: false, error: (error as Error).message }
     }
+  })
+
+  // PHASE-13 13D — the DM-facing kill switch for all proactive trigger processing.
+  handle(
+    IPC_CHANNELS.AI_TRIGGER_SET_ENABLED,
+    withArgsSchema(IPC_CHANNELS.AI_TRIGGER_SET_ENABLED, z.tuple([z.boolean()]), (_event, enabled) => {
+      setTriggerObserverEnabled(enabled)
+      return { enabled: isTriggerObserverEnabled() }
+    })
+  )
+
+  handle(IPC_CHANNELS.AI_TRIGGER_GET_ENABLED, async () => {
+    return { enabled: isTriggerObserverEnabled() }
   })
 
   // ── BMO Pi Bridge ──

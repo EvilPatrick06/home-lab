@@ -800,6 +800,7 @@
     },
     "campaignWizard": {
       "aiConfigFailed": "Campaign created, but AI DM configuration failed. You can reconfigure it from the campaign settings.",
+      "audioUploadFailed": "Couldn't upload audio \"{{name}}\". You can re-add it from the campaign's audio panel.",
       "createFailed": "Failed to create campaign. Please try again.",
       "stepIndicator": "Step {{current}} of {{total}}: {{name}}",
       "steps": {
@@ -1661,6 +1662,9 @@
       "requestRollPrefix": "Request Roll —",
       "dcSuffix": "(DC {{dc}})",
       "waiting": "Waiting for player rolls...",
+      "waitingForPlayers": "Waiting for {{count}} player(s)…",
+      "allResponded": "All players responded",
+      "rollForRemaining": "Roll for remaining",
       "colPlayer": "Player",
       "colRoll": "Roll",
       "colMod": "Mod",
@@ -2300,6 +2304,12 @@
       "soundEventIdPlaceholder": "e.g., combat.hit.critical",
       "creatureId": "Creature ID",
       "creatureIdPlaceholder": "ID from creatures.json",
+      "gridX": "Grid X",
+      "gridY": "Grid Y",
+      "spawnCoordsHint": "Blank = map centre",
+      "pauseAll": "Pause all triggers",
+      "resumeAll": "Resume all triggers",
+      "pausedBadge": "Triggers paused",
       "lightingLevel": "Lighting Level",
       "bright": "Bright",
       "dim": "Dim",
@@ -4921,28 +4931,6 @@
       "classes": "Classes: "
     }
   },
-  "settings": {
-    "microphoneSettings": {
-      "permissionDefault": "Microphone permission denied or no input device available.",
-      "intro": "Pick the mic to use, see live input levels, set a push-to-talk key, and tune input gain. Settings persist across sessions.",
-      "unavailable": "Microphone unavailable",
-      "inputDevice": "Input device",
-      "systemDefault": "System default",
-      "microphoneN": "Microphone {{n}}",
-      "liveLevel": "Live level",
-      "micLevelAria": "Microphone level {{percent}}%",
-      "speakHint": "Speak into the mic — the bar should move with your voice.",
-      "inputGain": "Input gain ({{percent}}%)",
-      "inputGainAria": "Microphone input gain",
-      "pushToTalk": "Push-to-talk",
-      "pressAnyKey": "Press any key… (Esc to cancel)",
-      "keyBound": "Key: {{key}}",
-      "bindKey": "Bind a key",
-      "clear": "Clear",
-      "pttHint": "Held while the bound key is pressed; released otherwise.",
-      "resetSettings": "Reset microphone settings"
-    }
-  },
   "lobby": {
     "characterSelector": {
       "heading": "Your Character",
@@ -6153,7 +6141,6 @@
       "muteAllSounds": "Mute All Sounds",
       "masterVolume": "Master Volume",
       "ambientMusic": "Ambient Music",
-      "microphone": "Microphone",
       "accessibility": "Accessibility",
       "resetAccessibilityDefaults": "Reset Accessibility Defaults",
       "uiScale": "UI Scale",

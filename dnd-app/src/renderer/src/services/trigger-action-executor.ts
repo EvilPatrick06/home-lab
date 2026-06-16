@@ -41,17 +41,24 @@ export function executeTriggerAction(action: string, payload: Record<string, unk
       break
     }
     case 'spawn_creature': {
-      // The trigger UI captures only a creatureId, not coordinates, so place at the
-      // active map's centre via the standard executor (a complete placement given
-      // the available data; precise/region placement is a follow-up).
+      // PHASE-13 13D — place at the trigger's configured gridX/gridY when both are valid
+      // non-negative integers (clamped to the active map's grid bounds); otherwise fall back
+      // to the active map's centre.
       const creatureId = typeof payload.creatureId === 'string' ? payload.creatureId : ''
       if (!creatureId) break
       const gs = useGameStore.getState()
       const map = gs.maps.find((m) => m.id === gs.activeMapId)
       if (!map) break
       const cell = map.grid.cellSize || 70
-      const gridX = Math.max(0, Math.floor(map.width / cell / 2))
-      const gridY = Math.max(0, Math.floor(map.height / cell / 2))
+      const maxX = Math.max(0, Math.floor(map.width / cell) - 1)
+      const maxY = Math.max(0, Math.floor(map.height / cell) - 1)
+      const validCoord = (v: unknown): v is number => typeof v === 'number' && Number.isInteger(v) && v >= 0
+      const gridX = validCoord(payload.gridX)
+        ? Math.min(payload.gridX, maxX)
+        : Math.max(0, Math.floor(map.width / cell / 2))
+      const gridY = validCoord(payload.gridY)
+        ? Math.min(payload.gridY, maxY)
+        : Math.max(0, Math.floor(map.height / cell / 2))
       import('./game-action-executor')
         .then(({ executeDmActions }) => {
           executeDmActions([{ action: 'place_creature', creatureId, gridX, gridY }])

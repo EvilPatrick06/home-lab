@@ -7,7 +7,15 @@ const mocked = vi.hoisted(() => ({
   restoreMock: vi.fn(),
   getConversationManagerMock: vi.fn(() => ({ serialize: () => ({}), restore: mocked.restoreMock })),
   hasActiveStreamMock: vi.fn(() => false),
-  cancelStreamsMock: vi.fn(() => 0)
+  cancelStreamsMock: vi.fn(() => 0),
+  getMemoryManagerMock: vi.fn(() => ({
+    updateWorldState: vi.fn(async () => {}),
+    updateQuestLog: vi.fn(async () => {})
+  }))
+}))
+
+vi.mock('../ai/memory-manager', () => ({
+  getMemoryManager: mocked.getMemoryManagerMock
 }))
 
 vi.mock('electron', () => ({
@@ -257,5 +265,75 @@ describe('registerAiHandlers AI_GET_TOKEN_METER channel (PHASE-10 10C)', () => {
     expect(res.conversationBudget).toBeGreaterThan(0)
     expect(typeof res.contextWindow).toBe('number')
     expect(res.contextWindow).toBeGreaterThan(0)
+  })
+})
+
+describe('registerAiHandlers campaignId path-traversal guard (PHASE-13 13A)', () => {
+  const UUID = '11111111-1111-1111-1111-111111111111'
+  const EVIL = '../../evil'
+  const findHandler = (channel: string): ((_e: unknown, ...args: unknown[]) => Promise<unknown>) => {
+    registerAiHandlers()
+    const reg = mocked.ipcHandleMock.mock.calls.find(([c]) => c === channel)
+    expect(reg).toBeTruthy()
+    return reg?.[1] as (_e: unknown, ...args: unknown[]) => Promise<unknown>
+  }
+  beforeEach(() => {
+    mocked.ipcHandleMock.mockClear()
+    mocked.getMemoryManagerMock.mockClear()
+  })
+
+  it('AI_SYNC_WORLD_STATE rejects a traversal id and never reaches getMemoryManager', async () => {
+    const handler = findHandler(IPC_CHANNELS.AI_SYNC_WORLD_STATE)
+    const res = (await handler({}, EVIL, {})) as { success: boolean }
+    expect(res.success).toBe(false)
+    expect(mocked.getMemoryManagerMock).not.toHaveBeenCalled()
+  })
+
+  it('AI_SYNC_WORLD_STATE passes a valid UUID through to getMemoryManager', async () => {
+    const handler = findHandler(IPC_CHANNELS.AI_SYNC_WORLD_STATE)
+    const res = (await handler({}, UUID, {})) as { success: boolean }
+    expect(res.success).toBe(true)
+    expect(mocked.getMemoryManagerMock).toHaveBeenCalledWith(UUID)
+  })
+
+  it('AI_UPDATE_QUEST_LOG rejects a traversal id', async () => {
+    const handler = findHandler(IPC_CHANNELS.AI_UPDATE_QUEST_LOG)
+    const res = (await handler({}, EVIL, 'add', 'Quest')) as { success: boolean }
+    expect(res.success).toBe(false)
+    expect(mocked.getMemoryManagerMock).not.toHaveBeenCalled()
+  })
+
+  it('AI_PREPARE_SCENE surfaces an error envelope and never calls prepareScene', async () => {
+    const handler = findHandler(IPC_CHANNELS.AI_PREPARE_SCENE)
+    const aiService = await import('../ai/ai-service')
+    vi.mocked(aiService.prepareScene).mockClear()
+    const res = (await handler({}, EVIL, [])) as { success: boolean }
+    expect(res.success).toBe(false)
+    expect(aiService.prepareScene).not.toHaveBeenCalled()
+  })
+})
+
+describe('registerAiHandlers trigger observer kill switch (PHASE-13 13D)', () => {
+  const findHandler = (channel: string): ((_e: unknown, ...args: unknown[]) => Promise<unknown>) => {
+    registerAiHandlers()
+    const reg = mocked.ipcHandleMock.mock.calls.find(([c]) => c === channel)
+    expect(reg).toBeTruthy()
+    return reg?.[1] as (_e: unknown, ...args: unknown[]) => Promise<unknown>
+  }
+  beforeEach(() => mocked.ipcHandleMock.mockClear())
+
+  it('SET flips what GET returns', async () => {
+    const set = findHandler(IPC_CHANNELS.AI_TRIGGER_SET_ENABLED)
+    const get = findHandler(IPC_CHANNELS.AI_TRIGGER_GET_ENABLED)
+    await set({}, false)
+    expect(await get({})).toEqual({ enabled: false })
+    await set({}, true)
+    expect(await get({})).toEqual({ enabled: true })
+  })
+
+  it('SET rejects a non-boolean arg via the tuple schema', async () => {
+    const set = findHandler(IPC_CHANNELS.AI_TRIGGER_SET_ENABLED)
+    const res = (await set({}, 'nope')) as { success: boolean }
+    expect(res.success).toBe(false)
   })
 })

@@ -18,9 +18,9 @@ import { cryptoRandom } from '../../../utils/crypto-random'
 //   - Bumped MAX_SETTLE_TIME from 4 s → 4.5 s so the very-slow cases
 //     don't get cut off mid-tumble. The settle-frame check still wins
 //     for normal rolls, so this only affects edge cases.
-// Geometry / texture concerns (numbers not centered, sides not evenly
-// sized) live in dice-meshes.ts / dice-textures.ts — out of scope for
-// the physics file; logged as a follow-up.
+// Geometry / texture concerns (centred numbers, one number per d12 pentagon)
+// are handled in dice-generators.ts / dice-textures.ts — centroid-anchored
+// glyphs (centerV) plus planar per-face UVs — not the physics file's concern.
 const GRAVITY = -40
 const FLOOR_Y = 0
 const WALL_DISTANCE = 4

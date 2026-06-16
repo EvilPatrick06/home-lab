@@ -3,15 +3,7 @@ import { Application, Assets, type Container, type Graphics, type Sprite } from 
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { LIGHT_SOURCES } from '../../../data/light-sources'
 import { useT } from '../../../i18n'
-import {
-  calculateZoomToFit,
-  getActivePings,
-  getGridLabel,
-  getPingAnimation,
-  type MapPing
-} from '../../../services/map/map-utils'
-
-type _MapPing = MapPing
+import { calculateZoomToFit, getActivePings, getGridLabel, getPingAnimation } from '../../../services/map/map-utils'
 
 import {
   buildVisionSet,

@@ -3,7 +3,9 @@ import { trigger3dDice } from '../../../../components/game/dice3d'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { useT } from '../../../../i18n'
 import { rollSingle } from '../../../../services/dice/dice-service'
+import { useNetworkStore } from '../../../../stores/network-store'
 import { useCharacterStore } from '../../../../stores/use-character-store'
+import { useGameStore } from '../../../../stores/use-game-store'
 import { useLobbyStore } from '../../../../stores/use-lobby-store'
 import { is5eCharacter } from '../../../../types/character'
 import { abilityModifier } from '../../../../types/character-common'
@@ -15,14 +17,6 @@ interface GroupRollModalProps {
 }
 
 type CheckType = 'ability' | 'save' | 'skill'
-
-interface RollResult {
-  name: string
-  roll: number
-  mod: number
-  total: number
-  success: boolean
-}
 
 const ABILITIES = [
   { value: 'strength', label: 'Strength' },
@@ -56,15 +50,26 @@ const SKILLS = [
 
 export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRollModalProps) {
   const { t } = useT()
-  useEscapeKey(onClose)
   const [checkType, setCheckType] = useState<CheckType>('ability')
   const [ability, setAbility] = useState('strength')
   const [skill, setSkill] = useState('Perception')
   const [dc, setDc] = useState(15)
   const [scope, setScope] = useState<'all' | 'selected'>('all')
   const [isSecret, setIsSecret] = useState(false)
-  const [results, setResults] = useState<RollResult[] | null>(null)
   const [requested, setRequested] = useState(false)
+
+  // PHASE-13 13G — live results streamed from the host game store as each player's
+  // `player:roll-result` lands (the host-handler calls `addGroupRollResult`). The DM
+  // watches them arrive here instead of the old roll-for-everyone-immediately loop.
+  const liveResults = useGameStore((s) => s.groupRollResults)
+  const lobbyPlayers = useLobbyStore((s) => s.players)
+  const connectedPlayers = lobbyPlayers.filter((p) => (p.status ?? 'connected') === 'connected')
+
+  const handleClose = (): void => {
+    useGameStore.getState().clearGroupRollResults()
+    onClose()
+  }
+  useEscapeKey(handleClose)
 
   const getCheckLabel = (): string => {
     if (checkType === 'skill') return t('game.groupRollModal.skillCheck', { skill })
@@ -74,10 +79,8 @@ export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRoll
       : t('game.groupRollModal.checkLabel', { ability: abilityLabel })
   }
 
-  // Phase 26a — roll for the REAL connected players (mock names removed). The DM
-  // rolls on each player's behalf using their character's actual modifier.
-  // (Full P2P prompt-each-player round-trip — dm:group-roll-request /
-  // player:group-roll-result — is deferred; logged in the phase plan.)
+  // The DM's character-modifier helper, reused for the "roll for remaining" fallback so
+  // solo/offline/AFK players still get a result (mirrors RollRequestOverlay's own math).
   const computeModifier = (characterId: string | null): number => {
     if (!characterId) return 0
     const char = useCharacterStore.getState().characters.find((c) => c.id === characterId)
@@ -97,36 +100,76 @@ export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRoll
     return abMod
   }
 
+  // PHASE-13 13G — broadcast a real roll request so every connected player's
+  // RollRequestOverlay pops (the already-shipped client path); their results stream back
+  // into `groupRollResults`. Mirrors `executeRequestRoll` (effect-actions.ts) exactly.
   const handleRequestRoll = () => {
     setRequested(true)
+    const gs = useGameStore.getState()
+    gs.clearGroupRollResults()
+    const id = crypto.randomUUID()
+    const reqAbility = checkType === 'skill' ? undefined : ability
+    const reqSkill = checkType === 'skill' ? skill : undefined
+    gs.setPendingGroupRoll({ id, type: checkType, ability: reqAbility, skill: reqSkill, dc, scope, isSecret })
 
-    const players = useLobbyStore.getState().players.filter((p) => (p.status ?? 'connected') === 'connected')
-    const rolled: RollResult[] = players.map((p) => {
-      const name = p.displayName
+    const net = useNetworkStore.getState()
+    const localPeerId = net.localPeerId ?? ''
+    const requesterName =
+      useLobbyStore.getState().players.find((p) => p.peerId === localPeerId)?.displayName ?? 'Dungeon Master'
+    net.sendMessage('dm:roll-request', {
+      id,
+      type: checkType,
+      ability: reqAbility,
+      skill: reqSkill,
+      dc,
+      isSecret,
+      requesterId: localPeerId,
+      requesterName
+    })
+  }
+
+  // "Roll for remaining": fill in every connected player who hasn't responded yet (and any
+  // solo/AFK player) by rolling DM-side with their real modifier. A player counts as
+  // responded if a result matches their characterId or display name.
+  const respondedIds = new Set(liveResults.map((r) => r.entityId))
+  const respondedNames = new Set(liveResults.map((r) => r.entityName))
+  const nonResponders = connectedPlayers.filter(
+    (p) => !((p.characterId && respondedIds.has(p.characterId)) || respondedNames.has(p.displayName))
+  )
+
+  const handleRollForRemaining = () => {
+    const gs = useGameStore.getState()
+    for (const p of nonResponders) {
       const roll = rollSingle(20)
       const mod = computeModifier(p.characterId)
       const total = roll + mod
-      trigger3dDice({ formula: '1d20', rolls: [roll], total, rollerName: name })
-      return { name, roll, mod, total, success: total >= dc }
-    })
-
-    setResults(rolled)
+      trigger3dDice({ formula: '1d20', rolls: [roll], total, rollerName: p.displayName })
+      gs.addGroupRollResult({
+        entityId: p.characterId ?? p.peerId,
+        entityName: p.displayName,
+        roll,
+        modifier: mod,
+        total,
+        success: total >= dc
+      })
+    }
   }
 
-  const passCount = results?.filter((r) => r.success).length ?? 0
-  const totalCount = results?.length ?? 0
-  const groupSuccess = passCount >= Math.ceil(totalCount / 2)
+  const passCount = liveResults.filter((r) => r.success).length
+  const totalCount = liveResults.length
+  const groupSuccess = totalCount > 0 && passCount >= Math.ceil(totalCount / 2)
+  const waitingCount = Math.max(0, connectedPlayers.length - totalCount)
 
   const handleDone = () => {
-    if (results) {
+    if (liveResults.length > 0) {
       const label = getCheckLabel()
-      const passNames = results
+      const passNames = liveResults
         .filter((r) => r.success)
-        .map((r) => r.name)
+        .map((r) => r.entityName)
         .join(', ')
-      const failNames = results
+      const failNames = liveResults
         .filter((r) => !r.success)
-        .map((r) => r.name)
+        .map((r) => r.entityName)
         .join(', ')
       const summary = t('game.groupRollModal.summary', {
         label,
@@ -139,13 +182,13 @@ export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRoll
       })
       onBroadcastResult(summary)
     }
-    onClose()
+    handleClose()
   }
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
-      onClick={onClose}
+      onClick={handleClose}
       role="presentation"
     >
       <div
@@ -155,7 +198,7 @@ export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRoll
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <h2 className="text-lg font-bold text-accent">{t('game.groupRollModal.title')}</h2>
-          <button onClick={onClose} className="text-muted hover:text-white text-xl leading-none">
+          <button onClick={handleClose} className="text-muted hover:text-white text-xl leading-none">
             &times;
           </button>
         </div>
@@ -260,74 +303,90 @@ export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRoll
             </button>
           )}
 
-          {/* Waiting State */}
-          {requested && !results && (
-            <div className="text-center py-4">
-              <div className="animate-pulse text-accent text-sm font-medium">{t('game.groupRollModal.waiting')}</div>
-            </div>
-          )}
-
-          {/* Results Table */}
-          {results && (
+          {/* Live results — stream in as players respond */}
+          {requested && (
             <div className="space-y-3">
-              <div className="border border-border rounded-lg overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-surface-2 text-muted">
-                      <th className="text-left px-3 py-2 font-medium">{t('game.groupRollModal.colPlayer')}</th>
-                      <th className="text-center px-3 py-2 font-medium">{t('game.groupRollModal.colRoll')}</th>
-                      <th className="text-center px-3 py-2 font-medium">{t('game.groupRollModal.colMod')}</th>
-                      <th className="text-center px-3 py-2 font-medium">{t('game.groupRollModal.colTotal')}</th>
-                      <th className="text-center px-3 py-2 font-medium">{t('game.groupRollModal.colResult')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {results.map((r) => (
-                      <tr key={r.name} className="border-t border-gray-800">
-                        <td className="px-3 py-2 text-white font-medium">{r.name}</td>
-                        <td
-                          className={`text-center px-3 py-2 ${
-                            r.roll === 20
-                              ? 'text-green-400 font-bold'
-                              : r.roll === 1
-                                ? 'text-red-400 font-bold'
-                                : 'text-gray-300'
-                          }`}
-                        >
-                          {r.roll}
-                        </td>
-                        <td className="text-center px-3 py-2 text-muted">{r.mod >= 0 ? `+${r.mod}` : r.mod}</td>
-                        <td className="text-center px-3 py-2 text-white font-semibold">{r.total}</td>
-                        <td className="text-center px-3 py-2">
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                              r.success ? 'bg-green-900/50 text-green-400' : 'bg-red-900/50 text-red-400'
+              {/* Waiting line + roll-for-remaining fallback */}
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-sm font-medium text-accent">
+                  {waitingCount > 0
+                    ? t('game.groupRollModal.waitingForPlayers', { count: waitingCount })
+                    : t('game.groupRollModal.allResponded')}
+                </div>
+                {nonResponders.length > 0 && (
+                  <button
+                    onClick={handleRollForRemaining}
+                    className="shrink-0 px-3 py-1.5 bg-surface-2 hover:bg-gray-700 border border-border text-gray-200 text-xs font-medium rounded-lg transition-colors"
+                  >
+                    {t('game.groupRollModal.rollForRemaining')}
+                  </button>
+                )}
+              </div>
+
+              {totalCount > 0 && (
+                <div className="border border-border rounded-lg overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-surface-2 text-muted">
+                        <th className="text-left px-3 py-2 font-medium">{t('game.groupRollModal.colPlayer')}</th>
+                        <th className="text-center px-3 py-2 font-medium">{t('game.groupRollModal.colRoll')}</th>
+                        <th className="text-center px-3 py-2 font-medium">{t('game.groupRollModal.colMod')}</th>
+                        <th className="text-center px-3 py-2 font-medium">{t('game.groupRollModal.colTotal')}</th>
+                        <th className="text-center px-3 py-2 font-medium">{t('game.groupRollModal.colResult')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {liveResults.map((r) => (
+                        <tr key={r.entityId} className="border-t border-gray-800">
+                          <td className="px-3 py-2 text-white font-medium">{r.entityName}</td>
+                          <td
+                            className={`text-center px-3 py-2 ${
+                              r.roll === 20
+                                ? 'text-green-400 font-bold'
+                                : r.roll === 1
+                                  ? 'text-red-400 font-bold'
+                                  : 'text-gray-300'
                             }`}
                           >
-                            {r.success ? t('game.groupRollModal.pass') : t('game.groupRollModal.fail')}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                            {r.roll}
+                          </td>
+                          <td className="text-center px-3 py-2 text-muted">
+                            {r.modifier >= 0 ? `+${r.modifier}` : r.modifier}
+                          </td>
+                          <td className="text-center px-3 py-2 text-white font-semibold">{r.total}</td>
+                          <td className="text-center px-3 py-2">
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                r.success ? 'bg-green-900/50 text-green-400' : 'bg-red-900/50 text-red-400'
+                              }`}
+                            >
+                              {r.success ? t('game.groupRollModal.pass') : t('game.groupRollModal.fail')}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
 
-              {/* Group Result */}
-              <div
-                className={`text-center py-3 rounded-lg border ${
-                  groupSuccess
-                    ? 'bg-green-900/20 border-green-700 text-green-400'
-                    : 'bg-red-900/20 border-red-700 text-red-400'
-                }`}
-              >
-                <div className="text-xs text-muted mb-1">
-                  {t('game.groupRollModal.groupCheck', { passCount, totalCount })}
+              {/* Group Result — only meaningful once at least one result is in */}
+              {totalCount > 0 && (
+                <div
+                  className={`text-center py-3 rounded-lg border ${
+                    groupSuccess
+                      ? 'bg-green-900/20 border-green-700 text-green-400'
+                      : 'bg-red-900/20 border-red-700 text-red-400'
+                  }`}
+                >
+                  <div className="text-xs text-muted mb-1">
+                    {t('game.groupRollModal.groupCheck', { passCount, totalCount })}
+                  </div>
+                  <div className="text-lg font-bold">
+                    {groupSuccess ? t('game.groupRollModal.groupSucceeds') : t('game.groupRollModal.groupFailsResult')}
+                  </div>
                 </div>
-                <div className="text-lg font-bold">
-                  {groupSuccess ? t('game.groupRollModal.groupSucceeds') : t('game.groupRollModal.groupFailsResult')}
-                </div>
-              </div>
+              )}
 
               <button
                 onClick={handleDone}

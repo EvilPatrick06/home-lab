@@ -1,11 +1,12 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai'
 import {
   CLOUD_INACTIVITY_TIMEOUT_MS,
   classifyProviderError,
   createStreamInactivityGuard,
   type LLMProvider,
   PROVIDER_REQUEST_TIMEOUT_MS,
-  type StreamInactivityGuard
+  type StreamInactivityGuard,
+  withRequestTimeout
 } from './llm-provider'
 import type { ChatMessage, StreamCallbacks } from './types'
 
@@ -15,9 +16,9 @@ export function setGeminiApiKey(key: string | undefined): void {
   apiKey = key
 }
 
-function getClient(): GoogleGenerativeAI {
+function getClient(): GoogleGenAI {
   if (!apiKey) throw new Error('Gemini API key not configured')
-  return new GoogleGenerativeAI(apiKey)
+  return new GoogleGenAI({ apiKey })
 }
 
 function toGeminiRole(role: 'user' | 'assistant'): 'user' | 'model' {
@@ -36,12 +37,7 @@ export const geminiProvider: LLMProvider = {
   ): Promise<void> {
     let streamGuard: StreamInactivityGuard | undefined
     try {
-      const client = getClient()
-      // PHASE-03 — NO model-level `timeout` for streaming (it would wall-clock-kill
-      // a long narration). @google/generative-ai@0.24.1 accepts a per-request
-      // SingleRequestOptions.signal, wired into the fetch's AbortController; pass the
-      // inactivity-guard signal so only inter-token silence (or caller abort) aborts.
-      const genModel = client.getGenerativeModel({ model, systemInstruction: systemPrompt })
+      const ai = getClient()
 
       const history = messages.slice(0, -1).map((m) => ({
         role: toGeminiRole(m.role),
@@ -54,17 +50,25 @@ export const geminiProvider: LLMProvider = {
         return
       }
 
+      // PHASE-03 / PHASE-13 13P — NO wall-clock timeout on the streaming path (it would
+      // kill a long narration). @google/genai accepts a per-request `abortSignal`; pass the
+      // inactivity-guard signal so only inter-token silence (or caller abort) aborts.
+      // (The new SDK's abortSignal cancels client-side only — the service still completes
+      // and may bill the request — same behavior as the old SDK, no contract change.)
       const guard = createStreamInactivityGuard({ signal: abortSignal })
       streamGuard = guard
-      const chat = genModel.startChat({ history })
-      const result = await chat.sendMessageStream(lastMessage.content, { signal: guard.signal })
+      const chat = ai.chats.create({ model, history, config: { systemInstruction: systemPrompt } })
+      const stream = await chat.sendMessageStream({
+        message: lastMessage.content,
+        config: { abortSignal: guard.signal }
+      })
 
       let fullText = ''
 
-      for await (const chunk of result.stream) {
+      for await (const chunk of stream) {
         guard.bump()
         if (abortSignal?.aborted) return
-        const text = chunk.text()
+        const text = chunk.text // `.text` is a PROPERTY in @google/genai, not a method
         if (text) {
           fullText += text
           callbacks.onText(text)
@@ -89,26 +93,27 @@ export const geminiProvider: LLMProvider = {
   },
 
   async chatOnce(systemPrompt: string, messages: ChatMessage[], model: string): Promise<string> {
-    const client = getClient()
-    // Non-streaming: keep one overall request ceiling (PROVIDER_REQUEST_TIMEOUT_MS)
-    // since there's no token stream to watch.
-    const genModel = client.getGenerativeModel(
-      { model, systemInstruction: systemPrompt },
-      { timeout: PROVIDER_REQUEST_TIMEOUT_MS }
-    )
+    const ai = getClient()
 
-    const history = messages.slice(0, -1).map((m) => ({
+    const contents = messages.map((m) => ({
       role: toGeminiRole(m.role),
       parts: [{ text: m.content }]
     }))
 
-    const lastMessage = messages[messages.length - 1]
-    if (!lastMessage) return ''
+    if (contents.length === 0) return ''
 
     try {
-      const chat = genModel.startChat({ history })
-      const result = await chat.sendMessage(lastMessage.content)
-      return result.response.text()
+      // Non-streaming: one overall request ceiling (PROVIDER_REQUEST_TIMEOUT_MS) since there's
+      // no token stream to watch — reuses the shared `withRequestTimeout` signal idiom.
+      const response = await ai.models.generateContent({
+        model,
+        contents,
+        config: {
+          systemInstruction: systemPrompt,
+          abortSignal: withRequestTimeout(undefined, PROVIDER_REQUEST_TIMEOUT_MS)
+        }
+      })
+      return response.text ?? ''
     } catch (error) {
       throw classifyProviderError('gemini', error)
     }
@@ -118,7 +123,7 @@ export const geminiProvider: LLMProvider = {
     if (!apiKey) return false
     try {
       // Validate the key against the live models endpoint — no hardcoded probe
-      // model (the SDK has no list method, so use the REST endpoint directly).
+      // model (we use the REST endpoint directly, carrying no SDK dependency).
       const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`)
       return res.ok
     } catch {

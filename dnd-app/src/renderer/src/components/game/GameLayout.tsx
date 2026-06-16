@@ -107,6 +107,9 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [editMapMode, setEditMapMode] = useState(false)
   const [activeModal, setActiveModal] = useState<ActiveModal>(null)
+  // PHASE-13 13H — deep-link targets for the compendium (chat links) + shared journal (pins).
+  const [compendiumTarget, setCompendiumTarget] = useState<{ category: string; name: string } | null>(null)
+  const [journalFocusEntryId, setJournalFocusEntryId] = useState<string | null>(null)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mapKey, setMapKey] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -200,6 +203,12 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
     }
   }, [activeModal])
 
+  // PHASE-13 13H — clear deep-link targets once their modal closes.
+  useEffect(() => {
+    if (activeModal !== 'compendium') setCompendiumTarget(null)
+    if (activeModal !== 'sharedJournal') setJournalFocusEntryId(null)
+  }, [activeModal])
+
   // Build content index for [[name]] linking in chat
   useEffect(() => {
     const categories = ['monsters', 'spells', 'magic-items', 'weapons', 'armor', 'gear', 'conditions'] as const
@@ -268,10 +277,10 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
     }
   }, [sidebarCollapsed, sidebarWidth])
 
-  const handleLinkClick = useCallback((_category: string, _name: string) => {
-    // Opens the compendium modal. Pre-selecting the clicked entry is tracked as
-    // a future enhancement (see ISSUES-LOG-DNDAPP — compendium deep-link), not a
-    // blocking gap: the user can search within the modal today.
+  const handleLinkClick = useCallback((category: string, name: string) => {
+    // PHASE-13 13H — open the compendium pre-navigated to the clicked entry: its tab
+    // (when the category has one) with the name auto-selected / search-seeded.
+    setCompendiumTarget({ category, name })
     setActiveModal('compendium')
   }, [])
 
@@ -667,10 +676,11 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
               ? (gridX, gridY, screenX, screenY) => setEmptyCellMenu({ gridX, gridY, screenX, screenY })
               : undefined
           }
-          // Phase 16b Step 3 — click a pin: open its linked journal if set, otherwise surface
-          // the label. (NPC/location deep-links are a follow-up; journal is the wired panel.)
+          // Phase 16b Step 3 / PHASE-13 13H — click a pin: open its linked journal scrolled to
+          // the entry if set, otherwise surface the label.
           onPinClick={(pin) => {
             if (pin.linkedJournalId) {
+              setJournalFocusEntryId(pin.linkedJournalId)
               setActiveModal('sharedJournal')
             } else {
               addToast(pin.label, 'info')
@@ -1157,6 +1167,8 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
           handleWildShapeRevert={handleWildShapeRevert}
           handleWildShapeUseAdjust={handleWildShapeUseAdjust}
           localPeerId={lobbyPeerId ?? ''}
+          compendiumTarget={compendiumTarget}
+          journalFocusEntryId={journalFocusEntryId}
         />
       </ModalErrorBoundary>
 

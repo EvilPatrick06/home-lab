@@ -7,7 +7,11 @@ export function createDieTexture(
   faceText: string,
   bgColor: string,
   textColor: string,
-  size: number = 256
+  size: number = 256,
+  // PHASE-13 13M — centerV: vertical position of the glyph as a fraction from the
+  // BOTTOM (0.5 = middle, default). Triangular faces pass 1/3 so the number lands on
+  // the face centroid. fontScale overrides the length-based default font size.
+  opts?: { centerV?: number; fontScale?: number }
 ): THREE.CanvasTexture {
   const canvas = document.createElement('canvas')
   canvas.width = size
@@ -18,18 +22,30 @@ export function createDieTexture(
   ctx.fillStyle = bgColor
   ctx.fillRect(0, 0, size, size)
 
-  // Text
-  const fontSize = faceText.length > 2 ? size * 0.3 : faceText.length > 1 ? size * 0.38 : size * 0.5
+  // Text. Triangular faces (centerV != 0.5) have a smaller inscribed circle, so they
+  // need a smaller default font so 2-digit d20 labels stay inside the face.
+  const isTriangular = opts?.centerV !== undefined && opts.centerV !== 0.5
+  const defaultScale = isTriangular
+    ? faceText.length > 1
+      ? 0.26
+      : 0.34
+    : faceText.length > 2
+      ? 0.3
+      : faceText.length > 1
+        ? 0.38
+        : 0.5
+  const fontSize = size * (opts?.fontScale ?? defaultScale)
+  const centerY = size * (1 - (opts?.centerV ?? 0.5))
   ctx.fillStyle = textColor
   ctx.font = `bold ${fontSize}px 'Segoe UI', Arial, sans-serif`
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.fillText(faceText, size / 2, size / 2)
+  ctx.fillText(faceText, size / 2, centerY)
 
   // Underline 6 and 9 to distinguish them
   if (faceText === '6' || faceText === '9') {
     const metrics = ctx.measureText(faceText)
-    const underY = size / 2 + fontSize * 0.35
+    const underY = centerY + fontSize * 0.35
     const hw = metrics.width / 2
     ctx.strokeStyle = textColor
     ctx.lineWidth = Math.max(2, fontSize * 0.06)
@@ -78,12 +94,14 @@ export function createHiddenTexture(bgColor: string, size: number = 256): THREE.
 export function createFaceMaterials(
   faceLabels: string[],
   colors: DiceColors,
-  isHidden: boolean = false
+  isHidden: boolean = false,
+  // PHASE-13 13M — texture placement opts forwarded per face (triangular faces use centerV 1/3).
+  opts?: { centerV?: number; fontScale?: number }
 ): THREE.MeshStandardMaterial[] {
   return faceLabels.map((label) => {
     const texture = isHidden
       ? createHiddenTexture(colors.bodyColor)
-      : createDieTexture(label, colors.bodyColor, colors.numberColor)
+      : createDieTexture(label, colors.bodyColor, colors.numberColor, 256, opts)
     return new THREE.MeshStandardMaterial({
       map: texture,
       roughness: 0.35,

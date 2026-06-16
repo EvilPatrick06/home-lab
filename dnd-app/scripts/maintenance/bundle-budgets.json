@@ -1,0 +1,12 @@
+{
+  "out/renderer": {
+    "totalBytes": 147046400,
+    "maxChunkGzipBytes": 256000
+  },
+  "out/main": {
+    "totalBytes": 1126400
+  },
+  "out/preload": {
+    "totalBytes": 51200
+  }
+}

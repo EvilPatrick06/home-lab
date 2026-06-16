@@ -156,7 +156,41 @@ export default function LibraryPage(): JSX.Element {
   const totalCategoryCount = allCategories.length
   const totalGroupCount = LIBRARY_GROUPS.length
 
-  // Item counts per category (homebrew only for now — static counts are too expensive to load all at once)
+  // PHASE-13 13J — official per-category counts. Walked SEQUENTIALLY off the idle
+  // callback (not Promise.all) so opening the page doesn't fire a 40-category fetch
+  // burst; each loadCategoryItems is TTL-cached so revisits are free. Populates
+  // progressively; per-category failures degrade to 0.
+  const [officialCounts, setOfficialCounts] = useState<Record<string, number>>({})
+  useEffect(() => {
+    let cancelled = false
+    const idle: (cb: () => void) => void =
+      typeof window.requestIdleCallback === 'function'
+        ? (cb) => window.requestIdleCallback(cb)
+        : (cb) => {
+            setTimeout(cb, 200)
+          }
+    idle(async () => {
+      const counts: Record<string, number> = {}
+      let i = 0
+      for (const cat of allCategories) {
+        if (cancelled) return
+        try {
+          const items = await loadCategoryItems(cat.id, [])
+          counts[cat.id] = items.filter((it) => it.source === 'official').length
+        } catch {
+          counts[cat.id] = 0
+        }
+        i++
+        if (i % 5 === 0) setOfficialCounts({ ...counts })
+      }
+      if (!cancelled) setOfficialCounts({ ...counts })
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [allCategories])
+
+  // Homebrew ("custom") counts per category; official counts come from officialCounts above.
   const itemCounts = homebrewCounts
 
   // Reset sort/filter when category changes
@@ -717,7 +751,11 @@ export default function LibraryPage(): JSX.Element {
                   )}
 
                   {/* Category grid */}
-                  <LibraryCategoryGrid onSelectCategory={handleSelectCategory} itemCounts={itemCounts} />
+                  <LibraryCategoryGrid
+                    onSelectCategory={handleSelectCategory}
+                    itemCounts={itemCounts}
+                    totalCounts={officialCounts}
+                  />
                 </>
               )}
             </div>

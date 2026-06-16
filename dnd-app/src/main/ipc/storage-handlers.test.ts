@@ -35,8 +35,20 @@ vi.mock('../../shared/ipc-channels', () => ({
     LOAD_ALL_HOMEBREW: 'storage:load-all-homebrew',
     DELETE_HOMEBREW: 'storage:delete-homebrew',
     SAVE_SETTINGS: 'storage:save-settings',
-    LOAD_SETTINGS: 'storage:load-settings'
+    LOAD_SETTINGS: 'storage:load-settings',
+    BOOK_IMPORT: 'storage:book-import'
   }
+}))
+
+const importBookMock = vi.hoisted(() => vi.fn(async () => ({ success: true })))
+vi.mock('../storage/book-storage', () => ({
+  importBook: importBookMock,
+  addBook: vi.fn(),
+  loadBookConfig: vi.fn(),
+  loadBookData: vi.fn(),
+  readBookFile: vi.fn(),
+  removeBook: vi.fn(),
+  saveBookData: vi.fn()
 }))
 
 vi.mock('../storage/character-storage', () => ({
@@ -193,6 +205,36 @@ describe('storage-handlers', () => {
 
       const result = await handler({}, { turnServers: [] })
       expect(result).toEqual({ success: true })
+    })
+  })
+
+  describe('BOOK_IMPORT dialog-allowlist enforcement (PHASE-13 13B)', () => {
+    // biome-ignore lint/suspicious/noExplicitAny: invoke the captured raw handler
+    const bookImportHandler = (): any => {
+      registerStorageHandlers()
+      return mockHandle.mock.calls.find((call) => call[0] === IPC_CHANNELS.BOOK_IMPORT)![1]
+    }
+
+    it('rejects a path that was never registered via a dialog', async () => {
+      const handler = bookImportHandler()
+      const res = await handler({}, '/tmp/never-picked.pdf', 'Book', 'b1')
+      expect(res).toEqual({ success: false, error: 'Invalid source path: not a dialog-selected file' })
+      expect(importBookMock).not.toHaveBeenCalled()
+    })
+
+    it('accepts a path after it is registered via addDialogPath', async () => {
+      const { addDialogPath } = await import('./dialog-allowlist')
+      addDialogPath('/tmp/picked.pdf')
+      const handler = bookImportHandler()
+      const res = await handler({}, '/tmp/picked.pdf', 'Book', 'b1')
+      expect(res).toEqual({ success: true })
+      expect(importBookMock).toHaveBeenCalledWith('/tmp/picked.pdf', 'Book', 'b1')
+    })
+
+    it('accepts a userData-subtree path without dialog registration', async () => {
+      const handler = bookImportHandler()
+      const res = await handler({}, '/tmp/test-userdata/books/x.pdf', 'Book', 'b1')
+      expect(res).toEqual({ success: true })
     })
   })
 })

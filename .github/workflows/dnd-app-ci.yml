@@ -59,6 +59,8 @@ jobs:
         run: |
           test -f out/main/index.js || { echo "missing out/main/index.js"; exit 1; }
           test -f out/renderer/index.html || { echo "missing out/renderer/index.html"; exit 1; }
+      - name: Bundle size guard (13O)
+        run: npm run check:bundle-size
       - name: Coverage baseline (28h)
         run: npm run test:coverage
       - name: Security audit

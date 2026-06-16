@@ -265,6 +265,8 @@ export interface EquipmentItem {
   rechargeFormula?: string
   /** Phase 23k — consumable (potion/scroll/ammo): a "Use" button decrements quantity. */
   consumable?: boolean
+  /** PHASE-13 13I — items stored inside this container; their weight counts toward carry weight (recursive). */
+  contents?: EquipmentItem[]
 }
 
 export interface Feature {

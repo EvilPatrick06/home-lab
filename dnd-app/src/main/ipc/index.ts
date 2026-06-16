@@ -1,7 +1,7 @@
 import { readFile, stat, writeFile } from 'node:fs/promises'
-import { isAbsolute, relative, resolve } from 'node:path'
+import { resolve } from 'node:path'
 import { is } from '@electron-toolkit/utils'
-import { app, BrowserWindow, dialog } from 'electron'
+import { BrowserWindow, dialog } from 'electron'
 import { MAX_READ_FILE_SIZE, MAX_WRITE_CONTENT_SIZE } from '../../shared/constants'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import { SecurityEventSchema } from '../../shared/ipc-schemas'
@@ -12,6 +12,7 @@ import { registerAiHandlers } from './ai-handlers'
 import { registerAudioHandlers } from './audio-handlers'
 import { registerBmoSyncHandlers } from './bmo-sync-handlers'
 import { registerCloudSyncHandlers } from './cloud-sync-handlers'
+import { addDialogPath, consumeDialogPath, isPathAllowed } from './dialog-allowlist'
 import { registerDiscordHandlers } from './discord-handlers'
 import { registerGameDataHandlers } from './game-data-handlers'
 import { registerLanHandlers } from './lan-handlers'
@@ -20,46 +21,6 @@ import { registerPluginHandlers } from './plugin-handlers'
 import { registerRegistryHandlers } from './registry-handlers'
 import { registerSoundCacheHandlers } from './sound-cache-handlers'
 import { registerStorageHandlers } from './storage-handlers'
-
-// Tracks paths returned by file dialogs so fs:read-file / fs:write-file
-// only operate on user-selected locations or the app's own data directory.
-// Values are timestamps for TTL expiry.
-const dialogAllowedPaths = new Map<string, number>()
-const DIALOG_PATH_TTL = 300_000 // 5 minutes
-
-function addDialogPath(p: string): void {
-  dialogAllowedPaths.set(resolve(p), Date.now())
-}
-
-function isDialogPathValid(p: string): boolean {
-  const resolved = resolve(p)
-  const timestamp = dialogAllowedPaths.get(resolved)
-  if (timestamp === undefined) return false
-  if (Date.now() - timestamp >= DIALOG_PATH_TTL) {
-    dialogAllowedPaths.delete(resolved)
-    return false
-  }
-  return true
-}
-
-function isPathAllowed(targetPath: string): boolean {
-  const resolved = resolve(targetPath)
-  const userData = resolve(app.getPath('userData'))
-
-  // Allow anything under the app's userData directory
-  // Use path.relative() to prevent traversal attacks (e.g., "userData/../../../etc/passwd")
-  const rel = relative(userData, resolved)
-  if (rel && !rel.startsWith('..') && !isAbsolute(rel)) {
-    return true
-  }
-
-  // Allow paths the user explicitly selected via a file dialog (with TTL check)
-  if (isDialogPathValid(resolved)) {
-    return true
-  }
-
-  return false
-}
 
 export function registerIpcHandlers(): void {
   // --- Storage handlers (character, campaign, bastion, creature, game state, homebrew, settings) ---
@@ -156,7 +117,7 @@ export function registerIpcHandlers(): void {
       logToFile('ERROR', 'fs:write-file failed:', String(err))
       throw err
     } finally {
-      dialogAllowedPaths.delete(resolvedPath)
+      consumeDialogPath(resolvedPath)
     }
   })
 
@@ -175,7 +136,7 @@ export function registerIpcHandlers(): void {
       logToFile('ERROR', 'fs:write-file-binary failed:', String(err))
       throw err
     } finally {
-      dialogAllowedPaths.delete(resolvedPath)
+      consumeDialogPath(resolvedPath)
     }
   })
 

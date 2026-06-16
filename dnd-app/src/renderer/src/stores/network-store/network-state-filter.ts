@@ -6,8 +6,10 @@
 // receives this data and can read it via DevTools or a modified client.
 //
 // `filterGameStateForRole` strips DM-only fields when the role is not the DM.
-// Currently only the literal host is treated as DM; co-DM is a future feature
-// (see SUGGESTIONS-LOG-DNDAPP.md if/when added).
+// Role bucketing (who counts as DM) happens upstream in `network-store/index.ts`
+// `setGameStateProvider` (Phase 29e): the literal host, co-DMs (`isCoDM`), and peers
+// with both view_hidden_tokens + view_dm_only_stats receive the unfiltered 'host'
+// bucket. This module only implements the per-role strip for the non-DM bucket.
 //
 // This lives in a leaf module (imports only network state TYPES, no store
 // singleton) so the sync shards can reuse `filterGameStateForRole` without

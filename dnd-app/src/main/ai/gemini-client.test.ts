@@ -1,46 +1,55 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const getModelOpts: Array<{ timeout?: number } | undefined> = []
-const sendStreamOpts: Array<{ signal?: AbortSignal } | undefined> = []
+// PHASE-13 13P — migrated to @google/genai; re-asserts the PHASE-03 streaming contract.
+
+const createParams: Array<{ config?: { systemInstruction?: string } }> = []
+const sendStreamConfigs: Array<{ abortSignal?: AbortSignal } | undefined> = []
+const generateConfigs: Array<{ abortSignal?: AbortSignal } | undefined> = []
 let hangUntilAbort = false
 
-async function* hangingStream(signal?: AbortSignal): AsyncGenerator<{ text: () => string }> {
+async function* hangingStream(signal?: AbortSignal): AsyncGenerator<{ text: string }> {
   await new Promise<void>((_resolve, reject) => {
     signal?.addEventListener('abort', () => reject(new Error('aborted')))
   })
-  yield { text: () => '' }
+  yield { text: '' }
 }
-async function* okStream(): AsyncGenerator<{ text: () => string }> {
-  yield { text: () => 'Hel' }
-  yield { text: () => 'lo' }
+async function* okStream(): AsyncGenerator<{ text: string }> {
+  yield { text: 'Hel' }
+  yield { text: 'lo' }
 }
 
-vi.mock('@google/generative-ai', () => ({
-  GoogleGenerativeAI: class {
-    getGenerativeModel(_params: unknown, opts?: { timeout?: number }) {
-      getModelOpts.push(opts)
-      return {
-        startChat: () => ({
-          sendMessageStream: async (_content: string, o?: { signal?: AbortSignal }) => {
-            sendStreamOpts.push(o)
-            return { stream: hangUntilAbort ? hangingStream(o?.signal) : okStream() }
-          },
-          sendMessage: async () => ({ response: { text: () => 'one-shot' } })
-        })
+vi.mock('@google/genai', () => ({
+  GoogleGenAI: class {
+    chats = {
+      create: (params: { config?: { systemInstruction?: string } }) => {
+        createParams.push(params)
+        return {
+          sendMessageStream: async (req: { message: string; config?: { abortSignal?: AbortSignal } }) => {
+            sendStreamConfigs.push(req.config)
+            return hangUntilAbort ? hangingStream(req.config?.abortSignal) : okStream()
+          }
+        }
+      }
+    }
+    models = {
+      generateContent: async (req: { config?: { abortSignal?: AbortSignal } }) => {
+        generateConfigs.push(req.config)
+        return { text: 'one-shot' }
       }
     }
   }
 }))
 
-describe('geminiProvider (PHASE-03 03D)', () => {
+describe('geminiProvider (@google/genai — PHASE-13 13P / PHASE-03 contract)', () => {
   beforeEach(() => {
-    getModelOpts.length = 0
-    sendStreamOpts.length = 0
+    createParams.length = 0
+    sendStreamConfigs.length = 0
+    generateConfigs.length = 0
     hangUntilAbort = false
   })
   afterEach(() => vi.useRealTimers())
 
-  it('streaming uses NO model-level timeout and passes a per-request signal', async () => {
+  it('streaming passes a per-request abortSignal (the inactivity guard, not a wall-clock timeout)', async () => {
     const { geminiProvider, setGeminiApiKey } = await import('./gemini-client')
     setGeminiApiKey('k')
     const onDone = vi.fn()
@@ -50,17 +59,17 @@ describe('geminiProvider (PHASE-03 03D)', () => {
       { onText: vi.fn(), onDone, onError: vi.fn() },
       'gemini-2.0-flash'
     )
-    expect(getModelOpts[0]?.timeout).toBeUndefined()
-    expect(sendStreamOpts[0]?.signal).toBeInstanceOf(AbortSignal)
+    expect(createParams[0]?.config?.systemInstruction).toBe('sys')
+    expect(sendStreamConfigs[0]?.abortSignal).toBeInstanceOf(AbortSignal)
     expect(onDone).toHaveBeenCalledWith('Hello')
   })
 
-  it('chatOnce keeps a model-level timeout', async () => {
+  it('chatOnce sends a bounded abortSignal', async () => {
     const { geminiProvider, setGeminiApiKey } = await import('./gemini-client')
     setGeminiApiKey('k')
     const out = await geminiProvider.chatOnce('sys', [{ role: 'user', content: 'hi' }], 'gemini-2.0-flash')
     expect(out).toBe('one-shot')
-    expect(getModelOpts[0]?.timeout).toBeGreaterThan(0)
+    expect(generateConfigs[0]?.abortSignal).toBeInstanceOf(AbortSignal)
   })
 
   it('inactivity timeout → "timed out" onError (no-retry contract)', async () => {

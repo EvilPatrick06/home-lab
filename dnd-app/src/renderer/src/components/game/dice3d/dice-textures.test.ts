@@ -112,6 +112,46 @@ describe('createDieTexture', () => {
   })
 })
 
+describe('createDieTexture placement opts (PHASE-13 13M)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockCtx.measureText.mockReturnValue({ width: 20 })
+  })
+
+  it('defaults the glyph to vertical center (centerV 0.5 → y = size/2)', () => {
+    createDieTexture('1', '#000', '#fff', 256)
+    const y = mockCtx.fillText.mock.calls[0][2]
+    expect(y).toBeCloseTo(128, 5) // 256 * (1 - 0.5)
+  })
+
+  it('honors centerV by drawing the glyph toward the face centroid (above center)', () => {
+    createDieTexture('1', '#000', '#fff', 256, { centerV: 1 / 3 })
+    const y = mockCtx.fillText.mock.calls[0][2]
+    expect(y).toBeCloseTo(256 * (1 - 1 / 3), 5) // ≈ 170.67, lower on the canvas = toward the base
+  })
+
+  it('honors fontScale in the font string', () => {
+    createDieTexture('1', '#000', '#fff', 256, { fontScale: 0.5 })
+    expect(mockCtx.font).toContain('128px') // 256 * 0.5
+  })
+
+  it('shrinks 2-digit triangular labels below 1-digit ones (smaller inscribed circle)', () => {
+    const px = (s: string) => Number(s.match(/(\d+(?:\.\d+)?)px/)?.[1])
+    createDieTexture('20', '#000', '#fff', 256, { centerV: 1 / 3 })
+    const twoDigit = px(mockCtx.font)
+    createDieTexture('5', '#000', '#fff', 256, { centerV: 1 / 3 })
+    const oneDigit = px(mockCtx.font)
+    expect(twoDigit).toBeLessThan(oneDigit)
+  })
+
+  it('anchors the 6/9 underline below the centerV-shifted glyph', () => {
+    createDieTexture('6', '#000', '#fff', 256, { centerV: 1 / 3 })
+    const centerY = 256 * (1 - 1 / 3)
+    const underY = mockCtx.moveTo.mock.calls[0][1]
+    expect(underY).toBeGreaterThan(centerY)
+  })
+})
+
 describe('createHiddenTexture', () => {
   beforeEach(() => {
     vi.clearAllMocks()

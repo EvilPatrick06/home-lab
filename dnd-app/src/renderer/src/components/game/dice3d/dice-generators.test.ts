@@ -75,6 +75,7 @@ vi.mock('three', () => {
         z,
         fromBufferAttribute: vi.fn().mockReturnThis(),
         subVectors: vi.fn().mockReturnThis(),
+        sub: vi.fn().mockReturnThis(),
         crossVectors: vi.fn().mockReturnThis(),
         add: vi.fn().mockReturnThis(),
         normalize: vi.fn().mockReturnThis(),
@@ -109,6 +110,7 @@ import {
   createD12,
   createD20
 } from './dice-generators'
+import { createFaceMaterials } from './dice-textures'
 
 const DEFAULT_COLORS = { bodyColor: '#1a1a2e', numberColor: '#f5c542' }
 
@@ -197,5 +199,36 @@ describe('createD20', () => {
   it('casts shadow on the mesh', () => {
     const def = createD20(DEFAULT_COLORS, false)
     expect(def.mesh.castShadow).toBe(true)
+  })
+})
+
+describe('PHASE-13 13M — face-material placement opts', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  const lastOpts = (): unknown => {
+    const calls = vi.mocked(createFaceMaterials).mock.calls
+    return calls[calls.length - 1]?.[3]
+  }
+
+  it('d4 anchors numbers at the triangular centroid (centerV 1/3)', () => {
+    createD4(DEFAULT_COLORS, false)
+    expect(lastOpts()).toEqual({ centerV: 1 / 3 })
+  })
+
+  it('d8 anchors numbers at the triangular centroid (centerV 1/3)', () => {
+    createD8(DEFAULT_COLORS, false)
+    expect(lastOpts()).toEqual({ centerV: 1 / 3 })
+  })
+
+  it('d20 anchors numbers at the triangular centroid (centerV 1/3)', () => {
+    createD20(DEFAULT_COLORS, false)
+    expect(lastOpts()).toEqual({ centerV: 1 / 3 })
+  })
+
+  it('d12 keeps centre placement — planar UVs box-normalize, so no centerV override', () => {
+    createD12(DEFAULT_COLORS, false)
+    expect(lastOpts()).toBeUndefined()
   })
 })

@@ -3,11 +3,25 @@ import {
   getEffectiveMagicItems,
   getEffectiveWeapons
 } from '../services/character/effective-character-5e'
-import type { Character5e } from '../types/character-5e'
+import type { Character5e, EquipmentItem } from '../types/character-5e'
 
 export interface CarryingCapacity {
   carry: number
   dragLiftPush: number
+}
+
+/**
+ * Weight of an equipment item including nested container `contents` (PHASE-13 13I).
+ * `contents` is plain JSON so genuine cycles can't persist, but imported data is
+ * untrusted — a depth-8 cap is the abuse/cycle guard.
+ */
+function equipmentItemWeight(item: EquipmentItem, depth = 0): number {
+  if (depth >= 8) return 0
+  let w = (item.weight ?? 0) * (item.quantity ?? 1)
+  if (item.contents) {
+    for (const c of item.contents) w += equipmentItemWeight(c, depth + 1)
+  }
+  return w
 }
 
 export type EncumbranceStatus = 'normal' | 'encumbered' | 'over-limit'
@@ -61,12 +75,10 @@ export function calculateTotalWeight(character: Character5e): number {
     total += a.weight ?? 0
   }
 
-  // Equipment (gear items) — Phase 23m: weight is per-unit, so multiply by quantity
-  // (a stack of 20 daggers weighed 1 lb total before this). Container `contents[]`
-  // recursion is deferred: EquipmentItem has no contents field to recurse into
-  // (logged to ISSUES-LOG-DNDAPP).
+  // Equipment (gear items) — Phase 23m: weight is per-unit, so multiply by quantity.
+  // PHASE-13 13I: a container's `contents[]` weight recurses into the total (depth-capped).
   for (const item of character.equipment ?? []) {
-    total += (item.weight ?? 0) * (item.quantity ?? 1)
+    total += equipmentItemWeight(item)
   }
 
   // Magic items

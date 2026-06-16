@@ -52,6 +52,9 @@ interface GameModalDispatcherProps {
   handleWildShapeRevert: () => void
   handleWildShapeUseAdjust: (delta: number) => void
   localPeerId: string
+  // PHASE-13 13H — deep-link targets threaded to the utility modals.
+  compendiumTarget?: { category: string; name: string } | null
+  journalFocusEntryId?: string | null
 }
 
 function broadcastMsg(
@@ -103,7 +106,9 @@ export default function GameModalDispatcher(props: GameModalDispatcherProps): JS
     handleWildShapeTransform,
     handleWildShapeRevert,
     handleWildShapeUseAdjust,
-    localPeerId
+    localPeerId,
+    compendiumTarget,
+    journalFocusEntryId
   } = props
 
   const gameStore = useGameStore()
@@ -177,6 +182,8 @@ export default function GameModalDispatcher(props: GameModalDispatcherProps): JS
         disputeContext={disputeContext}
         setDisputeContext={setDisputeContext}
         localPeerId={localPeerId}
+        compendiumTarget={compendiumTarget}
+        journalFocusEntryId={journalFocusEntryId}
       />
     </>
   )

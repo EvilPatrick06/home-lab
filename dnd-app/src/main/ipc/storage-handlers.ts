@@ -61,6 +61,7 @@ import { deleteShopTemplate, getShopTemplate, listShopTemplates, saveShopTemplat
 import { wipeAllData } from '../storage/wipe-storage'
 import { validateUploadExtension } from '../upload-validation'
 import { handle } from './_safe'
+import { isPathAllowed } from './dialog-allowlist'
 
 // Ensure imported types are used for type-safety
 type _CharacterVersion = CharacterVersion
@@ -402,10 +403,13 @@ export function registerStorageHandlers(): void {
   })
 
   handle(IPC_CHANNELS.BOOK_IMPORT, async (_event, sourcePath: string, title: string, bookId: string) => {
-    // Phase 17a (NET-13) — reject obvious traversal / null-byte payloads in the renderer-supplied
-    // source path (it's a user-picked file; full dialog-allowlist integration is a follow-up).
+    // PHASE-13 13B — reject traversal/null-byte payloads, then enforce the dialog allowlist
+    // (the only book-import caller picks the file via showOpenDialog first, which registers it).
     if (typeof sourcePath !== 'string' || sourcePath.includes('..') || sourcePath.includes('\0')) {
       throw new Error('Invalid source path')
+    }
+    if (!isPathAllowed(sourcePath)) {
+      throw new Error('Invalid source path: not a dialog-selected file')
     }
     return importBook(sourcePath, title, bookId)
   })
