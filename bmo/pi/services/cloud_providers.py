@@ -7,6 +7,7 @@ Each provider is a thin wrapper around the vendor's REST API.
 import base64
 import json
 import os
+import shlex
 import time
 from typing import Optional
 
@@ -47,6 +48,41 @@ ANTHROPIC_BASE = "https://api.anthropic.com/v1"
 GROQ_BASE = "https://api.groq.com/openai/v1"
 # Fish Audio API base URL
 FISH_AUDIO_BASE = "https://api.fish.audio/v1"
+
+
+# ── curl secret hygiene (PHASE-15 15D) ─────────────────────────────────────
+# Every secret-bearing curl option (Authorization headers, key-bearing URLs) goes into a
+# 0600 temp CONFIG FILE passed via -K, so it never appears in /proc/<pid>/cmdline. `fail`
+# makes HTTP >= 400 exit 22 so callers raise instead of treating an error body as payload.
+
+
+def _curl_cfg_quote(value: str) -> str:
+    """Quote a value for a curl config file (escape backslash + double quote)."""
+    return '"' + value.replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+
+def _run_curl_config(option_lines: list[str], label: str) -> None:
+    """Run curl with every option in a 0600 temp config file (-K).
+
+    Keeps secrets out of /proc/<pid>/cmdline. `fail` → HTTP >= 400 exits 22 so the caller
+    raises. os.system is intentional — see bmo/docs/DESIGN-CONSTRAINTS.md (gevent leaves it
+    unpatched; subprocess/requests are monkey-patched).
+    """
+    import tempfile
+
+    with tempfile.NamedTemporaryFile(suffix=".curlcfg", delete=False, mode="w") as cf:
+        cf.write("\n".join(["fail", "silent", "show-error", *option_lines]) + "\n")
+        cfg_path = cf.name  # mkstemp semantics: created 0600
+    try:
+        ret = os.system(f"curl -K {shlex.quote(cfg_path)} 2>/dev/null")  # nosec B605
+        if ret != 0:
+            code = os.waitstatus_to_exitcode(ret)
+            raise RuntimeError(f"{label} curl failed (exit {code}; 22 = HTTP error >= 400)")
+    finally:
+        try:
+            os.remove(cfg_path)
+        except OSError:
+            pass
 
 # Fish Audio voice model ID (set after creating BMO voice clone)
 FISH_AUDIO_VOICE_ID = os.environ.get("FISH_AUDIO_VOICE_ID", "94b4570683534e37993fdffbd47d084b")
@@ -190,7 +226,6 @@ def gemini_chat_stream(messages: list[dict], model: str = "",
     url = f"{GEMINI_BASE}/models/{model_id}:streamGenerateContent?key={GEMINI_API_KEY}&alt=sse"
 
     import tempfile
-    import shlex
 
     # Write payload to temp file to avoid shell escaping issues with large JSON
     with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as pf:
@@ -201,18 +236,17 @@ def gemini_chat_stream(messages: list[dict], model: str = "",
 
     try:
         _t0 = _time.time()
-        # os.system bypasses gevent monkey-patching (gevent patches subprocess but not os.system)
-        ret = os.system(  # nosec B605
-            f"curl -sS -X POST {shlex.quote(url)} "
-            f"-H 'Content-Type: application/json' "
-            f"-d @{shlex.quote(payload_path)} "
-            f"-o {shlex.quote(out_path)} 2>/dev/null"
-        )
+        # PHASE-15 15D — the key-bearing URL moves into the 0600 -K config file (no longer on
+        # the cmdline); `fail` turns HTTP >= 400 into a RuntimeError. os.system stays (gevent).
+        _run_curl_config([
+            f"url = {_curl_cfg_quote(url)}",
+            'request = "POST"',
+            'header = "Content-Type: application/json"',
+            f"data = {_curl_cfg_quote('@' + payload_path)}",
+            f"output = {_curl_cfg_quote(out_path)}",
+        ], label="Gemini stream")
         _t1 = _time.time()
-        print(f"[timing] gemini curl took {_t1 - _t0:.2f}s (exit={ret})")
-
-        if ret != 0:
-            raise RuntimeError(f"Gemini curl failed (exit code {ret})")
+        print(f"[timing] gemini curl took {_t1 - _t0:.2f}s")
 
         with open(out_path, "r") as f:
             for line in f:
@@ -404,9 +438,9 @@ def groq_stt(audio_bytes: bytes, language: str = "en", prompt: str = "") -> dict
     Returns:
         {"text": "transcribed text", "language": "en", "duration": 5.2}
     """
-    # Use os.system curl to bypass gevent monkey-patching (gevent patches subprocess but not os.system)
+    # PHASE-15 15D — os.system curl (gevent design constraint); the Bearer key moves into a
+    # 0600 -K config file (off the cmdline) + `fail` raises on HTTP >= 400.
     import tempfile
-    import shlex
     import time as _time
 
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
@@ -416,21 +450,23 @@ def groq_stt(audio_bytes: bytes, language: str = "en", prompt: str = "") -> dict
     out_path = tmp_path + ".json"
 
     try:
-        prompt_flag = f" -F prompt={shlex.quote(prompt)}" if prompt else ""
+        form_lines = [
+            f"form = {_curl_cfg_quote(f'file=@{tmp_path};type=audio/wav')}",
+            'form = "model=whisper-large-v3"',
+            f"form = {_curl_cfg_quote('language=' + language)}",
+            'form = "response_format=verbose_json"',
+        ]
+        if prompt:
+            form_lines.append(f"form = {_curl_cfg_quote('prompt=' + prompt)}")
         _t0 = _time.time()
-        ret = os.system(  # nosec B605
-            f"curl -sS -X POST {shlex.quote(GROQ_BASE + '/audio/transcriptions')} "
-            f"-H 'Authorization: Bearer {GROQ_API_KEY}' "
-            f"-F 'file=@{tmp_path};type=audio/wav' "
-            f"-F model=whisper-large-v3 "
-            f"-F language={shlex.quote(language)} "
-            f"-F response_format=verbose_json"
-            f"{prompt_flag} "
-            f"-o {shlex.quote(out_path)} 2>/dev/null"
-        )
+        _run_curl_config([
+            f"url = {_curl_cfg_quote(GROQ_BASE + '/audio/transcriptions')}",
+            'request = "POST"',
+            f"header = {_curl_cfg_quote('Authorization: Bearer ' + GROQ_API_KEY)}",
+            *form_lines,
+            f"output = {_curl_cfg_quote(out_path)}",
+        ], label="Groq STT")
         _t1 = _time.time()
-        if ret != 0:
-            raise RuntimeError(f"Groq STT curl failed (exit code {ret})")
 
         with open(out_path, "r") as f:
             data = json.loads(f.read())
@@ -469,12 +505,6 @@ def fish_audio_tts(text: str, voice_id: str = "",
     """
     voice_id = voice_id or FISH_AUDIO_VOICE_ID
 
-    headers = {
-        "Authorization": f"Bearer {FISH_AUDIO_API_KEY}",
-        "Content-Type": "application/json",
-        "model": "s1",
-    }
-
     payload = {
         "text": text,
         "reference_id": voice_id,
@@ -488,9 +518,9 @@ def fish_audio_tts(text: str, voice_id: str = "",
         if pitch != 0:
             payload["prosody"]["pitch"] = pitch
 
-    # Use os.system curl to bypass gevent monkey-patching (gevent patches subprocess but not os.system)
+    # PHASE-15 15D — os.system curl bypasses gevent monkey-patching; secrets go in a 0600
+    # -K config file (never on the cmdline) and `fail` turns HTTP >= 400 into a RuntimeError.
     import tempfile
-    import shlex
     import time as _time
 
     # Write payload and capture binary output to temp files
@@ -502,17 +532,16 @@ def fish_audio_tts(text: str, voice_id: str = "",
 
     try:
         _t0 = _time.time()
-        ret = os.system(  # nosec B605
-            f"curl -sS -X POST {shlex.quote(FISH_AUDIO_BASE + '/tts')} "
-            f"-H 'Authorization: Bearer {FISH_AUDIO_API_KEY}' "
-            f"-H 'Content-Type: application/json' "
-            f"-H 'model: s1' "
-            f"-d @{shlex.quote(payload_path)} "
-            f"-o {shlex.quote(out_path)} 2>/dev/null"
-        )
+        _run_curl_config([
+            f"url = {_curl_cfg_quote(FISH_AUDIO_BASE + '/tts')}",
+            'request = "POST"',
+            f"header = {_curl_cfg_quote('Authorization: Bearer ' + FISH_AUDIO_API_KEY)}",
+            'header = "Content-Type: application/json"',
+            'header = "model: s1"',
+            f"data = {_curl_cfg_quote('@' + payload_path)}",
+            f"output = {_curl_cfg_quote(out_path)}",
+        ], label="Fish Audio")
         _t1 = _time.time()
-        if ret != 0:
-            raise RuntimeError(f"Fish Audio curl failed (exit code {ret})")
 
         with open(out_path, "rb") as f:
             audio_data = f.read()

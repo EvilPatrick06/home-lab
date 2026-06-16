@@ -866,13 +866,16 @@ class BmoAgent:
         ]
         self.orchestrator.register_agents(core_agents)
 
-        # Try to register all remaining specialized agents
+        # Register all remaining specialized agents (per-agent failures are logged and
+        # skipped inside create_all_agents). PHASE-15 15A — a broken _registry module
+        # itself now logs loudly instead of silently dropping all 23 specialized agents.
         try:
             from agents._registry import create_all_agents
+        except ImportError as e:
+            print(f"[agent] FAILED to import agents._registry — running with core agents only: {e!r}")
+        else:
             extra_agents = create_all_agents(scratchpad, self.services, self.socketio)
             self.orchestrator.register_agents(extra_agents)
-        except ImportError:
-            pass  # Remaining agents not yet implemented
 
         # Initialize MCP manager if servers are configured
         self._init_mcp()

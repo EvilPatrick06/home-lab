@@ -581,13 +581,27 @@ Reply with a SHORT plan (2-4 sentences max). Available directives:
             lines.append("  Hit Dice: Unknown — ask the player.")
         lines.append(f"  Current HP: {hp}/{hp_max}")
         lines.append("  Ask how many hit dice to spend, then roll healing.")
+        # PHASE-15 15B — a short rest's hit-dice spend is a player choice, so this stays
+        # read-only; instruct the model to persist the outcome via the gamestate block.
+        lines.append(
+            "  After the player decides and you roll healing, emit a ```gamestate``` block "
+            "updating hp and hit_dice_remaining so the recovery is saved."
+        )
         return "\n".join(lines)
 
     def _resolve_long_rest(self, character_name: str) -> str:
-        """Calculate long rest recovery."""
+        """Calculate AND persist long rest recovery (PHASE-15 15B).
+
+        Only mutates a character that already exists in the loaded gamestate — an
+        LLM-invented name must not create a phantom record (it gets the
+        ```gamestate``` fallback instruction instead).
+        """
         if not self._gamestate:
             return f"{character_name} takes a long rest. Full HP restored, all spell slots restored."
-        char_state = self._gamestate.get("characters", {}).get(character_name, {})
+        characters = self._gamestate.get("characters", {})
+        # Case-insensitive match: planning directives echo names with unreliable casing.
+        canonical = next((k for k in characters if k.lower() == character_name.lower()), None)
+        char_state = characters.get(canonical, {}) if canonical else {}
         hp_max = char_state.get("hp_max", "?")
         hit_dice_max = char_state.get("hit_dice_max")
         hit_dice_remaining = char_state.get("hit_dice_remaining")
@@ -595,10 +609,28 @@ Reply with a SHORT plan (2-4 sentences max). Available directives:
         lines.append(f"  HP: Restored to {hp_max}")
         lines.append("  Spell Slots: All restored")
         lines.append("  Conditions: All removed")
+        new_remaining = None
         if hit_dice_max is not None and hit_dice_remaining is not None:
             recovery = max(1, hit_dice_max // 2)
             new_remaining = min(hit_dice_max, hit_dice_remaining + recovery)
             lines.append(f"  Hit Dice: Recover {recovery} → now {new_remaining}/{hit_dice_max}")
+        if canonical:
+            if isinstance(hp_max, (int, float)):
+                char_state["hp"] = hp_max
+            char_state["conditions"] = []
+            # No per-level maxima are tracked, so "restore all slots" can't be computed —
+            # drop the remaining-counts map so the sheet baseline (full slots) applies
+            # instead of a stale depleted map.
+            char_state.pop("spell_slots", None)
+            if new_remaining is not None:
+                char_state["hit_dice_remaining"] = new_remaining
+            self._save_gamestate()
+            lines.append("  (Applied to the saved game state.)")
+        else:
+            lines.append(
+                "  (Character not found in game state — after narrating, emit a "
+                "```gamestate``` block with the updated hp/conditions/hit dice.)"
+            )
         return "\n".join(lines)
 
     def generate_session_recap(self, messages: list[dict]) -> str:
@@ -629,7 +661,8 @@ def create_dnd_dm_agent(scratchpad, services, socketio=None):
         display_name="Dungeon Master",
         system_prompt=DM_BASE_PROMPT,
         temperature=0.9,
-        tools=["read_file", "list_directory"],
+        # PHASE-15 15C — no tools= here: run() has no tool loop (plain llm_call), so a tools
+        # grant was inert/misleading. The DM's file access is explicit + code-driven.
         services=[],
         max_turns=1,
         can_nest=False,

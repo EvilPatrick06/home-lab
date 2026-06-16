@@ -2,87 +2,55 @@
 
 This is imported by BmoAgent.__init__ to register all agents with the orchestrator.
 Core agents (conversation, code, dnd_dm, plan, research) are registered separately.
-This file registers the remaining 14 agents.
+This file registers every non-core specialized agent listed in `_AGENT_SPECS`.
 """
 
 from __future__ import annotations
+
+import importlib
 from typing import Any
 
 from agents.scratchpad import SharedScratchpad
 
+# (module path, factory name) for every non-core specialized agent. Order matches the
+# historical registration order. PHASE-15 15A — a failure in ONE entry (ImportError,
+# AttributeError, or a constructor raising) costs exactly that agent, never all of them.
+_AGENT_SPECS: tuple[tuple[str, str], ...] = (
+    ("agents.music_agent", "create_music_agent"),
+    ("agents.smart_home_agent", "create_smart_home_agent"),
+    ("agents.test_agent", "create_test_agent"),
+    ("agents.security_agent", "create_security_agent"),
+    ("agents.design_agent", "create_design_agent"),
+    ("agents.cleanup_agent", "create_cleanup_agent"),
+    ("agents.monitoring_agent", "create_monitoring_agent"),
+    ("agents.deploy_agent", "create_deploy_agent"),
+    ("agents.review_agent", "create_review_agent"),
+    ("agents.docs_agent", "create_docs_agent"),
+    ("agents.timer_agent", "create_timer_agent"),
+    ("agents.calendar_agent", "create_calendar_agent"),
+    ("agents.weather_agent", "create_weather_agent"),
+    ("agents.learning_agent", "create_learning_agent"),
+    ("agents.list_agent", "create_list_agent"),
+    ("agents.alert_agent", "create_alert_agent"),
+    ("agents.routine_agent", "create_routine_agent"),
+    # D&D-specific agents
+    ("agents.encounter_agent", "create_encounter_agent"),
+    ("agents.npc_dialogue_agent", "create_npc_dialogue_agent"),
+    ("agents.lore_agent", "create_lore_agent"),
+    ("agents.rules_agent", "create_rules_agent"),
+    ("agents.treasure_agent", "create_treasure_agent"),
+    ("agents.session_recap_agent", "create_session_recap_agent"),
+)
+
 
 def create_all_agents(scratchpad: SharedScratchpad, services: dict[str, Any], socketio: Any = None) -> list:
-    """Create and return all non-core specialized agents."""
+    """Create every non-core agent; a failure in one never drops the rest."""
     agents = []
-
-    from agents.music_agent import create_music_agent
-    agents.append(create_music_agent(scratchpad, services, socketio))
-
-    from agents.smart_home_agent import create_smart_home_agent
-    agents.append(create_smart_home_agent(scratchpad, services, socketio))
-
-    from agents.test_agent import create_test_agent
-    agents.append(create_test_agent(scratchpad, services, socketio))
-
-    from agents.security_agent import create_security_agent
-    agents.append(create_security_agent(scratchpad, services, socketio))
-
-    from agents.design_agent import create_design_agent
-    agents.append(create_design_agent(scratchpad, services, socketio))
-
-    from agents.cleanup_agent import create_cleanup_agent
-    agents.append(create_cleanup_agent(scratchpad, services, socketio))
-
-    from agents.monitoring_agent import create_monitoring_agent
-    agents.append(create_monitoring_agent(scratchpad, services, socketio))
-
-    from agents.deploy_agent import create_deploy_agent
-    agents.append(create_deploy_agent(scratchpad, services, socketio))
-
-    from agents.review_agent import create_review_agent
-    agents.append(create_review_agent(scratchpad, services, socketio))
-
-    from agents.docs_agent import create_docs_agent
-    agents.append(create_docs_agent(scratchpad, services, socketio))
-
-    from agents.timer_agent import create_timer_agent
-    agents.append(create_timer_agent(scratchpad, services, socketio))
-
-    from agents.calendar_agent import create_calendar_agent
-    agents.append(create_calendar_agent(scratchpad, services, socketio))
-
-    from agents.weather_agent import create_weather_agent
-    agents.append(create_weather_agent(scratchpad, services, socketio))
-
-    from agents.learning_agent import create_learning_agent
-    agents.append(create_learning_agent(scratchpad, services, socketio))
-
-    from agents.list_agent import create_list_agent
-    agents.append(create_list_agent(scratchpad, services, socketio))
-
-    from agents.alert_agent import create_alert_agent
-    agents.append(create_alert_agent(scratchpad, services, socketio))
-
-    from agents.routine_agent import create_routine_agent
-    agents.append(create_routine_agent(scratchpad, services, socketio))
-
-    # D&D-specific agents
-    from agents.encounter_agent import create_encounter_agent
-    agents.append(create_encounter_agent(scratchpad, services, socketio))
-
-    from agents.npc_dialogue_agent import create_npc_dialogue_agent
-    agents.append(create_npc_dialogue_agent(scratchpad, services, socketio))
-
-    from agents.lore_agent import create_lore_agent
-    agents.append(create_lore_agent(scratchpad, services, socketio))
-
-    from agents.rules_agent import create_rules_agent
-    agents.append(create_rules_agent(scratchpad, services, socketio))
-
-    from agents.treasure_agent import create_treasure_agent
-    agents.append(create_treasure_agent(scratchpad, services, socketio))
-
-    from agents.session_recap_agent import create_session_recap_agent
-    agents.append(create_session_recap_agent(scratchpad, services, socketio))
-
+    for module_name, factory_name in _AGENT_SPECS:
+        try:
+            module = importlib.import_module(module_name)
+            factory = getattr(module, factory_name)
+            agents.append(factory(scratchpad, services, socketio))
+        except Exception as e:  # ImportError, AttributeError, ctor errors alike
+            print(f"[registry] FAILED to create agent {module_name}.{factory_name}: {e!r} — continuing without it")
     return agents

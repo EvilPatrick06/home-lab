@@ -402,8 +402,6 @@ function bmo() {
     currentGame: null,
     gameState: {},
 
-    // ── IDE Tab (under construction — new IDE on port 5001) ──
-
     // ── Init ──────────────────────────────────────────────────
 
     init() {
