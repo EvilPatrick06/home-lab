@@ -1,6 +1,11 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('electron', () => ({ BrowserWindow: { getAllWindows: () => [] } }))
+// PHASE-20 20F: a send-spy window so we can assert whether the "BMO unreachable"
+// sync event was broadcast (it goes through win.webContents.send).
+const { sendSpy } = vi.hoisted(() => ({ sendSpy: vi.fn() }))
+vi.mock('electron', () => ({
+  BrowserWindow: { getAllWindows: () => [{ webContents: { send: sendSpy } }] }
+}))
 vi.mock('./log', () => ({ logToFile: vi.fn() }))
 
 // `getBmoApiKey` is read from bmo-config; we mock it via vi.hoisted so the
@@ -18,6 +23,7 @@ vi.mock('./bmo-config', () => ({
 import {
   __resetSyncReceiverState,
   getDmStatus,
+  sendNarration,
   startDiscordDm,
   startSyncReceiver,
   stopSyncReceiver
@@ -61,6 +67,45 @@ describe('bmoPiFetch retry/backoff (Phase 28c.1)', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1)
     expect(result.ok).toBe(false)
     expect(result.statusCode).toBe(400)
+  })
+
+  it('a 4xx response never trips the unreachable event (F6)', async () => {
+    sendSpy.mockClear()
+    const fetchMock = vi.fn().mockResolvedValue({ ok: false, status: 404, statusText: 'Not Found' })
+    vi.stubGlobal('fetch', fetchMock)
+    for (let i = 0; i < 3; i++) {
+      const p = getDmStatus()
+      await vi.runAllTimersAsync()
+      await p
+    }
+    const unreachable = sendSpy.mock.calls.find((c) => JSON.stringify(c).includes('unreachable'))
+    expect(unreachable).toBeUndefined()
+  })
+
+  it('emits the unreachable event after 3 network failures', async () => {
+    sendSpy.mockClear()
+    const fetchMock = vi.fn().mockRejectedValue(new Error('ECONNREFUSED'))
+    vi.stubGlobal('fetch', fetchMock)
+    for (let i = 0; i < 3; i++) {
+      const p = getDmStatus()
+      await vi.runAllTimersAsync()
+      await p
+    }
+    const unreachable = sendSpy.mock.calls.find((c) => JSON.stringify(c).includes('unreachable'))
+    expect(unreachable).toBeDefined()
+  })
+
+  it('sendNarration carries a unique event_id (F4 idempotency key)', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, result: 'queued' }) })
+    vi.stubGlobal('fetch', fetchMock)
+    const p = sendNarration('hello there', 'goblin', 'angry')
+    await vi.runAllTimersAsync()
+    await p
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body)
+    expect(body.text).toBe('hello there')
+    expect(body.npc).toBe('goblin')
+    expect(typeof body.event_id).toBe('string')
+    expect(body.event_id.length).toBeGreaterThan(0)
   })
 })
 

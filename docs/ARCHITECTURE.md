@@ -121,8 +121,18 @@ Examples:
 
 > **Status (2026-06-10):** parts of this plane are scaffolded but not end-to-end wired —
 > the renderer never exposes/consumes `BMO_SYNC_EVENT` or the initiative/state push
-> channels, and the Pi never registers `register_sync_routes(app)`. Narration
-> (`/api/discord/dm/narrate`) IS live. Full finding: `dnd-app/docs/phases/PHASE-20-discord-bridge-foundation.md` and `PHASE-22-discord-sync-plane.md`.
+> channels, and the Pi never registers `register_sync_routes(app)`. That sync plane is
+> PHASE-22. Full finding: `dnd-app/docs/phases/PHASE-22-discord-sync-plane.md`.
+>
+> **PHASE-20 (control plane, live):** `/api/discord/dm/{start,stop,narrate,status}` are
+> Flask **proxies** to a loopback control server inside the `bmo-dm-bot` process
+> (`127.0.0.1:5006/control/*`). `narrate` carries an `event_id` (the Pi de-dupes
+> retries) and returns `{ ok, result }` where `result ∈ {queued, duplicate, no_voice,
+> dropped_queue_full}` (always HTTP 200 — the body, not the status, signals a drop, so
+> the VTT never retries and double-speaks). The single automatic narration sender is the
+> VTT **main** process (gated by the Speak-narration toggle; carries npc/emotion). `status`
+> exposes `active`, `players`, `voice_connected`, `queue_len`, `initiative_order`, and
+> `last_session_end` for the in-app DM-tab session UI.
 
 ### 3. VTT ↔ VTT (multiplayer)
 

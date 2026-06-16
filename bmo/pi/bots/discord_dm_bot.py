@@ -23,6 +23,7 @@ import os
 import random
 import threading
 import time
+import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -48,7 +49,9 @@ BOT_TOKEN = os.environ.get("DISCORD_DM_BOT_TOKEN", "")
 GUILD_ID = os.environ.get("DISCORD_GUILD_ID", "")
 DM_MODEL = os.environ.get("BMO_DND_MODEL", DND_MODEL)
 
-DUNGEON_CHANNEL_NAME = "\U0001f5fa\ufe0f | Dungeon"
+# PHASE-20 20A (F8): voice channel selectable by name or numeric ID; ID wins.
+DUNGEON_CHANNEL_NAME = os.environ.get("DISCORD_DM_VOICE_CHANNEL", "\U0001f5fa\ufe0f | Dungeon")
+DUNGEON_CHANNEL_ID = os.environ.get("DISCORD_DM_VOICE_CHANNEL_ID", "")  # numeric ID wins over name
 
 # TTS rate limit: minimum seconds between TTS calls
 TTS_COOLDOWN = 3.0
@@ -60,10 +63,45 @@ CONTEXT_COMPRESS_KEEP = 10  # keep last N messages after compression
 LOG_PREFIX = "[dm-bot]"
 
 
-def _log(msg: str, *args) -> None:
-    """Log to stdout with [dm-bot] prefix."""
+def _log(msg: str, *args, exc_info: BaseException | None = None) -> None:
+    """Log to stdout with [dm-bot] prefix. PHASE-20 20A (F9): accept exc_info so
+    on_app_command_error's `_log(..., exc_info=error)` no longer raises TypeError
+    inside the error handler itself."""
     text = msg % args if args else msg
     print(f"{LOG_PREFIX} {text}", flush=True)
+    if exc_info is not None:
+        print("".join(traceback.format_exception(type(exc_info), exc_info, exc_info.__traceback__)), flush=True)
+
+
+def _candidate_guilds(bot) -> list:
+    """PHASE-20 20A (F8): guilds the bot should consider for voice. When
+    DISCORD_GUILD_ID is set, only that guild; otherwise all joined guilds —
+    so a multi-guild bot can't narrate in the wrong server by accident."""
+    if getattr(bot, "_guild_id", None):
+        g = bot.get_guild(bot._guild_id)
+        return [g] if g else []
+    return list(bot.guilds)
+
+
+def _upsert_initiative(session, name: str, total: int) -> list:
+    """PHASE-20 20E (F12): record a roll into the initiative order, replacing any
+    existing entry for the same name, re-sorted descending by total."""
+    order = session.initiative_order
+    for entry in order:
+        if entry.get("name") == name:
+            entry["total"] = total
+            break
+    else:
+        order.append({"name": name, "total": total})
+    order.sort(key=lambda e: e.get("total", 0), reverse=True)
+    return order
+
+
+def _format_initiative_order(order: list, limit: int = 6) -> str:
+    """Render the initiative order as '1. Name — 17' lines (or 'No rolls yet')."""
+    if not order:
+        return "No rolls yet"
+    return "\n".join(f"{i + 1}. {e.get('name')} — {e.get('total')}" for i, e in enumerate(order[:limit]))
 
 
 # ── Data Directory ───────────────────────────────────────────────────
@@ -282,12 +320,18 @@ class DMSession:
         # Initiative tracker
         self.initiative_order: list[dict] = []
         self.initiative_round: int = 0
+        self.initiative_collecting: bool = False  # PHASE-20 20E (F12): record d20 rolls while True
 
         # Combat log for recap
         self.combat_log: list[str] = []
 
         # TTS rate limiter
         self._last_tts_time: float = 0.0
+
+        # PHASE-20 20B (F3/F4): bounded FIFO narration queue + last outcome, so
+        # the cooldown queues instead of dropping and every result is reportable.
+        self.narration_queue: asyncio.Queue = asyncio.Queue(maxsize=20)
+        self.last_narration_status: Optional[str] = None
 
     def reset(self) -> None:
         self.active = False
@@ -299,8 +343,17 @@ class DMSession:
         self.messages.clear()
         self.initiative_order.clear()
         self.initiative_round = 0
+        self.initiative_collecting = False
         self.combat_log.clear()
         self._last_tts_time = 0.0
+        # Drain any queued narration (20B).
+        try:
+            while True:
+                self.narration_queue.get_nowait()
+                self.narration_queue.task_done()
+        except asyncio.QueueEmpty:
+            pass
+        self.last_narration_status = None
 
     def add_message(self, role: str, content: str) -> None:
         """Append a message and compress context if needed."""
@@ -372,9 +425,9 @@ async def dm_start(interaction: discord.Interaction) -> None:
         return
 
     # Join voice channel
-    vc = await bot.join_voice(dungeon_channel)
+    vc, join_reason = await bot.join_voice(dungeon_channel)
     if not vc:
-        await interaction.followup.send("Failed to join the voice channel.")
+        await interaction.followup.send(f"Failed to join the voice channel ({join_reason}).")
         return
 
     # Initialize session
@@ -439,6 +492,13 @@ async def dm_stop(interaction: discord.Interaction) -> None:
         await interaction.response.send_message("No active session to end.", ephemeral=True)
         return
 
+    # PHASE-20 20C: share the bridge-stop idempotency guard so a slash stop and
+    # an HTTP /control/stop can't interleave and double farewell/leave/reset.
+    if bot._stopping:
+        await interaction.response.send_message("A stop is already in progress.", ephemeral=True)
+        return
+    bot._stopping = True
+
     await interaction.response.defer()
 
     # Calculate duration
@@ -462,15 +522,14 @@ async def dm_stop(interaction: discord.Interaction) -> None:
     bot._campaign_name = None
     bot._session_id = None
 
-    # Farewell
+    # Farewell — direct synth+play (not queued; session.reset() below drains the
+    # queue) with a bounded wait so a stuck connection can't hang the command (F4).
     farewell = "Thank you for playing with BMO! That was an amazing adventure! See you next time, friends! \U0001f31f"
-    await bot._speak(farewell, emotion="happy")
-
-    # Wait for farewell to finish playing
-    vc = bot.session.voice_client
-    if vc and vc.is_connected():
-        while vc.is_playing():
-            await asyncio.sleep(0.1)
+    try:
+        await asyncio.wait_for(bot._synthesize_and_play(farewell, None, "happy"), timeout=4)
+    except (asyncio.TimeoutError, Exception):
+        pass
+    bot._last_session_end = {"reason": "stopped", "at": datetime.now(timezone.utc).isoformat(), "recap": recap_text or ""}
 
     # Leave voice
     await bot.leave_voice()
@@ -492,6 +551,7 @@ async def dm_stop(interaction: discord.Interaction) -> None:
         embed.add_field(name="Session Recap", value=recap_text, inline=False)
 
     bot.session.reset()
+    bot._stopping = False  # 20C: release the shared stop guard
     await interaction.followup.send(embed=embed)
     _log("Session ended by %s", interaction.user.display_name)
 
@@ -555,6 +615,12 @@ class DMBot(commands.Bot):
         self._campaign_memory = None
         self._campaign_name = None
         self._session_id = None
+        # PHASE-20: background tasks + control plane (started in setup_hook).
+        self._narration_task = None       # 20B narration worker
+        self._control_runner = None       # 20C aiohttp control server
+        self._voice_health_task = None    # 20D rejoin loop
+        self._stopping: bool = False      # 20C stop idempotency guard
+        self._last_session_end = None     # 20D observable session-end trace
 
         # D&D data (loaded in on_ready)
         self._spells: list[dict] = []
@@ -594,6 +660,31 @@ class DMBot(commands.Bot):
                     await interaction.response.send_message(msg, ephemeral=True)
             except discord.HTTPException:
                 pass
+
+        # PHASE-20 20B: start the FIFO narration worker once.
+        if self._narration_task is None:
+            self._narration_task = asyncio.create_task(self._narration_worker())
+        # PHASE-20 20D: voice-health rejoin loop.
+        if self._voice_health_task is None:
+            self._voice_health_task = asyncio.create_task(self._voice_health_loop())
+        # PHASE-20 20C: loopback control server (app.py proxies to it).
+        try:
+            from bots.dm_bot_control import start_control_server
+            self._control_runner = await start_control_server(self)
+        except Exception as e:
+            _log("Control server failed to start: %s", e, exc_info=e)
+
+    async def close(self) -> None:
+        """PHASE-20: tear down background tasks + control server cleanly."""
+        for task in (self._narration_task, self._voice_health_task):
+            if task is not None:
+                task.cancel()
+        if self._control_runner is not None:
+            try:
+                await self._control_runner.cleanup()
+            except Exception:
+                pass
+        await super().close()
 
     async def on_ready(self) -> None:
         _log("DM Bot ready as %s (ID: %s)", self.user, self.user.id if self.user else "?")
@@ -759,25 +850,42 @@ class DMBot(commands.Bot):
         # Play TTS in voice channel
         await self._speak(clean_text, npc=npc, emotion=emotion)
 
-    async def _speak(
-        self,
-        text: str,
-        npc: str | None = None,
-        emotion: str | None = None,
-    ) -> None:
-        """Generate TTS and play it in the voice channel."""
+    def queue_narration(self, text: str, npc: str | None = None, emotion: str | None = None) -> str:
+        """PHASE-20 20B (F3): enqueue narration. Sync so the control server can
+        call it. Returns 'no_voice' | 'dropped_queue_full' | 'queued' — never a
+        silent drop. The worker (below) honors the TTS cooldown by waiting, not
+        skipping, so back-to-back narrations both play (in order)."""
         vc = self.session.voice_client
         if not vc or not vc.is_connected():
-            return
+            return "no_voice"
+        if self.session.narration_queue.full():
+            return "dropped_queue_full"
+        self.session.narration_queue.put_nowait((text, npc, emotion))
+        return "queued"
 
-        if not self.session.can_tts():
-            _log("TTS rate limited, skipping voice for: %s", text[:40])
-            return
+    async def _narration_worker(self) -> None:
+        """Single FIFO worker: waits out the cooldown, then synthesizes + plays."""
+        while True:
+            text, npc, emotion = await self.session.narration_queue.get()
+            try:
+                remaining = TTS_COOLDOWN - (time.time() - self.session._last_tts_time)
+                if remaining > 0:
+                    await asyncio.sleep(remaining)
+                self.session.last_narration_status = await self._synthesize_and_play(text, npc, emotion)
+            except Exception as e:  # never let the worker die
+                _log("Narration worker error: %s", e)
+                self.session.last_narration_status = "tts_error"
+            finally:
+                self.session.narration_queue.task_done()
 
-        # Get prosody settings for voice modulation
+    async def _synthesize_and_play(self, text: str, npc: str | None = None, emotion: str | None = None) -> str:
+        """Generate TTS + play. Returns 'spoken' | 'tts_error' | 'play_error' | 'no_voice'."""
+        vc = self.session.voice_client
+        if not vc or not vc.is_connected():
+            return "no_voice"
+
         prosody = get_prosody(npc=npc, emotion=emotion)
-
-        # Truncate long text for TTS (voice should be concise)
+        # KEEP the 500-char truncation — PHASE-21 owns sentence-chunked streaming.
         tts_text = text[:500] if len(text) > 500 else text
 
         try:
@@ -788,15 +896,25 @@ class DMBot(commands.Bot):
             self.session.mark_tts()
         except Exception as e:
             _log("TTS error: %s", e)
-            return
+            return "tts_error"
 
-        await self._play_audio(audio_bytes)
+        return "spoken" if await self._play_audio(audio_bytes) else "play_error"
 
-    async def _play_audio(self, audio_bytes: bytes) -> None:
-        """Play WAV audio bytes through the Discord voice channel."""
+    async def _speak(
+        self,
+        text: str,
+        npc: str | None = None,
+        emotion: str | None = None,
+    ) -> str:
+        """Compatibility wrapper (greeting/farewell/initiative/player-input call
+        sites): enqueue via queue_narration and return its status (20B)."""
+        return self.queue_narration(text, npc=npc, emotion=emotion)
+
+    async def _play_audio(self, audio_bytes: bytes) -> bool:
+        """Play WAV audio bytes. Returns True on success, False on failure (F3)."""
         vc = self.session.voice_client
         if not vc or not vc.is_connected():
-            return
+            return False
 
         # Wait for current audio to finish
         while vc.is_playing():
@@ -810,29 +928,42 @@ class DMBot(commands.Bot):
                 after=lambda e: _log("Playback error: %s", e) if e else None,
             )
             _log("Playing TTS audio (%d bytes)", len(audio_bytes))
+            return True
         except Exception as e:
             _log("Failed to play audio: %s", e)
+            return False
 
     # ── Voice Channel Management ───────────────────────────────────
 
     async def find_dungeon_channel(self, guild: discord.Guild) -> Optional[discord.VoiceChannel]:
-        """Find the Dungeon voice channel in the guild."""
+        """Find the Dungeon voice channel. PHASE-20 20A (F8): a numeric
+        DISCORD_DM_VOICE_CHANNEL_ID wins over the name scan."""
+        if DUNGEON_CHANNEL_ID:
+            try:
+                ch = guild.get_channel(int(DUNGEON_CHANNEL_ID))
+                if isinstance(ch, discord.VoiceChannel):
+                    return ch
+            except (ValueError, TypeError):
+                pass
         for channel in guild.voice_channels:
             if channel.name == DUNGEON_CHANNEL_NAME:
                 return channel
         return None
 
-    async def join_voice(self, channel: discord.VoiceChannel) -> Optional[discord.VoiceClient]:
-        """Join a voice channel."""
+    async def join_voice(self, channel: discord.VoiceChannel) -> tuple[Optional[discord.VoiceClient], Optional[str]]:
+        """Join a voice channel. PHASE-20 20A (F8): returns (vc, None) on success
+        or (None, reason) on failure so callers can distinguish join failure from
+        channel-not-found."""
         try:
             vc = await channel.connect()
             self.session.voice_client = vc
             self.session.voice_channel_id = channel.id
             _log("Joined voice channel: %s", channel.name)
-            return vc
+            return vc, None
         except Exception as e:
-            _log("Failed to join voice: %s", e)
-            return None
+            reason = f"{type(e).__name__}: {e}"
+            _log("Failed to join voice: %s", reason)
+            return None, reason
 
     async def leave_voice(self) -> None:
         """Leave the current voice channel."""
@@ -863,10 +994,12 @@ class DMBot(commands.Bot):
 
         # No live connection yet — try to (re)join the Dungeon channel so
         # narration has an output. Reuse the existing join primitives.
-        for guild in self.guilds:
+        for guild in _candidate_guilds(self):
             channel = await self.find_dungeon_channel(guild)
             if channel:
-                await self.join_voice(channel)
+                _, join_reason = await self.join_voice(channel)
+                if join_reason:
+                    _log("start_voice_listen: join failed — %s", join_reason)
                 break
         else:
             _log("start_voice_listen: no Dungeon voice channel found — narration will be skipped until connected")
@@ -874,8 +1007,46 @@ class DMBot(commands.Bot):
 
         _log("start_voice_listen: connected (listen disabled — narrate-only mode)")
 
+    async def _voice_health_tick(self) -> bool:
+        """PHASE-20 20D (F10): one voice-health check. If the session is active
+        but voice dropped, force-clean the stale client and rejoin. Returns True
+        when connected (or no active session), False when a rejoin attempt failed."""
+        if not self.session.active:
+            return True
+        vc = self.session.voice_client
+        if vc and vc.is_connected():
+            return True
+        _log("Voice health: connection lost — attempting rejoin")
+        if vc:
+            # discord.py keeps kicked clients in a stale connected-ish state;
+            # force-disconnect before reconnecting (documented workaround).
+            try:
+                await vc.disconnect(force=True)
+            except Exception:
+                pass
+        self.session.voice_client = None
+        try:
+            await self.start_voice_listen()
+        except Exception as e:
+            _log("Voice health: rejoin failed — %s", e)
+        nvc = self.session.voice_client
+        return bool(nvc and nvc.is_connected())
+
+    async def _voice_health_loop(self) -> None:
+        """Run _voice_health_tick forever; back off to 60s after 3 failed rejoins."""
+        fails = 0
+        while True:
+            await asyncio.sleep(60 if fails >= 3 else 20)
+            try:
+                ok = await self._voice_health_tick()
+            except Exception as e:
+                _log("Voice health loop error: %s", e)
+                ok = False
+            fails = 0 if ok else fails + 1
+
     async def _auto_leave_if_empty(self) -> None:
-        """Wait 30s then leave voice + end session if still no humans."""
+        """Wait 30s then leave + END the session with parity to /dm stop (F11):
+        bounded recap, campaign-memory close, and an observable last_session_end."""
         await asyncio.sleep(30)
 
         vc = self.session.voice_client
@@ -884,10 +1055,31 @@ class DMBot(commands.Bot):
         humans = [m for m in vc.channel.members if not m.bot]
         if humans:
             return
-
-        _log("Auto-ending session — no humans remaining")
-        await self.leave_voice()
-        self.session.reset()
+        if self._stopping:
+            return
+        self._stopping = True
+        try:
+            _log("Auto-ending session — no humans remaining")
+            try:
+                recap = await asyncio.wait_for(_generate_recap(self.session), timeout=10)
+            except (asyncio.TimeoutError, Exception):
+                recap = ""
+            if self._campaign_memory and self._session_id and recap:
+                try:
+                    self._campaign_memory.end_session(self._session_id, recap)
+                except Exception as e:
+                    _log("Campaign memory end failed: %s", e)
+            self._campaign_name = None
+            self._session_id = None
+            self._last_session_end = {
+                "reason": "auto_leave_empty",
+                "at": datetime.now(timezone.utc).isoformat(),
+                "recap": recap,
+            }
+            await self.leave_voice()
+            self.session.reset()
+        finally:
+            self._stopping = False
 
 
 # ── Standalone Slash Commands ────────────────────────────────────────
@@ -928,25 +1120,40 @@ async def _roll_cmd(
     if damage_type:
         description += f" *{damage_type}*"
 
+    # PHASE-20 20E (F12): during initiative collection, record d20 rolls into the
+    # order BEFORE building the embed so the result can show the current standings.
+    bot = interaction.client
+    initiative_summary = None
+    if isinstance(bot, DMBot) and bot.session.active and bot.session.initiative_collecting and "d20" in expr.lower():
+        order = _upsert_initiative(bot.session, interaction.user.display_name, total)
+        initiative_summary = ", ".join(f"{e['name']} ({e['total']})" for e in order[:6])
+
     embed = discord.Embed(
         title=f"Rolling {expression}",
         description=description,
         color=discord.Color.blue(),
     )
     embed.add_field(name="Rolls", value=f"[{rolls_str}]", inline=True)
+    if initiative_summary:
+        embed.add_field(name="Initiative recorded — current order", value=initiative_summary, inline=False)
     embed.set_footer(text=f"Rolled by {interaction.user.display_name}")
     await interaction.response.send_message(embed=embed)
 
     # Log to session
-    bot = interaction.client
     if isinstance(bot, DMBot) and bot.session.active:
         log_entry = f"{interaction.user.display_name} rolled {expression}: {total} [{rolls_str}]"
         bot.session.add_message("user", log_entry)
         bot.session.combat_log.append(log_entry)
 
 
-@app_commands.command(name="initiative", description="Start initiative tracking for combat")
-async def _initiative_cmd(interaction: discord.Interaction) -> None:
+@app_commands.command(name="initiative", description="Initiative tracking for combat")
+@app_commands.describe(action="start a fresh order, show the current one, or end tracking")
+@app_commands.choices(action=[
+    app_commands.Choice(name="start", value="start"),
+    app_commands.Choice(name="show", value="show"),
+    app_commands.Choice(name="end", value="end"),
+])
+async def _initiative_cmd(interaction: discord.Interaction, action: str = "start") -> None:
     bot = interaction.client
     if not isinstance(bot, DMBot):
         await interaction.response.send_message("Bot not initialized.", ephemeral=True)
@@ -956,9 +1163,33 @@ async def _initiative_cmd(interaction: discord.Interaction) -> None:
         await interaction.response.send_message("No active session. Use `/dm start` first.", ephemeral=True)
         return
 
-    # Reset initiative
+    # PHASE-20 20E (F12): `show` renders the order tracked from /roll, `end` stops
+    # collecting; `start` (default) opens a fresh round \u2014 the embed promise is now true.
+    if action == "show":
+        embed = discord.Embed(
+            title="\u2694\ufe0f Initiative Order",
+            description=_format_initiative_order(bot.session.initiative_order),
+            color=discord.Color.red(),
+        )
+        embed.set_footer(text=f"Round {bot.session.initiative_round or 1}")
+        await interaction.response.send_message(embed=embed)
+        return
+
+    if action == "end":
+        bot.session.initiative_collecting = False
+        embed = discord.Embed(
+            title="\u2694\ufe0f Initiative Ended",
+            description="Initiative tracking stopped. The order is preserved until the next `start`.",
+            color=discord.Color.dark_red(),
+        )
+        await interaction.response.send_message(embed=embed)
+        bot.session.combat_log.append("--- INITIATIVE ENDED ---")
+        return
+
+    # start (default): fresh order + begin collecting
     bot.session.initiative_order.clear()
     bot.session.initiative_round = 1
+    bot.session.initiative_collecting = True
 
     embed = discord.Embed(
         title="\u2694\ufe0f Roll for Initiative!",

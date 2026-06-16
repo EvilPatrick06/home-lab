@@ -93,7 +93,7 @@ async def test_start_voice_listen_joins_when_disconnected(dm_bot, monkeypatch):
 
     monkeypatch.setattr(type(dm_bot), "guilds", property(lambda self: [fake_guild]))
     find = AsyncMock(return_value=fake_channel)
-    join = AsyncMock(return_value=MagicMock())
+    join = AsyncMock(return_value=(MagicMock(), None))  # PHASE-20 20A: join_voice now returns (vc, reason)
     monkeypatch.setattr(dm_bot, "find_dungeon_channel", find)
     monkeypatch.setattr(dm_bot, "join_voice", join)
 

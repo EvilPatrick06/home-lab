@@ -553,6 +553,14 @@ const api = {
   bmoNarrate: (text: string, npc?: string, emotion?: string) =>
     ipcRenderer.invoke(IPC_CHANNELS.BMO_NARRATE, text, npc, emotion),
   bmoDmStatus: () => ipcRenderer.invoke(IPC_CHANNELS.BMO_STATUS),
+  // PHASE-20 20F: push the Speak-narration toggle to the main-process gate.
+  bmoSetNarrationEnabled: (enabled: boolean) => ipcRenderer.invoke(IPC_CHANNELS.BMO_SET_NARRATION_ENABLED, enabled),
+  // main→renderer narrate-failure status (wrapped listener + exact unsubscribe).
+  onBmoNarrationStatus: (cb: (status: unknown) => void): (() => void) => {
+    const listener = (_e: unknown, data: unknown): void => cb(data)
+    ipcRenderer.on(IPC_CHANNELS.BMO_NARRATION_STATUS, listener)
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.BMO_NARRATION_STATUS, listener)
+  },
 
   // Discord Integration
   discord: {

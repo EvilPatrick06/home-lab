@@ -139,6 +139,15 @@ Full map in source — use `grep "@app.route" bmo/pi/app.py` for current list.
 | `/api/discord/dm/status` | GET | Session/bot status (also `/api/v1/…`) |
 | `/api/discord/dm/narrate` | POST | Speak narration in the session VC (also `/api/v1/…`) |
 
+> **PHASE-20:** these four routes are **proxies**. The live bot runs in its own
+> `bmo-dm-bot` systemd unit (a different process than Flask), so `app.py` forwards
+> each call to a loopback **control server** inside the bot — `http://127.0.0.1:5006/control/{start,stop,narrate,status}`
+> (`DM_BOT_CONTROL_PORT`, `bmo/pi/bots/dm_bot_control.py`). A `503 "DM bot not running"`
+> now truthfully means the `bmo-dm-bot` process is down/unreachable (before PHASE-20
+> the bridge was dead-by-topology and always returned 503/404). **No systemd change**
+> — the control server lives inside the existing `bmo-dm-bot` unit; `setup-bmo.sh` is
+> untouched. After pulling, restart **both** `bmo` and `bmo-dm-bot`.
+
 > The VTT additionally calls `/api/discord/dm/sync/initiative` and
 > `/api/discord/dm/sync/state` (`dnd-app/src/main/bmo-bridge.ts`), but those
 > routes are **not registered** — `services/vtt_sync.py register_sync_routes()`

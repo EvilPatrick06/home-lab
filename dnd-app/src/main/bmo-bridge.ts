@@ -6,6 +6,7 @@
  * Discord bot, forwarding events to the renderer process via IPC.
  */
 
+import { randomUUID } from 'node:crypto'
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http'
 import { BrowserWindow } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc-channels'
@@ -68,6 +69,17 @@ interface BridgeResponse {
 
 // Phase 28c.1 — track consecutive bridge failures so we can warn once.
 let consecutiveBmoFailures = 0
+
+// PHASE-20 20F (F2): the single automatic narration gate lives in the main
+// process (it has the parsed npc/emotion). Default OFF — narration is opt-in;
+// the renderer's narration-tts store pushes the real value via IPC on load + set.
+let narrationEnabled = false
+export function setNarrationEnabled(v: boolean): void {
+  narrationEnabled = v
+}
+export function isNarrationEnabled(): boolean {
+  return narrationEnabled
+}
 function notifyBmoUnreachable(): void {
   const windows = BrowserWindow.getAllWindows()
   for (const win of windows) {
@@ -146,12 +158,18 @@ async function bmoPiFetch(path: string, options?: RequestInit): Promise<BridgeRe
       consecutiveBmoFailures = 0
       return last
     }
-    // Don't retry client errors (4xx) — they won't succeed on retry.
-    if (typeof last.statusCode === 'number' && last.statusCode >= 400 && last.statusCode < 500) break
+    // A 4xx means the Pi answered and is healthy (e.g. 404 "no active DM
+    // session"). PHASE-20 20F (F6): don't retry AND don't count it toward
+    // "BMO unreachable" — reset the counter and return.
+    if (typeof last.statusCode === 'number' && last.statusCode >= 400 && last.statusCode < 500) {
+      consecutiveBmoFailures = 0
+      return last
+    }
     if (attempt < RETRY_BACKOFF_MS.length) {
       await new Promise((r) => setTimeout(r, RETRY_BACKOFF_MS[attempt]))
     }
   }
+  // Only reached on network errors / 5xx (genuine unreachability).
   consecutiveBmoFailures++
   if (consecutiveBmoFailures === 3) notifyBmoUnreachable()
   return last
@@ -169,9 +187,11 @@ export async function stopDiscordDm(): Promise<BridgeResponse> {
 }
 
 export async function sendNarration(text: string, npc?: string, emotion?: string): Promise<BridgeResponse> {
+  // PHASE-20 20F (F4): a per-request event_id makes narrate idempotent — the Pi
+  // control server de-dupes retries instead of double-speaking.
   return bmoPiFetch('/api/discord/dm/narrate', {
     method: 'POST',
-    body: JSON.stringify({ text, npc, emotion })
+    body: JSON.stringify({ text, npc, emotion, event_id: randomUUID() })
   })
 }
 

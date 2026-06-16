@@ -12,11 +12,17 @@ const localStorageMock = {
 
 vi.stubGlobal('localStorage', localStorageMock)
 
+// PHASE-20 20F: the store syncs the toggle to the main-process gate via
+// window.api.bmoSetNarrationEnabled — provide a fresh spy per test.
+let bmoSetSpy: ReturnType<typeof vi.fn>
+
 describe('useNarrationTtsStore', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     localStorageMock.store = {}
     vi.resetModules()
+    bmoSetSpy = vi.fn()
+    vi.stubGlobal('window', { api: { bmoSetNarrationEnabled: bmoSetSpy } })
   })
 
   it('defaults auto narration to off', async () => {
@@ -40,5 +46,18 @@ describe('useNarrationTtsStore', () => {
 
     expect(localStorageMock.setItem).toHaveBeenCalledWith('dnd-vtt-ai-narration-tts', 'true')
     expect(useNarrationTtsStore.getState().enabled).toBe(true)
+  })
+
+  it('syncs the toggle to the main-process gate on set', async () => {
+    const { useNarrationTtsStore } = await import('./use-narration-tts-store')
+    bmoSetSpy.mockClear() // ignore the module-init sync
+    useNarrationTtsStore.getState().setEnabled(true)
+    expect(bmoSetSpy).toHaveBeenCalledWith(true)
+  })
+
+  it('syncs the persisted value to main at module init', async () => {
+    localStorageMock.store['dnd-vtt-ai-narration-tts'] = 'true'
+    await import('./use-narration-tts-store')
+    expect(bmoSetSpy).toHaveBeenCalledWith(true)
   })
 })

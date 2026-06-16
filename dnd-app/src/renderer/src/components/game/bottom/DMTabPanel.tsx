@@ -6,6 +6,7 @@ import { load5eDmTabs } from '../../../services/data-provider'
 import { useAiDmStore } from '../../../stores/use-ai-dm-store'
 import { useNarrationTtsStore } from '../../../stores/use-narration-tts-store'
 import type { Campaign } from '../../../types/campaign'
+import DiscordSessionSection from './DiscordSessionSection'
 
 const DMAudioPanel = lazy(() => import('./DMAudioPanel'))
 const DMToolsTabContent = lazy(() => import('./DMToolsTabContent'))
@@ -192,6 +193,8 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
                   {t('game.dmTabPanel.speakNarration')}{' '}
                   {narrationTtsEnabled ? t('game.dmTabPanel.on') : t('game.dmTabPanel.off')}
                 </button>
+                {/* PHASE-20 20G: in-app Discord session start/stop/status. */}
+                <DiscordSessionSection campaignId={campaign.id} narrationEnabled={narrationTtsEnabled} />
                 <Suspense
                   fallback={
                     <div className="text-xs text-gray-500 w-full">{t('game.dmTabPanel.loadingContextPanel')}</div>

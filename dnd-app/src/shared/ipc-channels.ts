@@ -213,6 +213,9 @@ export const IPC_CHANNELS = {
   BMO_STOP_DM: 'bmo:stop-dm',
   BMO_NARRATE: 'bmo:narrate',
   BMO_STATUS: 'bmo:status',
+  // PHASE-20 20F: renderer→main toggle sync + main→renderer narrate-failure status.
+  BMO_SET_NARRATION_ENABLED: 'bmo:set-narration-enabled',
+  BMO_NARRATION_STATUS: 'bmo:narration-status',
 
   // === BMO Pi Bridge: Sync (main → renderer, from Pi HTTP callbacks) ===
   BMO_SYNC_EVENT: 'bmo:sync-event',

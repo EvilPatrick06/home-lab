@@ -1,4 +1,4 @@
-import { type MutableRefObject, useCallback, useEffect, useRef } from 'react'
+import { type MutableRefObject, useEffect, useRef } from 'react'
 import { pushDmAlert } from '../components/game/overlays/DmAlertTray'
 import {
   SCENE_FALLBACK_DELAY_MS,
@@ -10,7 +10,6 @@ import { i18n } from '../i18n'
 import type { MessageType, TypingPayload } from '../network'
 import { startGameSync, stopGameSync } from '../network'
 import { configureAiFromCampaign } from '../services/ai-dm-routing'
-import { speakNarrationThroughBmo } from '../services/bmo-narration'
 import { startAiMemorySync, stopAiMemorySync } from '../services/io/ai-memory-sync'
 import { loadPersistedGameState, startAutoSave, stopAutoSave } from '../services/io/game-auto-save'
 import { init as initSounds } from '../services/sound-manager'
@@ -18,7 +17,6 @@ import { useAiDmStore } from '../stores/use-ai-dm-store'
 import { useGameStore } from '../stores/use-game-store'
 import type { ChatMessage } from '../stores/use-lobby-store'
 import { useLobbyStore } from '../stores/use-lobby-store'
-import { useNarrationTtsStore } from '../stores/use-narration-tts-store'
 import type { Campaign } from '../types/campaign'
 import type { GameMap, MapToken } from '../types/map'
 import { logger } from '../utils/logger'
@@ -175,25 +173,30 @@ export function useGameEffects({
   setIsFullscreen
 }: UseGameEffectsOptions): void {
   const aiDmStore = useAiDmStore()
-  const narrationTtsEnabled = useNarrationTtsStore((s) => s.enabled)
 
   // Keep the latest active map available to the mount-time approval listener
   // below without re-registering the listener on every map change.
   const activeMapRef = useRef(activeMap)
   activeMapRef.current = activeMap
 
-  const narrateThroughBmo = useCallback(
-    (text: string): void => {
-      if (!narrationTtsEnabled || !text.trim()) return
-
-      void speakNarrationThroughBmo(text).then((result) => {
-        if (!result.success) {
-          pushDmAlert('error', i18n.t('notify.gameEffects.narrationFailed', { error: result.error ?? 'Unknown error' }))
-        }
-      })
-    },
-    [narrationTtsEnabled]
-  )
+  // PHASE-20 20F: the single automatic narration sender now lives in the main
+  // process (it owns the parsed npc/emotion + the toggle gate). Here we only
+  // SURFACE failures it reports, deduped by reason so an inactive Discord
+  // session doesn't alert on every AI turn (re-alert after 60s or a new reason).
+  const lastNarrationAlertRef = useRef<{ key: string; at: number } | null>(null)
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.api?.onBmoNarrationStatus) return undefined
+    return window.api.onBmoNarrationStatus((status) => {
+      const key = status.result ?? status.error ?? String(status.statusCode ?? 'unknown')
+      const now = Date.now()
+      const last = lastNarrationAlertRef.current
+      if (last && last.key === key && now - last.at < 60_000) return
+      lastNarrationAlertRef.current = { key, at: now }
+      const errText =
+        status.statusCode === 404 ? 'No active Discord session' : (status.result ?? status.error ?? 'Unknown error')
+      pushDmAlert('error', i18n.t('notify.gameEffects.narrationFailed', { error: errText }))
+    })
+  }, [])
 
   // Add "Game session started" message on mount (once)
   useEffect(() => {
@@ -316,7 +319,7 @@ export function useGameEffects({
         senderId: 'ai-dm',
         senderName: 'AI Dungeon Master'
       })
-      narrateThroughBmo(lastAssistant.content)
+      // 20F: narration is sent by the main process (single gated sender).
     }
 
     // Get character IDs — prefer lobby players, fall back to campaign players (solo mode)
@@ -521,7 +524,7 @@ export function useGameEffects({
       senderName: 'AI Dungeon Master'
     })
 
-    narrateThroughBmo(lastMsg.content)
+    // 20F: narration is sent by the main process (single gated sender with npc/emotion).
 
     // Apply stat changes if any — route through approval queue or auto-apply
     if (lastMsg.statChanges && lastMsg.statChanges.length > 0) {
@@ -569,7 +572,6 @@ export function useGameEffects({
     campaign.aiDm?.enabled,
     campaign.id,
     isDM, // Broadcast to clients
-    narrateThroughBmo,
     sendMessage
   ])
 

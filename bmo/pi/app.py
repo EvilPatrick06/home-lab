@@ -1373,164 +1373,61 @@ app.add_url_rule("/api/face/expression", view_func=api_oled_expression_set,
 
 # ── Discord DM Bot Bridge API ─────────────────────────────────────
 
+# PHASE-20 20C: the DM bot runs as its own systemd unit (bmo-dm-bot), so the
+# live bot lives in a DIFFERENT process than Flask — the old get_dm_bot() always
+# returned None here (F1, the bridge was dead by topology). These routes now
+# proxy to a loopback control server inside the bot process. A connection error
+# means the bot process is genuinely down (the 503 is finally truthful).
+DM_BOT_CONTROL_PORT = os.environ.get("DM_BOT_CONTROL_PORT", "5006")
+
+
+def _proxy_to_dm_control(path: str, method: str = "POST", json_body=None):
+    import requests as http_requests
+    url = f"http://127.0.0.1:{DM_BOT_CONTROL_PORT}/control/{path}"
+    try:
+        if method == "GET":
+            resp = http_requests.get(url, timeout=(2, 12))
+        else:
+            resp = http_requests.post(url, json=json_body or {}, timeout=(2, 12))
+    except (http_requests.ConnectionError, http_requests.Timeout):
+        return jsonify({"error": "DM bot not running"}), 503
+    try:
+        body = resp.json()
+    except ValueError:
+        body = {"error": "bad control response"}
+    return jsonify(body), resp.status_code
+
+
 @app.route("/api/discord/dm/start", methods=["POST"])
 @app.route("/api/v1/discord/dm/start", methods=["POST"])
 def api_discord_dm_start():
-    """Tell the DM bot to start a session (join Dungeon VC)."""
-    data = request.json or {}
-    campaign_id = data.get("campaign_id", "vtt_campaign")
-
-    try:
-        from bots.discord_dm_bot import get_dm_bot
-        bot = get_dm_bot()
-        if not bot:
-            return jsonify({"error": "DM bot not running"}), 503
-
-        if bot.session.active:
-            return jsonify({"error": "Session already active"}), 409
-
-        # Find guild and dungeon channel, then start session via asyncio
-        import asyncio
-
-        async def _start():
-            for guild in bot.guilds:
-                channel = await bot.find_dungeon_channel(guild)
-                if channel:
-                    vc = await bot.join_voice(channel)
-                    if vc:
-                        bot.session.active = True
-                        bot.session.text_channel_id = None
-                        from datetime import datetime, timezone
-                        bot.session.start_time = datetime.now(timezone.utc)
-                        bot.session.messages.clear()
-                        bot.session.combat_log.clear()
-
-                        if bot._campaign_memory:
-                            bot._campaign_name = campaign_id
-                            bot._session_id = bot._campaign_memory.start_session(campaign_id)
-
-                        for member in channel.members:
-                            if not member.bot:
-                                bot.session.players.add(member.display_name)
-
-                        await bot.start_voice_listen()
-
-                        greeting = "BMO is ready to be your Dungeon Master! The adventure begins!"
-                        await bot._speak(greeting, emotion="excited")
-                        return True
-            return False
-
-        future = asyncio.run_coroutine_threadsafe(_start(), bot.loop)
-        result = future.result(timeout=15)
-
-        if result:
-            return jsonify({"ok": True, "campaign_id": campaign_id})
-        return jsonify({"error": "Could not find Dungeon voice channel"}), 404
-
-    except Exception as e:
-        log.info(f"[bmo] api error: {e!r}")
-        return jsonify({"error": "internal server error"}), 500
+    """Proxy: start a Discord DM session in the bot process (PHASE-20 20C)."""
+    return _proxy_to_dm_control("start", "POST", request.json or {})
 
 
 @app.route("/api/discord/dm/stop", methods=["POST"])
 @app.route("/api/v1/discord/dm/stop", methods=["POST"])
 def api_discord_dm_stop():
-    """Tell the DM bot to stop the session."""
-    try:
-        from bots.discord_dm_bot import get_dm_bot
-        bot = get_dm_bot()
-        if not bot or not bot.session.active:
-            return jsonify({"error": "No active session"}), 404
-
-        import asyncio
-
-        async def _stop():
-            from bots.discord_dm_bot import _generate_recap
-            recap = await _generate_recap(bot.session)
-
-            if bot._campaign_memory and bot._session_id and recap:
-                bot._campaign_memory.end_session(bot._session_id, recap)
-
-            farewell = "The adventure concludes for now. Until next time, friends!"
-            await bot._speak(farewell, emotion="happy")
-
-            vc = bot.session.voice_client
-            if vc and vc.is_connected():
-                while vc.is_playing():
-                    await asyncio.sleep(0.1)
-
-            await bot.leave_voice()
-            bot.session.reset()
-            bot._campaign_name = None
-            bot._session_id = None
-            return recap
-
-        future = asyncio.run_coroutine_threadsafe(_stop(), bot.loop)
-        recap = future.result(timeout=30)
-
-        return jsonify({"ok": True, "recap": recap or ""})
-
-    except Exception as e:
-        log.info(f"[bmo] api error: {e!r}")
-        return jsonify({"error": "internal server error"}), 500
+    """Proxy: stop the Discord DM session (idempotent, bounded — PHASE-20 20C)."""
+    return _proxy_to_dm_control("stop", "POST", request.json or {})
 
 
 @app.route("/api/discord/dm/narrate", methods=["POST"])
 @app.route("/api/v1/discord/dm/narrate", methods=["POST"])
 @limiter.limit(RATE_LIMIT_NARRATE)
 def api_discord_dm_narrate():
-    """Forward narration text to the DM bot for TTS in Discord VC."""
+    """Proxy: forward narration to the DM bot (idempotent via event_id — 20C)."""
     data = request.json or {}
-    text = data.get("text", "")
-    npc = data.get("npc")
-    emotion = data.get("emotion")
-
-    if not text:
+    if not data.get("text"):
         return jsonify({"error": "No text provided"}), 400
-
-    try:
-        from bots.discord_dm_bot import get_dm_bot
-        bot = get_dm_bot()
-        if not bot or not bot.session.active:
-            return jsonify({"error": "No active DM session"}), 404
-
-        import asyncio
-        future = asyncio.run_coroutine_threadsafe(
-            bot._speak(text, npc=npc, emotion=emotion), bot.loop
-        )
-        future.result(timeout=15)
-        return jsonify({"ok": True})
-
-    except Exception as e:
-        log.info(f"[bmo] api error: {e!r}")
-        return jsonify({"error": "internal server error"}), 500
+    return _proxy_to_dm_control("narrate", "POST", data)
 
 
 @app.route("/api/discord/dm/status")
 @app.route("/api/v1/discord/dm/status")
 def api_discord_dm_status():
-    """Get the current DM bot session status."""
-    try:
-        from bots.discord_dm_bot import get_dm_bot
-        bot = get_dm_bot()
-        if not bot:
-            return jsonify({"running": False, "active": False})
-
-        session = bot.session
-        status = {
-            "running": True,
-            "active": session.active,
-            "players": sorted(session.players) if session.players else [],
-            "start_time": session.start_time.isoformat() if session.start_time else None,
-            "message_count": len(session.messages),
-            "combat_log_count": len(session.combat_log),
-            "initiative_round": session.initiative_round,
-        }
-        return jsonify(status)
-
-    except Exception as e:
-        log.info(f"[bmo] api error: {e!r}")
-        return jsonify({"error": "internal server error"}), 500
+    """Proxy: current DM bot session status (PHASE-20 20C)."""
+    return _proxy_to_dm_control("status", "GET")
 
 
 # ── Scene Mode Endpoints ─────────────────────────────────────────────

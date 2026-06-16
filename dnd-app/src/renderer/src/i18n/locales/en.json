@@ -1040,6 +1040,28 @@
       "journal": "Journal",
       "compendium": "Compendium"
     },
+    "discordSession": {
+      "heading": "Discord Voice Session",
+      "statusUnknown": "Checking…",
+      "statusBotDown": "Bot offline",
+      "statusIdle": "No active session",
+      "statusActive": "Session active",
+      "voiceConnected": "Voice connected",
+      "voiceDropped": "Voice dropped",
+      "players": "Players",
+      "start": "Start session",
+      "stop": "Stop session",
+      "starting": "Starting…",
+      "stopping": "Stopping…",
+      "channelNotFound": "Could not find the Dungeon voice channel ({{channel}}).",
+      "joinFailed": "Failed to join voice: {{reason}}",
+      "botDown": "The DM bot process is not running.",
+      "sessionActive": "A session is already active.",
+      "autoEnded": "Session auto-ended — the voice channel was empty.",
+      "noSessionHint": "Speak narration is on but no Discord session is active.",
+      "recapTitle": "Session recap",
+      "genericError": "Could not complete the request."
+    },
     "dmToolsTabContent": {
       "systemSender": "System",
       "toolbarLabel": "DM tools",

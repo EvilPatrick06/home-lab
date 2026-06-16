@@ -193,3 +193,16 @@ export const SyncEventSchema = z.discriminatedUnion('type', [
 
 export type ValidatedSyncEvent = z.infer<typeof SyncEventSchema>
 export type ValidatedInitiativeSync = z.infer<typeof InitiativeSyncSchema>
+
+// ── PHASE-20 20F: Discord narration control ────────────────────────
+// main→renderer narrate-failure status (validated before send).
+export const BmoNarrationStatusSchema = z.object({
+  ok: z.boolean(),
+  result: z.string().optional(),
+  error: z.string().optional(),
+  statusCode: z.number().optional()
+})
+export type BmoNarrationStatus = z.infer<typeof BmoNarrationStatusSchema>
+
+// renderer→main narration-enabled toggle.
+export const NarrationEnabledSchema = z.boolean()

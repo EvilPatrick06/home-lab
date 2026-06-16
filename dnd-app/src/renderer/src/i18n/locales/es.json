@@ -1040,6 +1040,28 @@
       "journal": "Diario",
       "compendium": "Compendio"
     },
+    "discordSession": {
+      "heading": "Sesión de voz de Discord",
+      "statusUnknown": "Comprobando…",
+      "statusBotDown": "Bot desconectado",
+      "statusIdle": "Sin sesión activa",
+      "statusActive": "Sesión activa",
+      "voiceConnected": "Voz conectada",
+      "voiceDropped": "Voz caída",
+      "players": "Jugadores",
+      "start": "Iniciar sesión",
+      "stop": "Detener sesión",
+      "starting": "Iniciando…",
+      "stopping": "Deteniendo…",
+      "channelNotFound": "No se encontró el canal de voz Dungeon ({{channel}}).",
+      "joinFailed": "No se pudo unir a la voz: {{reason}}",
+      "botDown": "El proceso del bot DM no está en ejecución.",
+      "sessionActive": "Ya hay una sesión activa.",
+      "autoEnded": "La sesión terminó automáticamente — el canal de voz estaba vacío.",
+      "noSessionHint": "La narración por voz está activada pero no hay ninguna sesión de Discord activa.",
+      "recapTitle": "Resumen de la sesión",
+      "genericError": "No se pudo completar la solicitud."
+    },
     "dmToolsTabContent": {
       "systemSender": "Sistema",
       "toolbarLabel": "Herramientas del DM",

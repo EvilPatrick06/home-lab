@@ -536,3 +536,42 @@ class TestSocketIOEvents:
             assert isinstance(received, list)
         finally:
             bmo_module.agent = original
+
+
+# ── PHASE-20 20C: /api/discord/dm/* are proxies to the bot control server ──
+
+from unittest.mock import patch  # noqa: E402
+
+
+class TestDiscordDmProxy:
+    def test_start_forwards_to_control_server(self, client):
+        import requests
+        fake = MagicMock(status_code=200, json=MagicMock(return_value={"ok": True, "campaign_id": "c1"}))
+        with patch.object(requests, "post", return_value=fake) as mock_post:
+            r = client.post("/api/discord/dm/start", json={"campaign_id": "c1"})
+        assert r.status_code == 200
+        assert r.get_json()["ok"] is True
+        url = mock_post.call_args[0][0]
+        assert url.endswith("/control/start") and "127.0.0.1" in url
+
+    def test_status_uses_get_and_relays_status_code(self, client):
+        import requests
+        fake = MagicMock(status_code=200, json=MagicMock(return_value={"running": True, "active": False}))
+        with patch.object(requests, "get", return_value=fake) as mock_get:
+            r = client.get("/api/discord/dm/status")
+        assert r.status_code == 200 and r.get_json()["running"] is True
+        assert mock_get.call_args[0][0].endswith("/control/status")
+
+    def test_connection_error_maps_to_503_bot_not_running(self, client):
+        import requests
+        with patch.object(requests, "post", side_effect=requests.ConnectionError("refused")):
+            r = client.post("/api/discord/dm/start", json={})
+        assert r.status_code == 503
+        assert r.get_json()["error"] == "DM bot not running"
+
+    def test_narrate_400_without_text_skips_proxy(self, client):
+        import requests
+        with patch.object(requests, "post") as mock_post:
+            r = client.post("/api/discord/dm/narrate", json={})
+        assert r.status_code == 400
+        mock_post.assert_not_called()  # no proxy hop for an empty narrate

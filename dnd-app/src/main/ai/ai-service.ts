@@ -4,7 +4,8 @@ import { app, BrowserWindow } from 'electron'
 import { DEFAULT_AI_MODEL } from '../../shared/ai-defaults'
 import { SCENE_PREP_PROMPT, WEB_SEARCH_APPROVAL_TIMEOUT_MS } from '../../shared/constants'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
-import { sendNarration } from '../bmo-bridge'
+import { BmoNarrationStatusSchema } from '../../shared/ipc-schemas'
+import { isNarrationEnabled, sendNarration } from '../bmo-bridge'
 import { logToFile } from '../log'
 import { logSecurityEvent } from '../security-log'
 import { saveConversation } from '../storage/ai-conversation-storage'
@@ -18,6 +19,26 @@ import {
   stripRulings,
   stripVoiceTags
 } from './ai-response-parser'
+
+// PHASE-20 20F: broadcast a narrate-failure status to every renderer window so
+// the DM tab can surface it (the renderer dedups). Validated before send.
+function broadcastNarrationStatus(res: {
+  ok?: boolean
+  result?: unknown
+  error?: unknown
+  statusCode?: unknown
+}): void {
+  const payload = BmoNarrationStatusSchema.safeParse({
+    ok: res.ok === true,
+    result: typeof res.result === 'string' ? res.result : undefined,
+    error: typeof res.error === 'string' ? res.error : undefined,
+    statusCode: typeof res.statusCode === 'number' ? res.statusCode : undefined
+  })
+  if (!payload.success) return
+  for (const win of BrowserWindow.getAllWindows()) {
+    win.webContents.send(IPC_CHANNELS.BMO_NARRATION_STATUS, payload.data)
+  }
+}
 
 // PHASE-08 08D — these were the only live consumers of the now-deleted dead stream-handler
 // module, which carried a duplicate of the stream-completion pipeline. Defined locally.
@@ -1079,9 +1100,20 @@ async function handleStreamCompletion(
     // Speak the narration through DM-BMO in the Discord VOICE channel (with the
     // parsed NPC archetype + emotion for tone/pitch). NO Discord TEXT — the
     // narration text stays only in the in-game chat. Fire-and-forget.
-    sendNarration(displayText, npc, emotion).catch((err) => {
-      logToFile('WARN', '[AI] Failed to send narration to DM-BMO voice:', String(err))
-    })
+    // PHASE-20 20F (F2): this is the SINGLE automatic sender, gated by the
+    // renderer toggle (default OFF). A non-ok/dropped result is broadcast to the
+    // renderer so the DM tab can surface it (deduped there).
+    if (isNarrationEnabled()) {
+      sendNarration(displayText, npc, emotion)
+        .then((res) => {
+          const dropped = !res.ok || (res.result && res.result !== 'queued' && res.result !== 'duplicate')
+          if (dropped) broadcastNarrationStatus(res)
+        })
+        .catch((err) => {
+          logToFile('WARN', '[AI] Failed to send narration to DM-BMO voice:', String(err))
+          broadcastNarrationStatus({ ok: false, error: String(err) })
+        })
+    }
 
     onDone(cleaned, displayText, statChanges, dmActions, ruleCitations)
   } catch (err) {

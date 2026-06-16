@@ -7,6 +7,7 @@ import {
   AiChatRequestSchema,
   AiConfigSchema,
   ConversationDataSchema,
+  NarrationEnabledSchema,
   type ValidatedAiChatRequest,
   type ValidatedAiConfig
 } from '../../shared/ipc-schemas'
@@ -61,7 +62,7 @@ import type {
   MutationResult,
   StatChange
 } from '../ai/types'
-import { getDmStatus, sendNarration, startDiscordDm, stopDiscordDm } from '../bmo-bridge'
+import { getDmStatus, sendNarration, setNarrationEnabled, startDiscordDm, stopDiscordDm } from '../bmo-bridge'
 import { logToFile } from '../log'
 import { deleteConversation, loadConversation, saveConversation } from '../storage/ai-conversation-storage'
 import { handle, withArgsSchema } from './_safe'
@@ -784,5 +785,12 @@ export function registerAiHandlers(): void {
 
   handle(IPC_CHANNELS.BMO_STATUS, async () => {
     return getDmStatus()
+  })
+
+  // PHASE-20 20F: renderer pushes the Speak-narration toggle value here so the
+  // single main-process narration gate matches the UI (default OFF).
+  handle(IPC_CHANNELS.BMO_SET_NARRATION_ENABLED, async (_e, enabled: unknown) => {
+    setNarrationEnabled(NarrationEnabledSchema.parse(enabled))
+    return { success: true }
   })
 }

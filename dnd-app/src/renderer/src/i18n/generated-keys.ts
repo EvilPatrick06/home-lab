@@ -3,7 +3,7 @@
  * Run `npm run i18n:gen-keys` (scripts/i18n/gen-key-union.mjs) to regenerate
  * after changing en.json. Source: src/renderer/src/i18n/locales/en.json.
  *
- * A literal union of every dotted leaf key in en.json (6096 keys),
+ * A literal union of every dotted leaf key in en.json (6116 keys),
  * so `t()` calls are checked at compile time instead of silently rendering a
  * raw key string when a key is typo'd or missing.
  */
@@ -1384,6 +1384,26 @@ export type TranslationKey =
   | 'game.diceTray.expand'
   | 'game.diceTray.expandTray'
   | 'game.diceTray.title'
+  | 'game.discordSession.autoEnded'
+  | 'game.discordSession.botDown'
+  | 'game.discordSession.channelNotFound'
+  | 'game.discordSession.genericError'
+  | 'game.discordSession.heading'
+  | 'game.discordSession.joinFailed'
+  | 'game.discordSession.noSessionHint'
+  | 'game.discordSession.players'
+  | 'game.discordSession.recapTitle'
+  | 'game.discordSession.sessionActive'
+  | 'game.discordSession.start'
+  | 'game.discordSession.starting'
+  | 'game.discordSession.statusActive'
+  | 'game.discordSession.statusBotDown'
+  | 'game.discordSession.statusIdle'
+  | 'game.discordSession.statusUnknown'
+  | 'game.discordSession.stop'
+  | 'game.discordSession.stopping'
+  | 'game.discordSession.voiceConnected'
+  | 'game.discordSession.voiceDropped'
   | 'game.diseaseCurseTracker.activeCurses'
   | 'game.diseaseCurseTracker.activeDiseases'
   | 'game.diseaseCurseTracker.addCurse'
