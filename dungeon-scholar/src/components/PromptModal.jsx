@@ -1,16 +1,7 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Wand2, X, Check, ArrowLeft } from 'lucide-react';
 import { ORG_PROMPTS } from '../prompts/index.js';
-
-// Phase 37b QA P2: Escape closes the modal (matches the app-wide pattern).
-function useEscapeKey(onEscape) {
-  useEffect(() => {
-    if (typeof onEscape !== 'function') return;
-    const handler = (e) => { if (e.key === 'Escape') { e.preventDefault(); onEscape(); } };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [onEscape]);
-}
+import { useDialogA11y } from './useDialogA11y.js';
 
 const EXAM_TARGET_LEAVE_BLANK = '<leave blank to let me infer from materials>';
 const EXAM_TARGET_LINE_REGEX = /EXAM TARGET: <[^>]+>/;
@@ -53,9 +44,14 @@ const MODAL_SHELL_STYLE = {
 };
 
 function ModalShell({ children, onClose }) {
+  const panelRef = useDialogA11y({ onClose }); // 19A: dialog semantics + trap + Escape + focus restore
   return (
     <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Spell of Tome Creation"
         className="rounded-sm max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col relative"
         style={MODAL_SHELL_STYLE}
       >
@@ -75,7 +71,7 @@ function OrgPicker({ orgs, onPick, onClose }) {
         <button
           onClick={onClose}
           aria-label="Close Spell of Tome Creation"
-          className="p-2 hover:bg-amber-900/30 rounded-sm text-amber-300"
+          className="p-3 hover:bg-amber-900/30 rounded-sm text-amber-300"
         >
           <X className="w-5 h-5" aria-hidden="true" />
         </button>
@@ -173,7 +169,7 @@ function PromptViewer({ org, examTarget, setExamTarget, finalPrompt, copied, onC
         <button
           onClick={onBack}
           aria-label="Back to spell picker"
-          className="p-2 hover:bg-amber-900/30 rounded-sm text-amber-300"
+          className="p-3 hover:bg-amber-900/30 rounded-sm text-amber-300"
         >
           <ArrowLeft className="w-5 h-5" aria-hidden="true" />
         </button>
@@ -184,7 +180,7 @@ function PromptViewer({ org, examTarget, setExamTarget, finalPrompt, copied, onC
         <button
           onClick={onClose}
           aria-label="Close Spell of Tome Creation"
-          className="p-2 hover:bg-amber-900/30 rounded-sm text-amber-300"
+          className="p-3 hover:bg-amber-900/30 rounded-sm text-amber-300"
         >
           <X className="w-5 h-5" aria-hidden="true" />
         </button>
@@ -243,7 +239,6 @@ function PromptViewer({ org, examTarget, setExamTarget, finalPrompt, copied, onC
 }
 
 export default function PromptModal({ onClose }) {
-  useEscapeKey(onClose);
   const [selectedOrg, setSelectedOrg] = useState(null);
   const [examTarget, setExamTarget] = useState('');
   const [copied, setCopied] = useState(false);

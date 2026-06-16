@@ -104,3 +104,20 @@ html[data-theme="light"] {
   --modecard-bg-start: rgba(120, 53, 15, 0.45);
   --modecard-bg-end: rgba(41, 24, 12, 0.7);
 }
+
+/* PHASE-19B: honor prefers-reduced-motion (WCAG 2.3.3). Near-zero durations
+ * (not `animation: none`) so animation/transition end events still fire and
+ * JS that waits on them can't hang. Iteration count 1 freezes infinite
+ * loops (pulse badges, low-time exam clock, spinners) at a static frame.
+ * The dungeon canvas game loop is rAF-driven gameplay and is intentionally
+ * unaffected. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

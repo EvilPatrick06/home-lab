@@ -12,6 +12,7 @@ import {
   buildQuestionLogEntry,
   POTION_EFFECTS,
   takeForesightPreview,
+  revealDecoration,
 } from './DungeonExplore.jsx';
 
 // Seedable RNG so map-gen assertions are deterministic per test.
@@ -297,6 +298,27 @@ describe('POTION_EFFECTS (17G — no consuming no-ops)', () => {
   it('re-specs Foresight Scroll and Tinker\'s Oil to real effects', () => {
     expect(POTION_EFFECTS.foresight_scroll.kind).toBe('foresight');
     expect(POTION_EFFECTS.tinkers_oil).toMatchObject({ kind: 'mana', amount: 2 });
+  });
+});
+
+describe('revealDecoration (PHASE-19 19C — non-color reveal)', () => {
+  it('returns neutral solid + empty glyph before reveal', () => {
+    expect(revealDecoration(null, 0, 1)).toEqual({ glyph: '', borderStyle: 'solid' });
+  });
+
+  it('marks the correct option with a check + solid border', () => {
+    const rr = { choice: 2, correct: false };
+    expect(revealDecoration(rr, 1, 1)).toEqual({ glyph: '✓ ', borderStyle: 'solid' });
+  });
+
+  it('marks the picked-wrong option with a cross + dashed border', () => {
+    const rr = { choice: 2, correct: false };
+    expect(revealDecoration(rr, 2, 1)).toEqual({ glyph: '✗ ', borderStyle: 'dashed' });
+  });
+
+  it('leaves other options neutral after reveal', () => {
+    const rr = { choice: 2, correct: false };
+    expect(revealDecoration(rr, 0, 1)).toEqual({ glyph: '', borderStyle: 'solid' });
   });
 });
 

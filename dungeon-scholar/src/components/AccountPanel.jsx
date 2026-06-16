@@ -3,6 +3,7 @@ import { LogOut, CloudOff, Trash2, RotateCcw } from 'lucide-react';
 import { signOut } from '../services/supabase.js';
 import { deleteCloudSave, deleteAccount } from '../services/cloudSync.js';
 import { logError } from '../services/logger.js';
+import { useDialogA11y } from './useDialogA11y.js';
 
 function relativeTimeFrom(date) {
   if (!date) return 'never';
@@ -17,6 +18,9 @@ export function AccountPanel({ user, syncStatus, lastSyncedAt, onClose, onAfterD
   const [confirmKind, setConfirmKind] = useState(null);
   const [typedConfirm, setTypedConfirm] = useState('');
   const [busy, setBusy] = useState(false);
+  // 19A: hook called before the early return (hooks must be unconditional);
+  // `active: !!user` arms the trap only while the panel is actually rendered.
+  const panelRef = useDialogA11y({ onClose, active: !!user });
 
   if (!user) return null;
 
@@ -56,7 +60,7 @@ export function AccountPanel({ user, syncStatus, lastSyncedAt, onClose, onAfterD
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.85)' }}>
-      <div className="max-w-md w-[92%] p-6 rounded-sm border-2 border-amber-600" style={{ background: 'rgba(20, 12, 6, 0.97)' }}>
+      <div ref={panelRef} role="dialog" aria-modal="true" aria-label="Account panel" className="max-w-md w-[92%] p-6 rounded-sm border-2 border-amber-600" style={{ background: 'rgba(20, 12, 6, 0.97)' }}>
         <div className="flex items-center gap-3 mb-4">
           {user.avatarUrl && <img src={user.avatarUrl} alt="" className="w-12 h-12 rounded-full border-2 border-amber-700" />}
           <div>

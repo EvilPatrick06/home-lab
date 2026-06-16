@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDialogA11y } from './useDialogA11y.js';
 
 function summarize(state) {
   if (!state) return { level: 1, tomes: 0, totalCorrect: 0, totalXp: 0 };
@@ -36,12 +37,15 @@ function Card({ heading, state, onPick, pickLabel, pickColor, ariaLabel }) {
 }
 
 export function MergeChooser({ localState, cloudState, onResolve }) {
+  // 19A: Escape takes the safe path — cancel sign-in, keep this device unchanged.
+  const panelRef = useDialogA11y({ onClose: () => onResolve('cancel') });
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center"
          style={{ background: 'rgba(0,0,0,0.85)' }}>
-      <div className="max-w-2xl w-[92%] p-6 rounded-sm border-2 border-amber-600"
+      <div ref={panelRef} role="dialog" aria-modal="true" aria-labelledby="merge-chooser-title"
+           className="max-w-2xl w-[92%] p-6 rounded-sm border-2 border-amber-600"
            style={{ background: 'rgba(20, 12, 6, 0.97)' }}>
-        <h2 className="text-xl font-bold text-amber-300 italic mb-2">
+        <h2 id="merge-chooser-title" className="text-xl font-bold text-amber-300 italic mb-2">
           ⚔ Two Journals Discovered ⚔
         </h2>
         <p className="text-sm text-amber-200/80 italic mb-5">

@@ -2248,6 +2248,18 @@ function pickOneQuestion(courseSet, excludeIds = new Set()) {
 // fields, so the chronicle was rendering every entry as identical
 // (mob entries were present but visually indistinguishable from boss
 // entries → the user perceived them as missing).
+// PHASE-19 19C: non-color reveal decoration (WCAG 1.4.1). The correct option
+// gets a check glyph + solid border, the picked-wrong option a cross glyph +
+// dashed border, so the outcome reads without color perception.
+export function revealDecoration(revealResult, optionIndex, correctIndex) {
+  if (!revealResult) return { glyph: '', borderStyle: 'solid' };
+  const isAnsRight = optionIndex === correctIndex;
+  const isPickedWrong = revealResult.choice === optionIndex && !revealResult.correct;
+  if (isAnsRight) return { glyph: '✓ ', borderStyle: 'solid' };
+  if (isPickedWrong) return { glyph: '✗ ', borderStyle: 'dashed' };
+  return { glyph: '', borderStyle: 'solid' };
+}
+
 export function buildQuestionLogEntry(q, correct, battle, bossKind, fallbackIdx = 0) {
   const source = battle?.type;
   const isMob = source === 'mob';
@@ -2433,21 +2445,24 @@ function BattleModal({
             } else if (isPickedWrong) {
               bg = 'rgba(220,38,38,0.25)'; border = '#dc2626'; color = '#fecaca';
             }
+            // 19C: glyph + border-style carry the verdict without color.
+            const { glyph, borderStyle } = revealDecoration(revealResult, i, q.correctIndex);
+            const borderCss = revealResult ? `2px ${borderStyle} ${border}` : `1px solid ${border}`;
             return (
               <button
                 key={i}
                 onClick={() => handle(i)}
                 disabled={!!revealResult}
                 className="text-left px-3 py-2 rounded-sm italic"
-                style={{ background: bg, border: `1px solid ${border}`, color, cursor: revealResult ? 'default' : 'pointer' }}
+                style={{ background: bg, border: borderCss, color, cursor: revealResult ? 'default' : 'pointer' }}
               >
-                {opt}
+                {glyph}{opt}
               </button>
             );
           })}
         </div>
         {revealResult && (
-          <div className="mt-3 text-xs italic text-amber-300">
+          <div role="status" className="mt-3 text-xs italic text-amber-300">
             {revealResult.correct
               ? '✦ Thy answer rings true.'
               : '✦ Nay — read the lore, then press onward.'}

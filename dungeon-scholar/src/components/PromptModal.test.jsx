@@ -2,6 +2,22 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import PromptModal from './PromptModal.jsx';
 
+describe('PromptModal — dialog a11y (PHASE-19 19A)', () => {
+  it('is a modal dialog with an accessible name', () => {
+    render(<PromptModal onClose={() => {}} />);
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
+    expect(dialog).toHaveAttribute('aria-label', 'Spell of Tome Creation');
+  });
+
+  it('Escape calls onClose', () => {
+    const onClose = vi.fn();
+    render(<PromptModal onClose={onClose} />);
+    fireEvent.keyDown(document.activeElement, { key: 'Escape' });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe('PromptModal — Step 1 org picker', () => {
   it('renders 11 org buttons and a close button', () => {
     render(<PromptModal onClose={() => {}} />);

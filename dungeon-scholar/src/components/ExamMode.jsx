@@ -27,6 +27,8 @@ import {
   SESSION_KIND,
 } from '../services/sessionResume.js';
 import RichContent from './RichContent.jsx';
+import { timerAnnouncement } from '../services/timerAnnounce.js';
+import { useDialogA11y } from './useDialogA11y.js';
 
 function formatClock(sec) {
   const s = Math.max(0, sec | 0);
@@ -45,7 +47,12 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
   const [answers, setAnswers] = useState([]);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState(0);
+  // 19D (L5): milestone screen-reader announcements for the countdown.
+  const [timerAnnounce, setTimerAnnounce] = useState('');
+  const prevSecondsRef = useRef(0);
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
+  // 19A: inline submit-confirm overlay — hook armed only while it's rendered.
+  const submitConfirmRef = useDialogA11y({ onClose: () => setShowSubmitConfirm(false), active: showSubmitConfirm });
   const [resultsSummary, setResultsSummary] = useState(null);
   const [textInput, setTextInput] = useState('');
   // Phase 46c: Past Trials drill-in. Clicking a row opens a modal with
@@ -72,6 +79,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
     setAnswers(blankAnswers);
     setCurrentIdx(0);
     setSecondsLeft(totalSec);
+    prevSecondsRef.current = totalSec; // 19D: seed the milestone baseline
     totalSecondsRef.current = totalSec;
     deadlineMsRef.current = deadline;
     startedAtRef.current = Date.now();
@@ -122,6 +130,10 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
     if (phase !== 'inProgress') return undefined;
     const tick = () => {
       const remaining = Math.max(0, Math.ceil((deadlineMsRef.current - Date.now()) / 1000));
+      // 19D (L5): announce milestone crossings to screen readers (not per-second).
+      const msg = timerAnnouncement(prevSecondsRef.current, remaining);
+      if (msg) setTimerAnnounce(msg);
+      prevSecondsRef.current = remaining;
       setSecondsLeft(remaining);
       if (remaining === 0) {
         submitExamRef.current?.('timeout');
@@ -220,6 +232,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
     setCurrentIdx(typeof saved.currentIdx === 'number' ? saved.currentIdx : 0);
     const remainingSec = Math.max(0, Math.ceil((saved.deadlineMs - Date.now()) / 1000));
     setSecondsLeft(remainingSec);
+    prevSecondsRef.current = remainingSec; // 19D: seed so resume doesn't re-announce past milestones
     setPhase('inProgress');
     // Phase 38c: notify the user resume worked so the timer reappearing
     // mid-page-load doesn't look mysterious.
@@ -395,9 +408,13 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
         }}>
           <div className="flex items-center gap-3 flex-wrap">
             <Clock className={`w-5 h-5 ${lowTime ? 'text-red-300' : 'text-indigo-300'}`} />
-            <span className={`font-bold tabular-nums text-lg italic ${lowTime ? 'text-red-200 animate-pulse' : 'text-indigo-100'}`} style={{ textShadow: lowTime ? '0 0 10px rgba(239, 68, 68, 0.6)' : 'none' }}>
+            {/* 19D (L5): role="timer" (implicit aria-live="off" — no per-second chatter);
+                milestone warnings flow through the sr-only assertive region below. */}
+            <span role="timer" aria-atomic="true" aria-label={`Time remaining ${formatClock(secondsLeft)}`}
+              className={`font-bold tabular-nums text-lg italic ${lowTime ? 'text-red-200 animate-pulse' : 'text-indigo-100'}`} style={{ textShadow: lowTime ? '0 0 10px rgba(239, 68, 68, 0.6)' : 'none' }}>
               {formatClock(secondsLeft)}
             </span>
+            <span className="sr-only" role="status" aria-live="assertive">{timerAnnounce}</span>
             <div className="flex-1 text-xs italic text-amber-200">
               Riddle <span className="font-bold tabular-nums">{currentIdx + 1}</span> of <span className="font-bold tabular-nums">{sample.length}</span> · {answeredCount} answered
             </div>
@@ -553,7 +570,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
 
         {showSubmitConfirm && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4">
-            <div className="max-w-md rounded-sm p-5" style={{
+            <div ref={submitConfirmRef} role="dialog" aria-modal="true" aria-label="Submit exam confirmation" className="max-w-md rounded-sm p-5" style={{
               background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.75) 0%, rgba(10, 6, 4, 0.97) 100%)',
               border: '3px solid rgba(129, 140, 248, 0.7)',
               boxShadow: '0 0 30px rgba(129, 140, 248, 0.3)',
@@ -708,16 +725,8 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
 // close. byDomain may be missing on legacy records (pre-26e) — render a
 // "no breakdown saved" notice in that case.
 function TrialDetailModal({ rec, onClose }) {
-  useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  // 19A: focus trap + Escape + focus restore (replaces the bespoke Escape effect).
+  const panelRef = useDialogA11y({ onClose });
 
   const byDomain = rec?.byDomain || {};
   const domains = Object.keys(byDomain).sort((a, b) => (byDomain[b]?.total || 0) - (byDomain[a]?.total || 0));
@@ -730,6 +739,7 @@ function TrialDetailModal({ rec, onClose }) {
 
   return (
     <div
+      ref={panelRef}
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: 'rgba(0,0,0,0.7)' }}
       onClick={onClose}

@@ -13,6 +13,8 @@ import { useAuth } from './hooks/useAuth.js';
 import { MergeChooser } from './components/MergeChooser.jsx';
 import { RlsWarningBanner } from './components/RlsWarningBanner.jsx';
 import { checkRlsExposure } from './services/cloudSync.js';
+import { useDialogA11y } from './components/useDialogA11y.js';
+import { AudioInviteBanner } from './components/AudioInviteBanner.jsx';
 import { ProfileChip } from './components/ProfileChip.jsx';
 import { AccountPanel } from './components/AccountPanel.jsx';
 import PromptModal from './components/PromptModal.jsx';
@@ -1105,17 +1107,8 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-// Phase 37b QA P2: Escape-to-close hook for modal dialogs. ConfirmModal
-// already had its own; this lets every other modal opt in with one line.
-// No-op when onEscape is falsy.
-function useEscapeKey(onEscape) {
-  useEffect(() => {
-    if (typeof onEscape !== 'function') return;
-    const handler = (e) => { if (e.key === 'Escape') { e.preventDefault(); onEscape(); } };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [onEscape]);
-}
+// PHASE-19 19A: the per-modal Escape hook (useEscapeKey) was replaced by
+// useDialogA11y (focus trap + Escape + focus restore) across every overlay.
 
 // Fisher-Yates shuffle. Returns a new array; doesn't mutate input.
 const shuffleArray = (arr) => {
@@ -3192,7 +3185,7 @@ export default function DungeonScholarApp() {
             </div>
             <button
               onClick={() => setScreen('quests')}
-              className="p-2 hover:bg-purple-900/30 rounded-sm transition border-2 border-purple-700/50 hover:border-purple-500 relative"
+              className="p-3 hover:bg-purple-900/30 rounded-sm transition border-2 border-purple-700/50 hover:border-purple-500 relative"
               title={claimableQuestCount > 0 ? `Quest Board (${claimableQuestCount} ready to claim)` : 'Quest Board'}
               aria-label={claimableQuestCount > 0 ? `Open Quest Board, ${claimableQuestCount} reward${claimableQuestCount === 1 ? '' : 's'} ready to claim` : 'Open Quest Board'}
             >
@@ -3205,7 +3198,7 @@ export default function DungeonScholarApp() {
             </button>
             <button
               onClick={() => setScreen('library')}
-              className="p-2 hover:bg-amber-900/30 rounded-sm transition border-2 border-amber-700/50 hover:border-amber-500 relative"
+              className="p-3 hover:bg-amber-900/30 rounded-sm transition border-2 border-amber-700/50 hover:border-amber-500 relative"
               title={`Library (${playerState.library.length} tome${playerState.library.length === 1 ? '' : 's'})`}
               aria-label={`Open Library, ${playerState.library.length} tome${playerState.library.length === 1 ? '' : 's'}`}
             >
@@ -3224,7 +3217,7 @@ export default function DungeonScholarApp() {
               return (
                 <button
                   onClick={() => setScreen('inventory')}
-                  className="p-2 hover:bg-emerald-900/30 rounded-sm transition border-2 border-emerald-700/50 hover:border-emerald-500 relative"
+                  className="p-3 hover:bg-emerald-900/30 rounded-sm transition border-2 border-emerald-700/50 hover:border-emerald-500 relative"
                   title={`The Hoard (${inventoryCount} item${inventoryCount === 1 ? '' : 's'} stowed)`}
                   aria-label={`Open The Hoard, ${inventoryCount} item${inventoryCount === 1 ? '' : 's'} stowed`}
                 >
@@ -3239,7 +3232,7 @@ export default function DungeonScholarApp() {
             })()}
             <button
               onClick={() => setScreen('shop')}
-              className="p-2 hover:bg-amber-900/30 rounded-sm transition border-2 border-amber-700/50 hover:border-amber-500"
+              className="p-3 hover:bg-amber-900/30 rounded-sm transition border-2 border-amber-700/50 hover:border-amber-500"
               title="Marketplace"
               aria-label="Open Marketplace"
             >
@@ -3247,7 +3240,7 @@ export default function DungeonScholarApp() {
             </button>
             <button
               onClick={() => setShowAchievements(true)}
-              className="p-2 hover:bg-amber-900/30 rounded-sm transition border-2 border-amber-700/50 hover:border-amber-500"
+              className="p-3 hover:bg-amber-900/30 rounded-sm transition border-2 border-amber-700/50 hover:border-amber-500"
               title="Hall of Glory"
               aria-label="Open Hall of Glory (achievements)"
             >
@@ -3314,7 +3307,7 @@ export default function DungeonScholarApp() {
                   if (screen === 'flashcards') clearSession(SESSION_KIND.FLASHCARDS);
                   setScreen('home');
                 }}
-                className="px-3 py-2 hover:bg-amber-900/30 rounded-sm transition border-2 border-amber-700/50 hover:border-amber-500 flex items-center gap-2 text-amber-200"
+                className="px-3 py-2.5 hover:bg-amber-900/30 rounded-sm transition border-2 border-amber-700/50 hover:border-amber-500 flex items-center gap-2 text-amber-200"
               >
                 <Home className="w-4 h-4" /> Hearth
               </button>
@@ -3669,6 +3662,7 @@ export default function DungeonScholarApp() {
               `Resumed Riddle ${Math.min(info.progressCount + 1, info.total)} of ${info.total}${info.streak > 0 ? ` · Streak ${info.streak}` : ''}`,
               'success', null, 1500,
             )}
+            onGoToLibrary={() => setScreen('library')}
           />
         )}
         {screen === 'lab' && courseSet && (
@@ -3681,6 +3675,7 @@ export default function DungeonScholarApp() {
             updateTomeProgress={updateTomeProgress}
             checkAchievement={checkAchievement}
             onPendingConfirm={setPendingConfirm}
+            onGoToLibrary={() => setScreen('library')}
           />
         )}
         {screen === 'chat' && courseSet && (
@@ -3720,6 +3715,7 @@ export default function DungeonScholarApp() {
             checkAchievement={checkAchievement}
             unlockSpecialTitle={unlockSpecialTitle}
             awardXP={awardXP}
+            onGoHome={() => setScreen('home')}
           />
         )}
 
@@ -3935,6 +3931,19 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
           <p className="text-amber-100/80 italic max-w-md mx-auto">
             "No tomes grace these ancient halls, brave scholar. Inscribe your first sacred text to begin your saga..."
           </p>
+          {/* 19E (L17): inline CTAs so the empty card isn't a dead-end (the toolbar above also has these). */}
+          <div className="mt-5 flex flex-col sm:flex-row gap-2 justify-center max-w-md mx-auto">
+            <button onClick={() => onShowPrompt?.()}
+              className="flex-1 py-3 px-4 rounded-sm italic border-2 border-amber-700 text-amber-200"
+              style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+              ✦ Open the Spell of Tome Creation
+            </button>
+            <button onClick={() => onImport?.()}
+              className="flex-1 py-3 px-4 rounded-sm italic border-2 border-amber-700 text-amber-200"
+              style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+              Inscribe a Tome (import JSON)
+            </button>
+          </div>
         </div>
       )}
 
@@ -4237,6 +4246,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
   if (!courseSet) {
     return (
       <div className="space-y-6">
+        <AudioInviteBanner />
         <div className="text-center py-12 px-6 rounded-sm relative" style={{
           background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.7) 0%, rgba(10, 6, 4, 0.9) 100%)',
           border: '3px double rgba(180, 83, 9, 0.5)',
@@ -4384,6 +4394,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
 
   return (
     <div className="space-y-6">
+      <AudioInviteBanner />
       <div className="p-6 rounded-sm relative" style={{
         background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.4) 0%, rgba(41, 24, 12, 0.9) 100%)',
         border: '3px double rgba(245, 158, 11, 0.5)',
@@ -5182,7 +5193,7 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
   );
 }
 
-function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, awardXP, recordAnswer, checkAchievement, playerState, updateTomeProgress, domainFilter, onExitFilter, onResumeNotify }) {
+function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, awardXP, recordAnswer, checkAchievement, playerState, updateTomeProgress, domainFilter, onExitFilter, onResumeNotify, onGoToLibrary }) {
   const [index, setIndex] = useState(0);
   // Phase 35d QA P3: user-facing session progress counter, decoupled from
   // deck position. Increments only on `next()` so a refresh-resume (which
@@ -5504,6 +5515,14 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
           <ArrowLeft className="w-4 h-4 inline mr-2" /> Clear Filter
         </button>
       )}
+      {/* 19E (L17): unfiltered dead-end gets a path to add content. */}
+      {!domainFilter && (
+        <button onClick={() => onGoToLibrary?.()}
+          className="w-full py-3 px-4 rounded-sm italic border-2 border-amber-700 text-amber-200"
+          style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+          📜 Visit the Grand Library — import or forge a tome with riddles
+        </button>
+      )}
     </div>
   );
 
@@ -5669,9 +5688,10 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
         )}
         {answered && (
           <div className="space-y-3">
-            <div className="p-4 rounded-sm border-2 space-y-2" style={{
+            <div role="status" className="p-4 rounded-sm border-2 space-y-2" style={{
               background: answered.correct ? 'rgba(6, 78, 59, 0.5)' : 'rgba(127, 29, 29, 0.5)',
               borderColor: answered.correct ? 'rgba(16, 185, 129, 0.7)' : 'rgba(239, 68, 68, 0.7)',
+              borderStyle: answered.correct ? 'solid' : 'dashed', // 19C: non-color cue
             }}>
               <div className="font-bold flex items-center gap-2 italic flex-wrap">
                 {answered.correct ? <Check className="w-5 h-5 text-emerald-400" /> : <X className="w-5 h-5 text-red-400" />}
@@ -5761,7 +5781,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
   );
 }
 
-function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerState, checkAchievement, recordAnswer, onPendingConfirm }) {
+function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerState, checkAchievement, recordAnswer, onPendingConfirm, onGoToLibrary }) {
   const [selectedLab, setSelectedLab] = useState(null);
   const [step, setStep] = useState(0);
   const [textAnswer, setTextAnswer] = useState('');
@@ -5810,7 +5830,17 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
     return (
       <div className="space-y-3 max-w-3xl mx-auto">
         <h2 className="text-2xl font-bold text-rose-300 mb-4 italic">⚗️ Choose Thy Trial ⚗️</h2>
-        {labs.length === 0 && <div className="text-amber-600 italic">No trials in this tome.</div>}
+        {labs.length === 0 && (
+          <div className="space-y-3">
+            <div className="text-amber-600 italic">No trials in this tome.</div>
+            {/* 19E (L17): give the dead-end a path to add content. */}
+            <button onClick={() => onGoToLibrary?.()}
+              className="w-full py-3 px-4 rounded-sm italic border-2 border-amber-700 text-amber-200"
+              style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+              📜 Visit the Grand Library — import or forge a tome with trials
+            </button>
+          </div>
+        )}
         {labs.map((lab, i) => {
           // Phase 43e round-10 P5: per-trial status pill on each list card.
           // labProgress[lab.id] = { step, completed } updated on advance.
@@ -6086,9 +6116,10 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
           </div>
         )}
         {feedback && (
-          <div className="p-4 rounded-sm border-2 space-y-3" style={{
+          <div role="status" className="p-4 rounded-sm border-2 space-y-3" style={{
             background: feedback.correct ? 'rgba(6, 78, 59, 0.5)' : 'rgba(127, 29, 29, 0.5)',
             borderColor: feedback.correct ? 'rgba(16, 185, 129, 0.7)' : 'rgba(239, 68, 68, 0.7)',
+            borderStyle: feedback.correct ? 'solid' : 'dashed', // 19C: non-color cue
           }}>
             <div className="font-bold flex items-center gap-2 italic flex-wrap">
               {feedback.correct ? <Check className="w-5 h-5 text-emerald-400" /> : <X className="w-5 h-5 text-red-400" />}
@@ -6157,6 +6188,8 @@ function ChatMode({ courseSet, tomeProgress, updateTomeProgress, checkAchievemen
   const [mode, setMode] = useState(isOracleConfigured() ? 'oracle' : 'search'); // 18B: default to Tome Search when no Oracle
   const [expandedSources, setExpandedSources] = useState({});
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  // 19A: inline overlay — hook armed only while the confirm is rendered.
+  const clearConfirmRef = useDialogA11y({ onClose: () => setShowClearConfirm(false), active: showClearConfirm });
   const messagesEndRef = useRef(null);
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages.length]);
@@ -6610,7 +6643,7 @@ ${fullKb}
       {/* Clear chat confirm */}
       {showClearConfirm && (
         <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="rounded-sm max-w-md w-full overflow-hidden flex flex-col relative" style={{
+          <div ref={clearConfirmRef} role="dialog" aria-modal="true" aria-label="Clear chat confirmation" className="rounded-sm max-w-md w-full overflow-hidden flex flex-col relative" style={{
             background: 'linear-gradient(135deg, rgba(80, 20, 20, 0.95) 0%, rgba(20, 6, 6, 0.99) 100%)',
             border: '3px double rgba(220, 38, 38, 0.7)',
             boxShadow: '0 0 40px rgba(220, 38, 38, 0.4)',
@@ -6651,7 +6684,7 @@ ${fullKb}
   );
 }
 
-function MistakeVault({ courseSet, tomeProgress, playerState, onRemove, checkAchievement, unlockSpecialTitle, awardXP }) {
+function MistakeVault({ courseSet, tomeProgress, playerState, onRemove, checkAchievement, unlockSpecialTitle, awardXP, onGoHome }) {
   const vault = tomeProgress?.mistakeVault || [];
 
   useEffect(() => {
@@ -6677,6 +6710,12 @@ function MistakeVault({ courseSet, tomeProgress, playerState, onRemove, checkAch
         <Skull className="w-20 h-20 mx-auto text-stone-600 mb-4" />
         <h2 className="text-2xl font-bold text-amber-300 mb-2 italic">The Tome is Empty</h2>
         <p className="text-amber-100/60 italic">"All foes have been vanquished, brave scholar. Let new challenges find you..."</p>
+        {/* 19E (L17): a way out of the dead-end ledger. */}
+        <button onClick={() => onGoHome?.()}
+          className="mt-5 w-full py-3 px-4 rounded-sm italic border-2 border-amber-700 text-amber-200"
+          style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+          Return to the Hearth — study a tome to fill this ledger
+        </button>
       </div>
     );
   }
@@ -7938,6 +7977,8 @@ function RecordTile({ label, value, sub }) {
 function ShopScreen({ playerState, setScreen, onPurchase }) {
   const [activeTab, setActiveTab] = useState('apothecary');
   const [pendingPurchase, setPendingPurchase] = useState(null); // item object
+  // 19A: inline overlay — hook armed only while a purchase confirm is rendered.
+  const purchaseConfirmRef = useDialogA11y({ onClose: () => setPendingPurchase(null), active: !!pendingPurchase });
   const [purchaseError, setPurchaseError] = useState(null);
 
   // Daily-rotating stock — recomputes when the date string changes (refreshes
@@ -8139,7 +8180,7 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
 
       {pendingPurchase && (
         <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="rounded-sm max-w-md w-full overflow-hidden flex flex-col relative" style={{
+          <div ref={purchaseConfirmRef} role="dialog" aria-modal="true" aria-label="Confirm purchase" className="rounded-sm max-w-md w-full overflow-hidden flex flex-col relative" style={{
             background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.99) 0%, rgba(10, 6, 4, 1) 100%)',
             border: '3px double rgba(245, 158, 11, 0.7)',
             boxShadow: '0 0 60px rgba(245, 158, 11, 0.4)',
@@ -10026,10 +10067,10 @@ function QuestBoard({
 }
 
 function WelcomeModal({ onStart, onSkip }) {
-  useEscapeKey(onSkip);
+  const panelRef = useDialogA11y({ onClose: onSkip }); // 19A
   return (
     <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="rounded-sm max-w-2xl w-full overflow-hidden flex flex-col relative" style={{
+      <div ref={panelRef} role="dialog" aria-modal="true" aria-label="Welcome" className="rounded-sm max-w-2xl w-full overflow-hidden flex flex-col relative" style={{
         background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.99) 0%, rgba(10, 6, 4, 1) 100%)',
         border: '4px double rgba(245, 158, 11, 0.7)',
         boxShadow: '0 0 60px rgba(245, 158, 11, 0.4)',
@@ -10190,7 +10231,7 @@ function downloadTomeJson(tome) {
 }
 
 function ShareTomeModal({ tome, onClose }) {
-  useEscapeKey(onClose);
+  const panelRef = useDialogA11y({ onClose }); // 19A
   const [copied, setCopied] = useState(false);
   const textareaRef = useRef(null);
   const code = useMemo(() => tome ? encodeTomeShareCode(tome.data) : null, [tome]);
@@ -10216,7 +10257,7 @@ function ShareTomeModal({ tome, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="rounded-sm max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
+      <div ref={panelRef} role="dialog" aria-modal="true" aria-label="Share tome" className="rounded-sm max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
         background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
         border: '3px double rgba(168, 85, 247, 0.6)',
         boxShadow: '0 0 40px rgba(168, 85, 247, 0.3)',
@@ -10323,7 +10364,7 @@ function ShareTomeModal({ tome, onClose }) {
 }
 
 function ImportCodeModal({ onClose, onSubmit }) {
-  useEscapeKey(onClose);
+  const panelRef = useDialogA11y({ onClose }); // 19A
   const [text, setText] = useState('');
   const [error, setError] = useState('');
 
@@ -10339,7 +10380,7 @@ function ImportCodeModal({ onClose, onSubmit }) {
 
   return (
     <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="rounded-sm max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
+      <div ref={panelRef} role="dialog" aria-modal="true" aria-label="Import tome code" className="rounded-sm max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
         background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
         border: '3px double rgba(168, 85, 247, 0.6)',
         boxShadow: '0 0 40px rgba(168, 85, 247, 0.3)',
@@ -10397,7 +10438,7 @@ function ImportCodeModal({ onClose, onSubmit }) {
 }
 
 function MetadataEditModal({ tome, onSave, onClose }) {
-  useEscapeKey(onClose);
+  const panelRef = useDialogA11y({ onClose }); // 19A
   const meta = tome?.data?.metadata || {};
   const [title, setTitle] = useState(meta.title || '');
   const [description, setDescription] = useState(meta.description || '');
@@ -10437,7 +10478,7 @@ function MetadataEditModal({ tome, onSave, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="rounded-sm max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
+      <div ref={panelRef} role="dialog" aria-modal="true" aria-label="Edit tome details" className="rounded-sm max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
         background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
         border: '3px double rgba(245, 158, 11, 0.6)',
         boxShadow: '0 0 40px rgba(245, 158, 11, 0.3)',
@@ -10597,13 +10638,13 @@ function MetadataEditModal({ tome, onSave, onClose }) {
 }
 
 function ResetConfirmModal({ onConfirm, onCancel }) {
-  useEscapeKey(onCancel);
+  const panelRef = useDialogA11y({ onClose: onCancel }); // 19A
   const [confirmText, setConfirmText] = useState('');
   const isMatch = confirmText.trim().toUpperCase() === 'BEGIN ANEW';
 
   return (
     <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="rounded-sm max-w-md w-full overflow-hidden flex flex-col relative" style={{
+      <div ref={panelRef} role="dialog" aria-modal="true" aria-label="Reset progress" className="rounded-sm max-w-md w-full overflow-hidden flex flex-col relative" style={{
         background: 'linear-gradient(135deg, rgba(80, 20, 20, 0.95) 0%, rgba(20, 6, 6, 0.99) 100%)',
         border: '3px double rgba(220, 38, 38, 0.7)',
         boxShadow: '0 0 40px rgba(220, 38, 38, 0.4)',
@@ -10676,26 +10717,14 @@ function ResetConfirmModal({ onConfirm, onCancel }) {
 // alertdialog role + descriptive aria attributes so screen readers announce
 // it correctly. The destructive (danger) variant uses red styling.
 function ConfirmModal({ title, body, confirmLabel = 'Confirm', cancelLabel = 'Cancel', confirmVariant = 'default', onConfirm, onCancel }) {
-  const cancelRef = useRef(null);
-  // Auto-focus the safer (cancel) action on open so Enter doesn't accidentally
-  // confirm a destructive choice the user hasn't read.
-  useEffect(() => {
-    cancelRef.current?.focus();
-  }, []);
-  // Escape always cancels.
-  useEffect(() => {
-    const handler = (e) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        onCancel?.();
-      }
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [onCancel]);
+  // 19A: dialog a11y (focus trap + Escape→cancel + focus restore). Initial focus
+  // lands on the Cancel button via [data-autofocus] (APG: focus the least
+  // destructive action so Enter can't confirm something unread).
+  const panelRef = useDialogA11y({ onClose: onCancel });
   const confirmIsDanger = confirmVariant === 'danger';
   return (
     <div
+      ref={panelRef}
       className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4"
       role="alertdialog"
       aria-modal="true"
@@ -10725,7 +10754,7 @@ function ConfirmModal({ title, body, confirmLabel = 'Confirm', cancelLabel = 'Ca
         </div>
         <div className="p-4 border-t border-amber-700/40 flex gap-2">
           <button
-            ref={cancelRef}
+            data-autofocus
             onClick={onCancel}
             className="flex-1 py-3 rounded-sm font-bold italic border-2 border-amber-700 text-amber-200"
             style={{ background: 'rgba(41, 24, 12, 0.7)' }}
@@ -10754,7 +10783,7 @@ function ConfirmModal({ title, body, confirmLabel = 'Confirm', cancelLabel = 'Ca
 }
 
 function PasteTomeModal({ onClose, onSubmit }) {
-  useEscapeKey(onClose);
+  const panelRef = useDialogA11y({ onClose }); // 19A
   const [text, setText] = useState('');
   const [error, setError] = useState('');
 
@@ -10770,7 +10799,7 @@ function PasteTomeModal({ onClose, onSubmit }) {
 
   return (
     <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="rounded-sm max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
+      <div ref={panelRef} role="dialog" aria-modal="true" aria-label="Paste tome text" className="rounded-sm max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
         background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
         border: '3px double rgba(245, 158, 11, 0.6)',
         boxShadow: '0 0 40px rgba(245, 158, 11, 0.3)',
@@ -10841,7 +10870,7 @@ function PasteTomeModal({ onClose, onSubmit }) {
 }
 
 function AchievementsModal({ playerState, onClose }) {
-  useEscapeKey(onClose);
+  const panelRef = useDialogA11y({ onClose }); // 19A
   const categoryLabels = {
     milestone: '⚔ First Steps ⚔',
     dungeon: '🐉 Dungeon Glory 🐉',
@@ -10868,7 +10897,7 @@ function AchievementsModal({ playerState, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="rounded-sm max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
+      <div ref={panelRef} role="dialog" aria-modal="true" aria-label="Hall of Glory" className="rounded-sm max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
         background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
         border: '3px double rgba(245, 158, 11, 0.6)', boxShadow: '0 0 40px rgba(245, 158, 11, 0.3)',
       }}>
@@ -10915,11 +10944,11 @@ function AchievementsModal({ playerState, onClose }) {
 }
 
 function TitlesModal({ playerState, onSelect, onClose }) {
-  useEscapeKey(onClose);
+  const panelRef = useDialogA11y({ onClose }); // 19A
   const currentLevel = playerState.level;
   return (
     <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="rounded-sm max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
+      <div ref={panelRef} role="dialog" aria-modal="true" aria-label="Titles" className="rounded-sm max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
         background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
         border: '3px double rgba(245, 158, 11, 0.6)', boxShadow: '0 0 40px rgba(245, 158, 11, 0.3)',
       }}>
