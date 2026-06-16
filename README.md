@@ -7,7 +7,7 @@ Three loosely coupled projects shipped from a single repo. They share a Pi, a re
 | Path | What it is | Stack | Where it runs |
 |---|---|---|---|
 | [`dnd-app/`](./dnd-app/) | Electron Virtual Tabletop for D&D 5e — multiplayer, AI DM, maps, character sheets | TypeScript · React 19 · Vite · electron-vite · PixiJS · PeerJS | Windows / Linux laptops |
-| [`bmo/`](./bmo/) | BMO — voice assistant + Discord bots + smart-home hub + D&D narration engine | Python 3.11 · Flask + gevent · 28 AI agents · `discord.py` · `picamera2` | Raspberry Pi 5 (24/7 systemd services) |
+| [`bmo/`](./bmo/) | BMO — voice assistant + Discord bots + smart-home hub + D&D narration engine | Python 3.11 · Flask + gevent · 5 AI agents · `discord.py` · `picamera2` | Raspberry Pi 5 (24/7 systemd services) |
 | [`dungeon-scholar/`](./dungeon-scholar/) | D&D-themed exam-prep study app — spaced repetition, timed practice, dungeon-delve gamification | React · Vite · Supabase · GitHub Pages | Browser (deployed via Pages) |
 
 Each project's own README has the details:
@@ -51,10 +51,10 @@ These projects share infrastructure rather than features:
 
 Full protocol spec: [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md)
 
-## Current state (2026-06-10)
+## Current state (2026-06-16)
 
-- **`dnd-app`** at **v2.4.70**. Multiplayer (Phase 29), Token System (Phase 13), DM View (Phase 14), and the complete AI Dungeon Master (P6 roadmap — solo play, 117 DM actions, 37 stat-change types, Discord VC narration) shipped. 735 test files. Ships as Windows NSIS installer + Linux AppImage. Open backlog + deferred work: [`dnd-app/docs/phases/PHASE-INDEX.md`](./dnd-app/docs/phases/PHASE-INDEX.md) (the backlog phase set for the whole repo).
-- **`bmo`** runs 5 systemd services live on the Pi: `bmo`, `bmo-fan`, `bmo-kiosk`, `bmo-dm-bot`, `bmo-social-bot`. 29 pytest files. Game-discovery registry at `/api/games*` advertises via avahi for Windows-zero-config.
+- **`dnd-app`** at **v2.4.71**. Multiplayer (Phase 29), Token System (Phase 13), DM View (Phase 14), and the complete AI Dungeon Master (P6 roadmap — solo play, 117 DM actions, 37 stat-change types, Discord VC narration) shipped. 757 test files. Ships as Windows NSIS installer + Linux AppImage. Open backlog + deferred work: [`dnd-app/docs/phases/PHASE-INDEX.md`](./dnd-app/docs/phases/PHASE-INDEX.md) (the backlog phase set for the whole repo).
+- **`bmo`** runs 5 systemd services live on the Pi: `bmo`, `bmo-fan`, `bmo-kiosk`, `bmo-dm-bot`, `bmo-social-bot`. 42 pytest files. Game-discovery registry at `/api/games*` advertises via avahi for Windows-zero-config.
 - **`dungeon-scholar`** at Phase 34b (theme toggle); the Phase 27 audit remainder is now part of the backlog phase set ([`dnd-app/docs/phases/PHASE-INDEX.md`](./dnd-app/docs/phases/PHASE-INDEX.md), phases 17–19/39–41). Deployed via GitHub Pages workflow.
 
 ## Quick start
@@ -105,7 +105,7 @@ Tool-specific instruction files: [`CLAUDE.md`](./CLAUDE.md), [`GEMINI.md`](./GEM
 **Per-project deep dives:**
 - [`dnd-app/docs/IPC-SURFACE.md`](./dnd-app/docs/IPC-SURFACE.md) — Electron IPC channel catalogue
 - [`dnd-app/docs/PLUGIN-SYSTEM.md`](./dnd-app/docs/PLUGIN-SYSTEM.md) — game-system plugin API
-- [`bmo/docs/AGENTS.md`](./bmo/docs/AGENTS.md) — the 28 BMO AI agents
+- [`bmo/docs/AGENTS.md`](./bmo/docs/AGENTS.md) — the 5 BMO AI agents
 - [`bmo/docs/SERVICES.md`](./bmo/docs/SERVICES.md) — Python services + ports
 - [`bmo/docs/TROUBLESHOOTING.md`](./bmo/docs/TROUBLESHOOTING.md) — common BMO failures
 - [`bmo/docs/SYSTEMD.md`](./bmo/docs/SYSTEMD.md) — service management

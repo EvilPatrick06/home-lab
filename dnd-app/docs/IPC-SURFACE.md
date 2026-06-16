@@ -27,7 +27,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 
 ## Defined channels
 
-*Total: **174** channel strings (from `IPC_CHANNELS`).*
+*Total: **180** channel strings (from `IPC_CHANNELS`).*
 
 ### Storage: Characters
 
@@ -133,6 +133,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 |---|---|
 | `AI_PREPARE_SCENE` | `ai:prepare-scene` |
 | `AI_GET_SCENE_STATUS` | `ai:get-scene-status` |
+| `AI_CANCEL_SCENE` | `ai:cancel-scene` |
 
 ### AI DM: Conversation Persistence
 
@@ -141,6 +142,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 | `AI_SAVE_CONVERSATION` | `ai:save-conversation` |
 | `AI_RESTORE_CONVERSATION` | `ai:restore-conversation` |
 | `AI_LOAD_CONVERSATION` | `ai:load-conversation` |
+| `AI_PEEK_CONVERSATION` | `ai:peek-conversation` |
 | `AI_DELETE_CONVERSATION` | `ai:delete-conversation` |
 
 ### AI DM: Cloud Provider Models
@@ -197,15 +199,17 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 | Constant | Channel string |
 |---|---|
 | `AI_CONNECTION_STATUS` | `ai:connection-status` |
+| `AI_CONNECTION_STATUS_CHANGED` | `ai:connection-status-changed` |
 | `AI_TOKEN_BUDGET` | `ai:token-budget` |
 | `AI_TOKEN_BUDGET_PREVIEW` | `ai:token-budget-preview` |
+| `AI_GET_CONTEXT_INSPECTOR` | `ai:get-context-inspector` |
+| `AI_GET_TOKEN_METER` | `ai:get-token-meter` |
 | `AI_GENERATE_END_OF_SESSION_RECAP` | `ai:generate-end-of-session-recap` |
 
 ### AI DM: Vision / Map Analysis
 
 | Constant | Channel string |
 |---|---|
-| `AI_CAPTURE_MAP` | `ai:capture-map` |
 | `AI_ANALYZE_MAP` | `ai:analyze-map` |
 
 ### AI DM: Proactive Triggers
@@ -213,6 +217,8 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 | Constant | Channel string |
 |---|---|
 | `AI_TRIGGER_STATE_UPDATE` | `ai:trigger-state-update` |
+| `AI_TRIGGER_SET_ENABLED` | `ai:trigger-set-enabled` |
+| `AI_TRIGGER_GET_ENABLED` | `ai:trigger-get-enabled` |
 
 ### AI DM: Events (main → renderer)
 

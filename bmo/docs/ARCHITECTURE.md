@@ -25,7 +25,7 @@
 │  ┌──── Bare Metal (systemd: bmo.service) ────────────────┐   │
 │  │  Flask/SocketIO app  (app.py)                          │   │
 │  │   ├── Voice Pipeline  (wake word → STT → LLM → TTS)   │   │
-│  │   ├── Agent System    (orchestrator + 28 agents)       │   │
+│  │   ├── Agent System    (orchestrator + 5 agents)       │   │
 │  │   ├── Camera Service  (picamera2 object detection)     │   │
 │  │   ├── Smart Home      (Home Assistant API)             │   │
 │  │   ├── Music Service   (MPD/Spotify)                    │   │
@@ -316,7 +316,7 @@ Microphone → Wake Word ("hey BMO") → Groq Whisper (STT) → Agent Router
 ## Agent System
 
 The orchestrator (`agents/orchestrator.py`) routes user queries to specialist agents based on
-intent classification by the router agent. The 28 registered agents (the
+intent classification by the router agent. The 5 registered agents (the
 `create_*_agent()` calls in `agent.py` + `agents/_registry.py`; full descriptions in
 [`AGENTS.md`](./AGENTS.md)):
 

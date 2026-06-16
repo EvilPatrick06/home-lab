@@ -39,7 +39,7 @@ Plain-English definitions for terms you'll see in this repo. Grouped by topic. B
 - **Piper** — local open-source TTS. BMO uses it as fallback if Fish Audio fails.
 - **RAG** — Retrieval-Augmented Generation. Stuffs relevant docs into LLM context for better answers.
 - **MCP** — Model Context Protocol. Standardized way for LLMs to talk to external tools/servers.
-- **Agent** — a focused LLM-driven unit that does one thing well. BMO has 28.
+- **Agent** — a focused LLM-driven unit that does one thing well. BMO has 5.
 - **Orchestrator** — the agent that decides which other agents to invoke.
 - **Router** — BMO's intent classifier (maps user message → which agent should handle it).
 - **STT / TTS** — Speech-to-Text / Text-to-Speech.

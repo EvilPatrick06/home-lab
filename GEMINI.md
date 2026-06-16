@@ -8,7 +8,7 @@
 Monorepo containing:
 
 - **`dnd-app/`** — Electron VTT for D&D 5e games (TypeScript + React 19 + Vite). Runs on player/DM laptops.
-- **`bmo/`** — Raspberry Pi voice assistant (Python 3.11 Flask, 28 AI agents, Discord bots, smart home). Runs 24/7 on the Pi 5.
+- **`bmo/`** — Raspberry Pi voice assistant (Python 3.11 Flask, 5 AI agents, Discord bots, smart home). Runs 24/7 on the Pi 5.
 - **`dungeon-scholar/`** — Web study app (Vite + React + Vitest), deployed to GitHub Pages. Independent of the other two.
 
 `dnd-app` and `bmo` communicate via HTTP (`bmo:5000`, `vtt:5001`).

@@ -10,7 +10,7 @@ Named after the Adventure Time character. Lives in a 3D-printed BMO case on a Pi
 
 ## What it does
 
-- **Voice assistant** — wake-word (openwakeword) → STT (Groq Whisper) → 28-agent router → TTS (Fish Audio / piper). Runs continuously on the kitchen counter.
+- **Voice assistant** — wake-word (openwakeword) → STT (Groq Whisper) → 5-agent router → TTS (Fish Audio / piper). Runs continuously on the kitchen counter.
 - **D&D DM brain** — narration generator (Claude / Gemini), initiative + combat state sync, NPC memory, end-of-session recaps, scene preparation.
 - **Discord bots** — DM bot relays player chat / dice rolls / commands to the VTT; social bot handles a casual server (music control, calendar lookups, weather).
 - **Smart home hub** — Chromecast / TV control, BLE thermostat, room presence detection via camera, audio-output routing across multiple speakers.
@@ -162,7 +162,7 @@ bmo/
 │   ├── app.py                       Flask entry — port 5000
 │   ├── agent.py                     Main agent router entry
 │   ├── cli.py                       REPL / CLI entry
-│   ├── agents/                      28 specialized AI agents (orchestrator, router, dnd_dm, code_agent, ...)
+│   ├── agents/                      5 specialized AI agents (orchestrator, router, dnd_dm, code_agent, ...)
 │   ├── services/                    Service modules — calendar, music, weather, voice, game_registry, ...
 │   ├── hardware/                    Pi drivers (fan, LED, OLED, camera, audio)
 │   ├── bots/                        Discord bots — named `bots/` NOT `discord/` to avoid shadowing discord.py
@@ -183,7 +183,7 @@ bmo/
 │
 ├── docs/
 │   ├── ARCHITECTURE.md              Overall BMO architecture
-│   ├── AGENTS.md                    28 AI-agent roles + routing
+│   ├── AGENTS.md                    5 AI-agent roles + routing
 │   ├── SERVICES.md                  Services + ports + endpoints
 │   ├── TROUBLESHOOTING.md           Common failures + fixes
 │   ├── DEPLOY.md                    Update from laptop via SSH
@@ -199,7 +199,7 @@ bmo/
 
 ## Agents
 
-28 specialized AI agents — see [`docs/AGENTS.md`](./docs/AGENTS.md) for the full list. Highlights:
+5 specialized AI agents — see [`docs/AGENTS.md`](./docs/AGENTS.md) for the full list. Highlights:
 
 - `orchestrator` — top-level director
 - `router` — 3-tier intent classifier (prefix → keywords → LLM fallback)
@@ -211,7 +211,7 @@ bmo/
 
 ```bash
 cd pi
-./venv/bin/python -m pytest                                # full suite (29 test files)
+./venv/bin/python -m pytest                                # full suite (42 test files)
 ./venv/bin/python -m pytest tests/test_game_registry.py    # single file
 ./venv/bin/python -m pytest -m "not live"                  # skip tests hitting real APIs
 ./venv/bin/python -m pytest -m "not hardware"              # skip Pi-hardware tests

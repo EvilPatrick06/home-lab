@@ -44,7 +44,7 @@
 │   │   ├── app.py                    main Flask entry (port 5000)
 │   │   ├── agent.py                  main agent router entry
 │   │   ├── cli.py                    CLI entry
-│   │   ├── agents/                   28 specialized AI agents (base_agent, orchestrator, router, {alert,calendar,code,docs,...}_agent)
+│   │   ├── agents/                   5 specialized AI agents (base_agent, orchestrator, router, {alert,calendar,code,docs,...}_agent)
 │   │   ├── services/                 service modules (calendar, weather, music, voice_pipeline, monitoring, etc.)
 │   │   ├── hardware/                 Pi hardware drivers (fan_control, led_controller, oled_face, camera)
 │   │   ├── bots/                     Discord bots — NAMED bots/ NOT discord/ (avoids discord.py shadow)

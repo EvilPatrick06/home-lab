@@ -75,7 +75,7 @@ cd dungeon-scholar && npm test && npm run build
 | Runtime | Python 3.11 in venv at `bmo/pi/venv/`. System packages for hardware (smbus, RPi.GPIO). |
 | Entry points | `app.py` (Flask), `agent.py` (CLI agent), `cli.py` (repl). |
 | Subpackages | Always import via prefix: `from services.calendar_service import X`. Never bare. |
-| Agents | 28 registered AI agents in `agents/`. Each owns one capability. Router picks which to invoke. |
+| Agents | 5 registered AI agents in `agents/`. Each owns one capability. Router picks which to invoke. |
 | Services | Business logic in `services/` (calendar, music, weather, voice_pipeline, monitoring, etc.) |
 | Hardware | Pi-specific drivers in `hardware/` (fan, LED, OLED, camera). |
 | Discord bots | In `bots/` — package is NAMED `bots` not `discord` to avoid shadowing `discord.py` library. |
@@ -100,7 +100,7 @@ cd dungeon-scholar && npm test && npm run build
       │                                       ├── Discord social bot
       │                                       ├── Voice (wake-word + STT/TTS)
       └── peerjs multiplayer                  ├── Smart home (Chromecast, TV, lights)
-                                              ├── 28 AI agents (routed)
+                                              ├── 5 AI agents (routed)
                                               └── Calendar/weather/music/timers
 ```
 
