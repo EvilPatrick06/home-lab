@@ -602,3 +602,48 @@ class TestUtilityMethods:
         with patch.object(pipeline, "_save_voice_settings"):
             pipeline.update_voice_setting("wake_enabled", False)
             assert pipeline._wake_enabled is False
+
+
+class TestInputDeviceGuard:
+    """Wake word degrades quietly when no capture device is present.
+
+    Regression guard for the headless-Pi-no-mic case: the wake loop used to spam a
+    `PortAudioError: Error querying device -1` traceback every 2s forever.
+    """
+
+    def test_input_device_available_true_when_query_succeeds(self, pipeline):
+        with patch("sounddevice.query_devices", return_value={"name": "mic", "max_input_channels": 1}):
+            assert pipeline._input_device_available() is True
+
+    def test_input_device_available_false_on_portaudio_error(self, pipeline):
+        with patch("sounddevice.query_devices", side_effect=Exception("Error querying device -1")):
+            assert pipeline._input_device_available() is False
+
+    def test_await_input_device_true_and_clears_flag_when_present(self, pipeline):
+        pipeline._no_input_device = True  # pretend we had been in no-device mode
+        with patch("sounddevice.query_devices", return_value={"name": "mic"}):
+            assert pipeline._await_input_device() is True
+        assert pipeline._no_input_device is False
+
+    def test_await_input_device_false_and_sets_flag_when_absent(self, pipeline):
+        pipeline._running = False  # so the slow-poll returns immediately (no real 30s sleep)
+        with patch("sounddevice.query_devices", side_effect=Exception("Error querying device -1")):
+            assert pipeline._await_input_device() is False
+        assert pipeline._no_input_device is True
+
+    def test_await_input_device_logs_warning_only_once_while_absent(self, pipeline):
+        pipeline._running = False
+        with patch("sounddevice.query_devices", side_effect=Exception("no device")), \
+             patch("services.voice_pipeline.log") as mock_log:
+            pipeline._await_input_device()
+            pipeline._await_input_device()
+            pipeline._await_input_device()
+            # Only the transition INTO the no-device state warns — no 2s spam.
+            assert mock_log.warning.call_count == 1
+
+    def test_await_input_device_logs_resume_when_device_returns(self, pipeline):
+        pipeline._no_input_device = True
+        with patch("sounddevice.query_devices", return_value={"name": "mic"}), \
+             patch("services.voice_pipeline.log") as mock_log:
+            assert pipeline._await_input_device() is True
+            mock_log.info.assert_called_once()

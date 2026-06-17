@@ -39,6 +39,7 @@ EDGE_TTS_VOICE = "en-US-AnaNeural"  # Young/playful voice for BMO
 
 SAMPLE_RATE = 16000
 CHANNELS = 1
+NO_INPUT_DEVICE_RETRY = 30    # Seconds between re-checks when no mic/capture device is present
 SILENCE_THRESHOLD = 600       # RMS threshold for silence detection
 SILENCE_DURATION = 0.8        # Seconds of silence to stop recording
 MAX_RECORD_SECONDS = 15       # Max recording length (extended from 10)
@@ -151,6 +152,10 @@ class VoicePipeline:
         self._chat_callback = chat_callback
         self._running = False
         self._listen_thread = None
+        # True while no audio input (capture) device is present, so the wake-word
+        # loop logs the condition ONCE and slow-polls instead of spamming a
+        # PortAudioError traceback every 2s (e.g. headless Pi with no mic plugged in).
+        self._no_input_device = False
 
         # Lazy-loaded LOCAL models (fallback only)
         self._whisper = None
@@ -363,6 +368,43 @@ class VoicePipeline:
         """Stop the background listener."""
         self._running = False
 
+    def _input_device_available(self) -> bool:
+        """True if an audio input (capture) device exists.
+
+        Swallows PortAudio errors (`Error querying device -1` when there is no
+        default input device) and returns False so callers can degrade quietly."""
+        try:
+            return sd.query_devices(kind="input") is not None
+        except Exception:
+            return False
+
+    def _await_input_device(self) -> bool:
+        """Gate the wake-word loop on the presence of a capture device.
+
+        Returns True immediately when an input device is available. When none is
+        present (e.g. headless Pi, no mic), logs ONCE on the transition and then
+        slow-polls every NO_INPUT_DEVICE_RETRY seconds — so a hotplugged mic is
+        still picked up without spamming a PortAudioError traceback every 2s.
+        Returns False after the wait so the caller's loop re-checks (or exits when
+        `self._running` is cleared)."""
+        if self._input_device_available():
+            if self._no_input_device:
+                log.info("[wake] Audio input device detected — resuming wake word.")
+                self._no_input_device = False
+            return True
+        if not self._no_input_device:
+            log.warning(
+                "[wake] No audio input device found — wake word paused, re-checking "
+                f"every {NO_INPUT_DEVICE_RETRY}s. Plug in a microphone to enable voice."
+            )
+            self._no_input_device = True
+        # Slow-poll in small steps so stop_listening() stays responsive.
+        waited = 0.0
+        while self._running and waited < NO_INPUT_DEVICE_RETRY:
+            time.sleep(0.5)
+            waited += 0.5
+        return False
+
     def _wake_word_loop(self):
         """Listen for 'hey BMO' wake word.
 
@@ -381,6 +423,8 @@ class VoicePipeline:
         if PORCUPINE_AVAILABLE:
             log.info("[wake] Using Picovoice Porcupine for wake word detection")
             while self._running:
+                if not self._await_input_device():
+                    continue
                 try:
                     self._wake_listen_cycle_porcupine()
                     if self._wake_triggered:
@@ -410,6 +454,8 @@ class VoicePipeline:
             log.exception(f"[wake] openwakeword not available, using energy+STT fallback...")
 
         while self._running:
+            if not self._await_input_device():
+                continue
             try:
                 if oww_model:
                     self._wake_listen_cycle_oww(
