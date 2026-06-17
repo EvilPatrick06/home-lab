@@ -15,6 +15,7 @@ import { registerCloudSyncHandlers } from './cloud-sync-handlers'
 import { addDialogPath, consumeDialogPath, isPathAllowed } from './dialog-allowlist'
 import { registerDiscordHandlers } from './discord-handlers'
 import { registerGameDataHandlers } from './game-data-handlers'
+import { registerImageGenHandlers } from './image-gen-handlers'
 import { registerLanHandlers } from './lan-handlers'
 import { registerLibraryHandlers } from './library-handlers'
 import { registerPluginHandlers } from './plugin-handlers'
@@ -177,6 +178,7 @@ export function registerIpcHandlers(): void {
 
   // --- AI DM handlers ---
   registerAiHandlers()
+  registerImageGenHandlers()
 
   // --- Audio handlers ---
   registerAudioHandlers()

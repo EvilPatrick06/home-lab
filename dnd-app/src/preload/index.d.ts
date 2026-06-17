@@ -323,6 +323,46 @@ interface OllamaVersionInfo {
   updateAvailable: boolean
 }
 
+// PHASE-33 — AI image generation (all config fields optional, like AiConfigData).
+interface AiImageConfigData {
+  enabled?: boolean
+  provider?: 'sd-webui' | 'openai' | 'gemini'
+  fallbackProvider?: 'sd-webui' | 'openai' | 'gemini' | 'none'
+  sdWebuiUrl?: string
+  sdModel?: string
+  sdSteps?: number
+  sdSampler?: string
+  sdCfgScale?: number
+  openaiModel?: string
+  openaiQuality?: 'low' | 'medium' | 'high' | 'auto'
+  geminiModel?: string
+  size?: '1024x1024' | '1024x1536' | '1536x1024'
+}
+interface AiImageGenerateResult {
+  success: boolean
+  error?: string
+  disabled?: boolean
+  imageId?: string
+  dataUrl?: string
+  provider?: string
+  model?: string
+  usedFallback?: boolean
+}
+interface AiImageAPI {
+  getConfig: () => Promise<AiImageConfigData>
+  configure: (config: AiImageConfigData) => Promise<{ success: boolean; error?: string }>
+  checkProviders: () => Promise<{ sdWebui: boolean; openai: boolean; gemini: boolean }>
+  generate: (request: {
+    subjectType: string
+    description: string
+    stylePreset?: string
+    negativePrompt?: string
+    size?: string
+  }) => Promise<AiImageGenerateResult>
+  onProgress: (cb: (data: { progress: number; etaSeconds: number }) => void) => void
+  removeProgressListener: () => void
+}
+
 interface AiAPI {
   configure: (config: AiConfigData) => Promise<{ success: boolean; error?: string }>
   getConfig: () => Promise<AiConfigData>
@@ -1084,6 +1124,7 @@ declare global {
       SettingsAPI &
       AudioAPI & {
         ai: AiAPI
+        aiImage: AiImageAPI
         update: UpdateAPI
         game: GameDataAPI
         mapLibrary: MapLibraryAPI

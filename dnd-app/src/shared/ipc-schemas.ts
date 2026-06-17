@@ -30,6 +30,37 @@ export const AiConfigSchema = z.object({
   ollamaModel: z.string().optional()
 })
 
+// PHASE-33 — AI image generation. No API-key fields: cloud calls reuse the keys ai-service.ts
+// already persists/encrypts; the SD endpoint is keyless on a LAN.
+export const AiImageProviderTypeSchema = z.enum(['sd-webui', 'openai', 'gemini'])
+export type AiImageProviderType = z.infer<typeof AiImageProviderTypeSchema>
+export const AiImageSizeSchema = z.enum(['1024x1024', '1024x1536', '1536x1024'])
+export const AiImageConfigSchema = z.object({
+  enabled: z.boolean().default(false),
+  provider: AiImageProviderTypeSchema.default('sd-webui'),
+  fallbackProvider: AiImageProviderTypeSchema.or(z.literal('none')).default('none'),
+  sdWebuiUrl: z.string().url().default('http://127.0.0.1:7860'),
+  sdModel: z.string().max(200).optional(), // override_settings.sd_model_checkpoint
+  sdSteps: z.number().int().min(1).max(150).default(28),
+  sdSampler: z.string().max(60).default('Euler a'),
+  sdCfgScale: z.number().min(1).max(30).default(7),
+  openaiModel: z.string().max(80).default('gpt-image-1'),
+  openaiQuality: z.enum(['low', 'medium', 'high', 'auto']).default('low'),
+  geminiModel: z.string().max(80).default('gemini-2.5-flash-image'),
+  size: AiImageSizeSchema.default('1024x1024')
+})
+export type ValidatedAiImageConfig = z.infer<typeof AiImageConfigSchema>
+
+export const AiImageSubjectSchema = z.enum(['npc-portrait', 'scene', 'item', 'creature', 'custom'])
+export const AiImageGenerateRequestSchema = z.object({
+  subjectType: AiImageSubjectSchema,
+  description: z.string().min(1).max(4000),
+  stylePreset: z.enum(['painterly', 'ink-sketch', 'photorealistic', 'isometric']).optional(),
+  negativePrompt: z.string().max(2000).optional(),
+  size: AiImageSizeSchema.optional()
+})
+export type ValidatedAiImageGenerateRequest = z.infer<typeof AiImageGenerateRequestSchema>
+
 // PHASE-25 25B — entity-record IPC boundary schemas (separate from the DM-action zod).
 // `source` is intentionally ['ai','dm'] only: renderers may write as the AI (record_entity
 // executor) or the DM (panel edit), but NEVER 'extraction'. The 'extraction' source is

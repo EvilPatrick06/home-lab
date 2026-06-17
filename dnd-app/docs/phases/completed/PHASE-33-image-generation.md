@@ -469,4 +469,30 @@ npx vitest run src/renderer/src/components/game/modals/dm-tools/AiImageModal.tes
 
 ## Completed
 
+- **33A — contracts + config.** `ipc-channels.ts` AI_IMAGE_* block; `ipc-schemas.ts`
+  AiImageProviderTypeSchema/AiImageSizeSchema/AiImageConfigSchema (enabled defaults false) +
+  AiImageSubjectSchema/AiImageGenerateRequestSchema + the AiImageProviderType type. NEW
+  `main/ai/image/image-gen-config.ts` (getImageGenConfig sync cache / configureImageGen via atomicWriteFile;
+  ai-image-config.json; no encryption — keys reuse ai-service) + test (defaults / roundtrip / corrupt-JSON).
+- **33B — providers + orchestrator.** NEW `image/`: `image-provider.ts` (ImageGenRequest/Outcome/Adapter +
+  generateImage primary→fallback, 300s timeout via AbortSignal.any), `sd-webui-client.ts` (txt2img +
+  buildTxt2ImgBody + isAvailable + getProgress), `openai-image-client.ts` (pure buildOpenAiImageParams +
+  images.generate), `gemini-image-client.ts` (raw REST :generateContent, responseModalities, inlineData) +
+  4 test files (19 tests, fetch-mocked).
+- **33C — prompt builder.** NEW `image/image-prompt.ts` (SUBJECT_TEMPLATES exhaustive over the enum, style
+  suffixes, SD negative list vs cloud no-text instruction, user-negative merge) + test (6, exhaustive).
+- **33D — IPC + preload.** NEW `image-gen-handlers.ts` (get-config/configure/check-providers/generate —
+  validated, disabled-default short-circuit with `disabled:true`, single-flight guard, SD progress events,
+  saves to the image library as `aiimg-<uuid>`) + test (5). ipc/index registerImageGenHandlers; preload
+  `aiImage` namespace + index.d.ts AiImageAPI/AiImageConfigData/AiImageGenerateResult.
+- **33E — settings card.** NEW `AiImageSetup.tsx` (enable + provider/fallback + SD URL + advanced/cloud
+  groups + size + Test-connection chips + Save) + test (4). `AiDmCard.tsx` additive image-gen Card + modal
+  (AiProviderSetup untouched). i18n `campaign.aiImageSetup.*` + `pages.aiDmCard.imageGen*` en+es.
+- **33F — modal + attach.** active-modal-types +`aiImage` (+test). NEW `AiImageModal.tsx` (subject/desc/style,
+  use-last-narration, generate with SD progress, preview, one-click attach as handout / NPC portrait /
+  map-token image via existing store actions, progress-listener cleanup on unmount) + test (4). DmModals
+  mount (effectiveIsDM), DMTabPanel button. i18n `game.aiImageModal.*` + `game.dmTabPanel.aiImage` en+es.
+- **Gate.** Full 4-gate (lint, tsc web+node, vitest) green. No `bmo/pi/` touched. Off by default:
+  `enabled:false` ⇒ no provider calls, modal shows an empty state, only a settings card + a tab button exist.
+
 <!-- Filled during execution per INSTRUCTIONS.md rule 17 (per-sub-phase file:line citations + one-line summaries). -->

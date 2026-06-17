@@ -56,6 +56,7 @@ export type ActiveModal =
   | 'partyInventory'
   | 'triggerManager'
   | 'aiMapAnalysis'
+  | 'aiImage'
   | 'recaps'
   | 'previouslyOn'
   | 'campaignQa'

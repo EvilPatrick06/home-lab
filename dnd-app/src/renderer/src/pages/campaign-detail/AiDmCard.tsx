@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import AiImageSetup from '../../components/campaign/AiImageSetup'
 import AiProviderSetup from '../../components/campaign/AiProviderSetup'
 import { Button, Card, Modal } from '../../components/ui'
 import { AI_PROVIDER_LABELS, DEFAULT_AI_MODEL, DEFAULT_AI_PROVIDER, DEFAULT_OLLAMA_URL } from '../../constants'
@@ -22,6 +23,7 @@ function keyForProvider(dm: AiDmConfig | undefined, p: AiProviderType): string {
 export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX.Element {
   const { t } = useT()
   const [showAiDmModal, setShowAiDmModal] = useState(false)
+  const [showImageModal, setShowImageModal] = useState(false) // PHASE-33
   const [saving, setSaving] = useState(false)
   const [providerReady, setProviderReady] = useState(false)
   const [aiDmConfig, setAiDmConfig] = useState<{
@@ -247,6 +249,23 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
           </div>
         )}
       </Card>
+
+      {/* PHASE-33 — opt-in AI image generation (separate card + modal; never touches AiProviderSetup). */}
+      <Card title={t('pages.aiDmCard.imageGenTitle')}>
+        <p className="text-gray-500 text-sm mb-2">{t('pages.aiDmCard.imageGenDescription')}</p>
+        <button
+          onClick={() => setShowImageModal(true)}
+          className="text-xs text-accent hover:text-amber-300 cursor-pointer"
+        >
+          {t('pages.aiDmCard.imageGenConfigure')}
+        </button>
+      </Card>
+
+      <Modal open={showImageModal} onClose={() => setShowImageModal(false)} title={t('pages.aiDmCard.imageGenTitle')}>
+        <div className="max-h-[60vh] overflow-y-auto">
+          <AiImageSetup />
+        </div>
+      </Modal>
 
       <Modal open={showAiDmModal} onClose={() => setShowAiDmModal(false)} title={t('pages.aiDmCard.configureTitle')}>
         <div className="max-h-[60vh] overflow-y-auto">

@@ -63,6 +63,7 @@ describe('ActiveModal type', () => {
       'dm-screen',
       'roll-table',
       'diceRoller',
+      'aiImage',
       null
     ]
     // If this compiles and runs without errors, all values are valid

@@ -171,6 +171,13 @@ export const IPC_CHANNELS = {
   AI_TRIGGER_SET_ENABLED: 'ai:trigger-set-enabled',
   AI_TRIGGER_GET_ENABLED: 'ai:trigger-get-enabled',
 
+  // === AI Image Generation (PHASE-33) ===
+  AI_IMAGE_GET_CONFIG: 'ai-image:get-config',
+  AI_IMAGE_CONFIGURE: 'ai-image:configure',
+  AI_IMAGE_CHECK_PROVIDERS: 'ai-image:check-providers',
+  AI_IMAGE_GENERATE: 'ai-image:generate',
+  AI_IMAGE_PROGRESS: 'ai-image:progress', // main → renderer (sd-webui polling)
+
   // === AI DM: Events (main → renderer) ===
   AI_STREAM_CHUNK: 'ai:stream-chunk',
   AI_STREAM_DONE: 'ai:stream-done',

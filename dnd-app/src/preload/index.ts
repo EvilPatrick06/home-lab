@@ -353,6 +353,20 @@ const api = {
     }
   },
 
+  // PHASE-33 — AI image generation (opt-in; off by default).
+  aiImage: {
+    getConfig: () => ipcRenderer.invoke(IPC_CHANNELS.AI_IMAGE_GET_CONFIG),
+    configure: (config: Record<string, unknown>) => ipcRenderer.invoke(IPC_CHANNELS.AI_IMAGE_CONFIGURE, config),
+    checkProviders: () => ipcRenderer.invoke(IPC_CHANNELS.AI_IMAGE_CHECK_PROVIDERS),
+    generate: (request: Record<string, unknown>) => ipcRenderer.invoke(IPC_CHANNELS.AI_IMAGE_GENERATE, request),
+    onProgress: (cb: (data: { progress: number; etaSeconds: number }) => void) => {
+      ipcRenderer.on(IPC_CHANNELS.AI_IMAGE_PROGRESS, (_e, data) => cb(data))
+    },
+    removeProgressListener: () => {
+      ipcRenderer.removeAllListeners(IPC_CHANNELS.AI_IMAGE_PROGRESS)
+    }
+  },
+
   // App updates
   update: {
     checkForUpdates: () => ipcRenderer.invoke(IPC_CHANNELS.UPDATE_CHECK),
