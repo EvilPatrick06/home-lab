@@ -2,7 +2,7 @@
 
 Electron desktop Virtual Tabletop (VTT) for running Dungeons & Dragons 5e games. Multiplayer via PeerJS WebRTC. Optional AI Dungeon Master (Ollama / Claude / OpenAI / Gemini) with full solo play, optional BMO Pi integration for game discovery + Discord voice narration.
 
-**Current version:** v2.4.72
+**Current version:** v2.4.73
 
 ## What's in it
 
@@ -10,7 +10,7 @@ Electron desktop Virtual Tabletop (VTT) for running Dungeons & Dragons 5e games.
 - **Multiplayer** (PeerJS WebRTC): host + up to 8 players + 5 spectators per session; persistent client UUIDs for ban survival; public/private game toggle; LAN + Pi-registry game browser; resume-on-reconnect via per-client message replay buffer; msgpack ± gzip wire codec with capability handshake.
 - **Character sheets** (D&D 2024): full 5e builder, level-up flow, spell management, class resources, condition tracker, downtime activities.
 - **Combat**: initiative tracker, AoE templates, group rolls, conditions, opportunity attacks, mounted combat, concentration tracking, dice (3D Three.js renderer with Reduced-Motion fallback).
-- **AI DM**: Ollama (local), Claude, Gemini, OpenAI. Full game control via 117 DM actions + 37 stat-change types (tokens, initiative, spells/effects, environment, traps/diseases/curses, treasure, downtime, quests/factions, NPC memory, walls/terrain/drawings/regions, attunement, proficiencies). Solo play with a scene-prep screen, RAG over the 5e rulebooks, campaign memory with summarization, NPC interaction logging, end-of-session recaps, token-budget tracking, proactive triggers, Discord VC narration via BMO.
+- **AI DM**: Ollama (local), Claude, Gemini, OpenAI. Full game control via 126 DM actions + 37 stat-change types (tokens, initiative, spells/effects, environment, traps/diseases/curses, treasure, downtime, quests/factions, NPC memory, walls/terrain/drawings/regions, attunement, proficiencies). Solo play with a scene-prep screen, RAG over the 5e rulebooks, campaign memory with summarization, NPC interaction logging, end-of-session recaps, token-budget tracking, proactive triggers, Discord VC narration via BMO.
 - **Library**: 3,037 JSON files of D&D 2024 content (monsters, spells, items, equipment, traps, hazards, environments). Recently-viewed list with Clear button. Homebrew per category.
 - **Bastions** (2024 PHB): facilities, hirelings, events.
 - **BMO Pi integration** (optional): narration TTS, Discord bot relay, AI memory sync, calendar lookups.
@@ -154,7 +154,7 @@ npm run circular               # dpdm circular-deps report
 npm run check:release          # mirror the CI preflight gates before cutting a tag
 ```
 
-Current baseline: **768 test files**, lint + both tsc projects clean.
+Current baseline: **788 test files**, lint + both tsc projects clean.
 
 ## Multiplayer architecture (Phase 29)
 
