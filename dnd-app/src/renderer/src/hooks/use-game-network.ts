@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { trigger3dDice } from '../components/game/dice3d'
+import { i18n } from '../i18n'
 import type {
   ChatPayload,
   DiceResultPayload,
@@ -15,6 +16,7 @@ import type {
 import { onClientMessage, onHostMessage } from '../network'
 import { buildPlayerRoster, resolveActingCharacterId, routePlayerMessageToAiDm } from '../services/ai-dm-routing'
 import { useAiDmStore } from '../stores/use-ai-dm-store'
+import { useCampaignStore } from '../stores/use-campaign-store'
 import { useGameStore } from '../stores/use-game-store'
 import type { ChatMessage } from '../stores/use-lobby-store'
 import { useLobbyStore } from '../stores/use-lobby-store'
@@ -106,6 +108,18 @@ export function useGameNetwork({
         ) {
           routePlayerMessageToAiDm(campaignId, payload.message, msg.senderName ?? 'Player', campaignPlayers)
         }
+      }
+      // PHASE-32 32E — a peer tapped the X-Card. Host-only; the host drives the rewind/regenerate.
+      if (msg.type === 'player:x-card' && networkRole === 'host') {
+        const payload = msg.payload as { topic?: string }
+        const campaign = useCampaignStore.getState().getActiveCampaign()
+        if (aiDmEnabled && campaign?.sessionZero?.xCardEnabled) {
+          void useAiDmStore.getState().invokeXCard(campaignId, payload.topic)
+        }
+      }
+      // PHASE-32 32E — the host retracted the last AI narration; every client redacts its copy.
+      if (msg.type === 'ai:retract-last') {
+        useLobbyStore.getState().redactLastAiChatMessage(i18n.t('game.xCard.redacted'))
       }
       if (msg.type === 'dm:whisper-player') {
         const payload = msg.payload as WhisperPlayerPayload

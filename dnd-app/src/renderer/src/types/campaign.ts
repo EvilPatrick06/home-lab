@@ -160,6 +160,8 @@ export interface Campaign {
   milestones?: TimelineMilestone[]
   downtimeProgress?: DowntimeProgressEntry[]
   aiDm?: AiDmConfig
+  /** PHASE-32 — topics banned by the table during play (joins the hard [SAFETY CONSTRAINTS] block). */
+  aiBanList?: AiBanListEntry[]
   customRollTables?: Array<{
     id: string
     name: string
@@ -246,6 +248,20 @@ export interface SessionZeroConfig {
   characterDeathExpectation: string
   playSchedule: string
   additionalNotes: string
+  /** PHASE-32 — hard boundaries: content that must NEVER appear, even implied. */
+  lines?: string[]
+  /** PHASE-32 — soft boundaries: may be referenced, never depicted on-screen ("fade to black"). */
+  veils?: string[]
+  /** PHASE-32 — shows the X-card button in chat + accepts peer X-card taps. Default false (opt-in). */
+  xCardEnabled?: boolean
+}
+
+/** PHASE-32 — a topic banned by the table during play (X-card) or by the DM; joins the hard safety block. */
+export interface AiBanListEntry {
+  id: string
+  topic: string
+  addedAt: string // ISO datetime
+  source: 'x-card' | 'manual'
 }
 
 export interface AdventureEntry {

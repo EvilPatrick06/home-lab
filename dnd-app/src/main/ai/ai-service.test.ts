@@ -115,6 +115,14 @@ vi.mock('./conversation-manager', () => ({
       }
       return false
     }
+    removeLastAssistantMessage(): boolean {
+      const last = this.messages[this.messages.length - 1]
+      if (last && last.role === 'assistant') {
+        this.messages.pop()
+        return true
+      }
+      return false
+    }
     clearScenePrepExchange(prompt: string): boolean {
       const onlyPrep =
         this.messages.length >= 1 &&
@@ -314,7 +322,8 @@ import {
   startChat,
   streamChatRetryable,
   streamWithRetry,
-  wasContextTruncated
+  wasContextTruncated,
+  xCardRewind
 } from './ai-service'
 import { loadChunkIndex } from './chunk-builder'
 import { buildContext } from './context-builder'
@@ -505,6 +514,29 @@ describe('ai-service', () => {
     })
   })
 
+  // PHASE-32 32D — X-card rewind.
+  describe('xCardRewind', () => {
+    it('removes the trailing assistant message and persists', async () => {
+      const conv = getConversationManager('campaign-xcard')
+      conv.addMessage('user', 'I open the cursed chest')
+      conv.addMessage('assistant', 'Something terrible happens.')
+      vi.mocked(saveConversation).mockClear()
+      const res = await xCardRewind('campaign-xcard')
+      expect(res).toEqual({ success: true, removed: true })
+      expect(conv.getMessages()).toHaveLength(1)
+      expect(saveConversation).toHaveBeenCalledTimes(1)
+    })
+
+    it('returns removed:false (and does not save) when there is no trailing assistant message', async () => {
+      const conv = getConversationManager('campaign-xcard-2')
+      conv.addMessage('user', 'hello')
+      vi.mocked(saveConversation).mockClear()
+      const res = await xCardRewind('campaign-xcard-2')
+      expect(res).toEqual({ success: true, removed: false })
+      expect(saveConversation).not.toHaveBeenCalled()
+    })
+  })
+
   // ── Chat ──
 
   describe('startChat', () => {
@@ -539,6 +571,7 @@ describe('ai-service', () => {
       vi.mocked(buildContext).mockResolvedValueOnce({
         text: '',
         breakdown: {
+          safety: 0,
           rulebookChunks: 0,
           srdData: 0,
           characterData: 0,

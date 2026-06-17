@@ -1,11 +1,12 @@
 import { useAiDmStore } from '../../stores/use-ai-dm-store'
+import { useCampaignStore } from '../../stores/use-campaign-store'
 import type { ChatCommand } from './types'
 
 const dmCommand: ChatCommand = {
   name: 'dm',
   aliases: ['ai', 'aidm'],
   description: 'AI DM controls and queries',
-  usage: '/dm <pause|resume|model|context|history|encounter|puzzle|trap|secret|status>',
+  usage: '/dm <pause|resume|model|context|history|encounter|puzzle|trap|secret|banlist|status>',
   dmOnly: true,
   category: 'dm',
   execute: (args, ctx) => {
@@ -33,6 +34,17 @@ const dmCommand: ChatCommand = {
         return {
           type: 'system',
           content: `AI DM Status: ${isPaused ? 'PAUSED' : 'ACTIVE'} | Messages: ${msgCount} | Scene: ${scene}`
+        }
+      }
+
+      // PHASE-32 32E — read-only ban-list view (editing lives in the Session Zero card).
+      case 'banlist': {
+        const banList = useCampaignStore.getState().getActiveCampaign()?.aiBanList ?? []
+        return {
+          type: 'system',
+          content: banList.length
+            ? `Banned topics (${banList.length}): ${banList.map((b) => b.topic).join(', ')}`
+            : 'No topics are banned. Tap the X-Card with a topic, or add one in Session Zero settings.'
         }
       }
 

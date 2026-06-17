@@ -172,6 +172,8 @@ interface AiDmState {
     actingCharacterId?: string
   ) => Promise<void>
   cancelStream: () => Promise<void>
+  /** PHASE-32 32E — X-card: halt the stream, rewind + retract the last AI narration, optionally ban the topic, regenerate. */
+  invokeXCard: (campaignId: string, topic?: string) => Promise<void>
   setScene: (campaignId: string, characterIds: string[], gameState?: string) => Promise<void>
   prepareScene: (campaignId: string, characterIds: string[]) => Promise<void>
   cancelScenePrep: (campaignId: string) => Promise<void>
@@ -584,6 +586,58 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
       }
     },
 
+    // PHASE-32 32E — X-card. Anonymous, no-questions-asked retraction + regeneration. Dynamic imports
+    // for network/campaign/routing avoid a static cycle (ai-dm-routing imports this store).
+    invokeXCard: async (campaignId, topic) => {
+      // 1. Halt any in-flight narration.
+      if (get().activeStreamId) await get().cancelStream()
+      // 2. Main-side conversation rewind (forget the last assistant turn).
+      const { removed } = await window.api.ai.xCardRewind(campaignId)
+      // 3. Drop the trailing assistant message from the store so the broadcast effect can't re-post it.
+      if (removed) {
+        const msgs = get().messages
+        if (msgs.length > 0 && msgs[msgs.length - 1].role === 'assistant') {
+          set({ messages: msgs.slice(0, -1) })
+        }
+      }
+      // 4. Redact the last AI chat message locally + tell peers to redact theirs.
+      const placeholder = i18n.t('game.xCard.redacted')
+      useLobbyStore.getState().redactLastAiChatMessage(placeholder)
+      const { useNetworkStore } = await import('./network-store')
+      useNetworkStore.getState().sendMessage?.('ai:retract-last', { placeholder })
+      // 5. Optionally ban the topic (persisted; the next request picks it up from disk).
+      const { useCampaignStore } = await import('./use-campaign-store')
+      const campaign = useCampaignStore.getState().getActiveCampaign()
+      const trimmedTopic = topic?.trim()
+      if (trimmedTopic && campaign) {
+        const entry = {
+          id: crypto.randomUUID(),
+          topic: trimmedTopic,
+          addedAt: new Date().toISOString(),
+          source: 'x-card' as const
+        }
+        await useCampaignStore.getState().saveCampaign({
+          ...campaign,
+          aiBanList: [...(campaign.aiBanList ?? []), entry],
+          updatedAt: new Date().toISOString()
+        })
+      }
+      // 6. Regenerate the scene in a different direction (directive is main-side context only — not shown in chat).
+      const directive =
+        '[X-CARD] A participant used the X-Card safety tool. Your previous response has been removed from the game. ' +
+        'Continue the scene from the moment before that response, taking events in a clearly different direction. ' +
+        'Never reference the removed content, this instruction, or the X-Card itself.' +
+        (trimmedTopic ? ` The topic "${trimmedTopic}" is now permanently banned from this game.` : '')
+      const { routePlayerMessageToAiDm } = await import('../services/ai-dm-routing')
+      routePlayerMessageToAiDm(
+        campaignId,
+        directive,
+        'Table',
+        campaign?.players ?? [],
+        campaign?.calendar?.exactTimeDefault
+      )
+    },
+
     prepareScene: async (campaignId, characterIds) => {
       const state = get()
       // Allow a retry from the 'error' state (S-2); only block while actively
@@ -728,6 +782,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
         ruleCitations?: AiRuleCitation[]
         contextTruncated?: boolean
         tokenEstimate?: number
+        safetyFlags?: string[]
       }): void => {
         const state = get()
         if (data.streamId === state.activeStreamId) {
@@ -742,6 +797,13 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
           const truncated = data.contextTruncated ?? false
           if (truncated && !state.lastContextTruncated) {
             pushDmAlert('warning', i18n.t('notify.aiDmStore.contextTruncated'))
+          }
+
+          // PHASE-32 32F — advisory DM warning when the finalized narration may touch a session-zero
+          // line / banned topic. DM-side only; never auto-censors — the DM can then tap the X-Card.
+          const safetyFlags = data.safetyFlags ?? []
+          if (safetyFlags.length > 0) {
+            pushDmAlert('warning', i18n.t('notify.aiDmStore.safetyFlag', { topics: safetyFlags.join(', ') }))
           }
 
           const dmActions = data.dmActions ?? []

@@ -360,6 +360,8 @@ interface AiAPI {
     gameState?: string
   }) => Promise<{ success: boolean; streamId?: string; error?: string }>
   cancelStream: (streamId: string) => Promise<{ success: boolean }>
+  // PHASE-32 32D — X-card rewind.
+  xCardRewind: (campaignId: string) => Promise<{ success: boolean; removed: boolean; error?: string }>
   applyMutations: (characterId: string, changes: AiStatChange[]) => Promise<AiMutationResult>
   longRest: (characterId: string) => Promise<AiMutationResult>
   shortRest: (characterId: string) => Promise<AiMutationResult>

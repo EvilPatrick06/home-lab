@@ -11,6 +11,9 @@ export interface SessionZeroData {
   characterDeathExpectation: string
   playSchedule: string
   additionalNotes: string
+  lines?: string[] // PHASE-32
+  veils?: string[] // PHASE-32
+  xCardEnabled?: boolean // PHASE-32
 }
 
 /** Load session zero config from the data store (includes plugin additions). */
@@ -24,7 +27,10 @@ export const DEFAULT_SESSION_ZERO: SessionZeroData = {
   pvpAllowed: false,
   characterDeathExpectation: 'possible',
   playSchedule: '',
-  additionalNotes: ''
+  additionalNotes: '',
+  lines: [],
+  veils: [],
+  xCardEnabled: false
 }
 
 type RuleCategory = CustomRule['category']
@@ -50,6 +56,7 @@ export default function SessionZeroStep({
 }: SessionZeroStepProps): JSX.Element {
   const { t } = useT()
   const [customLimit, setCustomLimit] = useState('')
+  const [customVeil, setCustomVeil] = useState('')
   const [showRuleForm, setShowRuleForm] = useState(false)
   const [newRuleName, setNewRuleName] = useState('')
   const [newRuleDescription, setNewRuleDescription] = useState('')
@@ -59,18 +66,55 @@ export default function SessionZeroStep({
     onChange({ ...data, [key]: value })
   }
 
-  const toggleLimit = (limit: string): void => {
-    const limits = data.contentLimits.includes(limit)
-      ? data.contentLimits.filter((l) => l !== limit)
-      : [...data.contentLimits, limit]
-    update('contentLimits', limits)
+  // PHASE-32 — Lines display-merge legacy `contentLimits`; ANY edit migrates them into `lines`
+  // (lossless, one-way) and clears `contentLimits`. Lines and Veils are mutually exclusive (lines win).
+  const dedupe = (arr: string[]): string[] => {
+    const seen = new Set<string>()
+    const out: string[] = []
+    for (const x of arr) {
+      const k = x.toLowerCase()
+      if (k && !seen.has(k)) {
+        seen.add(k)
+        out.push(x)
+      }
+    }
+    return out
   }
+  const lineTopics = dedupe([...(data.lines ?? []), ...data.contentLimits])
+  const veilTopics = data.veils ?? []
+  const has = (list: string[], topic: string): boolean => list.some((x) => x.toLowerCase() === topic.toLowerCase())
+  const without = (list: string[], topic: string): string[] =>
+    list.filter((x) => x.toLowerCase() !== topic.toLowerCase())
 
+  const toggleSafety = (topic: string, kind: 'lines' | 'veils'): void => {
+    let nl = without(lineTopics, topic)
+    let nv = without(veilTopics, topic)
+    if (kind === 'lines' && !has(lineTopics, topic)) nl = [...nl, topic]
+    if (kind === 'veils' && !has(veilTopics, topic)) nv = [...nv, topic]
+    onChange({ ...data, lines: nl, veils: nv, contentLimits: [] })
+  }
   const addCustomLimit = (): void => {
     const trimmed = customLimit.trim()
-    if (trimmed && !data.contentLimits.includes(trimmed)) {
-      update('contentLimits', [...data.contentLimits, trimmed])
+    if (trimmed && !has(lineTopics, trimmed)) {
+      onChange({
+        ...data,
+        lines: [...without(lineTopics, trimmed), trimmed],
+        veils: without(veilTopics, trimmed),
+        contentLimits: []
+      })
       setCustomLimit('')
+    }
+  }
+  const addCustomVeil = (): void => {
+    const trimmed = customVeil.trim()
+    if (trimmed && !has(veilTopics, trimmed)) {
+      onChange({
+        ...data,
+        veils: [...without(veilTopics, trimmed), trimmed],
+        lines: without(lineTopics, trimmed),
+        contentLimits: []
+      })
+      setCustomVeil('')
     }
   }
 
@@ -123,12 +167,10 @@ export default function SessionZeroStep({
         </div>
       </div>
 
-      {/* Content Limits */}
+      {/* PHASE-32 — Lines (hard boundaries: never appear) */}
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          {t('campaign.sessionZeroStep.contentLimits')}
-        </label>
-        <p className="text-xs text-gray-500 mb-2">{t('campaign.sessionZeroStep.contentLimitsHint')}</p>
+        <label className="block text-sm font-medium text-gray-300 mb-2">{t('campaign.sessionZeroStep.lines')}</label>
+        <p className="text-xs text-gray-500 mb-2">{t('campaign.sessionZeroStep.linesHint')}</p>
         <div className="grid grid-cols-3 gap-1.5">
           {COMMON_LIMITS.map((limit) => (
             <label
@@ -137,9 +179,9 @@ export default function SessionZeroStep({
             >
               <input
                 type="checkbox"
-                checked={data.contentLimits.includes(limit)}
-                onChange={() => toggleLimit(limit)}
-                className="accent-amber-500 w-3.5 h-3.5"
+                checked={has(lineTopics, limit)}
+                onChange={() => toggleSafety(limit, 'lines')}
+                className="accent-red-500 w-3.5 h-3.5"
               />
               {limit}
             </label>
@@ -161,9 +203,9 @@ export default function SessionZeroStep({
             {t('campaign.sessionZeroStep.add')}
           </button>
         </div>
-        {data.contentLimits.filter((l) => !COMMON_LIMITS.includes(l)).length > 0 && (
+        {lineTopics.filter((l) => !COMMON_LIMITS.includes(l)).length > 0 && (
           <div className="flex flex-wrap gap-1 mt-1.5">
-            {data.contentLimits
+            {lineTopics
               .filter((l) => !COMMON_LIMITS.includes(l))
               .map((l) => (
                 <span
@@ -171,13 +213,88 @@ export default function SessionZeroStep({
                   className="flex items-center gap-1 text-xs bg-red-900/30 text-red-300 px-2 py-0.5 rounded"
                 >
                   {l}
-                  <button onClick={() => toggleLimit(l)} className="hover:text-red-100 cursor-pointer">
+                  <button onClick={() => toggleSafety(l, 'lines')} className="hover:text-red-100 cursor-pointer">
                     &times;
                   </button>
                 </span>
               ))}
           </div>
         )}
+      </div>
+
+      {/* PHASE-32 — Veils (soft boundaries: off-screen only) */}
+      <div>
+        <label className="block text-sm font-medium text-gray-300 mb-2">{t('campaign.sessionZeroStep.veils')}</label>
+        <p className="text-xs text-gray-500 mb-2">{t('campaign.sessionZeroStep.veilsHint')}</p>
+        <div className="grid grid-cols-3 gap-1.5">
+          {COMMON_LIMITS.map((limit) => (
+            <label
+              key={limit}
+              className="flex items-center gap-1.5 text-xs text-gray-300 cursor-pointer hover:text-gray-200"
+            >
+              <input
+                type="checkbox"
+                checked={has(veilTopics, limit)}
+                onChange={() => toggleSafety(limit, 'veils')}
+                className="accent-amber-500 w-3.5 h-3.5"
+              />
+              {limit}
+            </label>
+          ))}
+        </div>
+        <div className="flex items-center gap-2 mt-2">
+          <input
+            value={customVeil}
+            onChange={(e) => setCustomVeil(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && addCustomVeil()}
+            placeholder={t('campaign.sessionZeroStep.customVeilPlaceholder')}
+            className="flex-1 px-2 py-1 text-xs bg-surface-2 border border-border rounded text-gray-200"
+          />
+          <button
+            onClick={addCustomVeil}
+            disabled={!customVeil.trim()}
+            className="px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {t('campaign.sessionZeroStep.add')}
+          </button>
+        </div>
+        {veilTopics.filter((l) => !COMMON_LIMITS.includes(l)).length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-1.5">
+            {veilTopics
+              .filter((l) => !COMMON_LIMITS.includes(l))
+              .map((l) => (
+                <span
+                  key={l}
+                  className="flex items-center gap-1 text-xs bg-amber-900/30 text-amber-300 px-2 py-0.5 rounded"
+                >
+                  {l}
+                  <button onClick={() => toggleSafety(l, 'veils')} className="hover:text-amber-100 cursor-pointer">
+                    &times;
+                  </button>
+                </span>
+              ))}
+          </div>
+        )}
+      </div>
+
+      {/* PHASE-32 — X-Card opt-in */}
+      <div className="flex items-center justify-between bg-surface-2 rounded-lg p-4">
+        <div>
+          <div className="text-sm font-medium text-gray-300">{t('campaign.sessionZeroStep.xCard')}</div>
+          <div className="text-xs text-gray-500">{t('campaign.sessionZeroStep.xCardHint')}</div>
+        </div>
+        <button
+          onClick={() => update('xCardEnabled', !data.xCardEnabled)}
+          className={`relative w-10 h-5 rounded-full transition-colors cursor-pointer ${
+            data.xCardEnabled ? 'bg-accent-strong' : 'bg-gray-600'
+          }`}
+        >
+          <div
+            className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
+              data.xCardEnabled ? 'translate-x-5' : 'translate-x-0.5'
+            }`}
+          />
+        </button>
       </div>
 
       {/* PvP */}

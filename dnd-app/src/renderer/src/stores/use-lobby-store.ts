@@ -184,6 +184,8 @@ interface LobbyState {
   setPlayerStatus: (peerId: string, status: 'connected' | 'reconnecting' | 'disconnected') => void
   setPlayerReady: (peerId: string, ready: boolean) => void
   addChatMessage: (msg: ChatMessage) => void
+  /** PHASE-32 32E — replace the last AI-DM chat message's content with a placeholder. Returns whether one was redacted. */
+  redactLastAiChatMessage: (placeholder: string) => boolean
   sendChat: (content: string) => void
   setIsHost: (isHost: boolean) => void
   allPlayersReady: () => boolean
@@ -322,6 +324,25 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
     if (campaignId) {
       persistChatHistory(campaignId, chatMessages)
     }
+  },
+
+  // PHASE-32 32E — X-card retraction: replace the LAST AI-DM message's content with a tombstone
+  // placeholder (redact, don't delete — keeps virtualizer indices/timestamps stable). Returns whether
+  // anything was redacted. Targets by sender (not id) because peers store AI messages with fresh ids.
+  redactLastAiChatMessage: (placeholder: string) => {
+    const { chatMessages, campaignId } = get()
+    let idx = -1
+    for (let i = chatMessages.length - 1; i >= 0; i--) {
+      if (chatMessages[i].senderId === 'ai-dm') {
+        idx = i
+        break
+      }
+    }
+    if (idx === -1) return false
+    const next = chatMessages.map((m, i) => (i === idx ? { ...m, content: placeholder } : m))
+    set({ chatMessages: next })
+    if (campaignId) persistChatHistory(campaignId, next)
+    return true
   },
 
   sendChat: (content) => {

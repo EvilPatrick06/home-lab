@@ -116,6 +116,8 @@ const api = {
     cancelScene: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_CANCEL_SCENE, campaignId),
     chatStream: (request: Record<string, unknown>) => ipcRenderer.invoke(IPC_CHANNELS.AI_CHAT_STREAM, request),
     cancelStream: (streamId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_CANCEL_STREAM, streamId),
+    // PHASE-32 32D — X-card rewind: forget the last AI narration.
+    xCardRewind: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_XCARD_REWIND, campaignId),
     applyMutations: (characterId: string, changes: unknown[]) =>
       ipcRenderer.invoke(IPC_CHANNELS.AI_APPLY_MUTATIONS, characterId, changes),
     longRest: (characterId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_LONG_REST, characterId),

@@ -303,6 +303,10 @@ const TimeRequestPayloadSchema = z.object({
   requesterName: z.string()
 })
 
+// PHASE-32 32E — X-card safety tool payloads (anonymous by design — no tapper identity).
+const XCardPayloadSchema = z.object({ topic: z.string().max(200).optional() })
+const RetractLastPayloadSchema = z.object({ placeholder: z.string().max(300).optional() })
+
 const TimeSharePayloadSchema = z.object({
   formattedTime: z.string(),
   targetPeerId: z.string().optional(),
@@ -579,6 +583,8 @@ const PAYLOAD_SCHEMAS: Partial<Record<MessageTypeString, z.ZodType>> = {
   'player:join-rejected': JoinRejectedPayloadSchema,
   'dm:role-change': RoleChangePayloadSchema,
   'player:time-request': TimeRequestPayloadSchema,
+  'player:x-card': XCardPayloadSchema,
+  'ai:retract-last': RetractLastPayloadSchema,
   'player:turn-end': TurnEndPayloadSchema,
   'player:roll-result': RollResultPayloadSchema,
   'player:move-declare': MoveDeclarePayloadSchema,

@@ -8,6 +8,7 @@ interface ContextInspectorPanelProps {
 }
 
 interface Breakdown {
+  safety?: number // PHASE-32 32B
   rulebookChunks: number
   srdData: number
   characterData: number
@@ -109,6 +110,7 @@ export default function ContextInspectorPanel({ campaignId, characterIds }: Cont
             <>
               {(
                 [
+                  [t('game.contextInspector.sections.safety'), breakdown.safety ?? 0],
                   [t('game.dmTabPanel.budgetRulebook'), breakdown.rulebookChunks],
                   [t('game.dmTabPanel.budgetSrdData'), breakdown.srdData],
                   [t('game.dmTabPanel.budgetCharacters'), breakdown.characterData],

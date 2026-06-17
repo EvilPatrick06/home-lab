@@ -70,6 +70,8 @@ export const IPC_CHANNELS = {
   // === AI DM: Streaming Chat ===
   AI_CHAT_STREAM: 'ai:chat-stream',
   AI_CANCEL_STREAM: 'ai:cancel-stream',
+  AI_XCARD_REWIND: 'ai:x-card-rewind', // PHASE-32 32D — forget the last AI narration
+
   AI_APPLY_MUTATIONS: 'ai:apply-mutations',
   AI_LONG_REST: 'ai:long-rest',
   AI_SHORT_REST: 'ai:short-rest',

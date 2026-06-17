@@ -200,4 +200,33 @@ describe('useLobbyStore', () => {
     localStorage.setItem(`lobby-chat-${campaignId}`, '{not-json')
     expect(() => useLobbyStore.getState().loadChatHistory(campaignId)).not.toThrow()
   })
+
+  // PHASE-32 32E — X-card retraction.
+  describe('redactLastAiChatMessage', () => {
+    const mk = (id: string, senderId: string, content: string): ChatMessage => ({
+      id,
+      senderId,
+      senderName: senderId,
+      content,
+      timestamp: Date.now(),
+      isSystem: false
+    })
+
+    it('redacts only the LAST ai-dm message and returns true', () => {
+      const store = useLobbyStore.getState()
+      store.addChatMessage(mk('1', 'ai-dm', 'First narration'))
+      store.addChatMessage(mk('2', 'p1', 'A player line'))
+      store.addChatMessage(mk('3', 'ai-dm', 'Bad narration'))
+      expect(useLobbyStore.getState().redactLastAiChatMessage('[gone]')).toBe(true)
+      const msgs = useLobbyStore.getState().chatMessages
+      expect(msgs.find((m) => m.id === '3')?.content).toBe('[gone]')
+      expect(msgs.find((m) => m.id === '1')?.content).toBe('First narration') // earlier ai-dm untouched
+      expect(msgs.find((m) => m.id === '2')?.content).toBe('A player line')
+    })
+
+    it('returns false when there is no ai-dm message', () => {
+      useLobbyStore.getState().addChatMessage(mk('1', 'p1', 'Just a player'))
+      expect(useLobbyStore.getState().redactLastAiChatMessage('[gone]')).toBe(false)
+    })
+  })
 })

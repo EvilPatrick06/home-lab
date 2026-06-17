@@ -165,3 +165,26 @@ first read and kept mirrored by name). Three action verbs (registered in `DM_ACT
 explicit `advance_chapter` action. Checker output is filtered against the store — only existing,
 `pending` objective ids apply (constrained decoding guarantees shape, not truth). All mutations go
 through `MemoryManager.mutateQuestLog` (the `mutate()` lock).
+
+## Safety constraints: lines, veils & the X-Card (PHASE-32)
+
+Session-zero **lines** (never appear, even implied), **veils** (off-screen only — cut away, resume
+after, summarize the aftermath neutrally), and the per-campaign **AI ban list** (`campaign.aiBanList`)
+are assembled into a single `[SAFETY CONSTRAINTS]` block by `prompt-sections/safety-constraints.ts`
+(`extractSafetyInput` + `buildSafetyConstraintsSection`). The block is the **FIRST** context part
+(`context-builder.ts`, before the campaign data), is **never trimmed**, counted in
+`breakdown.safety`, and instructs the model that these override any player request and must never be
+mentioned in narration. It is **inert** (empty string ⇒ no block) unless topics are configured — so a
+campaign with no safety config produces byte-identical context to pre-PHASE-32 (the old soft
+`Content Limits` line in `[CAMPAIGN DATA]` was removed; legacy `contentLimits` are merged into lines).
+
+The **X-Card** (`/xcard [topic]`, alias `/x`; opt-in chat-panel button — both gated by
+`sessionZero.xCardEnabled`) lets ANY participant anonymously remove the last AI narration:
+`useAiDmStore.invokeXCard` cancels the in-flight stream, rewinds the last assistant message from
+main-side conversation memory (`xCardRewind` → `ConversationManager.removeLastAssistantMessage`,
+persisted), redacts the last AI chat line on host + peers (`redactLastAiChatMessage` +
+`ai:retract-last`), optionally appends the topic to `aiBanList`, posts an anonymous notice, and
+regenerates the scene in a different direction (directive is main-side context only). Peers relay via
+`player:x-card`. A cheap post-generation `scanForLineHits` raises a DM-only warning (`safetyFlags` on
+the `onDone`/`AI_STREAM_DONE` chain) when output may touch a line/banned topic — advisory only, never
+auto-censored. `/dm banlist` lists the ban list (editing lives in the Session Zero card).

@@ -185,7 +185,8 @@ describe('formatCampaignForContext', () => {
     expect(result).toContain('Campaign Tone: dark fantasy')
     expect(result).toContain('PvP Allowed: No')
     expect(result).toContain('Character Death: possible')
-    expect(result).toContain('Content Limits (AVOID these topics): gore, romance')
+    // PHASE-32 32B — content limits moved to the dedicated [SAFETY CONSTRAINTS] block; no longer here.
+    expect(result).not.toContain('Content Limits (AVOID these topics)')
     expect(result).toContain('Play Schedule: weekly')
     expect(result).toContain('Additional Notes: Be kind')
   })

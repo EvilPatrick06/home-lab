@@ -280,6 +280,7 @@ describe('token-breakdown recording (07A)', () => {
 
   it('recordTokenBreakdown / getLastTokenBreakdown round-trip per campaign', () => {
     const bd = {
+      safety: 0,
       rulebookChunks: 1,
       srdData: 2,
       characterData: 3,
@@ -296,6 +297,7 @@ describe('token-breakdown recording (07A)', () => {
 
   it('a build for campaign B does not disturb campaign A', () => {
     const bdA = {
+      safety: 0,
       rulebookChunks: 1,
       srdData: 0,
       characterData: 0,
@@ -307,6 +309,7 @@ describe('token-breakdown recording (07A)', () => {
       total: 1
     }
     const bdB = {
+      safety: 0,
       rulebookChunks: 9,
       srdData: 0,
       characterData: 0,

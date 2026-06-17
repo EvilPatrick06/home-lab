@@ -279,7 +279,7 @@ export function registerAiHandlers(): void {
         sendToWindow(win, IPC_CHANNELS.AI_STREAM_CHUNK, { streamId, text })
       },
       // onDone
-      (fullText, displayText, statChanges, dmActions, ruleCitations) => {
+      (fullText, displayText, statChanges, dmActions, ruleCitations, safetyFlags) => {
         sendToWindow(win, IPC_CHANNELS.AI_STREAM_DONE, {
           streamId,
           fullText,
@@ -287,6 +287,7 @@ export function registerAiHandlers(): void {
           statChanges,
           dmActions,
           ruleCitations,
+          safetyFlags, // PHASE-32 32F — lines/banned topics the output may have touched (DM warning)
           // PHASE-14 14C — surface the truncation/estimate the manager already computed for this
           // campaign's final getMessagesForApi assembly (read-only getters; restreams re-set them).
           contextTruncated: aiService.wasContextTruncated(parsed.data.campaignId),
@@ -315,6 +316,12 @@ export function registerAiHandlers(): void {
       return { success: false, error: 'Invalid approval value' }
     }
     return aiService.approveWebSearch(streamId, approved)
+  })
+
+  // PHASE-32 32D — X-card rewind: forget the last AI narration for a campaign.
+  handle(IPC_CHANNELS.AI_XCARD_REWIND, async (_event, campaignId: string) => {
+    if (typeof campaignId !== 'string' || !campaignId) return { success: false, error: 'Invalid campaignId' }
+    return await aiService.xCardRewind(campaignId)
   })
 
   // ── Stat Mutations ──

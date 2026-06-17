@@ -732,6 +732,13 @@
       "contentLimits": "Content Limits & Triggers",
       "contentLimitsHint": "Select topics that should be avoided or handled carefully.",
       "customLimitPlaceholder": "Add custom limit...",
+      "lines": "Lines (hard boundaries)",
+      "linesHint": "Content that must NEVER appear in this game, even implied. The AI treats these as absolute.",
+      "veils": "Veils (off-screen only)",
+      "veilsHint": "Content that may exist in the story but is never shown — the AI cuts away (\"fade to black\").",
+      "customVeilPlaceholder": "Add custom veil...",
+      "xCard": "Enable X-Card",
+      "xCardHint": "Adds an X-Card button to the chat panel. Anyone may tap it to remove the last AI narration, no questions asked.",
       "add": "Add",
       "pvp": "Player vs Player Combat",
       "pvpHint": "Allow characters to attack or work against each other?",
@@ -976,7 +983,8 @@
       "chunksNone": "No rules chunks retrieved last turn",
       "chunksNote": "Debug identifiers — stable only until the rules index is rebuilt.",
       "sections": {
-        "campaignDocs": "Campaign documents"
+        "campaignDocs": "Campaign documents",
+        "safety": "Safety constraints"
       }
     },
     "chatPanel": {
@@ -2950,6 +2958,18 @@
       "askFailed": "Failed to get an answer.",
       "clearHistory": "Clear history",
       "aiNotConfigured": "AI DM is not configured or enabled for this campaign."
+    },
+    "xCard": {
+      "tapped": "The X-Card was tapped. The last scene is being revised.",
+      "redacted": "[Removed by the X-Card]",
+      "confirmTitle": "Tap the X-Card?",
+      "confirmBody": "The last AI narration will be removed — no explanation needed.",
+      "topicPlaceholder": "Topic to ban (optional)",
+      "confirm": "Tap X-Card",
+      "cancel": "Cancel",
+      "notEnabled": "X-Card is not enabled for this campaign — the DM can enable it in Session Zero settings.",
+      "noAiDm": "X-Card: this campaign has no AI DM.",
+      "buttonLabel": "Tap the X-Card (remove the last AI narration)"
     },
     "helpModal": {
       "stabilizeNat20": "Natural 20! {{target}} is stabilized!",
@@ -5302,6 +5322,7 @@
       "modelAutoSelected": "No AI model was set — using installed model \"{{to}}\".",
       "aiDmError": "AI DM: {{error}}",
       "contextTruncated": "AI context was trimmed — the model did not see the full conversation/context this turn. See the DM tab's Context Inspector.",
+      "safetyFlag": "AI narration may touch a session-zero line: {{topics}}. Consider the X-Card.",
       "approvedActionFailed": "Approved AI action failed: {{action}} — {{reason}}",
       "rulingQueued": "New AI ruling queued — {{count}} awaiting review",
       "webSearchAutoRejected": "Web search \"{{query}}\" was auto-rejected (no decision within 30s).",
@@ -5974,6 +5995,14 @@
       "notAllowed": "Not Allowed",
       "characterDeath": "Character Death:",
       "contentLimits": "Content Limits:",
+      "lines": "Lines:",
+      "veils": "Veils:",
+      "xCard": "X-Card:",
+      "banList": "AI Ban List:",
+      "banEmpty": "None",
+      "banRemove": "remove",
+      "banAdd": "Add",
+      "banPlaceholder": "Ban a topic...",
       "schedule": "Schedule:",
       "editTitle": "Edit Session Zero"
     },

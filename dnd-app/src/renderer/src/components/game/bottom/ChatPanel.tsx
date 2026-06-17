@@ -31,6 +31,7 @@ import AiModelSwapPopover from '../dm/AiModelSwapPopover'
 import SkillRollButton from '../player/SkillRollButton'
 import { AiDmStatusBar } from './AiDmStatusBar'
 import CommandAutocomplete from './CommandAutocomplete'
+import XCardButton from './XCardButton'
 
 const BottomChatMessage = memo(function BottomChatMessage({
   msg,
@@ -537,6 +538,8 @@ export default function ChatPanel({
           >
             ?
           </button>
+          {/* PHASE-32 32E — X-Card (opt-in; off by default ⇒ absent for existing campaigns). */}
+          {campaign?.aiDm?.enabled && campaign?.sessionZero?.xCardEnabled && <XCardButton />}
           {!isDM && character && (
             <SkillRollButton character={character} playerName={playerName} onRoll={handleDiceRoll} />
           )}

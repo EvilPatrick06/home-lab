@@ -12,6 +12,7 @@ import { searchRules } from './hybrid-search'
 import { type LoreEntryLike, selectLore } from './lore-injection'
 import { getMemoryManager } from './memory-manager'
 import { ENTITY_RECORDS_PROMPT } from './prompt-sections/entity-records'
+import { buildSafetyConstraintsSection, extractSafetyInput } from './prompt-sections/safety-constraints'
 import { WORLD_STATE_VERBS_PROMPT } from './prompt-sections/world-state-verbs'
 import type { SearchEngine } from './search-engine'
 import { detectAndLoadSrdData } from './srd-provider'
@@ -241,6 +242,7 @@ export async function buildContext(
   //   active creatures → memory → game-state snapshot (changes every message — LAST).
   // Each section computes where it always has (side-effects, breakdown updates
   // unchanged); only the final emission order moves, via these buckets.
+  const sSafety: string[] = [] // PHASE-32 32B — hard safety block, emitted FIRST, never trimmed
   const sCampaign: string[] = []
   const sCharacter: string[] = []
   const sRulebook: string[] = []
@@ -249,6 +251,7 @@ export async function buildContext(
   const sMemory: string[] = []
   const sGameState: string[] = []
   const breakdown: ContextTokenBreakdown = {
+    safety: 0,
     rulebookChunks: 0,
     srdData: 0,
     characterData: 0,
@@ -273,6 +276,27 @@ export async function buildContext(
   // happen visibly here instead of silently in Ollama's runner.
   const budgets = getEffectiveBudgets()
 
+  // PHASE-32 32B — load the campaign ONCE here and reuse for both the safety block and the
+  // campaign-data part (steps 1b + 4), avoiding a duplicate disk read. A saved lines/veils/ban-list
+  // edit is therefore picked up on the very next request with no main-process cache to invalidate.
+  let campaignRecord: Record<string, unknown> | null = null
+  if (campaignId) {
+    try {
+      campaignRecord = await loadCampaignById(campaignId)
+    } catch (err) {
+      logToFile('WARN', `[context-builder] Failed to load campaign: ${err}`)
+    }
+  }
+  // Hard safety constraints — the FIRST context part (adjacent to the static system prompt, so it is
+  // prefix-cache friendly per PHASE-01) and NEVER trimmed (bounded in practice: dozens of short topics).
+  if (campaignRecord) {
+    const safetySection = buildSafetyConstraintsSection(extractSafetyInput(campaignRecord))
+    if (safetySection) {
+      sSafety.push(safetySection)
+      breakdown.safety = estimateTokens(safetySection)
+    }
+  }
+
   // 1. Search rulebook chunks (PHASE-24: BM25, fused with vectors via RRF when enabled)
   const retrievalOpts = currentRetrievalOpts()
   if (searchEngine) {
@@ -291,7 +315,7 @@ export async function buildContext(
   // rulebook chunks). Opt-in; BM25-only; pushes its own budgeted block + provenance.
   if (campaignId && retrievalOpts.campaignDocsEnabled) {
     try {
-      const campaign = await loadCampaignById(campaignId)
+      const campaign = campaignRecord // PHASE-32 32B — reuse the single hoisted load
       const docResults = campaign ? searchCampaignDocs(campaignId, campaign, query, 3) : []
       if (docResults.length > 0) {
         const trimmed = trimTracked(`[CONTEXT: Campaign Documents]\n${formatChunks(docResults)}`, budgets.campaignDocs)
@@ -372,7 +396,7 @@ export async function buildContext(
   // 4. Campaign data
   if (campaignId) {
     try {
-      const campaign = await loadCampaignById(campaignId)
+      const campaign = campaignRecord // PHASE-32 32B — reuse the single hoisted load
       if (campaign) {
         // PHASE-25 25E: select lore per loreMode (default 'all' = today's full dump).
         const selectedLore = selectLore(
@@ -443,8 +467,9 @@ export async function buildContext(
     }
   }
 
-  // Emit static-first → volatile-last (see the ordering contract above).
-  parts.push(...sCampaign, ...sCharacter, ...sRulebook, ...sSrd, ...sCreatures, ...sMemory, ...sGameState)
+  // Emit static-first → volatile-last (see the ordering contract above). The safety block is FIRST:
+  // hard constraints lead, and it is static between settings edits / X-card events (prefix-cache safe).
+  parts.push(...sSafety, ...sCampaign, ...sCharacter, ...sRulebook, ...sSrd, ...sCreatures, ...sMemory, ...sGameState)
 
   const result = parts.join('\n\n')
   breakdown.total = estimateTokens(result)

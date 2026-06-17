@@ -430,4 +430,37 @@ grep -n "AI_STREAM_DONE" dnd-app/src/main/ipc/ai-handlers.ts
 
 ## Completed
 
-<!-- Filled during execution per INSTRUCTIONS.md rule 17 — one line per sub-phase with file:line citations. -->
+- **32A — data model.** `campaign.ts`: `SessionZeroConfig` +`lines?`/`veils?`/`xCardEnabled?`; new
+  `AiBanListEntry` + `Campaign.aiBanList?`. Mirrored into `SessionZeroStep` `SessionZeroData` +
+  `DEFAULT_SESSION_ZERO` + the two `SessionZeroCard` inline defaults; `CampaignWizard` save condition
+  now also persists when lines/veils/xCardEnabled set. tsc-green, purely additive.
+- **32B — hard safety block.** NEW pure `prompt-sections/safety-constraints.ts` (`extractSafetyInput`
+  merges legacy `contentLimits`→lines + dedupes; `buildSafetyConstraintsSection` → `''` when empty,
+  else override-priority/never-mention block with Lines/Veils/Banned subsections; `scanForLineHits`
+  keyword scan stripping structured blocks, veils excluded) + test (5). `context-builder.ts` hoists the
+  campaign load once, pushes the safety part FIRST (never `trimTracked`), sets `breakdown.safety`.
+  `token-budget.ts` + `ContextInspectorPanel` +`safety` field/row. `campaign-context.ts` deletes the
+  soft `Content Limits` line; test asserts it absent.
+- **32C — session-zero UI.** `SessionZeroStep`: Lines (red) + Veils (amber) editors (clone of the
+  content-limits grid, legacy migrate-on-edit, mutual exclusion lines↔veils) + Enable-X-Card toggle +
+  test (5). `SessionZeroCard`: dropped the `null` early-return (renders for every campaign via
+  `DEFAULT_SESSION_ZERO`), lines/veils chips + X-card row + `aiBanList` view/add/remove. i18n
+  `campaign.sessionZeroStep.*` + `pages.sessionZeroCard.*` en+es.
+- **32D — rewind machinery.** `ConversationManager.removeLastAssistantMessage()` (+3 tests).
+  `ai-service.xCardRewind(campaignId)` → `{success, removed}` (awaited persist; +2 tests, mock extended).
+  IPC `AI_XCARD_REWIND` + inline-validated handler + preload + d.ts.
+- **32E — X-card flow.** `use-lobby-store.redactLastAiChatMessage` (+2 tests). network `player:x-card` +
+  `ai:retract-last` types + zod schemas + `PAYLOAD_SCHEMAS`. `use-ai-dm-store.invokeXCard` (cancel →
+  rewind → drop trailing assistant → redact+broadcast → optional ban → regenerate via dynamic-imported
+  `routePlayerMessageToAiDm`, breaking the routing↔store cycle). NEW `commands-safety.ts` (`/xcard`+`/x`,
+  shared `tapXCard`, anonymous notice, gating; +6 tests) + registered. `use-game-network` host
+  `player:x-card` + all-client `ai:retract-last` handlers. NEW `XCardButton.tsx` (opt-in, confirm
+  popover, Escape/focus). `/dm banlist` read-only view. i18n `game.xCard.*` en+es.
+- **32F — line-scan warning.** `ai-service` finalize computes `safetyFlags` via `scanForLineHits`;
+  threaded through the `onDone` chain (`startChat` + `handleStreamCompletion` signatures) + the
+  `AI_STREAM_DONE` payload; `use-ai-dm-store.handleDone` raises a DM-only `notify.aiDmStore.safetyFlag`
+  alert. Advisory only — never auto-censors.
+- **32G — docs + gate.** `[SAFETY CONSTRAINTS]` block + `/xcard`/`/dm banlist` documented in
+  `AI_ACTION_CONTRACT.md`. End-of-phase 4-gate (lint, tsc web+node, vitest) green. No `bmo/pi/` touched.
+  Default-off throughout: no lines/veils/ban-list ⇒ no block; `xCardEnabled` false ⇒ no button + command
+  self-explains; byte-identical context + zero UI change for non-opted-in campaigns.

@@ -139,9 +139,8 @@ export function formatCampaignForContext(
     if (sessionZero.tone) parts.push(`- Campaign Tone: ${sessionZero.tone}`)
     if (sessionZero.pvpAllowed !== undefined) parts.push(`- PvP Allowed: ${sessionZero.pvpAllowed ? 'Yes' : 'No'}`)
     if (sessionZero.characterDeathExpectation) parts.push(`- Character Death: ${sessionZero.characterDeathExpectation}`)
-    if (sessionZero.contentLimits && sessionZero.contentLimits.length > 0) {
-      parts.push(`- Content Limits (AVOID these topics): ${sessionZero.contentLimits.join(', ')}`)
-    }
+    // PHASE-32 32B — content limits / lines / veils now ship in the dedicated, never-trimmed
+    // [SAFETY CONSTRAINTS] block (first context part). Keeping a soft copy here would dilute it.
     if (sessionZero.playSchedule) parts.push(`- Play Schedule: ${sessionZero.playSchedule}`)
     if (sessionZero.additionalNotes) parts.push(`- Additional Notes: ${sessionZero.additionalNotes}`)
   }

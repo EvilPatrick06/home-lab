@@ -25,6 +25,7 @@ import { commands as playerMovementCommands } from './commands-player-movement'
 import { commands as playerResourceCommands } from './commands-player-resources'
 import { commands as playerSpellCommands } from './commands-player-spells'
 import { commands as playerUtilityCommands } from './commands-player-utility'
+import { commands as safetyCommands } from './commands-safety'
 import { commands as socialCommands } from './commands-social'
 import { commands as utilityCommands } from './commands-utility'
 import type { ChatCommand, CommandContext, CommandResult, CommandReturn } from './types'
@@ -59,7 +60,8 @@ export const allCommands: ChatCommand[] = [
   ...dmCampaignCommands,
   ...socialCommands,
   ...utilityCommands,
-  ...dmSoundCommands
+  ...dmSoundCommands,
+  ...safetyCommands
 ]
 
 // ─── Normalize command return ────────────────────────────────────

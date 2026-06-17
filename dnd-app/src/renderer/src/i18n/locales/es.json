@@ -732,6 +732,13 @@
       "contentLimits": "Límites de contenido y desencadenantes",
       "contentLimitsHint": "Selecciona los temas que deben evitarse o tratarse con cuidado.",
       "customLimitPlaceholder": "Añadir límite personalizado...",
+      "lines": "Líneas (límites absolutos)",
+      "linesHint": "Contenido que NUNCA debe aparecer en esta partida, ni siquiera insinuado. La IA los trata como absolutos.",
+      "veils": "Velos (solo fuera de escena)",
+      "veilsHint": "Contenido que puede existir en la historia pero nunca se muestra — la IA corta la escena (\"fundido a negro\").",
+      "customVeilPlaceholder": "Añadir velo personalizado...",
+      "xCard": "Activar X-Card",
+      "xCardHint": "Añade un botón X-Card al panel de chat. Cualquiera puede pulsarlo para eliminar la última narración de la IA, sin preguntas.",
       "add": "Añadir",
       "pvp": "Combate jugador contra jugador",
       "pvpHint": "¿Permitir que los personajes se ataquen o actúen unos contra otros?",
@@ -976,7 +983,8 @@
       "chunksNone": "No se recuperaron fragmentos de reglas en el último turno",
       "chunksNote": "Identificadores de depuración — estables solo hasta que se reconstruya el índice de reglas.",
       "sections": {
-        "campaignDocs": "Documentos de la campaña"
+        "campaignDocs": "Documentos de la campaña",
+        "safety": "Restricciones de seguridad"
       }
     },
     "chatPanel": {
@@ -2950,6 +2958,18 @@
       "askFailed": "No se pudo obtener una respuesta.",
       "clearHistory": "Borrar historial",
       "aiNotConfigured": "El DM de IA no está configurado o habilitado para esta campaña."
+    },
+    "xCard": {
+      "tapped": "Se pulsó la X-Card. La última escena se está revisando.",
+      "redacted": "[Eliminado por la X-Card]",
+      "confirmTitle": "¿Pulsar la X-Card?",
+      "confirmBody": "Se eliminará la última narración de la IA — sin necesidad de explicación.",
+      "topicPlaceholder": "Tema a prohibir (opcional)",
+      "confirm": "Pulsar X-Card",
+      "cancel": "Cancelar",
+      "notEnabled": "La X-Card no está activada para esta campaña — el DM puede activarla en los ajustes de Sesión Cero.",
+      "noAiDm": "X-Card: esta campaña no tiene DM de IA.",
+      "buttonLabel": "Pulsar la X-Card (eliminar la última narración de la IA)"
     },
     "helpModal": {
       "stabilizeNat20": "¡20 natural! ¡{{target}} está estabilizado!",
@@ -5302,6 +5322,7 @@
       "modelAutoSelected": "No se configuró ningún modelo de IA — usando el modelo instalado \"{{to}}\".",
       "aiDmError": "DM de IA: {{error}}",
       "contextTruncated": "El contexto de la IA fue recortado — el modelo no vio todo el contexto en este turno. Consulta el Inspector de Contexto en la pestaña del DM.",
+      "safetyFlag": "La narración de la IA podría tocar una línea de la sesión cero: {{topics}}. Considera usar la X-Card.",
       "approvedActionFailed": "La acción de IA aprobada falló: {{action}} — {{reason}}",
       "rulingQueued": "Nueva decisión de la IA en cola — {{count}} pendientes de revisión",
       "webSearchAutoRejected": "La búsqueda web \"{{query}}\" se rechazó automáticamente (sin decisión en 30 s).",
@@ -5974,6 +5995,14 @@
       "notAllowed": "No permitido",
       "characterDeath": "Muerte de personaje:",
       "contentLimits": "Límites de contenido:",
+      "lines": "Líneas:",
+      "veils": "Velos:",
+      "xCard": "X-Card:",
+      "banList": "Lista de prohibiciones de la IA:",
+      "banEmpty": "Ninguna",
+      "banRemove": "eliminar",
+      "banAdd": "Añadir",
+      "banPlaceholder": "Prohibir un tema...",
       "schedule": "Horario:",
       "editTitle": "Editar sesión cero"
     },

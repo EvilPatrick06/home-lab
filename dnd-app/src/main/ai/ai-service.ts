@@ -21,6 +21,7 @@ import {
   stripVoiceTags
 } from './ai-response-parser'
 import { loadCampaignById } from './campaign-context'
+import { extractSafetyInput, scanForLineHits } from './prompt-sections/safety-constraints'
 import { buildSessionStartRecapPrompt, recapInputsEmpty, type SessionStartRecapInputs } from './recap-context'
 
 // PHASE-20 20F: broadcast a narrate-failure status to every renderer window so
@@ -721,6 +722,24 @@ export function getConversationManager(campaignId: string): ConversationManager 
 }
 
 /**
+ * PHASE-32 32D — X-card rewind: atomically forget the last AI narration for a campaign and persist
+ * the rewound conversation (awaited, so a follow-up regeneration can't race the save). A disk-save
+ * failure is non-fatal — the in-memory rewind already succeeded.
+ */
+export async function xCardRewind(campaignId: string): Promise<{ success: boolean; removed: boolean }> {
+  const conv = getConversation(campaignId)
+  const removed = conv.removeLastAssistantMessage()
+  if (removed) {
+    try {
+      await saveConversation(campaignId, conv.serialize())
+    } catch (err) {
+      logToFile('ERROR', `[AI X-Card] Failed to persist rewound conversation: ${String(err)}`)
+    }
+  }
+  return { success: true, removed }
+}
+
+/**
  * Phase 22d — drop a campaign's in-memory ConversationManager (the `conversations`
  * Map grew monotonically). Called from the campaign-delete cascade. Re-creating a
  * campaign with the same id yields a fresh manager via getConversation().
@@ -912,7 +931,8 @@ export function startChat(
     displayText: string,
     statChanges: StatChange[],
     dmActions: DmActionData[],
-    ruleCitations: RuleCitation[]
+    ruleCitations: RuleCitation[],
+    safetyFlags: string[] // PHASE-32 32F — lines/banned topics the completed output may have touched
   ) => void,
   onError: (error: string) => void
 ): string {
@@ -1078,7 +1098,8 @@ async function handleStreamCompletion(
     displayText: string,
     statChanges: StatChange[],
     dmActions: DmActionData[],
-    ruleCitations: RuleCitation[]
+    ruleCitations: RuleCitation[],
+    safetyFlags: string[] // PHASE-32 32F
   ) => void,
   onError: (error: string) => void,
   contextBlock: string,
@@ -1362,7 +1383,15 @@ async function handleStreamCompletion(
       await sendNarrationToDiscord(displayText, name)
     })().catch((err) => logToFile('WARN', '[AI] Discord text push failed:', String(err)))
 
-    onDone(cleaned, displayText, statChanges, dmActions, ruleCitations)
+    // PHASE-32 32F — advisory line scan on the finalized text (inert unless lines/ban-list configured).
+    let safetyFlags: string[] = []
+    try {
+      const c = await loadCampaignById(request.campaignId)
+      if (c) safetyFlags = scanForLineHits(displayText, extractSafetyInput(c))
+    } catch {
+      // advisory only — never block delivery on a scan failure
+    }
+    onDone(cleaned, displayText, statChanges, dmActions, ruleCitations, safetyFlags)
 
     // PHASE-28: async post-response passes (quest-checker 28C; director 28E). Run AFTER onDone so
     // narration latency is untouched; internally flag-gated + per-campaign in-flight-guarded.
@@ -1377,7 +1406,7 @@ async function handleStreamCompletion(
   } catch (err) {
     logToFile('ERROR', '[AI] Error parsing AI response, delivering raw text:', String(err))
     conv.addMessage('assistant', fullText, contextChunkIds)
-    onDone(fullText, fullText, [], [], [])
+    onDone(fullText, fullText, [], [], [], [])
   }
 }
 

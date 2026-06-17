@@ -91,6 +91,9 @@ export const MESSAGE_TYPES = [
   'dm:light-source-update',
   'sync:delta',
   'sync:resync-request',
+  // PHASE-32 32E — X-card safety tool: a peer taps the card; the host retracts the last AI narration.
+  'player:x-card',
+  'ai:retract-last',
   'ping',
   'pong',
   'batch'

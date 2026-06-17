@@ -6,6 +6,7 @@ export function estimateTokens(text: string): number {
 }
 
 export interface ContextTokenBreakdown {
+  safety: number // PHASE-32 32B — never-trimmed [SAFETY CONSTRAINTS] block
   rulebookChunks: number
   srdData: number
   characterData: number

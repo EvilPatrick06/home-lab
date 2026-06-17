@@ -77,6 +77,33 @@ describe('ConversationManager', () => {
     })
   })
 
+  // ── PHASE-32 32D — X-card rewind ──
+  describe('removeLastAssistantMessage', () => {
+    it('removes a trailing assistant message and reflects it in serialize()', () => {
+      const mgr = new ConversationManager()
+      mgr.addMessage('user', 'Open the door')
+      mgr.addMessage('assistant', 'A trap springs!')
+      expect(mgr.removeLastAssistantMessage()).toBe(true)
+      expect(mgr.getMessages()).toHaveLength(1)
+      expect(mgr.getMessages()[0].role).toBe('user')
+      expect(mgr.serialize().messages).toHaveLength(1)
+    })
+
+    it('no-ops when the last message is a user message', () => {
+      const mgr = new ConversationManager()
+      mgr.addMessage('assistant', 'A trap springs!')
+      mgr.addMessage('user', 'I dodge')
+      expect(mgr.removeLastAssistantMessage()).toBe(false)
+      expect(mgr.getMessages()).toHaveLength(2)
+    })
+
+    it('no-ops on an empty conversation', () => {
+      const mgr = new ConversationManager()
+      expect(mgr.removeLastAssistantMessage()).toBe(false)
+      expect(mgr.getMessages()).toHaveLength(0)
+    })
+  })
+
   // ── Message Count ──
 
   describe('getMessageCount', () => {

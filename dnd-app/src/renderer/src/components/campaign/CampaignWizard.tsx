@@ -388,7 +388,10 @@ export default function CampaignWizard(): JSX.Element {
           sessionZero.playSchedule.trim() ||
           sessionZero.additionalNotes.trim() ||
           sessionZero.pvpAllowed ||
-          sessionZero.characterDeathExpectation !== 'possible'
+          sessionZero.characterDeathExpectation !== 'possible' ||
+          (sessionZero.lines?.length ?? 0) > 0 ||
+          (sessionZero.veils?.length ?? 0) > 0 ||
+          sessionZero.xCardEnabled
             ? sessionZero
             : undefined,
         aiDm: aiEnabled

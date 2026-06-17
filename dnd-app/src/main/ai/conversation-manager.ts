@@ -122,6 +122,20 @@ export class ConversationManager {
   }
 
   /**
+   * PHASE-32 32D — pop the trailing assistant message (the X-card rewind). Returns whether one was
+   * removed. Only ever touches the un-summarized tail: summaries cover a pruned prefix (see restore()
+   * / the post-prune coversUpTo=-1 invariant), so this never desyncs a summary. (Note for PHASE-26.)
+   */
+  removeLastAssistantMessage(): boolean {
+    const last = this.messages[this.messages.length - 1]
+    if (last && last.role === 'assistant') {
+      this.messages.pop()
+      return true
+    }
+    return false
+  }
+
+  /**
    * Clear the conversation iff it consists solely of the scene-prep exchange:
    * [user: prompt] or [user: prompt, assistant: anything]. Never touches a
    * conversation with real history.
