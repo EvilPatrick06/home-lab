@@ -481,6 +481,14 @@ export type DmAction =
       description?: string
     }
   | { action: 'adjust_faction_standing'; factionName: string; delta: number; reason?: string }
+  // PHASE-25 — durable, editable entity record (npc/location/item/faction)
+  | {
+      action: 'record_entity'
+      kind: 'npc' | 'location' | 'item' | 'faction'
+      name: string
+      summary: string
+      keywords?: string[]
+    }
   | { action: 'attune_item'; characterName: string; itemName: string; reason?: string }
   | { action: 'unattune_item'; characterName: string; itemName: string; reason?: string }
 

@@ -24,6 +24,19 @@ vi.mock('./campaign-docs', () => ({
   searchCampaignDocs: vi.fn(() => [])
 }))
 
+// PHASE-25 25E — entity store drives lore mode (step 4) + the entity block (step 7).
+const entityState = vi.hoisted(() => ({
+  config: { enabled: false, autoExtract: false, loreMode: 'all' as 'all' | 'triggered' },
+  block: '[ENTITY RECORDS]\nNPC — Volo: a barkeep\n[/ENTITY RECORDS]'
+}))
+vi.mock('./entity-store', () => ({
+  getEntityStore: vi.fn(() => ({
+    getConfig: async () => entityState.config,
+    buildEntityContextBlock: async () => entityState.block
+  })),
+  matchesKey: (scan: string, key: string) => scan.toLowerCase().includes(key.toLowerCase())
+}))
+
 vi.mock('./memory-manager', () => ({
   getMemoryManager: vi.fn(() => ({
     saveCharacterContext: vi.fn(async () => {}),
@@ -192,6 +205,31 @@ describe('campaign-document retrieval (PHASE-24 24D)', () => {
     expect(result.text).toContain('Zhentarim')
     expect(result.breakdown.campaignDocs).toBeGreaterThan(0)
     expect(result.chunkIds).toContain('CAMPAIGN-abc123')
+  })
+})
+
+describe('entity records injection (PHASE-25 25E)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    setSearchEngine(null)
+    setRetrievalOptsProvider(null)
+    entityState.config = { enabled: false, autoExtract: false, loreMode: 'all' }
+    entityState.block = '[ENTITY RECORDS]\nNPC — Volo: a barkeep\n[/ENTITY RECORDS]'
+  })
+  afterEach(() => setRetrievalOptsProvider(null))
+
+  it('disabled store → no [ENTITY ACTIONS] / [ENTITY RECORDS] blocks (regression guard)', async () => {
+    const result = await buildContext('q', [], 'c1')
+    expect(result.text).not.toContain('[ENTITY ACTIONS]')
+    expect(result.text).not.toContain('[ENTITY RECORDS]')
+  })
+
+  it('enabled store → verb docs + records block present, memory tokens counted', async () => {
+    entityState.config = { enabled: true, autoExtract: false, loreMode: 'all' }
+    const result = await buildContext('q', [], 'c1')
+    expect(result.text).toContain('[ENTITY ACTIONS]')
+    expect(result.text).toContain('[ENTITY RECORDS]')
+    expect(result.breakdown.memory).toBeGreaterThan(0)
   })
 })
 

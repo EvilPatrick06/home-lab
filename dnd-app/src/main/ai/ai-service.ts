@@ -79,6 +79,7 @@ import { ConversationManager } from './conversation-manager'
 import { hasOrphanDmActionsTag, parseDmActionsDetailed, stripDmActions } from './dm-actions'
 import { DEFAULT_EMBEDDING_MODEL } from './embedding-client'
 import { clearEmbeddingIndex, ensureEmbeddingIndex, getEmbedIndexStatus } from './embedding-index'
+import { runEntityExtraction } from './entity-extraction'
 import {
   FILE_READ_MAX_DEPTH,
   type FileReadRequest,
@@ -90,6 +91,7 @@ import {
 } from './file-reader'
 import { buildGameStateSnapshot, dedupeStatChanges, validateAgainstGameState } from './game-state-validation'
 import type { AiProviderType, LLMProvider } from './llm-provider'
+import { buildScanText } from './lore-injection'
 import { getMemoryManager, npcMemoryFromAttitude } from './memory-manager'
 import { fetchOllamaModels, getOllamaUrl, isOllamaRunning, listOllamaModels, setOllamaUrl } from './ollama-client'
 import { resolveNumCtx, setConfiguredContextLength, setOllamaKvCacheType } from './ollama-context'
@@ -901,7 +903,9 @@ export function startChat(
         request.campaignId,
         request.activeCreatures,
         request.gameState,
-        request.actingCharacterId
+        request.actingCharacterId,
+        // PHASE-25 25E: scan the recent transcript + game state for lore/entity keyword triggers.
+        buildScanText(conv.getMessages(), request.gameState)
       )
       // Record this LIVE build's breakdown per campaign (previews record nothing). (07A)
       recordTokenBreakdown(request.campaignId, built.breakdown)
@@ -1232,6 +1236,13 @@ async function handleStreamCompletion(
     } catch {
       // Non-fatal
     }
+
+    // PHASE-25 25C: opt-in post-turn entity extraction. Fire-and-forget — unlike the
+    // PHASE-23 mutation extraction above (which must merge before onDone), this never
+    // delays the stream-done path. Bails internally unless enabled && autoExtract.
+    runEntityExtraction(request.campaignId, getActiveProvider(), currentConfig.model, displayText).catch((err) =>
+      logToFile('WARN', '[AI Entities] extraction failed:', String(err))
+    )
 
     // Two independent, default-OFF Discord senders for each finalized reply:
     //  - VOICE narration through DM-BMO (PHASE-20 20F): toggle-gated; tone/pitch

@@ -14,6 +14,7 @@ import VoiceCastSection from './VoiceCastSection'
 const DMAudioPanel = lazy(() => import('./DMAudioPanel'))
 const DMToolsTabContent = lazy(() => import('./DMToolsTabContent'))
 const AiContextPanel = lazy(() => import('./AiContextPanel'))
+const EntityRecordsPanel = lazy(() => import('./EntityRecordsPanel'))
 const ContextInspectorPanel = lazy(() => import('./ContextInspectorPanel'))
 const CombatLogPanel = lazy(() => import('../sidebar/CombatLogPanel'))
 const JournalPanel = lazy(() => import('../sidebar/JournalPanel'))
@@ -242,6 +243,14 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
                   }
                 >
                   <AiContextPanel campaignId={campaign.id} />
+                </Suspense>
+
+                <Suspense
+                  fallback={
+                    <div className="text-xs text-gray-500 w-full">{t('game.dmTabPanel.loadingContextPanel')}</div>
+                  }
+                >
+                  <EntityRecordsPanel campaignId={campaign.id} />
                 </Suspense>
 
                 {onDispute && (

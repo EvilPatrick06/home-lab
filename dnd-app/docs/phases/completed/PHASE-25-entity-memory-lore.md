@@ -427,4 +427,57 @@ Order keeps the tree green: store module first, then transport/verb plumbing, th
 
 ## Completed
 
-<!-- Filled during execution per INSTRUCTIONS.md rule 17 — one line per sub-phase with file:line citations. -->
+- **25A — `entity-store.ts` store module.** NEW `src/main/ai/entity-store.ts`: zod schemas
+  `EntityKindSchema`/`EntityRecordSchema`/`EntityStoreConfigSchema`/`EntityStoreFileSchema`
+  (file `config` default uses `.default(() => …parse({}))` so per-field defaults apply under
+  zod4); `slugifyId` (byte-identical to `memory-manager.ts:66`), `matchesKey` (whole-word,
+  case-insensitive — the single shared implementation), pure `pickEntities`/`enforceCaps`/
+  `formatEntityBlock`; class `EntityStore` (promise-chain `withLock`, atomic tmp+rename write,
+  `getSnapshot`/`getConfig`/`setConfig`/`upsertEntity`/`deleteEntity`/`touchEntity`/
+  `selectEntities`/`buildEntityContextBlock`); module config cache + `getEntityStore` factory.
+  NEW `entity-store.test.ts` (20 tests incl. the 25G integration describe).
+- **25B — `record_entity` verb + IPC.** `ai-schemas.ts` `RecordEntitySchema` + registered in
+  `DM_ACTION_SCHEMAS`; `dm-actions.ts` added the `record_entity` variant to the `DmAction`
+  union (the schema↔union contract test enforces parity). `ipc-channels.ts` `AI_ENTITIES_GET`/
+  `AI_ENTITY_UPSERT`/`AI_ENTITY_DELETE`/`AI_ENTITIES_SET_CONFIG`; `ipc-schemas.ts`
+  `EntityUpsertPayloadSchema`+`EntityStoreConfigPatchSchema`; `ai-handlers.ts` four handlers,
+  each `sanitizeCampaignId`-guarded; preload `index.ts`+`index.d.ts` (`getEntities`/`upsertEntity`/
+  `deleteEntity`/`setEntitiesConfig`); `effect-actions.ts` `executeRecordEntity` (source `'ai'`)
+  + `game-action-executor.ts` dispatch. Tests: `ai-schemas.test.ts` (record_entity parses +
+  in map + bad-kind rejected), `effect-actions.test.ts` (executor calls upsert / throws).
+- **25C — post-turn auto-extraction.** NEW `src/main/ai/entity-extraction.ts`: `EXTRACTION_SCHEMA`
+  (flat ≤6), `buildExtractionPrompt`, `extractEntities` (prefers `provider.structuredOnce`,
+  else `chatOnce` + tolerant fenced-JSON parse, null on failure), `runEntityExtraction`
+  (bails unless `enabled && autoExtract`, upserts source `'extraction'`, cap 6). `ai-service.ts`
+  fires it **fire-and-forget** after the memory-persistence block in `handleStreamCompletion`
+  using `getActiveProvider()` + `currentConfig.model` (PHASE-23 threaded no resolved-model param).
+  NEW `entity-extraction.test.ts` (9); `ai-service.test.ts` mocks `./entity-extraction`.
+- **25D — `LoreEntry.keywords` + LoreManager.** `campaign.ts` added `keywords?: string[]`
+  (PHASE-37 contract). `LoreManager.tsx`: form gains a comma `keywords` field (parse → trim →
+  dedupe → cap 8, persisted only when non-empty), chips on each row, modal input. en+es
+  `pages.loreManager.{keywordsLabel,keywordsPlaceholder,keywordsHelp}`. `LoreManager.test.tsx`
+  (chips render, comma round-trip → array, keyword-less entry stays shape-stable).
+- **25E — context injection.** NEW `lore-injection.ts` (`LORE_SCAN_DEPTH=4`, `buildScanText`,
+  `selectLore`, `buildLoreBlock`, `LoreEntryLike`; imports `matchesKey` from entity-store).
+  NEW `prompt-sections/entity-records.ts` `ENTITY_RECORDS_PROMPT`. `campaign-context.ts`:
+  `formatCampaignForContext(campaign, opts?)` now renders lore as a labeled `[LORE]` block
+  (the sole always-on change; entry-line format unchanged). `context-builder.ts`: new trailing
+  `scanText?` param; step 4 selects lore via `selectLore(…, entityCfg.loreMode, scanText)`;
+  step 7 prepends `[ENTITY ACTIONS]`+`[ENTITY RECORDS]` when `entityCfg.enabled` (slice-first,
+  inside the memory budget). `ai-service.ts` passes `buildScanText(conv.getMessages(), gameState)`.
+  Tests: `lore-injection.test.ts` (12), `campaign-context.test.ts` (+[LORE]/opts/no-lore),
+  `context-builder.test.ts` (+entity gating on/off).
+- **25F — entity records panel.** NEW `EntityRecordsPanel.tsx` (mount/refresh via `getEntities`,
+  three flag controls → `setEntitiesConfig`, records grouped by kind with locked padlock +
+  injection chip, add/edit modal → `upsertEntity` source `'dm'`, delete with confirm).
+  `DMTabPanel.tsx` lazy-imports + mounts it under `AiContextPanel`. en+es
+  `game.entityRecordsPanel.*`. `EntityRecordsPanel.test.tsx` (load+locked, toggle→config patch,
+  modal save→dm-source upsert).
+- **25G — contract doc + integration test + gate.** `AI_ACTION_CONTRACT.md` new "Entity records
+  & lore injection (PHASE-25)" section (verb, upsert/lock semantics, flags, blocks, keyword
+  rules, exported builders, deliberately-not-adopted list). Integration describe in
+  `entity-store.test.ts` (validateDmAction → payload parse → upsert → DM lock → AI rejected →
+  block reflects DM → triggered-mode lore). **Deviation from plan note:** `matchesKey` lives in
+  `entity-store.ts` (canonical) and `lore-injection.ts` imports it — the reverse of the plan's
+  wording, but satisfies the "one implementation" requirement (entity-store is created first in
+  25A, avoiding a forward import). End-of-phase 4-gate: lint, tsc web+node green; full vitest run.

@@ -23,24 +23,50 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
   const lore = campaign.lore ?? []
   const { showModal, editing, form, setForm, openAdd, openEdit, close, persist } = useCrudModal<
     LoreEntry,
-    { title: string; content: string; category: LoreEntry['category']; isVisibleToPlayers: boolean }
+    { title: string; content: string; category: LoreEntry['category']; isVisibleToPlayers: boolean; keywords: string }
   >({
     campaign,
     saveCampaign,
-    emptyForm: { title: '', content: '', category: 'world', isVisibleToPlayers: false },
+    emptyForm: { title: '', content: '', category: 'world', isVisibleToPlayers: false, keywords: '' },
     toForm: (entry) => ({
       title: entry.title,
       content: entry.content,
       category: entry.category,
-      isVisibleToPlayers: entry.isVisibleToPlayers
+      isVisibleToPlayers: entry.isVisibleToPlayers,
+      keywords: (entry.keywords ?? []).join(', ')
     })
   })
 
+  // Comma-separated → trimmed, de-duped, capped at 8 (PHASE-25 keyword-injection contract).
+  const parseKeywords = (s: string): string[] =>
+    [
+      ...new Set(
+        s
+          .split(',')
+          .map((k) => k.trim())
+          .filter(Boolean)
+      )
+    ].slice(0, 8)
+
   const handleSave = async (): Promise<void> => {
     if (!form.title.trim()) return
-    const newLore = editing
-      ? lore.map((l) => (l.id === editing.id ? { ...l, ...form, title: form.title.trim() } : l))
-      : [...lore, { id: crypto.randomUUID(), ...form, title: form.title.trim(), createdAt: new Date().toISOString() }]
+    const kw = parseKeywords(form.keywords)
+    const applyFields = (base: Partial<LoreEntry>): LoreEntry => {
+      const next: LoreEntry = {
+        ...base,
+        id: base.id ?? crypto.randomUUID(),
+        createdAt: base.createdAt ?? new Date().toISOString(),
+        title: form.title.trim(),
+        content: form.content,
+        category: form.category,
+        isVisibleToPlayers: form.isVisibleToPlayers
+      }
+      // Persist keywords only when non-empty so untouched entries stay shape-stable.
+      if (kw.length) next.keywords = kw
+      else delete next.keywords
+      return next
+    }
+    const newLore = editing ? lore.map((l) => (l.id === editing.id ? applyFields(l) : l)) : [...lore, applyFields({})]
     await persist({ lore: newLore })
     close()
   }
@@ -130,6 +156,15 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
                   </div>
                 </div>
                 <p className="text-muted text-xs line-clamp-2">{entry.content}</p>
+                {!!entry.keywords?.length && (
+                  <div className="flex flex-wrap gap-1 mt-1.5">
+                    {entry.keywords.map((kw) => (
+                      <span key={kw} className="text-[10px] px-1.5 py-0.5 rounded bg-surface-2 text-muted">
+                        {kw}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -177,6 +212,17 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500 h-32 resize-none"
               placeholder={t('pages.loreManager.contentPlaceholder')}
             />
+          </div>
+          <div>
+            <label className="block text-muted text-xs mb-1">{t('pages.loreManager.keywordsLabel')}</label>
+            <input
+              type="text"
+              value={form.keywords}
+              onChange={(e) => setForm((f) => ({ ...f, keywords: e.target.value }))}
+              className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
+              placeholder={t('pages.loreManager.keywordsPlaceholder')}
+            />
+            <p className="text-[11px] text-gray-500 mt-1">{t('pages.loreManager.keywordsHelp')}</p>
           </div>
           <label className="flex items-center gap-2 text-sm text-gray-300">
             <input

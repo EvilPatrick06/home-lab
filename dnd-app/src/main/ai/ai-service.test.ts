@@ -89,6 +89,9 @@ vi.mock('./conversation-manager', () => ({
     getMessageCount(): number {
       return this.messages.length
     }
+    getMessages(): Array<{ role: string; content: string }> {
+      return this.messages
+    }
     removeTrailingUserMessage(content: string): boolean {
       const last = this.messages[this.messages.length - 1]
       if (last && last.role === 'user' && last.content === content) {
@@ -220,6 +223,10 @@ const { runExtraction, buildSnapshot, validateGS, dedupe } = vi.hoisted(() => ({
   dedupe: vi.fn((_base: unknown[], incoming: unknown[]) => incoming)
 }))
 vi.mock('./structured-extraction', () => ({ runStructuredExtraction: runExtraction }))
+// PHASE-25 25C: stub the fire-and-forget entity extraction so stream-done tests stay
+// isolated (the real orchestrator bails when disabled, but mocking keeps it call-free).
+const { runEntityExtract } = vi.hoisted(() => ({ runEntityExtract: vi.fn(async () => {}) }))
+vi.mock('./entity-extraction', () => ({ runEntityExtraction: runEntityExtract }))
 vi.mock('./game-state-validation', () => ({
   buildGameStateSnapshot: buildSnapshot,
   validateAgainstGameState: validateGS,

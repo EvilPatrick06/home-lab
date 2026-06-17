@@ -262,6 +262,26 @@ describe('validateDmActions', () => {
     expect(issues).toHaveLength(1)
   })
 
+  // PHASE-25 25B — record_entity must be registered in DM_ACTION_SCHEMAS or it is
+  // silently dropped by validateDmAction (the light_source lesson).
+  it('record_entity is registered in DM_ACTION_SCHEMAS', () => {
+    expect(DM_ACTION_SCHEMAS.record_entity).toBeDefined()
+  })
+
+  it('validates a correct record_entity action (with optional keywords)', () => {
+    const { valid, issues } = validateDmActions([
+      { action: 'record_entity', kind: 'npc', name: 'Ama Tilen', summary: 'the herbalist', keywords: ['herbalist'] }
+    ])
+    expect(valid).toHaveLength(1)
+    expect(issues).toHaveLength(0)
+  })
+
+  it('rejects record_entity with an invalid kind', () => {
+    const { valid, issues } = validateDmActions([{ action: 'record_entity', kind: 'monster', name: 'X', summary: 'y' }])
+    expect(valid).toHaveLength(0)
+    expect(issues).toHaveLength(1)
+  })
+
   it('rejects place_token with invalid entityType', () => {
     const { valid, issues } = validateDmActions([
       { action: 'place_token', label: 'Goblin', entityType: 'monster', gridX: 5, gridY: 3 }

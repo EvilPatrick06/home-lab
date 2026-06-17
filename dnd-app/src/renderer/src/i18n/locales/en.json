@@ -895,6 +895,42 @@
       "view": "View",
       "empty": "(empty)"
     },
+    "entityRecordsPanel": {
+      "heading": "Entity Records",
+      "add": "+ Add",
+      "refresh": "Refresh",
+      "enabled": "Entity memory",
+      "autoExtract": "Auto-extract after each AI turn",
+      "loreMode": "Lore injection:",
+      "loreModeAll": "All entries",
+      "loreModeTriggered": "Keyword-triggered",
+      "empty": "No records yet — the AI records them via record_entity (or auto-extraction), or add one manually.",
+      "locked": "Locked by a DM edit — the AI can't overwrite it",
+      "edit": "Edit",
+      "saveFailed": "Couldn't save the record.",
+      "deleteConfirm": "Delete the record for \"{{name}}\"?",
+      "addTitle": "Add Entity Record",
+      "editTitle": "Edit Entity Record",
+      "nameLabel": "Name",
+      "kindLabel": "Kind",
+      "injectionLabel": "Injection",
+      "summaryLabel": "Summary",
+      "detailsLabel": "Details",
+      "aliasesLabel": "Aliases (comma-separated)",
+      "keywordsLabel": "Keywords (comma-separated)",
+      "commaHint": "comma, separated, values",
+      "kind": {
+        "npc": "NPC",
+        "location": "Location",
+        "faction": "Faction",
+        "item": "Item"
+      },
+      "injection": {
+        "auto": "Auto (keyword-triggered)",
+        "always": "Always inject",
+        "never": "Never inject"
+      }
+    },
     "aiStatusBar": {
       "connDegraded": "AI connection unstable — retrying",
       "connDisconnected": "AI unreachable — check the provider",
@@ -5647,6 +5683,9 @@
       "content": "Content",
       "contentPlaceholder": "Lore content",
       "visibleToPlayersLabel": "Visible to players",
+      "keywordsLabel": "Trigger keywords",
+      "keywordsPlaceholder": "e.g. ashen veil, the veil, cult",
+      "keywordsHelp": "Used by keyword-triggered lore injection. Leave empty to always include this entry.",
       "add": "Add"
     },
     "mapManager": {

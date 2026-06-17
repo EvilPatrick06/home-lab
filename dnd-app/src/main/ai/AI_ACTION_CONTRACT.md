@@ -54,3 +54,46 @@ Mechanics can arrive via **two** paths now:
 is deletable once (a) `structuredExtraction: 'always'` is the default, (b) the narration
 prompt no longer instructs tag emission, and (c) the `modified` counter stays at zero
 across releases. Until then it serves the tag path only.
+
+## Entity records & lore injection (PHASE-25)
+
+A durable, **DM-correctable** descriptive memory layer (`entity-store.ts`), all of it
+opt-in and OFF by default. Three flags live in `userData/campaigns/{id}/ai-context/entities.json`
+(engine-owned, toggled over IPC, not on `campaign.aiDm`): `enabled`, `autoExtract`,
+`loreMode` (`all` | `triggered`).
+
+**`record_entity` verb** — `{kind: 'npc'|'location'|'item'|'faction', name, summary, keywords?}`.
+Registered in `DM_ACTION_SCHEMAS` + the `DmAction` union (so it is NOT silently dropped),
+executed fire-and-forget by `executeRecordEntity` → `AI_ENTITY_UPSERT` (source `'ai'`).
+The verb is registered unconditionally; records written while `enabled:false` are inert
+(never injected, panel hidden) until the flag flips on.
+
+**Upsert / lock semantics** (`EntityStore.upsertEntity`): records resolve case-insensitively
+by name → alias → slugified id. Every write bumps `lastSeenAt`/`mentions`. A **DM edit**
+(`source:'dm'`) applies all provided fields and sets `locked:true`; thereafter AI/extraction
+writes (`'ai'`/`'extraction'`) may ONLY bump `lastSeenAt`/`mentions` — **DM edits are
+authoritative, AI writes never overwrite a locked record**. AI writes onto an unlocked record
+fill only blank fields and union-merge aliases/keywords (caps 6/8). Per-file 1 MB cap +
+400-record cap evict oldest unlocked AI/extraction records first; never `locked`/`dm`.
+
+**Auto-extraction** (`entity-extraction.ts`, `autoExtract`): a fire-and-forget post-turn
+call (prefers PHASE-23 `structuredOnce`, else `chatOnce`) drafts ≤6 flat records from the
+narration with `source:'extraction'`; dedupe is inherent to upsert; failures log + swallow.
+
+**Injected blocks** (`context-builder.ts`, gated by `enabled`): an `[ENTITY ACTIONS]` verb-doc
+block (`prompt-sections/entity-records.ts`) + a bounded, recency-ranked `[ENTITY RECORDS]`
+block (`buildEntityContextBlock`), prepended to the memory segment within its 2000-token budget.
+With `enabled:false`, neither appears (byte-identical to pre-phase).
+
+**Lore injection** (`lore-injection.ts`): `LoreEntry.keywords?: string[]` (editable in
+`LoreManager`). Lore now renders as a labeled `[LORE]` block (the one always-on change;
+entry-line format unchanged). With `loreMode:'triggered'`, only **constant** (keyword-less)
+entries + entries whose keyword **whole-word, case-insensitively** matches the scan text
+(last 4 messages + game-state snapshot) are injected. `loreMode:'all'` (default) = full dump.
+
+**Exported builders** (stable for downstream phases): `buildEntityContextBlock`, `buildLoreBlock`,
+`selectLore`, `buildScanText`, `slugifyId`, `matchesKey`. Consumed by PHASE-27 (shared slug),
+PHASE-31 (Q&A blocks), PHASE-37 (`keywords` field).
+
+**Deliberately NOT adopted** (future work, no phase owns them): SillyTavern regex keys,
+secondary-key AND/NOT logic, recursion, probability/sticky/cooldown timers, inclusion groups.

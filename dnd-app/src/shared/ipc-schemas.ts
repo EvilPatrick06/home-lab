@@ -20,6 +20,30 @@ export const AiConfigSchema = z.object({
   ollamaModel: z.string().optional()
 })
 
+// PHASE-25 25B — entity-record IPC boundary schemas (separate from the DM-action zod).
+// `source` is intentionally ['ai','dm'] only: renderers may write as the AI (record_entity
+// executor) or the DM (panel edit), but NEVER 'extraction'. The 'extraction' source is
+// internal-only (entity-extraction.ts calls EntityStore.upsertEntity directly, off-IPC), so
+// a renderer cannot forge an extraction-source write — an explicit one fails safeParse here.
+export const EntityUpsertPayloadSchema = z.object({
+  kind: z.enum(['npc', 'location', 'item', 'faction']),
+  name: z.string().min(1).max(120),
+  summary: z.string().max(400).optional(),
+  details: z.string().max(1200).optional(),
+  aliases: z.array(z.string().max(60)).max(6).optional(),
+  keywords: z.array(z.string().max(40)).max(8).optional(),
+  injection: z.enum(['auto', 'always', 'never']).optional(),
+  source: z.enum(['ai', 'dm']).default('ai')
+})
+export type EntityUpsertPayload = z.infer<typeof EntityUpsertPayloadSchema>
+
+export const EntityStoreConfigPatchSchema = z.object({
+  enabled: z.boolean().optional(),
+  autoExtract: z.boolean().optional(),
+  loreMode: z.enum(['all', 'triggered']).optional()
+})
+export type EntityStoreConfigPatch = z.infer<typeof EntityStoreConfigPatchSchema>
+
 export const ActiveCreatureSchema = z.object({
   label: z.string(),
   currentHP: z.number(),

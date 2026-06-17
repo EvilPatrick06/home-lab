@@ -1247,6 +1247,18 @@ const AdjustFactionStandingSchema = z.object({
   reason: z.string().optional()
 })
 
+// PHASE-25 25B — record a durable, editable entity record (npc/location/item/faction).
+// Flat schema (small-model discipline); upsert semantics make a separate update verb
+// unnecessary. Registered unconditionally so it validates even when the feature is off
+// (records written while disabled are inert until enabled — see ai-handlers note).
+const RecordEntitySchema = z.object({
+  action: z.literal('record_entity'),
+  kind: z.enum(['npc', 'location', 'item', 'faction']),
+  name: z.string(),
+  summary: z.string(),
+  keywords: z.array(z.string()).optional()
+})
+
 const AttuneItemSchema = z.object({
   action: z.literal('attune_item'),
   characterName: z.string(),
@@ -1420,6 +1432,7 @@ export const DM_ACTION_SCHEMAS: Record<string, z.ZodType> = {
   set_npc_secret_motivation: SetNpcSecretMotivationSchema,
   update_quest_log: UpdateQuestLogSchema,
   adjust_faction_standing: AdjustFactionStandingSchema,
+  record_entity: RecordEntitySchema,
   attune_item: AttuneItemSchema,
   unattune_item: UnattuneItemSchema,
   share_handout: ShareHandoutSchema,

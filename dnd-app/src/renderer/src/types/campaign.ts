@@ -56,6 +56,12 @@ export interface LoreEntry {
   category: 'world' | 'faction' | 'location' | 'item' | 'other'
   isVisibleToPlayers: boolean
   createdAt: string
+  /**
+   * Trigger words for keyword-mode lore injection (PHASE-25). Empty/absent ⇒ the entry is
+   * always injected (constant). Seed packs map their per-entry `keywords` here (PHASE-37).
+   * Field name and type are a cross-phase contract — do not rename.
+   */
+  keywords?: string[]
 }
 
 export type AiProviderType = 'ollama' | 'claude' | 'openai' | 'gemini'

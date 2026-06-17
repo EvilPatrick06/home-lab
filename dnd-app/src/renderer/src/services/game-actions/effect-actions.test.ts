@@ -38,7 +38,8 @@ vi.stubGlobal('window', {
       setNpcRelationship: vi.fn(),
       setNpcFields: vi.fn(),
       updateQuestLog: vi.fn(),
-      adjustFactionStanding: vi.fn()
+      adjustFactionStanding: vi.fn(),
+      upsertEntity: vi.fn()
     }
   }
 })
@@ -656,6 +657,35 @@ describe('effect-actions', () => {
       const gs = makeGameStore()
       const action: DmAction = { action: 'log_npc_interaction', npcName: '', summary: '', attitudeAfter: '' }
       expect(() => executeLogNpcInteraction(action, gs)).toThrow('Missing params')
+    })
+  })
+
+  describe('executeRecordEntity (PHASE-25 25B)', () => {
+    it('records an entity via IPC with source ai', async () => {
+      const { executeRecordEntity } = await import('./effect-actions')
+      const gs = makeGameStore()
+      const action: DmAction = {
+        action: 'record_entity',
+        kind: 'npc',
+        name: 'Ama Tilen',
+        summary: 'the village herbalist',
+        keywords: ['herbalist']
+      }
+      expect(executeRecordEntity(action, gs)).toBe(true)
+      expect(window.api.ai.upsertEntity).toHaveBeenCalledWith('camp-1', {
+        kind: 'npc',
+        name: 'Ama Tilen',
+        summary: 'the village herbalist',
+        keywords: ['herbalist'],
+        source: 'ai'
+      })
+    })
+
+    it('throws if params missing', async () => {
+      const { executeRecordEntity } = await import('./effect-actions')
+      const gs = makeGameStore()
+      const action: DmAction = { action: 'record_entity', kind: 'npc', name: '', summary: '' }
+      expect(() => executeRecordEntity(action, gs)).toThrow('Missing params')
     })
   })
 

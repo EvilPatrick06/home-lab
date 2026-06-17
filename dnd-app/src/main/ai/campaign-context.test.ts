@@ -109,11 +109,15 @@ describe('formatCampaignForContext', () => {
     expect(result).toContain('Visible to players: true')
   })
 
-  it('formats lore entries', () => {
+  // PHASE-25 25E — lore now renders inside a labeled [LORE] block (wrapper changed from
+  // "Lore:"); the entry-line format is byte-identical.
+  it('formats lore entries inside a [LORE] block', () => {
     const result = formatCampaignForContext({
       lore: [{ title: 'Ancient War', content: 'Long ago...', category: 'history' }]
     })
-    expect(result).toContain('Lore:')
+    expect(result).toContain('[LORE]')
+    expect(result).toContain('[/LORE]')
+    expect(result).not.toContain('Lore:')
     expect(result).toContain('- Ancient War [history]: Long ago...')
   })
 
@@ -122,6 +126,20 @@ describe('formatCampaignForContext', () => {
       lore: [{ title: 'Mystery', content: 'Unknown origins' }]
     })
     expect(result).toContain('- Mystery [other]: Unknown origins')
+  })
+
+  it('uses opts.lore (the already-selected set) when provided', () => {
+    const result = formatCampaignForContext(
+      { lore: [{ title: 'Full', content: 'all of it' }] },
+      { lore: [{ title: 'Only This', content: 'selected', category: 'world' }] }
+    )
+    expect(result).toContain('- Only This [world]: selected')
+    expect(result).not.toContain('Full')
+  })
+
+  it('emits no [LORE] block for a campaign with no lore', () => {
+    expect(formatCampaignForContext({})).not.toContain('[LORE]')
+    expect(formatCampaignForContext({ lore: [] }, { lore: [] })).not.toContain('[LORE]')
   })
 
   it('formats maps with dimensions', () => {

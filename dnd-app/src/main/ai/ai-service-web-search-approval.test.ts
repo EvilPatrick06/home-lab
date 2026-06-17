@@ -74,6 +74,10 @@ vi.mock('./conversation-manager', () => ({
       return this.messages.length
     }
 
+    getMessages(): Array<{ role: 'user' | 'assistant'; content: string }> {
+      return this.messages
+    }
+
     async generateSessionSummary(): Promise<string | null> {
       return null
     }

@@ -3,7 +3,7 @@
  * Run `npm run i18n:gen-keys` (scripts/i18n/gen-key-union.mjs) to regenerate
  * after changing en.json. Source: src/renderer/src/i18n/locales/en.json.
  *
- * A literal union of every dotted leaf key in en.json (6145 keys),
+ * A literal union of every dotted leaf key in en.json (6178 keys),
  * so `t()` calls are checked at compile time instead of silently rendering a
  * raw key string when a key is typo'd or missing.
  */
@@ -1768,6 +1768,36 @@ export type TranslationKey =
   | 'game.endOfSessionModal.savedToast'
   | 'game.endOfSessionModal.skipClose'
   | 'game.endOfSessionModal.title'
+  | 'game.entityRecordsPanel.add'
+  | 'game.entityRecordsPanel.addTitle'
+  | 'game.entityRecordsPanel.aliasesLabel'
+  | 'game.entityRecordsPanel.autoExtract'
+  | 'game.entityRecordsPanel.commaHint'
+  | 'game.entityRecordsPanel.deleteConfirm'
+  | 'game.entityRecordsPanel.detailsLabel'
+  | 'game.entityRecordsPanel.edit'
+  | 'game.entityRecordsPanel.editTitle'
+  | 'game.entityRecordsPanel.empty'
+  | 'game.entityRecordsPanel.enabled'
+  | 'game.entityRecordsPanel.heading'
+  | 'game.entityRecordsPanel.injection.always'
+  | 'game.entityRecordsPanel.injection.auto'
+  | 'game.entityRecordsPanel.injection.never'
+  | 'game.entityRecordsPanel.injectionLabel'
+  | 'game.entityRecordsPanel.keywordsLabel'
+  | 'game.entityRecordsPanel.kind.faction'
+  | 'game.entityRecordsPanel.kind.item'
+  | 'game.entityRecordsPanel.kind.location'
+  | 'game.entityRecordsPanel.kind.npc'
+  | 'game.entityRecordsPanel.kindLabel'
+  | 'game.entityRecordsPanel.locked'
+  | 'game.entityRecordsPanel.loreMode'
+  | 'game.entityRecordsPanel.loreModeAll'
+  | 'game.entityRecordsPanel.loreModeTriggered'
+  | 'game.entityRecordsPanel.nameLabel'
+  | 'game.entityRecordsPanel.refresh'
+  | 'game.entityRecordsPanel.saveFailed'
+  | 'game.entityRecordsPanel.summaryLabel'
   | 'game.entryCard.addToInitiative'
   | 'game.entryCard.autoPopulated'
   | 'game.entryCard.categoryAllies'
@@ -4970,6 +5000,9 @@ export type TranslationKey =
   | 'pages.loreManager.importFailed'
   | 'pages.loreManager.importedLore'
   | 'pages.loreManager.item'
+  | 'pages.loreManager.keywordsHelp'
+  | 'pages.loreManager.keywordsLabel'
+  | 'pages.loreManager.keywordsPlaceholder'
   | 'pages.loreManager.location'
   | 'pages.loreManager.lore'
   | 'pages.loreManager.noLore'

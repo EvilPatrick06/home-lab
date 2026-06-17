@@ -8,6 +8,8 @@ import {
   AiConfigSchema,
   BmoNarrateRequestSchema,
   ConversationDataSchema,
+  EntityStoreConfigPatchSchema,
+  EntityUpsertPayloadSchema,
   NarrationEnabledSchema,
   type ValidatedAiChatRequest,
   type ValidatedAiConfig,
@@ -29,6 +31,7 @@ import { analyzeMapState, type MapStateForVisionAnalysis } from '../ai/ai-vision
 import { setClaudeApiKey } from '../ai/claude-client'
 import { buildContext, getLastTokenBreakdown } from '../ai/context-builder'
 import type { DmAction } from '../ai/dm-actions'
+import { getEntityStore } from '../ai/entity-store'
 import { setGeminiApiKey } from '../ai/gemini-client'
 import type { AiProviderType } from '../ai/llm-provider'
 import { type CombatState, getMemoryManager, type WorldState } from '../ai/memory-manager'
@@ -667,6 +670,40 @@ export function registerAiHandlers(): void {
       return { success: true }
     }
   )
+
+  // ── Entity records & lore injection (PHASE-25) ──
+  // The record_entity verb is registered unconditionally (ai-schemas.ts), so a model
+  // that emits it while the feature is disabled still validates; records written while
+  // disabled are inert (never injected, panel hidden) until config.enabled flips on.
+
+  handle(IPC_CHANNELS.AI_ENTITIES_GET, async (_event, campaignId: string) => {
+    const id = sanitizeCampaignId(campaignId)
+    return { success: true, ...(await getEntityStore(id).getSnapshot()) }
+  })
+
+  handle(IPC_CHANNELS.AI_ENTITY_UPSERT, async (_event, campaignId: string, payload: unknown) => {
+    const id = sanitizeCampaignId(campaignId)
+    const parsed = EntityUpsertPayloadSchema.safeParse(payload)
+    if (!parsed.success) return { success: false, error: parsed.error.message }
+    const { applied, detail } = await getEntityStore(id).upsertEntity(parsed.data)
+    return { success: true, applied, detail }
+  })
+
+  handle(IPC_CHANNELS.AI_ENTITY_DELETE, async (_event, campaignId: string, idOrName: unknown) => {
+    const id = sanitizeCampaignId(campaignId)
+    const parsed = z.string().min(1).max(160).safeParse(idOrName)
+    if (!parsed.success) return { success: false, error: 'Invalid entity id/name' }
+    const deleted = await getEntityStore(id).deleteEntity(parsed.data)
+    return { success: true, deleted }
+  })
+
+  handle(IPC_CHANNELS.AI_ENTITIES_SET_CONFIG, async (_event, campaignId: string, patch: unknown) => {
+    const id = sanitizeCampaignId(campaignId)
+    const parsed = EntityStoreConfigPatchSchema.safeParse(patch)
+    if (!parsed.success) return { success: false, error: parsed.error.message }
+    const config = await getEntityStore(id).setConfig(parsed.data)
+    return { success: true, config }
+  })
 
   // ── Ollama Management ──
 

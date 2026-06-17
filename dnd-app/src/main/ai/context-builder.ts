@@ -6,9 +6,12 @@ import { getDataDir } from '../paths'
 import { formatCampaignForContext, loadCampaignById } from './campaign-context'
 import { searchCampaignDocs } from './campaign-docs'
 import { formatCharacterAbbreviated, formatCharacterForContext, loadCharacterById } from './character-context'
+import { getEntityStore } from './entity-store'
 import type { FileReadRequest } from './file-reader'
 import { searchRules } from './hybrid-search'
+import { type LoreEntryLike, selectLore } from './lore-injection'
 import { getMemoryManager } from './memory-manager'
+import { ENTITY_RECORDS_PROMPT } from './prompt-sections/entity-records'
 import type { SearchEngine } from './search-engine'
 import { detectAndLoadSrdData } from './srd-provider'
 import type { ContextTokenBreakdown } from './token-budget'
@@ -216,10 +219,17 @@ export async function buildContext(
   campaignId?: string,
   activeCreatures?: ActiveCreatureInfo[],
   gameState?: string,
-  actingCharacterId?: string
+  actingCharacterId?: string,
+  scanText?: string // PHASE-25 25E: text scanned for lore/entity keyword triggers
 ): Promise<BuiltContext> {
   const parts: string[] = []
   const chunkIds: string[] = []
+  // PHASE-25 25E: keyword-trigger scan source (recent transcript + game state). Callers that
+  // omit it (e.g. the token-budget preview) fall back to the query + game-state snapshot.
+  const effectiveScanText = scanText ?? `${query}\n${gameState ?? ''}`
+  // Entity-store config drives lore mode (step 4) + the entity block (step 7); read once
+  // (module-cached, F8) so the per-turn hot path never hits disk twice.
+  const entityCfg = campaignId ? await getEntityStore(campaignId).getConfig() : null
   // PHASE-01 01D — prefix-cache ordering contract. Ollama reuses prefill (its KV
   // cache) only for a byte-identical prompt prefix and invalidates at the first
   // differing byte, so sections are emitted static-first / volatile-last to
@@ -362,7 +372,13 @@ export async function buildContext(
     try {
       const campaign = await loadCampaignById(campaignId)
       if (campaign) {
-        const campaignText = formatCampaignForContext(campaign)
+        // PHASE-25 25E: select lore per loreMode (default 'all' = today's full dump).
+        const selectedLore = selectLore(
+          (campaign.lore as LoreEntryLike[] | undefined) ?? [],
+          entityCfg?.loreMode ?? 'all',
+          effectiveScanText
+        )
+        const campaignText = formatCampaignForContext(campaign, { lore: selectedLore })
         const trimmed = trimTracked(campaignText, budgets.campaignData)
         breakdown.campaignData = estimateTokens(trimmed)
         sCampaign.push(trimmed)
@@ -397,7 +413,15 @@ export async function buildContext(
   if (campaignId) {
     try {
       const memoryManager = getMemoryManager(campaignId)
-      const memoryContext = await memoryManager.assembleContext()
+      let memoryContext = await memoryManager.assembleContext()
+      // PHASE-25 25E: when entity memory is enabled, prepend the verb docs + the bounded
+      // [ENTITY RECORDS] block (slice-first so it survives the memory-budget trim). Disabled
+      // ⇒ this branch is skipped and step 7 is byte-identical to pre-phase.
+      if (entityCfg?.enabled) {
+        const entityBlock = await getEntityStore(campaignId).buildEntityContextBlock(effectiveScanText)
+        const entitySection = entityBlock ? `${ENTITY_RECORDS_PROMPT}\n\n${entityBlock}` : ENTITY_RECORDS_PROMPT
+        memoryContext = memoryContext ? `${entitySection}\n\n${memoryContext}` : entitySection
+      }
       if (memoryContext) {
         const trimmed = trimTracked(memoryContext, budgets.memory)
         breakdown.memory = estimateTokens(trimmed)

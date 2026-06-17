@@ -1,4 +1,5 @@
 import { loadCampaign } from '../storage/campaign-storage'
+import { buildLoreBlock, type LoreEntryLike } from './lore-injection'
 
 export async function loadCampaignById(id: string): Promise<Record<string, unknown> | null> {
   const result = await loadCampaign(id)
@@ -8,7 +9,12 @@ export async function loadCampaignById(id: string): Promise<Record<string, unkno
   return null
 }
 
-export function formatCampaignForContext(campaign: Record<string, unknown>): string {
+/** PHASE-25 25E: `opts.lore` carries the already-selected lore set (keyword-triggered mode);
+ *  absent ⇒ fall back to all `campaign.lore` (today's behavior). */
+export function formatCampaignForContext(
+  campaign: Record<string, unknown>,
+  opts?: { lore?: LoreEntryLike[] | null }
+): string {
   const parts: string[] = []
   parts.push('[CAMPAIGN DATA]')
 
@@ -59,20 +65,14 @@ export function formatCampaignForContext(campaign: Record<string, unknown>): str
     }
   }
 
-  // Lore entries
-  const lore = campaign.lore as
-    | Array<{
-        title: string
-        content: string
-        category?: string
-      }>
-    | undefined
-  if (lore && lore.length > 0) {
+  // Lore entries — a labeled [LORE] block (PHASE-25 25E). opts.lore is the already-selected
+  // set when keyword-triggered mode is active; otherwise all campaign lore. Entry-line
+  // format is byte-identical to the legacy lines; only the wrapper changed (Lore: → [LORE]).
+  const loreEntries = (opts?.lore ?? (campaign.lore as LoreEntryLike[] | undefined) ?? []) as LoreEntryLike[]
+  const loreBlock = buildLoreBlock(loreEntries)
+  if (loreBlock) {
     parts.push('')
-    parts.push('Lore:')
-    for (const entry of lore) {
-      parts.push(`- ${entry.title} [${entry.category || 'other'}]: ${entry.content}`)
-    }
+    parts.push(loreBlock)
   }
 
   // Maps (brief summary)

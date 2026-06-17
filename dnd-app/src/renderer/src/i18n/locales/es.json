@@ -895,6 +895,42 @@
       "view": "Ver",
       "empty": "(vacío)"
     },
+    "entityRecordsPanel": {
+      "heading": "Registros de entidades",
+      "add": "+ Añadir",
+      "refresh": "Actualizar",
+      "enabled": "Memoria de entidades",
+      "autoExtract": "Extraer automáticamente tras cada turno de IA",
+      "loreMode": "Inyección de saber:",
+      "loreModeAll": "Todas las entradas",
+      "loreModeTriggered": "Activado por palabras clave",
+      "empty": "Aún no hay registros — la IA los crea con record_entity (o por extracción automática), o añade uno manualmente.",
+      "locked": "Bloqueado por una edición del DM — la IA no puede sobrescribirlo",
+      "edit": "Editar",
+      "saveFailed": "No se pudo guardar el registro.",
+      "deleteConfirm": "¿Eliminar el registro de «{{name}}»?",
+      "addTitle": "Añadir registro de entidad",
+      "editTitle": "Editar registro de entidad",
+      "nameLabel": "Nombre",
+      "kindLabel": "Tipo",
+      "injectionLabel": "Inyección",
+      "summaryLabel": "Resumen",
+      "detailsLabel": "Detalles",
+      "aliasesLabel": "Alias (separados por comas)",
+      "keywordsLabel": "Palabras clave (separadas por comas)",
+      "commaHint": "valores, separados, por comas",
+      "kind": {
+        "npc": "PNJ",
+        "location": "Lugar",
+        "faction": "Facción",
+        "item": "Objeto"
+      },
+      "injection": {
+        "auto": "Auto (por palabras clave)",
+        "always": "Inyectar siempre",
+        "never": "No inyectar nunca"
+      }
+    },
     "aiStatusBar": {
       "connDegraded": "Conexión de IA inestable — reintentando",
       "connDisconnected": "IA inaccesible — revisa el proveedor",
@@ -5647,6 +5683,9 @@
       "content": "Contenido",
       "contentPlaceholder": "Contenido del saber",
       "visibleToPlayersLabel": "Visible para los jugadores",
+      "keywordsLabel": "Palabras clave de activación",
+      "keywordsPlaceholder": "p. ej. velo ceniciento, el velo, culto",
+      "keywordsHelp": "Se usan para la inyección de saber por palabras clave. Déjalo vacío para incluir siempre esta entrada.",
       "add": "Añadir"
     },
     "mapManager": {

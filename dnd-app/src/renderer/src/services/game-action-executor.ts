@@ -92,6 +92,7 @@ import {
   executeHiddenDiceRoll,
   executeLogNpcInteraction,
   executeOpenShop,
+  executeRecordEntity,
   executeRemoveShopItem,
   executeRemoveSidebarEntry,
   executeRequestRoll,
@@ -458,6 +459,8 @@ function executeOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: A
       return executeUpdateQuestLog(action, gameStore)
     case 'adjust_faction_standing':
       return executeAdjustFactionStanding(action, gameStore)
+    case 'record_entity':
+      return executeRecordEntity(action, gameStore)
     case 'attune_item':
       return executeAttuneItem(action, gameStore, activeMap, stores)
     case 'unattune_item':

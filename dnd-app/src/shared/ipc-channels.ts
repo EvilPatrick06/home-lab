@@ -120,6 +120,12 @@ export const IPC_CHANNELS = {
   AI_UPDATE_QUEST_LOG: 'ai:update-quest-log',
   AI_ADJUST_FACTION_STANDING: 'ai:adjust-faction-standing',
 
+  // === AI DM: Entity records & lore injection (PHASE-25) ===
+  AI_ENTITIES_GET: 'ai:entities-get',
+  AI_ENTITY_UPSERT: 'ai:entity-upsert',
+  AI_ENTITY_DELETE: 'ai:entity-delete',
+  AI_ENTITIES_SET_CONFIG: 'ai:entities-set-config',
+
   // === AI DM: Connection Status ===
   AI_CONNECTION_STATUS: 'ai:connection-status',
   // PHASE-14 14A — pushed (main→renderer) whenever the derived status transitions.

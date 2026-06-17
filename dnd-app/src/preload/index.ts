@@ -1,5 +1,6 @@
 import { contextBridge, type IpcRendererEvent, ipcRenderer } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc-channels'
+import type { EntityStoreConfigPatch, EntityUpsertPayload } from '../shared/ipc-schemas'
 
 const api = {
   // Character storage
@@ -163,6 +164,14 @@ const api = {
     ) => ipcRenderer.invoke(IPC_CHANNELS.AI_UPDATE_QUEST_LOG, campaignId, operation, name, description),
     adjustFactionStanding: (campaignId: string, factionName: string, delta: number) =>
       ipcRenderer.invoke(IPC_CHANNELS.AI_ADJUST_FACTION_STANDING, campaignId, factionName, delta),
+    // Entity records & lore injection (PHASE-25)
+    getEntities: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_ENTITIES_GET, campaignId),
+    upsertEntity: (campaignId: string, payload: EntityUpsertPayload) =>
+      ipcRenderer.invoke(IPC_CHANNELS.AI_ENTITY_UPSERT, campaignId, payload),
+    deleteEntity: (campaignId: string, idOrName: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.AI_ENTITY_DELETE, campaignId, idOrName),
+    setEntitiesConfig: (campaignId: string, patch: EntityStoreConfigPatch) =>
+      ipcRenderer.invoke(IPC_CHANNELS.AI_ENTITIES_SET_CONFIG, campaignId, patch),
     // Memory files
     listMemoryFiles: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_LIST_MEMORY_FILES, campaignId),
     readMemoryFile: (campaignId: string, fileName: string) =>

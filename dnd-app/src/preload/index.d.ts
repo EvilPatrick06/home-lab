@@ -6,6 +6,45 @@ interface CharacterVersion {
   sizeBytes: number
 }
 
+// Entity records & lore injection (PHASE-25). Shapes mirror entity-store.ts /
+// ipc-schemas.ts (kept inline to match this file's self-contained ambient style).
+interface EntityRecordData {
+  id: string
+  name: string
+  kind: 'npc' | 'location' | 'item' | 'faction'
+  summary: string
+  details: string
+  aliases: string[]
+  keywords: string[]
+  injection: 'auto' | 'always' | 'never'
+  source: 'ai' | 'extraction' | 'dm'
+  locked: boolean
+  mentions: number
+  createdAt: string
+  updatedAt: string
+  lastSeenAt: string
+}
+interface EntityStoreConfigData {
+  enabled: boolean
+  autoExtract: boolean
+  loreMode: 'all' | 'triggered'
+}
+interface EntityUpsertPayloadData {
+  kind: 'npc' | 'location' | 'item' | 'faction'
+  name: string
+  summary?: string
+  details?: string
+  aliases?: string[]
+  keywords?: string[]
+  injection?: 'auto' | 'always' | 'never'
+  source?: 'ai' | 'dm'
+}
+interface EntityStoreConfigPatchData {
+  enabled?: boolean
+  autoExtract?: boolean
+  loreMode?: 'all' | 'triggered'
+}
+
 interface CharacterAPI {
   saveCharacter: (character: Record<string, unknown>) => Promise<{ success: boolean }>
   loadCharacters: () => Promise<Record<string, unknown>[]>
@@ -339,6 +378,22 @@ interface AiAPI {
     description?: string
   ) => Promise<{ success: boolean; error?: string }>
   adjustFactionStanding: (campaignId: string, factionName: string, delta: number) => Promise<{ success: boolean }>
+  // Entity records & lore injection (PHASE-25)
+  getEntities: (
+    campaignId: string
+  ) => Promise<{ success: boolean; config?: EntityStoreConfigData; records?: EntityRecordData[] }>
+  upsertEntity: (
+    campaignId: string,
+    payload: EntityUpsertPayloadData
+  ) => Promise<{ success: boolean; applied?: boolean; detail?: string; error?: string }>
+  deleteEntity: (
+    campaignId: string,
+    idOrName: string
+  ) => Promise<{ success: boolean; deleted?: boolean; error?: string }>
+  setEntitiesConfig: (
+    campaignId: string,
+    patch: EntityStoreConfigPatchData
+  ) => Promise<{ success: boolean; config?: EntityStoreConfigData; error?: string }>
   generateEndOfSessionRecap: (campaignId: string) => Promise<{ success: boolean; data?: string; error?: string }>
   // Memory files
   listMemoryFiles: (campaignId: string) => Promise<Array<{ name: string; size: number }>>

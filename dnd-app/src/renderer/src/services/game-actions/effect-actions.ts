@@ -657,6 +657,25 @@ export function executeLogNpcInteraction(action: DmAction, gameStore: GameStoreS
   return true
 }
 
+// PHASE-25 25B — record a durable entity record (npc/location/item/faction).
+export function executeRecordEntity(action: DmAction, gameStore: GameStoreSnapshot): boolean {
+  const kind = action.kind as string
+  const name = action.name as string
+  const summary = action.summary as string
+  if (!kind || !name || !summary) throw new Error('Missing params for record_entity')
+  const campaignId = gameStore.campaignId
+  if (campaignId) {
+    window.api.ai.upsertEntity?.(campaignId, {
+      kind: kind as 'npc' | 'location' | 'item' | 'faction',
+      name,
+      summary,
+      keywords: action.keywords as string[] | undefined,
+      source: 'ai'
+    })
+  }
+  return true
+}
+
 export function executeSetNpcRelationship(action: DmAction, gameStore: GameStoreSnapshot): boolean {
   const npcName = action.npcName as string
   const targetNpcName = action.targetNpcName as string
