@@ -81,6 +81,18 @@ authoritative for dnd-app's own requests.
   context inspector) should be ≈ the app's estimated prompt size; a much smaller
   count means truncation.
 
+## The embedding model is a second runner
+
+If you enable the opt-in **semantic rules search** (PHASE-24), the embedding model
+(`nomic-embed-text` by default) loads as a **separate** Ollama runner alongside the
+chat model. Its `keep_alive` and VRAM/RAM footprint are independent of the chat
+model's — budget roughly **0.5 GB** for `nomic-embed-text` on top of the chat model.
+The app sends embed calls with their own `keep_alive: "60m"` and
+`options.num_ctx: 8192` (the index build is ~169 batched requests, one-time per
+model/content fingerprint). See [RULES-RETRIEVAL.md](./RULES-RETRIEVAL.md) for the
+full retrieval stack (BM25 default, RRF fusion, where vectors live, the fallback
+ladder, and the BMO twin engine).
+
 ## Sources
 
 - [Ollama `/api/chat` reference](https://docs.ollama.com/api/chat) ·

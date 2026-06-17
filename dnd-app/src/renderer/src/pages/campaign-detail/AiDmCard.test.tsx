@@ -24,7 +24,10 @@ beforeEach(() => {
       listInstalledModels: vi.fn().mockResolvedValue([]),
       listCloudModels: vi.fn().mockResolvedValue([{ id: 'gemini-2.0-flash', name: 'gemini-2.0-flash' }]),
       validateApiKey: vi.fn().mockResolvedValue({ valid: true }),
-      onOllamaProgress: vi.fn(() => vi.fn())
+      onOllamaProgress: vi.fn(() => vi.fn()),
+      getEmbedIndexStatus: vi.fn().mockResolvedValue({ status: 'idle' }),
+      onEmbedIndexProgress: vi.fn(() => vi.fn()),
+      rebuildEmbedIndex: vi.fn().mockResolvedValue({ success: true })
     }
   }
 })
@@ -129,6 +132,42 @@ describe('AiDmCard (PHASE-10 10H)', () => {
     expect(saveCampaign.mock.calls[0][0].aiDm.structuredExtraction).toBe('always')
     await waitFor(() => expect(configure).toHaveBeenCalled())
     expect(configure.mock.calls[0][0].structuredExtraction).toBe('always')
+  })
+
+  // PHASE-24: rag retrieval fields.
+  it('persists semantic-search + campaign-doc fields for Ollama', async () => {
+    render(
+      <AiDmCard
+        campaign={campaignWith({
+          enabled: true,
+          provider: 'ollama',
+          model: 'llama3.1',
+          ollamaUrl: 'http://localhost:11434'
+        })}
+        saveCampaign={saveCampaign}
+      />
+    )
+    fireEvent.click(screen.getByText('Configure'))
+    fireEvent.click(screen.getByText(/Semantic rules search/))
+    fireEvent.click(screen.getByText(/search this campaign's lore/))
+    fireEvent.click(screen.getByText('Save'))
+    await waitFor(() => expect(saveCampaign).toHaveBeenCalled())
+    const saved = saveCampaign.mock.calls[0][0].aiDm
+    expect(saved.ragEmbeddingsEnabled).toBe(true)
+    // checkbox default for a previously-saved (non-null aiDm) campaign is the saved value (false) → toggled true
+    expect(saved.ragCampaignDocsEnabled).toBe(true)
+    await waitFor(() => expect(configure).toHaveBeenCalled())
+    expect(configure.mock.calls[0][0].ragEmbeddingsEnabled).toBe(true)
+  })
+
+  it('defaults campaign-doc search ON for a never-configured campaign', () => {
+    render(<AiDmCard campaign={campaignWith(undefined)} saveCampaign={saveCampaign} />)
+    fireEvent.click(screen.getByText(/Enable AI DM|Enable/))
+    const checkbox = screen
+      .getByText(/search this campaign's lore/)
+      .closest('label')
+      ?.querySelector('input')
+    expect((checkbox as HTMLInputElement).checked).toBe(true)
   })
 
   it('disables Save while saving', async () => {

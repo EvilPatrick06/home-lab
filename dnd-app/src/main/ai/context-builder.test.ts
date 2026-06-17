@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock all dependencies before importing the module
 vi.mock('./search-engine', () => ({
@@ -20,6 +20,10 @@ vi.mock('./campaign-context', () => ({
   formatCampaignForContext: vi.fn(() => '')
 }))
 
+vi.mock('./campaign-docs', () => ({
+  searchCampaignDocs: vi.fn(() => [])
+}))
+
 vi.mock('./memory-manager', () => ({
   getMemoryManager: vi.fn(() => ({
     saveCharacterContext: vi.fn(async () => {}),
@@ -28,12 +32,14 @@ vi.mock('./memory-manager', () => ({
 }))
 
 import { loadCampaignById } from './campaign-context'
+import { searchCampaignDocs } from './campaign-docs'
 import { loadCharacterById } from './character-context'
 import {
   buildContext,
   clearTokenBreakdown,
   getLastTokenBreakdown,
   recordTokenBreakdown,
+  setRetrievalOptsProvider,
   setSearchEngine
 } from './context-builder'
 
@@ -145,6 +151,50 @@ describe('buildContext', () => {
   })
 })
 
+describe('campaign-document retrieval (PHASE-24 24D)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    setSearchEngine(null)
+    setRetrievalOptsProvider(null)
+  })
+  afterEach(() => setRetrievalOptsProvider(null))
+
+  const docChunk = {
+    id: 'CAMPAIGN-abc123',
+    content: 'Volo owes a debt to the Zhentarim.',
+    score: 2.5,
+    source: 'CAMPAIGN' as const,
+    headingPath: ['handout', 'Letter']
+  }
+
+  it('omits the campaign-docs block and keeps campaignDocs: 0 when the flag is off (regression guard)', async () => {
+    vi.mocked(loadCampaignById).mockResolvedValueOnce({ id: 'c1' } as never)
+    vi.mocked(searchCampaignDocs).mockReturnValueOnce([docChunk] as never)
+    // No retrieval-opts provider set → campaignDocsEnabled defaults to false.
+    const result = await buildContext('Volo Zhentarim', [], 'c1')
+    expect(result.text).not.toContain('[CONTEXT: Campaign Documents]')
+    expect(result.breakdown.campaignDocs).toBe(0)
+    expect(result.chunkIds).not.toContain('CAMPAIGN-abc123')
+    expect(searchCampaignDocs).not.toHaveBeenCalled()
+  })
+
+  it('includes the campaign-docs block, sets the breakdown field, and appends chunk ids when on', async () => {
+    vi.mocked(loadCampaignById).mockResolvedValueOnce({ id: 'c1' } as never)
+    vi.mocked(searchCampaignDocs).mockReturnValueOnce([docChunk] as never)
+    setRetrievalOptsProvider(() => ({
+      embeddingsEnabled: false,
+      model: '',
+      baseUrl: '',
+      campaignDocsEnabled: true
+    }))
+    const result = await buildContext('Volo Zhentarim', [], 'c1')
+    expect(result.text).toContain('[CONTEXT: Campaign Documents]')
+    expect(result.text).toContain('Zhentarim')
+    expect(result.breakdown.campaignDocs).toBeGreaterThan(0)
+    expect(result.chunkIds).toContain('CAMPAIGN-abc123')
+  })
+})
+
 describe('token-breakdown recording (07A)', () => {
   beforeEach(() => {
     clearTokenBreakdown('camp-A')
@@ -156,6 +206,7 @@ describe('token-breakdown recording (07A)', () => {
       rulebookChunks: 1,
       srdData: 2,
       characterData: 3,
+      campaignDocs: 0,
       campaignData: 4,
       creatures: 5,
       gameState: 6,
@@ -171,6 +222,7 @@ describe('token-breakdown recording (07A)', () => {
       rulebookChunks: 1,
       srdData: 0,
       characterData: 0,
+      campaignDocs: 0,
       campaignData: 0,
       creatures: 0,
       gameState: 0,
@@ -181,6 +233,7 @@ describe('token-breakdown recording (07A)', () => {
       rulebookChunks: 9,
       srdData: 0,
       characterData: 0,
+      campaignDocs: 0,
       campaignData: 0,
       creatures: 0,
       gameState: 0,

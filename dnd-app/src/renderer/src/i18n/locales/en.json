@@ -754,6 +754,10 @@
     "aiProviderSetup": {
       "title": "AI Dungeon Master",
       "subtitle": "Optionally enable an AI-powered Dungeon Master for your campaign.",
+      "semanticSearch": "Semantic rules search (experimental) — requires a local embedding model",
+      "semanticSearchModelHint": "Not pulled automatically — run: ollama pull nomic-embed-text",
+      "semanticSearchRebuild": "Rebuild",
+      "campaignDocSearch": "Let the AI DM search this campaign's lore, journals, and text handouts",
       "errorDownload": "Download failed",
       "errorInstall": "Installation failed",
       "errorStart": "Failed to start Ollama",
@@ -907,7 +911,10 @@
       "truncatedNo": "Nothing trimmed last turn",
       "chunks": "Rules chunks used last turn ({{count}})",
       "chunksNone": "No rules chunks retrieved last turn",
-      "chunksNote": "Debug identifiers — stable only until the rules index is rebuilt."
+      "chunksNote": "Debug identifiers — stable only until the rules index is rebuilt.",
+      "sections": {
+        "campaignDocs": "Campaign documents"
+      }
     },
     "chatPanel": {
       "dungeonMaster": "Dungeon Master",

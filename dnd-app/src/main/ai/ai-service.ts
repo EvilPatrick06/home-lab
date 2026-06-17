@@ -68,9 +68,17 @@ interface StreamHandlerDeps {
 }
 
 import { buildChunkIndex, loadChunkIndex } from './chunk-builder'
-import { buildContext, clearTokenBreakdown, recordTokenBreakdown, setSearchEngine } from './context-builder'
+import {
+  buildContext,
+  clearTokenBreakdown,
+  recordTokenBreakdown,
+  setRetrievalOptsProvider,
+  setSearchEngine
+} from './context-builder'
 import { ConversationManager } from './conversation-manager'
 import { hasOrphanDmActionsTag, parseDmActionsDetailed, stripDmActions } from './dm-actions'
+import { DEFAULT_EMBEDDING_MODEL } from './embedding-client'
+import { clearEmbeddingIndex, ensureEmbeddingIndex, getEmbedIndexStatus } from './embedding-index'
 import {
   FILE_READ_MAX_DEPTH,
   type FileReadRequest,
@@ -115,6 +123,7 @@ import type {
   AiStreamDone,
   AiStreamError,
   ChatMessage,
+  ChunkIndex,
   DmActionData,
   ProviderStatus,
   RuleCitation,
@@ -384,10 +393,28 @@ let currentConfig: {
   contextLength?: number
   ollamaKvCacheType?: 'q8_0' | 'q4_0'
   structuredExtraction?: StructuredExtractionMode
+  ragEmbeddingsEnabled?: boolean
+  ragEmbeddingModel?: string
+  ragCampaignDocsEnabled?: boolean
 } = {
   provider: 'ollama',
   model: DEFAULT_AI_MODEL,
   ollamaUrl: OLLAMA_BASE_URL
+}
+
+/** PHASE-24: retrieval options consumed by context-builder (hybrid + campaign-docs). */
+export function getRetrievalOpts(): {
+  embeddingsEnabled: boolean
+  model: string
+  baseUrl: string
+  campaignDocsEnabled: boolean
+} {
+  return {
+    embeddingsEnabled: currentConfig.provider === 'ollama' && currentConfig.ragEmbeddingsEnabled === true,
+    model: currentConfig.ragEmbeddingModel || DEFAULT_EMBEDDING_MODEL,
+    baseUrl: getOllamaUrl(),
+    campaignDocsEnabled: currentConfig.ragCampaignDocsEnabled === true
+  }
 }
 
 /** PHASE-23: current structured-extraction mode (absent ≡ off). Read at use time. */
@@ -396,7 +423,38 @@ export function getStructuredExtractionMode(): StructuredExtractionMode {
 }
 
 let searchEngine: SearchEngine | null = null
+let loadedChunkIndex: ChunkIndex | null = null // PHASE-24 24C: kept for embedding builds
 let streamCounter = 0
+
+// PHASE-24 24C: progress sender for the embed-index build (wired by ai-handlers).
+let embedProgressSender: ((percent: number) => void) | null = null
+export function setEmbedProgressSender(fn: ((percent: number) => void) | null): void {
+  embedProgressSender = fn
+}
+
+/** PHASE-24 24C: kick off (or refresh) the rule-embedding vector store when enabled.
+ *  Fire-and-forget; ensureEmbeddingIndex never throws. */
+export function maybeStartEmbeddingBuild(): void {
+  const opts = getRetrievalOpts()
+  if (!opts.embeddingsEnabled || !loadedChunkIndex) return
+  const status = getEmbedIndexStatus()
+  if (status.status === 'ready' && status.model && status.model !== opts.model) {
+    clearEmbeddingIndex() // model changed → rebuild from scratch
+  }
+  void ensureEmbeddingIndex(loadedChunkIndex, opts.model, opts.baseUrl, (p) => embedProgressSender?.(p))
+}
+
+/** PHASE-24 24C: force a rebuild (UI "Rebuild" button). */
+export async function rebuildEmbeddingIndex(): Promise<{ success: boolean; error?: string }> {
+  const opts = getRetrievalOpts()
+  if (!opts.embeddingsEnabled) return { success: false, error: 'Semantic search is disabled' }
+  if (!loadedChunkIndex) return { success: false, error: 'Rulebook index not loaded' }
+  clearEmbeddingIndex()
+  await ensureEmbeddingIndex(loadedChunkIndex, opts.model, opts.baseUrl, (p) => embedProgressSender?.(p))
+  return { success: true }
+}
+
+export { getEmbedIndexStatus }
 
 /** Build stream handler dependencies for the current config. */
 function getStreamDeps(): StreamHandlerDeps {
@@ -461,7 +519,10 @@ export async function configure(config: AiConfig): Promise<void> {
     geminiApiKey: config.geminiApiKey,
     contextLength: config.contextLength,
     ollamaKvCacheType: config.ollamaKvCacheType,
-    structuredExtraction: config.structuredExtraction
+    structuredExtraction: config.structuredExtraction,
+    ragEmbeddingsEnabled: config.ragEmbeddingsEnabled,
+    ragEmbeddingModel: config.ragEmbeddingModel,
+    ragCampaignDocsEnabled: config.ragCampaignDocsEnabled
   }
 
   setConfiguredContextLength(currentConfig.contextLength)
@@ -489,9 +550,14 @@ export async function configure(config: AiConfig): Promise<void> {
       geminiApiKey: encryptOptional(currentConfig.geminiApiKey),
       contextLength: currentConfig.contextLength,
       ollamaKvCacheType: currentConfig.ollamaKvCacheType,
-      structuredExtraction: currentConfig.structuredExtraction
+      structuredExtraction: currentConfig.structuredExtraction,
+      ragEmbeddingsEnabled: currentConfig.ragEmbeddingsEnabled,
+      ragEmbeddingModel: currentConfig.ragEmbeddingModel,
+      ragCampaignDocsEnabled: currentConfig.ragCampaignDocsEnabled
     })
   )
+
+  maybeStartEmbeddingBuild() // PHASE-24 24C: (re)build the vector store on config change
 }
 
 /** Load `ai-config.json` from disk into the module-level `currentConfig`. The SINGLE
@@ -512,7 +578,10 @@ export function loadConfigFromDisk(): void {
       geminiApiKey: decryptOptional(saved.geminiApiKey as string | undefined),
       contextLength: saved.contextLength as number | undefined,
       ollamaKvCacheType: saved.ollamaKvCacheType as 'q8_0' | 'q4_0' | undefined,
-      structuredExtraction: saved.structuredExtraction as StructuredExtractionMode | undefined
+      structuredExtraction: saved.structuredExtraction as StructuredExtractionMode | undefined,
+      ragEmbeddingsEnabled: saved.ragEmbeddingsEnabled as boolean | undefined,
+      ragEmbeddingModel: saved.ragEmbeddingModel as string | undefined,
+      ragCampaignDocsEnabled: saved.ragCampaignDocsEnabled as boolean | undefined
     }
   } catch {
     // Malformed config — keep current in-memory defaults.
@@ -533,12 +602,16 @@ export function getConfig(): AiConfig {
     geminiApiKey: currentConfig.geminiApiKey,
     contextLength: currentConfig.contextLength,
     ollamaKvCacheType: currentConfig.ollamaKvCacheType,
-    structuredExtraction: currentConfig.structuredExtraction
+    structuredExtraction: currentConfig.structuredExtraction,
+    ragEmbeddingsEnabled: currentConfig.ragEmbeddingsEnabled,
+    ragEmbeddingModel: currentConfig.ragEmbeddingModel,
+    ragCampaignDocsEnabled: currentConfig.ragCampaignDocsEnabled
   }
 }
 
 /** Initialize from saved config and auto-load chunk index. */
 export function initFromSavedConfig(): void {
+  setRetrievalOptsProvider(getRetrievalOpts) // PHASE-24: context-builder reads live retrieval opts
   loadConfigFromDisk()
   const config = getConfig()
   setConfiguredContextLength(currentConfig.contextLength)
@@ -547,6 +620,7 @@ export function initFromSavedConfig(): void {
   configureProviders(config)
 
   loadIndex()
+  maybeStartEmbeddingBuild() // PHASE-24 24C: build the vector store if semantic search is on
 }
 
 // ── Provider Status ──
@@ -578,6 +652,7 @@ export function buildIndex(onProgress?: (percent: number, stage: string) => void
   searchEngine = new SearchEngine()
   searchEngine.load(index)
   setSearchEngine(searchEngine)
+  loadedChunkIndex = index
   return { chunkCount: index.chunks.length }
 }
 
@@ -588,6 +663,7 @@ export function loadIndex(): boolean {
   searchEngine = new SearchEngine()
   searchEngine.load(index)
   setSearchEngine(searchEngine)
+  loadedChunkIndex = index
   return true
 }
 

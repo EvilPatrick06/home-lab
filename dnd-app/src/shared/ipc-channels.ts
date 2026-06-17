@@ -63,6 +63,9 @@ export const IPC_CHANNELS = {
   AI_BUILD_INDEX: 'ai:build-index',
   AI_LOAD_INDEX: 'ai:load-index',
   AI_GET_CHUNK_COUNT: 'ai:get-chunk-count',
+  // PHASE-24 24C: opt-in rule-embedding vector store status + rebuild.
+  AI_EMBED_INDEX_STATUS: 'ai:embed-index-status',
+  AI_EMBED_INDEX_REBUILD: 'ai:embed-index-rebuild',
 
   // === AI DM: Streaming Chat ===
   AI_CHAT_STREAM: 'ai:chat-stream',
@@ -141,6 +144,7 @@ export const IPC_CHANNELS = {
   AI_STREAM_DONE: 'ai:stream-done',
   AI_STREAM_ERROR: 'ai:stream-error',
   AI_INDEX_PROGRESS: 'ai:index-progress',
+  AI_EMBED_INDEX_PROGRESS: 'ai:embed-index-progress',
   AI_OLLAMA_PROGRESS: 'ai:ollama-progress',
   AI_STREAM_FILE_READ: 'ai:stream-file-read',
   AI_STREAM_WEB_SEARCH: 'ai:stream-web-search',

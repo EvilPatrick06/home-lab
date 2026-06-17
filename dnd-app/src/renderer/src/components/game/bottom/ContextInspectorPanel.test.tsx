@@ -13,6 +13,7 @@ const BREAKDOWN = {
   srdData: 20,
   characterData: 30,
   campaignData: 5,
+  campaignDocs: 7,
   creatures: 15,
   gameState: 8,
   memory: 12,
@@ -48,6 +49,7 @@ describe('ContextInspectorPanel (PHASE-14 14E)', () => {
     expect(await screen.findByText('Model context window')).toBeTruthy()
     expect(screen.getByText('8,192')).toBeTruthy()
     expect(screen.getByText('1,234')).toBeTruthy()
+    expect(screen.getByText('Campaign documents')).toBeTruthy() // PHASE-24 24D row
     expect(screen.queryByText(/Preview — no AI request/)).toBeNull()
     expect(previewTokenBudget).not.toHaveBeenCalled()
   })

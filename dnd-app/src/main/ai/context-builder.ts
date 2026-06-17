@@ -4,8 +4,10 @@ import { getLevelBudget } from '../../shared/encounter-budgets'
 import { logToFile } from '../log'
 import { getDataDir } from '../paths'
 import { formatCampaignForContext, loadCampaignById } from './campaign-context'
+import { searchCampaignDocs } from './campaign-docs'
 import { formatCharacterAbbreviated, formatCharacterForContext, loadCharacterById } from './character-context'
 import type { FileReadRequest } from './file-reader'
+import { searchRules } from './hybrid-search'
 import { getMemoryManager } from './memory-manager'
 import type { SearchEngine } from './search-engine'
 import { detectAndLoadSrdData } from './srd-provider'
@@ -151,6 +153,29 @@ export function getSearchEngine(): SearchEngine | null {
   return searchEngine
 }
 
+// PHASE-24: retrieval options provider, injected by ai-service to avoid a cycle
+// (ai-service imports buildContext). Called per buildContext so it reflects live config.
+export interface RetrievalOptsFull {
+  embeddingsEnabled: boolean
+  model: string
+  baseUrl: string
+  campaignDocsEnabled: boolean
+}
+let retrievalOptsProvider: (() => RetrievalOptsFull) | null = null
+export function setRetrievalOptsProvider(fn: (() => RetrievalOptsFull) | null): void {
+  retrievalOptsProvider = fn
+}
+function currentRetrievalOpts(): RetrievalOptsFull {
+  return (
+    retrievalOptsProvider?.() ?? {
+      embeddingsEnabled: false,
+      model: '',
+      baseUrl: '',
+      campaignDocsEnabled: false
+    }
+  )
+}
+
 /** Result of a context build — pure, no module-global side effects. (PHASE-07 07A) */
 export interface BuiltContext {
   text: string
@@ -216,6 +241,7 @@ export async function buildContext(
     srdData: 0,
     characterData: 0,
     campaignData: 0,
+    campaignDocs: 0, // PHASE-24 24D
     creatures: 0,
     gameState: 0,
     memory: 0,
@@ -235,9 +261,10 @@ export async function buildContext(
   // happen visibly here instead of silently in Ollama's runner.
   const budgets = getEffectiveBudgets()
 
-  // 1. Search rulebook chunks
+  // 1. Search rulebook chunks (PHASE-24: BM25, fused with vectors via RRF when enabled)
+  const retrievalOpts = currentRetrievalOpts()
   if (searchEngine) {
-    const results = searchEngine.search(query, 5)
+    const results = await searchRules(query, searchEngine, retrievalOpts)
 
     if (results.length > 0) {
       for (const c of results) chunkIds.push(c.id) // retrieval provenance (07C wires onto the reply)
@@ -245,6 +272,23 @@ export async function buildContext(
       const trimmed = trimTracked(`[CONTEXT: Rulebook Excerpts]\n${chunkText}`, budgets.retrievedChunks)
       breakdown.rulebookChunks = estimateTokens(trimmed)
       sRulebook.push(trimmed)
+    }
+  }
+
+  // 1b. PHASE-24 24D: campaign-document retrieval (volatile group, adjacent to the
+  // rulebook chunks). Opt-in; BM25-only; pushes its own budgeted block + provenance.
+  if (campaignId && retrievalOpts.campaignDocsEnabled) {
+    try {
+      const campaign = await loadCampaignById(campaignId)
+      const docResults = campaign ? searchCampaignDocs(campaignId, campaign, query, 3) : []
+      if (docResults.length > 0) {
+        const trimmed = trimTracked(`[CONTEXT: Campaign Documents]\n${formatChunks(docResults)}`, budgets.campaignDocs)
+        breakdown.campaignDocs = estimateTokens(trimmed)
+        sRulebook.push(trimmed)
+        for (const c of docResults) chunkIds.push(c.id)
+      }
+    } catch (err) {
+      logToFile('WARN', `[context-builder] campaign-docs retrieval failed: ${err}`)
     }
   }
 

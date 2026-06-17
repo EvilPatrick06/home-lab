@@ -1,15 +1,27 @@
-"""RAG Search Engine — Multi-domain TF-IDF search.
+"""RAG Search Engine — Multi-domain Okapi BM25 search.
 
 Ported from VTT's TypeScript search-engine.ts, keyword-extractor.ts, chunk-builder.ts.
 Supports multiple domains (dnd, personal, projects) with access control.
+
+PHASE-24 24E — twin of the dnd-app engine: BM25 lexical scoring (k1=1.5, b=0.75)
+replaces the old length-normalized TF-IDF (whose IDF went negative for common
+terms, penalizing relevant chunks), and chunk IDs are content-stable SHA-256
+hashes (index version 2). The hash recipe and BM25 constants MUST stay identical
+to dnd-app/src/main/ai/{chunk-builder,search-engine}.ts — change both or neither.
 """
 
+import hashlib
 import json
 import math
 import os
 import re
 from pathlib import Path
 from typing import Optional
+
+# ── BM25 constants (canonical Okapi defaults; mirror search-engine.ts) ─────────
+# k1 = term-frequency saturation, b = document-length normalization.
+K1 = 1.5
+B = 0.75
 
 # ── D&D Compound Terms (preserved as phrases during tokenization) ──────────
 
@@ -147,17 +159,47 @@ class Chunk:
         )
 
 
+# ── Content-stable chunk IDs (index v2) ──────────────────────────────────────
+
+
+def stable_chunk_id(source: str, heading_path: list[str], content: str) -> str:
+    """`<source-lowercase>-<sha256(source heading_path… content) first 16 hex>`.
+
+    Mirrors dnd-app chunk-builder.ts stableChunkId EXACTLY: the parts are joined
+    with a single space before hashing (NOT a NUL byte) so the twin engines
+    produce identical ids for identical (source, heading_path, content).
+    """
+    digest = hashlib.sha256(" ".join([source, *heading_path, content]).encode("utf-8")).hexdigest()[:16]
+    return f"{source.lower()}-{digest}"
+
+
+def _apply_stable_ids(chunks: list["Chunk"]) -> None:
+    """Recompute every chunk id from content (idempotent), de-duping identical
+    chunks with -2/-3 suffixes by traversal order. Mirrors applyStableIds in
+    chunk-builder.ts so flatten_to_chunks and the v1→v2 load migration agree."""
+    seen: dict[str, int] = {}
+    for c in chunks:
+        cid = stable_chunk_id(c.source, c.heading_path, c.content)
+        n = seen.get(cid, 0) + 1
+        seen[cid] = n
+        if n > 1:
+            cid = f"{cid}-{n}"
+        c.id = cid
+
+
 # ── Search Engine ──────────────────────────────────────────────────────────
 
 
 class SearchEngine:
-    """TF-IDF search engine with domain-scoped indexes."""
+    """Okapi BM25 search engine with domain-scoped indexes."""
 
     def __init__(self):
         self.domains: dict[str, list[Chunk]] = {}
         self._tfs: dict[str, list[dict[str, float]]] = {}
         self._idf: dict[str, dict[str, float]] = {}
         self._heading_terms: dict[str, list[set[str]]] = {}
+        self._doc_lens: dict[str, list[int]] = {}
+        self._avg_doc_len: dict[str, float] = {}
 
     def load_domain(self, domain: str, chunks: list[Chunk]) -> None:
         """Load chunks for a specific domain and build its index."""
@@ -165,43 +207,61 @@ class SearchEngine:
         self._build_index(domain)
 
     def load_index_file(self, domain: str, path: str) -> int:
-        """Load a chunk index JSON file for a domain. Returns chunk count."""
+        """Load a chunk index JSON file for a domain. Returns chunk count.
+
+        v1 indexes (positional ids) are migrated to content-stable ids at load
+        time; the tracked JSON files stay v1 on disk (rebuilding them needs the
+        Pi's absolute paths via build_rag_indexes.py)."""
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        raw_chunks = data.get("chunks", data) if isinstance(data, dict) else data
+        if isinstance(data, dict):
+            raw_chunks = data.get("chunks", [])
+            version = data.get("version", 1)
+        else:
+            raw_chunks = data
+            version = 1
         chunks = []
         for raw in raw_chunks:
             chunk = Chunk.from_dict(raw)
             chunk.domain = domain
             chunks.append(chunk)
 
+        if version < 2:
+            _apply_stable_ids(chunks)
+
         self.load_domain(domain, chunks)
         return len(chunks)
 
     def _build_index(self, domain: str) -> None:
-        """Build TF-IDF index for a domain."""
+        """Build the BM25 index for a domain (raw term counts + doc lengths)."""
         chunks = self.domains[domain]
         doc_count = len(chunks)
         doc_freq: dict[str, int] = {}
 
         tfs = []
+        doc_lens: list[int] = []
         for chunk in chunks:
             text = f"{chunk.content} {chunk.heading} {' '.join(chunk.heading_path)}"
             tokens = tokenize(text)
+            # Raw (unnormalized) counts — BM25 does its own length normalization.
             tf: dict[str, float] = {}
             for token in tokens:
                 tf[token] = tf.get(token, 0) + 1
-            length = len(tokens) or 1
-            for term in tf:
-                tf[term] /= length
+            doc_lens.append(len(tokens) or 1)
             for term in set(tokens):
                 doc_freq[term] = doc_freq.get(term, 0) + 1
             tfs.append(tf)
 
+        total_len = sum(doc_lens)
+        avg_doc_len = (total_len / doc_count) if doc_count > 0 else 1.0
+
         idf = {}
         for term, df in doc_freq.items():
-            idf[term] = math.log(doc_count / (1 + df))
+            # BM25 IDF: ln(1 + (N - df + 0.5)/(df + 0.5)) — always > 0, so no clamp
+            # (the old TF-IDF idf = log(N/(1+df)) went negative for common terms,
+            # actively penalizing relevant chunks; this formula subsumes the fix).
+            idf[term] = math.log(1 + (doc_count - df + 0.5) / (df + 0.5))
 
         heading_terms = []
         for chunk in chunks:
@@ -211,6 +271,8 @@ class SearchEngine:
         self._tfs[domain] = tfs
         self._idf[domain] = idf
         self._heading_terms[domain] = heading_terms
+        self._doc_lens[domain] = doc_lens
+        self._avg_doc_len[domain] = avg_doc_len
 
     def search(self, query: str, domain: str = "dnd", top_k: int = 5) -> list[dict]:
         """Search a specific domain. Returns scored chunks."""
@@ -231,20 +293,27 @@ class SearchEngine:
         tfs = self._tfs[domain]
         idf = self._idf[domain]
         heading_terms = self._heading_terms[domain]
+        doc_lens = self._doc_lens[domain]
+        avg_doc_len = self._avg_doc_len[domain]
 
         scores = []
         for i, chunk in enumerate(chunks):
             score = 0.0
             tf = tfs[i]
             heading_set = heading_terms[i]
+            len_norm = 1 - B + (B * doc_lens[i]) / avg_doc_len
 
             for term in all_terms:
                 term_tf = tf.get(term, 0)
+                if term_tf == 0:
+                    continue
                 term_idf = idf.get(term, 0)
-                term_score = term_tf * term_idf
+                # BM25 saturation: tf*(k1+1) / (tf + k1*lenNorm)
+                norm = (term_tf * (K1 + 1)) / (term_tf + K1 * len_norm)
+                term_score = term_idf * norm
 
                 if term in heading_set:
-                    term_score *= 2
+                    term_score *= 2  # preserve the existing heading boost
 
                 score += term_score
 
@@ -385,19 +454,20 @@ def create_chunk(chunk_id: str, source: str, domain: str, heading_path: list[str
 
 
 def flatten_to_chunks(nodes: list[dict], source: str, domain: str,
-                      id_prefix: str) -> list[Chunk]:
-    """Flatten heading tree into chunks."""
+                      id_prefix: str = "") -> list[Chunk]:
+    """Flatten heading tree into chunks with content-stable ids (index v2).
+
+    `id_prefix` is retained for call-site compatibility but no longer used —
+    ids now come from stable_chunk_id(source, heading_path, content)."""
     chunks = []
-    counter = [0]
 
     def process_node(node: dict):
         content = clean_content(node["content"])
 
         if node["children"]:
             if len(content) > 100:
-                counter[0] += 1
                 chunks.append(create_chunk(
-                    f"{id_prefix}-{counter[0]}", source, domain,
+                    "", source, domain,
                     node["headingPath"], node["heading"], content
                 ))
             for child in node["children"]:
@@ -409,22 +479,21 @@ def flatten_to_chunks(nodes: list[dict], source: str, domain: str,
             if estimate_tokens(content) > MAX_CHUNK_TOKENS:
                 parts = split_at_paragraphs(content, MAX_CHUNK_TOKENS)
                 for i, part in enumerate(parts):
-                    counter[0] += 1
                     heading = f"{node['heading']} (Part {i + 1})" if len(parts) > 1 else node["heading"]
                     chunks.append(create_chunk(
-                        f"{id_prefix}-{counter[0]}", source, domain,
+                        "", source, domain,
                         node["headingPath"], heading, part
                     ))
             else:
-                counter[0] += 1
                 chunks.append(create_chunk(
-                    f"{id_prefix}-{counter[0]}", source, domain,
+                    "", source, domain,
                     node["headingPath"], node["heading"], content
                 ))
 
     for node in nodes:
         process_node(node)
 
+    _apply_stable_ids(chunks)
     return chunks
 
 
@@ -465,10 +534,10 @@ def build_index_from_text(text: str, source_name: str, domain: str,
 
 
 def save_index(chunks: list[Chunk], path: str) -> None:
-    """Save chunk index to JSON file."""
+    """Save chunk index to JSON file (version 2 = content-stable ids)."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
     data = {
-        "version": 1,
+        "version": 2,
         "createdAt": __import__("datetime").datetime.now().isoformat(),
         "chunks": [c.to_dict() for c in chunks],
     }
@@ -477,8 +546,16 @@ def save_index(chunks: list[Chunk], path: str) -> None:
 
 
 def load_index(path: str) -> list[Chunk]:
-    """Load chunk index from JSON file."""
+    """Load chunk index from JSON file, migrating v1 ids to content-stable ones."""
     with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
-    raw_chunks = data.get("chunks", data) if isinstance(data, dict) else data
-    return [Chunk.from_dict(c) for c in raw_chunks]
+    if isinstance(data, dict):
+        raw_chunks = data.get("chunks", [])
+        version = data.get("version", 1)
+    else:
+        raw_chunks = data
+        version = 1
+    chunks = [Chunk.from_dict(c) for c in raw_chunks]
+    if version < 2:
+        _apply_stable_ids(chunks)
+    return chunks

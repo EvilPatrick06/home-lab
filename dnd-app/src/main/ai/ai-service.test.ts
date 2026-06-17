@@ -49,6 +49,7 @@ vi.mock('./context-builder', () => ({
       rulebookChunks: 0,
       srdData: 0,
       characterData: 0,
+      campaignDocs: 0,
       campaignData: 0,
       creatures: 0,
       gameState: 0,
@@ -59,7 +60,8 @@ vi.mock('./context-builder', () => ({
   })),
   recordTokenBreakdown: vi.fn(),
   clearTokenBreakdown: vi.fn(),
-  setSearchEngine: vi.fn()
+  setSearchEngine: vi.fn(),
+  setRetrievalOptsProvider: vi.fn()
 }))
 
 vi.mock('./conversation-manager', () => ({
@@ -501,6 +503,7 @@ describe('ai-service', () => {
           rulebookChunks: 0,
           srdData: 0,
           characterData: 0,
+          campaignDocs: 0,
           campaignData: 0,
           creatures: 0,
           gameState: 0,

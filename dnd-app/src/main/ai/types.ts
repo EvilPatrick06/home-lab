@@ -18,6 +18,12 @@ export interface AiConfig {
   /** PHASE-23: two-call structured mechanics extraction. `off` (default/absent),
    *  `fallback` (only when tag parse fails), `always`. Ollama-only. */
   structuredExtraction?: StructuredExtractionMode
+  /** PHASE-24 24C: opt-in semantic rules search. Absent/false = lexical-only (today's behavior). */
+  ragEmbeddingsEnabled?: boolean
+  /** PHASE-24 24C: Ollama embedding model id; default nomic-embed-text. */
+  ragEmbeddingModel?: string
+  /** PHASE-24 24D: let the AI DM search this campaign's lore/journal/handouts. Absent = off. */
+  ragCampaignDocsEnabled?: boolean
   /** @deprecated Use `model` instead. Kept for backward-compatible config loading. */
   ollamaModel?: string
 }
@@ -142,6 +148,7 @@ export interface FactionReputation {
 // ── Chunk index types ──
 
 export interface ChunkIndex {
+  /** 1 = positional ids (legacy, migrated at load); 2 = content-stable hash ids (PHASE-24 24A). */
   version: number
   createdAt: string
   sources: ChunkSource[]
@@ -155,10 +162,14 @@ export interface ChunkSource {
 }
 
 export type BookSource = 'PHB' | 'DMG' | 'MM'
+/** PHASE-24 24D: chunks come from the rulebooks OR the campaign's own documents. */
+export type ChunkSourceTag = BookSource | 'CAMPAIGN'
 
 export interface Chunk {
+  /** PHASE-24 24A — content-stable: `<source-lowercase>-<sha256(source\0headingPath\0content)
+   *  first 16 hex>`; identical chunks get a `-2`/`-3` suffix. Survives index rebuilds. */
   id: string
-  source: BookSource
+  source: ChunkSourceTag
   headingPath: string[]
   heading: string
   content: string

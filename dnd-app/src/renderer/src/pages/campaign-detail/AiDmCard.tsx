@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import AiProviderSetup from '../../components/campaign/AiProviderSetup'
 import { Button, Card, Modal } from '../../components/ui'
 import { AI_PROVIDER_LABELS, DEFAULT_AI_MODEL, DEFAULT_AI_PROVIDER, DEFAULT_OLLAMA_URL } from '../../constants'
@@ -32,13 +32,20 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
     apiKey: string
     // PHASE-23 23D: structured extraction mode (Ollama-only).
     structuredExtraction: 'off' | 'fallback' | 'always'
+    // PHASE-24: hybrid retrieval (Ollama-only) + campaign-doc search (any provider).
+    ragEmbeddingsEnabled: boolean
+    ragEmbeddingModel: string
+    ragCampaignDocsEnabled: boolean
   }>({
     enabled: false,
     provider: DEFAULT_AI_PROVIDER,
     model: DEFAULT_AI_MODEL,
     ollamaUrl: DEFAULT_OLLAMA_URL,
     apiKey: '',
-    structuredExtraction: 'off'
+    structuredExtraction: 'off',
+    ragEmbeddingsEnabled: false,
+    ragEmbeddingModel: 'nomic-embed-text',
+    ragCampaignDocsEnabled: false
   })
 
   const openConfigure = (): void => {
@@ -50,7 +57,12 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
       model: dm?.model ?? dm?.ollamaModel ?? DEFAULT_AI_MODEL,
       ollamaUrl: dm?.ollamaUrl ?? DEFAULT_OLLAMA_URL,
       apiKey: keyForProvider(dm, provider),
-      structuredExtraction: dm?.structuredExtraction ?? 'off'
+      structuredExtraction: dm?.structuredExtraction ?? 'off',
+      ragEmbeddingsEnabled: dm?.ragEmbeddingsEnabled ?? false,
+      ragEmbeddingModel: dm?.ragEmbeddingModel ?? 'nomic-embed-text',
+      // PHASE-24 24D: campaign-doc search defaults ON for never-saved configs,
+      // reflects the saved value otherwise.
+      ragCampaignDocsEnabled: dm == null ? true : (dm.ragCampaignDocsEnabled ?? false)
     })
     setShowAiDmModal(true)
   }
@@ -62,10 +74,40 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
       model: DEFAULT_AI_MODEL,
       ollamaUrl: DEFAULT_OLLAMA_URL,
       apiKey: '',
-      structuredExtraction: 'off'
+      structuredExtraction: 'off',
+      ragEmbeddingsEnabled: false,
+      ragEmbeddingModel: 'nomic-embed-text',
+      ragCampaignDocsEnabled: true // 24D: default-on for new configs
     })
     setShowAiDmModal(true)
   }
+
+  // PHASE-24 24C: embed-index status row.
+  const [embedStatus, setEmbedStatus] = useState<{
+    status: string
+    percent?: number
+    chunkCount?: number
+    error?: string
+  }>({ status: 'idle' })
+  const refreshEmbedStatus = useCallback(async () => {
+    if (window.api?.ai?.getEmbedIndexStatus) setEmbedStatus(await window.api.ai.getEmbedIndexStatus())
+  }, [])
+  useEffect(() => {
+    if (!showAiDmModal) return
+    void refreshEmbedStatus()
+    const off = window.api?.ai?.onEmbedIndexProgress?.((d) =>
+      setEmbedStatus((s) => ({ ...s, status: 'building', percent: d.percent }))
+    )
+    return () => off?.()
+  }, [showAiDmModal, refreshEmbedStatus])
+  const embedStatusText =
+    embedStatus.status === 'building'
+      ? `building ${embedStatus.percent ?? 0}%`
+      : embedStatus.status === 'ready'
+        ? `ready — ${embedStatus.chunkCount ?? 0} chunks`
+        : embedStatus.status === 'error'
+          ? `error: ${embedStatus.error ?? ''}`
+          : 'not built'
 
   const providerLabel = AI_PROVIDER_LABELS[campaign.aiDm?.provider ?? 'ollama'] ?? 'Ollama'
   const displayModel = campaign.aiDm?.model ?? campaign.aiDm?.ollamaModel ?? t('pages.aiDmCard.defaultModel')
@@ -131,6 +173,54 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
               <p className="text-[11px] text-gray-500 mt-1">{t('pages.aiDmCard.structuredExtractionHelp')}</p>
             </div>
           )}
+          {/* PHASE-24 24C: semantic rules search (Ollama-only opt-in). */}
+          {aiDmConfig.provider === 'ollama' && (
+            <div className="mt-3">
+              <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={aiDmConfig.ragEmbeddingsEnabled}
+                  onChange={(e) => setAiDmConfig((p) => ({ ...p, ragEmbeddingsEnabled: e.target.checked }))}
+                />
+                {t('campaign.aiProviderSetup.semanticSearch')}
+              </label>
+              {aiDmConfig.ragEmbeddingsEnabled && (
+                <div className="mt-2 pl-6">
+                  <input
+                    type="text"
+                    className="w-full bg-surface-2/60 border border-border/50 rounded px-2 py-1 text-xs text-gray-200"
+                    value={aiDmConfig.ragEmbeddingModel}
+                    onChange={(e) => setAiDmConfig((p) => ({ ...p, ragEmbeddingModel: e.target.value }))}
+                  />
+                  <p className="text-[11px] text-gray-500 mt-1">
+                    {t('campaign.aiProviderSetup.semanticSearchModelHint')}
+                  </p>
+                  <div className="text-[11px] text-gray-400 mt-1 flex items-center gap-2">
+                    <span>{embedStatusText}</span>
+                    <button
+                      className="underline text-accent"
+                      onClick={() => {
+                        void window.api.ai.rebuildEmbedIndex?.().then(() => void refreshEmbedStatus())
+                      }}
+                    >
+                      {t('campaign.aiProviderSetup.semanticSearchRebuild')}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          {/* PHASE-24 24D: campaign-document search (any provider; lexical-only). */}
+          <div className="mt-3">
+            <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={aiDmConfig.ragCampaignDocsEnabled}
+                onChange={(e) => setAiDmConfig((p) => ({ ...p, ragCampaignDocsEnabled: e.target.checked }))}
+              />
+              {t('campaign.aiProviderSetup.campaignDocSearch')}
+            </label>
+          </div>
         </div>
         {/* PHASE-10 10H — informative, not obstructive: detection probes the SAVED main-side URL,
             so hard-gating Save would trap a not-yet-reachable remote-Ollama setup. */}
@@ -159,7 +249,11 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
                 geminiApiKey:
                   aiDmConfig.provider === 'gemini' ? aiDmConfig.apiKey || undefined : campaign.aiDm?.geminiApiKey,
                 // PHASE-23 23D: persist the extraction mode (meaningful for Ollama only).
-                structuredExtraction: aiDmConfig.structuredExtraction
+                structuredExtraction: aiDmConfig.structuredExtraction,
+                // PHASE-24: hybrid retrieval + campaign-doc search.
+                ragEmbeddingsEnabled: aiDmConfig.ragEmbeddingsEnabled,
+                ragEmbeddingModel: aiDmConfig.ragEmbeddingModel,
+                ragCampaignDocsEnabled: aiDmConfig.ragCampaignDocsEnabled
               }
               try {
                 await saveCampaign({ ...campaign, aiDm, updatedAt: new Date().toISOString() })
@@ -171,7 +265,10 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
                     claudeApiKey: aiDm.claudeApiKey,
                     openaiApiKey: aiDm.openaiApiKey,
                     geminiApiKey: aiDm.geminiApiKey,
-                    structuredExtraction: aiDmConfig.structuredExtraction
+                    structuredExtraction: aiDmConfig.structuredExtraction,
+                    ragEmbeddingsEnabled: aiDmConfig.ragEmbeddingsEnabled,
+                    ragEmbeddingModel: aiDmConfig.ragEmbeddingModel,
+                    ragCampaignDocsEnabled: aiDmConfig.ragCampaignDocsEnabled
                   })
                   if (!res.success) throw new Error(res.error ?? 'configure failed')
                 }

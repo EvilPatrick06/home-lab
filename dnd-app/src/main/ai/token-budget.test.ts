@@ -63,12 +63,13 @@ describe('TOKEN_BUDGETS', () => {
       TOKEN_BUDGETS.retrievedChunks +
       TOKEN_BUDGETS.srdData +
       TOKEN_BUDGETS.campaignData +
+      TOKEN_BUDGETS.campaignDocs +
       TOKEN_BUDGETS.creatures +
       TOKEN_BUDGETS.gameState +
       TOKEN_BUDGETS.memory +
       TOKEN_BUDGETS.conversationHistory
     expect(TOKEN_BUDGETS.total).toBe(consumed)
-    expect(TOKEN_BUDGETS.total).toBe(21500)
+    expect(TOKEN_BUDGETS.total).toBe(23500) // PHASE-24 24D: +2000 campaignDocs
   })
   it('systemPrompt reflects the measured static cost (~12.3k), not the old 1500', () => {
     expect(TOKEN_BUDGETS.systemPrompt).toBeGreaterThan(10000)

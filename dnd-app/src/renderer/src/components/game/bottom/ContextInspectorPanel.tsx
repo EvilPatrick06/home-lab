@@ -12,6 +12,7 @@ interface Breakdown {
   srdData: number
   characterData: number
   campaignData: number
+  campaignDocs: number
   creatures: number
   gameState: number
   memory: number
@@ -112,6 +113,7 @@ export default function ContextInspectorPanel({ campaignId, characterIds }: Cont
                   [t('game.dmTabPanel.budgetSrdData'), breakdown.srdData],
                   [t('game.dmTabPanel.budgetCharacters'), breakdown.characterData],
                   [t('game.dmTabPanel.budgetCampaign'), breakdown.campaignData],
+                  [t('game.contextInspector.sections.campaignDocs'), breakdown.campaignDocs],
                   [t('game.dmTabPanel.budgetCreatures'), breakdown.creatures],
                   [t('game.dmTabPanel.budgetGameState'), breakdown.gameState],
                   [t('game.dmTabPanel.budgetMemory'), breakdown.memory]

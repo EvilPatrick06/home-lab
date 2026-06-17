@@ -754,6 +754,10 @@
     "aiProviderSetup": {
       "title": "Dungeon Master de IA",
       "subtitle": "Activa opcionalmente un Dungeon Master de IA para tu campaña.",
+      "semanticSearch": "Búsqueda semántica de reglas (experimental) — requiere un modelo de embeddings local",
+      "semanticSearchModelHint": "No se descarga automáticamente — ejecuta: ollama pull nomic-embed-text",
+      "semanticSearchRebuild": "Reconstruir",
+      "campaignDocSearch": "Permitir que el DM de IA busque en el lore, diarios y documentos de texto de esta campaña",
       "errorDownload": "Error en la descarga",
       "errorInstall": "Error en la instalación",
       "errorStart": "No se pudo iniciar Ollama",
@@ -907,7 +911,10 @@
       "truncatedNo": "Nada recortado en el último turno",
       "chunks": "Fragmentos de reglas usados en el último turno ({{count}})",
       "chunksNone": "No se recuperaron fragmentos de reglas en el último turno",
-      "chunksNote": "Identificadores de depuración — estables solo hasta que se reconstruya el índice de reglas."
+      "chunksNote": "Identificadores de depuración — estables solo hasta que se reconstruya el índice de reglas.",
+      "sections": {
+        "campaignDocs": "Documentos de la campaña"
+      }
     },
     "chatPanel": {
       "dungeonMaster": "Dungeon Master",

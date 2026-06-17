@@ -140,4 +140,61 @@ describe('SearchEngine', () => {
     expect(results.length).toBeGreaterThan(0)
     expect(results[0].id).toBe('c1')
   })
+
+  // ── PHASE-24 24B: BM25 behavior ──
+
+  it('length-normalizes: a short chunk with the term beats a long one (one occurrence each)', () => {
+    const engine = new SearchEngine()
+    engine.load(
+      makeIndex([
+        { id: 'short', heading: 'A', content: 'grappled creature here' },
+        { id: 'long', heading: 'B', content: `grappled ${'filler word lorem ipsum dolor '.repeat(60)}` }
+      ])
+    )
+    expect(engine.search('grappled')[0].id).toBe('short')
+  })
+
+  it('saturates term frequency: 50 repetitions score < 10× a single occurrence', () => {
+    const e1 = new SearchEngine()
+    e1.load(makeIndex([{ id: 'one', heading: 'A', content: 'sneak filler filler filler' }]))
+    const single = e1.search('sneak')[0].score
+    const e2 = new SearchEngine()
+    e2.load(makeIndex([{ id: 'many', heading: 'A', content: `${'sneak '.repeat(50)}filler` }]))
+    const many = e2.search('sneak')[0].score
+    expect(many).toBeLessThan(single * 10)
+  })
+
+  it('ranks the exact compound-term chunk first over "attack" decoys', () => {
+    const engine = new SearchEngine()
+    engine.load(
+      makeIndex([
+        {
+          id: 'oa',
+          heading: 'Opportunity Attacks',
+          content: 'You can make an opportunity attack when a creature leaves your reach.'
+        },
+        { id: 'd1', heading: 'Attack Action', content: 'You make an attack roll against a target.' },
+        { id: 'd2', heading: 'Extra Attack', content: 'You can attack twice when you take the attack action.' }
+      ])
+    )
+    expect(engine.search('opportunity attack')[0].id).toBe('oa')
+  })
+
+  it('a ubiquitous term contributes >0 but does not flip a clear ranking', () => {
+    const engine = new SearchEngine()
+    engine.load(
+      makeIndex([
+        { id: 'hit', heading: 'Grappling', content: 'the creature is grappled by the attack' },
+        { id: 'miss', heading: 'Travel', content: 'the party travels by the road and the attack waits' }
+      ])
+    )
+    expect(engine.search('the grappled')[0].id).toBe('hit')
+  })
+
+  it('getChunkById round-trips a loaded chunk', () => {
+    const engine = new SearchEngine()
+    engine.load(makeIndex([{ id: 'c1', heading: 'X', content: 'content here' }]))
+    expect(engine.getChunkById('c1')?.heading).toBe('X')
+    expect(engine.getChunkById('nope')).toBeUndefined()
+  })
 })

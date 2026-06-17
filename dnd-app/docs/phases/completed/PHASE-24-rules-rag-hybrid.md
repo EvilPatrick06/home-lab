@@ -329,4 +329,64 @@ The audit's source for the campaign-content pattern, `https://foundryvtt.com/pac
 
 ## Completed
 
-(Filled during execution per INSTRUCTIONS.md rule 17 — one line per sub-phase with file:line citations.)
+- **24A — content-stable chunk IDs (index v2) + rebuildable bundled index.**
+  `chunk-builder.ts:12` `stableChunkId(source, headingPath, content)` (sha256 of
+  space-joined parts → `<source-lc>-<16hex>`), `:20` `applyStableIds` (dedup
+  `-2`/`-3` by traversal order); `flattenToChunks` now assigns via `applyStableIds`
+  (positional `idPrefix`/counter dropped); `chunksFromText('CAMPAIGN', title, text)`
+  added for 24D (synthetic `# title` wrapper); `buildChunkIndex` writes `version: 2`;
+  `loadChunkIndex` migrates `version < 2` in memory (recompute ids, no disk rewrite)
+  on both the bundled and userData branches. `types.ts` — `Chunk.id` JSDoc records the
+  recipe; `ChunkIndex.version` JSDoc `2 = content-stable ids`. `scripts/build/build-chunk-index.mjs`
+  mirrors `stableChunkId`/`version: 2` + adds the `../bmo/pi/data/5e-references` fallback.
+  `resources/chunk-index.json` regenerated: **version 2, 5383 chunks**, ids `phb-<16hex>`.
+  Tests: `chunk-builder.test.ts` (determinism, dedup suffixes, v1→v2 migration, v2 passthrough).
+- **24B — Okapi BM25 in `SearchEngine`.** `search-engine.ts:11-12` `BM25_K1 = 1.5`,
+  `BM25_B = 0.75`; `buildIndex` (`:30-61`) stores raw term counts + `docLens` + `avgDocLen`
+  and BM25 IDF `ln(1 + (N−df+0.5)/(df+0.5))` (clamp deleted — formula is always > 0);
+  `search` (`:63-101`) BM25 saturation `tf*(k1+1)/(tf + k1*lenNorm)` with the heading ×2
+  boost, `score > 0` filter, top-K=5 default unchanged; `getChunkById` (`:104`) backed by a
+  `byId` Map built in `load()`. Tests: `search-engine.test.ts` (length-norm, saturation,
+  compound-first, ubiquitous-term ≥ 0, `getChunkById`).
+- **24C — opt-in embedding layer + BM25⊕vector RRF.** New `embedding-client.ts`
+  (`embedTexts`/`embedQuery`, `/api/embed` with `truncate`+`num_ctx:8192`+task prefixes,
+  404 → actionable error), `vector-store.ts` (`meta.json`+`vectors.bin` under
+  `userData/rules-embeddings`, `computeIndexFingerprint`, dot-product `searchVectors`),
+  `embedding-index.ts` (single-flight `ensureEmbeddingIndex` batches of 32, `getEmbedIndexStatus`,
+  `clearEmbeddingIndex`), `hybrid-search.ts` (`RRF_K=60`, `FUSION_POOL=50`, `HYBRID_TOP_K=8`;
+  disabled/no-store → BM25 `slice(0,5)` byte-identity, else RRF fuse). `ai-service.ts:406`
+  `getRetrievalOpts`, `:444` fire-and-forget `ensureEmbeddingIndex` in configure+init, `:448`
+  `rebuildEmbeddingIndex`, `:614` `setRetrievalOptsProvider(getRetrievalOpts)`. `context-builder.ts:267`
+  section 1 calls `await searchRules(...)`. Config plumbing for `ragEmbeddingsEnabled`/
+  `ragEmbeddingModel` through `types.ts`/`ipc-schemas.ts`/`preload`/`campaign.ts`/`ai-dm-routing.ts`;
+  IPC `AI_EMBED_INDEX_STATUS`/`REBUILD`/`PROGRESS` + handlers; AiDmCard UI (Ollama-only checkbox,
+  model input, status row, Rebuild). Tests: embedding-client/vector-store/embedding-index/hybrid-search.
+- **24D — campaign-document indexing + retrieval block.** New `campaign-docs.ts`:
+  `collectCampaignDocs` (`:29`, visibility policy — all lore w/`[category]`, all journal incl.
+  private, text handouts incl. dm-only + page labels never image, public shared-journal only),
+  `buildCampaignDocEngine` (`:78`, docType-prefixed `headingPath`, `CAMPAIGN` stable ids),
+  `searchCampaignDocs` (`:101`, per-campaign cache keyed `updatedAt:lastSaveTimestamp`),
+  `clearCampaignDocCache` (`:117`). `context-builder.ts:278-293` section 1b (gated by
+  `campaignId && campaignDocsEnabled`, own budget + provenance, adjacent to rulebook chunks).
+  `token-budgets.json` `campaignDocs: 2000`, `total: 23500`; `token-budget.ts` breakdown/
+  EffectiveBudgets/floors(200)/scaling. `ContextInspectorPanel.tsx:15,116` eighth row.
+  `ragCampaignDocsEnabled` config plumbing (pre-checked for never-saved configs). Tests:
+  `campaign-docs.test.ts`, `context-builder.test.ts` (flag on/off), `token-budget.test.ts`,
+  `ContextInspectorPanel.test.tsx`.
+- **24E — BMO engine parity (BM25 + stable IDs + first test).** `bmo/pi/services/rag_search.py`:
+  `:23-24` `K1 = 1.5`/`B = 0.75`, `:165` `stable_chunk_id` (space-join sha256, mirrors the TS recipe
+  exactly — NOT the plan's `\x00` draft, parity wins), `:176` `_apply_stable_ids` dedup; `_build_index`
+  BM25 (raw counts, `doc_lens`, `avg_doc_len`, positive IDF — negative-IDF drift fixed); `search` BM25
+  saturation + heading ×2; `flatten_to_chunks` stable ids (positional counter dropped, `id_prefix`
+  retained for call-compat); `save_index` `version: 2`; `load_index`/`load_index_file` migrate
+  `version < 2` at load. Public API unchanged → no consumer edits. New `bmo/pi/tests/test_rag_search.py`
+  (15 tests: compound-first, length-norm, saturation, negative-IDF regression, stable-id determinism+dedup,
+  v1→v2 migration, v2 passthrough, consumer dict contract, domain isolation). Verified: tracked v1
+  `chunk-index-dnd.json` loads to **5383** chunks with `phb2024-<16hex>` ids; "opportunity attack" → "Opportunity Attacks".
+- **24F — operator docs + locale parity.** New `docs/RULES-RETRIEVAL.md` (v2 index/stable-ID recipe +
+  v1 migration, BM25 params + why TF-IDF was replaced, the opt-in embedding layer + RRF + fallback ladder,
+  campaign-doc visibility table + cache key + budget, provenance, the BMO twin parity rules; all Research
+  sources cited). Appended the "embedding model is a second runner" paragraph + cross-reference to
+  `docs/OLLAMA-TUNING.md` (co-located at repo-root `docs/` where PHASE-01E placed it, so the link resolves).
+  Locale parity verified: `campaign.aiProviderSetup` 49=49, `game.contextInspector` 11=11, zero drift;
+  `npm run i18n:gen-keys` → 6145 keys (committed).

@@ -13,6 +13,10 @@ export const AiConfigSchema = z.object({
   ollamaKvCacheType: z.enum(['q8_0', 'q4_0']).optional(),
   // PHASE-23: structured mechanics extraction mode (Ollama-only; absent ≡ off).
   structuredExtraction: z.enum(['off', 'fallback', 'always']).optional(),
+  // PHASE-24: hybrid rules retrieval + campaign-doc search.
+  ragEmbeddingsEnabled: z.boolean().optional(),
+  ragEmbeddingModel: z.string().min(1).max(100).optional(),
+  ragCampaignDocsEnabled: z.boolean().optional(),
   ollamaModel: z.string().optional()
 })
 

@@ -10,6 +10,7 @@ export interface ContextTokenBreakdown {
   srdData: number
   characterData: number
   campaignData: number
+  campaignDocs: number // PHASE-24 24D
   creatures: number
   gameState: number
   memory: number
@@ -25,6 +26,7 @@ export const TOKEN_BUDGETS = tokenBudgetsJson as {
   readonly retrievedChunks: number
   readonly srdData: number
   readonly campaignData: number
+  readonly campaignDocs: number
   readonly creatures: number
   readonly gameState: number
   readonly memory: number
@@ -82,6 +84,7 @@ export interface EffectiveBudgets {
   retrievedChunks: number
   srdData: number
   campaignData: number
+  campaignDocs: number
   creatures: number
   gameState: number
   memory: number
@@ -92,6 +95,7 @@ const SECTION_FLOORS: EffectiveBudgets = {
   retrievedChunks: 600,
   srdData: 200,
   campaignData: 200,
+  campaignDocs: 200,
   creatures: 200,
   gameState: 200,
   memory: 200,
@@ -104,6 +108,7 @@ function rawBudgets(): EffectiveBudgets {
     retrievedChunks: TOKEN_BUDGETS.retrievedChunks,
     srdData: TOKEN_BUDGETS.srdData,
     campaignData: TOKEN_BUDGETS.campaignData,
+    campaignDocs: TOKEN_BUDGETS.campaignDocs,
     creatures: TOKEN_BUDGETS.creatures,
     gameState: TOKEN_BUDGETS.gameState,
     memory: TOKEN_BUDGETS.memory,
@@ -145,6 +150,7 @@ export function getEffectiveBudgets(): EffectiveBudgets {
         retrievedChunks: Math.max(SECTION_FLOORS.retrievedChunks, Math.floor(raw.retrievedChunks * scale)),
         srdData: Math.max(SECTION_FLOORS.srdData, Math.floor(raw.srdData * scale)),
         campaignData: Math.max(SECTION_FLOORS.campaignData, Math.floor(raw.campaignData * scale)),
+        campaignDocs: Math.max(SECTION_FLOORS.campaignDocs, Math.floor(raw.campaignDocs * scale)),
         creatures: Math.max(SECTION_FLOORS.creatures, Math.floor(raw.creatures * scale)),
         gameState: Math.max(SECTION_FLOORS.gameState, Math.floor(raw.gameState * scale)),
         memory: Math.max(SECTION_FLOORS.memory, Math.floor(raw.memory * scale)),

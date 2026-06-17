@@ -7,6 +7,7 @@
  * resources/chunk-index.json for bundling with the installer.
  */
 
+import { createHash } from 'crypto'
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
@@ -15,6 +16,22 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 // scripts/build/ → dnd-app root
 const ROOT = join(__dirname, '..', '..')
+
+// PHASE-24 24A: content-stable chunk ids (mirrors chunk-builder.ts stableChunkId).
+function stableChunkId(source, headingPath, content) {
+  const hash = createHash('sha256').update([source, ...headingPath, content].join(' ')).digest('hex').slice(0, 16)
+  return `${source.toLowerCase()}-${hash}`
+}
+function applyStableIds(chunks) {
+  const seen = new Map()
+  for (const c of chunks) {
+    let id = stableChunkId(c.source, c.headingPath, c.content)
+    const n = (seen.get(id) ?? 0) + 1
+    seen.set(id, n)
+    if (n > 1) id = `${id}-${n}`
+    c.id = id
+  }
+}
 
 const MAX_CHUNK_TOKENS = 4000
 const CHARS_PER_TOKEN = 4
@@ -162,23 +179,15 @@ function createChunk(id, source, headingPath, heading, content) {
   }
 }
 
-function flattenToChunks(nodes, source, idPrefix) {
+function flattenToChunks(nodes, source) {
   const chunks = []
-  let counter = 0
 
   function processNode(node) {
     const content = cleanContent(node.content)
 
     if (node.children.length > 0) {
       if (content.length > 100) {
-        counter++
-        chunks.push(createChunk(
-          `${idPrefix}-${counter}`,
-          source,
-          node.headingPath,
-          node.heading,
-          content
-        ))
+        chunks.push(createChunk('', source, node.headingPath, node.heading, content))
       }
       for (const child of node.children) {
         processNode(child)
@@ -189,27 +198,11 @@ function flattenToChunks(nodes, source, idPrefix) {
       if (estimateTokens(content) > MAX_CHUNK_TOKENS) {
         const parts = splitAtParagraphs(content, MAX_CHUNK_TOKENS)
         for (let i = 0; i < parts.length; i++) {
-          counter++
-          const heading = parts.length > 1
-            ? `${node.heading} (Part ${i + 1})`
-            : node.heading
-          chunks.push(createChunk(
-            `${idPrefix}-${counter}`,
-            source,
-            node.headingPath,
-            heading,
-            parts[i]
-          ))
+          const heading = parts.length > 1 ? `${node.heading} (Part ${i + 1})` : node.heading
+          chunks.push(createChunk('', source, node.headingPath, heading, parts[i]))
         }
       } else {
-        counter++
-        chunks.push(createChunk(
-          `${idPrefix}-${counter}`,
-          source,
-          node.headingPath,
-          node.heading,
-          content
-        ))
+        chunks.push(createChunk('', source, node.headingPath, node.heading, content))
       }
     }
   }
@@ -218,6 +211,7 @@ function flattenToChunks(nodes, source, idPrefix) {
     processNode(node)
   }
 
+  applyStableIds(chunks) // PHASE-24 24A
   return chunks
 }
 
@@ -228,6 +222,11 @@ function resolve5eReferencesFromDndApp(dndAppRoot) {
   if (existsSync(inside)) return inside
   const beside = join(dndAppRoot, '..', '5.5e References')
   if (existsSync(beside)) return beside
+  // PHASE-24 24A: the identical book markdown is tracked under bmo (matches the
+  // SOURCES dir layout incl. capital-M MM2025/Markdown) so the v2 index is
+  // rebuildable in this repo without the gitignored "5.5e References/" tree.
+  const bmo = join(dndAppRoot, '..', 'bmo', 'pi', 'data', '5e-references')
+  if (existsSync(bmo)) return bmo
   return null
 }
 
@@ -266,7 +265,7 @@ for (const source of SOURCES) {
   console.log(`Processing ${source.book} (${mdFiles.length} files)...`)
   const markdown = mdFiles.map(f => readFileSync(f, 'utf-8')).join('\n\n').replace(/\r\n?/g, '\n')
   const tree = parseMarkdownStructure(markdown)
-  const chunks = flattenToChunks(tree, source.book, source.book.toLowerCase())
+  const chunks = flattenToChunks(tree, source.book)
 
   allChunks.push(...chunks)
   sourceStats.push({
@@ -277,7 +276,7 @@ for (const source of SOURCES) {
 }
 
 const index = {
-  version: 1,
+  version: 2,
   createdAt: new Date().toISOString(),
   sources: sourceStats,
   chunks: allChunks

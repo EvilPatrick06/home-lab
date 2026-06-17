@@ -148,6 +148,9 @@ interface AiConfigData {
   contextLength?: number
   ollamaKvCacheType?: 'q8_0' | 'q4_0'
   structuredExtraction?: string
+  ragEmbeddingsEnabled?: boolean
+  ragEmbeddingModel?: string
+  ragCampaignDocsEnabled?: boolean
 }
 
 interface AiStatChange {
@@ -206,6 +209,14 @@ interface AiAPI {
   buildIndex: () => Promise<{ success: boolean; chunkCount?: number; error?: string }>
   loadIndex: () => Promise<boolean>
   getChunkCount: () => Promise<number>
+  getEmbedIndexStatus: () => Promise<{
+    status: 'disabled' | 'idle' | 'building' | 'ready' | 'error'
+    model?: string
+    chunkCount?: number
+    percent?: number
+    error?: string
+  }>
+  rebuildEmbedIndex: () => Promise<{ success: boolean; error?: string }>
   prepareScene: (campaignId: string, characterIds: string[]) => Promise<{ success: boolean; streamId?: string | null }>
   getSceneStatus: (
     campaignId: string
@@ -258,6 +269,7 @@ interface AiAPI {
     srdData: number
     characterData: number
     campaignData: number
+    campaignDocs: number
     creatures: number
     gameState: number
     memory: number
@@ -270,6 +282,7 @@ interface AiAPI {
       srdData: number
       characterData: number
       campaignData: number
+      campaignDocs: number
       creatures: number
       gameState: number
       memory: number
@@ -294,6 +307,7 @@ interface AiAPI {
     srdData: number
     characterData: number
     campaignData: number
+    campaignDocs: number
     creatures: number
     gameState: number
     memory: number
@@ -363,6 +377,7 @@ interface AiAPI {
   onStreamDone: (cb: (data: AiStreamDoneData) => void) => () => void
   onStreamError: (cb: (data: AiStreamErrorData) => void) => () => void
   onIndexProgress: (cb: (data: AiIndexProgressData) => void) => () => void
+  onEmbedIndexProgress: (cb: (data: { percent: number }) => void) => () => void
   onOllamaProgress: (cb: (data: OllamaProgressData) => void) => () => void
   onStreamFileRead: (cb: (data: { streamId: string; path: string; status: string }) => void) => () => void
   onStreamWebSearch: (cb: (data: { streamId: string; query: string; status: string }) => void) => () => void

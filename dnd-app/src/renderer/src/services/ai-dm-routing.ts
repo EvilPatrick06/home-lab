@@ -39,7 +39,10 @@ export async function configureAiFromCampaign(campaign: Campaign): Promise<void>
       geminiApiKey: aiDm.geminiApiKey,
       contextLength: aiDm.contextLength,
       ollamaKvCacheType: aiDm.ollamaKvCacheType,
-      structuredExtraction: aiDm.structuredExtraction
+      structuredExtraction: aiDm.structuredExtraction,
+      ragEmbeddingsEnabled: aiDm.ragEmbeddingsEnabled,
+      ragEmbeddingModel: aiDm.ragEmbeddingModel,
+      ragCampaignDocsEnabled: aiDm.ragCampaignDocsEnabled
     })
     if (result && !result.success) {
       logger.warn('[ai] campaign AI config rejected', result.error)

@@ -32,6 +32,7 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Medium
 
+- **[2026-06-16] Pre-commit hook lints 0 staged files — the local biome gate is a silent no-op.** `.husky/pre-commit` does `cd dnd-app` then `npm run lint -- --staged` (= `biome check src/ --staged`). Run from the `dnd-app/` subdir, biome's `--staged` receives git's repo-root-relative staged paths (`dnd-app/src/…`) and filters them against the `src/` path arg in cwd `dnd-app/`, matching nothing → "Checked 0 files in …µs" → the commit passes regardless of lint/format errors. Let a formatter error (an over-long `flattenToChunks` signature) slip through to CI in PHASE-24, turning `dnd-app CI` red (fixed by `biome check --write` + amend). Fix options: drop the `src/` path arg when `--staged` is passed, run biome from the repo root, or stop passing a path with `--staged`. *(found during the PHASE-24 release.)*
 - **[2026-06-11] AI character context is missing weapons/armor/prepared-spells/feats for all v4 characters.** `character-context.ts` still reads v4-stripped inline arrays: `knownSpells`/`preparedSpellIds` (`:137-144`), `armor` (`:168-177`), `weapons` (`:179-184`), `feats` (`:225-228`) — so the AI's "full sheet" omits them. Weapons/armor recoverable from ref `overrides`; spells need library name resolution. *(found during PHASE-02 verification; not in any phase's allocation — the conditions read was fixed in PHASE-02 02B.)*
 
 ## Low

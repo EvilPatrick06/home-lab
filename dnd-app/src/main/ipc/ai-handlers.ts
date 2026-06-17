@@ -227,6 +227,21 @@ export function registerAiHandlers(): void {
     return aiService.getChunkCount()
   })
 
+  // ── PHASE-24 24C: rule-embedding vector store ──
+  handle(IPC_CHANNELS.AI_EMBED_INDEX_STATUS, async () => {
+    return aiService.getEmbedIndexStatus()
+  })
+
+  handle(IPC_CHANNELS.AI_EMBED_INDEX_REBUILD, async (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    aiService.setEmbedProgressSender((percent) => sendToWindow(win, IPC_CHANNELS.AI_EMBED_INDEX_PROGRESS, { percent }))
+    try {
+      return await aiService.rebuildEmbeddingIndex()
+    } finally {
+      aiService.setEmbedProgressSender(null)
+    }
+  })
+
   // ── Streaming Chat ──
 
   handle(IPC_CHANNELS.AI_CHAT_STREAM, async (event, request: AiChatRequest) => {

@@ -3,7 +3,7 @@
  * Run `npm run i18n:gen-keys` (scripts/i18n/gen-key-union.mjs) to regenerate
  * after changing en.json. Source: src/renderer/src/i18n/locales/en.json.
  *
- * A literal union of every dotted leaf key in en.json (6140 keys),
+ * A literal union of every dotted leaf key in en.json (6145 keys),
  * so `t()` calls are checked at compile time instead of silently rendering a
  * raw key string when a key is typo'd or missing.
  */
@@ -435,6 +435,7 @@ export type TranslationKey =
   | 'campaign.aiProviderSetup.apiKeyInvalid'
   | 'campaign.aiProviderSetup.apiKeyPlaceholder'
   | 'campaign.aiProviderSetup.apiKeyValid'
+  | 'campaign.aiProviderSetup.campaignDocSearch'
   | 'campaign.aiProviderSetup.checking'
   | 'campaign.aiProviderSetup.detecting'
   | 'campaign.aiProviderSetup.downloading'
@@ -466,6 +467,9 @@ export type TranslationKey =
   | 'campaign.aiProviderSetup.readyToGo'
   | 'campaign.aiProviderSetup.retryDetect'
   | 'campaign.aiProviderSetup.retrySetup'
+  | 'campaign.aiProviderSetup.semanticSearch'
+  | 'campaign.aiProviderSetup.semanticSearchModelHint'
+  | 'campaign.aiProviderSetup.semanticSearchRebuild'
   | 'campaign.aiProviderSetup.settingUp'
   | 'campaign.aiProviderSetup.startSetup'
   | 'campaign.aiProviderSetup.startingServer'
@@ -1187,6 +1191,7 @@ export type TranslationKey =
   | 'game.contextInspector.estimate'
   | 'game.contextInspector.estimateNote'
   | 'game.contextInspector.previewNote'
+  | 'game.contextInspector.sections.campaignDocs'
   | 'game.contextInspector.truncatedNo'
   | 'game.contextInspector.truncatedWarning'
   | 'game.contextInspector.window'

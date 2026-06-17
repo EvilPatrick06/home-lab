@@ -84,6 +84,9 @@ const api = {
     buildIndex: () => ipcRenderer.invoke(IPC_CHANNELS.AI_BUILD_INDEX),
     loadIndex: () => ipcRenderer.invoke(IPC_CHANNELS.AI_LOAD_INDEX),
     getChunkCount: () => ipcRenderer.invoke(IPC_CHANNELS.AI_GET_CHUNK_COUNT),
+    // PHASE-24 24C: rule-embedding vector store.
+    getEmbedIndexStatus: () => ipcRenderer.invoke(IPC_CHANNELS.AI_EMBED_INDEX_STATUS),
+    rebuildEmbedIndex: () => ipcRenderer.invoke(IPC_CHANNELS.AI_EMBED_INDEX_REBUILD),
     prepareScene: (campaignId: string, characterIds: string[]) =>
       ipcRenderer.invoke(IPC_CHANNELS.AI_PREPARE_SCENE, campaignId, characterIds),
     getSceneStatus: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_GET_SCENE_STATUS, campaignId),
@@ -226,6 +229,11 @@ const api = {
       const listener = (_e: IpcRendererEvent, data: { percent: number; stage: string }): void => cb(data)
       ipcRenderer.on(IPC_CHANNELS.AI_INDEX_PROGRESS, listener)
       return () => ipcRenderer.removeListener(IPC_CHANNELS.AI_INDEX_PROGRESS, listener)
+    },
+    onEmbedIndexProgress: (cb: (data: { percent: number }) => void) => {
+      const listener = (_e: IpcRendererEvent, data: { percent: number }): void => cb(data)
+      ipcRenderer.on(IPC_CHANNELS.AI_EMBED_INDEX_PROGRESS, listener)
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.AI_EMBED_INDEX_PROGRESS, listener)
     },
     onOllamaProgress: (cb: (data: { type: string; percent: number }) => void) => {
       const listener = (_e: IpcRendererEvent, data: { type: string; percent: number }): void => cb(data)

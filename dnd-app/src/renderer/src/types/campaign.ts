@@ -74,6 +74,11 @@ export interface AiDmConfig {
   ollamaKvCacheType?: 'q8_0' | 'q4_0'
   /** PHASE-23: structured mechanics extraction mode (Ollama-only; absent ≡ off). */
   structuredExtraction?: 'off' | 'fallback' | 'always'
+  /** PHASE-24 24C: opt-in semantic rules search (Ollama embeddings; absent = off). */
+  ragEmbeddingsEnabled?: boolean
+  ragEmbeddingModel?: string
+  /** PHASE-24 24D: search this campaign's lore/journal/handouts (absent = off). */
+  ragCampaignDocsEnabled?: boolean
   discordBridge?: boolean
   /** @deprecated Use `model` instead */
   ollamaModel?: string
