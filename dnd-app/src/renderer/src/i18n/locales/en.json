@@ -5631,7 +5631,10 @@
       "structuredExtractionAlways": "Every response",
       "sceneMemory": "Scene-based AI memory (experimental)",
       "sceneMemoryHint": "Summarizes finished scenes into layered memory instead of compacting mid-scene. Changes how the AI remembers long campaigns.",
-      "sceneMemorySaveFailed": "Couldn't change the scene-memory setting."
+      "sceneMemorySaveFailed": "Couldn't change the scene-memory setting.",
+      "worldState": "World state tracking (experimental)",
+      "worldStateHint": "The engine keeps a persistent map of locations, NPC opinions, and facts the AI must honor.",
+      "worldStateSaveFailed": "Couldn't change the world-state setting."
     },
     "audioManager": {
       "customAudio": "Custom Audio ({{count}})",

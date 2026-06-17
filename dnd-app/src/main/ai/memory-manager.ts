@@ -16,7 +16,7 @@ export interface WorldState {
   timeOfDay: string
   weather: string
   currentScene: string
-  activeTokenPositions: Array<{ name: string; gridX: number; gridY: number }>
+  activeTokenPositions: Array<{ name: string; gridX: number; gridY: number; hp?: string }>
   updatedAt: string
 }
 
@@ -184,16 +184,21 @@ export class MemoryManager {
   }
 
   async updateWorldState(updates: Partial<WorldState>): Promise<void> {
-    const current = (await this.getWorldState()) ?? {
-      currentMapId: null,
-      currentMapName: null,
-      timeOfDay: 'morning',
-      weather: 'clear',
-      currentScene: '',
-      activeTokenPositions: [],
-      updatedAt: new Date().toISOString()
-    }
-    await this.writeJson('world-state.json', { ...current, ...updates, updatedAt: new Date().toISOString() })
+    // PHASE-27 27B: serialize the read-modify-write through mutate() (was an unlocked
+    // getWorldState→spread→writeJson, racing the two renderer sync writers + quest writes).
+    await this.mutate<WorldState>(
+      'world-state.json',
+      (current) => ({ ...current, ...updates, updatedAt: new Date().toISOString() }),
+      {
+        currentMapId: null,
+        currentMapName: null,
+        timeOfDay: 'morning',
+        weather: 'clear',
+        currentScene: '',
+        activeTokenPositions: [],
+        updatedAt: new Date().toISOString()
+      }
+    )
   }
 
   // --- Combat State ---
@@ -343,10 +348,32 @@ export class MemoryManager {
     return personalities.find((p) => p.npcId === npcId)
   }
 
-  /** Find NPC by name (case-insensitive), creating a stub if not found */
+  /** Find NPC by name (case-insensitive). PURE READ — callers create via mutateNpcPersonality. */
   async getNpcByName(name: string): Promise<NPCPersonality | undefined> {
     const personalities = await this.getNpcPersonalities()
     return personalities.find((p) => p.name.toLowerCase() === name.toLowerCase())
+  }
+
+  /**
+   * PHASE-27 27B: serialized find-or-create-then-apply over npc-personalities.json. The
+   * stub is created INSIDE the mutator (atomic with the write), so two concurrent calls for
+   * the same new NPC can no longer each miss an unlocked read and create duplicate stubs.
+   */
+  private async mutateNpcPersonality(npcName: string, fn: (p: NPCPersonality) => NPCPersonality): Promise<void> {
+    await this.mutate<NPCPersonality[]>(
+      'npc-personalities.json',
+      (personalities) => {
+        const lc = npcName.toLowerCase()
+        let idx = personalities.findIndex((p) => p.name.toLowerCase() === lc)
+        if (idx < 0) {
+          personalities.push({ npcId: crypto.randomUUID(), name: npcName, personality: '' })
+          idx = personalities.length - 1
+        }
+        personalities[idx] = fn(personalities[idx])
+        return personalities
+      },
+      []
+    )
   }
 
   /** Log a conversation interaction with an NPC */
@@ -355,24 +382,11 @@ export class MemoryManager {
     summary: string,
     attitudeAfter: 'friendly' | 'neutral' | 'hostile'
   ): Promise<void> {
-    let personality = await this.getNpcByName(npcName)
-    if (!personality) {
-      // Create stub personality for new NPCs
-      personality = { npcId: crypto.randomUUID(), name: npcName, personality: '' }
-      await this.setNpcPersonality(personality)
-    }
-    const log = personality.conversationLog ?? []
-    log.push({
-      timestamp: new Date().toISOString(),
-      summary,
-      attitudeAfter
-    })
-    // Keep last 10 interactions per NPC
-    if (log.length > 10) log.splice(0, log.length - 10)
-    await this.setNpcPersonality({
-      ...personality,
-      conversationLog: log,
-      lastInteractionSummary: summary
+    await this.mutateNpcPersonality(npcName, (p) => {
+      const log = p.conversationLog ?? []
+      log.push({ timestamp: new Date().toISOString(), summary, attitudeAfter })
+      if (log.length > 10) log.splice(0, log.length - 10) // keep last 10
+      return { ...p, conversationLog: log, lastInteractionSummary: summary }
     })
   }
 
@@ -385,12 +399,7 @@ export class MemoryManager {
     npcName: string,
     fields: Partial<Pick<NPCPersonality, 'faction' | 'location' | 'secretMotivation'>>
   ): Promise<void> {
-    let personality = await this.getNpcByName(npcName)
-    if (!personality) {
-      personality = { npcId: crypto.randomUUID(), name: npcName, personality: '' }
-      await this.setNpcPersonality(personality)
-    }
-    await this.setNpcPersonality({ ...personality, ...fields })
+    await this.mutateNpcPersonality(npcName, (p) => ({ ...p, ...fields }))
   }
 
   /** Add a relationship between two NPCs */
@@ -400,25 +409,19 @@ export class MemoryManager {
     relationship: string,
     disposition: 'friendly' | 'neutral' | 'hostile'
   ): Promise<void> {
-    let personality = await this.getNpcByName(npcName)
-    if (!personality) {
-      personality = { npcId: crypto.randomUUID(), name: npcName, personality: '' }
-      await this.setNpcPersonality(personality)
-    }
-    // Ensure target NPC also exists
-    let targetPersonality = await this.getNpcByName(targetNpcName)
-    if (!targetPersonality) {
-      targetPersonality = { npcId: crypto.randomUUID(), name: targetNpcName, personality: '' }
-      await this.setNpcPersonality(targetPersonality)
-    }
-    const rels = personality.relationships ?? []
-    const existing = rels.findIndex((r) => r.targetNpcId === targetPersonality!.npcId)
-    if (existing >= 0) {
-      rels[existing] = { targetNpcId: targetPersonality.npcId, targetName: targetNpcName, relationship, disposition }
-    } else {
-      rels.push({ targetNpcId: targetPersonality.npcId, targetName: targetNpcName, relationship, disposition })
-    }
-    await this.setNpcPersonality({ ...personality, relationships: rels })
+    // Ensure the target exists (serialized create-if-absent), then read its id, then mutate
+    // the source. Both writes go through the same file queue, so no interleave is possible.
+    await this.mutateNpcPersonality(targetNpcName, (p) => p)
+    const target = await this.getNpcByName(targetNpcName)
+    if (!target) return
+    await this.mutateNpcPersonality(npcName, (p) => {
+      const rels = p.relationships ?? []
+      const rel = { targetNpcId: target.npcId, targetName: targetNpcName, relationship, disposition }
+      const existing = rels.findIndex((r) => r.targetNpcId === target.npcId)
+      if (existing >= 0) rels[existing] = rel
+      else rels.push(rel)
+      return { ...p, relationships: rels }
+    })
   }
 
   /** Get relationship web for context assembly */
@@ -438,10 +441,13 @@ export class MemoryManager {
   }
 
   async setWorldStateSummary(summary: WorldStateSummary): Promise<void> {
-    await this.writeJson('world-state-summary.json', {
-      ...summary,
-      lastUpdated: new Date().toISOString()
-    })
+    // PHASE-27 27B: route the full-replace write through the file queue too, so it can't
+    // interleave with updateQuestLog's serialized read-modify-write.
+    await this.mutate<WorldStateSummary>(
+      'world-state-summary.json',
+      () => ({ ...summary, lastUpdated: new Date().toISOString() }),
+      summary
+    )
   }
 
   /**
@@ -455,33 +461,40 @@ export class MemoryManager {
     name: string,
     description?: string
   ): Promise<void> {
-    const summary: WorldStateSummary = (await this.getWorldStateSummary()) ?? {
-      currentLocation: 'Unknown',
-      timeOfDay: 'unknown',
-      activeQuests: [],
-      recentEvents: [],
-      lastUpdated: new Date().toISOString()
-    }
     const entry = description ? `${name}: ${description}` : name
     const matchesName = (q: string) => q.toLowerCase().startsWith(name.toLowerCase())
-    let quests = summary.activeQuests
-    let events = summary.recentEvents
-    switch (operation) {
-      case 'add':
-        if (!quests.some(matchesName)) quests = [...quests, entry]
-        break
-      case 'update':
-        quests = quests.some(matchesName) ? quests.map((q) => (matchesName(q) ? entry : q)) : [...quests, entry]
-        break
-      case 'complete':
-        quests = quests.filter((q) => !matchesName(q))
-        events = [...events, `Completed quest: ${name}`].slice(-20)
-        break
-      case 'remove':
-        quests = quests.filter((q) => !matchesName(q))
-        break
-    }
-    await this.setWorldStateSummary({ ...summary, activeQuests: quests, recentEvents: events })
+    // PHASE-27 27B: the whole read-switch-write is now ONE serialized mutate (was an unlocked
+    // getWorldStateSummary → switch → setWorldStateSummary that raced concurrent quest writes).
+    await this.mutate<WorldStateSummary>(
+      'world-state-summary.json',
+      (summary) => {
+        let quests = summary.activeQuests
+        let events = summary.recentEvents
+        switch (operation) {
+          case 'add':
+            if (!quests.some(matchesName)) quests = [...quests, entry]
+            break
+          case 'update':
+            quests = quests.some(matchesName) ? quests.map((q) => (matchesName(q) ? entry : q)) : [...quests, entry]
+            break
+          case 'complete':
+            quests = quests.filter((q) => !matchesName(q))
+            events = [...events, `Completed quest: ${name}`].slice(-20)
+            break
+          case 'remove':
+            quests = quests.filter((q) => !matchesName(q))
+            break
+        }
+        return { ...summary, activeQuests: quests, recentEvents: events, lastUpdated: new Date().toISOString() }
+      },
+      {
+        currentLocation: 'Unknown',
+        timeOfDay: 'unknown',
+        activeQuests: [],
+        recentEvents: [],
+        lastUpdated: new Date().toISOString()
+      }
+    )
   }
 
   // --- Faction Reputation (G33) ---

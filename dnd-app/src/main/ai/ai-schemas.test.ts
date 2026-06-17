@@ -282,6 +282,31 @@ describe('validateDmActions', () => {
     expect(issues).toHaveLength(1)
   })
 
+  // PHASE-27 27E — the five world-state delta verbs must be registered (else silently dropped).
+  it('registers all five world-state verbs in DM_ACTION_SCHEMAS', () => {
+    for (const verb of ['discover_location', 'move_party', 'link_locations', 'set_npc_opinion', 'record_fact']) {
+      expect(DM_ACTION_SCHEMAS[verb]).toBeDefined()
+    }
+  })
+
+  it('validates the five world-state delta verbs', () => {
+    const { valid, issues } = validateDmActions([
+      { action: 'discover_location', name: 'Market Row', type: 'market' },
+      { action: 'move_party', locationName: 'Tavern' },
+      { action: 'link_locations', fromName: 'Tavern', toName: 'Market Row', label: 'north gate' },
+      { action: 'set_npc_opinion', npcName: 'Ama', characterName: 'Brovic', delta: 40, summary: 'grateful' },
+      { action: 'record_fact', text: 'The bridge is out', tags: ['travel'] }
+    ])
+    expect(valid).toHaveLength(5)
+    expect(issues).toHaveLength(0)
+  })
+
+  it('rejects move_party with no locationName', () => {
+    const { valid, issues } = validateDmActions([{ action: 'move_party' }])
+    expect(valid).toHaveLength(0)
+    expect(issues).toHaveLength(1)
+  })
+
   it('rejects place_token with invalid entityType', () => {
     const { valid, issues } = validateDmActions([
       { action: 'place_token', label: 'Goblin', entityType: 'monster', gridX: 5, gridY: 3 }

@@ -676,6 +676,114 @@ export function executeRecordEntity(action: DmAction, gameStore: GameStoreSnapsh
   return true
 }
 
+// ── World-state deltas (PHASE-27 27E) ──
+// Engine owns truth: build a flat delta, send it, and surface engine REJECTIONS as a DM-only
+// chat note (the executor stays synchronous-boolean; the result is consumed via .then, not awaited).
+
+type WorldDeltaResult = { success: boolean; applied?: boolean; detail?: string; error?: string } | undefined
+
+function noteWorldDeltaResult(stores: StoreAccessors, res: WorldDeltaResult): void {
+  if (res && (!res.success || res.applied === false)) {
+    postDmChatMessage(
+      stores,
+      'ai-world-state',
+      `World state: ${res.detail ?? res.error ?? 'rejected'}`,
+      'system',
+      'System'
+    )
+  }
+}
+
+export function executeDiscoverLocation(
+  action: DmAction,
+  gameStore: GameStoreSnapshot,
+  stores: StoreAccessors
+): boolean {
+  const name = action.name as string
+  if (!name) throw new Error('Missing params for discover_location')
+  const campaignId = gameStore.campaignId
+  if (campaignId) {
+    window.api.ai
+      .applyWorldDelta?.(campaignId, {
+        op: 'discover_location',
+        name,
+        type: action.type as string | undefined,
+        description: action.description as string | undefined,
+        connectsTo: action.connectsTo as string | undefined,
+        exitLabel: action.exitLabel as string | undefined
+      })
+      .then((res) => noteWorldDeltaResult(stores, res))
+      .catch(() => {})
+  }
+  return true
+}
+
+export function executeMoveParty(action: DmAction, gameStore: GameStoreSnapshot, stores: StoreAccessors): boolean {
+  const locationName = action.locationName as string
+  if (!locationName) throw new Error('Missing params for move_party')
+  const campaignId = gameStore.campaignId
+  if (campaignId) {
+    window.api.ai
+      .applyWorldDelta?.(campaignId, { op: 'move_party', locationName })
+      .then((res) => noteWorldDeltaResult(stores, res))
+      .catch(() => {})
+  }
+  return true
+}
+
+export function executeLinkLocations(action: DmAction, gameStore: GameStoreSnapshot, stores: StoreAccessors): boolean {
+  const fromName = action.fromName as string
+  const toName = action.toName as string
+  if (!fromName || !toName) throw new Error('Missing params for link_locations')
+  const campaignId = gameStore.campaignId
+  if (campaignId) {
+    window.api.ai
+      .applyWorldDelta?.(campaignId, {
+        op: 'link_locations',
+        fromName,
+        toName,
+        label: action.label as string | undefined
+      })
+      .then((res) => noteWorldDeltaResult(stores, res))
+      .catch(() => {})
+  }
+  return true
+}
+
+export function executeSetNpcOpinion(action: DmAction, gameStore: GameStoreSnapshot, stores: StoreAccessors): boolean {
+  const npcName = action.npcName as string
+  const characterName = action.characterName as string
+  if (!npcName || !characterName) throw new Error('Missing params for set_npc_opinion')
+  const campaignId = gameStore.campaignId
+  if (campaignId) {
+    window.api.ai
+      .applyWorldDelta?.(campaignId, {
+        op: 'set_npc_opinion',
+        npcName,
+        characterName,
+        delta: action.delta as number | undefined,
+        score: action.score as number | undefined,
+        summary: action.summary as string | undefined
+      })
+      .then((res) => noteWorldDeltaResult(stores, res))
+      .catch(() => {})
+  }
+  return true
+}
+
+export function executeRecordFact(action: DmAction, gameStore: GameStoreSnapshot, stores: StoreAccessors): boolean {
+  const text = action.text as string
+  if (!text) throw new Error('Missing params for record_fact')
+  const campaignId = gameStore.campaignId
+  if (campaignId) {
+    window.api.ai
+      .applyWorldDelta?.(campaignId, { op: 'record_fact', text, tags: action.tags as string[] | undefined })
+      .then((res) => noteWorldDeltaResult(stores, res))
+      .catch(() => {})
+  }
+  return true
+}
+
 export function executeSetNpcRelationship(action: DmAction, gameStore: GameStoreSnapshot): boolean {
   const npcName = action.npcName as string
   const targetNpcName = action.targetNpcName as string

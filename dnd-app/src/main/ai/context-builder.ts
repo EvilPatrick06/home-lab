@@ -12,12 +12,14 @@ import { searchRules } from './hybrid-search'
 import { type LoreEntryLike, selectLore } from './lore-injection'
 import { getMemoryManager } from './memory-manager'
 import { ENTITY_RECORDS_PROMPT } from './prompt-sections/entity-records'
+import { WORLD_STATE_VERBS_PROMPT } from './prompt-sections/world-state-verbs'
 import type { SearchEngine } from './search-engine'
 import { detectAndLoadSrdData } from './srd-provider'
 import type { ContextTokenBreakdown } from './token-budget'
 import { estimateTokens, getEffectiveBudgets, trimToTokenBudget } from './token-budget'
 import type { ActiveCreatureInfo, ScoredChunk } from './types'
 import type { WebSearchRequest, WebSearchResult } from './web-search'
+import { getWorldStateStore } from './world-state-store'
 
 // Ensure imported types are used for type-safety
 type _FileReadRequest = FileReadRequest
@@ -421,6 +423,15 @@ export async function buildContext(
         const entityBlock = await getEntityStore(campaignId).buildEntityContextBlock(effectiveScanText)
         const entitySection = entityBlock ? `${ENTITY_RECORDS_PROMPT}\n\n${entityBlock}` : ENTITY_RECORDS_PROMPT
         memoryContext = memoryContext ? `${entitySection}\n\n${memoryContext}` : entitySection
+      }
+      // PHASE-27 27F: when the world store is enabled, prepend the verb docs + the bounded
+      // [WORLD STATE] slice (slice-first so it survives the memory-budget trim). Disabled
+      // (default) ⇒ skipped, leaving step 7 byte-identical to pre-phase.
+      const worldStore = getWorldStateStore(campaignId)
+      if (await worldStore.isEnabled()) {
+        const worldBlock = await worldStore.buildContextBlock()
+        const worldSection = worldBlock ? `${WORLD_STATE_VERBS_PROMPT}\n\n${worldBlock}` : WORLD_STATE_VERBS_PROMPT
+        memoryContext = memoryContext ? `${worldSection}\n\n${memoryContext}` : worldSection
       }
       if (memoryContext) {
         const trimmed = trimTracked(memoryContext, budgets.memory)

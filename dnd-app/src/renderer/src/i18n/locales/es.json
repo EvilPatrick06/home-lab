@@ -5631,7 +5631,10 @@
       "structuredExtractionAlways": "Cada respuesta",
       "sceneMemory": "Memoria de IA basada en escenas (experimental)",
       "sceneMemoryHint": "Resume las escenas terminadas en una memoria por niveles en lugar de compactar a mitad de escena. Cambia cómo la IA recuerda campañas largas.",
-      "sceneMemorySaveFailed": "No se pudo cambiar el ajuste de memoria de escenas."
+      "sceneMemorySaveFailed": "No se pudo cambiar el ajuste de memoria de escenas.",
+      "worldState": "Seguimiento del estado del mundo (experimental)",
+      "worldStateHint": "El motor mantiene un mapa persistente de lugares, opiniones de PNJ y hechos que la IA debe respetar.",
+      "worldStateSaveFailed": "No se pudo cambiar el ajuste del estado del mundo."
     },
     "audioManager": {
       "customAudio": "Audio personalizado ({{count}})",

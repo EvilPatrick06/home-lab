@@ -394,4 +394,37 @@ Order keeps the tree green: pure additions first (27A), then always-on bug fixes
 
 ## Completed
 
-<!-- Filled during execution per INSTRUCTIONS.md rule 17 — one line per sub-phase with file:line citations. -->
+- **27A — `world-state-store.ts`.** NEW store module: zod schemas (`WorldStoreSchema` v1 + location/
+  exit/npc/opinion/fact), `slugifyId` (shared derivation), serialized `withLock` + atomic tmp+rename,
+  `getSnapshot`/`isEnabled` (module enabled-cache)/`setEnabled`, mutators `discoverLocation`/`movePartyTo`
+  (auto-stub + link)/`linkLocations`/`setNpcOpinion` (clamp ±100, score>delta)/`setNpcLocation`/`recordFact`
+  (dedupe + FIFO 200), `seedFromLegacy` (read-only npc-personalities + world-state-summary), `buildContextBlock`
+  (27F slice), `getWorldStateStore` factory. NEW `world-state-store.test.ts` (17, incl. the 27H integration).
+- **27B — memory-manager race fixes.** `updateWorldState` + `updateQuestLog` + `setWorldStateSummary` now go
+  through `mutate()`; new private `mutateNpcPersonality` (stub created INSIDE the mutator) rewrites
+  `logNpcInteraction`/`updateNpcFields`/`addNpcRelationship` (target ensured + re-read for its id, then source
+  mutated) — the duplicate-stub + lost-update races are gone. `memory-manager.test.ts` +3 concurrency regressions
+  (parallel world-state merge, single-stub NPC, parallel quest adds); addNpcRelationship test rewritten stateful.
+- **27C — one renderer world-sync writer.** `ai-memory-sync.ts` `buildWorldState` now carries `hp` (the one
+  useful field of the deleted writer); `WorldState.activeTokenPositions` += `hp?`. DELETED
+  `hooks/use-ai-memory-sync.ts` + its `GameLayout.tsx` import/call (single `AI_SYNC_WORLD_STATE` writer, gated
+  by use-game-effects `isDM && aiDm.enabled`). `ai-memory-sync.test.ts` +2 hp cases (`buildWorldState` exported).
+- **27D — IPC plumbing.** `ipc-channels.ts` `AI_WORLD_STATE_GET`/`AI_WORLD_STATE_SET_ENABLED`/`AI_WORLD_DELTA`;
+  `ipc-schemas.ts` `WorldDeltaSchema` (discriminated on `op`, bounded). `ai-handlers.ts` three sanitized handlers
+  (delta switch → store mutators) + `AI_SET_NPC_FIELDS` mirrors `location` into the store when enabled
+  (fire-and-forget). preload `index.ts`/`index.d.ts` (`getWorldState`/`setWorldStateEnabled`/`applyWorldDelta`).
+- **27E — delta verbs.** `ai-schemas.ts` 5 schemas + registered in `DM_ACTION_SCHEMAS`; `dm-actions.ts` 5 `DmAction`
+  union variants (schema↔union contract test passes). `effect-actions.ts` 5 executors (build delta → `applyWorldDelta`,
+  surface engine rejection as a DM-only chat note via `postDmChatMessage`, throw on missing params);
+  `game-action-executor.ts` 5 dispatch cases. Tests: `ai-schemas.test.ts` (5 parse + map-membership + reject),
+  `effect-actions.test.ts` (payload + rejection-note + throws).
+- **27F — gated context slice + verb docs.** NEW `prompt-sections/world-state-verbs.ts` `WORLD_STATE_VERBS_PROMPT`;
+  `context-builder.ts` step 7 prepends `[WORLD STATE ACTIONS]` + the `[WORLD STATE]` slice to `memoryContext`
+  (slice-first, inside the existing `budgets.memory`) only when `getWorldStateStore(id).isEnabled()`; disabled
+  (default) ⇒ byte-identical (no `token-budgets.json` change). `context-builder.test.ts` +2 gated on/off.
+- **27G — opt-in toggle.** `AiDmCard.tsx` world-state checkbox in the AI-enabled view (own IPC-backed state via
+  `getWorldState`/`setWorldStateEnabled`, NOT `campaign.aiDm`). en+es `pages.aiDmCard.{worldState,worldStateHint,
+  worldStateSaveFailed}`. `AiDmCard.test.tsx` +3 (render + toggle + hidden-when-disabled).
+- **27H — contract doc + integration + gate.** `AI_ACTION_CONTRACT.md` "World-state deltas (PHASE-27)" section.
+  Integration test in `world-state-store.test.ts` (validate → apply → snapshot + block reflect all; schema rejects
+  malformed). End-of-phase 4-gate: lint, tsc web+node, full vitest — all green. No Pi code (no pytest leg).

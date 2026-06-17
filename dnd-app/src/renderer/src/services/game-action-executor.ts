@@ -89,16 +89,21 @@ import {
   executeBastionResolveEvent,
   executeBastionWithdrawGold,
   executeCloseShop,
+  executeDiscoverLocation,
   executeHiddenDiceRoll,
+  executeLinkLocations,
   executeLogNpcInteraction,
+  executeMoveParty,
   executeOpenShop,
   executeRecordEntity,
+  executeRecordFact,
   executeRemoveShopItem,
   executeRemoveSidebarEntry,
   executeRequestRoll,
   executeRollDice,
   executeSetNpcFaction,
   executeSetNpcLocation,
+  executeSetNpcOpinion,
   executeSetNpcRelationship,
   executeSetNpcSecretMotivation,
   executeSetTime,
@@ -461,6 +466,19 @@ function executeOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: A
       return executeAdjustFactionStanding(action, gameStore)
     case 'record_entity':
       return executeRecordEntity(action, gameStore)
+
+    // ── World-state deltas (PHASE-27) ──
+    case 'discover_location':
+      return executeDiscoverLocation(action, gameStore, stores)
+    case 'move_party':
+      return executeMoveParty(action, gameStore, stores)
+    case 'link_locations':
+      return executeLinkLocations(action, gameStore, stores)
+    case 'set_npc_opinion':
+      return executeSetNpcOpinion(action, gameStore, stores)
+    case 'record_fact':
+      return executeRecordFact(action, gameStore, stores)
+
     case 'attune_item':
       return executeAttuneItem(action, gameStore, activeMap, stores)
     case 'unattune_item':

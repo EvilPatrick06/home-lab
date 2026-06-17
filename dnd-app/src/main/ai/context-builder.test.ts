@@ -37,6 +37,18 @@ vi.mock('./entity-store', () => ({
   matchesKey: (scan: string, key: string) => scan.toLowerCase().includes(key.toLowerCase())
 }))
 
+// PHASE-27 27F — world store drives the [WORLD STATE] block (step 7).
+const worldState = vi.hoisted(() => ({
+  enabled: false,
+  block: '[WORLD STATE]\nParty location: Tavern\n[/WORLD STATE]'
+}))
+vi.mock('./world-state-store', () => ({
+  getWorldStateStore: vi.fn(() => ({
+    isEnabled: async () => worldState.enabled,
+    buildContextBlock: async () => worldState.block
+  }))
+}))
+
 vi.mock('./memory-manager', () => ({
   getMemoryManager: vi.fn(() => ({
     saveCharacterContext: vi.fn(async () => {}),
@@ -229,6 +241,33 @@ describe('entity records injection (PHASE-25 25E)', () => {
     const result = await buildContext('q', [], 'c1')
     expect(result.text).toContain('[ENTITY ACTIONS]')
     expect(result.text).toContain('[ENTITY RECORDS]')
+    expect(result.breakdown.memory).toBeGreaterThan(0)
+  })
+})
+
+describe('world-state injection (PHASE-27 27F)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    setSearchEngine(null)
+    setRetrievalOptsProvider(null)
+    entityState.config = { enabled: false, autoExtract: false, loreMode: 'all' }
+    worldState.enabled = false
+    worldState.block = '[WORLD STATE]\nParty location: Tavern\n[/WORLD STATE]'
+  })
+  afterEach(() => setRetrievalOptsProvider(null))
+
+  it('disabled store → no [WORLD STATE] / [WORLD STATE ACTIONS] blocks (regression guard)', async () => {
+    const result = await buildContext('q', [], 'c1')
+    expect(result.text).not.toContain('[WORLD STATE]')
+    expect(result.text).not.toContain('[WORLD STATE ACTIONS]')
+  })
+
+  it('enabled store → verb docs + world slice present in the memory segment', async () => {
+    worldState.enabled = true
+    const result = await buildContext('q', [], 'c1')
+    expect(result.text).toContain('[WORLD STATE ACTIONS]')
+    expect(result.text).toContain('[WORLD STATE]')
+    expect(result.text).toContain('Party location: Tavern')
     expect(result.breakdown.memory).toBeGreaterThan(0)
   })
 })

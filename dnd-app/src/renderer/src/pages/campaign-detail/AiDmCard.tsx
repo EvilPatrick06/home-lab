@@ -50,6 +50,8 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
   // PHASE-26: scene-based memory is an engine-owned per-campaign flag (NOT campaign.aiDm),
   // read/written over IPC — independent of the configure modal's aiDm save.
   const [sceneMemoryOn, setSceneMemoryOn] = useState(false)
+  // PHASE-27: world-state tracking — same engine-owned per-campaign flag pattern, over IPC.
+  const [worldStateOn, setWorldStateOn] = useState(false)
 
   const openConfigure = (): void => {
     const dm = campaign.aiDm
@@ -137,6 +139,30 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
     }
   }
 
+  // PHASE-27: load + toggle the world-state flag (engine-owned, via getWorldState/setWorldStateEnabled).
+  useEffect(() => {
+    if (!aiDmEnabled) return
+    let cancelled = false
+    window.api.ai
+      .getWorldState?.(campaign.id)
+      .then((r) => {
+        if (!cancelled && r?.success && r.store) setWorldStateOn(r.store.enabled)
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [campaign.id, aiDmEnabled])
+
+  const handleWorldStateToggle = async (next: boolean): Promise<void> => {
+    setWorldStateOn(next) // optimistic
+    const r = await window.api.ai.setWorldStateEnabled?.(campaign.id, next)
+    if (r && !r.success) {
+      setWorldStateOn(!next)
+      addToast(r.error ?? t('pages.aiDmCard.worldStateSaveFailed'), 'error')
+    }
+  }
+
   const providerLabel = AI_PROVIDER_LABELS[campaign.aiDm?.provider ?? 'ollama'] ?? 'Ollama'
   const displayModel = campaign.aiDm?.model ?? campaign.aiDm?.ollamaModel ?? t('pages.aiDmCard.defaultModel')
 
@@ -166,6 +192,18 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
                 {t('pages.aiDmCard.sceneMemory')}
               </label>
               <p className="text-[11px] text-gray-500 mt-0.5">{t('pages.aiDmCard.sceneMemoryHint')}</p>
+            </div>
+            {/* PHASE-27: world-state tracking toggle (per-campaign engine flag). */}
+            <div className="pt-1">
+              <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={worldStateOn}
+                  onChange={(e) => handleWorldStateToggle(e.target.checked)}
+                />
+                {t('pages.aiDmCard.worldState')}
+              </label>
+              <p className="text-[11px] text-gray-500 mt-0.5">{t('pages.aiDmCard.worldStateHint')}</p>
             </div>
           </div>
         ) : (

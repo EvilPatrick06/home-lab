@@ -2,6 +2,7 @@ import { useGameStore } from '../../stores/use-game-store'
 import type { EntityCondition, InGameTimeState, InitiativeState } from '../../types/game-state'
 import type { GameMap, MapToken } from '../../types/map'
 import { logger } from '../../utils/logger'
+import { getTokenStats } from '../game/token-stats'
 
 const WORLD_STATE_DEBOUNCE_MS = 2000
 const COMBAT_STATE_DEBOUNCE_MS = 1500
@@ -22,7 +23,8 @@ function deriveTimeOfDay(inGameTime: InGameTimeState | null): string {
   return 'night'
 }
 
-function buildWorldState(
+// Exported for tests (PHASE-27 27C hp-field coverage); not part of the module's runtime API.
+export function buildWorldState(
   activeMap: GameMap | undefined,
   activeMapId: string | null,
   inGameTime: InGameTimeState | null,
@@ -37,7 +39,10 @@ function buildWorldState(
     activeTokenPositions: (activeMap?.tokens ?? []).map((t: MapToken) => ({
       name: t.label,
       gridX: t.gridX,
-      gridY: t.gridY
+      gridY: t.gridY,
+      // PHASE-27 27C: hp carried over from the now-deleted use-ai-memory-sync hook (the one
+      // useful field of the divergent second writer) so the consolidation loses nothing.
+      hp: t.currentHP != null ? `${t.currentHP}/${getTokenStats(t).maxHP ?? '?'}` : undefined
     }))
   }
 }

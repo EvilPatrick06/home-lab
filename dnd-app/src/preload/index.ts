@@ -1,6 +1,6 @@
 import { contextBridge, type IpcRendererEvent, ipcRenderer } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc-channels'
-import type { EntityStoreConfigPatch, EntityUpsertPayload } from '../shared/ipc-schemas'
+import type { EntityStoreConfigPatch, EntityUpsertPayload, WorldDelta } from '../shared/ipc-schemas'
 
 const api = {
   // Character storage
@@ -177,6 +177,12 @@ const api = {
       ipcRenderer.invoke(IPC_CHANNELS.AI_ENTITY_DELETE, campaignId, idOrName),
     setEntitiesConfig: (campaignId: string, patch: EntityStoreConfigPatch) =>
       ipcRenderer.invoke(IPC_CHANNELS.AI_ENTITIES_SET_CONFIG, campaignId, patch),
+    // World-state store (PHASE-27)
+    getWorldState: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_WORLD_STATE_GET, campaignId),
+    setWorldStateEnabled: (campaignId: string, enabled: boolean) =>
+      ipcRenderer.invoke(IPC_CHANNELS.AI_WORLD_STATE_SET_ENABLED, campaignId, enabled),
+    applyWorldDelta: (campaignId: string, delta: WorldDelta) =>
+      ipcRenderer.invoke(IPC_CHANNELS.AI_WORLD_DELTA, campaignId, delta),
     // Memory files
     listMemoryFiles: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_LIST_MEMORY_FILES, campaignId),
     readMemoryFile: (campaignId: string, fileName: string) =>

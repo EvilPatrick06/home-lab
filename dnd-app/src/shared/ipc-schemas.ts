@@ -100,6 +100,39 @@ export type ValidatedConversationData = z.infer<typeof ConversationDataSchema>
 // PHASE-26 26D — optional scene label for AI_END_SCENE (trimmed, bounded).
 export const SceneLabelSchema = z.string().trim().min(1).max(120)
 
+// PHASE-27 27D — world-state delta wire schema (IPC boundary; discriminated on `op`, bounded).
+export const WorldDeltaSchema = z.discriminatedUnion('op', [
+  z.object({
+    op: z.literal('discover_location'),
+    name: z.string().min(1).max(120),
+    type: z.string().max(40).optional(),
+    description: z.string().max(500).optional(),
+    connectsTo: z.string().max(120).optional(),
+    exitLabel: z.string().max(60).optional()
+  }),
+  z.object({ op: z.literal('move_party'), locationName: z.string().min(1).max(120) }),
+  z.object({
+    op: z.literal('link_locations'),
+    fromName: z.string().min(1).max(120),
+    toName: z.string().min(1).max(120),
+    label: z.string().max(60).optional()
+  }),
+  z.object({
+    op: z.literal('set_npc_opinion'),
+    npcName: z.string().min(1).max(120),
+    characterName: z.string().min(1).max(120),
+    delta: z.number().int().min(-100).max(100).optional(),
+    score: z.number().int().min(-100).max(100).optional(),
+    summary: z.string().max(300).optional()
+  }),
+  z.object({
+    op: z.literal('record_fact'),
+    text: z.string().min(1).max(300),
+    tags: z.array(z.string().max(40)).max(6).optional()
+  })
+])
+export type WorldDelta = z.infer<typeof WorldDeltaSchema>
+
 // ── Security Audit (20g) ───────────────────────────────────────────
 // Payload the renderer sends to record a security event in the main-process
 // audit log. `event` is a short dotted name (e.g. "host.kick"); `details` is

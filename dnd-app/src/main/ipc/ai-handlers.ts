@@ -16,7 +16,8 @@ import {
   type ValidatedAiConfig,
   VoiceCastGetSchema,
   VoiceCastResetSchema,
-  VoiceCastSetSchema
+  VoiceCastSetSchema,
+  WorldDeltaSchema
 } from '../../shared/ipc-schemas'
 import { isValidUUID } from '../../shared/utils/uuid'
 import { validateStatChanges } from '../ai/ai-schemas'
@@ -71,6 +72,7 @@ import type {
   MutationResult,
   StatChange
 } from '../ai/types'
+import { getWorldStateStore, slugifyId } from '../ai/world-state-store'
 import {
   cancelNarration,
   getDmStatus,
@@ -636,6 +638,60 @@ export function registerAiHandlers(): void {
     return { success: true, summarized }
   })
 
+  // ── World-state store (PHASE-27) ──
+
+  handle(IPC_CHANNELS.AI_WORLD_STATE_GET, async (_event, campaignId: string) => {
+    const id = sanitizeCampaignId(campaignId)
+    return { success: true, store: await getWorldStateStore(id).getSnapshot() }
+  })
+
+  handle(IPC_CHANNELS.AI_WORLD_STATE_SET_ENABLED, async (_event, campaignId: string, enabled: unknown) => {
+    const id = sanitizeCampaignId(campaignId)
+    const parsed = z.boolean().safeParse(enabled)
+    if (!parsed.success) return { success: false, error: 'enabled must be a boolean' }
+    await getWorldStateStore(id).setEnabled(parsed.data)
+    return { success: true }
+  })
+
+  handle(IPC_CHANNELS.AI_WORLD_DELTA, async (_event, campaignId: string, delta: unknown) => {
+    const id = sanitizeCampaignId(campaignId)
+    const parsed = WorldDeltaSchema.safeParse(delta)
+    if (!parsed.success) return { success: false, error: parsed.error.message }
+    const store = getWorldStateStore(id)
+    const d = parsed.data
+    let result: { applied: boolean; detail: string }
+    switch (d.op) {
+      case 'discover_location':
+        result = await store.discoverLocation({
+          name: d.name,
+          type: d.type,
+          description: d.description,
+          connectsFromId: d.connectsTo ? slugifyId(d.connectsTo) : undefined,
+          exitLabel: d.exitLabel
+        })
+        break
+      case 'move_party':
+        result = await store.movePartyTo(d.locationName)
+        break
+      case 'link_locations':
+        result = await store.linkLocations(d.fromName, d.toName, d.label)
+        break
+      case 'set_npc_opinion':
+        result = await store.setNpcOpinion({
+          npcName: d.npcName,
+          characterName: d.characterName,
+          delta: d.delta,
+          score: d.score,
+          summary: d.summary
+        })
+        break
+      case 'record_fact':
+        result = await store.recordFact(d.text, d.tags)
+        break
+    }
+    return { success: true, applied: result.applied, detail: result.detail }
+  })
+
   // ── NPC Relationship Tracking ──
 
   handle(
@@ -689,6 +745,18 @@ export function registerAiHandlers(): void {
       sanitizeCampaignId(campaignId) // PHASE-13 13A — reject path-traversal ids before the filesystem path.join
       const memMgr = getMemoryManager(campaignId)
       await memMgr.updateNpcFields(npcName, fields)
+      // PHASE-27 27D: keep the world store coherent — mirror a location change into it when the
+      // store is enabled (fire-and-forget; the legacy verb stays the source for npc-personalities).
+      if (fields.location) {
+        const store = getWorldStateStore(campaignId)
+        store
+          .isEnabled()
+          .then((on) => {
+            if (on && fields.location) return store.setNpcLocation(npcName, fields.location)
+            return undefined
+          })
+          .catch(() => {})
+      }
       return { success: true }
     }
   )

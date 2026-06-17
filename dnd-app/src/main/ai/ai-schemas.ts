@@ -1291,6 +1291,39 @@ const SetNpcSecretMotivationSchema = z.object({
   secretMotivation: z.string()
 })
 
+// PHASE-27 27E — world-state delta verbs (flat; engine clamps/resolves/dedupes the values).
+const DiscoverLocationSchema = z.object({
+  action: z.literal('discover_location'),
+  name: z.string(),
+  type: z.string().optional(),
+  description: z.string().optional(),
+  connectsTo: z.string().optional(),
+  exitLabel: z.string().optional()
+})
+const MovePartySchema = z.object({
+  action: z.literal('move_party'),
+  locationName: z.string()
+})
+const LinkLocationsSchema = z.object({
+  action: z.literal('link_locations'),
+  fromName: z.string(),
+  toName: z.string(),
+  label: z.string().optional()
+})
+const SetNpcOpinionSchema = z.object({
+  action: z.literal('set_npc_opinion'),
+  npcName: z.string(),
+  characterName: z.string(),
+  delta: z.number().optional(),
+  score: z.number().optional(),
+  summary: z.string().optional()
+})
+const RecordFactSchema = z.object({
+  action: z.literal('record_fact'),
+  text: z.string(),
+  tags: z.array(z.string()).optional()
+})
+
 const ShareHandoutSchema = z.object({
   action: z.literal('share_handout'),
   title: z.string(),
@@ -1433,6 +1466,12 @@ export const DM_ACTION_SCHEMAS: Record<string, z.ZodType> = {
   update_quest_log: UpdateQuestLogSchema,
   adjust_faction_standing: AdjustFactionStandingSchema,
   record_entity: RecordEntitySchema,
+  // PHASE-27 27E — world-state delta verbs
+  discover_location: DiscoverLocationSchema,
+  move_party: MovePartySchema,
+  link_locations: LinkLocationsSchema,
+  set_npc_opinion: SetNpcOpinionSchema,
+  record_fact: RecordFactSchema,
   attune_item: AttuneItemSchema,
   unattune_item: UnattuneItemSchema,
   share_handout: ShareHandoutSchema,

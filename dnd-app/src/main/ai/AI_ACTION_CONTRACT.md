@@ -121,3 +121,27 @@ ends on:
 EXISTING summaries, never raw chat. The injected `[CAMPAIGN MEMORY]` block is bounded by
 `SUMMARY_BLOCK_BUDGET` and replaces the flat `[Previous conversation summary: …]` prefix in
 scene mode. Lore-relabel aside, the only always-on change vs pre-phase is in scene mode.
+
+## World-state deltas (PHASE-27)
+
+The **engine owns world truth**; the LLM emits small flat deltas that `world-state-store.ts`
+clamps/resolves/applies. Opt-in per campaign (`world-store.json`, `enabled` default false). Five
+verbs (registered in `DM_ACTION_SCHEMAS` + the `DmAction` union; executors in `effect-actions.ts`
+call `AI_WORLD_DELTA` via `WorldDeltaSchema`, and surface engine REJECTIONS as a DM-only chat note):
+
+- `discover_location` — `{name, type?, description?, connectsTo?, exitLabel?}`
+- `move_party` — `{locationName}` (auto-stubs an unknown destination + links it from the previous
+  location; marks it visited — lenient resolution beats dead-ending small-model misspellings)
+- `link_locations` — `{fromName, toName, label?}` (bidirectional, idempotent)
+- `set_npc_opinion` — `{npcName, characterName, delta? | score?, summary?}` (per-NPC-per-PC; `score`
+  absolute wins over `delta` relative; clamped to ±100; auto-creates the NPC record)
+- `record_fact` — `{text, tags?}` (case-insensitive dedupe; FIFO past 200)
+
+**Engine-validation semantics:** ids are `slugifyId(name)` (shared with `npcMemoryFromAttitude`);
+mutators resolve names case-insensitively, never throw on rejection (return `{applied, detail}`).
+**The store is authoritative — AI output that contradicts the injected `[WORLD STATE]` block is a
+model error, not a state change.** When enabled, the context carries `[WORLD STATE ACTIONS]` verb
+docs + a bounded `[WORLD STATE]` slice (party location + exits + NPCs-here + opinions + facts)
+inside the existing 2000-token memory budget; disabled (default) ⇒ byte-identical to pre-phase.
+The legacy memory-manager read-modify-write paths were also serialized through `mutate()` (27B);
+the duplicate renderer world-sync writer was deleted (27C, single `AI_SYNC_WORLD_STATE` writer).

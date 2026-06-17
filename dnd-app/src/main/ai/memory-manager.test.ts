@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mockFs = vi.hoisted(() => ({
   mkdir: vi.fn(async () => {}),
@@ -552,26 +552,38 @@ describe('MemoryManager', () => {
   // -- NPC Relationships --
 
   describe('addNpcRelationship', () => {
-    it('adds a relationship between two NPCs', async () => {
-      // Read for source NPC
-      mockFs.readFile.mockResolvedValueOnce(JSON.stringify([{ npcId: 'npc-1', name: 'Alice', personality: 'Kind' }]))
-      // Write source NPC (stub check skipped -- already exists)
-      // Read for target NPC
-      mockFs.readFile.mockRejectedValueOnce(new Error('ENOENT'))
-      // Read for setNpcPersonality of target
-      mockFs.readFile.mockRejectedValueOnce(new Error('ENOENT'))
-      // Read for setNpcPersonality of source with relationships
-      mockFs.readFile.mockResolvedValueOnce(
-        JSON.stringify([
-          { npcId: 'npc-1', name: 'Alice', personality: 'Kind' },
-          { npcId: 'test-uuid-1234', name: 'Bob', personality: '' }
-        ])
-      )
+    it('adds a relationship between two NPCs (PHASE-27 27B: read-after-write via mutate)', async () => {
+      // Stateful fs so the "ensure target exists → re-read its id → mutate source" path works
+      // (the new serialized pattern depends on read-after-write, unlike the old in-memory hold).
+      const files = new Map<string, string>()
+      const npcFile = '/tmp/test/campaigns/c1/ai-context/npc-personalities.json'
+      files.set(npcFile, JSON.stringify([{ npcId: 'npc-1', name: 'Alice', personality: 'Kind' }]))
+      mockFs.readFile.mockReset() // drain any leaked mockResolvedValueOnce from prior tests
+      mockFs.writeFile.mockReset()
+      mockFs.readFile.mockImplementation((async (p: string) => {
+        const c = files.get(p)
+        if (c === undefined) throw Object.assign(new Error('ENOENT'), { code: 'ENOENT' })
+        return c
+      }) as never)
+      mockFs.writeFile.mockImplementation((async (p: string, d: string) => {
+        files.set(p, d)
+      }) as never)
 
       const mgr = new MemoryManager('c1')
       await mgr.addNpcRelationship('Alice', 'Bob', 'rival', 'hostile')
 
-      expect(mockFs.writeFile).toHaveBeenCalled()
+      const stored = JSON.parse(files.get(npcFile) as string) as Array<{ name: string; relationships?: unknown[] }>
+      const alice = stored.find((p) => p.name === 'Alice')
+      expect(stored.some((p) => p.name === 'Bob')).toBe(true) // target auto-created
+      expect(alice?.relationships?.[0]).toMatchObject({
+        targetName: 'Bob',
+        relationship: 'rival',
+        disposition: 'hostile'
+      })
+
+      // Restore the default non-stateful mock so later tests are unaffected.
+      mockFs.readFile.mockImplementation(async () => '')
+      mockFs.writeFile.mockImplementation(async () => {})
     })
   })
 
@@ -769,5 +781,55 @@ describe('MemoryManager', () => {
       const npcsLine = ctx.split('\n').find((l) => l.startsWith('[NPCS]')) ?? ''
       expect(npcsLine.indexOf('RecentFoe')).toBeLessThan(npcsLine.indexOf('OldFriend'))
     })
+  })
+})
+
+// PHASE-27 27B — read-modify-write paths now go through mutate(); concurrent writers no
+// longer lose updates or create duplicate NPC stubs. Stateful fs so read-after-write holds.
+describe('MemoryManager concurrency (PHASE-27 27B)', () => {
+  const DIR = '/tmp/test/campaigns/c1/ai-context'
+  let files: Map<string, string>
+  beforeEach(() => {
+    files = new Map<string, string>()
+    mockFs.readFile.mockReset() // drain any leaked mockResolvedValueOnce from prior tests
+    mockFs.writeFile.mockReset()
+    mockFs.readFile.mockImplementation((async (p: string) => {
+      const c = files.get(p)
+      if (c === undefined) throw Object.assign(new Error('ENOENT'), { code: 'ENOENT' })
+      return c
+    }) as never)
+    mockFs.writeFile.mockImplementation((async (p: string, d: string) => {
+      files.set(p, d)
+    }) as never)
+  })
+  afterEach(() => {
+    mockFs.readFile.mockImplementation(async () => '')
+    mockFs.writeFile.mockImplementation(async () => {})
+  })
+
+  it('two concurrent updateWorldState calls both land (no lost update)', async () => {
+    const mgr = new MemoryManager('c1')
+    await Promise.all([mgr.updateWorldState({ weather: 'rain' }), mgr.updateWorldState({ timeOfDay: 'night' })])
+    const ws = JSON.parse(files.get(`${DIR}/world-state.json`) as string)
+    expect(ws.weather).toBe('rain')
+    expect(ws.timeOfDay).toBe('night')
+  })
+
+  it('two concurrent interactions for the same new NPC create exactly ONE personality', async () => {
+    const mgr = new MemoryManager('c1')
+    await Promise.all([
+      mgr.logNpcInteraction('Brand New NPC', 'first', 'friendly'),
+      mgr.logNpcInteraction('Brand New NPC', 'second', 'neutral')
+    ])
+    const npcs = JSON.parse(files.get(`${DIR}/npc-personalities.json`) as string) as Array<{ name: string }>
+    expect(npcs.filter((n) => n.name === 'Brand New NPC')).toHaveLength(1)
+  })
+
+  it('two concurrent quest adds both persist', async () => {
+    const mgr = new MemoryManager('c1')
+    await Promise.all([mgr.updateQuestLog('add', 'Q1'), mgr.updateQuestLog('add', 'Q2')])
+    const summary = JSON.parse(files.get(`${DIR}/world-state-summary.json`) as string)
+    expect(summary.activeQuests).toContain('Q1')
+    expect(summary.activeQuests).toContain('Q2')
   })
 })

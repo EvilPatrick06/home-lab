@@ -131,6 +131,11 @@ export const IPC_CHANNELS = {
   AI_ENTITY_DELETE: 'ai:entity-delete',
   AI_ENTITIES_SET_CONFIG: 'ai:entities-set-config',
 
+  // === AI DM: World-state store (PHASE-27) ===
+  AI_WORLD_STATE_GET: 'ai:world-state-get',
+  AI_WORLD_STATE_SET_ENABLED: 'ai:world-state-set-enabled',
+  AI_WORLD_DELTA: 'ai:world-delta',
+
   // === AI DM: Connection Status ===
   AI_CONNECTION_STATUS: 'ai:connection-status',
   // PHASE-14 14A — pushed (main→renderer) whenever the derived status transitions.

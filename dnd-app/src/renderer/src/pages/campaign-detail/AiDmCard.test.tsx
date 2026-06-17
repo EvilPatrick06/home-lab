@@ -11,6 +11,8 @@ const configure = vi.fn()
 const saveCampaign = vi.fn()
 const sceneMemoryGet = vi.fn()
 const sceneMemorySetEnabled = vi.fn()
+const getWorldState = vi.fn()
+const setWorldStateEnabled = vi.fn()
 
 beforeEach(() => {
   addToast.mockClear()
@@ -27,6 +29,11 @@ beforeEach(() => {
     }
   })
   sceneMemorySetEnabled.mockReset().mockResolvedValue({ success: true })
+  getWorldState.mockReset().mockResolvedValue({
+    success: true,
+    store: { version: 1, enabled: false, partyLocationId: null, locations: [], npcs: [], facts: [], updatedAt: '' }
+  })
+  setWorldStateEnabled.mockReset().mockResolvedValue({ success: true })
   // biome-ignore lint/suspicious/noExplicitAny: test-only window augmentation (don't replace window — nukes document)
   ;(window as any).api = {
     ai: {
@@ -42,7 +49,9 @@ beforeEach(() => {
       onEmbedIndexProgress: vi.fn(() => vi.fn()),
       rebuildEmbedIndex: vi.fn().mockResolvedValue({ success: true }),
       sceneMemoryGet,
-      sceneMemorySetEnabled
+      sceneMemorySetEnabled,
+      getWorldState,
+      setWorldStateEnabled
     }
   }
 })
@@ -228,6 +237,36 @@ describe('AiDmCard (PHASE-10 10H)', () => {
     it('is hidden when the AI DM is not enabled', () => {
       render(<AiDmCard campaign={campaignWith(undefined)} saveCampaign={saveCampaign} />)
       expect(screen.queryByText('Scene-based AI memory (experimental)')).toBeNull()
+    })
+  })
+
+  // PHASE-27 27G — world-state tracking toggle
+  describe('world state toggle', () => {
+    it('renders for an AI-enabled campaign and loads the flag on mount', async () => {
+      render(
+        <AiDmCard
+          campaign={campaignWith({ enabled: true, provider: 'ollama', model: 'm' })}
+          saveCampaign={saveCampaign}
+        />
+      )
+      expect(screen.getByText('World state tracking (experimental)')).toBeTruthy()
+      await waitFor(() => expect(getWorldState).toHaveBeenCalledWith('c1'))
+    })
+
+    it('toggling it invokes setWorldStateEnabled', async () => {
+      render(
+        <AiDmCard
+          campaign={campaignWith({ enabled: true, provider: 'ollama', model: 'm' })}
+          saveCampaign={saveCampaign}
+        />
+      )
+      fireEvent.click(screen.getByLabelText('World state tracking (experimental)'))
+      await waitFor(() => expect(setWorldStateEnabled).toHaveBeenCalledWith('c1', true))
+    })
+
+    it('is hidden when the AI DM is not enabled', () => {
+      render(<AiDmCard campaign={campaignWith(undefined)} saveCampaign={saveCampaign} />)
+      expect(screen.queryByText('World state tracking (experimental)')).toBeNull()
     })
   })
 })

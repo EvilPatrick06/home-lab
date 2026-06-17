@@ -39,7 +39,8 @@ vi.stubGlobal('window', {
       setNpcFields: vi.fn(),
       updateQuestLog: vi.fn(),
       adjustFactionStanding: vi.fn(),
-      upsertEntity: vi.fn()
+      upsertEntity: vi.fn(),
+      applyWorldDelta: vi.fn(async () => ({ success: true, applied: true, detail: 'ok' }))
     }
   }
 })
@@ -918,6 +919,63 @@ describe('effect-actions', () => {
         stores
       )
       expect(setPendingGroupRoll).toHaveBeenCalledWith(expect.objectContaining({ dc: 10 }))
+    })
+  })
+
+  describe('world-state deltas (PHASE-27 27E)', () => {
+    it('executeMoveParty sends a move_party delta', async () => {
+      const { executeMoveParty } = await import('./effect-actions')
+      const gs = makeGameStore()
+      expect(executeMoveParty({ action: 'move_party', locationName: 'Tavern' } as DmAction, gs, stores)).toBe(true)
+      expect(window.api.ai.applyWorldDelta).toHaveBeenCalledWith('camp-1', { op: 'move_party', locationName: 'Tavern' })
+    })
+
+    it('executeSetNpcOpinion forwards delta/score/summary', async () => {
+      const { executeSetNpcOpinion } = await import('./effect-actions')
+      executeSetNpcOpinion(
+        {
+          action: 'set_npc_opinion',
+          npcName: 'Ama',
+          characterName: 'Brovic',
+          delta: 40,
+          summary: 'grateful'
+        } as DmAction,
+        makeGameStore(),
+        stores
+      )
+      expect(window.api.ai.applyWorldDelta).toHaveBeenCalledWith('camp-1', {
+        op: 'set_npc_opinion',
+        npcName: 'Ama',
+        characterName: 'Brovic',
+        delta: 40,
+        score: undefined,
+        summary: 'grateful'
+      })
+    })
+
+    it('throws when required params are missing', async () => {
+      const { executeMoveParty, executeRecordFact } = await import('./effect-actions')
+      expect(() => executeMoveParty({ action: 'move_party' } as DmAction, makeGameStore(), stores)).toThrow(
+        'Missing params'
+      )
+      expect(() => executeRecordFact({ action: 'record_fact' } as DmAction, makeGameStore(), stores)).toThrow(
+        'Missing params'
+      )
+    })
+
+    it('posts a DM note when the engine rejects the delta', async () => {
+      vi.mocked(window.api.ai.applyWorldDelta).mockResolvedValueOnce({
+        success: true,
+        applied: false,
+        detail: 'duplicate fact'
+      })
+      const { executeRecordFact } = await import('./effect-actions')
+      const addChatMessage = stores.getLobbyStore().getState().addChatMessage
+      executeRecordFact({ action: 'record_fact', text: 'dup' } as DmAction, makeGameStore(), stores)
+      await new Promise((r) => setTimeout(r, 0)) // let the .then microtask run
+      expect(addChatMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ content: expect.stringContaining('duplicate fact') })
+      )
     })
   })
 })

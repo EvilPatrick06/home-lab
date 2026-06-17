@@ -489,6 +489,26 @@ export type DmAction =
       summary: string
       keywords?: string[]
     }
+  // PHASE-27 — world-state delta verbs (engine owns truth; these are clamped/resolved deltas)
+  | {
+      action: 'discover_location'
+      name: string
+      type?: string
+      description?: string
+      connectsTo?: string
+      exitLabel?: string
+    }
+  | { action: 'move_party'; locationName: string }
+  | { action: 'link_locations'; fromName: string; toName: string; label?: string }
+  | {
+      action: 'set_npc_opinion'
+      npcName: string
+      characterName: string
+      delta?: number
+      score?: number
+      summary?: string
+    }
+  | { action: 'record_fact'; text: string; tags?: string[] }
   | { action: 'attune_item'; characterName: string; itemName: string; reason?: string }
   | { action: 'unattune_item'; characterName: string; itemName: string; reason?: string }
 

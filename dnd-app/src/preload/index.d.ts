@@ -45,6 +45,37 @@ interface EntityStoreConfigPatchData {
   loreMode?: 'all' | 'triggered'
 }
 
+// World-state store (PHASE-27). Shapes mirror world-state-store.ts / ipc-schemas.ts; kept
+// loose here (the IPC zod validates precisely) to match this file's self-contained style.
+interface WorldStoreData {
+  version: number
+  enabled: boolean
+  partyLocationId: string | null
+  locations: unknown[]
+  npcs: unknown[]
+  facts: unknown[]
+  updatedAt: string
+}
+interface WorldDeltaData {
+  op: 'discover_location' | 'move_party' | 'link_locations' | 'set_npc_opinion' | 'record_fact'
+  name?: string
+  type?: string
+  description?: string
+  connectsTo?: string
+  exitLabel?: string
+  locationName?: string
+  fromName?: string
+  toName?: string
+  label?: string
+  npcName?: string
+  characterName?: string
+  delta?: number
+  score?: number
+  summary?: string
+  text?: string
+  tags?: string[]
+}
+
 interface CharacterAPI {
   saveCharacter: (character: Record<string, unknown>) => Promise<{ success: boolean }>
   loadCharacters: () => Promise<Record<string, unknown>[]>
@@ -408,6 +439,13 @@ interface AiAPI {
     campaignId: string,
     patch: EntityStoreConfigPatchData
   ) => Promise<{ success: boolean; config?: EntityStoreConfigData; error?: string }>
+  // World-state store (PHASE-27)
+  getWorldState: (campaignId: string) => Promise<{ success: boolean; store?: WorldStoreData; error?: string }>
+  setWorldStateEnabled: (campaignId: string, enabled: boolean) => Promise<{ success: boolean; error?: string }>
+  applyWorldDelta: (
+    campaignId: string,
+    delta: WorldDeltaData
+  ) => Promise<{ success: boolean; applied?: boolean; detail?: string; error?: string }>
   generateEndOfSessionRecap: (campaignId: string) => Promise<{ success: boolean; data?: string; error?: string }>
   // Memory files
   listMemoryFiles: (campaignId: string) => Promise<Array<{ name: string; size: number }>>
