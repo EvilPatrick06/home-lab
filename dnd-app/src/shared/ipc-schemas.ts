@@ -204,5 +204,32 @@ export const BmoNarrationStatusSchema = z.object({
 })
 export type BmoNarrationStatus = z.infer<typeof BmoNarrationStatusSchema>
 
-// renderer→main narration-enabled toggle.
+// renderer→main narration-enabled toggle (also reused for the bargeIn toggle).
 export const NarrationEnabledSchema = z.boolean()
+
+// ── PHASE-21 21B: narrate payload (zod at the BMO_NARRATE boundary) ─
+// First schema for a BMO_* channel — bounds a renderer→main narrate so a hostile
+// renderer can't push an unbounded body through to the Pi.
+export const BmoNarrateRequestSchema = z.object({
+  text: z.string().min(1).max(8000),
+  npc: z.string().max(40).optional(),
+  emotion: z.string().max(24).optional(),
+  speaker: z.string().max(40).optional(),
+  interrupt: z.boolean().optional()
+})
+export type BmoNarrateRequest = z.infer<typeof BmoNarrateRequestSchema>
+
+// ── PHASE-21 21C: voice-cast management (zod at the BMO_VOICE_CAST_* boundary) ─
+export const VoiceCastGetSchema = z.object({ campaignId: z.string().min(1).max(64) })
+export const VoiceCastSetSchema = z.object({
+  campaignId: z.string().min(1).max(64),
+  speaker: z.string().min(1).max(40),
+  voiceId: z.string().max(64).optional(),
+  speed: z.number().min(0.5).max(1.5).optional(),
+  pitch: z.number().int().min(-10).max(8).optional()
+})
+export const VoiceCastResetSchema = z.object({
+  campaignId: z.string().min(1).max(64),
+  speaker: z.string().min(1).max(40)
+})
+export type ValidatedVoiceCastSet = z.infer<typeof VoiceCastSetSchema>

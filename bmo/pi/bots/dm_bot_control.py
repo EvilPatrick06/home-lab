@@ -158,10 +158,22 @@ async def _handle_narrate(request: web.Request) -> web.Response:
         return web.json_response({"error": "no_text"}, status=400)
     if _seen_event(body.get("event_id")):
         return web.json_response({"ok": True, "result": "duplicate"})
-    result = bot.queue_narration(text, body.get("npc"), body.get("emotion"))
+    # PHASE-21 21B (F7): barge-in — cut stale narration before enqueueing the new one.
+    if body.get("interrupt"):
+        await bot.cancel_narration(flush=True)
+    result = bot.queue_narration(
+        text, body.get("npc"), body.get("emotion"), speaker=body.get("speaker")
+    )
     # Always HTTP 200 — the body's `result` is the truth channel; a non-2xx would
     # make the VTT client retry, double-speaking once the cooldown lapses (F4).
     return web.json_response({"ok": result == "queued", "result": result})
+
+
+async def _handle_narrate_cancel(request: web.Request) -> web.Response:
+    """PHASE-21 21B (F7): flush the queue + stop current playback. Idempotent."""
+    bot = request.app["bot"]
+    result = await bot.cancel_narration(flush=True)
+    return web.json_response({"ok": True, **result})
 
 
 async def _handle_status(request: web.Request) -> web.Response:
@@ -194,6 +206,7 @@ def build_control_app(bot) -> web.Application:
     app.router.add_post("/control/start", _handle_start)
     app.router.add_post("/control/stop", _handle_stop)
     app.router.add_post("/control/narrate", _handle_narrate)
+    app.router.add_post("/control/narrate/cancel", _handle_narrate_cancel)
     app.router.add_get("/control/status", _handle_status)
     return app
 

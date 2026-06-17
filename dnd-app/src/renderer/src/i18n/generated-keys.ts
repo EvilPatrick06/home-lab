@@ -3,7 +3,7 @@
  * Run `npm run i18n:gen-keys` (scripts/i18n/gen-key-union.mjs) to regenerate
  * after changing en.json. Source: src/renderer/src/i18n/locales/en.json.
  *
- * A literal union of every dotted leaf key in en.json (6116 keys),
+ * A literal union of every dotted leaf key in en.json (6126 keys),
  * so `t()` calls are checked at compile time instead of silently rendering a
  * raw key string when a key is typo'd or missing.
  */
@@ -1537,6 +1537,8 @@ export type TranslationKey =
   | 'game.dmTabPanel.aiDmNotEnabled'
   | 'game.dmTabPanel.aoeTemplate'
   | 'game.dmTabPanel.applyCondition'
+  | 'game.dmTabPanel.bargeIn'
+  | 'game.dmTabPanel.bargeInTitle'
   | 'game.dmTabPanel.budgetCampaign'
   | 'game.dmTabPanel.budgetCharacters'
   | 'game.dmTabPanel.budgetCreatures'
@@ -1585,11 +1587,19 @@ export type TranslationKey =
   | 'game.dmTabPanel.speakNarration'
   | 'game.dmTabPanel.speakNarrationTitle'
   | 'game.dmTabPanel.spellReference'
+  | 'game.dmTabPanel.stopVoice'
+  | 'game.dmTabPanel.stopVoiceTitle'
   | 'game.dmTabPanel.summonCreature'
   | 'game.dmTabPanel.tokenBudget'
   | 'game.dmTabPanel.tokenCount'
   | 'game.dmTabPanel.totalContext'
   | 'game.dmTabPanel.travelCalculator'
+  | 'game.dmTabPanel.voiceCast'
+  | 'game.dmTabPanel.voiceCastDefaultVoice'
+  | 'game.dmTabPanel.voiceCastEmpty'
+  | 'game.dmTabPanel.voiceCastError'
+  | 'game.dmTabPanel.voiceCastLoading'
+  | 'game.dmTabPanel.voiceCastReroll'
   | 'game.dmTabPanel.whisper'
   | 'game.dmToolbar.dmTools'
   | 'game.dmToolbar.fillTerrain'

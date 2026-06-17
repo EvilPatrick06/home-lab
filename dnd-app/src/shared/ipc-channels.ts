@@ -216,6 +216,13 @@ export const IPC_CHANNELS = {
   // PHASE-20 20F: renderer→main toggle sync + main→renderer narrate-failure status.
   BMO_SET_NARRATION_ENABLED: 'bmo:set-narration-enabled',
   BMO_NARRATION_STATUS: 'bmo:narration-status',
+  // PHASE-21 21B: barge-in — cancel current narration + sync the bargeIn toggle.
+  BMO_NARRATE_CANCEL: 'bmo:narrate-cancel',
+  BMO_SET_BARGE_IN_ENABLED: 'bmo:set-barge-in-enabled',
+  // PHASE-21 21C: per-NPC voice casting (list / override / re-roll).
+  BMO_VOICE_CAST_GET: 'bmo:voice-cast-get',
+  BMO_VOICE_CAST_SET: 'bmo:voice-cast-set',
+  BMO_VOICE_CAST_RESET: 'bmo:voice-cast-reset',
 
   // === BMO Pi Bridge: Sync (main → renderer, from Pi HTTP callbacks) ===
   BMO_SYNC_EVENT: 'bmo:sync-event',

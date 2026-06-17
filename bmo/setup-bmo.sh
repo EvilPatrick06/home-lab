@@ -101,6 +101,19 @@ venv/bin/pip install --upgrade pip
 venv/bin/pip install torch --index-url https://download.pytorch.org/whl/cpu
 venv/bin/pip install -r requirements.txt
 
+# PHASE-21 21A: streaming-TTS support for the DM bot.
+#  - NLTK punkt data for stream2sentence's default tokenizer. The regex fallback
+#    in services/discord_tts.py covers an offline failure, so this is best-effort.
+#  - Piper multi-speaker voice for per-NPC casting. `|| true`: the fish fallback
+#    backend covers a missing model, so a download failure must not abort setup.
+venv/bin/python - <<'PYEOF' || true
+import nltk
+nltk.download("punkt", quiet=True)
+nltk.download("punkt_tab", quiet=True)
+PYEOF
+venv/bin/python -m piper.download_voices en_US-libritts_r-medium \
+  --download-dir /home/patrick/home-lab/bmo/pi/models/piper || true
+
 # ── 6. Tailwind CSS Compilation ──────────────────────────────────
 log "Installing Tailwind CLI and compiling CSS..."
 sudo curl -sL https://github.com/tailwindlabs/tailwindcss/releases/download/v3.4.17/tailwindcss-linux-arm64 -o /usr/local/bin/tailwindcss
@@ -312,8 +325,9 @@ EnvironmentFile=/home/patrick/home-lab/bmo/pi/.env
 ExecStart=/home/patrick/home-lab/bmo/pi/venv/bin/python -m bots.discord_dm_bot
 Restart=on-failure
 RestartSec=10
-MemoryMax=512M
-CPUQuota=50%
+# PHASE-21 21A: headroom for in-process Piper (libritts_r) onnxruntime inference.
+MemoryMax=1G
+CPUQuota=150%
 StandardOutput=append:/home/patrick/home-lab/bmo/pi/data/logs/dm-bot.log
 StandardError=append:/home/patrick/home-lab/bmo/pi/data/logs/dm-bot.log
 PrivateTmp=true

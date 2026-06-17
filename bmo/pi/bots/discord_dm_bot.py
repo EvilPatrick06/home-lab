@@ -22,8 +22,8 @@ import json
 import os
 import random
 import threading
-import time
 import traceback
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -39,8 +39,16 @@ if not discord.opus.is_loaded():
     except Exception as e:
         print(f"[discord_dm] Opus not loaded (voice will fail until fixed): {e}")
 
-from services.cloud_providers import cloud_chat, fish_audio_tts, DND_MODEL
+from services.cloud_providers import cloud_chat, DND_MODEL
 from services.dnd_engine import roll_dice
+from services.discord_tts import (
+    VoiceSpec,
+    apply_prosody,
+    resolve_backend,
+    split_sentences,
+    synthesize_chunk,
+)
+from services.voice_casting import VoiceCasting
 from services.voice_personality import get_prosody, parse_response_tags
 
 # ── Configuration ────────────────────────────────────────────────────
@@ -52,9 +60,6 @@ DM_MODEL = os.environ.get("BMO_DND_MODEL", DND_MODEL)
 # PHASE-20 20A (F8): voice channel selectable by name or numeric ID; ID wins.
 DUNGEON_CHANNEL_NAME = os.environ.get("DISCORD_DM_VOICE_CHANNEL", "\U0001f5fa\ufe0f | Dungeon")
 DUNGEON_CHANNEL_ID = os.environ.get("DISCORD_DM_VOICE_CHANNEL_ID", "")  # numeric ID wins over name
-
-# TTS rate limit: minimum seconds between TTS calls
-TTS_COOLDOWN = 3.0
 
 # Context compression threshold (number of messages before compressing)
 CONTEXT_MAX_MESSAGES = 60
@@ -303,6 +308,20 @@ RESPONSE FORMAT:
 
 # ── Session State ────────────────────────────────────────────────────
 
+
+@dataclass
+class NarrationJob:
+    """One queued narration. PHASE-21 21A. `speaker`/`interrupt` are declared now
+    for a stable queue shape but consumed in 21C (per-NPC casting) / 21B (barge-in)."""
+
+    text: str
+    npc: str | None = None
+    emotion: str | None = None
+    speaker: str | None = None
+    event_id: str | None = None
+    interrupt: bool = False
+
+
 class DMSession:
     """Tracks the active DM session state."""
 
@@ -325,13 +344,15 @@ class DMSession:
         # Combat log for recap
         self.combat_log: list[str] = []
 
-        # TTS rate limiter
-        self._last_tts_time: float = 0.0
-
-        # PHASE-20 20B (F3/F4): bounded FIFO narration queue + last outcome, so
-        # the cooldown queues instead of dropping and every result is reportable.
+        # PHASE-20 20B / PHASE-21 21A (F3/F4): bounded FIFO narration queue of
+        # NarrationJob + last outcome. The queue (not a cooldown) serializes
+        # playback, so back-to-back narrations all play in order, none dropped.
         self.narration_queue: asyncio.Queue = asyncio.Queue(maxsize=20)
         self.last_narration_status: Optional[str] = None
+        # PHASE-21 21B (F7): barge-in. The worker checks `narration_cancel` between
+        # chunks; `synth_task` is the in-flight synthesis task cancel() targets.
+        self.narration_cancel: asyncio.Event = asyncio.Event()
+        self.synth_task: Optional[asyncio.Task] = None
 
     def reset(self) -> None:
         self.active = False
@@ -345,7 +366,6 @@ class DMSession:
         self.initiative_round = 0
         self.initiative_collecting = False
         self.combat_log.clear()
-        self._last_tts_time = 0.0
         # Drain any queued narration (20B).
         try:
             while True:
@@ -354,6 +374,10 @@ class DMSession:
         except asyncio.QueueEmpty:
             pass
         self.last_narration_status = None
+        self.narration_cancel.clear()
+        if self.synth_task and not self.synth_task.done():
+            self.synth_task.cancel()
+        self.synth_task = None
 
     def add_message(self, role: str, content: str) -> None:
         """Append a message and compress context if needed."""
@@ -385,15 +409,6 @@ class DMSession:
             *recent_messages,
         ]
         _log("Compressed conversation context: %d -> %d messages", len(old_messages) + len(recent_messages), len(self.messages))
-
-    def can_tts(self) -> bool:
-        """Check if enough time has passed since last TTS call."""
-        return (time.time() - self._last_tts_time) >= TTS_COOLDOWN
-
-    def mark_tts(self) -> None:
-        """Record that a TTS call was just made."""
-        self._last_tts_time = time.time()
-
 
 # ── Slash Command Group (dm start/stop/status) ──────────────────────
 
@@ -621,6 +636,7 @@ class DMBot(commands.Bot):
         self._voice_health_task = None    # 20D rejoin loop
         self._stopping: bool = False      # 20C stop idempotency guard
         self._last_session_end = None     # 20D observable session-end trace
+        self._voice_casting = VoiceCasting()  # 21C per-NPC casting (mtime-reloaded)
 
         # D&D data (loaded in on_ready)
         self._spells: list[dict] = []
@@ -850,55 +866,123 @@ class DMBot(commands.Bot):
         # Play TTS in voice channel
         await self._speak(clean_text, npc=npc, emotion=emotion)
 
-    def queue_narration(self, text: str, npc: str | None = None, emotion: str | None = None) -> str:
-        """PHASE-20 20B (F3): enqueue narration. Sync so the control server can
-        call it. Returns 'no_voice' | 'dropped_queue_full' | 'queued' — never a
-        silent drop. The worker (below) honors the TTS cooldown by waiting, not
-        skipping, so back-to-back narrations both play (in order)."""
+    def queue_narration(
+        self,
+        text: str,
+        npc: str | None = None,
+        emotion: str | None = None,
+        *,
+        speaker: str | None = None,
+        event_id: str | None = None,
+        interrupt: bool = False,
+    ) -> str:
+        """PHASE-20 20B / PHASE-21 21A (F3): enqueue a NarrationJob. Sync so the
+        control server can call it. Returns 'no_voice' | 'dropped_queue_full' |
+        'queued' — never a silent drop. The worker sentence-chunks and plays each
+        job in full, in order; the queue (not a cooldown) provides serialization."""
         vc = self.session.voice_client
         if not vc or not vc.is_connected():
             return "no_voice"
         if self.session.narration_queue.full():
             return "dropped_queue_full"
-        self.session.narration_queue.put_nowait((text, npc, emotion))
+        self.session.narration_queue.put_nowait(
+            NarrationJob(
+                text=text, npc=npc, emotion=emotion,
+                speaker=speaker, event_id=event_id, interrupt=interrupt,
+            )
+        )
         return "queued"
 
     async def _narration_worker(self) -> None:
-        """Single FIFO worker: waits out the cooldown, then synthesizes + plays."""
+        """Single FIFO worker: sentence-chunks, synthesizes + plays each job in order."""
         while True:
-            text, npc, emotion = await self.session.narration_queue.get()
+            job = await self.session.narration_queue.get()
             try:
-                remaining = TTS_COOLDOWN - (time.time() - self.session._last_tts_time)
-                if remaining > 0:
-                    await asyncio.sleep(remaining)
-                self.session.last_narration_status = await self._synthesize_and_play(text, npc, emotion)
+                self.session.last_narration_status = await self._synthesize_and_play(
+                    job.text, job.npc, job.emotion, speaker=job.speaker
+                )
             except Exception as e:  # never let the worker die
                 _log("Narration worker error: %s", e)
                 self.session.last_narration_status = "tts_error"
             finally:
                 self.session.narration_queue.task_done()
 
-    async def _synthesize_and_play(self, text: str, npc: str | None = None, emotion: str | None = None) -> str:
-        """Generate TTS + play. Returns 'spoken' | 'tts_error' | 'play_error' | 'no_voice'."""
+    async def _synthesize_and_play(
+        self, text: str, npc: str | None = None, emotion: str | None = None, speaker: str | None = None
+    ) -> str:
+        """PHASE-21 21A: sentence-chunked streaming TTS. Splits `text` at sentence
+        boundaries and pipelines synthesis (chunk i+1 while chunk i plays) so the
+        full narration plays, in order, with first audio in a few seconds — no more
+        500-char truncation, no cooldown drops. 21C: a named `speaker` resolves to a
+        stable cast voice. Returns 'spoken' | 'tts_error' | 'play_error' | 'no_voice'."""
         vc = self.session.voice_client
         if not vc or not vc.is_connected():
             return "no_voice"
 
+        chunks = split_sentences(text)
+        if not chunks:
+            return "no_voice"
+
+        # Prosody combines NPC archetype + emotion (21D); casting picks the voice id.
         prosody = get_prosody(npc=npc, emotion=emotion)
-        # KEEP the 500-char truncation — PHASE-21 owns sentence-chunked streaming.
-        tts_text = text[:500] if len(text) > 500 else text
+        speed = prosody.get("speed", 1.0)
+        pitch = prosody.get("pitch", 0)
+        backend = resolve_backend()
+        voice = VoiceSpec(backend=backend, speed=speed, pitch=pitch)
+        if speaker:  # 21C: stable per-NPC voice from the campaign cast
+            try:
+                entry = self._voice_casting.get_voice(
+                    self._campaign_name or "discord_campaign", speaker, archetype=npc
+                )
+                if backend == "kokoro" and entry.voice_id:
+                    voice.kokoro_voice = entry.voice_id
+                elif backend == "piper" and entry.voice_id:
+                    voice.piper_speaker = int(entry.voice_id)
+            except Exception as e:
+                _log("Voice casting failed for %s: %s", speaker, e)
 
-        try:
-            audio_bytes = await asyncio.to_thread(
-                fish_audio_tts, tts_text, "", "wav",
-                prosody.get("speed", 1.0), prosody.get("pitch", 0)
-            )
-            self.session.mark_tts()
-        except Exception as e:
-            _log("TTS error: %s", e)
-            return "tts_error"
+        def _synth_one(chunk_text: str) -> bytes:
+            wav = synthesize_chunk(chunk_text, voice)
+            if backend == "fish":  # fish applies speed/pitch natively
+                return wav
+            # kokoro/piper apply speed natively (length_scale / speed param) → sox pitch only
+            return apply_prosody(wav, speed, pitch, skip_speed=True)
 
-        return "spoken" if await self._play_audio(audio_bytes) else "play_error"
+        self.session.narration_cancel.clear()  # fresh job — clear any stale signal (21B)
+        played_any = False
+        errored = False
+        # Pipeline: kick off synth of the next chunk before awaiting playback of this one.
+        next_task = asyncio.create_task(asyncio.to_thread(_synth_one, chunks[0]))
+        self.session.synth_task = next_task
+        for i in range(len(chunks)):
+            if self.session.narration_cancel.is_set():  # barge-in between chunks (21B)
+                break
+            cur_task = next_task
+            if i + 1 < len(chunks):
+                next_task = asyncio.create_task(asyncio.to_thread(_synth_one, chunks[i + 1]))
+                self.session.synth_task = next_task
+            try:
+                wav = await cur_task
+            except asyncio.CancelledError:  # cancel_narration cancelled the in-flight synth
+                break
+            except Exception as e:  # one bad chunk shouldn't silence the rest
+                _log("Chunk synth error: %s", e)
+                errored = True
+                continue
+            if self.session.narration_cancel.is_set():
+                break
+            if not wav:
+                continue
+            if await self._play_chunk(wav):
+                played_any = True
+            else:
+                errored = True
+        self.session.synth_task = None
+        if self.session.narration_cancel.is_set():
+            return "cancelled"
+        if played_any:
+            return "spoken"
+        return "tts_error" if errored else "no_voice"
 
     async def _speak(
         self,
@@ -910,28 +994,61 @@ class DMBot(commands.Bot):
         sites): enqueue via queue_narration and return its status (20B)."""
         return self.queue_narration(text, npc=npc, emotion=emotion)
 
-    async def _play_audio(self, audio_bytes: bytes) -> bool:
-        """Play WAV audio bytes. Returns True on success, False on failure (F3)."""
+    async def _play_chunk(self, audio_bytes: bytes) -> bool:
+        """Play one WAV chunk and await its completion. Event-based (not a busy
+        wait): the discord.py `after` callback fires on a non-loop thread, so we
+        bounce back through `call_soon_threadsafe`. Returns True on success."""
         vc = self.session.voice_client
         if not vc or not vc.is_connected():
             return False
 
-        # Wait for current audio to finish
-        while vc.is_playing():
-            await asyncio.sleep(0.1)
+        # Serialize against any in-flight playback (e.g. an external source).
+        while vc.is_playing() and not self.session.narration_cancel.is_set():
+            await asyncio.sleep(0.05)
+        if self.session.narration_cancel.is_set():
+            return False
 
         try:
-            audio_stream = io.BytesIO(audio_bytes)
-            source = discord.FFmpegPCMAudio(audio_stream, pipe=True)
-            vc.play(
-                source,
-                after=lambda e: _log("Playback error: %s", e) if e else None,
-            )
-            _log("Playing TTS audio (%d bytes)", len(audio_bytes))
+            source = discord.FFmpegPCMAudio(io.BytesIO(audio_bytes), pipe=True)
+            done = asyncio.Event()
+            loop = asyncio.get_running_loop()
+
+            def _after(err: Optional[Exception]) -> None:
+                if err:
+                    _log("Playback error: %s", err)
+                loop.call_soon_threadsafe(done.set)
+
+            vc.play(source, after=_after)
+            _log("Playing TTS chunk (%d bytes)", len(audio_bytes))
+            await done.wait()
             return True
         except Exception as e:
             _log("Failed to play audio: %s", e)
             return False
+
+    async def cancel_narration(self, flush: bool = True) -> dict:
+        """PHASE-21 21B (F7): barge-in. Flush queued jobs, signal the worker to stop
+        between chunks, cancel the in-flight synthesis task, and stop Discord
+        playback. Returns {"cancelled": bool, "flushed": int}."""
+        s = self.session
+        flushed = 0
+        if flush:
+            try:
+                while True:
+                    s.narration_queue.get_nowait()
+                    s.narration_queue.task_done()
+                    flushed += 1
+            except asyncio.QueueEmpty:
+                pass
+        synth_active = bool(s.synth_task and not s.synth_task.done())
+        vc = s.voice_client
+        was_playing = bool(vc and vc.is_connected() and vc.is_playing())
+        s.narration_cancel.set()
+        if s.synth_task and not s.synth_task.done():
+            s.synth_task.cancel()
+        if was_playing:
+            vc.stop()
+        return {"cancelled": was_playing or synth_active or flushed > 0, "flushed": flushed}
 
     # ── Voice Channel Management ───────────────────────────────────
 

@@ -123,9 +123,8 @@ def test_queue_narration_dropped_when_full(dm_bot):
 async def test_narration_worker_consumes_fifo(dm_bot, monkeypatch):
     import asyncio
     dm_bot.session.voice_client = _connected_vc()
-    dm_bot.session._last_tts_time = 0.0  # no cooldown wait
     spoken = []
-    async def fake_play(text, npc, emotion):
+    async def fake_play(text, npc, emotion, speaker=None):
         spoken.append(text)
         return "spoken"
     monkeypatch.setattr(dm_bot, "_synthesize_and_play", fake_play)
@@ -136,26 +135,6 @@ async def test_narration_worker_consumes_fifo(dm_bot, monkeypatch):
     worker.cancel()
     assert spoken == ["first", "second"]
     assert dm_bot.session.last_narration_status == "spoken"
-
-
-async def test_narration_worker_waits_cooldown_not_drops(dm_bot, monkeypatch):
-    import asyncio, time as _t
-    dm_bot.session.voice_client = _connected_vc()
-    dm_bot.session._last_tts_time = _t.time()  # full cooldown remaining
-    slept = []
-    async def fake_sleep(s):
-        slept.append(s)  # record, don't actually wait
-    played = []
-    async def fake_play(text, npc, emotion):
-        played.append(text); return "spoken"
-    monkeypatch.setattr(asyncio, "sleep", fake_sleep)
-    monkeypatch.setattr(dm_bot, "_synthesize_and_play", fake_play)
-    dm_bot.queue_narration("delayed")
-    worker = asyncio.create_task(dm_bot._narration_worker())
-    await asyncio.wait_for(dm_bot.session.narration_queue.join(), timeout=2)
-    worker.cancel()
-    assert played == ["delayed"]            # waited, did NOT drop
-    assert slept and slept[0] > 0           # cooldown sleep happened
 
 
 # ── 20C: control HTTP app (F1/F4/F7/F8) ─────────────────────────────
@@ -279,6 +258,41 @@ async def test_control_stop_idempotent(monkeypatch):
         resp = await client.post("/control/stop", json={})
         body = await resp.json()
         assert resp.status == 200 and body.get("already_stopping") is True
+    finally:
+        await client.close()
+
+
+async def test_control_narrate_interrupt_cancels_first(monkeypatch):
+    """PHASE-21 21B: interrupt=true fires cancel_narration before enqueueing."""
+    bot = DMBot(); bot.session.voice_client = _vc()
+    monkeypatch.setattr(ctrl, "_RECENT_EVENT_IDS", []); monkeypatch.setattr(ctrl, "_RECENT_EVENT_SET", set())
+    cancelled = []
+
+    async def fake_cancel(flush=True):
+        cancelled.append(flush)
+        return {"cancelled": True, "flushed": 0}
+
+    monkeypatch.setattr(bot, "cancel_narration", fake_cancel)
+    client = await _client(bot)
+    try:
+        r = await client.post("/control/narrate", json={"text": "hi", "interrupt": True})
+        assert (await r.json())["result"] == "queued"
+        assert cancelled == [True]  # cancelled before enqueue
+    finally:
+        await client.close()
+
+
+async def test_control_narrate_cancel_route(monkeypatch):
+    """PHASE-21 21B: /control/narrate/cancel flushes the queue and reports counts."""
+    bot = DMBot(); bot.session.voice_client = _vc()
+    bot.queue_narration("a"); bot.queue_narration("b")
+    client = await _client(bot)
+    try:
+        r = await client.post("/control/narrate/cancel", json={})
+        body = await r.json()
+        assert r.status == 200 and body["ok"] is True
+        assert body["flushed"] == 2 and body["cancelled"] is True
+        assert bot.session.narration_queue.qsize() == 0
     finally:
         await client.close()
 

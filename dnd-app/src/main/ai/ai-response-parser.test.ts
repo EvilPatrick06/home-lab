@@ -64,18 +64,30 @@ describe('stripRuleCitations', () => {
 
 // ── Voice tags (DM-BMO per-character tone/pitch; stripped from chat) ──
 describe('parseVoiceTags / stripVoiceTags', () => {
-  it('extracts the NPC archetype + emotion (case-insensitive, first match wins)', () => {
-    const r = parseVoiceTags('[NPC:Gruff_Dwarf][EMOTION:Angry] "Ye shall not pass!"')
-    expect(r).toEqual({ npc: 'gruff_dwarf', emotion: 'angry' })
+  it('extracts the NPC archetype + emotion + speaker (case rules per tag)', () => {
+    // PHASE-21 21C: npc/emotion lower-cased, speaker keeps its display case.
+    const r = parseVoiceTags('[NPC:Gruff_Dwarf][EMOTION:Angry][SPEAKER:Borin] "Ye shall not pass!"')
+    expect(r).toEqual({ npc: 'gruff_dwarf', emotion: 'angry', speaker: 'Borin' })
   })
 
   it('returns undefined fields when no tags are present', () => {
-    expect(parseVoiceTags('Just plain narration.')).toEqual({ npc: undefined, emotion: undefined })
+    expect(parseVoiceTags('Just plain narration.')).toEqual({
+      npc: undefined,
+      emotion: undefined,
+      speaker: undefined
+    })
+  })
+
+  it('bounds the speaker name and treats an over-long one as absent', () => {
+    const longName = 'X'.repeat(45)
+    expect(parseVoiceTags(`[SPEAKER:${longName}] text`).speaker).toBeUndefined()
+    expect(parseVoiceTags('[SPEAKER:Volo the Wanderer] text').speaker).toBe('Volo the Wanderer')
   })
 
   it('strips the tags from the chat text but keeps the prose + newlines', () => {
-    const out = stripVoiceTags('[NPC:mysterious_elf] The elf whispers.\n\nA second line.')
+    const out = stripVoiceTags('[NPC:mysterious_elf][SPEAKER:Sythra] The elf whispers.\n\nA second line.')
     expect(out).not.toContain('[NPC:')
+    expect(out).not.toContain('[SPEAKER:')
     expect(out).toContain('The elf whispers.')
     expect(out).toContain('\n\nA second line.') // paragraph break preserved
   })

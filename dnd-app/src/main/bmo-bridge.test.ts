@@ -22,6 +22,7 @@ vi.mock('./bmo-config', () => ({
 
 import {
   __resetSyncReceiverState,
+  cancelNarration,
   getDmStatus,
   sendNarration,
   startDiscordDm,
@@ -98,14 +99,28 @@ describe('bmoPiFetch retry/backoff (Phase 28c.1)', () => {
   it('sendNarration carries a unique event_id (F4 idempotency key)', async () => {
     const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, result: 'queued' }) })
     vi.stubGlobal('fetch', fetchMock)
-    const p = sendNarration('hello there', 'goblin', 'angry')
+    // PHASE-21 21B: single opts object (npc/emotion/speaker/interrupt).
+    const p = sendNarration('hello there', { npc: 'goblin', emotion: 'angry', interrupt: true })
     await vi.runAllTimersAsync()
     await p
     const body = JSON.parse(fetchMock.mock.calls[0][1].body)
     expect(body.text).toBe('hello there')
     expect(body.npc).toBe('goblin')
+    expect(body.interrupt).toBe(true)
     expect(typeof body.event_id).toBe('string')
     expect(body.event_id.length).toBeGreaterThan(0)
+  })
+
+  it('cancelNarration POSTs to the cancel route', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue({ ok: true, json: async () => ({ ok: true, cancelled: true, flushed: 0 }) })
+    vi.stubGlobal('fetch', fetchMock)
+    const p = cancelNarration()
+    await vi.runAllTimersAsync()
+    await p
+    expect(fetchMock.mock.calls[0][0]).toContain('/api/discord/dm/narrate/cancel')
+    expect(fetchMock.mock.calls[0][1].method).toBe('POST')
   })
 })
 

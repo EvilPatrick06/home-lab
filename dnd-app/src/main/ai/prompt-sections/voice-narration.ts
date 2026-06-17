@@ -33,5 +33,6 @@ export const VOICE_NARRATION_PROMPT = `## VOICE TAGS (optional — for spoken na
 When a specific NPC is the dominant speaker in your reply, you MAY prefix the reply with a voice tag so the spoken narration uses a fitting voice. These tags are removed from the on-screen chat text — they ONLY affect the spoken voice, so use them whenever an NPC's voice would add flavor.
 - \`[NPC:archetype]\` — pick the closest archetype: ${NPC_ARCHETYPES.join(', ')}. Omit for plain DM narration.
 - \`[EMOTION:mood]\` — optional mood: ${EMOTION_VOCABULARY.join(', ')}.
-Example: \`[NPC:gruff_dwarf][EMOTION:angry] "Ye'll not pass while I draw breath!" the old warrior bellows.\`
-Use at most ONE NPC tag and ONE emotion tag per reply (the first of each wins). Never explain or mention the tags.`
+- \`[SPEAKER:Name]\` — when a NAMED NPC speaks most of the reply, add their short name (e.g. \`[SPEAKER:Volo]\`) so that character keeps a consistent voice across scenes. Omit for unnamed or one-off characters.
+Example: \`[NPC:gruff_dwarf][EMOTION:angry][SPEAKER:Borin] "Ye'll not pass while I draw breath!" the old warrior bellows.\`
+Use at most ONE of each tag per reply (the first of each wins). Never explain or mention the tags.`

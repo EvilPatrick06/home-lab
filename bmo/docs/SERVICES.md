@@ -4,14 +4,16 @@ Service modules in `bmo/pi/services/` — business logic used by agents + Flask 
 
 ## Services index
 
-### Voice + audio (4)
+### Voice + audio (6)
 
 | Module | Purpose |
 |---|---|
 | `voice_pipeline.py` | STT → agent invocation → TTS loop. Wake-word listens, triggers pipeline. |
-| `voice_personality.py` | Persona injection — wraps responses with "BMO-ness". |
+| `voice_personality.py` | Persona injection — wraps responses with "BMO-ness". Owns `get_prosody()` (NPC archetype + emotion combine, clamped) + `normalize_emotion()` (VTT vocabulary ↔ legacy moods). |
 | `bmo_say.py` | TTS dispatcher (Fish Audio primary, Piper fallback). |
 | `audio_output_service.py` | Routes audio to HDMI, Bluetooth, or USB speakers. |
+| `discord_tts.py` | DM-bot streaming TTS: `split_sentences()` (sentence-boundary chunking, regex fallback when `stream2sentence`/nltk-punkt are absent) + a backend ladder `synthesize_chunk()` — Kokoro-FastAPI (`KOKORO_TTS_URL`, opt-in LAN/GPU box) → local Piper (`PIPER_DM_MODEL`, libritts_r multi-speaker default, bmo-voice fallback) → Fish Audio cloud — and sox `apply_prosody()`. **bot-process only — uses blocking `requests`; must NOT be imported from gevent-patched `app.py`.** Env: `KOKORO_TTS_URL`, `KOKORO_TTS_VOICE`, `PIPER_DM_MODEL`. |
+| `voice_casting.py` | Per-NPC voice casting: a `[SPEAKER:Name]` NPC gets a stable, distinct voice deterministically picked from a backend pool (Kokoro voice ids / Piper speaker ids), biased by archetype group, persisted per campaign in `voice_cast.json` (atomic write + mtime reload — shared by the bot and Flask processes). Stdlib-only (safe in either process). The DM lists/overrides/re-rolls via `/api/discord/dm/voices`. Env: `BMO_VOICE_CAST_PATH`. |
 
 ### Calendar + time (4)
 

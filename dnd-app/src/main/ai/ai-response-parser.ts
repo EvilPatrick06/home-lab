@@ -20,6 +20,8 @@ export function stripRuleCitations(text: string): string {
 
 const VOICE_NPC_RE = /\[NPC:\s*([a-z_]+)\s*\]/i
 const VOICE_EMOTION_RE = /\[EMOTION:\s*([a-z_]+)\s*\]/i
+// PHASE-21 21C: named-NPC speaker tag — display name (not lower-cased), bounded.
+const VOICE_SPEAKER_RE = /\[SPEAKER:\s*([^\]\n]{1,40}?)\s*\]/i
 
 /**
  * Extract the optional voice tags the AI may emit so DM-BMO can modulate tone/pitch
@@ -27,10 +29,12 @@ const VOICE_EMOTION_RE = /\[EMOTION:\s*([a-z_]+)\s*\]/i
  * prosody archetypes, e.g. gruff_dwarf, mysterious_elf, booming_dragon) and
  * `[EMOTION:mood]`. First match wins (the dominant voice for the narration).
  */
-export function parseVoiceTags(text: string): { npc?: string; emotion?: string } {
+export function parseVoiceTags(text: string): { npc?: string; emotion?: string; speaker?: string } {
   return {
     npc: text.match(VOICE_NPC_RE)?.[1]?.toLowerCase(),
-    emotion: text.match(VOICE_EMOTION_RE)?.[1]?.toLowerCase()
+    emotion: text.match(VOICE_EMOTION_RE)?.[1]?.toLowerCase(),
+    // Speaker is a display name — keep its case, just trim (21C).
+    speaker: text.match(VOICE_SPEAKER_RE)?.[1]?.trim() || undefined
   }
 }
 
@@ -40,6 +44,7 @@ export function stripVoiceTags(text: string): string {
   return text
     .replace(/\[NPC:\s*[a-z_]+\s*\]/gi, '')
     .replace(/\[EMOTION:\s*[a-z_]+\s*\]/gi, '')
+    .replace(/\[SPEAKER:[^\]\n]{1,40}\]/gi, '')
     .replace(/[ \t]{2,}/g, ' ')
     .trim()
 }

@@ -884,11 +884,14 @@ declare global {
           campaign_id?: string
         }>
         bmoStopDm: () => Promise<{ ok?: boolean; error?: string; recap?: string; already_stopping?: boolean }>
-        bmoNarrate: (
-          text: string,
-          npc?: string,
+        bmoNarrate: (payload: {
+          text: string
+          npc?: string
           emotion?: string
-        ) => Promise<{ ok?: boolean; error?: string; result?: string }>
+          speaker?: string
+          interrupt?: boolean
+        }) => Promise<{ ok?: boolean; error?: string; result?: string }>
+        bmoNarrateCancel: () => Promise<{ ok?: boolean; cancelled?: boolean; flushed?: number; error?: string }>
         // PHASE-20 20F: truthful BridgeResponse-shaped status union (failure shapes are real).
         bmoDmStatus: () => Promise<{
           ok?: boolean
@@ -906,6 +909,25 @@ declare global {
           recap?: string
         }>
         bmoSetNarrationEnabled: (enabled: boolean) => Promise<{ success: boolean }>
+        bmoSetBargeInEnabled: (enabled: boolean) => Promise<{ success: boolean }>
+        bmoVoiceCastGet: (campaignId: string) => Promise<{
+          ok?: boolean
+          error?: string
+          cast?: { speaker: string; backend: string; voice_id: string; speed: number; pitch: number }[]
+          pool?: string[]
+          backend?: string
+        }>
+        bmoVoiceCastSet: (payload: {
+          campaignId: string
+          speaker: string
+          voiceId?: string
+          speed?: number
+          pitch?: number
+        }) => Promise<{ ok?: boolean; error?: string; entry?: { speaker: string; voice_id: string } }>
+        bmoVoiceCastReset: (
+          campaignId: string,
+          speaker: string
+        ) => Promise<{ ok?: boolean; error?: string; reset?: boolean }>
         onBmoNarrationStatus: (
           cb: (status: { ok: boolean; result?: string; error?: string; statusCode?: number }) => void
         ) => () => void

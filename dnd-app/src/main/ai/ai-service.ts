@@ -5,7 +5,7 @@ import { DEFAULT_AI_MODEL } from '../../shared/ai-defaults'
 import { SCENE_PREP_PROMPT, WEB_SEARCH_APPROVAL_TIMEOUT_MS } from '../../shared/constants'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import { BmoNarrationStatusSchema } from '../../shared/ipc-schemas'
-import { isNarrationEnabled, sendNarration } from '../bmo-bridge'
+import { cancelNarration, isBargeInEnabled, isNarrationEnabled, sendNarration } from '../bmo-bridge'
 import { logToFile } from '../log'
 import { logSecurityEvent } from '../security-log'
 import { saveConversation } from '../storage/ai-conversation-storage'
@@ -762,6 +762,13 @@ export function startChat(
   activeStreamTimestamps.set(streamId, now)
   activeStreamLastHeartbeat.set(streamId, now)
 
+  // PHASE-21 21B (F7): barge-in — the player just acted, so cut any stale DM
+  // narration immediately (before generation even finishes). Opt-in + narration
+  // on; inert otherwise, so default behavior is unchanged from PHASE-20.
+  if (isNarrationEnabled() && isBargeInEnabled()) {
+    cancelNarration().catch(() => {})
+  }
+
   const conv = getConversation(request.campaignId)
   conv.setActiveCharacterIds(request.characterIds)
 
@@ -1063,7 +1070,7 @@ async function handleStreamCompletion(
     const ruleCitations = parseRuleCitations(cleaned)
     // Voice tags drive DM-BMO's per-character tone/pitch but must never reach the
     // chat text — extract before stripping, strip before display.
-    const { npc, emotion } = parseVoiceTags(cleaned)
+    const { npc, emotion, speaker } = parseVoiceTags(cleaned)
     const rulings = parseRulings(cleaned)
     const displayText = stripVoiceTags(stripRulings(stripRuleCitations(stripDmActions(stripStatChanges(cleaned)))))
 
@@ -1104,7 +1111,10 @@ async function handleStreamCompletion(
     // renderer toggle (default OFF). A non-ok/dropped result is broadcast to the
     // renderer so the DM tab can surface it (deduped there).
     if (isNarrationEnabled()) {
-      sendNarration(displayText, npc, emotion)
+      // PHASE-21 21B (F7): with barge-in ON, a new scene's narration interrupts
+      // stale audio still playing on the Pi. With it OFF (default) interrupt is
+      // omitted and behavior is byte-identical to PHASE-20.
+      sendNarration(displayText, { npc, emotion, speaker, interrupt: isBargeInEnabled() })
         .then((res) => {
           const dropped = !res.ok || (res.result && res.result !== 'queued' && res.result !== 'duplicate')
           if (dropped) broadcastNarrationStatus(res)

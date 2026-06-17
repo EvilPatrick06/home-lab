@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const bmoNarrate = vi.fn()
+const bmoNarrateCancel = vi.fn()
 
 vi.stubGlobal('window', {
   api: {
-    bmoNarrate
+    bmoNarrate,
+    bmoNarrateCancel
   }
 })
 
@@ -20,7 +22,22 @@ describe('bmo-narration', () => {
 
     await speakNarrationThroughBmo('  Hello\n\n\n\nworld  ')
 
-    expect(bmoNarrate).toHaveBeenCalledWith('Hello\n\nworld', undefined, undefined)
+    // PHASE-21 21B: single payload object.
+    expect(bmoNarrate).toHaveBeenCalledWith({ text: 'Hello\n\nworld' })
+  })
+
+  it('forwards opts (speaker/interrupt) in the payload', async () => {
+    const { speakNarrationThroughBmo } = await import('./bmo-narration')
+    await speakNarrationThroughBmo('Hello there.', { speaker: 'Volo', interrupt: true })
+    expect(bmoNarrate).toHaveBeenCalledWith({ text: 'Hello there.', speaker: 'Volo', interrupt: true })
+  })
+
+  it('cancelNarrationThroughBmo invokes the cancel channel', async () => {
+    bmoNarrateCancel.mockResolvedValueOnce({ ok: true, cancelled: true, flushed: 0 })
+    const { cancelNarrationThroughBmo } = await import('./bmo-narration')
+    const result = await cancelNarrationThroughBmo()
+    expect(bmoNarrateCancel).toHaveBeenCalled()
+    expect(result).toEqual({ success: true })
   })
 
   it('returns an error when narration is empty after trimming', async () => {

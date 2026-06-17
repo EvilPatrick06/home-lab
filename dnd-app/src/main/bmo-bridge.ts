@@ -80,6 +80,17 @@ export function setNarrationEnabled(v: boolean): void {
 export function isNarrationEnabled(): boolean {
   return narrationEnabled
 }
+
+// PHASE-21 21B (F7): barge-in. Default OFF — new narration replaces stale audio
+// only when the DM opts in. The renderer's narration-tts store pushes the value
+// via IPC, mirroring narrationEnabled.
+let bargeInEnabled = false
+export function setBargeInEnabled(v: boolean): void {
+  bargeInEnabled = v
+}
+export function isBargeInEnabled(): boolean {
+  return bargeInEnabled
+}
 function notifyBmoUnreachable(): void {
   const windows = BrowserWindow.getAllWindows()
   for (const win of windows) {
@@ -186,12 +197,56 @@ export async function stopDiscordDm(): Promise<BridgeResponse> {
   return bmoPiFetch('/api/discord/dm/stop', { method: 'POST' })
 }
 
-export async function sendNarration(text: string, npc?: string, emotion?: string): Promise<BridgeResponse> {
+export interface NarrationOpts {
+  npc?: string
+  emotion?: string
+  speaker?: string
+  interrupt?: boolean
+}
+
+export async function sendNarration(text: string, opts: NarrationOpts = {}): Promise<BridgeResponse> {
   // PHASE-20 20F (F4): a per-request event_id makes narrate idempotent — the Pi
   // control server de-dupes retries instead of double-speaking.
+  // PHASE-21 21B/21C: opts carries speaker (per-NPC casting) + interrupt (barge-in).
   return bmoPiFetch('/api/discord/dm/narrate', {
     method: 'POST',
-    body: JSON.stringify({ text, npc, emotion, event_id: randomUUID() })
+    body: JSON.stringify({ text, ...opts, event_id: randomUUID() })
+  })
+}
+
+// PHASE-21 21B (F7): barge-in — flush the Pi narration queue + stop playback.
+export async function cancelNarration(): Promise<BridgeResponse> {
+  return bmoPiFetch('/api/discord/dm/narrate/cancel', { method: 'POST' })
+}
+
+// PHASE-21 21C: per-NPC voice-cast management (shared JSON on the Pi, no bot hop).
+export async function getVoiceCast(campaignId: string): Promise<BridgeResponse> {
+  return bmoPiFetch(`/api/discord/dm/voices?campaign_id=${encodeURIComponent(campaignId)}`)
+}
+
+export async function setVoiceCast(payload: {
+  campaignId: string
+  speaker: string
+  voiceId?: string
+  speed?: number
+  pitch?: number
+}): Promise<BridgeResponse> {
+  return bmoPiFetch('/api/discord/dm/voices', {
+    method: 'POST',
+    body: JSON.stringify({
+      campaign_id: payload.campaignId,
+      speaker: payload.speaker,
+      voice_id: payload.voiceId,
+      speed: payload.speed,
+      pitch: payload.pitch
+    })
+  })
+}
+
+export async function resetVoiceCast(campaignId: string, speaker: string): Promise<BridgeResponse> {
+  return bmoPiFetch('/api/discord/dm/voices', {
+    method: 'DELETE',
+    body: JSON.stringify({ campaign_id: campaignId, speaker })
   })
 }
 

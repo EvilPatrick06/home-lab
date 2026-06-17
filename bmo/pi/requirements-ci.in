@@ -68,6 +68,10 @@ discord.py>=2.6,<3.0
 PyNaCl>=1.6.2
 edge-tts
 scipy
+# stream2sentence — DM-bot streaming-TTS sentence chunking (PHASE-21 21A); regex
+# fallback in discord_tts means it's optional at runtime. Pulls stanza (reuses
+# the already-pinned torch).
+stream2sentence
 
 # Imaging (in requirements.txt with Pi block; keep for tests / vision helpers)
 Pillow

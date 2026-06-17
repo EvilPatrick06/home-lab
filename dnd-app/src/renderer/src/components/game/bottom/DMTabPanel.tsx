@@ -2,11 +2,14 @@ import dmTabsJson from '@data/ui/dm-tabs.json'
 import { lazy, Suspense, useState } from 'react'
 import { AI_PROVIDER_LABELS } from '../../../constants'
 import { useT } from '../../../i18n'
+import { cancelNarrationThroughBmo } from '../../../services/bmo-narration'
 import { load5eDmTabs } from '../../../services/data-provider'
 import { useAiDmStore } from '../../../stores/use-ai-dm-store'
 import { useNarrationTtsStore } from '../../../stores/use-narration-tts-store'
 import type { Campaign } from '../../../types/campaign'
+import { pushDmAlert } from '../overlays/DmAlertTray'
 import DiscordSessionSection from './DiscordSessionSection'
+import VoiceCastSection from './VoiceCastSection'
 
 const DMAudioPanel = lazy(() => import('./DMAudioPanel'))
 const DMToolsTabContent = lazy(() => import('./DMToolsTabContent'))
@@ -60,6 +63,8 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
   const setDmApprovalRequired = useAiDmStore((s) => s.setDmApprovalRequired)
   const narrationTtsEnabled = useNarrationTtsStore((s) => s.enabled)
   const setNarrationTtsEnabled = useNarrationTtsStore((s) => s.setEnabled)
+  const bargeIn = useNarrationTtsStore((s) => s.bargeIn)
+  const setBargeIn = useNarrationTtsStore((s) => s.setBargeIn)
 
   // PHASE-14 14E — the token-budget block moved to ContextInspectorPanel (lazy-mounted below);
   // it owns its own refresh-on-mount + refresh-on-stream-end effects now.
@@ -193,6 +198,31 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
                   {t('game.dmTabPanel.speakNarration')}{' '}
                   {narrationTtsEnabled ? t('game.dmTabPanel.on') : t('game.dmTabPanel.off')}
                 </button>
+                {/* PHASE-21 21B: barge-in toggle + manual Stop-voice, only when narration is on. */}
+                {narrationTtsEnabled && (
+                  <>
+                    <button
+                      className={bargeIn ? toggleOnClass : toggleOffClass}
+                      onClick={() => setBargeIn(!bargeIn)}
+                      title={t('game.dmTabPanel.bargeInTitle')}
+                    >
+                      {t('game.dmTabPanel.bargeIn')} {bargeIn ? t('game.dmTabPanel.on') : t('game.dmTabPanel.off')}
+                    </button>
+                    <button
+                      className={toggleOffClass}
+                      onClick={() => {
+                        void cancelNarrationThroughBmo().then((res) => {
+                          if (!res.success) pushDmAlert('warning', res.error ?? t('game.dmTabPanel.stopVoiceTitle'))
+                        })
+                      }}
+                      title={t('game.dmTabPanel.stopVoiceTitle')}
+                    >
+                      {t('game.dmTabPanel.stopVoice')}
+                    </button>
+                    {/* PHASE-21 21C: per-NPC voice casting (list / override / re-roll). */}
+                    <VoiceCastSection campaignId={campaign.id} />
+                  </>
+                )}
                 {/* PHASE-20 20G: in-app Discord session start/stop/status. */}
                 <DiscordSessionSection campaignId={campaign.id} narrationEnabled={narrationTtsEnabled} />
                 <Suspense

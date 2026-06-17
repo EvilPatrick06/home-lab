@@ -1423,11 +1423,79 @@ def api_discord_dm_narrate():
     return _proxy_to_dm_control("narrate", "POST", data)
 
 
+@app.route("/api/discord/dm/narrate/cancel", methods=["POST"])
+@app.route("/api/v1/discord/dm/narrate/cancel", methods=["POST"])
+@limiter.limit(RATE_LIMIT_NARRATE)
+def api_discord_dm_narrate_cancel():
+    """Proxy: barge-in — flush the narration queue + stop playback (PHASE-21 21B)."""
+    return _proxy_to_dm_control("narrate/cancel", "POST", request.json or {})
+
+
 @app.route("/api/discord/dm/status")
 @app.route("/api/v1/discord/dm/status")
 def api_discord_dm_status():
     """Proxy: current DM bot session status (PHASE-20 20C)."""
     return _proxy_to_dm_control("status", "GET")
+
+
+# ── PHASE-21 21C: per-NPC voice casting ──────────────────────────────
+# These operate on the shared voice_cast.json directly (no bot round-trip) — both
+# the Flask and bot processes re-read it on mtime change. voice_casting is
+# stdlib-only (resolve_backend does no network), so it's safe in the gevent app.
+
+
+@app.route("/api/discord/dm/voices", methods=["GET"])
+@app.route("/api/v1/discord/dm/voices", methods=["GET"])
+def api_discord_dm_voices_get():
+    from services.discord_tts import resolve_backend
+    from services.voice_casting import VoiceCasting
+
+    campaign_id = request.args.get("campaign_id", "")
+    if not campaign_id:
+        return jsonify({"error": "campaign_id required"}), 400
+    casting = VoiceCasting()
+    backend = resolve_backend()
+    return jsonify({
+        "ok": True,
+        "cast": casting.list_cast(campaign_id),
+        "pool": casting.pool_for_backend(backend),
+        "backend": backend,
+    })
+
+
+@app.route("/api/discord/dm/voices", methods=["POST"])
+@app.route("/api/v1/discord/dm/voices", methods=["POST"])
+@limiter.limit(RATE_LIMIT_NARRATE)
+def api_discord_dm_voices_set():
+    from dataclasses import asdict
+
+    from services.voice_casting import VoiceCasting
+
+    data = request.json or {}
+    campaign_id = data.get("campaign_id")
+    speaker = data.get("speaker")
+    if not campaign_id or not speaker:
+        return jsonify({"error": "campaign_id and speaker required"}), 400
+    entry = VoiceCasting().set_voice(
+        campaign_id, speaker,
+        voice_id=data.get("voice_id"), speed=data.get("speed"), pitch=data.get("pitch"),
+    )
+    return jsonify({"ok": True, "entry": asdict(entry)})
+
+
+@app.route("/api/discord/dm/voices", methods=["DELETE"])
+@app.route("/api/v1/discord/dm/voices", methods=["DELETE"])
+@limiter.limit(RATE_LIMIT_NARRATE)
+def api_discord_dm_voices_delete():
+    from services.voice_casting import VoiceCasting
+
+    data = request.json or {}
+    campaign_id = data.get("campaign_id")
+    speaker = data.get("speaker")
+    if not campaign_id or not speaker:
+        return jsonify({"error": "campaign_id and speaker required"}), 400
+    reset = VoiceCasting().reset_voice(campaign_id, speaker)
+    return jsonify({"ok": True, "reset": reset})
 
 
 # ── Scene Mode Endpoints ─────────────────────────────────────────────

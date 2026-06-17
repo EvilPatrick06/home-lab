@@ -52,7 +52,37 @@ PIPER_EMOTION_PROSODY: dict[str, dict] = {
     "sassy": {"speed": 1.05, "pitch": 1},
     "mischievous": {"speed": 1.10, "pitch": 2},
     "shy": {"speed": 0.90, "pitch": -1},
+    # PHASE-21 21D: complete the VTT prompt vocabulary (voice-narration.ts asks for
+    # neutral/angry/menacing too; `fearful` normalizes to `scared` below).
+    "neutral": {"speed": 1.0, "pitch": 0},
+    "angry": {"speed": 1.08, "pitch": -2},
+    "menacing": {"speed": 0.82, "pitch": -4},
 }
+
+# PHASE-21 21D: fold synonyms (incl. the VTT's `fearful`) onto the canonical keys
+# above so both the VTT vocabulary and looser model output modulate prosody.
+EMOTION_NORMALIZE: dict[str, str] = {
+    "fearful": "scared",
+    "afraid": "scared",
+    "terrified": "scared",
+    "furious": "angry",
+    "enraged": "angry",
+    "joyful": "happy",
+    "cheerful": "happy",
+    "ominous": "menacing",
+    "sinister": "menacing",
+    "tense": "dramatic",
+}
+
+
+def normalize_emotion(emotion: str | None) -> str | None:
+    """Map an emotion word to a canonical `PIPER_EMOTION_PROSODY` key, or None."""
+    if not emotion:
+        return None
+    value = emotion.strip().lower()
+    if value in PIPER_EMOTION_PROSODY:
+        return value
+    return EMOTION_NORMALIZE.get(value)
 
 # ── BMO Emotion Voice Mapping (Fish Audio voice IDs per emotion) ──────
 # Default all to the main FISH_AUDIO_VOICE_ID; override per-emotion later
@@ -71,6 +101,10 @@ BMO_EMOTIONS: dict[str, str] = {
     "scared": os.environ.get("FISH_AUDIO_BMO_SCARED", _DEFAULT_VOICE),
     "mischievous": os.environ.get("FISH_AUDIO_BMO_MISCHIEVOUS", _DEFAULT_VOICE),
     "shy": os.environ.get("FISH_AUDIO_BMO_SHY", _DEFAULT_VOICE),
+    # PHASE-21 21D: VTT-vocabulary moods so detect_emotion() recognizes them too.
+    "angry": os.environ.get("FISH_AUDIO_BMO_ANGRY", _DEFAULT_VOICE),
+    "menacing": os.environ.get("FISH_AUDIO_BMO_MENACING", _DEFAULT_VOICE),
+    "neutral": os.environ.get("FISH_AUDIO_BMO_NEUTRAL", _DEFAULT_VOICE),
 }
 
 # Shorthand emotion tags that map to canonical emotion names
@@ -85,6 +119,11 @@ _EMOTION_ALIASES: dict[str, str] = {
     "scared": "scared",
     "mischievous": "mischievous",
     "shy": "shy",
+    # PHASE-21 21D: VTT-vocabulary moods + the `fearful`→`scared` alias.
+    "angry": "angry",
+    "menacing": "menacing",
+    "neutral": "neutral",
+    "fearful": "scared",
     # Uppercase shorthand tags like [HAPPY], [DRAMATIC]
     "HAPPY": "happy",
     "CALM": "calm",
@@ -96,6 +135,10 @@ _EMOTION_ALIASES: dict[str, str] = {
     "SCARED": "scared",
     "MISCHIEVOUS": "mischievous",
     "SHY": "shy",
+    "ANGRY": "angry",
+    "MENACING": "menacing",
+    "NEUTRAL": "neutral",
+    "FEARFUL": "scared",
 }
 
 
@@ -233,14 +276,20 @@ def get_prosody(npc: str | None = None, emotion: str | None = None) -> dict:
 
     Returns:
         {"speed": float, "pitch": int} — defaults to {"speed": 1.0, "pitch": 0}
+
+    PHASE-21 21D: NPC and emotion now COMBINE (an angry dwarf is both gruff AND
+    angry) instead of emotion being silently dropped when an NPC was set. The
+    emotion overlay multiplies speed and adds pitch onto the NPC base, clamped to
+    safe bounds. NPC-only / emotion-only results are numerically unchanged (the
+    missing dimension is the identity neutral overlay/base).
     """
-    if npc and npc in NPC_PROSODY:
-        return dict(NPC_PROSODY[npc])
+    base = dict(NPC_PROSODY[npc]) if (npc and npc in NPC_PROSODY) else {"speed": 1.0, "pitch": 0}
+    overlay_key = normalize_emotion(emotion)
+    overlay = PIPER_EMOTION_PROSODY.get(overlay_key, {"speed": 1.0, "pitch": 0})
 
-    if emotion and emotion in PIPER_EMOTION_PROSODY:
-        return dict(PIPER_EMOTION_PROSODY[emotion])
-
-    return {"speed": 1.0, "pitch": 0}
+    speed = round(min(1.4, max(0.6, base["speed"] * overlay["speed"])), 3)
+    pitch = int(min(8, max(-10, base["pitch"] + overlay["pitch"])))
+    return {"speed": speed, "pitch": pitch}
 
 
 # ── Morning Routine ──────────────────────────────────────────────────

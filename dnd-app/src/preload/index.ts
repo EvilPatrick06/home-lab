@@ -550,11 +550,27 @@ const api = {
   // BMO Pi Bridge
   bmoStartDm: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.BMO_START_DM, campaignId),
   bmoStopDm: () => ipcRenderer.invoke(IPC_CHANNELS.BMO_STOP_DM),
-  bmoNarrate: (text: string, npc?: string, emotion?: string) =>
-    ipcRenderer.invoke(IPC_CHANNELS.BMO_NARRATE, text, npc, emotion),
+  // PHASE-21 21B: single payload object (text + optional npc/emotion/speaker/interrupt).
+  bmoNarrate: (payload: { text: string; npc?: string; emotion?: string; speaker?: string; interrupt?: boolean }) =>
+    ipcRenderer.invoke(IPC_CHANNELS.BMO_NARRATE, payload),
+  // PHASE-21 21B: barge-in — cancel current narration + flush the Pi queue.
+  bmoNarrateCancel: () => ipcRenderer.invoke(IPC_CHANNELS.BMO_NARRATE_CANCEL),
   bmoDmStatus: () => ipcRenderer.invoke(IPC_CHANNELS.BMO_STATUS),
   // PHASE-20 20F: push the Speak-narration toggle to the main-process gate.
   bmoSetNarrationEnabled: (enabled: boolean) => ipcRenderer.invoke(IPC_CHANNELS.BMO_SET_NARRATION_ENABLED, enabled),
+  // PHASE-21 21B: push the barge-in toggle to the main-process gate.
+  bmoSetBargeInEnabled: (enabled: boolean) => ipcRenderer.invoke(IPC_CHANNELS.BMO_SET_BARGE_IN_ENABLED, enabled),
+  // PHASE-21 21C: per-NPC voice-cast management.
+  bmoVoiceCastGet: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.BMO_VOICE_CAST_GET, { campaignId }),
+  bmoVoiceCastSet: (payload: {
+    campaignId: string
+    speaker: string
+    voiceId?: string
+    speed?: number
+    pitch?: number
+  }) => ipcRenderer.invoke(IPC_CHANNELS.BMO_VOICE_CAST_SET, payload),
+  bmoVoiceCastReset: (campaignId: string, speaker: string) =>
+    ipcRenderer.invoke(IPC_CHANNELS.BMO_VOICE_CAST_RESET, { campaignId, speaker }),
   // main→renderer narrate-failure status (wrapped listener + exact unsubscribe).
   onBmoNarrationStatus: (cb: (status: unknown) => void): (() => void) => {
     const listener = (_e: unknown, data: unknown): void => cb(data)

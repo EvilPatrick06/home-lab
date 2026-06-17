@@ -575,3 +575,57 @@ class TestDiscordDmProxy:
             r = client.post("/api/discord/dm/narrate", json={})
         assert r.status_code == 400
         mock_post.assert_not_called()  # no proxy hop for an empty narrate
+
+    def test_narrate_forwards_interrupt(self, client):
+        # PHASE-21 21B: the proxy passes the whole body through, including interrupt.
+        import requests
+        fake = MagicMock(status_code=200, json=MagicMock(return_value={"ok": True, "result": "queued"}))
+        with patch.object(requests, "post", return_value=fake) as mock_post:
+            r = client.post("/api/discord/dm/narrate", json={"text": "hi", "interrupt": True})
+        assert r.status_code == 200
+        assert mock_post.call_args.kwargs["json"]["interrupt"] is True
+
+    def test_narrate_cancel_proxies(self, client):
+        # PHASE-21 21B: /narrate/cancel proxies to /control/narrate/cancel.
+        import requests
+        fake = MagicMock(status_code=200, json=MagicMock(return_value={"ok": True, "cancelled": True, "flushed": 2}))
+        with patch.object(requests, "post", return_value=fake) as mock_post:
+            r = client.post("/api/discord/dm/narrate/cancel", json={})
+        assert r.status_code == 200 and r.get_json()["cancelled"] is True
+        assert mock_post.call_args[0][0].endswith("/control/narrate/cancel")
+
+
+class TestDiscordDmVoices:
+    """PHASE-21 21C: voice-cast endpoints operate on the shared JSON directly."""
+
+    def test_voices_get_requires_campaign(self, client):
+        assert client.get("/api/discord/dm/voices").status_code == 400
+
+    def test_voices_get_empty(self, client, tmp_path, monkeypatch):
+        monkeypatch.setenv("BMO_VOICE_CAST_PATH", str(tmp_path / "vc.json"))
+        r = client.get("/api/discord/dm/voices?campaign_id=c1")
+        assert r.status_code == 200
+        body = r.get_json()
+        assert body["ok"] is True and body["cast"] == [] and "backend" in body
+
+    def test_voices_post_then_get(self, client, tmp_path, monkeypatch):
+        monkeypatch.setenv("BMO_VOICE_CAST_PATH", str(tmp_path / "vc.json"))
+        r = client.post(
+            "/api/discord/dm/voices",
+            json={"campaign_id": "c1", "speaker": "Volo", "voice_id": "af_bella"},
+        )
+        assert r.status_code == 200 and r.get_json()["entry"]["voice_id"] == "af_bella"
+        g = client.get("/api/discord/dm/voices?campaign_id=c1")
+        assert any(e["speaker"] == "Volo" for e in g.get_json()["cast"])
+
+    def test_voices_post_validation(self, client):
+        assert client.post("/api/discord/dm/voices", json={"campaign_id": "c1"}).status_code == 400
+
+    def test_voices_delete(self, client, tmp_path, monkeypatch):
+        monkeypatch.setenv("BMO_VOICE_CAST_PATH", str(tmp_path / "vc.json"))
+        client.post(
+            "/api/discord/dm/voices",
+            json={"campaign_id": "c1", "speaker": "Volo", "voice_id": "af_bella"},
+        )
+        r = client.delete("/api/discord/dm/voices", json={"campaign_id": "c1", "speaker": "Volo"})
+        assert r.status_code == 200 and r.get_json()["reset"] is True

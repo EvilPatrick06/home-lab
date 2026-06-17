@@ -6,10 +6,14 @@ import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import {
   AiChatRequestSchema,
   AiConfigSchema,
+  BmoNarrateRequestSchema,
   ConversationDataSchema,
   NarrationEnabledSchema,
   type ValidatedAiChatRequest,
-  type ValidatedAiConfig
+  type ValidatedAiConfig,
+  VoiceCastGetSchema,
+  VoiceCastResetSchema,
+  VoiceCastSetSchema
 } from '../../shared/ipc-schemas'
 import { isValidUUID } from '../../shared/utils/uuid'
 import { validateStatChanges } from '../ai/ai-schemas'
@@ -62,7 +66,18 @@ import type {
   MutationResult,
   StatChange
 } from '../ai/types'
-import { getDmStatus, sendNarration, setNarrationEnabled, startDiscordDm, stopDiscordDm } from '../bmo-bridge'
+import {
+  cancelNarration,
+  getDmStatus,
+  getVoiceCast,
+  resetVoiceCast,
+  sendNarration,
+  setBargeInEnabled,
+  setNarrationEnabled,
+  setVoiceCast,
+  startDiscordDm,
+  stopDiscordDm
+} from '../bmo-bridge'
 import { logToFile } from '../log'
 import { deleteConversation, loadConversation, saveConversation } from '../storage/ai-conversation-storage'
 import { handle, withArgsSchema } from './_safe'
@@ -779,8 +794,16 @@ export function registerAiHandlers(): void {
     return stopDiscordDm()
   })
 
-  handle(IPC_CHANNELS.BMO_NARRATE, async (_e, text: string, npc?: string, emotion?: string) => {
-    return sendNarration(text, npc, emotion)
+  // PHASE-21 21B: single payload object, zod-validated at the boundary.
+  handle(IPC_CHANNELS.BMO_NARRATE, async (_e, payload: unknown) => {
+    const parsed = BmoNarrateRequestSchema.safeParse(payload)
+    if (!parsed.success) return { ok: false, error: 'invalid narrate payload' }
+    const { text, ...opts } = parsed.data
+    return sendNarration(text, opts)
+  })
+
+  handle(IPC_CHANNELS.BMO_NARRATE_CANCEL, async () => {
+    return cancelNarration()
   })
 
   handle(IPC_CHANNELS.BMO_STATUS, async () => {
@@ -792,5 +815,30 @@ export function registerAiHandlers(): void {
   handle(IPC_CHANNELS.BMO_SET_NARRATION_ENABLED, async (_e, enabled: unknown) => {
     setNarrationEnabled(NarrationEnabledSchema.parse(enabled))
     return { success: true }
+  })
+
+  // PHASE-21 21B: renderer pushes the barge-in toggle (default OFF).
+  handle(IPC_CHANNELS.BMO_SET_BARGE_IN_ENABLED, async (_e, enabled: unknown) => {
+    setBargeInEnabled(NarrationEnabledSchema.parse(enabled))
+    return { success: true }
+  })
+
+  // PHASE-21 21C: per-NPC voice-cast management (zod-validated at the boundary).
+  handle(IPC_CHANNELS.BMO_VOICE_CAST_GET, async (_e, payload: unknown) => {
+    const parsed = VoiceCastGetSchema.safeParse(payload)
+    if (!parsed.success) return { ok: false, error: 'invalid voice-cast get payload' }
+    return getVoiceCast(parsed.data.campaignId)
+  })
+
+  handle(IPC_CHANNELS.BMO_VOICE_CAST_SET, async (_e, payload: unknown) => {
+    const parsed = VoiceCastSetSchema.safeParse(payload)
+    if (!parsed.success) return { ok: false, error: 'invalid voice-cast set payload' }
+    return setVoiceCast(parsed.data)
+  })
+
+  handle(IPC_CHANNELS.BMO_VOICE_CAST_RESET, async (_e, payload: unknown) => {
+    const parsed = VoiceCastResetSchema.safeParse(payload)
+    if (!parsed.success) return { ok: false, error: 'invalid voice-cast reset payload' }
+    return resetVoiceCast(parsed.data.campaignId, parsed.data.speaker)
   })
 }

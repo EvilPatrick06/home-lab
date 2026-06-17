@@ -16,7 +16,7 @@ const aiDmState = {
 vi.mock('../../../stores/use-ai-dm-store', () => ({
   useAiDmStore: (sel: any) => sel(aiDmState)
 }))
-const ttsState = { enabled: false, setEnabled: vi.fn() }
+const ttsState = { enabled: false, setEnabled: vi.fn(), bargeIn: false, setBargeIn: vi.fn() }
 // biome-ignore lint/suspicious/noExplicitAny: selector mock
 vi.mock('../../../stores/use-narration-tts-store', () => ({
   useNarrationTtsStore: (sel: any) => sel(ttsState)
