@@ -103,6 +103,7 @@ import {
   getActiveProviderType,
   getProviderContextBlurb
 } from './provider-registry'
+import { clearSceneMemoryCache, getSceneMemorySettings } from './scene-memory'
 import { SearchEngine } from './search-engine'
 import {
   applyLongRestMutations,
@@ -703,6 +704,23 @@ export function removeConversation(campaignId: string): void {
   conversations.delete(campaignId)
   scenePrepStatus.delete(campaignId)
   clearTokenBreakdown(campaignId)
+  clearSceneMemoryCache(campaignId)
+}
+
+/**
+ * PHASE-26 26C — close the current scene off the request path: summarize it into a
+ * scene-tier entry (manager handles tier roll-ups), then persist. No-op when the scene
+ * is too short. Called by boundary signals, the world-sync map change, and /scene end.
+ */
+export async function endSceneForCampaign(campaignId: string, label?: string): Promise<{ summarized: boolean }> {
+  const conv = getConversation(campaignId)
+  const result = await conv.endScene(label)
+  if (result.summarized) {
+    await saveConversation(campaignId, conv.serialize()).catch((err) =>
+      logToFile('ERROR', '[AI SceneMemory] Failed to persist after endScene:', String(err))
+    )
+  }
+  return result
 }
 
 /**
@@ -921,6 +939,9 @@ export function startChat(
       // SAME game-state/character/rules context instead of rebuilding it empty (which also
       // silently downgraded combat continuations to 'general' mode). (PHASE-06 06D / F-5)
       const contextBlock = providerContext + built.text
+      // PHASE-26 26C: resolve the compaction strategy from the per-campaign flag (cached read).
+      // 'scene' skips the inline summarize; 'threshold' (default) is byte-identical to pre-phase.
+      conv.setSummarizationMode((await getSceneMemorySettings(request.campaignId)).enabled ? 'scene' : 'threshold')
       const { systemPrompt, messages } = await conv.getMessagesForApi(contextBlock, built.breakdown.truncated ?? false)
 
       // Stream response
@@ -1243,6 +1264,24 @@ async function handleStreamCompletion(
     runEntityExtraction(request.campaignId, getActiveProvider(), currentConfig.model, displayText).catch((err) =>
       logToFile('WARN', '[AI Entities] extraction failed:', String(err))
     )
+
+    // PHASE-26 26C: opt-in scene-boundary compaction. Fire-and-forget (must NOT delay onDone).
+    // Fires only when scene memory is enabled AND a narrative boundary was crossed (a parsed
+    // boundary action, or the overflow backstop). No-op by default.
+    void (async () => {
+      if (!(await getSceneMemorySettings(request.campaignId)).enabled) return
+      const BOUNDARY_ACTIONS = new Set(['switch_map', 'long_rest', 'short_rest', 'end_initiative'])
+      const boundary = dmActions.find((a) => BOUNDARY_ACTIONS.has(a.action))
+      if (boundary) {
+        const label =
+          boundary.action === 'switch_map' && typeof (boundary as { mapName?: unknown }).mapName === 'string'
+            ? (boundary as { mapName: string }).mapName
+            : boundary.action.replace(/_/g, ' ')
+        await endSceneForCampaign(request.campaignId, label)
+      } else if (conv.overflowSplitNeeded) {
+        await endSceneForCampaign(request.campaignId, 'scene continues')
+      }
+    })().catch((err) => logToFile('WARN', '[AI SceneMemory] boundary check failed:', String(err)))
 
     // Two independent, default-OFF Discord senders for each finalized reply:
     //  - VOICE narration through DM-BMO (PHASE-20 20F): toggle-gated; tone/pitch

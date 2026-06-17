@@ -9,6 +9,7 @@ const mocked = vi.hoisted(() => ({
   hasActiveStreamMock: vi.fn(() => false),
   cancelStreamsMock: vi.fn(() => 0),
   getMemoryManagerMock: vi.fn(() => ({
+    getWorldState: vi.fn(async () => null), // PHASE-26: world-sync boundary hook reads prev scene
     updateWorldState: vi.fn(async () => {}),
     updateQuestLog: vi.fn(async () => {})
   }))

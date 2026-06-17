@@ -11,6 +11,7 @@ import {
   EntityStoreConfigPatchSchema,
   EntityUpsertPayloadSchema,
   NarrationEnabledSchema,
+  SceneLabelSchema,
   type ValidatedAiChatRequest,
   type ValidatedAiConfig,
   VoiceCastGetSchema,
@@ -58,6 +59,7 @@ import {
 } from '../ai/ollama-manager'
 import { setOpenAIApiKey } from '../ai/openai-client'
 import { getProvider } from '../ai/provider-registry'
+import { getSceneMemorySettings, setSceneMemoryEnabled } from '../ai/scene-memory'
 import { getActiveContextWindow, getEffectiveBudgets } from '../ai/token-budget'
 import type {
   AiChatRequest,
@@ -565,7 +567,19 @@ export function registerAiHandlers(): void {
     try {
       sanitizeCampaignId(campaignId) // PHASE-13 13A — reject path-traversal ids before the filesystem path.join
       const memMgr = getMemoryManager(campaignId)
+      // PHASE-26 26D: capture the scene being LEFT so a map change can fire a scene boundary.
+      const prev = await memMgr.getWorldState()
       await memMgr.updateWorldState(state as Partial<WorldState>)
+      // A renderer-truth map change (currentScene differs) is a deterministic scene boundary.
+      // Fire-and-forget; only acts when scene memory is enabled. Label = the scene just left.
+      void (async () => {
+        if (!(await getSceneMemorySettings(campaignId)).enabled) return
+        const prevScene = typeof prev?.currentScene === 'string' ? prev.currentScene : ''
+        const nextScene = typeof state.currentScene === 'string' ? state.currentScene : ''
+        if (prevScene && nextScene && prevScene !== nextScene) {
+          await aiService.endSceneForCampaign(campaignId, prevScene)
+        }
+      })().catch((err) => logToFile('warn', `[AI SceneMemory] world-sync boundary failed: ${String(err)}`))
       return { success: true }
     } catch (error) {
       logToFile('error', `[AI Memory] Failed to sync world state: ${(error as Error).message}`)
@@ -584,6 +598,42 @@ export function registerAiHandlers(): void {
       logToFile('error', `[AI Memory] Failed to sync combat state: ${(error as Error).message}`)
       return { success: false, error: (error as Error).message }
     }
+  })
+
+  // ── Scene Memory (PHASE-26) ──
+
+  handle(IPC_CHANNELS.AI_SCENE_MEMORY_GET, async (_event, campaignId: string) => {
+    const id = sanitizeCampaignId(campaignId)
+    const { enabled } = await getSceneMemorySettings(id)
+    const counts = aiService.getConversationManager(id).getSummaryTierCounts()
+    return {
+      success: true,
+      data: {
+        enabled,
+        sceneSummaryCount: counts.scene,
+        sessionSummaryCount: counts.session,
+        hasCampaignSummary: counts.campaign > 0,
+        currentSceneMessageCount: counts.currentSceneMessageCount
+      }
+    }
+  })
+
+  handle(IPC_CHANNELS.AI_SCENE_MEMORY_SET_ENABLED, async (_event, campaignId: string, enabled: unknown) => {
+    const id = sanitizeCampaignId(campaignId)
+    const parsed = z.boolean().safeParse(enabled)
+    if (!parsed.success) return { success: false, error: 'enabled must be a boolean' }
+    await setSceneMemoryEnabled(id, parsed.data)
+    return { success: true }
+  })
+
+  handle(IPC_CHANNELS.AI_END_SCENE, async (_event, campaignId: string, label: unknown) => {
+    const id = sanitizeCampaignId(campaignId)
+    if (!(await getSceneMemorySettings(id)).enabled) {
+      return { success: false, error: 'Scene memory is not enabled for this campaign.' }
+    }
+    const parsedLabel = SceneLabelSchema.safeParse(label)
+    const { summarized } = await aiService.endSceneForCampaign(id, parsedLabel.success ? parsedLabel.data : undefined)
+    return { success: true, summarized }
   })
 
   // ── NPC Relationship Tracking ──

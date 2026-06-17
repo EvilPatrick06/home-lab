@@ -113,6 +113,11 @@ export const IPC_CHANNELS = {
   AI_SYNC_WORLD_STATE: 'ai:sync-world-state',
   AI_SYNC_COMBAT_STATE: 'ai:sync-combat-state',
 
+  // === AI DM: Scene Memory (PHASE-26) ===
+  AI_SCENE_MEMORY_GET: 'ai:scene-memory-get',
+  AI_SCENE_MEMORY_SET_ENABLED: 'ai:scene-memory-set-enabled',
+  AI_END_SCENE: 'ai:end-scene',
+
   // === AI DM: NPC Relationship Tracking ===
   AI_LOG_NPC_INTERACTION: 'ai:log-npc-interaction',
   AI_SET_NPC_RELATIONSHIP: 'ai:set-npc-relationship',

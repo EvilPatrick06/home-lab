@@ -80,10 +80,25 @@ export const ConversationMessageSchema = z.object({
 })
 export const ConversationDataSchema = z.object({
   messages: z.array(ConversationMessageSchema).default([]),
-  summaries: z.array(z.object({ content: z.string(), coversUpTo: z.number() })).default([]),
+  // PHASE-26: summaries carry optional layered-memory fields; zod strips unknown keys, so
+  // they MUST be declared here or restore would silently drop tier/label/createdAt.
+  summaries: z
+    .array(
+      z.object({
+        content: z.string(),
+        coversUpTo: z.number(),
+        tier: z.enum(['scene', 'session', 'campaign']).optional(),
+        label: z.string().optional(),
+        createdAt: z.string().optional()
+      })
+    )
+    .default([]),
   activeCharacterIds: z.array(z.string()).default([])
 })
 export type ValidatedConversationData = z.infer<typeof ConversationDataSchema>
+
+// PHASE-26 26D — optional scene label for AI_END_SCENE (trimmed, bounded).
+export const SceneLabelSchema = z.string().trim().min(1).max(120)
 
 // ── Security Audit (20g) ───────────────────────────────────────────
 // Payload the renderer sends to record a security event in the main-process

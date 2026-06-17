@@ -193,6 +193,11 @@ export interface ConversationMessage {
 export interface ConversationSummary {
   content: string
   coversUpTo: number
+  /** Layered-memory tier (PHASE-26). Untiered legacy entries are treated as 'scene'. */
+  tier?: 'scene' | 'session' | 'campaign'
+  /** Human label for the scene (map name, '/scene end' argument, …). */
+  label?: string
+  createdAt?: string
 }
 
 export interface ConversationData {

@@ -3,11 +3,54 @@ import {
   ActiveCreatureSchema,
   AiChatRequestSchema,
   AiConfigSchema,
+  ConversationDataSchema,
   InitiativeSyncSchema,
+  SceneLabelSchema,
   SyncEventSchema
 } from './ipc-schemas'
 
 describe('ipc-schemas', () => {
+  // PHASE-26 26D
+  describe('SceneLabelSchema', () => {
+    it('trims and accepts a normal label', () => {
+      const r = SceneLabelSchema.safeParse('  The Crypt  ')
+      expect(r.success && r.data).toBe('The Crypt')
+    })
+    it('rejects empty / whitespace-only', () => {
+      expect(SceneLabelSchema.safeParse('').success).toBe(false)
+      expect(SceneLabelSchema.safeParse('   ').success).toBe(false)
+    })
+    it('rejects oversize (>120 chars)', () => {
+      expect(SceneLabelSchema.safeParse('x'.repeat(121)).success).toBe(false)
+    })
+  })
+
+  describe('ConversationDataSchema tiered summaries (PHASE-26)', () => {
+    it('preserves tier/label/createdAt on a summary (does not strip)', () => {
+      const r = ConversationDataSchema.safeParse({
+        messages: [],
+        summaries: [
+          { content: 'recap', coversUpTo: -1, tier: 'scene', label: 'The Crypt', createdAt: '2026-01-01T00:00:00Z' }
+        ],
+        activeCharacterIds: []
+      })
+      expect(r.success).toBe(true)
+      if (r.success) {
+        expect(r.data.summaries[0].tier).toBe('scene')
+        expect(r.data.summaries[0].label).toBe('The Crypt')
+        expect(r.data.summaries[0].createdAt).toBe('2026-01-01T00:00:00Z')
+      }
+    })
+    it('still accepts legacy untiered summaries', () => {
+      const r = ConversationDataSchema.safeParse({
+        messages: [],
+        summaries: [{ content: 'old', coversUpTo: -1 }],
+        activeCharacterIds: []
+      })
+      expect(r.success).toBe(true)
+      if (r.success) expect(r.data.summaries[0].tier).toBeUndefined()
+    })
+  })
   describe('AiConfigSchema', () => {
     it('should accept valid config with provider and model', () => {
       const result = AiConfigSchema.safeParse({

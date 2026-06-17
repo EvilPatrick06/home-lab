@@ -93,6 +93,34 @@ model/content fingerprint). See [RULES-RETRIEVAL.md](./RULES-RETRIEVAL.md) for t
 full retrieval stack (BM25 default, RRF fusion, where vectors live, the fallback
 ladder, and the BMO twin engine).
 
+## Scene-based memory and the KV cache (PHASE-26)
+
+An opt-in, per-campaign flag (Settings → AI DM → "Scene-based AI memory") changes how the
+AI DM compacts conversation history. **Off (default):** the old message-count compaction —
+an LLM summarize call runs *inside* the chat request path (`getMessagesForApi`) roughly
+every 2–3 player turns, and the `[Previous conversation summary: …]` prefix is rewritten
+each time. **On:** completed scenes are summarized ONCE at narrative boundaries (map change,
+rest, combat end, `/scene end`, or an overflow backstop), off the request path, into a
+layered `[CAMPAIGN MEMORY]` block (scene → session → campaign roll-ups).
+
+What this buys, honestly scoped (the cache invalidates at the first differing byte, and the
+query-volatile context + per-message game-time block already sit before the history, so
+history tokens re-prefill each turn regardless):
+
+1. **Removes the recurring inline LLM summarize call** from the request path — the largest,
+   indisputable latency win on local CPU.
+2. **Stops the summary-prefix churn**: the history segment is append-only *between* scene
+   boundaries instead of mutating every few turns, so the re-prefill region is smaller and
+   stable until a boundary.
+3. **Bounds prompt growth**: layered roll-ups cap the recap at `SUMMARY_BLOCK_BUDGET` tokens
+   instead of letting a flat summary list + message tail wander.
+
+It does NOT make every mid-scene turn a warm cache hit (volatile context still re-prefills);
+the wins are the removed call + the append-only-between-boundaries history. Cache mechanics:
+[Ollama prompt caching](https://leanpub.com/read/ollama/prompt-caching),
+[KV cache & scheduling](https://jonathanding.github.io/llm-learning/en/articles/ollama-kv-cache-scheduling/),
+[Ollama FAQ](https://docs.ollama.com/faq).
+
 ## Sources
 
 - [Ollama `/api/chat` reference](https://docs.ollama.com/api/chat) ·

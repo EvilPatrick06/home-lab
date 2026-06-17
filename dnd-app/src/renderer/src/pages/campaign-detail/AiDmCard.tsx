@@ -47,6 +47,9 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
     ragEmbeddingModel: 'nomic-embed-text',
     ragCampaignDocsEnabled: false
   })
+  // PHASE-26: scene-based memory is an engine-owned per-campaign flag (NOT campaign.aiDm),
+  // read/written over IPC — independent of the configure modal's aiDm save.
+  const [sceneMemoryOn, setSceneMemoryOn] = useState(false)
 
   const openConfigure = (): void => {
     const dm = campaign.aiDm
@@ -109,6 +112,31 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
           ? `error: ${embedStatus.error ?? ''}`
           : 'not built'
 
+  // PHASE-26: load the scene-memory flag once the AI DM is enabled (the toggle only shows then).
+  const aiDmEnabled = campaign.aiDm?.enabled ?? false
+  useEffect(() => {
+    if (!aiDmEnabled) return
+    let cancelled = false
+    window.api.ai
+      .sceneMemoryGet?.(campaign.id)
+      .then((r) => {
+        if (!cancelled && r?.success && r.data) setSceneMemoryOn(r.data.enabled)
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [campaign.id, aiDmEnabled])
+
+  const handleSceneMemoryToggle = async (next: boolean): Promise<void> => {
+    setSceneMemoryOn(next) // optimistic
+    const r = await window.api.ai.sceneMemorySetEnabled?.(campaign.id, next)
+    if (r && !r.success) {
+      setSceneMemoryOn(!next)
+      addToast(r.error ?? t('pages.aiDmCard.sceneMemorySaveFailed'), 'error')
+    }
+  }
+
   const providerLabel = AI_PROVIDER_LABELS[campaign.aiDm?.provider ?? 'ollama'] ?? 'Ollama'
   const displayModel = campaign.aiDm?.model ?? campaign.aiDm?.ollamaModel ?? t('pages.aiDmCard.defaultModel')
 
@@ -127,6 +155,18 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
             <button onClick={openConfigure} className="text-xs text-accent hover:text-amber-300 cursor-pointer">
               {t('pages.aiDmCard.configure')}
             </button>
+            {/* PHASE-26: scene-based memory toggle (per-campaign engine flag). */}
+            <div className="pt-1">
+              <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={sceneMemoryOn}
+                  onChange={(e) => handleSceneMemoryToggle(e.target.checked)}
+                />
+                {t('pages.aiDmCard.sceneMemory')}
+              </label>
+              <p className="text-[11px] text-gray-500 mt-0.5">{t('pages.aiDmCard.sceneMemoryHint')}</p>
+            </div>
           </div>
         ) : (
           <div>

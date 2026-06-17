@@ -6,7 +6,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // 'error' (and then hang a retry) deterministically. Defaults to a clean resolve.
 const hoisted = vi.hoisted(() => ({
   providerStreamChat: vi.fn(async () => {}),
-  addMessageCalls: [] as Array<[string, string, string[] | undefined]>
+  addMessageCalls: [] as Array<[string, string, string[] | undefined]>,
+  // PHASE-26 scene-memory wiring spies
+  sceneSettings: { enabled: false } as { enabled: boolean },
+  setModeCalls: [] as string[],
+  endSceneSpy: vi.fn(async (_label?: string) => ({ summarized: true })),
+  overflowFlag: false
 }))
 
 vi.mock('electron', () => ({
@@ -92,6 +97,16 @@ vi.mock('./conversation-manager', () => ({
     getMessages(): Array<{ role: string; content: string }> {
       return this.messages
     }
+    // PHASE-26 scene-memory hooks (routed to hoisted spies for assertions)
+    setSummarizationMode(mode: string): void {
+      hoisted.setModeCalls.push(mode)
+    }
+    async endScene(label?: string): Promise<{ summarized: boolean }> {
+      return hoisted.endSceneSpy(label)
+    }
+    get overflowSplitNeeded(): boolean {
+      return hoisted.overflowFlag
+    }
     removeTrailingUserMessage(content: string): boolean {
       const last = this.messages[this.messages.length - 1]
       if (last && last.role === 'user' && last.content === content) {
@@ -163,6 +178,11 @@ vi.mock('./search-engine', () => ({
       return this.count
     }
   }
+}))
+
+vi.mock('./scene-memory', () => ({
+  getSceneMemorySettings: vi.fn(async () => hoisted.sceneSettings),
+  clearSceneMemoryCache: vi.fn()
 }))
 
 vi.mock('../storage/ai-conversation-storage', () => ({
@@ -260,12 +280,14 @@ vi.mock('./web-search', () => ({
 import { existsSync, readFileSync } from 'node:fs'
 import { rename, writeFile } from 'node:fs/promises'
 import { BrowserWindow } from 'electron'
+import { saveConversation } from '../storage/ai-conversation-storage'
 import {
   cancelChat,
   cancelScenePrep,
   cancelStreamsForCampaign,
   checkProviders,
   configure,
+  endSceneForCampaign,
   getChunkCount,
   getConfig,
   getConnectionStatus,
@@ -287,6 +309,7 @@ import {
 } from './ai-service'
 import { loadChunkIndex } from './chunk-builder'
 import { buildContext } from './context-builder'
+import { parseDmActionsDetailed } from './dm-actions'
 import { fetchOllamaModels, getOllamaUrl, setOllamaUrl } from './ollama-client'
 import { getActiveProviderType } from './provider-registry'
 
@@ -1078,6 +1101,97 @@ describe('ai-service', () => {
       })
       await vi.waitFor(() => expect(delivered).toBeDefined())
       expect(delivered).toEqual([])
+    })
+  })
+
+  describe('scene memory wiring (PHASE-26 26C)', () => {
+    const driveCompletion = (onDone: (f: string, d: string, sc: unknown[]) => void): void => {
+      hoisted.providerStreamChat.mockImplementation(((
+        _sp: unknown,
+        _msgs: unknown,
+        cb: { onDone: (t: string) => void }
+      ) => {
+        cb.onDone('narration')
+        return Promise.resolve()
+      }) as never)
+      startChat(
+        { campaignId: 'c-scene', message: 'go', characterIds: [] },
+        () => {},
+        onDone,
+        () => {}
+      )
+    }
+
+    beforeEach(() => {
+      hoisted.sceneSettings = { enabled: false }
+      hoisted.setModeCalls.length = 0
+      hoisted.endSceneSpy.mockClear().mockResolvedValue({ summarized: true })
+      hoisted.overflowFlag = false
+      detailedStat.mockReturnValue({ changes: [], issues: [], rawJsonError: undefined })
+      orphanStat.mockReturnValue(false)
+      vi.mocked(parseDmActionsDetailed).mockReturnValue({ actions: [], issues: [] })
+      vi.mocked(saveConversation).mockClear()
+    })
+
+    it('flag off → threshold mode, never calls endScene', async () => {
+      let done = false
+      driveCompletion(() => {
+        done = true
+      })
+      await vi.waitFor(() => expect(done).toBe(true))
+      expect(hoisted.setModeCalls).toContain('threshold')
+      await Promise.resolve()
+      expect(hoisted.endSceneSpy).not.toHaveBeenCalled()
+    })
+
+    it('flag on → scene mode is set', async () => {
+      hoisted.sceneSettings = { enabled: true }
+      let done = false
+      driveCompletion(() => {
+        done = true
+      })
+      await vi.waitFor(() => expect(done).toBe(true))
+      expect(hoisted.setModeCalls).toContain('scene')
+    })
+
+    it('flag on + switch_map boundary → endScene with the map name (off the request path)', async () => {
+      hoisted.sceneSettings = { enabled: true }
+      vi.mocked(parseDmActionsDetailed).mockReturnValue({
+        actions: [{ action: 'switch_map', mapName: 'The Crypt' }] as never,
+        issues: []
+      })
+      driveCompletion(() => {})
+      await vi.waitFor(() => expect(hoisted.endSceneSpy).toHaveBeenCalledWith('The Crypt'))
+    })
+
+    it('flag on + overflow backstop (no boundary action) → endScene "scene continues"', async () => {
+      hoisted.sceneSettings = { enabled: true }
+      hoisted.overflowFlag = true
+      driveCompletion(() => {})
+      await vi.waitFor(() => expect(hoisted.endSceneSpy).toHaveBeenCalledWith('scene continues'))
+    })
+
+    it('does not block onDone (boundary runs after the reply is delivered)', async () => {
+      hoisted.sceneSettings = { enabled: true }
+      // endScene hangs; onDone must still fire.
+      hoisted.endSceneSpy.mockImplementationOnce(() => new Promise(() => {}) as never)
+      vi.mocked(parseDmActionsDetailed).mockReturnValue({ actions: [{ action: 'long_rest' }] as never, issues: [] })
+      let done = false
+      driveCompletion(() => {
+        done = true
+      })
+      await vi.waitFor(() => expect(done).toBe(true)) // resolves despite the hung boundary
+    })
+
+    it('endSceneForCampaign persists on a successful summarize, not otherwise', async () => {
+      hoisted.endSceneSpy.mockResolvedValueOnce({ summarized: true })
+      await endSceneForCampaign('c-persist', 'label')
+      expect(saveConversation).toHaveBeenCalled()
+
+      vi.mocked(saveConversation).mockClear()
+      hoisted.endSceneSpy.mockResolvedValueOnce({ summarized: false })
+      await endSceneForCampaign('c-persist')
+      expect(saveConversation).not.toHaveBeenCalled()
     })
   })
 })

@@ -303,6 +303,20 @@ interface AiAPI {
   listCloudModels: (provider: string, apiKey?: string) => Promise<Array<{ id: string; name: string; desc?: string }>>
   syncWorldState: (campaignId: string, worldState: unknown) => Promise<{ success: boolean; error?: string }>
   syncCombatState: (campaignId: string, combatState: unknown) => Promise<{ success: boolean; error?: string }>
+  // Scene memory (PHASE-26)
+  sceneMemoryGet: (campaignId: string) => Promise<{
+    success: boolean
+    data?: {
+      enabled: boolean
+      sceneSummaryCount: number
+      sessionSummaryCount: number
+      hasCampaignSummary: boolean
+      currentSceneMessageCount: number
+    }
+    error?: string
+  }>
+  sceneMemorySetEnabled: (campaignId: string, enabled: boolean) => Promise<{ success: boolean; error?: string }>
+  endScene: (campaignId: string, label?: string) => Promise<{ success: boolean; summarized?: boolean; error?: string }>
   getTokenBudget: (campaignId?: string) => Promise<{
     rulebookChunks: number
     srdData: number

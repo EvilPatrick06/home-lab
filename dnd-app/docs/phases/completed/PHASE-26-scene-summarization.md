@@ -356,4 +356,43 @@ const SUMMARY_BLOCK_BUDGET = 1200    // token cap for the assembled [CAMPAIGN ME
 
 ## Completed
 
-(Filled during execution per INSTRUCTIONS.md rule 17 — per-sub-phase `DONE` lines with file:line citations.)
+- **26A — tiered summary model + scene-mode core.** `types.ts` `ConversationSummary` += optional
+  `tier`/`label`/`createdAt`. `conversation-manager.ts`: exported constants
+  (`SCENE_CARRYOVER_MESSAGES=4`, `SCENE_SUMMARY_MIN_MESSAGES=6`, `SCENE_ROLLUP_KEEP=4`,
+  `SCENE_ROLLUP_THRESHOLD=8`, `SESSION_ROLLUP_THRESHOLD=4`, `SUMMARY_BLOCK_BUDGET=1200`),
+  `summarizationMode` + `setSummarizationMode`, `tierOf`, `endScene` (captures `cut` before the
+  await; prunes to carryover; pushes scene-tier; `maybeRollUp`), `maybeRollUp` (scene→session,
+  session→campaign — consolidates EXISTING summaries), `getMessagesForApi` scene branch (skips
+  `maybeSummarize`; injects the layered `[CAMPAIGN MEMORY]` block via the unified `summaryPrefix`;
+  sets `overflowSplitNeeded`), `buildLayeredBlock` (+`trimToTokenBudget`), `generateSessionSummary`
+  scene branch, `getSummaryTierCounts`, `overflowSplitNeeded` getter, `clear()` resets it. Threshold
+  mode byte-identical (42 pre-existing tests pass unchanged; +10 scene tests).
+- **26B — scene-memory settings store.** NEW `scene-memory.ts`: `getSceneMemorySettings`
+  (cached, missing/corrupt → `{enabled:false}`), `setSceneMemoryEnabled` (cache + mkdir +
+  `atomicWriteFile`), `clearSceneMemoryCache`. NEW `scene-memory.test.ts` (4: default-off,
+  round-trip, corrupt fallback, cache hit) using a real temp dir + mocked `app.getPath`.
+- **26C — ai-service wiring.** `ai-service.ts`: exported `endSceneForCampaign` (endScene →
+  persist on summarized); `startChat` sets the mode from `getSceneMemorySettings` before
+  `getMessagesForApi` (cached); `handleStreamCompletion` fire-and-forget boundary check AFTER the
+  PHASE-25 `runEntityExtraction` (boundary action → map-name/action label, else `overflowSplitNeeded`
+  → `'scene continues'`; never awaited, never delays `onDone`); `removeConversation` clears the
+  cache. `ai-service.test.ts` (+6: mode resolution, boundary→endScene, overflow, onDone-not-blocked,
+  persist-on-summarize). ConversationManager test mock gained `setSummarizationMode`/`endScene`/`overflowSplitNeeded`.
+- **26D — IPC + schema + handlers + world-sync hook + restore extension.** `ipc-channels.ts`
+  `AI_SCENE_MEMORY_GET`/`AI_SCENE_MEMORY_SET_ENABLED`/`AI_END_SCENE`. `ipc-schemas.ts` `SceneLabelSchema`
+  + extended `ConversationDataSchema` summaries item with optional `tier`/`label`/`createdAt` (else
+  zod strips them on restore). `ai-handlers.ts` three sanitized handlers + the `AI_SYNC_WORLD_STATE`
+  boundary hook (prev vs incoming `currentScene` differ → `endSceneForCampaign(prevScene)`, gated on
+  enabled, fire-and-forget). preload `index.ts`/`index.d.ts` (`sceneMemoryGet`/`sceneMemorySetEnabled`/
+  `endScene`). `ipc-schemas.test.ts` (+SceneLabelSchema + tiered/legacy round-trip); `ipc-channels.test.ts`
+  auto-covers the new channels.
+- **26E — renderer toggle + `/scene` command.** `AiDmCard.tsx`: scene-memory checkbox in the
+  AI-enabled view, own IPC-backed state (`sceneMemoryGet` on mount, `sceneMemorySetEnabled` on toggle —
+  NOT written to `campaign.aiDm`). `commands-dm-campaign.ts`: `/scene <end [label]|status>` (`aliases:[]`,
+  `dmOnly`, via `getActiveCampaignId` + `window.api.ai.endScene`/`sceneMemoryGet`), registered in `commands`.
+  en+es `pages.aiDmCard.{sceneMemory,sceneMemoryHint,sceneMemorySaveFailed}`. Tests: `AiDmCard.test.tsx`
+  (+3 toggle), `commands-dm-campaign.test.ts` (+6 /scene paths).
+- **26F — docs.** `AI_ACTION_CONTRACT.md` "Scene boundaries (PHASE-26)" section (engine-driven
+  boundaries, no AI verb, `coversUpTo===-1` invariant, tier ladder). `docs/OLLAMA-TUNING.md`
+  "Scene-based memory and the KV cache" subsection (flag behavior + honest F8 scoping).
+- **End-of-phase 4-gate:** lint, tsc web+node, full vitest — all green. No Pi code (no pytest leg).

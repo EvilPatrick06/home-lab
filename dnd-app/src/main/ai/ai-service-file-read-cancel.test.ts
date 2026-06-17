@@ -67,6 +67,13 @@ vi.mock('./conversation-manager', () => ({
     getMessages(): Array<{ role: 'user' | 'assistant'; content: string }> {
       return this.messages
     }
+    setSummarizationMode(): void {}
+    async endScene(): Promise<{ summarized: boolean }> {
+      return { summarized: false }
+    }
+    get overflowSplitNeeded(): boolean {
+      return false
+    }
     async generateSessionSummary(): Promise<string | null> {
       return null
     }

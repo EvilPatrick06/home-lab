@@ -15,6 +15,7 @@ vi.mock('./prompt-sections/narrative-rules', () => ({
 let mockWindow = 100_000
 vi.mock('./token-budget', () => ({
   estimateTokens: vi.fn((text: string) => Math.ceil(text.length / 4)),
+  trimToTokenBudget: vi.fn((text: string) => text),
   OUTPUT_RESERVE: 2000,
   getActiveContextWindow: vi.fn(() => mockWindow),
   getEffectiveBudgets: vi.fn(() => ({
@@ -466,6 +467,158 @@ describe('ConversationManager', () => {
       mgr.addMessage('user', bigMsg.repeat(3)) // one message far over budget
       await mgr.getMessagesForApi('')
       expect(mgr.contextWasTruncated).toBe(false)
+    })
+  })
+
+  // ── PHASE-26: scene-boundary layered memory ──
+  describe('scene mode (PHASE-26)', () => {
+    const sceneMgr = (cb: (t: string) => Promise<string>) => {
+      const mgr = new ConversationManager()
+      mgr.setSummarizeCallback(cb)
+      mgr.setSummarizationMode('scene')
+      return mgr
+    }
+    const fill = (mgr: ConversationManager, n: number, prefix = 'm') => {
+      for (let i = 0; i < n; i++) mgr.addMessage(i % 2 === 0 ? 'user' : 'assistant', `${prefix}${i}`)
+    }
+
+    it('tier/label/createdAt round-trip through serialize/restore', () => {
+      const mgr = new ConversationManager()
+      mgr.restore({
+        messages: [],
+        summaries: [
+          { content: 'c', coversUpTo: -1, tier: 'scene', label: 'The Crypt', createdAt: '2026-01-01T00:00:00Z' }
+        ],
+        activeCharacterIds: []
+      })
+      const s = mgr.serialize().summaries[0]
+      expect(s.tier).toBe('scene')
+      expect(s.label).toBe('The Crypt')
+      expect(s.createdAt).toBe('2026-01-01T00:00:00Z')
+    })
+
+    it('endScene prunes to the carryover, pushes a scene-tier summary with label', async () => {
+      const cb = vi.fn(async () => 'SCENE SUMMARY')
+      const mgr = sceneMgr(cb)
+      fill(mgr, 12)
+      const res = await mgr.endScene('The Crypt')
+      expect(res.summarized).toBe(true)
+      expect(cb).toHaveBeenCalledTimes(1)
+      expect(mgr.getMessageCount()).toBe(4) // SCENE_CARRYOVER_MESSAGES
+      const counts = mgr.getSummaryTierCounts()
+      expect(counts.scene).toBe(1)
+      const s = mgr.serialize().summaries[0]
+      expect(s.label).toBe('The Crypt')
+      expect(s.createdAt).toBeDefined()
+      expect(s.coversUpTo).toBe(-1)
+    })
+
+    it('endScene is a no-op (no LLM call) for a short scene', async () => {
+      const cb = vi.fn(async () => 'X')
+      const mgr = sceneMgr(cb)
+      fill(mgr, 8) // cut = 8-4 = 4 < SCENE_SUMMARY_MIN_MESSAGES (6)
+      const res = await mgr.endScene()
+      expect(res.summarized).toBe(false)
+      expect(cb).not.toHaveBeenCalled()
+      expect(mgr.getMessageCount()).toBe(8) // untouched
+    })
+
+    it('endScene leaves messages intact when the callback throws', async () => {
+      const cb = vi.fn(async () => {
+        throw new Error('boom')
+      })
+      const mgr = sceneMgr(cb)
+      fill(mgr, 12)
+      const res = await mgr.endScene()
+      expect(res.summarized).toBe(false)
+      expect(mgr.getMessageCount()).toBe(12) // unchanged
+    })
+
+    it('a message appended DURING the awaited summarize survives the prune', async () => {
+      let resolveCb: (s: string) => void = () => {}
+      const cb = vi.fn(() => new Promise<string>((r) => (resolveCb = r)))
+      const mgr = sceneMgr(cb)
+      fill(mgr, 12)
+      const p = mgr.endScene()
+      mgr.addMessage('user', 'LATE MESSAGE') // arrives mid-await, index ≥ cut
+      resolveCb('SUMMARY')
+      await p
+      const tail = mgr.getMessages().map((m) => m.content)
+      expect(tail).toContain('LATE MESSAGE')
+    })
+
+    it('scene→session roll-up at the threshold keeps the newest SCENE_ROLLUP_KEEP', async () => {
+      const cb = vi.fn(async () => 'ROLLED')
+      const mgr = sceneMgr(cb)
+      const scenes = Array.from({ length: 8 }, (_, i) => ({
+        content: `scene ${i}`,
+        coversUpTo: -1,
+        tier: 'scene' as const
+      }))
+      mgr.restore({ messages: [], summaries: scenes, activeCharacterIds: [] })
+      fill(mgr, 12) // enough to summarize the 9th scene
+      await mgr.endScene() // 9th scene → 9 > SCENE_ROLLUP_THRESHOLD (8) → roll up
+      const counts = mgr.getSummaryTierCounts()
+      expect(counts.session).toBe(1)
+      expect(counts.scene).toBe(4) // SCENE_ROLLUP_KEEP
+    })
+
+    it('session→campaign roll-up merges sessions when over the threshold', async () => {
+      const cb = vi.fn(async () => 'MERGED')
+      const mgr = sceneMgr(cb)
+      const sessions = Array.from({ length: 5 }, (_, i) => ({
+        content: `session ${i}`,
+        coversUpTo: -1,
+        tier: 'session' as const
+      }))
+      mgr.restore({ messages: [], summaries: sessions, activeCharacterIds: [] })
+      fill(mgr, 12)
+      await mgr.endScene() // new scene → maybeRollUp: 5 sessions > 4 → campaign roll-up
+      const counts = mgr.getSummaryTierCounts()
+      expect(counts.campaign).toBe(1)
+      expect(counts.session).toBe(0)
+    })
+
+    it('getMessagesForApi injects a layered [CAMPAIGN MEMORY] block in tier order', async () => {
+      const mgr = new ConversationManager()
+      mgr.setSummarizationMode('scene')
+      mgr.restore({
+        messages: [],
+        summaries: [
+          { content: 'the realm endures', coversUpTo: -1, tier: 'campaign' },
+          { content: 'last session recap', coversUpTo: -1, tier: 'session' },
+          { content: 'fought goblins', coversUpTo: -1, tier: 'scene', label: 'The Crypt' }
+        ],
+        activeCharacterIds: []
+      })
+      mgr.addMessage('user', 'What now?')
+      const { messages } = await mgr.getMessagesForApi('')
+      const injected = messages[0].content
+      expect(injected).toContain('[CAMPAIGN MEMORY]')
+      expect(injected).toContain('Campaign so far: the realm endures')
+      expect(injected).toContain('Recent sessions: last session recap')
+      expect(injected).toContain('Earlier this session: (The Crypt) fought goblins')
+      expect(injected).toContain('[/CAMPAIGN MEMORY]')
+      expect(injected).toContain('What now?')
+    })
+
+    it('scene mode skips maybeSummarize (no inline summarize call on the request path)', async () => {
+      const cb = vi.fn(async () => 'X')
+      const mgr = sceneMgr(cb)
+      fill(mgr, 20) // far over MAX_RECENT_MESSAGES — would summarize in threshold mode
+      await mgr.getMessagesForApi('')
+      expect(cb).not.toHaveBeenCalled()
+    })
+
+    it('overflowSplitNeeded flips when the budget loop drops messages', async () => {
+      const mgr = new ConversationManager()
+      mgr.setSummarizationMode('scene')
+      const big = 'x'.repeat(4000) // ~1000 tokens each; budget is 2000
+      mgr.addMessage('user', big)
+      mgr.addMessage('assistant', big)
+      mgr.addMessage('user', big) // 3 × 1000 > 2000 → at least one dropped
+      await mgr.getMessagesForApi('')
+      expect(mgr.overflowSplitNeeded).toBe(true)
     })
   })
 })

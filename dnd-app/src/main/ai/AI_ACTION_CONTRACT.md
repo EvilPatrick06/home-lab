@@ -97,3 +97,27 @@ PHASE-31 (Q&A blocks), PHASE-37 (`keywords` field).
 
 **Deliberately NOT adopted** (future work, no phase owns them): SillyTavern regex keys,
 secondary-key AND/NOT logic, recursion, probability/sticky/cooldown timers, inclusion groups.
+
+## Scene boundaries (PHASE-26)
+
+Opt-in per-campaign (`ai-context/scene-memory.json`, default off). When ON, the conversation
+manager runs in **scene mode**: it never summarizes on the request path; instead a completed
+scene is summarized ONCE at a narrative boundary, off-path, into a layered memory ladder
+(scene → session → campaign). With the flag OFF (default), behavior is byte-identical to the
+old message-count `maybeSummarize` compaction.
+
+**Boundaries are ENGINE-driven — there is no AI-emitted scene verb** (a model-declared
+`end_scene` is PHASE-28 director territory; do NOT add one to the action contract). A scene
+ends on:
+- a parsed `switch_map` / `long_rest` / `short_rest` / `end_initiative` DM action (the
+  `handleStreamCompletion` boundary check, fire-and-forget — never delays `onDone`);
+- a renderer-truth map change (`AI_SYNC_WORLD_STATE`'s `currentScene` differs — label = the
+  scene just left);
+- the `/scene end [label]` DM command;
+- an overflow backstop (the history budget dropped messages → `'scene continues'`).
+
+**Invariants:** every new summary keeps `coversUpTo === -1` (summaries cover a pruned prefix;
+`this.messages` is the un-summarized tail — PHASE-32 relies on this). Tiers consolidate
+EXISTING summaries, never raw chat. The injected `[CAMPAIGN MEMORY]` block is bounded by
+`SUMMARY_BLOCK_BUDGET` and replaces the flat `[Previous conversation summary: …]` prefix in
+scene mode. Lore-relabel aside, the only always-on change vs pre-phase is in scene mode.

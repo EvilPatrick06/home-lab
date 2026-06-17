@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 
+const sceneHoisted = vi.hoisted(() => ({ activeCampaignId: 'c1' as string | null }))
+vi.mock('../active-campaign-ref', () => ({ getActiveCampaignId: () => sceneHoisted.activeCampaignId }))
+
 vi.mock('../../stores/use-game-store', () => ({
   useGameStore: {
     getState: vi.fn(() => ({
@@ -284,5 +287,75 @@ describe('commands-dm-campaign', () => {
     for (const cmd of commands) {
       expect(cmd.dmOnly).toBe(true)
     }
+  })
+
+  // PHASE-26 26E — /scene command
+  describe('/scene', () => {
+    const scene = () => commands.find((c) => c.name === 'scene')
+    const endScene = vi.fn()
+    const sceneMemoryGet = vi.fn()
+
+    const setApi = () => {
+      // biome-ignore lint/suspicious/noExplicitAny: test stub of the preload surface
+      ;(globalThis as any).window = { api: { ai: { endScene, sceneMemoryGet } } }
+    }
+
+    it('is registered with no alias (collision-test friendly)', () => {
+      const cmd = scene()
+      expect(cmd).toBeDefined()
+      expect(cmd?.aliases).toEqual([])
+      expect(cmd?.dmOnly).toBe(true)
+    })
+
+    it('end → summarizes and reports success', async () => {
+      sceneHoisted.activeCampaignId = 'c1'
+      endScene.mockResolvedValueOnce({ success: true, summarized: true })
+      setApi()
+      const res = await scene()?.execute('end The Crypt', {} as never)
+      expect(endScene).toHaveBeenCalledWith('c1', 'The Crypt')
+      expect(res).toMatchObject({ type: 'system' })
+      expect((res as { content: string }).content).toMatch(/summarized/i)
+    })
+
+    it('end → reports "too short" when nothing was summarized', async () => {
+      sceneHoisted.activeCampaignId = 'c1'
+      endScene.mockResolvedValueOnce({ success: true, summarized: false })
+      setApi()
+      const res = await scene()?.execute('end', {} as never)
+      expect((res as { content: string }).content).toMatch(/too short/i)
+    })
+
+    it('end → passes through the not-enabled error', async () => {
+      sceneHoisted.activeCampaignId = 'c1'
+      endScene.mockResolvedValueOnce({ success: false, error: 'Scene memory is not enabled for this campaign.' })
+      setApi()
+      const res = await scene()?.execute('end', {} as never)
+      expect(res).toMatchObject({ type: 'error' })
+      expect((res as { content: string }).content).toMatch(/not enabled/i)
+    })
+
+    it('status → reports counts', async () => {
+      sceneHoisted.activeCampaignId = 'c1'
+      sceneMemoryGet.mockResolvedValueOnce({
+        success: true,
+        data: {
+          enabled: true,
+          sceneSummaryCount: 2,
+          sessionSummaryCount: 1,
+          hasCampaignSummary: false,
+          currentSceneMessageCount: 5
+        }
+      })
+      setApi()
+      const res = await scene()?.execute('status', {} as never)
+      expect((res as { content: string }).content).toMatch(/scenes 2/)
+    })
+
+    it('errors with no active campaign', async () => {
+      sceneHoisted.activeCampaignId = null
+      setApi()
+      const res = await scene()?.execute('end', {} as never)
+      expect(res).toMatchObject({ type: 'error' })
+    })
   })
 })

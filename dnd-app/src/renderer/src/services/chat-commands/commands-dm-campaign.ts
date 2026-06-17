@@ -1,4 +1,5 @@
 import { useGameStore } from '../../stores/use-game-store'
+import { getActiveCampaignId } from '../active-campaign-ref'
 import type { ChatCommand } from './types'
 
 const calendarCommand: ChatCommand = {
@@ -187,11 +188,53 @@ const maplistCommand: ChatCommand = {
   }
 }
 
+// PHASE-26: force a scene boundary or inspect scene-memory status. No alias (PHASE-09's
+// registry-collision test guards uniqueness). Engine summarization is gated by the per-campaign
+// scene-memory flag; this command surfaces it to the DM.
+const sceneCommand: ChatCommand = {
+  name: 'scene',
+  aliases: [],
+  description: 'Scene-based AI memory: end the current scene, or check status',
+  usage: '/scene <end [label]|status>',
+  dmOnly: true,
+  category: 'dm',
+  execute: async (args) => {
+    const trimmed = args.trim()
+    const spaceIdx = trimmed.indexOf(' ')
+    const sub = (spaceIdx === -1 ? trimmed : trimmed.slice(0, spaceIdx)).toLowerCase()
+    const label = spaceIdx === -1 ? '' : trimmed.slice(spaceIdx + 1).trim()
+    const campaignId = getActiveCampaignId()
+    if (!campaignId) return { type: 'error', content: 'No active campaign.' }
+
+    if (sub === 'end') {
+      const r = await window.api.ai.endScene?.(campaignId, label || undefined)
+      if (!r) return { type: 'error', content: 'Scene memory is unavailable.' }
+      if (!r.success) return { type: 'error', content: r.error ?? 'Could not end the scene.' }
+      return {
+        type: 'system',
+        content: r.summarized ? 'Scene closed and summarized.' : 'Scene too short to summarize — kept in full.'
+      }
+    }
+    if (sub === 'status') {
+      const r = await window.api.ai.sceneMemoryGet?.(campaignId)
+      if (!r?.success || !r.data) return { type: 'error', content: 'Scene memory status unavailable.' }
+      const d = r.data
+      const campaignNote = d.hasCampaignSummary ? ', campaign summary present' : ''
+      return {
+        type: 'system',
+        content: `Scene memory: ${d.enabled ? 'on' : 'off'} · scenes ${d.sceneSummaryCount}, sessions ${d.sessionSummaryCount}${campaignNote} · ${d.currentSceneMessageCount} messages in the current scene.`
+      }
+    }
+    return { type: 'error', content: 'Usage: /scene <end [label]|status>' }
+  }
+}
+
 export const commands: ChatCommand[] = [
   calendarCommand,
   journalCommand,
   handoutCommand,
   sessionCommand,
   snapshotCommand,
-  maplistCommand
+  maplistCommand,
+  sceneCommand
 ]

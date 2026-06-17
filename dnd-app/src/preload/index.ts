@@ -133,6 +133,11 @@ const api = {
       ipcRenderer.invoke(IPC_CHANNELS.AI_SYNC_WORLD_STATE, campaignId, state),
     syncCombatState: (campaignId: string, state: Record<string, unknown>) =>
       ipcRenderer.invoke(IPC_CHANNELS.AI_SYNC_COMBAT_STATE, campaignId, state),
+    // Scene memory (PHASE-26)
+    sceneMemoryGet: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_SCENE_MEMORY_GET, campaignId),
+    sceneMemorySetEnabled: (campaignId: string, enabled: boolean) =>
+      ipcRenderer.invoke(IPC_CHANNELS.AI_SCENE_MEMORY_SET_ENABLED, campaignId, enabled),
+    endScene: (campaignId: string, label?: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_END_SCENE, campaignId, label),
     // NPC relationship tracking
     logNpcInteraction: (campaignId: string, npcName: string, summary: string, attitudeAfter: string) =>
       ipcRenderer.invoke(IPC_CHANNELS.AI_LOG_NPC_INTERACTION, campaignId, npcName, summary, attitudeAfter),

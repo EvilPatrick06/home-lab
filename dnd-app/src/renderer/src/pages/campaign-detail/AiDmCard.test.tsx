@@ -9,11 +9,24 @@ import AiDmCard from './AiDmCard'
 
 const configure = vi.fn()
 const saveCampaign = vi.fn()
+const sceneMemoryGet = vi.fn()
+const sceneMemorySetEnabled = vi.fn()
 
 beforeEach(() => {
   addToast.mockClear()
   configure.mockReset().mockResolvedValue({ success: true })
   saveCampaign.mockReset().mockResolvedValue(undefined)
+  sceneMemoryGet.mockReset().mockResolvedValue({
+    success: true,
+    data: {
+      enabled: false,
+      sceneSummaryCount: 0,
+      sessionSummaryCount: 0,
+      hasCampaignSummary: false,
+      currentSceneMessageCount: 0
+    }
+  })
+  sceneMemorySetEnabled.mockReset().mockResolvedValue({ success: true })
   // biome-ignore lint/suspicious/noExplicitAny: test-only window augmentation (don't replace window — nukes document)
   ;(window as any).api = {
     ai: {
@@ -27,7 +40,9 @@ beforeEach(() => {
       onOllamaProgress: vi.fn(() => vi.fn()),
       getEmbedIndexStatus: vi.fn().mockResolvedValue({ status: 'idle' }),
       onEmbedIndexProgress: vi.fn(() => vi.fn()),
-      rebuildEmbedIndex: vi.fn().mockResolvedValue({ success: true })
+      rebuildEmbedIndex: vi.fn().mockResolvedValue({ success: true }),
+      sceneMemoryGet,
+      sceneMemorySetEnabled
     }
   }
 })
@@ -183,5 +198,36 @@ describe('AiDmCard (PHASE-10 10H)', () => {
     fireEvent.click(screen.getByText('Save'))
     await waitFor(() => expect((screen.getByText('Saving...') as HTMLButtonElement).disabled).toBe(true))
     resolveSave()
+  })
+
+  // PHASE-26 26E — scene-memory toggle
+  describe('scene memory toggle', () => {
+    it('renders for an AI-enabled campaign and loads the flag on mount', async () => {
+      render(
+        <AiDmCard
+          campaign={campaignWith({ enabled: true, provider: 'ollama', model: 'm' })}
+          saveCampaign={saveCampaign}
+        />
+      )
+      expect(screen.getByText('Scene-based AI memory (experimental)')).toBeTruthy()
+      await waitFor(() => expect(sceneMemoryGet).toHaveBeenCalledWith('c1'))
+    })
+
+    it('toggling it invokes sceneMemorySetEnabled', async () => {
+      render(
+        <AiDmCard
+          campaign={campaignWith({ enabled: true, provider: 'ollama', model: 'm' })}
+          saveCampaign={saveCampaign}
+        />
+      )
+      const checkbox = screen.getByLabelText('Scene-based AI memory (experimental)')
+      fireEvent.click(checkbox)
+      await waitFor(() => expect(sceneMemorySetEnabled).toHaveBeenCalledWith('c1', true))
+    })
+
+    it('is hidden when the AI DM is not enabled', () => {
+      render(<AiDmCard campaign={campaignWith(undefined)} saveCampaign={saveCampaign} />)
+      expect(screen.queryByText('Scene-based AI memory (experimental)')).toBeNull()
+    })
   })
 })

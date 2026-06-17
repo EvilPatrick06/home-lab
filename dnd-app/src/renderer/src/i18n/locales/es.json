@@ -5628,7 +5628,10 @@
       "structuredExtractionHelp": "Extrae las mecánicas del juego con una segunda llamada al modelo restringida por esquema (solo Ollama local).",
       "structuredExtractionOff": "Desactivada",
       "structuredExtractionFallback": "Al fallar el análisis",
-      "structuredExtractionAlways": "Cada respuesta"
+      "structuredExtractionAlways": "Cada respuesta",
+      "sceneMemory": "Memoria de IA basada en escenas (experimental)",
+      "sceneMemoryHint": "Resume las escenas terminadas en una memoria por niveles en lugar de compactar a mitad de escena. Cambia cómo la IA recuerda campañas largas.",
+      "sceneMemorySaveFailed": "No se pudo cambiar el ajuste de memoria de escenas."
     },
     "audioManager": {
       "customAudio": "Audio personalizado ({{count}})",
