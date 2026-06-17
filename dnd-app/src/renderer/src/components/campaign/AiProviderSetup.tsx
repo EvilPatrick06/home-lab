@@ -38,6 +38,10 @@ interface AiProviderSetupProps {
   model: string
   ollamaUrl: string
   apiKey: string
+  // PHASE-29 29C/29E — optional routing + local-endpoint controls (absent in callers that don't use them).
+  routingEnabled?: boolean
+  routingSmallModel?: string
+  localEndpointFlavor?: 'ollama' | 'llamacpp'
   onProviderReady: (ready: boolean) => void
   onChange: (data: {
     enabled: boolean
@@ -45,6 +49,9 @@ interface AiProviderSetupProps {
     model: string
     ollamaUrl: string
     apiKey: string
+    routingEnabled?: boolean
+    routingSmallModel?: string
+    localEndpointFlavor?: 'ollama' | 'llamacpp'
   }) => void
 }
 
@@ -54,6 +61,9 @@ export default function AiProviderSetup({
   model,
   ollamaUrl,
   apiKey,
+  routingEnabled = false,
+  routingSmallModel = '',
+  localEndpointFlavor = 'ollama',
   onProviderReady,
   onChange
 }: AiProviderSetupProps): JSX.Element {
@@ -412,104 +422,142 @@ export default function AiProviderSetup({
               {/* Ollama setup */}
               {!isCloud && (
                 <div className="space-y-4">
-                  <div className="space-y-2 mb-4">
-                    <StatusItem
-                      label={t('campaign.aiProviderSetup.statusInstalled')}
-                      done={ollamaInstalled}
-                      active={setupPhase === 'downloading' || setupPhase === 'installing'}
-                      progress={setupPhase === 'downloading' ? downloadProgress : undefined}
-                      phaseLabel={
-                        setupPhase === 'downloading'
-                          ? t('campaign.aiProviderSetup.downloading', { percent: downloadProgress })
-                          : setupPhase === 'installing'
-                            ? t('campaign.aiProviderSetup.installing')
-                            : undefined
-                      }
-                    />
-                    <StatusItem
-                      label={t('campaign.aiProviderSetup.statusRunning')}
-                      done={ollamaRunning}
-                      active={setupPhase === 'starting'}
-                      phaseLabel={setupPhase === 'starting' ? t('campaign.aiProviderSetup.startingServer') : undefined}
-                    />
-                    <StatusItem
-                      label={t('campaign.aiProviderSetup.statusModelReady')}
-                      done={modelReady}
-                      active={setupPhase === 'pulling'}
-                      progress={setupPhase === 'pulling' ? pullProgress : undefined}
-                      phaseLabel={
-                        setupPhase === 'pulling'
-                          ? t('campaign.aiProviderSetup.pullingModel', { percent: pullProgress })
-                          : undefined
-                      }
-                    />
-                  </div>
-
-                  {/* PHASE-10 10G — visible, retryable detection failure (distinct from "nothing installed yet"). */}
-                  {detectError && (
-                    <div className="mb-4 rounded border border-red-700/40 bg-red-900/20 p-3">
-                      <p className="text-red-400 text-sm mb-2">{t('campaign.aiProviderSetup.errorDetect')}</p>
-                      <Button onClick={() => void detectOllamaStatus()} disabled={setupPhase === 'detecting'}>
-                        {t('campaign.aiProviderSetup.retryDetect')}
-                      </Button>
-                    </div>
-                  )}
-
-                  {setupPhase !== 'ready' && (
-                    <div className="mb-4">
-                      {errorMessage && <p className="text-red-400 text-sm mb-2">{errorMessage}</p>}
-                      <Button onClick={handleAutoSetup} disabled={isSetupBusy || setupPhase === 'detecting'}>
-                        {isSetupBusy
-                          ? t('campaign.aiProviderSetup.settingUp')
-                          : setupPhase === 'error'
-                            ? t('campaign.aiProviderSetup.retrySetup')
-                            : setupPhase === 'detecting'
-                              ? t('campaign.aiProviderSetup.detecting')
-                              : !ollamaInstalled
-                                ? t('campaign.aiProviderSetup.installSetup')
-                                : !ollamaRunning
-                                  ? t('campaign.aiProviderSetup.startSetup')
-                                  : t('campaign.aiProviderSetup.pullModel')}
-                      </Button>
-                    </div>
-                  )}
-
-                  {setupPhase === 'ready' && (
-                    <p className="text-green-400 text-sm mb-4">{t('campaign.aiProviderSetup.readyToGo')}</p>
-                  )}
-
-                  <div className="mb-4">
-                    <label className="block text-sm text-muted mb-1">{t('campaign.aiProviderSetup.model')}</label>
+                  {/* PHASE-29 29E — local endpoint flavor: stock Ollama (default) or a llama.cpp
+                      llama-server (experimental; manual launch — see docs/LLAMA-SERVER.md). */}
+                  <div>
+                    <label className="block text-sm text-muted mb-1">
+                      {t('campaign.aiProviderSetup.localEndpointLabel')}
+                    </label>
                     <select
-                      value={model}
-                      onChange={(e) => {
-                        onChange({ enabled, provider, model: e.target.value, ollamaUrl, apiKey })
-                        const isReady = isModelInstalled(e.target.value, installedModels)
-                        setModelReady(isReady)
-                        if (!isReady) {
-                          setSetupPhase('idle')
-                          onProviderReady(false)
-                        }
-                      }}
+                      value={localEndpointFlavor}
+                      onChange={(e) =>
+                        onChange({
+                          enabled,
+                          provider,
+                          model,
+                          ollamaUrl,
+                          apiKey,
+                          localEndpointFlavor: e.target.value as 'ollama' | 'llamacpp'
+                        })
+                      }
                       className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-500"
                     >
-                      {curatedModels.map((m) => (
-                        <option key={m.id} value={m.id}>
-                          {m.name} — {m.desc}
-                          {!modelFitsGpu(m) ? t('campaign.aiProviderSetup.mayBeSlow') : ''}
-                          {isModelInstalled(m.id, installedModels) ? t('campaign.aiProviderSetup.installedSuffix') : ''}
-                        </option>
-                      ))}
-                      {installedModels
-                        .filter((m: string) => !curatedModels.some((c) => isModelInstalled(c.id, [m])))
-                        .map((m: string) => (
-                          <option key={m} value={m}>
-                            {t('campaign.aiProviderSetup.installedModelOption', { model: m })}
-                          </option>
-                        ))}
+                      <option value="ollama">{t('campaign.aiProviderSetup.localEndpointOllama')}</option>
+                      <option value="llamacpp">{t('campaign.aiProviderSetup.localEndpointLlamacpp')}</option>
                     </select>
-                    <p className="text-gray-500 text-xs mt-1">{gpuDesc}</p>
+                    {localEndpointFlavor === 'llamacpp' && (
+                      <p className="text-gray-500 text-xs mt-1">{t('campaign.aiProviderSetup.localEndpointHint')}</p>
+                    )}
                   </div>
+
+                  {/* The Ollama-binary detect/install wizard + curated picker only apply to the
+                      'ollama' flavor; a llama-server is launched manually (URL field below). */}
+                  {localEndpointFlavor === 'ollama' && (
+                    <>
+                      <div className="space-y-2 mb-4">
+                        <StatusItem
+                          label={t('campaign.aiProviderSetup.statusInstalled')}
+                          done={ollamaInstalled}
+                          active={setupPhase === 'downloading' || setupPhase === 'installing'}
+                          progress={setupPhase === 'downloading' ? downloadProgress : undefined}
+                          phaseLabel={
+                            setupPhase === 'downloading'
+                              ? t('campaign.aiProviderSetup.downloading', { percent: downloadProgress })
+                              : setupPhase === 'installing'
+                                ? t('campaign.aiProviderSetup.installing')
+                                : undefined
+                          }
+                        />
+                        <StatusItem
+                          label={t('campaign.aiProviderSetup.statusRunning')}
+                          done={ollamaRunning}
+                          active={setupPhase === 'starting'}
+                          phaseLabel={
+                            setupPhase === 'starting' ? t('campaign.aiProviderSetup.startingServer') : undefined
+                          }
+                        />
+                        <StatusItem
+                          label={t('campaign.aiProviderSetup.statusModelReady')}
+                          done={modelReady}
+                          active={setupPhase === 'pulling'}
+                          progress={setupPhase === 'pulling' ? pullProgress : undefined}
+                          phaseLabel={
+                            setupPhase === 'pulling'
+                              ? t('campaign.aiProviderSetup.pullingModel', { percent: pullProgress })
+                              : undefined
+                          }
+                        />
+                      </div>
+
+                      {/* PHASE-10 10G — visible, retryable detection failure (distinct from "nothing installed yet"). */}
+                      {detectError && (
+                        <div className="mb-4 rounded border border-red-700/40 bg-red-900/20 p-3">
+                          <p className="text-red-400 text-sm mb-2">{t('campaign.aiProviderSetup.errorDetect')}</p>
+                          <Button onClick={() => void detectOllamaStatus()} disabled={setupPhase === 'detecting'}>
+                            {t('campaign.aiProviderSetup.retryDetect')}
+                          </Button>
+                        </div>
+                      )}
+
+                      {setupPhase !== 'ready' && (
+                        <div className="mb-4">
+                          {errorMessage && <p className="text-red-400 text-sm mb-2">{errorMessage}</p>}
+                          <Button onClick={handleAutoSetup} disabled={isSetupBusy || setupPhase === 'detecting'}>
+                            {isSetupBusy
+                              ? t('campaign.aiProviderSetup.settingUp')
+                              : setupPhase === 'error'
+                                ? t('campaign.aiProviderSetup.retrySetup')
+                                : setupPhase === 'detecting'
+                                  ? t('campaign.aiProviderSetup.detecting')
+                                  : !ollamaInstalled
+                                    ? t('campaign.aiProviderSetup.installSetup')
+                                    : !ollamaRunning
+                                      ? t('campaign.aiProviderSetup.startSetup')
+                                      : t('campaign.aiProviderSetup.pullModel')}
+                          </Button>
+                        </div>
+                      )}
+
+                      {setupPhase === 'ready' && (
+                        <p className="text-green-400 text-sm mb-4">{t('campaign.aiProviderSetup.readyToGo')}</p>
+                      )}
+
+                      <div className="mb-4">
+                        <label className="block text-sm text-muted mb-1">{t('campaign.aiProviderSetup.model')}</label>
+                        <select
+                          value={model}
+                          onChange={(e) => {
+                            onChange({ enabled, provider, model: e.target.value, ollamaUrl, apiKey })
+                            const isReady = isModelInstalled(e.target.value, installedModels)
+                            setModelReady(isReady)
+                            if (!isReady) {
+                              setSetupPhase('idle')
+                              onProviderReady(false)
+                            }
+                          }}
+                          className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-500"
+                        >
+                          {curatedModels.map((m) => (
+                            <option key={m.id} value={m.id}>
+                              {m.name} — {m.desc}
+                              {!modelFitsGpu(m) ? t('campaign.aiProviderSetup.mayBeSlow') : ''}
+                              {isModelInstalled(m.id, installedModels)
+                                ? t('campaign.aiProviderSetup.installedSuffix')
+                                : ''}
+                            </option>
+                          ))}
+                          {installedModels
+                            .filter((m: string) => !curatedModels.some((c) => isModelInstalled(c.id, [m])))
+                            .map((m: string) => (
+                              <option key={m} value={m}>
+                                {t('campaign.aiProviderSetup.installedModelOption', { model: m })}
+                              </option>
+                            ))}
+                        </select>
+                        <p className="text-gray-500 text-xs mt-1">{gpuDesc}</p>
+                      </div>
+                    </>
+                  )}
 
                   <div>
                     <label className="block text-sm text-muted mb-1">{t('campaign.aiProviderSetup.ollamaUrl')}</label>
@@ -532,6 +580,62 @@ export default function AiProviderSetup({
                 </div>
               )}
             </Card>
+
+            {/* PHASE-29 29C — Advanced: route background tasks (summaries, extraction, mechanics —
+                NOT narration) to a smaller/faster model. Off by default. */}
+            <div className="mt-4 border-t border-border/40 pt-3">
+              <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={routingEnabled}
+                  onChange={(e) =>
+                    onChange({
+                      enabled,
+                      provider,
+                      model,
+                      ollamaUrl,
+                      apiKey,
+                      routingEnabled: e.target.checked,
+                      routingSmallModel
+                    })
+                  }
+                />
+                {t('campaign.aiProviderSetup.routingEnabled')}
+              </label>
+              <p className="text-gray-500 text-xs mt-0.5 ml-6">{t('campaign.aiProviderSetup.routingHint')}</p>
+              {routingEnabled && (
+                <div className="ml-6 mt-2">
+                  <label className="block text-xs text-muted mb-1">
+                    {t('campaign.aiProviderSetup.routingSmallModel')}
+                  </label>
+                  <select
+                    value={routingSmallModel}
+                    onChange={(e) =>
+                      onChange({
+                        enabled,
+                        provider,
+                        model,
+                        ollamaUrl,
+                        apiKey,
+                        routingEnabled,
+                        routingSmallModel: e.target.value
+                      })
+                    }
+                    className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-500"
+                  >
+                    <option value="">{t('campaign.aiProviderSetup.routingSmallModelNone')}</option>
+                    {(isCloud
+                      ? cloudModels.map((m) => ({ id: m.id, name: m.name }))
+                      : installedModels.map((m) => ({ id: m, name: m }))
+                    ).map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
           </>
         )}
       </div>

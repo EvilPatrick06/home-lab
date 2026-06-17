@@ -1,4 +1,5 @@
 import type { AiProviderType } from './llm-provider'
+import type { AiRoutingConfig } from './model-routing'
 
 // ── AI DM Types (Main Process) ──
 
@@ -24,6 +25,11 @@ export interface AiConfig {
   ragEmbeddingModel?: string
   /** PHASE-24 24D: let the AI DM search this campaign's lore/journal/handouts. Absent = off. */
   ragCampaignDocsEnabled?: boolean
+  /** PHASE-29 29A: opt-in per-task model routing (small model for summary/extraction/mechanics).
+   *  Absent/disabled = every task uses the primary model (today's behavior). */
+  routing?: AiRoutingConfig
+  /** PHASE-29 29E: local-endpoint flavor for the Ollama provider. Absent = 'ollama'. */
+  localEndpointFlavor?: 'ollama' | 'llamacpp'
   /** @deprecated Use `model` instead. Kept for backward-compatible config loading. */
   ollamaModel?: string
 }

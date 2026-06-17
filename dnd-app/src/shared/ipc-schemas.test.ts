@@ -65,6 +65,30 @@ describe('ipc-schemas', () => {
       expect(result.success).toBe(true)
     })
 
+    // PHASE-29 — routing + local-endpoint flavor parse/strip
+    it('parses the routing block and a llamacpp flavor', () => {
+      const result = AiConfigSchema.safeParse({
+        provider: 'ollama',
+        model: 'llama3',
+        routing: { enabled: true, smallModel: 'llama3.2:1b' },
+        localEndpointFlavor: 'llamacpp'
+      })
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.routing).toEqual({ enabled: true, smallModel: 'llama3.2:1b' })
+        expect(result.data.localEndpointFlavor).toBe('llamacpp')
+      }
+    })
+
+    it('rejects an invalid localEndpointFlavor and strips unknown keys', () => {
+      expect(AiConfigSchema.safeParse({ provider: 'ollama', model: 'm', localEndpointFlavor: 'vllm' }).success).toBe(
+        false
+      )
+      const result = AiConfigSchema.safeParse({ provider: 'ollama', model: 'm', bogusKey: 'x' })
+      expect(result.success).toBe(true)
+      if (result.success) expect('bogusKey' in result.data).toBe(false)
+    })
+
     it('should accept config with cloud provider', () => {
       const result = AiConfigSchema.safeParse({
         provider: 'claude',

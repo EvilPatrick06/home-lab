@@ -97,6 +97,10 @@ export default function CampaignWizard(): JSX.Element {
   const [aiModel, setAiModel] = useState(DEFAULT_AI_MODEL)
   const [aiOllamaUrl, setAiOllamaUrl] = useState(DEFAULT_OLLAMA_URL)
   const [aiApiKey, setAiApiKey] = useState('')
+  // PHASE-29 — per-task routing + local-endpoint flavor (default off / 'ollama').
+  const [aiRoutingEnabled, setAiRoutingEnabled] = useState(false)
+  const [aiRoutingSmallModel, setAiRoutingSmallModel] = useState('')
+  const [aiLocalEndpointFlavor, setAiLocalEndpointFlavor] = useState<'ollama' | 'llamacpp'>('ollama')
   const [ollamaReady, setOllamaReady] = useState(false)
 
   // Load the player's characters (for the solo PC selector).
@@ -139,6 +143,9 @@ export default function CampaignWizard(): JSX.Element {
     setAiModel((d.aiModel as string) ?? DEFAULT_AI_MODEL)
     setAiOllamaUrl((d.aiOllamaUrl as string) ?? DEFAULT_OLLAMA_URL)
     setAiApiKey((d.aiApiKey as string) ?? '')
+    setAiRoutingEnabled((d.aiRoutingEnabled as boolean) ?? false)
+    setAiRoutingSmallModel((d.aiRoutingSmallModel as string) ?? '')
+    setAiLocalEndpointFlavor((d.aiLocalEndpointFlavor as 'ollama' | 'llamacpp') ?? 'ollama')
   }, [])
 
   // Steps. The Character (PC selector) step exists ONLY for solo campaigns.
@@ -180,7 +187,10 @@ export default function CampaignWizard(): JSX.Element {
       aiProvider,
       aiModel,
       aiOllamaUrl,
-      aiApiKey
+      aiApiKey,
+      aiRoutingEnabled,
+      aiRoutingSmallModel,
+      aiLocalEndpointFlavor
     })
   }, [
     startMode,
@@ -209,7 +219,10 @@ export default function CampaignWizard(): JSX.Element {
     aiProvider,
     aiModel,
     aiOllamaUrl,
-    aiApiKey
+    aiApiKey,
+    aiRoutingEnabled,
+    aiRoutingSmallModel,
+    aiLocalEndpointFlavor
   ])
 
   // For review step: resolve adventure name
@@ -386,7 +399,11 @@ export default function CampaignWizard(): JSX.Element {
               ollamaUrl: aiOllamaUrl,
               claudeApiKey: aiProvider === 'claude' ? aiApiKey : undefined,
               openaiApiKey: aiProvider === 'openai' ? aiApiKey : undefined,
-              geminiApiKey: aiProvider === 'gemini' ? aiApiKey : undefined
+              geminiApiKey: aiProvider === 'gemini' ? aiApiKey : undefined,
+              // PHASE-29: per-task routing + local-endpoint flavor.
+              routingEnabled: aiRoutingEnabled,
+              routingSmallModel: aiRoutingSmallModel,
+              localEndpointFlavor: aiLocalEndpointFlavor
             }
           : undefined
       })
@@ -461,7 +478,10 @@ export default function CampaignWizard(): JSX.Element {
             ollamaUrl: aiOllamaUrl,
             claudeApiKey: aiProvider === 'claude' ? aiApiKey : undefined,
             openaiApiKey: aiProvider === 'openai' ? aiApiKey : undefined,
-            geminiApiKey: aiProvider === 'gemini' ? aiApiKey : undefined
+            geminiApiKey: aiProvider === 'gemini' ? aiApiKey : undefined,
+            // PHASE-29: per-task routing + local-endpoint flavor.
+            routing: { enabled: aiRoutingEnabled, smallModel: aiRoutingSmallModel },
+            localEndpointFlavor: aiLocalEndpointFlavor
           })
         } catch (configErr) {
           logger.error('Failed to configure AI DM after campaign creation:', configErr)
@@ -547,12 +567,19 @@ export default function CampaignWizard(): JSX.Element {
           ollamaUrl={aiOllamaUrl}
           apiKey={aiApiKey}
           onProviderReady={setOllamaReady}
+          routingEnabled={aiRoutingEnabled}
+          routingSmallModel={aiRoutingSmallModel}
+          localEndpointFlavor={aiLocalEndpointFlavor}
           onChange={(data) => {
             setAiEnabled(data.enabled)
             setAiProvider(data.provider)
             setAiModel(data.model)
             setAiOllamaUrl(data.ollamaUrl)
             setAiApiKey(data.apiKey)
+            // PHASE-29: only the changed field is present; keep prior when absent.
+            setAiRoutingEnabled((prev) => data.routingEnabled ?? prev)
+            setAiRoutingSmallModel((prev) => data.routingSmallModel ?? prev)
+            setAiLocalEndpointFlavor((prev) => data.localEndpointFlavor ?? prev)
           }}
         />
       )}

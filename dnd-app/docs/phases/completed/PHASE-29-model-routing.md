@@ -266,4 +266,38 @@ Execute in order; the tree stays green after each (new code is dead until its co
 
 ## Completed
 
-(Filled during execution per INSTRUCTIONS.md rule 17 — one line per sub-phase with file:line citations.)
+- **29A — routing core.** NEW `model-routing.ts` (pure): `AiTaskClass`/`RoutableTask`/`AiRoutingConfig`,
+  `ROUTABLE_TASKS`, `isRoutableTask`, `resolveModelForTask` (narration/vision always primary; routable
+  → `overrides[task] ?? smallModel` when enabled+non-empty) + `model-routing.test.ts` (8). `AiConfig`
+  (+`routing`, +`localEndpointFlavor`) in types.ts; `AiConfigSchema` (+`routing` object, +`localEndpointFlavor`
+  enum) in ipc-schemas.ts. ai-service `currentConfig` + `configure`/`getConfig`/`loadConfigFromDisk`
+  thread both fields; exported async `getModelForTask` (validates a routed Ollama model vs `listOllamaModels`,
+  fail-soft to primary + WARN, logs routed resolutions).
+- **29B — wire call sites.** `chatOnce(systemPrompt, userMessage, task='summary')` resolves via
+  `getModelForTask` (keeps the 03G `resolveOllamaModel` validation for the primary path; never auto-switches
+  the primary for a routed small model). Summarize callback → `'summary'`; `runStructuredExtraction`/
+  `runEntityExtraction` → `'extraction'`; `runQuestCheck`/`runDirectorPass` → `'mechanics'`; narration
+  (startChat) + vision (ai-vision getModelForProvider) untouched. `ai-service.test.ts` +4 (inert-by-default,
+  routes-when-enabled, not-installed fallback, config round-trip).
+- **29C — campaign persistence + setup UI.** `AiDmConfig` +`routingEnabled`/`routingSmallModel`/
+  `localEndpointFlavor` (campaign.ts); `configureAiFromCampaign` payload +`routing`/`localEndpointFlavor`
+  (ai-dm-routing.ts). `AiProviderSetup` optional routing/flavor props + Advanced routing block (checkbox +
+  small-model dropdown, common to cloud + Ollama) threaded through `AiDmCard` + `CampaignWizard` (state +
+  draft + configure + aiDm build). `AiConfigData` (preload index.d.ts) +`routing`/`localEndpointFlavor`. i18n
+  `campaign.aiProviderSetup.{routing*,localEndpoint*}` en+es. `AiDmCard.test.tsx` +2 (persist + off-when-untouched).
+- **29D — mid-session swap.** NEW `AiModelSwapPopover.tsx` (DM-only; getConfig + installed/cloud list, Apply →
+  `configure({...cfg, model})` + `saveCampaign(aiDm.model)` + toast) + `.test.tsx` (3: open/preselect, apply,
+  disabled-while-typing). Mounted in `ChatPanel` next to `AiDmStatusBar` (isDM&&aiEnabled gate, `disabled={aiIsTyping}`).
+  i18n `game.chatPanel.modelSwap.*` en+es.
+- **29E — llamacpp flavor.** `ollama-client.ts` `setLocalEndpointFlavor`/`getLocalEndpointFlavor` + flavor-aware
+  `isOllamaRunning` (`/health`), `fetchOllamaModels` (`/v1/models` → `data[].id`), `ollamaHttpError` copy, and
+  chat paths: streaming via a `parseStreamLine` that handles Ollama NDJSON OR OpenAI SSE, `ollamaChatOnce`/
+  `ollamaStructuredOnce` POST `/v1/chat/completions` with OpenAI fields (no `keep_alive`/`options`;
+  `response_format: json_schema` instead of `format`). ai-service calls `setLocalEndpointFlavor` in
+  `configure`/`initFromSavedConfig` + flavor-aware `resolveOllamaModel` throw. ai-handlers skips
+  `ensureOllamaUsesDedicatedGpu` when `localEndpointFlavor === 'llamacpp'`. `AiProviderSetup` local-endpoint
+  toggle (hides the Ollama wizard for llamacpp, keeps the URL field). NEW `docs/LLAMA-SERVER.md` (both flag
+  spellings, vocab-compat + benchmark caveats). Tests: `ollama-client.test.ts` +6, `ai-handlers.test.ts` +2,
+  `ipc-schemas.test.ts` +2.
+- **29F — gate.** i18n keys mirrored en↔es; routing-inert-by-default proven by the 29B ai-service test. i18n
+  `gen-keys` regenerated. End-of-phase 4-gate (lint, tsc web+node, full vitest) — all green. No Pi code touched.

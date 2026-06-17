@@ -21,6 +21,7 @@ import {
   ollamaProvider,
   ollamaStreamChat,
   ollamaStructuredOnce,
+  setLocalEndpointFlavor,
   setOllamaUrl
 } from './ollama-client'
 
@@ -46,6 +47,7 @@ describe('ollama-client', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     setOllamaUrl('http://localhost:11434') // Reset URL
+    setLocalEndpointFlavor('ollama') // PHASE-29 29E — reset flavor so a llamacpp test can't leak
   })
 
   afterEach(() => {
@@ -459,6 +461,82 @@ describe('ollama-client', () => {
 
     it('is registered on the ollama provider', () => {
       expect(typeof ollamaProvider.structuredOnce).toBe('function')
+    })
+  })
+
+  // ── PHASE-29 29E — llama.cpp (llama-server) flavor ──
+  describe('llamacpp flavor', () => {
+    beforeEach(() => setLocalEndpointFlavor('llamacpp'))
+
+    it('isOllamaRunning hits /health', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true })
+      expect(await isOllamaRunning()).toBe(true)
+      expect(mockFetch).toHaveBeenCalledWith('http://localhost:11434/health', expect.anything())
+    })
+
+    it('listOllamaModels parses /v1/models data[].id', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ data: [{ id: '/models/llama-8b.gguf' }, { id: 'draft' }] })
+      })
+      expect(await listOllamaModels()).toEqual(['/models/llama-8b.gguf', 'draft'])
+      expect(mockFetch).toHaveBeenCalledWith('http://localhost:11434/v1/models', expect.anything())
+    })
+
+    it('ollamaChatOnce posts /v1/chat/completions without Ollama-only fields', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          choices: [{ message: { content: 'Hello there' } }],
+          usage: { prompt_tokens: 5, completion_tokens: 2 }
+        })
+      })
+      const out = await ollamaChatOnce('sys', [{ role: 'user', content: 'hi' }], 'any')
+      expect(out).toBe('Hello there')
+      const [url, init] = mockFetch.mock.calls[0]
+      expect(url).toBe('http://localhost:11434/v1/chat/completions')
+      const sent = JSON.parse((init as { body: string }).body)
+      expect(sent.keep_alive).toBeUndefined()
+      expect(sent.options).toBeUndefined()
+      expect(sent.stream).toBe(false)
+    })
+
+    it('ollamaStructuredOnce uses OpenAI response_format json_schema', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ choices: [{ message: { content: '{"x":1}' } }] })
+      })
+      const out = await ollamaStructuredOnce('sys', [{ role: 'user', content: 'go' }], 'any', { type: 'object' })
+      expect(out).toBe('{"x":1}')
+      const sent = JSON.parse((mockFetch.mock.calls[0][1] as { body: string }).body)
+      expect(sent.response_format?.type).toBe('json_schema')
+      expect(sent.response_format?.json_schema?.schema).toEqual({ type: 'object' })
+      expect(sent.format).toBeUndefined()
+    })
+
+    it('ollamaStreamChat parses OpenAI SSE deltas', async () => {
+      const sse = [
+        `data: ${JSON.stringify({ choices: [{ delta: { content: 'Hel' } }] })}\n`,
+        `data: ${JSON.stringify({ choices: [{ delta: { content: 'lo' }, finish_reason: 'stop' }], usage: { prompt_tokens: 3, completion_tokens: 1 } })}\n`,
+        'data: [DONE]\n'
+      ]
+      mockFetch.mockResolvedValueOnce({ ok: true, body: ndjsonStream(sse) })
+      const chunks: string[] = []
+      let done = ''
+      await ollamaStreamChat(
+        'sys',
+        [{ role: 'user', content: 'hi' }],
+        { onText: (t) => chunks.push(t), onDone: (f) => (done = f), onError: () => {} },
+        'any'
+      )
+      expect(chunks.join('')).toBe('Hello')
+      expect(done).toBe('Hello')
+      expect(mockFetch.mock.calls[0][0]).toBe('http://localhost:11434/v1/chat/completions')
+    })
+
+    it('404 error message points at llama-server, not "ollama pull"', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: false, status: 404, text: async () => 'not found' })
+      await expect(ollamaChatOnce('s', [{ role: 'user', content: 'x' }], 'm')).rejects.toThrow(/llama-server/)
     })
   })
 })

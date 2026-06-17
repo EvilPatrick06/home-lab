@@ -8,6 +8,7 @@ const mocked = vi.hoisted(() => ({
   getConversationManagerMock: vi.fn(() => ({ serialize: () => ({}), restore: mocked.restoreMock })),
   hasActiveStreamMock: vi.fn(() => false),
   cancelStreamsMock: vi.fn(() => 0),
+  ensureGpuMock: vi.fn(async () => {}),
   getMemoryManagerMock: vi.fn(() => ({
     getWorldState: vi.fn(async () => null), // PHASE-26: world-sync boundary hook reads prev scene
     updateWorldState: vi.fn(async () => {}),
@@ -84,6 +85,7 @@ vi.mock('../ai/ollama-manager', () => ({
   deleteModel: vi.fn(async () => {}),
   detectOllama: vi.fn(async () => ({ installed: false })),
   downloadOllama: vi.fn(async () => 'installer.exe'),
+  ensureOllamaUsesDedicatedGpu: mocked.ensureGpuMock,
   getSystemVram: vi.fn(async () => ({ totalMB: 0, recommendedModel: null })),
   installOllama: vi.fn(async () => {}),
   listInstalledModels: vi.fn(async () => []),
@@ -99,6 +101,7 @@ vi.mock('../storage/ai-conversation-storage', () => ({
   deleteConversation: vi.fn(async () => {})
 }))
 
+import { AiConfigSchema } from '../../shared/ipc-schemas'
 import { loadConversation, saveConversation } from '../storage/ai-conversation-storage'
 import { registerAiHandlers } from './ai-handlers'
 
@@ -434,5 +437,37 @@ describe('registerAiHandlers trigger observer kill switch (PHASE-13 13D)', () =>
     const set = findHandler(IPC_CHANNELS.AI_TRIGGER_SET_ENABLED)
     const res = (await set({}, 'nope')) as { success: boolean }
     expect(res.success).toBe(false)
+  })
+})
+
+// PHASE-29 29E — AI_CONFIGURE skips the Ollama GPU-pin for the llama.cpp flavor.
+describe('registerAiHandlers AI_CONFIGURE GPU pin (PHASE-29 29E)', () => {
+  const getHandler = (channel: string) =>
+    mocked.ipcHandleMock.mock.calls.find((c) => c[0] === channel)?.[1] as
+      | ((e: unknown, cfg: unknown) => Promise<unknown>)
+      | undefined
+
+  beforeEach(() => {
+    mocked.ipcHandleMock.mockClear()
+    mocked.ensureGpuMock.mockClear()
+    registerAiHandlers()
+  })
+
+  it('skips ensureOllamaUsesDedicatedGpu for the llamacpp flavor', async () => {
+    vi.mocked(AiConfigSchema.safeParse).mockReturnValueOnce({
+      success: true,
+      data: { provider: 'ollama', model: 'm', ollamaUrl: 'http://x', localEndpointFlavor: 'llamacpp' }
+    } as never)
+    await getHandler(IPC_CHANNELS.AI_CONFIGURE)?.({}, {})
+    expect(mocked.ensureGpuMock).not.toHaveBeenCalled()
+  })
+
+  it('runs ensureOllamaUsesDedicatedGpu for the default ollama flavor', async () => {
+    vi.mocked(AiConfigSchema.safeParse).mockReturnValueOnce({
+      success: true,
+      data: { provider: 'ollama', model: 'm', ollamaUrl: 'http://x' }
+    } as never)
+    await getHandler(IPC_CHANNELS.AI_CONFIGURE)?.({}, {})
+    expect(mocked.ensureGpuMock).toHaveBeenCalled()
   })
 })

@@ -269,6 +269,9 @@ interface AiConfigData {
   ragEmbeddingsEnabled?: boolean
   ragEmbeddingModel?: string
   ragCampaignDocsEnabled?: boolean
+  // PHASE-29: per-task routing + local-endpoint flavor.
+  routing?: { enabled: boolean; smallModel: string; overrides?: Record<string, string> }
+  localEndpointFlavor?: 'ollama' | 'llamacpp'
 }
 
 interface AiStatChange {

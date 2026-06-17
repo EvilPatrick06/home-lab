@@ -152,7 +152,9 @@ export function registerAiHandlers(): void {
     await aiService.configure(parsed.data)
     // When the local provider is selected, make sure Ollama is on the dedicated GPU
     // (restart it off the integrated/Vulkan device once if needed) before the AI runs.
-    if (parsed.data.provider === 'ollama') {
+    // PHASE-29 29E — skip for the llama.cpp flavor: it execs the Ollama binary, which a
+    // llama-server endpoint doesn't have.
+    if (parsed.data.provider === 'ollama' && parsed.data.localEndpointFlavor !== 'llamacpp') {
       await ensureOllamaUsesDedicatedGpu().catch(() => {})
     }
     return { success: true }

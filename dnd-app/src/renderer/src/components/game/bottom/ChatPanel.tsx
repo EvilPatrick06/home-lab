@@ -27,6 +27,7 @@ import { renderChatContent } from '../../../utils/chat-links'
 import { sanitizeStreamPreview } from '../../../utils/stream-preview'
 import { trigger3dDice } from '../dice3d'
 import DiceResult from '../dice3d/DiceResult'
+import AiModelSwapPopover from '../dm/AiModelSwapPopover'
 import SkillRollButton from '../player/SkillRollButton'
 import { AiDmStatusBar } from './AiDmStatusBar'
 import CommandAutocomplete from './CommandAutocomplete'
@@ -482,18 +483,22 @@ export default function ChatPanel({
 
       {/* AI DM Status Bar (DM only) */}
       {isDM && aiEnabled && (
-        <AiDmStatusBar
-          isTyping={aiIsTyping}
-          paused={aiPaused}
-          usable={aiUsable}
-          probeFailed={aiProbeFailed}
-          provider={aiProvider}
-          usedTokens={Math.ceil(aiMessages.reduce((sum, m) => sum + m.content.length, 0) / 4)}
-          maxTokens={aiConversationBudget}
-          onRecheck={aiRecheck}
-          connection={aiConnectionStatus}
-          contextTruncated={aiLastContextTruncated}
-        />
+        <div className="flex items-center justify-between gap-2">
+          <AiDmStatusBar
+            isTyping={aiIsTyping}
+            paused={aiPaused}
+            usable={aiUsable}
+            probeFailed={aiProbeFailed}
+            provider={aiProvider}
+            usedTokens={Math.ceil(aiMessages.reduce((sum, m) => sum + m.content.length, 0) / 4)}
+            maxTokens={aiConversationBudget}
+            onRecheck={aiRecheck}
+            connection={aiConnectionStatus}
+            contextTruncated={aiLastContextTruncated}
+          />
+          {/* PHASE-29 29D — mid-session model swap (disabled mid-stream). */}
+          {campaign && <AiModelSwapPopover campaign={campaign} disabled={aiIsTyping} />}
+        </div>
       )}
 
       {/* Input */}

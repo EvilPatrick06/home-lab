@@ -3,7 +3,7 @@
  * Run `npm run i18n:gen-keys` (scripts/i18n/gen-key-union.mjs) to regenerate
  * after changing en.json. Source: src/renderer/src/i18n/locales/en.json.
  *
- * A literal union of every dotted leaf key in en.json (6209 keys),
+ * A literal union of every dotted leaf key in en.json (6223 keys),
  * so `t()` calls are checked at compile time instead of silently rendering a
  * raw key string when a key is typo'd or missing.
  */
@@ -455,6 +455,10 @@ export type TranslationKey =
   | 'campaign.aiProviderSetup.installedSuffix'
   | 'campaign.aiProviderSetup.installing'
   | 'campaign.aiProviderSetup.invalidUrl'
+  | 'campaign.aiProviderSetup.localEndpointHint'
+  | 'campaign.aiProviderSetup.localEndpointLabel'
+  | 'campaign.aiProviderSetup.localEndpointLlamacpp'
+  | 'campaign.aiProviderSetup.localEndpointOllama'
   | 'campaign.aiProviderSetup.mayBeSlow'
   | 'campaign.aiProviderSetup.model'
   | 'campaign.aiProviderSetup.modelsEmpty'
@@ -467,6 +471,10 @@ export type TranslationKey =
   | 'campaign.aiProviderSetup.readyToGo'
   | 'campaign.aiProviderSetup.retryDetect'
   | 'campaign.aiProviderSetup.retrySetup'
+  | 'campaign.aiProviderSetup.routingEnabled'
+  | 'campaign.aiProviderSetup.routingHint'
+  | 'campaign.aiProviderSetup.routingSmallModel'
+  | 'campaign.aiProviderSetup.routingSmallModelNone'
   | 'campaign.aiProviderSetup.semanticSearch'
   | 'campaign.aiProviderSetup.semanticSearchModelHint'
   | 'campaign.aiProviderSetup.semanticSearchRebuild'
@@ -1067,6 +1075,12 @@ export type TranslationKey =
   | 'game.chatPanel.disputeTitle'
   | 'game.chatPanel.dungeonMaster'
   | 'game.chatPanel.errorPrefix'
+  | 'game.chatPanel.modelSwap.apply'
+  | 'game.chatPanel.modelSwap.change'
+  | 'game.chatPanel.modelSwap.current'
+  | 'game.chatPanel.modelSwap.failed'
+  | 'game.chatPanel.modelSwap.noModels'
+  | 'game.chatPanel.modelSwap.switched'
   | 'game.chatPanel.narrationFailed'
   | 'game.chatPanel.noMessages'
   | 'game.chatPanel.placeholder'

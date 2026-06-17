@@ -17,6 +17,16 @@ export const AiConfigSchema = z.object({
   ragEmbeddingsEnabled: z.boolean().optional(),
   ragEmbeddingModel: z.string().min(1).max(100).optional(),
   ragCampaignDocsEnabled: z.boolean().optional(),
+  // PHASE-29 29A: per-task model routing (zod strips unknown keys, so this MUST be declared).
+  routing: z
+    .object({
+      enabled: z.boolean().default(false),
+      smallModel: z.string().default(''),
+      overrides: z.record(z.string(), z.string()).optional()
+    })
+    .optional(),
+  // PHASE-29 29E: local-endpoint flavor for the Ollama provider (absent = 'ollama').
+  localEndpointFlavor: z.enum(['ollama', 'llamacpp']).optional(),
   ollamaModel: z.string().optional()
 })
 

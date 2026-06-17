@@ -95,7 +95,15 @@ import { buildGameStateSnapshot, dedupeStatChanges, validateAgainstGameState } f
 import type { AiProviderType, LLMProvider } from './llm-provider'
 import { buildScanText } from './lore-injection'
 import { getMemoryManager, npcMemoryFromAttitude } from './memory-manager'
-import { fetchOllamaModels, getOllamaUrl, isOllamaRunning, listOllamaModels, setOllamaUrl } from './ollama-client'
+import { type AiRoutingConfig, type AiTaskClass, resolveModelForTask } from './model-routing'
+import {
+  fetchOllamaModels,
+  getOllamaUrl,
+  isOllamaRunning,
+  listOllamaModels,
+  setLocalEndpointFlavor,
+  setOllamaUrl
+} from './ollama-client'
 import { resolveNumCtx, setConfiguredContextLength, setOllamaKvCacheType } from './ollama-context'
 import { OLLAMA_BASE_URL } from './ollama-manager'
 import {
@@ -402,6 +410,8 @@ let currentConfig: {
   ragEmbeddingsEnabled?: boolean
   ragEmbeddingModel?: string
   ragCampaignDocsEnabled?: boolean
+  routing?: AiRoutingConfig
+  localEndpointFlavor?: 'ollama' | 'llamacpp'
 } = {
   provider: 'ollama',
   model: DEFAULT_AI_MODEL,
@@ -528,12 +538,15 @@ export async function configure(config: AiConfig): Promise<void> {
     structuredExtraction: config.structuredExtraction,
     ragEmbeddingsEnabled: config.ragEmbeddingsEnabled,
     ragEmbeddingModel: config.ragEmbeddingModel,
-    ragCampaignDocsEnabled: config.ragCampaignDocsEnabled
+    ragCampaignDocsEnabled: config.ragCampaignDocsEnabled,
+    routing: config.routing,
+    localEndpointFlavor: config.localEndpointFlavor
   }
 
   setConfiguredContextLength(currentConfig.contextLength)
   setOllamaKvCacheType(currentConfig.ollamaKvCacheType)
   setOllamaUrl(currentConfig.ollamaUrl)
+  setLocalEndpointFlavor(currentConfig.localEndpointFlavor ?? 'ollama') // PHASE-29 29E
   configureProviders({
     provider: currentConfig.provider,
     model: currentConfig.model,
@@ -559,7 +572,9 @@ export async function configure(config: AiConfig): Promise<void> {
       structuredExtraction: currentConfig.structuredExtraction,
       ragEmbeddingsEnabled: currentConfig.ragEmbeddingsEnabled,
       ragEmbeddingModel: currentConfig.ragEmbeddingModel,
-      ragCampaignDocsEnabled: currentConfig.ragCampaignDocsEnabled
+      ragCampaignDocsEnabled: currentConfig.ragCampaignDocsEnabled,
+      routing: currentConfig.routing,
+      localEndpointFlavor: currentConfig.localEndpointFlavor
     })
   )
 
@@ -587,7 +602,9 @@ export function loadConfigFromDisk(): void {
       structuredExtraction: saved.structuredExtraction as StructuredExtractionMode | undefined,
       ragEmbeddingsEnabled: saved.ragEmbeddingsEnabled as boolean | undefined,
       ragEmbeddingModel: saved.ragEmbeddingModel as string | undefined,
-      ragCampaignDocsEnabled: saved.ragCampaignDocsEnabled as boolean | undefined
+      ragCampaignDocsEnabled: saved.ragCampaignDocsEnabled as boolean | undefined,
+      routing: saved.routing as AiRoutingConfig | undefined,
+      localEndpointFlavor: saved.localEndpointFlavor as 'ollama' | 'llamacpp' | undefined
     }
   } catch {
     // Malformed config — keep current in-memory defaults.
@@ -611,7 +628,9 @@ export function getConfig(): AiConfig {
     structuredExtraction: currentConfig.structuredExtraction,
     ragEmbeddingsEnabled: currentConfig.ragEmbeddingsEnabled,
     ragEmbeddingModel: currentConfig.ragEmbeddingModel,
-    ragCampaignDocsEnabled: currentConfig.ragCampaignDocsEnabled
+    ragCampaignDocsEnabled: currentConfig.ragCampaignDocsEnabled,
+    routing: currentConfig.routing,
+    localEndpointFlavor: currentConfig.localEndpointFlavor
   }
 }
 
@@ -623,6 +642,7 @@ export function initFromSavedConfig(): void {
   setConfiguredContextLength(currentConfig.contextLength)
   setOllamaKvCacheType(currentConfig.ollamaKvCacheType)
   setOllamaUrl(currentConfig.ollamaUrl)
+  setLocalEndpointFlavor(currentConfig.localEndpointFlavor ?? 'ollama') // PHASE-29 29E
   configureProviders(config)
 
   loadIndex()
@@ -686,7 +706,8 @@ function getConversation(campaignId: string): ConversationManager {
     conv.setSummarizeCallback(async (text) => {
       return await chatOnce(
         'You are a conversation summarizer. Summarize the following D&D conversation concisely, preserving key facts, decisions, NPC names, locations, and combat outcomes. Keep it under 200 words.',
-        text
+        text,
+        'summary' // PHASE-29 29B
       )
     })
     conversations.set(campaignId, conv)
@@ -842,8 +863,11 @@ export async function resolveOllamaModel(configured: string, streamId?: string):
     )
   }
   if (installed.length === 0) {
+    // PHASE-29 29E — flavor-aware wording (llama-server isn't managed via `ollama pull`).
     throw new Error(
-      `No Ollama models installed at ${getOllamaUrl()}. Install one, e.g.: ollama pull ${DEFAULT_AI_MODEL}`
+      currentConfig.localEndpointFlavor === 'llamacpp'
+        ? `No model served by llama-server at ${getOllamaUrl()}. Start llama-server with a model (see docs/LLAMA-SERVER.md).`
+        : `No Ollama models installed at ${getOllamaUrl()}. Install one, e.g.: ollama pull ${DEFAULT_AI_MODEL}`
     )
   }
   if (configured && installed.includes(configured)) return configured
@@ -855,6 +879,28 @@ export async function resolveOllamaModel(configured: string, streamId?: string):
   // one so the next message won't re-switch.
   if (streamId) sendStreamStatus(streamId, 'model_switched', { from: configured, to: picked })
   return picked
+}
+
+/**
+ * PHASE-29 29A — resolve the model for a task class. narration/vision always get the primary
+ * model; routable tasks (summary/extraction/mechanics) get the routed small model when routing is
+ * enabled. Fail-soft (mirrors resolveOllamaModel): if a routed Ollama model isn't installed, log
+ * a warning and fall back to primary. Logs every routed (non-primary) resolution.
+ */
+export async function getModelForTask(task: AiTaskClass): Promise<string> {
+  const primary = currentConfig.model
+  const resolved = resolveModelForTask(task, primary, currentConfig.routing as AiRoutingConfig | undefined)
+  if (resolved === primary) return primary
+  // Routed to a different model — for Ollama, verify it's installed (lenient list).
+  if (getActiveProviderType() === 'ollama') {
+    const installed = await listOllamaModels()
+    if (installed.length > 0 && !installed.includes(resolved)) {
+      logToFile('warn', `[AI routing] small model "${resolved}" not installed; falling back to primary`)
+      return primary
+    }
+  }
+  logToFile('info', `[AI routing] task=${task} model=${resolved}`)
+  return resolved
 }
 
 export function startChat(
@@ -1212,7 +1258,7 @@ async function handleStreamCompletion(
           const snapshot = await buildGameStateSnapshot(request)
           const extracted = await runStructuredExtraction(
             getActiveProvider(),
-            currentConfig.model, // resolveOllamaModel already updated this in-memory
+            await getModelForTask('extraction'), // PHASE-29 29B (primary unless routing on)
             displayText,
             snapshot,
             (msg) => logToFile('INFO', msg)
@@ -1264,9 +1310,9 @@ async function handleStreamCompletion(
     // PHASE-25 25C: opt-in post-turn entity extraction. Fire-and-forget — unlike the
     // PHASE-23 mutation extraction above (which must merge before onDone), this never
     // delays the stream-done path. Bails internally unless enabled && autoExtract.
-    runEntityExtraction(request.campaignId, getActiveProvider(), currentConfig.model, displayText).catch((err) =>
-      logToFile('WARN', '[AI Entities] extraction failed:', String(err))
-    )
+    getModelForTask('extraction') // PHASE-29 29B — routes when enabled; stays fire-and-forget
+      .then((m) => runEntityExtraction(request.campaignId, getActiveProvider(), m, displayText))
+      .catch((err) => logToFile('WARN', '[AI Entities] extraction failed:', String(err)))
 
     // PHASE-26 26C: opt-in scene-boundary compaction. Fire-and-forget (must NOT delay onDone).
     // Fires only when scene memory is enabled AND a narrative boundary was crossed (a parsed
@@ -1360,8 +1406,12 @@ async function runPostResponsePasses(
     // 28C — quest-objective auditor (proposes objective ticks + chapter advancement).
     let chapterBeat = false
     if (aiDm.questTrackingEnabled) {
-      const result = await runQuestCheck(campaignId, recentExchanges, getActiveProvider(), currentConfig.model, (m) =>
-        logToFile('WARN', m)
+      const result = await runQuestCheck(
+        campaignId,
+        recentExchanges,
+        getActiveProvider(),
+        await getModelForTask('mechanics'), // PHASE-29 29B
+        (m) => logToFile('WARN', m)
       )
       chapterBeat = result.pendingChapterAdvance != null
       if (result.applied.length > 0 || result.pendingChapterAdvance) {
@@ -1386,7 +1436,7 @@ async function runPostResponsePasses(
             campaignId,
             recentExchanges,
             getActiveProvider(),
-            currentConfig.model,
+            await getModelForTask('mechanics'), // PHASE-29 29B
             { oracleEnabled: !!aiDm.oracleEnabled },
             (m) => logToFile('WARN', m)
           )
@@ -1413,13 +1463,15 @@ export function cancelChat(streamId: string): void {
 }
 
 /** Non-streaming chat for summarization and world state extraction. */
-async function chatOnce(systemPrompt: string, userMessage: string): Promise<string> {
+async function chatOnce(systemPrompt: string, userMessage: string, task: AiTaskClass = 'summary'): Promise<string> {
   const provider = getActiveProvider()
   const messages = [{ role: 'user' as const, content: userMessage }]
-  // Resolve the model first (no streamId → no renderer notice; no-ops for cloud). Without
-  // this, summaries 404 against Ollama on a missing/stale configured model until the first
-  // interactive stream auto-switches. (03G)
-  const model = await resolveOllamaModel(currentConfig.model)
+  // PHASE-29 29B: route to the task model (small model for summary/extraction/mechanics when
+  // routing is on). For the PRIMARY model still run resolveOllamaModel (03G — validate/auto-switch
+  // a stale primary so summaries don't 404); a routed small model was already install-checked by
+  // getModelForTask, and we deliberately do NOT auto-switch the primary on its behalf.
+  const routed = await getModelForTask(task)
+  const model = routed === currentConfig.model ? await resolveOllamaModel(routed) : routed
   return await provider.chatOnce(systemPrompt, messages, model)
 }
 

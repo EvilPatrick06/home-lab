@@ -93,6 +93,12 @@ export interface AiDmConfig {
   directorEnabled?: boolean
   /** PHASE-28 28E: director cadence in responses (2-20, default 6). */
   directorCadence?: number
+  /** PHASE-29 29C: opt-in per-task model routing (small model for background tasks). Absent = off. */
+  routingEnabled?: boolean
+  /** PHASE-29 29C: the small model id used for routed tasks (absent/'' = falls back to primary). */
+  routingSmallModel?: string
+  /** PHASE-29 29E: local-endpoint flavor for the Ollama provider (absent = 'ollama'). */
+  localEndpointFlavor?: 'ollama' | 'llamacpp'
   discordBridge?: boolean
   /** @deprecated Use `model` instead */
   ollamaModel?: string

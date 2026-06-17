@@ -42,7 +42,10 @@ export async function configureAiFromCampaign(campaign: Campaign): Promise<void>
       structuredExtraction: aiDm.structuredExtraction,
       ragEmbeddingsEnabled: aiDm.ragEmbeddingsEnabled,
       ragEmbeddingModel: aiDm.ragEmbeddingModel,
-      ragCampaignDocsEnabled: aiDm.ragCampaignDocsEnabled
+      ragCampaignDocsEnabled: aiDm.ragCampaignDocsEnabled,
+      // PHASE-29 29C/29E: per-task routing + local-endpoint flavor (absent = off / 'ollama').
+      routing: { enabled: aiDm.routingEnabled ?? false, smallModel: aiDm.routingSmallModel ?? '' },
+      localEndpointFlavor: aiDm.localEndpointFlavor
     })
     if (result && !result.success) {
       logger.warn('[ai] campaign AI config rejected', result.error)

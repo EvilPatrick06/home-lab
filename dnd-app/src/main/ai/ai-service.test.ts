@@ -141,6 +141,7 @@ vi.mock('./ollama-client', () => ({
   ollamaChatOnce: vi.fn(async () => 'summary result'),
   ollamaStreamChat: vi.fn(),
   setOllamaUrl: vi.fn(),
+  setLocalEndpointFlavor: vi.fn(), // PHASE-29 29E
   ollamaProvider: {
     type: 'ollama',
     streamChat: vi.fn(),
@@ -301,6 +302,7 @@ import {
   getConsecutiveFailures,
   getConversationManager,
   getLastTokenEstimate,
+  getModelForTask,
   getSceneStatus,
   hasActiveStreamForCampaign,
   initFromSavedConfig,
@@ -317,7 +319,7 @@ import {
 import { loadChunkIndex } from './chunk-builder'
 import { buildContext } from './context-builder'
 import { parseDmActionsDetailed } from './dm-actions'
-import { fetchOllamaModels, getOllamaUrl, setOllamaUrl } from './ollama-client'
+import { fetchOllamaModels, getOllamaUrl, listOllamaModels, setOllamaUrl } from './ollama-client'
 import { getActiveProviderType } from './provider-registry'
 
 describe('ai-service', () => {
@@ -1199,6 +1201,58 @@ describe('ai-service', () => {
       hoisted.endSceneSpy.mockResolvedValueOnce({ summarized: false })
       await endSceneForCampaign('c-persist')
       expect(saveConversation).not.toHaveBeenCalled()
+    })
+  })
+
+  // PHASE-29 29A/29B — per-task model routing
+  describe('model routing (getModelForTask)', () => {
+    beforeEach(() => {
+      vi.mocked(getActiveProviderType).mockReturnValue('ollama')
+      vi.mocked(listOllamaModels).mockResolvedValue(['llama3.1', 'mistral', 'llama3.2:1b'])
+    })
+
+    it('returns the primary model for every task when routing is absent (inert by default)', async () => {
+      await configure({ provider: 'ollama', model: 'mistral', ollamaUrl: 'http://localhost:11434' })
+      expect(await getModelForTask('summary')).toBe('mistral')
+      expect(await getModelForTask('extraction')).toBe('mistral')
+      expect(await getModelForTask('mechanics')).toBe('mistral')
+      expect(await getModelForTask('narration')).toBe('mistral')
+    })
+
+    it('routes summary/extraction/mechanics to the small model when enabled + installed', async () => {
+      await configure({
+        provider: 'ollama',
+        model: 'mistral',
+        ollamaUrl: 'http://localhost:11434',
+        routing: { enabled: true, smallModel: 'llama3.2:1b' }
+      })
+      expect(await getModelForTask('summary')).toBe('llama3.2:1b')
+      expect(await getModelForTask('extraction')).toBe('llama3.2:1b')
+      expect(await getModelForTask('mechanics')).toBe('llama3.2:1b')
+      // narration + vision always stay on the primary model
+      expect(await getModelForTask('narration')).toBe('mistral')
+      expect(await getModelForTask('vision')).toBe('mistral')
+    })
+
+    it('falls back to the primary model when the routed small model is not installed', async () => {
+      vi.mocked(listOllamaModels).mockResolvedValue(['mistral'])
+      await configure({
+        provider: 'ollama',
+        model: 'mistral',
+        ollamaUrl: 'http://localhost:11434',
+        routing: { enabled: true, smallModel: 'ghost:1b' }
+      })
+      expect(await getModelForTask('summary')).toBe('mistral')
+    })
+
+    it('round-trips the routing block through configure → getConfig', async () => {
+      await configure({
+        provider: 'ollama',
+        model: 'mistral',
+        ollamaUrl: 'http://localhost:11434',
+        routing: { enabled: true, smallModel: 'llama3.2:1b' }
+      })
+      expect(getConfig().routing).toEqual({ enabled: true, smallModel: 'llama3.2:1b' })
     })
   })
 })

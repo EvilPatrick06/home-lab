@@ -41,6 +41,10 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
     oracleEnabled: boolean
     directorEnabled: boolean
     directorCadence: number
+    // PHASE-29: per-task routing + local-endpoint flavor.
+    routingEnabled: boolean
+    routingSmallModel: string
+    localEndpointFlavor: 'ollama' | 'llamacpp'
   }>({
     enabled: false,
     provider: DEFAULT_AI_PROVIDER,
@@ -54,7 +58,10 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
     questTrackingEnabled: false,
     oracleEnabled: false,
     directorEnabled: false,
-    directorCadence: 6
+    directorCadence: 6,
+    routingEnabled: false,
+    routingSmallModel: '',
+    localEndpointFlavor: 'ollama'
   })
   // PHASE-26: scene-based memory is an engine-owned per-campaign flag (NOT campaign.aiDm),
   // read/written over IPC — independent of the configure modal's aiDm save.
@@ -81,7 +88,11 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
       questTrackingEnabled: dm?.questTrackingEnabled ?? false,
       oracleEnabled: dm?.oracleEnabled ?? false,
       directorEnabled: dm?.directorEnabled ?? false,
-      directorCadence: dm?.directorCadence ?? 6
+      directorCadence: dm?.directorCadence ?? 6,
+      // PHASE-29: routing + local-endpoint flavor.
+      routingEnabled: dm?.routingEnabled ?? false,
+      routingSmallModel: dm?.routingSmallModel ?? '',
+      localEndpointFlavor: dm?.localEndpointFlavor ?? 'ollama'
     })
     setShowAiDmModal(true)
   }
@@ -100,7 +111,10 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
       questTrackingEnabled: false,
       oracleEnabled: false,
       directorEnabled: false,
-      directorCadence: 6
+      directorCadence: 6,
+      routingEnabled: false,
+      routingSmallModel: '',
+      localEndpointFlavor: 'ollama'
     })
     setShowAiDmModal(true)
   }
@@ -242,6 +256,9 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
             model={aiDmConfig.model}
             ollamaUrl={aiDmConfig.ollamaUrl}
             apiKey={aiDmConfig.apiKey}
+            routingEnabled={aiDmConfig.routingEnabled}
+            routingSmallModel={aiDmConfig.routingSmallModel}
+            localEndpointFlavor={aiDmConfig.localEndpointFlavor}
             onProviderReady={setProviderReady}
             onChange={(data) => setAiDmConfig((prev) => ({ ...prev, ...data }))}
           />
@@ -405,7 +422,11 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
                 questTrackingEnabled: aiDmConfig.questTrackingEnabled,
                 oracleEnabled: aiDmConfig.oracleEnabled,
                 directorEnabled: aiDmConfig.directorEnabled,
-                directorCadence: aiDmConfig.directorCadence
+                directorCadence: aiDmConfig.directorCadence,
+                // PHASE-29: per-task routing + local-endpoint flavor.
+                routingEnabled: aiDmConfig.routingEnabled,
+                routingSmallModel: aiDmConfig.routingSmallModel,
+                localEndpointFlavor: aiDmConfig.localEndpointFlavor
               }
               try {
                 await saveCampaign({ ...campaign, aiDm, updatedAt: new Date().toISOString() })
@@ -420,7 +441,10 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
                     structuredExtraction: aiDmConfig.structuredExtraction,
                     ragEmbeddingsEnabled: aiDmConfig.ragEmbeddingsEnabled,
                     ragEmbeddingModel: aiDmConfig.ragEmbeddingModel,
-                    ragCampaignDocsEnabled: aiDmConfig.ragCampaignDocsEnabled
+                    ragCampaignDocsEnabled: aiDmConfig.ragCampaignDocsEnabled,
+                    // PHASE-29: routing affects the live main-process config, so push it here too.
+                    routing: { enabled: aiDmConfig.routingEnabled, smallModel: aiDmConfig.routingSmallModel },
+                    localEndpointFlavor: aiDmConfig.localEndpointFlavor
                   })
                   if (!res.success) throw new Error(res.error ?? 'configure failed')
                 }

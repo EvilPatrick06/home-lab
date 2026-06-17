@@ -287,6 +287,48 @@ describe('AiDmCard (PHASE-10 10H)', () => {
     })
   })
 
+  // PHASE-29 29C — per-task routing controls
+  describe('model routing', () => {
+    it('persists routingEnabled + includes the routing block in the configure payload', async () => {
+      render(
+        <AiDmCard
+          campaign={campaignWith({
+            enabled: true,
+            provider: 'ollama',
+            model: 'llama3.1',
+            ollamaUrl: 'http://localhost:11434'
+          })}
+          saveCampaign={saveCampaign}
+        />
+      )
+      fireEvent.click(screen.getByText('Configure'))
+      fireEvent.click(screen.getByLabelText('Use a smaller model for background tasks'))
+      fireEvent.click(screen.getByText('Save'))
+      await waitFor(() => expect(saveCampaign).toHaveBeenCalled())
+      expect(saveCampaign.mock.calls[0][0].aiDm.routingEnabled).toBe(true)
+      await waitFor(() => expect(configure).toHaveBeenCalled())
+      expect(configure.mock.calls[0][0].routing.enabled).toBe(true)
+    })
+
+    it('leaves routing off in the saved campaign when untouched', async () => {
+      render(
+        <AiDmCard
+          campaign={campaignWith({
+            enabled: true,
+            provider: 'ollama',
+            model: 'llama3.1',
+            ollamaUrl: 'http://localhost:11434'
+          })}
+          saveCampaign={saveCampaign}
+        />
+      )
+      fireEvent.click(screen.getByText('Configure'))
+      fireEvent.click(screen.getByText('Save'))
+      await waitFor(() => expect(saveCampaign).toHaveBeenCalled())
+      expect(saveCampaign.mock.calls[0][0].aiDm.routingEnabled).toBe(false)
+    })
+  })
+
   // PHASE-27 27G — world-state tracking toggle
   describe('world state toggle', () => {
     it('renders for an AI-enabled campaign and loads the flag on mount', async () => {
