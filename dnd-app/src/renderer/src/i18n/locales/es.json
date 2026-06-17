@@ -5580,7 +5580,12 @@
       "configureTitle": "Configurar DM de IA",
       "saving": "Guardando...",
       "saveFailed": "No se pudieron aplicar los ajustes de IA: {{error}}",
-      "notReadyWarning": "Este proveedor aún no está listo: es posible que el DM de IA no responda hasta completar la configuración."
+      "notReadyWarning": "Este proveedor aún no está listo: es posible que el DM de IA no responda hasta completar la configuración.",
+      "structuredExtractionLabel": "Extracción estructurada",
+      "structuredExtractionHelp": "Extrae las mecánicas del juego con una segunda llamada al modelo restringida por esquema (solo Ollama local).",
+      "structuredExtractionOff": "Desactivada",
+      "structuredExtractionFallback": "Al fallar el análisis",
+      "structuredExtractionAlways": "Cada respuesta"
     },
     "audioManager": {
       "customAudio": "Audio personalizado ({{count}})",

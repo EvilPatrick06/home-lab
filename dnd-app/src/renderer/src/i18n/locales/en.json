@@ -5580,7 +5580,12 @@
       "configureTitle": "Configure AI Dungeon Master",
       "saving": "Saving...",
       "saveFailed": "Couldn't apply the AI settings: {{error}}",
-      "notReadyWarning": "This provider isn't ready yet — the AI DM may not respond until setup completes."
+      "notReadyWarning": "This provider isn't ready yet — the AI DM may not respond until setup completes.",
+      "structuredExtractionLabel": "Structured extraction",
+      "structuredExtractionHelp": "Extracts game mechanics with a second schema-constrained model call (local Ollama only).",
+      "structuredExtractionOff": "Off",
+      "structuredExtractionFallback": "On parse failure",
+      "structuredExtractionAlways": "Every response"
     },
     "audioManager": {
       "customAudio": "Custom Audio ({{count}})",

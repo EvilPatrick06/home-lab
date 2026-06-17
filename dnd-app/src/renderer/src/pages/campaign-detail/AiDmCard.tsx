@@ -30,12 +30,15 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
     model: string
     ollamaUrl: string
     apiKey: string
+    // PHASE-23 23D: structured extraction mode (Ollama-only).
+    structuredExtraction: 'off' | 'fallback' | 'always'
   }>({
     enabled: false,
     provider: DEFAULT_AI_PROVIDER,
     model: DEFAULT_AI_MODEL,
     ollamaUrl: DEFAULT_OLLAMA_URL,
-    apiKey: ''
+    apiKey: '',
+    structuredExtraction: 'off'
   })
 
   const openConfigure = (): void => {
@@ -46,7 +49,8 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
       provider,
       model: dm?.model ?? dm?.ollamaModel ?? DEFAULT_AI_MODEL,
       ollamaUrl: dm?.ollamaUrl ?? DEFAULT_OLLAMA_URL,
-      apiKey: keyForProvider(dm, provider)
+      apiKey: keyForProvider(dm, provider),
+      structuredExtraction: dm?.structuredExtraction ?? 'off'
     })
     setShowAiDmModal(true)
   }
@@ -57,7 +61,8 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
       provider: DEFAULT_AI_PROVIDER,
       model: DEFAULT_AI_MODEL,
       ollamaUrl: DEFAULT_OLLAMA_URL,
-      apiKey: ''
+      apiKey: '',
+      structuredExtraction: 'off'
     })
     setShowAiDmModal(true)
   }
@@ -100,8 +105,32 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
             ollamaUrl={aiDmConfig.ollamaUrl}
             apiKey={aiDmConfig.apiKey}
             onProviderReady={setProviderReady}
-            onChange={(data) => setAiDmConfig(data)}
+            onChange={(data) => setAiDmConfig((prev) => ({ ...prev, ...data }))}
           />
+          {/* PHASE-23 23D: structured extraction — Ollama-only opt-in. */}
+          {aiDmConfig.provider === 'ollama' && (
+            <div className="mt-3">
+              <label htmlFor="structured-extraction" className="block text-xs text-gray-300 mb-1">
+                {t('pages.aiDmCard.structuredExtractionLabel')}
+              </label>
+              <select
+                id="structured-extraction"
+                className="w-full bg-surface-2/60 border border-border/50 rounded px-2 py-1 text-xs text-gray-200"
+                value={aiDmConfig.structuredExtraction}
+                onChange={(e) =>
+                  setAiDmConfig((prev) => ({
+                    ...prev,
+                    structuredExtraction: e.target.value as 'off' | 'fallback' | 'always'
+                  }))
+                }
+              >
+                <option value="off">{t('pages.aiDmCard.structuredExtractionOff')}</option>
+                <option value="fallback">{t('pages.aiDmCard.structuredExtractionFallback')}</option>
+                <option value="always">{t('pages.aiDmCard.structuredExtractionAlways')}</option>
+              </select>
+              <p className="text-[11px] text-gray-500 mt-1">{t('pages.aiDmCard.structuredExtractionHelp')}</p>
+            </div>
+          )}
         </div>
         {/* PHASE-10 10H — informative, not obstructive: detection probes the SAVED main-side URL,
             so hard-gating Save would trap a not-yet-reachable remote-Ollama setup. */}
@@ -128,7 +157,9 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
                 openaiApiKey:
                   aiDmConfig.provider === 'openai' ? aiDmConfig.apiKey || undefined : campaign.aiDm?.openaiApiKey,
                 geminiApiKey:
-                  aiDmConfig.provider === 'gemini' ? aiDmConfig.apiKey || undefined : campaign.aiDm?.geminiApiKey
+                  aiDmConfig.provider === 'gemini' ? aiDmConfig.apiKey || undefined : campaign.aiDm?.geminiApiKey,
+                // PHASE-23 23D: persist the extraction mode (meaningful for Ollama only).
+                structuredExtraction: aiDmConfig.structuredExtraction
               }
               try {
                 await saveCampaign({ ...campaign, aiDm, updatedAt: new Date().toISOString() })
@@ -139,7 +170,8 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
                     ollamaUrl: aiDmConfig.ollamaUrl,
                     claudeApiKey: aiDm.claudeApiKey,
                     openaiApiKey: aiDm.openaiApiKey,
-                    geminiApiKey: aiDm.geminiApiKey
+                    geminiApiKey: aiDm.geminiApiKey,
+                    structuredExtraction: aiDmConfig.structuredExtraction
                   })
                   if (!res.success) throw new Error(res.error ?? 'configure failed')
                 }

@@ -70,7 +70,7 @@ interface StreamHandlerDeps {
 import { buildChunkIndex, loadChunkIndex } from './chunk-builder'
 import { buildContext, clearTokenBreakdown, recordTokenBreakdown, setSearchEngine } from './context-builder'
 import { ConversationManager } from './conversation-manager'
-import { parseDmActions, stripDmActions } from './dm-actions'
+import { hasOrphanDmActionsTag, parseDmActionsDetailed, stripDmActions } from './dm-actions'
 import {
   FILE_READ_MAX_DEPTH,
   type FileReadRequest,
@@ -80,6 +80,7 @@ import {
   readRequestedFile,
   stripFileRead
 } from './file-reader'
+import { buildGameStateSnapshot, dedupeStatChanges, validateAgainstGameState } from './game-state-validation'
 import type { AiProviderType, LLMProvider } from './llm-provider'
 import { getMemoryManager, npcMemoryFromAttitude } from './memory-manager'
 import { fetchOllamaModels, getOllamaUrl, isOllamaRunning, listOllamaModels, setOllamaUrl } from './ollama-client'
@@ -98,10 +99,12 @@ import {
   applyMutations,
   applyShortRestMutations,
   describeChange,
+  hasOrphanStatChangesTag,
   isNegativeChange,
-  parseStatChanges,
+  parseStatChangesDetailed,
   stripStatChanges
 } from './stat-mutations'
+import { runStructuredExtraction } from './structured-extraction'
 import { CLOUD_CONTEXT_WINDOW, setActiveContextWindow } from './token-budget'
 import { cleanNarrativeText, hasViolations } from './tone-validator'
 import type {
@@ -116,7 +119,8 @@ import type {
   ProviderStatus,
   RuleCitation,
   StatChange,
-  StreamCallbacks
+  StreamCallbacks,
+  StructuredExtractionMode
 } from './types'
 import {
   formatSearchResults,
@@ -379,10 +383,16 @@ let currentConfig: {
   geminiApiKey?: string
   contextLength?: number
   ollamaKvCacheType?: 'q8_0' | 'q4_0'
+  structuredExtraction?: StructuredExtractionMode
 } = {
   provider: 'ollama',
   model: DEFAULT_AI_MODEL,
   ollamaUrl: OLLAMA_BASE_URL
+}
+
+/** PHASE-23: current structured-extraction mode (absent ≡ off). Read at use time. */
+export function getStructuredExtractionMode(): StructuredExtractionMode {
+  return currentConfig.structuredExtraction ?? 'off'
 }
 
 let searchEngine: SearchEngine | null = null
@@ -450,7 +460,8 @@ export async function configure(config: AiConfig): Promise<void> {
     openaiApiKey: config.openaiApiKey,
     geminiApiKey: config.geminiApiKey,
     contextLength: config.contextLength,
-    ollamaKvCacheType: config.ollamaKvCacheType
+    ollamaKvCacheType: config.ollamaKvCacheType,
+    structuredExtraction: config.structuredExtraction
   }
 
   setConfiguredContextLength(currentConfig.contextLength)
@@ -477,7 +488,8 @@ export async function configure(config: AiConfig): Promise<void> {
       openaiApiKey: encryptOptional(currentConfig.openaiApiKey),
       geminiApiKey: encryptOptional(currentConfig.geminiApiKey),
       contextLength: currentConfig.contextLength,
-      ollamaKvCacheType: currentConfig.ollamaKvCacheType
+      ollamaKvCacheType: currentConfig.ollamaKvCacheType,
+      structuredExtraction: currentConfig.structuredExtraction
     })
   )
 }
@@ -499,7 +511,8 @@ export function loadConfigFromDisk(): void {
       openaiApiKey: decryptOptional(saved.openaiApiKey as string | undefined),
       geminiApiKey: decryptOptional(saved.geminiApiKey as string | undefined),
       contextLength: saved.contextLength as number | undefined,
-      ollamaKvCacheType: saved.ollamaKvCacheType as 'q8_0' | 'q4_0' | undefined
+      ollamaKvCacheType: saved.ollamaKvCacheType as 'q8_0' | 'q4_0' | undefined,
+      structuredExtraction: saved.structuredExtraction as StructuredExtractionMode | undefined
     }
   } catch {
     // Malformed config — keep current in-memory defaults.
@@ -519,7 +532,8 @@ export function getConfig(): AiConfig {
     openaiApiKey: currentConfig.openaiApiKey,
     geminiApiKey: currentConfig.geminiApiKey,
     contextLength: currentConfig.contextLength,
-    ollamaKvCacheType: currentConfig.ollamaKvCacheType
+    ollamaKvCacheType: currentConfig.ollamaKvCacheType,
+    structuredExtraction: currentConfig.structuredExtraction
   }
 }
 
@@ -1067,14 +1081,51 @@ async function handleStreamCompletion(
       cleaned = cleanNarrativeText(cleaned)
     }
 
-    const statChanges = parseStatChanges(cleaned)
-    const dmActions = parseDmActions(cleaned)
+    // PHASE-23 23E: detailed parse so `fallback` mode can detect a tag-parse failure.
+    const statResult = parseStatChangesDetailed(cleaned)
+    const dmResult = parseDmActionsDetailed(cleaned)
+    let statChanges = statResult.changes
+    const dmActions = dmResult.actions
     const ruleCitations = parseRuleCitations(cleaned)
     // Voice tags drive DM-BMO's per-character tone/pitch but must never reach the
     // chat text — extract before stripping, strip before display.
     const { npc, emotion, speaker } = parseVoiceTags(cleaned)
     const rulings = parseRulings(cleaned)
     const displayText = stripVoiceTags(stripRulings(stripRuleCitations(stripDmActions(stripStatChanges(cleaned)))))
+
+    // PHASE-23 23E: opt-in two-call structured extraction. Default (off) = zero new
+    // awaits, byte-identical legacy behavior. Wrapped so any failure degrades to the
+    // tag-parse results and NEVER reaches the outer catch (which discards them).
+    const extractionMode = getStructuredExtractionMode()
+    if (extractionMode !== 'off') {
+      try {
+        const tagFailed =
+          !!statResult.rawJsonError ||
+          (statResult.issues.length > 0 && statResult.changes.length === 0) ||
+          hasOrphanStatChangesTag(cleaned) ||
+          hasOrphanDmActionsTag(cleaned)
+        if (extractionMode === 'always' || tagFailed) {
+          const snapshot = await buildGameStateSnapshot(request)
+          const extracted = await runStructuredExtraction(
+            getActiveProvider(),
+            currentConfig.model, // resolveOllamaModel already updated this in-memory
+            displayText,
+            snapshot,
+            (msg) => logToFile('INFO', msg)
+          )
+          if (extracted) {
+            // Merge tag + extracted (deduped), then validate the whole set against
+            // actual game state — constrained decoding guarantees shape, not truth.
+            const merged = [...statChanges, ...dedupeStatChanges(statChanges, extracted.changes)]
+            const { valid, rejected } = validateAgainstGameState(merged, snapshot)
+            for (const r of rejected) logToFile('INFO', `[AI Extraction] rejected: ${r.reason}`)
+            statChanges = valid
+          }
+        }
+      } catch (err) {
+        logToFile('WARN', `[AI Extraction] wiring error (using tag results): ${String(err)}`)
+      }
+    }
 
     // Attach retrieval provenance (the rulebook chunks that grounded this reply). (07C)
     conv.addMessage('assistant', displayText, contextChunkIds)

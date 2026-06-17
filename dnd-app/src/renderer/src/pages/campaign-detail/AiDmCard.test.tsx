@@ -96,6 +96,41 @@ describe('AiDmCard (PHASE-10 10H)', () => {
     expect(screen.getByText('Cancel')).toBeTruthy()
   })
 
+  // PHASE-23 23D: structured-extraction select (Ollama-gated).
+  it('hides the structured-extraction select for a cloud provider', () => {
+    render(
+      <AiDmCard
+        campaign={campaignWith({ enabled: true, provider: 'gemini', model: 'gemini-2.0-flash', geminiApiKey: 'gk' })}
+        saveCampaign={saveCampaign}
+      />
+    )
+    fireEvent.click(screen.getByText('Configure'))
+    expect(screen.queryByLabelText('Structured extraction')).toBeNull()
+  })
+
+  it('shows the select for Ollama, defaults off, and persists the chosen mode', async () => {
+    render(
+      <AiDmCard
+        campaign={campaignWith({
+          enabled: true,
+          provider: 'ollama',
+          model: 'llama3.1',
+          ollamaUrl: 'http://localhost:11434'
+        })}
+        saveCampaign={saveCampaign}
+      />
+    )
+    fireEvent.click(screen.getByText('Configure'))
+    const select = screen.getByLabelText('Structured extraction') as HTMLSelectElement
+    expect(select.value).toBe('off')
+    fireEvent.change(select, { target: { value: 'always' } })
+    fireEvent.click(screen.getByText('Save'))
+    await waitFor(() => expect(saveCampaign).toHaveBeenCalled())
+    expect(saveCampaign.mock.calls[0][0].aiDm.structuredExtraction).toBe('always')
+    await waitFor(() => expect(configure).toHaveBeenCalled())
+    expect(configure.mock.calls[0][0].structuredExtraction).toBe('always')
+  })
+
   it('disables Save while saving', async () => {
     let resolveSave: () => void = () => {}
     saveCampaign.mockReturnValue(new Promise<void>((r) => (resolveSave = r)))

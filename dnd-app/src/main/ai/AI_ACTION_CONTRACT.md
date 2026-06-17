@@ -31,3 +31,26 @@ the executor never receives an un-runnable action.
 **separate**, renderer-UI-only mechanism (roll requests, overlays). They are NOT
 validated against `DM_ACTION_SCHEMAS` and intentionally do not appear in the
 executor switch.
+
+## Structured extraction & repairJson retirement (PHASE-23)
+
+Mechanics can arrive via **two** paths now:
+
+1. **Tag path** (always on): `[STAT_CHANGES]` / `[DM_ACTIONS]` blocks regex-harvested
+   from the narration and `repairJson`-repaired (`ai-schemas.ts`).
+2. **Structured extraction** (opt-in, `aiDm.structuredExtraction` ∈
+   `off`/`fallback`/`always`, Ollama only): a second non-streaming `format`-constrained
+   call (`structured-extraction.ts`) extracts a FLAT 12-type schema
+   (`damage, heal, temp_hp, add_condition, remove_condition, expend_spell_slot,
+   restore_spell_slot, add_item, remove_item, gold, xp, add_exhaustion`) with fields
+   `{type, target, value, name, reason}`. `target` resolves against the live snapshot
+   (party names → `characterName`; creature labels → `creature_*` + `targetLabel`;
+   `''` → acting character; unique-prefix fallback; unknown → dropped). Extracted
+   changes map to canonical `StatChange`s, dedupe against tag results, and are
+   bound/referent-validated (`game-state-validation.ts`) — constrained decoding
+   guarantees SHAPE, not TRUTH. The structured path NEVER calls `repairJson`.
+
+**repairJson retirement criteria** (`getRepairJsonStats()` measures usage): repairJson
+is deletable once (a) `structuredExtraction: 'always'` is the default, (b) the narration
+prompt no longer instructs tag emission, and (c) the `modified` counter stays at zero
+across releases. Until then it serves the tag path only.

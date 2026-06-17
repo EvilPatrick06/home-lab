@@ -176,6 +176,8 @@ vi.mock('../log', () => ({
 
 vi.mock('./dm-actions', () => ({
   parseDmActions: vi.fn(() => []),
+  parseDmActionsDetailed: vi.fn(() => ({ actions: [], issues: [] })),
+  hasOrphanDmActionsTag: vi.fn(() => false),
   stripDmActions: vi.fn((t: string) => t)
 }))
 
@@ -188,12 +190,38 @@ vi.mock('./ai-response-parser', () => ({
   stripRulings: vi.fn((t: string) => t)
 }))
 
+const { detailedStat, orphanStat } = vi.hoisted(() => ({
+  detailedStat: vi.fn(() => ({
+    changes: [] as unknown[],
+    issues: [] as unknown[],
+    rawJsonError: undefined as string | undefined
+  })),
+  orphanStat: vi.fn(() => false)
+}))
 vi.mock('./stat-mutations', () => ({
   parseStatChanges: vi.fn(() => []),
+  parseStatChangesDetailed: detailedStat,
+  hasOrphanStatChangesTag: orphanStat,
   stripStatChanges: vi.fn((t: string) => t),
   applyMutations: vi.fn(),
   describeChange: vi.fn(),
   isNegativeChange: vi.fn()
+}))
+
+const { runExtraction, buildSnapshot, validateGS, dedupe } = vi.hoisted(() => ({
+  runExtraction: vi.fn(async () => null as null | { changes: unknown[]; issues: string[] }),
+  buildSnapshot: vi.fn(async () => ({ partyNames: [], creatureLabels: [] })),
+  validateGS: vi.fn((changes: unknown[]) => ({
+    valid: changes,
+    rejected: [] as Array<{ change: unknown; reason: string }>
+  })),
+  dedupe: vi.fn((_base: unknown[], incoming: unknown[]) => incoming)
+}))
+vi.mock('./structured-extraction', () => ({ runStructuredExtraction: runExtraction }))
+vi.mock('./game-state-validation', () => ({
+  buildGameStateSnapshot: buildSnapshot,
+  validateAgainstGameState: validateGS,
+  dedupeStatChanges: dedupe
 }))
 
 vi.mock('./tone-validator', () => ({
@@ -916,6 +944,130 @@ describe('ai-service', () => {
       vi.mocked(getActiveProviderType).mockReturnValue('claude')
       expect(await resolveOllamaModel('claude-opus-4-7')).toBe('claude-opus-4-7')
       expect(fetchOllamaModels).not.toHaveBeenCalled()
+    })
+  })
+
+  // PHASE-23 23E — two-call structured extraction wiring.
+  describe('structured extraction wiring', () => {
+    const setMode = (m: 'off' | 'fallback' | 'always') =>
+      configure({ provider: 'ollama', model: 'm', ollamaUrl: 'http://localhost:11434', structuredExtraction: m })
+
+    const driveCompletion = (onDone: (f: string, d: string, sc: unknown[]) => void): void => {
+      hoisted.providerStreamChat.mockImplementation(((
+        _sp: unknown,
+        _msgs: unknown,
+        cb: { onDone: (t: string) => void }
+      ) => {
+        cb.onDone('reply with mechanics')
+        return Promise.resolve()
+      }) as never)
+      startChat(
+        { campaignId: 'c-ext', message: 'attack', characterIds: [] },
+        () => {},
+        onDone,
+        () => {}
+      )
+    }
+
+    beforeEach(() => {
+      runExtraction.mockReset().mockResolvedValue(null)
+      buildSnapshot.mockClear()
+      validateGS.mockReset().mockImplementation((c: unknown[]) => ({ valid: c, rejected: [] }))
+      dedupe.mockReset().mockImplementation((_b: unknown[], i: unknown[]) => i)
+      detailedStat.mockReturnValue({ changes: [], issues: [], rawJsonError: undefined })
+      orphanStat.mockReturnValue(false)
+    })
+    afterEach(async () => {
+      await setMode('off')
+      hoisted.providerStreamChat.mockImplementation((() => Promise.resolve()) as never)
+    })
+
+    it('off (default): never runs extraction', async () => {
+      await setMode('off')
+      let done = false
+      driveCompletion(() => {
+        done = true
+      })
+      await vi.waitFor(() => expect(done).toBe(true))
+      expect(runExtraction).not.toHaveBeenCalled()
+    })
+
+    it('always: runs extraction once and merges results into onDone', async () => {
+      await setMode('always')
+      const extractedChange = { type: 'damage', characterName: 'Aria', value: 5, reason: 'x' }
+      runExtraction.mockResolvedValueOnce({ changes: [extractedChange], issues: [] })
+      let delivered: unknown[] | undefined
+      driveCompletion((_f, _d, sc) => {
+        delivered = sc
+      })
+      await vi.waitFor(() => expect(delivered).toBeDefined())
+      expect(runExtraction).toHaveBeenCalledTimes(1)
+      expect(delivered).toEqual([extractedChange])
+    })
+
+    it('fallback + well-formed tags: does not run extraction', async () => {
+      await setMode('fallback')
+      detailedStat.mockReturnValue({
+        changes: [{ type: 'heal', value: 1, reason: 'x' }],
+        issues: [],
+        rawJsonError: undefined
+      })
+      let done = false
+      driveCompletion(() => {
+        done = true
+      })
+      await vi.waitFor(() => expect(done).toBe(true))
+      expect(runExtraction).not.toHaveBeenCalled()
+    })
+
+    it('fallback + malformed tags (rawJsonError): runs extraction', async () => {
+      await setMode('fallback')
+      detailedStat.mockReturnValue({ changes: [], issues: [], rawJsonError: 'parse failed' })
+      let done = false
+      driveCompletion(() => {
+        done = true
+      })
+      await vi.waitFor(() => expect(done).toBe(true))
+      expect(runExtraction).toHaveBeenCalledTimes(1)
+    })
+
+    it('fallback + orphan opener: runs extraction', async () => {
+      await setMode('fallback')
+      orphanStat.mockReturnValue(true)
+      let done = false
+      driveCompletion(() => {
+        done = true
+      })
+      await vi.waitFor(() => expect(done).toBe(true))
+      expect(runExtraction).toHaveBeenCalled()
+    })
+
+    it('extraction returning null: delivers tag results unchanged', async () => {
+      await setMode('always')
+      const tagChange = { type: 'heal', value: 2, reason: 'tag' }
+      detailedStat.mockReturnValue({ changes: [tagChange], issues: [], rawJsonError: undefined })
+      runExtraction.mockResolvedValueOnce(null)
+      let delivered: unknown[] | undefined
+      driveCompletion((_f, _d, sc) => {
+        delivered = sc
+      })
+      await vi.waitFor(() => expect(delivered).toBeDefined())
+      expect(delivered).toEqual([tagChange])
+    })
+
+    it('validation rejection drops the change before onDone', async () => {
+      await setMode('always')
+      runExtraction.mockResolvedValueOnce({
+        changes: [{ type: 'damage', characterName: 'Ghost', value: 5, reason: 'x' }],
+        issues: []
+      })
+      validateGS.mockReturnValueOnce({ valid: [], rejected: [{ change: {}, reason: 'unknown character' }] })
+      let delivered: unknown[] | undefined
+      driveCompletion((_f, _d, sc) => {
+        delivered = sc
+      })
+      await vi.waitFor(() => expect(delivered).toBeDefined())
+      expect(delivered).toEqual([])
     })
   })
 })

@@ -72,6 +72,8 @@ export interface AiDmConfig {
   contextLength?: number
   /** Opt-in Ollama KV-cache quantization; unset = off. */
   ollamaKvCacheType?: 'q8_0' | 'q4_0'
+  /** PHASE-23: structured mechanics extraction mode (Ollama-only; absent ≡ off). */
+  structuredExtraction?: 'off' | 'fallback' | 'always'
   discordBridge?: boolean
   /** @deprecated Use `model` instead */
   ollamaModel?: string

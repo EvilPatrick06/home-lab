@@ -2,7 +2,7 @@
 // Mirrors stat-mutations.ts pattern for game board actions
 
 import { logToFile } from '../log'
-import { DmActionsBlockSchema, repairJson, type ValidationIssue, validateDmActions } from './ai-schemas'
+import { DmActionsBlockSchema, repairJsonDetailed, type ValidationIssue, validateDmActions } from './ai-schemas'
 
 // ── Discriminated union of all DM actions ──
 
@@ -498,6 +498,12 @@ export function parseDmActions(response: string): DmAction[] {
   return parseDmActionsDetailed(response).actions
 }
 
+/** PHASE-23 23E: an unclosed `[DM_ACTIONS]` opener (no matching close tag) is silently
+ *  lost — a signal that structured extraction should run in `fallback` mode. */
+export function hasOrphanDmActionsTag(text: string): boolean {
+  return /\[DM_ACTIONS\]/.test(text) && !/\[DM_ACTIONS\][\s\S]*?\[\/DM_ACTIONS\]/.test(text)
+}
+
 /**
  * Extract, repair, and schema-validate DM actions from AI response text.
  * Returns both valid actions and detailed validation issues for logging.
@@ -514,7 +520,8 @@ export function parseDmActionsDetailed(response: string): DmActionParseResult {
   let rawJsonError: string | undefined
 
   for (const match of blocks) {
-    const repaired = repairJson(match[1])
+    const { repaired, modified } = repairJsonDetailed(match[1])
+    if (modified) logToFile('INFO', '[AI Schema] repairJson modified a [DM_ACTIONS] block')
     try {
       const parsed = JSON.parse(repaired)
       const block = DmActionsBlockSchema.safeParse(parsed)

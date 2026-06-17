@@ -15,9 +15,14 @@ export interface AiConfig {
   /** Opt-in Ollama KV-cache quantization (`q8_0` halves, `q4_0` quarters KV
    *  memory); unset = off. Only applied to servers this app spawns. */
   ollamaKvCacheType?: 'q8_0' | 'q4_0'
+  /** PHASE-23: two-call structured mechanics extraction. `off` (default/absent),
+   *  `fallback` (only when tag parse fails), `always`. Ollama-only. */
+  structuredExtraction?: StructuredExtractionMode
   /** @deprecated Use `model` instead. Kept for backward-compatible config loading. */
   ollamaModel?: string
 }
+
+export type StructuredExtractionMode = 'off' | 'fallback' | 'always'
 
 export interface ActiveCreatureInfo {
   label: string

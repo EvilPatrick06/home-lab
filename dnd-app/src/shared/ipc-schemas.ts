@@ -11,6 +11,8 @@ export const AiConfigSchema = z.object({
   geminiApiKey: z.string().optional(),
   contextLength: z.number().int().min(2048).max(131072).optional(),
   ollamaKvCacheType: z.enum(['q8_0', 'q4_0']).optional(),
+  // PHASE-23: structured mechanics extraction mode (Ollama-only; absent ≡ off).
+  structuredExtraction: z.enum(['off', 'fallback', 'always']).optional(),
   ollamaModel: z.string().optional()
 })
 

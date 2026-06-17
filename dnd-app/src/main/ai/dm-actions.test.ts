@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseDmActions, stripDmActions } from './dm-actions'
+import { hasOrphanDmActionsTag, parseDmActions, stripDmActions } from './dm-actions'
 
 describe('dm-actions', () => {
   // ── parseDmActions ──
@@ -214,6 +214,16 @@ Part 2
 [DM_ACTIONS]{"actions":[]}[/DM_ACTIONS]   `
 
       expect(stripDmActions(response)).toBe('Text')
+    })
+  })
+
+  describe('hasOrphanDmActionsTag (PHASE-23 23E)', () => {
+    it('detects an unclosed opener', () => {
+      expect(hasOrphanDmActionsTag('[DM_ACTIONS]{"actions":[]} no close')).toBe(true)
+    })
+    it('is false for a closed block and for no tag', () => {
+      expect(hasOrphanDmActionsTag('[DM_ACTIONS]{"actions":[]}[/DM_ACTIONS]')).toBe(false)
+      expect(hasOrphanDmActionsTag('plain')).toBe(false)
     })
   })
 })

@@ -35,6 +35,16 @@ export interface LLMProvider {
   isAvailable(): Promise<boolean>
 
   listModels(): Promise<string[]>
+
+  // PHASE-23 23B: optional constrained-decoding call (non-streaming, `format`=JSON
+  // schema). Optional so cloud providers compile untouched; implemented for Ollama
+  // only (F9). Returns the raw model content (caller parses).
+  structuredOnce?(
+    systemPrompt: string,
+    messages: ChatMessage[],
+    model: string,
+    jsonSchema: Record<string, unknown>
+  ): Promise<string>
 }
 
 // ── Standardized LLM Errors ──

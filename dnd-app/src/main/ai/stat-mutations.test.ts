@@ -7,7 +7,14 @@ vi.mock('../storage/character-storage', () => ({
 }))
 
 import { loadCharacter, saveCharacter } from '../storage/character-storage'
-import { applyMutations, describeChange, isNegativeChange, parseStatChanges, stripStatChanges } from './stat-mutations'
+import {
+  applyMutations,
+  describeChange,
+  hasOrphanStatChangesTag,
+  isNegativeChange,
+  parseStatChanges,
+  stripStatChanges
+} from './stat-mutations'
 import type { StatChange } from './types'
 
 const mockLoadCharacter = vi.mocked(loadCharacter)
@@ -912,5 +919,17 @@ describe('applyMutations', () => {
     const result = await applyMutations('char1', [{ type: 'hit_dice', value: -3, reason: 'short rest' }])
     expect(result.rejected).toHaveLength(1)
     expect(result.rejected[0].reason).toContain('Not enough hit dice')
+  })
+})
+
+describe('hasOrphanStatChangesTag (PHASE-23 23E)', () => {
+  it('detects an unclosed opener', () => {
+    expect(hasOrphanStatChangesTag('text [STAT_CHANGES] {"changes":[]} no close')).toBe(true)
+  })
+  it('is false for a closed block', () => {
+    expect(hasOrphanStatChangesTag('[STAT_CHANGES]{"changes":[]}[/STAT_CHANGES]')).toBe(false)
+  })
+  it('is false when no tag present', () => {
+    expect(hasOrphanStatChangesTag('plain narration')).toBe(false)
   })
 })

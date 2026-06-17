@@ -3,7 +3,9 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
   DM_ACTION_SCHEMAS,
+  getRepairJsonStats,
   repairJson,
+  repairJsonDetailed,
   StatChangeSchema,
   validateDmAction,
   validateDmActions,
@@ -11,6 +13,24 @@ import {
 } from './ai-schemas'
 
 // ── repairJson ──
+
+describe('repairJsonDetailed (PHASE-23 23F)', () => {
+  it('reports modified:false on already-valid JSON', () => {
+    expect(repairJsonDetailed('{"changes":[]}').modified).toBe(false)
+  })
+  it('reports modified:true on fenced / trailing-comma input', () => {
+    expect(repairJsonDetailed('```json\n{"changes":[]}\n```').modified).toBe(true)
+    expect(repairJsonDetailed('{"a":1,}').modified).toBe(true)
+  })
+  it('getRepairJsonStats counts invocations and modifications', () => {
+    const before = getRepairJsonStats()
+    repairJsonDetailed('{"x":1}') // not modified
+    repairJsonDetailed('{"x":1,}') // modified
+    const after = getRepairJsonStats()
+    expect(after.invocations).toBe(before.invocations + 2)
+    expect(after.modified).toBe(before.modified + 1)
+  })
+})
 
 describe('repairJson', () => {
   it('strips markdown code fences with json tag', () => {

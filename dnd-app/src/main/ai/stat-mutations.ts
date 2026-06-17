@@ -2,7 +2,7 @@ import type { Character5eV3, Feature } from '../../shared/types/character-5e'
 import type { AbilityName } from '../../shared/types/character-common'
 import { logToFile } from '../log'
 import { loadCharacter, saveCharacter } from '../storage/character-storage'
-import { repairJson, StatChangesBlockSchema, type ValidationIssue, validateStatChanges } from './ai-schemas'
+import { repairJsonDetailed, StatChangesBlockSchema, type ValidationIssue, validateStatChanges } from './ai-schemas'
 import {
   addConditionInstance,
   conditionSlug,
@@ -34,6 +34,13 @@ export function parseStatChanges(response: string): StatChange[] {
   return parseStatChangesDetailed(response).changes
 }
 
+/** PHASE-23 23E: an unclosed `[STAT_CHANGES]` opener (no matching close tag) never
+ *  matches the block regex, so its mechanics are silently lost (F1). A signal that
+ *  structured extraction should run in `fallback` mode. */
+export function hasOrphanStatChangesTag(text: string): boolean {
+  return /\[STAT_CHANGES\]/.test(text) && !/\[STAT_CHANGES\][\s\S]*?\[\/STAT_CHANGES\]/.test(text)
+}
+
 /**
  * Extract, repair, and schema-validate stat changes from AI response text.
  * Returns both valid changes and detailed validation issues for logging.
@@ -49,7 +56,8 @@ export function parseStatChangesDetailed(response: string): StatChangeParseResul
   let rawJsonError: string | undefined
 
   for (const match of blocks) {
-    const repaired = repairJson(match[1])
+    const { repaired, modified } = repairJsonDetailed(match[1])
+    if (modified) logToFile('INFO', '[AI Schema] repairJson modified a [STAT_CHANGES] block')
     try {
       const parsed = JSON.parse(repaired)
       const block = StatChangesBlockSchema.safeParse(parsed)

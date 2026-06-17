@@ -147,6 +147,7 @@ interface AiConfigData {
   geminiApiKey?: string
   contextLength?: number
   ollamaKvCacheType?: 'q8_0' | 'q4_0'
+  structuredExtraction?: string
 }
 
 interface AiStatChange {

@@ -284,11 +284,53 @@ export async function ollamaChatOnce(systemPrompt: string, messages: ChatMessage
   return data.message?.content || ''
 }
 
+/**
+ * PHASE-23 23B: constrained-decoding call. Same transport as ollamaChatOnce
+ * (`/api/chat`, `keep_alive`, `num_ctx`) plus `format`=JSON schema + temperature 0.
+ * ALWAYS `stream: false` (F5 upstream bugs); never passes `think`.
+ */
+export async function ollamaStructuredOnce(
+  systemPrompt: string,
+  messages: ChatMessage[],
+  model: string,
+  jsonSchema: Record<string, unknown>
+): Promise<string> {
+  const apiMessages = [
+    { role: 'system' as const, content: systemPrompt },
+    ...messages.map((m) => ({ role: m.role as string, content: m.content }))
+  ]
+
+  const numCtx = await resolveNumCtx(model, ollamaBaseUrl)
+  const res = await fetch(`${ollamaBaseUrl}/api/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model,
+      messages: apiMessages,
+      stream: false,
+      format: jsonSchema,
+      keep_alive: OLLAMA_KEEP_ALIVE,
+      options: { num_ctx: numCtx, temperature: 0 }
+    }),
+    signal: AbortSignal.timeout(OLLAMA_PREFILL_TIMEOUT_MS)
+  })
+
+  if (!res.ok) {
+    const body = await res.text()
+    throw ollamaHttpError(res.status, body, model)
+  }
+
+  const data = (await res.json()) as OllamaChatResponse
+  if (data.error) throw new Error(data.error)
+  return data.message?.content || ''
+}
+
 /** LLMProvider implementation wrapping the module-level Ollama functions. */
 export const ollamaProvider: LLMProvider = {
   type: 'ollama',
   streamChat: ollamaStreamChat,
   chatOnce: ollamaChatOnce,
   isAvailable: isOllamaRunning,
-  listModels: listOllamaModels
+  listModels: listOllamaModels,
+  structuredOnce: ollamaStructuredOnce
 }

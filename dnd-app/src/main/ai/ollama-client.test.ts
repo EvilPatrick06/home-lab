@@ -18,7 +18,9 @@ import {
   isOllamaRunning,
   listOllamaModels,
   ollamaChatOnce,
+  ollamaProvider,
   ollamaStreamChat,
+  ollamaStructuredOnce,
   setOllamaUrl
 } from './ollama-client'
 
@@ -424,6 +426,39 @@ describe('ollama-client', () => {
       expect(body.stream).toBe(false)
       expect(body.messages[0].role).toBe('system')
       expect(body.messages[1].role).toBe('user')
+    })
+  })
+
+  // ── ollamaStructuredOnce (PHASE-23 23B) ──
+
+  describe('ollamaStructuredOnce', () => {
+    const schema = { type: 'object', properties: { changes: { type: 'array' } }, required: ['changes'] }
+
+    it('posts stream:false + format + temperature:0 + num_ctx + keep_alive', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ message: { role: 'assistant', content: '{"changes":[]}' }, done: true })
+      })
+      const out = await ollamaStructuredOnce('sys', [{ role: 'user', content: 'narration' }], 'qwen3', schema)
+      expect(out).toBe('{"changes":[]}')
+      expect(mockFetch).toHaveBeenCalledWith('http://localhost:11434/api/chat', expect.anything())
+      const body = JSON.parse(mockFetch.mock.calls[0][1].body)
+      expect(body.stream).toBe(false)
+      expect(body.format).toEqual(schema)
+      expect(body.options.temperature).toBe(0)
+      expect(body.options.num_ctx).toBeDefined()
+      expect(body.keep_alive).toBeDefined()
+    })
+
+    it('throws with the pull-hint preserved on a 404', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: false, status: 404, text: async () => '{"error":"model not found"}' })
+      await expect(ollamaStructuredOnce('s', [{ role: 'user', content: 'x' }], 'qwen3:8b', schema)).rejects.toThrow(
+        'ollama pull qwen3:8b'
+      )
+    })
+
+    it('is registered on the ollama provider', () => {
+      expect(typeof ollamaProvider.structuredOnce).toBe('function')
     })
   })
 })

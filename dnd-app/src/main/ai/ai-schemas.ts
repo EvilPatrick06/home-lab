@@ -5,13 +5,29 @@ import { z } from 'zod'
 
 // ── JSON Repair ──
 
+// PHASE-23 23F: usage telemetry so repairJson retirement is measurable, not
+// speculative. repairJson is deletable once (a) structuredExtraction:'always' is
+// the default, (b) the narration prompt no longer instructs tag emission, and
+// (c) `modified` stays at zero across releases. The structured path NEVER calls it
+// (structured-extraction.ts rule); this serves the legacy tag path only.
+let repairInvocations = 0
+let repairModifications = 0
+
+/** Telemetry counters for repairJson usage (PHASE-23 23F). */
+export function getRepairJsonStats(): { invocations: number; modified: number } {
+  return { invocations: repairInvocations, modified: repairModifications }
+}
+
 /**
- * Attempt to repair common JSON malformations from LLM output:
+ * Attempt to repair common JSON malformations from LLM output, reporting whether
+ * anything changed (PHASE-23 23F — the measurable signal that the tag path still
+ * needs repair):
  * - Markdown code fences wrapping JSON
  * - Trailing commas before closing brackets/braces
  * - JavaScript-style comments
  */
-export function repairJson(raw: string): string {
+export function repairJsonDetailed(raw: string): { repaired: string; modified: boolean } {
+  repairInvocations++
   let s = raw
 
   // Strip markdown code fences (```json ... ``` or ``` ... ```)
@@ -49,7 +65,15 @@ export function repairJson(raw: string): string {
   // Trailing commas: ,] or ,}
   s = s.replace(/,\s*([\]}])/g, '$1')
 
-  return s.trim()
+  const repaired = s.trim()
+  const modified = repaired !== raw.trim()
+  if (modified) repairModifications++
+  return { repaired, modified }
+}
+
+/** Thin wrapper preserving the original signature for existing tag-path callers. */
+export function repairJson(raw: string): string {
+  return repairJsonDetailed(raw).repaired
 }
 
 // ── Shared enums ──
