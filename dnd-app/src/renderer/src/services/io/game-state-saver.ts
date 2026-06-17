@@ -26,6 +26,7 @@ export function buildSavableCampaign(campaign: Campaign): Campaign {
     activeLightSources: gs.activeLightSources,
     handouts: gs.handouts,
     combatTimer: gs.combatTimer ?? undefined,
+    monsterAutomation: gs.monsterAutomation ?? undefined, // PHASE-30
     sessionLog: gs.sessionLog,
     sharedJournal: gs.sharedJournal,
     lastSaveTimestamp: Date.now()

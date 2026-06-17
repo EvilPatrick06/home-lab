@@ -107,6 +107,7 @@ When the party moves to a new area, check [GAME STATE] for available maps:
 - \`dismount_token\`: {riderLabel, reason?} — dismount a rider from whatever it's riding.
 - \`set_concentration\`: {entityLabel, spell?, reason?} — mark a creature as concentrating on a spell (e.g. spell="Hold Person"); omit \`spell\` to clear/break it. Shows in the [Concentration] block.
 - \`concentration_check\`: {entityLabel, damageTaken, conSaveModifier?, hasWarCaster?, reason?} — roll the CON concentration save after a concentrating creature takes damage (DC = max(10, half the damage), capped 30); breaks concentration on a failure. (Applying Incapacitated/Paralyzed/Stunned/Petrified/Unconscious breaks it automatically.)
+- \`run_monster_turn\`: {entityLabel, reason?} — resolve the named enemy's ENTIRE turn deterministically (targeting, movement, attacks, recharge abilities, action economy). Results post as a "[Monster Turn]" summary you will see next turn. STRONGLY prefer this over hand-rolling attacks for any creature whose token line shows \`creature:<id>\`; after emitting it, do not also roll or apply damage for that creature this turn.
 When you run a monster's turn, emit the matching action so its action economy is tracked (e.g. a fleeing kobold → set_entity_disengage; a sentry whacking a PC who runs past → opportunity_attack).
 
 **Time Management:**

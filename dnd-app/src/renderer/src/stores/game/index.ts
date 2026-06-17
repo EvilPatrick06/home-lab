@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { ActiveLightSource, CombatTimerConfig } from '../../types/campaign'
 import type { Handout, InGameTimeState, SidebarEntry } from '../../types/game-state'
+import { createAutomationSlice } from './automation-slice'
 import { createCombatLogSlice } from './combat-log-slice'
 import { createConditionsSlice } from './conditions-slice'
 import { createDarknessZoneSlice } from './darkness-zone-slice'
@@ -38,6 +39,7 @@ export const useGameStore = create<GameStoreState>()((...a) => {
     ...createFogSlice(...a),
     ...createSidebarSlice(...a),
     ...createTimerSlice(...a),
+    ...createAutomationSlice(...a),
     ...createCombatLogSlice(...a),
     ...createTimeSlice(...a),
     ...createEffectsSlice(...a),
@@ -102,6 +104,7 @@ export const useGameStore = create<GameStoreState>()((...a) => {
         showWeatherOverlay: true,
         handouts: [],
         combatTimer: null,
+        monsterAutomation: null,
         customEffects: [],
         combatLog: [],
         pendingGroupRoll: null,
@@ -138,6 +141,7 @@ export const useGameStore = create<GameStoreState>()((...a) => {
         savedWeatherPresets?: GameStoreState['savedWeatherPresets']
         handouts?: Handout[]
         combatTimer?: CombatTimerConfig | null
+        monsterAutomation?: import('../../types/campaign').MonsterAutomationConfig | null
         sharedJournal?: import('../../types/game-state').SharedJournalEntry[]
         partyInventory?: import('../../types/game-state').PartyInventory
       }
@@ -157,6 +161,7 @@ export const useGameStore = create<GameStoreState>()((...a) => {
         savedWeatherPresets,
         handouts,
         combatTimer,
+        monsterAutomation,
         sharedJournal,
         partyInventory,
         ...gameState
@@ -177,6 +182,7 @@ export const useGameStore = create<GameStoreState>()((...a) => {
         ...(savedWeatherPresets ? { savedWeatherPresets } : {}),
         ...(handouts ? { handouts } : {}),
         ...(combatTimer !== undefined ? { combatTimer } : {}),
+        ...(monsterAutomation !== undefined ? { monsterAutomation } : {}),
         ...(sharedJournal ? { sharedJournal } : {}),
         ...(partyInventory ? { partyInventory } : {})
       })

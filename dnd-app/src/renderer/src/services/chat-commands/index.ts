@@ -2,6 +2,7 @@ import { getPluginCommandRegistry } from '../plugin-system/plugin-registry'
 import { commands as conditionShortcutCommands } from './commands-condition-shortcuts'
 import { commands as diceCommands } from './commands-dice'
 import { commands as dmAiCommands } from './commands-dm-ai'
+import { commands as dmAutomationCommands } from './commands-dm-automation'
 import { commands as dmBastionCommands } from './commands-dm-bastion'
 import { commands as dmCampaignCommands } from './commands-dm-campaign'
 import { commands as dmCombatCommands } from './commands-dm-combat'
@@ -53,6 +54,7 @@ export const allCommands: ChatCommand[] = [
   ...dmBastionCommands,
   ...dmAiCommands,
   ...dmOracleCommands,
+  ...dmAutomationCommands,
   ...dmMonsterCommands,
   ...dmCampaignCommands,
   ...socialCommands,

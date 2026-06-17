@@ -677,6 +677,13 @@ const OpportunityAttackSchema = z.object({
   reason: z.string().optional()
 })
 
+// PHASE-30 — delegate a creature's whole turn to the deterministic engine.
+const RunMonsterTurnSchema = z.object({
+  action: z.literal('run_monster_turn'),
+  entityLabel: z.string(),
+  reason: z.string().optional()
+})
+
 const KnockUnconsciousSchema = z.object({
   action: z.literal('knock_unconscious'),
   entityLabel: z.string(),
@@ -1408,6 +1415,7 @@ export const DM_ACTION_SCHEMAS: Record<string, z.ZodType> = {
   spend_reaction: SpendReactionSchema,
   spend_movement: SpendMovementSchema,
   opportunity_attack: OpportunityAttackSchema,
+  run_monster_turn: RunMonsterTurnSchema,
   knock_unconscious: KnockUnconsciousSchema,
   mount_token: MountTokenSchema,
   dismount_token: DismountTokenSchema,

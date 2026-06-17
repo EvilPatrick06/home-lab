@@ -3771,6 +3771,16 @@
       "end": "Fin"
     },
     "initiativeTracker": {
+      "automation": {
+        "suggest": "Sugerir",
+        "runTurn": "Ejecutar turno",
+        "busy": "Ejecutando…",
+        "configTitle": "Automatización de monstruos",
+        "autoRun": "Ejecutar turnos enemigos automáticamente al iniciar el turno",
+        "autoRunMaxInt": "Solo auto-ejecutar con INT ≤",
+        "autoAdvance": "Avanzar automáticamente al siguiente turno",
+        "flavorNarration": "Narrar los turnos resueltos con el DM de IA"
+      },
       "surprisedName": "{{name}} (Sorprendido)",
       "lairAction": "Acción de guarida",
       "trackerLabel": "Rastreador de iniciativa",

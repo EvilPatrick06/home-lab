@@ -7,6 +7,7 @@ import { useGameEffects } from '../../hooks/use-game-effects'
 import { useGameHandlers } from '../../hooks/use-game-handlers'
 import { useGameNetwork } from '../../hooks/use-game-network'
 import { useGameShortcuts } from '../../hooks/use-game-shortcuts'
+import { useMonsterAutoTurn } from '../../hooks/use-monster-auto-turn'
 import { addToast } from '../../hooks/use-toast'
 import type { PortalEntryInfo } from '../../hooks/use-token-movement'
 import { useTokenMovement } from '../../hooks/use-token-movement'
@@ -543,6 +544,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
   useDmTriggers(effectiveIsDM)
 
   useGameEffects({ campaign, isDM, addChatMessage, sendMessage, aiInitRef, activeMap, setIsFullscreen })
+  useMonsterAutoTurn() // PHASE-30 30E — opt-in enemy auto-run (no-op unless monsterAutomation.autoRun)
   useGameNetwork({
     networkRole,
     campaignId: campaign.id,

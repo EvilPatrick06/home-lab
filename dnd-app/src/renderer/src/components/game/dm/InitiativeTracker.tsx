@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useT } from '../../../i18n'
+import { buildMonsterTurnContext, runMonsterTurn } from '../../../services/combat/monster-turn-executor'
+import { planMonsterTurn } from '../../../services/combat/monster-turn-planner'
 import { enrichInitiativeEntry } from '../../../services/game-actions/initiative-enrichment'
 import { getDragPayload, hasLibraryDrag } from '../../../services/library/drag-data'
 import { play as playSound } from '../../../services/sound-manager'
+import { getGameStore, getLobbyStore, getNetworkStore } from '../../../stores/store-accessors'
 import { useGameStore } from '../../../stores/use-game-store'
-import type { CombatTimerConfig } from '../../../types/campaign'
+import type { CombatTimerConfig, MonsterAutomationConfig } from '../../../types/campaign'
 import type { InitiativeEntry, InitiativeState } from '../../../types/game-state'
 import type { MapToken } from '../../../types/map'
 import { cryptoRandom } from '../../../utils/crypto-random'
@@ -66,6 +69,11 @@ export default function InitiativeTracker({
   const reorderInitiative = useGameStore((s) => s.reorderInitiative)
   const pendingWaves = useGameStore((s) => s.pendingWaves)
   const deployWave = useGameStore((s) => s.deployWave)
+
+  // PHASE-30 — monster automation (suggest/run buttons + config). Off by default (null).
+  const monsterAutomation = useGameStore((s) => s.monsterAutomation)
+  const setMonsterAutomation = useGameStore((s) => s.setMonsterAutomation)
+  const [autoBusy, setAutoBusy] = useState(false)
 
   // Combat timer state
   const [timerEnabled, setTimerEnabled] = useState(combatTimer?.enabled ?? false)
@@ -309,6 +317,55 @@ export default function InitiativeTracker({
     displayEntries.push(lairEntry)
   }
 
+  // PHASE-30 — automation surface for the CURRENT enemy entry (host-only, stat-block-backed).
+  const STORES = { getGameStore, getLobbyStore, getNetworkStore }
+  const activeEntry = initiative.entries[initiative.currentIndex]
+  const activeToken = activeEntry ? tokens.find((tk) => tk.entityId === activeEntry.entityId) : undefined
+  const canAutomate = isHost && activeEntry?.entityType === 'enemy' && !!activeToken?.monsterStatBlockId
+
+  const handleSuggestTurn = (): void => {
+    if (!activeEntry) return
+    const ctx = buildMonsterTurnContext(activeEntry.entityName, STORES)
+    const content =
+      'error' in ctx
+        ? ctx.error
+        : (() => {
+            const plan = planMonsterTurn(ctx)
+            return [`🧭 ${plan.actorLabel} (${plan.intTier} tactics):`, ...plan.rationale.map((r) => `• ${r}`)].join(
+              '\n'
+            )
+          })()
+    // DM-only: post to local chat WITHOUT a network broadcast.
+    getLobbyStore()
+      .getState()
+      .addChatMessage({
+        id: `mt-suggest-${Date.now()}-${cryptoRandom().toString(36).slice(2, 8)}`,
+        senderId: 'ai-dm',
+        senderName: 'Dungeon Master',
+        content,
+        timestamp: Date.now(),
+        isSystem: true
+      })
+  }
+  const handleRunTurn = (): void => {
+    if (!activeEntry || autoBusy) return
+    setAutoBusy(true)
+    try {
+      runMonsterTurn(activeEntry.entityName, STORES)
+    } finally {
+      setAutoBusy(false)
+    }
+  }
+  const defaultAutomation: MonsterAutomationConfig = {
+    autoRun: false,
+    autoRunMaxInt: 7,
+    autoAdvance: true,
+    flavorNarration: false
+  }
+  const patchAutomation = (patch: Partial<MonsterAutomationConfig>): void => {
+    setMonsterAutomation({ ...(monsterAutomation ?? defaultAutomation), ...patch })
+  }
+
   // Initiative is active -- show tracker
   return (
     <div
@@ -405,6 +462,83 @@ export default function InitiativeTracker({
           )
         })}
       </div>
+
+      {/* PHASE-30 — monster automation: per-turn Suggest/Run buttons + host config (all opt-in). */}
+      {isHost && (
+        <div className="px-2 py-1.5 border-t border-border/40 text-xs space-y-1.5">
+          {canAutomate && (
+            <div className="flex items-center gap-2">
+              <span className="text-gray-500">{activeEntry?.entityName}:</span>
+              <button
+                onClick={handleSuggestTurn}
+                className="px-1.5 py-0.5 rounded bg-surface-2 text-muted hover:bg-gray-700 hover:text-gray-300 cursor-pointer"
+              >
+                {t('game.initiativeTracker.automation.suggest')}
+              </button>
+              <button
+                onClick={handleRunTurn}
+                disabled={autoBusy}
+                className="px-1.5 py-0.5 rounded bg-accent/70 text-white hover:bg-accent cursor-pointer disabled:opacity-50"
+              >
+                {autoBusy
+                  ? t('game.initiativeTracker.automation.busy')
+                  : t('game.initiativeTracker.automation.runTurn')}
+              </button>
+            </div>
+          )}
+          <label className="flex items-center gap-1.5 cursor-pointer text-gray-400">
+            <input
+              type="checkbox"
+              checked={monsterAutomation !== null}
+              onChange={(e) => setMonsterAutomation(e.target.checked ? defaultAutomation : null)}
+            />
+            {t('game.initiativeTracker.automation.configTitle')}
+          </label>
+          {monsterAutomation && (
+            <div className="ml-5 space-y-1">
+              <label className="flex items-center gap-1.5 cursor-pointer text-gray-400">
+                <input
+                  type="checkbox"
+                  checked={monsterAutomation.autoRun}
+                  onChange={(e) => patchAutomation({ autoRun: e.target.checked })}
+                />
+                {t('game.initiativeTracker.automation.autoRun')}
+              </label>
+              <label className="flex items-center gap-1.5 text-gray-400">
+                {t('game.initiativeTracker.automation.autoRunMaxInt')}
+                <input
+                  type="number"
+                  min={1}
+                  max={30}
+                  value={monsterAutomation.autoRunMaxInt}
+                  onChange={(e) =>
+                    patchAutomation({
+                      autoRunMaxInt: Math.max(1, Math.min(30, Number.parseInt(e.target.value, 10) || 7))
+                    })
+                  }
+                  className="w-12 bg-surface-2 border border-border rounded px-1 py-0.5"
+                />
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer text-gray-400">
+                <input
+                  type="checkbox"
+                  checked={monsterAutomation.autoAdvance}
+                  onChange={(e) => patchAutomation({ autoAdvance: e.target.checked })}
+                />
+                {t('game.initiativeTracker.automation.autoAdvance')}
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer text-gray-400">
+                <input
+                  type="checkbox"
+                  checked={monsterAutomation.flavorNarration}
+                  onChange={(e) => patchAutomation({ flavorNarration: e.target.checked })}
+                />
+                {t('game.initiativeTracker.automation.flavorNarration')}
+              </label>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Timer bar, delayed entries, add-entry form, turn controls */}
       <InitiativeControls

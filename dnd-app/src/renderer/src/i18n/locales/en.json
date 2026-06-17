@@ -3771,6 +3771,16 @@
       "end": "End"
     },
     "initiativeTracker": {
+      "automation": {
+        "suggest": "Suggest",
+        "runTurn": "Run turn",
+        "busy": "Running…",
+        "configTitle": "Monster automation",
+        "autoRun": "Auto-run enemy turns on turn start",
+        "autoRunMaxInt": "Only auto-run INT ≤",
+        "autoAdvance": "Auto-advance to the next turn",
+        "flavorNarration": "Narrate resolved turns via the AI DM"
+      },
       "surprisedName": "{{name}} (Surprised)",
       "lairAction": "Lair Action",
       "trackerLabel": "Initiative tracker",

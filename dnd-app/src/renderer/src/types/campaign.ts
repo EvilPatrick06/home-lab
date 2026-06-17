@@ -284,6 +284,14 @@ export interface CombatTimerConfig {
   action: 'auto-skip' | 'warning'
 }
 
+// PHASE-30 — DM combat-automation preferences (null = fully disabled, the default).
+export interface MonsterAutomationConfig {
+  autoRun: boolean // auto-run enemy turns on turn start (30E)
+  autoRunMaxInt: number // only auto-run creatures with INT ≤ this (default 7, mook tier)
+  autoAdvance: boolean // auto-run also advances to the next turn
+  flavorNarration: boolean // send resolved turns to the AI DM for narration (30E)
+}
+
 export interface SavedGameState {
   initiative: InitiativeState | null
   round: number
@@ -305,6 +313,7 @@ export interface SavedGameState {
   activeLightSources: ActiveLightSource[]
   handouts: Handout[]
   combatTimer?: CombatTimerConfig
+  monsterAutomation?: MonsterAutomationConfig // PHASE-30
   sessionLog?: unknown[]
   sharedJournal?: unknown[]
   lastSaveTimestamp?: number

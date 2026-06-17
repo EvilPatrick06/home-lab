@@ -366,4 +366,42 @@ Order keeps the tree green: pure planner first (no consumers), then executor (co
 
 ## Completed
 
-(filled during execution per INSTRUCTIONS.md rule 17)
+- **30A — monster-turn planner.** NEW `services/combat/monster-turn-planner.ts` (pure, zero `stores/`
+  imports): `MonsterTurnContext`/`MonsterTurnPlan`/`MonsterTurnStep` types; `intTier`, `averageRoll`,
+  `hitProbability`, `expectedDamage`, `chebyshevFt`; hostile enumeration (skips 0-HP + total cover via
+  `calculateCover`); per-tier target selection (mindless=nearest, low=lowest-HP%-reachable,
+  average=concentrating-first, clever/genius=concentrating>HP%>AC); recharge/at-will AoE choice
+  (`countTargetsInAoE` ≥2 genius/≥3 else, friendly-fire veto for non-mindless, sphere-midpoint /
+  cone-centroid placement); multiattack expansion; melee `findPath`-to-adjacency + dash-when-unreachable;
+  ranged step-away; retreat (tier thresholds, Undead/Construct never) — all appending `rationale`. +
+  `monster-turn-planner.test.ts` (16).
+- **30B — monster-turn executor.** NEW `monster-turn-executor.ts`: `buildMonsterTurnContext` (resolve token +
+  `lookupTokenStatBlock`, pre-hydrate ac/maxHP/currentHP via `getTokenStats`, map from `wallSegments`/
+  `width`/`height`/`grid.type`), `executeMonsterTurnPlan` (move via `moveToken`+`useMovement`; stances;
+  F6 attack mechanics — d20/crit-doubles-dice/nat-1/`updateToken` clamp/concentration via
+  `checkConcentrationOnDamage`+multiattack HP tracking; AoE save-action delegated to
+  `executeApplyAreaEffect`, single-target save with condition riders; recharge flip via
+  `updateInitiativeEntry`; `useAction`+broadcast+consolidated `postDmMessage` summary), `runMonsterTurn`
+  wrapper. + `monster-turn-executor.test.ts` (6, incl. error path + autoAdvance + 30E flavor).
+- **30C — run_monster_turn action.** NEW `game-actions/monster-automation-actions.ts` `executeRunMonsterTurn`
+  (guards + `runMonsterTurn`, throws engine errors as failed actions). `game-action-executor` dispatch case +
+  import. `dm-actions.ts` union member; `ai-schemas.ts` `RunMonsterTurnSchema` + `DM_ACTION_SCHEMAS` (contract
+  test auto-covers); `dm-actions-schema.ts` doc line; `combat-tactics.ts` "Engine-resolved turns" section.
+  (No `MutationApprovalPanel` change — it's stat-mutations-only; DM actions don't flow through it, matching
+  the `opportunity_attack` precedent.) Tests: `monster-automation-actions.test.ts` (4) + ai-schemas row.
+- **30D — DM UI + commands + config.** `MonsterAutomationConfig` + `SavedGameState.monsterAutomation`
+  (campaign.ts); NEW `stores/game/automation-slice.ts` (`monsterAutomation: null` default + setter) wired into
+  `types.ts` (`AutomationSliceState` + GameStoreState union + loadGameState shape), `index.ts` (spread + reset
+  default + load destructure/spread), `game-state-saver.ts`. NEW `commands-dm-automation.ts` (`/suggestturn`
+  local-only plan, `/monsterturn`+`runturn`; default to current entry) + registered. `InitiativeTracker.tsx`
+  host-only Suggest/Run buttons (enemy + stat-block gated, busy-guarded) + automation config rows. i18n
+  `game.initiativeTracker.automation.*` en+es. Tests: `commands-dm-automation.test.ts` (7) + `automation-slice.test.ts` (3).
+- **30E — auto-run + flavor.** NEW `hooks/use-monster-auto-turn.ts` (subscribes `game:turn-start`; guards:
+  `autoRun`, host/solo authority, not paused, enemy, stat-block, INT ≤ cap, once-per-entity-turn ref; 800 ms
+  settle → `runMonsterTurn({autoAdvance})`, try/catch). Mounted in `GameLayout` beside `useGameEffects`. Flavor
+  narration in `runMonsterTurn` (summary → flavor → advance ordering): when `flavorNarration` + AI DM enabled,
+  sends a narrate-only `[RESOLVED COMBAT TURN]` request (reuses `buildPlayerRoster`), fire-and-forget+guarded.
+  Tests: `use-monster-auto-turn.test.ts` (6 gating matrix, fake timers) + executor flavor cases.
+- **30F — gate.** i18n parity en↔es (`gen-keys` regenerated); no new `creature-actions.ts` imports;
+  `monsterAutomation === null` short-circuits in tracker/commands/hook/executor. End-of-phase 4-gate (lint, tsc
+  web+node, full vitest) — all green. No Pi code touched.

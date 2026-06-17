@@ -136,6 +136,7 @@ import {
   executeRemoveRegion,
   executeUpdateRegion
 } from './game-actions/map-annotation-actions'
+import { executeRunMonsterTurn } from './game-actions/monster-automation-actions'
 // ── Mounted Combat ──
 import { executeDismountToken, executeMountToken } from './game-actions/mount-actions'
 // ── Spell Effects & AoE Preview ──
@@ -288,6 +289,8 @@ function executeOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: A
       return executeEndInitiative(action, gameStore, activeMap, stores)
     case 'remove_from_initiative':
       return executeRemoveFromInitiative(action, gameStore, activeMap, stores)
+    case 'run_monster_turn':
+      return executeRunMonsterTurn(action, gameStore, activeMap, stores)
 
     // ── Fog of War ──
     case 'reveal_fog':

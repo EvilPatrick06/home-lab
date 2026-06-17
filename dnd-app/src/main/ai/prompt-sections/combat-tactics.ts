@@ -35,4 +35,8 @@ When running monsters in combat, apply tactical intelligence based on the creatu
 - Ranged attackers maintain distance (30+ ft from melee threats)
 - Melee bruisers close to lowest-AC targets
 - Spellcaster monsters stay behind front line
+
+### Engine-resolved turns
+- For any creature whose token line shows \`creature:<id>\`, STRONGLY prefer the \`run_monster_turn\` action — the engine resolves targeting, movement, attacks, recharge abilities, and action economy deterministically and posts a "[Monster Turn]" summary.
+- When a \`[Monster Turn]\` or \`[RESOLVED COMBAT TURN]\` summary appears, those mechanics are FINAL: narrate them vividly, but never re-roll, never re-apply damage, and never emit duplicate STAT_CHANGES or DM_ACTIONS for anything already resolved there.
 `

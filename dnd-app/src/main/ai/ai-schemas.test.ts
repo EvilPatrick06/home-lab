@@ -629,6 +629,15 @@ describe('validateDmActions', () => {
     expect(issues).toHaveLength(0)
   })
 
+  // PHASE-30 30C — run_monster_turn delegates a creature's whole turn to the engine.
+  it('validates run_monster_turn (and rejects a missing entityLabel)', () => {
+    const { valid } = validateDmActions([{ action: 'run_monster_turn', entityLabel: 'Goblin 1', reason: 'its turn' }])
+    expect(valid).toHaveLength(1)
+    const bad = validateDmActions([{ action: 'run_monster_turn' }])
+    expect(bad.valid).toHaveLength(0)
+    expect(bad.issues).toHaveLength(1)
+  })
+
   it('rejects update_quest_log with an invalid operation', () => {
     const { valid, issues } = validateDmActions([{ action: 'update_quest_log', operation: 'finish', name: 'X' }])
     expect(valid).toHaveLength(0)

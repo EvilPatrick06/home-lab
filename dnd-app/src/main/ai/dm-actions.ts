@@ -173,6 +173,8 @@ export type DmAction =
       hasWarCaster?: boolean
       reason?: string
     }
+  // PHASE-30 — delegate a creature's whole turn to the deterministic engine
+  | { action: 'run_monster_turn'; entityLabel: string; reason?: string }
 
   // Resting
   | { action: 'short_rest'; characterNames: string[] }

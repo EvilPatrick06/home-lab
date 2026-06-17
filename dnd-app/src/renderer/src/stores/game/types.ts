@@ -1,5 +1,5 @@
 import type { ShopItem, TradeRequestPayload } from '../../network'
-import type { ActiveLightSource, CombatTimerConfig } from '../../types/campaign'
+import type { ActiveLightSource, CombatTimerConfig, MonsterAutomationConfig } from '../../types/campaign'
 import type {
   ActiveCurse,
   ActiveDisease,
@@ -227,6 +227,12 @@ export interface TimerSliceState {
   tickTimer: () => void
   combatTimer: CombatTimerConfig | null
   setCombatTimer: (config: CombatTimerConfig | null) => void
+}
+
+// PHASE-30 — DM monster-automation preferences (null = disabled, the default).
+export interface AutomationSliceState {
+  monsterAutomation: MonsterAutomationConfig | null
+  setMonsterAutomation: (config: MonsterAutomationConfig | null) => void
 }
 
 export interface CombatLogSliceState {
@@ -459,6 +465,7 @@ export interface GameFlowState {
           savedWeatherPresets?: GameStoreState['savedWeatherPresets']
           handouts?: Handout[]
           combatTimer?: CombatTimerConfig | null
+          monsterAutomation?: MonsterAutomationConfig | null
           sharedJournal?: SharedJournalEntry[]
           partyInventory?: PartyInventory
         })
@@ -511,6 +518,7 @@ export type GameStoreState = GameState &
   TerrainSliceState &
   SidebarSliceState &
   TimerSliceState &
+  AutomationSliceState &
   CombatLogSliceState &
   TimeSliceState &
   EffectsSliceState &
