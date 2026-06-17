@@ -7,7 +7,8 @@ import {
   GameStateSaveSchema,
   HomebrewSaveSchema
 } from '../../shared/storage-schemas'
-import { applyBmoBaseUrlFromSettings } from '../bmo-config'
+import { applySyncBindFromSettings } from '../bmo-bridge'
+import { applyBmoApiKeyFromSettings, applyBmoBaseUrlFromSettings } from '../bmo-config'
 import { logSecurityEvent } from '../security-log'
 import { loadBans, saveBans } from '../storage/ban-storage'
 import { deleteBastion, loadBastion, loadBastions, saveBastion } from '../storage/bastion-storage'
@@ -298,6 +299,9 @@ export function registerStorageHandlers(): void {
     const result = await saveSettings(parsed.data)
     if (result.success) {
       applyBmoBaseUrlFromSettings(parsed.data)
+      // PHASE-22 22D: re-apply the shared secret + keyed LAN bind on save.
+      applyBmoApiKeyFromSettings(parsed.data)
+      applySyncBindFromSettings(parsed.data)
     }
     return result
   })

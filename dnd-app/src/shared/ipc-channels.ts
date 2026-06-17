@@ -227,6 +227,9 @@ export const IPC_CHANNELS = {
   // === BMO Pi Bridge: Sync (main → renderer, from Pi HTTP callbacks) ===
   BMO_SYNC_EVENT: 'bmo:sync-event',
   BMO_SYNC_INITIATIVE: 'bmo:sync-initiative',
+  // PHASE-22 22D: dedicated main→renderer initiative channel (BMO_SYNC_INITIATIVE
+  // stays renderer→main invoke-only — no channel double-use).
+  BMO_SYNC_INITIATIVE_EVENT: 'bmo:sync-initiative-event',
   BMO_SYNC_SEND_STATE: 'bmo:sync-send-state',
 
   // === Map Library ===

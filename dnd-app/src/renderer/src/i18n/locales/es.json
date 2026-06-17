@@ -1072,6 +1072,13 @@
       "recapTitle": "Resumen de la sesión",
       "genericError": "No se pudo completar la solicitud."
     },
+    "discordSync": {
+      "syncToggle": "Sincronizar el estado del juego con Discord",
+      "syncToggleDesc": "Envía la iniciativa y el estado del grupo a la sesión de Discord.",
+      "activityTitle": "Actividad de Discord",
+      "activityEmpty": "Aún no hay actividad de Discord.",
+      "initiativeSummary": "Iniciativa de Discord: {{count}} entradas, ronda {{round}}"
+    },
     "dmToolsTabContent": {
       "systemSender": "Sistema",
       "toolbarLabel": "Herramientas del DM",
@@ -5147,6 +5154,12 @@
     }
   },
   "notify": {
+    "discordSync": {
+      "playerJoined": "{{name}} se unió a la sesión de Discord",
+      "playerLeft": "{{name}} salió de la sesión de Discord",
+      "bmoUnreachable": "BMO inalcanzable — pueden perderse eventos de sincronización de Discord",
+      "sessionEnded": "La sesión de DM de Discord terminó"
+    },
     "aiDmStore": {
       "responseTimedOut": "La respuesta de la IA agotó el tiempo de espera",
       "scenePrepFailed": "Falló la preparación de la escena.",

@@ -3,7 +3,7 @@
  * Run `npm run i18n:gen-keys` (scripts/i18n/gen-key-union.mjs) to regenerate
  * after changing en.json. Source: src/renderer/src/i18n/locales/en.json.
  *
- * A literal union of every dotted leaf key in en.json (6126 keys),
+ * A literal union of every dotted leaf key in en.json (6135 keys),
  * so `t()` calls are checked at compile time instead of silently rendering a
  * raw key string when a key is typo'd or missing.
  */
@@ -1404,6 +1404,11 @@ export type TranslationKey =
   | 'game.discordSession.stopping'
   | 'game.discordSession.voiceConnected'
   | 'game.discordSession.voiceDropped'
+  | 'game.discordSync.activityEmpty'
+  | 'game.discordSync.activityTitle'
+  | 'game.discordSync.initiativeSummary'
+  | 'game.discordSync.syncToggle'
+  | 'game.discordSync.syncToggleDesc'
   | 'game.diseaseCurseTracker.activeCurses'
   | 'game.diseaseCurseTracker.activeDiseases'
   | 'game.diseaseCurseTracker.addCurse'
@@ -4410,6 +4415,10 @@ export type TranslationKey =
   | 'notify.characterStore.deleted'
   | 'notify.characterStore.saveFailed'
   | 'notify.characterStore.saveFailedWithReason'
+  | 'notify.discordSync.bmoUnreachable'
+  | 'notify.discordSync.playerJoined'
+  | 'notify.discordSync.playerLeft'
+  | 'notify.discordSync.sessionEnded'
   | 'notify.gameEffects.narrationFailed'
   | 'notify.loadCharacter5e.partialLoadFailed'
   | 'notify.selectionSlice.loadOptionsFailed'

@@ -1438,6 +1438,24 @@ def api_discord_dm_status():
     return _proxy_to_dm_control("status", "GET")
 
 
+# ── PHASE-22 22B: VTT→Pi state sync — proxy into the bot's control plane ──
+# These are the exact paths sendInitiativeToPi / sendGameStateToPi already POST to.
+
+
+@app.route("/api/discord/dm/sync/initiative", methods=["POST"])
+@app.route("/api/v1/discord/dm/sync/initiative", methods=["POST"])
+def api_discord_dm_sync_initiative():
+    """Proxy: push VTT initiative into the bot process (PHASE-22 22B)."""
+    return _proxy_to_dm_control("sync/initiative", "POST", request.json or {})
+
+
+@app.route("/api/discord/dm/sync/state", methods=["POST"])
+@app.route("/api/v1/discord/dm/sync/state", methods=["POST"])
+def api_discord_dm_sync_state():
+    """Proxy: push VTT game state into the bot process (PHASE-22 22B)."""
+    return _proxy_to_dm_control("sync/state", "POST", request.json or {})
+
+
 # ── PHASE-21 21C: per-NPC voice casting ──────────────────────────────
 # These operate on the shared voice_cast.json directly (no bot round-trip) — both
 # the Flask and bot processes re-read it on mtime change. voice_casting is

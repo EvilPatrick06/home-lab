@@ -20,6 +20,8 @@ from bots.discord_dm_bot import (
     _candidate_guilds,
     _format_initiative_order,
     _log,
+    _roll_cmd,
+    _try_push,
     _upsert_initiative,
 )
 
@@ -383,3 +385,192 @@ def test_format_initiative_order():
     assert _format_initiative_order([]) == "No rolls yet"
     out = _format_initiative_order([{"name": "Borg", "total": 17}, {"name": "Aria", "total": 12}])
     assert out == "1. Borg — 17\n2. Aria — 12"
+
+
+# ── 22B: VTT→Pi state sync through the control plane ─────────────────
+
+import datetime as _dt
+
+from agents import vtt_sync as _vs
+
+
+def _reset_vtt_state():
+    _vs.vtt_state.initiative = None
+    _vs.vtt_state.game_state = None
+    _vs.vtt_state.last_updated = None
+
+
+async def test_control_sync_initiative_updates_state(monkeypatch):
+    _reset_vtt_state()
+    bot = DMBot(); bot.session.active = False
+    client = await _client(bot)
+    try:
+        body = {"entries": [{"entityName": "A", "entityType": "player", "isActive": True}], "currentIndex": 0, "round": 2}
+        r = await client.post("/control/sync/initiative", json=body)
+        assert (await r.json())["ok"] is True
+        assert _vs.vtt_state.initiative == body
+    finally:
+        await client.close()
+
+
+async def test_control_sync_initiative_schedules_embed_only_when_active(monkeypatch):
+    import asyncio
+    _reset_vtt_state()
+    bot = DMBot()
+    called = []
+
+    async def fake_embed():
+        called.append(1)
+
+    monkeypatch.setattr(bot, "post_initiative_embed", fake_embed)
+    body = {"entries": [{"entityName": "A", "entityType": "player", "isActive": True}], "currentIndex": 0, "round": 1}
+
+    bot.session.active = False  # no session → no embed
+    client = await _client(bot)
+    try:
+        await client.post("/control/sync/initiative", json=body)
+        await asyncio.sleep(0)
+        assert called == []
+        bot.session.active = True; bot.session.text_channel_id = 42
+        await client.post("/control/sync/initiative", json=body)
+        await asyncio.sleep(0)
+        assert called == [1]
+    finally:
+        await client.close()
+
+
+async def test_control_sync_state_updates_state(monkeypatch):
+    _reset_vtt_state()
+    bot = DMBot()
+    client = await _client(bot)
+    try:
+        r = await client.post("/control/sync/state", json={"mapName": "Cavern"})
+        assert (await r.json())["ok"] is True
+        assert _vs.vtt_state.game_state == {"mapName": "Cavern"}
+    finally:
+        await client.close()
+
+
+async def test_post_initiative_embed_sends_then_edits(monkeypatch):
+    _reset_vtt_state()
+    _vs.vtt_state.initiative = {"entries": [{"entityName": "A", "entityType": "player"}], "currentIndex": 0, "round": 1}
+    monkeypatch.setattr(dm.asyncio, "sleep", AsyncMock())  # no real spacing wait
+    bot = DMBot(); bot.session.text_channel_id = 123
+    msg = MagicMock(); msg.edit = AsyncMock()
+    channel = MagicMock(); channel.send = AsyncMock(return_value=msg)
+    monkeypatch.setattr(bot, "get_channel", lambda cid: channel)
+
+    await bot.post_initiative_embed()
+    channel.send.assert_awaited_once()  # first call sends
+    await bot.post_initiative_embed()
+    msg.edit.assert_awaited_once()      # subsequent calls edit the same message
+    _reset_vtt_state()
+
+
+async def test_control_status_has_vtt_sync_block_without_probe(monkeypatch):
+    _reset_vtt_state()
+    get = MagicMock()
+    monkeypatch.setattr(_vs.requests, "get", get)
+    bot = DMBot()
+    client = await _client(bot)
+    try:
+        body = await (await client.get("/control/status")).json()
+        assert "vtt_sync" in body
+        assert set(body["vtt_sync"]) >= {
+            "enabled", "url", "auth", "last_push", "has_initiative", "has_game_state", "state_age_s"
+        }
+        get.assert_not_called()  # status never probes the network
+    finally:
+        await client.close()
+
+
+def test_vtt_state_context_fresh_then_stale(monkeypatch):
+    _reset_vtt_state()
+    bot = DMBot()
+    _vs.vtt_state.game_state = {
+        "mapName": "Cavern",
+        "partyHp": [{"name": "Aria", "currentHP": 10, "maxHP": 12, "conditions": ["poisoned"]}],
+    }
+    _vs.vtt_state.last_updated = _dt.datetime.now()
+    line = bot._vtt_state_context()
+    assert line and "map=Cavern" in line and "Aria 10/12(poisoned)" in line
+    _vs.vtt_state.last_updated = _dt.datetime.now() - _dt.timedelta(minutes=11)
+    assert bot._vtt_state_context() is None
+    _reset_vtt_state()
+
+
+# ── 22C: bot event push wiring ──────────────────────────────────────
+
+
+def _push_spies(monkeypatch):
+    spies = {}
+    for name in ("push_discord_message", "push_discord_roll", "push_player_join", "push_player_leave"):
+        s = MagicMock()
+        monkeypatch.setattr(f"bots.discord_dm_bot.{name}", s)
+        spies[name] = s
+    return spies
+
+
+async def test_on_message_pushes_player_text(monkeypatch):
+    spies = _push_spies(monkeypatch)
+    bot = DMBot(); bot.session.active = True; bot.session.text_channel_id = 5
+    monkeypatch.setattr(bot, "_handle_player_input", AsyncMock())
+    monkeypatch.setattr(bot, "process_commands", AsyncMock())
+    msg = MagicMock()
+    msg.author.bot = False; msg.author.display_name = "alice"
+    msg.channel.id = 5; msg.content = "I attack the goblin"
+    await bot.on_message(msg)
+    spies["push_discord_message"].assert_called_once_with("alice", "I attack the goblin")
+
+
+async def test_handle_player_input_pushes_dm_reply(monkeypatch):
+    _reset_vtt_state()
+    spies = _push_spies(monkeypatch)
+    bot = DMBot(); bot.session.active = True
+    monkeypatch.setattr(dm, "cloud_chat", lambda *a, **k: "The goblin snarls and lunges.")
+    channel = MagicMock(); channel.send = AsyncMock()
+    await bot._handle_player_input("alice", "hi", channel)
+    assert any(c.args[0] == "DM" for c in spies["push_discord_message"].call_args_list)
+
+
+async def test_roll_pushes_when_active(monkeypatch):
+    spies = _push_spies(monkeypatch)
+    bot = DMBot(); bot.session.active = True
+    interaction = MagicMock(); interaction.client = bot
+    interaction.user.display_name = "bob"
+    interaction.response.send_message = AsyncMock()
+    await _roll_cmd.callback(interaction, "1d20")
+    spies["push_discord_roll"].assert_called_once()
+    assert spies["push_discord_roll"].call_args.args[0] == "bob"
+
+
+async def test_roll_no_push_when_inactive(monkeypatch):
+    spies = _push_spies(monkeypatch)
+    bot = DMBot(); bot.session.active = False
+    interaction = MagicMock(); interaction.client = bot
+    interaction.user.display_name = "bob"
+    interaction.response.send_message = AsyncMock()
+    await _roll_cmd.callback(interaction, "1d20")
+    spies["push_discord_roll"].assert_not_called()
+
+
+async def test_voice_state_pushes_join_and_leave(monkeypatch):
+    spies = _push_spies(monkeypatch)
+    bot = DMBot(); bot.session.active = True; bot.session.voice_channel_id = 9
+    bot.session.voice_client = None  # keep _auto_leave scheduling out of the way
+    member = MagicMock(); member.bot = False; member.display_name = "carol"
+    join_after = MagicMock(); join_after.channel = MagicMock(); join_after.channel.id = 9
+    no_chan = MagicMock(); no_chan.channel = None
+    await bot.on_voice_state_update(member, no_chan, join_after)
+    spies["push_player_join"].assert_called_once_with("carol")
+    leave_before = MagicMock(); leave_before.channel = MagicMock(); leave_before.channel.id = 9
+    no_chan2 = MagicMock(); no_chan2.channel = None
+    await bot.on_voice_state_update(member, leave_before, no_chan2)
+    spies["push_player_leave"].assert_called_once_with("carol")
+
+
+def test_try_push_swallows_errors():
+    def boom(*_a):
+        raise RuntimeError("sync down")
+
+    _try_push(boom, "x")  # must not raise

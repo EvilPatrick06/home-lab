@@ -259,6 +259,30 @@ describe('ipc-schemas', () => {
       })
       expect(result.success).toBe(false)
     })
+
+    // ── PHASE-22 22D: new union member + Pi-shaped payloads (locks the 22A contract) ──
+    it('accepts the main-internal bmo_unreachable event', () => {
+      const result = SyncEventSchema.safeParse({ type: 'bmo_unreachable', timestamp: 1, payload: {} })
+      expect(result.success).toBe(true)
+    })
+
+    it('accepts the Pi 22A discord_message payload ({text, author, characterName})', () => {
+      const result = SyncEventSchema.safeParse({
+        type: 'discord_message',
+        timestamp: 1,
+        payload: { text: 'I attack', author: 'alice', characterName: 'Aria' }
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('accepts the Pi 22A discord_roll payload ({formula, total, rolls, rollerName, characterName})', () => {
+      const result = SyncEventSchema.safeParse({
+        type: 'discord_roll',
+        timestamp: 1,
+        payload: { formula: '1d20+5', total: 17, rolls: [12], rollerName: 'bob', characterName: 'Borin' }
+      })
+      expect(result.success).toBe(true)
+    })
   })
 
   describe('InitiativeSyncSchema (Phase 28a.3)', () => {

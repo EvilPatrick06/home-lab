@@ -249,7 +249,7 @@ dnd-app/
 | Direction | Surface | Used for |
 |---|---|---|
 | VTT → BMO | HTTP client at `src/main/bmo-bridge.ts`. Base URL = settings.bmoPiBaseUrl > mDNS-discovered Pi IP > `BMO_PI_URL` env > `https://bmo.mybmoai.work` (Cloudflare tunnel default — off-LAN reach). 15 s timeout. Off-LAN cloud endpoints carry a baked Cloudflare Access service token (main-process only). | Narration sync, combat-state push, Discord DM session control, AI memory sync |
-| BMO → VTT | Sync receiver HTTP server in main on `BMO_SYNC_PORT \|\| 5001` | Discord message events, initiative updates, player join/leave, dice rolls |
+| BMO → VTT | Sync receiver HTTP server in main on `BMO_SYNC_PORT \|\| 5001`. Bearer-gated by settings `bmoApiKey` (encrypted at rest; must match the Pi's `VTT_SYNC_TOKEN`). Loopback by default; LAN bind (`0.0.0.0`) only with the keyed opt-in `bmoSyncLanEnabled` + a key (env `BMO_SYNC_BIND` always wins). | Discord message events, initiative updates (→ DM activity feed on `bmo:sync-event`/`bmo:sync-initiative-event`), player join/leave, dice rolls, `bmo_unreachable` |
 | VTT → Pi registry | REST + SSE to `:5000/api/games*` (renderer-side `network/registry-client.ts`) | Public game-list discovery |
 
 Full protocol: [`../docs/ARCHITECTURE.md`](../docs/ARCHITECTURE.md).

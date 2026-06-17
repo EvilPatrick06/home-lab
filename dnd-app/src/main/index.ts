@@ -4,8 +4,8 @@ import { join } from 'node:path'
 import { is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, dialog, nativeImage, shell } from 'electron'
 import { disposeAiService, initFromSavedConfig } from './ai/ai-service'
-import { stopSyncReceiver } from './bmo-bridge'
-import { applyBmoBaseUrlFromSettings } from './bmo-config'
+import { applySyncBindFromSettings, stopSyncReceiver } from './bmo-bridge'
+import { applyBmoApiKeyFromSettings, applyBmoBaseUrlFromSettings } from './bmo-config'
 import { bmoCspConnectFragment } from './bmo-csp'
 import { registerIpcHandlers } from './ipc'
 import { startBmoDiscovery } from './lan-discovery'
@@ -350,6 +350,9 @@ app.whenReady().then(async () => {
   const st = await loadSettings()
   if (st.success && st.data) {
     applyBmoBaseUrlFromSettings(st.data)
+    // PHASE-22 22D: wire the shared secret + keyed LAN bind from settings.
+    applyBmoApiKeyFromSettings(st.data)
+    applySyncBindFromSettings(st.data)
   }
 
   // Install React DevTools in dev mode

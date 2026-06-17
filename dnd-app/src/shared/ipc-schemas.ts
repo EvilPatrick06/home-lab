@@ -188,6 +188,13 @@ export const SyncEventSchema = z.discriminatedUnion('type', [
     ...SyncEventBaseFields,
     type: z.literal('state_request'),
     payload: StateRequestPayloadSchema
+  }),
+  // PHASE-22 22D (F4): main-internal "BMO unreachable" event (never from the Pi);
+  // in the union so the renderer's ValidatedSyncEvent type stays complete.
+  z.object({
+    ...SyncEventBaseFields,
+    type: z.literal('bmo_unreachable'),
+    payload: z.object({}).loose()
   })
 ])
 

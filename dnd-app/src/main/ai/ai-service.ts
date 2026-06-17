@@ -6,6 +6,7 @@ import { SCENE_PREP_PROMPT, WEB_SEARCH_APPROVAL_TIMEOUT_MS } from '../../shared/
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import { BmoNarrationStatusSchema } from '../../shared/ipc-schemas'
 import { cancelNarration, isBargeInEnabled, isNarrationEnabled, sendNarration } from '../bmo-bridge'
+import { sendNarrationToDiscord } from '../discord-integration'
 import { logToFile } from '../log'
 import { logSecurityEvent } from '../security-log'
 import { saveConversation } from '../storage/ai-conversation-storage'
@@ -19,6 +20,7 @@ import {
   stripRulings,
   stripVoiceTags
 } from './ai-response-parser'
+import { loadCampaignById } from './campaign-context'
 
 // PHASE-20 20F: broadcast a narrate-failure status to every renderer window so
 // the DM tab can surface it (the renderer dedups). Validated before send.
@@ -1104,12 +1106,12 @@ async function handleStreamCompletion(
       // Non-fatal
     }
 
-    // Speak the narration through DM-BMO in the Discord VOICE channel (with the
-    // parsed NPC archetype + emotion for tone/pitch). NO Discord TEXT — the
-    // narration text stays only in the in-game chat. Fire-and-forget.
-    // PHASE-20 20F (F2): this is the SINGLE automatic sender, gated by the
-    // renderer toggle (default OFF). A non-ok/dropped result is broadcast to the
-    // renderer so the DM tab can surface it (deduped there).
+    // Two independent, default-OFF Discord senders for each finalized reply:
+    //  - VOICE narration through DM-BMO (PHASE-20 20F): toggle-gated; tone/pitch
+    //    from the parsed NPC archetype + emotion. Fire-and-forget; a dropped result
+    //    is broadcast to the DM tab (deduped there).
+    //  - TEXT push to Discord (PHASE-22 22F): gated by the Discord integration's own
+    //    `config.enabled`; sendNarrationToDiscord no-ops unless that is on.
     if (isNarrationEnabled()) {
       // PHASE-21 21B (F7): with barge-in ON, a new scene's narration interrupts
       // stale audio still playing on the Pi. With it OFF (default) interrupt is
@@ -1124,6 +1126,14 @@ async function handleStreamCompletion(
           broadcastNarrationStatus({ ok: false, error: String(err) })
         })
     }
+
+    // PHASE-22 22F: push the narration TEXT to Discord (webhook / bot-DM). Separate,
+    // user-enabled integration — sendNarrationToDiscord returns early unless enabled.
+    void (async () => {
+      const campaign = await loadCampaignById(request.campaignId)
+      const name = typeof campaign?.name === 'string' ? campaign.name : undefined
+      await sendNarrationToDiscord(displayText, name)
+    })().catch((err) => logToFile('WARN', '[AI] Discord text push failed:', String(err)))
 
     onDone(cleaned, displayText, statChanges, dmActions, ruleCitations)
   } catch (err) {

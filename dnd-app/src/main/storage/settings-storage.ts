@@ -36,19 +36,27 @@ export const AppSettingsSchema = z
     lastBackupTime: z.string().optional(),
     /** Auto-run a cloud backup on launch when the last one is stale (default on;
      * no-op unless cloud/rclone is configured). Set false to only get the nudge. */
-    autoBackupOnLaunch: z.boolean().optional()
+    autoBackupOnLaunch: z.boolean().optional(),
+    /** PHASE-22 22D: shared secret for the BMO sync receiver's bearer gate; must
+     * match the Pi's VTT_SYNC_TOKEN/BMO_API_KEY. Encrypted at rest. */
+    bmoApiKey: z.string().optional(),
+    /** PHASE-22 22D: opt-in LAN bind for the sync receiver (default loopback).
+     * Only takes effect when bmoApiKey is also set (keyed exposure). */
+    bmoSyncLanEnabled: z.boolean().optional()
   })
   .passthrough()
 
 export type AppSettings = z.infer<typeof AppSettingsSchema>
 
 function decryptTurnCredentials(data: AppSettings): AppSettings {
-  if (!data.turnServers?.length) {
-    return data
+  // PHASE-22 22D: bmoApiKey is encrypted at rest alongside the TURN credentials.
+  const withKey: AppSettings = data.bmoApiKey ? { ...data, bmoApiKey: decryptOptional(data.bmoApiKey) } : data
+  if (!withKey.turnServers?.length) {
+    return withKey
   }
   return {
-    ...data,
-    turnServers: data.turnServers.map((s) => ({
+    ...withKey,
+    turnServers: withKey.turnServers.map((s) => ({
       ...s,
       credential: decryptOptional(s.credential)
     }))
@@ -56,12 +64,13 @@ function decryptTurnCredentials(data: AppSettings): AppSettings {
 }
 
 function encryptTurnCredentials(data: AppSettings): AppSettings {
-  if (!data.turnServers?.length) {
-    return data
+  const withKey: AppSettings = data.bmoApiKey ? { ...data, bmoApiKey: encryptOptional(data.bmoApiKey) } : data
+  if (!withKey.turnServers?.length) {
+    return withKey
   }
   return {
-    ...data,
-    turnServers: data.turnServers.map((s) => ({
+    ...withKey,
+    turnServers: withKey.turnServers.map((s) => ({
       ...s,
       credential: encryptOptional(s.credential)
     }))

@@ -101,8 +101,7 @@ pi/
 │   ├── apply-access-config.sh, cloudflare-access-api.sh,
 │   ├── diagnose-cloudflare.sh, setup-cloudflare-tunnel.sh, setup-tailscale.sh
 │   ├── e2e_test.sh, health_check.sh
-│   ├── win_proxy.py             Windows WSL2 proxy helper
-│   └── apply_patch.py           Deploy BMO agent patches from laptop
+│   └── win_proxy.py             Windows WSL2 proxy helper
 │
 ├── tests/                       Pytest — 650+ unit tests
 │   ├── conftest.py              Shared fixtures (mocks Pi hardware for cross-OS runs)

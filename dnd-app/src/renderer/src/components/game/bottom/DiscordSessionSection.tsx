@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useT } from '../../../i18n'
+import { useDiscordSyncStore } from '../../../stores/use-discord-sync-store'
 
 // PHASE-20 20G (F5): in-app start/stop/status for the Discord DM voice session,
 // making the Speak-narration toggle's target observable. Polls bmoDmStatus; never
@@ -32,6 +33,11 @@ export default function DiscordSessionSection({ campaignId, narrationEnabled }: 
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [recap, setRecap] = useState<string | null>(null)
+  // PHASE-22 22E: opt-in state push + activity feed.
+  const syncToDiscord = useDiscordSyncStore((s) => s.syncToDiscordEnabled)
+  const setSyncToDiscord = useDiscordSyncStore((s) => s.setSyncToDiscordEnabled)
+  const activity = useDiscordSyncStore((s) => s.activity)
+  const [activityOpen, setActivityOpen] = useState(false)
 
   const refresh = useCallback(async () => {
     if (!window.api?.bmoDmStatus) return
@@ -150,6 +156,30 @@ export default function DiscordSessionSection({ campaignId, narrationEnabled }: 
             {t('game.discordSession.recapTitle')} ✕
           </button>
           <div className="text-gray-400">{recap}</div>
+        </div>
+      )}
+
+      {/* PHASE-22 22E: opt-in state push + Discord activity feed. */}
+      <label className="flex items-center gap-2 mt-3 text-xs text-gray-300 cursor-pointer">
+        <input type="checkbox" checked={syncToDiscord} onChange={(e) => setSyncToDiscord(e.target.checked)} />
+        {t('game.discordSync.syncToggle')}
+      </label>
+      <div className="text-xs text-gray-500 mb-1">{t('game.discordSync.syncToggleDesc')}</div>
+
+      <button className="text-xs text-gray-400 underline mt-1" onClick={() => setActivityOpen((o) => !o)}>
+        {t('game.discordSync.activityTitle')} {activityOpen ? '▾' : '▸'}
+      </button>
+      {activityOpen && (
+        <div className="mt-1 max-h-40 overflow-y-auto text-xs text-gray-400 font-mono">
+          {activity.length === 0 ? (
+            <div className="text-gray-500">{t('game.discordSync.activityEmpty')}</div>
+          ) : (
+            activity.slice(0, 20).map((a) => (
+              <div key={a.id} className="truncate">
+                {new Date(a.at).toLocaleTimeString()} · {a.summary}
+              </div>
+            ))
+          )}
         </div>
       )}
     </div>

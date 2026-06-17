@@ -594,6 +594,28 @@ class TestDiscordDmProxy:
         assert r.status_code == 200 and r.get_json()["cancelled"] is True
         assert mock_post.call_args[0][0].endswith("/control/narrate/cancel")
 
+    def test_sync_initiative_proxies(self, client):
+        # PHASE-22 22B: /sync/initiative proxies to /control/sync/initiative.
+        import requests
+        fake = MagicMock(status_code=200, json=MagicMock(return_value={"ok": True}))
+        body = {"entries": [{"entityName": "A", "entityType": "player", "isActive": True}], "currentIndex": 0, "round": 2}
+        with patch.object(requests, "post", return_value=fake) as mock_post:
+            r = client.post("/api/discord/dm/sync/initiative", json=body)
+        assert r.status_code == 200 and r.get_json()["ok"] is True
+        assert mock_post.call_args[0][0].endswith("/control/sync/initiative")
+        assert mock_post.call_args.kwargs["json"]["round"] == 2
+
+    def test_sync_state_proxies_and_503_on_down(self, client):
+        # PHASE-22 22B: /sync/state proxies; ConnectionError → 503.
+        import requests
+        fake = MagicMock(status_code=200, json=MagicMock(return_value={"ok": True}))
+        with patch.object(requests, "post", return_value=fake) as mock_post:
+            r = client.post("/api/discord/dm/sync/state", json={"mapName": "Cavern"})
+        assert r.status_code == 200 and mock_post.call_args[0][0].endswith("/control/sync/state")
+        with patch.object(requests, "post", side_effect=requests.ConnectionError("refused")):
+            r = client.post("/api/discord/dm/sync/state", json={})
+        assert r.status_code == 503 and r.get_json()["error"] == "DM bot not running"
+
 
 class TestDiscordDmVoices:
     """PHASE-21 21C: voice-cast endpoints operate on the shared JSON directly."""

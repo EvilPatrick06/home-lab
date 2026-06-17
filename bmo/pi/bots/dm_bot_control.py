@@ -16,6 +16,8 @@ from datetime import datetime, timezone
 
 from aiohttp import web
 
+from agents import vtt_sync
+from agents.vtt_sync import request_vtt_state, validate_sync_config, vtt_state
 from bots.discord_dm_bot import (
     DUNGEON_CHANNEL_NAME,
     _candidate_guilds,
@@ -98,6 +100,9 @@ async def _handle_start(request: web.Request) -> web.Response:
             bot.session.players.add(member.display_name)
 
     await bot.start_voice_listen()
+    # PHASE-22 22B: pull the VTT's current state on session start (blocking
+    # requests.get → worker thread, never the loop). No-op when sync is disabled.
+    asyncio.create_task(asyncio.to_thread(request_vtt_state))
     bot.queue_narration(
         "BMO is ready to be your Dungeon Master! The adventure begins!", emotion="excited"
     )
@@ -145,6 +150,7 @@ async def _handle_stop(request: web.Request) -> web.Response:
         bot.session.reset()
         bot._campaign_name = None
         bot._session_id = None
+        bot._initiative_message = None  # 22B: reset the live initiative tracker
         return web.json_response({"ok": True, "recap": recap})
     finally:
         bot._stopping = False
@@ -176,6 +182,33 @@ async def _handle_narrate_cancel(request: web.Request) -> web.Response:
     return web.json_response({"ok": True, **result})
 
 
+# ── PHASE-22 22B: VTT→Pi state sync (lands in the BOT process, not Flask) ──
+
+
+async def _handle_sync_initiative(request: web.Request) -> web.Response:
+    """Cache the VTT's initiative + (if a live session) edit the Discord embed."""
+    bot = request.app["bot"]
+    body = await _json(request)
+    vtt_state.update_initiative(body)
+    if bot.session.active and bot.session.text_channel_id:
+        asyncio.create_task(bot.post_initiative_embed())
+    return web.json_response({"ok": True})
+
+
+async def _handle_sync_state(request: web.Request) -> web.Response:
+    """Cache the VTT's condensed game state (consumed in the DM prompt, 22B)."""
+    bot = request.app["bot"]
+    body = await _json(request)
+    vtt_state.update_game_state(body)
+    return web.json_response({"ok": True})
+
+
+def _state_age_s() -> float | None:
+    if vtt_state.last_updated is None:
+        return None
+    return (datetime.now() - vtt_state.last_updated).total_seconds()
+
+
 async def _handle_status(request: web.Request) -> web.Response:
     bot = request.app["bot"]
     s = bot.session
@@ -196,6 +229,14 @@ async def _handle_status(request: web.Request) -> web.Response:
         "queue_len": s.narration_queue.qsize(),
         "last_narration_status": s.last_narration_status,
         "last_session_end": bot._last_session_end,
+        # 22B: read-only sync status — never a blocking health probe.
+        "vtt_sync": {
+            **validate_sync_config(),
+            "last_push": vtt_sync.last_push,
+            "has_initiative": vtt_state.initiative is not None,
+            "has_game_state": vtt_state.game_state is not None,
+            "state_age_s": _state_age_s(),
+        },
     })
 
 
@@ -207,6 +248,8 @@ def build_control_app(bot) -> web.Application:
     app.router.add_post("/control/stop", _handle_stop)
     app.router.add_post("/control/narrate", _handle_narrate)
     app.router.add_post("/control/narrate/cancel", _handle_narrate_cancel)
+    app.router.add_post("/control/sync/initiative", _handle_sync_initiative)
+    app.router.add_post("/control/sync/state", _handle_sync_state)
     app.router.add_get("/control/status", _handle_status)
     return app
 

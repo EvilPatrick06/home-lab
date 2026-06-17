@@ -48,6 +48,14 @@ from services.discord_tts import (
     split_sentences,
     synthesize_chunk,
 )
+from agents.vtt_sync import (
+    push_discord_message,
+    push_discord_roll,
+    push_player_join,
+    push_player_leave,
+    validate_sync_config,
+    vtt_state,
+)
 from services.voice_casting import VoiceCasting
 from services.voice_personality import get_prosody, parse_response_tags
 
@@ -76,6 +84,16 @@ def _log(msg: str, *args, exc_info: BaseException | None = None) -> None:
     print(f"{LOG_PREFIX} {text}", flush=True)
     if exc_info is not None:
         print("".join(traceback.format_exception(type(exc_info), exc_info, exc_info.__traceback__)), flush=True)
+
+
+def _try_push(fn, *args, **kwargs) -> None:
+    """PHASE-22 22C: call a vtt_sync push helper, swallowing any error so a sync
+    failure can never break the bot's own event handling (push helpers already
+    no-op + dispatch off-thread when sync is disabled)."""
+    try:
+        fn(*args, **kwargs)
+    except Exception as e:  # noqa: BLE001
+        _log("VTT push failed: %s", e)
 
 
 def _candidate_guilds(bot) -> list:
@@ -536,6 +554,7 @@ async def dm_stop(interaction: discord.Interaction) -> None:
             _log("Campaign memory save failed: %s", e)
     bot._campaign_name = None
     bot._session_id = None
+    bot._initiative_message = None  # 22B: reset the live tracker on session end
 
     # Farewell — direct synth+play (not queued; session.reset() below drains the
     # queue) with a bounded wait so a stuck connection can't hang the command (F4).
@@ -545,6 +564,7 @@ async def dm_stop(interaction: discord.Interaction) -> None:
     except (asyncio.TimeoutError, Exception):
         pass
     bot._last_session_end = {"reason": "stopped", "at": datetime.now(timezone.utc).isoformat(), "recap": recap_text or ""}
+    _try_push(push_discord_message, 'BMO', 'Discord DM session ended (stopped)')  # 22C
 
     # Leave voice
     await bot.leave_voice()
@@ -637,6 +657,11 @@ class DMBot(commands.Bot):
         self._stopping: bool = False      # 20C stop idempotency guard
         self._last_session_end = None     # 20D observable session-end trace
         self._voice_casting = VoiceCasting()  # 21C per-NPC casting (mtime-reloaded)
+        # PHASE-22 22B: one live initiative tracker message (edited, not reposted)
+        # + a rate-discipline lock and last-edit timestamp.
+        self._initiative_message = None
+        self._initiative_edit_lock = asyncio.Lock()
+        self._last_initiative_edit: float = 0.0
 
         # D&D data (loaded in on_ready)
         self._spells: list[dict] = []
@@ -664,6 +689,8 @@ class DMBot(commands.Bot):
         else:
             await self.tree.sync()
         _log("Slash commands synced to guild %s", self._guild_id)
+
+        validate_sync_config()  # PHASE-22 22B: log the resolved VTT→Pi sync target once
 
         @self.tree.error
         async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError) -> None:
@@ -754,11 +781,13 @@ class DMBot(commands.Bot):
             if not member.bot:
                 self.session.players.add(member.display_name)
                 _log("Player joined: %s", member.display_name)
+                _try_push(push_player_join, member.display_name)  # 22C
 
         if before.channel and before.channel.id == self.session.voice_channel_id:
             if not member.bot:
                 self.session.players.discard(member.display_name)
                 _log("Player left: %s", member.display_name)
+                _try_push(push_player_leave, member.display_name)  # 22C
 
                 # Auto-disconnect when no humans remain
                 vc = self.session.voice_client
@@ -790,9 +819,39 @@ class DMBot(commands.Bot):
             return
 
         _log("Text from %s: %s", player_name, content[:80])
+        _try_push(push_discord_message, player_name, content)  # 22C
         await self._handle_player_input(player_name, content, message.channel)
 
     # ── AI Interaction ─────────────────────────────────────────────
+
+    def _vtt_state_context(self) -> str | None:
+        """PHASE-22 22B: a compact `[VTT STATE]` line from the cached VTT game
+        state, but only when fresher than 10 minutes. None when absent/stale."""
+        gs = vtt_state.game_state
+        if not gs or vtt_state.last_updated is None:
+            return None
+        if (datetime.now() - vtt_state.last_updated).total_seconds() > 600:
+            return None
+        parts: list[str] = []
+        if gs.get("mapName"):
+            parts.append(f"map={gs['mapName']}")
+        party = gs.get("partyHp") or gs.get("activeCreatures")
+        if isinstance(party, list) and party:
+            members = []
+            for c in party[:8]:
+                if not isinstance(c, dict):
+                    continue
+                nm = c.get("name") or c.get("label") or "?"
+                hp = c.get("currentHP", c.get("hp"))
+                mx = c.get("maxHP", c.get("maxHp"))
+                conds = c.get("conditions") or []
+                cstr = f"({','.join(conds)})" if conds else ""
+                members.append(f"{nm} {hp}/{mx}{cstr}")
+            if members:
+                parts.append("party: " + ", ".join(members))
+        if not parts:
+            return None
+        return ("[VTT STATE] " + "; ".join(parts))[:400]
 
     async def _handle_player_input(
         self,
@@ -827,6 +886,11 @@ class DMBot(commands.Bot):
                     system_content += "\n\nCAMPAIGN MEMORY:\n" + dm_ctx
             except Exception as e:
                 _log("Campaign context build failed: %s", e)
+        # PHASE-22 22B: inject the VTT's fresh game state (map + party HP) so the
+        # DM bot's replies reflect what's happening on the VTT side.
+        vtt_line = self._vtt_state_context()
+        if vtt_line:
+            system_content += "\n\n" + vtt_line
 
         # Build messages for AI
         ai_messages = [
@@ -854,6 +918,7 @@ class DMBot(commands.Bot):
 
         self.session.add_message("assistant", response)
         self.session.combat_log.append(f"DM: {clean_text[:200]}")
+        _try_push(push_discord_message, 'DM', clean_text[:2000])  # 22C
 
         # Send text response
         if len(clean_text) > 2000:
@@ -1050,6 +1115,34 @@ class DMBot(commands.Bot):
             vc.stop()
         return {"cancelled": was_playing or synth_active or flushed > 0, "flushed": flushed}
 
+    async def post_initiative_embed(self) -> None:
+        """PHASE-22 22B: keep ONE live initiative tracker in the session text
+        channel — edit it instead of spamming a new message each sync. Coalesces
+        bursts under a lock with ≥1s spacing (Discord edit rate limits)."""
+        embed_dict = vtt_state.format_initiative_embed()
+        if not embed_dict:
+            return
+        channel = (
+            self.get_channel(self.session.text_channel_id) if self.session.text_channel_id else None
+        )
+        if channel is None:
+            return
+        async with self._initiative_edit_lock:
+            loop = asyncio.get_running_loop()
+            elapsed = loop.time() - self._last_initiative_edit
+            if elapsed < 1.0:
+                await asyncio.sleep(1.0 - elapsed)
+            embed = discord.Embed.from_dict(embed_dict)
+            try:
+                if self._initiative_message is not None:
+                    await self._initiative_message.edit(embed=embed)
+                else:
+                    self._initiative_message = await channel.send(embed=embed)
+            except discord.HTTPException as e:
+                _log("Initiative embed update failed: %s", e)
+                self._initiative_message = None  # repost next time
+            self._last_initiative_edit = loop.time()
+
     # ── Voice Channel Management ───────────────────────────────────
 
     async def find_dungeon_channel(self, guild: discord.Guild) -> Optional[discord.VoiceChannel]:
@@ -1188,6 +1281,7 @@ class DMBot(commands.Bot):
                     _log("Campaign memory end failed: %s", e)
             self._campaign_name = None
             self._session_id = None
+            self._initiative_message = None  # 22B: tracker belongs to the bot, not the session
             self._last_session_end = {
                 "reason": "auto_leave_empty",
                 "at": datetime.now(timezone.utc).isoformat(),
@@ -1195,6 +1289,7 @@ class DMBot(commands.Bot):
             }
             await self.leave_voice()
             self.session.reset()
+            _try_push(push_discord_message, 'BMO', 'Discord DM session ended (auto_leave_empty)')  # 22C
         finally:
             self._stopping = False
 
@@ -1261,6 +1356,7 @@ async def _roll_cmd(
         log_entry = f"{interaction.user.display_name} rolled {expression}: {total} [{rolls_str}]"
         bot.session.add_message("user", log_entry)
         bot.session.combat_log.append(log_entry)
+        _try_push(push_discord_roll, interaction.user.display_name, expression, total, rolls=rolls)  # 22C
 
 
 @app_commands.command(name="initiative", description="Initiative tracking for combat")

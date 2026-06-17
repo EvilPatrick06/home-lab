@@ -16,10 +16,12 @@ import { logToFile } from './log'
 
 const TIMEOUT_MS = 15_000
 const SYNC_RECEIVER_PORT = parseInt(process.env.BMO_SYNC_PORT || '5001', 10)
-// Phase 28a.2 — loopback by default; override via BMO_SYNC_BIND for
-// scenarios where an SSH/Tailscale tunnel rewrites the destination IP.
-const SYNC_BIND =
-  process.env.BMO_SYNC_BIND && process.env.BMO_SYNC_BIND.trim() !== '' ? process.env.BMO_SYNC_BIND : '127.0.0.1'
+// Phase 28a.2 / PHASE-22 22D — loopback by default. The env override BMO_SYNC_BIND
+// always wins; otherwise the keyed opt-in setting (applySyncBindFromSettings) may
+// raise it to 0.0.0.0 for LAN reach. Never 0.0.0.0 without a shared secret.
+const SYNC_BIND_ENV =
+  process.env.BMO_SYNC_BIND && process.env.BMO_SYNC_BIND.trim() !== '' ? process.env.BMO_SYNC_BIND : ''
+let SYNC_BIND = SYNC_BIND_ENV || '127.0.0.1'
 // Phase 28a.2 — cap inbound sync-receiver bodies (Pi callbacks are small JSON).
 const MAX_BODY_BYTES = 64 * 1024
 // Phase 28c.1 — retry schedule for transient BMO failures (not 4xx).
@@ -91,20 +93,55 @@ export function setBargeInEnabled(v: boolean): void {
 export function isBargeInEnabled(): boolean {
   return bargeInEnabled
 }
+
+// PHASE-22 22D (F6): resolve the sync-receiver bind host. Precedence: env
+// BMO_SYNC_BIND always wins; else a keyed opt-in (LAN setting ON + a shared
+// secret configured) → 0.0.0.0; else loopback. Returns the chosen host (and, when
+// it changes while the receiver is up, restarts it on the new host).
+export function applySyncBindFromSettings(settings: { bmoSyncLanEnabled?: boolean } | null | undefined): string {
+  let host = '127.0.0.1'
+  if (SYNC_BIND_ENV) {
+    host = SYNC_BIND_ENV
+  } else if (settings?.bmoSyncLanEnabled === true) {
+    if (getBmoApiKey()) {
+      host = '0.0.0.0'
+    } else {
+      logToFile('WARN', '[bmo-bridge] LAN sync bind requested but no shared secret configured — staying on loopback')
+    }
+  }
+  if (host !== SYNC_BIND) {
+    SYNC_BIND = host
+    if (syncServer) {
+      void stopSyncReceiver().then(() => startSyncReceiver())
+    }
+  }
+  return SYNC_BIND
+}
 function notifyBmoUnreachable(): void {
+  // PHASE-22 22D (F4): emit a dedicated `bmo_unreachable` event — the renderer owns
+  // the (truthful) wording. The old version faked a `discord_message` on a dead
+  // channel with a "paused" lie.
   const windows = BrowserWindow.getAllWindows()
   for (const win of windows) {
     win.webContents.send(IPC_CHANNELS.BMO_SYNC_EVENT, {
-      type: 'discord_message',
-      payload: { system: true, text: 'BMO unreachable — Discord sync paused' },
+      type: 'bmo_unreachable',
+      payload: {},
       timestamp: Date.now()
     } satisfies SyncEvent)
   }
 }
 
-/** Standard sync event types sent from the Pi Discord bot */
+/** Standard sync event types sent from the Pi Discord bot. `bmo_unreachable` is
+ *  main-internal (never from the Pi) but in the union so the renderer type is complete. */
 export interface SyncEvent {
-  type: 'discord_message' | 'initiative_sync' | 'state_request' | 'player_join' | 'player_leave' | 'discord_roll'
+  type:
+    | 'discord_message'
+    | 'initiative_sync'
+    | 'state_request'
+    | 'player_join'
+    | 'player_leave'
+    | 'discord_roll'
+    | 'bmo_unreachable'
   payload: Record<string, unknown>
   timestamp: number
   /** Idempotency key (BMO stamps a uuid; the bridge dedups retries on it). */
@@ -484,7 +521,9 @@ export function startSyncReceiver(port = SYNC_RECEIVER_PORT): void {
           return
         }
         logToFile('INFO', '[bmo-bridge] Initiative sync from Discord')
-        forwardToRenderer(IPC_CHANNELS.BMO_SYNC_INITIATIVE, parsed.data)
+        // PHASE-22 22D (F4): dedicated main→renderer channel — BMO_SYNC_INITIATIVE
+        // stays invoke-only (renderer→main push), no more double-use.
+        forwardToRenderer(IPC_CHANNELS.BMO_SYNC_INITIATIVE_EVENT, parsed.data)
         sendJson(res, 200, { ok: true })
         return
       }

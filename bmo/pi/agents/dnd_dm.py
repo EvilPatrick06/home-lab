@@ -76,14 +76,15 @@ class DndDmAgent(BaseAgent):
         # LLM call
         reply = self.llm_call(messages)
 
-        # Forward response to VTT sync
+        # Parse game state updates BEFORE forwarding (PHASE-22 22A) so the VTT
+        # never receives the internal ```gamestate``` block in the message text.
+        reply = self._parse_gamestate(reply)
+
+        # Forward the cleaned response to VTT sync (non-critical).
         try:
             push_discord_message('DM', reply[:2000])
         except Exception:
-            pass  # Non-critical
-
-        # Parse game state updates
-        reply = self._parse_gamestate(reply)
+            pass
 
         return AgentResult(text=reply, agent_name=self.config.name)
 

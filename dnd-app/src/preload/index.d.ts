@@ -931,6 +931,25 @@ declare global {
         onBmoNarrationStatus: (
           cb: (status: { ok: boolean; result?: string; error?: string; statusCode?: number }) => void
         ) => () => void
+        // PHASE-22 22D/22E: VTT→Pi push + Pi→VTT event listeners.
+        bmoSyncInitiative: (initiative: {
+          entries: { entityName: string; entityType: string; isActive: boolean }[]
+          currentIndex: number
+          round: number
+        }) => Promise<{ ok?: boolean; error?: string; statusCode?: number }>
+        bmoSyncGameState: (
+          state: Record<string, unknown>
+        ) => Promise<{ ok?: boolean; error?: string; statusCode?: number }>
+        onBmoSyncEvent: (
+          cb: (event: { type: string; payload: Record<string, unknown>; timestamp: number; eventId?: string }) => void
+        ) => () => void
+        onBmoSyncInitiative: (
+          cb: (event: {
+            entries: { entityName: string; entityType: string; isActive: boolean }[]
+            currentIndex: number
+            round: number
+          }) => void
+        ) => () => void
       }
   }
 }

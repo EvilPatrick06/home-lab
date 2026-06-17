@@ -101,28 +101,37 @@ The renderer's `connect-src` allows the `http:`/`ws:` scheme-sources so renderer
 
 **Server:** `dnd-app/src/main/ipc/bmo-sync-handlers.ts` (starts at `SYNC_RECEIVER_PORT = process.env.BMO_SYNC_PORT || 5001`)
 
-**Client:** `bmo/pi/agents/vtt_sync.py` (env: `VTT_SYNC_URL`, default `http://vtt.local:5001`)
+**Client:** `bmo/pi/agents/vtt_sync.py` (env: `VTT_SYNC_URL` — **empty/unset disables Pi→VTT
+sync** (no retry threads); `VTT_SYNC_TOKEN` — bearer, falls back to the Pi's `BMO_API_KEY`).
 
-**Event types BMO pushes to VTT:**
+**Event types BMO pushes to VTT** (payload keys match `dnd-app/src/shared/ipc-schemas.ts`):
 
 ```typescript
 interface SyncEvent {
   type: 'discord_message' | 'initiative_sync' | 'state_request'
       | 'player_join' | 'player_leave' | 'discord_roll'
+      | 'bmo_unreachable'   // main-internal only; never sent by the Pi
   payload: Record<string, unknown>
   timestamp: number
+  eventId?: string          // stable per event; the receiver dedups retries
 }
 ```
+Pi payloads: `discord_message {text, author, characterName?}`, `discord_roll {formula,
+total, rolls?, rollerName, characterName?}`, `player_join/leave {playerName, characterName?}`.
 
-Examples:
-- Player sends message in Discord → BMO forwards to VTT chat panel
-- Player rolls dice via Discord slash command → BMO relays roll result to VTT
-- DM starts combat on VTT → pushes initiative order to BMO → BMO posts it to Discord
-
-> **Status (2026-06-10):** parts of this plane are scaffolded but not end-to-end wired —
-> the renderer never exposes/consumes `BMO_SYNC_EVENT` or the initiative/state push
-> channels, and the Pi never registers `register_sync_routes(app)`. That sync plane is
-> PHASE-22. Full finding: `dnd-app/docs/phases/PHASE-22-discord-sync-plane.md`.
+> **PHASE-22 (sync plane, live):** bidirectional and end-to-end wired.
+> - **Pi→VTT:** the bot calls the `vtt_sync` push helpers on message/roll/join/leave/
+>   session-end; bearer-authed; bounded-retry + eventId-dedup; arrives at VTT `:5001`
+>   (`/api/sync`, `/api/sync/initiative`). The renderer consumes them on `bmo:sync-event`
+>   and `bmo:sync-initiative-event` (no channel double-use) into a DM-side activity feed +
+>   truthful alerts (`bmo_unreachable` replaced the old "paused" lie).
+> - **VTT→Pi:** `POST /api/discord/dm/sync/{initiative,state}` are Flask proxies →
+>   bot control server (`:5006/control/sync/*`) → `vtt_state` cache in the **bot** process
+>   (a live edited initiative embed in the session text channel + a fresh-state line in the
+>   DM prompt). Opt-in (default OFF) renderer push; `state_request` answered regardless.
+> - Bind stays loopback by default; `0.0.0.0` LAN bind only with the keyed opt-in setting
+>   (`bmoSyncLanEnabled` + `bmoApiKey`); env `BMO_SYNC_BIND` always wins.
+> - Deleted: `register_sync_routes` (wrong process) and `scripts/apply_patch.py`.
 >
 > **PHASE-20 (control plane, live):** `/api/discord/dm/{start,stop,narrate,status}` are
 > Flask **proxies** to a loopback control server inside the `bmo-dm-bot` process

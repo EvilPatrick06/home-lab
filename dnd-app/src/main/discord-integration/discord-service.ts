@@ -252,6 +252,14 @@ export function cleanTextForDiscord(text: string): string {
   // Remove PROVIDER_CONTEXT blocks
   cleaned = cleaned.replace(/\s*\[PROVIDER_CONTEXT\][\s\S]*?\[\/PROVIDER_CONTEXT\]\s*/g, '')
 
+  // PHASE-22 22F: strip voice tags + RULING blocks too (defense for any caller;
+  // ai-service already passes the clean displayText). Patterns mirror stripVoiceTags
+  // (ai-response-parser.ts) and the rulings strip.
+  cleaned = cleaned.replace(/\[NPC:\s*[a-z_]+\s*\]/gi, '')
+  cleaned = cleaned.replace(/\[EMOTION:\s*[a-z_]+\s*\]/gi, '')
+  cleaned = cleaned.replace(/\[SPEAKER:[^\]\n]{1,40}\]/gi, '')
+  cleaned = cleaned.replace(/\s*\[RULING[^\]]*\][\s\S]*?\[\/RULING\]\s*/g, '')
+
   // Clean up excessive whitespace
   cleaned = cleaned.replace(/\n{3,}/g, '\n\n')
 

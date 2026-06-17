@@ -138,8 +138,10 @@ Full map in source — use `grep "@app.route" bmo/pi/app.py` for current list.
 |---|---|---|
 | `/api/discord/dm/start` | POST | Start the D&D Discord DM session (also at `/api/v1/discord/dm/start`) |
 | `/api/discord/dm/stop` | POST | End the session (also `/api/v1/…`) |
-| `/api/discord/dm/status` | GET | Session/bot status (also `/api/v1/…`) |
-| `/api/discord/dm/narrate` | POST | Speak narration in the session VC (also `/api/v1/…`) |
+| `/api/discord/dm/status` | GET | Session/bot status incl. a `vtt_sync` block (also `/api/v1/…`) |
+| `/api/discord/dm/narrate` | POST | Speak narration in the session VC (`/narrate/cancel` for barge-in; also `/api/v1/…`) |
+| `/api/discord/dm/sync/initiative` | POST | PHASE-22: push VTT initiative into the bot (live embed) (also `/api/v1/…`) |
+| `/api/discord/dm/sync/state` | POST | PHASE-22: push VTT game state into the bot (DM-prompt context) (also `/api/v1/…`) |
 
 > **PHASE-20:** these four routes are **proxies**. The live bot runs in its own
 > `bmo-dm-bot` systemd unit (a different process than Flask), so `app.py` forwards
@@ -150,11 +152,15 @@ Full map in source — use `grep "@app.route" bmo/pi/app.py` for current list.
 > — the control server lives inside the existing `bmo-dm-bot` unit; `setup-bmo.sh` is
 > untouched. After pulling, restart **both** `bmo` and `bmo-dm-bot`.
 
-> The VTT additionally calls `/api/discord/dm/sync/initiative` and
-> `/api/discord/dm/sync/state` (`dnd-app/src/main/bmo-bridge.ts`), but those
-> routes are **not registered** — `services/vtt_sync.py register_sync_routes()`
-> is never invoked from `app.py`. Tracked in
-> `dnd-app/docs/phases/PHASE-20-discord-bridge-foundation.md` / `PHASE-22-discord-sync-plane.md`.
+> **PHASE-22 (sync plane, live):** the two `sync/*` routes are proxies to
+> `:5006/control/sync/{initiative,state}`, which cache state in the **bot** process
+> (`agents/vtt_sync.vtt_state`) and render a live, edited initiative embed in the
+> session text channel. The bot also **pushes** Discord events back to the VTT
+> (`agents/vtt_sync` push helpers — message/roll/join/leave/session-end), bearer-authed
+> with `VTT_SYNC_TOKEN`; **`VTT_SYNC_URL` unset = Pi→VTT sync disabled** (no retry
+> threads). `/control/status` exposes a read-only `vtt_sync` block (config + `last_push`
+> + cached-state freshness) — never a blocking health probe. `register_sync_routes` and
+> `scripts/apply_patch.py` were deleted. After pulling, restart **both** `bmo` and `bmo-dm-bot`.
 
 ### Game registry (Phase 29f — public LAN game discovery)
 

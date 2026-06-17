@@ -1072,6 +1072,13 @@
       "recapTitle": "Session recap",
       "genericError": "Could not complete the request."
     },
+    "discordSync": {
+      "syncToggle": "Sync game state to Discord",
+      "syncToggleDesc": "Pushes initiative and party status to the Discord session.",
+      "activityTitle": "Discord activity",
+      "activityEmpty": "No Discord activity yet.",
+      "initiativeSummary": "Discord initiative: {{count}} entries, round {{round}}"
+    },
     "dmToolsTabContent": {
       "systemSender": "System",
       "toolbarLabel": "DM tools",
@@ -5147,6 +5154,12 @@
     }
   },
   "notify": {
+    "discordSync": {
+      "playerJoined": "{{name}} joined the Discord session",
+      "playerLeft": "{{name}} left the Discord session",
+      "bmoUnreachable": "BMO unreachable — Discord sync events may be missed",
+      "sessionEnded": "Discord DM session ended"
+    },
     "aiDmStore": {
       "responseTimedOut": "AI response timed out",
       "scenePrepFailed": "Scene preparation failed.",

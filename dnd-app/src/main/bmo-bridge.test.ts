@@ -20,8 +20,11 @@ vi.mock('./bmo-config', () => ({
   getBmoApiKey
 }))
 
+import { IPC_CHANNELS } from '../shared/ipc-channels'
+import { SyncEventSchema } from '../shared/ipc-schemas'
 import {
   __resetSyncReceiverState,
+  applySyncBindFromSettings,
   cancelNarration,
   getDmStatus,
   sendNarration,
@@ -94,6 +97,20 @@ describe('bmoPiFetch retry/backoff (Phase 28c.1)', () => {
     }
     const unreachable = sendSpy.mock.calls.find((c) => JSON.stringify(c).includes('unreachable'))
     expect(unreachable).toBeDefined()
+    // PHASE-22 22D: honest dedicated event on the sync-event channel, schema-valid.
+    expect(unreachable?.[0]).toBe(IPC_CHANNELS.BMO_SYNC_EVENT)
+    expect((unreachable?.[1] as { type?: string })?.type).toBe('bmo_unreachable')
+    expect(SyncEventSchema.safeParse(unreachable?.[1]).success).toBe(true)
+  })
+
+  it('applySyncBindFromSettings keeps loopback without a key, raises to 0.0.0.0 with one', () => {
+    // getBmoApiKey is the hoisted mock; toggle it to simulate a configured secret.
+    getBmoApiKey.mockReturnValue(undefined)
+    expect(applySyncBindFromSettings({ bmoSyncLanEnabled: true })).toBe('127.0.0.1')
+    getBmoApiKey.mockReturnValue('shared-secret')
+    expect(applySyncBindFromSettings({ bmoSyncLanEnabled: true })).toBe('0.0.0.0')
+    expect(applySyncBindFromSettings({ bmoSyncLanEnabled: false })).toBe('127.0.0.1')
+    getBmoApiKey.mockReturnValue(undefined)
   })
 
   it('sendNarration carries a unique event_id (F4 idempotency key)', async () => {
@@ -312,5 +329,22 @@ describe('sync receiver hardening (Phase 28a.2/.3/.4)', () => {
       body: JSON.stringify({ entries: [{ entityName: 'Bob' }], currentIndex: 0, round: 1 })
     })
     expect(bad.status).toBe(400)
+  })
+
+  it('forwards initiative on the dedicated bmo:sync-initiative-event channel (22D)', async () => {
+    sendSpy.mockClear()
+    __resetSyncReceiverState()
+    const res = await fetch(`${BASE}/api/sync/initiative`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        entries: [{ entityName: 'Bob', entityType: 'pc', isActive: true }],
+        currentIndex: 0,
+        round: 1
+      })
+    })
+    expect(res.status).toBe(200)
+    const call = sendSpy.mock.calls.find((c) => c[0] === IPC_CHANNELS.BMO_SYNC_INITIATIVE_EVENT)
+    expect(call).toBeDefined() // not the double-used invoke channel
   })
 })

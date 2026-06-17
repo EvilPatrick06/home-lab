@@ -578,6 +578,24 @@ const api = {
     return () => ipcRenderer.removeListener(IPC_CHANNELS.BMO_NARRATION_STATUS, listener)
   },
 
+  // PHASE-22 22D/22E: VTT→Pi push invokes + Pi→VTT event listeners (PHASE-05 pattern).
+  bmoSyncInitiative: (initiative: {
+    entries: { entityName: string; entityType: string; isActive: boolean }[]
+    currentIndex: number
+    round: number
+  }) => ipcRenderer.invoke(IPC_CHANNELS.BMO_SYNC_INITIATIVE, initiative),
+  bmoSyncGameState: (state: Record<string, unknown>) => ipcRenderer.invoke(IPC_CHANNELS.BMO_SYNC_SEND_STATE, state),
+  onBmoSyncEvent: (cb: (event: unknown) => void): (() => void) => {
+    const listener = (_e: unknown, data: unknown): void => cb(data)
+    ipcRenderer.on(IPC_CHANNELS.BMO_SYNC_EVENT, listener)
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.BMO_SYNC_EVENT, listener)
+  },
+  onBmoSyncInitiative: (cb: (event: unknown) => void): (() => void) => {
+    const listener = (_e: unknown, data: unknown): void => cb(data)
+    ipcRenderer.on(IPC_CHANNELS.BMO_SYNC_INITIATIVE_EVENT, listener)
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.BMO_SYNC_INITIATIVE_EVENT, listener)
+  },
+
   // Discord Integration
   discord: {
     getConfig: () => ipcRenderer.invoke(IPC_CHANNELS.DISCORD_GET_CONFIG),

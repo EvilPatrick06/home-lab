@@ -135,6 +135,19 @@ describe('Discord Integration Service', () => {
       expect(cleaned).toContain('More text')
     })
 
+    it('strips voice tags + RULING blocks (PHASE-22 22F)', () => {
+      const text =
+        '[NPC:gruff_dwarf][EMOTION:angry][SPEAKER:Borin] "Halt!" the dwarf roars.\n[RULING question="x"]Yes, advantage.[/RULING] The door creaks.'
+      const cleaned = cleanTextForDiscord(text)
+      expect(cleaned).not.toContain('[NPC:')
+      expect(cleaned).not.toContain('[EMOTION:')
+      expect(cleaned).not.toContain('[SPEAKER:')
+      expect(cleaned).not.toContain('[RULING')
+      expect(cleaned).not.toContain('advantage')
+      expect(cleaned).toContain('the dwarf roars')
+      expect(cleaned).toContain('The door creaks')
+    })
+
     it('removes STAT_CHANGES blocks', () => {
       const text = 'The dragon attacks!\n[STAT_CHANGES]{"changes":[]}[/STAT_CHANGES]\nYou take damage.'
       const cleaned = cleanTextForDiscord(text)
