@@ -49,3 +49,5 @@ RATE_LIMIT_DND_LOAD = os.environ.get("BMO_DND_LOAD_RATE_LIMIT", "15 per minute")
 RATE_LIMIT_IDE_JOBS = os.environ.get("BMO_IDE_JOBS_RATE_LIMIT", "10 per minute")
 RATE_LIMIT_NARRATE = os.environ.get("BMO_NARRATE_RATE_LIMIT", "30 per minute")
 RATE_LIMIT_GAMES = os.environ.get("BMO_GAMES_RATE_LIMIT", "30 per minute")
+# PHASE-31 31E — live recap is a billable cloud LLM call; keep it tight.
+RATE_LIMIT_RECAP = os.environ.get("BMO_RECAP_RATE_LIMIT", "6 per minute")

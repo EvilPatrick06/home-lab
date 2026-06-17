@@ -21,6 +21,8 @@ const SharedJournalModal = lazy(() => import('../modals/utility/SharedJournalMod
 const CompendiumModal = lazy(() => import('../modals/utility/CompendiumModal'))
 const PartyInventoryModal = lazy(() => import('../modals/utility/PartyInventoryModal'))
 const EndOfSessionModal = lazy(() => import('../modals/utility/EndOfSessionModal'))
+const SessionStartRecapModal = lazy(() => import('../modals/utility/SessionStartRecapModal'))
+const CampaignQaModal = lazy(() => import('../modals/utility/CampaignQaModal'))
 const DiceRoller = lazy(() => import('../dice3d/DiceRoller'))
 
 interface UtilityModalsProps {
@@ -151,6 +153,8 @@ export default function UtilityModals({
       {activeModal === 'partyInventory' && <PartyInventoryModal isDM={effectiveIsDM} onClose={close} />}
 
       {activeModal === 'recaps' && effectiveIsDM && <EndOfSessionModal open={true} onClose={close} onSkip={close} />}
+      {activeModal === 'previouslyOn' && effectiveIsDM && <SessionStartRecapModal open={true} onClose={close} />}
+      {activeModal === 'campaignQa' && effectiveIsDM && <CampaignQaModal open={true} onClose={close} />}
 
       {activeModal === 'diceRoller' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">

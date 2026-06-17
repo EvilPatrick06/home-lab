@@ -166,9 +166,15 @@ function isDuplicateSyncEvent(eventId: string | undefined): boolean {
   return false
 }
 
-async function bmoPiFetchOnce(path: string, options?: RequestInit): Promise<BridgeResponse> {
+/** PHASE-31 31E — per-call overrides: a longer timeout (recap LLM call) + retry suppression. */
+interface FetchOpts {
+  timeoutMs?: number
+  retry?: boolean
+}
+
+async function bmoPiFetchOnce(path: string, options?: RequestInit, opts?: FetchOpts): Promise<BridgeResponse> {
   const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
+  const timer = setTimeout(() => controller.abort(), opts?.timeoutMs ?? TIMEOUT_MS)
 
   try {
     const res = await fetch(`${getBmoBaseUrl()}${path}`, {
@@ -198,10 +204,12 @@ async function bmoPiFetchOnce(path: string, options?: RequestInit): Promise<Brid
  * After 3 consecutive total failures, emits a one-shot "BMO unreachable" toast;
  * the counter resets on the first success.
  */
-async function bmoPiFetch(path: string, options?: RequestInit): Promise<BridgeResponse> {
+async function bmoPiFetch(path: string, options?: RequestInit, opts?: FetchOpts): Promise<BridgeResponse> {
+  // retry:false ⇒ a single attempt (a retried recap would re-bill the cloud LLM — F6).
+  const maxAttempts = opts?.retry === false ? 0 : RETRY_BACKOFF_MS.length
   let last: BridgeResponse = { ok: false, error: 'unknown' }
-  for (let attempt = 0; attempt <= RETRY_BACKOFF_MS.length; attempt++) {
-    last = await bmoPiFetchOnce(path, options)
+  for (let attempt = 0; attempt <= maxAttempts; attempt++) {
+    last = await bmoPiFetchOnce(path, options, opts)
     if (last.ok) {
       consecutiveBmoFailures = 0
       return last
@@ -213,7 +221,7 @@ async function bmoPiFetch(path: string, options?: RequestInit): Promise<BridgeRe
       consecutiveBmoFailures = 0
       return last
     }
-    if (attempt < RETRY_BACKOFF_MS.length) {
+    if (attempt < maxAttempts) {
       await new Promise((r) => setTimeout(r, RETRY_BACKOFF_MS[attempt]))
     }
   }
@@ -232,6 +240,16 @@ export async function startDiscordDm(campaignId: string): Promise<BridgeResponse
 
 export async function stopDiscordDm(): Promise<BridgeResponse> {
   return bmoPiFetch('/api/discord/dm/stop', { method: 'POST' })
+}
+
+/**
+ * PHASE-31 31E — fetch a recap of the live Discord DM session WITHOUT ending it
+ * (`mode='live'`), or the most recent stored summary (`mode='last'`). A long timeout
+ * (50s > the Pi's 45s recap budget) and NO retry — a retried timeout would re-bill the LLM.
+ */
+export async function getDiscordRecap(mode: 'live' | 'last' = 'live'): Promise<BridgeResponse> {
+  const path = `/api/discord/dm/recap${mode === 'last' ? '?mode=last' : ''}`
+  return bmoPiFetch(path, { method: 'GET' }, { timeoutMs: 50_000, retry: false })
 }
 
 export interface NarrationOpts {

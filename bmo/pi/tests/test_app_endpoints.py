@@ -617,6 +617,55 @@ class TestDiscordDmProxy:
         assert r.status_code == 503 and r.get_json()["error"] == "DM bot not running"
 
 
+class TestDiscordDmRecap:
+    """PHASE-31 31E: GET /api/discord/dm/recap proxies to /control/recap (live + ?mode=last)."""
+
+    def test_live_recap_relays_200_and_body(self, client):
+        import requests
+        fake = MagicMock(status_code=200, json=MagicMock(return_value={"ok": True, "recap": "Previously…"}))
+        with patch.object(requests, "get", return_value=fake) as mock_get:
+            r = client.get("/api/discord/dm/recap")
+        assert r.status_code == 200
+        assert r.get_json()["recap"] == "Previously…"
+        assert "/control/recap" in mock_get.call_args[0][0]
+        # The proxy must allow a long read timeout (> the bot's 45s budget).
+        assert mock_get.call_args.kwargs["timeout"][1] >= 45
+
+    def test_last_mode_forwards_query(self, client):
+        import requests
+        fake = MagicMock(status_code=200, json=MagicMock(return_value={"ok": True, "recap": "s", "session_id": 3}))
+        with patch.object(requests, "get", return_value=fake) as mock_get:
+            r = client.get("/api/discord/dm/recap?mode=last")
+        assert r.status_code == 200
+        assert "mode=last" in mock_get.call_args[0][0]
+
+    def test_404_inactive_session_relayed(self, client):
+        import requests
+        fake = MagicMock(status_code=404, json=MagicMock(return_value={"error": "no_session"}))
+        with patch.object(requests, "get", return_value=fake):
+            r = client.get("/api/discord/dm/recap")
+        assert r.status_code == 404 and r.get_json()["error"] == "no_session"
+
+    def test_504_timeout_relayed(self, client):
+        import requests
+        fake = MagicMock(status_code=504, json=MagicMock(return_value={"error": "recap_timeout"}))
+        with patch.object(requests, "get", return_value=fake):
+            r = client.get("/api/discord/dm/recap")
+        assert r.status_code == 504 and r.get_json()["error"] == "recap_timeout"
+
+    def test_bot_down_maps_to_503(self, client):
+        import requests
+        with patch.object(requests, "get", side_effect=requests.ConnectionError("refused")):
+            r = client.get("/api/discord/dm/recap")
+        assert r.status_code == 503 and r.get_json()["error"] == "DM bot not running"
+
+    def test_v1_alias_matches(self, client):
+        import requests
+        fake = MagicMock(status_code=200, json=MagicMock(return_value={"ok": True, "recap": ""}))
+        with patch.object(requests, "get", return_value=fake):
+            assert client.get("/api/v1/discord/dm/recap").status_code == 200
+
+
 class TestDiscordDmVoices:
     """PHASE-21 21C: voice-cast endpoints operate on the shared JSON directly."""
 

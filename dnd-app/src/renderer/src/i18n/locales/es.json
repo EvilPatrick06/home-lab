@@ -1059,6 +1059,8 @@
       "shareMacros": "Compartir macros"
     },
     "dmTabPanel": {
+      "previouslyOn": "Anteriormente…",
+      "campaignQa": "Archivista de Campaña",
       "initiative": "Iniciativa",
       "quickConditions": "Condiciones rápidas",
       "monsterLookup": "Búsqueda de monstruos",
@@ -2915,6 +2917,39 @@
       "generating": "Generando...",
       "generateRecap": "Generar Resumen con IA",
       "saveToJournal": "Guardar en el Diario"
+    },
+    "sessionStartRecapModal": {
+      "title": "Anteriormente…",
+      "helperText": "Un resumen narrativo de la campaña hasta ahora, creado solo a partir de tus sesiones registradas, el diario y las notas del mundo. Léelo en voz alta para abrir la sesión.",
+      "generating": "Componiendo el resumen…",
+      "generateFailed": "No se pudo generar el resumen.",
+      "generateError": "Ocurrió un error al generar el resumen.",
+      "cachedHint": "Mostrando el resumen guardado. Usa Regenerar para uno nuevo.",
+      "freshHint": "Recién generado.",
+      "recapTitle": "Anteriormente…",
+      "regenerate": "Regenerar",
+      "saveToJournal": "Guardar en el Diario",
+      "saved": "Guardado ✓",
+      "savedToast": "Resumen guardado en el Diario de Campaña.",
+      "saveFailed": "No se pudo guardar el resumen en el diario.",
+      "aiNotConfigured": "El DM de IA no está configurado o habilitado para esta campaña.",
+      "discordTitle": "Resumen de sesión de Discord",
+      "discordLive": "Obtener resumen en vivo",
+      "discordLast": "Última sesión de Discord",
+      "discordInsert": "Insertar en el borrador",
+      "discordEmpty": "Aún no hay resumen disponible (la sesión no tiene eventos).",
+      "discordFailed": "No se pudo obtener el resumen de Discord. ¿Hay una sesión /dm activa?"
+    },
+    "campaignQaModal": {
+      "title": "Archivista de Campaña",
+      "privacyNote": "Privado para ti. Las respuestas provienen solo de los datos registrados de la campaña y nunca se muestran a los jugadores.",
+      "empty": "Aún no hay preguntas. Pregunta al archivista lo que quieras sobre tu campaña.",
+      "placeholder": "p. ej. ¿Qué dijo el posadero sobre la mina?",
+      "ask": "Preguntar",
+      "asking": "Buscando…",
+      "askFailed": "No se pudo obtener una respuesta.",
+      "clearHistory": "Borrar historial",
+      "aiNotConfigured": "El DM de IA no está configurado o habilitado para esta campaña."
     },
     "helpModal": {
       "stabilizeNat20": "¡20 natural! ¡{{target}} está estabilizado!",

@@ -163,7 +163,7 @@ from services.system_audio import set_system_volume as _set_system_volume  # noq
 # PHASE-16 16A — the deferred-init limiter + per-route constants live in extensions.py;
 # init_app binds it here, after `app = Flask(...)`. Only the two constants for routes that
 # stayed in app.py are imported (narrate ×1, games ×4); the rest moved with their routes.
-from extensions import RATE_LIMIT_GAMES, RATE_LIMIT_NARRATE, limiter  # noqa: E402
+from extensions import RATE_LIMIT_GAMES, RATE_LIMIT_NARRATE, RATE_LIMIT_RECAP, limiter  # noqa: E402
 from services.settings_store import load_setting as _load_setting  # noqa: E402
 
 limiter.init_app(app)
@@ -1381,14 +1381,14 @@ app.add_url_rule("/api/face/expression", view_func=api_oled_expression_set,
 DM_BOT_CONTROL_PORT = os.environ.get("DM_BOT_CONTROL_PORT", "5006")
 
 
-def _proxy_to_dm_control(path: str, method: str = "POST", json_body=None):
+def _proxy_to_dm_control(path: str, method: str = "POST", json_body=None, read_timeout: float = 12):
     import requests as http_requests
     url = f"http://127.0.0.1:{DM_BOT_CONTROL_PORT}/control/{path}"
     try:
         if method == "GET":
-            resp = http_requests.get(url, timeout=(2, 12))
+            resp = http_requests.get(url, timeout=(2, read_timeout))
         else:
-            resp = http_requests.post(url, json=json_body or {}, timeout=(2, 12))
+            resp = http_requests.post(url, json=json_body or {}, timeout=(2, read_timeout))
     except (http_requests.ConnectionError, http_requests.Timeout):
         return jsonify({"error": "DM bot not running"}), 503
     try:
@@ -1436,6 +1436,24 @@ def api_discord_dm_narrate_cancel():
 def api_discord_dm_status():
     """Proxy: current DM bot session status (PHASE-20 20C)."""
     return _proxy_to_dm_control("status", "GET")
+
+
+@app.route("/api/discord/dm/recap", methods=["GET"])
+@app.route("/api/v1/discord/dm/recap", methods=["GET"])
+@limiter.limit(RATE_LIMIT_RECAP)
+def api_discord_dm_recap():
+    """PHASE-31 31E — recap the ACTIVE Discord DM session WITHOUT ending it.
+
+    ``?mode=last`` returns the most recent stored session summary instead (no LLM call).
+    Live mode generates a fresh recap; the read timeout (50s) outlives the bot's 45s
+    generation budget so the proxy doesn't cut a valid recap short.
+    """
+    mode = request.args.get("mode", "live")
+    qs = f"recap?mode={mode}"
+    campaign = request.args.get("campaign")
+    if campaign:
+        qs += f"&campaign={campaign}"
+    return _proxy_to_dm_control(qs, "GET", read_timeout=50)
 
 
 # ── PHASE-22 22B: VTT→Pi state sync — proxy into the bot's control plane ──

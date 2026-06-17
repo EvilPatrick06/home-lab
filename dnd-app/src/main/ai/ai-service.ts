@@ -9,7 +9,7 @@ import { cancelNarration, isBargeInEnabled, isNarrationEnabled, sendNarration } 
 import { sendNarrationToDiscord } from '../discord-integration'
 import { logToFile } from '../log'
 import { logSecurityEvent } from '../security-log'
-import { saveConversation } from '../storage/ai-conversation-storage'
+import { loadConversation, saveConversation } from '../storage/ai-conversation-storage'
 import { atomicWriteFile } from '../storage/atomic-write'
 import { decryptOptional, encryptOptional } from '../storage/safe-secret-storage'
 import {
@@ -21,6 +21,7 @@ import {
   stripVoiceTags
 } from './ai-response-parser'
 import { loadCampaignById } from './campaign-context'
+import { buildSessionStartRecapPrompt, recapInputsEmpty, type SessionStartRecapInputs } from './recap-context'
 
 // PHASE-20 20F: broadcast a narrate-failure status to every renderer window so
 // the DM tab can surface it (the renderer dedups). Validated before send.
@@ -1475,6 +1476,16 @@ async function chatOnce(systemPrompt: string, userMessage: string, task: AiTaskC
   return await provider.chatOnce(systemPrompt, messages, model)
 }
 
+/** PHASE-31 — public one-shot provider call for out-of-fiction tools (recap, campaign Q&A). Routed
+ *  by task class (PHASE-29); never touches the in-fiction ConversationManager. */
+export async function aiChatOnce(
+  systemPrompt: string,
+  userMessage: string,
+  task: AiTaskClass = 'summary'
+): Promise<string> {
+  return chatOnce(systemPrompt, userMessage, task)
+}
+
 // ── Scene Preparation ──
 
 export function prepareScene(campaignId: string, characterIds: string[]): string | null {
@@ -1579,6 +1590,57 @@ export async function generateSessionSummary(campaignId: string): Promise<string
   }
 
   return summary
+}
+
+/** Extract the last 2 AI-authored journal recaps (title + capped content) from a campaign record. */
+function extractJournalRecaps(campaign: Record<string, unknown> | null): Array<{ title: string; content: string }> {
+  const journal = campaign?.journal as { entries?: Array<Record<string, unknown>> } | undefined
+  const entries = journal?.entries ?? []
+  return entries
+    .filter((e) => e.authorId === 'ai-dm')
+    .slice(-2)
+    .map((e) => ({ title: String(e.title ?? 'Recap'), content: String(e.content ?? '').slice(0, 2000) }))
+}
+
+/**
+ * PHASE-31 31B — build a player-facing "Previously on…" recap from the campaign record (conversation
+ * summaries + last session log + world summary + saved recaps). Cached on disk; `force` regenerates.
+ * Returns null for a brand-new campaign. NEVER mutates the ConversationManager (read-only access).
+ */
+export async function generateSessionStartRecap(
+  campaignId: string,
+  force = false
+): Promise<{ text: string; generatedAt: string; cached: boolean } | null> {
+  const memMgr = getMemoryManager(campaignId)
+  if (!force) {
+    const cached = await memMgr.getSessionStartRecap()
+    if (cached) return { ...cached, cached: true }
+  }
+
+  let conversationSummaries = getConversation(campaignId)
+    .serialize()
+    .summaries.map((s) => s.content)
+    .filter(Boolean)
+  if (conversationSummaries.length === 0) {
+    // Disk fallback — READ-ONLY (PHASE-07 owns restore; do not restore() into the manager).
+    const disk = await loadConversation(campaignId)
+    if (disk.success && disk.data) conversationSummaries = disk.data.summaries.map((s) => s.content).filter(Boolean)
+  }
+
+  const dates = await memMgr.listSessionLogDates()
+  const latestSessionLog = dates.length > 0 ? await memMgr.getSessionLog(dates[dates.length - 1]) : ''
+  const worldSummary = await memMgr.getWorldStateSummary()
+  const journalRecaps = extractJournalRecaps(await loadCampaignById(campaignId))
+
+  const inputs: SessionStartRecapInputs = { conversationSummaries, latestSessionLog, worldSummary, journalRecaps }
+  if (recapInputsEmpty(inputs)) return null
+
+  const { system, user } = buildSessionStartRecapPrompt(inputs)
+  const text = (await chatOnce(system, user, 'summary')).trim()
+  if (!text) return null
+  const generatedAt = new Date().toISOString()
+  await memMgr.saveSessionStartRecap({ text, generatedAt })
+  return { text, generatedAt, cached: false }
 }
 
 /**

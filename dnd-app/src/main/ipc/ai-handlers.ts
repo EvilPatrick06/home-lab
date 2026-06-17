@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto'
 import { app, BrowserWindow } from 'electron'
 import { promises as fs } from 'fs'
 import path from 'path'
@@ -8,6 +9,7 @@ import {
   AiChatRequestSchema,
   AiConfigSchema,
   BmoNarrateRequestSchema,
+  CampaignQaAskSchema,
   ConversationDataSchema,
   EntityStoreConfigPatchSchema,
   EntityUpsertPayloadSchema,
@@ -16,6 +18,7 @@ import {
   OracleSetChaosSchema,
   QuestObjectiveUpdateSchema,
   SceneLabelSchema,
+  SessionStartRecapRequestSchema,
   type ValidatedAiChatRequest,
   type ValidatedAiConfig,
   VoiceCastGetSchema,
@@ -34,6 +37,7 @@ import {
   setTriggerObserverEnabled
 } from '../ai/ai-trigger-observer'
 import { analyzeMapState, type MapStateForVisionAnalysis } from '../ai/ai-vision'
+import { askCampaignQuestion } from '../ai/campaign-qa'
 import { setClaudeApiKey } from '../ai/claude-client'
 import { buildContext, getLastTokenBreakdown } from '../ai/context-builder'
 import type { DmAction } from '../ai/dm-actions'
@@ -80,6 +84,7 @@ import type {
 import { getWorldStateStore, slugifyId } from '../ai/world-state-store'
 import {
   cancelNarration,
+  getDiscordRecap,
   getDmStatus,
   getVoiceCast,
   resetVoiceCast,
@@ -446,6 +451,42 @@ export function registerAiHandlers(): void {
     } catch (e) {
       return { success: false, error: e instanceof Error ? e.message : 'Unknown error generating recap' }
     }
+  })
+
+  // PHASE-31 31B — "Previously on…" session-start recap (cached on disk; force regenerates).
+  handle(IPC_CHANNELS.AI_GENERATE_SESSION_START_RECAP, async (_event, payload: unknown) => {
+    const parsed = SessionStartRecapRequestSchema.safeParse(payload)
+    if (!parsed.success) return { success: false, error: 'Invalid recap request' }
+    sanitizeCampaignId(parsed.data.campaignId)
+    const data = await aiService.generateSessionStartRecap(parsed.data.campaignId, parsed.data.force ?? false)
+    if (!data) return { success: false, error: 'No campaign history yet to recap.' }
+    return { success: true, data }
+  })
+
+  // PHASE-31 31C — campaign Q&A archivist (grounded, private, persisted history).
+  handle(IPC_CHANNELS.AI_CAMPAIGN_QA_ASK, async (_event, payload: unknown) => {
+    const parsed = CampaignQaAskSchema.safeParse(payload)
+    if (!parsed.success) return { success: false, error: 'Invalid question' }
+    sanitizeCampaignId(parsed.data.campaignId)
+    const result = await askCampaignQuestion(parsed.data.campaignId, parsed.data.question)
+    await getMemoryManager(parsed.data.campaignId).appendQaEntry({
+      id: `qa-${Date.now()}-${randomUUID().slice(0, 8)}`,
+      question: parsed.data.question,
+      answer: result.answer,
+      timestamp: result.askedAt
+    })
+    return { success: true, data: result }
+  })
+
+  handle(IPC_CHANNELS.AI_CAMPAIGN_QA_HISTORY, async (_event, campaignId: string) => {
+    sanitizeCampaignId(campaignId)
+    return { success: true, data: await getMemoryManager(campaignId).getQaLog() }
+  })
+
+  handle(IPC_CHANNELS.AI_CAMPAIGN_QA_CLEAR, async (_event, campaignId: string) => {
+    sanitizeCampaignId(campaignId)
+    await getMemoryManager(campaignId).clearQaLog()
+    return { success: true }
   })
 
   // ── Conversation Persistence ──
@@ -1043,6 +1084,11 @@ export function registerAiHandlers(): void {
 
   handle(IPC_CHANNELS.BMO_STATUS, async () => {
     return getDmStatus()
+  })
+
+  // PHASE-31 31E — live/last Discord session recap (50s/no-retry in the bridge).
+  handle(IPC_CHANNELS.BMO_DISCORD_RECAP, async (_e, mode: unknown) => {
+    return getDiscordRecap(mode === 'last' ? 'last' : 'live')
   })
 
   // PHASE-20 20F: renderer pushes the Speak-narration toggle value here so the

@@ -308,4 +308,38 @@ End-of-phase 4-gate (INSTRUCTIONS.md rule 5), run from `dnd-app/`: `npm run lint
 
 ## Completed
 
-(Filled during execution per INSTRUCTIONS.md rule 17 — one line per sub-phase with file:line citations.)
+- **31A — recap wire.** The handler (`ai-handlers.ts:438`) was already `sanitizeCampaignId`-guarded (PHASE-13
+  retrofit, so step 2 was a no-op); the only break was the missing preload entry — added
+  `generateEndOfSessionRecap` to the `ai` object in `preload/index.ts:131` (index.d.ts:520 already declared it).
+  The button now reaches the handler instead of throwing.
+- **31B — "Previously on" recap.** NEW pure `recap-context.ts` (`buildSessionStartRecapPrompt` + `recapInputsEmpty`,
+  per-block `trimToTokenBudget` cap) + test. `memory-manager.ts` recap cache (`getSessionStartRecap`/
+  `saveSessionStartRecap` → `session-start-recap.json`) + `listSessionLogDates()` (sorted, `[]` on ENOENT) + tests.
+  `ai-service.ts` exported `aiChatOnce` wrapper over the private `chatOnce(task='summary')` + `generateSessionStartRecap`
+  (cache/force, in-memory summaries → disk fallback READ-ONLY, latest session log, world summary, AI-authored journal
+  recaps; null on empty campaign). IPC `AI_GENERATE_SESSION_START_RECAP` + `SessionStartRecapRequestSchema` (uuid + force)
+  + handler + preload + d.ts. Tests: recap-context (4), memory-manager additions (3), ai-handlers (2).
+- **31C — campaign Q&A archivist.** NEW `campaign-qa.ts` (`buildQaPrompt` pure + `askCampaignQuestion`): grounded
+  blocks `[CAMPAIGN]`/`[AI MEMORY]`/`[ENTITY RECORDS]` (PHASE-25 `buildEntityContextBlock`)/`[CONVERSATION]` (read-only
+  fallback)/`[JOURNAL]`, exact refusal `Not recorded in the campaign log.`, grounding restated at end; one-shot
+  `aiChatOnce(task='mechanics')`; provably never calls `ConversationManager.addMessage`. `memory-manager.ts` qa-log
+  (`appendQaEntry`/`getQaLog`/`clearQaLog` → `qa-log.json`, cap 50, mutate-serialized). IPC ASK/HISTORY/CLEAR +
+  `CampaignQaAskSchema` (uuid + 1..2000 question) + handlers + preload + d.ts. Tests: campaign-qa (4),
+  memory-manager qa-log (1), ai-handlers (3 incl. zod-v4 valid-v4-uuid note).
+- **31D — modals + entry points.** `active-modal-types.ts` +`previouslyOn`/`campaignQa`. NEW `SessionStartRecapModal.tsx`
+  (generate-on-open/cached, Regenerate forces, edit, Save-to-Journal as `ai-dm` WITHOUT `startNewSession`) +
+  `CampaignQaModal.tsx` (history newest-first, ask, clear, refusal-muted styling, privacy line). Mounted in
+  `UtilityModals.tsx` (effectiveIsDM, lazy). `DMTabPanel.tsx` aidm: two buttons. `commands-dm-campaign.ts`
+  `/session previously` (`type:'system'`, local-only). i18n `game.sessionStartRecapModal.*` / `game.campaignQaModal.*`
+  / `game.dmTabPanel.previouslyOn`/`campaignQa` en+es. Tests: both modals (3 + 4) + collision test green.
+- **31E — BMO Discord recap.** Adapted to the PHASE-20 control plane: NEW `/control/recap` GET handler in
+  `dm_bot_control.py` (mode=last → `campaign_memory.get_recent_sessions(...,1)`; live → 404 inactive / `""` empty-log /
+  `_generate_recap` with `asyncio.wait_for(timeout=45)` cancel-on-timeout → 504). `app.py` GET `/api/discord/dm/recap`
+  (+v1) proxying via `_proxy_to_dm_control(read_timeout=50)` + `@limiter.limit(RATE_LIMIT_RECAP)` (new in `extensions.py`).
+  `bmo-bridge.ts` `getDiscordRecap(mode)` (50s, retry:false via the new `FetchOpts` bag on bmoPiFetch/Once). IPC
+  `BMO_DISCORD_RECAP` + handler + preload + d.ts. `SessionStartRecapModal` Discord recap section (live/last fetch +
+  Insert-into-draft) gated on `aiDm.discordBridge` + i18n. Tests: `test_app_endpoints` TestDiscordDmRecap (6),
+  `test_dm_bot_control` recap (6), `bmo-bridge.test` (2), `ai-handlers.test` (1, isolated bmo-bridge mock).
+- **Gate.** Full 4-gate (lint, tsc web+node, vitest) + full `bmo/pi` pytest — all green. i18n en↔es parity maintained.
+  Both features are DM-only + user-initiated + never broadcast; no auto-fire. The remaining 9 unsanitized-`campaignId`
+  AI handlers were NOT in scope (recap channel was already fixed by PHASE-13); none newly introduced here.

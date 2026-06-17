@@ -26,6 +26,7 @@ import {
   __resetSyncReceiverState,
   applySyncBindFromSettings,
   cancelNarration,
+  getDiscordRecap,
   getDmStatus,
   sendNarration,
   startDiscordDm,
@@ -111,6 +112,29 @@ describe('bmoPiFetch retry/backoff (Phase 28c.1)', () => {
     expect(applySyncBindFromSettings({ bmoSyncLanEnabled: true })).toBe('0.0.0.0')
     expect(applySyncBindFromSettings({ bmoSyncLanEnabled: false })).toBe('127.0.0.1')
     getBmoApiKey.mockReturnValue(undefined)
+  })
+
+  // PHASE-31 31E — recap fetch: 50s/no-retry + mode query.
+  it('getDiscordRecap("last") hits ?mode=last and does NOT retry on a 5xx', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: false, status: 500, statusText: 'Server Error' })
+    vi.stubGlobal('fetch', fetchMock)
+    const p = getDiscordRecap('last')
+    await vi.runAllTimersAsync()
+    const result = await p
+    expect(fetchMock).toHaveBeenCalledTimes(1) // no retry — a retried recap would re-bill the LLM
+    expect(String(fetchMock.mock.calls[0][0])).toContain('/api/discord/dm/recap?mode=last')
+    expect(result.ok).toBe(false)
+  })
+
+  it('getDiscordRecap("live") omits the mode query and returns the recap body', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, recap: 'Previously…' }) })
+    vi.stubGlobal('fetch', fetchMock)
+    const p = getDiscordRecap('live')
+    await vi.runAllTimersAsync()
+    const result = await p
+    expect(String(fetchMock.mock.calls[0][0])).toContain('/api/discord/dm/recap')
+    expect(String(fetchMock.mock.calls[0][0])).not.toContain('mode=last')
+    expect((result as { recap?: string }).recap).toBe('Previously…')
   })
 
   it('sendNarration carries a unique event_id (F4 idempotency key)', async () => {

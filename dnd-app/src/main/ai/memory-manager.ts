@@ -18,6 +18,15 @@ import type { FactionReputation, NPCPersonality, WorldStateSummary } from './typ
 const MAX_MEMORY_FILE_SIZE = 1 * 1024 * 1024 // 1 MB per ai-context file
 const MAX_TOTAL_MEMORY_SIZE = 10 * 1024 * 1024 // 10 MB across the ai-context dir
 
+// PHASE-31 31C — private campaign Q&A history, capped at the most recent N exchanges.
+const QA_LOG_CAP = 50
+export interface QaLogEntry {
+  id: string
+  question: string
+  answer: string
+  timestamp: string
+}
+
 // Per-campaign memory files stored in userData/campaigns/{campaignId}/ai-context/
 
 export interface WorldState {
@@ -279,6 +288,41 @@ export class MemoryManager {
     } catch {
       return ''
     }
+  }
+
+  /** Sorted session-history dates (ascending; the last is the most recent). [] when none. (PHASE-31 31B) */
+  async listSessionLogDates(): Promise<string[]> {
+    try {
+      const files = await fs.readdir(path.join(this.basePath, 'session-history'))
+      return files
+        .filter((f) => f.endsWith('.md'))
+        .map((f) => f.slice(0, -3))
+        .sort()
+    } catch {
+      return []
+    }
+  }
+
+  // --- Session-start recap cache (PHASE-31 31B) ---
+  async getSessionStartRecap(): Promise<{ text: string; generatedAt: string } | null> {
+    return this.readJson<{ text: string; generatedAt: string }>('session-start-recap.json')
+  }
+
+  async saveSessionStartRecap(recap: { text: string; generatedAt: string }): Promise<void> {
+    await this.writeJson('session-start-recap.json', recap)
+  }
+
+  // --- Campaign Q&A log (PHASE-31 31C; private, capped, mutate-serialized) ---
+  async getQaLog(): Promise<QaLogEntry[]> {
+    return (await this.readJson<QaLogEntry[]>('qa-log.json')) ?? []
+  }
+
+  async appendQaEntry(entry: QaLogEntry): Promise<void> {
+    await this.mutate<QaLogEntry[]>('qa-log.json', (cur) => [...cur, entry].slice(-QA_LOG_CAP), [])
+  }
+
+  async clearQaLog(): Promise<void> {
+    await this.writeJson('qa-log.json', [])
   }
 
   // --- Campaign Notes ---

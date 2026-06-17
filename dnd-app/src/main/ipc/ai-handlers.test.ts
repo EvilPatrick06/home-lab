@@ -9,15 +9,43 @@ const mocked = vi.hoisted(() => ({
   hasActiveStreamMock: vi.fn(() => false),
   cancelStreamsMock: vi.fn(() => 0),
   ensureGpuMock: vi.fn(async () => {}),
+  askCampaignQuestionMock: vi.fn(async () => ({ answer: 'A', askedAt: '2026-06-17T00:00:00Z' })),
+  appendQaEntryMock: vi.fn(async () => {}),
+  getQaLogMock: vi.fn(async () => [] as unknown[]),
+  clearQaLogMock: vi.fn(async () => {}),
+  generateSessionStartRecapMock: vi.fn(async () => ({ text: 'Previously…', generatedAt: 't', cached: false })),
   getMemoryManagerMock: vi.fn(() => ({
     getWorldState: vi.fn(async () => null), // PHASE-26: world-sync boundary hook reads prev scene
     updateWorldState: vi.fn(async () => {}),
-    updateQuestLog: vi.fn(async () => {})
+    updateQuestLog: vi.fn(async () => {}),
+    appendQaEntry: mocked.appendQaEntryMock,
+    getQaLog: mocked.getQaLogMock,
+    clearQaLog: mocked.clearQaLogMock
   }))
 }))
 
 vi.mock('../ai/memory-manager', () => ({
   getMemoryManager: mocked.getMemoryManagerMock
+}))
+
+vi.mock('../ai/campaign-qa', () => ({
+  askCampaignQuestion: mocked.askCampaignQuestionMock
+}))
+
+// PHASE-31 31E — isolate the Pi bridge (no existing BMO handler tests in this file).
+const bmo = vi.hoisted(() => ({ getDiscordRecapMock: vi.fn(async () => ({ ok: true, recap: 'Previously…' })) }))
+vi.mock('../bmo-bridge', () => ({
+  cancelNarration: vi.fn(),
+  getDiscordRecap: bmo.getDiscordRecapMock,
+  getDmStatus: vi.fn(async () => ({ ok: true })),
+  getVoiceCast: vi.fn(),
+  resetVoiceCast: vi.fn(),
+  sendNarration: vi.fn(),
+  setBargeInEnabled: vi.fn(),
+  setNarrationEnabled: vi.fn(),
+  setVoiceCast: vi.fn(),
+  startDiscordDm: vi.fn(),
+  stopDiscordDm: vi.fn()
 }))
 
 vi.mock('electron', () => ({
@@ -70,7 +98,9 @@ vi.mock('../ai/ai-service', () => ({
   wasContextTruncated: vi.fn(() => false),
   getLastTokenEstimate: vi.fn(() => 0),
   getLastAssistantContextChunkIds: vi.fn(() => []),
-  getConversationManager: mocked.getConversationManagerMock
+  getConversationManager: mocked.getConversationManagerMock,
+  generateSessionSummary: vi.fn(async () => 'summary'),
+  generateSessionStartRecap: mocked.generateSessionStartRecapMock
 }))
 
 vi.mock('../ai/context-builder', () => ({
@@ -469,5 +499,77 @@ describe('registerAiHandlers AI_CONFIGURE GPU pin (PHASE-29 29E)', () => {
     } as never)
     await getHandler(IPC_CHANNELS.AI_CONFIGURE)?.({}, {})
     expect(mocked.ensureGpuMock).toHaveBeenCalled()
+  })
+})
+
+// PHASE-31 31B/31C — recap + campaign Q&A channel validation.
+describe('registerAiHandlers recaps + campaign Q&A (PHASE-31)', () => {
+  const UUID = '11111111-1111-4111-8111-111111111111' // valid v4 UUID (zod .uuid() checks the variant)
+  const findHandler = (channel: string): ((_e: unknown, ...args: unknown[]) => Promise<unknown>) => {
+    registerAiHandlers()
+    const reg = mocked.ipcHandleMock.mock.calls.find(([c]) => c === channel)
+    expect(reg).toBeTruthy()
+    return reg?.[1] as (_e: unknown, ...args: unknown[]) => Promise<unknown>
+  }
+  beforeEach(() => {
+    mocked.ipcHandleMock.mockClear()
+    mocked.generateSessionStartRecapMock.mockClear()
+    mocked.askCampaignQuestionMock.mockClear()
+    mocked.appendQaEntryMock.mockClear()
+    mocked.clearQaLogMock.mockClear()
+  })
+
+  it('AI_GENERATE_SESSION_START_RECAP rejects a bad uuid and a non-boolean force', async () => {
+    const h = findHandler(IPC_CHANNELS.AI_GENERATE_SESSION_START_RECAP)
+    expect(((await h({}, { campaignId: 'nope', force: false })) as { success: boolean }).success).toBe(false)
+    expect(((await h({}, { campaignId: UUID, force: 'yes' })) as { success: boolean }).success).toBe(false)
+    expect(mocked.generateSessionStartRecapMock).not.toHaveBeenCalled()
+  })
+
+  it('AI_GENERATE_SESSION_START_RECAP passes a valid request through', async () => {
+    const h = findHandler(IPC_CHANNELS.AI_GENERATE_SESSION_START_RECAP)
+    const res = (await h({}, { campaignId: UUID, force: true })) as { success: boolean; data?: unknown }
+    expect(res.success).toBe(true)
+    expect(mocked.generateSessionStartRecapMock).toHaveBeenCalledWith(UUID, true)
+  })
+
+  it('AI_CAMPAIGN_QA_ASK rejects empty + overlong questions and bad ids', async () => {
+    const h = findHandler(IPC_CHANNELS.AI_CAMPAIGN_QA_ASK)
+    expect(((await h({}, { campaignId: UUID, question: '' })) as { success: boolean }).success).toBe(false)
+    expect(((await h({}, { campaignId: UUID, question: 'x'.repeat(2001) })) as { success: boolean }).success).toBe(
+      false
+    )
+    expect(((await h({}, { campaignId: 'evil', question: 'ok' })) as { success: boolean }).success).toBe(false)
+    expect(mocked.askCampaignQuestionMock).not.toHaveBeenCalled()
+  })
+
+  it('AI_CAMPAIGN_QA_ASK answers and persists the exchange', async () => {
+    const h = findHandler(IPC_CHANNELS.AI_CAMPAIGN_QA_ASK)
+    const res = (await h({}, { campaignId: UUID, question: 'Who is the duke?' })) as {
+      success: boolean
+      data?: { answer: string }
+    }
+    expect(res.success).toBe(true)
+    expect(res.data?.answer).toBe('A')
+    expect(mocked.askCampaignQuestionMock).toHaveBeenCalledWith(UUID, 'Who is the duke?')
+    expect(mocked.appendQaEntryMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('AI_CAMPAIGN_QA_HISTORY / CLEAR reject bad ids and work for valid ones', async () => {
+    const hist = findHandler(IPC_CHANNELS.AI_CAMPAIGN_QA_HISTORY)
+    const clear = findHandler(IPC_CHANNELS.AI_CAMPAIGN_QA_CLEAR)
+    expect(((await hist({}, 'evil')) as { success: boolean }).success).toBe(false)
+    expect(((await hist({}, UUID)) as { success: boolean }).success).toBe(true)
+    expect(((await clear({}, UUID)) as { success: boolean }).success).toBe(true)
+    expect(mocked.clearQaLogMock).toHaveBeenCalled()
+  })
+
+  it('BMO_DISCORD_RECAP forwards the mode to the bridge (live default, last honored)', async () => {
+    const h = findHandler(IPC_CHANNELS.BMO_DISCORD_RECAP)
+    bmo.getDiscordRecapMock.mockClear()
+    await h({}, 'last')
+    expect(bmo.getDiscordRecapMock).toHaveBeenCalledWith('last')
+    await h({}, undefined)
+    expect(bmo.getDiscordRecapMock).toHaveBeenCalledWith('live')
   })
 })

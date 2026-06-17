@@ -4,7 +4,9 @@ const mockFs = vi.hoisted(() => ({
   mkdir: vi.fn(async () => {}),
   readFile: vi.fn(async (_path?: unknown) => ''),
   writeFile: vi.fn(async () => {}),
-  appendFile: vi.fn(async () => {})
+  appendFile: vi.fn(async () => {}),
+  readdir: vi.fn(async (_path?: unknown, _opts?: unknown) => [] as unknown[]),
+  stat: vi.fn(async () => ({ size: 0 }))
 }))
 
 vi.mock('electron', () => ({
@@ -883,5 +885,58 @@ describe('MemoryManager concurrency (PHASE-27 27B)', () => {
     const summary = JSON.parse(files.get(`${DIR}/world-state-summary.json`) as string)
     expect(summary.activeQuests).toContain('Q1')
     expect(summary.activeQuests).toContain('Q2')
+  })
+})
+
+describe('MemoryManager recap cache + Q&A log (PHASE-31 31B/31C)', () => {
+  const DIR = '/tmp/test/campaigns/c1/ai-context'
+  let files: Map<string, string>
+  beforeEach(() => {
+    files = new Map<string, string>()
+    mockFs.readFile.mockReset()
+    mockFs.writeFile.mockReset()
+    mockFs.readFile.mockImplementation((async (p: string) => {
+      const c = files.get(p)
+      if (c === undefined) throw Object.assign(new Error('ENOENT'), { code: 'ENOENT' })
+      return c
+    }) as never)
+    mockFs.writeFile.mockImplementation((async (p: string, d: string) => {
+      files.set(p, d)
+    }) as never)
+  })
+  afterEach(() => {
+    mockFs.readFile.mockImplementation(async () => '')
+    mockFs.writeFile.mockImplementation(async () => {})
+    mockFs.readdir.mockImplementation(async () => [])
+  })
+
+  it('session-start recap cache round-trips', async () => {
+    const mgr = new MemoryManager('c1')
+    expect(await mgr.getSessionStartRecap()).toBeNull()
+    await mgr.saveSessionStartRecap({ text: 'Previously…', generatedAt: '2026-06-17T00:00:00Z' })
+    const got = await mgr.getSessionStartRecap()
+    expect(got).toEqual({ text: 'Previously…', generatedAt: '2026-06-17T00:00:00Z' })
+  })
+
+  it('listSessionLogDates returns sorted .md basenames, [] on ENOENT', async () => {
+    const mgr = new MemoryManager('c1')
+    mockFs.readdir.mockRejectedValueOnce(Object.assign(new Error('ENOENT'), { code: 'ENOENT' }))
+    expect(await mgr.listSessionLogDates()).toEqual([])
+    mockFs.readdir.mockResolvedValueOnce(['2026-01-03.md', '2026-01-01.md', 'notes.txt', '2026-01-02.md'] as never)
+    expect(await mgr.listSessionLogDates()).toEqual(['2026-01-01', '2026-01-02', '2026-01-03'])
+  })
+
+  it('qa-log appends, caps at 50, and clears', async () => {
+    const mgr = new MemoryManager('c1')
+    expect(await mgr.getQaLog()).toEqual([])
+    for (let i = 0; i < 55; i++) {
+      await mgr.appendQaEntry({ id: `q${i}`, question: `Q${i}`, answer: `A${i}`, timestamp: `t${i}` })
+    }
+    const log = await mgr.getQaLog()
+    expect(log).toHaveLength(50)
+    expect(log[0].id).toBe('q5') // oldest 5 pruned
+    expect(log[49].id).toBe('q54')
+    await mgr.clearQaLog()
+    expect(await mgr.getQaLog()).toEqual([])
   })
 })

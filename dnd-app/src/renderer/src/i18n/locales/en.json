@@ -1059,6 +1059,8 @@
       "shareMacros": "Share Macros"
     },
     "dmTabPanel": {
+      "previouslyOn": "Previously on…",
+      "campaignQa": "Campaign Archivist",
       "initiative": "Initiative",
       "quickConditions": "Quick Conditions",
       "monsterLookup": "Monster Lookup",
@@ -2915,6 +2917,39 @@
       "generating": "Generating...",
       "generateRecap": "Generate AI Recap",
       "saveToJournal": "Save to Journal"
+    },
+    "sessionStartRecapModal": {
+      "title": "Previously on…",
+      "helperText": "A narrative recap of the campaign so far, built only from your recorded sessions, journal, and world notes. Read it aloud to open the session.",
+      "generating": "Composing the recap…",
+      "generateFailed": "Failed to generate the recap.",
+      "generateError": "An error occurred while generating the recap.",
+      "cachedHint": "Showing the saved recap. Use Regenerate for a fresh one.",
+      "freshHint": "Freshly generated.",
+      "recapTitle": "Previously on…",
+      "regenerate": "Regenerate",
+      "saveToJournal": "Save to Journal",
+      "saved": "Saved ✓",
+      "savedToast": "Recap saved to the Campaign Journal.",
+      "saveFailed": "Failed to save the recap to the journal.",
+      "aiNotConfigured": "AI DM is not configured or enabled for this campaign.",
+      "discordTitle": "Discord session recap",
+      "discordLive": "Fetch live recap",
+      "discordLast": "Last Discord session",
+      "discordInsert": "Insert into draft",
+      "discordEmpty": "No recap available yet (the session has no events).",
+      "discordFailed": "Could not fetch the Discord recap. Is a /dm session active?"
+    },
+    "campaignQaModal": {
+      "title": "Campaign Archivist",
+      "privacyNote": "Private to you. Answers are drawn only from recorded campaign data and are never shown to players.",
+      "empty": "No questions yet. Ask the archivist anything about your campaign.",
+      "placeholder": "e.g. What did the innkeeper say about the mine?",
+      "ask": "Ask",
+      "asking": "Searching…",
+      "askFailed": "Failed to get an answer.",
+      "clearHistory": "Clear history",
+      "aiNotConfigured": "AI DM is not configured or enabled for this campaign."
     },
     "helpModal": {
       "stabilizeNat20": "Natural 20! {{target}} is stabilized!",

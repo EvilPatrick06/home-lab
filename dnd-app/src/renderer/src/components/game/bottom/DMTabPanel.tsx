@@ -225,6 +225,13 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
                     <VoiceCastSection campaignId={campaign.id} />
                   </>
                 )}
+                {/* PHASE-31 31D — DM memory tools: session-start recap + private campaign Q&A. */}
+                <button className={btnClass} onClick={() => onOpenModal('previouslyOn')}>
+                  {t('game.dmTabPanel.previouslyOn')}
+                </button>
+                <button className={btnClass} onClick={() => onOpenModal('campaignQa')}>
+                  {t('game.dmTabPanel.campaignQa')}
+                </button>
                 {/* PHASE-20 20G: in-app Discord session start/stop/status. */}
                 <DiscordSessionSection campaignId={campaign.id} narrationEnabled={narrationTtsEnabled} />
                 <Suspense

@@ -57,6 +57,8 @@ export type ActiveModal =
   | 'triggerManager'
   | 'aiMapAnalysis'
   | 'recaps'
+  | 'previouslyOn'
+  | 'campaignQa'
   | 'playerNotes'
   | 'spellPrep'
   | null

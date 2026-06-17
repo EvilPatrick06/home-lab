@@ -6,6 +6,7 @@ the failure reason on a raising connect (F8). Later sub-phases (20B–20E) exten
 this file. Hardware-free (conftest mocks); pytest.ini sets asyncio_mode=auto.
 """
 
+import asyncio
 import sys
 from unittest.mock import AsyncMock, MagicMock
 
@@ -574,3 +575,94 @@ def test_try_push_swallows_errors():
         raise RuntimeError("sync down")
 
     _try_push(boom, "x")  # must not raise
+
+
+# ── PHASE-31 31E: /control/recap (live + mode=last) ─────────────────
+
+
+async def test_control_recap_no_active_session_404(monkeypatch):
+    bot = DMBot()
+    bot._campaign_memory = None
+    client = await _client(bot)
+    try:
+        resp = await client.get("/control/recap")
+        assert resp.status == 404 and (await resp.json())["error"] == "no_session"
+    finally:
+        await client.close()
+
+
+async def test_control_recap_empty_combat_log_returns_empty_string(monkeypatch):
+    bot = _start_bot(monkeypatch)
+    bot.session.active = True
+    bot.session.combat_log.clear()
+    client = await _client(bot)
+    try:
+        resp = await client.get("/control/recap")
+        body = await resp.json()
+        assert resp.status == 200 and body["recap"] == ""
+    finally:
+        await client.close()
+
+
+async def test_control_recap_live_generates(monkeypatch):
+    bot = _start_bot(monkeypatch)
+    bot.session.active = True
+    bot.session.combat_log.append({"event": "hit"})
+    monkeypatch.setattr(ctrl, "_generate_recap", AsyncMock(return_value="An epic battle unfolded."))
+    client = await _client(bot)
+    try:
+        resp = await client.get("/control/recap")
+        body = await resp.json()
+        assert resp.status == 200 and body["recap"] == "An epic battle unfolded."
+    finally:
+        await client.close()
+
+
+async def test_control_recap_live_timeout_504(monkeypatch):
+    bot = _start_bot(monkeypatch)
+    bot.session.active = True
+    bot.session.combat_log.append({"event": "hit"})
+
+    async def _slow(_session):
+        raise asyncio.TimeoutError()
+
+    monkeypatch.setattr(ctrl, "_generate_recap", _slow)
+    client = await _client(bot)
+    try:
+        resp = await client.get("/control/recap")
+        assert resp.status == 504 and (await resp.json())["error"] == "recap_timeout"
+    finally:
+        await client.close()
+
+
+async def test_control_recap_last_mode_returns_stored_summary(monkeypatch):
+    bot = DMBot()
+    mem = MagicMock()
+    mem.get_recent_sessions = MagicMock(
+        return_value=[{"id": 7, "campaign": "c1", "summary": "Stored summary", "ended_at": "2026-06-17"}]
+    )
+    bot._campaign_memory = mem
+    bot._campaign_name = "c1"
+    client = await _client(bot)
+    try:
+        resp = await client.get("/control/recap?mode=last")
+        body = await resp.json()
+        assert resp.status == 200
+        assert body["recap"] == "Stored summary" and body["session_id"] == 7
+        mem.get_recent_sessions.assert_called_once_with("c1", limit=1)
+    finally:
+        await client.close()
+
+
+async def test_control_recap_last_mode_404_when_none(monkeypatch):
+    bot = DMBot()
+    mem = MagicMock()
+    mem.get_recent_sessions = MagicMock(return_value=[])
+    bot._campaign_memory = mem
+    bot._campaign_name = "c1"
+    client = await _client(bot)
+    try:
+        resp = await client.get("/control/recap?mode=last")
+        assert resp.status == 404 and (await resp.json())["error"] == "no_sessions"
+    finally:
+        await client.close()

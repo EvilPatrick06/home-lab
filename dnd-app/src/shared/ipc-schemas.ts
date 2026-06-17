@@ -175,6 +175,19 @@ export const OracleSetChaosSchema = z
   .refine((d) => d.value !== undefined || d.delta !== undefined, { message: 'value or delta required' })
 export type OracleSetChaosRequest = z.infer<typeof OracleSetChaosSchema>
 
+// PHASE-31 31B/31C — recap + campaign Q&A wire schemas.
+export const SessionStartRecapRequestSchema = z.object({
+  campaignId: z.string().uuid(),
+  force: z.boolean().optional()
+})
+export type SessionStartRecapRequest = z.infer<typeof SessionStartRecapRequestSchema>
+
+export const CampaignQaAskSchema = z.object({
+  campaignId: z.string().uuid(),
+  question: z.string().trim().min(1).max(2000)
+})
+export type CampaignQaAsk = z.infer<typeof CampaignQaAskSchema>
+
 // ── Security Audit (20g) ───────────────────────────────────────────
 // Payload the renderer sends to record a security event in the main-process
 // audit log. `event` is a short dotted name (e.g. "host.kick"); `details` is

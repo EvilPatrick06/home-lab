@@ -3,7 +3,7 @@
  * Run `npm run i18n:gen-keys` (scripts/i18n/gen-key-union.mjs) to regenerate
  * after changing en.json. Source: src/renderer/src/i18n/locales/en.json.
  *
- * A literal union of every dotted leaf key in en.json (6231 keys),
+ * A literal union of every dotted leaf key in en.json (6262 keys),
  * so `t()` calls are checked at compile time instead of silently rendering a
  * raw key string when a key is typo'd or missing.
  */
@@ -997,6 +997,15 @@ export type TranslationKey =
   | 'game.attackRollStep.targetPushed'
   | 'game.attackRollStep.unarmedStrike'
   | 'game.attackRollStep.vs'
+  | 'game.campaignQaModal.aiNotConfigured'
+  | 'game.campaignQaModal.ask'
+  | 'game.campaignQaModal.askFailed'
+  | 'game.campaignQaModal.asking'
+  | 'game.campaignQaModal.clearHistory'
+  | 'game.campaignQaModal.empty'
+  | 'game.campaignQaModal.placeholder'
+  | 'game.campaignQaModal.privacyNote'
+  | 'game.campaignQaModal.title'
   | 'game.characterInspectModal.ac'
   | 'game.characterInspectModal.equipment'
   | 'game.characterInspectModal.expertiseSuffix'
@@ -1571,6 +1580,7 @@ export type TranslationKey =
   | 'game.dmTabPanel.budgetRulebook'
   | 'game.dmTabPanel.budgetSrdData'
   | 'game.dmTabPanel.calendar'
+  | 'game.dmTabPanel.campaignQa'
   | 'game.dmTabPanel.cancelResponse'
   | 'game.dmTabPanel.chaseTracker'
   | 'game.dmTabPanel.commandReference'
@@ -1602,6 +1612,7 @@ export type TranslationKey =
   | 'game.dmTabPanel.on'
   | 'game.dmTabPanel.pauseAi'
   | 'game.dmTabPanel.pausedSuffix'
+  | 'game.dmTabPanel.previouslyOn'
   | 'game.dmTabPanel.quickConditions'
   | 'game.dmTabPanel.quickReference'
   | 'game.dmTabPanel.resumeAi'
@@ -3231,6 +3242,26 @@ export type TranslationKey =
   | 'game.sentientItemModal.specialPurpose'
   | 'game.sentientItemModal.title'
   | 'game.sentientItemModal.wis'
+  | 'game.sessionStartRecapModal.aiNotConfigured'
+  | 'game.sessionStartRecapModal.cachedHint'
+  | 'game.sessionStartRecapModal.discordEmpty'
+  | 'game.sessionStartRecapModal.discordFailed'
+  | 'game.sessionStartRecapModal.discordInsert'
+  | 'game.sessionStartRecapModal.discordLast'
+  | 'game.sessionStartRecapModal.discordLive'
+  | 'game.sessionStartRecapModal.discordTitle'
+  | 'game.sessionStartRecapModal.freshHint'
+  | 'game.sessionStartRecapModal.generateError'
+  | 'game.sessionStartRecapModal.generateFailed'
+  | 'game.sessionStartRecapModal.generating'
+  | 'game.sessionStartRecapModal.helperText'
+  | 'game.sessionStartRecapModal.recapTitle'
+  | 'game.sessionStartRecapModal.regenerate'
+  | 'game.sessionStartRecapModal.saveFailed'
+  | 'game.sessionStartRecapModal.saveToJournal'
+  | 'game.sessionStartRecapModal.saved'
+  | 'game.sessionStartRecapModal.savedToast'
+  | 'game.sessionStartRecapModal.title'
   | 'game.settingsDropdown.addOverride'
   | 'game.settingsDropdown.aiActive'
   | 'game.settingsDropdown.aiDm'

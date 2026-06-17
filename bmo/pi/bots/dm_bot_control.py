@@ -240,6 +240,48 @@ async def _handle_status(request: web.Request) -> web.Response:
     })
 
 
+async def _handle_recap(request: web.Request) -> web.Response:
+    """PHASE-31 31E — recap of the ACTIVE session WITHOUT ending it, or the most recent
+    stored summary (``?mode=last``). Live mode is a billable LLM call, so the coroutine is
+    cancelled on timeout (never left running — F6) and the client must not retry."""
+    bot = request.app["bot"]
+    mode = request.query.get("mode", "live")
+
+    if mode == "last":
+        if not bot._campaign_memory:
+            return web.json_response({"error": "no_campaign_memory"}, status=404)
+        campaign = request.query.get("campaign") or bot._campaign_name or "vtt_campaign"
+        try:
+            sessions = bot._campaign_memory.get_recent_sessions(campaign, limit=1)
+        except Exception as e:
+            _log("recap(last) failed: %s", e)
+            sessions = []
+        if not sessions:
+            return web.json_response({"error": "no_sessions"}, status=404)
+        s = sessions[0]
+        return web.json_response({
+            "ok": True,
+            "recap": s.get("summary") or "",
+            "session_id": s.get("id"),
+            "ended_at": s.get("ended_at"),
+        })
+
+    # live
+    if not bot.session.active:
+        return web.json_response({"error": "no_session"}, status=404)
+    if not bot.session.combat_log:
+        return web.json_response({"ok": True, "recap": ""})  # matches _generate_recap's empty-log contract
+    try:
+        # asyncio.wait_for cancels the coroutine on timeout — no orphaned LLM call.
+        recap = await asyncio.wait_for(_generate_recap(bot.session), timeout=45)
+    except asyncio.TimeoutError:
+        return web.json_response({"error": "recap_timeout"}, status=504)
+    except Exception as e:
+        _log("recap(live) failed: %s", e)
+        return web.json_response({"error": "recap_failed"}, status=500)
+    return web.json_response({"ok": True, "recap": recap})
+
+
 def build_control_app(bot) -> web.Application:
     """Build the control aiohttp app for `bot` (no port binding — testable)."""
     app = web.Application()
@@ -251,6 +293,7 @@ def build_control_app(bot) -> web.Application:
     app.router.add_post("/control/sync/initiative", _handle_sync_initiative)
     app.router.add_post("/control/sync/state", _handle_sync_state)
     app.router.add_get("/control/status", _handle_status)
+    app.router.add_get("/control/recap", _handle_recap)
     return app
 
 

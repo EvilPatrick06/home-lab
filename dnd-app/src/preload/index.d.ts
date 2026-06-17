@@ -518,6 +518,21 @@ interface AiAPI {
     delta: WorldDeltaData
   ) => Promise<{ success: boolean; applied?: boolean; detail?: string; error?: string }>
   generateEndOfSessionRecap: (campaignId: string) => Promise<{ success: boolean; data?: string; error?: string }>
+  // PHASE-31 31B/31C — recap + campaign Q&A archivist.
+  generateSessionStartRecap: (
+    campaignId: string,
+    force?: boolean
+  ) => Promise<{ success: boolean; data?: { text: string; generatedAt: string; cached: boolean }; error?: string }>
+  campaignQaAsk: (
+    campaignId: string,
+    question: string
+  ) => Promise<{ success: boolean; data?: { answer: string; askedAt: string }; error?: string }>
+  campaignQaHistory: (campaignId: string) => Promise<{
+    success: boolean
+    data?: Array<{ id: string; question: string; answer: string; timestamp: string }>
+    error?: string
+  }>
+  campaignQaClear: (campaignId: string) => Promise<{ success: boolean; error?: string }>
   // Memory files
   listMemoryFiles: (campaignId: string) => Promise<Array<{ name: string; size: number }>>
   readMemoryFile: (campaignId: string, fileName: string) => Promise<string>
@@ -1116,6 +1131,15 @@ declare global {
           last_narration_status?: string | null
           last_session_end?: { reason: string; at: string } | null
           recap?: string
+        }>
+        // PHASE-31 31E — live/last Discord session recap.
+        bmoDiscordRecap: (mode?: 'live' | 'last') => Promise<{
+          ok?: boolean
+          error?: string
+          statusCode?: number
+          recap?: string
+          session_id?: number
+          ended_at?: string | null
         }>
         bmoSetNarrationEnabled: (enabled: boolean) => Promise<{ success: boolean }>
         bmoSetBargeInEnabled: (enabled: boolean) => Promise<{ success: boolean }>

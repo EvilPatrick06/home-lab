@@ -155,6 +155,11 @@ export const IPC_CHANNELS = {
   AI_GET_CONTEXT_INSPECTOR: 'ai:get-context-inspector',
   AI_GET_TOKEN_METER: 'ai:get-token-meter',
   AI_GENERATE_END_OF_SESSION_RECAP: 'ai:generate-end-of-session-recap',
+  // === AI DM: Recaps & campaign Q&A (PHASE-31) ===
+  AI_GENERATE_SESSION_START_RECAP: 'ai:generate-session-start-recap',
+  AI_CAMPAIGN_QA_ASK: 'ai:campaign-qa-ask',
+  AI_CAMPAIGN_QA_HISTORY: 'ai:campaign-qa-history',
+  AI_CAMPAIGN_QA_CLEAR: 'ai:campaign-qa-clear',
 
   // === AI DM: Vision / Map Analysis ===
   AI_ANALYZE_MAP: 'ai:analyze-map',
@@ -243,6 +248,7 @@ export const IPC_CHANNELS = {
   BMO_STOP_DM: 'bmo:stop-dm',
   BMO_NARRATE: 'bmo:narrate',
   BMO_STATUS: 'bmo:status',
+  BMO_DISCORD_RECAP: 'bmo:discord-recap', // PHASE-31 31E — live/last Discord session recap
   // PHASE-20 20F: renderer→main toggle sync + main→renderer narrate-failure status.
   BMO_SET_NARRATION_ENABLED: 'bmo:set-narration-enabled',
   BMO_NARRATION_STATUS: 'bmo:narration-status',

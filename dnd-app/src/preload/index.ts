@@ -126,6 +126,17 @@ const api = {
     loadConversation: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_LOAD_CONVERSATION, campaignId),
     peekConversation: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_PEEK_CONVERSATION, campaignId),
     deleteConversation: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_DELETE_CONVERSATION, campaignId),
+    // PHASE-31 31A — the end-of-session recap entry was declared in index.d.ts but never wired here,
+    // so the modal button always threw. Wire it through to the (PHASE-13-sanitized) handler.
+    generateEndOfSessionRecap: (campaignId: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.AI_GENERATE_END_OF_SESSION_RECAP, campaignId),
+    // PHASE-31 31B/31C — "Previously on…" recap + private campaign Q&A archivist.
+    generateSessionStartRecap: (campaignId: string, force?: boolean) =>
+      ipcRenderer.invoke(IPC_CHANNELS.AI_GENERATE_SESSION_START_RECAP, { campaignId, force }),
+    campaignQaAsk: (campaignId: string, question: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.AI_CAMPAIGN_QA_ASK, { campaignId, question }),
+    campaignQaHistory: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_CAMPAIGN_QA_HISTORY, campaignId),
+    campaignQaClear: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_CAMPAIGN_QA_CLEAR, campaignId),
     // Cloud provider models
     listCloudModels: (providerType: string, apiKey?: string) =>
       ipcRenderer.invoke(IPC_CHANNELS.AI_LIST_CLOUD_MODELS, providerType, apiKey),
@@ -624,6 +635,8 @@ const api = {
   // PHASE-21 21B: barge-in — cancel current narration + flush the Pi queue.
   bmoNarrateCancel: () => ipcRenderer.invoke(IPC_CHANNELS.BMO_NARRATE_CANCEL),
   bmoDmStatus: () => ipcRenderer.invoke(IPC_CHANNELS.BMO_STATUS),
+  // PHASE-31 31E: live/last Discord session recap.
+  bmoDiscordRecap: (mode?: 'live' | 'last') => ipcRenderer.invoke(IPC_CHANNELS.BMO_DISCORD_RECAP, mode ?? 'live'),
   // PHASE-20 20F: push the Speak-narration toggle to the main-process gate.
   bmoSetNarrationEnabled: (enabled: boolean) => ipcRenderer.invoke(IPC_CHANNELS.BMO_SET_NARRATION_ENABLED, enabled),
   // PHASE-21 21B: push the barge-in toggle to the main-process gate.

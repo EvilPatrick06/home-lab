@@ -116,8 +116,8 @@ const handoutCommand: ChatCommand = {
 const sessionCommand: ChatCommand = {
   name: 'session',
   aliases: ['sess'],
-  description: 'Session management (start, end, recap)',
-  usage: '/session <start|end|recap>',
+  description: 'Session management (start, end, recap, previously)',
+  usage: '/session <start|end|recap|previously>',
   dmOnly: true,
   category: 'dm',
   execute: (args, ctx) => {
@@ -138,8 +138,13 @@ const sessionCommand: ChatCommand = {
           content: `**Session Ended.** Recap has been opened.`
         }
 
+      // PHASE-31 31D — open the "Previously on…" session-start recap. DM-only, not table-facing.
+      case 'previously':
+        ctx.openModal?.('previouslyOn')
+        return { type: 'system', content: 'Opening the "Previously on…" recap.' }
+
       default:
-        return { type: 'error', content: 'Usage: /session <start|end|recap>' }
+        return { type: 'error', content: 'Usage: /session <start|end|recap|previously>' }
     }
   }
 }
