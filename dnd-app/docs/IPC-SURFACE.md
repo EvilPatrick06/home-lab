@@ -27,7 +27,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 
 ## Defined channels
 
-*Total: **180** channel strings (from `IPC_CHANNELS`).*
+*Total: **191** channel strings (from `IPC_CHANNELS`).*
 
 ### Storage: Characters
 
@@ -116,6 +116,8 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 | `AI_BUILD_INDEX` | `ai:build-index` |
 | `AI_LOAD_INDEX` | `ai:load-index` |
 | `AI_GET_CHUNK_COUNT` | `ai:get-chunk-count` |
+| `AI_EMBED_INDEX_STATUS` | `ai:embed-index-status` |
+| `AI_EMBED_INDEX_REBUILD` | `ai:embed-index-rebuild` |
 
 ### AI DM: Streaming Chat
 
@@ -228,6 +230,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 | `AI_STREAM_DONE` | `ai:stream-done` |
 | `AI_STREAM_ERROR` | `ai:stream-error` |
 | `AI_INDEX_PROGRESS` | `ai:index-progress` |
+| `AI_EMBED_INDEX_PROGRESS` | `ai:embed-index-progress` |
 | `AI_OLLAMA_PROGRESS` | `ai:ollama-progress` |
 | `AI_STREAM_FILE_READ` | `ai:stream-file-read` |
 | `AI_STREAM_WEB_SEARCH` | `ai:stream-web-search` |
@@ -332,6 +335,13 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 | `BMO_STOP_DM` | `bmo:stop-dm` |
 | `BMO_NARRATE` | `bmo:narrate` |
 | `BMO_STATUS` | `bmo:status` |
+| `BMO_SET_NARRATION_ENABLED` | `bmo:set-narration-enabled` |
+| `BMO_NARRATION_STATUS` | `bmo:narration-status` |
+| `BMO_NARRATE_CANCEL` | `bmo:narrate-cancel` |
+| `BMO_SET_BARGE_IN_ENABLED` | `bmo:set-barge-in-enabled` |
+| `BMO_VOICE_CAST_GET` | `bmo:voice-cast-get` |
+| `BMO_VOICE_CAST_SET` | `bmo:voice-cast-set` |
+| `BMO_VOICE_CAST_RESET` | `bmo:voice-cast-reset` |
 
 ### BMO Pi Bridge: Sync (main → renderer, from Pi HTTP callbacks)
 
@@ -339,6 +349,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 |---|---|
 | `BMO_SYNC_EVENT` | `bmo:sync-event` |
 | `BMO_SYNC_INITIATIVE` | `bmo:sync-initiative` |
+| `BMO_SYNC_INITIATIVE_EVENT` | `bmo:sync-initiative-event` |
 | `BMO_SYNC_SEND_STATE` | `bmo:sync-send-state` |
 
 ### Map Library
