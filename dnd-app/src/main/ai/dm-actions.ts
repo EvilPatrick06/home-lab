@@ -479,7 +479,16 @@ export type DmAction =
       operation: 'add' | 'update' | 'complete' | 'remove'
       name: string
       description?: string
+      chapterQuest?: boolean // PHASE-28 — counts toward chapter advancement
     }
+  // PHASE-28 — structured quest objectives + chapter advancement
+  | {
+      action: 'update_quest_objective'
+      questName: string
+      operation: 'add' | 'complete' | 'fail' | 'reopen'
+      objective: string // text for add; id-or-text for the rest
+    }
+  | { action: 'advance_chapter'; title?: string; goal?: string; reason?: string }
   | { action: 'adjust_faction_standing'; factionName: string; delta: number; reason?: string }
   // PHASE-25 — durable, editable entity record (npc/location/item/faction)
   | {

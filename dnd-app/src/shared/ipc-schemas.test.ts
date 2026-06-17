@@ -1,10 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import {
   ActiveCreatureSchema,
+  AdvanceChapterSchema,
   AiChatRequestSchema,
   AiConfigSchema,
   ConversationDataSchema,
   InitiativeSyncSchema,
+  OracleFateCheckSchema,
+  OracleSetChaosSchema,
+  QuestObjectiveUpdateSchema,
   SceneLabelSchema,
   SyncEventSchema
 } from './ipc-schemas'
@@ -236,6 +240,59 @@ describe('ipc-schemas', () => {
       expect(mod.ActiveCreatureSchema).toBeDefined()
       expect(mod.SyncEventSchema).toBeDefined()
       expect(mod.InitiativeSyncSchema).toBeDefined()
+    })
+  })
+
+  // PHASE-28 28B — quest objective + chapter advancement wire schemas
+  describe('QuestObjectiveUpdateSchema', () => {
+    it('accepts a valid objective update', () => {
+      const r = QuestObjectiveUpdateSchema.safeParse({ questName: 'Main', operation: 'complete', objective: 'o1' })
+      expect(r.success).toBe(true)
+    })
+    it('rejects an unknown operation', () => {
+      const r = QuestObjectiveUpdateSchema.safeParse({ questName: 'Main', operation: 'finish', objective: 'o1' })
+      expect(r.success).toBe(false)
+    })
+    it('rejects an empty quest name / objective', () => {
+      expect(QuestObjectiveUpdateSchema.safeParse({ questName: '', operation: 'add', objective: 'x' }).success).toBe(
+        false
+      )
+      expect(QuestObjectiveUpdateSchema.safeParse({ questName: 'Q', operation: 'add', objective: '' }).success).toBe(
+        false
+      )
+    })
+  })
+
+  describe('AdvanceChapterSchema', () => {
+    it('accepts an empty payload (all fields optional)', () => {
+      expect(AdvanceChapterSchema.safeParse({}).success).toBe(true)
+    })
+    it('accepts title/goal/reason', () => {
+      expect(AdvanceChapterSchema.safeParse({ title: 'Ch 2', goal: 'find it', reason: 'done' }).success).toBe(true)
+    })
+    it('rejects an over-long title', () => {
+      expect(AdvanceChapterSchema.safeParse({ title: 'x'.repeat(200) }).success).toBe(false)
+    })
+  })
+
+  // PHASE-28 28D — dice-oracle wire schemas
+  describe('OracleFateCheckSchema', () => {
+    it('accepts a question + valid likelihood', () => {
+      expect(OracleFateCheckSchema.safeParse({ question: 'Is it guarded?', likelihood: 'even' }).success).toBe(true)
+    })
+    it('rejects an unknown likelihood / empty question', () => {
+      expect(OracleFateCheckSchema.safeParse({ question: 'q', likelihood: 'maybe' }).success).toBe(false)
+      expect(OracleFateCheckSchema.safeParse({ question: '', likelihood: 'even' }).success).toBe(false)
+    })
+  })
+
+  describe('OracleSetChaosSchema', () => {
+    it('accepts value or delta', () => {
+      expect(OracleSetChaosSchema.safeParse({ value: 7 }).success).toBe(true)
+      expect(OracleSetChaosSchema.safeParse({ delta: -1 }).success).toBe(true)
+    })
+    it('rejects an empty payload', () => {
+      expect(OracleSetChaosSchema.safeParse({}).success).toBe(false)
     })
   })
 

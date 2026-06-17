@@ -1237,7 +1237,22 @@ const UpdateQuestLogSchema = z.object({
   action: z.literal('update_quest_log'),
   operation: z.enum(['add', 'update', 'complete', 'remove']),
   name: z.string(),
-  description: z.string().optional()
+  description: z.string().optional(),
+  chapterQuest: z.boolean().optional() // PHASE-28 — counts toward chapter advancement
+})
+
+// PHASE-28 28B — structured quest objectives + chapter advancement.
+const UpdateQuestObjectiveSchema = z.object({
+  action: z.literal('update_quest_objective'),
+  questName: z.string(),
+  operation: z.enum(['add', 'complete', 'fail', 'reopen']),
+  objective: z.string()
+})
+const AdvanceChapterSchema = z.object({
+  action: z.literal('advance_chapter'),
+  title: z.string().optional(),
+  goal: z.string().optional(),
+  reason: z.string().optional()
 })
 
 const AdjustFactionStandingSchema = z.object({
@@ -1464,6 +1479,8 @@ export const DM_ACTION_SCHEMAS: Record<string, z.ZodType> = {
   set_npc_location: SetNpcLocationSchema,
   set_npc_secret_motivation: SetNpcSecretMotivationSchema,
   update_quest_log: UpdateQuestLogSchema,
+  update_quest_objective: UpdateQuestObjectiveSchema,
+  advance_chapter: AdvanceChapterSchema,
   adjust_faction_standing: AdjustFactionStandingSchema,
   record_entity: RecordEntitySchema,
   // PHASE-27 27E — world-state delta verbs

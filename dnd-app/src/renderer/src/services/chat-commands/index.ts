@@ -9,6 +9,7 @@ import { commands as dmEconomyCommands } from './commands-dm-economy'
 import { commands as dmMapCommands } from './commands-dm-map'
 import { commands as dmMonsterCommands } from './commands-dm-monsters'
 import { commands as dmNarrativeCommands } from './commands-dm-narrative'
+import { commands as dmOracleCommands } from './commands-dm-oracle'
 import { commands as dmSoundCommands } from './commands-dm-sound'
 import { commands as dmTimeCommands } from './commands-dm-time'
 import { commands as playerCheckCommands } from './commands-player-checks'
@@ -51,6 +52,7 @@ export const allCommands: ChatCommand[] = [
   ...dmTimeCommands,
   ...dmBastionCommands,
   ...dmAiCommands,
+  ...dmOracleCommands,
   ...dmMonsterCommands,
   ...dmCampaignCommands,
   ...socialCommands,

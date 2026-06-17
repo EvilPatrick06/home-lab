@@ -4,6 +4,7 @@ import path from 'path'
 import { z } from 'zod'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import {
+  AdvanceChapterSchema,
   AiChatRequestSchema,
   AiConfigSchema,
   BmoNarrateRequestSchema,
@@ -11,6 +12,9 @@ import {
   EntityStoreConfigPatchSchema,
   EntityUpsertPayloadSchema,
   NarrationEnabledSchema,
+  OracleFateCheckSchema,
+  OracleSetChaosSchema,
+  QuestObjectiveUpdateSchema,
   SceneLabelSchema,
   type ValidatedAiChatRequest,
   type ValidatedAiConfig,
@@ -59,6 +63,7 @@ import {
   type VramInfo
 } from '../ai/ollama-manager'
 import { setOpenAIApiKey } from '../ai/openai-client'
+import { fateCheck } from '../ai/oracle'
 import { getProvider } from '../ai/provider-registry'
 import { getSceneMemorySettings, setSceneMemoryEnabled } from '../ai/scene-memory'
 import { getActiveContextWindow, getEffectiveBudgets } from '../ai/token-budget'
@@ -768,16 +773,74 @@ export function registerAiHandlers(): void {
       campaignId: string,
       operation: 'add' | 'update' | 'complete' | 'remove',
       name: string,
-      description?: string
+      description?: string,
+      chapterQuest?: boolean
     ) => {
       const validOps = ['add', 'update', 'complete', 'remove'] as const
       if (!validOps.includes(operation)) return { success: false, error: `Invalid quest operation: ${operation}` }
       sanitizeCampaignId(campaignId) // PHASE-13 13A — reject path-traversal ids before the filesystem path.join
       const memMgr = getMemoryManager(campaignId)
-      await memMgr.updateQuestLog(operation, name, description)
+      await memMgr.updateQuestLog(operation, name, description, chapterQuest)
       return { success: true }
     }
   )
+
+  // PHASE-28 28B — structured quest log read + objective/chapter mutations (born sanitized).
+  handle(IPC_CHANNELS.AI_GET_QUEST_LOG, async (_event, campaignId: string) => {
+    sanitizeCampaignId(campaignId)
+    const data = await getMemoryManager(campaignId).getQuestLog()
+    return { success: true, data }
+  })
+
+  handle(IPC_CHANNELS.AI_UPDATE_QUEST_OBJECTIVE, async (_event, campaignId: string, payload: unknown) => {
+    sanitizeCampaignId(campaignId)
+    const parsed = QuestObjectiveUpdateSchema.safeParse(payload)
+    if (!parsed.success) return { success: false, error: 'Invalid quest-objective payload' }
+    const { questName, operation, objective, evidence } = parsed.data
+    const op =
+      operation === 'add'
+        ? ({ kind: 'add_objective', questName, objective } as const)
+        : operation === 'complete'
+          ? ({ kind: 'complete_objective', questName, objective, evidence } as const)
+          : operation === 'fail'
+            ? ({ kind: 'fail_objective', questName, objective } as const)
+            : ({ kind: 'reopen_objective', questName, objective } as const)
+    const data = await getMemoryManager(campaignId).mutateQuestLog(op)
+    return { success: true, data }
+  })
+
+  handle(IPC_CHANNELS.AI_ADVANCE_CHAPTER, async (_event, campaignId: string, payload: unknown) => {
+    sanitizeCampaignId(campaignId)
+    const parsed = AdvanceChapterSchema.safeParse(payload ?? {})
+    if (!parsed.success) return { success: false, error: 'Invalid advance-chapter payload' }
+    const data = await getMemoryManager(campaignId).mutateQuestLog({
+      kind: 'advance_chapter',
+      title: parsed.data.title,
+      goal: parsed.data.goal
+    })
+    return { success: true, data }
+  })
+
+  // PHASE-28 28D — dice oracle. The engine rolls (reads chaos from state); the flag gates USE
+  // (the /oracle command), not capability, so the handler rolls regardless to stay simple.
+  handle(IPC_CHANNELS.AI_ORACLE_FATE_CHECK, async (_event, campaignId: string, payload: unknown) => {
+    sanitizeCampaignId(campaignId)
+    const parsed = OracleFateCheckSchema.safeParse(payload)
+    if (!parsed.success) return { success: false, error: 'Invalid oracle fate-check payload' }
+    const memMgr = getMemoryManager(campaignId)
+    const { chaos } = await memMgr.getOracleState()
+    const result = fateCheck(parsed.data.question, parsed.data.likelihood, chaos)
+    await memMgr.recordOracleFateCheck(result)
+    return { success: true, result }
+  })
+
+  handle(IPC_CHANNELS.AI_ORACLE_SET_CHAOS, async (_event, campaignId: string, payload: unknown) => {
+    sanitizeCampaignId(campaignId)
+    const parsed = OracleSetChaosSchema.safeParse(payload)
+    if (!parsed.success) return { success: false, error: 'Invalid oracle set-chaos payload' }
+    const chaos = await getMemoryManager(campaignId).setOracleChaos(parsed.data)
+    return { success: true, chaos }
+  })
 
   handle(
     IPC_CHANNELS.AI_ADJUST_FACTION_STANDING,

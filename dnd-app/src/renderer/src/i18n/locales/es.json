@@ -931,6 +931,25 @@
         "never": "No inyectar nunca"
       }
     },
+    "questLogPanel": {
+      "heading": "Registro de misiones",
+      "refresh": "Actualizar",
+      "loading": "Cargando…",
+      "empty": "Aún no hay misiones — la IA las registra con update_quest_log, o agrégalas durante el juego.",
+      "chapter": "Capítulo {{number}}",
+      "goal": "Objetivo: {{goal}}",
+      "chapterQuestTag": "misión de capítulo",
+      "advanceBanner": "Objetivos del capítulo completados — {{reason}}",
+      "advanceButton": "Avanzar al Capítulo {{number}}",
+      "markFailed": "Marcar objetivo como fallido",
+      "reopen": "Reabrir objetivo",
+      "status": {
+        "active": "activa",
+        "completed": "completada",
+        "failed": "fallida",
+        "abandoned": "abandonada"
+      }
+    },
     "aiStatusBar": {
       "connDegraded": "Conexión de IA inestable — reintentando",
       "connDisconnected": "IA inaccesible — revisa el proveedor",
@@ -1525,6 +1544,8 @@
     },
     "gameLayout": {
       "calendarChanged": "Calendario cambiado a {{preset}}.",
+      "questObjectiveAutoDetected": "Objetivo {{verb}}: {{quest}} — {{objective}} (detectado automáticamente; revísalo en la pestaña de DM con IA).",
+      "chapterAdvanceProposed": "Objetivos del capítulo completados — revísalos y avanza en la pestaña de DM con IA.",
       "gameSession": "Sesión de juego",
       "gameControls": "Controles del juego",
       "gameControlsToolbar": "Barra de controles del juego",
@@ -5634,7 +5655,15 @@
       "sceneMemorySaveFailed": "No se pudo cambiar el ajuste de memoria de escenas.",
       "worldState": "Seguimiento del estado del mundo (experimental)",
       "worldStateHint": "El motor mantiene un mapa persistente de lugares, opiniones de PNJ y hechos que la IA debe respetar.",
-      "worldStateSaveFailed": "No se pudo cambiar el ajuste del estado del mundo."
+      "worldStateSaveFailed": "No se pudo cambiar el ajuste del estado del mundo.",
+      "narrativeEngine": "Motor narrativo (experimental)",
+      "questTracking": "Seguimiento automático de misiones",
+      "questTrackingHint": "Tras cada respuesta, una llamada al modelo en segundo plano marca objetivos completados y propone avances de capítulo (tú los confirmas).",
+      "director": "Pase de director",
+      "directorHint": "Un planificador en segundo plano escribe periódicamente notas privadas de ritmo y presagios que guían la narración.",
+      "directorCadence": "Cada N respuestas",
+      "oracle": "Oráculo de dados (/oracle)",
+      "oracleHint": "Habilita el comando /oracle — respuestas sí/no tiradas por el motor con factor de caos y giros de evento aleatorios."
     },
     "audioManager": {
       "customAudio": "Audio personalizado ({{count}})",

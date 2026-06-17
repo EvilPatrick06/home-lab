@@ -133,6 +133,38 @@ export const WorldDeltaSchema = z.discriminatedUnion('op', [
 ])
 export type WorldDelta = z.infer<typeof WorldDeltaSchema>
 
+// PHASE-28 28B — structured quest objective + chapter advancement wire schemas (bounded).
+export const QuestObjectiveUpdateSchema = z.object({
+  questName: z.string().min(1).max(160),
+  operation: z.enum(['add', 'complete', 'fail', 'reopen']),
+  objective: z.string().min(1).max(300),
+  evidence: z.string().max(300).optional()
+})
+export type QuestObjectiveUpdate = z.infer<typeof QuestObjectiveUpdateSchema>
+
+export const AdvanceChapterSchema = z.object({
+  title: z.string().max(160).optional(),
+  goal: z.string().max(300).optional(),
+  reason: z.string().max(300).optional()
+})
+export type AdvanceChapter = z.infer<typeof AdvanceChapterSchema>
+
+// PHASE-28 28D — dice-oracle wire schemas (bounded).
+export const OracleFateCheckSchema = z.object({
+  question: z.string().min(1).max(300),
+  likelihood: z.enum(['impossible', 'very-unlikely', 'unlikely', 'even', 'likely', 'very-likely', 'sure-thing'])
+})
+export type OracleFateCheckRequest = z.infer<typeof OracleFateCheckSchema>
+
+// Set the chaos factor (absolute `value` wins over relative `delta`); engine clamps to 1..9.
+export const OracleSetChaosSchema = z
+  .object({
+    value: z.number().int().optional(),
+    delta: z.number().int().optional()
+  })
+  .refine((d) => d.value !== undefined || d.delta !== undefined, { message: 'value or delta required' })
+export type OracleSetChaosRequest = z.infer<typeof OracleSetChaosSchema>
+
 // ── Security Audit (20g) ───────────────────────────────────────────
 // Payload the renderer sends to record a security event in the main-process
 // audit log. `event` is a short dotted name (e.g. "host.kick"); `details` is

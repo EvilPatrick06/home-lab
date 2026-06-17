@@ -318,4 +318,48 @@ Order keeps the tree green: pure storage first, then the action surface, then th
 
 ## Completed
 
-(Filled during execution per INSTRUCTIONS.md rule 17 — one line per sub-phase step with file:line citations.)
+- **28A — structured quest store.** NEW `src/main/ai/quest-log.ts` (pure, I/O-free): `QuestObjective`/
+  `QuestRecord`/`ChapterState`/`QuestLogFile` types + `QuestOperation` union; `emptyQuestLog`,
+  `migrateLegacyQuests` (`"Name: desc"` → quest + pending o1), `applyQuestOperation` (quest + objective +
+  chapter ops, exact-then-prefix match, slug+`-2` ids, inlined slug regex matching slugifyId),
+  `chapterReadyToAdvance`, `renderQuestLogBlock` (caps 10 quests/8 objectives/3 completed). `memory-manager.ts`
+  `getQuestLog` (migrate-in-memory on read) + `mutateQuestLog` (`mutate()`-locked, mirrors active names + the
+  complete/advance recent-event lines into `world-state-summary`); `updateQuestLog` now a thin delegate (+
+  `chapterQuest`). `assembleContext` pushes `[QUEST LOG]`, dropped the old `Active Quests:` line.
+  `quest-log.test.ts` (21) + `memory-manager.test.ts` quest describe (stateful mock: add/complete/migrate/10×
+  concurrent/`[QUEST LOG]`).
+- **28B — quest/chapter actions.** `dm-actions.ts` 2 new union variants (+`chapterQuest` on update_quest_log);
+  `ai-schemas.ts` `UpdateQuestObjectiveSchema`/`AdvanceChapterSchema` + map entries (contract test auto-covers);
+  `dm-actions-schema.ts` doc lines + `AI_ACTION_CONTRACT.md` PHASE-28 section. IPC `AI_GET_QUEST_LOG`/
+  `AI_UPDATE_QUEST_OBJECTIVE`/`AI_ADVANCE_CHAPTER` + `QuestObjectiveUpdateSchema`/`AdvanceChapterSchema` (+test) +
+  sanitized handlers + preload (`getQuestLog`/`updateQuestObjective`/`advanceChapter`). `effect-actions.ts`
+  `executeUpdateQuestObjective`/`executeAdvanceChapter` + threaded `chapterQuest` through updateQuestLog
+  end-to-end; `game-action-executor.ts` dispatch. (MutationApprovalPanel: no change — `changeLabel` is
+  stat-mutation-only; DM-action verbs like update_quest_log carry no label there, so the new verbs match the
+  precedent.) Tests: ai-schemas/effect-actions/ipc-schemas.
+- **28C — quest-checker post-pass (opt-in `questTrackingEnabled`).** NEW `quest-checker.ts` `runQuestCheck`
+  (flat schema via `provider.structuredOnce`, brace-slice parse + 1 retry, filters updates against
+  existing+pending objectives, applies via `mutateQuestLog`, proposes `pendingChapterAdvance` via the new
+  `propose_chapter_advance` op — never auto-advances). `ai-service.ts` `runPostResponsePasses` after `onDone`
+  (per-campaign in-flight guard, flag-gated, `AI_QUEST_STATE_CHANGED` event). preload `onQuestStateChanged` +
+  `GameLayout.tsx` DM-side listener → system chat note. `campaign.ts` flag. `quest-checker.test.ts` (6).
+- **28D — dice oracle (opt-in `oracleEnabled`).** NEW `oracle.ts` (pure, injectable RNG, default `crypto.randomInt`):
+  `fateCheck` (original 5/15/35/50/65/85/95 targets ± chaos×5, exceptional bands, doubles→event), `sceneTest`,
+  original `EVENT_FOCUS`/`MEANING_VERBS`/`MEANING_SUBJECTS` tables, `renderOracleBlock`, `OracleState`. MemoryManager
+  `getOracleState`/`recordOracleFateCheck`/`setOracleChaos`/`consumeOraclePending` + `[ORACLE]` context block +
+  consume-on-finalize in ai-service. IPC `AI_ORACLE_FATE_CHECK`/`AI_ORACLE_SET_CHAOS` + schemas (+test) + handlers
+  + preload. NEW `commands-dm-oracle.ts` (`/oracle`, alias `/fate`, chaos subcmd; `oracleEnabled` is the renderer
+  gate via extended `CommandContext`) + registered + `commands-dm-oracle.test.ts`. `oracle.test.ts` (14, scripted RNG).
+- **28E — director pass (opt-in `directorEnabled`, cadence default 6).** NEW `director-state.ts` (pure:
+  `DirectorState`/`DirectorNotes`, `emptyDirectorState`, `directorShouldRun`, `renderDirectorBlock` — split out to
+  avoid a director↔memory-manager cycle) + `director.ts` `runDirectorPass` (flat schema, scene-test injection when
+  oracle on, 1 retry, keeps prior notes on failure). MemoryManager `getDirectorState`/`mutateDirectorState` +
+  `[DIRECTOR NOTES]` block (gated on the stored `enabledAtGeneration` snapshot). `ai-service.ts`
+  `runPostResponsePasses` extension (counts every finalize, runs on cadence or a chapter beat, resets counter even
+  on failure). `campaign.ts` flags. `director.test.ts` (6).
+- **28F — UI + settings + i18n.** NEW `QuestLogPanel.tsx` (chapter header, quests grouped, objective checkboxes,
+  fail ✕, chapter-advance banner; refreshes on `onQuestStateChanged`) + `.test.tsx` (4); mounted in `DMTabPanel`
+  below `EntityRecordsPanel` (Suspense, `aiEnabled` gate). `AiDmCard.tsx` "Narrative engine" section (3 toggles +
+  director-cadence number input) persisted onto `aiDm` (NOT into `configure`) + `.test.tsx` round-trip (2). i18n
+  `pages.aiDmCard.*` + `game.questLogPanel.*` + `game.gameLayout.questObjectiveAutoDetected`/`chapterAdvanceProposed`
+  in en+es; `i18n:gen-keys`. End-of-phase 4-gate (lint, tsc web+node, full vitest) — all green. No Pi code.

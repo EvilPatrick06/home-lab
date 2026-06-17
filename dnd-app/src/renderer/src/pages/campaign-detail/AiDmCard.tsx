@@ -36,6 +36,11 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
     ragEmbeddingsEnabled: boolean
     ragEmbeddingModel: string
     ragCampaignDocsEnabled: boolean
+    // PHASE-28: narrative-engine opt-ins (any provider).
+    questTrackingEnabled: boolean
+    oracleEnabled: boolean
+    directorEnabled: boolean
+    directorCadence: number
   }>({
     enabled: false,
     provider: DEFAULT_AI_PROVIDER,
@@ -45,7 +50,11 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
     structuredExtraction: 'off',
     ragEmbeddingsEnabled: false,
     ragEmbeddingModel: 'nomic-embed-text',
-    ragCampaignDocsEnabled: false
+    ragCampaignDocsEnabled: false,
+    questTrackingEnabled: false,
+    oracleEnabled: false,
+    directorEnabled: false,
+    directorCadence: 6
   })
   // PHASE-26: scene-based memory is an engine-owned per-campaign flag (NOT campaign.aiDm),
   // read/written over IPC — independent of the configure modal's aiDm save.
@@ -67,7 +76,12 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
       ragEmbeddingModel: dm?.ragEmbeddingModel ?? 'nomic-embed-text',
       // PHASE-24 24D: campaign-doc search defaults ON for never-saved configs,
       // reflects the saved value otherwise.
-      ragCampaignDocsEnabled: dm == null ? true : (dm.ragCampaignDocsEnabled ?? false)
+      ragCampaignDocsEnabled: dm == null ? true : (dm.ragCampaignDocsEnabled ?? false),
+      // PHASE-28: narrative-engine opt-ins (all default off; absent ≡ off).
+      questTrackingEnabled: dm?.questTrackingEnabled ?? false,
+      oracleEnabled: dm?.oracleEnabled ?? false,
+      directorEnabled: dm?.directorEnabled ?? false,
+      directorCadence: dm?.directorCadence ?? 6
     })
     setShowAiDmModal(true)
   }
@@ -82,7 +96,11 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
       structuredExtraction: 'off',
       ragEmbeddingsEnabled: false,
       ragEmbeddingModel: 'nomic-embed-text',
-      ragCampaignDocsEnabled: true // 24D: default-on for new configs
+      ragCampaignDocsEnabled: true, // 24D: default-on for new configs
+      questTrackingEnabled: false,
+      oracleEnabled: false,
+      directorEnabled: false,
+      directorCadence: 6
     })
     setShowAiDmModal(true)
   }
@@ -299,6 +317,56 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
               {t('campaign.aiProviderSetup.campaignDocSearch')}
             </label>
           </div>
+          {/* PHASE-28: narrative engine — quest auto-tracking / director / oracle. All default off,
+              any provider; each adds background model calls. */}
+          <div className="mt-4 border-t border-border/40 pt-3">
+            <p className="text-xs text-gray-400 font-semibold mb-1.5">{t('pages.aiDmCard.narrativeEngine')}</p>
+            <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={aiDmConfig.questTrackingEnabled}
+                onChange={(e) => setAiDmConfig((p) => ({ ...p, questTrackingEnabled: e.target.checked }))}
+              />
+              {t('pages.aiDmCard.questTracking')}
+            </label>
+            <p className="text-[11px] text-gray-500 mb-2 ml-6">{t('pages.aiDmCard.questTrackingHint')}</p>
+            <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={aiDmConfig.directorEnabled}
+                onChange={(e) => setAiDmConfig((p) => ({ ...p, directorEnabled: e.target.checked }))}
+              />
+              {t('pages.aiDmCard.director')}
+            </label>
+            <p className="text-[11px] text-gray-500 mb-1 ml-6">{t('pages.aiDmCard.directorHint')}</p>
+            {aiDmConfig.directorEnabled && (
+              <label className="flex items-center gap-2 text-xs text-gray-300 mb-2 ml-6">
+                {t('pages.aiDmCard.directorCadence')}
+                <input
+                  type="number"
+                  min={2}
+                  max={20}
+                  value={aiDmConfig.directorCadence}
+                  onChange={(e) =>
+                    setAiDmConfig((p) => ({
+                      ...p,
+                      directorCadence: Math.max(2, Math.min(20, Number.parseInt(e.target.value, 10) || 6))
+                    }))
+                  }
+                  className="w-16 bg-surface-2 border border-border rounded px-1 py-0.5 text-xs"
+                />
+              </label>
+            )}
+            <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={aiDmConfig.oracleEnabled}
+                onChange={(e) => setAiDmConfig((p) => ({ ...p, oracleEnabled: e.target.checked }))}
+              />
+              {t('pages.aiDmCard.oracle')}
+            </label>
+            <p className="text-[11px] text-gray-500 ml-6">{t('pages.aiDmCard.oracleHint')}</p>
+          </div>
         </div>
         {/* PHASE-10 10H — informative, not obstructive: detection probes the SAVED main-side URL,
             so hard-gating Save would trap a not-yet-reachable remote-Ollama setup. */}
@@ -331,7 +399,13 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
                 // PHASE-24: hybrid retrieval + campaign-doc search.
                 ragEmbeddingsEnabled: aiDmConfig.ragEmbeddingsEnabled,
                 ragEmbeddingModel: aiDmConfig.ragEmbeddingModel,
-                ragCampaignDocsEnabled: aiDmConfig.ragCampaignDocsEnabled
+                ragCampaignDocsEnabled: aiDmConfig.ragCampaignDocsEnabled,
+                // PHASE-28: narrative-engine opt-ins (read main-side via loadCampaignById; NOT
+                // passed to window.api.ai.configure — they don't affect the provider link).
+                questTrackingEnabled: aiDmConfig.questTrackingEnabled,
+                oracleEnabled: aiDmConfig.oracleEnabled,
+                directorEnabled: aiDmConfig.directorEnabled,
+                directorCadence: aiDmConfig.directorCadence
               }
               try {
                 await saveCampaign({ ...campaign, aiDm, updatedAt: new Date().toISOString() })

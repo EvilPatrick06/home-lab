@@ -238,7 +238,9 @@ export default function ChatPanel({
         addSystemMessage: addSysMsg,
         broadcastSystemMessage: broadcastSysMsg,
         addErrorMessage: (err) => addSysMsg(t('game.chatPanel.errorPrefix', { error: err })),
-        openModal: onOpenModal
+        openModal: onOpenModal,
+        campaignId: campaign?.id,
+        oracleEnabled: campaign?.aiDm?.oracleEnabled ?? false
       }
 
       const result = executeCommand(trimmed, ctx)

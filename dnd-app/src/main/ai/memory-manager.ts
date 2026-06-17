@@ -2,6 +2,16 @@ import { app } from 'electron'
 import { promises as fs } from 'fs'
 import path from 'path'
 import { logSecurityEvent } from '../security-log'
+import { type DirectorState, emptyDirectorState, renderDirectorBlock } from './director-state'
+import { emptyOracleState, type FateCheckResult, type OracleEntry, type OracleState, renderOracleBlock } from './oracle'
+import {
+  applyQuestOperation,
+  emptyQuestLog,
+  migrateLegacyQuests,
+  type QuestLogFile,
+  type QuestOperation,
+  renderQuestLogBlock
+} from './quest-log'
 import type { FactionReputation, NPCPersonality, WorldStateSummary } from './types'
 
 // Phase 20e — memory size budget.
@@ -450,51 +460,85 @@ export class MemoryManager {
     )
   }
 
-  /**
-   * Structured quest-log mutation on the world-state summary's activeQuests (G32).
-   * add: append a quest; update: replace a matching quest's text; complete: drop it +
-   * log a "Completed quest" recent event; remove: drop it (abandoned/cancelled).
-   * Quests are matched by name prefix (case-insensitive). Creates a summary if absent.
-   */
-  async updateQuestLog(
-    operation: 'add' | 'update' | 'complete' | 'remove',
-    name: string,
-    description?: string
-  ): Promise<void> {
-    const entry = description ? `${name}: ${description}` : name
-    const matchesName = (q: string) => q.toLowerCase().startsWith(name.toLowerCase())
-    // PHASE-27 27B: the whole read-switch-write is now ONE serialized mutate (was an unlocked
-    // getWorldStateSummary → switch → setWorldStateSummary that raced concurrent quest writes).
+  // --- Structured Quest Log (PHASE-28 28A) ---
+  // quests.json is the engine-owned quest truth (structured quests/objectives/chapter).
+  // The legacy `activeQuests: string[]` on world-state-summary is kept mirrored (names only)
+  // so the raw-file viewer and any legacy reader stay coherent.
+
+  /** Read the quest log; migrate the legacy `activeQuests` line in-memory when absent (the
+   *  structured file is written on the first `mutateQuestLog`). */
+  async getQuestLog(): Promise<QuestLogFile> {
+    const existing = await this.readJson<QuestLogFile>('quests.json')
+    if (existing) return existing
+    const summary = await this.getWorldStateSummary()
+    const file = emptyQuestLog()
+    file.quests = migrateLegacyQuests(summary?.activeQuests ?? [])
+    return file
+  }
+
+  /** Apply one quest operation under the per-file lock, then mirror active quest names (and the
+   *  complete/advance_chapter recent-event lines) into world-state-summary. Returns the new file. */
+  async mutateQuestLog(op: QuestOperation): Promise<QuestLogFile> {
+    // Compute a migrated fallback up-front so the legacy activeQuests survive the first
+    // structured write (mutate() re-reads inside the lock, so a concurrent create is seen).
+    const existing = await this.readJson<QuestLogFile>('quests.json')
+    let fallback = existing
+    if (!fallback) {
+      const summary = await this.getWorldStateSummary()
+      fallback = emptyQuestLog()
+      fallback.quests = migrateLegacyQuests(summary?.activeQuests ?? [])
+    }
+    let result: QuestLogFile = fallback
+    await this.mutate<QuestLogFile>(
+      'quests.json',
+      (current) => {
+        result = applyQuestOperation(current, op)
+        return result
+      },
+      fallback
+    )
+    // Mirror into the legacy summary (names of active quests; recent-event lines for milestones).
+    const activeNames = result.quests.filter((q) => q.status === 'active').map((q) => q.name)
     await this.mutate<WorldStateSummary>(
       'world-state-summary.json',
       (summary) => {
-        let quests = summary.activeQuests
         let events = summary.recentEvents
-        switch (operation) {
-          case 'add':
-            if (!quests.some(matchesName)) quests = [...quests, entry]
-            break
-          case 'update':
-            quests = quests.some(matchesName) ? quests.map((q) => (matchesName(q) ? entry : q)) : [...quests, entry]
-            break
-          case 'complete':
-            quests = quests.filter((q) => !matchesName(q))
-            events = [...events, `Completed quest: ${name}`].slice(-20)
-            break
-          case 'remove':
-            quests = quests.filter((q) => !matchesName(q))
-            break
+        if (op.kind === 'complete') events = [...events, `Completed quest: ${op.name}`].slice(-20)
+        if (op.kind === 'advance_chapter') {
+          const label = result.chapter.title ? `: ${result.chapter.title}` : ''
+          events = [...events, `Advanced to Chapter ${result.chapter.number}${label}`].slice(-20)
         }
-        return { ...summary, activeQuests: quests, recentEvents: events, lastUpdated: new Date().toISOString() }
+        return { ...summary, activeQuests: activeNames, recentEvents: events, lastUpdated: new Date().toISOString() }
       },
       {
         currentLocation: 'Unknown',
         timeOfDay: 'unknown',
-        activeQuests: [],
+        activeQuests: activeNames,
         recentEvents: [],
         lastUpdated: new Date().toISOString()
       }
     )
+    return result
+  }
+
+  /**
+   * Legacy quest-log entry point (G32) — now a thin delegate to the structured store. Signature
+   * unchanged so the existing action/IPC/executor chain is untouched. add/update accept a
+   * description; complete/remove match by exact-then-prefix name (case-insensitive).
+   */
+  async updateQuestLog(
+    operation: 'add' | 'update' | 'complete' | 'remove',
+    name: string,
+    description?: string,
+    chapterQuest?: boolean
+  ): Promise<void> {
+    const op: QuestOperation =
+      operation === 'add'
+        ? { kind: 'add', name, description, chapterQuest }
+        : operation === 'update'
+          ? { kind: 'update', name, description, chapterQuest }
+          : { kind: operation, name }
+    await this.mutateQuestLog(op)
   }
 
   // --- Faction Reputation (G33) ---
@@ -521,6 +565,63 @@ export class MemoryManager {
     )
   }
 
+  // --- Dice Oracle (PHASE-28 28D) ---
+  async getOracleState(): Promise<OracleState> {
+    return (await this.readJson<OracleState>('oracle-state.json')) ?? emptyOracleState()
+  }
+
+  /** Append a fate-check result to `pending` (shown to the model next turn) + the capped history. */
+  async recordOracleFateCheck(result: FateCheckResult): Promise<OracleEntry> {
+    const entry: OracleEntry = { ...result, at: new Date().toISOString() }
+    await this.mutate<OracleState>(
+      'oracle-state.json',
+      (s) => ({ ...s, pending: [...s.pending, entry].slice(-10), history: [...s.history, entry].slice(-50) }),
+      emptyOracleState()
+    )
+    return entry
+  }
+
+  /** Set or nudge the chaos factor, clamped to 1..9. Returns the new value. */
+  async setOracleChaos(opts: { value?: number; delta?: number }): Promise<number> {
+    let next = 5
+    await this.mutate<OracleState>(
+      'oracle-state.json',
+      (s) => {
+        const base = opts.value ?? s.chaos + (opts.delta ?? 0)
+        next = Math.max(1, Math.min(9, Math.round(base)))
+        return { ...s, chaos: next }
+      },
+      emptyOracleState()
+    )
+    return next
+  }
+
+  /** Move `pending` → consumed (clear it) once the model has seen the results in a response.
+   *  No-op (no write) when nothing is pending, so oracle-unused campaigns stay byte-clean. */
+  async consumeOraclePending(): Promise<void> {
+    if ((await this.getOracleState()).pending.length === 0) return
+    await this.mutate<OracleState>('oracle-state.json', (s) => ({ ...s, pending: [] }), emptyOracleState())
+  }
+
+  // --- Director planning notes (PHASE-28 28E) ---
+  async getDirectorState(): Promise<DirectorState> {
+    return (await this.readJson<DirectorState>('director-notes.json')) ?? emptyDirectorState()
+  }
+
+  /** Mutate director state under the file lock; returns the new state. */
+  async mutateDirectorState(fn: (s: DirectorState) => DirectorState): Promise<DirectorState> {
+    let result = emptyDirectorState()
+    await this.mutate<DirectorState>(
+      'director-notes.json',
+      (s) => {
+        result = fn(s)
+        return result
+      },
+      emptyDirectorState()
+    )
+    return result
+  }
+
   // --- Context Assembly for AI ---
   async assembleContext(currentScene?: string): Promise<string> {
     const [worldState, combatState, npcs, places, campaignNotes, npcPersonalities, worldStateSummary, rulings] =
@@ -543,17 +644,31 @@ export class MemoryManager {
       )
     }
 
-    // World state summary (high-level quests, events, location context)
+    // World state summary (events + location context). Quests moved to the structured
+    // [QUEST LOG] block (PHASE-28 28A) — kept out of [WORLD SUMMARY] to avoid duplication.
     if (worldStateSummary) {
       const wsParts = [`Location: ${worldStateSummary.currentLocation}`, `Time: ${worldStateSummary.timeOfDay}`]
       if (worldStateSummary.weather) wsParts.push(`Weather: ${worldStateSummary.weather}`)
-      if (worldStateSummary.activeQuests.length > 0) {
-        wsParts.push(`Active Quests: ${worldStateSummary.activeQuests.join('; ')}`)
-      }
       if (worldStateSummary.recentEvents.length > 0) {
         wsParts.push(`Recent Events: ${worldStateSummary.recentEvents.join('; ')}`)
       }
       sections.push(`[WORLD SUMMARY] ${wsParts.join('. ')}`)
+    }
+
+    // Structured quest log (PHASE-28 28A) — engine-owned quests/objectives/chapter.
+    const questBlock = renderQuestLogBlock(await this.getQuestLog())
+    if (questBlock) sections.push(questBlock)
+
+    // Dice-oracle results pending presentation (PHASE-28 28D) — authoritative facts, newest last,
+    // consumed after the next finalize. Empty (default / oracle off) ⇒ no block.
+    const oracleBlock = renderOracleBlock((await this.getOracleState()).pending.slice(-5))
+    if (oracleBlock) sections.push(oracleBlock)
+
+    // Director planning notes (PHASE-28 28E) — DM-private; rendered only when generated while
+    // the director was enabled (flag snapshot). Never-enabled campaigns ⇒ no file ⇒ no block.
+    const directorState = await this.getDirectorState()
+    if (directorState.notes && directorState.enabledAtGeneration) {
+      sections.push(renderDirectorBlock(directorState.notes))
     }
 
     // Faction standings (G33) — the party's reputation with each organization.

@@ -76,6 +76,8 @@ import {
   setSearchEngine
 } from './context-builder'
 import { ConversationManager } from './conversation-manager'
+import { runDirectorPass } from './director'
+import { directorShouldRun } from './director-state'
 import { hasOrphanDmActionsTag, parseDmActionsDetailed, stripDmActions } from './dm-actions'
 import { DEFAULT_EMBEDDING_MODEL } from './embedding-client'
 import { clearEmbeddingIndex, ensureEmbeddingIndex, getEmbedIndexStatus } from './embedding-index'
@@ -103,6 +105,7 @@ import {
   getActiveProviderType,
   getProviderContextBlurb
 } from './provider-registry'
+import { runQuestCheck } from './quest-checker'
 import { clearSceneMemoryCache, getSceneMemorySettings } from './scene-memory'
 import { SearchEngine } from './search-engine'
 import {
@@ -1313,10 +1316,90 @@ async function handleStreamCompletion(
     })().catch((err) => logToFile('WARN', '[AI] Discord text push failed:', String(err)))
 
     onDone(cleaned, displayText, statChanges, dmActions, ruleCitations)
+
+    // PHASE-28: async post-response passes (quest-checker 28C; director 28E). Run AFTER onDone so
+    // narration latency is untouched; internally flag-gated + per-campaign in-flight-guarded.
+    const recentExchanges = conv.getMessages().map((m) => ({ role: m.role, content: m.content }))
+    void runPostResponsePasses(request.campaignId, recentExchanges)
+
+    // PHASE-28 28D: the model has now seen any pending [ORACLE] results — consume them so each
+    // result is shown until a response actually lands (no-op when none pending).
+    getMemoryManager(request.campaignId)
+      .consumeOraclePending()
+      .catch(() => {})
   } catch (err) {
     logToFile('ERROR', '[AI] Error parsing AI response, delivering raw text:', String(err))
     conv.addMessage('assistant', fullText, contextChunkIds)
     onDone(fullText, fullText, [], [], [])
+  }
+}
+
+// PHASE-28 — asynchronous post-response passes. Quest-checker (28C) ticks objectives validated
+// against the engine store; director (28E) refreshes pacing notes. Runs after onDone so it never
+// adds narration latency; a per-campaign in-flight flag prevents pile-up on a slow local model;
+// every failure degrades to "no change" (logged), never into the stream path.
+const postPassInFlight = new Set<string>()
+
+async function runPostResponsePasses(
+  campaignId: string,
+  recentExchanges: Array<{ role: string; content: string }>
+): Promise<void> {
+  if (postPassInFlight.has(campaignId)) return
+  let aiDm:
+    | { questTrackingEnabled?: boolean; directorEnabled?: boolean; directorCadence?: number; oracleEnabled?: boolean }
+    | undefined
+  try {
+    const campaign = await loadCampaignById(campaignId)
+    aiDm = campaign?.aiDm as typeof aiDm
+  } catch {
+    return
+  }
+  if (!aiDm?.questTrackingEnabled && !aiDm?.directorEnabled) return
+  postPassInFlight.add(campaignId)
+  try {
+    // 28C — quest-objective auditor (proposes objective ticks + chapter advancement).
+    let chapterBeat = false
+    if (aiDm.questTrackingEnabled) {
+      const result = await runQuestCheck(campaignId, recentExchanges, getActiveProvider(), currentConfig.model, (m) =>
+        logToFile('WARN', m)
+      )
+      chapterBeat = result.pendingChapterAdvance != null
+      if (result.applied.length > 0 || result.pendingChapterAdvance) {
+        BrowserWindow.getAllWindows()[0]?.webContents.send(IPC_CHANNELS.AI_QUEST_STATE_CHANGED, {
+          campaignId,
+          applied: result.applied,
+          pendingChapterAdvance: result.pendingChapterAdvance
+        })
+      }
+    }
+
+    // 28E — director planning pass on the configured cadence (or a chapter beat). Counts every
+    // finalize; runs after the quest check so it sees fresh quest state; resets the counter even
+    // on failure so a failing model can't retry every single response.
+    if (aiDm.directorEnabled) {
+      const memMgr = getMemoryManager(campaignId)
+      const cadence = Math.max(2, Math.min(20, Math.round(aiDm.directorCadence ?? 6)))
+      const ds = await memMgr.mutateDirectorState((s) => ({ ...s, responsesSinceRun: s.responsesSinceRun + 1 }))
+      if (directorShouldRun(ds.responsesSinceRun, cadence, chapterBeat)) {
+        try {
+          await runDirectorPass(
+            campaignId,
+            recentExchanges,
+            getActiveProvider(),
+            currentConfig.model,
+            { oracleEnabled: !!aiDm.oracleEnabled },
+            (m) => logToFile('WARN', m)
+          )
+        } catch (err) {
+          logToFile('WARN', '[AI Director] pass failed:', String(err))
+        }
+        await memMgr.mutateDirectorState((s) => ({ ...s, responsesSinceRun: 0 }))
+      }
+    }
+  } catch (err) {
+    logToFile('WARN', '[AI PostPass] failed:', String(err))
+  } finally {
+    postPassInFlight.delete(campaignId)
   }
 }
 

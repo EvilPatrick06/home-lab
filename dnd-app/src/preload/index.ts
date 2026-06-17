@@ -1,6 +1,28 @@
 import { contextBridge, type IpcRendererEvent, ipcRenderer } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc-channels'
-import type { EntityStoreConfigPatch, EntityUpsertPayload, WorldDelta } from '../shared/ipc-schemas'
+import type {
+  AdvanceChapter,
+  EntityStoreConfigPatch,
+  EntityUpsertPayload,
+  OracleFateCheckRequest,
+  OracleSetChaosRequest,
+  QuestObjectiveUpdate,
+  WorldDelta
+} from '../shared/ipc-schemas'
+
+// PHASE-28 28C — payload of the AI_QUEST_STATE_CHANGED main→renderer event.
+interface QuestStateChangedEvent {
+  campaignId: string
+  applied: Array<{
+    questId: string
+    objectiveId: string
+    result: 'completed' | 'failed'
+    quest: string
+    objective: string
+    evidence?: string
+  }>
+  pendingChapterAdvance?: { proposedAt: string; reason: string }
+}
 
 const api = {
   // Character storage
@@ -165,10 +187,22 @@ const api = {
       campaignId: string,
       operation: 'add' | 'update' | 'complete' | 'remove',
       name: string,
-      description?: string
-    ) => ipcRenderer.invoke(IPC_CHANNELS.AI_UPDATE_QUEST_LOG, campaignId, operation, name, description),
+      description?: string,
+      chapterQuest?: boolean
+    ) => ipcRenderer.invoke(IPC_CHANNELS.AI_UPDATE_QUEST_LOG, campaignId, operation, name, description, chapterQuest),
     adjustFactionStanding: (campaignId: string, factionName: string, delta: number) =>
       ipcRenderer.invoke(IPC_CHANNELS.AI_ADJUST_FACTION_STANDING, campaignId, factionName, delta),
+    // Structured quest log (PHASE-28)
+    getQuestLog: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_GET_QUEST_LOG, campaignId),
+    updateQuestObjective: (campaignId: string, payload: QuestObjectiveUpdate) =>
+      ipcRenderer.invoke(IPC_CHANNELS.AI_UPDATE_QUEST_OBJECTIVE, campaignId, payload),
+    advanceChapter: (campaignId: string, payload: AdvanceChapter) =>
+      ipcRenderer.invoke(IPC_CHANNELS.AI_ADVANCE_CHAPTER, campaignId, payload),
+    // Dice oracle (PHASE-28)
+    oracleFateCheck: (campaignId: string, payload: OracleFateCheckRequest) =>
+      ipcRenderer.invoke(IPC_CHANNELS.AI_ORACLE_FATE_CHECK, campaignId, payload),
+    oracleSetChaos: (campaignId: string, payload: OracleSetChaosRequest) =>
+      ipcRenderer.invoke(IPC_CHANNELS.AI_ORACLE_SET_CHAOS, campaignId, payload),
     // Entity records & lore injection (PHASE-25)
     getEntities: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_ENTITIES_GET, campaignId),
     upsertEntity: (campaignId: string, payload: EntityUpsertPayload) =>
@@ -244,6 +278,12 @@ const api = {
       const listener = (_e: IpcRendererEvent, data: { streamId: string; error: string }): void => cb(data)
       ipcRenderer.on(IPC_CHANNELS.AI_STREAM_ERROR, listener)
       return () => ipcRenderer.removeListener(IPC_CHANNELS.AI_STREAM_ERROR, listener)
+    },
+    // PHASE-28 28C — quest auto-tick / chapter-advance proposal notifications (DM-side).
+    onQuestStateChanged: (cb: (data: QuestStateChangedEvent) => void) => {
+      const listener = (_e: IpcRendererEvent, data: QuestStateChangedEvent): void => cb(data)
+      ipcRenderer.on(IPC_CHANNELS.AI_QUEST_STATE_CHANGED, listener)
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.AI_QUEST_STATE_CHANGED, listener)
     },
     onIndexProgress: (cb: (data: { percent: number; stage: string }) => void) => {
       const listener = (_e: IpcRendererEvent, data: { percent: number; stage: string }): void => cb(data)

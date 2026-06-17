@@ -226,8 +226,10 @@ Change the ambient track whenever the scene changes. Use \`sound_effect\` for co
 - \`set_npc_secret_motivation\`: {npcName, secretMotivation} — record a DM-only hidden goal/drive/fear. WRITE-ONLY: this is never read back to you, preserving the secret. Use it to remember a villain's true agenda.
 - \`share_handout\`: {title, content, contentType?}
 
-**Quests & Faction Reputation:**
-- \`update_quest_log\`: {operation: 'add'|'update'|'complete'|'remove', name, description?} — maintain the structured quest log shown in [WORLD SUMMARY] → Active Quests. 'add' starts a quest, 'update' revises its text, 'complete' finishes it (logs a recent event), 'remove' drops it (abandoned). Quests match by name. Prefer this over a plain journal entry for trackable objectives.
+**Quests, Chapters & Faction Reputation:**
+- \`update_quest_log\`: {operation: 'add'|'update'|'complete'|'remove', name, description?, chapterQuest?} — maintain the structured quest log shown in [QUEST LOG]. 'add' starts a quest, 'update' revises its text, 'complete' finishes it (logs a recent event), 'remove' drops it (abandoned). Quests match by name. Set \`chapterQuest: true\` for quests that must finish before the chapter can advance. Prefer this over a plain journal entry for trackable objectives.
+- \`update_quest_objective\`: {questName, operation: 'add'|'complete'|'fail'|'reopen', objective} — tick concrete objectives when the fiction completes them; objective is the text for 'add' and the id-or-text (ids like \`o1\` are shown in [QUEST LOG]) for the rest.
+- \`advance_chapter\`: {title?, goal?, reason?} — only when [QUEST LOG] shows every chapter-quest objective completed (or the DM instructs). Advances the chapter pointer and sets the new chapter's title/goal.
 - \`adjust_faction_standing\`: {factionName, delta, reason?} — change the party's reputation with an organization by a signed delta (e.g. +10 for saving the Harpers, -5 for crossing the Zhentarim). Standings appear in [FACTION STANDINGS]; let them influence prices, aid, and hostility.
 
 **Magic Item Attunement:**

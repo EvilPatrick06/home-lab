@@ -224,32 +224,84 @@ describe('MemoryManager', () => {
 
   // -- Quest log (P6.17) --
 
-  describe('updateQuestLog', () => {
-    it('adds a quest to a fresh summary', async () => {
-      mockFs.readFile.mockRejectedValue(new Error('ENOENT'))
-      const mgr = new MemoryManager('c1')
-      await mgr.updateQuestLog('add', 'Rescue the Mayor', 'kidnapped by goblins')
-      const calls = mockFs.writeFile.mock.calls as unknown as Array<[string, string, string]>
-      const written = JSON.parse(calls.at(-1)?.[1] ?? '{}') as { activeQuests: string[] }
-      expect(written.activeQuests).toContain('Rescue the Mayor: kidnapped by goblins')
+  // PHASE-28 28A — structured quest log. updateQuestLog now delegates to the quests.json store
+  // and mirrors NAMES ONLY into the legacy activeQuests array. Stateful fs mock (two files).
+  describe('quest log (PHASE-28 28A)', () => {
+    const files = new Map<string, string>()
+    const P = (f: string) => `/tmp/test/campaigns/c1/ai-context/${f}`
+    beforeEach(() => {
+      files.clear()
+      mockFs.readFile.mockReset()
+      mockFs.writeFile.mockReset()
+      mockFs.mkdir.mockReset().mockResolvedValue(undefined)
+      mockFs.readFile.mockImplementation((async (p: string) => {
+        const c = files.get(p)
+        if (c === undefined) throw Object.assign(new Error('ENOENT'), { code: 'ENOENT' })
+        return c
+      }) as never)
+      mockFs.writeFile.mockImplementation((async (p: string, d: string) => {
+        files.set(p, d)
+      }) as never)
+    })
+    afterEach(() => {
+      mockFs.readFile.mockReset()
+      mockFs.writeFile.mockReset()
     })
 
-    it('completes a quest (removes it + logs a recent event)', async () => {
-      mockFs.readFile.mockResolvedValue(
+    it('add writes a structured quest and mirrors the name into activeQuests', async () => {
+      const mgr = new MemoryManager('c1')
+      await mgr.updateQuestLog('add', 'Rescue the Mayor', 'kidnapped by goblins')
+      const log = await mgr.getQuestLog()
+      expect(log.quests).toHaveLength(1)
+      expect(log.quests[0]).toMatchObject({
+        name: 'Rescue the Mayor',
+        description: 'kidnapped by goblins',
+        status: 'active'
+      })
+      const summary = await mgr.getWorldStateSummary()
+      expect(summary?.activeQuests).toEqual(['Rescue the Mayor'])
+    })
+
+    it('complete marks the quest completed, empties the active mirror, logs a recent event', async () => {
+      const mgr = new MemoryManager('c1')
+      await mgr.updateQuestLog('add', 'Rescue the Mayor', 'kidnapped')
+      await mgr.updateQuestLog('complete', 'Rescue the Mayor')
+      const log = await mgr.getQuestLog()
+      expect(log.quests[0].status).toBe('completed')
+      const summary = await mgr.getWorldStateSummary()
+      expect(summary?.activeQuests).toEqual([])
+      expect(summary?.recentEvents).toContain('Completed quest: Rescue the Mayor')
+    })
+
+    it('migrates legacy activeQuests on first read', async () => {
+      files.set(
+        P('world-state-summary.json'),
         JSON.stringify({
           currentLocation: 'Town',
           timeOfDay: 'day',
-          activeQuests: ['Rescue the Mayor: kidnapped'],
+          activeQuests: ['Find the smith: ask around'],
           recentEvents: [],
           lastUpdated: ''
         })
       )
+      const log = await new MemoryManager('c1').getQuestLog()
+      expect(log.quests).toHaveLength(1)
+      expect(log.quests[0].name).toBe('Find the smith')
+    })
+
+    it('serializes concurrent mutateQuestLog calls (10 parallel adds → 10 quests)', async () => {
       const mgr = new MemoryManager('c1')
-      await mgr.updateQuestLog('complete', 'Rescue the Mayor')
-      const calls = mockFs.writeFile.mock.calls as unknown as Array<[string, string, string]>
-      const written = JSON.parse(calls.at(-1)?.[1] ?? '{}') as { activeQuests: string[]; recentEvents: string[] }
-      expect(written.activeQuests).toHaveLength(0)
-      expect(written.recentEvents).toContain('Completed quest: Rescue the Mayor')
+      await Promise.all(Array.from({ length: 10 }, (_, i) => mgr.mutateQuestLog({ kind: 'add', name: `Quest ${i}` })))
+      expect((await mgr.getQuestLog()).quests).toHaveLength(10)
+    })
+
+    it('assembleContext renders a [QUEST LOG] block when quests exist (and not in [WORLD SUMMARY])', async () => {
+      const mgr = new MemoryManager('c1')
+      await mgr.updateQuestLog('add', 'Rescue the Mayor', 'kidnapped')
+      const ctx = await mgr.assembleContext()
+      expect(ctx).toContain('[QUEST LOG]')
+      expect(ctx).toContain('Rescue the Mayor')
+      expect(ctx).not.toContain('Active Quests:')
     })
   })
 

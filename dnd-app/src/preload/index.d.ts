@@ -76,6 +76,54 @@ interface WorldDeltaData {
   tags?: string[]
 }
 
+// Structured quest log (PHASE-28). Mirrors quest-log.ts; kept loose (the IPC zod validates).
+interface QuestObjectiveData {
+  id: string
+  text: string
+  status: 'pending' | 'completed' | 'failed'
+  completedAt?: string
+  evidence?: string
+}
+interface QuestRecordData {
+  id: string
+  name: string
+  description: string
+  status: 'active' | 'completed' | 'failed' | 'abandoned'
+  chapterQuest: boolean
+  objectives: QuestObjectiveData[]
+  createdAt: string
+  updatedAt: string
+}
+interface QuestLogData {
+  version: number
+  chapter: { number: number; title?: string; goal?: string; startedAt: string }
+  pendingChapterAdvance?: { proposedAt: string; reason: string }
+  quests: QuestRecordData[]
+}
+interface QuestObjectiveUpdateData {
+  questName: string
+  operation: 'add' | 'complete' | 'fail' | 'reopen'
+  objective: string
+  evidence?: string
+}
+interface AdvanceChapterData {
+  title?: string
+  goal?: string
+  reason?: string
+}
+
+// Dice oracle (PHASE-28). Mirrors oracle.ts.
+type OracleLikelihood = 'impossible' | 'very-unlikely' | 'unlikely' | 'even' | 'likely' | 'very-likely' | 'sure-thing'
+interface OracleFateCheckResultData {
+  question: string
+  likelihood: OracleLikelihood
+  chaos: number
+  roll: number
+  threshold: number
+  answer: 'yes' | 'no' | 'exceptional-yes' | 'exceptional-no'
+  randomEvent?: { focus: string; meaning: [string, string] }
+}
+
 interface CharacterAPI {
   saveCharacter: (character: Record<string, unknown>) => Promise<{ success: boolean }>
   loadCharacters: () => Promise<Record<string, unknown>[]>
@@ -420,9 +468,29 @@ interface AiAPI {
     campaignId: string,
     operation: 'add' | 'update' | 'complete' | 'remove',
     name: string,
-    description?: string
+    description?: string,
+    chapterQuest?: boolean
   ) => Promise<{ success: boolean; error?: string }>
   adjustFactionStanding: (campaignId: string, factionName: string, delta: number) => Promise<{ success: boolean }>
+  // Structured quest log (PHASE-28)
+  getQuestLog: (campaignId: string) => Promise<{ success: boolean; data?: QuestLogData; error?: string }>
+  updateQuestObjective: (
+    campaignId: string,
+    payload: QuestObjectiveUpdateData
+  ) => Promise<{ success: boolean; data?: QuestLogData; error?: string }>
+  advanceChapter: (
+    campaignId: string,
+    payload: AdvanceChapterData
+  ) => Promise<{ success: boolean; data?: QuestLogData; error?: string }>
+  // Dice oracle (PHASE-28)
+  oracleFateCheck: (
+    campaignId: string,
+    payload: { question: string; likelihood: OracleLikelihood }
+  ) => Promise<{ success: boolean; result?: OracleFateCheckResultData; error?: string }>
+  oracleSetChaos: (
+    campaignId: string,
+    payload: { value?: number; delta?: number }
+  ) => Promise<{ success: boolean; chaos?: number; error?: string }>
   // Entity records & lore injection (PHASE-25)
   getEntities: (
     campaignId: string
@@ -483,6 +551,21 @@ interface AiAPI {
   onStreamChunk: (cb: (data: AiStreamChunkData) => void) => () => void
   onStreamDone: (cb: (data: AiStreamDoneData) => void) => () => void
   onStreamError: (cb: (data: AiStreamErrorData) => void) => () => void
+  // PHASE-28 28C — quest auto-tick / chapter-advance proposal notifications (DM-side).
+  onQuestStateChanged: (
+    cb: (data: {
+      campaignId: string
+      applied: Array<{
+        questId: string
+        objectiveId: string
+        result: 'completed' | 'failed'
+        quest: string
+        objective: string
+        evidence?: string
+      }>
+      pendingChapterAdvance?: { proposedAt: string; reason: string }
+    }) => void
+  ) => () => void
   onIndexProgress: (cb: (data: AiIndexProgressData) => void) => () => void
   onEmbedIndexProgress: (cb: (data: { percent: number }) => void) => () => void
   onOllamaProgress: (cb: (data: OllamaProgressData) => void) => () => void

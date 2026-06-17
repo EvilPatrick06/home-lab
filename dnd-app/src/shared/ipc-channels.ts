@@ -125,6 +125,15 @@ export const IPC_CHANNELS = {
   AI_UPDATE_QUEST_LOG: 'ai:update-quest-log',
   AI_ADJUST_FACTION_STANDING: 'ai:adjust-faction-standing',
 
+  // === AI DM: Structured quest log (PHASE-28) ===
+  AI_GET_QUEST_LOG: 'ai:get-quest-log',
+  AI_UPDATE_QUEST_OBJECTIVE: 'ai:update-quest-objective',
+  AI_ADVANCE_CHAPTER: 'ai:advance-chapter',
+
+  // === AI DM: Dice oracle (PHASE-28) ===
+  AI_ORACLE_FATE_CHECK: 'ai:oracle-fate-check',
+  AI_ORACLE_SET_CHAOS: 'ai:oracle-set-chaos',
+
   // === AI DM: Entity records & lore injection (PHASE-25) ===
   AI_ENTITIES_GET: 'ai:entities-get',
   AI_ENTITY_UPSERT: 'ai:entity-upsert',
@@ -166,6 +175,7 @@ export const IPC_CHANNELS = {
   AI_STREAM_WEB_SEARCH: 'ai:stream-web-search',
   AI_STREAM_STATUS: 'ai:stream-status',
   AI_WEB_SEARCH_APPROVE: 'ai:web-search-approve',
+  AI_QUEST_STATE_CHANGED: 'ai:quest-state-changed', // PHASE-28 28C — quest auto-tick / chapter proposal
 
   // === App Updates ===
   UPDATE_CHECK: 'update:check',

@@ -834,9 +834,32 @@ export function executeUpdateQuestLog(action: DmAction, gameStore: GameStoreSnap
   const operation = action.operation as 'add' | 'update' | 'complete' | 'remove'
   const name = action.name as string
   const description = action.description as string | undefined
+  const chapterQuest = action.chapterQuest as boolean | undefined
   if (!operation || !name) throw new Error('Missing params for update_quest_log')
   const campaignId = gameStore.campaignId
-  if (campaignId) window.api.ai.updateQuestLog?.(campaignId, operation, name, description)
+  if (campaignId) window.api.ai.updateQuestLog?.(campaignId, operation, name, description, chapterQuest)
+  return true
+}
+
+// PHASE-28 28B — quest objectives + chapter advancement (fire-and-forget, like update_quest_log).
+export function executeUpdateQuestObjective(action: DmAction, gameStore: GameStoreSnapshot): boolean {
+  const questName = action.questName as string
+  const operation = action.operation as 'add' | 'complete' | 'fail' | 'reopen'
+  const objective = action.objective as string
+  if (!questName || !operation || !objective) throw new Error('Missing params for update_quest_objective')
+  const campaignId = gameStore.campaignId
+  if (campaignId) window.api.ai.updateQuestObjective?.(campaignId, { questName, operation, objective })
+  return true
+}
+
+export function executeAdvanceChapter(action: DmAction, gameStore: GameStoreSnapshot): boolean {
+  const campaignId = gameStore.campaignId
+  if (campaignId)
+    window.api.ai.advanceChapter?.(campaignId, {
+      title: action.title as string | undefined,
+      goal: action.goal as string | undefined,
+      reason: action.reason as string | undefined
+    })
   return true
 }
 

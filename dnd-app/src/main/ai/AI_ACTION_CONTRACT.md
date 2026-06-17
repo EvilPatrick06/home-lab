@@ -145,3 +145,23 @@ docs + a bounded `[WORLD STATE]` slice (party location + exits + NPCs-here + opi
 inside the existing 2000-token memory budget; disabled (default) ⇒ byte-identical to pre-phase.
 The legacy memory-manager read-modify-write paths were also serialized through `mutate()` (27B);
 the duplicate renderer world-sync writer was deleted (27C, single `AI_SYNC_WORLD_STATE` writer).
+
+## Structured quests, objectives & chapters (PHASE-28)
+
+The quest log is engine-owned structured truth in `quests.json` (`quest-log.ts`): quests with
+discrete objectives, statuses, and a chapter pointer. The `[QUEST LOG]` context block replaces the
+old flat `Active Quests:` line (always-on storage upgrade; legacy `activeQuests` is migrated on
+first read and kept mirrored by name). Three action verbs (registered in `DM_ACTION_SCHEMAS` + the
+`DmAction` union; executors in `effect-actions.ts`, fire-and-forget like `update_quest_log`):
+
+- `update_quest_log` — `{operation: add|update|complete|remove, name, description?, chapterQuest?}`
+  (the legacy contract, extended with `chapterQuest`). Exact-then-prefix name match.
+- `update_quest_objective` — `{questName, operation: add|complete|fail|reopen, objective}`
+  (`objective` is the text for `add`, an id-or-text for the rest).
+- `advance_chapter` — `{title?, goal?, reason?}` (increments the chapter pointer, sets title/goal).
+
+**Gating semantics:** the quest-checker post-pass (28C, opt-in `questTrackingEnabled`) only ever
+*proposes* chapter advancement (`pendingChapterAdvance`); advancement requires a human click or an
+explicit `advance_chapter` action. Checker output is filtered against the store — only existing,
+`pending` objective ids apply (constrained decoding guarantees shape, not truth). All mutations go
+through `MemoryManager.mutateQuestLog` (the `mutate()` lock).

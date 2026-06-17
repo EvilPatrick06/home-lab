@@ -931,6 +931,25 @@
         "never": "Never inject"
       }
     },
+    "questLogPanel": {
+      "heading": "Quest Log",
+      "refresh": "Refresh",
+      "loading": "Loading…",
+      "empty": "No quests yet — the AI tracks them via update_quest_log, or add them in play.",
+      "chapter": "Chapter {{number}}",
+      "goal": "Goal: {{goal}}",
+      "chapterQuestTag": "chapter quest",
+      "advanceBanner": "Chapter objectives complete — {{reason}}",
+      "advanceButton": "Advance to Chapter {{number}}",
+      "markFailed": "Mark objective failed",
+      "reopen": "Reopen objective",
+      "status": {
+        "active": "active",
+        "completed": "completed",
+        "failed": "failed",
+        "abandoned": "abandoned"
+      }
+    },
     "aiStatusBar": {
       "connDegraded": "AI connection unstable — retrying",
       "connDisconnected": "AI unreachable — check the provider",
@@ -1525,6 +1544,8 @@
     },
     "gameLayout": {
       "calendarChanged": "Calendar changed to {{preset}}.",
+      "questObjectiveAutoDetected": "Objective {{verb}}: {{quest}} — {{objective}} (auto-detected; review in the AI DM tab).",
+      "chapterAdvanceProposed": "Chapter objectives complete — review and advance in the AI DM tab.",
       "gameSession": "Game session",
       "gameControls": "Game controls",
       "gameControlsToolbar": "Game controls toolbar",
@@ -5634,7 +5655,15 @@
       "sceneMemorySaveFailed": "Couldn't change the scene-memory setting.",
       "worldState": "World state tracking (experimental)",
       "worldStateHint": "The engine keeps a persistent map of locations, NPC opinions, and facts the AI must honor.",
-      "worldStateSaveFailed": "Couldn't change the world-state setting."
+      "worldStateSaveFailed": "Couldn't change the world-state setting.",
+      "narrativeEngine": "Narrative engine (experimental)",
+      "questTracking": "Quest auto-tracking",
+      "questTrackingHint": "After each reply, a background model call ticks completed quest objectives and proposes chapter advances (you confirm).",
+      "director": "Director pass",
+      "directorHint": "A background planner periodically writes private pacing/foreshadowing notes that steer the narration.",
+      "directorCadence": "Every N responses",
+      "oracle": "Dice oracle (/oracle)",
+      "oracleHint": "Enables the /oracle command — engine-rolled yes/no answers with a chaos factor and random-event twists."
     },
     "audioManager": {
       "customAudio": "Custom Audio ({{count}})",

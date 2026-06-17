@@ -85,6 +85,14 @@ export interface AiDmConfig {
   ragEmbeddingModel?: string
   /** PHASE-24 24D: search this campaign's lore/journal/handouts (absent = off). */
   ragCampaignDocsEnabled?: boolean
+  /** PHASE-28 28C: opt-in quest-objective auto-tracking post-pass (absent = off). */
+  questTrackingEnabled?: boolean
+  /** PHASE-28 28D: opt-in dice oracle (absent = off). Gates /oracle use, not capability. */
+  oracleEnabled?: boolean
+  /** PHASE-28 28E: opt-in director planning pass (absent = off). */
+  directorEnabled?: boolean
+  /** PHASE-28 28E: director cadence in responses (2-20, default 6). */
+  directorCadence?: number
   discordBridge?: boolean
   /** @deprecated Use `model` instead */
   ollamaModel?: string

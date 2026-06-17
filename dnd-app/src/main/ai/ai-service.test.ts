@@ -191,7 +191,14 @@ vi.mock('../storage/ai-conversation-storage', () => ({
 
 vi.mock('./memory-manager', () => ({
   getMemoryManager: vi.fn(() => ({
-    appendSessionLog: vi.fn(async () => {})
+    appendSessionLog: vi.fn(async () => {}),
+    // PHASE-28 — finalize/post-pass surface (consumeOraclePending is called every finalize).
+    consumeOraclePending: vi.fn(async () => {}),
+    getQuestLog: vi.fn(async () => ({ version: 1, chapter: { number: 1, startedAt: '' }, quests: [] })),
+    mutateQuestLog: vi.fn(async () => ({ version: 1, chapter: { number: 1, startedAt: '' }, quests: [] })),
+    mutateDirectorState: vi.fn(async (fn: (s: unknown) => unknown) =>
+      fn({ version: 1, notes: null, generatedAt: null, responsesSinceRun: 0, enabledAtGeneration: false })
+    )
   }))
 }))
 

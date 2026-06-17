@@ -492,6 +492,35 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
     prevCalendarPresetRef.current = next
   }, [campaign.calendar?.preset, t])
 
+  // PHASE-28 28C: surface quest-checker auto-ticks + chapter proposals as DM-side system chat
+  // notes (the auto-tick undo / chapter-advance surface is the quest panel in the AI DM tab).
+  useEffect(() => {
+    if (!isDM) return
+    const off = window.api.ai.onQuestStateChanged?.((data) => {
+      if (data.campaignId !== campaign.id) return
+      const sys = (content: string): void =>
+        addChatMessage({
+          id: `msg-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
+          senderId: 'system',
+          senderName: 'System',
+          content,
+          timestamp: Date.now(),
+          isSystem: true
+        })
+      for (const u of data.applied) {
+        sys(
+          t('game.gameLayout.questObjectiveAutoDetected', {
+            verb: u.result,
+            quest: u.quest,
+            objective: u.objective
+          })
+        )
+      }
+      if (data.pendingChapterAdvance) sys(t('game.gameLayout.chapterAdvanceProposed'))
+    })
+    return () => off?.()
+  }, [isDM, campaign.id, addChatMessage, t])
+
   const handleViewModeToggle = (): void => {
     if (viewMode === 'player') {
       setViewMode('dm')

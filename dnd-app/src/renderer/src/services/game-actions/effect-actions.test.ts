@@ -38,6 +38,8 @@ vi.stubGlobal('window', {
       setNpcRelationship: vi.fn(),
       setNpcFields: vi.fn(),
       updateQuestLog: vi.fn(),
+      updateQuestObjective: vi.fn(),
+      advanceChapter: vi.fn(),
       adjustFactionStanding: vi.fn(),
       upsertEntity: vi.fn(),
       applyWorldDelta: vi.fn(async () => ({ success: true, applied: true, detail: 'ok' }))
@@ -764,7 +766,13 @@ describe('effect-actions', () => {
           makeGameStore()
         )
       ).toBe(true)
-      expect(window.api.ai.updateQuestLog).toHaveBeenCalledWith('camp-1', 'add', 'Find the relic', 'in the crypt')
+      expect(window.api.ai.updateQuestLog).toHaveBeenCalledWith(
+        'camp-1',
+        'add',
+        'Find the relic',
+        'in the crypt',
+        undefined
+      )
     })
 
     it('throws when quest params are missing', async () => {
@@ -919,6 +927,52 @@ describe('effect-actions', () => {
         stores
       )
       expect(setPendingGroupRoll).toHaveBeenCalledWith(expect.objectContaining({ dc: 10 }))
+    })
+  })
+
+  describe('quest objectives + chapters (PHASE-28 28B)', () => {
+    it('executeUpdateQuestLog forwards chapterQuest', async () => {
+      const { executeUpdateQuestLog } = await import('./effect-actions')
+      executeUpdateQuestLog(
+        { action: 'update_quest_log', operation: 'add', name: 'Main', chapterQuest: true } as DmAction,
+        makeGameStore()
+      )
+      expect(window.api.ai.updateQuestLog).toHaveBeenCalledWith('camp-1', 'add', 'Main', undefined, true)
+    })
+
+    it('executeUpdateQuestObjective forwards the payload', async () => {
+      const { executeUpdateQuestObjective } = await import('./effect-actions')
+      expect(
+        executeUpdateQuestObjective(
+          { action: 'update_quest_objective', questName: 'Main', operation: 'complete', objective: 'o1' } as DmAction,
+          makeGameStore()
+        )
+      ).toBe(true)
+      expect(window.api.ai.updateQuestObjective).toHaveBeenCalledWith('camp-1', {
+        questName: 'Main',
+        operation: 'complete',
+        objective: 'o1'
+      })
+    })
+
+    it('executeAdvanceChapter forwards title/goal/reason', async () => {
+      const { executeAdvanceChapter } = await import('./effect-actions')
+      executeAdvanceChapter({ action: 'advance_chapter', title: 'Ch 2', goal: 'find it' } as DmAction, makeGameStore())
+      expect(window.api.ai.advanceChapter).toHaveBeenCalledWith('camp-1', {
+        title: 'Ch 2',
+        goal: 'find it',
+        reason: undefined
+      })
+    })
+
+    it('executeUpdateQuestObjective throws on missing params', async () => {
+      const { executeUpdateQuestObjective } = await import('./effect-actions')
+      expect(() =>
+        executeUpdateQuestObjective(
+          { action: 'update_quest_objective', questName: 'Main' } as DmAction,
+          makeGameStore()
+        )
+      ).toThrow('Missing params')
     })
   })
 

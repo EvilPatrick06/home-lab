@@ -643,6 +643,27 @@ describe('validateDmActions', () => {
     expect(issues).toHaveLength(1)
   })
 
+  // PHASE-28 28B — quest objectives + chapter advancement
+  it('validates update_quest_log with chapterQuest, update_quest_objective, advance_chapter', () => {
+    const { valid, issues } = validateDmActions([
+      { action: 'update_quest_log', operation: 'add', name: 'Main quest', chapterQuest: true },
+      { action: 'update_quest_objective', questName: 'Main quest', operation: 'complete', objective: 'o1' },
+      { action: 'update_quest_objective', questName: 'Main quest', operation: 'add', objective: 'Search the forge' },
+      { action: 'advance_chapter', title: 'The Mines', goal: 'find the source', reason: 'all objectives done' },
+      { action: 'advance_chapter' }
+    ])
+    expect(valid).toHaveLength(5)
+    expect(issues).toHaveLength(0)
+  })
+
+  it('rejects update_quest_objective with an invalid operation', () => {
+    const { valid, issues } = validateDmActions([
+      { action: 'update_quest_objective', questName: 'Q', operation: 'finish', objective: 'o1' }
+    ])
+    expect(valid).toHaveLength(0)
+    expect(issues).toHaveLength(1)
+  })
+
   it('validates attune_item + unattune_item actions', () => {
     const { valid, issues } = validateDmActions([
       { action: 'attune_item', characterName: 'Aria', itemName: 'Flame Tongue' },

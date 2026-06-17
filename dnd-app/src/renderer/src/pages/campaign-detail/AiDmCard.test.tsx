@@ -240,6 +240,53 @@ describe('AiDmCard (PHASE-10 10H)', () => {
     })
   })
 
+  // PHASE-28 28F — narrative-engine flags
+  describe('narrative engine flags', () => {
+    it('round-trips quest/director/oracle toggles + cadence through Save', async () => {
+      render(
+        <AiDmCard
+          campaign={campaignWith({
+            enabled: true,
+            provider: 'ollama',
+            model: 'llama3.1',
+            ollamaUrl: 'http://localhost:11434'
+          })}
+          saveCampaign={saveCampaign}
+        />
+      )
+      fireEvent.click(screen.getByText('Configure'))
+      fireEvent.click(screen.getByLabelText('Quest auto-tracking'))
+      fireEvent.click(screen.getByLabelText('Director pass'))
+      fireEvent.click(screen.getByLabelText('Dice oracle (/oracle)'))
+      // Cadence input only appears once the director is on.
+      const cadence = screen.getByLabelText('Every N responses') as HTMLInputElement
+      fireEvent.change(cadence, { target: { value: '8' } })
+      fireEvent.click(screen.getByText('Save'))
+      await waitFor(() => expect(saveCampaign).toHaveBeenCalled())
+      const aiDm = saveCampaign.mock.calls[0][0].aiDm
+      expect(aiDm.questTrackingEnabled).toBe(true)
+      expect(aiDm.directorEnabled).toBe(true)
+      expect(aiDm.oracleEnabled).toBe(true)
+      expect(aiDm.directorCadence).toBe(8)
+    })
+
+    it('hides the cadence input until the director is enabled', () => {
+      render(
+        <AiDmCard
+          campaign={campaignWith({
+            enabled: true,
+            provider: 'ollama',
+            model: 'llama3.1',
+            ollamaUrl: 'http://localhost:11434'
+          })}
+          saveCampaign={saveCampaign}
+        />
+      )
+      fireEvent.click(screen.getByText('Configure'))
+      expect(screen.queryByLabelText('Every N responses')).toBeNull()
+    })
+  })
+
   // PHASE-27 27G — world-state tracking toggle
   describe('world state toggle', () => {
     it('renders for an AI-enabled campaign and loads the flag on mount', async () => {

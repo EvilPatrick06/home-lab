@@ -23,6 +23,9 @@ export interface CommandContext {
   addErrorMessage: (content: string) => void
   openModal?: (modal: string) => void
   openModalWithArgs?: (modal: string, args: Record<string, unknown>) => void
+  // PHASE-28 28D — active campaign id + the oracle opt-in flag, for the /oracle command.
+  campaignId?: string
+  oracleEnabled?: boolean
 }
 
 export interface ChatCommand {
