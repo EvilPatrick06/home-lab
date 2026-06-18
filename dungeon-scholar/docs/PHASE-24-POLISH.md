@@ -13,7 +13,7 @@ This file tracks polish/deferred work to address in Phase 24 (Polish, Balance & 
 
 ## Build / structure
 
-- ~~**App.jsx is large.**~~ — Mitigated. Vite `manualChunks` now isolates `vendor-react` (134 KB) and `vendor-icons` (28 KB) from the app bundle. `DungeonExplore` is lazy-loaded via `React.lazy` + `Suspense` (77 KB chunk that defers until the player enters a delve). Net: main app chunk dropped 624 KB → 386 KB and the chunk-size warning is gone. Further mode-by-mode splitting (FlashcardsMode/QuizMode/LabMode/ShopScreen/RunHistoryScreen) is tracked as a planned future-idea — see `[2026-05-05] Code-split the major study modes` in `docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`.
+- ~~**App.jsx is large.**~~ — Resolved in **PHASE-39** (`dnd-app/docs/phases/completed/PHASE-39-ds-architecture.md`). The 11k-line monolith was split into `src/game/` (data + helpers), `src/features/<area>/` (one folder per screen area), `src/components/ui/` (primitives), and `src/router/` (hash routing); player-state mutators moved into the `usePlayerActions` hook. Every screen except Home is now `React.lazy`-loaded as its own chunk behind one `Suspense` boundary — the earlier `vendor-react`/`vendor-icons` `manualChunks` split stays. Net: main app chunk **543 KB → 376 KB**, no chunk-size warning. (The deferred `[2026-05-05] Code-split the major study modes` suggestion is now done.)
 - ~~**Delete the legacy `DungeonRun` and `BossEncounter` components in `src/App.jsx`.**~~ — Done in Phase 24. Removed `DungeonRun`, `BossEncounter`, `RunQuestionReview`, `ModifierToggle`, and `ChallengeRenderer` (~1290 lines). `BOSS_TYPES` and `DIFFICULTIES` were kept because `RunHistoryScreen` still consumes them.
 
 ---

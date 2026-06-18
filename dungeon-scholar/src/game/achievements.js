@@ -1,0 +1,76 @@
+
+
+
+export const ACHIEVEMENTS = [
+  { id: 'first_run', name: 'First Quest', desc: 'Complete your first dungeon delve', icon: '⚔️', category: 'milestone' },
+  { id: 'first_boss', name: 'Dragonslayer', desc: 'Defeat your first dungeon lord', icon: '🐉', category: 'milestone' },
+  { id: 'first_lab', name: 'Apprentice Alchemist', desc: 'Complete your first trial of skill', icon: '🧪', category: 'milestone' },
+  { id: 'first_card', name: 'Open the Tome', desc: 'Study your first scroll', icon: '📖', category: 'milestone' },
+  { id: 'first_quiz', name: 'Riddle Solver', desc: 'Answer your first riddle correctly', icon: '🎯', category: 'milestone' },
+  { id: 'first_oracle', name: 'Seeker of Wisdom', desc: 'Consult the Oracle for the first time', icon: '🔮', category: 'milestone' },
+  { id: 'first_tome', name: 'Library Founded', desc: 'Inscribe your first tome', icon: '📔', category: 'milestone' },
+  { id: 'tome_collector', name: 'Tome Collector', desc: 'Maintain 3 tomes in your library', icon: '📚', category: 'milestone' },
+  { id: 'tome_archivist', name: 'Grand Archivist', desc: 'Maintain 10 tomes in your library', icon: '🏛️', category: 'milestone' },
+
+  { id: 'flawless', name: 'Flawless Victory', desc: 'Complete a quest with no mistakes', icon: '💎', category: 'dungeon' },
+  { id: 'comeback', name: 'Against All Odds', desc: 'Win a quest with 1 life remaining', icon: '🔥', category: 'dungeon' },
+  { id: 'cursed_run', name: 'Embrace the Curse', desc: 'Win a run with at least one curse active', icon: '☠️', category: 'dungeon' },
+  { id: 'double_curse', name: 'Twice Cursed', desc: 'Win a run with 2 curses active', icon: '👹', category: 'dungeon' },
+  { id: 'no_powerups_win', name: 'Steel and Wits', desc: 'Win a run without using any power-ups', icon: '⚔️', category: 'dungeon' },
+  { id: 'speed_demon', name: 'The Swift Blade', desc: 'Average under 5 seconds per challenge in a run', icon: '⚡', category: 'dungeon' },
+  { id: 'five_runs', name: 'Seasoned Adventurer', desc: 'Complete 5 dungeon delves', icon: '🛡️', category: 'dungeon' },
+  { id: 'ten_runs', name: 'Veteran of the Crypts', desc: 'Complete 10 dungeon delves', icon: '🏰', category: 'dungeon' },
+  { id: 'twenty_runs', name: 'Legendary Hero', desc: 'Complete 20 dungeon delves', icon: '👑', category: 'dungeon' },
+  { id: 'five_bosses', name: 'Bane of Dragons', desc: 'Defeat 5 dungeon lords', icon: '🐲', category: 'dungeon' },
+
+  { id: 'streak_10', name: 'Inferno', desc: 'Get 10 answers right in a row', icon: '🔥', category: 'streak' },
+  { id: 'perfectionist', name: 'Chosen One', desc: 'Get 25 answers right in a row', icon: '✨', category: 'streak' },
+  { id: 'streak_50', name: 'Touched by the Gods', desc: 'Get 50 answers right in a row', icon: '⭐', category: 'streak' },
+  { id: 'streak_100', name: 'Mythic Streak', desc: 'Get 100 answers right in a row', icon: '🌟', category: 'streak' },
+
+  { id: 'fifty_correct', name: 'Half-Century', desc: 'Answer 50 questions correctly', icon: '📊', category: 'volume' },
+  { id: 'centurion', name: 'Hundred Trials', desc: 'Answer 100 questions correctly', icon: '🏆', category: 'volume' },
+  { id: 'five_hundred', name: 'Master Scholar', desc: 'Answer 500 questions correctly', icon: '🎓', category: 'volume' },
+  { id: 'thousand', name: 'Living Legend', desc: 'Answer 1,000 questions correctly', icon: '🏛️', category: 'volume' },
+
+  { id: 'lab_master', name: 'Master Alchemist', desc: 'Complete 10 trials of skill', icon: '⚗️', category: 'labs' },
+  { id: 'lab_grandmaster', name: 'Grand Alchemist', desc: 'Complete 25 trials of skill', icon: '🧙', category: 'labs' },
+  { id: 'card_shark', name: 'Tome Reader', desc: 'Study 50 scrolls', icon: '📜', category: 'cards' },
+  { id: 'card_master', name: 'Keeper of Lore', desc: 'Study 200 scrolls', icon: '📚', category: 'cards' },
+  { id: 'quiz_warrior', name: 'Riddle Warrior', desc: 'Answer 100 quiz questions', icon: '⚔️', category: 'quiz' },
+  { id: 'oracle_friend', name: 'Friend of the Oracle', desc: 'Send 25 messages to the Oracle', icon: '🪄', category: 'oracle' },
+
+  { id: 'level_5', name: 'Rising Star', desc: 'Reach level 5', icon: '⬆️', category: 'level' },
+  { id: 'level_10', name: 'True Adventurer', desc: 'Reach level 10', icon: '🎖️', category: 'level' },
+  { id: 'level_25', name: 'Battle-Tested', desc: 'Reach level 25', icon: '🏅', category: 'level' },
+  { id: 'level_50', name: 'High Wizard', desc: 'Reach level 50', icon: '🧙‍♂️', category: 'level' },
+  { id: 'level_100', name: 'Mythic Demigod', desc: 'Reach level 100', icon: '⚡', category: 'level' },
+
+  { id: 'sage', name: 'Path of Wisdom', desc: 'Maintain 80% accuracy over 100 questions', icon: '🦉', category: 'mastery' },
+  { id: 'oracle_blessed', name: 'Oracle-Blessed', desc: 'Maintain 90% accuracy over 100 questions', icon: '👁️', category: 'mastery' },
+  { id: 'enlightened', name: 'Enlightened', desc: 'Maintain 95% accuracy over 200 questions', icon: '🌅', category: 'mastery' },
+
+  { id: 'streaker', name: 'Daily Devotion', desc: 'Study 7 days in a row', icon: '🕯️', category: 'devotion' },
+  { id: 'devout', name: 'Faithful Servant', desc: 'Study 30 days in a row', icon: '⛪', category: 'devotion' },
+  { id: 'eternal', name: 'Eternal Pilgrim', desc: 'Study 100 days in a row', icon: '♾️', category: 'devotion' },
+
+  { id: 'vault_clear', name: 'Redemption', desc: 'Empty your tome of failures', icon: '🪄', category: 'vault' },
+  { id: 'vault_warrior', name: 'Vanquisher', desc: 'Banish 25 foes from the vault', icon: '🗡️', category: 'vault' },
+
+  { id: 'xp_1k', name: 'First Treasure', desc: 'Earn 1,000 total XP', icon: '💰', category: 'xp' },
+  { id: 'xp_10k', name: 'Hoard of Gold', desc: 'Earn 10,000 total XP', icon: '💎', category: 'xp' },
+  { id: 'xp_50k', name: 'Dragon\'s Vault', desc: 'Earn 50,000 total XP', icon: '👑', category: 'xp' },
+
+  { id: 'all_modes', name: 'Versatile Scholar', desc: 'Use all 5 study modes at least once', icon: '🎭', category: 'special' },
+  { id: 'tome_master', name: 'Tome Master', desc: 'Import a tome and complete every mode', icon: '📔', category: 'special' },
+
+  { id: 'adept_complete', name: 'Adept Confirmed', desc: 'Complete a dungeon delve on Adept difficulty', icon: '⚔️', category: 'difficulty' },
+  { id: 'master_complete', name: 'Master of the Path', desc: 'Complete a dungeon delve on Master difficulty', icon: '👑', category: 'difficulty' },
+  { id: 'mythic_complete', name: 'Mythic Conqueror', desc: 'Complete a dungeon delve on Mythic difficulty', icon: '🌟', category: 'difficulty' },
+
+  { id: 'first_lich',     name: 'Bane of the Lich',     desc: 'Defeat The Lich for the first time',     icon: '💀', category: 'boss' },
+  { id: 'first_hydra',    name: 'Hydra Slayer',         desc: 'Defeat The Hydra for the first time',    icon: '🐉', category: 'boss' },
+  { id: 'first_riddler',  name: 'Wits Unaided',         desc: 'Defeat The Riddler for the first time',  icon: '🃏', category: 'boss' },
+  { id: 'first_sphinx',   name: 'Swift of Mind',        desc: 'Defeat The Sphinx for the first time',   icon: '🦁', category: 'boss' },
+  { id: 'first_behemoth', name: 'Felled the Mountain',  desc: 'Defeat The Behemoth for the first time', icon: '🪨', category: 'boss' },
+];

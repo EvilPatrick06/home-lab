@@ -101,23 +101,39 @@ The build takes ~60–90 seconds. When it goes green, the site is live at `https
 
 ```
 dungeon-scholar/
-├── .github/workflows/deploy.yml   Pages deploy on push to main
+├── .github/workflows/deploy.yml   Pages deploy (runs test + build) on push to main
 ├── src/
-│   ├── App.jsx                    Top-level app
-│   ├── components/                UI components (StudyDeck, ExamRunner, MemoryForecast, ...)
-│   ├── data/                      Question banks (per-exam JSON)
-│   ├── lib/                       FSRS scheduler, forgetting-curve math, supabase client
+│   ├── App.jsx                    Orchestration shell (state, effects, render switch)
+│   ├── game/                      Game data + pure helpers — titles, quests, items,
+│   │                              bestiary, difficulty, achievements, tome, defaultState
+│   ├── features/                  One folder per area, each owns its screen(s):
+│   │   ├── home/                  HomeScreen (+ AudioPanel, ThemePanel)
+│   │   ├── study/                 Flashcards / Quiz / Lab / Chat / MistakeVault / DomainStudy
+│   │   ├── library/               LibraryScreen + share/import/paste/metadata modals
+│   │   ├── progression/           Shop / Inventory / Crafting / Bestiary / Stable /
+│   │   │                          Spellbook / Calendar / Ascension / RunHistory
+│   │   ├── quests/                QuestBoard
+│   │   ├── tutorial/              WelcomeModal, TutorialPanel
+│   │   └── player/                usePlayerActions hook (all player-state mutators)
+│   ├── components/                Shared components (RichContent, ErrorBoundary, ...)
+│   │   └── ui/                    Presentation primitives (OrnatePanel, badges, modals, ...)
+│   ├── router/                    useHashRoute — hash-based navigation
+│   ├── services/                  FSRS (srs), oracle grader, session resume, devotion, ...
+│   ├── hooks/  audio/  prompts/   Custom hooks, sound engine, AI prompt templates
 │   ├── main.jsx                   React entry
 │   └── index.css                  Tailwind directives
 ├── docs/
-│   └── supabase-setup.md          One-time Supabase dashboard walkthrough
-├── tests/                         Vitest specs (FSRS, memory math, exam-runner state)
 ├── index.html
 ├── package.json
 ├── vite.config.js                 Vite + Pages base path
-├── tailwind.config.js
 └── postcss.config.js
 ```
+
+**URLs are hash-based** (`#/shop`, `#/library`, …): the browser Back button navigates
+inside the app, refreshing keeps your current screen, and a tome is deep-linkable via
+`#/tome/<id>` (or `#/tome/<id>/<screen>`). Hash fragments are never sent to the server, so
+this works on GitHub Pages under any base path with no `404.html` redirect. Every screen
+except Home is `React.lazy`-loaded as its own chunk, keeping the initial bundle small.
 
 ## Troubleshooting
 
