@@ -35,6 +35,14 @@ log = get_logger("bmo")
 
 from state import STATE
 
+# Canary boot + configurable bind port. BMO_PORT lets the entrypoint bind any
+# port (default 5000); BMO_CANARY=1 boots a validation-only path that imports
+# every service module + registers all routes + answers /health WITHOUT touching
+# hardware/audio/alarms/pollers — catches the dominant deploy-break class
+# (syntax/import errors) without standing up the live assistant.
+BMO_PORT = int(os.environ.get("BMO_PORT", "5000"))
+BMO_CANARY = os.environ.get("BMO_CANARY", "").lower() in ("1", "true", "yes")
+
 # ── App Setup ────────────────────────────────────────────────────────
 
 app = Flask(__name__, template_folder="web/templates", static_folder="web/static")
@@ -363,19 +371,26 @@ def init_services():
 
     # LED controller (RGB LEDs)
     led_controller = None
-    try:
-        from hardware.led_controller import LedController
-        led_controller = LedController()
-        led_controller.start()
-        service_map["leds"] = led_controller
-        log.info("[bmo]   LED controller: OK")
-    except Exception as e:
-        log.exception(f"[bmo]   LED controller: SKIPPED")
+    if BMO_CANARY:
+        from hardware.led_controller import LedController  # noqa: F401 — canary import check
+        log.info("[bmo]   LED controller: CANARY (import-only)")
+    else:
+        try:
+            from hardware.led_controller import LedController
+            led_controller = LedController()
+            led_controller.start()
+            service_map["leds"] = led_controller
+            log.info("[bmo]   LED controller: OK")
+        except Exception as e:
+            log.exception(f"[bmo]   LED controller: SKIPPED")
 
     # OLED face display (BMO_DISABLE_OLED=1 skips init — e.g. while display
     # hardware is broken/disconnected; every consumer None-guards oled_face)
     oled_face = None
-    if os.environ.get("BMO_DISABLE_OLED", "").lower() in ("1", "true", "yes"):
+    if BMO_CANARY:
+        from hardware.oled_face import OledFace  # noqa: F401 — canary import check
+        log.info("[bmo]   OLED face: CANARY (import-only)")
+    elif os.environ.get("BMO_DISABLE_OLED", "").lower() in ("1", "true", "yes"):
         log.info("[bmo]   OLED face: DISABLED (BMO_DISABLE_OLED)")
     else:
         try:
@@ -389,20 +404,29 @@ def init_services():
             log.exception(f"[bmo]   OLED face: SKIPPED")
 
     # Voice pipeline (requires pyaudio/mic hardware)
-    try:
-        from services.voice_pipeline import VoicePipeline
-        voice = VoicePipeline(socketio=socketio)
-        saved_voice_vol = _load_setting("volume.voice", None)
-        if saved_voice_vol is not None:
-            voice._speak_volume = int(saved_voice_vol)
-        service_map["voice"] = voice
-        log.info("[bmo]   Voice pipeline: OK")
-    except Exception as e:
-        log.exception(f"[bmo]   Voice pipeline: SKIPPED")
+    if BMO_CANARY:
+        from services.voice_pipeline import VoicePipeline  # noqa: F401 — canary import check
+        voice = None
+        log.info("[bmo]   Voice pipeline: CANARY (import-only)")
+    else:
+        try:
+            from services.voice_pipeline import VoicePipeline
+            voice = VoicePipeline(socketio=socketio)
+            saved_voice_vol = _load_setting("volume.voice", None)
+            if saved_voice_vol is not None:
+                voice._speak_volume = int(saved_voice_vol)
+            service_map["voice"] = voice
+            log.info("[bmo]   Voice pipeline: OK")
+        except Exception as e:
+            log.exception(f"[bmo]   Voice pipeline: SKIPPED")
 
     # Camera (requires picamera2; BMO_DISABLE_CAMERA=1 skips init — camera
     # API routes already 503 when the service is absent)
-    if os.environ.get("BMO_DISABLE_CAMERA", "").lower() in ("1", "true", "yes"):
+    if BMO_CANARY:
+        from hardware.camera_service import CameraService  # noqa: F401 — canary import check
+        camera = None
+        log.info("[bmo]   Camera: CANARY (import-only)")
+    elif os.environ.get("BMO_DISABLE_CAMERA", "").lower() in ("1", "true", "yes"):
         log.info("[bmo]   Camera: DISABLED (BMO_DISABLE_CAMERA)")
     else:
         try:
@@ -414,81 +438,140 @@ def init_services():
             log.exception(f"[bmo]   Camera: SKIPPED")
 
     # Smart home / Chromecast
-    try:
-        from services.smart_home import SmartHomeService
-        smart_home = SmartHomeService(socketio=socketio)
-        service_map["smart_home"] = smart_home
-        log.info("[bmo]   Smart home: OK")
-    except Exception as e:
-        log.exception(f"[bmo]   Smart home: SKIPPED")
+    if BMO_CANARY:
+        from services.smart_home import SmartHomeService  # noqa: F401 — canary import check
+        smart_home = None
+        log.info("[bmo]   Smart home: CANARY (import-only)")
+    else:
+        try:
+            from services.smart_home import SmartHomeService
+            smart_home = SmartHomeService(socketio=socketio)
+            service_map["smart_home"] = smart_home
+            log.info("[bmo]   Smart home: OK")
+        except Exception as e:
+            log.exception(f"[bmo]   Smart home: SKIPPED")
 
     # Calendar (Google API)
-    try:
-        from services.calendar_service import CalendarService
-        calendar = CalendarService(socketio=socketio)
-        service_map["calendar"] = calendar
-        log.info("[bmo]   Calendar: OK")
-    except Exception as e:
-        log.exception(f"[bmo]   Calendar: SKIPPED")
+    if BMO_CANARY:
+        from services.calendar_service import CalendarService  # noqa: F401 — canary import check
+        calendar = None
+        log.info("[bmo]   Calendar: CANARY (import-only)")
+    else:
+        try:
+            from services.calendar_service import CalendarService
+            calendar = CalendarService(socketio=socketio)
+            service_map["calendar"] = calendar
+            log.info("[bmo]   Calendar: OK")
+        except Exception as e:
+            log.exception(f"[bmo]   Calendar: SKIPPED")
 
     # Dynamic location/timezone
-    try:
-        from services.location_service import LocationService
-        location_service = LocationService()
-        location_service.start_polling()
-        current_loc = location_service.get_location()
-        log.info(
-            "[bmo]   Location: OK (%s)",
-            current_loc.get("location_label") or current_loc.get("timezone", "unknown"),
-        )
-    except Exception:
+    if BMO_CANARY:
+        from services.location_service import LocationService  # noqa: F401 — canary import check
         location_service = None
-        log.exception("[bmo]   Location: SKIPPED")
+        log.info("[bmo]   Location: CANARY (import-only)")
+    else:
+        try:
+            from services.location_service import LocationService
+            location_service = LocationService()
+            location_service.start_polling()
+            current_loc = location_service.get_location()
+            log.info(
+                "[bmo]   Location: OK (%s)",
+                current_loc.get("location_label") or current_loc.get("timezone", "unknown"),
+            )
+        except Exception:
+            location_service = None
+            log.exception("[bmo]   Location: SKIPPED")
 
     # Weather
-    try:
-        from services.weather_service import WeatherService
-        weather = WeatherService(socketio=socketio, location_service=location_service)
-        service_map["weather"] = weather
-        log.info("[bmo]   Weather: OK")
-    except Exception as e:
-        log.exception(f"[bmo]   Weather: SKIPPED")
+    if BMO_CANARY:
+        from services.weather_service import WeatherService  # noqa: F401 — canary import check
+        weather = None
+        log.info("[bmo]   Weather: CANARY (import-only)")
+    else:
+        try:
+            from services.weather_service import WeatherService
+            weather = WeatherService(socketio=socketio, location_service=location_service)
+            service_map["weather"] = weather
+            log.info("[bmo]   Weather: OK")
+        except Exception as e:
+            log.exception(f"[bmo]   Weather: SKIPPED")
 
     # Audio output routing (before music so music can use it)
-    try:
-        from services.audio_output_service import AudioOutputService
-        audio_service = AudioOutputService()
-        service_map["audio"] = audio_service
-        log.info("[bmo]   Audio output: OK")
-    except Exception as e:
-        log.exception(f"[bmo]   Audio output: SKIPPED")
+    if BMO_CANARY:
+        from services.audio_output_service import AudioOutputService  # noqa: F401 — canary import check
+        audio_service = None
+        log.info("[bmo]   Audio output: CANARY (import-only)")
+    else:
+        try:
+            from services.audio_output_service import AudioOutputService
+            audio_service = AudioOutputService()
+            service_map["audio"] = audio_service
+            log.info("[bmo]   Audio output: OK")
+        except Exception as e:
+            log.exception(f"[bmo]   Audio output: SKIPPED")
 
     # Music (requires ytmusicapi/vlc)
-    try:
-        from services.music_service import MusicService
-        music = MusicService(smart_home=smart_home, socketio=socketio, audio_service=audio_service)
-        service_map["music"] = music
-        log.info("[bmo]   Music: OK")
-    except Exception as e:
-        log.exception(f"[bmo]   Music: SKIPPED")
+    if BMO_CANARY:
+        from services.music_service import MusicService  # noqa: F401 — canary import check
+        music = None
+        log.info("[bmo]   Music: CANARY (import-only)")
+    else:
+        try:
+            from services.music_service import MusicService
+            music = MusicService(smart_home=smart_home, socketio=socketio, audio_service=audio_service)
+            service_map["music"] = music
+            log.info("[bmo]   Music: OK")
+        except Exception as e:
+            log.exception(f"[bmo]   Music: SKIPPED")
 
     # Timers
-    try:
-        from services.timer_service import TimerService
-        timers = TimerService(voice_pipeline=voice, socketio=socketio,
-                              agent_fn=lambda: agent)
-        saved_alarm_vol = _load_setting("volume.alarms", None)
-        if saved_alarm_vol is not None:
-            timers.alarm_volume = int(saved_alarm_vol)
-        service_map["timers"] = timers
-        log.info("[bmo]   Timers: OK")
-    except Exception as e:
-        log.exception(f"[bmo]   Timers: SKIPPED")
+    if BMO_CANARY:
+        from services.timer_service import TimerService  # noqa: F401 — canary import check
+        timers = None
+        log.info("[bmo]   Timers: CANARY (import-only)")
+    else:
+        try:
+            from services.timer_service import TimerService
+            timers = TimerService(voice_pipeline=voice, socketio=socketio,
+                                  agent_fn=lambda: agent)
+            saved_alarm_vol = _load_setting("volume.alarms", None)
+            if saved_alarm_vol is not None:
+                timers.alarm_volume = int(saved_alarm_vol)
+            service_map["timers"] = timers
+            log.info("[bmo]   Timers: OK")
+        except Exception as e:
+            log.exception(f"[bmo]   Timers: SKIPPED")
 
     # Agent (core — always required)
-    log.info("[bmo]   Creating agent...")
-    agent = BmoAgent(services=service_map, socketio=socketio)
-    log.info("[bmo]   Agent: OK")
+    if BMO_CANARY:
+        # `from agent import BmoAgent` already ran at the top of init_services as
+        # the import check; do NOT instantiate in canary (no LLM/orchestrator boot).
+        agent = None
+        log.info("[bmo]   Agent: CANARY (import-only)")
+    else:
+        log.info("[bmo]   Creating agent...")
+        agent = BmoAgent(services=service_map, socketio=socketio)
+        log.info("[bmo]   Agent: OK")
+
+    if BMO_CANARY:
+        # Canary stops here — everything below this point starts pollers/threads,
+        # spawns subprocesses, or makes network calls (background starters, the
+        # wpctl mic gain, the TV-remote/health-checker/notifier/scheduler threads,
+        # KDE Connect, the Ollama warmup). Import-check the remaining service
+        # modules (the dominant deploy-break class) without instantiating any of
+        # them, then return — leaving every service global None.
+        from routes.tv_api import init_tv_remote  # noqa: F401 — canary import check
+        from services.monitoring import HealthChecker  # noqa: F401 — canary import check
+        from services.notification_service import NotificationService  # noqa: F401 — canary import check
+        from services.scene_service import SceneService  # noqa: F401 — canary import check
+        from services.list_service import ListService  # noqa: F401 — canary import check
+        from services.alert_service import AlertService  # noqa: F401 — canary import check
+        from services.routine_service import RoutineService  # noqa: F401 — canary import check
+        from services.personality_engine import PersonalityEngine  # noqa: F401 — canary import check
+        log.info("[bmo] All services CANARY-checked (import-only) — boot validated.")
+        return
 
     # Start background services that loaded successfully
     if smart_home:
@@ -501,17 +584,19 @@ def init_services():
         calendar.start_polling()
     if weather:
         weather.start_polling()
-    # Boost mic gain for cross-room pickup (PipeWire, persists until reboot)
-    try:
-        subprocess.run(
-            ["wpctl", "set-volume", "@DEFAULT_SOURCE@", "1.5"],
-            capture_output=True, timeout=3,
-            env={**os.environ, "XDG_RUNTIME_DIR": "/run/user/1000",
-                 "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1000/bus"},
-        )
-        log.info("[bmo]   Mic gain: 150%")
-    except Exception as e:
-        log.exception(f"[bmo]   Mic gain set failed")
+    # Boost mic gain for cross-room pickup (PipeWire, persists until reboot).
+    # Skipped in canary — the canary must never shell out to the audio stack.
+    if not BMO_CANARY:
+        try:
+            subprocess.run(
+                ["wpctl", "set-volume", "@DEFAULT_SOURCE@", "1.5"],
+                capture_output=True, timeout=3,
+                env={**os.environ, "XDG_RUNTIME_DIR": "/run/user/1000",
+                     "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1000/bus"},
+            )
+            log.info("[bmo]   Mic gain: 150%")
+        except Exception as e:
+            log.exception(f"[bmo]   Mic gain set failed")
 
     if voice:
         log.info("[bmo]   Starting voice listener...")
@@ -2691,5 +2776,7 @@ if __name__ == "__main__":
             music.restore_playback()
         except Exception as e:
             log.exception(f"[bmo] Music restore failed")
-    log.info("[bmo] BMO is ready! Access at http://0.0.0.0:5000")
-    socketio.run(app, host="0.0.0.0", port=5000, debug=False)
+    if BMO_CANARY:
+        log.info("[bmo] CANARY boot — hardware/services skipped")
+    log.info(f"[bmo] BMO is ready! Access at http://0.0.0.0:{BMO_PORT}")
+    socketio.run(app, host="0.0.0.0", port=BMO_PORT, debug=False)

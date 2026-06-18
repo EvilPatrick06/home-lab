@@ -1,0 +1,17 @@
+services:
+  bmo-app:
+    build: { context: .., dockerfile: docker/Dockerfile }
+    container_name: bmo-app
+    restart: unless-stopped
+    network_mode: host
+    env_file: ../pi/.env
+    environment:
+      BMO_DISABLE_OLED: "1"
+      BMO_DISABLE_CAMERA: "1"
+    volumes:
+      - ../pi/data:/app/data
+    # Optional hardware passthrough — uncomment per-device:
+    # devices:
+    #   - /dev/snd:/dev/snd
+    #   - /dev/i2c-1:/dev/i2c-1
+    #   - /dev/gpiomem0:/dev/gpiomem0

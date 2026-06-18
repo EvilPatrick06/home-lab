@@ -1,0 +1,84 @@
+# Health-gated CI deploy of the bmo Pi services.
+#
+# Trigger model:
+#   - workflow_run only fires from the workflow file on the DEFAULT branch
+#     (master); a green "bmo / pi pytest" run on a master push is the gate.
+#   - Auto-deploy is additionally opt-in via the BMO_AUTO_DEPLOY repo variable;
+#     without it, only manual workflow_dispatch runs deploy.
+#
+# Auth model:
+#   - The tailnet join is ephemeral (tailscale/github-action OAuth → tag:ci).
+#   - SSH auth is Tailscale SSH — no SSH-key secrets are stored anywhere.
+#
+# Idempotency:
+#   - deploy.sh is idempotent: it exits 0 on "already deployed", so a re-run
+#     (or a duplicated workflow_run) is a safe no-op.
+#
+# Dormant by design:
+#   - Without TS_OAUTH_CLIENT_ID / TS_OAUTH_SECRET the gate job emits a notice
+#     and the deploy job is skipped → the workflow lands GREEN, not red.
+name: bmo / deploy
+on:
+  workflow_run:
+    workflows: ["bmo / pi pytest"]   # MUST match the `name:` in .github/workflows/bmo-pi-pytest.yml exactly
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      target_sha:
+        description: "Commit to deploy (default: origin/master HEAD)"
+        required: false
+permissions:
+  contents: read
+concurrency:
+  group: bmo-deploy
+  cancel-in-progress: false
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'master' &&
+       vars.BMO_AUTO_DEPLOY == 'true')
+    outputs:
+      has-secrets: ${{ steps.check.outputs.ok }}
+      target: ${{ steps.check.outputs.target }}
+    steps:
+      - id: check
+        env:
+          HAS_ID: ${{ secrets.TS_OAUTH_CLIENT_ID != '' }}
+          HAS_SECRET: ${{ secrets.TS_OAUTH_SECRET != '' }}
+          DISPATCH_SHA: ${{ inputs.target_sha }}
+          RUN_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          ok=false; [ "$HAS_ID" = "true" ] && [ "$HAS_SECRET" = "true" ] && ok=true
+          echo "ok=$ok" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "target=$DISPATCH_SHA" >> "$GITHUB_OUTPUT"
+          else
+            echo "target=$RUN_SHA" >> "$GITHUB_OUTPUT"
+          fi
+          [ "$ok" = "true" ] || echo "::notice::bmo deploy skipped — TS_OAUTH_CLIENT_ID / TS_OAUTH_SECRET secrets not configured."
+  deploy:
+    needs: gate
+    if: needs.gate.outputs.has-secrets == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Join tailnet (ephemeral)
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+          ping: bmo.tail31b5d9.ts.net
+      - name: Run health-gated deploy on the Pi
+        # $TARGET is passed via env (not interpolated into the script body) for
+        # expression-injection hygiene.
+        env:
+          TARGET: ${{ needs.gate.outputs.target }}
+        run: |
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new \
+            patrick@bmo.tail31b5d9.ts.net \
+            "/home/patrick/home-lab/bmo/pi/scripts/deploy.sh $TARGET"

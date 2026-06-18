@@ -84,7 +84,7 @@ Service modules in `bmo/pi/services/` — business logic used by agents + Flask 
 |---|---|---|
 | 5000 | `app.py` (Flask) | Main HTTP + WebSocket |
 | 5001 | `ide_app/ide_app.py` | Embedded web IDE (optional) |
-| 5002 | (reserved) | future |
+| 5002 | app.py (canary) | deploy-time boot check only (BMO_PORT/BMO_CANARY; see DEPLOY.md) |
 
 BMO's services run inside the main Flask process on :5000. They share an `init_services()` lifecycle.
 

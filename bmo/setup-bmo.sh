@@ -404,22 +404,16 @@ EOF
 sudo systemctl restart avahi-daemon
 
 # ── 12. Git Post-Merge Hook ─────────────────────────────────────
+# The hook NO LONGER restarts services — a blanket restart on every merge is
+# unsafe (no canary, no health gate, no rollback) and would also fire on a
+# `git pull` of a dev checkout.  It now only chains git-lfs (the repo uses LFS)
+# and prints a reminder.  Deploys are explicit + health-gated via deploy.sh.
 log "Setting up git deploy hook..."
 cat > ~/home-lab/.git/hooks/post-merge << 'EOF'
-#!/bin/bash
-echo '[deploy] Restarting all BMO services...'
-sudo systemctl restart bmo
-sudo systemctl restart bmo-kiosk
-sudo systemctl restart bmo-fan
-sudo systemctl restart bmo-dm-bot
-sudo systemctl restart bmo-social-bot
-echo '[deploy] All services restarted'
-
-echo '[deploy] Restarting Docker containers...'
-sudo docker restart bmo-ollama bmo-pihole bmo-coturn bmo-peerjs 2>/dev/null
-echo '[deploy] Docker containers restarted'
-
-echo '[deploy] All done!'
+#!/bin/sh
+# Chain git-lfs (repo uses LFS); deploys are explicit via deploy.sh.
+command -v git-lfs >/dev/null 2>&1 && git lfs post-merge "$@"
+echo '[deploy] Code updated. Run bmo/pi/scripts/deploy.sh for a health-gated restart.'
 EOF
 chmod +x ~/home-lab/.git/hooks/post-merge
 

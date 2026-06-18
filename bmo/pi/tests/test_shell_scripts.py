@@ -35,6 +35,8 @@ HEALTH_CHECK_SH = os.path.join(_SCRIPTS_DIR, "health_check.sh")
 E2E_TEST_SH = os.path.join(_SCRIPTS_DIR, "e2e_test.sh")
 SETUP_BMO_SH = os.path.join(_BMOSEUP_DIR, "bmo", "setup-bmo.sh")
 DEPLOY_SH = os.path.join(_BMOSEUP_DIR, "bmo", "docker", "deploy.sh")
+# Phase 42B: health-gated Pi deploy script (distinct from docker/deploy.sh).
+PI_DEPLOY_SH = os.path.join(_SCRIPTS_DIR, "deploy.sh")
 
 DIAGNOSE_CF_SH = os.path.join(_SCRIPTS_DIR, "diagnose-cloudflare.sh")
 SETUP_CF_SH = os.path.join(_SCRIPTS_DIR, "setup-cloudflare-tunnel.sh")
@@ -51,6 +53,7 @@ ALL_SH_FILES = [
     SETUP_TAILSCALE_SH,
     CLOUDFLARE_ACCESS_SH,
     APPLY_ACCESS_SH,
+    PI_DEPLOY_SH,
 ] + ([DEPLOY_SH] if os.path.isfile(DEPLOY_SH) else [])
 
 # ── Helpers ───────────────────────────────────────────────────────────────────

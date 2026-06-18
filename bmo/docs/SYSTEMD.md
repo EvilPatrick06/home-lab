@@ -50,6 +50,10 @@ systemctl status bmo                                       # one service
 systemctl status bmo bmo-fan bmo-kiosk bmo-dm-bot bmo-social-bot    # all
 systemctl list-units --type=service --state=active | grep bmo
 
+# Restart after a code update (PREFERRED — health-gated, selective, auto-rollback)
+/home/patrick/home-lab/bmo/pi/scripts/deploy.sh    # canary-boots on :5002, restarts only changed services, gates :5000 /health
+# raw `sudo systemctl restart bmo` below is the unguarded alternative
+
 # Control
 sudo systemctl start bmo
 sudo systemctl stop bmo
@@ -69,6 +73,11 @@ sudo cp ~/home-lab/bmo/pi/kiosk/bmo-kiosk.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now bmo-kiosk
 ```
+
+> **Post-merge git hook no longer auto-restarts.** It chains `git lfs` (smudge/pull)
+> and then just prints a reminder to run `deploy.sh` — restarting is now an explicit,
+> health-gated step rather than a side effect of `git pull`. See
+> [`DEPLOY.md`](./DEPLOY.md#automated-deploy).
 
 ## Log viewing
 
