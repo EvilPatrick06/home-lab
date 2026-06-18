@@ -15,6 +15,8 @@ import time
 
 from flask import Blueprint, Response, jsonify, request
 
+from services.bmo_logging import _s, fail
+
 log = logging.getLogger("bmo")
 
 calendar_bp = Blueprint("calendar_api", __name__, url_prefix="/api/calendar")
@@ -247,8 +249,7 @@ def api_calendar_auth_url():
             }
         )
     except Exception as e:
-        log.info(f"[bmo] api error: {e!r}")
-        return jsonify({"error": "internal server error"}), 500
+        return fail(log, e, 500, "internal server error")
 
 
 def _calendar_auth_html(success: bool, message: str) -> str:
@@ -326,8 +327,9 @@ def api_calendar_auth_status():
             calendar._service = None
             calendar.get_next_event()
         return jsonify({"authorized": True, "message": "Calendar token is valid", "checked_at": now})
-    except Exception as e:
-        return jsonify({"authorized": False, "message": str(e), "checked_at": now}), 200
+    except Exception:
+        log.exception("calendar auth check failed")
+        return jsonify({"authorized": False, "message": "calendar not authorized", "checked_at": now}), 200
 
 
 @calendar_bp.route("/auth/callback", methods=["GET", "POST"])
@@ -390,7 +392,10 @@ def api_calendar_auth_callback():
             redirect_uri = f"{scheme}://{host}/api/calendar/auth/callback"
         else:
             redirect_uri = "urn:ietf:wg:oauth:2.0:oob"
-        log.info(f"[calendar] Token-exchange POST: client_id_tail=...{client_id[-15:]}, redirect_uri={redirect_uri}, code_tail=...{code[-6:]}")
+        log.info(
+            "[calendar] Token-exchange POST: client_id_tail=...%s, redirect_uri=%s, code_tail=...%s",
+            _s(client_id[-15:]), _s(redirect_uri), _s(code[-6:]),
+        )
         token_resp = http_requests.post(
             "https://oauth2.googleapis.com/token",
             data={
@@ -404,8 +409,8 @@ def api_calendar_auth_callback():
         )
         if token_resp.status_code != 200:
             detail = token_resp.text[:600]
-            log.info(f"[calendar] Token exchange failed ({token_resp.status_code}): {detail}")
-            message = f"Token exchange failed ({token_resp.status_code}): {detail}"
+            log.info("[calendar] Token exchange failed (%s): %s", token_resp.status_code, _s(detail))
+            message = f"Token exchange failed ({token_resp.status_code})"
             if browser_callback:
                 html = _calendar_auth_html(False, message)
                 return Response(html, mimetype="text/html"), 400
@@ -434,7 +439,7 @@ def api_calendar_auth_callback():
         if not creds.token:
             return jsonify({"error": "Token exchange returned no access token"}), 400
 
-        log.info(f"[calendar] Exchanging auth code: {code[:20]}...")
+        log.info("[calendar] Exchanging auth code: %s...", _s(code[:20]))
         _calendar_write_token_file(token_path, creds.to_json())
 
         # Reset calendar service to pick up new token
@@ -445,11 +450,9 @@ def api_calendar_auth_callback():
             # Verify token immediately so status flips from DOWN as soon as possible.
             try:
                 calendar.get_next_event()
-            except Exception as calendar_err:
-                message = (
-                    "Token saved but calendar validation failed: "
-                    f"{calendar_err}"
-                )
+            except Exception:
+                log.exception("[calendar] token saved but validation failed")
+                message = "Token saved but calendar validation failed"
                 if browser_callback:
                     html = _calendar_auth_html(False, message)
                     return Response(html, mimetype="text/html"), 400
@@ -461,12 +464,11 @@ def api_calendar_auth_callback():
             return Response(html, mimetype="text/html")
         return jsonify({"ok": True, "message": success_message})
     except Exception as e:
-        log.exception("[calendar] Auth failed")
         if browser_callback:
-            html = _calendar_auth_html(False, str(e))
+            log.exception("[calendar] Auth failed")
+            html = _calendar_auth_html(False, "Calendar authorization failed")
             return Response(html, mimetype="text/html"), 500
-        log.info(f"[bmo] api error: {e!r}")
-        return jsonify({"error": "internal server error"}), 500
+        return fail(log, e, 500, "internal server error")
 
 
 def register_calendar(flask_app):

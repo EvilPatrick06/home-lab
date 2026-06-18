@@ -17,6 +17,9 @@ on:
   schedule:
     - cron: "18 4 * * 1"
 
+permissions:
+  contents: read
+
 jobs:
   dnd-npm-audit:
     runs-on: ubuntu-latest

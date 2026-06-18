@@ -5,6 +5,7 @@
  */
 
 import type { SpellEntry } from '../../../types/character-common'
+import { stripHtmlToFixedPoint } from '../strip-html'
 
 export function extractSpells(data: Record<string, unknown>): {
   knownSpells: SpellEntry[]
@@ -46,7 +47,7 @@ export function extractSpells(data: Record<string, unknown>): {
         // boundary-allow: external format adapter — maps D&D Beyond data into library shape
         name: def.name,
         level: def.level ?? 0,
-        description: (def.description ?? '').replace(/<[^>]*>/g, '').slice(0, 500),
+        description: stripHtmlToFixedPoint(def.description ?? '').slice(0, 500),
         castingTime: def.castingTime?.castingTimeInterval
           ? `${def.castingTime.castingTimeInterval} ${def.castingTime.castingTimeType ?? 'action'}`
           : '1 action',

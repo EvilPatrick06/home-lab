@@ -20,6 +20,9 @@ defaults:
   run:
     working-directory: bmo/pi
 
+permissions:
+  contents: read
+
 jobs:
   pytest:
     runs-on: ubuntu-latest

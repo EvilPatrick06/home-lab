@@ -12,6 +12,8 @@ import json
 import logging
 import os
 
+from services.bmo_logging import _s
+
 log = logging.getLogger("bmo")
 
 SETTINGS_PATH = os.path.join(
@@ -51,4 +53,4 @@ def save_setting(key: str, value):
         with open(SETTINGS_PATH, "w", encoding="utf-8") as f:
             json.dump(settings, f, indent=2)
     except Exception:
-        log.exception(f"[settings] Save failed for {key}")
+        log.exception("[settings] Save failed for %s", _s(key))

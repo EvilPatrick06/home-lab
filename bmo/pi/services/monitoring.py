@@ -17,7 +17,7 @@ import threading
 import time
 from enum import Enum
 
-from services.bmo_logging import get_logger
+from services.bmo_logging import _s, get_logger
 log = get_logger("monitoring")
 
 try:
@@ -1836,7 +1836,7 @@ class HealthChecker:
         """
         # Always log
         prefix = level.value.upper()
-        log.info(f"[monitor] [{prefix}] {service}: {message}")
+        log.info("[monitor] [%s] %s: %s", prefix, _s(service), _s(message))
 
         # SocketIO for critical and warning
         if level in (Severity.CRITICAL, Severity.WARNING) and self.socketio:

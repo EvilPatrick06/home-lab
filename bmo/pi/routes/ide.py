@@ -30,7 +30,7 @@ import uuid
 from flask import Blueprint, jsonify, render_template, request
 from gevent.event import AsyncResult as _AsyncResult
 
-from services.bmo_logging import get_logger
+from services.bmo_logging import _s, fail, get_logger
 
 log = get_logger("ide")
 
@@ -271,7 +271,9 @@ def api_ide_tree():
     try:
         path = _ide_safe_path(path)
     except PermissionError as e:
-        return jsonify({"error": str(e), "sandbox_roots": list(_IDE_ALLOWED_ROOTS)}), 403
+        log.exception("request failed")
+        return jsonify({"error": "path outside IDE sandbox",
+                        "sandbox_roots": list(_IDE_ALLOWED_ROOTS)}), 403
     from dev.dev_tools import list_directory
     listing = list_directory(path)
     if isinstance(listing, dict):
@@ -332,7 +334,7 @@ def api_ide_file_read():
         try:
             path = _ide_safe_path(path)
         except PermissionError as e:
-            return jsonify({"error": str(e)}), 403
+            return fail(log, e, 403, "path outside IDE sandbox")
         from dev.dev_tools import read_file
         # dev_tools.read_file signature: read_file(path, limit, offset)
         try:
@@ -357,7 +359,7 @@ def api_ide_file_write():
     try:
         path = _ide_safe_path(path)
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        return fail(log, e, 403, "path outside IDE sandbox")
     try:
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "w", encoding="utf-8") as f:
@@ -385,7 +387,7 @@ def api_ide_file_edit():
     try:
         path = _ide_safe_path(path)
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        return fail(log, e, 403, "path outside IDE sandbox")
     from dev.dev_tools import edit_file
     result = edit_file(path, data.get("old_string", ""), data.get("new_string", ""))
     if result.get("success"):
@@ -417,7 +419,7 @@ def api_ide_file_create():
     try:
         path = _ide_safe_path(path)
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        return fail(log, e, 403, "path outside IDE sandbox")
     try:
         if is_dir:
             os.makedirs(path, exist_ok=True)
@@ -438,8 +440,7 @@ def api_ide_file_create():
             "bytes_written": len(text_content.encode("utf-8")),
         })
     except OSError as e:
-        log.info(f"[ide.file.create] error: {e}")
-        return jsonify({"error": f"create failed: {e}"}), 500
+        return fail(log, e, 500, "create failed")
 
 
 @ide_bp.route("/folder/create", methods=["POST"])
@@ -457,13 +458,12 @@ def api_ide_folder_create():
     try:
         path = _ide_safe_path(raw_path)
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        return fail(log, e, 403, "path outside IDE sandbox")
     try:
         os.makedirs(path, exist_ok=True)
         return jsonify({"success": True, "path": path, "is_dir": True})
     except OSError as e:
-        log.info(f"[ide.folder.create] error: {e}")
-        return jsonify({"error": f"create failed: {e}"}), 500
+        return fail(log, e, 500, "create failed")
 
 
 @ide_bp.route("/file/rename", methods=["POST"])
@@ -480,7 +480,7 @@ def api_ide_file_rename():
         old = _ide_safe_path(data.get("old_path", ""))
         new = _ide_safe_path(data.get("new_path", ""))
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        return fail(log, e, 403, "path outside IDE sandbox")
     try:
         os.rename(old, new)
         return jsonify({"success": True})
@@ -500,7 +500,7 @@ def api_ide_file_delete():
     try:
         path = _ide_safe_path(path)
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        return fail(log, e, 403, "path outside IDE sandbox")
     try:
         if os.path.isdir(path):
             _shutil.rmtree(path)
@@ -523,7 +523,7 @@ def api_ide_folder_delete():
     try:
         path = _ide_safe_path(raw_path)
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        return fail(log, e, 403, "path outside IDE sandbox")
     if not os.path.exists(path):
         return jsonify({"error": "not found"}), 404
     if not os.path.isdir(path):
@@ -532,8 +532,7 @@ def api_ide_folder_delete():
         _shutil.rmtree(path)
         return jsonify({"success": True, "path": path})
     except OSError as e:
-        log.info(f"[ide.folder.delete] error: {e}")
-        return jsonify({"error": f"delete failed: {e}"}), 500
+        return fail(log, e, 500, "delete failed")
 
 
 @ide_bp.route("/search")
@@ -555,10 +554,12 @@ def api_ide_search():
 def api_ide_js_error():
     """Log client-side JS errors for debugging."""
     data = request.json or {}
-    log.info(f"[js-error] {data.get('msg', '?')} at {data.get('file', '?')}:{data.get('line', '?')}:{data.get('col', '?')}")
+    log.info("[js-error] %s at %s:%s:%s", _s(data.get("msg", "?")),
+             _s(data.get("file", "?")), _s(data.get("line", "?")),
+             _s(data.get("col", "?")))
     if data.get("stack"):
         for line in data["stack"].split("\n")[:5]:
-            log.info(f"[js-error]   {line}")
+            log.info("[js-error]   %s", _s(line))
     return jsonify({"ok": True})
 
 
@@ -587,7 +588,7 @@ def api_ide_git_status():
     try:
         repo = _safe_repo(request.args.get("path", "~"))
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        return fail(log, e, 403, "path outside IDE sandbox")
     from dev.dev_tools import git_command_args
     branch_result = git_command_args(["rev-parse", "--abbrev-ref", "HEAD"], repo)
     status_result = git_command_args(["status", "--porcelain"], repo)
@@ -613,7 +614,7 @@ def api_ide_git_stage():
     try:
         repo = _safe_repo(data.get("repo", "~"))
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        return fail(log, e, 403, "path outside IDE sandbox")
     path = data.get("path", "")
     if not path or path.startswith("-"):
         return jsonify({"error": "invalid path"}), 400
@@ -628,7 +629,7 @@ def api_ide_git_unstage():
     try:
         repo = _safe_repo(data.get("repo", "~"))
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        return fail(log, e, 403, "path outside IDE sandbox")
     path = data.get("path", "")
     if not path or path.startswith("-"):
         return jsonify({"error": "invalid path"}), 400
@@ -646,7 +647,7 @@ def api_ide_git_commit():
     try:
         repo = _safe_repo(data.get("repo", "~"))
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        return fail(log, e, 403, "path outside IDE sandbox")
     from dev.dev_tools import git_command_args
     return jsonify(git_command_args(["commit", "-m", msg], repo))
 
@@ -657,7 +658,7 @@ def api_ide_git_log():
     try:
         repo = _safe_repo(request.args.get("path", "~"))
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        return fail(log, e, 403, "path outside IDE sandbox")
     count_raw = request.args.get("count", "20")
     try:
         count = max(1, min(int(count_raw), 1000))
@@ -679,7 +680,7 @@ def api_ide_git_diff():
     try:
         repo = _safe_repo(request.args.get("repo", "~"))
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        return fail(log, e, 403, "path outside IDE sandbox")
     path = request.args.get("path", "")
     args = ["diff"]
     if path and not path.startswith("-"):
@@ -698,7 +699,7 @@ def api_ide_git_checkout():
     try:
         repo = _safe_repo(data.get("repo", "~"))
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        return fail(log, e, 403, "path outside IDE sandbox")
     from dev.dev_tools import git_command_args
     return jsonify(git_command_args(["checkout", branch], repo))
 
@@ -709,7 +710,7 @@ def api_ide_git_branches():
     try:
         repo = _safe_repo(request.args.get("path", "~"))
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        return fail(log, e, 403, "path outside IDE sandbox")
     from dev.dev_tools import git_command_args
     result = git_command_args(["branch", "-a"], repo)
     branches = []
@@ -731,7 +732,7 @@ def api_ide_git_push():
     try:
         repo = _safe_repo(data.get("repo", "~"))
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        return fail(log, e, 403, "path outside IDE sandbox")
     from dev.dev_tools import git_command_args
     return jsonify(git_command_args(["push"], repo))
 
@@ -743,7 +744,7 @@ def api_ide_git_pull():
     try:
         repo = _safe_repo(data.get("repo", "~"))
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        return fail(log, e, 403, "path outside IDE sandbox")
     from dev.dev_tools import git_command_args
     return jsonify(git_command_args(["pull"], repo))
 
@@ -755,7 +756,7 @@ def api_ide_git_fetch():
     try:
         repo = _safe_repo(data.get("repo", "~"))
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        return fail(log, e, 403, "path outside IDE sandbox")
     from dev.dev_tools import git_command_args
     return jsonify(git_command_args(["fetch", "--all"], repo))
 
@@ -768,7 +769,7 @@ def api_ide_git_stash():
     try:
         repo = _safe_repo(data.get("repo", "~"))
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        return fail(log, e, 403, "path outside IDE sandbox")
     from dev.dev_tools import git_command_args
     if action == "save":
         msg = data.get("message", "")
@@ -798,7 +799,7 @@ def api_ide_git_branch_create():
     try:
         repo = _safe_repo(data.get("repo", "~"))
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        return fail(log, e, 403, "path outside IDE sandbox")
     from dev.dev_tools import git_command_args
     return jsonify(git_command_args(["checkout", "-b", name], repo))
 
@@ -813,7 +814,7 @@ def api_ide_git_branch_delete():
     try:
         repo = _safe_repo(data.get("repo", "~"))
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        return fail(log, e, 403, "path outside IDE sandbox")
     from dev.dev_tools import git_command_args
     return jsonify(git_command_args(["branch", "-d", name], repo))
 
@@ -1372,7 +1373,7 @@ def api_ide_state_save():
             json.dump(data, f, indent=2)
         return jsonify({"ok": True})
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return fail(log, e, 500)
 
 # ── IDE Terminal SocketIO events ─────────────────────────────────────
 

@@ -9,7 +9,6 @@ import io
 import difflib
 import json
 import os
-import pickle
 import queue
 import re
 import subprocess
@@ -25,14 +24,12 @@ import sounddevice as sd
 
 from services.cloud_providers import groq_stt, fish_audio_tts
 
-from services.bmo_logging import get_logger
+from services.bmo_logging import _s, get_logger
 log = get_logger("voice_pipeline")
 
 MODELS_DIR = os.path.expanduser("~/home-lab/bmo/pi/models")
 os.makedirs(os.path.join(MODELS_DIR, "piper"), exist_ok=True)
 DATA_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
-# Legacy pickle path (migrated to JSON on first read)
-VOICE_PROFILES_PATH = os.path.join(DATA_DIR, "voice_profiles.pkl")
 VOICE_PROFILES_JSON = os.path.join(DATA_DIR, "voice_profiles.json")
 
 EDGE_TTS_VOICE = "en-US-AnaNeural"  # Young/playful voice for BMO
@@ -284,14 +281,7 @@ class VoicePipeline:
             self._voice_profiles = {
                 k: np.asarray(v, dtype=np.float32) for k, v in raw.items()
             }
-        elif os.path.exists(VOICE_PROFILES_PATH):
-            with open(VOICE_PROFILES_PATH, "rb") as f:
-                self._voice_profiles = pickle.load(f)
-            self._save_voice_profiles_json()
-            try:
-                os.remove(VOICE_PROFILES_PATH)
-            except OSError:
-                pass
+        # Legacy .pkl voice-profile migration removed for security (py/unsafe-deserialization) — JSON only.
         return self._voice_profiles
 
     def _save_voice_profiles_json(self):
@@ -519,7 +509,7 @@ class VoicePipeline:
 
         def audio_callback(indata, frames, time_info, status):
             if status:
-                log.info(f"[audio] {status}")
+                log.info("[audio] %s", _s(status))
             self._audio_queue.put(indata.copy())
 
         log.info(f"[wake] Porcupine listening for '{wake_phrase}' (frame={frame_length}, sensitivity={PORCUPINE_SENSITIVITY})")
@@ -704,13 +694,13 @@ class VoicePipeline:
                         oww_model.reset()
                         continue
                     text_lower = text.lower().strip()
-                    log.info(f"[wake] STT confirm: '{text_lower}'")
+                    log.info("[wake] STT confirm: '%s'", _s(text_lower))
                     is_wake = any(
                         re.search(r'\b' + re.escape(v) + r'\b', text_lower)
                         for v in WAKE_VARIANTS
                     )
                     if is_wake:
-                        log.info(f"[wake] Confirmed 'hey BMO' in: {text}")
+                        log.info("[wake] Confirmed 'hey BMO' in: %s", _s(text))
                         self._emit("status", {"state": "listening"})
                         ring_buffer.clear()
                         while not self._audio_queue.empty():
@@ -820,13 +810,13 @@ class VoicePipeline:
                     if not text:
                         continue  # Filtered as hallucination or no speech
                     text_lower = text.lower().strip()
-                    log.info(f"[wake] STT check: '{text_lower}'")
+                    log.info("[wake] STT check: '%s'", _s(text_lower))
                     is_wake = any(
                         re.search(r'\b' + re.escape(v) + r'\b', text_lower)
                         for v in WAKE_VARIANTS
                     )
                     if is_wake:
-                        log.info(f"[wake] Detected 'hey BMO' in: {text}")
+                        log.info("[wake] Detected 'hey BMO' in: %s", _s(text))
                         self._emit("status", {"state": "listening"})
                         ring_buffer.clear()
                         while not self._audio_queue.empty():
@@ -887,7 +877,7 @@ class VoicePipeline:
                     if segments:
                         avg_no_speech = sum(s.get("no_speech_probability", 0) for s in segments) / len(segments)
                         if avg_no_speech > 0.5:
-                            log.info(f"[wake] Rejected (no_speech_prob={avg_no_speech:.2f}): '{text}'")
+                            log.info("[wake] Rejected (no_speech_prob=%.2f): '%s'", avg_no_speech, _s(text))
                             return ""
             except Exception:
                 return ""
@@ -954,13 +944,13 @@ class VoicePipeline:
 
             self._tts_worker_active.set()
             if not getattr(self, '_bmo_tts_enabled', True):
-                log.info(f"[tts-worker] Suppressed (BMO TTS off): {text[:60]}...")
+                log.info("[tts-worker] Suppressed (BMO TTS off): %s...", _s(text[:60]))
                 self._tts_worker_active.clear()
                 continue
             # Bedtime mode check — suppress TTS unless it's a priority item
             scene_svc = getattr(self, '_scene_service', None)
             if scene_svc and scene_svc.get_active() == "bedtime":
-                log.info(f"[tts-worker] Suppressed (bedtime mode): {text[:60]}...")
+                log.info("[tts-worker] Suppressed (bedtime mode): %s...", _s(text[:60]))
                 self._tts_worker_active.clear()
                 continue
             try:
@@ -1055,7 +1045,7 @@ class VoicePipeline:
                         tts_text = self._strip_markdown(sentence)
                         if tts_text:
                             sentences_queued += 1
-                            log.info(f"[stream] Queue sentence {sentences_queued}: {tts_text[:60]}...")
+                            log.info("[stream] Queue sentence %d: %s...", sentences_queued, _s(tts_text[:60]))
                             self._tts_queue.put(tts_text)
 
             remaining = buffer.strip()
@@ -1065,7 +1055,7 @@ class VoicePipeline:
                 tts_text = self._strip_markdown(remaining)
                 if tts_text:
                     sentences_queued += 1
-                    log.info(f"[stream] Queue final ({sentences_queued}): {tts_text[:60]}...")
+                    log.info("[stream] Queue final (%d): %s...", sentences_queued, _s(tts_text[:60]))
                     self._tts_queue.put(tts_text)
 
             # Signal worker to exit after all sentences are spoken
@@ -1131,7 +1121,7 @@ class VoicePipeline:
                 self._emit("status", {"state": "idle"})
                 return None
 
-            log.info(f"[stt] {speaker}: {text}")
+            log.info("[stt] %s: %s", _s(speaker), _s(text))
             if self._is_probable_self_echo(text):
                 log.info("[echo] Ignoring probable self-heard transcription")
                 self._emit("status", {"state": "idle"})
@@ -1151,7 +1141,7 @@ class VoicePipeline:
             # Ignore unregistered speakers (but only if profiles exist)
             profiles = self._load_voice_profiles()
             if speaker == "unknown" and profiles:
-                log.info(f"[voice] Ignoring unregistered speaker: '{text[:60]}'")
+                log.info("[voice] Ignoring unregistered speaker: '%s'", _s(text[:60]))
                 self._emit("status", {"state": "idle"})
                 return None
 
@@ -1182,7 +1172,7 @@ class VoicePipeline:
                     response = self._chat_callback(text, speaker)
                     if response:
                         tts_text = self._strip_markdown(response)
-                        log.info(f"[tts] Speaking: {tts_text[:80]}...")
+                        log.info("[tts] Speaking: %s...", _s(tts_text[:80]))
                         self._emit("response", {"text": tts_text, "speaker": speaker})
                         self.speak(tts_text)
                 self._emit("status", {"state": "idle"})
@@ -1193,7 +1183,7 @@ class VoicePipeline:
                 response = self._chat_callback(text, speaker)
                 if response:
                     tts_text = self._strip_markdown(response)
-                    log.info(f"[tts] Speaking: {tts_text[:80]}...")
+                    log.info("[tts] Speaking: %s...", _s(tts_text[:80]))
                     self._emit("response", {"text": tts_text, "speaker": speaker})
                     self.speak(tts_text)
                     # Skip follow-up loop if user said a closing phrase on the first turn
@@ -1349,7 +1339,7 @@ class VoicePipeline:
             m = re.search(pattern, text_lower, re.IGNORECASE)
             if m:
                 name = m.group(1).capitalize()
-                log.info(f"[voice] Enrollment request detected for: {name}")
+                log.info("[voice] Enrollment request detected for: %s", _s(name))
                 return name
         return None
 
@@ -1618,7 +1608,7 @@ class VoicePipeline:
 
         cleaned = text.strip().lower().rstrip(".,!?")
         if cleaned in self._TRANSCRIPTION_HALLUCINATIONS:
-            log.info(f"[stt] Filtered hallucination: '{text}'")
+            log.info("[stt] Filtered hallucination: '%s'", _s(text))
             return ""
         return text
 
@@ -1673,12 +1663,12 @@ class VoicePipeline:
         if segments:
             avg_no_speech = sum(s.get("no_speech_probability", 0) for s in segments) / len(segments)
             if avg_no_speech > 0.4:
-                log.info(f"[stt] Rejected (avg no_speech_prob={avg_no_speech:.2f}): '{text}'")
+                log.info("[stt] Rejected (avg no_speech_prob=%.2f): '%s'", avg_no_speech, _s(text))
                 return ""
             # Also check avg_logprob — hallucinated text has very low confidence
             avg_logprob = sum(s.get("avg_logprob", 0) for s in segments) / len(segments)
             if avg_logprob < -1.2:
-                log.info(f"[stt] Rejected (avg_logprob={avg_logprob:.2f}): '{text}'")
+                log.info("[stt] Rejected (avg_logprob=%.2f): '%s'", avg_logprob, _s(text))
                 return ""
 
         # Short text from long recordings is common with voice commands
@@ -1686,7 +1676,7 @@ class VoicePipeline:
         # Only reject truly trivial single-word outputs from very long recordings
         duration = result.get("duration", 0)
         if duration > 8 and len(text.split()) <= 1:
-            log.info(f"[stt] Rejected (single word from {duration:.1f}s recording): '{text}'")
+            log.info("[stt] Rejected (single word from %.1fs recording): '%s'", duration, _s(text))
             return ""
 
         return text
@@ -1711,17 +1701,17 @@ class VoicePipeline:
         """
         TTS_BYPASS = {"alarm", "timer", "emergency", "critical"}
         if not getattr(self, '_bmo_tts_enabled', True) and priority not in TTS_BYPASS:
-            log.info(f"[tts] Suppressed (BMO TTS off): {text[:60]}...")
+            log.info("[tts] Suppressed (BMO TTS off): %s...", _s(text[:60]))
             return
         # Suppress speech during bedtime mode (but allow alarms, timers, emergencies)
         BEDTIME_BYPASS = {"alarm", "timer", "emergency", "critical"}
         scene_svc = getattr(self, '_scene_service', None)
         if scene_svc and scene_svc.get_active() == "bedtime":
             if priority not in BEDTIME_BYPASS:
-                log.info(f"[tts] Suppressed (bedtime mode): {text[:60]}...")
+                log.info("[tts] Suppressed (bedtime mode): %s...", _s(text[:60]))
                 return
             else:
-                log.info(f"[tts] Bedtime bypass ({priority}): {text[:60]}...")
+                log.info("[tts] Bedtime bypass (%s): %s...", _s(priority), _s(text[:60]))
 
         self._emit("status", {"state": "speaking"})
         self._is_speaking = True
@@ -1738,7 +1728,7 @@ class VoicePipeline:
         try:
             cached = self._tts_cache_get(text, speaker)
             if cached:
-                log.info(f"[tts] Cache hit for: {text[:40]}...")
+                log.info("[tts] Cache hit for: %s...", _s(text[:40]))
                 self._play_audio(cached)
                 return
 
@@ -2164,13 +2154,13 @@ class VoicePipeline:
                     np.dot(embed, profile_embed)
                     / (np.linalg.norm(embed) * np.linalg.norm(profile_embed))
                 )
-                log.info(f"[speaker] {name}: similarity={similarity:.3f}")
+                log.info("[speaker] %s: similarity=%.3f", _s(name), similarity)
                 if similarity > 0.75 and similarity > best_score:
                     best_name = name
                     best_score = similarity
 
             if best_name != "unknown":
-                log.info(f"[speaker] Identified: {best_name} (score={best_score:.2f})")
+                log.info("[speaker] Identified: %s (score=%.2f)", _s(best_name), best_score)
             return best_name
         except Exception as e:
             log.exception(f"[speaker] Identification failed, returning unknown")
@@ -2193,7 +2183,7 @@ class VoicePipeline:
         self._voice_profiles = profiles
         self._save_voice_profiles_json()
 
-        log.info(f"[speaker] Enrolled '{name}' from {len(audio_paths)} clips")
+        log.info("[speaker] Enrolled '%s' from %d clips", _s(name), len(audio_paths))
 
     def get_enrolled_speakers(self) -> list[str]:
         """Return list of enrolled speaker names."""
@@ -2208,7 +2198,7 @@ class VoicePipeline:
         del profiles[name]
         self._voice_profiles = profiles
         self._save_voice_profiles_json()
-        log.info(f"[speaker] Removed '{name}'")
+        log.info("[speaker] Removed '%s'", _s(name))
         return True
 
     # ── Helpers ──────────────────────────────────────────────────────

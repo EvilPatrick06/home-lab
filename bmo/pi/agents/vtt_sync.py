@@ -21,6 +21,8 @@ from uuid import uuid4
 
 import requests
 
+from services.bmo_logging import _s
+
 logger = logging.getLogger("bmo.vtt_sync")
 
 # PHASE-22 22A: the VTT's sync receiver URL. NO `vtt.local` fallback — an unset
@@ -77,12 +79,12 @@ class VTTState:
     def update_initiative(self, data: Dict[str, Any]):
         self.initiative = data
         self.last_updated = datetime.now()
-        logger.info(f"Initiative updated: round {data.get('round', '?')}")
+        logger.info("Initiative updated: round %s", _s(data.get("round", "?")))
 
     def update_game_state(self, data: Dict[str, Any]):
         self.game_state = data
         self.last_updated = datetime.now()
-        logger.info(f"Game state updated: map={data.get('mapName', 'unknown')}")
+        logger.info("Game state updated: map=%s", _s(data.get("mapName", "unknown")))
 
     def format_initiative_embed(self) -> Optional[Dict[str, Any]]:
         """Format initiative order as a Discord embed dict."""
@@ -143,13 +145,13 @@ def _send_with_retry(url: str, payload: Dict[str, Any]) -> bool:
             if resp.status_code == 200:
                 last_push.update({"ok": True, "at": time.time(), "url": url, "status": 200})
                 return True
-            logger.warning(f"VTT sync {url} HTTP {resp.status_code} (attempt {attempt + 1}/{attempts})")
+            logger.warning("VTT sync %s HTTP %s (attempt %d/%d)", _s(url), resp.status_code, attempt + 1, attempts)
         except requests.RequestException as e:
             final_status = str(e)
-            logger.warning(f"VTT sync {url} error (attempt {attempt + 1}/{attempts}): {e}")
+            logger.warning("VTT sync %s error (attempt %d/%d): %s", _s(url), attempt + 1, attempts, _s(e))
         if attempt < len(RETRY_DELAYS):
             time.sleep(RETRY_DELAYS[attempt])
-    logger.warning(f"VTT sync {url} dropped after {attempts} attempts (eventId={payload.get('eventId')})")
+    logger.warning("VTT sync %s dropped after %d attempts (eventId=%s)", _s(url), attempts, _s(payload.get("eventId")))
     last_push.update({"ok": False, "at": time.time(), "url": url, "status": final_status})
     return False
 

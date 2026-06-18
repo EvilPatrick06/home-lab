@@ -1,0 +1,20 @@
+name: "CodeQL config"
+
+# PHASE-43 43B/43C: exclude genuinely non-production paths from CodeQL extraction.
+# Each path was individually verified non-production in 43C:
+#   _archive/**        — quarantined dead code; no live `import _archive` anywhere.
+#   dnd-app/scripts/** — dev/build/audit scripts; referenced only by npm `scripts:`
+#                        targets + comments, never imported by runtime `src/`.
+#   test files         — no production surface by definition.
+# NOTE (43C promotion): `bmo/pi/dev/**` is NOT excluded — it is production-reachable
+#   (`agent.py` imports `from dev.dev_tools import dispatch_tool`; `routes/ide.py`
+#   imports dev.dev_tools / dev.terminal_service / dev.file_watcher). Its alerts are
+#   real and stay in scope.
+paths-ignore:
+  - '_archive/**'
+  - 'dnd-app/scripts/**'
+  - '**/*.test.ts'
+  - '**/*.test.tsx'
+  - '**/*.test.js'
+  - '**/*.test.jsx'
+  - 'bmo/pi/tests/**'

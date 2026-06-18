@@ -20,7 +20,7 @@ import subprocess
 import threading
 import time
 
-from services.bmo_logging import get_logger
+from services.bmo_logging import _s, get_logger
 log = get_logger("notification_service")
 
 SETTINGS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "settings.json")
@@ -331,7 +331,7 @@ class NotificationService:
             if len(self._history) > MAX_HISTORY:
                 self._history = self._history[:MAX_HISTORY]
 
-        log.info(f"[notify] {device} → {app}: {title} — {body[:60]}")
+        log.info("[notify] %s → %s: %s — %s", _s(device), _s(app), _s(title), _s(body[:60]))
 
         # Log unknown/unrecognized apps for future mapping
         is_unknown = (not app or app == "unknown" or app not in self._get_known_apps())

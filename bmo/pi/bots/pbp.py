@@ -16,6 +16,7 @@ from datetime import datetime, timedelta, timezone
 import discord
 from discord import app_commands
 
+from services.bmo_logging import _s
 from services.pbp_store import PbpError, get_pbp_store
 
 logger = logging.getLogger(__name__)
@@ -213,7 +214,7 @@ class PbpManager:
                         reason="timeout_skip",
                         # header set inside advance for skips
                     )
-                    logger.info("pbp: auto-skipped %s after %sh", cur.get("name"), hours2)
+                    logger.info("pbp: auto-skipped %s after %sh", _s(cur.get("name")), hours2)
             except Exception:  # noqa: BLE001 — one bad session must not kill the loop
                 logger.exception("pbp: reminder_tick failed for %s", campaign_id)
 

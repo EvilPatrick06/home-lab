@@ -11,7 +11,7 @@ import os
 import requests as http_requests
 from google.oauth2.credentials import Credentials
 
-from services.bmo_logging import get_logger
+from services.bmo_logging import _s, get_logger
 log = get_logger("reauth_calendar")
 
 _PI_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -70,7 +70,7 @@ def main():
     )
 
     if token_resp.status_code != 200:
-        log.warning(f"ERROR: Token exchange failed: {token_resp.text}")
+        log.warning("ERROR: Token exchange failed: %s", _s(token_resp.text))
         return
 
     token_data = token_resp.json()

@@ -6,7 +6,6 @@ to Gemini cloud API. Falls back to local YOLOv8-Nano and Ollama.
 
 import json
 import os
-import pickle
 import threading
 import time
 
@@ -18,7 +17,6 @@ from services.cloud_providers import google_vision_detect
 
 DATA_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
 KNOWN_FACES_JSON = os.path.join(DATA_DIR, "known_faces.json")
-KNOWN_FACES_PATH = os.path.join(DATA_DIR, "known_faces.pkl")  # legacy — migrated on read
 SNAPSHOTS_DIR = os.path.join(DATA_DIR, "snapshots")
 
 
@@ -230,14 +228,7 @@ class CameraService:
                 name: [np.array(enc, dtype=np.float64) for enc in encs]
                 for name, encs in raw.items()
             }
-        elif os.path.exists(KNOWN_FACES_PATH):
-            with open(KNOWN_FACES_PATH, "rb") as f:
-                self._known_faces = pickle.load(f)
-            self._save_known_faces_json()
-            try:
-                os.remove(KNOWN_FACES_PATH)
-            except OSError:
-                pass
+        # Legacy .pkl known-faces migration removed for security (py/unsafe-deserialization) — JSON only.
         return self._known_faces
 
     def _save_known_faces_json(self):

@@ -28,7 +28,7 @@ from typing import Any
 
 from flask import Blueprint, Response, jsonify, request
 
-from services.bmo_logging import get_logger
+from services.bmo_logging import _s, get_logger
 
 log = get_logger("library_api")
 
@@ -112,7 +112,7 @@ def api_library_file():
         with open(target, encoding="utf-8") as f:
             data = json.load(f)
     except (OSError, json.JSONDecodeError) as e:
-        log.warning("[library] failed to read %s: %s", rel, e)
+        log.warning("[library] failed to read %s: %s", _s(rel), e)
         return jsonify({"error": "failed to read file"}), 500
     resp = jsonify(data)
     sha = _manifest()["files"].get(rel.replace(os.sep, "/"), {}).get("sha256")

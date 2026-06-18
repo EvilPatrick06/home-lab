@@ -14,6 +14,7 @@ import type {
   WeaponEntry
 } from '../../types/character-common'
 import { logger } from '../../utils/logger'
+import { stripHtmlToFixedPoint } from './strip-html'
 
 const JSON_FILTER = [{ name: 'JSON Files', extensions: ['json'] }]
 
@@ -223,7 +224,7 @@ export async function importFoundryCharacter(): Promise<Character5e | null> {
 
     for (const item of items as FoundryItem[]) {
       const name: string = item.name ?? 'Unknown'
-      const desc: string = (item.system?.description?.value ?? '').replace(/<[^>]*>/g, '').slice(0, 500)
+      const desc: string = stripHtmlToFixedPoint(item.system?.description?.value ?? '').slice(0, 500)
       const itemType: string = item.type ?? ''
 
       switch (itemType) {
@@ -433,7 +434,7 @@ export async function importFoundryCharacter(): Promise<Character5e | null> {
 
       status: 'active',
       campaignHistory: [],
-      backstory: details.biography?.value?.replace(/<[^>]*>/g, '') ?? '',
+      backstory: details.biography?.value ? stripHtmlToFixedPoint(details.biography.value) : '',
       notes: '',
       pets: [],
       deathSaves: { successes: 0, failures: 0 },

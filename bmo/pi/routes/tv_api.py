@@ -18,6 +18,7 @@ import time
 
 from flask import Blueprint, jsonify, request
 
+from services.bmo_logging import _s
 from state import STATE
 
 log = logging.getLogger("bmo")
@@ -119,8 +120,9 @@ def _tv_cmd(action, **kwargs):
     except (BrokenPipeError, OSError):
         _tv_proc = None
         return {"error": "TV worker connection lost"}
-    except Exception as e:
-        return {"error": str(e)}
+    except Exception:
+        log.exception("[tv] command failed")
+        return {"error": "TV command failed"}
 
 
 def init_tv_remote():
@@ -150,7 +152,8 @@ def init_tv_remote():
         STATE.tv_is_on = result.get("is_on")
         log.info(f"[tv] Connected to TV at {TV_IP} (is_on={STATE.tv_is_on})")
     else:
-        log.info(f"[tv] Connection failed: {result.get('error', '?')} — try pairing via the TV tab")
+        log.info("[tv] Connection failed: %s — try pairing via the TV tab",
+                 _s(result.get("error", "?")))
 
     # Background task: retry TV connection every 60s if not connected
     def _tv_bg_reconnect():
@@ -323,7 +326,7 @@ def api_tv_pair_start():
     """Start pairing — TV will show a PIN code."""
     result = _tv_cmd("pair_start")
     if result.get("error"):
-        log.info(f"[tv] Pairing start failed: {result['error']}")
+        log.info("[tv] Pairing start failed: %s", _s(result["error"]))
         return jsonify(result), 500
     log.info("[tv] Pairing started — TV should show PIN")
     return jsonify(result)
@@ -340,7 +343,7 @@ def api_tv_pair_finish():
 
     result = _tv_cmd("pair_finish", pin=pin)
     if result.get("error"):
-        log.info(f"[tv] Pairing finish failed: {result['error']}")
+        log.info("[tv] Pairing finish failed: %s", _s(result["error"]))
         return jsonify(result), 500
     _tv_remote = True
     log.info(f"[tv] Paired and connected to TV at {TV_IP}!")
@@ -492,9 +495,10 @@ def api_tv_input():
         )
         if r.returncode == 0:
             return jsonify({"ok": True})
-        return jsonify({"error": f"ADB failed: {r.stderr.strip()}"}), 500
+        log.warning("[tv] ADB failed: %s", _s(r.stderr.strip()))
+        return jsonify({"error": "ADB command failed"}), 500
     except Exception as e:
-        log.info(f"[bmo] api error: {e!r}")
+        log.info("[bmo] api error: %r", e)
         return jsonify({"error": "internal server error"}), 500
 
 

@@ -11,7 +11,7 @@ import subprocess
 import threading
 import time
 
-from services.bmo_logging import get_logger
+from services.bmo_logging import _s, get_logger
 log = get_logger("audio_output_service")
 
 SETTINGS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "settings.json")
@@ -297,7 +297,7 @@ class AudioOutputService:
                 stream_idx = line.split()[0]
                 rc, _, err = _run(["pactl", "move-sink-input", stream_idx, sink_name])
                 if rc == 0:
-                    log.info(f"[audio] Moved stream {stream_idx} → {sink_name}")
+                    log.info("[audio] Moved stream %s → %s", _s(stream_idx), _s(sink_name))
                 else:
                     log.warning(f"[audio] Failed to move stream {stream_idx}: {err}")
         except Exception as e:
@@ -464,7 +464,7 @@ class AudioOutputService:
             if address.replace(":", "_").upper() in sink.name.upper() or \
                (sink.description and sink.description not in ("Built-in Audio Digital Stereo (HDMI)", "")):
                 self.set_default_output(sink.pw_id)
-                log.info(f"[audio] Auto-set BT device {sink.description} (id={sink.pw_id}) as default")
+                log.info("[audio] Auto-set BT device %s (id=%s) as default", _s(sink.description), sink.pw_id)
                 break
 
         return True, f"Connected to {address}"

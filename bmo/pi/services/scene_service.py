@@ -9,7 +9,7 @@ import os
 import threading
 import time
 
-from services.bmo_logging import get_logger
+from services.bmo_logging import _s, get_logger
 log = get_logger("scene_service")
 
 SETTINGS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "settings.json")
@@ -213,7 +213,7 @@ class SceneService:
             config["label"] = name
         custom[key] = config
         _save_custom_scenes(custom)
-        log.info(f"[scene] Created custom scene: {key}")
+        log.info("[scene] Created custom scene: %s", _s(key))
         if self._socketio:
             self._socketio.emit("scenes_updated", {"scenes": self.list_scenes()})
         return True, f"Scene '{config['label']}' created"
@@ -230,7 +230,7 @@ class SceneService:
             config["label"] = custom[key].get("label", name)
         custom[key] = config
         _save_custom_scenes(custom)
-        log.info(f"[scene] Updated custom scene: {key}")
+        log.info("[scene] Updated custom scene: %s", _s(key))
         if self._socketio:
             self._socketio.emit("scenes_updated", {"scenes": self.list_scenes()})
         return True, f"Scene '{config['label']}' updated"
@@ -249,7 +249,7 @@ class SceneService:
         # If this scene was active, deactivate it
         if self._active_scene == key:
             self._apply_deactivation(skip_restore=False)
-        log.info(f"[scene] Deleted custom scene: {key}")
+        log.info("[scene] Deleted custom scene: %s", _s(key))
         if self._socketio:
             self._socketio.emit("scenes_updated", {"scenes": self.list_scenes()})
         return True, f"Scene '{label}' deleted"
@@ -336,7 +336,7 @@ class SceneService:
 
     def _apply_scene(self, scene: dict):
         """Apply scene settings to hardware via service objects (no HTTP)."""
-        log.info(f"[scene] Applying scene settings: {scene}")
+        log.info("[scene] Applying scene settings: %s", _s(scene))
         led = self._services.get("leds")
         music = self._services.get("music")
         tv_send_key = self._services.get("tv_send_key")
@@ -356,7 +356,7 @@ class SceneService:
                     led.set_mode(scene["rgb_mode"])
                     if scene.get("rgb_brightness"):
                         led.set_brightness(scene["rgb_brightness"])
-                log.info(f"[scene] LED {scene['rgb_mode']}")
+                log.info("[scene] LED %s", _s(scene['rgb_mode']))
             except Exception as e:
                 log.exception(f"[scene] LED mode failed")
 
@@ -384,7 +384,7 @@ class SceneService:
                     time.sleep(3)
                     if scene.get("tv_app") and tv_launch:
                         tv_launch(scene["tv_app"])
-                        log.info(f"[scene] TV → {scene['tv_app']}")
+                        log.info("[scene] TV → %s", _s(scene['tv_app']))
             except Exception as e:
                 log.exception(f"[scene] TV launch failed")
 
@@ -402,7 +402,7 @@ class SceneService:
                     results = music.search(f"{scene['music_playlist']} mix", limit=1)
                     if results:
                         music.play(results[0])
-                log.info(f"[scene] Music → {scene['music_playlist']}")
+                log.info("[scene] Music → %s", _s(scene['music_playlist']))
             except Exception as e:
                 log.exception(f"[scene] Music play failed")
 
@@ -431,7 +431,7 @@ class SceneService:
             if scene_cfg:
                 music = self._services.get("music")
                 if music and scene_cfg.get("music_playlist"):
-                    log.info(f"[scene] {scene_name} deactivate → stopping music (was playing playlist)")
+                    log.info("[scene] %s deactivate → stopping music (was playing playlist)", _s(scene_name))
                     try:
                         music.stop()
                     except Exception:

@@ -5,6 +5,7 @@
 
 import type { EquipmentItem } from '../../../types/character-5e'
 import type { ArmorEntry, WeaponEntry } from '../../../types/character-common'
+import { stripHtmlToFixedPoint } from '../strip-html'
 
 export function extractInventory(data: Record<string, unknown>): {
   equipment: EquipmentItem[]
@@ -42,7 +43,7 @@ export function extractInventory(data: Record<string, unknown>): {
         damageType,
         attackBonus: 0,
         properties,
-        description: description.replace(/<[^>]*>/g, ''),
+        description: stripHtmlToFixedPoint(description),
         range,
         proficient: true,
         cost,
@@ -61,7 +62,7 @@ export function extractInventory(data: Record<string, unknown>): {
         acBonus: def.armorClass ?? 0,
         equipped,
         type: armorType,
-        description: description.replace(/<[^>]*>/g, ''),
+        description: stripHtmlToFixedPoint(description),
         stealthDisadvantage: def.stealthCheck === 1 ? true : undefined,
         strength: typeof def.strengthRequirement === 'number' ? def.strengthRequirement : undefined,
         cost,
@@ -72,7 +73,7 @@ export function extractInventory(data: Record<string, unknown>): {
         name,
         quantity,
         weight,
-        description: description.replace(/<[^>]*>/g, '').slice(0, 300),
+        description: stripHtmlToFixedPoint(description).slice(0, 300),
         equipped,
         cost,
         type: filterType || undefined

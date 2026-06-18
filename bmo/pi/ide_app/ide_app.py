@@ -15,6 +15,9 @@ from flask_socketio import SocketIO
 # ── Import terminal service from parent directory ────────────────
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from dev.terminal_service import TerminalManager
+from services.bmo_logging import fail, get_logger
+
+log = get_logger("ide_app")
 
 # ── App Setup ────────────────────────────────────────────────────
 
@@ -140,7 +143,7 @@ def _resolve_path(path: str) -> str:
 
 @app.errorhandler(PermissionError)
 def _ide_perm_denied(e):
-    return jsonify({"error": str(e)}), 403
+    return fail(log, e, 403, "permission denied")
 
 
 def _detect_language(filepath: str) -> str:
@@ -254,7 +257,7 @@ def file_write():
     except PermissionError:
         return jsonify({'error': f'Permission denied: {path}'}), 403
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return fail(log, e, 500)
 
 
 @app.route('/api/files/create', methods=['POST'])
@@ -274,7 +277,7 @@ def file_create():
                 open(resolved, 'w').close()
         return jsonify({'success': True, 'path': path})
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return fail(log, e, 500)
 
 
 @app.route('/api/files/delete', methods=['POST'])
@@ -293,7 +296,7 @@ def file_delete():
             return jsonify({'error': f'Not found: {path}'}), 404
         return jsonify({'success': True})
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return fail(log, e, 500)
 
 
 @app.route('/api/files/rename', methods=['POST'])
@@ -307,7 +310,7 @@ def file_rename():
         os.rename(old_path, new_path)
         return jsonify({'success': True})
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return fail(log, e, 500)
 
 
 # ── Search API ───────────────────────────────────────────────────
@@ -353,7 +356,7 @@ def file_search():
     except subprocess.TimeoutExpired:
         return jsonify({'error': 'Search timed out'}), 408
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return fail(log, e, 500)
 
 
 @app.route('/api/files/find')
@@ -378,7 +381,7 @@ def file_find():
         matches = result.stdout.strip().split('\n')[:30] if result.stdout.strip() else []
         return jsonify({'matches': matches})
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return fail(log, e, 500)
 
 
 # ── Git API ──────────────────────────────────────────────────────
@@ -410,7 +413,7 @@ def git_status():
 
         return jsonify({'branch': branch, 'changes': changes})
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return fail(log, e, 500)
 
 
 @app.route('/api/git/stage', methods=['POST'])
@@ -425,7 +428,7 @@ def git_stage():
                        capture_output=True, text=True, timeout=5)
         return jsonify({'success': True})
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return fail(log, e, 500)
 
 
 @app.route('/api/git/unstage', methods=['POST'])
@@ -440,7 +443,7 @@ def git_unstage():
                        capture_output=True, text=True, timeout=5)
         return jsonify({'success': True})
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return fail(log, e, 500)
 
 
 @app.route('/api/git/commit', methods=['POST'])
@@ -463,7 +466,7 @@ def git_commit():
             'output': result.stdout + result.stderr,
         })
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return fail(log, e, 500)
 
 
 @app.route('/api/git/branches')
@@ -480,7 +483,7 @@ def git_branches():
         branches = [b.strip().lstrip('* ') for b in result.stdout.strip().split('\n') if b.strip()]
         return jsonify({'branches': branches})
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return fail(log, e, 500)
 
 
 @app.route('/api/git/checkout', methods=['POST'])
@@ -500,7 +503,7 @@ def git_checkout():
             'output': result.stdout + result.stderr,
         })
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return fail(log, e, 500)
 
 
 # ── Run API ──────────────────────────────────────────────────────
@@ -550,7 +553,7 @@ def run_file():
     except subprocess.TimeoutExpired:
         return jsonify({'error': 'Execution timed out (30s)'}), 408
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return fail(log, e, 500)
 
 
 # ── SocketIO: Terminal ────────────────────────────────────────────

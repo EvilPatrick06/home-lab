@@ -15,6 +15,7 @@ from flask import Blueprint, jsonify, request
 
 from extensions import RATE_LIMIT_CHAT, RATE_LIMIT_DND_LOAD, limiter
 from services import chat_history
+from services.bmo_logging import fail
 
 log = logging.getLogger("bmo")
 
@@ -108,7 +109,7 @@ def api_dnd_load():
         safe_chars = [_safe_dnd_path(p) for p in char_paths]
         safe_maps_dir = _safe_dnd_path(maps_dir) if maps_dir else ""
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        return fail(log, e, 403, "path outside DnD content sandbox")
 
     selected_map = _app().agent.load_dnd_context(safe_chars, safe_maps_dir, chosen_map)
     return jsonify({"ok": True, "map": selected_map})
@@ -151,8 +152,7 @@ def api_dnd_session_get(date):
             messages = json.load(f)
         return jsonify(messages)
     except Exception as e:
-        log.info(f"[bmo] api error: {e!r}")
-        return jsonify({"error": "internal server error"}), 500
+        return fail(log, e, 500, "internal server error")
 
 
 @chat_bp.route("/api/dnd/sessions/<date>/restore", methods=["POST"])
@@ -184,8 +184,7 @@ def api_dnd_session_restore(date):
             log.exception("[chat] Recap generation failed")
         return jsonify({"ok": True, "messages_restored": len(messages), "recap": recap})
     except Exception as e:
-        log.info(f"[bmo] api error: {e!r}")
-        return jsonify({"error": "internal server error"}), 500
+        return fail(log, e, 500, "internal server error")
 
 
 @chat_bp.route("/api/dnd/gamestate")

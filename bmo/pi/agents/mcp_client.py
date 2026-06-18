@@ -18,7 +18,7 @@ import threading
 import time
 from typing import Any
 
-from services.bmo_logging import get_logger
+from services.bmo_logging import _s, get_logger
 log = get_logger("mcp_client")
 
 
@@ -58,10 +58,10 @@ class McpClient:
                 elif self._transport == "sse":
                     return self._connect_sse()
                 else:
-                    log.info(f"[mcp:{self.name}] Unknown transport: {self._transport}")
+                    log.info("[mcp:%s] Unknown transport: %s", _s(self.name), _s(self._transport))
                     return False
             except Exception as e:
-                log.exception(f"[mcp:{self.name}] Connection failed")
+                log.exception("[mcp:%s] Connection failed", _s(self.name))
                 return False
 
     def disconnect(self) -> None:
@@ -189,7 +189,7 @@ class McpClient:
         env_overrides = self.config.get("env", {})
 
         if not command:
-            log.info(f"[mcp:{self.name}] No command specified for stdio transport")
+            log.info("[mcp:%s] No command specified for stdio transport", _s(self.name))
             return False
 
         # Build environment
@@ -209,7 +209,7 @@ class McpClient:
                 bufsize=0,
             )
         except FileNotFoundError:
-            log.info(f"[mcp:{self.name}] Command not found: {command}")
+            log.info("[mcp:%s] Command not found: %s", _s(self.name), _s(command))
             return False
 
         # Send initialize request
@@ -220,7 +220,7 @@ class McpClient:
         })
 
         if "error" in init_result:
-            log.warning(f"[mcp:{self.name}] Initialize failed: {init_result['error']}")
+            log.warning("[mcp:%s] Initialize failed: %s", _s(self.name), _s(init_result['error']))
             self._process.terminate()
             self._process = None
             return False
@@ -236,7 +236,7 @@ class McpClient:
         self._refresh_prompts()
 
         self._connected = True
-        log.info(f"[mcp:{self.name}] Connected (stdio) — {len(self._tools)} tools")
+        log.info("[mcp:%s] Connected (stdio) — %d tools", _s(self.name), len(self._tools))
         return True
 
     # ── Transport: HTTP ───────────────────────────────────────────────
@@ -246,14 +246,14 @@ class McpClient:
         try:
             import httpx
         except ImportError:
-            log.info(f"[mcp:{self.name}] httpx not installed — cannot use HTTP transport")
+            log.info("[mcp:%s] httpx not installed — cannot use HTTP transport", _s(self.name))
             return False
 
         url = self.config.get("url", "")
         headers = dict(self.config.get("headers", {}))
 
         if not url:
-            log.info(f"[mcp:{self.name}] No URL specified for HTTP transport")
+            log.info("[mcp:%s] No URL specified for HTTP transport", _s(self.name))
             return False
 
         self._http_client = httpx.Client(
@@ -270,7 +270,7 @@ class McpClient:
         })
 
         if "error" in init_result:
-            log.warning(f"[mcp:{self.name}] Initialize failed: {init_result['error']}")
+            log.warning("[mcp:%s] Initialize failed: %s", _s(self.name), _s(init_result['error']))
             self._http_client = None
             return False
 
@@ -282,7 +282,7 @@ class McpClient:
         self._refresh_prompts()
 
         self._connected = True
-        log.info(f"[mcp:{self.name}] Connected (HTTP) — {len(self._tools)} tools")
+        log.info("[mcp:%s] Connected (HTTP) — %d tools", _s(self.name), len(self._tools))
         return True
 
     # ── Transport: SSE ────────────────────────────────────────────────
@@ -292,14 +292,14 @@ class McpClient:
         try:
             import httpx
         except ImportError:
-            log.info(f"[mcp:{self.name}] httpx not installed — cannot use SSE transport")
+            log.info("[mcp:%s] httpx not installed — cannot use SSE transport", _s(self.name))
             return False
 
         url = self.config.get("url", "")
         headers = dict(self.config.get("headers", {}))
 
         if not url:
-            log.info(f"[mcp:{self.name}] No URL specified for SSE transport")
+            log.info("[mcp:%s] No URL specified for SSE transport", _s(self.name))
             return False
 
         # The SSE endpoint returns the message endpoint URL in the first event
@@ -309,7 +309,7 @@ class McpClient:
         try:
             self._start_sse_listener(url, headers)
         except Exception as e:
-            log.exception(f"[mcp:{self.name}] SSE connection failed")
+            log.exception("[mcp:%s] SSE connection failed", _s(self.name))
             self._http_client = None
             return False
 
@@ -320,7 +320,7 @@ class McpClient:
             time.sleep(0.1)
 
         if not self._message_endpoint:
-            log.info(f"[mcp:{self.name}] No message endpoint received from SSE")
+            log.info("[mcp:%s] No message endpoint received from SSE", _s(self.name))
             self._sse_running = False
             self._http_client = None
             return False
@@ -333,7 +333,7 @@ class McpClient:
         })
 
         if "error" in init_result:
-            log.warning(f"[mcp:{self.name}] Initialize failed: {init_result['error']}")
+            log.warning("[mcp:%s] Initialize failed: %s", _s(self.name), _s(init_result['error']))
             self._sse_running = False
             self._http_client = None
             return False
@@ -346,7 +346,7 @@ class McpClient:
         self._refresh_prompts()
 
         self._connected = True
-        log.info(f"[mcp:{self.name}] Connected (SSE) — {len(self._tools)} tools")
+        log.info("[mcp:%s] Connected (SSE) — %d tools", _s(self.name), len(self._tools))
         return True
 
     def _start_sse_listener(self, url: str, headers: dict) -> None:
@@ -373,7 +373,7 @@ class McpClient:
                             self._handle_sse_event(event_text)
             except Exception as e:
                 if self._sse_running:
-                    log.warning(f"[mcp:{self.name}] SSE listener error: {e}")
+                    log.warning("[mcp:%s] SSE listener error: %s", _s(self.name), _s(e))
                     self._connected = False
 
         self._sse_thread = threading.Thread(target=_listen, daemon=True)

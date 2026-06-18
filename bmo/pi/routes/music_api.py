@@ -9,6 +9,7 @@ import logging
 
 from flask import Blueprint, jsonify, request
 
+from services.bmo_logging import fail
 from services.system_audio import get_system_audio_state, unmute_sink
 
 log = logging.getLogger("bmo")
@@ -51,7 +52,7 @@ def api_music_play():
         else:
             music.play()  # Resume
     except Exception as e:
-        return jsonify({"ok": False, "error": f"music.play failed: {e}"}), 500
+        return fail(log, e, 500, "music.play failed")
     # Read back state so the client doesn't have to poll separately to
     # detect silent-failure (audio sink muted, output device missing).
     try:
@@ -240,8 +241,9 @@ def api_music_most_played():
 def api_music_lyrics(video_id):
     try:
         return jsonify(_music().get_lyrics(video_id))
-    except Exception as e:
-        return jsonify({"lyrics": None, "error": str(e)})
+    except Exception:
+        log.exception("lyrics fetch failed")
+        return jsonify({"lyrics": None, "error": "lyrics unavailable"})
 
 
 def register_music(flask_app):

@@ -30,7 +30,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from flask import Flask, Response, jsonify, render_template, request, send_from_directory, stream_with_context
 from flask_socketio import SocketIO
-from services.bmo_logging import get_logger
+from services.bmo_logging import _s, fail, get_logger
 log = get_logger("bmo")
 
 from state import STATE
@@ -662,9 +662,11 @@ def init_services():
                 if not text:
                     pass  # drop empty
                 elif mic_muted:
-                    log.info(f"[chat] dropped transcription while mic muted: speaker={speaker} text={text[:40]!r}")
+                    log.info("[chat] dropped transcription while mic muted: speaker=%s text=%r",
+                             _s(speaker), _s(text[:40]))
                 elif speaker in ("", "unknown"):
-                    log.info(f"[chat] dropped transcription from unknown speaker: text={text[:40]!r}")
+                    log.info("[chat] dropped transcription from unknown speaker: text=%r",
+                             _s(text[:40]))
                 else:
                     _save_chat_message({
                         "role": "user",
@@ -748,14 +750,14 @@ def init_services():
         if tv_connected():
             r = tv_cmd("send_key", key=key)
             if r.get("error"):
-                log.info(f"[scene] TV key failed: {r['error']}")
+                log.info("[scene] TV key failed: %s", _s(r["error"]))
 
     def _scene_tv_launch(app_name):
         url = TV_APPS.get(app_name, "")
         if url and tv_connected():
             r = tv_cmd("launch_app", uri=url)
             if r.get("error"):
-                log.info(f"[scene] TV launch failed: {r['error']}")
+                log.info("[scene] TV launch failed: %s", _s(r["error"]))
 
     def _scene_tv_power_on():
         """Turn TV on only if it's currently off (queries live status)."""
@@ -772,7 +774,7 @@ def init_services():
             set_tv_is_on(True)
             log.info("[scene] TV powered on")
             return True
-        log.info(f"[scene] TV power on failed: {r.get('error')}")
+        log.info("[scene] TV power on failed: %s", _s(r.get("error")))
         return False
 
     def _scene_tv_power_off():
@@ -790,7 +792,7 @@ def init_services():
             set_tv_is_on(False)
             log.info("[scene] TV powered off")
             return True
-        log.info(f"[scene] TV power off failed: {r.get('error')}")
+        log.info("[scene] TV power off failed: %s", _s(r.get("error")))
         return False
 
     service_map["tv_send_key"] = _scene_tv_send_key
@@ -1066,7 +1068,7 @@ def api_init():
         path = create_bmo_md(directory)
         return jsonify({"success": True, "path": path})
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+        return fail(log, e, 500)
 
 
 # ── Camera API ───────────────────────────────────────────────────────
@@ -1091,8 +1093,7 @@ def api_camera_snapshot():
     try:
         path = camera.take_snapshot()
     except Exception as e:
-        log.info(f"[camera] snapshot failed: {e}")
-        return jsonify({"error": f"Camera error: {e}"}), 503
+        return fail(log, e, 503, "Camera error")
     # QA #19 (2026-05-17): returns the new /api/camera/snapshot/last URL
     # so the frontend can show an inline preview without guessing the path.
     return jsonify({"path": path, "preview_url": "/api/camera/snapshot/last"})
@@ -1133,10 +1134,10 @@ def api_camera_describe():
         log.info("[vision] Starting describe thread...")
         try:
             description = camera.describe_scene(prompt)
-            log.info(f"[vision] Got: {description[:80]}...")
+            log.info("[vision] Got: %s...", _s(description[:80]))
         except Exception as e:
             import traceback
-            log.info(f"[vision] Error: {e}")
+            log.info("[vision] Error: %s", _s(e))
             traceback.print_exc()
             # Round 3 #9 (2026-05-17): split conflated "failed or offline"
             # into specific failure-mode messaging so the user knows what
@@ -1232,7 +1233,7 @@ def api_voice_enroll():
             os.unlink(clip_path)
         return jsonify({"ok": True, "name": name, "profiles": voice.get_enrolled_speakers()})
     except Exception as e:
-        log.info(f"[bmo] api error: {e!r}")
+        log.info("[bmo] api error: %s", _s(repr(e)))
         return jsonify({"error": "internal server error"}), 500
 
 
@@ -1681,7 +1682,7 @@ def api_scene_activate():
     name = (request.json or {}).get("scene", "")
     if not name:
         return jsonify({"error": "scene name required"}), 400
-    log.info(f"[scene-api] Activating scene: {name}")
+    log.info("[scene-api] Activating scene: %s", _s(name))
 
     def _do_activate():
         try:
@@ -1729,7 +1730,7 @@ def api_scene_create():
             return jsonify({"ok": True, "message": msg})
         return jsonify({"error": msg}), 400
     except Exception as e:
-        log.info(f"[bmo] api error: {e!r}")
+        log.info("[bmo] api error: %s", _s(repr(e)))
         return jsonify({"error": "internal server error"}), 500
 
 
@@ -1746,7 +1747,7 @@ def api_scene_update(name):
             return jsonify({"ok": True, "message": msg})
         return jsonify({"error": msg}), 400
     except Exception as e:
-        log.info(f"[bmo] api error: {e!r}")
+        log.info("[bmo] api error: %s", _s(repr(e)))
         return jsonify({"error": "internal server error"}), 500
 
 
@@ -1761,7 +1762,7 @@ def api_scene_delete(name):
             return jsonify({"ok": True, "message": msg})
         return jsonify({"error": msg}), 400
     except Exception as e:
-        log.info(f"[bmo] api error: {e!r}")
+        log.info("[bmo] api error: %s", _s(repr(e)))
         return jsonify({"error": "internal server error"}), 500
 
 
@@ -1797,22 +1798,22 @@ def api_location_device():
             socketio.emit("location_update", updated)
         log.info(
             "[location] Device update accepted: %s (accuracy_m=%s) from=%s ua=%s",
-            updated.get("location_label", ""),
-            updated.get("accuracy_m", "n/a"),
-            remote_addr or "?",
-            user_agent[:120],
+            _s(updated.get("location_label", "")),
+            _s(updated.get("accuracy_m", "n/a")),
+            _s(remote_addr or "?"),
+            _s(user_agent[:120]),
         )
         return jsonify(updated)
     except (TypeError, ValueError, KeyError) as exc:
         keys = ",".join(sorted(data.keys())) if isinstance(data, dict) else "n/a"
         log.warning(
             "[location] Device update rejected: %s keys=%s from=%s ua=%s",
-            str(exc),
-            keys,
-            remote_addr or "?",
-            user_agent[:120],
+            _s(exc),
+            _s(keys),
+            _s(remote_addr or "?"),
+            _s(user_agent[:120]),
         )
-        return jsonify({"error": "Invalid location payload", "detail": str(exc)}), 400
+        return fail(log, exc, 400, "Invalid location payload")
 
 
 # ── Smart Home API ───────────────────────────────────────────────────
@@ -1842,7 +1843,7 @@ def api_device_play(device_name):
         smart_home.play(device_name)
         return jsonify({"ok": True})
     except Exception as e:
-        log.info(f"[bmo] api error: {e!r}")
+        log.info("[bmo] api error: %s", _s(repr(e)))
         return jsonify({"error": "internal server error"}), 500
 
 
@@ -1854,7 +1855,7 @@ def api_device_pause(device_name):
         smart_home.pause(device_name)
         return jsonify({"ok": True})
     except Exception as e:
-        log.info(f"[bmo] api error: {e!r}")
+        log.info("[bmo] api error: %s", _s(repr(e)))
         return jsonify({"error": "internal server error"}), 500
 
 
@@ -1866,7 +1867,7 @@ def api_device_stop(device_name):
         smart_home.stop(device_name)
         return jsonify({"ok": True})
     except Exception as e:
-        log.info(f"[bmo] api error: {e!r}")
+        log.info("[bmo] api error: %s", _s(repr(e)))
         return jsonify({"error": "internal server error"}), 500
 
 
@@ -1879,7 +1880,7 @@ def api_device_mute(device_name):
         smart_home.mute(device_name, data.get("muted", True))
         return jsonify({"ok": True})
     except Exception as e:
-        log.info(f"[bmo] api error: {e!r}")
+        log.info("[bmo] api error: %s", _s(repr(e)))
         return jsonify({"error": "internal server error"}), 500
 
 
@@ -1892,7 +1893,7 @@ def api_device_launch(device_name):
         smart_home.launch_app(device_name, data.get("app_id", ""))
         return jsonify({"ok": True})
     except Exception as e:
-        log.info(f"[bmo] api error: {e!r}")
+        log.info("[bmo] api error: %s", _s(repr(e)))
         return jsonify({"error": "internal server error"}), 500
 
 
@@ -1904,7 +1905,7 @@ def api_device_quit(device_name):
         smart_home.quit_app(device_name)
         return jsonify({"ok": True})
     except Exception as e:
-        log.info(f"[bmo] api error: {e!r}")
+        log.info("[bmo] api error: %s", _s(repr(e)))
         return jsonify({"error": "internal server error"}), 500
 
 
@@ -1916,7 +1917,7 @@ def api_devices_refresh():
         smart_home.start_discovery()
         return jsonify({"ok": True})
     except Exception as e:
-        log.info(f"[bmo] api error: {e!r}")
+        log.info("[bmo] api error: %s", _s(repr(e)))
         return jsonify({"error": "internal server error"}), 500
 
 
@@ -2330,7 +2331,7 @@ def api_notification_devices_refresh():
                 socketio.emit("notification_settings", settings)
             return jsonify(settings)
         except Exception as e:
-            log.info(f"[bmo] api error: {e!r}")
+            log.info("[bmo] api error: %s", _s(repr(e)))
             return jsonify({"error": "internal server error"}), 500
     return jsonify({"error": "Notification service not available"}), 503
 
@@ -2660,7 +2661,7 @@ def api_games_announce():
     try:
         entry = _games_registry().register(data)
     except ValueError as exc:
-        return jsonify({"error": str(exc)}), 400
+        return fail(log, exc, 400, "invalid game registration")
     return jsonify({"ok": True, "game": entry["invite_code"]}), 201
 
 

@@ -37,7 +37,7 @@ from collections.abc import Iterator
 
 from flask import Blueprint, Response, jsonify, request
 
-from services.bmo_logging import get_logger
+from services.bmo_logging import _s, fail, get_logger
 
 log = get_logger("rclone_api")
 
@@ -159,13 +159,13 @@ def rclone_backup():
         size = os.path.getsize(tmp)
         rc, _out, err = _rclone(["copyto", tmp, _remote_path(cid)], RCLONE_TIMEOUT)
         if rc != 0:
-            log.warning("[rclone] backup of %s failed: %s", cid, err.strip())
+            log.warning("[rclone] backup of %s failed: %s", _s(cid), _s(err.strip()))
             return jsonify({"ok": False, "error": err.strip() or f"rclone exit {rc}"}), 502
-        log.info("[rclone] backed up campaign %s (%d bytes)", cid, size)
+        log.info("[rclone] backed up campaign %s (%d bytes)", _s(cid), size)
         return jsonify({"ok": True, "campaignId": cid, "bytes": size})
     except OSError as e:
-        log.warning("[rclone] backup of %s errored: %s", cid, e)
-        return jsonify({"ok": False, "error": str(e)}), 500
+        log.warning("[rclone] backup of %s errored", _s(cid))
+        return fail(log, e, 500)
     finally:
         if tmp and os.path.exists(tmp):
             try:

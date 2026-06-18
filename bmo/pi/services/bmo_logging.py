@@ -34,19 +34,71 @@ _LEVEL_DEFAULT = "INFO"
 _LOG_FORMAT_HUMAN = "%(asctime)s [%(levelname)s] [%(name)s] %(message)s"
 
 
+def _s(v: object) -> str:
+    """Strip CR/LF so user input can't forge log lines (CWE-117).
+
+    Wrap any user-controlled value interpolated into a log message:
+    ``log.info("loaded %s", _s(name))``. CodeQL credits this inline
+    ``.replace`` chain as a sanitizer for ``py/log-injection``.
+    """
+    return str(v).replace("\r", "").replace("\n", " ")
+
+
+def fail(log: logging.Logger, exc: BaseException, status: int = 500,
+         public: str = "An internal error occurred"):
+    """Log the full traceback server-side; return a generic message to the client.
+
+    Closes ``py/stack-trace-exposure`` (CWE-209): the exception text never
+    reaches the HTTP client. Usage inside a Flask ``except`` block::
+
+        try:
+            ...
+        except Exception as e:  # noqa: BLE001
+            return fail(log, e, 500)
+    """
+    log.exception("request failed")
+    from flask import jsonify
+    return jsonify({"ok": False, "error": public}), status
+
+
 class _JsonFormatter(logging.Formatter):
     """Emit one JSON record per log line (opt-in via BMO_LOG_FORMAT=json)."""
 
     def format(self, record: logging.LogRecord) -> str:
+        # Defense-in-depth: strip CR/LF from the rendered message so an
+        # un-wrapped call site can't forge log lines (CWE-117). The inline
+        # _s() sanitizer at each flagged site is what CodeQL credits; this is
+        # a backstop for future sites.
         payload: dict[str, object] = {
             "ts": self.formatTime(record, "%Y-%m-%dT%H:%M:%S"),
             "level": record.levelname,
             "name": record.name,
-            "msg": record.getMessage(),
+            "msg": _s(record.getMessage()),
         }
         if record.exc_info:
             payload["exc"] = self.formatException(record.exc_info)
         return json.dumps(payload, ensure_ascii=False)
+
+
+class _HumanFormatter(logging.Formatter):
+    """Human-readable formatter with CRLF stripped from the message portion.
+
+    Defense-in-depth backstop against log injection (CWE-117): even if a call
+    site forgets to wrap a user value with _s(), the rendered message can't
+    span multiple log lines. The exception/stack portion is left intact so
+    multi-line tracebacks still render normally.
+    """
+
+    def format(self, record: logging.LogRecord) -> str:
+        # Sanitize only the message body (not the appended exc_info/stack),
+        # so legitimate multi-line tracebacks survive.
+        original_msg, original_args = record.msg, record.args
+        try:
+            record.msg = _s(record.getMessage())
+            record.args = None
+            return super().format(record)
+        finally:
+            record.msg, record.args = original_msg, original_args
 
 
 def _resolve_level(name: str | None) -> int:
@@ -59,7 +111,7 @@ def _resolve_level(name: str | None) -> int:
 def _build_formatter() -> logging.Formatter:
     if (os.environ.get("BMO_LOG_FORMAT") or "").lower() == "json":
         return _JsonFormatter()
-    return logging.Formatter(_LOG_FORMAT_HUMAN)
+    return _HumanFormatter(_LOG_FORMAT_HUMAN)
 
 
 def get_logger(name: str) -> logging.Logger:

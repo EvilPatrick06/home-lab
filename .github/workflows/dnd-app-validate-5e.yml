@@ -16,6 +16,9 @@ defaults:
   run:
     working-directory: dnd-app
 
+permissions:
+  contents: read
+
 jobs:
   validate-5e:
     runs-on: ubuntu-latest

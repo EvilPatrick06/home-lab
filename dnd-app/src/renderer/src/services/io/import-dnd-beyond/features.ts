@@ -4,6 +4,7 @@
 
 import type { Feature } from '../../../types/character-5e'
 import type { ClassFeatureEntry } from '../../../types/character-common'
+import { stripHtmlToFixedPoint } from '../strip-html'
 
 export function extractFeats(data: Record<string, unknown>): Array<{ id: string; name: string; description: string }> {
   if (!Array.isArray(data.feats)) return []
@@ -15,7 +16,7 @@ export function extractFeats(data: Record<string, unknown>): Array<{ id: string;
   return data.feats.map((f: { definition?: { name?: string; description?: string; id?: number } }) => ({
     id: f.definition?.id ? String(f.definition.id) : crypto.randomUUID(),
     name: f.definition?.name ?? 'Unknown Feat',
-    description: (f.definition?.description ?? '').replace(/<[^>]*>/g, '').slice(0, 500)
+    description: stripHtmlToFixedPoint(f.definition?.description ?? '').slice(0, 500)
   }))
 }
 
@@ -35,7 +36,7 @@ export function extractClassFeatures(data: Record<string, unknown>): ClassFeatur
         level: def.requiredLevel ?? def.level ?? cls.level ?? 1,
         name: def.name,
         source: className,
-        description: (def.description ?? '').replace(/<[^>]*>/g, '').slice(0, 500)
+        description: stripHtmlToFixedPoint(def.description ?? '').slice(0, 500)
       })
     }
 
@@ -49,7 +50,7 @@ export function extractClassFeatures(data: Record<string, unknown>): ClassFeatur
         level: f.requiredLevel ?? f.level ?? 1,
         name: f.name,
         source: subName,
-        description: (f.description ?? '').replace(/<[^>]*>/g, '').slice(0, 500)
+        description: stripHtmlToFixedPoint(f.description ?? '').slice(0, 500)
       })
     }
   }
@@ -68,7 +69,7 @@ export function extractRaceFeatures(data: Record<string, unknown>): Feature[] {
     features.push({
       name: def.name,
       source: (race?.fullName as string) ?? (race?.baseName as string) ?? 'Species',
-      description: (def.description ?? '').replace(/<[^>]*>/g, '').slice(0, 500)
+      description: stripHtmlToFixedPoint(def.description ?? '').slice(0, 500)
     })
   }
 

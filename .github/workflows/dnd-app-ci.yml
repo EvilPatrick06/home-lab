@@ -24,6 +24,9 @@ on:
       - 'bmo/pi/data/5e/**'
       - '.github/workflows/dnd-app-ci.yml'
 
+permissions:
+  contents: read
+
 jobs:
   check:
     runs-on: ubuntu-latest
