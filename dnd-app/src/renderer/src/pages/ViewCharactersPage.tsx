@@ -9,7 +9,7 @@ import { importDndBeyondCharacter } from '../services/io/import-dnd-beyond'
 import { importFoundryCharacter } from '../services/io/import-foundry'
 import { exportCharacterToPdf } from '../services/io/pdf-export'
 import { useCharacterStore } from '../stores/use-character-store'
-import { getCharacterSheetPath } from '../utils/character-routes'
+import { getBuilderCreatePath, getCharacterSheetPath } from '../utils/character-routes'
 import { logger } from '../utils/logger'
 
 type StatusFilter = 'active' | 'retired' | 'deceased' | 'all'
@@ -195,7 +195,7 @@ export default function ViewCharactersPage(): JSX.Element {
             )}
           </div>
           <button
-            onClick={() => navigate('/characters/5e/create')}
+            onClick={() => navigate(getBuilderCreatePath())}
             className="px-4 py-2 bg-amber-600 hover:bg-accent-strong text-white rounded-lg
                        font-semibold text-sm transition-colors cursor-pointer"
           >
@@ -251,7 +251,7 @@ export default function ViewCharactersPage(): JSX.Element {
           <p className="mb-4">{t('pages.viewCharactersPage.createFirstPrompt')}</p>
           <div className="flex justify-center gap-3">
             <button
-              onClick={() => navigate('/characters/5e/create')}
+              onClick={() => navigate(getBuilderCreatePath())}
               className="px-5 py-2.5 bg-amber-600 hover:bg-accent-strong text-white rounded-lg
                          font-semibold transition-colors cursor-pointer"
             >

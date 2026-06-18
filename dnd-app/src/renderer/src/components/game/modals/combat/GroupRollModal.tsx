@@ -7,6 +7,7 @@ import { useNetworkStore } from '../../../../stores/network-store'
 import { useCharacterStore } from '../../../../stores/use-character-store'
 import { useGameStore } from '../../../../stores/use-game-store'
 import { useLobbyStore } from '../../../../stores/use-lobby-store'
+import { SKILL_NAMES_5E } from '../../../../systems/dnd5e/skills'
 import { is5eCharacter } from '../../../../types/character'
 import { abilityModifier } from '../../../../types/character-common'
 
@@ -27,26 +28,7 @@ const ABILITIES = [
   { value: 'charisma', label: 'Charisma' }
 ]
 
-const SKILLS = [
-  'Acrobatics',
-  'Animal Handling',
-  'Arcana',
-  'Athletics',
-  'Deception',
-  'History',
-  'Insight',
-  'Intimidation',
-  'Investigation',
-  'Medicine',
-  'Nature',
-  'Perception',
-  'Performance',
-  'Persuasion',
-  'Religion',
-  'Sleight of Hand',
-  'Stealth',
-  'Survival'
-]
+const SKILLS = SKILL_NAMES_5E // PHASE-38: canonical 5e skill names
 
 export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRollModalProps) {
   const { t } = useT()

@@ -5,6 +5,7 @@ import { useT } from '../../../../i18n'
 import { rollSingle } from '../../../../services/dice/dice-service'
 import { getTokenStats } from '../../../../services/game/token-stats'
 import { useGameStore } from '../../../../stores/use-game-store'
+import { SKILL_NAMES_5E } from '../../../../systems/dnd5e/skills'
 import type { Character } from '../../../../types/character'
 import type { Character5e } from '../../../../types/character-5e'
 import { abilityModifier } from '../../../../types/character-common'
@@ -20,26 +21,7 @@ interface HelpModalProps {
 
 type HelpMode = 'stabilize' | 'assist-check' | 'assist-attack'
 
-const ASSIST_SKILLS = [
-  'Acrobatics',
-  'Animal Handling',
-  'Arcana',
-  'Athletics',
-  'Deception',
-  'History',
-  'Insight',
-  'Intimidation',
-  'Investigation',
-  'Medicine',
-  'Nature',
-  'Perception',
-  'Performance',
-  'Persuasion',
-  'Religion',
-  'Sleight of Hand',
-  'Stealth',
-  'Survival'
-]
+const ASSIST_SKILLS = SKILL_NAMES_5E // PHASE-38: canonical 5e skill names
 
 export default function HelpModal({
   character,

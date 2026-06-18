@@ -32,11 +32,14 @@ export function unregisterSystem(id: string): void { /* … */ }
 export function getSystem(id: string): GameSystemPlugin { /* throws if unregistered */ }
 ```
 
-> **Reality check (2026-06-10):** there is currently NO campaign-level `systemId`
-> field anywhere in `src/` — the registry is consumed only by the Settings page's
-> "Registered Game Systems" list and `data-provider.resolveDataPath`. Campaign-level
-> game-system selection (playing a registered non-5e system end-to-end) is
-> unimplemented; tracked in `dnd-app/docs/phases/PHASE-38-plugin-platform.md`.
+> **System selection (updated 2026-06-10, PHASE-38):** campaigns DO carry a
+> `system: GameSystem` field (`types/campaign.ts`); the wizard's SystemStep sets it, and it reaches
+> the game store, the LAN announce, character-creation routing, and the join handshake. Character
+> creation derives its system from the route (`/characters/:systemSeg/create`); a registered non-5e
+> system gates to an honest "not yet supported" notice at character creation (no system-provided
+> builder exists yet). The join handshake rejects a client whose advertised `gameSystem` mismatches
+> the host's. Still open (no phase owns these): a non-5e character builder, system-specific renderer
+> modules, and full 5e encapsulation into `systems/dnd5e/` (PHASE-38 38A started it with skills).
 
 ## GameSystemPlugin interface
 
@@ -180,8 +183,28 @@ Consequences for users:
 
 Consequences for the install pipeline:
 - `plugin-installer.ts` validates the zip structure + manifest shape, and the plugin id is charset/length-constrained (`PluginIdSchema`, Phase 22i) so it can't traverse the filesystem. This is **structural** validation, not a security sandbox — it stops malformed packs, not malicious code.
-- Content packs (JSON spells/monsters/equipment) are data-only and lower-risk than code plugins; full code-plugin execution remains gated behind the not-yet-shipped sandbox work below.
+- Content packs (JSON spells/monsters/equipment) are data-only and lower-risk than code plugins.
+- `PluginPermission` gates the **convenience** `PluginAPI` surface (events/commands/game-state/storage/ui/sounds) — it is NOT a security boundary against malicious code, which runs with full renderer access regardless.
+
+### Sandbox decision (2026-06-10, PHASE-38 38D)
+
+**Decision: NO runtime sandbox.** Trust-on-install stays the model. Options evaluated and rejected:
+
+- **isolated-vm** — in maintenance mode; a native module requiring per-Electron-ABI rebuilds, with no documented Electron support. ([github.com/laverdet/isolated-vm](https://github.com/laverdet/isolated-vm))
+- **vm2** — deprecated, then revived with a critical sandbox-escape CVE in 2026-01; not trustworthy as a security boundary. ([github.com/patriksimek/vm2](https://github.com/patriksimek/vm2))
+- **`node:vm`** — explicitly "not a security mechanism" per the Node docs. ([nodejs.org/api/vm.html](https://nodejs.org/api/vm.html))
+- **`utilityProcess` / child-process isolation** — a real OS boundary, but renderer plugins need the DOM + the live `PluginAPI`, which would force a full async-RPC rewrite of the plugin surface.
+- **QuickJS-wasm** — same API-surface problem as process isolation.
+
+**Mitigations that remain in force:** structural zip/manifest validation + charset-constrained plugin id, sha256 checksum pinning (the `verified` flag), security-event logging, the Settings install warning banner, and the permission-gated `PluginAPI`.
+
+**Revisit triggers:** shipping a plugin marketplace/downloader, accepting community submissions, or any path where users install plugins they did not personally obtain.
+
+### Tooling (PHASE-38 38E)
+
+- **TypeDoc adopted** for the plugin-facing API surface (`GameSystemPlugin`, the registry, `PluginAPI`, the manifest types). Run `npm run docs:api` → `docs/api/` (generated, gitignored). Config: `typedoc.json`.
+- **Storybook declined.** Storybook 10 is an ESM-only breaking release with its own builder/addon stack — meaningful recurring maintenance for a solo-maintained app whose component contracts are already covered by ~6000 vitest tests and the library-boundary test; component isolation has no current consumer. Revisit if a design-system/theming workstream appears.
 
 ## Future improvements
 
-Tracked in `dnd-app/docs/phases/PHASE-38-plugin-platform.md`: campaign-level game-system selection, 5e encapsulation into `systems/dnd5e/`, plugin sandbox/trust model, marketplace/downloader UI, content-schema versioning.
+Still open (no phase currently owns these): full 5e encapsulation into `systems/dnd5e/` (PHASE-38 38A started it with the canonical skills module), system-specific renderer modules, a non-5e character builder, a plugin marketplace/downloader UI, content-schema versioning, and community-submission vetting.

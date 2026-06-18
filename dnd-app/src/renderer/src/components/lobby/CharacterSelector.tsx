@@ -8,6 +8,7 @@ import { useCampaignStore } from '../../stores/use-campaign-store'
 import { useCharacterStore } from '../../stores/use-character-store'
 import { useLobbyStore } from '../../stores/use-lobby-store'
 import type { Character } from '../../types/character'
+import { getBuilderCreatePath } from '../../utils/character-routes'
 
 interface CharacterSelectorProps {
   onSelect: (characterId: string, characterName: string) => void
@@ -227,7 +228,9 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
 
       {/* Create new character button */}
       <button
-        onClick={() => navigate('/characters/5e/create', { state: { returnTo: `/lobby/${campaignId}` } })}
+        onClick={() =>
+          navigate(getBuilderCreatePath(campaign?.system ?? 'dnd5e'), { state: { returnTo: `/lobby/${campaignId}` } })
+        }
         className="w-full p-2.5 rounded-lg border border-dashed border-border text-sm text-muted
                    hover:border-amber-600/50 hover:text-accent transition-colors cursor-pointer
                    text-center"

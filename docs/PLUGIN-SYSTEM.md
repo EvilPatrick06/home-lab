@@ -68,14 +68,14 @@ export function initGameSystems(): void {
 }
 ```
 
-> **Reality check (2026-06-10):** campaigns do NOT yet carry a `systemId` —
-> the field appears nowhere in `dnd-app/src/`. The registry is consumed only by
-> the Settings page's "Registered Game Systems" list and
-> `data-provider.resolveDataPath`, so a registered non-5e system can't be played
-> end-to-end yet (tracked in `dnd-app/docs/phases/PHASE-38-plugin-platform.md`). The optional
-> `getConfig()` path mirrors the plugin into the separate `GAME_SYSTEMS` config
-> registry (`types/game-system.ts`) used for UI listing/metadata — distinct from
-> the plugin `Map`.
+> **System selection (updated 2026-06-10, PHASE-38):** campaigns DO carry
+> `system: GameSystem` (`types/campaign.ts`); the wizard's SystemStep sets it, and it reaches the
+> game store, the LAN announce, character-creation routing (`/characters/:systemSeg/create`), and the
+> join handshake (the host rejects a client whose advertised `gameSystem` mismatches). A registered
+> non-5e system gates to an honest "not yet supported" notice at character creation, pending a
+> system-provided builder. The optional `getConfig()` path mirrors the plugin into the separate
+> `GAME_SYSTEMS` config registry (`types/game-system.ts`) used for UI listing/metadata — distinct from
+> the plugin `Map`. Full plan: `dnd-app/docs/phases/completed/PHASE-38-plugin-platform.md`.
 
 ## Reference implementation — D&D 5e
 
@@ -120,6 +120,12 @@ A plugin's optional `getDataPaths()` can remap where its loaders look.
 ## Not yet built (future)
 
 - A dynamic/installable plugin loader (systems are compile-time-registered today).
-- A formal trust/sandbox model for third-party systems (would be required before
-  loading untrusted plugin code — see `SECURITY-LOG.md` / Phase 28g.2 notes).
-- TypeDoc API docs for the interface; Storybook for the shared components.
+- A non-5e character builder + system-specific renderer modules; full 5e encapsulation into
+  `systems/dnd5e/` (PHASE-38 38A started it with the canonical skills module).
+
+## Decided (PHASE-38, 2026-06-10)
+
+- **No runtime sandbox** — trust-on-install stays the model; the convenience `PluginAPI` permission
+  gate is not a security boundary. Rationale + evaluated options + revisit triggers:
+  `dnd-app/docs/PLUGIN-SYSTEM.md` §Trust model.
+- **TypeDoc adopted** for the plugin-facing API (`npm run docs:api`); **Storybook declined**.

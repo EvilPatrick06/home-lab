@@ -321,6 +321,39 @@ grep -n "SKILL_DEFINITIONS" src/renderer/src/systems/dnd5e/index.ts
 
 **Acceptance:** both docs' system-selection narrative matches the shipped behavior with correct file:line cites; no dangling audit references; the sandbox + TypeDoc/Storybook decisions are discoverable from `dnd-app/docs/PLUGIN-SYSTEM.md`.
 
+## Completed
+
+- **38A — skills dedup.** NEW `systems/dnd5e/skills.ts` (`SKILL_DEFINITIONS_5E` + derived
+  `SKILL_NAMES_5E` / `SKILL_ABILITY_MAP_5E`) + test. Collapsed all five duplicates (GroupRollModal,
+  HelpModal, StatBlockEditor, MacroBar, auto-populate-5e — which re-exports the map) onto it, and
+  `index.ts` imports the canonical list. Acceptance grep: only `apply-level-up.ts` (the allowed
+  multiclass subset) still inlines a skill name.
+- **38B — system-aware creation.** `character-routes.ts` `routeSegmentForSystem` /
+  `systemIdFromRouteSegment` / `getBuilderCreatePath(system)` (+ tests). `App.tsx` create route →
+  `/characters/:systemSeg/create`. `CreateCharacterPage` derives the system from the route; a non-5e /
+  unknown system renders an honest "not yet supported" notice (no silently-5e builder). `core-slice`
+  `selectGameSystem` guards non-5e. Nav call sites (ViewCharactersPage, CharacterSelector,
+  CampaignWizard) route through the helper. i18n keys + parity.
+- **38C — join handshake.** `gameSystem` added to `JoinPayloadSchema`; `host-manager` `hostGameSystem`
+  + `setHostGameSystem` + `getGameSystem` accessor; `host-connection` `HostStateAccessors` + handleJoin
+  reject-on-mismatch (`reason:'invalid'`, both ids in the message); `LobbyPage` sets it; client advertises
+  `gameSystem:'dnd5e'` (honest constant — only 5e is buildable today); `message-types` comment fixed.
+  Tests: 4 handleJoin cases (match/mismatch/absent/null-host) + a schema case. No-op for every real
+  session today (5e vs 5e); activates only when a non-5e plugin system hosts.
+- **38D — sandbox decision.** `plugin-installer.ts` comment rewritten (no "Phase 1 C2"; trust-on-install
+  by design). `dnd-app/docs/PLUGIN-SYSTEM.md` gained a "Sandbox decision (2026-06-10)" block (five
+  evaluated options + sourced rationale + revisit triggers) and the explicit note that `PluginPermission`
+  is a convenience gate, not a security boundary. Grep: no "Phase 1 C2" in src.
+- **38E — TypeDoc / Storybook.** `typedoc@^0.28.19` devDep + `typedoc.json` (4 plugin-author entry
+  points) + `docs:api` script + `.gitignore docs/api/`. `npm run docs:api` emits `docs/api/index.html`
+  (0 errors). Storybook formally declined in the docs. `audit:ci` (prod-only) clean — typedoc's dev-only
+  js-yaml advisory is excluded by `--omit=dev`.
+- **38F — docs truth pass.** Both PLUGIN-SYSTEM.md docs' system-selection callouts rewritten to the
+  shipped reality (Campaign.system wired through store/announce/routing/handshake; honest non-5e gate);
+  sandbox + TypeDoc/Storybook decisions discoverable. The dead `AI-DM-AUDIT.md` refs were already cleaned.
+- **Gate.** lint + tsc (web+node) green; 71 tests across the touched suites green; `validate:5e` clean;
+  no bmo/pi touched. The PHASE-13-owned underscore type-aliases were left untouched as instructed.
+
 ## Research notes
 
 **Sandbox decision (38D).**

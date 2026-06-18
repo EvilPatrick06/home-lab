@@ -42,6 +42,7 @@ function createMockState(overrides: Partial<HostStateAccessors> = {}): HostState
     getHostClientId: () => 'host-client-id',
     getMaxPlayers: () => 8,
     getMaxSpectators: () => 5,
+    getGameSystem: () => null, // PHASE-38: null = accept any client system (back-compat default)
     getModerationEnabled: () => false,
     getCustomBlockedWords: () => [],
     getGameStateProvider: () => null,
@@ -436,5 +437,58 @@ describe('handleDisconnection', () => {
 
     expect(() => handleDisconnection('peer-1', state)).not.toThrow()
     expect(badCb).toHaveBeenCalled()
+  })
+})
+
+// PHASE-38 38C — game-system handshake check.
+describe('handleJoin — game-system check (PHASE-38 38C)', () => {
+  function joinWithSystem(gameSystem?: string): NetworkMessage<JoinPayload> {
+    return {
+      type: 'player:join',
+      payload: {
+        displayName: 'Sys',
+        characterId: null,
+        characterName: null,
+        clientId: `c-${gameSystem ?? 'none'}`,
+        role: 'player',
+        ...(gameSystem ? { gameSystem } : {})
+      },
+      senderId: 'sys-peer',
+      senderName: 'Sys',
+      timestamp: Date.now(),
+      sequence: 0
+    }
+  }
+
+  it('accepts a client whose system matches the host', () => {
+    const state = createMockState({ getGameSystem: () => 'dnd5e' })
+    handleJoin('sys-peer', createMockConn('sys-peer') as never, joinWithSystem('dnd5e'), state)
+    expect(state.connections.has('sys-peer')).toBe(true)
+    expect(state.disconnectPeer).not.toHaveBeenCalled()
+  })
+
+  it('rejects a client whose system mismatches, with reason "invalid" + both ids', () => {
+    const state = createMockState({ getGameSystem: () => 'dnd5e' })
+    handleJoin('sys-peer', createMockConn('sys-peer') as never, joinWithSystem('pf2e'), state)
+    expect(state.disconnectPeer).toHaveBeenCalled()
+    const rejectMsg = (state.disconnectPeer as ReturnType<typeof vi.fn>).mock.calls[0][1]
+    expect(rejectMsg.payload.reason).toBe('invalid')
+    expect(rejectMsg.payload.message).toContain('dnd5e')
+    expect(rejectMsg.payload.message).toContain('pf2e')
+    expect(state.connections.has('sys-peer')).toBe(false)
+  })
+
+  it('accepts a client with NO gameSystem field (back-compat)', () => {
+    const state = createMockState({ getGameSystem: () => 'dnd5e' })
+    handleJoin('sys-peer', createMockConn('sys-peer') as never, joinWithSystem(undefined), state)
+    expect(state.connections.has('sys-peer')).toBe(true)
+    expect(state.disconnectPeer).not.toHaveBeenCalled()
+  })
+
+  it('accepts any client when the host system is null', () => {
+    const state = createMockState({ getGameSystem: () => null })
+    handleJoin('sys-peer', createMockConn('sys-peer') as never, joinWithSystem('pf2e'), state)
+    expect(state.connections.has('sys-peer')).toBe(true)
+    expect(state.disconnectPeer).not.toHaveBeenCalled()
   })
 })

@@ -15,6 +15,7 @@ import {
 import type { AbilityName, ClassFeatureEntry, Currency, SpellEntry } from '../../types/character-common'
 import { logger } from '../../utils/logger'
 import type { GameSystemPlugin, SheetConfig } from '../types'
+import { SKILL_DEFINITIONS_5E } from './skills'
 
 // --- Spell slot tables loaded from JSON via spell-data.ts ---
 
@@ -48,27 +49,7 @@ const HALF_CASTERS = HALF_CASTERS_5E
 const THIRD_CASTERS = Object.keys(THIRD_CASTER_SUBCLASSES)
 const SPELLCASTERS = [...FULL_CASTERS, ...HALF_CASTERS, 'warlock']
 
-// --- 5e Skill definitions ---
-const SKILL_DEFINITIONS: Array<{ name: string; ability: AbilityName }> = [
-  { name: 'Acrobatics', ability: 'dexterity' },
-  { name: 'Animal Handling', ability: 'wisdom' },
-  { name: 'Arcana', ability: 'intelligence' },
-  { name: 'Athletics', ability: 'strength' },
-  { name: 'Deception', ability: 'charisma' },
-  { name: 'History', ability: 'intelligence' },
-  { name: 'Insight', ability: 'wisdom' },
-  { name: 'Intimidation', ability: 'charisma' },
-  { name: 'Investigation', ability: 'intelligence' },
-  { name: 'Medicine', ability: 'wisdom' },
-  { name: 'Nature', ability: 'intelligence' },
-  { name: 'Perception', ability: 'wisdom' },
-  { name: 'Performance', ability: 'charisma' },
-  { name: 'Persuasion', ability: 'charisma' },
-  { name: 'Religion', ability: 'intelligence' },
-  { name: 'Sleight of Hand', ability: 'dexterity' },
-  { name: 'Stealth', ability: 'dexterity' },
-  { name: 'Survival', ability: 'wisdom' }
-]
+// --- 5e Skill definitions (PHASE-38: canonical source is ./skills) ---
 
 // --- Sheet config ---
 const SHEET_CONFIG: SheetConfig = {
@@ -183,7 +164,7 @@ export const dnd5ePlugin: GameSystemPlugin = {
   },
 
   getSkillDefinitions(): Array<{ name: string; ability: AbilityName }> {
-    return SKILL_DEFINITIONS
+    return [...SKILL_DEFINITIONS_5E] // mutable copy preserves the plugin contract's Array return type
   },
 
   getSheetConfig(): SheetConfig {

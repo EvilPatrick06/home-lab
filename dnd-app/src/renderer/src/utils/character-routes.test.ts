@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import type { Character } from '../types/character'
-import { getBuilderCreatePath, getBuilderEditPath, getCharacterSheetPath, getLevelUpPath } from './character-routes'
+import { registerGameSystem, unregisterGameSystem } from '../types/game-system'
+import {
+  getBuilderCreatePath,
+  getBuilderEditPath,
+  getCharacterSheetPath,
+  getLevelUpPath,
+  routeSegmentForSystem,
+  systemIdFromRouteSegment
+} from './character-routes'
 
 // Minimal character stub — only fields used by the route functions
 function makeCharacter(id: string): Character {
@@ -95,5 +103,35 @@ describe('route format conventions', () => {
     expect(getBuilderCreatePath()).toMatch(/^\/characters\/5e\//)
     expect(getBuilderEditPath(char)).toMatch(/^\/characters\/5e\//)
     expect(getLevelUpPath(char)).toMatch(/^\/characters\/5e\//)
+  })
+})
+
+// PHASE-38 38B — system-aware routing.
+describe('system-aware character routing (PHASE-38)', () => {
+  it('maps dnd5e ↔ the legacy "5e" segment', () => {
+    expect(routeSegmentForSystem('dnd5e')).toBe('5e')
+    expect(systemIdFromRouteSegment('5e')).toBe('dnd5e')
+    expect(getBuilderCreatePath('dnd5e')).toBe('/characters/5e/create')
+  })
+
+  it('returns null for an unknown route segment', () => {
+    expect(systemIdFromRouteSegment('totally-bogus')).toBeNull()
+  })
+
+  it('passes through a registered plugin system id', () => {
+    registerGameSystem({
+      id: 'pf2e',
+      name: 'Pathfinder 2e',
+      shortName: 'PF2e',
+      maxLevel: 20,
+      dataPath: './data/pf2e',
+      referenceLabel: 'SRD'
+    })
+    try {
+      expect(systemIdFromRouteSegment('pf2e')).toBe('pf2e')
+      expect(getBuilderCreatePath('pf2e')).toBe('/characters/pf2e/create')
+    } finally {
+      unregisterGameSystem('pf2e')
+    }
   })
 })

@@ -6265,6 +6265,9 @@
       "searchPlaceholder": "Buscar en la biblioteca..."
     },
     "createCharacterPage": {
+      "unsupportedSystemTitle": "Creación de personajes aún no disponible",
+      "unsupportedSystemBody": "El sistema de juego \"{{name}}\" está registrado, pero la creación de personajes para él aún no está disponible. Hoy solo D&D 5e tiene un creador de personajes.",
+      "unsupportedSystemBack": "Volver a personajes",
       "draftResumed": "Borrador reanudado",
       "useSaveButton": "Usa el botón Guardar para guardar tu personaje",
       "libraryTitle": "Abrir la biblioteca (hechizos, objetos, especies, clases, etc.)",

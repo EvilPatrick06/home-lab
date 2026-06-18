@@ -3,6 +3,7 @@ import { useId, useState } from 'react'
 import { useT } from '../../../i18n'
 import type { MonsterSpeed, MonsterSpellcasting, MonsterTrait } from '../../../services/data-provider'
 import { load5eCreatureTypes } from '../../../services/data-provider'
+import { SKILL_NAMES_5E } from '../../../systems/dnd5e/skills'
 import type { CreatureSize, CreatureType, MonsterAction, MonsterStatBlock } from '../../../types/monster'
 import type { SpellcastingSection as SidebarSpellcastingSection } from '../sidebar/StatBlockForm'
 
@@ -25,26 +26,7 @@ export async function loadCreatureTypeData(): Promise<unknown> {
   return load5eCreatureTypes()
 }
 
-const COMMON_SKILLS = [
-  'Acrobatics',
-  'Animal Handling',
-  'Arcana',
-  'Athletics',
-  'Deception',
-  'History',
-  'Insight',
-  'Intimidation',
-  'Investigation',
-  'Medicine',
-  'Nature',
-  'Perception',
-  'Performance',
-  'Persuasion',
-  'Religion',
-  'Sleight of Hand',
-  'Stealth',
-  'Survival'
-]
+const COMMON_SKILLS = SKILL_NAMES_5E // PHASE-38: canonical 5e skill names
 
 function CollapsibleSection({
   title,

@@ -44,6 +44,7 @@
     "format": "biome format --write src/",
     "audit:ci": "npm audit --audit-level=moderate --omit=dev",
     "audit:all": "npm audit --audit-level=moderate",
+    "docs:api": "typedoc",
     "dead-code": "npx knip",
     "circular": "dpdm --no-warning --no-tree --transform --extensions ts,tsx --exit-code circular:0 src/main/index.ts src/renderer/src/main.tsx",
     "check:full": "npm run lint && npm run lint:forbidden && tsc --noEmit -p tsconfig.web.json && tsc --noEmit -p tsconfig.node.json && npm test && npm run circular && npm run dead-code && npm run audit:ci"
@@ -216,6 +217,7 @@
     "three": "^0.184.0",
     "tsx": "^4.22.3",
     "type-coverage": "^2.29.7",
+    "typedoc": "^0.28.19",
     "typescript": "^6.0.3",
     "vite": "^8.0.14",
     "vitest": "^4.0.18"

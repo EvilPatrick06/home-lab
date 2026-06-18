@@ -37,6 +37,8 @@ const JoinPayloadSchema = z.object({
   clientId: z.string().min(1).max(100),
   role: z.enum(['player', 'spectator']).optional(),
   lastSequence: z.number().int().nonnegative().optional(),
+  // PHASE-38 38C — system the client intends to play. Absent = pre-2026-06 client (treated as compatible).
+  gameSystem: z.string().max(64).optional(),
   clientCapabilities: z
     .object({
       msgpack: z.boolean().optional()

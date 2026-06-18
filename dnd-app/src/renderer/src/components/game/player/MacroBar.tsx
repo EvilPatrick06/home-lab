@@ -3,6 +3,7 @@ import { useT } from '../../../i18n'
 import type { TranslationKeys } from '../../../i18n/types'
 import { getEffectiveWeapons } from '../../../services/character/effective-character-5e'
 import { useMacroStore } from '../../../stores/use-macro-store'
+import { SKILL_ABILITY_MAP_5E } from '../../../systems/dnd5e/skills'
 import type { Character } from '../../../types/character'
 import { is5eCharacter } from '../../../types/character'
 import { abilityModifier, formatMod } from '../../../types/character-common'
@@ -24,26 +25,7 @@ interface MacroButton {
   kind: 'weapon-attack' | 'weapon-damage' | 'skill-proficient' | 'skill-untrained'
 }
 
-const SKILL_ABILITIES: Record<string, string> = {
-  Acrobatics: 'dexterity',
-  'Animal Handling': 'wisdom',
-  Arcana: 'intelligence',
-  Athletics: 'strength',
-  Deception: 'charisma',
-  History: 'intelligence',
-  Insight: 'wisdom',
-  Intimidation: 'charisma',
-  Investigation: 'intelligence',
-  Medicine: 'wisdom',
-  Nature: 'intelligence',
-  Perception: 'wisdom',
-  Performance: 'charisma',
-  Persuasion: 'charisma',
-  Religion: 'intelligence',
-  'Sleight of Hand': 'dexterity',
-  Stealth: 'dexterity',
-  Survival: 'wisdom'
-}
+const SKILL_ABILITIES = SKILL_ABILITY_MAP_5E // PHASE-38: canonical 5e skill→ability map
 
 export default function MacroBar({ character, onRoll }: MacroBarProps): JSX.Element | null {
   const { t } = useT()

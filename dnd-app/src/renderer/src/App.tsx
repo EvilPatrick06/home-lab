@@ -235,7 +235,7 @@ function App(): JSX.Element {
                   create path to the 5e builder (bookmarks / external links). */}
               <Route path="/characters/create" element={<Navigate to="/characters/5e/create" replace />} />
               <Route
-                path="/characters/5e/create"
+                path="/characters/:systemSeg/create"
                 element={
                   <ErrorBoundary>
                     <CreateCharacterPage />

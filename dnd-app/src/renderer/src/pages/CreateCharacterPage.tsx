@@ -6,11 +6,17 @@ import { addToast } from '../hooks/use-toast'
 import { useT } from '../i18n'
 import { useBuilderStore } from '../stores/use-builder-store'
 import type { Character } from '../types/character'
+import { GAME_SYSTEMS } from '../types/game-system'
+import { systemIdFromRouteSegment } from '../utils/character-routes'
 
 export default function CreateCharacterPage(): JSX.Element {
   const { t } = useT()
-  const { id } = useParams<{ id: string }>()
+  const { id, systemSeg } = useParams<{ id: string; systemSeg?: string }>()
   const navigate = useNavigate()
+  // PHASE-38 38B — derive the system from the route. Unknown segment or any non-5e system has no
+  // builder yet → honest notice instead of a silently-5e builder. Editing (id present) bypasses this.
+  const resolvedSystem = systemIdFromRouteSegment(systemSeg ?? '5e')
+  const unsupported = !id && resolvedSystem !== 'dnd5e'
   const phase = useBuilderStore((s) => s.phase)
   const selectGameSystem = useBuilderStore((s) => s.selectGameSystem)
   const editingCharacterId = useBuilderStore((s) => s.editingCharacterId)
@@ -35,10 +41,10 @@ export default function CreateCharacterPage(): JSX.Element {
   }, [id, editingCharacterId, loadCharacterForEdit, navigate])
 
   useEffect(() => {
-    if (phase === 'system-select' && !id) {
+    if (phase === 'system-select' && !id && resolvedSystem === 'dnd5e') {
       selectGameSystem('dnd5e')
     }
-  }, [phase, selectGameSystem, id])
+  }, [phase, selectGameSystem, id, resolvedSystem])
 
   // Auto-save builder drafts to localStorage
   useAutoSaveBuilderDraft()
@@ -81,6 +87,25 @@ export default function CreateCharacterPage(): JSX.Element {
   // Phase 17m — the "Library" quick-link now lives inline in the builder's
   // header (CharacterBuilder5e) instead of as a floating button here; the old
   // `fixed top-3 right-14` button overlapped the Save Character button.
+  if (unsupported) {
+    const systemName = (resolvedSystem && GAME_SYSTEMS[resolvedSystem]?.name) || systemSeg || 'unknown'
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4 p-8 text-center">
+        <h1 className="text-2xl font-semibold text-fg">{t('pages.createCharacterPage.unsupportedSystemTitle')}</h1>
+        <p className="text-muted max-w-md">
+          {t('pages.createCharacterPage.unsupportedSystemBody', { name: systemName })}
+        </p>
+        <button
+          type="button"
+          onClick={() => navigate('/characters')}
+          className="px-4 py-2 bg-amber-600 hover:bg-accent-strong rounded-lg text-white cursor-pointer"
+        >
+          {t('pages.createCharacterPage.unsupportedSystemBack')}
+        </button>
+      </div>
+    )
+  }
+
   return (
     <>
       <CharacterBuilder5e />

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "src/renderer/src/systems/types.ts",
+    "src/renderer/src/systems/registry.ts",
+    "src/renderer/src/services/plugin-system/plugin-api.ts",
+    "src/shared/plugin-types.ts"
+  ],
+  "tsconfig": "tsconfig.web.json",
+  "out": "docs/api",
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "readme": "docs/PLUGIN-SYSTEM.md"
+}

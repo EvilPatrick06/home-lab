@@ -119,7 +119,8 @@ export interface JoinPayload {
   characterId: string | null
   characterName: string | null
   color?: string
-  /** Game system ID the client supports (e.g. 'dnd5e'). Host rejects mismatches. */
+  /** Game system ID the client plays (e.g. 'dnd5e'). The host rejects mismatches (PHASE-38 38C).
+   *  Optional; absent = pre-2026-06 client, treated as compatible. */
   gameSystem?: string
   /** Stable per-installation UUID — canonical identity for bans, registry filtering, and reconnect-resync (Phase 29b). */
   clientId: string

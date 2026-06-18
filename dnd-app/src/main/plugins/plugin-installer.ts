@@ -160,8 +160,11 @@ export async function installFromZip(zipPath: string): Promise<StorageResult<str
 
     logToFile('INFO', `Plugin installed: ${pluginId}`)
     // Phase 20d/20g — record the install with its archive sha256. `verified`
-    // marks whether the manifest pinned (and matched) a checksum; unverified
-    // installs are "install at your own risk" until Phase 1 C2 sandboxing lands.
+    // marks whether the manifest pinned (and matched) a checksum. Unverified
+    // installs are trust-on-install **by design** (decision 2026-06-10, PHASE-38 38D):
+    // there is no runtime sandbox — the mitigations are structural validation, the
+    // checksum pin, this security log, the Settings install warning, and the
+    // permission-gated PluginAPI. See docs/PLUGIN-SYSTEM.md §Trust model.
     logSecurityEvent('plugin.install.success', {
       id: pluginId,
       sha256: checksum,

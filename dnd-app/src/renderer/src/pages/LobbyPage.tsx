@@ -9,6 +9,7 @@ import {
   onClientMessage,
   setHostCampaignId,
   setHostCaps,
+  setHostGameSystem,
   startHostAnnounce,
   stopHostAnnounce,
   updateHostAnnounce
@@ -196,6 +197,7 @@ export default function LobbyPage(): JSX.Element {
   useEffect(() => {
     if (isHost && campaign) {
       setHostCaps(campaign.settings?.maxPlayers ?? 8, campaign.settings?.maxSpectators ?? 5)
+      setHostGameSystem(campaign.system ?? 'dnd5e') // PHASE-38 38C: host rejects system mismatches
     }
   }, [isHost, campaign])
 

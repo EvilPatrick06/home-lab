@@ -276,6 +276,10 @@ async function attemptConnection(
               characterName,
               clientId: getOrCreateClientId(),
               role: 'player',
+              // PHASE-38 38C: advertise the system the client plays. Clients can only build 5e
+              // characters today (38B gate), so the honest constant is 'dnd5e'; the host rejects a
+              // mismatch only once a non-5e plugin system hosts a game.
+              gameSystem: 'dnd5e',
               // Phase 29j: advertise msgpack support so the host can ship
               // tagged binary frames on its outgoing path. The client
               // side still sends JSON strings — capability is one-way.

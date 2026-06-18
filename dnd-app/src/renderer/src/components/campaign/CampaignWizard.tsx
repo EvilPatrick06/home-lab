@@ -21,6 +21,7 @@ import {
 } from '../../types/campaign'
 import type { GameSystem } from '../../types/game-system'
 import type { GameMap } from '../../types/map'
+import { getBuilderCreatePath } from '../../utils/character-routes'
 import { logger } from '../../utils/logger'
 import { Button } from '../ui'
 import AdventureSelector from './AdventureSelector'
@@ -293,7 +294,7 @@ export default function CampaignWizard(): JSX.Element {
   // builder returns here (returnTo=/make via navigation state — the builder reads
   // location.state.returnTo) and the wizard resumes on the Character step.
   const goCreatePc = (): void => {
-    navigate('/characters/5e/create', { state: { returnTo: '/make' } })
+    navigate(getBuilderCreatePath(system ?? 'dnd5e'), { state: { returnTo: '/make' } })
   }
   const goEditPc = (id: string): void => {
     navigate(`/characters/5e/edit/${id}`, { state: { returnTo: '/make' } })

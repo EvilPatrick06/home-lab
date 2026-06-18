@@ -31,6 +31,7 @@ export {
   setCampaignId as setHostCampaignId,
   setGameStateProvider,
   setHostCaps,
+  setHostGameSystem,
   setModerationEnabled,
   startHosting,
   stopHosting,

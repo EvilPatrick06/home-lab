@@ -10,3 +10,6 @@ bundle-stats.html
 # Bundled Ollama binary — fetched at build time per platform, not source-tracked
 resources/ollama/
 .ollama-download-tmp/
+
+# PHASE-38 — generated TypeDoc plugin-API docs (regenerate with `npm run docs:api`)
+docs/api/

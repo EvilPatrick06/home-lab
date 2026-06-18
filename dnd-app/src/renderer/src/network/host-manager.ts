@@ -31,6 +31,8 @@ let campaignId: string | null = null
 /** Phase 29e: per-campaign caps applied to incoming joins (set via `setHostCaps`). */
 let maxPlayers = 8
 let maxSpectators = 5
+/** PHASE-38 38C: the hosted campaign's game system; clients with a mismatching system are rejected. */
+let hostGameSystem: string | null = null
 
 // Rate limiting
 const messageRates = new Map<string, number[]>()
@@ -240,6 +242,7 @@ function getStateAccessors(): HostStateAccessors {
     getHostClientId: () => hostClientId,
     getMaxPlayers: () => maxPlayers,
     getMaxSpectators: () => maxSpectators,
+    getGameSystem: () => hostGameSystem,
     getModerationEnabled: () => moderationEnabled,
     getCustomBlockedWords: () => customBlockedWords,
     getGameStateProvider: () => gameStateProvider,
@@ -523,6 +526,11 @@ export function getInviteCode(): string | null {
 export function setHostCaps(nextMaxPlayers: number, nextMaxSpectators: number): void {
   maxPlayers = Math.max(1, Math.floor(nextMaxPlayers))
   maxSpectators = Math.max(0, Math.floor(nextMaxSpectators))
+}
+
+/** PHASE-38 38C: set the hosted campaign's game system (clients with a mismatch are rejected). */
+export function setHostGameSystem(system: string | null): void {
+  hostGameSystem = system
 }
 
 /** Set the campaign ID; also loads persisted bans. */

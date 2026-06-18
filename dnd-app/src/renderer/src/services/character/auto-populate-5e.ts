@@ -1,29 +1,12 @@
 import speciesSpellsJson from '@data/5e/character/species-spells.json'
+// PHASE-38: the 5e skill→ability map now lives in systems/dnd5e/skills.ts; import + re-export to keep
+// populateSkills5e and external importers working unchanged.
+import { SKILL_ABILITY_MAP_5E } from '../../systems/dnd5e/skills'
 import type { Character5e } from '../../types/character-5e'
-import type { AbilityName, SpellEntry } from '../../types/character-common'
+import type { SpellEntry } from '../../types/character-common'
 import { load5eSpeciesSpells } from '../data-provider'
 
-// Skill-to-ability mapping for 5e
-export const SKILL_ABILITY_MAP_5E: Record<string, AbilityName> = {
-  Acrobatics: 'dexterity',
-  'Animal Handling': 'wisdom',
-  Arcana: 'intelligence',
-  Athletics: 'strength',
-  Deception: 'charisma',
-  History: 'intelligence',
-  Insight: 'wisdom',
-  Intimidation: 'charisma',
-  Investigation: 'intelligence',
-  Medicine: 'wisdom',
-  Nature: 'intelligence',
-  Perception: 'wisdom',
-  Performance: 'charisma',
-  Persuasion: 'charisma',
-  Religion: 'intelligence',
-  'Sleight of Hand': 'dexterity',
-  Stealth: 'dexterity',
-  Survival: 'wisdom'
-}
+export { SKILL_ABILITY_MAP_5E } from '../../systems/dnd5e/skills'
 
 export function populateSkills5e(selectedSkills: string[]): Character5e['skills'] {
   return Object.entries(SKILL_ABILITY_MAP_5E).map(([name, ability]) => ({

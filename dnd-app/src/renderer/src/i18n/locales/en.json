@@ -6265,6 +6265,9 @@
       "searchPlaceholder": "Search library..."
     },
     "createCharacterPage": {
+      "unsupportedSystemTitle": "Character creation not yet supported",
+      "unsupportedSystemBody": "The game system \"{{name}}\" is registered, but character creation for it isn't supported yet. Only D&D 5e has a character builder today.",
+      "unsupportedSystemBack": "Back to characters",
       "draftResumed": "Draft resumed",
       "useSaveButton": "Use the Save button to save your character",
       "libraryTitle": "Open the library (spells, items, species, classes, etc.)",

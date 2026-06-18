@@ -29,6 +29,23 @@ describe('validateNetworkMessage', () => {
     expect(result.success).toBe(true)
   })
 
+  // PHASE-38 38C — optional gameSystem field on join.
+  it('accepts a join message with a gameSystem field', () => {
+    const result = validateNetworkMessage(
+      makeMessage({
+        type: 'player:join',
+        payload: {
+          displayName: 'Bo',
+          characterId: null,
+          characterName: null,
+          clientId: 'client-bo',
+          gameSystem: 'dnd5e'
+        }
+      })
+    )
+    expect(result.success).toBe(true)
+  })
+
   it('accepts a valid dice roll message', () => {
     const result = validateNetworkMessage(
       makeMessage({

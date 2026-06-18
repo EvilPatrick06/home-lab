@@ -27,6 +27,8 @@ export interface HostStateAccessors {
   getMaxPlayers: () => number
   /** Phase 29e: max spectator slots (from `campaign.settings.maxSpectators`). Host rejects spectator joins past this cap. */
   getMaxSpectators: () => number
+  /** PHASE-38 38C: the hosted campaign's game system; a joining client with a mismatch is rejected. */
+  getGameSystem: () => string | null
   getModerationEnabled: () => boolean
   getCustomBlockedWords: () => string[]
   getGameStateProvider: () => ((peerInfo: PeerInfo) => unknown) | null
@@ -284,6 +286,20 @@ export function handleJoin(
     const rejectMsg = state.buildMessage('player:join-rejected', {
       reason: 'spectator-cap' as const,
       message: `Spectator slots full (${currentSpectators}/${state.getMaxSpectators()}).`
+    })
+    state.disconnectPeer(peerId, rejectMsg)
+    return
+  }
+
+  // PHASE-38 38C: reject a client built for a different game system. Absent field (pre-38 clients) =
+  // compatible; a null host system = accept anything. Reuse reason:'invalid' — do NOT extend the
+  // JoinRejectedPayloadSchema enum (an unknown value fails zod on older clients, swallowing the message).
+  const clientSystem = message.payload.gameSystem
+  const hostSystem = state.getGameSystem()
+  if (clientSystem && hostSystem && clientSystem !== hostSystem) {
+    const rejectMsg = state.buildMessage('player:join-rejected', {
+      reason: 'invalid' as const,
+      message: `Game system mismatch: this game runs "${hostSystem}", your client joined for "${clientSystem}".`
     })
     state.disconnectPeer(peerId, rejectMsg)
     return

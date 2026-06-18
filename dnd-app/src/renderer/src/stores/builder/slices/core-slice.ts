@@ -11,6 +11,7 @@ import {
   generate5eBuildSlots,
   generate5eLevelUpSlots
 } from '../../../services/character/build-tree-5e'
+import { logger } from '../../../utils/logger'
 
 type _ClassProficiencies = ClassProficiencies
 type _ClassArmorTraining = ClassArmorTraining
@@ -38,6 +39,12 @@ export const createCoreSlice: StateCreator<BuilderState, [], [], CoreSliceState>
   guidedMode: false,
 
   selectGameSystem: (system) => {
+    // PHASE-38 38B — only 5e has a builder. The page-level gate should make this unreachable for
+    // other systems; this guard keeps the store honest if a future caller forgets.
+    if (system !== 'dnd5e') {
+      logger.warn(`[builder] selectGameSystem("${system}"): no builder for this system — ignoring`)
+      return
+    }
     const slots = generate5eBuildSlots(1)
     set({ phase: 'building', gameSystem: system, buildSlots: slots })
     const firstCategory = 'class'
