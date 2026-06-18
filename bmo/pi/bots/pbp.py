@@ -192,6 +192,10 @@ class PbpManager:
                 age = self._age(session)
                 reminder = timedelta(hours=session["reminder_hours"])
                 if age >= reminder and session.get("reminded_at") is None:
+                    # Mark BEFORE sending so a send (or save) failure can never re-fire the reminder
+                    # on the next tick — at most one reminder attempt per turn (a lost ping beats a
+                    # duplicate ping). mark_reminded persists reminded_at atomically.
+                    self.store.mark_reminded(campaign_id)
                     channel = self.resolve_channel(session.get("channel_id"))
                     if channel is not None:
                         cur = self.store.current_participant(session) or {}
@@ -200,7 +204,6 @@ class PbpManager:
                             content=f"{self._mention(cur)} — friendly reminder: it's still your turn in "
                             f"*{session.get('scene')}* ({hours}h elapsed)."
                         )
-                    self.store.mark_reminded(campaign_id)
                 if session.get("auto_skip") and age >= 2 * reminder:
                     cur = self.store.current_participant(session) or {}
                     hours2 = round(2 * session["reminder_hours"], 1)

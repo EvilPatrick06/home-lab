@@ -173,3 +173,19 @@ async def test_pbp_skip_requires_manage_guild(tmp_path):
     await pbp_skip.callback(interaction)
     assert store.get("c1")["turn_index"] == 0  # refused, not advanced
     assert interaction.response.send_message.call_args.kwargs.get("ephemeral") is True
+
+
+async def test_reminder_marks_before_send_so_a_send_failure_never_double_pings(tmp_path):
+    # Regression (PHASE-36 review): if channel.send fails AFTER the flag is set, the next tick
+    # must NOT re-send. mark_reminded is now called before send.
+    ch = _channel()
+    ch.send = AsyncMock(side_effect=RuntimeError("discord down"))
+    mgr, store = _mgr(tmp_path, channel=ch)
+    store.start_session("c1", "Crypt", _participants(2), channel_id=str(ch.id), reminder_hours=1.0)
+    store._data["c1"]["turn_started_at"] = (datetime.now(timezone.utc) - timedelta(hours=5)).isoformat()
+    store._save()
+    await mgr.reminder_tick()  # send raises, but the flag was set first
+    assert store.get("c1")["reminded_at"] is not None
+    assert ch.send.await_count == 1
+    await mgr.reminder_tick()  # already reminded → no second attempt
+    assert ch.send.await_count == 1
