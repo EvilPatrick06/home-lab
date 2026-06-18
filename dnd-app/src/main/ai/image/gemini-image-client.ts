@@ -25,6 +25,15 @@ async function generate(
   const apiKey = aiService.getConfig().geminiApiKey
   if (!apiKey) return { success: false, error: 'No Gemini API key configured' }
 
+  // PHASE-43 (CodeQL js/request-forgery): geminiModel is a user-configurable string
+  // interpolated into the request URL's PATH. Constrain it to a model-name charset so a
+  // poisoned/typo'd config can't inject extra path segments, a query string, or a host
+  // override (e.g. '../', ':', '?', '#', '@'). Real Gemini model ids (gemini-2.5-flash …)
+  // are [a-z0-9.-] and pass unchanged.
+  if (!/^[a-zA-Z0-9.\-]+$/.test(config.geminiModel)) {
+    return { success: false, error: `Invalid Gemini model name: "${config.geminiModel}"` }
+  }
+
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${config.geminiModel}:generateContent`,
     {

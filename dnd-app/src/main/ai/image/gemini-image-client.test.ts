@@ -48,4 +48,32 @@ describe('gemini-image-client (PHASE-33 33B)', () => {
     const r = await geminiImageAdapter.generate({ prompt: 'x', width: 1024, height: 1024 }, cfg())
     expect(r.success).toBe(false)
   })
+
+  // PHASE-43 (CodeQL js/request-forgery): a model name with path/query/host-injection
+  // chars is rejected BEFORE the fetch, so it can't alter the request URL.
+  it('rejects a path-injecting geminiModel without fetching', async () => {
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    const r = await geminiImageAdapter.generate(
+      { prompt: 'x', width: 1024, height: 1024 },
+      cfg({ geminiModel: '../../evil:generateContent?x=' })
+    )
+    expect(r.success).toBe(false)
+    if (!r.success) expect(r.error).toMatch(/Invalid Gemini model/)
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('accepts a normal gemini model id unchanged', async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ candidates: [{ content: { parts: [{ inlineData: { data: 'IMG' } }] } }] })
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+    const r = await geminiImageAdapter.generate(
+      { prompt: 'x', width: 1024, height: 1024 },
+      cfg({ geminiModel: 'gemini-2.5-flash-image' })
+    )
+    expect(r.success).toBe(true)
+    expect(String(fetchMock.mock.calls[0][0])).toContain('/models/gemini-2.5-flash-image:generateContent')
+  })
 })
