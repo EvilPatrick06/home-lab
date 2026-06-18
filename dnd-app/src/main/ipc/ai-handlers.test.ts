@@ -14,10 +14,12 @@ const mocked = vi.hoisted(() => ({
   getQaLogMock: vi.fn(async () => [] as unknown[]),
   clearQaLogMock: vi.fn(async () => {}),
   generateSessionStartRecapMock: vi.fn(async () => ({ text: 'Previously…', generatedAt: 't', cached: false })),
+  mutateQuestLogMock: vi.fn(async () => ({})),
   getMemoryManagerMock: vi.fn(() => ({
     getWorldState: vi.fn(async () => null), // PHASE-26: world-sync boundary hook reads prev scene
     updateWorldState: vi.fn(async () => {}),
     updateQuestLog: vi.fn(async () => {}),
+    mutateQuestLog: mocked.mutateQuestLogMock, // PHASE-37 quest seeding
     appendQaEntry: mocked.appendQaEntryMock,
     getQaLog: mocked.getQaLogMock,
     clearQaLog: mocked.clearQaLogMock
@@ -571,5 +573,57 @@ describe('registerAiHandlers recaps + campaign Q&A (PHASE-31)', () => {
     expect(bmo.getDiscordRecapMock).toHaveBeenCalledWith('last')
     await h({}, undefined)
     expect(bmo.getDiscordRecapMock).toHaveBeenCalledWith('live')
+  })
+})
+
+// PHASE-37 37D — quest seeding from a pack.
+describe('registerAiHandlers AI_SEED_QUESTS channel (PHASE-37)', () => {
+  const VALID = '11111111-1111-4111-8111-111111111111'
+  beforeEach(() => {
+    mocked.ipcHandleMock.mockClear()
+    mocked.mutateQuestLogMock.mockClear()
+    mocked.getMemoryManagerMock.mockClear()
+  })
+
+  function getHandler(): (e: unknown, p: unknown) => Promise<unknown> {
+    registerAiHandlers()
+    const reg = mocked.ipcHandleMock.mock.calls.find(([c]) => c === IPC_CHANNELS.AI_SEED_QUESTS)
+    return reg?.[1] as (e: unknown, p: unknown) => Promise<unknown>
+  }
+
+  it('rejects an invalid payload without touching the memory manager', async () => {
+    const h = getHandler()
+    expect(await h({}, { campaignId: VALID, quests: [] })).toEqual({
+      success: false,
+      error: 'Invalid seed-quests payload'
+    })
+    expect(mocked.getMemoryManagerMock).not.toHaveBeenCalled()
+  })
+
+  it('rejects a traversal campaignId', async () => {
+    const h = getHandler()
+    const r = (await h({}, { campaignId: '../evil', quests: [{ name: 'Q' }] })) as { success: boolean }
+    expect(r.success).toBe(false)
+    expect(mocked.mutateQuestLogMock).not.toHaveBeenCalled()
+  })
+
+  it('issues add + add_objective mutations per quest on the happy path', async () => {
+    const h = getHandler()
+    const r = (await h(
+      {},
+      { campaignId: VALID, quests: [{ name: 'Find it', objectives: ['look', 'ask'], chapterQuest: true }] }
+    )) as {
+      success: boolean
+      added?: number
+    }
+    expect(r).toEqual({ success: true, added: 1 })
+    // 1 add + 2 add_objective
+    expect(mocked.mutateQuestLogMock).toHaveBeenCalledTimes(3)
+    expect(mocked.mutateQuestLogMock).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: 'add', name: 'Find it', chapterQuest: true })
+    )
+    expect(mocked.mutateQuestLogMock).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: 'add_objective', questName: 'Find it', objective: 'look' })
+    )
   })
 })

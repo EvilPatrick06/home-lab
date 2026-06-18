@@ -23,6 +23,7 @@ import {
 import { loadCampaignById } from './campaign-context'
 import { extractSafetyInput, scanForLineHits } from './prompt-sections/safety-constraints'
 import { buildSessionStartRecapPrompt, recapInputsEmpty, type SessionStartRecapInputs } from './recap-context'
+import { buildScenePrepMessage } from './scene-prep-message'
 
 // PHASE-20 20F: broadcast a narrate-failure status to every renderer window so
 // the DM tab can surface it (the renderer dedups). Validated before send.
@@ -1536,10 +1537,15 @@ export async function chatOncePrimary(systemPrompt: string, userMessage: string)
 
 // ── Scene Preparation ──
 
-export function prepareScene(campaignId: string, characterIds: string[]): string | null {
+export async function prepareScene(campaignId: string, characterIds: string[]): Promise<string | null> {
   // Don't re-prepare if already done or in progress
   const existing = scenePrepStatus.get(campaignId)
   if (existing && (existing.status === 'preparing' || existing.status === 'ready')) return existing.streamId
+
+  // PHASE-37 37D — a seeded opening scene shapes the first prep message; otherwise the byte-identical
+  // legacy prompt. The same `message` drives the retry-cleanup match below so they never diverge.
+  const campaign = await loadCampaignById(campaignId).catch(() => null)
+  const message = buildScenePrepMessage((campaign as { openingScene?: unknown } | null)?.openingScene)
 
   const conv = getConversation(campaignId)
   // S-2 retry — a failed prep leaves a dangling user prompt (the stream errored
@@ -1547,7 +1553,7 @@ export function prepareScene(campaignId: string, characterIds: string[]): string
   // A populated conversation (user entered the game and chatted after the
   // failure) is left intact and short-circuits to 'ready' below. (PHASE-06 06C)
   if (existing?.status === 'error') {
-    conv.removeTrailingUserMessage(SCENE_PREP_PROMPT)
+    conv.removeTrailingUserMessage(message)
   }
 
   // Also skip if conversation already has messages (returning game)
@@ -1559,7 +1565,7 @@ export function prepareScene(campaignId: string, characterIds: string[]): string
   // Use existing startChat with scene prompt
   const request: AiChatRequest = {
     campaignId,
-    message: SCENE_PREP_PROMPT,
+    message,
     characterIds
   }
 

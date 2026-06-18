@@ -1,0 +1,192 @@
+{
+  "format": "dnd-vtt-seed-pack",
+  "formatVersion": 1,
+  "id": "hollowmere",
+  "name": "The Hollowmere",
+  "description": "A gothic fenland mystery: a drowned village, a lake that returns things wrong, and a grief-cult that will not let the dead stay dead. Dread-forward but hopeful.",
+  "author": "BMO VTT",
+  "system": "dnd5e",
+  "levelRange": { "min": 1, "max": 4 },
+  "tags": ["gothic", "mystery", "horror-lite", "wilderness"],
+  "toneInstructions": "Narrate slow, sensory dread — cold water, reed-rot, the smell of wet wool and tallow. Favor quiet wrongness over gore: a familiar face that blinks too slowly, a song heard underwater, a name half-remembered. Keep sentences measured and a little formal, like an old ballad. Never describe body horror on-screen; imply it and cut away. Let grief be the real antagonist. Reward kindness and curiosity, and always leave one warm light visible — a hearth, a lantern, a child's hand — so hope never fully drowns.",
+  "openingScene": {
+    "title": "The Reed Road at Dusk",
+    "readAloud": "The cart track gives out where the reeds begin, and the Hollowmere opens before you — a grey sheet of still water stitched with mist, wide enough that the far shore is only a rumor. Drowned rooftops break the surface here and there, slick and black. A single bell, somewhere out on the water, tolls once and stops, though there is no wind to move it. On the near bank a fisher-woman stands ankle-deep, staring at the place the sound came from. She does not turn as you approach. 'You heard it too,' she says, not a question. 'Good. Then you'll believe me when I tell you my daughter came home last night — and she has been three weeks in the mere.'",
+    "dmNotes": "The bell is the drowned chapel's; it tolls when the mere 'returns' someone. The fisher-woman is Maren (NPC). Her returned daughter is the hook into the cult thread — the daughter is wrong (cold, tuneless, hungry for warmth) but not yet violent. Pace the reveal."
+  },
+  "lore": [
+    {
+      "id": "lore-mere",
+      "title": "The Hollowmere",
+      "content": "A vast, shallow fen-lake that drowned the old village of Wend a generation ago when the weir broke. Locals say the water 'keeps' what it takes — and sometimes gives it back, changed.",
+      "category": "location",
+      "keywords": ["mere", "lake", "hollowmere", "water"]
+    },
+    {
+      "id": "lore-wend",
+      "title": "Drowned Wend",
+      "content": "The lost village beneath the mere. Its chapel bell still tolls on still nights. Divers who reach it return pale and forgetful, or do not return.",
+      "category": "location",
+      "keywords": ["wend", "village", "chapel", "bell"]
+    },
+    {
+      "id": "lore-return",
+      "title": "The Returning",
+      "content": "Every so often the mere returns a drowned soul to its family — walking, speaking, but cold and tuneless, craving warmth and unable to weep. The Returned are not malicious at first.",
+      "category": "world",
+      "keywords": ["returned", "returning", "drowned", "undead"]
+    },
+    {
+      "id": "lore-cult",
+      "title": "The Vigil of Still Water",
+      "content": "A grief-cult that tends the Returned and hastens the next Returning, believing the mere will one day give everyone back. Led by a grieving midwife who lost three children to the weir.",
+      "category": "faction",
+      "keywords": ["vigil", "cult", "still water", "grief"]
+    },
+    {
+      "id": "lore-weir",
+      "title": "The Broken Weir",
+      "content": "The old flood-gate whose failure drowned Wend. Something lodged in its mechanism the night it broke — and the cult guards what remains.",
+      "category": "location",
+      "keywords": ["weir", "gate", "flood"]
+    },
+    {
+      "id": "lore-lantern",
+      "title": "Mire-Lanterns",
+      "content": "Pale lights that drift over the water at night. Fenfolk say they are the unburied lighting their own way home; in truth they are will-o'-wisps drawn to grief.",
+      "category": "world",
+      "keywords": ["lantern", "lights", "wisp", "marsh"]
+    },
+    {
+      "id": "lore-charm",
+      "title": "Reed-Charms",
+      "content": "Woven reed tokens hung on doors to keep the Returned out. They work — a little. The cult cuts them down wherever they find them.",
+      "category": "item",
+      "keywords": ["charm", "reed", "ward"]
+    }
+  ],
+  "npcs": [
+    {
+      "id": "npc-maren",
+      "name": "Maren Tallow",
+      "description": "A weathered fisher-woman whose drowned daughter has 'come home'.",
+      "role": "patron",
+      "personality": "Plain-spoken, exhausted, fiercely loving.",
+      "motivation": "Wants her daughter to be truly alive again — or to be let go kindly.",
+      "isVisible": true
+    },
+    {
+      "id": "npc-edda",
+      "name": "Edda the Midwife",
+      "description": "Gentle, soft-voiced leader of the Vigil of Still Water.",
+      "role": "enemy",
+      "personality": "Serene, maternal, utterly certain she is doing mercy.",
+      "motivation": "To return every drowned soul, starting with her own three children.",
+      "isVisible": false
+    },
+    {
+      "id": "npc-bramwell",
+      "name": "Brother Bramwell",
+      "description": "A failing hedge-priest who buries the dead the cult would rather keep.",
+      "role": "ally",
+      "personality": "Tired, dryly funny, quietly brave.",
+      "motivation": "To give the drowned a real rest before the mere claims them.",
+      "isVisible": true
+    },
+    {
+      "id": "npc-sable",
+      "name": "Sable",
+      "description": "A poacher who knows every safe channel through the fen.",
+      "role": "neutral",
+      "personality": "Cagey, transactional, secretly sentimental.",
+      "motivation": "Coin, and to avoid the part of the mere where her brother went under.",
+      "isVisible": true
+    },
+    {
+      "id": "npc-lina",
+      "name": "Lina (Returned)",
+      "description": "Maren's daughter, three weeks drowned and newly 'home'.",
+      "role": "neutral",
+      "personality": "Cold, slow, drawn to fire and warmth, unable to cry.",
+      "motivation": "To be warm again; she does not yet understand what she is.",
+      "isVisible": true
+    },
+    {
+      "id": "npc-warden",
+      "name": "The Weir-Warden",
+      "description": "What the cult guards at the broken weir — a drowned thing that remembers being a man.",
+      "role": "enemy",
+      "personality": "Sorrowful, possessive, dangerous when the lights gather.",
+      "motivation": "To keep the mere full; it fears being the last one returned.",
+      "statBlockId": "specter",
+      "isVisible": false
+    }
+  ],
+  "adventures": [
+    {
+      "id": "adv-hollowmere",
+      "title": "What the Mere Took",
+      "levelTier": "Levels 1-4",
+      "premise": "A drowned village's lake returns the dead, and a grief-cult is hastening the Returning toward something the fen cannot hold.",
+      "hook": "A fisher-woman's drowned daughter has come home cold and tuneless, and she begs the party to find out what the mere has made of her.",
+      "villain": "Edda the Midwife, who believes returning the dead is mercy, and the Weir-Warden she serves.",
+      "setting": "The fenland village of Mirestead on the shore of the Hollowmere, the reed-mazes, and drowned Wend beneath.",
+      "playerStakes": "Every night of delay, another reed-charm is cut and another soul is 'returned'; soon the living will be outnumbered.",
+      "encounters": "Mire-lanterns over open water; the cut-charm vigil; a flooded crypt of skeletons and a lacedon; the broken weir and its Warden.",
+      "climax": "At the weir, as the lanterns gather, the party must choose to break the mechanism (freeing the dead, draining the Returned) or seal it (ending the Returning but leaving the drowned forever lost).",
+      "resolution": "Mirestead either learns to grieve and bury its dead, or becomes a town of the cold Returned tended by a content, terrible Edda."
+    }
+  ],
+  "quests": [
+    {
+      "name": "The Daughter Who Came Home",
+      "description": "Discover what the Hollowmere took from Maren's daughter — and what it gave back.",
+      "objectives": [
+        "Speak with Lina and learn how she 'returned'",
+        "Find a reed-charm and test it on a Returned",
+        "Trace the next Returning to the Vigil of Still Water"
+      ],
+      "chapterQuest": true
+    },
+    {
+      "name": "Bury the Drowned",
+      "description": "Help Brother Bramwell give the fen's dead a true rest before the cult claims them.",
+      "objectives": ["Recover a drowned corpse from the flooded crypt", "Hold the burial against the Vigil"]
+    },
+    {
+      "name": "The Safe Channel",
+      "description": "Secure Sable's map of safe channels to reach drowned Wend and the broken weir.",
+      "objectives": [
+        "Pay or persuade Sable",
+        "Cross the mere to the weir without waking the lanterns",
+        "Decide the fate of the broken weir"
+      ]
+    }
+  ],
+  "encounterTables": [
+    {
+      "id": "tbl-fen-travel",
+      "name": "Crossing the Fen (1d8)",
+      "diceFormula": "1d8",
+      "entries": [
+        { "min": 1, "max": 2, "text": "Mire-lanterns drift close — a lone will-o'-wisp tests the warmest traveler." },
+        { "min": 3, "max": 4, "text": "A reed-charm hangs cut on a stake; something watched it fall." },
+        { "min": 5, "max": 6, "text": "A drowned rooftop breaks the surface; a skeleton is tangled in the thatch." },
+        { "min": 7, "max": 7, "text": "Sable's whistle — the poacher offers a shortcut, for a price." },
+        { "min": 8, "max": 8, "text": "The chapel bell tolls once. Somewhere, a family weeps with joy." }
+      ]
+    },
+    {
+      "id": "tbl-wend-depths",
+      "name": "Drowned Wend (1d12)",
+      "diceFormula": "1d12",
+      "entries": [
+        { "min": 1, "max": 3, "text": "A flooded doorway; a ghoul (lacedon) feeds in the silt." },
+        { "min": 4, "max": 6, "text": "A cold current and a specter that remembers your face." },
+        { "min": 7, "max": 9, "text": "A chamber of grateful, tuneless Returned warming their hands at no fire." },
+        { "min": 10, "max": 11, "text": "Cult thugs of the Vigil cutting a stranger's reed-charm." },
+        { "min": 12, "max": 12, "text": "The chapel bell, and the Weir-Warden's slow attention turning toward you." }
+      ]
+    }
+  ]
+}

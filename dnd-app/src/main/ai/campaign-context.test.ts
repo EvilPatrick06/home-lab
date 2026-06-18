@@ -308,4 +308,19 @@ describe('formatCampaignForContext', () => {
     expect(result).not.toContain('Adventure Arcs:')
     expect(result).not.toContain('Players:')
   })
+
+  // PHASE-37 37D — tone instructions + roll-table names.
+  it('renders the tone block (early) when toneInstructions is set, absent otherwise', () => {
+    const withTone = formatCampaignForContext({ name: 'C', description: 'A camp', toneInstructions: 'Grim and slow.' })
+    expect(withTone).toContain('Narrative Tone & Style')
+    expect(withTone).toContain('Grim and slow.')
+    expect(withTone.indexOf('Narrative Tone & Style')).toBeLessThan(withTone.indexOf('System:'))
+    expect(formatCampaignForContext({ name: 'C' })).not.toContain('Narrative Tone & Style')
+  })
+
+  it('lists random-table names when customRollTables is present', () => {
+    const result = formatCampaignForContext({ name: 'C', customRollTables: [{ name: 'Travel' }, { name: 'Loot' }] })
+    expect(result).toContain('Random Tables (DM can roll these on request): Travel, Loot')
+    expect(formatCampaignForContext({ name: 'C' })).not.toContain('Random Tables')
+  })
 })

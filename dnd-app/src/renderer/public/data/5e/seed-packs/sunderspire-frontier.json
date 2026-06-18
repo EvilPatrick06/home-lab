@@ -1,0 +1,191 @@
+{
+  "format": "dnd-vtt-seed-pack",
+  "formatVersion": 1,
+  "id": "sunderspire-frontier",
+  "name": "Sunderspire Frontier",
+  "description": "Classic heroic adventure on a wild frontier around a ruined dwarven sky-spire: competing prospector factions, goblin politics you can actually talk to, and a waygate waiting to be reopened.",
+  "author": "BMO VTT",
+  "system": "dnd5e",
+  "levelRange": { "min": 1, "max": 5 },
+  "tags": ["heroic", "frontier", "exploration", "factions"],
+  "toneInstructions": "Keep it warm, bright, and brisk — this is heroic adventure, not grimdark. Cut between scenes fast; favor vivid single details (a goblin's lucky brass button, dwarven runes warm to the touch, pine resin and cold-forge smoke). Let banter breathe and reward clever, kind solutions over killing — the goblins have names, grudges, and a sense of humor. Danger is real but the world wants the party to win. End scenes on a hook or a laugh, never a lecture.",
+  "openingScene": {
+    "title": "The Spire on the Horizon",
+    "readAloud": "The trail crests a ridge of wind-bent pines, and there it is: the Sunderspire, a broken tooth of dwarven stone a mile high, half-sheared by some ancient catastrophe and trailing a permanent banner of cloud. Scaffolds and prospector tents cling to its base like barnacles. Closer to hand, a hand-painted sign — REGISTER ALL CLAIMS — has been corrected in three different inks by three different factions, and below it someone small has added, in surprisingly neat letters, 'or dont, we wont tell.' A whistle echoes off the rock. Somewhere up in the scaffolding, a work-song starts, stops, and turns into an argument.",
+    "dmNotes": "The three inks are the three prospector factions (see NPCs). The small neat letters are Pib's, a goblin scrivener who runs an unlicensed claims office. The waygate at the spire's heart is the chapter goal; the factions each want it for a different reason."
+  },
+  "lore": [
+    {
+      "id": "lore-spire",
+      "title": "The Sunderspire",
+      "content": "A mile-high dwarven spire sheared in half by an ancient disaster. Its lower halls are sound; its heart holds a dormant waygate that once linked the deep roads.",
+      "category": "location",
+      "keywords": ["spire", "sunderspire", "tower"]
+    },
+    {
+      "id": "lore-waygate",
+      "title": "The Waygate",
+      "content": "A dwarven teleportation arch at the spire's heart, dark for a century. Reopening it would make the frontier a crossroads — and every faction knows it.",
+      "category": "location",
+      "keywords": ["waygate", "gate", "arch", "portal"]
+    },
+    {
+      "id": "lore-factions",
+      "title": "Three Claims",
+      "content": "The Frontier is split between the Coghand Union (dwarven engineers), the Brightcoin Concern (merchant speculators), and the free prospectors who answer to no one.",
+      "category": "faction",
+      "keywords": ["faction", "claim", "prospector", "union"]
+    },
+    {
+      "id": "lore-goblins",
+      "title": "The Spit-Crag Goblins",
+      "content": "A goblin clan living in the spire's upper scaffolds. They are traders, scavengers, and ferocious gossips — and they hold the only safe route to the spire's heart.",
+      "category": "faction",
+      "keywords": ["goblin", "spit-crag", "clan"]
+    },
+    {
+      "id": "lore-cold",
+      "title": "The Cold That Lives Up High",
+      "content": "Above the cloud-banner the spire is bitterly cold, and something white and patient hunts the upper galleries.",
+      "category": "world",
+      "keywords": ["cold", "winter", "wolf", "heights"]
+    },
+    {
+      "id": "lore-runes",
+      "title": "Warm Runes",
+      "content": "Dwarven maker's-marks throughout the spire stay faintly warm to the touch. They map the safe halls — if you can read them.",
+      "category": "item",
+      "keywords": ["rune", "mark", "dwarven"]
+    },
+    {
+      "id": "lore-disaster",
+      "title": "The Sundering",
+      "content": "No one agrees what sheared the spire — a failed Working, a war, a god's grudge. The deepest halls remember, and the dead there still stand their posts.",
+      "category": "world",
+      "keywords": ["sundering", "disaster", "ancient"]
+    }
+  ],
+  "npcs": [
+    {
+      "id": "npc-thora",
+      "name": "Thora Coghand",
+      "description": "Grizzled dwarven engineer who leads the Coghand Union's restoration.",
+      "role": "patron",
+      "personality": "Blunt, proud, secretly delighted by clever apprentices.",
+      "motivation": "To restore the spire and the waygate to dwarven hands — done right, done safe.",
+      "isVisible": true
+    },
+    {
+      "id": "npc-vell",
+      "name": "Vell Brightcoin",
+      "description": "Silver-tongued speculator for the Brightcoin Concern.",
+      "role": "neutral",
+      "personality": "Charming, generous, always closing.",
+      "motivation": "To own the waygate's tolls before anyone realizes what it's worth.",
+      "isVisible": true
+    },
+    {
+      "id": "npc-pib",
+      "name": "Pib",
+      "description": "Goblin scrivener who runs an unlicensed claims office out of a crate.",
+      "role": "ally",
+      "personality": "Fast-talking, fair-dealing, immensely proud of his neat handwriting.",
+      "motivation": "To be taken seriously — and to keep the Spit-Crag clan out of a war.",
+      "isVisible": true
+    },
+    {
+      "id": "npc-snagga",
+      "name": "Chief Snagga",
+      "description": "Cautious chieftain of the Spit-Crag goblins.",
+      "role": "neutral",
+      "personality": "Shrewd, weary, quick to laugh and quicker to bargain.",
+      "motivation": "To keep her clan's home and toll the safe route without starting a fight she'll lose.",
+      "statBlockId": "goblin-boss",
+      "isVisible": true
+    },
+    {
+      "id": "npc-korsk",
+      "name": "Korsk the Hexer",
+      "description": "A goblin shaman who wants the waygate opened the old, bloody way.",
+      "role": "enemy",
+      "personality": "Theatrical, ambitious, dangerously clever.",
+      "motivation": "To seize the waygate and crown himself chief of a new crossroads.",
+      "statBlockId": "goblin-hexer",
+      "isVisible": false
+    },
+    {
+      "id": "npc-old-guard",
+      "name": "The Last Warden",
+      "description": "A dwarven sentinel still standing its post in the sundered deep, long past death.",
+      "role": "enemy",
+      "personality": "Dutiful, implacable, answers only the old passwords.",
+      "motivation": "To bar the heart of the spire to all who lack the maker's word.",
+      "statBlockId": "skeleton-warrior",
+      "isVisible": false
+    }
+  ],
+  "adventures": [
+    {
+      "id": "adv-sunderspire",
+      "title": "Reopen the Waygate",
+      "levelTier": "Levels 1-5",
+      "premise": "Three factions and a goblin clan all want the dormant waygate at the heart of a ruined sky-spire; only the party can broker the route and reopen it without a war.",
+      "hook": "A goblin scrivener hires the party to register a claim no one else will touch: the safe route to the spire's heart.",
+      "villain": "Korsk the Hexer, who wants the waygate opened by blood and force, and the Last Warden who bars the way.",
+      "setting": "The boomtown at the spire's base, the goblin-held scaffolds, and the sundered dwarven halls within.",
+      "playerStakes": "If the factions reach the waygate first, the frontier burns in a claims-war; if Korsk does, the goblins are blamed and slaughtered.",
+      "encounters": "A claims-office brawl; a scaffold chase with the Spit-Crag clan; the cold upper galleries and their winter wolf; the Last Warden and the dormant gate.",
+      "climax": "At the waygate, the party must answer the Warden's maker's-word (earned from Thora or the warm runes) while holding off Korsk's coup — and decide who, if anyone, controls the open gate.",
+      "resolution": "The frontier becomes a thriving crossroads under a brokered peace, a single faction's monopoly, or a closed gate and an uneasy status quo — the party's call."
+    }
+  ],
+  "quests": [
+    {
+      "name": "The Safe Route",
+      "description": "Broker passage to the spire's heart and reopen the dormant waygate before a claims-war erupts.",
+      "objectives": [
+        "Register Pib's claim and win Chief Snagga's trust",
+        "Earn the maker's-word from Thora or the warm runes",
+        "Reach the waygate and answer the Last Warden",
+        "Decide who controls the open gate"
+      ],
+      "chapterQuest": true
+    },
+    {
+      "name": "Three Inks, One Sign",
+      "description": "Keep the three prospector factions from open war over the claim board.",
+      "objectives": ["Hear out Thora, Vell, and the free prospectors", "Defuse the claims-office brawl"]
+    },
+    {
+      "name": "The Hexer's Coup",
+      "description": "Stop Korsk from seizing the waygate by blood before the goblins are blamed.",
+      "objectives": ["Learn Korsk's plan from the Spit-Crag gossips", "Cut off his ritual at the heart of the spire"]
+    }
+  ],
+  "encounterTables": [
+    {
+      "id": "tbl-frontier-travel",
+      "name": "Around the Boomtown (1d8)",
+      "diceFormula": "1d8",
+      "entries": [
+        { "min": 1, "max": 2, "text": "A claim dispute turns to fists — a pair of thugs, and a crowd taking bets." },
+        { "min": 3, "max": 4, "text": "Spit-Crag goblin minions running a (mostly) honest toll on a scaffold ladder." },
+        { "min": 5, "max": 6, "text": "Vell Brightcoin 'just happens' to offer the party a very generous contract." },
+        { "min": 7, "max": 7, "text": "A warm dwarven rune glows on a hidden door — a shortcut, if read right." },
+        { "min": 8, "max": 8, "text": "Pib, breathless, with news that changes everything (and a form to sign)." }
+      ]
+    },
+    {
+      "id": "tbl-spire-heart",
+      "name": "Into the Spire (1d12)",
+      "diceFormula": "1d12",
+      "entries": [
+        { "min": 1, "max": 3, "text": "Goblin warriors of a rival faction, willing to talk if you're funny enough." },
+        { "min": 4, "max": 6, "text": "The cold upper gallery; a winter wolf paces the broken catwalk." },
+        { "min": 7, "max": 9, "text": "A hobgoblin captain — Korsk's hired muscle — guarding a stair." },
+        { "min": 10, "max": 11, "text": "A sundered hall where skeleton wardens still stand their dead posts." },
+        { "min": 12, "max": 12, "text": "The Last Warden at the waygate, demanding the maker's-word." }
+      ]
+    }
+  ]
+}

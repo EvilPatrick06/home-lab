@@ -23,6 +23,7 @@ import {
   PbpStartSchema,
   QuestObjectiveUpdateSchema,
   SceneLabelSchema,
+  SeedQuestsRequestSchema,
   SessionStartRecapRequestSchema,
   type ValidatedAiChatRequest,
   type ValidatedAiConfig,
@@ -387,7 +388,7 @@ export function registerAiHandlers(): void {
     // PHASE-13 13A — prepareScene ends in a conversation auto-save under campaigns/<id>/;
     // reject a path-traversal id before any filesystem reach (the _safe wrapper surfaces the throw).
     sanitizeCampaignId(campaignId)
-    const streamId = aiService.prepareScene(campaignId, characterIds)
+    const streamId = await aiService.prepareScene(campaignId, characterIds)
     return { success: true, streamId }
   })
 
@@ -888,6 +889,28 @@ export function registerAiHandlers(): void {
       goal: parsed.data.goal
     })
     return { success: true, data }
+  })
+
+  // PHASE-37 37D — seed a pack's starter quests into the quest log. One quest-level `add` per quest,
+  // then one `add_objective` per objective. Validated + campaignId-sanitized; never throws across IPC.
+  handle(IPC_CHANNELS.AI_SEED_QUESTS, async (_event, payload: unknown) => {
+    const parsed = SeedQuestsRequestSchema.safeParse(payload)
+    if (!parsed.success) return { success: false, error: 'Invalid seed-quests payload' }
+    try {
+      const campaignId = sanitizeCampaignId(parsed.data.campaignId) // throws on traversal/non-UUID
+      const mm = getMemoryManager(campaignId)
+      let added = 0
+      for (const q of parsed.data.quests) {
+        await mm.mutateQuestLog({ kind: 'add', name: q.name, description: q.description, chapterQuest: q.chapterQuest })
+        for (const objective of q.objectives) {
+          await mm.mutateQuestLog({ kind: 'add_objective', questName: q.name, objective })
+        }
+        added++
+      }
+      return { success: true, added }
+    } catch (err) {
+      return { success: false, error: (err as Error).message }
+    }
   })
 
   // PHASE-28 28D — dice oracle. The engine rolls (reads chaos from state); the flag gates USE

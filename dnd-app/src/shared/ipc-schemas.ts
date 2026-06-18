@@ -201,6 +201,23 @@ export const AdvanceChapterSchema = z.object({
 })
 export type AdvanceChapter = z.infer<typeof AdvanceChapterSchema>
 
+// PHASE-37 37D — seed a pack's starter quests into the quest log (one validated, sanitized IPC).
+export const SeedQuestsRequestSchema = z.object({
+  campaignId: z.string().min(1),
+  quests: z
+    .array(
+      z.object({
+        name: z.string().min(1).max(200),
+        description: z.string().max(2000).default(''),
+        objectives: z.array(z.string().min(1).max(500)).max(8).default([]),
+        chapterQuest: z.boolean().default(false)
+      })
+    )
+    .min(1)
+    .max(25)
+})
+export type SeedQuestsRequest = z.infer<typeof SeedQuestsRequestSchema>
+
 // PHASE-28 28D — dice-oracle wire schemas (bounded).
 export const OracleFateCheckSchema = z.object({
   question: z.string().min(1).max(300),

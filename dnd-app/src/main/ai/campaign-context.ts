@@ -22,6 +22,13 @@ export function formatCampaignForContext(
   if (campaign.description) {
     parts.push(`Description: ${campaign.description}`)
   }
+  // PHASE-37 — seeded tone/style. Rendered EARLY (right after Description) so the 2,000-token
+  // tail-trim can never drop it; capped defensively at 2,000 chars.
+  if (typeof campaign.toneInstructions === 'string' && campaign.toneInstructions.trim()) {
+    parts.push('')
+    parts.push('Narrative Tone & Style (follow these instructions in every narration):')
+    parts.push(campaign.toneInstructions.trim().slice(0, 2000))
+  }
   parts.push(`System: ${campaign.system || '5e'}`)
   parts.push(`Type: ${campaign.type || 'custom'}`)
 
@@ -203,6 +210,13 @@ export function formatCampaignForContext(
         enc.monsters?.map((m) => (m.count && m.count > 1 ? `${m.count}x ${m.name}` : m.name)).join(', ') ?? ''
       parts.push(`- ${enc.name || 'Unnamed'}: ${monsters}`)
     }
+  }
+
+  // PHASE-37 — random tables the DM can roll on request (names only, ~one line of tokens).
+  const rollTables = campaign.customRollTables as Array<{ name: string }> | undefined
+  if (rollTables && rollTables.length > 0) {
+    parts.push('')
+    parts.push(`Random Tables (DM can roll these on request): ${rollTables.map((t) => t.name).join(', ')}`)
   }
 
   // Custom audio (so AI can reference music/ambient cues)

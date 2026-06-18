@@ -842,6 +842,38 @@
       "invalidUrl": "Please enter a valid URL (e.g. http://localhost:11434)",
       "urlHint": "Default: http://localhost:11434. Change this to point to a remote GPU server."
     },
+    "seedPacks": {
+      "stepTitle": "Start from a seed pack",
+      "stepIntro": "Optional. A seed pack drops in world lore, NPCs, adventure arcs, starter quests, encounter tables, tone, and an opening scene — everything you need to start playing.",
+      "none": "No seed pack",
+      "importFile": "Import from file (.dndseed)",
+      "levels": "Levels {{min}}-{{max}}",
+      "systemMismatch": "This pack targets \"{{system}}\", not D&D 5e — it may not fit cleanly.",
+      "countLore": "lore",
+      "countNpcs": "NPCs",
+      "countQuests": "quests",
+      "countTables": "tables",
+      "tone": "Tone",
+      "opening": "Opening",
+      "reviewLabel": "Seed pack",
+      "applyTitle": "Apply a seed pack",
+      "applyNote": "Content is ADDED to this campaign (existing entries are kept). Tone and opening scene only fill empty slots.",
+      "apply": "Apply",
+      "back": "Back",
+      "applied": "Applied \"{{name}}\" to the campaign",
+      "questSeedFailed": "Quests could not be seeded (the rest of the pack was applied).",
+      "section": {
+        "lore": "Lore",
+        "npcs": "NPCs",
+        "adventures": "Adventure arcs",
+        "quests": "Quests",
+        "encounterTables": "Encounter tables",
+        "encounters": "Prepared encounters",
+        "customRules": "Custom rules",
+        "tone": "Narrative tone",
+        "openingScene": "Opening scene"
+      }
+    },
     "campaignWizard": {
       "aiConfigFailed": "Campaign created, but AI DM configuration failed. You can reconfigure it from the campaign settings.",
       "audioUploadFailed": "Couldn't upload audio \"{{name}}\". You can re-add it from the campaign's audio panel.",
@@ -853,6 +885,7 @@
         "character": "Character",
         "aiDm": "AI DM",
         "adventure": "Adventure",
+        "seedPack": "Seed Pack",
         "sessionZero": "Session Zero",
         "rules": "Rules",
         "calendar": "Calendar",
@@ -6269,6 +6302,10 @@
       "leaveGame": "Leave Game"
     },
     "campaignDetailPage": {
+      "exportSeedPack": "Export Seed Pack",
+      "applySeedPack": "Apply Seed Pack",
+      "toastSeedExported": "Seed pack exported",
+      "toastSeedExportFailed": "Seed pack export failed",
       "toastDeleted": "Campaign deleted",
       "toastLocalServerFailed": "Could not connect to local server",
       "toastConnectingCloud": "Connecting via cloud servers...",

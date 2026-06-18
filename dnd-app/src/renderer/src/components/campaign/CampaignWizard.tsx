@@ -5,17 +5,20 @@ import { addToast } from '../../hooks/use-toast'
 import { useT } from '../../i18n'
 import { type Adventure, loadAdventures } from '../../services/adventure-loader'
 import { clearWizardDraft, loadWizardDraft, saveWizardDraft } from '../../services/campaign-wizard-draft'
+import { applySeedPackToCampaign } from '../../services/seed-packs/seed-pack-apply'
+import { parseSeedPack, type SeedPack } from '../../services/seed-packs/seed-pack-schema'
+import { seedQuestsFromPack } from '../../services/seed-packs/seed-quests'
 import { useCampaignStore } from '../../stores/use-campaign-store'
 import { useCharacterStore } from '../../stores/use-character-store'
 import {
   type AiProviderType,
   type CalendarConfig,
+  type Campaign,
   type CampaignType,
   type CustomRule,
   DEFAULT_OPTIONAL_RULES,
   type TurnMode
 } from '../../types/campaign'
-
 import type { GameSystem } from '../../types/game-system'
 import type { GameMap } from '../../types/map'
 import { logger } from '../../utils/logger'
@@ -30,6 +33,7 @@ import DetailsStep from './DetailsStep'
 import MapConfigStep from './MapConfigStep'
 import ReviewStep from './ReviewStep'
 import RulesStep from './RulesStep'
+import SeedPackStep from './SeedPackStep'
 import SessionZeroStep, { DEFAULT_SESSION_ZERO, type SessionZeroData } from './SessionZeroStep'
 import StartStep from './StartStep'
 import SystemStep from './SystemStep'
@@ -41,6 +45,7 @@ type StepKey =
   | 'character'
   | 'aiDm'
   | 'adventure'
+  | 'seedPack'
   | 'sessionZero'
   | 'rules'
   | 'calendar'
@@ -75,6 +80,7 @@ export default function CampaignWizard(): JSX.Element {
   const [hostingMode, setHostingMode] = useState<'p2p' | 'cloud' | 'solo'>('p2p')
   const [campaignType, setCampaignType] = useState<CampaignType>('custom')
   const [selectedAdventureId, setSelectedAdventureId] = useState<string | null>(null)
+  const [seedPack, setSeedPack] = useState<SeedPack | null>(null) // PHASE-37
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null)
   const [customRules, setCustomRules] = useState<CustomRule[]>([])
   const [calendar, setCalendar] = useState<CalendarConfig | null>(null)
@@ -128,6 +134,11 @@ export default function CampaignWizard(): JSX.Element {
     setHostingMode((d.hostingMode as 'p2p' | 'cloud' | 'solo') ?? 'p2p')
     setCampaignType((d.campaignType as CampaignType) ?? 'custom')
     setSelectedAdventureId((d.selectedAdventureId as string | null) ?? null)
+    // PHASE-37 — restore the seed pack via parseSeedPack (never trust localStorage shape).
+    if (d.seedPack) {
+      const parsed = parseSeedPack(d.seedPack)
+      setSeedPack(parsed.ok ? parsed.pack : null)
+    }
     setSelectedCharacterId((d.selectedCharacterId as string | null) ?? null)
     setCustomRules((d.customRules as CustomRule[]) ?? [])
     setCalendar((d.calendar as CalendarConfig | null) ?? null)
@@ -152,7 +163,7 @@ export default function CampaignWizard(): JSX.Element {
   const flow = useMemo<StepKey[]>(() => {
     const f: StepKey[] = ['system', 'details']
     if (hostingMode === 'solo') f.push('character')
-    f.push('aiDm', 'adventure', 'sessionZero', 'rules', 'calendar', 'maps', 'audio', 'review')
+    f.push('aiDm', 'adventure', 'seedPack', 'sessionZero', 'rules', 'calendar', 'maps', 'audio', 'review')
     return f
   }, [hostingMode])
   const stepKey: StepKey = flow[Math.min(step, flow.length - 1)] ?? 'system'
@@ -173,6 +184,7 @@ export default function CampaignWizard(): JSX.Element {
       hostingMode,
       campaignType,
       selectedAdventureId,
+      seedPack,
       selectedCharacterId,
       customRules,
       calendar,
@@ -205,6 +217,7 @@ export default function CampaignWizard(): JSX.Element {
     hostingMode,
     campaignType,
     selectedAdventureId,
+    seedPack,
     selectedCharacterId,
     customRules,
     calendar,
@@ -366,7 +379,7 @@ export default function CampaignWizard(): JSX.Element {
         settings: {
           maxPlayers,
           lobbyMessage: lobbyMessage.trim(),
-          levelRange: selectedAdventure?.levelRange ?? { min: 1, max: 20 },
+          levelRange: selectedAdventure?.levelRange ?? seedPack?.levelRange ?? { min: 1, max: 20 },
           allowCharCreationInLobby: true,
           optionalRules: DEFAULT_OPTIONAL_RULES,
           isPrivate: !isPublic,
@@ -467,10 +480,20 @@ export default function CampaignWizard(): JSX.Element {
         }
       }
 
+      // PHASE-37 — apply the chosen seed pack (lore/NPCs/arcs/tables/tone/opening scene) over the
+      // resolved campaign, then persist. Quests are seeded separately (main-side store) below.
+      let finalCampaign: Campaign = { ...campaign, maps: resolvedMaps, players, customAudio: resolvedCustomAudio }
+      if (seedPack) finalCampaign = applySeedPackToCampaign(finalCampaign, seedPack)
+
       const audioChanged = resolvedCustomAudio !== campaign.customAudio
       const mapsChanged = resolvedMaps.some((map, index) => map.campaignId !== campaign.maps[index].campaignId)
-      if (mapsChanged || players !== campaign.players || audioChanged) {
-        await saveCampaign({ ...campaign, maps: resolvedMaps, players, customAudio: resolvedCustomAudio })
+      if (mapsChanged || players !== campaign.players || audioChanged || seedPack !== null) {
+        await saveCampaign(finalCampaign)
+      }
+
+      if (seedPack?.quests?.length) {
+        const r = await seedQuestsFromPack(campaign.id, seedPack.quests)
+        if (!r.success) addToast(t('campaign.seedPacks.questSeedFailed'), 'error')
       }
 
       if (aiEnabled) {
@@ -605,6 +628,20 @@ export default function CampaignWizard(): JSX.Element {
         />
       )}
 
+      {stepKey === 'seedPack' && (
+        <SeedPackStep
+          selectedPack={seedPack}
+          onSelect={(p) => {
+            setSeedPack(p)
+            // Prefill name/description from the pack ONLY when still empty.
+            if (p) {
+              if (!name.trim()) setName(p.name)
+              if (!description.trim()) setDescription(p.description)
+            }
+          }}
+        />
+      )}
+
       {stepKey === 'sessionZero' && (
         <SessionZeroStep
           data={sessionZero}
@@ -654,6 +691,7 @@ export default function CampaignWizard(): JSX.Element {
           lobbyMessage={lobbyMessage}
           campaignType={campaignType}
           adventureName={selectedAdventure?.name ?? null}
+          seedPackName={seedPack?.name ?? null}
           customRules={customRules}
           maps={maps}
           customAudioCount={customAudio.length}

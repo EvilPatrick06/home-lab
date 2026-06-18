@@ -214,6 +214,11 @@ const api = {
       ipcRenderer.invoke(IPC_CHANNELS.AI_UPDATE_QUEST_OBJECTIVE, campaignId, payload),
     advanceChapter: (campaignId: string, payload: AdvanceChapter) =>
       ipcRenderer.invoke(IPC_CHANNELS.AI_ADVANCE_CHAPTER, campaignId, payload),
+    // PHASE-37 — seed a pack's starter quests into the quest log.
+    seedQuests: (
+      campaignId: string,
+      quests: Array<{ name: string; description?: string; objectives?: string[]; chapterQuest?: boolean }>
+    ) => ipcRenderer.invoke(IPC_CHANNELS.AI_SEED_QUESTS, { campaignId, quests }),
     // Dice oracle (PHASE-28)
     oracleFateCheck: (campaignId: string, payload: OracleFateCheckRequest) =>
       ipcRenderer.invoke(IPC_CHANNELS.AI_ORACLE_FATE_CHECK, campaignId, payload),

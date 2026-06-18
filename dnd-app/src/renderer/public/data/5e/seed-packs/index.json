@@ -1,0 +1,7 @@
+{
+  "packs": [
+    { "id": "hollowmere", "file": "hollowmere.json" },
+    { "id": "sunderspire-frontier", "file": "sunderspire-frontier.json" },
+    { "id": "ivory-court", "file": "ivory-court.json" }
+  ]
+}

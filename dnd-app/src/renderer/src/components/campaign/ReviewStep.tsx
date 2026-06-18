@@ -23,6 +23,7 @@ interface ReviewStepProps {
   lobbyMessage: string
   campaignType: CampaignType
   adventureName: string | null
+  seedPackName?: string | null
   customRules: CustomRule[]
   maps: GameMap[]
   customAudioCount?: number
@@ -50,6 +51,7 @@ export default function ReviewStep({
   lobbyMessage,
   campaignType,
   adventureName,
+  seedPackName = null,
   customRules,
   maps,
   customAudioCount,
@@ -92,6 +94,13 @@ export default function ReviewStep({
                   })
                 : t('campaign.reviewStep.customCampaign')}
             </span>
+
+            {seedPackName && (
+              <>
+                <span className="text-muted">{t('campaign.seedPacks.reviewLabel')}</span>
+                <span>{seedPackName}</span>
+              </>
+            )}
 
             {description && (
               <>

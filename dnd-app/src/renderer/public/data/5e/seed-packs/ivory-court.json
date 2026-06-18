@@ -1,0 +1,193 @@
+{
+  "format": "dnd-vtt-seed-pack",
+  "formatVersion": 1,
+  "id": "ivory-court",
+  "name": "Ashes of the Ivory Court",
+  "description": "Succession intrigue in a city-state whose throne has just burned. Three factions, secrets as currency, and assassins as punctuation. Social-first play where violence is rare and always costs something.",
+  "author": "BMO VTT",
+  "system": "dnd5e",
+  "levelRange": { "min": 3, "max": 7 },
+  "tags": ["intrigue", "urban", "political", "social"],
+  "toneInstructions": "Write like a tense drawing-room drama: most scenes are conversations, and the real weapons are secrets, favors, and reputation. Keep prose elegant and controlled; let subtext do the work, and give NPCs distinct verbal tics. Track who owes whom. Violence should be rare, sudden, and consequential — an assassination reshapes the board, it doesn't reset it. Reward players who listen, remember, and trade information cleverly. End scenes on a revealed secret or a debt incurred, and never tell the players what a character 'really' means — show it and let them infer.",
+  "openingScene": {
+    "title": "The Throne Still Smoking",
+    "readAloud": "The Ivory Court earns its name no longer. Three nights ago the throne-hall burned, the old Sovereign with it, and the city of Ashglance woke to a crown without a head and a hundred heads that want it. Now you stand in the Hall of Petitions, where the smoke-stain still climbs one marble wall, and three delegations pretend not to watch each other across the floor: the Sovereign's grieving daughter in mourning grey, the Lord Chancellor in unburnt finery, and the masked envoy of the Guilds. A herald clears her throat. 'The succession,' she announces, 'will be decided by the Court within the fortnight.' Quieter, to you alone, a steward murmurs: 'Whoever you came here serving — they've already lied to you about why.'",
+    "dmNotes": "All three claimants have a real claim and a real crime. The steward (Ysolde, NPC) is the party's way in and the truest reading of the board. The fire was not an accident; who set it is the central secret. Keep early scenes talky and let the party pick a patron — or play all three."
+  },
+  "lore": [
+    {
+      "id": "lore-court",
+      "title": "The Ivory Court",
+      "content": "The ruling council of the city-state of Ashglance, named for its pale marble hall — now smoke-stained after the throne-fire that killed the Sovereign.",
+      "category": "location",
+      "keywords": ["court", "ivory", "ashglance", "throne"]
+    },
+    {
+      "id": "lore-fire",
+      "title": "The Throne-Fire",
+      "content": "The blaze that killed the Sovereign three nights ago. Ruled an accident by the Chancellor; everyone with sense suspects otherwise.",
+      "category": "world",
+      "keywords": ["fire", "throne-fire", "blaze", "murder"]
+    },
+    {
+      "id": "lore-claimants",
+      "title": "Three Claims",
+      "content": "The succession is contested by Princess Aurelie (blood), Lord Chancellor Vasse (law), and the Guilds' masked envoy (gold). Each holds a true claim and hides a true crime.",
+      "category": "faction",
+      "keywords": ["claimant", "succession", "princess", "chancellor", "guild"]
+    },
+    {
+      "id": "lore-whisper",
+      "title": "The Whisper-Market",
+      "content": "Ashglance's unofficial exchange where secrets are bought, sold, and shorted like grain. The first stop for anyone who wants to know who really lit the fire.",
+      "category": "location",
+      "keywords": ["whisper", "market", "secret", "rumor"]
+    },
+    {
+      "id": "lore-veil",
+      "title": "The Veil",
+      "content": "An order of masked envoys who broker between the Guilds and the Court. To remove a Veil's mask uninvited is a capital insult.",
+      "category": "faction",
+      "keywords": ["veil", "mask", "envoy", "guild"]
+    },
+    {
+      "id": "lore-ash-saints",
+      "title": "The Ash-Saints",
+      "content": "Ashglance venerates ancestors whose ashes line the Sovereign's crypt. Some say the burned Sovereign has not yet joined them — and walks.",
+      "category": "world",
+      "keywords": ["saint", "ash", "crypt", "ancestor", "ghost"]
+    },
+    {
+      "id": "lore-writ",
+      "title": "The Writ of Succession",
+      "content": "The legal instrument that names the next Sovereign. Whoever holds the signed writ at the fortnight's end is crowned — and it has gone missing.",
+      "category": "item",
+      "keywords": ["writ", "succession", "document", "crown"]
+    }
+  ],
+  "npcs": [
+    {
+      "id": "npc-ysolde",
+      "name": "Steward Ysolde",
+      "description": "The late Sovereign's steward, who knows where every body and ledger is buried.",
+      "role": "patron",
+      "personality": "Discreet, precise, mordantly funny in private.",
+      "motivation": "To see a worthy claimant crowned and the murderer named — in that order.",
+      "isVisible": true
+    },
+    {
+      "id": "npc-aurelie",
+      "name": "Princess Aurelie",
+      "description": "The Sovereign's grieving daughter, claimant by blood.",
+      "role": "neutral",
+      "personality": "Composed, idealistic, hiding a ruinous debt.",
+      "motivation": "To honor her father's reforms — and bury the debt that could be read as motive.",
+      "isVisible": true
+    },
+    {
+      "id": "npc-vasse",
+      "name": "Lord Chancellor Vasse",
+      "description": "The unburnt Chancellor, claimant by law.",
+      "role": "neutral",
+      "personality": "Urbane, paternal, never raises his voice.",
+      "motivation": "To preserve the realm's order — and the inconvenient truth that he was first to the fire.",
+      "isVisible": true
+    },
+    {
+      "id": "npc-envoy",
+      "name": "The Masked Envoy",
+      "description": "The Guilds' Veil-envoy, claimant by gold.",
+      "role": "neutral",
+      "personality": "Courteous, unreadable, speaks in favors owed.",
+      "motivation": "To install a Sovereign the Guilds can bill — and to keep the mask on.",
+      "isVisible": true
+    },
+    {
+      "id": "npc-quill",
+      "name": "Quill",
+      "description": "A whisper-market broker who trades in everyone's secrets, including yours.",
+      "role": "ally",
+      "personality": "Cheerful, amoral, scrupulously honest about prices.",
+      "motivation": "Profit, and the long game of owing favors to the eventual winner.",
+      "statBlockId": "wererat",
+      "isVisible": true
+    },
+    {
+      "id": "npc-cinder",
+      "name": "Cinder",
+      "description": "A Veil-trained killer the losing faction will eventually hire.",
+      "role": "enemy",
+      "personality": "Quiet, polite, terribly efficient.",
+      "motivation": "To remove whichever claimant their employer cannot out-argue.",
+      "statBlockId": "thug",
+      "isVisible": false
+    }
+  ],
+  "adventures": [
+    {
+      "id": "adv-ivory-court",
+      "title": "Crown or Break a Claimant",
+      "levelTier": "Levels 3-7",
+      "premise": "A burned throne, three claimants each with a true claim and a hidden crime, a missing writ of succession, and a fortnight to decide who rules Ashglance.",
+      "hook": "A dead Sovereign's steward hires the party to recover the missing Writ of Succession and learn who lit the throne-fire.",
+      "villain": "Whichever claimant set the fire — and the Veil-killer Cinder, who tidies the board for the losers.",
+      "setting": "The smoke-stained Ivory Court, the Whisper-Market, the ash-crypt of Sovereigns, and the salons of three factions.",
+      "playerStakes": "Back the wrong claimant and the city tips into purges and street-war; expose the wrong secret and the party becomes the next thing to be tidied away.",
+      "encounters": "A whisper-market bidding war for a secret; a salon poisoning that must be prevented socially; the ash-crypt and its restless Sovereign; Cinder's strike on the party's chosen claimant.",
+      "climax": "At the Court's final session the party must produce the Writ, name the fire-setter with proof the Court will accept, and survive Cinder's last attempt — then crown a Sovereign or break the line entirely.",
+      "resolution": "Ashglance is crowned under a flawed but legitimate Sovereign, falls to a strongman, or abolishes the throne for a council — and the party's secrets are either currency or a noose for years to come."
+    }
+  ],
+  "quests": [
+    {
+      "name": "The Missing Writ",
+      "description": "Recover the Writ of Succession and name who lit the throne-fire before the fortnight ends — then crown or break a claimant.",
+      "objectives": [
+        "Choose (or play) among the three claimants",
+        "Trace the Writ through the Whisper-Market",
+        "Prove who set the throne-fire to the Court's satisfaction",
+        "Survive the final session and decide the succession"
+      ],
+      "chapterQuest": true
+    },
+    {
+      "name": "A Secret Worth a Crown",
+      "description": "Win the whisper-market bidding war for the secret that names the fire-setter.",
+      "objectives": ["Earn Quill's trust or coin", "Out-bid or out-trade a rival faction"]
+    },
+    {
+      "name": "The Tidying",
+      "description": "Keep Cinder from removing your chosen claimant.",
+      "objectives": [
+        "Identify Cinder's next mark from the salon gossip",
+        "Foil the assassination without open bloodshed"
+      ]
+    }
+  ],
+  "encounterTables": [
+    {
+      "id": "tbl-court-intrigue",
+      "name": "A Day at Court (1d8)",
+      "diceFormula": "1d8",
+      "entries": [
+        { "min": 1, "max": 2, "text": "A salon invitation arrives — and so does a rival, smiling." },
+        { "min": 3, "max": 4, "text": "Quill has a secret to sell that touches one of the party directly." },
+        { "min": 5, "max": 6, "text": "A faction offers a favor now for a vote later; refusing has a price too." },
+        { "min": 7, "max": 7, "text": "A street near the palace is suddenly, conspicuously empty." },
+        { "min": 8, "max": 8, "text": "Cinder is glimpsed leaving a room someone important was just in." }
+      ]
+    },
+    {
+      "id": "tbl-ash-crypt",
+      "name": "The Ash-Crypt & the Shadows (1d12)",
+      "diceFormula": "1d12",
+      "entries": [
+        { "min": 1, "max": 3, "text": "Faction thugs guarding a tomb they have no business in." },
+        { "min": 4, "max": 6, "text": "A cold draft and a shadow that wears a courtier's shape." },
+        { "min": 7, "max": 9, "text": "The burned Sovereign's specter, asking who let the fire in." },
+        { "min": 10, "max": 11, "text": "Cinder, cornered, offering a deal instead of a blade." },
+        { "min": 12, "max": 12, "text": "The Writ of Succession — and whoever else came for it tonight." }
+      ]
+    }
+  ]
+}

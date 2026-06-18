@@ -842,6 +842,38 @@
       "invalidUrl": "Introduce una URL válida (p. ej. http://localhost:11434)",
       "urlHint": "Predeterminado: http://localhost:11434. Cámbialo para apuntar a un servidor GPU remoto."
     },
+    "seedPacks": {
+      "stepTitle": "Empezar desde un paquete inicial",
+      "stepIntro": "Opcional. Un paquete inicial añade trasfondo del mundo, PNJ, arcos de aventura, misiones iniciales, tablas de encuentros, tono y una escena de apertura — todo lo necesario para empezar a jugar.",
+      "none": "Sin paquete inicial",
+      "importFile": "Importar desde archivo (.dndseed)",
+      "levels": "Niveles {{min}}-{{max}}",
+      "systemMismatch": "Este paquete es para \"{{system}}\", no para D&D 5e — puede que no encaje del todo.",
+      "countLore": "trasfondo",
+      "countNpcs": "PNJ",
+      "countQuests": "misiones",
+      "countTables": "tablas",
+      "tone": "Tono",
+      "opening": "Apertura",
+      "reviewLabel": "Paquete inicial",
+      "applyTitle": "Aplicar un paquete inicial",
+      "applyNote": "El contenido se AÑADE a esta campaña (las entradas existentes se conservan). El tono y la escena de apertura solo rellenan huecos vacíos.",
+      "apply": "Aplicar",
+      "back": "Atrás",
+      "applied": "Se aplicó \"{{name}}\" a la campaña",
+      "questSeedFailed": "No se pudieron sembrar las misiones (el resto del paquete sí se aplicó).",
+      "section": {
+        "lore": "Trasfondo",
+        "npcs": "PNJ",
+        "adventures": "Arcos de aventura",
+        "quests": "Misiones",
+        "encounterTables": "Tablas de encuentros",
+        "encounters": "Encuentros preparados",
+        "customRules": "Reglas personalizadas",
+        "tone": "Tono narrativo",
+        "openingScene": "Escena de apertura"
+      }
+    },
     "campaignWizard": {
       "aiConfigFailed": "Campaña creada, pero falló la configuración del DM de IA. Puedes reconfigurarlo desde los ajustes de la campaña.",
       "audioUploadFailed": "No se pudo subir el audio «{{name}}». Puedes volver a añadirlo desde el panel de audio de la campaña.",
@@ -853,6 +885,7 @@
         "character": "Personaje",
         "aiDm": "DM de IA",
         "adventure": "Aventura",
+        "seedPack": "Paquete inicial",
         "sessionZero": "Sesión cero",
         "rules": "Reglas",
         "calendar": "Calendario",
@@ -6269,6 +6302,10 @@
       "leaveGame": "Abandonar partida"
     },
     "campaignDetailPage": {
+      "exportSeedPack": "Exportar paquete inicial",
+      "applySeedPack": "Aplicar paquete inicial",
+      "toastSeedExported": "Paquete inicial exportado",
+      "toastSeedExportFailed": "Falló la exportación del paquete inicial",
       "toastDeleted": "Campaña eliminada",
       "toastLocalServerFailed": "No se pudo conectar con el servidor local",
       "toastConnectingCloud": "Conectando a través de servidores en la nube...",

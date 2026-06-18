@@ -131,6 +131,7 @@ export const IPC_CHANNELS = {
   AI_GET_QUEST_LOG: 'ai:get-quest-log',
   AI_UPDATE_QUEST_OBJECTIVE: 'ai:update-quest-objective',
   AI_ADVANCE_CHAPTER: 'ai:advance-chapter',
+  AI_SEED_QUESTS: 'ai:seed-quests', // PHASE-37 — seed pack quests into the quest log
 
   // === AI DM: Dice oracle (PHASE-28) ===
   AI_ORACLE_FATE_CHECK: 'ai:oracle-fate-check',

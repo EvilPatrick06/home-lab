@@ -10,6 +10,7 @@ import {
   OracleSetChaosSchema,
   QuestObjectiveUpdateSchema,
   SceneLabelSchema,
+  SeedQuestsRequestSchema,
   SyncEventSchema
 } from './ipc-schemas'
 
@@ -435,6 +436,31 @@ describe('ipc-schemas', () => {
         round: 1
       })
       expect(result.success).toBe(false)
+    })
+  })
+
+  // PHASE-37 37D — seed-quests request
+  describe('SeedQuestsRequestSchema', () => {
+    it('parses a valid payload and applies defaults', () => {
+      const r = SeedQuestsRequestSchema.safeParse({ campaignId: 'c1', quests: [{ name: 'Q' }] })
+      expect(r.success).toBe(true)
+      if (r.success) {
+        expect(r.data.quests[0].description).toBe('')
+        expect(r.data.quests[0].objectives).toEqual([])
+        expect(r.data.quests[0].chapterQuest).toBe(false)
+      }
+    })
+    it('rejects an empty quests array', () => {
+      expect(SeedQuestsRequestSchema.safeParse({ campaignId: 'c1', quests: [] }).success).toBe(false)
+    })
+    it('rejects a quest with no name', () => {
+      expect(SeedQuestsRequestSchema.safeParse({ campaignId: 'c1', quests: [{ description: 'x' }] }).success).toBe(
+        false
+      )
+    })
+    it('rejects more than 25 quests', () => {
+      const quests = Array.from({ length: 26 }, (_, i) => ({ name: `Q${i}` }))
+      expect(SeedQuestsRequestSchema.safeParse({ campaignId: 'c1', quests }).success).toBe(false)
     })
   })
 })

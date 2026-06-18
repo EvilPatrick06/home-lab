@@ -283,6 +283,36 @@ Order keeps the tree green: types/schema first (37A), IO second (37B), content t
 
 **Acceptance:** doc exists, matches the shipped schema field-for-field.
 
+## Completed
+
+- **Prereqs (anchor-verified).** PHASE-25 `LoreEntry.keywords` present (explicit PHASE-37 contract) +
+  `Campaign.lore`/`npcs`; PHASE-28 `MemoryManager.getQuestLog`/`mutateQuestLog` + the `QuestOperation`
+  union — **adapted to the real op shapes:** `{ kind: 'add', name, description?, chapterQuest? }` +
+  `{ kind: 'add_objective', questName, objective }` (not the `add_quest` the plan guessed).
+- **37A — format.** `campaign.ts` `OpeningScene` + `Campaign.toneInstructions`/`openingScene`. NEW
+  `seed-pack-schema.ts` (zod-v4 `looseObject` SeedPack v1 + `parseSeedPack` 3-failure messages),
+  `seed-pack-apply.ts` (`applySeedPackToCampaign` append + fresh-ids + tone/scene-fill-empty-only;
+  `extractSeedPackFromCampaign` excludes secrets by construction; `slugifyPackId`). Tests 8 + 9.
+- **37B — file IO.** entity-io `'seedpack'` type (`.dndseed`) + test. NEW `seed-pack-io.ts`
+  (export/import via the envelope + bare-object fallback) + `built-in-packs.ts` (`loadBuiltInSeedPacks`
+  via the data-provider façade, cached, invalid-skip). Tests 5 + entity-io case.
+- **37C — curated packs.** NEW `public/data/5e/seed-packs/{index,hollowmere,sunderspire-frontier,ivory-court}.json`
+  (original content, verified monster ids, content bars). `built-in-packs.test.ts` (14): schema-valid,
+  monster-id existence, contiguous table bands, content bars, loader skips invalid. `validate:5e` clean.
+- **37D — main plumbing.** campaign-context tone block (early, survives the 2k trim) + roll-table names
+  line. NEW `scene-prep-message.ts` (`buildScenePrepMessage`; default === `SCENE_PREP_PROMPT`, byte-identical).
+  `prepareScene` now async (seeded opening scene → first prep), handler awaits. `AI_SEED_QUESTS` channel +
+  `SeedQuestsRequestSchema` + handler (`add` + `add_objective`, sanitized, never-throws) + preload +
+  renderer `seed-quests.ts`. Tests across 5 files (120).
+- **37E — UI.** NEW `SeedPackBrowser`/`SeedPackStep`/`SeedPackApplyModal` (+3 tests). CampaignWizard
+  `seedPack` step + persist/restore + handleCreate apply + quest-seed + ReviewStep `seedPackName`.
+  CampaignDetailPage export/apply (quest-log feature-detected). i18n `campaign.seedPacks.*` +
+  `pages.campaignDetailPage.*` both locales; parity green.
+- **37F — docs.** NEW `dnd-app/docs/SEED-PACKS.md` format reference. The `.dndcamp` key-export concern
+  was already in `SECURITY-LOG.md` (2026-06-11) — no new entry needed.
+- **Gate.** dnd-app lint + tsc (web+node) green; targeted vitest across all new suites green. No bmo/pi
+  touched. Inert by default: nothing changes for a campaign/wizard that doesn't pick a pack.
+
 ## Research notes
 
 - **Scenario anatomy (what a seed must carry).** AI Dungeon scenarios decompose into exactly the slices this format adopts: an opening **Prompt** ("go long — set mood, background, situation, leave it open-ended" → our `openingScene.readAloud`), always-in-context **Plot Essentials** (world facts → our lore), **Author's Note** ("genre, writing style, overall tone", deliberately positioned late/close to generation → our `toneInstructions`, rendered inside `[CAMPAIGN DATA]` which rides the per-request context, after the static system prompt — consistent with PHASE-01's byte-stable-prefix constraint), keyword-triggered **Story Cards** (→ lore `keywords`, activating via PHASE-25's world-info mechanics), and **tags** for discovery. Sources: https://help.aidungeon.com/faq/what-are-scenarios, https://help.aidungeon.com/faq/what-is-the-authors-note, https://help.aidungeon.com/faq/plot-essentials.

@@ -28,6 +28,7 @@ export type EntityType =
   | 'settings'
   | 'adventure'
   | 'homebrew'
+  | 'seedpack'
 
 export interface ExportEnvelope<T = unknown> {
   /** Envelope format version (the wrapper shape itself). */
@@ -67,7 +68,8 @@ const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
   ai: { extension: 'dndai', label: 'AI Conversation', requiredFields: [] },
   settings: { extension: 'dndsettings', label: 'Settings', requiredFields: [] },
   adventure: { extension: 'dndadv', label: 'Adventure Module', requiredFields: ['adventure'] },
-  homebrew: { extension: 'dndhomebrew', label: 'Homebrew Content', requiredFields: ['id', 'name', 'type'] }
+  homebrew: { extension: 'dndhomebrew', label: 'Homebrew Content', requiredFields: ['id', 'name', 'type'] },
+  seedpack: { extension: 'dndseed', label: 'Seed Pack', requiredFields: ['id', 'name', 'formatVersion'] }
 }
 
 // ---------------------------------------------------------------------------

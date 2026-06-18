@@ -37,6 +37,7 @@ describe('entity-io', () => {
       expect(getEntityExtension('encounter')).toBe('dndencounter')
       expect(getEntityExtension('map')).toBe('dndmap')
       expect(getEntityExtension('lore')).toBe('dndlore')
+      expect(getEntityExtension('seedpack')).toBe('dndseed') // PHASE-37
       expect(getEntityExtension('bastion')).toBe('dndbastion')
       expect(getEntityExtension('companion')).toBe('dndcompanion')
       expect(getEntityExtension('mount')).toBe('dndmount')

@@ -554,6 +554,11 @@ interface AiAPI {
     campaignId: string,
     payload: AdvanceChapterData
   ) => Promise<{ success: boolean; data?: QuestLogData; error?: string }>
+  // PHASE-37 — seed pack quests
+  seedQuests: (
+    campaignId: string,
+    quests: Array<{ name: string; description?: string; objectives?: string[]; chapterQuest?: boolean }>
+  ) => Promise<{ success: boolean; added?: number; error?: string }>
   // Dice oracle (PHASE-28)
   oracleFateCheck: (
     campaignId: string,

@@ -64,6 +64,15 @@ export interface LoreEntry {
   keywords?: string[]
 }
 
+// PHASE-37 — a prepared opening scene a seed pack (or DM) can hand the AI to start the campaign.
+export interface OpeningScene {
+  title?: string
+  /** Scene text the AI opens the campaign with (narrated in its own voice, not read verbatim). */
+  readAloud: string
+  /** Private staging notes for the AI/DM — never shown to players. */
+  dmNotes?: string
+}
+
 export type AiProviderType = 'ollama' | 'claude' | 'openai' | 'gemini'
 
 export interface AiDmConfig {
@@ -162,6 +171,10 @@ export interface Campaign {
   milestones?: TimelineMilestone[]
   downtimeProgress?: DowntimeProgressEntry[]
   aiDm?: AiDmConfig
+  /** PHASE-37 — freeform tone/style guidance for the AI narrator (rendered into [CAMPAIGN DATA]). */
+  toneInstructions?: string
+  /** PHASE-37 — a prepared opening scene the AI opens the campaign with (used by scene-prep). */
+  openingScene?: OpeningScene
   /** PHASE-32 — topics banned by the table during play (joins the hard [SAFETY CONSTRAINTS] block). */
   aiBanList?: AiBanListEntry[]
   customRollTables?: Array<{

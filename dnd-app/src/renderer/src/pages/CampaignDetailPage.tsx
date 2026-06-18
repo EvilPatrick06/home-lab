@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import HostNamePrompt from '../components/campaign/HostNamePrompt'
+import SeedPackApplyModal from '../components/campaign/SeedPackApplyModal'
 import { BackButton, Button, Card, ConfirmDialog } from '../components/ui'
 import { addToast } from '../hooks/use-toast'
 import { useT } from '../i18n'
@@ -42,6 +43,7 @@ export default function CampaignDetailPage(): JSX.Element {
   const [showHostNamePrompt, setShowHostNamePrompt] = useState(false)
   const [hostNameDefault, setHostNameDefault] = useState('')
   const [exporting, setExporting] = useState(false)
+  const [showSeedPackApply, setShowSeedPackApply] = useState(false) // PHASE-37
   const [starting, setStarting] = useState(false)
   const [linkedMonster, setLinkedMonster] = useState<MonsterStatBlock | null>(null)
 
@@ -163,6 +165,43 @@ export default function CampaignDetailPage(): JSX.Element {
     }
   }
 
+  // PHASE-37 — export this campaign as a shareable seed pack (no play-state, no secrets).
+  const handleExportSeedPack = async (): Promise<void> => {
+    if (!campaign) return
+    try {
+      const { extractSeedPackFromCampaign } = await import('../services/seed-packs/seed-pack-apply')
+      const { exportSeedPackToFile } = await import('../services/seed-packs/seed-pack-io')
+      const pack = extractSeedPackFromCampaign(campaign)
+      // Feature-detect the PHASE-28 quest log; fold non-completed quests into the pack.
+      if (typeof window.api.ai?.getQuestLog === 'function') {
+        try {
+          const res = await window.api.ai.getQuestLog(campaign.id)
+          const quests = (res?.data as { quests?: Array<Record<string, unknown>> } | undefined)?.quests
+          if (Array.isArray(quests)) {
+            pack.quests = quests
+              .filter((q) => q.status !== 'completed')
+              .map((q) => ({
+                name: String(q.name ?? ''),
+                description: String(q.description ?? ''),
+                objectives: Array.isArray(q.objectives)
+                  ? (q.objectives as Array<{ text?: string }>).map((o) => String(o.text ?? '')).filter(Boolean)
+                  : [],
+                chapterQuest: Boolean(q.chapterQuest)
+              }))
+              .filter((q) => q.name)
+          }
+        } catch {
+          /* quest log unavailable — export without quests */
+        }
+      }
+      const ok = await exportSeedPackToFile(pack)
+      if (ok) addToast(t('pages.campaignDetailPage.toastSeedExported'), 'success')
+    } catch (error) {
+      logger.error('Failed to export seed pack:', error)
+      addToast(t('pages.campaignDetailPage.toastSeedExportFailed'), 'error')
+    }
+  }
+
   // --- Journal import/export ---
   const handleExportJournal = async (entries: import('../types/campaign').JournalEntry[]): Promise<void> => {
     if (!entries.length) return
@@ -281,6 +320,12 @@ export default function CampaignDetailPage(): JSX.Element {
           </Button>
           <Button variant="secondary" onClick={handleExport} disabled={exporting}>
             {exporting ? t('pages.campaignDetailPage.exporting') : t('pages.campaignDetailPage.export')}
+          </Button>
+          <Button variant="secondary" onClick={handleExportSeedPack}>
+            {t('pages.campaignDetailPage.exportSeedPack')}
+          </Button>
+          <Button variant="secondary" onClick={() => setShowSeedPackApply(true)}>
+            {t('pages.campaignDetailPage.applySeedPack')}
           </Button>
           <Button
             variant="secondary"
@@ -580,6 +625,13 @@ export default function CampaignDetailPage(): JSX.Element {
           initialData={editingEntry}
         />
       </Suspense>
+
+      <SeedPackApplyModal
+        open={showSeedPackApply}
+        onClose={() => setShowSeedPackApply(false)}
+        campaign={campaign}
+        onApplied={() => loadCampaigns()}
+      />
 
       <ConfirmDialog
         open={showDeleteConfirm}
