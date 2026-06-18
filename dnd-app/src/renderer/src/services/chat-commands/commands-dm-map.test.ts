@@ -473,7 +473,26 @@ describe('moveTokenCommand', () => {
     move.execute('Goblin', ctx)
     expect(ctx.addSystemMessage).toHaveBeenCalledWith(expect.stringContaining('Usage'))
   })
+})
 
+// PHASE-34 34G — /genmap
+describe('genmapCommand', () => {
+  it('is a DM-only command named genmap with alias generatemap', () => {
+    const cmd = commands.find((c) => c.name === 'genmap')
+    expect(cmd).toBeTruthy()
+    expect(cmd?.aliases).toContain('generatemap')
+    expect(cmd?.dmOnly).toBe(true)
+  })
+
+  it('shows usage when no description is given', async () => {
+    const cmd = commands.find((c) => c.name === 'genmap')!
+    const ctx = mapCtx()
+    await cmd.execute('   ', ctx)
+    expect(ctx.addSystemMessage).toHaveBeenCalledWith(expect.stringContaining('Usage'))
+  })
+})
+
+describe('moveTokenCommand error coords (cont.)', () => {
   it('shows error for non-numeric coordinates', () => {
     const move = commands.find((c) => c.name === 'tokenmove')!
     const ctx = mapCtx()

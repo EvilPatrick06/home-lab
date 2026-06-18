@@ -405,4 +405,40 @@ Order keeps every intermediate state green: shared schema first (no consumers), 
 
 ## Completed
 
+- **34A — shared spec.** NEW `src/shared/battlemap-spec.ts`: flat enum-heavy `BattlemapSpecSchema`
+  (rooms/corridors/doors/lights/terrain/spawns), `battlemapSpecJsonSchema()` (zod-v4 emitter +
+  recursive `additionalProperties:false`), deterministic `repairBattlemapSpec` (clamp/drop/dedupe,
+  relocate spawns to nearest room cell, `BattlemapSpecError` on zero rooms) + test (7). Both tsconfigs.
+- **34B — generator + IPC.** NEW `main/ai/battlemap-generator.ts`: `buildBattlemapSystemPrompt` (small
+  schema-echoing prompt) + `generateBattlemapSpec` (Ollama via existing `ollamaStructuredOnce` native
+  `format`; cloud via new `ai-service.chatOncePrimary` — primary model, NOT task-routed; fence-strip +
+  `repairJson` + safeParse + ONE retry + repair + dim/theme overrides) + test (6). `ai-service`
+  `getPrimaryProviderInfo`/`chatOncePrimary`. IPC `AI_GENERATE_BATTLEMAP` + `BattlemapGenerationRequestSchema`
+  + handler + preload BOTH files.
+- **34C — compiler.** NEW `services/map/battlemap/compile-spec.ts` (pure, DOM-free): `buildFloorMask`
+  (rooms + L-corridors), `traceWalls` (cell-edge → merged maximal segments; 3×3 → 4 segs), `compileSpec`
+  → wallSegments (door-split: door/window/secret + locked/secret DM-only pins), terrain, light fixtures
+  (kind→LIGHT_SOURCES key), pins (party visible / enemies DM-only), spawn relocation vs the true mask + test (7).
+- **34D — tile renderer.** NEW `tile-renderer.ts`: `mulberry32`+`hashString` seeded PRNG, exhaustive
+  `THEME_PALETTES`, `renderBattlemap(spec, compiled, cellSize, createCanvas)` → PNG data URL (floor jitter,
+  terrain overlays, walls/doors/windows, light glows), null on no-2D-context. Injected canvas factory + test
+  (6, node-env stub, determinism).
+- **34E — apply + pin filter.** NEW `apply-spec.ts` `applyBattlemapSpec` (compile→render→build GameMap→
+  `addMap`→light fixtures `lightSource(Infinity)`+broadcast→optional switch+ambient→DM summary) + test (5).
+  Closed the F5 gap: DM-only pins (`visibleToPlayers === false`) now stripped in the `addMap` wire sanitizer
+  (`network-store/index.ts`) AND the join-time `filterMapForPlayer` (`network-state-filter.ts`) + index test.
+- **34F — modal.** NEW `GenerateBattlemapModal.tsx` (prompt/theme/size/switch → generate → preview → create)
+  + `active-modal-types` `'generateBattlemap'` (+test) + DmModals mount + DMTabPanel button + i18n + test (3).
+- **34G — `/genmap`.** `commands-dm-map.ts` `genmap`/`generatemap` (dynamic-imports apply-spec + store-accessors
+  to avoid cycles) + test; collision test green.
+- **34H — AI action (opt-in).** `AiDmConfig.allowMapGeneration` + AiDmCard toggle (4 sites + persist) + i18n.
+  `generate_battlemap` action: ai-schemas `GenerateBattlemapActionSchema` + `DM_ACTION_SCHEMAS` + dm-actions
+  union + `GENERATE_BATTLEMAP_PROMPT` (conditional). `assembleSystemPrompt({allowMapGeneration})` appends the
+  doc only when on; `conversation-manager.mapGenerationAllowed` set from the campaign in the chat path.
+  NEW `battlemap-actions.ts` `executeGenerateBattlemap` (hard gate + single-flight + fire-and-forget) + executor
+  dispatch + test (4). prompt-assembler test (flag on/off).
+- **Gate.** Full 4-gate (lint, tsc web+node, vitest) green. No `bmo/pi/` touched. Default-OFF: the AI never
+  sees `generate_battlemap` unless the flag is on (and the executor rejects it anyway); DM-only spawn pins
+  never cross the wire.
+
 (filled during execution per INSTRUCTIONS.md rule 17 — one line per sub-phase with file:line citations)

@@ -575,6 +575,14 @@ interface AiAPI {
     error?: string
   }>
   campaignQaClear: (campaignId: string) => Promise<{ success: boolean; error?: string }>
+  // PHASE-34 — battlemap generation.
+  generateBattlemap: (request: {
+    campaignId: string
+    prompt: string
+    theme?: string
+    widthCells?: number
+    heightCells?: number
+  }) => Promise<{ success: boolean; spec?: unknown; warnings?: string[]; error?: string }>
   // Memory files
   listMemoryFiles: (campaignId: string) => Promise<Array<{ name: string; size: number }>>
   readMemoryFile: (campaignId: string, fileName: string) => Promise<string>

@@ -12,15 +12,19 @@
 
 import { CHARACTER_RULES_PROMPT } from './prompt-sections/character-rules'
 import { COMBAT_RULES_PROMPT } from './prompt-sections/combat-rules'
-import { DM_ACTIONS_SCHEMA_PROMPT } from './prompt-sections/dm-actions-schema'
+import { DM_ACTIONS_SCHEMA_PROMPT, GENERATE_BATTLEMAP_PROMPT } from './prompt-sections/dm-actions-schema'
 import { EXPLORATION_RULES_PROMPT } from './prompt-sections/exploration-rules'
 import { NARRATIVE_RULES_PROMPT } from './prompt-sections/narrative-rules'
 import { SOCIAL_RULES_PROMPT } from './prompt-sections/social-rules'
 import { VOICE_NARRATION_PROMPT } from './prompt-sections/voice-narration'
 
-/** Assemble the system prompt — one static, cache-stable section join. */
-export function assembleSystemPrompt(): string {
-  return [
+/**
+ * Assemble the system prompt — one static, cache-stable section join. PHASE-34: the optional
+ * `allowMapGeneration` flag appends the generate_battlemap action doc; it is stable per-campaign
+ * (a settings flag, not per-turn), so the KV-cache prefix is preserved within a campaign.
+ */
+export function assembleSystemPrompt(opts?: { allowMapGeneration?: boolean }): string {
+  const sections = [
     NARRATIVE_RULES_PROMPT,
     CHARACTER_RULES_PROMPT,
     COMBAT_RULES_PROMPT,
@@ -28,5 +32,7 @@ export function assembleSystemPrompt(): string {
     SOCIAL_RULES_PROMPT,
     DM_ACTIONS_SCHEMA_PROMPT,
     VOICE_NARRATION_PROMPT
-  ].join('\n\n')
+  ]
+  if (opts?.allowMapGeneration) sections.push(GENERATE_BATTLEMAP_PROMPT)
+  return sections.join('\n\n')
 }

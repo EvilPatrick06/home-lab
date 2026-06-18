@@ -94,6 +94,14 @@ export type DmAction =
 
   // Map
   | { action: 'switch_map'; mapName: string }
+  | {
+      action: 'generate_battlemap'
+      description: string
+      theme?: string
+      widthCells?: number
+      heightCells?: number
+      switchTo?: boolean
+    }
 
   // Sidebar
   | {

@@ -157,6 +157,7 @@ export const IPC_CHANNELS = {
   AI_GET_CONTEXT_INSPECTOR: 'ai:get-context-inspector',
   AI_GET_TOKEN_METER: 'ai:get-token-meter',
   AI_GENERATE_END_OF_SESSION_RECAP: 'ai:generate-end-of-session-recap',
+  AI_GENERATE_BATTLEMAP: 'ai:generate-battlemap', // PHASE-34
   // === AI DM: Recaps & campaign Q&A (PHASE-31) ===
   AI_GENERATE_SESSION_START_RECAP: 'ai:generate-session-start-recap',
   AI_CAMPAIGN_QA_ASK: 'ai:campaign-qa-ask',

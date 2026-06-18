@@ -99,6 +99,8 @@ export interface AiDmConfig {
   routingSmallModel?: string
   /** PHASE-29 29E: local-endpoint flavor for the Ollama provider (absent = 'ollama'). */
   localEndpointFlavor?: 'ollama' | 'llamacpp'
+  /** PHASE-34 34H: let the AI DM generate battlemaps via the generate_battlemap action (absent = off). */
+  allowMapGeneration?: boolean
   discordBridge?: boolean
   /** @deprecated Use `model` instead */
   ollamaModel?: string

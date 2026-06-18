@@ -47,6 +47,7 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
     routingEnabled: boolean
     routingSmallModel: string
     localEndpointFlavor: 'ollama' | 'llamacpp'
+    allowMapGeneration: boolean
   }>({
     enabled: false,
     provider: DEFAULT_AI_PROVIDER,
@@ -63,7 +64,8 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
     directorCadence: 6,
     routingEnabled: false,
     routingSmallModel: '',
-    localEndpointFlavor: 'ollama'
+    localEndpointFlavor: 'ollama',
+    allowMapGeneration: false
   })
   // PHASE-26: scene-based memory is an engine-owned per-campaign flag (NOT campaign.aiDm),
   // read/written over IPC — independent of the configure modal's aiDm save.
@@ -94,7 +96,8 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
       // PHASE-29: routing + local-endpoint flavor.
       routingEnabled: dm?.routingEnabled ?? false,
       routingSmallModel: dm?.routingSmallModel ?? '',
-      localEndpointFlavor: dm?.localEndpointFlavor ?? 'ollama'
+      localEndpointFlavor: dm?.localEndpointFlavor ?? 'ollama',
+      allowMapGeneration: dm?.allowMapGeneration ?? false
     })
     setShowAiDmModal(true)
   }
@@ -116,7 +119,8 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
       directorCadence: 6,
       routingEnabled: false,
       routingSmallModel: '',
-      localEndpointFlavor: 'ollama'
+      localEndpointFlavor: 'ollama',
+      allowMapGeneration: false
     })
     setShowAiDmModal(true)
   }
@@ -366,6 +370,16 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
               {t('pages.aiDmCard.questTracking')}
             </label>
             <p className="text-[11px] text-gray-500 mb-2 ml-6">{t('pages.aiDmCard.questTrackingHint')}</p>
+            {/* PHASE-34: AI battlemap generation (off by default; behavior-risky ⇒ opt-in). */}
+            <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={aiDmConfig.allowMapGeneration}
+                onChange={(e) => setAiDmConfig((p) => ({ ...p, allowMapGeneration: e.target.checked }))}
+              />
+              {t('pages.aiDmCard.allowMapGeneration')}
+            </label>
+            <p className="text-[11px] text-gray-500 mb-2 ml-6">{t('pages.aiDmCard.allowMapGenerationHint')}</p>
             <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
               <input
                 type="checkbox"
@@ -445,7 +459,9 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
                 // PHASE-29: per-task routing + local-endpoint flavor.
                 routingEnabled: aiDmConfig.routingEnabled,
                 routingSmallModel: aiDmConfig.routingSmallModel,
-                localEndpointFlavor: aiDmConfig.localEndpointFlavor
+                localEndpointFlavor: aiDmConfig.localEndpointFlavor,
+                // PHASE-34: let the AI DM generate battlemaps (opt-in; default off).
+                allowMapGeneration: aiDmConfig.allowMapGeneration
               }
               try {
                 await saveCampaign({ ...campaign, aiDm, updatedAt: new Date().toISOString() })

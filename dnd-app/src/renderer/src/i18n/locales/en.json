@@ -1095,6 +1095,7 @@
       "previouslyOn": "Previously on…",
       "campaignQa": "Campaign Archivist",
       "aiImage": "AI Image",
+      "generateBattlemap": "Generate Battlemap",
       "initiative": "Initiative",
       "quickConditions": "Quick Conditions",
       "monsterLookup": "Monster Lookup",
@@ -2022,6 +2023,21 @@
       "noNpcs": "No NPCs",
       "noTokens": "No tokens",
       "error": "Image generation failed."
+    },
+    "generateBattlemap": {
+      "title": "Generate Battlemap",
+      "descriptionLabel": "Describe the location",
+      "descriptionPlaceholder": "e.g. a two-room crypt with a locked door and a torchlit antechamber",
+      "themeLabel": "Theme",
+      "themeAuto": "Auto",
+      "sizeLabel": "Size (cells)",
+      "switchToLabel": "Switch to this map after creating",
+      "generate": "Generate",
+      "regenerate": "Regenerate",
+      "create": "Create map",
+      "generating": "Generating…",
+      "warningsTitle": "Adjustments made:",
+      "error": "Battlemap generation failed."
     },
     "createMapModal": {
       "untitledMap": "Untitled Map",
@@ -5802,6 +5818,8 @@
       "narrativeEngine": "Narrative engine (experimental)",
       "questTracking": "Quest auto-tracking",
       "questTrackingHint": "After each reply, a background model call ticks completed quest objectives and proposes chapter advances (you confirm).",
+      "allowMapGeneration": "Allow battlemap generation",
+      "allowMapGenerationHint": "Lets the AI DM create brand-new tactical maps from a description (rooms, doors, lights, spawns). Off by default.",
       "director": "Director pass",
       "directorHint": "A background planner periodically writes private pacing/foreshadowing notes that steer the narration.",
       "directorCadence": "Every N responses",

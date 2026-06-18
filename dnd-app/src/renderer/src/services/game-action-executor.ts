@@ -16,6 +16,7 @@ const stores: StoreAccessors = { getGameStore, getLobbyStore, getNetworkStore }
 
 // ── Magic-item Attunement ──
 import { executeAttuneItem, executeUnattuneItem } from './game-actions/attunement-actions'
+import { executeGenerateBattlemap } from './game-actions/battlemap-actions'
 // ── Combat Action Economy ──
 import {
   executeKnockUnconscious,
@@ -319,6 +320,8 @@ function executeOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: A
     // ── Map ──
     case 'switch_map':
       return executeSwitchMap(action, gameStore, activeMap, stores)
+    case 'generate_battlemap':
+      return executeGenerateBattlemap(action, gameStore, activeMap, stores)
 
     // ── Sidebar ──
     case 'add_sidebar_entry':

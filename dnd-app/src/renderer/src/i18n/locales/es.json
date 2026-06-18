@@ -1095,6 +1095,7 @@
       "previouslyOn": "Anteriormente…",
       "campaignQa": "Archivista de Campaña",
       "aiImage": "Imagen IA",
+      "generateBattlemap": "Generar mapa de batalla",
       "initiative": "Iniciativa",
       "quickConditions": "Condiciones rápidas",
       "monsterLookup": "Búsqueda de monstruos",
@@ -2022,6 +2023,21 @@
       "noNpcs": "Sin PNJ",
       "noTokens": "Sin fichas",
       "error": "Falló la generación de la imagen."
+    },
+    "generateBattlemap": {
+      "title": "Generar mapa de batalla",
+      "descriptionLabel": "Describe el lugar",
+      "descriptionPlaceholder": "p. ej. una cripta de dos salas con una puerta cerrada y una antecámara iluminada por antorchas",
+      "themeLabel": "Tema",
+      "themeAuto": "Automático",
+      "sizeLabel": "Tamaño (celdas)",
+      "switchToLabel": "Cambiar a este mapa tras crearlo",
+      "generate": "Generar",
+      "regenerate": "Regenerar",
+      "create": "Crear mapa",
+      "generating": "Generando…",
+      "warningsTitle": "Ajustes realizados:",
+      "error": "Falló la generación del mapa de batalla."
     },
     "createMapModal": {
       "untitledMap": "Mapa sin título",
@@ -5802,6 +5818,8 @@
       "narrativeEngine": "Motor narrativo (experimental)",
       "questTracking": "Seguimiento automático de misiones",
       "questTrackingHint": "Tras cada respuesta, una llamada al modelo en segundo plano marca objetivos completados y propone avances de capítulo (tú los confirmas).",
+      "allowMapGeneration": "Permitir la generación de mapas de batalla",
+      "allowMapGenerationHint": "Permite al DM de IA crear mapas tácticos nuevos a partir de una descripción (salas, puertas, luces, posiciones). Desactivado por defecto.",
       "director": "Pase de director",
       "directorHint": "Un planificador en segundo plano escribe periódicamente notas privadas de ritmo y presagios que guían la narración.",
       "directorCadence": "Cada N respuestas",

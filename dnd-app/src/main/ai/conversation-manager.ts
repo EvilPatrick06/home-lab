@@ -36,6 +36,8 @@ export class ConversationManager {
   private summarizationMode: SummarizationMode = 'threshold'
   /** PHASE-26: set in scene mode when the budget loop drops messages; consumed off the request path by 26C. */
   private _overflowSplitNeeded = false
+  /** PHASE-34 34H: when true, the system prompt advertises generate_battlemap. Stable per campaign. */
+  mapGenerationAllowed = false
 
   /** Set the callback used for summarization (provided by AiService). */
   setSummarizeCallback(cb: (text: string) => Promise<string>): void {
@@ -185,7 +187,7 @@ export class ConversationManager {
       contextBlock?.includes('chase')
     const hasCombat = contextBlock?.includes('Initiative:')
     const systemPrompt =
-      assembleSystemPrompt() +
+      assembleSystemPrompt({ allowMapGeneration: this.mapGenerationAllowed }) +
       (hasCombat ? COMBAT_TACTICS_PROMPT : '') +
       (includesPlanarContent ? PLANAR_RULES_CONTEXT : '') +
       (includesToolboxContent ? DM_TOOLBOX_CONTEXT : '') +

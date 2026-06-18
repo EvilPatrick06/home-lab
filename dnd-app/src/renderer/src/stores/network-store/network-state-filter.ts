@@ -58,7 +58,11 @@ function filterMapForPlayer(m: NetworkMap): NetworkMap {
   const tokens = Array.isArray(m.tokens)
     ? (m.tokens as MaybeHiddenToken[]).filter((t) => t?.isHidden !== true)
     : m.tokens
-  return { ...m, tokens }
+  // PHASE-34 34E — strip DM-only pins (default visible; drop only explicit false) at join time too,
+  // so AI-generated enemy-spawn / secret-door pins never reach a joining player.
+  const mp = m as NetworkMap & { pins?: Array<{ visibleToPlayers?: boolean }> }
+  const pins = Array.isArray(mp.pins) ? mp.pins.filter((p) => p.visibleToPlayers !== false) : mp.pins
+  return { ...m, tokens, ...(pins !== undefined ? { pins } : {}) }
 }
 
 /**

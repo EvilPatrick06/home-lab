@@ -3,7 +3,7 @@
  * Run `npm run i18n:gen-keys` (scripts/i18n/gen-key-union.mjs) to regenerate
  * after changing en.json. Source: src/renderer/src/i18n/locales/en.json.
  *
- * A literal union of every dotted leaf key in en.json (6346 keys),
+ * A literal union of every dotted leaf key in en.json (6362 keys),
  * so `t()` calls are checked at compile time instead of silently rendering a
  * raw key string when a key is typo'd or missing.
  */
@@ -1656,6 +1656,7 @@ export type TranslationKey =
   | 'game.dmTabPanel.dmRoller'
   | 'game.dmTabPanel.editMap'
   | 'game.dmTabPanel.fallingDamage'
+  | 'game.dmTabPanel.generateBattlemap'
   | 'game.dmTabPanel.gridSettings'
   | 'game.dmTabPanel.groupRoll'
   | 'game.dmTabPanel.handouts'
@@ -2004,6 +2005,19 @@ export type TranslationKey =
   | 'game.gameLayout.gameSession'
   | 'game.gameLayout.gameSidebar'
   | 'game.gameLayout.questObjectiveAutoDetected'
+  | 'game.generateBattlemap.create'
+  | 'game.generateBattlemap.descriptionLabel'
+  | 'game.generateBattlemap.descriptionPlaceholder'
+  | 'game.generateBattlemap.error'
+  | 'game.generateBattlemap.generate'
+  | 'game.generateBattlemap.generating'
+  | 'game.generateBattlemap.regenerate'
+  | 'game.generateBattlemap.sizeLabel'
+  | 'game.generateBattlemap.switchToLabel'
+  | 'game.generateBattlemap.themeAuto'
+  | 'game.generateBattlemap.themeLabel'
+  | 'game.generateBattlemap.title'
+  | 'game.generateBattlemap.warningsTitle'
   | 'game.gridControlPanel.cellSize'
   | 'game.gridControlPanel.gridColor'
   | 'game.gridControlPanel.gridOff'
@@ -4734,6 +4748,8 @@ export type TranslationKey =
   | 'pages.adventureManager.tier5to10'
   | 'pages.adventureManager.titleLabel'
   | 'pages.adventureManager.villainAntagonist'
+  | 'pages.aiDmCard.allowMapGeneration'
+  | 'pages.aiDmCard.allowMapGenerationHint'
   | 'pages.aiDmCard.configure'
   | 'pages.aiDmCard.configureTitle'
   | 'pages.aiDmCard.defaultModel'

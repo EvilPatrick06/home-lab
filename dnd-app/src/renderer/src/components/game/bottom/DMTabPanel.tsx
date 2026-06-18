@@ -343,6 +343,9 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
             <button className={btnClass} onClick={() => onOpenModal('aiImage')}>
               {t('game.dmTabPanel.aiImage')}
             </button>
+            <button className={btnClass} onClick={() => onOpenModal('generateBattlemap')}>
+              {t('game.dmTabPanel.generateBattlemap')}
+            </button>
             <button className={btnClass} onClick={() => onOpenModal('commandRef')}>
               {t('game.dmTabPanel.commandReference')}
             </button>

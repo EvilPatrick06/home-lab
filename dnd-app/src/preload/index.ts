@@ -139,6 +139,9 @@ const api = {
       ipcRenderer.invoke(IPC_CHANNELS.AI_CAMPAIGN_QA_ASK, { campaignId, question }),
     campaignQaHistory: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_CAMPAIGN_QA_HISTORY, campaignId),
     campaignQaClear: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_CAMPAIGN_QA_CLEAR, campaignId),
+    // PHASE-34 — battlemap generation.
+    generateBattlemap: (request: Record<string, unknown>) =>
+      ipcRenderer.invoke(IPC_CHANNELS.AI_GENERATE_BATTLEMAP, request),
     // Cloud provider models
     listCloudModels: (providerType: string, apiKey?: string) =>
       ipcRenderer.invoke(IPC_CHANNELS.AI_LIST_CLOUD_MODELS, providerType, apiKey),

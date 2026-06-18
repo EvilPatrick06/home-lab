@@ -540,6 +540,48 @@ const moveTokenCommand: ChatCommand = {
   }
 }
 
+// PHASE-34 34G — generate a battlemap from a prose description (keyboard path to the same pipeline).
+const genmapCommand: ChatCommand = {
+  name: 'genmap',
+  aliases: ['generatemap'],
+  description: 'Generate a battlemap from a description',
+  usage: '/genmap <description>',
+  examples: ['/genmap a two-room crypt with a locked door'],
+  dmOnly: true,
+  category: 'dm',
+  execute: async (args, ctx) => {
+    const description = args.trim()
+    if (!description) {
+      ctx.addSystemMessage('Usage: /genmap <description>')
+      return
+    }
+    const { getActiveCampaignId } = await import('../active-campaign-ref')
+    const campaignId = getActiveCampaignId()
+    if (!campaignId) {
+      ctx.addSystemMessage('No active campaign.')
+      return
+    }
+    ctx.addSystemMessage('Generating battlemap…')
+    try {
+      const res = await window.api.ai.generateBattlemap({ campaignId, prompt: description })
+      if (!res.success || !res.spec) {
+        ctx.addSystemMessage(`Battlemap generation failed: ${res.error ?? 'unknown error'}`)
+        return
+      }
+      const { applyBattlemapSpec } = await import('../map/battlemap/apply-spec')
+      const { getGameStore, getLobbyStore, getNetworkStore } = await import('../../stores/store-accessors')
+      const out = applyBattlemapSpec(res.spec as never, {
+        campaignId,
+        switchTo: true,
+        stores: { getGameStore, getLobbyStore, getNetworkStore }
+      })
+      ctx.broadcastSystemMessage(`Battlemap "${out.mapName}" created.`)
+    } catch (err) {
+      ctx.addSystemMessage(`Battlemap generation failed: ${(err as Error).message}`)
+    }
+  }
+}
+
 export const commands: ChatCommand[] = [
   fogCommand,
   mapCommand,
@@ -557,5 +599,6 @@ export const commands: ChatCommand[] = [
   tokenCloneCommand,
   tokenHideCommand,
   tokenShowCommand,
-  moveTokenCommand
+  moveTokenCommand,
+  genmapCommand
 ]

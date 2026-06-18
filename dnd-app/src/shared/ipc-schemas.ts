@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { BATTLEMAP_THEMES } from './battlemap-spec'
 
 const AiProviderTypeSchema = z.enum(['ollama', 'claude', 'openai', 'gemini'])
 
@@ -29,6 +30,16 @@ export const AiConfigSchema = z.object({
   localEndpointFlavor: z.enum(['ollama', 'llamacpp']).optional(),
   ollamaModel: z.string().optional()
 })
+
+// PHASE-34 — battlemap generation request (LLM → BattlemapSpec).
+export const BattlemapGenerationRequestSchema = z.object({
+  campaignId: z.string().min(1),
+  prompt: z.string().min(1).max(2000),
+  theme: z.enum(BATTLEMAP_THEMES).optional(),
+  widthCells: z.number().int().min(10).max(60).optional(),
+  heightCells: z.number().int().min(10).max(60).optional()
+})
+export type BattlemapGenerationRequest = z.infer<typeof BattlemapGenerationRequestSchema>
 
 // PHASE-33 — AI image generation. No API-key fields: cloud calls reuse the keys ai-service.ts
 // already persists/encrypts; the SD endpoint is keyless on a LAN.

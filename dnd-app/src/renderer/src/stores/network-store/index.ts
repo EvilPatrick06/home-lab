@@ -942,7 +942,7 @@ export function transformUpdatePayloadForPeer(
   // (mirrors the shard `permissionFilter` + render-surface predicates: regions
   // require `visibleToPlayers === true`; drawings drop only `=== false`).
   if (p.addMap && typeof p.addMap === 'object') {
-    const am = p.addMap as { tokens?: unknown; regions?: unknown; drawings?: unknown }
+    const am = p.addMap as { tokens?: unknown; regions?: unknown; drawings?: unknown; pins?: unknown }
     const nextMap: Record<string, unknown> = { ...am }
     if (Array.isArray(am.tokens)) {
       nextMap.tokens = (am.tokens as Array<{ isHidden?: boolean }>).filter((t) => t?.isHidden !== true)
@@ -954,6 +954,11 @@ export function transformUpdatePayloadForPeer(
       nextMap.drawings = (am.drawings as Array<{ visibleToPlayers?: boolean }>).filter(
         (d) => d.visibleToPlayers !== false
       )
+    }
+    // PHASE-34 34E — strip DM-only pins (default visible; drop only explicit false) so AI-generated
+    // enemy-spawn / secret-door pins never leak to players via mid-session map creation.
+    if (Array.isArray(am.pins)) {
+      nextMap.pins = (am.pins as Array<{ visibleToPlayers?: boolean }>).filter((pin) => pin.visibleToPlayers !== false)
     }
     p.addMap = nextMap
   }

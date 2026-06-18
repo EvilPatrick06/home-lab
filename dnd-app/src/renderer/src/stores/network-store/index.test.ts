@@ -612,6 +612,26 @@ describe('transformUpdatePayloadForPeer', () => {
     expect(out.addMap.drawings.map((d) => d.id)).toEqual(['d-vis', 'd-undef'])
   })
 
+  // PHASE-34 34E — DM-only pins (enemy spawns / secret doors) must not leak on a generated map.
+  it('strips DM-only pins from addMap, keeps visible ones (security)', async () => {
+    const { transformUpdatePayloadForPeer } = await import('./index')
+    const out = transformUpdatePayloadForPeer(
+      {
+        addMap: {
+          id: 'm',
+          pins: [
+            { id: 'p-party', label: 'Party Start', visibleToPlayers: true },
+            { id: 'p-enemy', label: 'Enemy spawn', visibleToPlayers: false },
+            { id: 'p-undef', label: 'Note' } // undefined → stays visible
+          ]
+        }
+      },
+      false,
+      makeLookup({})
+    ) as { addMap: { pins: Array<{ id: string }> } }
+    expect(out.addMap.pins.map((p) => p.id)).toEqual(['p-party', 'p-undef'])
+  })
+
   it('passes addMap regions/drawings through unchanged for the host', async () => {
     const { transformUpdatePayloadForPeer } = await import('./index')
     const addMap = { id: 'm', regions: [{ id: 'r-hidden', visibleToPlayers: false }], drawings: [] }

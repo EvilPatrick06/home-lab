@@ -57,6 +57,7 @@ export type ActiveModal =
   | 'triggerManager'
   | 'aiMapAnalysis'
   | 'aiImage'
+  | 'generateBattlemap'
   | 'recaps'
   | 'previouslyOn'
   | 'campaignQa'

@@ -1012,6 +1012,10 @@ export function startChat(
       // PHASE-26 26C: resolve the compaction strategy from the per-campaign flag (cached read).
       // 'scene' skips the inline summarize; 'threshold' (default) is byte-identical to pre-phase.
       conv.setSummarizationMode((await getSceneMemorySettings(request.campaignId)).enabled ? 'scene' : 'threshold')
+      // PHASE-34 34H: advertise generate_battlemap only when the campaign opts in (stable per campaign).
+      conv.mapGenerationAllowed =
+        ((await loadCampaignById(request.campaignId))?.aiDm as { allowMapGeneration?: boolean } | undefined)
+          ?.allowMapGeneration === true
       const { systemPrompt, messages } = await conv.getMessagesForApi(contextBlock, built.breakdown.truncated ?? false)
 
       // Stream response
@@ -1513,6 +1517,21 @@ export async function aiChatOnce(
   task: AiTaskClass = 'summary'
 ): Promise<string> {
   return chatOnce(systemPrompt, userMessage, task)
+}
+
+/**
+ * PHASE-34 — one-shot on the PRIMARY model (NOT task-routed): battlemap generation needs the capable
+ * model regardless of small-model routing. Returns the active provider + its primary model id too, so
+ * the caller can pick a provider-specific path (e.g. Ollama native structured output).
+ */
+export function getPrimaryProviderInfo(): { provider: AiProviderType; model: string } {
+  return { provider: currentConfig.provider, model: currentConfig.model }
+}
+export async function chatOncePrimary(systemPrompt: string, userMessage: string): Promise<string> {
+  const provider = getActiveProvider()
+  const model =
+    currentConfig.provider === 'ollama' ? await resolveOllamaModel(currentConfig.model) : currentConfig.model
+  return provider.chatOnce(systemPrompt, [{ role: 'user', content: userMessage }], model)
 }
 
 // ── Scene Preparation ──

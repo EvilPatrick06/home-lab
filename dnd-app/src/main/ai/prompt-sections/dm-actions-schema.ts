@@ -289,3 +289,8 @@ Response: Aria leads the way... [narrative] ...
 [DM_ACTIONS]
 {"actions": [{"action": "set_ambient_light", "level": "dim"}, {"action": "play_ambient", "loop": "ambient-cave"}]}
 [/DM_ACTIONS]`
+
+// PHASE-34 34H — advertised ONLY when the campaign's allowMapGeneration flag is on (appended by
+// assembleSystemPrompt). Kept out of the always-on schema so a stable prefix preserves the KV cache.
+export const GENERATE_BATTLEMAP_PROMPT = `
+- \`generate_battlemap\`: {description, theme?, widthCells?, heightCells?, switchTo?} — generate a brand-new tactical battlemap from a prose description (rooms/corridors/doors/lights/terrain/spawns). Use when the party enters a location with no existing map. After the map is created, a system message reports its name and spawn coordinates — then use switch_map (if not auto-switched) and place_creature at those coordinates.`

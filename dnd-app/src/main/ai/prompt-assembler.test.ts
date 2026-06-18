@@ -62,4 +62,11 @@ describe('assembleSystemPrompt', () => {
   it('is deterministic (same output every call — a stable cacheable prefix)', () => {
     expect(assembleSystemPrompt()).toBe(prompt)
   })
+
+  // PHASE-34 34H — generate_battlemap advertised only when the campaign opts in.
+  it('omits generate_battlemap by default, includes it when allowMapGeneration is set', () => {
+    expect(assembleSystemPrompt()).not.toContain('generate_battlemap')
+    expect(assembleSystemPrompt({ allowMapGeneration: false })).not.toContain('generate_battlemap')
+    expect(assembleSystemPrompt({ allowMapGeneration: true })).toContain('generate_battlemap')
+  })
 })

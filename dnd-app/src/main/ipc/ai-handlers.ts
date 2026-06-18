@@ -8,6 +8,7 @@ import {
   AdvanceChapterSchema,
   AiChatRequestSchema,
   AiConfigSchema,
+  BattlemapGenerationRequestSchema,
   BmoNarrateRequestSchema,
   CampaignQaAskSchema,
   ConversationDataSchema,
@@ -37,6 +38,7 @@ import {
   setTriggerObserverEnabled
 } from '../ai/ai-trigger-observer'
 import { analyzeMapState, type MapStateForVisionAnalysis } from '../ai/ai-vision'
+import { generateBattlemapSpec } from '../ai/battlemap-generator'
 import { askCampaignQuestion } from '../ai/campaign-qa'
 import { setClaudeApiKey } from '../ai/claude-client'
 import { buildContext, getLastTokenBreakdown } from '../ai/context-builder'
@@ -458,6 +460,13 @@ export function registerAiHandlers(): void {
     } catch (e) {
       return { success: false, error: e instanceof Error ? e.message : 'Unknown error generating recap' }
     }
+  })
+
+  // PHASE-34 — generate a battlemap spec from a prose prompt via the configured provider.
+  handle(IPC_CHANNELS.AI_GENERATE_BATTLEMAP, async (_event, request: unknown) => {
+    const parsed = BattlemapGenerationRequestSchema.safeParse(request)
+    if (!parsed.success) return { success: false, error: 'Invalid request' }
+    return generateBattlemapSpec(parsed.data)
   })
 
   // PHASE-31 31B — "Previously on…" session-start recap (cached on disk; force regenerates).

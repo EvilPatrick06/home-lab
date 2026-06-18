@@ -188,3 +188,16 @@ regenerates the scene in a different direction (directive is main-side context o
 `player:x-card`. A cheap post-generation `scanForLineHits` raises a DM-only warning (`safetyFlags` on
 the `onDone`/`AI_STREAM_DONE` chain) when output may touch a line/banned topic — advisory only, never
 auto-censored. `/dm banlist` lists the ban list (editing lives in the Session Zero card).
+
+## Battlemap generation (PHASE-34)
+
+`generate_battlemap` ({description, theme?, widthCells?, heightCells?, switchTo?}) lets the AI DM create
+a brand-new tactical map from prose. It is **opt-in** (`campaign.aiDm.allowMapGeneration`, default off):
+the action doc (`GENERATE_BATTLEMAP_PROMPT`) is appended to the system prompt by `assembleSystemPrompt`
+ONLY when the flag is on (stable per campaign → KV-cache safe), and `executeGenerateBattlemap` hard-gates
+on the same flag (defense in depth) + single-flights. Pipeline: main `generateBattlemapSpec` (provider →
+validated `BattlemapSpec`, shared `src/shared/battlemap-spec.ts`) → renderer `compileSpec` (geometry) →
+`renderBattlemap` (procedural PNG) → `applyBattlemapSpec` (build + `addMap` + lights + optional switch).
+A `[Battlemap]` DM summary reports the name + spawn coordinates so the AI can `switch_map` + `place_creature`.
+DM-only enemy-spawn / secret-door pins are wire-filtered (never sent to players). Manual paths: the Generate
+Battlemap DM-tool modal and `/genmap <description>`.

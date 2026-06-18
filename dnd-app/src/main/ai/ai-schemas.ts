@@ -2,6 +2,7 @@
 // Provides runtime validation for [STAT_CHANGES] and [DM_ACTIONS] JSON blocks.
 
 import { z } from 'zod'
+import { BATTLEMAP_THEMES } from '../../shared/battlemap-spec'
 
 // ── JSON Repair ──
 
@@ -543,6 +544,16 @@ const RemoveShopItemSchema = z.object({
 const SwitchMapSchema = z.object({
   action: z.literal('switch_map'),
   mapName: z.string()
+})
+
+// PHASE-34 34H — generate a brand-new battlemap from a prose description (opt-in; default OFF).
+const GenerateBattlemapActionSchema = z.object({
+  action: z.literal('generate_battlemap'),
+  description: z.string().min(1),
+  theme: z.enum(BATTLEMAP_THEMES).optional(),
+  widthCells: z.number().int().optional(),
+  heightCells: z.number().int().optional(),
+  switchTo: z.boolean().optional()
 })
 
 const AddSidebarEntrySchema = z.object({
@@ -1395,6 +1406,7 @@ export const DM_ACTION_SCHEMAS: Record<string, z.ZodType> = {
   add_shop_item: AddShopItemSchema,
   remove_shop_item: RemoveShopItemSchema,
   switch_map: SwitchMapSchema,
+  generate_battlemap: GenerateBattlemapActionSchema,
   add_sidebar_entry: AddSidebarEntrySchema,
   remove_sidebar_entry: RemoveSidebarEntrySchema,
   start_timer: StartTimerSchema,
