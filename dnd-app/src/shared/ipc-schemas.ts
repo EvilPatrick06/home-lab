@@ -1,12 +1,19 @@
 import { z } from 'zod'
 import { BATTLEMAP_THEMES } from './battlemap-spec'
 
+// PHASE-43 (CodeQL SSRF hardening): user-configurable endpoint URLs must be http(s).
+// This is a scheme guard at the config boundary — it blocks file:/gopher:/data: etc.
+// from a poisoned or typo'd Settings value while still allowing ANY http(s) host
+// (the configurable-endpoint feature — remote Ollama/SD servers — is preserved).
+const isHttpUrl = (u: string): boolean => /^https?:\/\//i.test(u)
+const HTTP_URL_MSG = 'must be an http(s) URL'
+
 const AiProviderTypeSchema = z.enum(['ollama', 'claude', 'openai', 'gemini'])
 
 export const AiConfigSchema = z.object({
   provider: AiProviderTypeSchema.default('ollama'),
   model: z.string(),
-  ollamaUrl: z.string().default('http://localhost:11434'),
+  ollamaUrl: z.string().refine(isHttpUrl, HTTP_URL_MSG).default('http://localhost:11434'),
   claudeApiKey: z.string().optional(),
   openaiApiKey: z.string().optional(),
   geminiApiKey: z.string().optional(),
@@ -50,7 +57,7 @@ export const AiImageConfigSchema = z.object({
   enabled: z.boolean().default(false),
   provider: AiImageProviderTypeSchema.default('sd-webui'),
   fallbackProvider: AiImageProviderTypeSchema.or(z.literal('none')).default('none'),
-  sdWebuiUrl: z.string().url().default('http://127.0.0.1:7860'),
+  sdWebuiUrl: z.string().url().refine(isHttpUrl, HTTP_URL_MSG).default('http://127.0.0.1:7860'),
   sdModel: z.string().max(200).optional(), // override_settings.sd_model_checkpoint
   sdSteps: z.number().int().min(1).max(150).default(28),
   sdSampler: z.string().max(60).default('Euler a'),

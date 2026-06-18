@@ -99,6 +99,17 @@ describe('ipc-schemas', () => {
       expect(result.success).toBe(true)
     })
 
+    // PHASE-43 (CodeQL SSRF hardening): ollamaUrl must be http(s) — any host is fine
+    // (remote Ollama servers), but file:/gopher:/data: schemes are rejected.
+    it('accepts http(s) ollamaUrl hosts (incl. remote) but rejects non-http schemes', () => {
+      for (const url of ['http://localhost:11434', 'https://gpu.example.com:11434', 'http://192.168.1.50:11434']) {
+        expect(AiConfigSchema.safeParse({ provider: 'ollama', model: 'm', ollamaUrl: url }).success).toBe(true)
+      }
+      for (const bad of ['file:///etc/passwd', 'gopher://internal:70/', 'data:text/plain,x', 'ftp://host/f']) {
+        expect(AiConfigSchema.safeParse({ provider: 'ollama', model: 'm', ollamaUrl: bad }).success).toBe(false)
+      }
+    })
+
     it('should default provider to ollama', () => {
       const result = AiConfigSchema.safeParse({
         model: 'llama3',
