@@ -162,6 +162,29 @@ Full map in source — use `grep "@app.route" bmo/pi/app.py` for current list.
 > + cached-state freshness) — never a blocking health probe. `register_sync_routes` and
 > `scripts/apply_patch.py` were deleted. After pulling, restart **both** `bmo` and `bmo-dm-bot`.
 
+#### Play-by-post (PHASE-36)
+
+| Path | Method | Purpose |
+|---|---|---|
+| `/api/discord/pbp/start` | POST | Start an async turn queue + ping the first player (also `/api/v1/…`) |
+| `/api/discord/pbp/advance` | POST | End the current turn → ping the next (idempotent via `event_id`) |
+| `/api/discord/pbp/skip` | POST | Skip the current turn → ping the next |
+| `/api/discord/pbp/scene` | POST | Reset the queue for a new scene (preserves claims) |
+| `/api/discord/pbp/stop` | POST | End the session (idempotent) |
+| `/api/discord/pbp/status` | GET | `?campaign_id=` → session snapshot + `overdue` |
+
+> **PHASE-36:** same proxy topology as the DM-bot routes above — `app.py` forwards to
+> `:5006/control/pbp/*` inside `bmo-dm-bot`. The turn queue is persisted to
+> `~/home-lab/bmo/pi/data/pbp_sessions.json` (survives bot/service restarts; **safe to
+> delete to hard-reset all queues**). A `PbpManager` reminder loop (every
+> `PBP_REMINDER_TICK_SECONDS`, default 600 s) recomputes overdue-ness from disk and sends
+> ONE reminder per turn, plus an opt-in auto-skip at 2× the cadence. Players self-register
+> with `/pbp claim` so the bot can `<@mention>` them (mentions only ping from message
+> *content*, so unclaimed players degrade to a named-but-unpinged line). PBP is **text-only**
+> — it needs **no** active voice session. Advance is idempotent (`event_id`) + staleness-guarded
+> (`expected_turn_index`). **No systemd change**; after pulling, restart **both** `bmo` and
+> `bmo-dm-bot`.
+
 ### Game registry (Phase 29f — public LAN game discovery)
 
 | Path | Method | Purpose |

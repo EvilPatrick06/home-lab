@@ -309,6 +309,78 @@ export async function getDmStatus(): Promise<BridgeResponse> {
   return bmoPiFetch('/api/discord/dm/status')
 }
 
+// ─── PHASE-36 36D: play-by-post turn queue ───
+// Every advance/skip carries a fresh event_id so bmoPiFetch's 5xx/network retry can never
+// double-advance the queue (the Pi de-dupes on event_id); expected_turn_index adds optimistic
+// concurrency against two distinct advance intents racing.
+export interface PbpStartPayload {
+  campaignId: string
+  scene: string
+  participants: Array<{ name: string; character?: string }>
+  channelId?: string
+  reminderHours?: number
+  autoSkip?: boolean
+}
+
+export async function pbpStart(p: PbpStartPayload): Promise<BridgeResponse> {
+  return bmoPiFetch('/api/discord/pbp/start', {
+    method: 'POST',
+    body: JSON.stringify({
+      campaign_id: p.campaignId,
+      scene: p.scene,
+      participants: p.participants,
+      channel_id: p.channelId,
+      reminder_hours: p.reminderHours,
+      auto_skip: p.autoSkip
+    })
+  })
+}
+
+export async function pbpAdvance(
+  campaignId: string,
+  opts: { expectedTurnIndex?: number; excerpt?: string } = {}
+): Promise<BridgeResponse> {
+  return bmoPiFetch('/api/discord/pbp/advance', {
+    method: 'POST',
+    body: JSON.stringify({
+      campaign_id: campaignId,
+      event_id: randomUUID(),
+      expected_turn_index: opts.expectedTurnIndex,
+      excerpt: opts.excerpt
+    })
+  })
+}
+
+export async function pbpSkip(campaignId: string, opts: { expectedTurnIndex?: number } = {}): Promise<BridgeResponse> {
+  return bmoPiFetch('/api/discord/pbp/skip', {
+    method: 'POST',
+    body: JSON.stringify({
+      campaign_id: campaignId,
+      event_id: randomUUID(),
+      expected_turn_index: opts.expectedTurnIndex
+    })
+  })
+}
+
+export async function pbpSetScene(
+  campaignId: string,
+  scene: string,
+  participants?: PbpStartPayload['participants']
+): Promise<BridgeResponse> {
+  return bmoPiFetch('/api/discord/pbp/scene', {
+    method: 'POST',
+    body: JSON.stringify({ campaign_id: campaignId, scene, participants })
+  })
+}
+
+export async function pbpStop(campaignId: string): Promise<BridgeResponse> {
+  return bmoPiFetch('/api/discord/pbp/stop', { method: 'POST', body: JSON.stringify({ campaign_id: campaignId }) })
+}
+
+export async function pbpStatus(campaignId: string): Promise<BridgeResponse> {
+  return bmoPiFetch(`/api/discord/pbp/status?campaign_id=${encodeURIComponent(campaignId)}`)
+}
+
 // ─── VTT → Pi: Push state to the Discord bot ───
 
 /** Push the current initiative order to the Pi so Discord players can see it */

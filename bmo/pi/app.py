@@ -163,7 +163,7 @@ from services.system_audio import set_system_volume as _set_system_volume  # noq
 # PHASE-16 16A — the deferred-init limiter + per-route constants live in extensions.py;
 # init_app binds it here, after `app = Flask(...)`. Only the two constants for routes that
 # stayed in app.py are imported (narrate ×1, games ×4); the rest moved with their routes.
-from extensions import RATE_LIMIT_GAMES, RATE_LIMIT_NARRATE, RATE_LIMIT_RECAP, limiter  # noqa: E402
+from extensions import RATE_LIMIT_GAMES, RATE_LIMIT_NARRATE, RATE_LIMIT_PBP, RATE_LIMIT_RECAP, limiter  # noqa: E402
 from services.settings_store import load_setting as _load_setting  # noqa: E402
 
 limiter.init_app(app)
@@ -1436,6 +1436,50 @@ def api_discord_dm_narrate_cancel():
 def api_discord_dm_status():
     """Proxy: current DM bot session status (PHASE-20 20C)."""
     return _proxy_to_dm_control("status", "GET")
+
+
+# ── PHASE-36 36C: play-by-post proxies (forward to the bot's /control/pbp/*) ──
+@app.route("/api/discord/pbp/start", methods=["POST"])
+@app.route("/api/v1/discord/pbp/start", methods=["POST"])
+@limiter.limit(RATE_LIMIT_PBP)
+def api_discord_pbp_start():
+    return _proxy_to_dm_control("pbp/start", "POST", request.json or {})
+
+
+@app.route("/api/discord/pbp/advance", methods=["POST"])
+@app.route("/api/v1/discord/pbp/advance", methods=["POST"])
+@limiter.limit(RATE_LIMIT_PBP)
+def api_discord_pbp_advance():
+    return _proxy_to_dm_control("pbp/advance", "POST", request.json or {})
+
+
+@app.route("/api/discord/pbp/skip", methods=["POST"])
+@app.route("/api/v1/discord/pbp/skip", methods=["POST"])
+@limiter.limit(RATE_LIMIT_PBP)
+def api_discord_pbp_skip():
+    return _proxy_to_dm_control("pbp/skip", "POST", request.json or {})
+
+
+@app.route("/api/discord/pbp/scene", methods=["POST"])
+@app.route("/api/v1/discord/pbp/scene", methods=["POST"])
+@limiter.limit(RATE_LIMIT_PBP)
+def api_discord_pbp_scene():
+    return _proxy_to_dm_control("pbp/scene", "POST", request.json or {})
+
+
+@app.route("/api/discord/pbp/stop", methods=["POST"])
+@app.route("/api/v1/discord/pbp/stop", methods=["POST"])
+@limiter.limit(RATE_LIMIT_PBP)
+def api_discord_pbp_stop():
+    return _proxy_to_dm_control("pbp/stop", "POST", request.json or {})
+
+
+@app.route("/api/discord/pbp/status", methods=["GET"])
+@app.route("/api/v1/discord/pbp/status", methods=["GET"])
+def api_discord_pbp_status():
+    campaign_id = request.args.get("campaign_id", "")
+    from urllib.parse import quote
+    return _proxy_to_dm_control(f"pbp/status?campaign_id={quote(campaign_id)}", "GET")
 
 
 @app.route("/api/discord/dm/recap", methods=["GET"])

@@ -51,3 +51,5 @@ RATE_LIMIT_NARRATE = os.environ.get("BMO_NARRATE_RATE_LIMIT", "30 per minute")
 RATE_LIMIT_GAMES = os.environ.get("BMO_GAMES_RATE_LIMIT", "30 per minute")
 # PHASE-31 31E — live recap is a billable cloud LLM call; keep it tight.
 RATE_LIMIT_RECAP = os.environ.get("BMO_RECAP_RATE_LIMIT", "6 per minute")
+# PHASE-36 36C — play-by-post control proxies (start/advance/skip/scene/stop).
+RATE_LIMIT_PBP = os.environ.get("BMO_PBP_RATE_LIMIT", "60 per minute")

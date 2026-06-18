@@ -654,6 +654,7 @@ class DMBot(commands.Bot):
         self._narration_task = None       # 20B narration worker
         self._control_runner = None       # 20C aiohttp control server
         self._voice_health_task = None    # 20D rejoin loop
+        self._pbp_reminder_task = None    # 36B play-by-post reminder loop
         self._stopping: bool = False      # 20C stop idempotency guard
         self._last_session_end = None     # 20D observable session-end trace
         self._voice_casting = VoiceCasting()  # 21C per-NPC casting (mtime-reloaded)
@@ -679,6 +680,10 @@ class DMBot(commands.Bot):
             _npc_cmd, _encounter_cmd, _tavern_cmd, _monster_cmd,
         ]:
             self.tree.add_command(cmd)
+        # PHASE-36 36B: play-by-post turn queue (slash group + manager).
+        from bots.pbp import PbpManager, pbp_group
+        self.tree.add_command(pbp_group)
+        self.pbp = PbpManager(self)
 
     async def setup_hook(self) -> None:
         """Sync slash commands on bot startup."""
@@ -710,6 +715,9 @@ class DMBot(commands.Bot):
         # PHASE-20 20D: voice-health rejoin loop.
         if self._voice_health_task is None:
             self._voice_health_task = asyncio.create_task(self._voice_health_loop())
+        # PHASE-36 36B: play-by-post reminder loop (restart-safe; reads the store each tick).
+        if self._pbp_reminder_task is None:
+            self._pbp_reminder_task = asyncio.create_task(self.pbp.reminder_loop())
         # PHASE-20 20C: loopback control server (app.py proxies to it).
         try:
             from bots.dm_bot_control import start_control_server
@@ -719,7 +727,7 @@ class DMBot(commands.Bot):
 
     async def close(self) -> None:
         """PHASE-20: tear down background tasks + control server cleanly."""
-        for task in (self._narration_task, self._voice_health_task):
+        for task in (self._narration_task, self._voice_health_task, self._pbp_reminder_task):
             if task is not None:
                 task.cancel()
         if self._control_runner is not None:

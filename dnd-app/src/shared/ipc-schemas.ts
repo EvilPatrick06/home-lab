@@ -415,3 +415,28 @@ export const VoiceCastResetSchema = z.object({
   speaker: z.string().min(1).max(40)
 })
 export type ValidatedVoiceCastSet = z.infer<typeof VoiceCastSetSchema>
+
+// ── PHASE-36 36D: play-by-post (zod at the BMO_PBP_* boundary) ──
+export const PbpParticipantSchema = z.object({
+  name: z.string().min(1).max(64),
+  character: z.string().max(64).optional()
+})
+export const PbpStartSchema = z.object({
+  campaignId: z.string().min(1),
+  scene: z.string().min(1).max(200),
+  participants: z.array(PbpParticipantSchema).min(1).max(12),
+  channelId: z.string().optional(),
+  reminderHours: z.number().min(1).max(168).optional(),
+  autoSkip: z.boolean().optional()
+})
+export const PbpAdvanceSchema = z.object({
+  campaignId: z.string().min(1),
+  expectedTurnIndex: z.number().int().nonnegative().optional(),
+  excerpt: z.string().max(500).optional()
+})
+export const PbpSceneSchema = z.object({
+  campaignId: z.string().min(1),
+  scene: z.string().min(1).max(200),
+  participants: z.array(PbpParticipantSchema).min(1).max(12).optional()
+})
+export const PbpCampaignSchema = z.object({ campaignId: z.string().min(1) })

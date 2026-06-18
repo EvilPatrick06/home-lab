@@ -282,6 +282,83 @@ async def _handle_recap(request: web.Request) -> web.Response:
     return web.json_response({"ok": True, "recap": recap})
 
 
+# ── PHASE-36 36C: play-by-post control routes ────────────────────
+async def _handle_pbp_start(request: web.Request) -> web.Response:
+    bot = request.app["bot"]
+    body = await _json(request)
+    if not body.get("campaign_id") or not body.get("scene") or not body.get("participants"):
+        return web.json_response({"error": "missing_fields"}, status=400)
+    result = await bot.pbp.start(
+        body["campaign_id"], body["scene"], body["participants"],
+        body.get("channel_id"), body.get("reminder_hours", 24.0), bool(body.get("auto_skip", False)),
+    )
+    if result.get("ok"):
+        return web.json_response(result, status=200)
+    code = result.get("error")
+    status = {"channel_not_found": 404, "already_active": 409}.get(code, 400)
+    return web.json_response(result, status=status)
+
+
+async def _handle_pbp_advance(request: web.Request) -> web.Response:
+    bot = request.app["bot"]
+    body = await _json(request)
+    if not body.get("campaign_id") or not body.get("event_id"):
+        return web.json_response({"error": "missing_fields"}, status=400)
+    result = await bot.pbp.advance(
+        body["campaign_id"], body["event_id"],
+        expected_turn_index=body.get("expected_turn_index"), excerpt=body.get("excerpt"),
+    )
+    if result.get("error") == "not_active":
+        return web.json_response(result, status=404)
+    # advanced / duplicate / stale_turn all return HTTP 200 — the body is the truth channel
+    # (a 4xx/5xx would trigger the VTT's retry, which can't fix a semantic stale-turn anyway).
+    return web.json_response(result, status=200)
+
+
+async def _handle_pbp_skip(request: web.Request) -> web.Response:
+    bot = request.app["bot"]
+    body = await _json(request)
+    if not body.get("campaign_id") or not body.get("event_id"):
+        return web.json_response({"error": "missing_fields"}, status=400)
+    result = await bot.pbp.advance(
+        body["campaign_id"], body["event_id"],
+        expected_turn_index=body.get("expected_turn_index"), reason="skip",
+    )
+    if result.get("error") == "not_active":
+        return web.json_response(result, status=404)
+    return web.json_response(result, status=200)
+
+
+async def _handle_pbp_scene(request: web.Request) -> web.Response:
+    bot = request.app["bot"]
+    body = await _json(request)
+    if not body.get("campaign_id") or not body.get("scene"):
+        return web.json_response({"error": "missing_fields"}, status=400)
+    result = await bot.pbp.set_scene(body["campaign_id"], body["scene"], participants=body.get("participants"))
+    if result.get("error") == "not_active":
+        return web.json_response(result, status=404)
+    if not result.get("ok"):
+        return web.json_response(result, status=400)
+    return web.json_response(result, status=200)
+
+
+async def _handle_pbp_stop(request: web.Request) -> web.Response:
+    bot = request.app["bot"]
+    body = await _json(request)
+    if not body.get("campaign_id"):
+        return web.json_response({"error": "missing_fields"}, status=400)
+    result = await bot.pbp.stop(body["campaign_id"])
+    return web.json_response(result, status=200)  # idempotent
+
+
+async def _handle_pbp_status(request: web.Request) -> web.Response:
+    bot = request.app["bot"]
+    campaign_id = request.query.get("campaign_id")
+    if not campaign_id:
+        return web.json_response({"error": "missing_fields"}, status=400)
+    return web.json_response(bot.pbp.status(campaign_id), status=200)
+
+
 def build_control_app(bot) -> web.Application:
     """Build the control aiohttp app for `bot` (no port binding — testable)."""
     app = web.Application()
@@ -294,6 +371,13 @@ def build_control_app(bot) -> web.Application:
     app.router.add_post("/control/sync/state", _handle_sync_state)
     app.router.add_get("/control/status", _handle_status)
     app.router.add_get("/control/recap", _handle_recap)
+    # PHASE-36 36C: play-by-post
+    app.router.add_post("/control/pbp/start", _handle_pbp_start)
+    app.router.add_post("/control/pbp/advance", _handle_pbp_advance)
+    app.router.add_post("/control/pbp/skip", _handle_pbp_skip)
+    app.router.add_post("/control/pbp/scene", _handle_pbp_scene)
+    app.router.add_post("/control/pbp/stop", _handle_pbp_stop)
+    app.router.add_get("/control/pbp/status", _handle_pbp_status)
     return app
 
 

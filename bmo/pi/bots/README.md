@@ -23,6 +23,10 @@ control server in this process (`dm_bot_control.py`, `build_control_app` /
 | `VTT_SYNC_URL` | — (empty) | VTT sync receiver, e.g. `http://10.0.0.5:5001`. **Empty/unset = Pi→VTT sync disabled** (no retry threads). |
 | `VTT_SYNC_TOKEN` | — | bearer for the VTT receiver; falls back to `BMO_API_KEY`. Must equal the VTT app's `bmoApiKey`. |
 | `KOKORO_TTS_URL` / `KOKORO_TTS_VOICE` / `PIPER_DM_MODEL` / `BMO_VOICE_CAST_PATH` | — | PHASE-21 TTS backend ladder + voice-cast store (see `services/discord_tts.py`, `voice_casting.py`). |
+| `DISCORD_PBP_CHANNEL` | `play-by-post` | PHASE-36 play-by-post text channel NAME for turn pings |
+| `DISCORD_PBP_CHANNEL_ID` | — | numeric play-by-post channel ID (wins over name) |
+| `PBP_REMINDER_TICK_SECONDS` | `600` | PHASE-36 reminder-loop tick interval |
+| `BMO_PBP_RATE_LIMIT` | `60 per minute` | rate limit on the `/api/discord/pbp/*` POST proxies |
 
 ### Narrate result vocabulary (`/control/narrate` → `result`)
 
@@ -47,6 +51,25 @@ never breaks the bot.
 syncs render **one** live tracker message in the session text channel — edited (≥1s
 spacing under a lock), not reposted. `/control/status.vtt_sync` surfaces config +
 `last_push` + cached-state freshness without any network probe.
+
+### PHASE-36 play-by-post (`bots/pbp.py`)
+
+Async turn queue persisted to `~/home-lab/bmo/pi/data/pbp_sessions.json` (survives restarts;
+delete to hard-reset). Pings whoever is up in the `DISCORD_PBP_CHANNEL`; a reminder loop sends
+one nudge per turn at the configured cadence and an opt-in auto-skip at 2×.
+
+**`/pbp` slash commands** (channel-scoped to the session's channel):
+
+- `/pbp claim character:<name>` — link your Discord account to a participant so you get pinged
+  (case-insensitive, matches name or character; first-match exact > startswith).
+- `/pbp status` — public embed: scene, round, ordered queue (✅ claimed / ⬜ unclaimed, ▶ current).
+- `/pbp done note:<optional>` — end YOUR turn (only the current claimant); advances + pings next.
+- `/pbp skip` — **requires `manage_guild`**; skips the current turn.
+
+**Advance result vocabulary** (`/control/pbp/advance` → `result`): `advanced` (turn moved, next pinged),
+`duplicate` (repeated `event_id`, no-op), `stale_turn` (`expected_turn_index` mismatch — `ok:false`,
+HTTP 200, the VTT must refresh). Mentions only ping from message **content**, so unclaimed players
+appear as a bold name with no ping until they `/pbp claim`.
 
 ### Session-end reasons (`/control/status` → `last_session_end.reason`)
 

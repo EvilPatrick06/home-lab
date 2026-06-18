@@ -2061,6 +2061,26 @@
       "openScene": "Scene",
       "combatAutoExit": "Combat started — back to the tactical map."
     },
+    "pbp": {
+      "title": "Play-by-post",
+      "activeBadge": "active",
+      "scenePlaceholder": "Scene name (e.g. The Goblin Ambush)",
+      "addParticipant": "+ Add participant",
+      "cadence": "Reminder every",
+      "autoSkip": "Auto-skip overdue turns",
+      "autoSkipHint": "Skip a player after 2× the reminder time.",
+      "start": "Start play-by-post",
+      "round": "Round",
+      "endTurn": "End turn",
+      "skip": "Skip",
+      "stop": "Stop",
+      "autoAdvance": "Auto-advance on AI reply",
+      "unclaimedHint": "Unclaimed players won't be pinged — they can run /pbp claim in Discord.",
+      "channelNotFound": "No Discord channel found — create #play-by-post or set DISCORD_PBP_CHANNEL_ID.",
+      "alreadyActive": "A play-by-post session is already active for this campaign.",
+      "botDown": "The Discord DM bot isn't running.",
+      "staleTurn": "The turn already moved on — refreshed."
+    },
     "generateBattlemap": {
       "title": "Generate Battlemap",
       "descriptionLabel": "Describe the location",

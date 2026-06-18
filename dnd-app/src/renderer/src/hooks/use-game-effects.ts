@@ -17,6 +17,7 @@ import { useAiDmStore } from '../stores/use-ai-dm-store'
 import { useGameStore } from '../stores/use-game-store'
 import type { ChatMessage } from '../stores/use-lobby-store'
 import { useLobbyStore } from '../stores/use-lobby-store'
+import { usePbpStore } from '../stores/use-pbp-store'
 import type { Campaign } from '../types/campaign'
 import type { GameMap, MapToken } from '../types/map'
 import { logger } from '../utils/logger'
@@ -525,6 +526,33 @@ export function useGameEffects({
     })
 
     // 20F: narration is sent by the main process (single gated sender with npc/emotion).
+
+    // PHASE-36 36E: opt-in play-by-post auto-advance — close the current turn when an AI reply
+    // finalizes. Host-only (this effect is gated on isDM), and only when BOTH the persisted toggle
+    // AND an active session for this campaign exist. Fire-and-forget; the Pi de-dupes (event_id) and
+    // the section's next poll reconciles a stale_turn — default behavior is unchanged.
+    const pbp = usePbpStore.getState()
+    if (pbp.autoAdvance && pbp.lastStatus?.active && pbp.lastStatus.campaignId === campaign.id) {
+      window.api
+        .bmoPbpAdvance({
+          campaignId: campaign.id,
+          expectedTurnIndex: pbp.lastStatus.turnIndex,
+          excerpt: messageContent.slice(0, 280)
+        })
+        .then((res) => {
+          const s = res?.session as { turn_index: number; round: number; scene: string; active: boolean } | undefined
+          if (s) {
+            usePbpStore.getState().setLastStatus({
+              active: s.active,
+              turnIndex: s.turn_index,
+              round: s.round,
+              scene: s.scene,
+              campaignId: campaign.id
+            })
+          }
+        })
+        .catch(() => {})
+    }
 
     // Apply stat changes if any — route through approval queue or auto-apply
     if (lastMsg.statChanges && lastMsg.statChanges.length > 0) {

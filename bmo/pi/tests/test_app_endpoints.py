@@ -700,3 +700,39 @@ class TestDiscordDmVoices:
         )
         r = client.delete("/api/discord/dm/voices", json={"campaign_id": "c1", "speaker": "Volo"})
         assert r.status_code == 200 and r.get_json()["reset"] is True
+
+
+# ── PHASE-36 36C: /api/discord/pbp/* proxies ────────────────────────
+class TestDiscordPbpProxy:
+    def test_start_forwards_body_to_control(self, client):
+        import requests
+        fake = MagicMock(status_code=200, json=MagicMock(return_value={"ok": True}))
+        body = {"campaign_id": "c1", "scene": "Crypt", "participants": [{"name": "A"}]}
+        with patch.object(requests, "post", return_value=fake) as mock_post:
+            r = client.post("/api/discord/pbp/start", json=body)
+        assert r.status_code == 200 and r.get_json()["ok"] is True
+        assert mock_post.call_args[0][0].endswith("/control/pbp/start")
+        assert mock_post.call_args.kwargs["json"]["scene"] == "Crypt"
+
+    def test_advance_forwards_event_id(self, client):
+        import requests
+        fake = MagicMock(status_code=200, json=MagicMock(return_value={"ok": True, "result": "advanced"}))
+        with patch.object(requests, "post", return_value=fake) as mock_post:
+            r = client.post("/api/discord/pbp/advance", json={"campaign_id": "c1", "event_id": "abc"})
+        assert r.status_code == 200
+        assert mock_post.call_args[0][0].endswith("/control/pbp/advance")
+        assert mock_post.call_args.kwargs["json"]["event_id"] == "abc"
+
+    def test_status_get_forwards_campaign_id(self, client):
+        import requests
+        fake = MagicMock(status_code=200, json=MagicMock(return_value={"ok": True, "session": None, "overdue": False}))
+        with patch.object(requests, "get", return_value=fake) as mock_get:
+            r = client.get("/api/discord/pbp/status?campaign_id=c1")
+        assert r.status_code == 200
+        assert "/control/pbp/status?campaign_id=c1" in mock_get.call_args[0][0]
+
+    def test_connection_error_maps_to_503(self, client):
+        import requests
+        with patch.object(requests, "post", side_effect=requests.ConnectionError("refused")):
+            r = client.post("/api/discord/pbp/stop", json={"campaign_id": "c1"})
+        assert r.status_code == 503 and r.get_json()["error"] == "DM bot not running"

@@ -17,6 +17,10 @@ import {
   NarrationEnabledSchema,
   OracleFateCheckSchema,
   OracleSetChaosSchema,
+  PbpAdvanceSchema,
+  PbpCampaignSchema,
+  PbpSceneSchema,
+  PbpStartSchema,
   QuestObjectiveUpdateSchema,
   SceneLabelSchema,
   SessionStartRecapRequestSchema,
@@ -89,6 +93,12 @@ import {
   getDiscordRecap,
   getDmStatus,
   getVoiceCast,
+  pbpAdvance,
+  pbpSetScene,
+  pbpSkip,
+  pbpStart,
+  pbpStatus,
+  pbpStop,
   resetVoiceCast,
   sendNarration,
   setBargeInEnabled,
@@ -1105,6 +1115,41 @@ export function registerAiHandlers(): void {
   // PHASE-31 31E — live/last Discord session recap (50s/no-retry in the bridge).
   handle(IPC_CHANNELS.BMO_DISCORD_RECAP, async (_e, mode: unknown) => {
     return getDiscordRecap(mode === 'last' ? 'last' : 'live')
+  })
+
+  // PHASE-36 36D: play-by-post — single payload object, zod-validated at the boundary.
+  handle(IPC_CHANNELS.BMO_PBP_START, async (_e, payload: unknown) => {
+    const parsed = PbpStartSchema.safeParse(payload)
+    if (!parsed.success) return { ok: false, error: 'invalid pbp start payload' }
+    return pbpStart(parsed.data)
+  })
+  handle(IPC_CHANNELS.BMO_PBP_ADVANCE, async (_e, payload: unknown) => {
+    const parsed = PbpAdvanceSchema.safeParse(payload)
+    if (!parsed.success) return { ok: false, error: 'invalid pbp advance payload' }
+    return pbpAdvance(parsed.data.campaignId, {
+      expectedTurnIndex: parsed.data.expectedTurnIndex,
+      excerpt: parsed.data.excerpt
+    })
+  })
+  handle(IPC_CHANNELS.BMO_PBP_SKIP, async (_e, payload: unknown) => {
+    const parsed = PbpAdvanceSchema.safeParse(payload)
+    if (!parsed.success) return { ok: false, error: 'invalid pbp skip payload' }
+    return pbpSkip(parsed.data.campaignId, { expectedTurnIndex: parsed.data.expectedTurnIndex })
+  })
+  handle(IPC_CHANNELS.BMO_PBP_SET_SCENE, async (_e, payload: unknown) => {
+    const parsed = PbpSceneSchema.safeParse(payload)
+    if (!parsed.success) return { ok: false, error: 'invalid pbp scene payload' }
+    return pbpSetScene(parsed.data.campaignId, parsed.data.scene, parsed.data.participants)
+  })
+  handle(IPC_CHANNELS.BMO_PBP_STOP, async (_e, payload: unknown) => {
+    const parsed = PbpCampaignSchema.safeParse(payload)
+    if (!parsed.success) return { ok: false, error: 'invalid pbp stop payload' }
+    return pbpStop(parsed.data.campaignId)
+  })
+  handle(IPC_CHANNELS.BMO_PBP_STATUS, async (_e, payload: unknown) => {
+    const parsed = PbpCampaignSchema.safeParse(payload)
+    if (!parsed.success) return { ok: false, error: 'invalid pbp status payload' }
+    return pbpStatus(parsed.data.campaignId)
   })
 
   // PHASE-20 20F: renderer pushes the Speak-narration toggle value here so the

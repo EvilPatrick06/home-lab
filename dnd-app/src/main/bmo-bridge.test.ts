@@ -28,6 +28,9 @@ import {
   cancelNarration,
   getDiscordRecap,
   getDmStatus,
+  pbpAdvance,
+  pbpStart,
+  pbpStatus,
   sendNarration,
   startDiscordDm,
   startSyncReceiver,
@@ -370,5 +373,70 @@ describe('sync receiver hardening (Phase 28a.2/.3/.4)', () => {
     expect(res.status).toBe(200)
     const call = sendSpy.mock.calls.find((c) => c[0] === IPC_CHANNELS.BMO_SYNC_INITIATIVE_EVENT)
     expect(call).toBeDefined() // not the double-used invoke channel
+  })
+})
+
+// PHASE-36 36D — play-by-post bridge functions
+describe('play-by-post bridge (PHASE-36 36D)', () => {
+  beforeEach(() => vi.useFakeTimers())
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.restoreAllMocks()
+    vi.unstubAllGlobals()
+  })
+
+  it('pbpAdvance POSTs to /api/discord/pbp/advance with a non-empty event_id + snake_case keys', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, result: 'advanced' }) })
+    vi.stubGlobal('fetch', fetchMock)
+    const p = pbpAdvance('c1', { expectedTurnIndex: 2 })
+    await vi.runAllTimersAsync()
+    await p
+    expect(String(fetchMock.mock.calls[0][0])).toContain('/api/discord/pbp/advance')
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body)
+    expect(body.campaign_id).toBe('c1')
+    expect(body.expected_turn_index).toBe(2)
+    expect(typeof body.event_id).toBe('string')
+    expect(body.event_id.length).toBeGreaterThan(0)
+  })
+
+  it('generates a different event_id on each advance', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true }) })
+    vi.stubGlobal('fetch', fetchMock)
+    const p1 = pbpAdvance('c1')
+    await vi.runAllTimersAsync()
+    await p1
+    const p2 = pbpAdvance('c1')
+    await vi.runAllTimersAsync()
+    await p2
+    const id1 = JSON.parse(fetchMock.mock.calls[0][1].body).event_id
+    const id2 = JSON.parse(fetchMock.mock.calls[1][1].body).event_id
+    expect(id1).not.toBe(id2)
+  })
+
+  it('pbpStart maps the camelCase payload to a snake_case body', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true }) })
+    vi.stubGlobal('fetch', fetchMock)
+    const p = pbpStart({
+      campaignId: 'c1',
+      scene: 'Crypt',
+      participants: [{ name: 'A' }],
+      reminderHours: 48,
+      autoSkip: true
+    })
+    await vi.runAllTimersAsync()
+    await p
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body)
+    expect(body.campaign_id).toBe('c1')
+    expect(body.reminder_hours).toBe(48)
+    expect(body.auto_skip).toBe(true)
+  })
+
+  it('pbpStatus hits the query-string URL with the campaign id encoded', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, session: null }) })
+    vi.stubGlobal('fetch', fetchMock)
+    const p = pbpStatus('c1/x')
+    await vi.runAllTimersAsync()
+    await p
+    expect(String(fetchMock.mock.calls[0][0])).toContain('/api/discord/pbp/status?campaign_id=c1%2Fx')
   })
 })

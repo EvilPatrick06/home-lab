@@ -9,6 +9,7 @@ import { useNarrationTtsStore } from '../../../stores/use-narration-tts-store'
 import type { Campaign } from '../../../types/campaign'
 import { pushDmAlert } from '../overlays/DmAlertTray'
 import DiscordSessionSection from './DiscordSessionSection'
+import PlayByPostSection from './PlayByPostSection'
 import VoiceCastSection from './VoiceCastSection'
 
 const DMAudioPanel = lazy(() => import('./DMAudioPanel'))
@@ -234,6 +235,8 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
                 </button>
                 {/* PHASE-20 20G: in-app Discord session start/stop/status. */}
                 <DiscordSessionSection campaignId={campaign.id} narrationEnabled={narrationTtsEnabled} />
+                {/* PHASE-36 36E: async play-by-post turn queue (DM-only). */}
+                <PlayByPostSection campaign={campaign} />
                 <Suspense
                   fallback={
                     <div className="text-xs text-gray-500 w-full">{t('game.dmTabPanel.loadingContextPanel')}</div>

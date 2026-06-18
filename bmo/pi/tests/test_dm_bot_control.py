@@ -666,3 +666,85 @@ async def test_control_recap_last_mode_404_when_none(monkeypatch):
         assert resp.status == 404 and (await resp.json())["error"] == "no_sessions"
     finally:
         await client.close()
+
+
+# ── PHASE-36 36C: play-by-post control routes ───────────────────────
+def _pbp_bot(tmp_path):
+    import discord
+    from bots.pbp import PbpManager
+    from services.pbp_store import PbpStore
+
+    ch = MagicMock(spec=discord.TextChannel)
+    ch.id = 42
+    ch.name = "play-by-post"
+    ch.send = AsyncMock()
+    inner = MagicMock()
+    inner._guild_id = None
+    inner.get_channel = MagicMock(return_value=ch)
+    inner.guilds = []
+    store = PbpStore(path=str(tmp_path / "pbp.json"))
+    app_bot = MagicMock()
+    app_bot.pbp = PbpManager(inner, store=store)
+    return app_bot, store, ch
+
+
+def _parts(n=2):
+    return [{"name": f"P{i}", "character": f"Char{i}"} for i in range(n)]
+
+
+async def test_pbp_start_status_mapping(tmp_path):
+    bot, _store, _ch = _pbp_bot(tmp_path)
+    client = await _client(bot)
+    try:
+        r = await client.post("/control/pbp/start", json={"campaign_id": "c1", "scene": "Crypt", "participants": _parts(2), "channel_id": "42"})
+        assert r.status == 200 and (await r.json())["ok"] is True
+        r2 = await client.post("/control/pbp/start", json={"campaign_id": "c1", "scene": "Again", "participants": _parts(2), "channel_id": "42"})
+        assert r2.status == 409  # already_active
+        r3 = await client.post("/control/pbp/start", json={"campaign_id": "c2", "scene": "X"})
+        assert r3.status == 400  # missing participants
+    finally:
+        await client.close()
+
+
+async def test_pbp_start_channel_not_found(tmp_path):
+    bot, _store, _ch = _pbp_bot(tmp_path)
+    bot.pbp.bot.get_channel = MagicMock(return_value=None)  # nothing resolves
+    client = await _client(bot)
+    try:
+        r = await client.post("/control/pbp/start", json={"campaign_id": "c1", "scene": "Crypt", "participants": _parts(2)})
+        assert r.status == 404 and (await r.json())["error"] == "channel_not_found"
+    finally:
+        await client.close()
+
+
+async def test_pbp_advance_duplicate_and_stale(tmp_path):
+    bot, store, _ch = _pbp_bot(tmp_path)
+    store.start_session("c1", "Crypt", _parts(3), channel_id="42")
+    client = await _client(bot)
+    try:
+        r = await client.post("/control/pbp/advance", json={"campaign_id": "c1", "event_id": "e1"})
+        assert r.status == 200 and (await r.json())["result"] == "advanced"
+        r2 = await client.post("/control/pbp/advance", json={"campaign_id": "c1", "event_id": "e1"})
+        assert (await r2.json())["result"] == "duplicate"
+        r3 = await client.post("/control/pbp/advance", json={"campaign_id": "c1", "event_id": "e9", "expected_turn_index": 0})
+        body = await r3.json()
+        assert r3.status == 200 and body["result"] == "stale_turn" and body["ok"] is False
+        # missing event_id → 400
+        r4 = await client.post("/control/pbp/advance", json={"campaign_id": "c1"})
+        assert r4.status == 400
+    finally:
+        await client.close()
+
+
+async def test_pbp_status_route(tmp_path):
+    bot, store, _ch = _pbp_bot(tmp_path)
+    store.start_session("c1", "Crypt", _parts(2), channel_id="42")
+    client = await _client(bot)
+    try:
+        r = await client.get("/control/pbp/status?campaign_id=c1")
+        body = await r.json()
+        assert r.status == 200 and body["session"]["scene"] == "Crypt" and "overdue" in body
+        r2 = await client.get("/control/pbp/status")  # missing campaign_id
+        assert r2.status == 400
+    finally:
+        await client.close()

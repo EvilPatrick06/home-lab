@@ -2061,6 +2061,26 @@
       "openScene": "Escena",
       "combatAutoExit": "Empezó el combate: de vuelta al mapa táctico."
     },
+    "pbp": {
+      "title": "Juego por mensajes",
+      "activeBadge": "activo",
+      "scenePlaceholder": "Nombre de la escena (p. ej. La emboscada de los goblins)",
+      "addParticipant": "+ Añadir participante",
+      "cadence": "Recordatorio cada",
+      "autoSkip": "Saltar turnos vencidos automáticamente",
+      "autoSkipHint": "Salta a un jugador tras 2× el tiempo de recordatorio.",
+      "start": "Iniciar juego por mensajes",
+      "round": "Ronda",
+      "endTurn": "Terminar turno",
+      "skip": "Saltar",
+      "stop": "Detener",
+      "autoAdvance": "Avanzar automáticamente con la respuesta de la IA",
+      "unclaimedHint": "Los jugadores sin reclamar no recibirán ping — pueden usar /pbp claim en Discord.",
+      "channelNotFound": "No se encontró canal de Discord — crea #play-by-post o define DISCORD_PBP_CHANNEL_ID.",
+      "alreadyActive": "Ya hay una sesión de juego por mensajes activa para esta campaña.",
+      "botDown": "El bot DM de Discord no está en ejecución.",
+      "staleTurn": "El turno ya avanzó — actualizado."
+    },
     "generateBattlemap": {
       "title": "Generar mapa de batalla",
       "descriptionLabel": "Describe el lugar",

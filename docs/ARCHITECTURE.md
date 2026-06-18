@@ -142,6 +142,16 @@ total, rolls?, rollerName, characterName?}`, `player_join/leave {playerName, cha
 > VTT **main** process (gated by the Speak-narration toggle; carries npc/emotion). `status`
 > exposes `active`, `players`, `voice_connected`, `queue_len`, `initiative_order`, and
 > `last_session_end` for the in-app DM-tab session UI.
+>
+> **PHASE-36 (async play-by-post):** `POST /api/discord/pbp/{start,advance,skip,scene,stop}`
+> + `GET /api/discord/pbp/status?campaign_id=` are Flask proxies → `:5006/control/pbp/*`.
+> Bodies are snake_case (`campaign_id`, `reminder_hours`, `auto_skip`, `expected_turn_index`).
+> `advance`/`skip` carry a client-generated `event_id` (idempotency — `bmoPiFetch` retries 5xx,
+> so the Pi de-dupes) plus an `expected_turn_index` optimistic-concurrency check; `advance`
+> returns `{ ok, result }` with `result ∈ {advanced, duplicate, stale_turn}`, always HTTP 200
+> (the body is the truth channel — a `stale_turn` means the VTT must re-poll). Status is
+> **poll-only** (push is PHASE-22's plane); the renderer polls every 30 s while the PBP panel
+> is open. The queue lives on the Pi (`data/pbp_sessions.json`) so reminders survive restarts.
 
 ### 3. VTT ↔ VTT (multiplayer)
 

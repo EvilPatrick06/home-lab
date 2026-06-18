@@ -342,6 +342,43 @@ Order keeps both trees green: Pi store first (pure Python, own tests), bot manag
 
 **Acceptance:** every new env var, endpoint, slash command, and result code is documented; no doc claims behavior the code doesn't have.
 
+## Completed
+
+- **Prereq.** PHASE-20 confirmed landed (anchor verify): `build_control_app`, the `/api/discord/dm/*`
+  proxy (`_proxy_to_dm_control`, `DM_BOT_CONTROL_PORT=5006`), `_candidate_guilds`, `close()`, `setup_hook`,
+  AllowedMentions(users=True,…) all present.
+- **36A — store.** NEW `bmo/pi/services/pbp_store.py`: `PbpStore` (RLock, atomic tmp+`os.replace` per
+  `voice_casting.py`), session schema, `start_session`/`set_scene`/`advance` (idempotency via `last_event_id`
+  + staleness via `expected_turn_index`)/`claim` (exact>startswith, case-insensitive, `already_claimed`)/
+  `stop_session`/`mark_reminded`/`get`/`all_active`, `PbpError(.code)`, `get_pbp_store`/`reset_pbp_store_for_tests`
+  singleton. Test: 11 (validation, wrap/round, duplicate, stale, claim matrix, scene-reset-preserves-claims,
+  restart round-trip, corrupt file, idempotent stop, bounded history).
+- **36B — bot.** NEW `bmo/pi/bots/pbp.py`: `PbpManager` (`resolve_channel` precedence, `_mention`
+  content-only, `announce_turn` mention-in-content + embed, `start`/`advance`/`set_scene`/`stop`/`status`,
+  `reminder_tick` single-reminder + opt-in auto-skip@2×, hand-rolled `reminder_loop`) + `/pbp`
+  claim/status/done/skip (channel-scoped, perm-gated). Wired into `discord_dm_bot.py` (`__init__`
+  add_command+`self.pbp`, `setup_hook` `_pbp_reminder_task`, `close()` cancel). `.env.template` vars.
+  Test: 10 (channel precedence, mention-in-content-not-embed, unclaimed degrade, start paths,
+  advance/duplicate/stale, single-reminder, auto-skip@2×, silent-when-fresh, `/pbp done` + `/pbp skip` perms).
+- **36C — control + proxies.** 6 `/control/pbp/*` routes (HTTP-status mapping: 404 channel, 409 active,
+  400 missing, 200 advanced/duplicate/stale) in `dm_bot_control.py`; 6 `/api/discord/pbp/*` Flask proxies
+  (+`/api/v1` alias, `@limiter.limit(RATE_LIMIT_PBP)` from `extensions.py`) in `app.py`. Extended
+  `test_dm_bot_control.py` (4) + `test_app_endpoints.py` (4).
+- **36D — bridge + IPC.** `bmo-bridge.ts` `pbpStart`/`pbpAdvance`/`pbpSkip`/`pbpSetScene`/`pbpStop`/`pbpStatus`
+  (snake_case body, fresh `randomUUID` `event_id` per advance/skip). `ipc-channels` `BMO_PBP_*`; `ipc-schemas`
+  `Pbp*` zod; `ai-handlers` 6 `safeParse` handlers; preload `bmoPbp*` + `index.d.ts` `PbpSession`/`PbpParticipant`/
+  `PbpBridgeResponse`. Extended `bmo-bridge.test.ts` (4: event_id presence + freshness, snake_case, status encoding).
+- **36E — renderer.** NEW `use-pbp-store.ts` (autoAdvance persisted default-off + volatile lastStatus) + test (3).
+  NEW `PlayByPostSection.tsx` (idle: roster-seeded participants editor + cadence + auto-skip; active: queue with
+  ✅/⬜/▶ + overdue + end/skip/scene/stop + auto-advance toggle; 30s poll) + test (5), mounted in DMTabPanel's
+  AI-DM tab. `use-game-effects.ts` auto-advance hook in the AI-stream-done effect (opt-in + active + host) +
+  test (2). i18n `game.pbp.*` (both locales) + gen-keys.
+- **36F — docs.** SERVICES.md (PBP routes + store file + reminder loop + text-only), bots/README.md (env table,
+  `/pbp` commands, advance vocab), ARCHITECTURE.md (6 endpoints, idempotency/staleness, poll-only). `.env.template` verified.
+- **Opt-in / off by default:** no pings, Discord posts, or turn tracking unless the DM starts a session.
+  Bot restart (`bmo`, `bmo-dm-bot`) is required to deploy the new routes — **held for user approval** (warn-before-restart);
+  undeployed, the opt-in feature simply 503s.
+
 ## Research notes
 
 - **Product precedent — Friends & Fables (the audit's cited source).** F&F began as the Discord bot "Franz" (an AI game master) and markets async play directly: *"whether your party's online together or playing asynchronously, your adventure keeps moving at everyone's pace"*, and Discord is recommended for "longer Play By Post (PBP) style campaign[s] that you can play asynchronously." The differentiator claim in the audit holds: session-only VTTs lose campaigns to scheduling; an always-on AI DM + turn pings removes the bottleneck. Sources: https://fables.gg/ , https://fables.gg/blog/how-is-friends-and-fables-different-from-chatgpt-ai-dungeon-or-novelai , https://top.gg/bot/1087069826482184204 .

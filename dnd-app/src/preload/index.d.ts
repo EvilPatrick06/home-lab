@@ -1,5 +1,32 @@
 export {}
 
+// PHASE-36 36D: play-by-post turn-queue wire shapes (mirror the Pi's response).
+interface PbpParticipant {
+  name: string
+  character?: string | null
+  discord_user_id?: string | null
+  discord_display?: string | null
+}
+interface PbpSession {
+  active: boolean
+  scene: string
+  participants: PbpParticipant[]
+  turn_index: number
+  round: number
+  reminder_hours: number
+  auto_skip: boolean
+  turn_started_at: string
+  reminded_at?: string | null
+}
+interface PbpBridgeResponse {
+  ok?: boolean
+  error?: string
+  statusCode?: number
+  result?: string
+  session?: PbpSession | null
+  overdue?: boolean
+}
+
 interface CharacterVersion {
   fileName: string
   timestamp: string
@@ -1193,6 +1220,28 @@ declare global {
           session_id?: number
           ended_at?: string | null
         }>
+        // PHASE-36 36D: play-by-post turn queue.
+        bmoPbpStart: (payload: {
+          campaignId: string
+          scene: string
+          participants: Array<{ name: string; character?: string }>
+          channelId?: string
+          reminderHours?: number
+          autoSkip?: boolean
+        }) => Promise<PbpBridgeResponse>
+        bmoPbpAdvance: (payload: {
+          campaignId: string
+          expectedTurnIndex?: number
+          excerpt?: string
+        }) => Promise<PbpBridgeResponse>
+        bmoPbpSkip: (payload: { campaignId: string; expectedTurnIndex?: number }) => Promise<PbpBridgeResponse>
+        bmoPbpSetScene: (payload: {
+          campaignId: string
+          scene: string
+          participants?: Array<{ name: string; character?: string }>
+        }) => Promise<PbpBridgeResponse>
+        bmoPbpStop: (payload: { campaignId: string }) => Promise<PbpBridgeResponse>
+        bmoPbpStatus: (payload: { campaignId: string }) => Promise<PbpBridgeResponse>
         bmoSetNarrationEnabled: (enabled: boolean) => Promise<{ success: boolean }>
         bmoSetBargeInEnabled: (enabled: boolean) => Promise<{ success: boolean }>
         bmoVoiceCastGet: (campaignId: string) => Promise<{

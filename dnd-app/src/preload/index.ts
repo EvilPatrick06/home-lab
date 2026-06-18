@@ -657,6 +657,13 @@ const api = {
   bmoDmStatus: () => ipcRenderer.invoke(IPC_CHANNELS.BMO_STATUS),
   // PHASE-31 31E: live/last Discord session recap.
   bmoDiscordRecap: (mode?: 'live' | 'last') => ipcRenderer.invoke(IPC_CHANNELS.BMO_DISCORD_RECAP, mode ?? 'live'),
+  // PHASE-36 36D: play-by-post turn queue (one object arg each).
+  bmoPbpStart: (payload: Record<string, unknown>) => ipcRenderer.invoke(IPC_CHANNELS.BMO_PBP_START, payload),
+  bmoPbpAdvance: (payload: Record<string, unknown>) => ipcRenderer.invoke(IPC_CHANNELS.BMO_PBP_ADVANCE, payload),
+  bmoPbpSkip: (payload: Record<string, unknown>) => ipcRenderer.invoke(IPC_CHANNELS.BMO_PBP_SKIP, payload),
+  bmoPbpSetScene: (payload: Record<string, unknown>) => ipcRenderer.invoke(IPC_CHANNELS.BMO_PBP_SET_SCENE, payload),
+  bmoPbpStop: (payload: Record<string, unknown>) => ipcRenderer.invoke(IPC_CHANNELS.BMO_PBP_STOP, payload),
+  bmoPbpStatus: (payload: Record<string, unknown>) => ipcRenderer.invoke(IPC_CHANNELS.BMO_PBP_STATUS, payload),
   // PHASE-20 20F: push the Speak-narration toggle to the main-process gate.
   bmoSetNarrationEnabled: (enabled: boolean) => ipcRenderer.invoke(IPC_CHANNELS.BMO_SET_NARRATION_ENABLED, enabled),
   // PHASE-21 21B: push the barge-in toggle to the main-process gate.

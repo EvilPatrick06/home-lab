@@ -67,6 +67,7 @@ vi.mock('../utils/logger', () => ({ logger: { info: vi.fn(), warn: vi.fn(), erro
 
 import { SCENE_POLL_SLOW_NOTICE_MS } from '../constants'
 import { useAiDmStore } from '../stores/use-ai-dm-store'
+import { usePbpStore } from '../stores/use-pbp-store'
 import { useGameEffects } from './use-game-effects'
 
 type CampaignLike = { id: string; aiDm: { enabled: boolean }; players: unknown[] }
@@ -204,5 +205,54 @@ describe('useGameEffects — scene-status poll (06E)', () => {
     } finally {
       vi.useRealTimers()
     }
+  })
+})
+
+// PHASE-36 36E — opt-in play-by-post auto-advance on AI reply
+describe('useGameEffects — PBP auto-advance (36E)', () => {
+  it('advances once when autoAdvance + active session, with expectedTurnIndex', async () => {
+    const advance = vi.fn(async () => ({ ok: true, session: { active: true, turn_index: 1, round: 1, scene: 'X' } }))
+    ;(window as unknown as { api: Record<string, unknown> }).api = {
+      isFullscreen: vi.fn().mockResolvedValue(false),
+      toggleFullscreen: vi.fn().mockResolvedValue(undefined),
+      ai: {
+        getSceneStatus: vi.fn().mockResolvedValue({ status: 'idle' }),
+        loadConversation: vi.fn().mockResolvedValue({ success: false }),
+        saveConversation: vi.fn()
+      },
+      bmoPbpAdvance: advance
+    }
+    usePbpStore.setState({
+      autoAdvance: true,
+      lastStatus: { active: true, turnIndex: 0, round: 1, scene: 'X', campaignId: 'c1' }
+    })
+    aiDmStoreValue.messages = [{ role: 'assistant', content: 'The goblin lunges.', timestamp: 4242 }]
+    renderHook((p) => useGameEffects(p), { initialProps: baseProps(makeCampaign(true)) })
+    await Promise.resolve()
+    expect(advance).toHaveBeenCalledWith(expect.objectContaining({ campaignId: 'c1', expectedTurnIndex: 0 }))
+    aiDmStoreValue.messages = []
+  })
+
+  it('does NOT advance when autoAdvance is off', async () => {
+    const advance = vi.fn()
+    ;(window as unknown as { api: Record<string, unknown> }).api = {
+      isFullscreen: vi.fn().mockResolvedValue(false),
+      toggleFullscreen: vi.fn().mockResolvedValue(undefined),
+      ai: {
+        getSceneStatus: vi.fn().mockResolvedValue({ status: 'idle' }),
+        loadConversation: vi.fn().mockResolvedValue({ success: false }),
+        saveConversation: vi.fn()
+      },
+      bmoPbpAdvance: advance
+    }
+    usePbpStore.setState({
+      autoAdvance: false,
+      lastStatus: { active: true, turnIndex: 0, round: 1, scene: 'X', campaignId: 'c1' }
+    })
+    aiDmStoreValue.messages = [{ role: 'assistant', content: 'A reply.', timestamp: 9999 }]
+    renderHook((p) => useGameEffects(p), { initialProps: baseProps(makeCampaign(true)) })
+    await Promise.resolve()
+    expect(advance).not.toHaveBeenCalled()
+    aiDmStoreValue.messages = []
   })
 })

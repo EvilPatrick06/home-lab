@@ -269,6 +269,13 @@ export const IPC_CHANNELS = {
   BMO_VOICE_CAST_GET: 'bmo:voice-cast-get',
   BMO_VOICE_CAST_SET: 'bmo:voice-cast-set',
   BMO_VOICE_CAST_RESET: 'bmo:voice-cast-reset',
+  // PHASE-36 36D: play-by-post turn queue.
+  BMO_PBP_START: 'bmo:pbp-start',
+  BMO_PBP_ADVANCE: 'bmo:pbp-advance',
+  BMO_PBP_SKIP: 'bmo:pbp-skip',
+  BMO_PBP_SET_SCENE: 'bmo:pbp-set-scene',
+  BMO_PBP_STOP: 'bmo:pbp-stop',
+  BMO_PBP_STATUS: 'bmo:pbp-status',
 
   // === BMO Pi Bridge: Sync (main → renderer, from Pi HTTP callbacks) ===
   BMO_SYNC_EVENT: 'bmo:sync-event',
