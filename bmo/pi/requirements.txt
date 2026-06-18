@@ -305,7 +305,7 @@ python-dotenv==1.2.2
     #   pydantic-settings
 python-engineio==4.13.2
     # via python-socketio
-python-multipart==0.0.30
+python-multipart==0.0.31
     # via mcp
 python-socketio==5.16.2
     # via flask-socketio
