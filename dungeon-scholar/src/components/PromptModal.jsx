@@ -38,7 +38,7 @@ function copyToClipboard(text) {
 }
 
 const MODAL_SHELL_STYLE = {
-  background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
+  background: 'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.97) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.99) 100%)',
   border: '3px double rgba(245, 158, 11, 0.6)',
   boxShadow: '0 0 40px rgba(245, 158, 11, 0.3)',
 };
@@ -92,7 +92,7 @@ function OrgPicker({ orgs, onPick, onClose }) {
               key={org.id}
               onClick={() => onPick(org.id)}
               className="w-full text-left p-3 rounded-sm transition border-2 border-amber-700/50 hover:border-amber-400 hover:bg-amber-900/20 text-amber-100 italic"
-              style={{ background: 'rgba(10, 6, 4, 0.5)' }}
+              style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.5)' }}
             >
               <div className="font-bold flex items-center gap-2">
                 <span className="text-2xl">{org.emoji}</span>
@@ -106,7 +106,7 @@ function OrgPicker({ orgs, onPick, onClose }) {
         {/* Phase 38h round-3 suggestion: "View schema" disclosure for power
             users who want to author tomes from scratch without round-tripping
             through an LLM. Collapsed by default. */}
-        <details className="mt-4 p-3 rounded-sm border border-amber-700/40" style={{ background: 'rgba(10, 6, 4, 0.4)' }}>
+        <details className="mt-4 p-3 rounded-sm border border-amber-700/40" style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.4)' }}>
           <summary className="cursor-pointer text-xs italic text-amber-300 hover:text-amber-200">
             ⓘ View tome JSON schema (for hand-authoring)
           </summary>
@@ -197,7 +197,7 @@ function PromptViewer({ org, examTarget, setExamTarget, finalPrompt, copied, onC
             placeholder={org.examTargetPlaceholder}
             maxLength={250}
             className="w-full p-2 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
-            style={{ background: 'rgba(10, 6, 4, 0.7)', borderColor: 'rgba(120, 53, 15, 0.7)' }}
+            style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)', borderColor: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.7)' }}
           />
         </label>
         <p className="text-xs text-amber-100/70 mb-2 italic">
@@ -207,8 +207,8 @@ function PromptViewer({ org, examTarget, setExamTarget, finalPrompt, copied, onC
           data-testid="prompt-preview"
           className="rounded-sm p-4 text-xs whitespace-pre-wrap overflow-auto max-h-[40vh]"
           style={{
-            background: 'rgba(10, 6, 4, 0.7)',
-            border: '1px solid rgba(120, 53, 15, 0.5)',
+            background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)',
+            border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15), 0.5)',
             color: '#fcd34d',
             fontFamily: 'monospace',
           }}

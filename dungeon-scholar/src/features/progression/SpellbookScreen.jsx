@@ -31,7 +31,7 @@ export function SpellbookContent({ playerState, onEquipSpell, onUnequipSpell }) 
     <div className="space-y-4">
       {/* Quick-slot row */}
       <div className="p-4 rounded-sm" style={{
-        background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.6) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        background: 'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.6) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
         border: '2px solid rgba(126, 34, 206, 0.4)',
       }}>
         <div className="flex items-center gap-2 mb-2">
@@ -52,7 +52,7 @@ export function SpellbookContent({ playerState, onEquipSpell, onUnequipSpell }) 
                 className="p-2 rounded-sm flex items-center gap-2 text-left"
                 style={{
                   background: isPending ? 'rgba(59, 130, 246, 0.3)' : 'rgba(0,0,0,0.35)',
-                  border: `1px solid ${def ? 'rgba(96, 165, 250, 0.6)' : isPending ? '#60a5fa' : 'rgba(120, 53, 15, 0.3)'}`,
+                  border: `1px solid ${def ? 'rgba(96, 165, 250, 0.6)' : isPending ? '#60a5fa' : 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.3)'}`,
                   cursor: 'pointer',
                 }}>
                 <div className="text-xl w-6 text-center">{def ? def.icon : 'ZXC'[i]}</div>
@@ -77,9 +77,9 @@ export function SpellbookContent({ playerState, onEquipSpell, onUnequipSpell }) 
           return (
             <div key={def.id} className="p-4 rounded-sm" style={{
               background: isKnown
-                ? 'linear-gradient(135deg, rgba(31, 17, 8, 0.9) 0%, rgba(10, 6, 4, 0.97) 100%)'
+                ? 'linear-gradient(135deg, rgba(31, 17, 8, 0.9) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.97) 100%)'
                 : 'linear-gradient(135deg, rgba(15, 12, 18, 0.85) 0%, rgba(6, 4, 8, 0.95) 100%)',
-              border: `2px solid ${isEquipped ? '#60a5fa' : isKnown ? 'rgba(245, 158, 11, 0.5)' : 'rgba(120, 53, 15, 0.3)'}`,
+              border: `2px solid ${isEquipped ? '#60a5fa' : isKnown ? 'rgba(245, 158, 11, 0.5)' : 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.3)'}`,
               opacity: isKnown ? 1 : 0.65,
               boxShadow: isEquipped ? `0 0 14px ${def.accent}33` : 'none',
             }}>
@@ -110,7 +110,7 @@ export function SpellbookContent({ playerState, onEquipSpell, onUnequipSpell }) 
                   ) : (
                     <button onClick={() => handleAssign(def.id)}
                       className="px-3 py-1.5 rounded-sm text-xs italic border-2 border-amber-700 text-amber-200 hover:bg-amber-900/30"
-                      style={{ background: 'rgba(41, 24, 12, 0.6)' }}>
+                      style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.6)' }}>
                       {pendingSlot !== null ? `Assign to ${'ZXC'[pendingSlot]}` : 'Slot'}
                     </button>
                   )}
@@ -132,7 +132,7 @@ function SpellbookScreen({ playerState, setScreen, onEquipSpell, onUnequipSpell 
   return (
     <div className="space-y-6">
       <div className="p-6 rounded-sm relative" style={{
-        background: 'linear-gradient(135deg, rgba(12, 24, 41, 0.55) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        background: 'linear-gradient(135deg, rgba(12, 24, 41, 0.55) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
         border: '3px double rgba(59, 130, 246, 0.6)',
         boxShadow: '0 0 30px rgba(59, 130, 246, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
       }}>

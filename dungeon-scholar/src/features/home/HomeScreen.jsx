@@ -23,7 +23,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
       <div className="space-y-6">
         <AudioInviteBanner />
         <div className="text-center py-12 px-6 rounded-sm relative" style={{
-          background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.7) 0%, rgba(10, 6, 4, 0.9) 100%)',
+          background: 'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.7) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.9) 100%)',
           border: '3px double rgba(180, 83, 9, 0.5)',
           boxShadow: '0 0 40px rgba(180, 83, 9, 0.2), inset 0 0 30px rgba(0,0,0,0.6)',
         }}>
@@ -58,7 +58,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
               onClick={onImport}
               className="px-6 py-3 font-bold rounded-sm flex items-center gap-2 transition text-amber-200 border-2 border-amber-700 italic"
               style={{
-                background: 'linear-gradient(to bottom, rgba(120, 53, 15, 0.6) 0%, rgba(41, 24, 12, 0.9) 100%)',
+                background: 'linear-gradient(to bottom, rgba(var(--surface-amber-strong, 120, 53, 15), 0.6) 0%, rgba(var(--surface-amber, 41, 24, 12), 0.9) 100%)',
               }}
             >
               <Scroll className="w-5 h-5" /> Inscribe a Tome
@@ -67,7 +67,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
               onClick={onPaste}
               className="px-6 py-3 font-bold rounded-sm flex items-center gap-2 transition text-amber-200 border-2 border-amber-700 italic"
               style={{
-                background: 'linear-gradient(to bottom, rgba(120, 53, 15, 0.6) 0%, rgba(41, 24, 12, 0.9) 100%)',
+                background: 'linear-gradient(to bottom, rgba(var(--surface-amber-strong, 120, 53, 15), 0.6) 0%, rgba(var(--surface-amber, 41, 24, 12), 0.9) 100%)',
               }}
             >
               <Copy className="w-5 h-5" /> Paste Tome Text
@@ -76,7 +76,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
               onClick={onImportCode}
               className="px-6 py-3 font-bold rounded-sm flex items-center gap-2 transition text-purple-200 border-2 border-purple-700 italic"
               style={{
-                background: 'linear-gradient(to bottom, rgba(76, 29, 149, 0.6) 0%, rgba(31, 12, 41, 0.9) 100%)',
+                background: 'linear-gradient(to bottom, rgba(76, 29, 149, 0.6) 0%, rgba(var(--surface-purple, 31, 12, 41), 0.9) 100%)',
               }}
             >
               <Hash className="w-5 h-5" /> Import Share Code
@@ -85,7 +85,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
               onClick={onShowPrompt}
               className="px-6 py-3 font-bold rounded-sm flex items-center gap-2 transition text-amber-200 border-2 border-amber-700 italic"
               style={{
-                background: 'linear-gradient(to bottom, rgba(120, 53, 15, 0.6) 0%, rgba(41, 24, 12, 0.9) 100%)',
+                background: 'linear-gradient(to bottom, rgba(var(--surface-amber-strong, 120, 53, 15), 0.6) 0%, rgba(var(--surface-amber, 41, 24, 12), 0.9) 100%)',
               }}
             >
               <Wand2 className="w-5 h-5" /> Forge Tome with Magic
@@ -138,13 +138,13 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
           <div className="flex flex-wrap gap-3">
             {!playerState.tutorialCompleted && !playerState.tutorialStarted && (
               <button onClick={onRestartTutorial} className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
-                style={{ background: 'rgba(31, 12, 41, 0.7)' }}>
+                style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.7)' }}>
                 <Compass className="w-4 h-4" /> Begin Tutorial
               </button>
             )}
             {(playerState.tutorialCompleted || playerState.tutorialStartedAndSkipped) && (
               <button onClick={onRestartTutorial} className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
-                style={{ background: 'rgba(31, 12, 41, 0.7)' }}>
+                style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.7)' }}>
                 <Compass className="w-4 h-4" /> Replay Tutorial
               </button>
             )}
@@ -171,7 +171,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
     <div className="space-y-6">
       <AudioInviteBanner />
       <div className="p-6 rounded-sm relative" style={{
-        background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.4) 0%, rgba(41, 24, 12, 0.9) 100%)',
+        background: 'linear-gradient(135deg, rgba(var(--surface-amber-strong, 120, 53, 15), 0.4) 0%, rgba(var(--surface-amber, 41, 24, 12), 0.9) 100%)',
         border: '3px double rgba(245, 158, 11, 0.5)',
         boxShadow: '0 0 30px rgba(245, 158, 11, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
       }}>
@@ -197,7 +197,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
               <div className="flex flex-wrap gap-2 mt-2 text-xs">
                 {courseSet.metadata.subject && (
                   <span className="px-2 py-0.5 rounded-sm italic" style={{
-                    background: 'rgba(31, 12, 41, 0.7)', border: '1px solid rgba(126, 34, 206, 0.5)', color: '#d8b4fe',
+                    background: 'rgba(var(--surface-purple, 31, 12, 41), 0.7)', border: '1px solid rgba(126, 34, 206, 0.5)', color: '#d8b4fe',
                   }}>📚 {courseSet.metadata.subject}</span>
                 )}
                 {courseSet.metadata.author && (
@@ -216,7 +216,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
               <div className="flex flex-wrap gap-1 mt-2">
                 {courseSet.metadata.tags.map((tag, ti) => (
                   <span key={ti} className="px-2 py-0.5 rounded-sm text-[10px] italic" style={{
-                    background: 'rgba(120, 53, 15, 0.4)', border: '1px solid rgba(245, 158, 11, 0.4)', color: '#fcd34d',
+                    background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)', border: '1px solid rgba(245, 158, 11, 0.4)', color: '#fcd34d',
                   }}>#{tag}</span>
                 ))}
               </div>
@@ -233,7 +233,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
           <button
             onClick={onOpenLibrary}
             className="px-4 py-2 rounded-sm text-sm border-2 border-amber-700 text-amber-200 flex items-center gap-2 hover:bg-amber-900/30 italic"
-            style={{ background: 'rgba(41, 24, 12, 0.7)' }}
+            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
           >
             <Library className="w-4 h-4" /> Library ({playerState.library.length})
           </button>
@@ -432,13 +432,13 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
           <div className="flex flex-wrap gap-3">
             {!playerState.tutorialCompleted && !playerState.tutorialStarted && (
               <button onClick={onRestartTutorial} className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
-                style={{ background: 'rgba(31, 12, 41, 0.7)' }}>
+                style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.7)' }}>
                 <Compass className="w-4 h-4" /> Begin Tutorial
               </button>
             )}
             {(playerState.tutorialCompleted || playerState.tutorialStartedAndSkipped) && (
               <button onClick={onRestartTutorial} className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
-                style={{ background: 'rgba(31, 12, 41, 0.7)' }}>
+                style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.7)' }}>
                 <Compass className="w-4 h-4" /> Replay Tutorial
               </button>
             )}

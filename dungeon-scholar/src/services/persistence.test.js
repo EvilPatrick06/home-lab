@@ -200,6 +200,72 @@ describe('persistence', () => {
     });
   });
 
+  describe('100+ tomes (Phase-30 QA gap)', () => {
+    // Build a tome entry with realistic, per-index progress so the round-trip
+    // and the hash assertions exercise non-trivial nested state.
+    const makeTome = (i) => ({
+      id: `tome_${i}`,
+      data: { metadata: { title: `Tome ${i}`, subject: `Subject ${i % 7}` } },
+      addedAt: 1_700_000_000_000 + i,
+      lastOpened: 1_700_000_000_000 + i * 10,
+      progress: {
+        cardsReviewed: i,
+        quizAnswered: i * 2,
+        labsCompleted: i % 3,
+        runsCompleted: i % 5,
+        mistakeVault: i % 4 === 0 ? [{ id: `m_${i}`, addedAt: 1_700_000_000_000 + i }] : [],
+      },
+    });
+    const makeLibrary = (n) => Array.from({ length: n }, (_, i) => makeTome(i));
+
+    it('round-trips a 120-tome library, preserving every tome + the schema-version field', () => {
+      const library = makeLibrary(120);
+      const state = { level: 42, totalXp: 99999, gold: 1234, library };
+
+      const res = saveToLocalStorage(state);
+      expect(res).toEqual({ ok: true });
+
+      const loaded = loadFromLocalStorage();
+      // The schema marker rides in the on-disk payload and comes back as schemaVer.
+      expect(loaded.schemaVer).toBe(CURRENT_SCHEMA_VER);
+      // All 120 tomes survive, in order, with their per-tome progress intact.
+      expect(loaded.state.library).toHaveLength(120);
+      expect(loaded.state.library).toEqual(library);
+      expect(loaded.state.library[119].progress.cardsReviewed).toBe(119);
+      expect(loaded.state.library[60].progress.quizAnswered).toBe(120);
+      // __schemaVer is stripped from the returned state object.
+      expect(loaded.state).not.toHaveProperty('__schemaVer');
+      expect(loaded.state.level).toBe(42);
+    });
+
+    it('semanticHashState is stable under key reordering across a 120-tome library', () => {
+      const library = makeLibrary(120);
+      const a = { level: 42, totalXp: 99999, gold: 1234, library };
+      // Same content, every object's keys reversed (simulating JSONB reorder)
+      // and the library array shuffled — semantic hash sorts tomes by id.
+      const reorder = (obj) =>
+        Object.fromEntries(Object.entries(obj).reverse());
+      const shuffledLib = [...library].reverse().map((t) => ({
+        ...reorder(t),
+        progress: reorder(t.progress),
+      }));
+      const b = reorder({ level: 42, totalXp: 99999, gold: 1234, library: shuffledLib });
+
+      expect(semanticHashState(a)).toBe(semanticHashState(b));
+    });
+
+    it('semanticHashState differs when one tome of 120 bumps its cardsReviewed', () => {
+      const library = makeLibrary(120);
+      const a = { level: 42, library };
+      const bumped = library.map((t, i) =>
+        i === 73 ? { ...t, progress: { ...t.progress, cardsReviewed: t.progress.cardsReviewed + 1 } } : t
+      );
+      const b = { level: 42, library: bumped };
+
+      expect(semanticHashState(a)).not.toBe(semanticHashState(b));
+    });
+  });
+
   describe('isQuotaExceededError (M10 / 17F)', () => {
     it('is true for a named QuotaExceededError DOMException', () => {
       expect(isQuotaExceededError(new DOMException('full', 'QuotaExceededError'))).toBe(true);

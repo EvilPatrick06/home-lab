@@ -586,6 +586,60 @@ describe('usePlayerState — resolveMerge branches', () => {
   });
 });
 
+describe('usePlayerState — offline recovery (Phase-30 QA gap)', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    pullSave.mockReset();
+    pushSave.mockReset();
+    upsertProfile.mockReset();
+    subscribeSaves.mockReset();
+    subscribeSaves.mockImplementation(() => () => {});
+  });
+
+  it('(a) recovers from "offline": after backoff exhausts, a fresh change with a now-resolving push walks saving→idle and clears dirty', async () => {
+    pullSave.mockResolvedValueOnce(null);
+    // First change's push fails on every attempt → ends in 'offline'.
+    pushSave.mockRejectedValue(new Error('net'));
+
+    const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
+    await waitFor(() => expect(pullSave).toHaveBeenCalled());
+
+    act(() => { result.current[1]({ level: 5, totalXp: 1, library: [] }); });
+
+    // initial + 3 retries (delays 1s/4s/16s) → 'offline'.
+    await waitFor(() => expect(pushSave.mock.calls.length).toBeGreaterThanOrEqual(4), { timeout: 30000 });
+    await waitFor(() => expect(result.current[2].status).toBe('offline'));
+
+    // Network comes back: subsequent pushes succeed.
+    pushSave.mockReset();
+    pushSave.mockResolvedValue({ updatedAt: '2026-05-20T00:00:00Z' });
+
+    // A new local change re-arms the cloud debounce → push fires and succeeds.
+    act(() => { result.current[1]({ level: 6, totalXp: 2, library: [] }); });
+
+    await waitFor(() => expect(pushSave).toHaveBeenCalled(), { timeout: 2500 });
+    await waitFor(() => expect(result.current[2].status).toBe('idle'));
+    // dirty cleared: writeSyncMeta on success records dirty:false.
+    const meta = JSON.parse(localStorage.getItem('dungeon-scholar:sync:v1'));
+    expect(meta.dirty).toBe(false);
+  }, 40000);
+
+  it('(b) a sign-in pull failure puts the status into "offline"', async () => {
+    // Seed local data so the sign-in branch actually runs the pull (and isn't
+    // short-circuited) — though the rejection is caught regardless.
+    localStorage.setItem('dungeon-scholar:save:v1',
+      JSON.stringify({ level: 3, totalXp: 50, library: [{ id: 'a' }] }));
+    pullSave.mockRejectedValueOnce(new Error('pull failed'));
+
+    const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
+
+    await waitFor(() => expect(pullSave).toHaveBeenCalledWith('u1'));
+    await waitFor(() => expect(result.current[2].status).toBe('offline'));
+    // No push attempted — the pull threw before any merge/push decision.
+    expect(pushSave).not.toHaveBeenCalled();
+  });
+});
+
 describe('usePlayerState — blur listener cleanup (step-1 regression)', () => {
   beforeEach(() => {
     localStorage.clear();

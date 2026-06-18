@@ -58,7 +58,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
                 const isEquipped = it.slot && equipped[it.slot] === it.id;
                 return (
                 <div key={it.id} className="p-4 rounded-sm relative" style={{
-                  background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.65) 0%, rgba(10, 6, 4, 0.95) 100%)',
+                  background: 'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.65) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
                   border: `2px solid ${isEquipped ? 'rgba(245, 158, 11, 0.7)' : 'rgba(126, 34, 206, 0.45)'}`,
                   boxShadow: isEquipped
                     ? '0 0 14px rgba(245, 158, 11, 0.3), inset 0 0 15px rgba(0,0,0,0.5)'
@@ -98,7 +98,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
                               onClick={() => onEquip && onEquip(it.id)}
                               className="px-2 py-1 rounded-sm text-[11px] italic"
                               style={{
-                                background: 'rgba(120,53,15,0.55)',
+                                background: 'rgba(var(--surface-amber-strong, 120, 53, 15),0.55)',
                                 border: '1px solid rgba(245,158,11,0.6)',
                                 color: '#fde047',
                               }}
@@ -124,8 +124,8 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
                                 }}
                                 className="px-2 py-0.5 rounded-sm text-[10px] italic"
                                 style={{
-                                  background: isThis ? 'rgba(120,53,15,0.7)' : 'rgba(31,17,8,0.6)',
-                                  border: `1px solid ${isThis ? 'rgba(245,158,11,0.8)' : 'rgba(120,53,15,0.4)'}`,
+                                  background: isThis ? 'rgba(var(--surface-amber-strong, 120, 53, 15),0.7)' : 'rgba(31,17,8,0.6)',
+                                  border: `1px solid ${isThis ? 'rgba(245,158,11,0.8)' : 'rgba(var(--surface-amber-strong, 120, 53, 15),0.4)'}`,
                                   color: isThis ? '#fde047' : '#a8a29e',
                                 }}
                                 title={isOther ? `Replace ${findItem(filledId)?.name || 'current'} in slot ${i + 1}` : `Slot ${i + 1}`}
@@ -157,7 +157,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
   return (
     <div className="space-y-6">
       <div className="p-6 rounded-sm relative" style={{
-        background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        background: 'linear-gradient(135deg, rgba(var(--surface-emerald, 6, 78, 59), 0.4) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
         border: '3px double rgba(16, 185, 129, 0.6)',
         boxShadow: '0 0 30px rgba(16, 185, 129, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
       }}>
@@ -182,7 +182,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
             </div>
           </div>
           <div className="px-4 py-2 rounded-sm border-2 border-amber-700/60 flex items-center gap-2" style={{
-            background: 'linear-gradient(to bottom, rgba(120, 53, 15, 0.5), rgba(41, 24, 12, 0.85))',
+            background: 'linear-gradient(to bottom, rgba(var(--surface-amber-strong, 120, 53, 15), 0.5), rgba(var(--surface-amber, 41, 24, 12), 0.85))',
             boxShadow: '0 0 10px rgba(245, 158, 11, 0.2), inset 0 0 10px rgba(0,0,0,0.4)',
           }}>
             <Coins className="w-5 h-5 text-amber-300" style={{ filter: 'drop-shadow(0 0 4px rgba(245, 158, 11, 0.6))' }} />
@@ -202,8 +202,8 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
               onClick={() => setTab(t.id)}
               className="px-3 py-2 rounded-sm text-sm italic font-bold tracking-wide"
               style={{
-                background: active ? 'rgba(41, 24, 12, 0.85)' : 'rgba(20, 12, 6, 0.5)',
-                border: `2px solid ${active ? t.accent : 'rgba(120, 53, 15, 0.3)'}`,
+                background: active ? 'rgba(var(--surface-amber, 41, 24, 12), 0.85)' : 'rgba(var(--surface-modal, 20, 12, 6), 0.5)',
+                border: `2px solid ${active ? t.accent : 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.3)'}`,
                 color: active ? t.text : '#a8a29e',
                 boxShadow: active ? `0 0 12px ${t.accent}` : 'none',
               }}
@@ -217,7 +217,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
       {tab === 'gear' && (
         <>
           <div className="rounded-sm p-4 relative" style={{
-            background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.35) 0%, rgba(10, 6, 4, 0.92) 100%)',
+            background: 'linear-gradient(135deg, rgba(var(--surface-amber-strong, 120, 53, 15), 0.35) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.92) 100%)',
             border: '2px solid rgba(245, 158, 11, 0.45)',
             boxShadow: '0 0 12px rgba(245, 158, 11, 0.15), inset 0 0 12px rgba(0,0,0,0.5)',
           }}>
@@ -236,7 +236,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
                 return (
                   <div key={s.id} className="p-3 rounded-sm flex items-center gap-2" style={{
                     background: 'rgba(31,17,8,0.6)',
-                    border: `1px solid ${item ? 'rgba(245,158,11,0.6)' : 'rgba(120,53,15,0.4)'}`,
+                    border: `1px solid ${item ? 'rgba(245,158,11,0.6)' : 'rgba(var(--surface-amber-strong, 120, 53, 15),0.4)'}`,
                   }}>
                     <div className="text-2xl">{item ? item.icon : s.icon}</div>
                     <div className="flex-1 min-w-0">
@@ -262,7 +262,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
 
           {tabItemCount === 0 ? (
             <div className="text-center py-12 px-6 rounded-sm relative" style={{
-              background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.5) 0%, rgba(10, 6, 4, 0.9) 100%)',
+              background: 'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.5) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.9) 100%)',
               border: '2px dashed rgba(126, 34, 206, 0.4)',
             }}>
               <Package className="w-12 h-12 mx-auto text-purple-300/50 mb-3" />
@@ -280,7 +280,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
       {tab === 'potions' && (
         <>
           <div className="rounded-sm p-4 relative" style={{
-            background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.35) 0%, rgba(10, 6, 4, 0.92) 100%)',
+            background: 'linear-gradient(135deg, rgba(var(--surface-emerald, 6, 78, 59), 0.35) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.92) 100%)',
             border: '2px solid rgba(34, 197, 94, 0.45)',
             boxShadow: '0 0 12px rgba(34, 197, 94, 0.15), inset 0 0 12px rgba(0,0,0,0.5)',
           }}>
@@ -300,11 +300,11 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
                 return (
                   <div key={i} className="p-2 rounded-sm flex items-center gap-2" style={{
                     background: 'rgba(31,17,8,0.6)',
-                    border: `1px solid ${item ? 'rgba(34,197,94,0.6)' : 'rgba(120,53,15,0.4)'}`,
+                    border: `1px solid ${item ? 'rgba(34,197,94,0.6)' : 'rgba(var(--surface-amber-strong, 120, 53, 15),0.4)'}`,
                   }}>
                     <div className="w-8 h-8 flex items-center justify-center rounded-sm text-xl" style={{
                       background: 'rgba(0,0,0,0.4)',
-                      border: '1px solid rgba(120,53,15,0.4)',
+                      border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15),0.4)',
                     }}>
                       {item ? item.icon : <span className="text-amber-700/40 text-xs italic">{i + 1}</span>}
                     </div>
@@ -331,7 +331,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
 
           {tabItemCount === 0 ? (
             <div className="text-center py-12 px-6 rounded-sm relative" style={{
-              background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.35) 0%, rgba(10, 6, 4, 0.9) 100%)',
+              background: 'linear-gradient(135deg, rgba(var(--surface-emerald, 6, 78, 59), 0.35) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.9) 100%)',
               border: '2px dashed rgba(34, 197, 94, 0.4)',
             }}>
               <span className="text-3xl">🧪</span>
@@ -359,11 +359,11 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
 
       <div className="text-center pt-2 flex flex-wrap justify-center gap-2">
         <button onClick={() => setScreen('shop')} className="px-4 py-2 rounded-sm text-xs italic border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30 inline-flex items-center gap-2"
-          style={{ background: 'rgba(41, 24, 12, 0.5)' }}>
+          style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.5)' }}>
           <ShoppingBag className="w-3.5 h-3.5" /> Browse the Marketplace
         </button>
         <button onClick={() => setScreen('crafting')} className="px-4 py-2 rounded-sm text-xs italic border-2 border-emerald-700 text-emerald-300 hover:bg-emerald-900/30 inline-flex items-center gap-2"
-          style={{ background: 'rgba(6, 78, 59, 0.4)' }}>
+          style={{ background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.4)' }}>
           🌿 The Brewing Bench
         </button>
       </div>

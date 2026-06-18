@@ -27,7 +27,7 @@ export function SignInButton() {
         onClick={onClick}
         disabled={busy}
         className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic disabled:opacity-60"
-        style={{ background: 'rgba(31, 12, 41, 0.7)' }}
+        style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.7)' }}
       >
         <LogIn className="w-4 h-4" /> {busy ? 'Connecting…' : 'Sign in with GitHub to sync'}
       </button>

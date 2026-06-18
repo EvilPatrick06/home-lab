@@ -13,7 +13,7 @@ export function DifficultyStars({ value }) {
   return (
     <span className="text-xs italic tabular-nums" title={`Difficulty ${v}/5`}>
       <span style={{ color: '#fbbf24' }}>{'▰'.repeat(v)}</span>
-      <span style={{ color: 'rgba(120, 53, 15, 0.7)' }}>{'▱'.repeat(5 - v)}</span>
+      <span style={{ color: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.7)' }}>{'▱'.repeat(5 - v)}</span>
     </span>
   );
 }

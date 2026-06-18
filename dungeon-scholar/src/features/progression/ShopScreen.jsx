@@ -47,7 +47,7 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
   return (
     <div className="space-y-6">
       <div className="p-6 rounded-sm relative" style={{
-        background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.5) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        background: 'linear-gradient(135deg, rgba(var(--surface-amber-strong, 120, 53, 15), 0.5) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
         border: '3px double rgba(245, 158, 11, 0.6)',
         boxShadow: '0 0 30px rgba(245, 158, 11, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
       }}>
@@ -72,7 +72,7 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
             </div>
           </div>
           <div className="px-4 py-2 rounded-sm border-2 border-amber-700/60 flex items-center gap-2" style={{
-            background: 'linear-gradient(to bottom, rgba(120, 53, 15, 0.5), rgba(41, 24, 12, 0.85))',
+            background: 'linear-gradient(to bottom, rgba(var(--surface-amber-strong, 120, 53, 15), 0.5), rgba(var(--surface-amber, 41, 24, 12), 0.85))',
             boxShadow: '0 0 10px rgba(245, 158, 11, 0.2), inset 0 0 10px rgba(0,0,0,0.4)',
           }}>
             <Coins className="w-5 h-5 text-amber-300" style={{ filter: 'drop-shadow(0 0 4px rgba(245, 158, 11, 0.6))' }} />
@@ -92,8 +92,8 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
             style={{
               borderColor: activeTab === t.id ? 'rgba(245, 158, 11, 0.85)' : 'rgba(126, 34, 206, 0.5)',
               background: activeTab === t.id
-                ? 'linear-gradient(to bottom, rgba(120, 53, 15, 0.6), rgba(41, 24, 12, 0.95))'
-                : 'rgba(31, 12, 41, 0.5)',
+                ? 'linear-gradient(to bottom, rgba(var(--surface-amber-strong, 120, 53, 15), 0.6), rgba(var(--surface-amber, 41, 24, 12), 0.95))'
+                : 'rgba(var(--surface-purple, 31, 12, 41), 0.5)',
               color: activeTab === t.id ? '#fde047' : '#d8b4fe',
               boxShadow: activeTab === t.id ? '0 0 15px rgba(245, 158, 11, 0.35)' : 'none',
             }}
@@ -132,10 +132,10 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
             return (
               <div key={item.id} className="p-5 rounded-sm relative" style={{
                 background: locked
-                  ? 'linear-gradient(135deg, rgba(15, 8, 20, 0.6) 0%, rgba(10, 6, 4, 0.95) 100%)'
+                  ? 'linear-gradient(135deg, rgba(15, 8, 20, 0.6) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)'
                   : owned || atCap
-                    ? 'linear-gradient(135deg, rgba(6, 78, 59, 0.4) 0%, rgba(10, 6, 4, 0.9) 100%)'
-                    : 'linear-gradient(135deg, rgba(31, 12, 41, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)',
+                    ? 'linear-gradient(135deg, rgba(var(--surface-emerald, 6, 78, 59), 0.4) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.9) 100%)'
+                    : 'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.7) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
                 border: locked
                   ? '1px solid rgba(60, 35, 80, 0.4)'
                   : owned || atCap
@@ -195,7 +195,7 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
                     disabled={disabled}
                     className="px-3 py-1.5 rounded-sm text-xs font-bold italic border-2 flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     style={disabled
-                      ? { background: 'rgba(31, 12, 41, 0.6)', borderColor: 'rgba(126, 34, 206, 0.4)', color: '#a78bfa' }
+                      ? { background: 'rgba(var(--surface-purple, 31, 12, 41), 0.6)', borderColor: 'rgba(126, 34, 206, 0.4)', color: '#a78bfa' }
                       : { background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)', borderColor: '#fde047', color: '#451a03', boxShadow: '0 0 12px rgba(245, 158, 11, 0.5)' }}
                   >
                     {locked ? <Lock className="w-3 h-3" /> : owned || atCap ? <Check className="w-3 h-3" /> : <Coins className="w-3 h-3" />}
@@ -211,7 +211,7 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
       {pendingPurchase && (
         <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div ref={purchaseConfirmRef} role="dialog" aria-modal="true" aria-label="Confirm purchase" className="rounded-sm max-w-md w-full overflow-hidden flex flex-col relative" style={{
-            background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.99) 0%, rgba(10, 6, 4, 1) 100%)',
+            background: 'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.99) 0%, rgba(var(--surface-deep, 10, 6, 4), 1) 100%)',
             border: '3px double rgba(245, 158, 11, 0.7)',
             boxShadow: '0 0 60px rgba(245, 158, 11, 0.4)',
           }}>
@@ -228,7 +228,7 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
                 </h3>
                 <p className="text-sm text-amber-100/80 italic mt-2">{pendingPurchase.description}</p>
               </div>
-              <div className="px-4 py-3 rounded-sm border border-amber-700/60 inline-flex items-center gap-2" style={{ background: 'rgba(120, 53, 15, 0.4)' }}>
+              <div className="px-4 py-3 rounded-sm border border-amber-700/60 inline-flex items-center gap-2" style={{ background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)' }}>
                 <span className="text-xs text-amber-700 italic">Cost:</span>
                 <Coins className="w-4 h-4 text-amber-300" />
                 <span className="text-amber-200 font-bold italic tabular-nums">{pendingPurchase.price}</span>
@@ -246,7 +246,7 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
             <div className="p-4 border-t border-amber-700/50 flex gap-2">
               <button onClick={() => { setPendingPurchase(null); setPurchaseError(null); }}
                 className="flex-1 py-3 rounded-sm border-2 border-amber-700 text-amber-200 italic"
-                style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+                style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>
                 Cancel
               </button>
               <button onClick={tryBuy}

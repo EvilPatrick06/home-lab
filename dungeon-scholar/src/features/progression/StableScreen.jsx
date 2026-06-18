@@ -25,7 +25,7 @@ function StableScreen({ playerState, setScreen, onEquipPet, onUnequipPet }) {
   return (
     <div className="space-y-6">
       <div className="p-6 rounded-sm relative" style={{
-        background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.45) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        background: 'linear-gradient(135deg, rgba(var(--surface-emerald, 6, 78, 59), 0.45) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
         border: '3px double rgba(16, 185, 129, 0.6)',
         boxShadow: '0 0 30px rgba(16, 185, 129, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
       }}>
@@ -48,7 +48,7 @@ function StableScreen({ playerState, setScreen, onEquipPet, onUnequipPet }) {
           </div>
           <button onClick={() => setScreen('home')}
             className="px-3 py-2 rounded-sm text-xs italic border-2 border-emerald-700 text-emerald-300 hover:bg-emerald-900/30"
-            style={{ background: 'rgba(6, 78, 59, 0.45)' }}>
+            style={{ background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.45)' }}>
             ← Return to the Hearth
           </button>
         </div>
@@ -56,7 +56,7 @@ function StableScreen({ playerState, setScreen, onEquipPet, onUnequipPet }) {
 
       {ownedPets.length === 0 && (
         <div className="p-6 rounded-sm text-center text-sm italic text-amber-700"
-          style={{ background: 'rgba(0,0,0,0.5)', border: '2px dashed rgba(120,53,15,0.4)' }}>
+          style={{ background: 'rgba(0,0,0,0.5)', border: '2px dashed rgba(var(--surface-amber-strong, 120, 53, 15),0.4)' }}>
           Thou hast no familiars yet. Visit the Marketplace and purchase a Stable egg to hatch one.
         </div>
       )}
@@ -75,7 +75,7 @@ function StableScreen({ playerState, setScreen, onEquipPet, onUnequipPet }) {
             const isEquipped = equippedPet === def.id;
             return (
               <div key={def.id} className="p-4 rounded-sm" style={{
-                background: 'linear-gradient(135deg, rgba(31, 17, 8, 0.9) 0%, rgba(10, 6, 4, 0.97) 100%)',
+                background: 'linear-gradient(135deg, rgba(31, 17, 8, 0.9) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.97) 100%)',
                 border: `2px solid ${isEquipped ? 'rgba(16, 185, 129, 0.7)' : 'rgba(245, 158, 11, 0.4)'}`,
                 boxShadow: isEquipped ? '0 0 14px rgba(16, 185, 129, 0.3)' : 'none',
               }}>
@@ -113,13 +113,13 @@ function StableScreen({ playerState, setScreen, onEquipPet, onUnequipPet }) {
                   {isEquipped ? (
                     <button onClick={() => onUnequipPet?.()}
                       className="px-3 py-1.5 rounded-sm text-xs italic border-2 border-emerald-700 text-emerald-200 hover:bg-emerald-900/30"
-                      style={{ background: 'rgba(6, 78, 59, 0.5)' }}>
+                      style={{ background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.5)' }}>
                       Dismiss
                     </button>
                   ) : (
                     <button onClick={() => onEquipPet?.(def.id)}
                       className="px-3 py-1.5 rounded-sm text-xs italic border-2 border-amber-700 text-amber-200 hover:bg-amber-900/30"
-                      style={{ background: 'rgba(41, 24, 12, 0.6)' }}>
+                      style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.6)' }}>
                       Equip
                     </button>
                   )}
@@ -141,7 +141,7 @@ function StableScreen({ playerState, setScreen, onEquipPet, onUnequipPet }) {
             {lockedPets.map((def) => (
               <div key={def.id} className="p-3 rounded-sm text-xs italic" style={{
                 background: 'rgba(15, 12, 18, 0.85)',
-                border: '2px dashed rgba(120, 53, 15, 0.4)',
+                border: '2px dashed rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)',
                 opacity: 0.7,
               }}>
                 <div className="flex items-center gap-2">

@@ -28,7 +28,7 @@ function AscensionScreen({ playerState, setScreen, onAscend }) {
   return (
     <div className="space-y-6">
       <div className="p-6 rounded-sm relative" style={{
-        background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.55) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        background: 'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.55) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
         border: '3px double rgba(245, 158, 11, 0.7)',
         boxShadow: '0 0 30px rgba(245, 158, 11, 0.3), inset 0 0 30px rgba(0,0,0,0.5)',
       }}>
@@ -51,7 +51,7 @@ function AscensionScreen({ playerState, setScreen, onAscend }) {
           </div>
           <button onClick={() => setScreen('home')}
             className="px-3 py-2 rounded-sm text-xs italic border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30"
-            style={{ background: 'rgba(41, 24, 12, 0.6)' }}>
+            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.6)' }}>
             ← Return to the Hearth
           </button>
         </div>
@@ -80,7 +80,7 @@ function AscensionScreen({ playerState, setScreen, onAscend }) {
       {/* What is preserved / lost */}
       <div className="grid md:grid-cols-2 gap-3">
         <div className="p-4 rounded-sm" style={{
-          background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)',
+          background: 'linear-gradient(135deg, rgba(var(--surface-emerald, 6, 78, 59), 0.4) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
           border: '2px solid rgba(16, 185, 129, 0.5)',
         }}>
           <h4 className="font-bold italic text-emerald-200 text-sm mb-2">✦ Preserved</h4>
@@ -96,7 +96,7 @@ function AscensionScreen({ playerState, setScreen, onAscend }) {
           </ul>
         </div>
         <div className="p-4 rounded-sm" style={{
-          background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)',
+          background: 'linear-gradient(135deg, rgba(var(--surface-amber-strong, 120, 53, 15), 0.4) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
           border: '2px solid rgba(245, 158, 11, 0.5)',
         }}>
           <h4 className="font-bold italic text-amber-200 text-sm mb-2">✦ Reset</h4>
@@ -113,9 +113,9 @@ function AscensionScreen({ playerState, setScreen, onAscend }) {
       {/* Ascend action */}
       <div className="p-6 rounded-sm text-center" style={{
         background: ready
-          ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.45) 0%, rgba(10, 6, 4, 0.95) 100%)'
-          : 'linear-gradient(135deg, rgba(31, 41, 55, 0.5) 0%, rgba(10, 6, 4, 0.95) 100%)',
-        border: `3px ${ready ? 'double' : 'solid'} ${ready ? '#fbbf24' : 'rgba(120, 53, 15, 0.4)'}`,
+          ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.45) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)'
+          : 'linear-gradient(135deg, rgba(31, 41, 55, 0.5) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
+        border: `3px ${ready ? 'double' : 'solid'} ${ready ? '#fbbf24' : 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)'}`,
       }}>
         {!ready ? (
           <div>

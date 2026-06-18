@@ -46,7 +46,7 @@ export function ResetConfirmModal({ onConfirm, onCancel }) {
             className="w-full p-3 rounded-sm border-2 focus:outline-hidden italic text-amber-50 tracking-wider"
             style={{
               background: 'rgba(20, 6, 6, 0.8)',
-              borderColor: isMatch ? 'rgba(239, 68, 68, 0.8)' : 'rgba(120, 53, 15, 0.5)',
+              borderColor: isMatch ? 'rgba(239, 68, 68, 0.8)' : 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.5)',
               boxShadow: isMatch ? '0 0 15px rgba(239, 68, 68, 0.4)' : 'none',
             }}
             autoFocus
@@ -56,7 +56,7 @@ export function ResetConfirmModal({ onConfirm, onCancel }) {
           <button
             onClick={onCancel}
             className="flex-1 py-3 rounded-sm border-2 border-amber-700 text-amber-200 italic"
-            style={{ background: 'rgba(41, 24, 12, 0.7)' }}
+            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
           >
             Cancel
           </button>

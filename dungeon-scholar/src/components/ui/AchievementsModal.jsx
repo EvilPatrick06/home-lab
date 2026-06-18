@@ -31,7 +31,7 @@ export function AchievementsModal({ playerState, onClose }) {
   return (
     <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div ref={panelRef} role="dialog" aria-modal="true" aria-label="Hall of Glory" className="rounded-sm max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
-        background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
+        background: 'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.97) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.99) 100%)',
         border: '3px double rgba(245, 158, 11, 0.6)', boxShadow: '0 0 40px rgba(245, 158, 11, 0.3)',
       }}>
         <div className="p-4 border-b border-amber-700/50 flex justify-between items-center">
@@ -52,7 +52,7 @@ export function AchievementsModal({ playerState, onClose }) {
                     const unlocked = playerState.achievements.includes(a.id);
                     return (
                       <div key={a.id} className="p-3 rounded-sm border-2" style={{
-                        background: unlocked ? 'rgba(120, 53, 15, 0.4)' : 'rgba(41, 24, 12, 0.4)',
+                        background: unlocked ? 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)' : 'rgba(var(--surface-amber, 41, 24, 12), 0.4)',
                         borderColor: unlocked ? 'rgba(245, 158, 11, 0.7)' : 'rgba(75, 75, 75, 0.5)',
                         opacity: unlocked ? 1 : 0.5, boxShadow: unlocked ? '0 0 12px rgba(245, 158, 11, 0.2)' : 'none',
                       }}>

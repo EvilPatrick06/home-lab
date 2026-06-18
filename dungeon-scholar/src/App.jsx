@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { usePlayerState } from './hooks/usePlayerState.js';
 import { hasMeaningfulData } from './services/persistence.js';
 import { checkImportSize } from './services/importLimits.js';
+import { isSealedTome, unsealTome } from './services/sealedTome.js';
 import {
   saveSession,
   loadSession,
@@ -67,6 +68,7 @@ import ImportCodeModal from './features/library/ImportCodeModal.jsx';
 import MetadataEditModal from './features/library/MetadataEditModal.jsx';
 import TomeNotes from './components/TomeNotes.jsx';
 import PasteTomeModal from './features/library/PasteTomeModal.jsx';
+import SealedTomeGate from './features/library/SealedTomeGate.jsx';
 const RunHistoryScreen = React.lazy(() => import('./features/progression/RunHistoryScreen.jsx'));
 const ShopScreen = React.lazy(() => import('./features/progression/ShopScreen.jsx'));
 const InventoryScreen = React.lazy(() => import('./features/progression/InventoryScreen.jsx'));
@@ -86,6 +88,11 @@ const MistakeVault = React.lazy(() => import('./features/study/MistakeVault.jsx'
 const DomainStudyScreen = React.lazy(() => import('./features/study/DomainStudyScreen.jsx'));
 import { usePlayerActions } from './features/player/usePlayerActions.js';
 import { useHashRoute } from './router/useHashRoute.js';
+
+// PHASE-41 41B: screens that consume decrypted tome content. When the active
+// tome is sealed-but-locked, these render the SealedTomeGate (unlock prompt)
+// instead of their content; every other screen stays reachable while locked.
+const SEALED_GATED = ['flashcards', 'quiz', 'lab', 'chat', 'practiceExam', 'dungeon', 'vault', 'domainStudy'];
 
 // Phase 32a QA #2: auto-route to an in-progress study session on mount so a
 // mid-quiz refresh resumes the user where they were, not at Hearth. Order
@@ -148,6 +155,11 @@ export default function DungeonScholarApp() {
   // Phase 40F: tome whose encrypted private notes are open (null = closed).
   const [notesTome, setNotesTome] = useState(null);
   const [showImportCodeModal, setShowImportCodeModal] = useState(false);
+  // PHASE-41 41B: decrypted sealed-tome content keyed by tomeId. This map is
+  // NEVER written into playerState — so decrypted content never reaches
+  // localStorage or Supabase. That in-memory-only lifetime IS the security
+  // property: a hard refresh, sign-out, or process exit re-locks every tome.
+  const [unsealedTomes, setUnsealedTomes] = useState({});
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [showAccountPanel, setShowAccountPanel] = useState(false);
   // 25e2: Domain Study screen launches Quiz/Flashcards filtered by a single
@@ -503,7 +515,12 @@ export default function DungeonScholarApp() {
     return entry || null;
   }, [playerState.activeTomeId, playerState.library]);
 
-  const courseSet = activeTome?.data || null;
+  // PHASE-41 41B: a sealed active tome only exposes content once unlocked this
+  // session. `courseSet` resolves to the in-memory decrypted object (or null
+  // while locked); `sealedLocked` gates the content screens below.
+  const activeSealed = !!(activeTome && isSealedTome(activeTome.data));
+  const courseSet = activeTome ? (activeSealed ? (unsealedTomes[activeTome.id] || null) : activeTome.data) : null;
+  const sealedLocked = activeSealed && !unsealedTomes[activeTome.id];
   const tomeProgress = activeTome?.progress || blankTomeProgress();
 
   // Pre-shuffled activity decks. Reshuffled ONLY when the active tome changes
@@ -718,12 +735,14 @@ export default function DungeonScholarApp() {
   // to home (with a nudge) when no tome is loaded.
   useEffect(() => {
     const GATED = ['dungeon', 'flashcards', 'quiz', 'lab', 'chat', 'practiceExam'];
-    if (GATED.includes(screen) && courseSet == null) {
+    // PHASE-41 41B: a sealed-but-locked tome also has courseSet == null, but it
+    // should show the SealedTomeGate (an unlock prompt) rather than bounce home.
+    if (GATED.includes(screen) && courseSet == null && !sealedLocked) {
       setScreen('home');
       showNotif('Choose a tome first.', 'info');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, courseSet]);
+  }, [screen, courseSet, sealedLocked]);
 
   const handleImportFile = (e) => {
     const file = e.target.files?.[0];
@@ -738,7 +757,10 @@ export default function DungeonScholarApp() {
     reader.onload = (ev) => {
       try {
         const data = JSON.parse(ev.target.result);
-        if (!data.metadata || !data.flashcards) {
+        // PHASE-41 41B: a sealed-tome envelope has metadata but no top-level
+        // `flashcards` array, so accept it via the sealed predicate alongside
+        // the plain-tome shape check.
+        if (!isSealedTome(data) && (!data.metadata || !data.flashcards)) {
           showNotif('Invalid tome format', 'error');
           return;
         }
@@ -768,7 +790,9 @@ export default function DungeonScholarApp() {
         cleaned = cleaned.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/i, '');
       }
       const data = JSON.parse(cleaned);
-      if (!data.metadata || !data.flashcards) {
+      // PHASE-41 41B: accept a sealed-tome envelope (metadata + no top-level
+      // flashcards) via the sealed predicate alongside the plain-tome shape.
+      if (!isSealedTome(data) && (!data.metadata || !data.flashcards)) {
         showNotif('Invalid tome format — needs metadata and flashcards', 'error');
         return false;
       }
@@ -792,7 +816,8 @@ export default function DungeonScholarApp() {
       showNotif('Invalid share code — must start with TOME-V1:', 'error');
       return false;
     }
-    if (!data.metadata || !data.flashcards) {
+    // PHASE-41 41B: accept a sealed-tome envelope alongside the plain shape.
+    if (!isSealedTome(data) && (!data.metadata || !data.flashcards)) {
       showNotif('Share code decoded but tome is malformed', 'error');
       return false;
     }
@@ -800,6 +825,42 @@ export default function DungeonScholarApp() {
     showNotif(`Tome received: ${data.metadata.title}`, 'success');
     return true;
   };
+
+  // PHASE-41 41B: unlock a sealed tome by deriving its key from the proctor
+  // passphrase and decrypting in memory. The decrypted object lives ONLY in
+  // unsealedTomes (never playerState), so it never persists. Failures are
+  // returned as a value — NEVER thrown across the UI boundary — so the gate can
+  // render a friendly error without an uncaught-rejection crash.
+  const unlockSealedTome = async (tomeId, passphrase) => {
+    const entry = playerState.library.find(t => t.id === tomeId);
+    if (!entry || !isSealedTome(entry.data)) return { ok: false, reason: 'not-sealed' };
+    try {
+      const tome = await unsealTome(entry.data, passphrase);
+      setUnsealedTomes(prev => ({ ...prev, [tomeId]: tome }));
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, reason: err.message };
+    }
+  };
+
+  const lockSealedTome = (tomeId) => setUnsealedTomes(prev => {
+    const n = { ...prev };
+    delete n[tomeId];
+    return n;
+  });
+
+  // PHASE-41 41B: prune decrypted entries for tomes no longer in the library
+  // (deleted/banished), so a deleted sealed tome can't linger unlocked in memory.
+  useEffect(() => {
+    setUnsealedTomes(prev => {
+      const ids = new Set(playerState.library.map(t => t.id));
+      const keys = Object.keys(prev);
+      if (keys.every(k => ids.has(k))) return prev; // no stale keys
+      const next = {};
+      for (const k of keys) if (ids.has(k)) next[k] = prev[k];
+      return next;
+    });
+  }, [playerState.library]);
 
   const resetProgress = () => {
     setShowResetConfirm(true);
@@ -994,7 +1055,7 @@ export default function DungeonScholarApp() {
             <div
               className="px-3 py-2 rounded-sm border-2 border-amber-700/60 flex items-center gap-2"
               style={{
-                background: 'linear-gradient(to bottom, rgba(120, 53, 15, 0.5), rgba(41, 24, 12, 0.85))',
+                background: 'linear-gradient(to bottom, rgba(var(--surface-amber-strong, 120, 53, 15), 0.5), rgba(var(--surface-amber, 41, 24, 12), 0.85))',
                 boxShadow: '0 0 10px rgba(245, 158, 11, 0.15), inset 0 0 10px rgba(0,0,0,0.4)',
               }}
               title={`Gold: ${playerState.gold || 0}`}
@@ -1138,7 +1199,7 @@ export default function DungeonScholarApp() {
         <main id="main-content" tabIndex={-1}>
         <ErrorBoundary onReset={() => setScreen('home')}>
         <div className="mb-6 p-4 rounded-sm relative" style={{
-          background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.9) 0%, rgba(20, 12, 6, 0.9) 100%)',
+          background: 'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.9) 0%, rgba(var(--surface-modal, 20, 12, 6), 0.9) 100%)',
           border: '2px solid rgba(180, 83, 9, 0.5)',
           boxShadow: '0 0 30px rgba(180, 83, 9, 0.15), inset 0 0 20px rgba(0,0,0,0.5)',
         }}>
@@ -1151,7 +1212,7 @@ export default function DungeonScholarApp() {
             <div className="flex items-center gap-4">
               <div className="relative">
                 <div className="w-16 h-16 flex items-center justify-center text-3xl font-bold border-2 border-amber-500 text-amber-200" style={{
-                  background: 'radial-gradient(circle, rgba(120, 53, 15, 0.8) 0%, rgba(41, 24, 12, 0.9) 100%)',
+                  background: 'radial-gradient(circle, rgba(var(--surface-amber-strong, 120, 53, 15), 0.8) 0%, rgba(var(--surface-amber, 41, 24, 12), 0.9) 100%)',
                   clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
                   boxShadow: '0 0 15px rgba(245, 158, 11, 0.4)',
                   textShadow: '0 0 10px rgba(245, 158, 11, 0.8)',
@@ -1240,6 +1301,17 @@ export default function DungeonScholarApp() {
             <Loader2 className="w-6 h-6 animate-spin mr-3" /> Summoning...
           </div>
         }>
+        {/* PHASE-41 41B: chokepoint. When the active tome is sealed-but-locked
+            and the player is on a content-consuming screen, render the unlock
+            prompt INSTEAD of the screen. Home/library/shop/etc. stay reachable
+            while locked (they don't read decrypted content). */}
+        {sealedLocked && SEALED_GATED.includes(screen) && (
+          <SealedTomeGate
+            title={activeTome.data.metadata.title}
+            onUnlock={(pass) => unlockSealedTome(activeTome.id, pass)}
+            onBack={() => setScreen('library')}
+          />
+        )}
         {screen === 'home' && (
           <HomeScreen
             courseSet={courseSet}
@@ -1257,13 +1329,11 @@ export default function DungeonScholarApp() {
             onShowAchievements={() => setShowAchievements(true)}
             onEnterReviews={() => { setReviewMode(true); trackModeUse('flashcards'); setScreen('flashcards'); }}
             onSetTheme={(t) => {
-              // Phase 38h round-5: explain the partial-theme intent on
-              // first switch into Light so users aren't surprised when
-              // panels stay dark. Phase 46h: every theme switch surfaces
-              // an Undo toast (Ctrl+Z compatible — the global hotkey
-              // from 45d invokes the active toast's onClick). Capturing
-              // prev.theme outside the updater keeps the closure stable
-              // for the undo callback.
+              // Phase 46h: every theme switch surfaces an Undo toast (Ctrl+Z
+              // compatible — the global hotkey from 45d invokes the active
+              // toast's onClick). Capturing prev.theme outside the updater keeps
+              // the closure stable for the undo callback. PHASE-41 (QA16): Light
+              // is now a FULL theme, so the old "panels stay dark" intro is gone.
               const prevTheme = playerState.theme || 'dark';
               if (prevTheme === t) return;
               setPlayerState(prev => {
@@ -1275,7 +1345,7 @@ export default function DungeonScholarApp() {
               });
               const labelOf = (id) => id === 'light' ? 'Light' : id === 'system' ? 'Match System' : 'Dark';
               const introTail = (t === 'light' && !playerState.lightModeIntroShown)
-                ? ' (off-white background + warmer panel tints; panels stay dark by design)'
+                ? ' (parchment-light pages, panels, and text)'
                 : '';
               setTimeout(() => showNotif(
                 `Theme: ${labelOf(t)}${introTail} · Undo (Ctrl+Z)`,
@@ -1395,7 +1465,7 @@ export default function DungeonScholarApp() {
         {screen === 'history' && (
           <RunHistoryScreen playerState={playerState} setScreen={setScreen} />
         )}
-        {screen === 'domainStudy' && (
+        {screen === 'domainStudy' && !sealedLocked && (
           <DomainStudyScreen
             playerState={playerState}
             setScreen={setScreen}
@@ -1522,7 +1592,7 @@ export default function DungeonScholarApp() {
               )}
             />
         )}
-        {screen === 'vault' && (
+        {screen === 'vault' && !sealedLocked && (
           <MistakeVault
             courseSet={courseSet}
             tomeProgress={tomeProgress}

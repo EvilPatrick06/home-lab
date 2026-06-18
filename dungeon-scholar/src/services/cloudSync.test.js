@@ -30,7 +30,7 @@ vi.mock('./supabase.js', () => ({
   isSupabaseConfigured: () => true,
 }));
 
-import { pullSave, pushSave, deleteCloudSave, checkRlsExposure, subscribeSaves, hashChannelTopic } from './cloudSync.js';
+import { pullSave, pushSave, deleteCloudSave, deleteAccount, checkRlsExposure, subscribeSaves, hashChannelTopic } from './cloudSync.js';
 
 describe('cloudSync', () => {
   beforeEach(() => {
@@ -77,6 +77,17 @@ describe('cloudSync', () => {
   it('deleteCloudSave deletes by user_id', async () => {
     await deleteCloudSave('u1');
     expect(del).toHaveBeenCalledWith('user_id', 'u1');
+  });
+
+  // Phase 41G — Phase-30 QA gap. The shared `del` spy fires for BOTH the
+  // saves-delete (eq('user_id', id)) and the profiles-delete (eq('id', id))
+  // because the mock's `from` is table-agnostic. The error-path coverage
+  // (per-table error injection) lives in cloudSync.deleteAccount.test.js,
+  // which needs a table-aware mock the shared builder here can't provide.
+  it('deleteAccount deletes the saves row AND the profiles row', async () => {
+    await deleteAccount('u1');
+    expect(del).toHaveBeenCalledWith('user_id', 'u1'); // saves
+    expect(del).toHaveBeenCalledWith('id', 'u1');       // profiles
   });
 
   describe('checkRlsExposure (18C / M11)', () => {

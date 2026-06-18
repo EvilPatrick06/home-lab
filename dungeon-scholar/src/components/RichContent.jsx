@@ -103,7 +103,7 @@ function styleForFence(language) {
   if (isDiagramLanguage(language)) {
     return {
       ...PRE_BASE_STYLE,
-      background: 'rgba(31, 12, 41, 0.7)',
+      background: 'rgba(var(--surface-purple, 31, 12, 41), 0.7)',
       border: '2px dashed rgba(168, 85, 247, 0.6)',
       color: '#e9d5ff',
     };

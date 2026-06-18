@@ -60,7 +60,7 @@ export function AccountPanel({ user, syncStatus, lastSyncedAt, onClose, onAfterD
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.85)' }}>
-      <div ref={panelRef} role="dialog" aria-modal="true" aria-label="Account panel" className="max-w-md w-[92%] p-6 rounded-sm border-2 border-amber-600" style={{ background: 'rgba(20, 12, 6, 0.97)' }}>
+      <div ref={panelRef} role="dialog" aria-modal="true" aria-label="Account panel" className="max-w-md w-[92%] p-6 rounded-sm border-2 border-amber-600" style={{ background: 'rgba(var(--surface-modal, 20, 12, 6), 0.97)' }}>
         <div className="flex items-center gap-3 mb-4">
           {user.avatarUrl && <img src={user.avatarUrl} alt="" className="w-12 h-12 rounded-full border-2 border-amber-700" />}
           <div>

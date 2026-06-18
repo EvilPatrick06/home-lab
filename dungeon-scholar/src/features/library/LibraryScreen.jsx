@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Gift, ChevronRight, Library, Wand2, Copy, Hash, Upload, Scroll, BookMarked, Check, X, Star, Share2, Tag, Edit2, Trash2, ScrollText } from 'lucide-react';
 import RichContent from '../../components/RichContent.jsx';
 import { blankTomeProgress } from '../../game/tome.js';
+import { isSealedTome } from '../../services/sealedTome.js';
 
 function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate, onShare, onEditMetadata, onNotes, onTogglePin, onImport, onPaste, onImportCode, onShowPrompt, setScreen, claimableQuestCount = 0 }) {
   const [renamingId, setRenamingId] = useState(null);
@@ -37,7 +38,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
           onClick={() => setScreen('quests')}
           className="w-full p-4 rounded-sm relative flex items-center justify-between transition hover:scale-[1.01] text-left"
           style={{
-            background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.6) 0%, rgba(41, 24, 12, 0.95) 100%)',
+            background: 'linear-gradient(135deg, rgba(var(--surface-amber-strong, 120, 53, 15), 0.6) 0%, rgba(var(--surface-amber, 41, 24, 12), 0.95) 100%)',
             border: '3px double rgba(245, 158, 11, 0.7)',
             boxShadow: '0 0 30px rgba(245, 158, 11, 0.4), inset 0 0 20px rgba(0,0,0,0.5)',
           }}
@@ -58,7 +59,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
       )}
 
       <div className="p-6 rounded-sm relative" style={{
-        background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.4) 0%, rgba(41, 24, 12, 0.9) 100%)',
+        background: 'linear-gradient(135deg, rgba(var(--surface-amber-strong, 120, 53, 15), 0.4) 0%, rgba(var(--surface-amber, 41, 24, 12), 0.9) 100%)',
         border: '3px double rgba(245, 158, 11, 0.6)',
         boxShadow: '0 0 30px rgba(245, 158, 11, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
       }}>
@@ -83,21 +84,21 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
             <button
               onClick={onShowPrompt}
               className="px-4 py-2 rounded-sm text-sm border-2 border-amber-700 text-amber-200 flex items-center gap-2 hover:bg-amber-900/30 italic"
-              style={{ background: 'rgba(41, 24, 12, 0.7)' }}
+              style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
             >
               <Wand2 className="w-4 h-4" /> Forge with Magic
             </button>
             <button
               onClick={onPaste}
               className="px-4 py-2 rounded-sm text-sm border-2 border-amber-700 text-amber-200 flex items-center gap-2 hover:bg-amber-900/30 italic"
-              style={{ background: 'rgba(41, 24, 12, 0.7)' }}
+              style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
             >
               <Copy className="w-4 h-4" /> Paste Tome Text
             </button>
             <button
               onClick={onImportCode}
               className="px-4 py-2 rounded-sm text-sm border-2 border-purple-700 text-purple-200 flex items-center gap-2 hover:bg-purple-900/30 italic"
-              style={{ background: 'rgba(31, 12, 41, 0.7)' }}
+              style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.7)' }}
             >
               <Hash className="w-4 h-4" /> Import Share Code
             </button>
@@ -117,7 +118,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
 
       {playerState.library.length === 0 && (
         <div className="text-center py-12 px-6 rounded-sm relative" style={{
-          background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.7) 0%, rgba(10, 6, 4, 0.9) 100%)',
+          background: 'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.7) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.9) 100%)',
           border: '3px double rgba(180, 83, 9, 0.5)',
           boxShadow: '0 0 40px rgba(180, 83, 9, 0.2), inset 0 0 30px rgba(0,0,0,0.6)',
         }}>
@@ -132,12 +133,12 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
           <div className="mt-5 flex flex-col sm:flex-row gap-2 justify-center max-w-md mx-auto">
             <button onClick={() => onShowPrompt?.()}
               className="flex-1 py-3 px-4 rounded-sm italic border-2 border-amber-700 text-amber-200"
-              style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+              style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>
               ✦ Open the Spell of Tome Creation
             </button>
             <button onClick={() => onImport?.()}
               className="flex-1 py-3 px-4 rounded-sm italic border-2 border-amber-700 text-amber-200"
-              style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+              style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>
               Inscribe a Tome (import JSON)
             </button>
           </div>
@@ -149,9 +150,13 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
           {sorted.map(tome => {
             const isActive = tome.id === playerState.activeTomeId;
             const meta = tome.data.metadata || {};
-            const cardCount = tome.data.flashcards?.length || 0;
-            const quizCount = tome.data.quiz?.length || 0;
-            const labCount = tome.data.labs?.length || 0;
+            // PHASE-41 41B: a sealed tome has no top-level content arrays (they
+            // are encrypted); its public counts live in data.sealCounts.
+            const sealed = isSealedTome(tome.data);
+            const sealCounts = tome.data.sealCounts || {};
+            const cardCount = sealed ? (sealCounts.flashcards || 0) : (tome.data.flashcards?.length || 0);
+            const quizCount = sealed ? (sealCounts.quiz || 0) : (tome.data.quiz?.length || 0);
+            const labCount = sealed ? (sealCounts.labs || 0) : (tome.data.labs?.length || 0);
             const progress = tome.progress || blankTomeProgress();
             const totalItems = cardCount + quizCount + labCount;
             const studied = (progress.cardsReviewed || 0) + (progress.quizAnswered || 0) + (progress.labsCompleted || 0);
@@ -166,8 +171,8 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                 className="rounded-sm p-5 relative transition"
                 style={{
                   background: isActive
-                    ? 'linear-gradient(135deg, rgba(120, 53, 15, 0.6) 0%, rgba(41, 24, 12, 0.95) 100%)'
-                    : 'linear-gradient(135deg, rgba(41, 24, 12, 0.85) 0%, rgba(10, 6, 4, 0.95) 100%)',
+                    ? 'linear-gradient(135deg, rgba(var(--surface-amber-strong, 120, 53, 15), 0.6) 0%, rgba(var(--surface-amber, 41, 24, 12), 0.95) 100%)'
+                    : 'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.85) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
                   border: isActive ? '3px double rgba(245, 158, 11, 0.9)' : '2px solid rgba(180, 83, 9, 0.5)',
                   boxShadow: isActive
                     ? '0 0 30px rgba(245, 158, 11, 0.4), inset 0 0 20px rgba(0,0,0,0.5)'
@@ -203,7 +208,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                             if (e.key === 'Escape') setRenamingId(null);
                           }}
                           className="flex-1 p-1 rounded-sm border-2 text-sm italic text-amber-50"
-                          style={{ background: 'rgba(20, 12, 6, 0.7)', borderColor: 'rgba(245, 158, 11, 0.6)' }}
+                          style={{ background: 'rgba(var(--surface-modal, 20, 12, 6), 0.7)', borderColor: 'rgba(245, 158, 11, 0.6)' }}
                           autoFocus
                         />
                         <button onClick={() => submitRename(tome.id)} className="px-2 text-emerald-400">
@@ -214,13 +219,26 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                         </button>
                       </div>
                     ) : (
-                      <h3
-                        className={`text-lg font-bold text-amber-200 italic truncate ${isActive ? 'pr-20' : ''}`}
-                        style={{ textShadow: '0 0 8px rgba(245, 158, 11, 0.3)' }}
-                        title={meta.title || 'Untitled Tome'}
-                      >
-                        {meta.title || 'Untitled Tome'}
-                      </h3>
+                      <div className="flex items-center gap-2 min-w-0">
+                        <h3
+                          className={`text-lg font-bold text-amber-200 italic truncate ${isActive ? 'pr-20' : ''}`}
+                          style={{ textShadow: '0 0 8px rgba(245, 158, 11, 0.3)' }}
+                          title={meta.title || 'Untitled Tome'}
+                        >
+                          {meta.title || 'Untitled Tome'}
+                        </h3>
+                        {/* PHASE-41 41B: sealed-tome marker. Content is encrypted
+                            at rest; it unlocks only after a proctor passphrase. */}
+                        {sealed && (
+                          <span
+                            className="shrink-0 px-2 py-0.5 rounded-sm text-[10px] font-bold italic"
+                            style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.8)', border: '1px solid rgba(168, 85, 247, 0.6)', color: '#d8b4fe' }}
+                            title="This tome is sealed — unlock with the proctor passphrase to study its content"
+                          >
+                            🔒 Sealed
+                          </span>
+                        )}
+                      </div>
                     )}
                     {meta.description && (
                       /* Phase 34a QA P11: render rich content (backticks +
@@ -238,7 +256,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                   <div className="flex flex-wrap gap-2 mb-3 text-xs">
                     {subject && (
                       <span className="px-2 py-0.5 rounded-sm italic" style={{
-                        background: 'rgba(31, 12, 41, 0.7)', border: '1px solid rgba(126, 34, 206, 0.5)', color: '#d8b4fe',
+                        background: 'rgba(var(--surface-purple, 31, 12, 41), 0.7)', border: '1px solid rgba(126, 34, 206, 0.5)', color: '#d8b4fe',
                       }}>📚 {subject}</span>
                     )}
                     {author && (
@@ -257,7 +275,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                   <div className="flex flex-wrap gap-1 mb-3">
                     {tags.map((tag, ti) => (
                       <span key={ti} className="px-2 py-0.5 rounded-sm text-[10px] italic" style={{
-                        background: 'rgba(120, 53, 15, 0.4)', border: '1px solid rgba(245, 158, 11, 0.4)', color: '#fcd34d',
+                        background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)', border: '1px solid rgba(245, 158, 11, 0.4)', color: '#fcd34d',
                       }}>#{tag}</span>
                     ))}
                   </div>
@@ -276,7 +294,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                       <span className="italic">Progress</span>
                       <span>{studied} interactions</span>
                     </div>
-                    <div className="h-2 rounded-full overflow-hidden border border-amber-800" style={{ background: 'rgba(10, 6, 4, 0.7)' }}>
+                    <div className="h-2 rounded-full overflow-hidden border border-amber-800" style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)' }}>
                       <div className="h-full transition-all" style={{
                         width: `${Math.min(100, (studied / Math.max(totalItems, 1)) * 100)}%`,
                         background: 'linear-gradient(to right, #f59e0b, #fde047)',
@@ -297,7 +315,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                     <button
                       onClick={() => setConfirmDelete(null)}
                       className="px-4 py-2 rounded-sm text-sm border-2 border-amber-700 text-amber-200 italic"
-                      style={{ background: 'rgba(41, 24, 12, 0.7)' }}
+                      style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
                     >
                       Cancel
                     </button>
@@ -339,7 +357,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                     <button
                       onClick={() => onTogglePin?.(tome.id)}
                       className={`px-3 py-2 rounded-sm text-sm border-2 hover:bg-amber-900/30 flex items-center gap-1.5 ${tome.pinned ? 'border-amber-400 text-amber-200' : 'border-amber-700 text-amber-400'}`}
-                      style={{ background: tome.pinned ? 'rgba(120, 53, 15, 0.7)' : 'rgba(41, 24, 12, 0.7)' }}
+                      style={{ background: tome.pinned ? 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.7)' : 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
                       title={tome.pinned ? `Unpin "${meta.title || 'this tome'}" from top` : `Pin "${meta.title || 'this tome'}" to top`}
                       aria-label={tome.pinned ? `Unpin tome "${meta.title || 'untitled'}" from the top` : `Pin tome "${meta.title || 'untitled'}" to the top`}
                       aria-pressed={!!tome.pinned}
@@ -350,7 +368,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                     <button
                       onClick={() => onShare(tome.id)}
                       className="px-3 py-2 rounded-sm text-sm border-2 border-purple-700 text-purple-300 hover:bg-purple-900/30"
-                      style={{ background: 'rgba(31, 12, 41, 0.7)' }}
+                      style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.7)' }}
                       title={`Share "${meta.title || 'this tome'}"`}
                       aria-label={`Share tome "${meta.title || 'untitled'}"`}
                     >
@@ -359,7 +377,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                     <button
                       onClick={() => onEditMetadata(tome.id)}
                       className="px-3 py-2 rounded-sm text-sm border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30"
-                      style={{ background: 'rgba(41, 24, 12, 0.7)' }}
+                      style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
                       title={`Edit metadata for "${meta.title || 'this tome'}"`}
                       aria-label={`Edit metadata for tome "${meta.title || 'untitled'}"`}
                     >
@@ -370,7 +388,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                     <button
                       onClick={() => onNotes?.(tome)}
                       className={`px-3 py-2 rounded-sm text-sm border-2 hover:bg-amber-900/30 ${tome.notes ? 'border-amber-400 text-amber-200' : 'border-amber-700 text-amber-300'}`}
-                      style={{ background: tome.notes ? 'rgba(120, 53, 15, 0.7)' : 'rgba(41, 24, 12, 0.7)' }}
+                      style={{ background: tome.notes ? 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.7)' : 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
                       title={tome.notes ? `Open encrypted notes for "${meta.title || 'this tome'}"` : `Create encrypted notes for "${meta.title || 'this tome'}"`}
                       aria-label={tome.notes ? 'Open encrypted notes' : 'Create encrypted notes'}
                     >
@@ -379,7 +397,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                     <button
                       onClick={() => startRename(tome)}
                       className="px-3 py-2 rounded-sm text-sm border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30"
-                      style={{ background: 'rgba(41, 24, 12, 0.7)' }}
+                      style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
                       title={`Rename "${meta.title || 'this tome'}"`}
                       aria-label={`Rename tome "${meta.title || 'untitled'}"`}
                     >

@@ -30,7 +30,7 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
   return (
     <div className="space-y-6">
       <div className="p-6 rounded-sm relative" style={{
-        background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.55) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        background: 'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.55) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
         border: '3px double rgba(245, 158, 11, 0.6)',
         boxShadow: '0 0 30px rgba(245, 158, 11, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
       }}>
@@ -53,7 +53,7 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
           </div>
           <button onClick={() => setScreen('home')}
             className="px-3 py-2 rounded-sm text-xs italic border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30"
-            style={{ background: 'rgba(41, 24, 12, 0.6)' }}>
+            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.6)' }}>
             ← Return to the Hearth
           </button>
         </div>
@@ -82,9 +82,9 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
       {/* Claim button */}
       <div className="p-4 rounded-sm text-center" style={{
         background: claimedToday
-          ? 'linear-gradient(135deg, rgba(31, 41, 55, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)'
-          : 'linear-gradient(135deg, rgba(120, 53, 15, 0.6) 0%, rgba(10, 6, 4, 0.95) 100%)',
-        border: `2px solid ${claimedToday ? 'rgba(120, 53, 15, 0.4)' : '#fbbf24'}`,
+          ? 'linear-gradient(135deg, rgba(31, 41, 55, 0.7) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)'
+          : 'linear-gradient(135deg, rgba(var(--surface-amber-strong, 120, 53, 15), 0.6) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
+        border: `2px solid ${claimedToday ? 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)' : '#fbbf24'}`,
       }}>
         {claimedToday ? (
           <div>
@@ -131,15 +131,15 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
             return (
               <div key={reward.day} className="p-3 rounded-sm text-center" style={{
                 background: isToday
-                  ? 'linear-gradient(135deg, rgba(120, 53, 15, 0.6) 0%, rgba(10, 6, 4, 0.95) 100%)'
+                  ? 'linear-gradient(135deg, rgba(var(--surface-amber-strong, 120, 53, 15), 0.6) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)'
                   : isClaimedToday
-                  ? 'linear-gradient(135deg, rgba(6, 78, 59, 0.5) 0%, rgba(10, 6, 4, 0.95) 100%)'
+                  ? 'linear-gradient(135deg, rgba(var(--surface-emerald, 6, 78, 59), 0.5) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)'
                   : 'rgba(0, 0, 0, 0.55)',
                 border: `2px ${reward.capstone ? 'double' : 'solid'} ${
                   isToday ? '#fbbf24'
                   : isClaimedToday ? '#10b981'
                   : reward.capstone ? 'rgba(168, 85, 247, 0.5)'
-                  : 'rgba(120, 53, 15, 0.4)'
+                  : 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)'
                 }`,
                 boxShadow: isToday ? '0 0 14px rgba(245, 158, 11, 0.4)' : 'none',
                 opacity: isPast && !isClaimedToday ? 0.55 : 1,

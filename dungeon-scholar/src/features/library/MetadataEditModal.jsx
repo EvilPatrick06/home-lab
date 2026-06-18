@@ -45,7 +45,7 @@ function MetadataEditModal({ tome, onSave, onClose }) {
   return (
     <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div ref={panelRef} role="dialog" aria-modal="true" aria-label="Edit tome details" className="rounded-sm max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
-        background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
+        background: 'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.97) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.99) 100%)',
         border: '3px double rgba(245, 158, 11, 0.6)',
         boxShadow: '0 0 40px rgba(245, 158, 11, 0.3)',
       }}>
@@ -69,7 +69,7 @@ function MetadataEditModal({ tome, onSave, onClose }) {
               onChange={(e) => setTitle(e.target.value.slice(0, 200))}
               maxLength={200}
               className="w-full p-2 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
-              style={{ background: 'rgba(20, 12, 6, 0.7)', borderColor: 'rgba(180, 83, 9, 0.5)' }} />
+              style={{ background: 'rgba(var(--surface-modal, 20, 12, 6), 0.7)', borderColor: 'rgba(180, 83, 9, 0.5)' }} />
             {/* Phase 33h QA P9: bumped char counter contrast (was
                 text-amber-700/70 — barely readable). */}
             <div className="text-xs italic text-amber-300 text-right mt-1 tabular-nums">
@@ -90,7 +90,7 @@ function MetadataEditModal({ tome, onSave, onClose }) {
               }}
               rows={2}
               className="w-full p-2 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
-              style={{ background: 'rgba(20, 12, 6, 0.7)', borderColor: 'rgba(180, 83, 9, 0.5)' }} />
+              style={{ background: 'rgba(var(--surface-modal, 20, 12, 6), 0.7)', borderColor: 'rgba(180, 83, 9, 0.5)' }} />
             <div className={`text-xs italic text-right mt-1 tabular-nums ${description.length > 600 ? 'text-red-300 font-bold' : 'text-amber-300'}`}>
               {description.length}/600
             </div>
@@ -117,7 +117,7 @@ function MetadataEditModal({ tome, onSave, onClose }) {
                 button. */}
             {description.length > 600 && descriptionUnchanged && (
               <div className="mt-2 p-2 rounded-sm text-xs italic flex items-center gap-2 flex-wrap" style={{
-                background: 'rgba(120, 53, 15, 0.35)', border: '1px solid rgba(245, 158, 11, 0.55)', color: '#fde68a',
+                background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.35)', border: '1px solid rgba(245, 158, 11, 0.55)', color: '#fde68a',
               }}>
                 <span className="flex-1">
                   ⓘ Legacy description ({description.length}/600). Save preserves it as-is; trim to make it editable.
@@ -126,7 +126,7 @@ function MetadataEditModal({ tome, onSave, onClose }) {
                   type="button"
                   onClick={() => setDescription(description.slice(0, 600))}
                   className="px-3 py-1 rounded-sm border border-amber-400 text-amber-100 hover:bg-amber-900/40"
-                  style={{ background: 'rgba(120, 53, 15, 0.55)' }}
+                  style={{ background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.55)' }}
                 >
                   Trim to 600
                 </button>
@@ -155,13 +155,13 @@ function MetadataEditModal({ tome, onSave, onClose }) {
               <label className="text-xs text-amber-600 tracking-wider italic mb-1 block">📚 SUBJECT</label>
               <input type="text" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="e.g., Cybersecurity"
                 className="w-full p-2 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
-                style={{ background: 'rgba(20, 12, 6, 0.7)', borderColor: 'rgba(180, 83, 9, 0.5)' }} />
+                style={{ background: 'rgba(var(--surface-modal, 20, 12, 6), 0.7)', borderColor: 'rgba(180, 83, 9, 0.5)' }} />
             </div>
             <div>
               <label className="text-xs text-amber-600 tracking-wider italic mb-1 block">✒️ AUTHOR</label>
               <input type="text" value={author} onChange={(e) => setAuthor(e.target.value)} placeholder="Optional"
                 className="w-full p-2 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
-                style={{ background: 'rgba(20, 12, 6, 0.7)', borderColor: 'rgba(180, 83, 9, 0.5)' }} />
+                style={{ background: 'rgba(var(--surface-modal, 20, 12, 6), 0.7)', borderColor: 'rgba(180, 83, 9, 0.5)' }} />
             </div>
           </div>
           <div>
@@ -171,8 +171,8 @@ function MetadataEditModal({ tome, onSave, onClose }) {
                 <button key={d} onClick={() => setDifficulty(d)}
                   className="flex-1 py-2 rounded-sm border-2 italic text-sm"
                   style={{
-                    background: difficulty === d ? 'rgba(120, 53, 15, 0.6)' : 'rgba(41, 24, 12, 0.5)',
-                    borderColor: difficulty === d ? 'rgba(245, 158, 11, 0.8)' : 'rgba(120, 53, 15, 0.4)',
+                    background: difficulty === d ? 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.6)' : 'rgba(var(--surface-amber, 41, 24, 12), 0.5)',
+                    borderColor: difficulty === d ? 'rgba(245, 158, 11, 0.8)' : 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)',
                     color: difficulty === d ? '#fde047' : '#a8a29e',
                   }}>
                   {d === 0 ? '— None' : '★'.repeat(d)}
@@ -185,11 +185,11 @@ function MetadataEditModal({ tome, onSave, onClose }) {
             <input type="text" value={tagsText} onChange={(e) => setTagsText(e.target.value)}
               placeholder="e.g., security+, cert-prep, exam-2024"
               className="w-full p-2 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
-              style={{ background: 'rgba(20, 12, 6, 0.7)', borderColor: 'rgba(180, 83, 9, 0.5)' }} />
+              style={{ background: 'rgba(var(--surface-modal, 20, 12, 6), 0.7)', borderColor: 'rgba(180, 83, 9, 0.5)' }} />
           </div>
         </div>
         <div className="p-4 border-t border-amber-700/50 flex gap-2">
-          <button onClick={onClose} className="px-6 py-3 rounded-sm border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.7)' }} aria-label="Cancel metadata edit">Cancel</button>
+          <button onClick={onClose} className="px-6 py-3 rounded-sm border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }} aria-label="Cancel metadata edit">Cancel</button>
           <button onClick={submit}
             disabled={descriptionBlocksSave || title.length > 200}
             title={descriptionBlocksSave ? `Trim description ${description.length - 600} chars before saving` : (title.length > 200 ? 'Trim title before saving' : undefined)}

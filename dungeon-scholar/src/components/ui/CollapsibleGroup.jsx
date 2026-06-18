@@ -10,7 +10,7 @@ export function CollapsibleGroup({ title, icon, color = 'amber', defaultOpen = t
   }[color] || { border: 'rgba(180, 83, 9, 0.55)', text: '#fcd34d', glow: 'rgba(245, 158, 11, 0.18)' };
   return (
     <div className="rounded-sm relative" style={{
-      background: 'linear-gradient(135deg, rgba(20, 12, 6, 0.55) 0%, rgba(10, 6, 4, 0.92) 100%)',
+      background: 'linear-gradient(135deg, rgba(var(--surface-modal, 20, 12, 6), 0.55) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.92) 100%)',
       border: `2px solid ${palette.border}`,
       boxShadow: `0 0 20px ${palette.glow}, inset 0 0 18px rgba(0,0,0,0.5)`,
     }}>

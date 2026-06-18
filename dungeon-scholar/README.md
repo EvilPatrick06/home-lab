@@ -115,9 +115,40 @@ Tomes are plain JSON — every `correctAnswer` / `acceptedAnswers` field ships i
 readable text, both in the sample tome files in this repo and inside your
 browser's `localStorage` / cloud save after import. Anyone using DevTools can
 read the key for any question. That's fine for self-study; it makes the app
-unsuitable for **proctored or graded exams** as-is. A "sealed tome" format
-(server-held or encrypted keys) is tracked as future work — until it ships,
-don't use Dungeon Scholar as an assessment platform.
+unsuitable for **proctored or graded exams** as-is — unless you **seal** the
+tome first (see below).
+
+### Sealed tomes
+
+**What sealing does.** Sealing encrypts the tome's entire study content —
+flashcards, quiz, labs, and knowledge base — with **AES-256-GCM**. The key is
+derived from a proctor passphrase via **PBKDF2-HMAC-SHA-256 at 600,000
+iterations**. Only the metadata (title, domain) and per-section item counts stay
+public; the answers are unreadable in the repo, in `localStorage`, in the cloud
+save row, in exports, and in share codes. Even view-source on the encrypted file
+reveals nothing but ciphertext.
+
+**Proctor workflow.** Open **Library → Share (on the tome) → "Seal for proctored
+use"**, choose a passphrase (≥ 8 characters, entered twice), and click **Seal &
+download**. You get a `<tome>-sealed.json` file. Distribute that sealed file (or
+the equivalent sealed share code) to students. The library entry on your own
+machine is *not* modified — sealing is an export operation, so you keep your
+plain working copy.
+
+**Student flow.** A student imports the sealed tome like any other. It shows a
+🔒 lock and cannot be studied until they enter the proctor passphrase to unlock
+it. Unlocking decrypts the content **in memory only** for that session — nothing
+unencrypted is written back to disk or the cloud — and the tome **re-locks on
+refresh**, so the passphrase is needed again next session.
+
+**Honest limits.** Sealing protects content **at rest** and from casual
+inspection / view-source — it is **not DRM**. While a tome is *unlocked*, its
+decrypted content lives in page memory and React state, so a determined student
+with DevTools open *can* read it during an active unlocked session. Use sealing
+to stop answer keys leaking through files, share codes, and the repo — not to
+guarantee a student never sees the plaintext on their own machine. The
+passphrase is **unrecoverable by design**: lose it and the sealed content is
+gone for good.
 
 ## Deploy
 

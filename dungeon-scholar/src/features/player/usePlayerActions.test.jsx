@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { renderHook, act } from '@testing-library/react';
 import { usePlayerActions } from './usePlayerActions.js';
 import { DEFAULT_STATE } from '../../game/defaultState.js';
+import { DAILY_REWARDS, todayDateStr } from '../../services/devotion.js';
+import { findItem } from '../../game/items.js';
 
 // Harness: own a useState(DEFAULT_STATE) wired into the hook as
 // { playerState, setPlayerState }, plus a vi.fn() showNotif. `seed` lets a
@@ -120,5 +122,273 @@ describe('usePlayerActions', () => {
     expect(second.ok).toBe(false);
     // No second reward granted — gold is unchanged from the first claim.
     expect(result.current.playerState.gold).toBe(goldAfterFirst);
+  });
+});
+
+// Local YYYY-MM-DD `n` days before today — mirrors devotion.todayDateStr's
+// local-date math so the gap-based streak logic isn't tripped by UTC drift.
+const daysAgoStr = (n) => {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
+describe('usePlayerActions — devotion claim (Phase-30 QA gap)', () => {
+  it('a fresh claim grants the cycleDay-1 reward, stamps today, and bumps the streak', () => {
+    // No prior claim → willStreak 1, cycleDay 1 → DAILY_REWARDS[0].
+    const reward = DAILY_REWARDS[0];
+    const { result } = makeHook({
+      gold: 0, xp: 0, totalXp: 0, devotion: 0, loginStreak: 0,
+      lastClaimedDate: null, lastClaimedAt: null,
+    });
+
+    let res;
+    act(() => { res = result.current.actions.claimDailyReward(); });
+
+    expect(res.ok).toBe(true);
+    expect(res.reward).toBe(reward);
+    const s = result.current.playerState;
+    expect(s.gold).toBe(reward.gold);
+    expect(s.xp).toBe(reward.xp);
+    expect(s.totalXp).toBe(reward.xp);
+    expect(s.devotion).toBe(reward.devotion);
+    expect(s.lastClaimedDate).toBe(todayDateStr());
+    expect(typeof s.lastClaimedAt).toBe('number');
+    expect(s.loginStreak).toBe(1);
+    expect(s.cycleDay).toBe(1);
+    // Day-1 reward grants no items, so inventory stays empty.
+    expect(Object.keys(s.inventory || {})).toHaveLength(0);
+  });
+
+  it('grants the items on an item-bearing cycle day (continuing streak)', () => {
+    // lastClaimed yesterday, streak 1 → willStreak 2, cycleDay 2 → DAILY_REWARDS[1]
+    // which grants { minor_heal_tonic: 1 }.
+    const reward = DAILY_REWARDS[1];
+    expect(reward.items.length).toBeGreaterThan(0);
+    const { result } = makeHook({
+      gold: 0, loginStreak: 1,
+      lastClaimedDate: daysAgoStr(1), lastClaimedAt: Date.now() - 86_400_000,
+    });
+
+    let res;
+    act(() => { res = result.current.actions.claimDailyReward(); });
+
+    expect(res.ok).toBe(true);
+    const s = result.current.playerState;
+    expect(s.loginStreak).toBe(2);
+    expect(s.cycleDay).toBe(2);
+    reward.items.forEach(({ id, n }) => {
+      expect(s.inventory[id]).toBe(n);
+    });
+  });
+
+  it('a claim after a gap > 1 day resets the login streak to 1', () => {
+    const { result } = makeHook({
+      loginStreak: 5,
+      lastClaimedDate: daysAgoStr(3), // 3-day gap
+      lastClaimedAt: Date.now() - 3 * 86_400_000,
+    });
+
+    let res;
+    act(() => { res = result.current.actions.claimDailyReward(); });
+
+    expect(res.ok).toBe(true);
+    expect(result.current.playerState.loginStreak).toBe(1);
+    expect(result.current.playerState.cycleDay).toBe(1);
+  });
+});
+
+describe('usePlayerActions — ascension + celestial spend (Phase-30 QA gap)', () => {
+  it('ascend() below level 50 is a no-op { ok: false } with state unchanged', () => {
+    const { result } = makeHook({ level: 49, gold: 500, ascensions: 0, ascensionTokens: 0 });
+
+    let res;
+    act(() => { res = result.current.actions.ascend(); });
+
+    expect(res.ok).toBe(false);
+    const s = result.current.playerState;
+    expect(s.level).toBe(49);
+    expect(s.gold).toBe(500);
+    expect(s.ascensions).toBe(0);
+    expect(s.ascensionTokens).toBe(0);
+  });
+
+  it('ascend() at level >= 50 grants a token, resets level/xp/gold, keeps ingredients + identity', () => {
+    const { result } = makeHook({
+      level: 50, xp: 40, gold: 999,
+      // ember_ash is an ingredient (kept); minor_heal_tonic is apothecary (wiped).
+      inventory: { ember_ash: 3, minor_heal_tonic: 2 },
+      ascensions: 1, ascensionTokens: 0,
+      achievements: ['first_tome'],
+      unlockedTitles: ['Novice'],
+      bestiary: { skeleton: { defeats: 2, firstDefeatedAt: 'x' } },
+      pets: { wise_owl: { xp: 50, hatchedAt: 'y' } },
+      spellbook: { glyph_of_mending: { learnedAt: 'z' } },
+    });
+
+    let res;
+    act(() => { res = result.current.actions.ascend(); });
+
+    expect(res.ok).toBe(true);
+    const s = result.current.playerState;
+    expect(s.ascensions).toBe(2);
+    expect(s.ascensionTokens).toBe(1);
+    expect(s.level).toBe(1);
+    expect(s.xp).toBe(0);
+    expect(s.gold).toBe(0);
+    // Inventory keeps only ingredient-category stacks.
+    expect(s.inventory).toEqual({ ember_ash: 3 });
+    // Identity survives ascension.
+    expect(s.achievements).toEqual(['first_tome']);
+    expect(s.unlockedTitles).toEqual(['Novice']);
+    expect(s.bestiary).toEqual({ skeleton: { defeats: 2, firstDefeatedAt: 'x' } });
+    expect(s.pets).toEqual({ wise_owl: { xp: 50, hatchedAt: 'y' } });
+    expect(s.spellbook).toEqual({ glyph_of_mending: { learnedAt: 'z' } });
+  });
+
+  it('purchaseItem(celestial) with 0 tokens is rejected', () => {
+    const { result } = makeHook({ ascensionTokens: 0, gold: 9999 });
+
+    let res;
+    act(() => { res = result.current.actions.purchaseItem('celestial_xp_font'); });
+
+    expect(res.ok).toBe(false);
+    expect(result.current.playerState.ascensionTokens).toBe(0);
+    expect(result.current.playerState.permUpgrades.ascXpPct).toBeUndefined();
+  });
+
+  it('purchaseItem(celestial) with a token decrements the token (gold untouched) and applies the perm upgrade', () => {
+    const item = findItem('celestial_xp_font'); // ascensionPrice 1, permKey ascXpPct, step 25
+    const { result } = makeHook({ ascensionTokens: 1, gold: 777, permUpgrades: {} });
+
+    let res;
+    act(() => { res = result.current.actions.purchaseItem('celestial_xp_font'); });
+
+    expect(res.ok).toBe(true);
+    const s = result.current.playerState;
+    expect(s.ascensionTokens).toBe(0);  // 1 - 1
+    expect(s.gold).toBe(777);           // gold is NOT spent on celestial wares
+    expect(s.permUpgrades[item.permKey]).toBe(item.step || 1); // +25
+    expect(s.inventory.celestial_xp_font).toBe(1);
+  });
+
+  // ADAPTATION (Phase 41G): the gap spec expected "at cap → reject", but the
+  // REAL source does NOT enforce the cap for celestial (or devotion) items.
+  // purchaseItem calls sanctumAtCap(state, item) for those categories, yet
+  // sanctumCount() (items.js) short-circuits to 0 for any category !== 'sanctum'
+  // (`if (item.category !== 'sanctum' || !item.permKey) return 0;`). So
+  // sanctumAtCap is always `0 >= cap` → false for celestial items, and the
+  // purchase succeeds past the documented cap. This test locks the ACTUAL
+  // behavior; the cap-not-enforced bug is logged in
+  // docs/ISSUES-LOG-DUNGEON-SCHOLAR.md (no production change in this sub-phase).
+  it('purchaseItem(celestial) does NOT enforce the documented cap (real-behavior lock)', () => {
+    const item = findItem('celestial_revive'); // ascensionPrice 4, permKey ascAutoRevive, cap 1
+    const { result } = makeHook({
+      ascensionTokens: 10,
+      permUpgrades: { [item.permKey]: 1 }, // already at the documented cap of 1
+    });
+
+    let res;
+    act(() => { res = result.current.actions.purchaseItem('celestial_revive'); });
+
+    // Bug: cap is bypassed for celestial wares — the purchase goes through.
+    expect(res.ok).toBe(true);
+    // Token spent, perm counter advanced past the cap.
+    expect(result.current.playerState.ascensionTokens).toBe(10 - item.ascensionPrice); // 6
+    expect(result.current.playerState.permUpgrades[item.permKey]).toBe(1 + (item.step || 1)); // 2 > cap 1
+  });
+});
+
+describe('usePlayerActions — stable + bestiary (Phase-30 QA gap)', () => {
+  it('purchaseItem(<egg>) with enough gold deducts gold, adds inventory, and auto-hatches the pet at xp 0', () => {
+    const egg = findItem('wise_owl_egg'); // price 300, petId wise_owl, oneTime
+    const { result } = makeHook({ gold: 400, pets: {}, inventory: {} });
+
+    let res;
+    act(() => { res = result.current.actions.purchaseItem('wise_owl_egg'); });
+
+    expect(res.ok).toBe(true);
+    const s = result.current.playerState;
+    expect(s.gold).toBe(400 - egg.price);
+    expect(s.inventory.wise_owl_egg).toBe(1);
+    expect(s.pets.wise_owl).toBeTruthy();
+    expect(s.pets.wise_owl.xp).toBe(0);
+    expect(typeof s.pets.wise_owl.hatchedAt).toBe('string');
+  });
+
+  it('a second egg purchase is rejected (oneTime)', () => {
+    const { result } = makeHook({ gold: 1000, inventory: { wise_owl_egg: 1 }, pets: { wise_owl: { xp: 0, hatchedAt: 'h' } } });
+
+    let res;
+    act(() => { res = result.current.actions.purchaseItem('wise_owl_egg'); });
+
+    expect(res.ok).toBe(false);
+    expect(result.current.playerState.inventory.wise_owl_egg).toBe(1); // unchanged
+  });
+
+  it('equipPet / unequipPet toggle equipped.pet', () => {
+    const { result } = makeHook({ pets: { wise_owl: { xp: 0, hatchedAt: 'h' } } });
+
+    act(() => { result.current.actions.equipPet('wise_owl'); });
+    expect(result.current.playerState.equipped.pet).toBe('wise_owl');
+
+    act(() => { result.current.actions.unequipPet(); });
+    expect(result.current.playerState.equipped.pet).toBeNull();
+  });
+
+  it('recordBestiary increments defeats and fixes firstDefeatedAt on the first defeat', () => {
+    const { result } = makeHook();
+
+    act(() => { result.current.actions.recordBestiary('skeleton'); });
+    const first = result.current.playerState.bestiary.skeleton;
+    expect(first.defeats).toBe(1);
+    expect(typeof first.firstDefeatedAt).toBe('string');
+    const firstStamp = first.firstDefeatedAt;
+
+    act(() => { result.current.actions.recordBestiary('skeleton'); });
+    const second = result.current.playerState.bestiary.skeleton;
+    expect(second.defeats).toBe(2);
+    expect(second.firstDefeatedAt).toBe(firstStamp); // unchanged on repeat
+  });
+});
+
+describe('usePlayerActions — tome deletion (Phase-30 QA gap)', () => {
+  const lib3 = () => [
+    { id: 't1', data: { metadata: { title: 'One' } }, progress: {} },
+    { id: 't2', data: { metadata: { title: 'Two' } }, progress: {} },
+    { id: 't3', data: { metadata: { title: 'Three' } }, progress: {} },
+  ];
+
+  it('deleting a non-active tome leaves activeTomeId untouched', () => {
+    const { result } = makeHook({ library: lib3(), activeTomeId: 't1' });
+
+    act(() => { result.current.actions.deleteTome('t2'); });
+
+    const s = result.current.playerState;
+    expect(s.library.map(t => t.id)).toEqual(['t1', 't3']);
+    expect(s.activeTomeId).toBe('t1');
+  });
+
+  it('deleting the active tome re-points to the first remaining id', () => {
+    const { result } = makeHook({ library: lib3(), activeTomeId: 't1' });
+
+    act(() => { result.current.actions.deleteTome('t1'); });
+
+    const s = result.current.playerState;
+    expect(s.library.map(t => t.id)).toEqual(['t2', 't3']);
+    expect(s.activeTomeId).toBe('t2'); // first remaining
+  });
+
+  it('deleting the last tome sets activeTomeId to null', () => {
+    const { result } = makeHook({
+      library: [{ id: 't1', data: { metadata: { title: 'One' } }, progress: {} }],
+      activeTomeId: 't1',
+    });
+
+    act(() => { result.current.actions.deleteTome('t1'); });
+
+    const s = result.current.playerState;
+    expect(s.library).toHaveLength(0);
+    expect(s.activeTomeId).toBeNull();
   });
 });

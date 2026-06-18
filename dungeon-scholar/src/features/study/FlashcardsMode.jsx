@@ -148,7 +148,7 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
     return (
       <div className="space-y-4 max-w-2xl mx-auto">
         <div className="p-6 rounded-sm text-center" style={{
-          background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.5) 0%, rgba(10, 6, 4, 0.95) 100%)',
+          background: 'linear-gradient(135deg, rgba(var(--surface-emerald, 6, 78, 59), 0.5) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
           border: '3px double rgba(16, 185, 129, 0.6)',
           boxShadow: '0 0 30px rgba(16, 185, 129, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',
         }}>
@@ -162,7 +162,7 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
         </div>
         <button onClick={() => onExitReviewMode?.()}
           className="w-full py-3 px-4 rounded-sm font-bold italic border-2 border-amber-400 text-amber-100"
-          style={{ background: 'rgba(120, 53, 15, 0.7)' }}>
+          style={{ background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.7)' }}>
           <Home className="w-4 h-4 inline mr-2" /> Return Home
         </button>
       </div>
@@ -184,7 +184,7 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
       {reviewMode ? (
         <button onClick={() => onExitReviewMode?.()}
           className="w-full py-3 px-4 rounded-sm font-bold italic border-2 border-amber-400 text-amber-100"
-          style={{ background: 'rgba(120, 53, 15, 0.7)' }}>
+          style={{ background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.7)' }}>
           <Home className="w-4 h-4 inline mr-2" /> Return Home
         </button>
       ) : (
@@ -193,7 +193,7 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
         <div className="grid grid-cols-2 gap-3">
           <button onClick={() => onExitFilter?.()} disabled={!onExitFilter}
             className="py-3 px-4 rounded-sm italic border-2 border-amber-700 text-amber-200 disabled:opacity-30 disabled:cursor-not-allowed"
-            style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>
             <ArrowLeft className="w-4 h-4 inline mr-2" /> {domainFilter ? 'Clear Filter' : 'Back'}
           </button>
         </div>
@@ -255,7 +255,7 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
             </button>
             <button onClick={() => rate(SRS_RATINGS.good)}
               className="py-3 rounded-sm font-bold border-2 border-emerald-400 text-emerald-200 italic"
-              style={{ background: 'rgba(6, 78, 59, 0.55)' }}
+              style={{ background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.55)' }}
               title="Recalled with effort — standard interval">
               ⚔ Good
             </button>
@@ -273,8 +273,8 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
       )}
       {!flipped && !reviewMode && (
         <div className="flex gap-2">
-          <button onClick={() => { setIndex((index - 1 + cards.length) % cards.length); setFlipped(false); }} className="flex-1 py-2 rounded-sm border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.7)' }}>← Prior</button>
-          <button onClick={() => { setIndex((index + 1) % cards.length); setFlipped(false); }} className="flex-1 py-2 rounded-sm border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.7)' }}>Skip →</button>
+          <button onClick={() => { setIndex((index - 1 + cards.length) % cards.length); setFlipped(false); }} className="flex-1 py-2 rounded-sm border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>← Prior</button>
+          <button onClick={() => { setIndex((index + 1) % cards.length); setFlipped(false); }} className="flex-1 py-2 rounded-sm border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>Skip →</button>
         </div>
       )}
       {!flipped && reviewMode && (

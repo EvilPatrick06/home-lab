@@ -18,7 +18,7 @@ export function ModeCard({ title, desc, icon, color, onClick, featured, disabled
       style={{
         // Phase 38g: background sourced from CSS vars so light theme can
         // re-theme without a React subscription. Border + glow stay solid.
-        background: `linear-gradient(135deg, var(--modecard-bg-start, rgba(41, 24, 12, 0.85)) 0%, var(--modecard-bg-end, rgba(10, 6, 4, 0.95)) 100%)`,
+        background: `linear-gradient(135deg, var(--modecard-bg-start, rgba(var(--surface-amber, 41, 24, 12), 0.85)) 0%, var(--modecard-bg-end, rgba(var(--surface-deep, 10, 6, 4), 0.95)) 100%)`,
         border: `2px solid ${c.border}`,
         boxShadow: disabled ? 'inset 0 0 20px rgba(0,0,0,0.5)' : `0 0 20px ${c.glow}, inset 0 0 20px rgba(0,0,0,0.5)`,
       }}

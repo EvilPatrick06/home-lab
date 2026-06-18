@@ -42,7 +42,7 @@ function AudioPanel() {
         <div className="flex items-center gap-3 flex-wrap">
           <button onClick={toggleMute}
             className={`px-4 py-2 rounded-sm flex items-center gap-2 italic border-2 ${muted ? 'border-stone-600 text-stone-300' : 'border-emerald-600 text-emerald-200'}`}
-            style={{ background: muted ? 'rgba(31, 24, 12, 0.7)' : 'rgba(6, 78, 59, 0.4)' }}>
+            style={{ background: muted ? 'rgba(31, 24, 12, 0.7)' : 'rgba(var(--surface-emerald, 6, 78, 59), 0.4)' }}>
             {muted ? '🔇 Sound: Off' : '🔊 Sound: On'}
           </button>
           <span className="text-xs italic text-amber-700">
@@ -71,7 +71,7 @@ function AudioPanel() {
             disabled={atDefaults}
             title={`Reset Music to ${Math.round(defaults.bgmVolume * 100)}% and Effects to ${Math.round(defaults.sfxVolume * 100)}%`}
             className="px-3 py-1.5 rounded-sm text-xs italic border-2 border-amber-700 text-amber-200 hover:bg-amber-900/30 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
-            style={{ background: 'rgba(41, 24, 12, 0.7)' }}
+            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
           >
             <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" /> Reset to defaults
           </button>

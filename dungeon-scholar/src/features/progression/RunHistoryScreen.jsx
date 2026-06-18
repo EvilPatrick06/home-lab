@@ -74,7 +74,7 @@ function RunHistoryScreen({ playerState, setScreen }) {
   return (
     <div className="space-y-6">
       <div className="p-6 rounded-sm relative" style={{
-        background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        background: 'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.7) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
         border: '3px double rgba(168, 85, 247, 0.6)',
         boxShadow: '0 0 30px rgba(168, 85, 247, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
       }}>
@@ -143,7 +143,7 @@ function RunHistoryScreen({ playerState, setScreen }) {
             tome's analytics start landing. */}
         {totalAnswered > 0 && (
           <div className="p-4 rounded-sm" style={{
-            background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.6) 0%, rgba(10, 6, 4, 0.95) 100%)',
+            background: 'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.6) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
             border: '2px solid rgba(126, 34, 206, 0.45)',
           }}>
             <div className="flex items-center gap-2 mb-3">
@@ -196,7 +196,7 @@ function RunHistoryScreen({ playerState, setScreen }) {
               toggles sort direction (or switches sortKey on a different
               column). Sort indicator is appended to the label. */}
           <div className="flex flex-wrap gap-2 items-center px-3 py-2 rounded-sm text-[11px] italic"
-               style={{ background: 'rgba(10, 6, 4, 0.45)', border: '1px solid rgba(120, 53, 15, 0.3)' }}>
+               style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.45)', border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15), 0.3)' }}>
             <span className="text-amber-700 mr-1">Sort by:</span>
             {[
               { k: 'date',       label: 'Date' },
@@ -212,7 +212,7 @@ function RunHistoryScreen({ playerState, setScreen }) {
                   className="px-2 py-1 rounded-sm transition"
                   style={{
                     background: active ? 'rgba(245, 158, 11, 0.2)' : 'transparent',
-                    border: `1px solid ${active ? 'rgba(245, 158, 11, 0.6)' : 'rgba(120, 53, 15, 0.3)'}`,
+                    border: `1px solid ${active ? 'rgba(245, 158, 11, 0.6)' : 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.3)'}`,
                     color: active ? '#fde047' : '#a8a29e',
                   }}>
                   {label} {sortIcon(k)}
@@ -228,8 +228,8 @@ function RunHistoryScreen({ playerState, setScreen }) {
             return (
               <div key={run.runId} className="rounded-sm relative overflow-hidden" style={{
                 background: run.won
-                  ? 'linear-gradient(135deg, rgba(6, 78, 59, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)'
-                  : 'linear-gradient(135deg, rgba(127, 29, 29, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)',
+                  ? 'linear-gradient(135deg, rgba(var(--surface-emerald, 6, 78, 59), 0.4) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)'
+                  : 'linear-gradient(135deg, rgba(127, 29, 29, 0.4) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
                 border: run.won ? '2px solid rgba(16, 185, 129, 0.55)' : '2px solid rgba(239, 68, 68, 0.5)',
               }}>
                 <button
@@ -332,7 +332,7 @@ function RunHistoryScreen({ playerState, setScreen }) {
                           )}
                           <div className="space-y-1">
                             {log.map((q, i) => (
-                              <div key={i} className="flex items-start gap-2 text-xs italic" style={{ background: 'rgba(10, 6, 4, 0.5)', padding: '6px 8px', borderRadius: '4px' }}>
+                              <div key={i} className="flex items-start gap-2 text-xs italic" style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.5)', padding: '6px 8px', borderRadius: '4px' }}>
                                 {q.correct
                                   ? <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
                                   : <X className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />}

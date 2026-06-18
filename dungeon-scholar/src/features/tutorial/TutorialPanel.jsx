@@ -9,7 +9,7 @@ function TutorialPanel({ stepIndex, collapsed, onToggle, onAdvance, onSkip, onAc
   return (
     <div className="fixed bottom-4 right-4 z-40 max-w-sm w-full md:w-96" style={{ pointerEvents: 'auto' }}>
       <div className="rounded-sm relative" style={{
-        background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
+        background: 'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.97) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.99) 100%)',
         border: '3px double rgba(168, 85, 247, 0.7)',
         boxShadow: '0 0 30px rgba(168, 85, 247, 0.4), inset 0 0 20px rgba(0,0,0,0.5)',
       }}>
@@ -33,7 +33,7 @@ function TutorialPanel({ stepIndex, collapsed, onToggle, onAdvance, onSkip, onAc
 
         {!collapsed && (
           <div className="px-4 pb-4 space-y-3">
-            <div className="h-1.5 rounded-full overflow-hidden border border-purple-800" style={{ background: 'rgba(10, 6, 4, 0.7)' }}>
+            <div className="h-1.5 rounded-full overflow-hidden border border-purple-800" style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)' }}>
               <div className="h-full transition-all" style={{
                 width: `${progress}%`,
                 background: 'linear-gradient(to right, #a855f7, #d8b4fe)',
@@ -64,7 +64,7 @@ function TutorialPanel({ stepIndex, collapsed, onToggle, onAdvance, onSkip, onAc
                   </button>
                 ) : (
                   <div className="flex-1 py-2 px-3 rounded-sm text-xs italic text-purple-300 text-center" style={{
-                    background: 'rgba(31, 12, 41, 0.6)', border: '1px dashed rgba(168, 85, 247, 0.5)',
+                    background: 'rgba(var(--surface-purple, 31, 12, 41), 0.6)', border: '1px dashed rgba(168, 85, 247, 0.5)',
                   }}>
                     {step.completionLabel}
                   </div>
@@ -84,7 +84,7 @@ function TutorialPanel({ stepIndex, collapsed, onToggle, onAdvance, onSkip, onAc
               <button
                 onClick={onSkip}
                 className="px-3 py-2 rounded-sm text-xs border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30 italic"
-                style={{ background: 'rgba(41, 24, 12, 0.7)' }}
+                style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
                 title="Skip the tutorial — thy path is thine own"
               >
                 Skip

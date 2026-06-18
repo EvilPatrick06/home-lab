@@ -30,7 +30,7 @@ function MistakeVault({ courseSet, tomeProgress, playerState, onRemove, checkAch
         {/* 19E (L17): a way out of the dead-end ledger. */}
         <button onClick={() => onGoHome?.()}
           className="mt-5 w-full py-3 px-4 rounded-sm italic border-2 border-amber-700 text-amber-200"
-          style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+          style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>
           Return to the Hearth — study a tome to fill this ledger
         </button>
       </div>
@@ -57,10 +57,10 @@ function MistakeVault({ courseSet, tomeProgress, playerState, onRemove, checkAch
               <div className="text-xs text-red-400 tracking-[0.3em] mb-1 italic">⚔ {(item._type || 'item').toUpperCase()} ⚔</div>
               <div className="text-amber-50 mb-2 italic">{item.question || item.front || item.term || item.title}</div>
               {item.explanation && (
-                <div className="text-sm text-amber-100/70 mt-2 p-2 rounded-sm italic" style={{ background: 'rgba(20, 12, 6, 0.6)', border: '1px solid rgba(120, 53, 15, 0.4)' }}>{item.explanation}</div>
+                <div className="text-sm text-amber-100/70 mt-2 p-2 rounded-sm italic" style={{ background: 'rgba(var(--surface-modal, 20, 12, 6), 0.6)', border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)' }}>{item.explanation}</div>
               )}
             </div>
-            <button onClick={() => { onRemove(item); awardXP(5); }} className="px-3 py-1 rounded-sm text-sm border-2 border-emerald-400 text-emerald-200" style={{ background: 'rgba(6, 78, 59, 0.5)' }}
+            <button onClick={() => { onRemove(item); awardXP(5); }} className="px-3 py-1 rounded-sm text-sm border-2 border-emerald-400 text-emerald-200" style={{ background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.5)' }}
               title="Mark vanquished (+5 XP) — dismisses this entry (undoable for a moment)"
               aria-label={`Mark vanquished and dismiss: ${(item.question || item.front || item.term || item.title || '').slice(0, 80)}`}>
               <Check className="w-4 h-4" aria-hidden="true" />

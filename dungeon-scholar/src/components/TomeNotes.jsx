@@ -17,14 +17,14 @@ import { useDialogA11y } from './useDialogA11y.js';
 // localStorage and the cloud blob; rides the existing sync untouched).
 
 const MODAL_SHELL_STYLE = {
-  background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
+  background: 'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.97) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.99) 100%)',
   border: '3px double rgba(245, 158, 11, 0.6)',
   boxShadow: '0 0 40px rgba(245, 158, 11, 0.3)',
 };
 
 const FIELD_STYLE = {
-  background: 'rgba(10, 6, 4, 0.7)',
-  borderColor: 'rgba(120, 53, 15, 0.7)',
+  background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)',
+  borderColor: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.7)',
 };
 
 export default function TomeNotes({ tome, onSave, onClose }) {
@@ -282,7 +282,7 @@ export default function TomeNotes({ tome, onSave, onClose }) {
               <button
                 onClick={handleLock}
                 className="px-4 py-3 rounded-sm border-2 border-amber-700 text-amber-200 flex items-center gap-2 hover:bg-amber-900/30 italic"
-                style={{ background: 'rgba(41, 24, 12, 0.7)' }}
+                style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
               >
                 <Lock className="w-4 h-4" aria-hidden="true" /> Lock
               </button>
@@ -299,7 +299,7 @@ export default function TomeNotes({ tome, onSave, onClose }) {
                 <button
                   onClick={() => setConfirmDelete(false)}
                   className="px-4 py-2 rounded-sm text-sm border-2 border-amber-700 text-amber-200 italic"
-                  style={{ background: 'rgba(41, 24, 12, 0.7)' }}
+                  style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
                 >
                   Cancel
                 </button>

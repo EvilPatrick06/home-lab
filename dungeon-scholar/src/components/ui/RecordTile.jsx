@@ -1,7 +1,7 @@
 export function RecordTile({ label, value, sub }) {
   return (
     <div className="p-3 rounded-sm relative" style={{
-      background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.45) 0%, rgba(41, 24, 12, 0.85) 100%)',
+      background: 'linear-gradient(135deg, rgba(var(--surface-amber-strong, 120, 53, 15), 0.45) 0%, rgba(var(--surface-amber, 41, 24, 12), 0.85) 100%)',
       border: '1px solid rgba(245, 158, 11, 0.4)',
       boxShadow: 'inset 0 0 12px rgba(0,0,0,0.4)',
     }}>

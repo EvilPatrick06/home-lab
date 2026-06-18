@@ -22,7 +22,7 @@ export function ConfirmModal({ title, body, confirmLabel = 'Confirm', cancelLabe
       <div className="rounded-sm max-w-md w-full overflow-hidden flex flex-col relative" style={{
         background: confirmIsDanger
           ? 'linear-gradient(135deg, rgba(80, 20, 20, 0.97) 0%, rgba(20, 6, 6, 0.99) 100%)'
-          : 'linear-gradient(135deg, rgba(41, 24, 12, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
+          : 'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.97) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.99) 100%)',
         border: confirmIsDanger
           ? '3px double rgba(220, 38, 38, 0.7)'
           : '3px double rgba(245, 158, 11, 0.6)',
@@ -45,7 +45,7 @@ export function ConfirmModal({ title, body, confirmLabel = 'Confirm', cancelLabe
             data-autofocus
             onClick={onCancel}
             className="flex-1 py-3 rounded-sm font-bold italic border-2 border-amber-700 text-amber-200"
-            style={{ background: 'rgba(41, 24, 12, 0.7)' }}
+            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
           >
             {cancelLabel}
           </button>

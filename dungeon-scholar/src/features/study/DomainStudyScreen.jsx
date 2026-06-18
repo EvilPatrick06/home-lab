@@ -187,7 +187,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
   return (
     <div className="space-y-6">
       <div className="p-6 rounded-sm relative" style={{
-        background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        background: 'linear-gradient(135deg, rgba(var(--surface-emerald, 6, 78, 59), 0.7) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
         border: '3px double rgba(16, 185, 129, 0.6)',
         boxShadow: '0 0 30px rgba(16, 185, 129, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
       }}>
@@ -207,7 +207,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
             </div>
           </div>
           <button onClick={() => setScreen('home')} className="px-3 py-2 rounded-sm text-sm border-2 border-amber-700 text-amber-200 italic hover:bg-amber-900/30"
-            style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>
             <ArrowLeft className="w-4 h-4 inline mr-1" /> Home
           </button>
         </div>
@@ -218,7 +218,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
             value={selectedTomeId}
             onChange={(e) => setSelectedTomeId(e.target.value)}
             className="w-full p-2 rounded-sm text-amber-50 italic border-2 border-emerald-700"
-            style={{ background: 'rgba(6, 78, 59, 0.5)' }}
+            style={{ background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.5)' }}
           >
             <option value="combined">Combined (all tomes)</option>
             {library.map(t => (
@@ -246,7 +246,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
           always available) and the daily-target stats once a date is set. */}
       {!isCombined && selectedTome && onSetExamDate && (
         <div className="p-4 rounded-sm" style={{
-          background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.45) 0%, rgba(10, 6, 4, 0.95) 100%)',
+          background: 'linear-gradient(135deg, rgba(var(--surface-amber-strong, 120, 53, 15), 0.45) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
           border: '2px solid rgba(245, 158, 11, 0.5)',
           boxShadow: '0 0 18px rgba(245, 158, 11, 0.15), inset 0 0 16px rgba(0,0,0,0.4)',
         }}>
@@ -269,7 +269,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
               min={todayIso}
               onChange={(e) => onSetExamDate(selectedTomeId, e.target.value || null)}
               className="px-2 py-1 rounded-sm text-amber-50 italic border-2 border-amber-700"
-              style={{ background: 'rgba(41, 24, 12, 0.6)', colorScheme: 'dark' }}
+              style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.6)', colorScheme: 'dark' }}
             />
           </div>
           {!examPace && (
@@ -302,7 +302,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
                 <div className="text-[10px] uppercase tracking-wider italic font-bold text-amber-700">Quiz Items</div>
                 <div className="text-xl font-bold tabular-nums italic text-amber-200">{examPace.total}</div>
               </div>
-              <div className="p-2 rounded-sm text-center" style={{ background: 'rgba(120, 53, 15, 0.5)', border: '1.5px solid rgba(251, 191, 36, 0.7)', boxShadow: 'inset 0 0 8px rgba(245, 158, 11, 0.15)' }}>
+              <div className="p-2 rounded-sm text-center" style={{ background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.5)', border: '1.5px solid rgba(251, 191, 36, 0.7)', boxShadow: 'inset 0 0 8px rgba(245, 158, 11, 0.15)' }}>
                 <div className="text-[10px] uppercase tracking-wider italic font-bold text-amber-300">Daily Target</div>
                 <div className="text-xl font-bold tabular-nums italic text-amber-100" style={{ textShadow: '0 0 6px rgba(245, 158, 11, 0.5)' }}>
                   {examPace.dailyTarget}/day
@@ -339,7 +339,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
               : { bg: 'rgba(63, 63, 70, 0.45)', border: '#a1a1aa', text: '#e4e4e7' };
         return (
           <div className="p-4 rounded-sm" style={{
-            background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)',
+            background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.4) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
             border: '2px solid rgba(129, 140, 248, 0.55)',
             boxShadow: '0 0 18px rgba(129, 140, 248, 0.18), inset 0 0 16px rgba(0,0,0,0.4)',
           }}>
@@ -430,7 +430,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
       })()}
 
       {totals.total === 0 ? (
-        <div className="text-center py-12 rounded-sm" style={{ background: 'rgba(10, 6, 4, 0.6)', border: '2px dashed rgba(16, 185, 129, 0.4)' }}>
+        <div className="text-center py-12 rounded-sm" style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.6)', border: '2px dashed rgba(16, 185, 129, 0.4)' }}>
           <div className="text-emerald-300 italic text-lg mb-2">No domain data yet.</div>
           <div className="text-emerald-700 italic text-sm mb-4">Brave the dungeon — every riddle answered tags its domain for this codex.</div>
           <button onClick={() => setScreen('dungeon')} className="px-5 py-3 rounded-sm font-bold italic border-2 border-red-400 text-amber-50 inline-flex items-center gap-2"
@@ -442,7 +442,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
         <>
           {/* Overall progress bar */}
           <div className="p-4 rounded-sm" style={{
-            background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.6) 0%, rgba(10, 6, 4, 0.95) 100%)',
+            background: 'linear-gradient(135deg, rgba(var(--surface-emerald, 6, 78, 59), 0.6) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
             border: '2px solid rgba(16, 185, 129, 0.45)',
           }}>
             <div className="flex items-baseline justify-between mb-2">
@@ -473,7 +473,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
               higher exam weight, then larger sample size. */}
           {weakestDomain && (
             <div className="p-4 rounded-sm" style={{
-              background: 'linear-gradient(135deg, rgba(127, 29, 29, 0.5) 0%, rgba(10, 6, 4, 0.95) 100%)',
+              background: 'linear-gradient(135deg, rgba(127, 29, 29, 0.5) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
               border: '2px solid rgba(239, 68, 68, 0.6)',
               boxShadow: '0 0 18px rgba(239, 68, 68, 0.18), inset 0 0 16px rgba(0,0,0,0.4)',
             }}>
@@ -595,7 +595,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
               low → ~40-50%). */}
           {calibrationTotal > 0 && (
             <div className="p-4 rounded-sm" style={{
-              background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.55) 0%, rgba(10, 6, 4, 0.95) 100%)',
+              background: 'linear-gradient(135deg, rgba(var(--surface-emerald, 6, 78, 59), 0.55) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
               border: '2px solid rgba(16, 185, 129, 0.45)',
             }}>
               <div className="flex items-center gap-2 mb-3">
@@ -607,8 +607,8 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
               <div className="grid grid-cols-3 gap-2 mb-2">
                 {[
                   { key: 'low',  label: 'Uncertain', ideal: 50, palette: { bg: 'rgba(63, 63, 70, 0.45)',  border: '#a1a1aa', text: '#e4e4e7' } },
-                  { key: 'med',  label: 'Likely',    ideal: 70, palette: { bg: 'rgba(120, 53, 15, 0.45)', border: '#fbbf24', text: '#fde68a' } },
-                  { key: 'high', label: 'Confident', ideal: 90, palette: { bg: 'rgba(6, 78, 59, 0.45)',   border: '#10b981', text: '#a7f3d0' } },
+                  { key: 'med',  label: 'Likely',    ideal: 70, palette: { bg: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.45)', border: '#fbbf24', text: '#fde68a' } },
+                  { key: 'high', label: 'Confident', ideal: 90, palette: { bg: 'rgba(var(--surface-emerald, 6, 78, 59), 0.45)',   border: '#10b981', text: '#a7f3d0' } },
                 ].map(({ key, label, ideal, palette }) => {
                   const tile = calibration[key];
                   const total = tile.total;
@@ -713,7 +713,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
           tiles surface Now / +1d / +7d / +30d for quick scanning. */}
       {memoryCoverage.total > 0 && (
         <div className="p-4 rounded-sm" style={{
-          background: 'linear-gradient(135deg, rgba(29, 78, 216, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)',
+          background: 'linear-gradient(135deg, rgba(29, 78, 216, 0.4) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
           border: '2px solid rgba(59, 130, 246, 0.55)',
           boxShadow: '0 0 18px rgba(59, 130, 246, 0.15), inset 0 0 16px rgba(0,0,0,0.4)',
         }}>

@@ -8,7 +8,7 @@ export function TitlesModal({ playerState, onSelect, onClose }) {
   return (
     <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div ref={panelRef} role="dialog" aria-modal="true" aria-label="Titles" className="rounded-sm max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
-        background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
+        background: 'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.97) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.99) 100%)',
         border: '3px double rgba(245, 158, 11, 0.6)', boxShadow: '0 0 40px rgba(245, 158, 11, 0.3)',
       }}>
         <div className="p-4 border-b border-amber-700/50 flex justify-between items-center">
@@ -20,8 +20,8 @@ export function TitlesModal({ playerState, onSelect, onClose }) {
             <h4 className="text-sm text-amber-600 mb-2 tracking-[0.3em] italic">⚜ TITLES OF RANK ⚜</h4>
             <div className="space-y-2">
               <button onClick={() => onSelect(null)} className="w-full text-left p-3 rounded-sm border-2" style={{
-                background: !playerState.selectedTitle ? 'rgba(120, 53, 15, 0.5)' : 'rgba(41, 24, 12, 0.4)',
-                borderColor: !playerState.selectedTitle ? 'rgba(245, 158, 11, 0.8)' : 'rgba(120, 53, 15, 0.5)',
+                background: !playerState.selectedTitle ? 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.5)' : 'rgba(var(--surface-amber, 41, 24, 12), 0.4)',
+                borderColor: !playerState.selectedTitle ? 'rgba(245, 158, 11, 0.8)' : 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.5)',
               }}>
                 <div className="font-bold text-amber-100 italic">Auto (Current Rank)</div>
                 <div className="text-xs text-amber-100/60 italic">Display title based on current level</div>
@@ -41,8 +41,8 @@ export function TitlesModal({ playerState, onSelect, onClose }) {
                     tabIndex={unlocked ? -1 : 0}
                     title={hint}
                     style={{
-                      background: unlocked ? 'rgba(41, 24, 12, 0.5)' : 'rgba(20, 12, 6, 0.4)',
-                      borderColor: unlocked ? 'rgba(120, 53, 15, 0.5)' : 'rgba(45, 30, 20, 0.5)',
+                      background: unlocked ? 'rgba(var(--surface-amber, 41, 24, 12), 0.5)' : 'rgba(var(--surface-modal, 20, 12, 6), 0.4)',
+                      borderColor: unlocked ? 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.5)' : 'rgba(45, 30, 20, 0.5)',
                       opacity: unlocked ? 1 : 0.55,
                     }}
                   >
@@ -65,8 +65,8 @@ export function TitlesModal({ playerState, onSelect, onClose }) {
                 const unlocked = playerState.unlockedTitles.includes(key);
                 return (
                   <button key={key} onClick={() => unlocked && onSelect(key)} disabled={!unlocked} className="w-full text-left p-3 rounded-sm border-2 disabled:cursor-not-allowed" style={{
-                    background: playerState.selectedTitle === key ? 'rgba(126, 34, 206, 0.4)' : unlocked ? 'rgba(41, 24, 12, 0.5)' : 'rgba(20, 12, 6, 0.4)',
-                    borderColor: playerState.selectedTitle === key ? 'rgba(168, 85, 247, 0.8)' : unlocked ? 'rgba(120, 53, 15, 0.5)' : 'rgba(45, 30, 20, 0.5)',
+                    background: playerState.selectedTitle === key ? 'rgba(126, 34, 206, 0.4)' : unlocked ? 'rgba(var(--surface-amber, 41, 24, 12), 0.5)' : 'rgba(var(--surface-modal, 20, 12, 6), 0.4)',
+                    borderColor: playerState.selectedTitle === key ? 'rgba(168, 85, 247, 0.8)' : unlocked ? 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.5)' : 'rgba(45, 30, 20, 0.5)',
                     opacity: unlocked ? 1 : 0.4,
                   }}>
                     <div className="flex justify-between">

@@ -44,7 +44,7 @@ export default class ErrorBoundary extends React.Component {
         <details className="mb-4 text-xs italic text-amber-100/70">
           <summary className="cursor-pointer hover:text-amber-100">Technical details</summary>
           <pre className="mt-2 p-2 rounded-sm overflow-x-auto text-[10px] whitespace-pre-wrap" style={{
-            background: 'rgba(0, 0, 0, 0.4)', border: '1px solid rgba(120, 53, 15, 0.4)', color: '#fde68a',
+            background: 'rgba(0, 0, 0, 0.4)', border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)', color: '#fde68a',
           }}>{message}</pre>
         </details>
         <div className="flex gap-2 flex-wrap">
@@ -54,7 +54,7 @@ export default class ErrorBoundary extends React.Component {
           </button>
           <button onClick={() => { if (typeof window !== 'undefined') window.location.reload(); }}
             className="px-4 py-2 rounded-sm text-sm italic border-2 border-amber-700 text-amber-200"
-            style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>
             Reload page
           </button>
         </div>

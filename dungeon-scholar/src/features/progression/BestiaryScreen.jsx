@@ -40,7 +40,7 @@ function BestiaryScreen({ playerState, setScreen }) {
   return (
     <div className="space-y-6">
       <div className="p-6 rounded-sm relative" style={{
-        background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.55) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        background: 'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.55) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
         border: '3px double rgba(168, 85, 247, 0.6)',
         boxShadow: '0 0 30px rgba(168, 85, 247, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
       }}>
@@ -63,7 +63,7 @@ function BestiaryScreen({ playerState, setScreen }) {
           </div>
           <button onClick={() => setScreen('home')}
             className="px-3 py-2 rounded-sm text-xs italic border-2 border-purple-700 text-purple-300 hover:bg-purple-900/30"
-            style={{ background: 'rgba(31, 12, 41, 0.45)' }}>
+            style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.45)' }}>
             ← Return to the Hearth
           </button>
         </div>
@@ -94,12 +94,12 @@ function BestiaryScreen({ playerState, setScreen }) {
                 return (
                   <div key={entry.kind} className="p-4 rounded-sm relative" style={{
                     background: seen
-                      ? 'linear-gradient(135deg, rgba(31, 17, 8, 0.9) 0%, rgba(10, 6, 4, 0.97) 100%)'
+                      ? 'linear-gradient(135deg, rgba(31, 17, 8, 0.9) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.97) 100%)'
                       : 'linear-gradient(135deg, rgba(15, 12, 18, 0.85) 0%, rgba(6, 4, 8, 0.95) 100%)',
                     border: `2px ${isBoss ? 'double' : 'solid'} ${
                       seen
                         ? (isBoss ? meta.accent : 'rgba(245, 158, 11, 0.5)')
-                        : 'rgba(120, 53, 15, 0.3)'
+                        : 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.3)'
                     }`,
                     boxShadow: seen && isBoss ? `0 0 14px ${meta.accent}33` : 'none',
                     opacity: seen ? 1 : 0.65,

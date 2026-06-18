@@ -14,6 +14,7 @@ import {
   takeForesightPreview,
   revealDecoration,
 } from './DungeonExplore.jsx';
+import { isDifficultyUnlocked, DIFFICULTY_ORDER } from '../game/difficulty.js';
 
 // Seedable RNG so map-gen assertions are deterministic per test.
 const seedRng = (seed) => {
@@ -319,6 +320,57 @@ describe('revealDecoration (PHASE-19 19C — non-color reveal)', () => {
   it('leaves other options neutral after reveal', () => {
     const rr = { choice: 2, correct: false };
     expect(revealDecoration(rr, 0, 1)).toEqual({ glyph: '', borderStyle: 'solid' });
+  });
+});
+
+describe('delve setup difficulty gating (Phase-30 QA gap)', () => {
+  // APPROACH NOTE: the Phase-30 QA gap asks the delve "setup screen" to show
+  // four difficulties with apprentice unlocked and adept/master/mythic locked
+  // at level 1. DungeonExplore is a single lazy, canvas-heavy component that
+  // this test file deliberately never mounts (it only imports the module's
+  // pure named exports). Mounting the full component here is impractical
+  // (canvas + rAF + audio in happy-dom), so per the gap's fallback we unit-test
+  // the `isDifficultyUnlocked` predicate that the setup screen renders each
+  // tier's locked/unlocked state from — same source of truth, no canvas.
+  const LEVEL1 = { level: 1, library: [], achievements: [] };
+
+  it('exposes exactly the four difficulty tiers in order', () => {
+    expect(DIFFICULTY_ORDER).toEqual(['apprentice', 'adept', 'master', 'mythic']);
+  });
+
+  it('level-1 state: apprentice unlocked, adept/master/mythic locked', () => {
+    expect(isDifficultyUnlocked(LEVEL1, 'apprentice')).toBe(true);
+    expect(isDifficultyUnlocked(LEVEL1, 'adept')).toBe(false);
+    expect(isDifficultyUnlocked(LEVEL1, 'master')).toBe(false);
+    expect(isDifficultyUnlocked(LEVEL1, 'mythic')).toBe(false);
+  });
+
+  it('apprentice is always unlocked regardless of state', () => {
+    expect(isDifficultyUnlocked({}, 'apprentice')).toBe(true);
+    expect(isDifficultyUnlocked({ level: 1, library: [], achievements: [] }, 'apprentice')).toBe(true);
+  });
+
+  it('adept unlocks at level 10 OR 5 completed runs', () => {
+    expect(isDifficultyUnlocked({ ...LEVEL1, level: 10 }, 'adept')).toBe(true);
+    expect(isDifficultyUnlocked({ ...LEVEL1, level: 9 }, 'adept')).toBe(false);
+    // 5 runs summed across the library also unlocks it.
+    const fiveRuns = { level: 1, achievements: [], library: [{ progress: { runsCompleted: 3 } }, { progress: { runsCompleted: 2 } }] };
+    expect(isDifficultyUnlocked(fiveRuns, 'adept')).toBe(true);
+    const fourRuns = { level: 1, achievements: [], library: [{ progress: { runsCompleted: 4 } }] };
+    expect(isDifficultyUnlocked(fourRuns, 'adept')).toBe(false);
+  });
+
+  it('master unlocks at level 25 OR both flawless + first_boss', () => {
+    expect(isDifficultyUnlocked({ ...LEVEL1, level: 25 }, 'master')).toBe(true);
+    expect(isDifficultyUnlocked({ ...LEVEL1, level: 24 }, 'master')).toBe(false);
+    expect(isDifficultyUnlocked({ ...LEVEL1, achievements: ['flawless', 'first_boss'] }, 'master')).toBe(true);
+    expect(isDifficultyUnlocked({ ...LEVEL1, achievements: ['flawless'] }, 'master')).toBe(false);
+  });
+
+  it('mythic unlocks at level 50 OR a master_complete achievement', () => {
+    expect(isDifficultyUnlocked({ ...LEVEL1, level: 50 }, 'mythic')).toBe(true);
+    expect(isDifficultyUnlocked({ ...LEVEL1, level: 49 }, 'mythic')).toBe(false);
+    expect(isDifficultyUnlocked({ ...LEVEL1, achievements: ['master_complete'] }, 'mythic')).toBe(true);
   });
 });
 

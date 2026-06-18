@@ -328,7 +328,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
       {domainFilter && (
         <button onClick={() => onExitFilter?.()}
           className="w-full py-3 px-4 rounded-sm italic border-2 border-amber-700 text-amber-200"
-          style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+          style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>
           <ArrowLeft className="w-4 h-4 inline mr-2" /> Clear Filter
         </button>
       )}
@@ -336,7 +336,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
       {!domainFilter && (
         <button onClick={() => onGoToLibrary?.()}
           className="w-full py-3 px-4 rounded-sm italic border-2 border-amber-700 text-amber-200"
-          style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+          style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>
           📜 Visit the Grand Library — import or forge a tome with riddles
         </button>
       )}
@@ -357,7 +357,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
           🔮 Riddle {Math.min(progressCount + 1, questions.length)} of {questions.length}
           {resumedRecently && (
             <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded-sm not-italic ml-1" style={{
-              background: 'rgba(6, 78, 59, 0.45)', border: '1px solid rgba(16, 185, 129, 0.6)', color: '#a7f3d0',
+              background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.45)', border: '1px solid rgba(16, 185, 129, 0.6)', color: '#a7f3d0',
             }} aria-live="polite">· resumed</span>
           )}
           {/* Phase 35c QA P4: per-riddle difficulty only. The tome-avg
@@ -385,7 +385,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
         </div>
       )}
       <div className="rounded-sm p-6 relative" style={{
-        background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.85) 0%, rgba(15, 6, 20, 0.95) 100%)',
+        background: 'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.85) 0%, rgba(15, 6, 20, 0.95) 100%)',
         border: '3px double rgba(126, 34, 206, 0.6)', boxShadow: '0 0 30px rgba(168, 85, 247, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',
       }}>
         {/* Phase 33f / 35c / 36b / 40c QA P6, P4, P2, round-8: render the
@@ -411,7 +411,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
                 }} title="No domain tagged on this riddle">domain —</span>
               )}
               {hasDifficulty ? (
-                <span className="flex items-center gap-1 px-2 py-0.5 rounded-sm" style={{ background: 'rgba(120, 53, 15, 0.35)', border: '1px solid rgba(245, 158, 11, 0.5)' }}>
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded-sm" style={{ background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.35)', border: '1px solid rgba(245, 158, 11, 0.5)' }}>
                   <DifficultyStars value={q.difficulty} />
                 </span>
               ) : (!hideOptionalChips && (
@@ -450,12 +450,12 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
               </button>
               <button onClick={() => setConfidence('med')}
                 className="p-3 rounded-sm font-bold border-2 border-amber-400 text-amber-200 italic"
-                style={{ background: 'rgba(120, 53, 15, 0.45)' }}>
+                style={{ background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.45)' }}>
                 ✦ Likely
               </button>
               <button onClick={() => setConfidence('high')}
                 className="p-3 rounded-sm font-bold border-2 border-emerald-400 text-emerald-200 italic"
-                style={{ background: 'rgba(6, 78, 59, 0.45)' }}>
+                style={{ background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.45)' }}>
                 ✦ Confident
               </button>
             </div>
@@ -465,8 +465,8 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
           <div className="mb-3 flex items-center gap-2 text-[11px] italic">
             <span className="text-amber-700">Thy confidence:</span>
             <span className="px-2 py-0.5 rounded-sm border italic font-bold" style={
-              confidence === 'high' ? { borderColor: '#10b981', color: '#a7f3d0', background: 'rgba(6, 78, 59, 0.35)' }
-              : confidence === 'med' ? { borderColor: '#fbbf24', color: '#fde68a', background: 'rgba(120, 53, 15, 0.35)' }
+              confidence === 'high' ? { borderColor: '#10b981', color: '#a7f3d0', background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.35)' }
+              : confidence === 'med' ? { borderColor: '#fbbf24', color: '#fde68a', background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.35)' }
               :                        { borderColor: '#a1a1aa', color: '#e4e4e7', background: 'rgba(63, 63, 70, 0.35)' }
             }>
               {confidence === 'high' ? 'Confident' : confidence === 'med' ? 'Likely' : 'Uncertain'}
@@ -477,7 +477,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
           <div className="space-y-2">
             {q.options.map((opt, i) => (
               <button key={i} onClick={() => handleAnswer(i === q.correctIndex)} className="w-full text-left p-3 rounded-sm border-2 transition text-amber-50"
-                style={{ background: 'rgba(31, 12, 41, 0.6)', borderColor: 'rgba(126, 34, 206, 0.5)' }}>
+                style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.6)', borderColor: 'rgba(126, 34, 206, 0.5)' }}>
                 <span className="text-purple-400 font-bold mr-2">{String.fromCharCode(65 + i)}.</span>{opt}
               </button>
             ))}
@@ -485,7 +485,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
         )}
         {!answered && confidence && isTF && (
           <div className="grid grid-cols-2 gap-3">
-            <button onClick={() => handleAnswer(q.correctAnswer === true)} className="p-4 rounded-sm font-bold border-2 border-emerald-400 text-emerald-200 italic" style={{ background: 'rgba(6, 78, 59, 0.4)' }}>⚖ Verily True ⚖</button>
+            <button onClick={() => handleAnswer(q.correctAnswer === true)} className="p-4 rounded-sm font-bold border-2 border-emerald-400 text-emerald-200 italic" style={{ background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.4)' }}>⚖ Verily True ⚖</button>
             <button onClick={() => handleAnswer(q.correctAnswer === false)} className="p-4 rounded-sm font-bold border-2 border-red-400 text-red-200 italic" style={{ background: 'rgba(127, 29, 29, 0.4)' }}>⚖ A Falsehood ⚖</button>
           </div>
         )}
@@ -495,7 +495,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
               onKeyDown={(e) => { if (e.key === 'Enter' && textAnswer.trim() && !grading) submitFillBlankWithOracle(); }}
               disabled={grading}
               placeholder="Inscribe thy answer..." className="w-full p-3 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
-              style={{ background: 'rgba(31, 12, 41, 0.6)', borderColor: 'rgba(126, 34, 206, 0.5)' }} autoFocus />
+              style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.6)', borderColor: 'rgba(126, 34, 206, 0.5)' }} autoFocus />
             <button onClick={submitFillBlankWithOracle}
               disabled={!textAnswer.trim() || grading} className="w-full py-3 font-bold rounded-sm disabled:opacity-50 text-amber-50 border-2 border-purple-400 italic flex items-center justify-center gap-2"
               style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)', boxShadow: '0 0 20px rgba(168, 85, 247, 0.4)' }}>
@@ -506,7 +506,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
         {answered && (
           <div className="space-y-3">
             <div role="status" className="p-4 rounded-sm border-2 space-y-2" style={{
-              background: answered.correct ? 'rgba(6, 78, 59, 0.5)' : 'rgba(127, 29, 29, 0.5)',
+              background: answered.correct ? 'rgba(var(--surface-emerald, 6, 78, 59), 0.5)' : 'rgba(127, 29, 29, 0.5)',
               borderColor: answered.correct ? 'rgba(16, 185, 129, 0.7)' : 'rgba(239, 68, 68, 0.7)',
               borderStyle: answered.correct ? 'solid' : 'dashed', // 19C: non-color cue
             }}>
@@ -542,8 +542,8 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
                       : '';
                   return (
                     <span className="text-xs px-2 py-0.5 rounded-sm border italic flex items-center gap-1" style={
-                      answered.confidence === 'high' ? { borderColor: '#10b981', color: '#a7f3d0', background: 'rgba(6, 78, 59, 0.35)' }
-                      : answered.confidence === 'med' ? { borderColor: '#fbbf24', color: '#fde68a', background: 'rgba(120, 53, 15, 0.35)' }
+                      answered.confidence === 'high' ? { borderColor: '#10b981', color: '#a7f3d0', background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.35)' }
+                      : answered.confidence === 'med' ? { borderColor: '#fbbf24', color: '#fde68a', background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.35)' }
                       :                                  { borderColor: '#a1a1aa', color: '#e4e4e7', background: 'rgba(63, 63, 70, 0.35)' }
                     }>
                       ✦ {label} {tag}
@@ -567,7 +567,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
             {isFIB && (answered.source === 'oracle' || answered.source === 'fallback') && (
               <div className="flex gap-2 flex-wrap">
                 {!answered.correct && (
-                  <button onClick={() => overrideVerdict(true)} className="flex-1 py-2 rounded-sm text-xs italic border-2 border-emerald-500 text-emerald-200 flex items-center justify-center gap-1" style={{ background: 'rgba(6, 78, 59, 0.4)' }}>
+                  <button onClick={() => overrideVerdict(true)} className="flex-1 py-2 rounded-sm text-xs italic border-2 border-emerald-500 text-emerald-200 flex items-center justify-center gap-1" style={{ background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.4)' }}>
                     <Check className="w-3 h-3" /> Mark as correct
                   </button>
                 )}

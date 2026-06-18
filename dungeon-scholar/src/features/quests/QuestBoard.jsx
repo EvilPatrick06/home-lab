@@ -10,10 +10,10 @@ function QuestCard({ q, onClaim }) {
   return (
     <div className="p-5 rounded-sm relative" style={{
       background: q.claimed
-        ? 'linear-gradient(135deg, rgba(6, 78, 59, 0.5) 0%, rgba(10, 6, 4, 0.9) 100%)'
+        ? 'linear-gradient(135deg, rgba(var(--surface-emerald, 6, 78, 59), 0.5) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.9) 100%)'
         : q.claimable
-          ? 'linear-gradient(135deg, rgba(120, 53, 15, 0.6) 0%, rgba(41, 24, 12, 0.95) 100%)'
-          : 'linear-gradient(135deg, rgba(31, 12, 41, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)',
+          ? 'linear-gradient(135deg, rgba(var(--surface-amber-strong, 120, 53, 15), 0.6) 0%, rgba(var(--surface-amber, 41, 24, 12), 0.95) 100%)'
+          : 'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.7) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
       border: q.claimed
         ? '2px solid rgba(16, 185, 129, 0.6)'
         : q.claimable
@@ -52,7 +52,7 @@ function QuestCard({ q, onClaim }) {
             {q.progress}/{q.target}
           </span>
         </div>
-        <div className="h-2 rounded-full overflow-hidden border border-amber-800" style={{ background: 'rgba(10, 6, 4, 0.7)' }}>
+        <div className="h-2 rounded-full overflow-hidden border border-amber-800" style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)' }}>
           <div className="h-full transition-all duration-500" style={{
             width: `${pct}%`,
             background: q.claimed
@@ -108,7 +108,7 @@ function QuestSection({ tagline, subtitle, emptyMsg, quests, onClaim, onClaimAll
   return (
     <div className="space-y-4">
       <div className="p-5 rounded-sm relative flex items-center justify-between flex-wrap gap-3" style={{
-        background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        background: 'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.7) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
         border: '2px solid rgba(168, 85, 247, 0.5)',
         boxShadow: '0 0 25px rgba(168, 85, 247, 0.15), inset 0 0 20px rgba(0,0,0,0.5)',
       }}>
@@ -162,12 +162,12 @@ function StoryStepCard({ step, idx, status, claimable, progress, target, isFinal
   const goldReward = isFinal ? stepGold + (chainBonusGold || 0) : stepGold;
 
   const bg = isClaimed
-    ? 'linear-gradient(135deg, rgba(6, 78, 59, 0.5) 0%, rgba(10, 6, 4, 0.9) 100%)'
+    ? 'linear-gradient(135deg, rgba(var(--surface-emerald, 6, 78, 59), 0.5) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.9) 100%)'
     : isCurrent && claimable
-      ? 'linear-gradient(135deg, rgba(120, 53, 15, 0.6) 0%, rgba(41, 24, 12, 0.95) 100%)'
+      ? 'linear-gradient(135deg, rgba(var(--surface-amber-strong, 120, 53, 15), 0.6) 0%, rgba(var(--surface-amber, 41, 24, 12), 0.95) 100%)'
       : isCurrent
-        ? 'linear-gradient(135deg, rgba(31, 12, 41, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)'
-        : 'linear-gradient(135deg, rgba(15, 8, 20, 0.6) 0%, rgba(10, 6, 4, 0.95) 100%)';
+        ? 'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.7) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)'
+        : 'linear-gradient(135deg, rgba(15, 8, 20, 0.6) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)';
   const border = isClaimed
     ? '2px solid rgba(16, 185, 129, 0.6)'
     : isCurrent && claimable
@@ -193,7 +193,7 @@ function StoryStepCard({ step, idx, status, claimable, progress, target, isFinal
       <div className="flex items-start gap-3">
         <div className="shrink-0 w-9 h-9 rounded-full border-2 flex items-center justify-center text-xs font-bold italic" style={{
           borderColor: isClaimed ? 'rgba(16, 185, 129, 0.7)' : isCurrent ? 'rgba(245, 158, 11, 0.7)' : 'rgba(60, 35, 80, 0.6)',
-          background: isClaimed ? 'rgba(6, 78, 59, 0.6)' : isCurrent ? 'rgba(120, 53, 15, 0.5)' : 'rgba(10, 6, 4, 0.7)',
+          background: isClaimed ? 'rgba(var(--surface-emerald, 6, 78, 59), 0.6)' : isCurrent ? 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.5)' : 'rgba(var(--surface-deep, 10, 6, 4), 0.7)',
           color: isClaimed ? '#34d399' : isCurrent ? '#fde047' : '#6b4f8f',
         }}>
           {isClaimed ? <Check className="w-4 h-4" /> : isLocked ? <Lock className="w-3.5 h-3.5" /> : (idx + 1)}
@@ -217,7 +217,7 @@ function StoryStepCard({ step, idx, status, claimable, progress, target, isFinal
           {isCurrent && (
             <>
               <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-sm text-xs font-bold italic" style={{
-                background: 'linear-gradient(to bottom, rgba(120, 53, 15, 0.4), rgba(41, 24, 12, 0.7))',
+                background: 'linear-gradient(to bottom, rgba(var(--surface-amber-strong, 120, 53, 15), 0.4), rgba(var(--surface-amber, 41, 24, 12), 0.7))',
                 border: '1px solid rgba(245, 158, 11, 0.5)',
                 color: '#fde047',
               }}>
@@ -230,7 +230,7 @@ function StoryStepCard({ step, idx, status, claimable, progress, target, isFinal
                     {progress}/{target}
                   </span>
                 </div>
-                <div className="h-2 rounded-full overflow-hidden border border-amber-800" style={{ background: 'rgba(10, 6, 4, 0.7)' }}>
+                <div className="h-2 rounded-full overflow-hidden border border-amber-800" style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)' }}>
                   <div className="h-full transition-all duration-500" style={{
                     width: `${pct}%`,
                     background: claimable ? 'linear-gradient(to right, #f59e0b, #fde047)' : 'linear-gradient(to right, #a855f7, #d8b4fe)',
@@ -288,8 +288,8 @@ function StoryChainView({ chainStatus, onClaimStep }) {
     <div className="space-y-4">
       <div className="p-5 rounded-sm relative" style={{
         background: completed
-          ? 'linear-gradient(135deg, rgba(120, 53, 15, 0.55) 0%, rgba(10, 6, 4, 0.95) 100%)'
-          : 'linear-gradient(135deg, rgba(31, 12, 41, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)',
+          ? 'linear-gradient(135deg, rgba(var(--surface-amber-strong, 120, 53, 15), 0.55) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)'
+          : 'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.7) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
         border: completed ? '3px double rgba(245, 158, 11, 0.7)' : '2px solid rgba(126, 34, 206, 0.5)',
         boxShadow: completed
           ? '0 0 25px rgba(245, 158, 11, 0.3), inset 0 0 20px rgba(0,0,0,0.5)'
@@ -330,7 +330,7 @@ function StoryChainView({ chainStatus, onClaimStep }) {
                 </span>
               )}
             </div>
-            <div className="h-1.5 rounded-full overflow-hidden border border-amber-800 mt-3" style={{ background: 'rgba(10, 6, 4, 0.7)' }}>
+            <div className="h-1.5 rounded-full overflow-hidden border border-amber-800 mt-3" style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)' }}>
               <div className="h-full transition-all duration-500" style={{
                 width: `${(stepsDone / totalSteps) * 100}%`,
                 background: completed
@@ -399,7 +399,7 @@ function QuestBoard({
     <div className="space-y-6">
       {/* Top brand header */}
       <div className="p-6 rounded-sm relative" style={{
-        background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        background: 'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.7) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
         border: '3px double rgba(168, 85, 247, 0.6)',
         boxShadow: '0 0 40px rgba(168, 85, 247, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
       }}>
@@ -436,8 +436,8 @@ function QuestBoard({
             style={{
               borderColor: activeTab === t.id ? 'rgba(245, 158, 11, 0.85)' : 'rgba(126, 34, 206, 0.5)',
               background: activeTab === t.id
-                ? 'linear-gradient(to bottom, rgba(120, 53, 15, 0.6), rgba(41, 24, 12, 0.95))'
-                : 'rgba(31, 12, 41, 0.5)',
+                ? 'linear-gradient(to bottom, rgba(var(--surface-amber-strong, 120, 53, 15), 0.6), rgba(var(--surface-amber, 41, 24, 12), 0.95))'
+                : 'rgba(var(--surface-purple, 31, 12, 41), 0.5)',
               color: activeTab === t.id ? '#fde047' : '#d8b4fe',
               boxShadow: activeTab === t.id ? '0 0 15px rgba(245, 158, 11, 0.35)' : 'none',
             }}

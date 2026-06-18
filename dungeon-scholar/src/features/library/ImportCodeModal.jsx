@@ -20,7 +20,7 @@ function ImportCodeModal({ onClose, onSubmit }) {
   return (
     <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div ref={panelRef} role="dialog" aria-modal="true" aria-label="Import tome code" className="rounded-sm max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
-        background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
+        background: 'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.97) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.99) 100%)',
         border: '3px double rgba(168, 85, 247, 0.6)',
         boxShadow: '0 0 40px rgba(168, 85, 247, 0.3)',
       }}>
@@ -47,7 +47,7 @@ function ImportCodeModal({ onClose, onSubmit }) {
             placeholder="TOME-V1:..."
             className="flex-1 min-h-[200px] p-3 rounded-sm border-2 focus:outline-hidden text-amber-50 font-mono text-xs"
             style={{
-              background: 'rgba(10, 6, 4, 0.7)',
+              background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)',
               borderColor: 'rgba(126, 34, 206, 0.5)',
               fontFamily: 'monospace',
               wordBreak: 'break-all',
@@ -65,7 +65,7 @@ function ImportCodeModal({ onClose, onSubmit }) {
           )}
         </div>
         <div className="p-4 border-t border-purple-700/50 flex gap-2">
-          <button onClick={onClose} className="px-6 py-3 rounded-sm border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.7)' }}>Cancel</button>
+          <button onClick={onClose} className="px-6 py-3 rounded-sm border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>Cancel</button>
           <button onClick={handleSubmit} disabled={!text.trim()} className="flex-1 py-3 font-bold rounded-sm flex items-center justify-center gap-2 text-amber-50 border-2 border-purple-300 italic disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)', boxShadow: '0 0 20px rgba(168, 85, 247, 0.5)' }}>
             <Hash className="w-4 h-4" /> Decode & Inscribe

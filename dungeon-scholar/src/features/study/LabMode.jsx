@@ -60,7 +60,7 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
             {/* 19E (L17): give the dead-end a path to add content. */}
             <button onClick={() => onGoToLibrary?.()}
               className="w-full py-3 px-4 rounded-sm italic border-2 border-amber-700 text-amber-200"
-              style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+              style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>
               📜 Visit the Grand Library — import or forge a tome with trials
             </button>
           </div>
@@ -89,12 +89,12 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
                 <span>⚔ {totalStages} stages ⚔</span>
                 {isCompleted && (
                   <span className="px-2 py-0.5 rounded-sm text-[10px] uppercase tracking-wider font-bold not-italic" style={{
-                    background: 'rgba(6, 78, 59, 0.55)', border: '1px solid rgba(16, 185, 129, 0.6)', color: '#a7f3d0',
+                    background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.55)', border: '1px solid rgba(16, 185, 129, 0.6)', color: '#a7f3d0',
                   }}>Completed</span>
                 )}
                 {inProgress && (
                   <span className="px-2 py-0.5 rounded-sm text-[10px] uppercase tracking-wider font-bold not-italic" style={{
-                    background: 'rgba(120, 53, 15, 0.55)', border: '1px solid rgba(245, 158, 11, 0.6)', color: '#fde68a',
+                    background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.55)', border: '1px solid rgba(245, 158, 11, 0.6)', color: '#fde68a',
                   }}>In progress · stage {(progress.step ?? 0) + 1} of {totalStages}</span>
                 )}
               </div>
@@ -341,7 +341,7 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
         )}
         {feedback && (
           <div role="status" className="p-4 rounded-sm border-2 space-y-3" style={{
-            background: feedback.correct ? 'rgba(6, 78, 59, 0.5)' : 'rgba(127, 29, 29, 0.5)',
+            background: feedback.correct ? 'rgba(var(--surface-emerald, 6, 78, 59), 0.5)' : 'rgba(127, 29, 29, 0.5)',
             borderColor: feedback.correct ? 'rgba(16, 185, 129, 0.7)' : 'rgba(239, 68, 68, 0.7)',
             borderStyle: feedback.correct ? 'solid' : 'dashed', // 19C: non-color cue
           }}>
@@ -375,7 +375,7 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
               <div className="flex items-center justify-between gap-2 pt-2 border-t border-amber-900/40 flex-wrap">
                 <div className="flex gap-2">
                   {!feedback.correct && (
-                    <button onClick={() => overrideVerdict(true)} className="px-3 py-1.5 rounded-sm text-xs italic border-2 border-emerald-500 text-emerald-200 flex items-center gap-1" style={{ background: 'rgba(6, 78, 59, 0.4)' }}>
+                    <button onClick={() => overrideVerdict(true)} className="px-3 py-1.5 rounded-sm text-xs italic border-2 border-emerald-500 text-emerald-200 flex items-center gap-1" style={{ background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.4)' }}>
                       <Check className="w-3 h-3" /> Mark as correct
                     </button>
                   )}

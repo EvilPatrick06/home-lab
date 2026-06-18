@@ -1,15 +1,15 @@
 import { Settings } from 'lucide-react';
 import { OrnatePanel } from '../../components/ui/OrnatePanel.jsx';
 
-// Phase 34b QA P10: theme picker — Dark (default) / Light (experimental) /
-// Match System. Persisted in playerState.theme; applied via data-theme on
-// the root element by an effect in DungeonScholarApp. The "light" variant
-// is intentionally partial — only the body background swaps to off-white;
-// dungeon panels stay dark by design. CSS in index.css.
+// Phase 34b QA P10: theme picker — Dark (default) / Light / Match System.
+// Persisted in playerState.theme; applied via data-theme on the root element
+// by an effect in DungeonScholarApp. PHASE-41 (QA16): the light theme is now a
+// FULL theme — inverted Tailwind ramps + flipped surface tokens restyle every
+// screen, panel, and text run (see index.css). CSS in index.css.
 function ThemePanel({ currentTheme, onSetTheme }) {
   const opts = [
     { id: 'dark', label: '🌙 Dark', desc: 'The default dungeon palette.' },
-    { id: 'light', label: '☀ Light', desc: 'Off-white background, warmer panel tints. Dungeon aesthetic preserved.' },
+    { id: 'light', label: '☀ Light', desc: 'Parchment-light pages, panels, and text. Full light theme.' },
     { id: 'system', label: '🖥 Match System', desc: 'Follows your OS color preference.' },
   ];
   return (
@@ -27,7 +27,7 @@ function ThemePanel({ currentTheme, onSetTheme }) {
               aria-pressed={active}
               className={`text-left p-3 rounded-sm border-2 italic transition ${active ? 'border-amber-300 text-amber-100' : 'border-amber-700 text-amber-200 hover:border-amber-500'}`}
               style={{
-                background: active ? 'rgba(120, 53, 15, 0.5)' : 'rgba(41, 24, 12, 0.7)',
+                background: active ? 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.5)' : 'rgba(var(--surface-amber, 41, 24, 12), 0.7)',
                 boxShadow: active ? '0 0 12px rgba(245, 158, 11, 0.4)' : 'none',
               }}
             >
@@ -38,9 +38,7 @@ function ThemePanel({ currentTheme, onSetTheme }) {
         })}
       </div>
       <p className="text-[10px] italic text-amber-700/80 mt-3">
-        ⓘ Light mode pairs an off-white page with warmer panel tints. The
-        dungeon aesthetic is preserved — interiors stay dark-ish so the
-        ornate borders and glow effects still read.
+        ⓘ Both themes restyle every screen; pick whichever reads best.
       </p>
     </OrnatePanel>
   );

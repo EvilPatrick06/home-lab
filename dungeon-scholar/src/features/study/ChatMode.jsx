@@ -281,7 +281,7 @@ ${fullKb}
     <div className="flex flex-col h-[70vh] max-w-3xl mx-auto">
       {/* Mode toggle */}
       <div className="flex items-center justify-between mb-2 p-3 rounded-sm gap-3 flex-wrap" style={{
-        background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.8) 0%, rgba(20, 12, 6, 0.9) 100%)',
+        background: 'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.8) 0%, rgba(var(--surface-modal, 20, 12, 6), 0.9) 100%)',
         border: '2px solid rgba(180, 83, 9, 0.5)',
       }}>
         <div className="flex flex-col">
@@ -301,7 +301,7 @@ ${fullKb}
               <Trash2 className="w-3 h-3" /> Clear
             </button>
           )}
-          <div className="flex gap-1 p-1 rounded-sm" style={{ background: 'rgba(10, 6, 4, 0.7)', border: '1px solid rgba(120, 53, 15, 0.4)' }}>
+          <div className="flex gap-1 p-1 rounded-sm" style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)', border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)' }}>
             <button
               onClick={() => setMode('oracle')}
               className="px-3 py-1.5 rounded-sm text-xs font-bold italic transition flex items-center gap-1"
@@ -329,7 +329,7 @@ ${fullKb}
       </div>
 
       <div className="flex-1 rounded-t p-4 overflow-y-auto overscroll-contain space-y-3 relative" style={{
-        background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.85) 0%, rgba(20, 12, 6, 0.95) 100%)',
+        background: 'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.85) 0%, rgba(var(--surface-modal, 20, 12, 6), 0.95) 100%)',
         border: '2px solid rgba(245, 158, 11, 0.5)',
         borderBottom: 'none',
         boxShadow: 'inset 0 0 30px rgba(0,0,0,0.5)',
@@ -359,7 +359,7 @@ ${fullKb}
             return (
               <div key={i} className="flex justify-center">
                 <div className="px-4 py-2 rounded-sm text-xs italic max-w-[90%] text-center" style={{
-                  background: 'rgba(120, 53, 15, 0.4)',
+                  background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)',
                   border: '1px solid rgba(245, 158, 11, 0.5)',
                   color: '#fde047',
                 }}>
@@ -372,7 +372,7 @@ ${fullKb}
             return (
               <div key={i} className="flex justify-end">
                 <div className="max-w-[80%] p-3 rounded-sm" style={{
-                  background: 'linear-gradient(to bottom, rgba(120, 53, 15, 0.6), rgba(41, 24, 12, 0.8))',
+                  background: 'linear-gradient(to bottom, rgba(var(--surface-amber-strong, 120, 53, 15), 0.6), rgba(var(--surface-amber, 41, 24, 12), 0.8))',
                   border: '1px solid rgba(245, 158, 11, 0.5)',
                   color: '#fef3c7',
                 }}>
@@ -387,7 +387,7 @@ ${fullKb}
             <div key={i} className="flex justify-start">
               <div className="max-w-[90%] flex flex-col gap-2">
                 <div className="p-3 rounded-sm" style={{
-                  background: isSearch ? 'rgba(12, 24, 41, 0.7)' : 'rgba(41, 24, 12, 0.7)',
+                  background: isSearch ? 'rgba(12, 24, 41, 0.7)' : 'rgba(var(--surface-amber, 41, 24, 12), 0.7)',
                   border: `1px solid ${isSearch ? 'rgba(59, 130, 246, 0.4)' : 'rgba(245, 158, 11, 0.3)'}`,
                   color: '#fef3c7',
                 }}>
@@ -399,8 +399,8 @@ ${fullKb}
                 {/* Sources */}
                 {m.sources && m.sources.length > 0 && (
                   <div className="rounded-sm p-2 text-xs" style={{
-                    background: 'rgba(20, 12, 6, 0.7)',
-                    border: '1px solid rgba(120, 53, 15, 0.5)',
+                    background: 'rgba(var(--surface-modal, 20, 12, 6), 0.7)',
+                    border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15), 0.5)',
                   }}>
                     <div className="text-amber-600 italic tracking-wider mb-2">⚜ SOURCES FROM THE TOME ⚜</div>
                     <div className="space-y-1">
@@ -411,8 +411,8 @@ ${fullKb}
                         const preview = s.text.length > 100 ? s.text.slice(0, 100) + '...' : s.text;
                         return (
                           <div key={si} className="rounded-sm" style={{
-                            background: 'rgba(41, 24, 12, 0.5)',
-                            border: '1px solid rgba(120, 53, 15, 0.4)',
+                            background: 'rgba(var(--surface-amber, 41, 24, 12), 0.5)',
+                            border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)',
                           }}>
                             <button
                               onClick={() => toggleSource(i, si)}
@@ -437,7 +437,7 @@ ${fullKb}
 
         {loading && (
           <div className="flex justify-start">
-            <div className="p-3 rounded-sm" style={{ background: 'rgba(41, 24, 12, 0.7)', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+            <div className="p-3 rounded-sm" style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
               <Loader2 className="w-5 h-5 animate-spin text-amber-400" />
             </div>
           </div>
@@ -445,7 +445,7 @@ ${fullKb}
         <div ref={messagesEndRef} />
       </div>
       <div className="rounded-b p-3 flex gap-2" style={{
-        background: 'rgba(20, 12, 6, 0.95)',
+        background: 'rgba(var(--surface-modal, 20, 12, 6), 0.95)',
         border: '2px solid rgba(245, 158, 11, 0.5)',
         borderTop: 'none',
       }}>
@@ -457,7 +457,7 @@ ${fullKb}
           placeholder={mode === 'oracle' ? 'Ask the Oracle...' : 'Search the tome...'}
           disabled={loading}
           className="flex-1 p-3 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
-          style={{ background: 'rgba(41, 24, 12, 0.7)', borderColor: 'rgba(180, 83, 9, 0.5)' }}
+          style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)', borderColor: 'rgba(180, 83, 9, 0.5)' }}
         />
         <button
           onClick={send}
@@ -494,7 +494,7 @@ ${fullKb}
               <button
                 onClick={() => setShowClearConfirm(false)}
                 className="flex-1 py-2 rounded-sm border-2 border-amber-700 text-amber-200 italic"
-                style={{ background: 'rgba(41, 24, 12, 0.7)' }}
+                style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
               >
                 Cancel
               </button>

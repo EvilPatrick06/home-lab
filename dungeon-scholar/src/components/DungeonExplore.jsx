@@ -97,7 +97,7 @@ function LoadoutSelect({ label, icon, currentId, items, onChange, emptyLabel, su
   return (
     <div className="p-2 rounded-sm" style={{
       background: 'rgba(0,0,0,0.35)',
-      border: `1px solid ${has ? 'rgba(245,158,11,0.55)' : 'rgba(120,53,15,0.3)'}`,
+      border: `1px solid ${has ? 'rgba(245,158,11,0.55)' : 'rgba(var(--surface-amber-strong, 120, 53, 15),0.3)'}`,
     }}>
       <div className="text-[10px] uppercase italic text-amber-700 flex items-center gap-1">
         <span>{icon}</span><span>{label}</span>
@@ -110,7 +110,7 @@ function LoadoutSelect({ label, icon, currentId, items, onChange, emptyLabel, su
         style={{
           background: 'rgba(20,12,4,0.85)',
           color: has ? '#fde68a' : '#a8a29e',
-          border: '1px solid rgba(120,53,15,0.5)',
+          border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15),0.5)',
           cursor: disabled ? 'not-allowed' : 'pointer',
         }}
       >
@@ -2413,7 +2413,7 @@ function BattleModal({
             commits the real change, displayHp/displayMobHp coalesce
             with the prop values seamlessly. */}
         <div className="flex items-center justify-between gap-3 mb-3 px-2 py-2 rounded-sm"
-             style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(120,53,15,0.4)' }}>
+             style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15),0.4)' }}>
           <div>
             <div className="text-[10px] italic text-amber-700">Thee · {displayHp}/{maxHp}</div>
             {renderHpRow(displayHp, Math.max(maxHp, hp), '#dc2626', '#3a1414')}
@@ -2438,7 +2438,7 @@ function BattleModal({
             const isPickedRight = revealResult && revealResult.choice === i && revealResult.correct;
             const isAnsRight = revealResult && i === q.correctIndex;
             let bg = 'rgba(31,24,12,0.55)';
-            let border = 'rgba(120,53,15,0.5)';
+            let border = 'rgba(var(--surface-amber-strong, 120, 53, 15),0.5)';
             let color = '#fde68a';
             if (isPickedRight || (revealResult && isAnsRight)) {
               bg = 'rgba(16,185,129,0.25)'; border = '#10b981'; color = '#a7f3d0';
@@ -2591,7 +2591,7 @@ function EndRunOverlay({ runState, biome, summary, onExit, onNewDelve }) {
             onClick={onExit}
             className="px-4 py-2 rounded-sm italic"
             style={{
-              background: 'rgba(120,53,15,0.7)',
+              background: 'rgba(var(--surface-amber-strong, 120, 53, 15),0.7)',
               border: '1px solid rgba(245,158,11,0.8)',
               color: '#fde047',
             }}
@@ -3980,7 +3980,7 @@ export default function DungeonExplore({
         </div>
 
         <div className="rounded-sm p-5 relative" style={{
-          background: `linear-gradient(135deg, rgba(20,10,4,0.9) 0%, rgba(10,6,4,0.97) 100%)`,
+          background: `linear-gradient(135deg, rgba(20,10,4,0.9) 0%, rgba(var(--surface-deep, 10, 6, 4),0.97) 100%)`,
           border: `3px double ${biome.accent}`,
           boxShadow: `0 0 30px ${biome.accent}, inset 0 0 30px rgba(0,0,0,0.6)`,
           fontFamily: '"Cinzel", Georgia, serif',
@@ -4013,8 +4013,8 @@ export default function DungeonExplore({
                   onClick={() => setDifficulty(id)}
                   className="px-3 py-1.5 rounded-sm text-xs italic"
                   style={{
-                    background: selected ? 'rgba(120,53,15,0.7)' : 'rgba(31,24,12,0.5)',
-                    border: `1px solid ${selected ? 'rgba(245,158,11,0.8)' : 'rgba(120,53,15,0.4)'}`,
+                    background: selected ? 'rgba(var(--surface-amber-strong, 120, 53, 15),0.7)' : 'rgba(31,24,12,0.5)',
+                    border: `1px solid ${selected ? 'rgba(245,158,11,0.8)' : 'rgba(var(--surface-amber-strong, 120, 53, 15),0.4)'}`,
                     color: selected ? '#fde047' : (unlocked ? '#a8a29e' : '#52443a'),
                     opacity: unlocked ? 1 : 0.5,
                     cursor: unlocked ? 'pointer' : 'not-allowed',
@@ -4297,7 +4297,7 @@ export default function DungeonExplore({
                   style={{
                     width: 60, height: 44,
                     background: usable ? 'rgba(0,0,0,0.65)' : 'rgba(0,0,0,0.4)',
-                    border: `1px solid ${usable ? '#10b981' : 'rgba(120,53,15,0.4)'}`,
+                    border: `1px solid ${usable ? '#10b981' : 'rgba(var(--surface-amber-strong, 120, 53, 15),0.4)'}`,
                     color: usable ? '#fde047' : '#52443a',
                     cursor: usable ? 'pointer' : 'not-allowed',
                     fontFamily: '"Cinzel", Georgia, serif',
@@ -4422,7 +4422,7 @@ export default function DungeonExplore({
               <div className="px-3 py-2 rounded-sm text-xs italic"
                    style={{
                      background: 'rgba(0,0,0,0.7)',
-                     border: '1px solid rgba(120, 53, 15, 0.6)',
+                     border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15), 0.6)',
                      color: '#a8a29e',
                      pointerEvents: 'none',
                    }}>
@@ -4505,17 +4505,17 @@ export default function DungeonExplore({
         <div className="grid grid-cols-3 gap-1" style={{ width: 180 }}>
           <div />
           <button onClick={() => tryMove(0, -1, 'up')} className="rounded-sm text-amber-300"
-            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(120,53,15,0.5)', height: 44 }}>▲</button>
+            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15),0.5)', height: 44 }}>▲</button>
           <div />
           <button onClick={() => tryMove(-1, 0, 'left')} className="rounded-sm text-amber-300"
-            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(120,53,15,0.5)', height: 44 }}>◀</button>
+            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15),0.5)', height: 44 }}>◀</button>
           <button onClick={() => onExit && onExit()} className="rounded-sm text-amber-700 text-xs italic"
-            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(120,53,15,0.5)', height: 44 }}>Esc</button>
+            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15),0.5)', height: 44 }}>Esc</button>
           <button onClick={() => tryMove(1, 0, 'right')} className="rounded-sm text-amber-300"
-            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(120,53,15,0.5)', height: 44 }}>▶</button>
+            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15),0.5)', height: 44 }}>▶</button>
           <div />
           <button onClick={() => tryMove(0, 1, 'down')} className="rounded-sm text-amber-300"
-            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(120,53,15,0.5)', height: 44 }}>▼</button>
+            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15),0.5)', height: 44 }}>▼</button>
           <div />
         </div>
       </div>

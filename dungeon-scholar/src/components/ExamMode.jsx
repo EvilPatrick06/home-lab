@@ -265,7 +265,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
     return (
       <div className="space-y-4 max-w-3xl mx-auto">
         <div className="flex items-center gap-3 p-5 rounded-sm relative" style={{
-          background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.5) 0%, rgba(10, 6, 4, 0.95) 100%)',
+          background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.5) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
           border: '3px double rgba(129, 140, 248, 0.6)',
           boxShadow: '0 0 24px rgba(129, 140, 248, 0.2), inset 0 0 24px rgba(0,0,0,0.5)',
         }}>
@@ -274,7 +274,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
             <h2 className="text-2xl font-bold text-indigo-200 italic" style={{ textShadow: '0 0 12px rgba(129, 140, 248, 0.4)' }}>The Trial of Hours</h2>
             <div className="text-xs italic text-indigo-400 tracking-[0.2em]">⏳ Timed practice exam ⏳</div>
           </div>
-          <button onClick={onExit} className="px-3 py-2 rounded-sm border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+          <button onClick={onExit} className="px-3 py-2 rounded-sm border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>
             <ArrowLeft className="w-4 h-4 inline mr-1" /> Home
           </button>
         </div>
@@ -299,7 +299,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
                     disabled={disabled}
                     className="p-4 rounded-sm text-left disabled:opacity-40 disabled:cursor-not-allowed transition hover:brightness-110"
                     style={{
-                      background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)',
+                      background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.4) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
                       border: '2px solid rgba(129, 140, 248, 0.5)',
                     }}>
                     <div className="text-base font-bold italic text-indigo-200">{preset.label}</div>
@@ -318,7 +318,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
 
             {past.length > 0 && (
               <div className="p-4 rounded-sm" style={{
-                background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.35) 0%, rgba(10, 6, 4, 0.9) 100%)',
+                background: 'linear-gradient(135deg, rgba(var(--surface-amber-strong, 120, 53, 15), 0.35) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.9) 100%)',
                 border: '2px solid rgba(245, 158, 11, 0.4)',
               }}>
                 <div className="flex items-center gap-2 mb-3">
@@ -403,7 +403,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
     return (
       <div className="space-y-3 max-w-3xl mx-auto">
         <div className="p-3 rounded-sm sticky top-0 z-20 backdrop-blur-sm" style={{
-          background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.65) 0%, rgba(10, 6, 4, 0.97) 100%)',
+          background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.65) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.97) 100%)',
           border: '2px solid rgba(129, 140, 248, 0.55)',
         }}>
           <div className="flex items-center gap-3 flex-wrap">
@@ -420,7 +420,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
             </div>
             <button onClick={() => setShowSubmitConfirm(true)}
               className="px-3 py-1.5 rounded-sm text-xs font-bold italic border-2 border-amber-400 text-amber-100"
-              style={{ background: 'rgba(120, 53, 15, 0.6)' }}>
+              style={{ background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.6)' }}>
               Submit Exam
             </button>
           </div>
@@ -433,7 +433,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
         </div>
 
         <div className="p-5 rounded-sm" style={{
-          background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.85) 0%, rgba(15, 6, 20, 0.95) 100%)',
+          background: 'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.85) 0%, rgba(15, 6, 20, 0.95) 100%)',
           border: '3px double rgba(126, 34, 206, 0.6)',
           boxShadow: '0 0 24px rgba(168, 85, 247, 0.18), inset 0 0 24px rgba(0,0,0,0.5)',
         }}>
@@ -458,10 +458,10 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
                   }} title="No domain tagged on this riddle">domain —</span>
                 )}
                 {hasDifficulty ? (
-                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-sm" style={{ background: 'rgba(120, 53, 15, 0.35)', border: '1px solid rgba(245, 158, 11, 0.5)' }}>
+                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-sm" style={{ background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.35)', border: '1px solid rgba(245, 158, 11, 0.5)' }}>
                     <span className="text-xs italic tabular-nums" title={`Difficulty ${Math.min(5, Math.max(1, Math.round(q.difficulty)))}/5`}>
                       <span style={{ color: '#fbbf24' }}>{'▰'.repeat(Math.min(5, Math.max(1, Math.round(q.difficulty))))}</span>
-                      <span style={{ color: 'rgba(120, 53, 15, 0.7)' }}>{'▱'.repeat(5 - Math.min(5, Math.max(1, Math.round(q.difficulty))))}</span>
+                      <span style={{ color: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.7)' }}>{'▱'.repeat(5 - Math.min(5, Math.max(1, Math.round(q.difficulty))))}</span>
                     </span>
                   </span>
                 ) : (!hideOptionalChips && (
@@ -472,7 +472,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
                 ))}
                 {hasBloom ? (
                   <span className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded-sm font-bold" style={{
-                    background: 'rgba(6, 78, 59, 0.35)', border: '1px solid rgba(16, 185, 129, 0.5)', color: '#a7f3d0',
+                    background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.35)', border: '1px solid rgba(16, 185, 129, 0.5)', color: '#a7f3d0',
                   }}>{q.bloomLevel}</span>
                 ) : (!hideOptionalChips && (
                   <span className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded-sm" style={{
@@ -500,7 +500,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
                   <button key={i} onClick={() => setAnswerAt(currentIdx, i)}
                     className="w-full text-left p-3 rounded-sm border-2 italic text-amber-50 transition"
                     style={{
-                      background: picked ? 'rgba(126, 34, 206, 0.55)' : 'rgba(31, 12, 41, 0.6)',
+                      background: picked ? 'rgba(126, 34, 206, 0.55)' : 'rgba(var(--surface-purple, 31, 12, 41), 0.6)',
                       borderColor: picked ? 'rgba(168, 85, 247, 0.9)' : 'rgba(126, 34, 206, 0.5)',
                       boxShadow: picked ? '0 0 10px rgba(168, 85, 247, 0.4)' : 'none',
                     }}>
@@ -517,7 +517,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
                 className="p-4 rounded-sm font-bold border-2 italic"
                 style={{
                   borderColor: a === true ? '#10b981' : 'rgba(16, 185, 129, 0.5)',
-                  background: a === true ? 'rgba(6, 78, 59, 0.7)' : 'rgba(6, 78, 59, 0.3)',
+                  background: a === true ? 'rgba(var(--surface-emerald, 6, 78, 59), 0.7)' : 'rgba(var(--surface-emerald, 6, 78, 59), 0.3)',
                   color: a === true ? '#a7f3d0' : '#d1fae5',
                   boxShadow: a === true ? '0 0 12px rgba(16, 185, 129, 0.5)' : 'none',
                 }}>⚖ Verily True ⚖</button>
@@ -542,7 +542,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
                 }}
                 placeholder="Inscribe thy answer..."
                 className="w-full p-3 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
-                style={{ background: 'rgba(31, 12, 41, 0.6)', borderColor: 'rgba(126, 34, 206, 0.5)' }}
+                style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.6)', borderColor: 'rgba(126, 34, 206, 0.5)' }}
                 autoFocus
               />
               <div className="text-[10px] italic text-amber-700 mt-2">
@@ -555,7 +555,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
         <div className="flex items-center gap-2">
           <button onClick={() => goTo(-1)} disabled={currentIdx === 0}
             className="px-3 py-2 rounded-sm text-sm font-bold italic border-2 border-amber-700 text-amber-200 disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>
             <ArrowLeft className="w-4 h-4 inline mr-1" /> Prior
           </button>
           <div className="flex-1 text-center text-[10px] italic text-amber-700">
@@ -571,7 +571,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
         {showSubmitConfirm && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4">
             <div ref={submitConfirmRef} role="dialog" aria-modal="true" aria-label="Submit exam confirmation" className="max-w-md rounded-sm p-5" style={{
-              background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.75) 0%, rgba(10, 6, 4, 0.97) 100%)',
+              background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.75) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.97) 100%)',
               border: '3px solid rgba(129, 140, 248, 0.7)',
               boxShadow: '0 0 30px rgba(129, 140, 248, 0.3)',
             }}>
@@ -585,12 +585,12 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
               <div className="flex gap-2">
                 <button onClick={() => setShowSubmitConfirm(false)}
                   className="flex-1 px-3 py-2 rounded-sm text-sm font-bold italic border-2 border-amber-700 text-amber-200"
-                  style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+                  style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>
                   Keep going
                 </button>
                 <button onClick={() => doSubmit('submitted')}
                   className="flex-1 px-3 py-2 rounded-sm text-sm font-bold italic border-2 border-emerald-400 text-emerald-100"
-                  style={{ background: 'rgba(6, 78, 59, 0.7)' }}>
+                  style={{ background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.7)' }}>
                   Submit
                 </button>
               </div>
@@ -617,7 +617,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
     return (
       <div className="space-y-4 max-w-3xl mx-auto">
         <div className="p-5 rounded-sm text-center" style={{
-          background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.55) 0%, rgba(10, 6, 4, 0.96) 100%)',
+          background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.55) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.96) 100%)',
           border: '3px double rgba(129, 140, 248, 0.65)',
           boxShadow: '0 0 30px rgba(129, 140, 248, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',
         }}>
@@ -633,7 +633,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
         </div>
 
         <div className="p-4 rounded-sm" style={{
-          background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.45) 0%, rgba(10, 6, 4, 0.95) 100%)',
+          background: 'linear-gradient(135deg, rgba(var(--surface-emerald, 6, 78, 59), 0.45) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
           border: '2px solid rgba(16, 185, 129, 0.45)',
         }}>
           <h3 className="text-sm font-bold italic text-emerald-200 tracking-wider mb-3">By Domain</h3>
@@ -680,7 +680,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
                   correctLabel = q.correctAnswer || (q.acceptedAnswers || [])[0] || '';
                 }
                 return (
-                  <div key={w.i} className="p-2 rounded-sm" style={{ background: 'rgba(10, 6, 4, 0.5)', border: '1px solid rgba(239, 68, 68, 0.35)' }}>
+                  <div key={w.i} className="p-2 rounded-sm" style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.5)', border: '1px solid rgba(239, 68, 68, 0.35)' }}>
                     <div className="text-amber-100 mb-1">
                       <span className="text-amber-700 mr-1">Q{w.i + 1}.</span>
                       <RichContent as={null} text={q.question} />
@@ -709,7 +709,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
           </button>
           <button onClick={onExit}
             className="flex-1 px-4 py-3 rounded-sm text-sm font-bold italic border-2 border-amber-700 text-amber-200"
-            style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>
             <ArrowLeft className="w-4 h-4 inline mr-1" /> Home
           </button>
         </div>
@@ -751,7 +751,7 @@ function TrialDetailModal({ rec, onClose }) {
         onClick={(e) => e.stopPropagation()}
         className="max-w-2xl w-full rounded-sm p-5 overflow-y-auto"
         style={{
-          background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.65) 0%, rgba(10, 6, 4, 0.97) 100%)',
+          background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.65) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.97) 100%)',
           border: '3px double rgba(129, 140, 248, 0.6)',
           boxShadow: '0 0 32px rgba(129, 140, 248, 0.3), inset 0 0 24px rgba(0,0,0,0.5)',
           maxHeight: 'min(82vh, 720px)',
@@ -767,7 +767,7 @@ function TrialDetailModal({ rec, onClose }) {
           <button
             onClick={onClose}
             className="px-3 py-1.5 rounded-sm text-xs font-bold italic border-2 border-amber-700 text-amber-200"
-            style={{ background: 'rgba(41, 24, 12, 0.7)' }}
+            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
             aria-label="Close trial breakdown"
           >
             Close

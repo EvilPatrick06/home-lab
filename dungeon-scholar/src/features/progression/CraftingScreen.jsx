@@ -24,7 +24,7 @@ function CraftingScreen({ playerState, setScreen, onCraft }) {
   return (
     <div className="space-y-6">
       <div className="p-6 rounded-sm relative" style={{
-        background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        background: 'linear-gradient(135deg, rgba(var(--surface-emerald, 6, 78, 59), 0.4) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
         border: '3px double rgba(16, 185, 129, 0.6)',
         boxShadow: '0 0 30px rgba(16, 185, 129, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
       }}>
@@ -48,7 +48,7 @@ function CraftingScreen({ playerState, setScreen, onCraft }) {
             </div>
           </div>
           <button onClick={() => setScreen('inventory')} className="px-3 py-2 rounded-sm text-xs italic border-2 border-emerald-700 text-emerald-300 hover:bg-emerald-900/30"
-            style={{ background: 'rgba(6, 78, 59, 0.45)' }}>
+            style={{ background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.45)' }}>
             ← Back to The Hoard
           </button>
         </div>
@@ -56,7 +56,7 @@ function CraftingScreen({ playerState, setScreen, onCraft }) {
 
       {/* Ingredient inventory ribbon */}
       <div className="p-4 rounded-sm" style={{
-        background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.6) 0%, rgba(10, 6, 4, 0.95) 100%)',
+        background: 'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.6) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
         border: '2px solid rgba(126, 34, 206, 0.4)',
       }}>
         <div className="flex items-center gap-2 mb-2">
@@ -75,7 +75,7 @@ function CraftingScreen({ playerState, setScreen, onCraft }) {
               <div key={it.id} className="px-2 py-1 rounded-sm flex items-center gap-1 text-xs italic"
                    style={{
                      background: 'rgba(0,0,0,0.4)',
-                     border: '1px solid rgba(120,53,15,0.4)',
+                     border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15),0.4)',
                      color: '#fde68a',
                    }}>
                 <span>{it.icon}</span>
@@ -105,8 +105,8 @@ function CraftingScreen({ playerState, setScreen, onCraft }) {
             const isFlash = feedback && feedback.recipeId === recipe.id;
             return (
               <div key={recipe.id} className="p-4 rounded-sm relative" style={{
-                background: 'linear-gradient(135deg, rgba(20, 30, 24, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)',
-                border: `2px solid ${canCraft ? 'rgba(34, 197, 94, 0.55)' : 'rgba(120, 53, 15, 0.4)'}`,
+                background: 'linear-gradient(135deg, rgba(20, 30, 24, 0.7) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
+                border: `2px solid ${canCraft ? 'rgba(34, 197, 94, 0.55)' : 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)'}`,
                 boxShadow: canCraft ? '0 0 14px rgba(34, 197, 94, 0.18)' : 'inset 0 0 12px rgba(0,0,0,0.4)',
               }}>
                 <div className="flex items-start gap-3 mb-3">
@@ -147,7 +147,7 @@ function CraftingScreen({ playerState, setScreen, onCraft }) {
                     background: canCraft
                       ? 'linear-gradient(to bottom, #34d399 0%, #059669 100%)'
                       : 'rgba(31,17,8,0.5)',
-                    border: canCraft ? '2px solid #6ee7b7' : '1px solid rgba(120,53,15,0.4)',
+                    border: canCraft ? '2px solid #6ee7b7' : '1px solid rgba(var(--surface-amber-strong, 120, 53, 15),0.4)',
                     color: canCraft ? '#022c22' : '#52443a',
                     cursor: canCraft ? 'pointer' : 'not-allowed',
                     boxShadow: canCraft ? '0 0 10px rgba(16,185,129,0.4)' : 'none',

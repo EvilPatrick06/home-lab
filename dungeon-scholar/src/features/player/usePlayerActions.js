@@ -12,6 +12,7 @@ import {
 } from '../../game/quests.js';
 import { RECIPES, findItem, sanctumAtCap } from '../../game/items.js';
 import { generateTomeId, normalizeTomeData, blankTomeProgress } from '../../game/tome.js';
+import { isSealedTome } from '../../services/sealedTome.js';
 import { petLevelFromXp, findPet } from '../../services/pets.js';
 import { findSpell } from '../../services/spells.js';
 import { DAILY_REWARDS, todayDateStr, evaluateClaim } from '../../services/devotion.js';
@@ -992,6 +993,49 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
 
   // ===== Library Operations =====
   const addTomeToLibrary = (data) => {
+    // PHASE-41 41B: a sealed-tome envelope carries only metadata + sealCounts
+    // (its content arrays are encrypted away), so it cannot flow through the
+    // plain-tome content check / normalizeTomeData below. Validate from the
+    // public counts, store the envelope verbatim, and reuse the same
+    // auto-activate + achievement logic the unsealed path uses.
+    if (isSealedTome(data)) {
+      const counts = data.sealCounts || {};
+      const sealedTotal = (counts.flashcards || 0) + (counts.quiz || 0) + (counts.labs || 0);
+      if (!data.metadata?.title || sealedTotal === 0) {
+        showNotif('This tome has no scrolls, riddles, or labs — cannot inscribe', 'error');
+        return false;
+      }
+      setPlayerState(prev => {
+        const newEntry = {
+          id: generateTomeId(),
+          data, // sealed envelope stored AS-IS — never normalized/decrypted at rest
+          addedAt: Date.now(),
+          lastOpened: Date.now(),
+          progress: blankTomeProgress(),
+        };
+        const shouldActivate = !prev.activeTomeId;
+        const next = {
+          ...prev,
+          library: [...prev.library, newEntry],
+          activeTomeId: shouldActivate ? newEntry.id : prev.activeTomeId,
+        };
+        if (!next.achievements.includes('first_tome')) {
+          next.achievements = [...next.achievements, 'first_tome']; // toast via the central achievements effect (17C)
+        }
+        if (next.library.length >= 3 && !next.achievements.includes('tome_collector')) {
+          next.achievements = [...next.achievements, 'tome_collector'];
+        }
+        if (next.library.length >= 10 && !next.achievements.includes('tome_archivist')) {
+          next.achievements = [...next.achievements, 'tome_archivist'];
+        }
+        return next;
+      });
+      if (playerState.activeTomeId) {
+        const title = data?.metadata?.title || 'untitled';
+        setTimeout(() => showNotif(`Tome added: "${title}" — switch from the Library when ready.`, 'info'), 100);
+      }
+      return true;
+    }
     // Phase 30c QA #6: reject content-empty tomes. A tome with no scrolls,
     // riddles, or labs creates dead-end study screens (see QA #7) and the
     // auto-promotion below would have silently kicked the user's existing
