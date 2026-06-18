@@ -256,7 +256,9 @@ const WEB_SEARCH_DENIED_MESSAGE =
 // lobby can show it (S-2) instead of a bare "Scene prep failed".
 const scenePrepStatus = new Map<
   string,
-  { status: 'preparing' | 'ready' | 'error'; streamId: string | null; error?: string }
+  // PHASE-37: `message` is the exact prep prompt sent (default OR a seeded opening scene) so the
+  // cancel/retry cleanup matches what was stored — they must never diverge.
+  { status: 'preparing' | 'ready' | 'error'; streamId: string | null; error?: string; message?: string }
 >()
 
 // ── AI Retry & Connection Status ──
@@ -1573,15 +1575,16 @@ export async function prepareScene(campaignId: string, characterIds: string[]): 
     request,
     () => {}, // onChunk — no renderer listener during lobby prep
     (_fullText, _displayText, _statChanges, _dmActions, _ruleCitations) => {
-      scenePrepStatus.set(campaignId, { status: 'ready', streamId: null })
+      // PHASE-37: keep `message` so a cancel-after-complete matches the exact prompt that was sent.
+      scenePrepStatus.set(campaignId, { status: 'ready', streamId: null, message })
     },
     (error) => {
       // S-2 — keep the reason so the lobby can show it + offer a retry.
-      scenePrepStatus.set(campaignId, { status: 'error', streamId: null, error })
+      scenePrepStatus.set(campaignId, { status: 'error', streamId: null, error, message })
     }
   )
 
-  scenePrepStatus.set(campaignId, { status: 'preparing', streamId })
+  scenePrepStatus.set(campaignId, { status: 'preparing', streamId, message })
   return streamId
 }
 
@@ -1603,6 +1606,9 @@ export function cancelScenePrep(campaignId: string): { success: true } {
   const entry = scenePrepStatus.get(campaignId)
   if (entry?.streamId) cancelChat(entry.streamId)
   scenePrepStatus.delete(campaignId)
+  // PHASE-37: match on the EXACT prep message that was sent (a seeded opening scene differs from the
+  // default), falling back to the default for entries with no recorded message.
+  const prepMessage = entry?.message ?? SCENE_PREP_PROMPT
   // Use conversations.get (NOT getConversation) so cancelling a campaign with no
   // manager doesn't instantiate one.
   const conv = conversations.get(campaignId)
@@ -1610,8 +1616,8 @@ export function cancelScenePrep(campaignId: string): { success: true } {
     // In-flight cancel: drop the dangling user prompt. Cancel-after-complete:
     // drop the whole [prompt, scene] exchange so the next Play regenerates
     // (the user typically cancelled to change model/provider).
-    const trimmed = conv.removeTrailingUserMessage(SCENE_PREP_PROMPT)
-    const cleared = conv.clearScenePrepExchange(SCENE_PREP_PROMPT)
+    const trimmed = conv.removeTrailingUserMessage(prepMessage)
+    const cleared = conv.clearScenePrepExchange(prepMessage)
     if (trimmed || cleared) {
       // Keep disk consistent — a completed prep already auto-saved.
       saveConversation(campaignId, conv.serialize()).catch((err) =>

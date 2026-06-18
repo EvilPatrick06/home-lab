@@ -669,9 +669,9 @@ describe('ai-service', () => {
       expect(cancelScenePrep('never-prepped')).toEqual({ success: true })
     })
 
-    it('makes getSceneStatus return idle after a prep stream was started', () => {
+    it('makes getSceneStatus return idle after a prep stream was started', async () => {
       const id = 'scene-cancel-test'
-      prepareScene(id, [])
+      await prepareScene(id, []) // PHASE-37: prepareScene is async (loads campaign for the opening scene)
       expect(getSceneStatus(id).status).toBe('preparing')
       cancelScenePrep(id)
       expect(getSceneStatus(id).status).toBe('idle')
@@ -715,12 +715,12 @@ describe('ai-service', () => {
     it('fresh failed prep: retry trims the lone prompt and regenerates (not short-circuit)', async () => {
       const id = 'retry-fresh'
       failFast()
-      prepareScene(id, [])
+      await prepareScene(id, [])
       await waitForError(id)
       expect(getConversationManager(id).getMessageCount()).toBe(1) // dangling [prompt]
 
       hang() // the retry's stream stays in flight so status stays 'preparing'
-      prepareScene(id, [])
+      await prepareScene(id, [])
       // Trimmed → count 0 → regenerates → 'preparing'. (Un-trimmed would short-circuit to 'ready'.)
       expect(getSceneStatus(id).status).toBe('preparing')
     })
@@ -728,7 +728,7 @@ describe('ai-service', () => {
     it('populated conversation: retry preserves real history and short-circuits to ready', async () => {
       const id = 'retry-populated'
       failFast()
-      prepareScene(id, [])
+      await prepareScene(id, [])
       await waitForError(id)
 
       // Simulate the user entering the game and chatting after the failure.
@@ -738,7 +738,7 @@ describe('ai-service', () => {
       conv.addMessage('assistant', 'Roll for initiative')
       expect(conv.getMessageCount()).toBe(4)
 
-      prepareScene(id, [])
+      await prepareScene(id, [])
       expect(getSceneStatus(id).status).toBe('ready')
       expect(conv.getMessageCount()).toBe(4) // history intact (trailing msg ≠ prompt → no trim)
     })
