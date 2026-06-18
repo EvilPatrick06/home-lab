@@ -250,6 +250,7 @@
     "commander": "12.1.0",
     "chalk": "4.1.2",
     "semver": "7.7.4",
-    "entities": "4.5.0"
+    "entities": "4.5.0",
+    "js-yaml": "^4.2.0"
   }
 }
