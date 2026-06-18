@@ -27,7 +27,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 
 ## Defined channels
 
-*Total: **207** channel strings (from `IPC_CHANNELS`).*
+*Total: **227** channel strings (from `IPC_CHANNELS`).*
 
 ### Storage: Characters
 
@@ -125,6 +125,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 |---|---|
 | `AI_CHAT_STREAM` | `ai:chat-stream` |
 | `AI_CANCEL_STREAM` | `ai:cancel-stream` |
+| `AI_XCARD_REWIND` | `ai:x-card-rewind` |
 | `AI_APPLY_MUTATIONS` | `ai:apply-mutations` |
 | `AI_LONG_REST` | `ai:long-rest` |
 | `AI_SHORT_REST` | `ai:short-rest` |
@@ -211,6 +212,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 | `AI_GET_QUEST_LOG` | `ai:get-quest-log` |
 | `AI_UPDATE_QUEST_OBJECTIVE` | `ai:update-quest-objective` |
 | `AI_ADVANCE_CHAPTER` | `ai:advance-chapter` |
+| `AI_SEED_QUESTS` | `ai:seed-quests` |
 
 ### AI DM: Dice oracle (PHASE-28)
 
@@ -247,6 +249,16 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 | `AI_GET_CONTEXT_INSPECTOR` | `ai:get-context-inspector` |
 | `AI_GET_TOKEN_METER` | `ai:get-token-meter` |
 | `AI_GENERATE_END_OF_SESSION_RECAP` | `ai:generate-end-of-session-recap` |
+| `AI_GENERATE_BATTLEMAP` | `ai:generate-battlemap` |
+
+### AI DM: Recaps & campaign Q&A (PHASE-31)
+
+| Constant | Channel string |
+|---|---|
+| `AI_GENERATE_SESSION_START_RECAP` | `ai:generate-session-start-recap` |
+| `AI_CAMPAIGN_QA_ASK` | `ai:campaign-qa-ask` |
+| `AI_CAMPAIGN_QA_HISTORY` | `ai:campaign-qa-history` |
+| `AI_CAMPAIGN_QA_CLEAR` | `ai:campaign-qa-clear` |
 
 ### AI DM: Vision / Map Analysis
 
@@ -261,6 +273,16 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 | `AI_TRIGGER_STATE_UPDATE` | `ai:trigger-state-update` |
 | `AI_TRIGGER_SET_ENABLED` | `ai:trigger-set-enabled` |
 | `AI_TRIGGER_GET_ENABLED` | `ai:trigger-get-enabled` |
+
+### AI Image Generation (PHASE-33)
+
+| Constant | Channel string |
+|---|---|
+| `AI_IMAGE_GET_CONFIG` | `ai-image:get-config` |
+| `AI_IMAGE_CONFIGURE` | `ai-image:configure` |
+| `AI_IMAGE_CHECK_PROVIDERS` | `ai-image:check-providers` |
+| `AI_IMAGE_GENERATE` | `ai-image:generate` |
+| `AI_IMAGE_PROGRESS` | `ai-image:progress` |
 
 ### AI DM: Events (main → renderer)
 
@@ -376,6 +398,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 | `BMO_STOP_DM` | `bmo:stop-dm` |
 | `BMO_NARRATE` | `bmo:narrate` |
 | `BMO_STATUS` | `bmo:status` |
+| `BMO_DISCORD_RECAP` | `bmo:discord-recap` |
 | `BMO_SET_NARRATION_ENABLED` | `bmo:set-narration-enabled` |
 | `BMO_NARRATION_STATUS` | `bmo:narration-status` |
 | `BMO_NARRATE_CANCEL` | `bmo:narrate-cancel` |
@@ -383,6 +406,12 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 | `BMO_VOICE_CAST_GET` | `bmo:voice-cast-get` |
 | `BMO_VOICE_CAST_SET` | `bmo:voice-cast-set` |
 | `BMO_VOICE_CAST_RESET` | `bmo:voice-cast-reset` |
+| `BMO_PBP_START` | `bmo:pbp-start` |
+| `BMO_PBP_ADVANCE` | `bmo:pbp-advance` |
+| `BMO_PBP_SKIP` | `bmo:pbp-skip` |
+| `BMO_PBP_SET_SCENE` | `bmo:pbp-set-scene` |
+| `BMO_PBP_STOP` | `bmo:pbp-stop` |
+| `BMO_PBP_STATUS` | `bmo:pbp-status` |
 
 ### BMO Pi Bridge: Sync (main → renderer, from Pi HTTP callbacks)
 
@@ -418,6 +447,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 | `IMAGE_LIBRARY_SAVE` | `image-library:save` |
 | `IMAGE_LIBRARY_LIST` | `image-library:list` |
 | `IMAGE_LIBRARY_GET` | `image-library:get` |
+| `IMAGE_LIBRARY_READ_DATA` | `image-library:read-data` |
 | `IMAGE_LIBRARY_DELETE` | `image-library:delete` |
 
 ### Books

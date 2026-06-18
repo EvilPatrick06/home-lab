@@ -23,7 +23,7 @@
 │   │   │   ├── src/stores/           zustand state stores
 │   │   │   ├── src/pages/            route-level page components
 │   │   │   ├── src/network/          peerjs multiplayer
-│   │   │   └── public/data/5e/       D&D content as JSON (3,037 files)
+│   │   │   └── public/data/5e/       D&D content as JSON (3,041 files)
 │   │   └── shared/                   cross-process types/schemas
 │   ├── scripts/                      CLI tooling, grouped by purpose
 │   │   ├── build/                    runs via package.json (chunk-index, prerelease-clean)
