@@ -217,9 +217,12 @@ if [ "$SERVICES_ONLY" -eq 0 ]; then
       run "BMO_CANARY=1 BMO_PORT=$CANARY_PORT $VENV_PY app.py > $CANARY_LOG 2>&1 &"
     else
       mkdir -p "$(dirname "$CANARY_LOG")"
+      # Close the flock fd (9) in the canary so a slow/leaked canary can't keep
+      # holding /tmp/bmo-deploy.lock after this deploy exits (would block every
+      # future deploy with "another deploy is running").
       ( cd "$REPO_ROOT/bmo/pi" \
         && BMO_CANARY=1 BMO_PORT="$CANARY_PORT" "$VENV_PY" app.py \
-             > "$CANARY_LOG" 2>&1 ) &
+             > "$CANARY_LOG" 2>&1 9>&- ) &
       CANARY_PID=$!
       if poll_health "http://localhost:$CANARY_PORT/health" "$CANARY_TIMEOUT"; then
         log "canary /health green"
