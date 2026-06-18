@@ -64,7 +64,7 @@ describe('gemini-image-client (PHASE-33 33B)', () => {
   })
 
   it('accepts a normal gemini model id unchanged', async () => {
-    const fetchMock = vi.fn(async () => ({
+    const fetchMock = vi.fn(async (_url: string) => ({
       ok: true,
       json: async () => ({ candidates: [{ content: { parts: [{ inlineData: { data: 'IMG' } }] } }] })
     }))
