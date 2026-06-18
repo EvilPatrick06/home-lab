@@ -19,7 +19,13 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
   const [reviewDeck, setReviewDeck] = useState([]);
   // Pre-shuffled deck comes from App level (stable across re-renders / cloud
   // sync). Fall back to the raw flashcards if a parent hasn't provided one.
-  const baseDeck = (cardsProp && cardsProp.length) ? cardsProp : (courseSet.flashcards || []);
+  // PHASE-40 40B (L15): defensive copy with a stable identity — the fallback
+  // branch must not hand the raw courseSet array to component state, and an
+  // unstable identity would re-fire the cards memo + session effects every render.
+  const baseDeck = useMemo(
+    () => ((cardsProp && cardsProp.length) ? cardsProp : (courseSet.flashcards || [])).slice(),
+    [cardsProp, courseSet]
+  );
 
   useEffect(() => {
     if (reviewMode) {

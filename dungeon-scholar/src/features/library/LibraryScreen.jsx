@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Gift, ChevronRight, Library, Wand2, Copy, Hash, Upload, Scroll, BookMarked, Check, X, Star, Share2, Tag, Edit2, Trash2 } from 'lucide-react';
+import { Gift, ChevronRight, Library, Wand2, Copy, Hash, Upload, Scroll, BookMarked, Check, X, Star, Share2, Tag, Edit2, Trash2, ScrollText } from 'lucide-react';
 import RichContent from '../../components/RichContent.jsx';
 import { blankTomeProgress } from '../../game/tome.js';
 
-function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate, onShare, onEditMetadata, onTogglePin, onImport, onPaste, onImportCode, onShowPrompt, setScreen, claimableQuestCount = 0 }) {
+function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate, onShare, onEditMetadata, onNotes, onTogglePin, onImport, onPaste, onImportCode, onShowPrompt, setScreen, claimableQuestCount = 0 }) {
   const [renamingId, setRenamingId] = useState(null);
   const [renameValue, setRenameValue] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
@@ -364,6 +364,17 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                       aria-label={`Edit metadata for tome "${meta.title || 'untitled'}"`}
                     >
                       <Tag className="w-4 h-4" aria-hidden="true" />
+                    </button>
+                    {/* Phase 40F: per-tome encrypted private notes. A filled
+                        icon hints that notes already exist (locked at rest). */}
+                    <button
+                      onClick={() => onNotes?.(tome)}
+                      className={`px-3 py-2 rounded-sm text-sm border-2 hover:bg-amber-900/30 ${tome.notes ? 'border-amber-400 text-amber-200' : 'border-amber-700 text-amber-300'}`}
+                      style={{ background: tome.notes ? 'rgba(120, 53, 15, 0.7)' : 'rgba(41, 24, 12, 0.7)' }}
+                      title={tome.notes ? `Open encrypted notes for "${meta.title || 'this tome'}"` : `Create encrypted notes for "${meta.title || 'this tome'}"`}
+                      aria-label={tome.notes ? 'Open encrypted notes' : 'Create encrypted notes'}
+                    >
+                      <ScrollText className="w-4 h-4" aria-hidden="true" />
                     </button>
                     <button
                       onClick={() => startRename(tome)}

@@ -41,7 +41,11 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
   // sync). Fall back to the raw quiz array if a parent hasn't provided one.
   // Phase 39a: sessionDeck (when set by a resume) overrides the parent's
   // shuffle so the saved index points to the right riddle.
-  const baseDeck = (questionsProp && questionsProp.length) ? questionsProp : (courseSet.quiz || []);
+  // PHASE-40 40B (L15): defensive copy with a stable identity (see FlashcardsMode).
+  const baseDeck = useMemo(
+    () => ((questionsProp && questionsProp.length) ? questionsProp : (courseSet.quiz || [])).slice(),
+    [questionsProp, courseSet]
+  );
   // 25e2: Domain Study can launch this mode with a single-domain filter.
   const questions = useMemo(() => {
     const deck = sessionDeck || baseDeck;

@@ -319,3 +319,40 @@ export const armOnFirstGesture = () => {
   window.addEventListener('pointerdown', gestureHandler, true);
   window.addEventListener('keydown', gestureHandler, true);
 };
+
+// PHASE-40 40C (L8): iOS battery — while the page is hidden the BGM setTimeout
+// loop keeps scheduling oscillators into a running context, so the audio thread
+// never sleeps. Suspend on hidden, restore on visible.
+let resumeBiomeId = null;
+let visibilityHandler = null;
+
+export const armAutoSuspend = () => {
+  if (typeof document === 'undefined' || visibilityHandler) return;
+  visibilityHandler = () => {
+    if (document.visibilityState === 'hidden') {
+      resumeBiomeId = currentBgmId;
+      stopBgm();                       // clears bgmTimer + disconnects nodes
+      if (ctx && ctx.state === 'running') ctx.suspend().catch(() => {});
+    } else if (resumeBiomeId && !settings.muted) {
+      const biome = resumeBiomeId;
+      resumeBiomeId = null;
+      startBgm(biome);                 // ensureContextRunning() resumes ctx
+    }
+  };
+  document.addEventListener('visibilitychange', visibilityHandler);
+};
+
+export const disarmAutoSuspend = () => {
+  if (visibilityHandler) {
+    document.removeEventListener('visibilitychange', visibilityHandler);
+    visibilityHandler = null;
+  }
+};
+
+export const closeAudio = async () => {
+  stopBgm();
+  if (ctx) {
+    try { await ctx.close(); } catch { /* already closed */ }
+    ctx = null; masterGain = null; bgmGain = null; sfxGain = null;
+  }
+};

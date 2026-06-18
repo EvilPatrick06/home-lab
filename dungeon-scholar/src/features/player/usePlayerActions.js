@@ -1095,6 +1095,19 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
     }));
   };
 
+  // Phase 40F: per-tome encrypted private notes. `payloadOrNull` is exactly
+  // the encryptPayload result ({ v, kdf, iter, salt, iv, ct, updatedAt }) —
+  // encrypted at rest in localStorage AND the cloud blob; it rides the
+  // existing sync untouched. Passing null drops the notes key entirely.
+  const updateTomeNotes = (tomeId, payloadOrNull) => {
+    setPlayerState(prev => ({
+      ...prev,
+      library: prev.library.map(t => t.id === tomeId
+        ? (payloadOrNull ? { ...t, notes: payloadOrNull } : (({ notes, ...rest }) => rest)(t))
+        : t),
+    }));
+  };
+
   return {
     totalCardsAcrossLib,
     totalLabsAttemptedAcrossLib,
@@ -1149,5 +1162,6 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
     renameTome,
     duplicateTome,
     updateTomeMetadata,
+    updateTomeNotes,
   };
 }

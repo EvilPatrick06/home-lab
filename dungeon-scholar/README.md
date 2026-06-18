@@ -15,9 +15,7 @@ A D&D-themed exam-prep study app — cybersecurity, IT, and CS certification mat
 
 ## Stack
 
-React 19 · Vite ^7 · Tailwind CSS · Vitest · Supabase (optional). Deployed to GitHub Pages via the `deploy.yml` workflow.
-
-> The vite version is pinned to `^7` because `@vitejs/plugin-react ^4.3.4` declares peer support only for vite 4–7. Dependabot bumps to vite 8 cause `npm ci` to reject the install during deploy — keep the pin until plugin-react ships a vite-8-compatible release.
+React 19 · Vite ^8 · `@vitejs/plugin-react` ^6 · Tailwind CSS · Vitest · `vite-plugin-pwa` (installable offline PWA) · Supabase (optional). Deployed to GitHub Pages via the `deploy.yml` workflow.
 
 ---
 
@@ -48,6 +46,39 @@ It's a web app — just visit **[EvilPatrick06.github.io/dungeon-scholar](https:
 - *"Site won't load"* — GitHub Pages can take a minute to warm up after a deploy. Refresh after ~30 s.
 - *"My progress disappeared"* — you probably cleared browser data or switched devices without enabling cloud sync. There's no recovery without sync; sign in first to avoid this next time.
 - *"Cards look wrong / clipped"* — try a hard refresh (Ctrl-Shift-R / Cmd-Shift-R) to bust the service-worker cache.
+
+---
+
+## Install as an app (offline)
+
+Dungeon Scholar is an installable, offline-first PWA. After the first load it
+runs without a network connection — all local study (flashcards, quizzes,
+practice exams, the dungeon delve, your `localStorage` progress) keeps working
+on a plane, a subway, or a dead Wi-Fi connection.
+
+**Android / desktop Chrome / Edge:** an **Install** prompt appears in the
+address bar (or the browser menu → *Install Dungeon Scholar*). Installing adds a
+standalone window / home-screen icon with no browser chrome.
+
+**iOS Safari:** there's no automatic prompt — tap the **Share** button →
+**Add to Home Screen**. The icon then launches the app full-screen like a native
+app.
+
+**Offline + updates:**
+- Works offline after the first visit; the app shell and tomes are cached by the
+  service worker.
+- Updates apply automatically: after a new deploy, the next launch picks up the
+  new version (auto-update on reload — no manual cache-busting needed).
+- **Local study works fully offline. Cloud sync resumes automatically when
+  you're back online** — Supabase sync and the AI Oracle are network-only by
+  design (they're cross-origin and never cached), so they pause offline and
+  catch up on reconnect.
+
+> **iOS installed-PWA caveat:** an installed PWA on iOS gets its own isolated
+> cookie jar separate from Safari. GitHub sign-in (cloud sync) will therefore
+> prompt once *inside* the installed app even if you're already signed in in
+> Safari. After that first sign-in it persists via `localStorage`, so you only
+> see the prompt once.
 
 ---
 
@@ -142,7 +173,6 @@ except Home is `React.lazy`-loaded as its own chunk, keeping the initial bundle 
 | Blank page after deploy | `base` in `vite.config.js` doesn't match the repo name | Update + redeploy |
 | Tailwind classes not applying | `index.css` not imported in `main.jsx` | Already imported in the scaffold; re-add if you removed it |
 | Build fails in Actions but works locally | Vite doesn't strip TS-style syntax in `.jsx` files | Run `npm run build` locally to repro and fix the imports |
-| `npm ci` fails with `ERESOLVE could not resolve` on vite | Dependabot bumped vite past `^7` | Keep vite pinned to `^7` (see Stack note above) |
 
 ## Known limitations + future-ideas
 

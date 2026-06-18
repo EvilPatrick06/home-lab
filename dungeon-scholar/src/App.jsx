@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { usePlayerState } from './hooks/usePlayerState.js';
 import { hasMeaningfulData } from './services/persistence.js';
+import { checkImportSize } from './services/importLimits.js';
 import {
   saveSession,
   loadSession,
@@ -28,7 +29,7 @@ import { Shield, Zap, Brain, FlaskConical, MessageSquare, Upload, Download, Trop
 import { TUTORIAL_STEPS, snapshotBaselines, migrateTutorialIndex } from './tutorial';
 import { gradeAnswer, getOracleEndpoint, isOracleConfigured, ORACLE_MODEL } from './services/oracleGrader.js';
 import { logError } from './services/logger.js';
-import { getAudioSettings, setMuted, setBgmVolume, setSfxVolume, armOnFirstGesture, playSfx, getDefaultAudioSettings, setAudioPersistErrorHandler } from './audio/sound.js';
+import { getAudioSettings, setMuted, setBgmVolume, setSfxVolume, armOnFirstGesture, armAutoSuspend, disarmAutoSuspend, playSfx, getDefaultAudioSettings, setAudioPersistErrorHandler } from './audio/sound.js';
 import { PETS, PET_LEVEL_XP, PET_MAX_LEVEL, petLevelFromXp, findPet } from './services/pets.js';
 import { SPELLS, findSpell } from './services/spells.js';
 import { DAILY_REWARDS, todayDateStr, dayDiff, computeNextClaim, evaluateClaim } from './services/devotion.js';
@@ -64,6 +65,7 @@ const LibraryScreen = React.lazy(() => import('./features/library/LibraryScreen.
 import ShareTomeModal from './features/library/ShareTomeModal.jsx';
 import ImportCodeModal from './features/library/ImportCodeModal.jsx';
 import MetadataEditModal from './features/library/MetadataEditModal.jsx';
+import TomeNotes from './components/TomeNotes.jsx';
 import PasteTomeModal from './features/library/PasteTomeModal.jsx';
 const RunHistoryScreen = React.lazy(() => import('./features/progression/RunHistoryScreen.jsx'));
 const ShopScreen = React.lazy(() => import('./features/progression/ShopScreen.jsx'));
@@ -143,6 +145,8 @@ export default function DungeonScholarApp() {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [shareTomeId, setShareTomeId] = useState(null);
   const [editMetadataTomeId, setEditMetadataTomeId] = useState(null);
+  // Phase 40F: tome whose encrypted private notes are open (null = closed).
+  const [notesTome, setNotesTome] = useState(null);
   const [showImportCodeModal, setShowImportCodeModal] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [showAccountPanel, setShowAccountPanel] = useState(false);
@@ -167,7 +171,7 @@ export default function DungeonScholarApp() {
 
   // Phase 21: prime the audio context on first user gesture so BGM/SFX
   // don't fail silently due to browser auto-play policies.
-  useEffect(() => { armOnFirstGesture(); }, []);
+  useEffect(() => { armOnFirstGesture(); armAutoSuspend(); return () => disarmAutoSuspend(); }, []);
 
   // Phase 34b QA P10: apply theme to the root element. Re-evaluates on
   // explicit preference change AND on OS preference change (when 'system').
@@ -375,6 +379,7 @@ export default function DungeonScholarApp() {
     renameTome,
     duplicateTome,
     updateTomeMetadata,
+    updateTomeNotes,
   } = usePlayerActions({ playerState, setPlayerState, showNotif, user });
 
   // Auto-completion checks: any time relevant state changes, check if current
@@ -723,6 +728,12 @@ export default function DungeonScholarApp() {
   const handleImportFile = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const sizeCheck = checkImportSize(file.size); // PHASE-40 40A (L14): reject before reading
+    if (!sizeCheck.ok) {
+      showNotif(sizeCheck.message, 'error');
+      e.target.value = '';
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (ev) => {
       try {
@@ -745,6 +756,11 @@ export default function DungeonScholarApp() {
   };
 
   const handlePasteImport = (text) => {
+    const sizeCheck = checkImportSize(text.length); // PHASE-40 40A (L14): reject before JSON.parse
+    if (!sizeCheck.ok) {
+      showNotif(sizeCheck.message, 'error');
+      return false;
+    }
     try {
       // Strip common markdown code fences if present
       let cleaned = text.trim();
@@ -766,6 +782,11 @@ export default function DungeonScholarApp() {
   };
 
   const handleShareCodeImport = (code) => {
+    const sizeCheck = checkImportSize(code.length); // PHASE-40 40A (L14): reject before atob/decode
+    if (!sizeCheck.ok) {
+      showNotif(sizeCheck.message, 'error');
+      return false;
+    }
     const data = decodeTomeShareCode(code);
     if (!data) {
       showNotif('Invalid share code — must start with TOME-V1:', 'error');
@@ -1288,6 +1309,7 @@ export default function DungeonScholarApp() {
             onDuplicate={duplicateTome}
             onShare={(id) => setShareTomeId(id)}
             onEditMetadata={(id) => setEditMetadataTomeId(id)}
+            onNotes={(tome) => setNotesTome(tome)}
             onTogglePin={(id) => {
               // Phase 38d round-3 suggestion: pin/unpin a tome so it floats
               // to the top of the Library — useful once a user has 5+ tomes
@@ -1521,6 +1543,7 @@ export default function DungeonScholarApp() {
         {showImportCodeModal && <ImportCodeModal onClose={() => setShowImportCodeModal(false)} onSubmit={handleShareCodeImport} />}
         {shareTomeId && <ShareTomeModal tome={playerState.library.find(t => t.id === shareTomeId)} onClose={() => setShareTomeId(null)} />}
         {editMetadataTomeId && <MetadataEditModal tome={playerState.library.find(t => t.id === editMetadataTomeId)} onSave={(updates) => { updateTomeMetadata(editMetadataTomeId, updates); setEditMetadataTomeId(null); showNotif('Tome metadata updated', 'success'); }} onClose={() => setEditMetadataTomeId(null)} />}
+        {notesTome && <TomeNotes tome={playerState.library.find(t => t.id === notesTome.id) || notesTome} onSave={(p) => updateTomeNotes(notesTome.id, p)} onClose={() => setNotesTome(null)} />}
         {showResetConfirm && <ResetConfirmModal onConfirm={confirmReset} onCancel={() => setShowResetConfirm(false)} />}
         {showAchievements && <AchievementsModal playerState={playerState} onClose={() => setShowAchievements(false)} />}
         {showWelcomeModal && <WelcomeModal onStart={startTutorial} onSkip={skipTutorial} />}

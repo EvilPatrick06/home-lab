@@ -237,7 +237,7 @@ export function usePlayerState(defaultState, user = null) {
     return () => {
       window.removeEventListener('beforeunload', onUnload);
       document.removeEventListener('visibilitychange', onVisibility);
-      window.removeEventListener('blur-sm', onBlur);
+      window.removeEventListener('blur', onBlur);
       flushLocal();
     };
   }, [flushLocal, flushCloud]);

@@ -333,3 +333,283 @@ describe('usePlayerState — smart sign-in merge using sync meta', () => {
     expect(pushSave).not.toHaveBeenCalled();
   });
 });
+
+describe('usePlayerState — Realtime echo dedup', () => {
+  let realtimeCb;
+  let unsubSpy;
+
+  beforeEach(() => {
+    localStorage.clear();
+    pullSave.mockReset();
+    pushSave.mockReset();
+    upsertProfile.mockReset();
+    subscribeSaves.mockReset();
+    realtimeCb = null;
+    unsubSpy = vi.fn();
+    subscribeSaves.mockImplementation((uid, cb) => {
+      realtimeCb = cb;
+      return unsubSpy;
+    });
+  });
+
+  it('(a) exact-updatedAt echo is skipped — state unchanged', async () => {
+    // Empty cloud at sign-in so nothing gets applied/merged.
+    pullSave.mockResolvedValueOnce(null);
+    // Our own push resolves with updatedAt T1; lastKnownCloudUpdatedAt becomes T1.
+    const T1 = '2026-05-01T00:00:00Z';
+    pushSave.mockResolvedValue({ updatedAt: T1 });
+
+    const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
+    await waitFor(() => expect(subscribeSaves).toHaveBeenCalled());
+    await waitFor(() => expect(pullSave).toHaveBeenCalled());
+
+    // Local change → debounced pushSave fires → resolves with T1.
+    act(() => { result.current[1]({ level: 6, totalXp: 60, library: [] }); });
+    await waitFor(() => expect(pushSave).toHaveBeenCalled(), { timeout: 2500 });
+    await waitFor(() => expect(result.current[2].status).toBe('idle'));
+
+    const before = result.current[0];
+
+    // Realtime echo whose updatedAt matches our last push → fast-path skip.
+    act(() => {
+      realtimeCb({ data: { level: 999, totalXp: 999, library: [{ id: 'x' }] }, updatedAt: T1, schemaVer: 1 });
+    });
+
+    // State object is untouched (same reference, same value).
+    expect(result.current[0]).toBe(before);
+    expect(result.current[0].level).toBe(6);
+  }, 6000);
+
+  it('(b) content-hash echo is skipped — state object not replaced, ref still advances', async () => {
+    // Cloud has data + empty local → cloud applied silently; this seeds
+    // recentLocalHashes via applyRemoteState's trackLocalHash.
+    const data = { level: 4, totalXp: 40, library: [{ id: 'a' }], backfillVer: 1 };
+    pullSave.mockResolvedValueOnce({ data, updatedAt: '2026-04-29T00:00:00Z', schemaVer: 1 });
+
+    const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
+    await waitFor(() => expect(subscribeSaves).toHaveBeenCalled());
+    await waitFor(() => expect(result.current[0].level).toBe(4));
+
+    const before = result.current[0];
+    // The current local state hash is recorded — an incoming snapshot that is
+    // deep-equal to it (but with a NEW updatedAt T2) is a content echo.
+    const T2 = '2026-05-02T00:00:00Z';
+    act(() => {
+      realtimeCb({ data: { ...before }, updatedAt: T2, schemaVer: 1 });
+    });
+
+    // State object NOT replaced (same reference).
+    expect(result.current[0]).toBe(before);
+
+    // Invoke again with the SAME T2. The hash path already advanced
+    // lastKnownCloudUpdatedAt to T2, so this now hits the fast exact-match
+    // path and is still skipped — state untouched.
+    act(() => {
+      realtimeCb({ data: { ...before }, updatedAt: T2, schemaVer: 1 });
+    });
+    expect(result.current[0]).toBe(before);
+  });
+
+  it('(c) genuine remote update is applied — state + localStorage updated', async () => {
+    pullSave.mockResolvedValueOnce(null);
+
+    const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
+    await waitFor(() => expect(subscribeSaves).toHaveBeenCalled());
+    await waitFor(() => expect(pullSave).toHaveBeenCalled());
+
+    const incoming = { level: 11, totalXp: 1100, library: [{ id: 'remote' }] };
+    act(() => {
+      realtimeCb({ data: incoming, updatedAt: '2026-05-03T00:00:00Z', schemaVer: 1 });
+    });
+
+    // applyBackfills tags the applied state with backfillVer: 1.
+    const expected = { ...incoming, backfillVer: 1 };
+    await waitFor(() => expect(result.current[0]).toEqual(expected));
+    expect(loadFromLocalStorage()?.state).toEqual(expected);
+  });
+
+  it('(d) unsubscribe — unsub callback fires after unmount', async () => {
+    pullSave.mockResolvedValueOnce(null);
+
+    const { unmount } = renderHook(() => usePlayerState(DEFAULT, USER));
+    await waitFor(() => expect(subscribeSaves).toHaveBeenCalled());
+
+    expect(unsubSpy).not.toHaveBeenCalled();
+    unmount();
+    expect(unsubSpy).toHaveBeenCalled();
+  });
+});
+
+describe('usePlayerState — BroadcastChannel dedup', () => {
+  // Drive onmessage ourselves rather than relying on happy-dom's own
+  // BroadcastChannel implementation (which would structured-clone + deliver
+  // asynchronously across instances and is awkward to assert against).
+  class MockBC {
+    static instances = [];
+    constructor(name) {
+      this.name = name;
+      this.onmessage = null;
+      this.closed = false;
+      MockBC.instances.push(this);
+    }
+    postMessage() { /* no-op: we never want a self-delivery loop in tests */ }
+    close() { this.closed = true; }
+    // Test helper: deliver a message to this channel's onmessage handler.
+    emit(msg) { if (this.onmessage) this.onmessage({ data: msg }); }
+  }
+
+  beforeEach(() => {
+    localStorage.clear();
+    pullSave.mockReset();
+    pushSave.mockReset();
+    upsertProfile.mockReset();
+    subscribeSaves.mockReset();
+    subscribeSaves.mockImplementation(() => () => {});
+    MockBC.instances = [];
+    vi.stubGlobal('BroadcastChannel', MockBC);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('echo — a message matching a recent local state is NOT applied', async () => {
+    const { result } = renderHook(() => usePlayerState(DEFAULT));
+    const channel = MockBC.instances.at(-1);
+    expect(channel).toBeTruthy();
+
+    // Make a local change — this records the state hash in recentLocalHashes
+    // (and would have been broadcast in a real channel).
+    const local = { level: 2, totalXp: 20, library: [] };
+    act(() => { result.current[1](local); });
+    const before = result.current[0];
+
+    // A BroadcastChannel echo carrying that same state → deduped, not applied.
+    act(() => {
+      channel.emit({ type: 'state', state: { ...local } });
+    });
+    expect(result.current[0]).toBe(before);
+  });
+
+  it('genuine cross-tab state is applied with NO pushSave (applyingRemoteRef guard)', async () => {
+    // Signed in so a push WOULD fire if the guard were broken.
+    pullSave.mockResolvedValueOnce(null);
+    const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
+    await waitFor(() => expect(pullSave).toHaveBeenCalled());
+    const channel = MockBC.instances.at(-1);
+
+    pushSave.mockClear();
+    const remote = { level: 8, totalXp: 800, library: [{ id: 'tab2' }] };
+    act(() => {
+      channel.emit({ type: 'state', state: remote });
+    });
+
+    await waitFor(() => expect(result.current[0]).toEqual(remote));
+    // The applyingRemoteRef guard suppresses the cloud push on remote-applied state.
+    await new Promise((r) => setTimeout(r, 50));
+    expect(pushSave).not.toHaveBeenCalled();
+  });
+});
+
+describe('usePlayerState — resolveMerge branches', () => {
+  // Build the real-conflict fixture exactly as the existing
+  // "cloud changed + local dirty → fires merge chooser" test does.
+  const LOCAL = { level: 5, totalXp: 100, library: [{ id: 'a' }] };
+  const CLOUD = { level: 9, totalXp: 500, library: [{ id: 'a' }, { id: 'b' }] };
+
+  beforeEach(() => {
+    localStorage.clear();
+    pullSave.mockReset();
+    pushSave.mockReset();
+    upsertProfile.mockReset();
+    subscribeSaves.mockReset();
+    subscribeSaves.mockImplementation(() => () => {});
+  });
+
+  async function renderConflict() {
+    localStorage.setItem('dungeon-scholar:save:v1', JSON.stringify(LOCAL));
+    localStorage.setItem('dungeon-scholar:sync:v1',
+      JSON.stringify({ lastSyncedAt: '2026-04-29T10:00:00Z', dirty: true }));
+    pullSave.mockResolvedValueOnce({
+      data: CLOUD, updatedAt: '2026-04-29T11:00:00Z', schemaVer: 1,
+    });
+    pushSave.mockResolvedValue({ updatedAt: '2026-04-29T12:00:00Z' });
+
+    const view = renderHook(() => usePlayerState(DEFAULT, USER));
+    await waitFor(() => expect(view.result.current[2].mergeRequired).toBe(true));
+    return view;
+  }
+
+  it("'local' → pushes the local blob, clears merge state", async () => {
+    const { result } = await renderConflict();
+    expect(pushSave).not.toHaveBeenCalled();
+
+    await act(async () => { await result.current[2].resolveMerge('local'); });
+
+    expect(pushSave).toHaveBeenCalledTimes(1);
+    const [, pushedBlob] = pushSave.mock.calls[0];
+    expect(pushedBlob.level).toBe(5);
+    expect(result.current[2].mergeRequired).toBe(false);
+    expect(result.current[2].localPreview).toBeNull();
+    expect(result.current[2].cloudPreview).toBeNull();
+  });
+
+  it("'cloud' → state becomes cloud preview, second pullSave fires, NO pushSave", async () => {
+    const { result } = await renderConflict();
+    // The sign-in pull already consumed the queued mock; provide the fresh
+    // re-pull resolveMerge('cloud') issues to sync lastKnownCloudUpdatedAt.
+    pullSave.mockResolvedValueOnce({
+      data: CLOUD, updatedAt: '2026-04-29T11:00:00Z', schemaVer: 1,
+    });
+    const pullsBefore = pullSave.mock.calls.length;
+
+    await act(async () => { await result.current[2].resolveMerge('cloud'); });
+
+    // cloudPreview was run through applyBackfills at sign-in (tagged backfillVer).
+    expect(result.current[0]).toEqual({ ...CLOUD, backfillVer: 1 });
+    expect(pullSave.mock.calls.length).toBe(pullsBefore + 1);
+    expect(pushSave).not.toHaveBeenCalled();
+    expect(result.current[2].mergeRequired).toBe(false);
+  });
+
+  it("'cancel' → clears merge flag, no push, no state change", async () => {
+    const { result } = await renderConflict();
+    const before = result.current[0];
+
+    await act(async () => { await result.current[2].resolveMerge('cancel'); });
+
+    expect(result.current[2].mergeRequired).toBe(false);
+    expect(result.current[2].localPreview).toBeNull();
+    expect(result.current[2].cloudPreview).toBeNull();
+    expect(pushSave).not.toHaveBeenCalled();
+    expect(result.current[0]).toBe(before);
+  });
+});
+
+describe('usePlayerState — blur listener cleanup (step-1 regression)', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    pullSave.mockReset();
+    pushSave.mockReset();
+    upsertProfile.mockReset();
+    subscribeSaves.mockReset();
+    subscribeSaves.mockImplementation(() => () => {});
+  });
+
+  it('removes its blur handler on unmount — a post-unmount blur does not re-flush', () => {
+    // Signed out: local-only flush path.
+    const { result, unmount } = renderHook(() => usePlayerState(DEFAULT));
+
+    // Make a local change so the handler, if leaked, has stale state to flush.
+    act(() => { result.current[1]({ level: 12, totalXp: 120, library: [] }); });
+
+    unmount();
+    localStorage.clear();
+
+    // Pre-fix the cleanup removed 'blur-sm' (a no-op), leaving the real 'blur'
+    // handler attached; this event would re-flush the stale latestRef.
+    act(() => { window.dispatchEvent(new Event('blur')); });
+
+    expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+  });
+});

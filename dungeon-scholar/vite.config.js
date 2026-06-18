@@ -1,6 +1,7 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { VitePWA } from 'vite-plugin-pwa'
 
 // GitHub Pages serves the site under /<repo-name>/. The base path here must
 // match. Default is /dungeon-scholar/ — the public repo name in the README.
@@ -48,7 +49,43 @@ const cspPlugin = () => ({
 })
 
 export default defineConfig({
-  plugins: [react(), cspPlugin()],
+  plugins: [
+    react(),
+    cspPlugin(),
+    // Installable, offline-first PWA. The plugin derives `scope` and
+    // `start_url` from Vite's `base`, so we don't hardcode them here — that's
+    // what lets the manifest track VITE_BASE across the /dungeon-scholar/ and
+    // /home-lab/ deploys. DELIBERATELY no `runtimeCaching`: Supabase and the
+    // Oracle worker are cross-origin and must stay network-only. Workbox passes
+    // through any request its precache/route table doesn't match, so leaving
+    // those origins unconfigured keeps cloud sync + Oracle live-only (and they
+    // simply fail offline, which is the correct behavior).
+    VitePWA({
+      registerType: 'autoUpdate',
+      injectRegister: 'auto',
+      includeAssets: ['apple-touch-icon.png'],
+      manifest: {
+        name: 'Dungeon Scholar',
+        short_name: 'Dungeon Scholar',
+        description:
+          'D&D-themed exam-prep: flashcards, riddles, timed practice exams — playable offline.',
+        theme_color: '#1a0e08',
+        background_color: '#0a0604',
+        display: 'standalone',
+        icons: [
+          { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
+          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'pwa-maskable-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
+      },
+    }),
+  ],
   base: BASE,
   build: {
     // Polish: split vendor chunks so the initial bundle drops below the
