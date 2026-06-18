@@ -7,10 +7,12 @@
 > AI-DM-AUDIT.md consolidation, ordered by `PHASE-INDEX.md` (dependency
 > manifest). Completed plans live permanently in `completed/` (rule 8).
 >
-> **Key 2026-06-10 rule changes:** 4-gate + ONE commit + ONE push at the END of
-> each phase only (rule 5, unchanged); **NO per-phase release — one release
-> after the FINAL phase, or mid-run only on an explicit user ask (rule 6)**;
-> **plans are NEVER deleted — they move to `completed/` (rule 8)**.
+> **Key rule changes:** (2026-06-17) **CI is the authoritative 4-gate — push at
+> phase end, never run the full suite locally, never wait for CI, fix-forward on
+> red (rule 5)**; ONE commit + ONE push at the END of each phase only; **NO
+> per-phase release — one release after the FINAL phase, or mid-run only on an
+> explicit user ask (rule 6)**; **plans are NEVER deleted — they move to
+> `completed/` (rule 8)**.
 >
 > For any extensive dnd-app work outside a plan file, these rules still apply
 > in full: the 4-gate (rule 5), git discipline (master only, rule 11), ISO
@@ -47,39 +49,32 @@ Work through the sub-phases in their stated order. For each sub-phase:
 
 If a step turns out to be wrong or missing context, see rule 9.
 
-### 5. 4-gate test + commit at the END of each PHASE (not sub-phase) — per user 2026-05-19, reaffirmed 2026-05-29
+### 5. CI is the authoritative 4-gate — push and keep moving; never run the full suite locally; never wait — per user 2026-06-17
 
-> **The full test suite runs ONCE, at the end of the phase — never per sub-phase (reaffirmed by the user 2026-05-29).** During sub-phase work, the only checks you run are CHEAP, TARGETED ones: `npx tsc --noEmit -p tsconfig.web.json` (or node) on the changed surface, and at most the single new/affected unit-test file (`npx vitest run path/to/that.test.ts`). The full `npm run lint` + both `tsc` configs + the **whole** `npx vitest run` (~70s, 6000+ tests) is reserved for the end of the phase. Running the full vitest sweep after every sub-phase is the exact anti-pattern this rule forbids — it wastes minutes per sub-phase. Accumulate sub-phase edits, then do ONE full 4-gate + ONE commit per phase.
+> **The full 4-gate (lint + tsc-web + tsc-node + the whole `vitest run`) runs on GitHub CI, NOT locally (user 2026-06-17: "make it so GitHub does the 4-gate and comes back fail if any fails, that way we can go faster … you don't stop and you are always doing something").** Half the time the local full sweep was green anyway, so it just burned minutes. Push at phase end; let CI gate; pipeline straight into the next phase; fix-forward when a watcher reports red. The app is in testing (no real users), so a briefly-red master is fine — CI catches it, you fix forward.
 
-After the LAST sub-phase of a phase finishes, before the phase commit + push and moving the plan to `completed/` (rule 8):
+**During sub-phase work** — only CHEAP, TARGETED checks: `npx tsc --noEmit -p tsconfig.web.json` (or node) on the changed surface, and at most the single new/affected unit-test file (`npx vitest run path/to/that.test.ts`). These keep quality without the multi-minute full-suite cost.
+
+**At phase end** (after the LAST sub-phase), do NOT run the local full `vitest run` or full `tsc` sweep. Instead:
 
 ```bash
 cd dnd-app
-npm run lint
-npx tsc --noEmit -p tsconfig.web.json
-npx tsc --noEmit -p tsconfig.node.json
-npx vitest run
+npx biome check --write src/      # instant autofix/format only
 ```
 
-All four gates must be green. A red gate is a STOP-and-ask trigger:
+then commit + push (rule 7), then **immediately start the next phase**. The CI workflow `.github/workflows/dnd-app-ci.yml` runs the full gate on the push — Lint (biome) → Forbidden patterns → Typecheck (web) → Typecheck (node) → Validate content schemas → **Tests (`npm test` = full vitest)** → Build (electron-vite) → Verify artifacts → Bundle-size guard → Coverage baseline → Security audit → Circular deps → No-skipped-tests → Dead code (knip). bmo/pi changes additionally trigger `bmo-pi-pytest.yml`. CI is more thorough than the old local 4-gate ever was.
 
-1. Fire notify.sh per rule 23:
-   ```bash
-   ~/.claude-tools/notify.sh "warn" "Phase N — 4-gate red at end-of-phase" \
-     "<which gate(s) failed + cited file:line if any + suggested fix path>"
-   ```
-2. Fix in place. Do NOT commit. Do NOT advance to the next phase.
-3. Re-run the 4-gate. Repeat until green, then commit + push and continue to rule 8.
+**Watch + fix-forward (NOT STOP-and-ask).** On each push, run a background CI watcher (poll `gh run list --branch master` for the pushed SHA). When it reports a workflow conclusion = `failure`: drop in, read `gh run view <id> --log-failed`, fix the cause, commit the fix (fix-forward — a new commit on master, do NOT amend/force-push), push, and continue. A red CI run is normal turnaround, **not** a rule-9 STOP trigger. Confirm conclusion=success per rule 12.
 
-For phases that touch the Pi side (32, 36, anything under `bmo/pi/`), also run `pytest bmo/pi/tests/` from `bmo/pi/`.
+**NEVER `ScheduleWakeup` / sleep / park on a timer to WAIT for CI, an anchor-verify, or a review (user 2026-06-17, emphatic).** Waiting is idle is wrong. The background watcher + workflow notifications are the ONLY trigger to circle back. Between pushes you are ALWAYS doing the next phase's real work — including starting the next phase's implementation rather than waiting on its anchor-verify (fold anchors in when they land). The only ways a turn ends are rule-9 (genuine blocker) or rule-14 (folder empty).
 
-**Sub-phase work accumulates in the working tree; commit + push ONCE per phase.** Per the user's 2026-05-19 directive ("doing tests after every step is exhausting and not necessary; speed this up" + follow-up: "commit only after each Phase not sub phase"), per-sub-phase commits are NOT created. Edit, update the plan's Completed section (rule 17 — still applies per sub-phase), move to the next sub-phase. After the LAST sub-phase + the end-of-phase 4-gate is green:
+**Sub-phase work accumulates in the working tree; commit + push ONCE per phase** (per the 2026-05-19 directive "commit only after each Phase not sub phase"). Edit, update the plan's Completed section (rule 17 — still per sub-phase), move on. After the last sub-phase + `biome check --write`:
 
 1. Single `git add` of every file touched during the phase.
-2. Single commit with a phase-scoped message: `feat(<scope>): phase N — <one-line theme>`. Body lists each sub-phase that landed inside.
-3. Single `git push origin master`.
+2. Single commit, phase-scoped message: `feat(<scope>): phase N — <one-line theme>`. Body lists each sub-phase.
+3. Single `git push origin HEAD:master` + launch the CI watcher + start the next phase.
 
-Lighter checks during sub-phase work are still encouraged (and cheap): `npx tsc --noEmit -p tsconfig.web.json` after a non-trivial edit takes seconds and catches the obvious type breakage. But the full lint + tsc + vitest sweep is reserved for end-of-phase, and so is the commit.
+For phases that touch the Pi side (`bmo/pi/`), the cheap targeted check is the affected pytest file; CI's `bmo-pi-pytest.yml` runs the full pytest gate on push.
 
 **Exceptions** — these still get their own commits even mid-phase:
 - Plan amendments per rule 22 (the audit trail "plan was wrong → fixed → then implemented" remains in separate commits).
@@ -118,7 +113,7 @@ The Release workflow runs preflight (lint + tsc-web + tsc-node + vitest) and ass
 After the phase commit is pushed and the plan is moved to `completed/` (rule 8), return to rule 1 and find the next earliest phase plan still in the folder. (No release between phases — rule 6.)
 
 ### 8. Move the phase plan to `completed/` when the phase lands — NEVER delete plans (changed 2026-06-10)
-After the end-of-phase 4-gate is green and the phase commit is pushed, move the plan file into `dnd-app/docs/phases/completed/` keeping its original filename:
+`git mv` the plan into `completed/` as part of the phase commit (the CI 4-gate runs after the push — rule 5; do NOT wait for it to go green before moving the plan or starting the next phase). Move the plan file into `dnd-app/docs/phases/completed/` keeping its original filename:
 
 ```bash
 git mv dnd-app/docs/phases/PHASE-NN-<slug>.md dnd-app/docs/phases/completed/
