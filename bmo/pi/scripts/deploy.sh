@@ -200,8 +200,12 @@ if [ "$SERVICES_ONLY" -eq 0 ]; then
   fi
 
   # ── Gate 8: Syntax sweep ──────────────────────────────────────────────────--
+  # Compile only OUR source — exclude the virtualenv (third-party site-packages
+  # ship files like torch's py312_intrinsics.py that don't byte-compile on 3.11)
+  # and bytecode caches. Without -x, a single un-compilable vendored file aborts
+  # the whole deploy.
   log "compileall syntax sweep"
-  run "$VENV_PY" -m compileall -q "$REPO_ROOT/bmo/pi" \
+  run "$VENV_PY" -m compileall -q -x '(/venv/|/__pycache__/|/node_modules/)' "$REPO_ROOT/bmo/pi" \
     || { log "compileall failed"; rollback; }
 
   # ── Gate 9: Canary ────────────────────────────────────────────────────────--
