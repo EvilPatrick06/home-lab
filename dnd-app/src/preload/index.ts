@@ -605,6 +605,7 @@ const api = {
       ipcRenderer.invoke(IPC_CHANNELS.IMAGE_LIBRARY_SAVE, id, name, buffer, extension),
     list: () => ipcRenderer.invoke(IPC_CHANNELS.IMAGE_LIBRARY_LIST),
     get: (id: string) => ipcRenderer.invoke(IPC_CHANNELS.IMAGE_LIBRARY_GET, id),
+    readData: (id: string) => ipcRenderer.invoke(IPC_CHANNELS.IMAGE_LIBRARY_READ_DATA, id),
     delete: (id: string) => ipcRenderer.invoke(IPC_CHANNELS.IMAGE_LIBRARY_DELETE, id)
   },
 

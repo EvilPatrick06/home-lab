@@ -3,7 +3,7 @@
  * Run `npm run i18n:gen-keys` (scripts/i18n/gen-key-union.mjs) to regenerate
  * after changing en.json. Source: src/renderer/src/i18n/locales/en.json.
  *
- * A literal union of every dotted leaf key in en.json (6362 keys),
+ * A literal union of every dotted leaf key in en.json (6397 keys),
  * so `t()` calls are checked at compile time instead of silently rendering a
  * raw key string when a key is typo'd or missing.
  */
@@ -1679,6 +1679,7 @@ export type TranslationKey =
   | 'game.dmTabPanel.quickConditions'
   | 'game.dmTabPanel.quickReference'
   | 'game.dmTabPanel.resumeAi'
+  | 'game.dmTabPanel.sceneMode'
   | 'game.dmTabPanel.shop'
   | 'game.dmTabPanel.shortRest'
   | 'game.dmTabPanel.shortcutReference'
@@ -3306,6 +3307,40 @@ export type TranslationKey =
   | 'game.rulingApprovalModal.systemMessage'
   | 'game.rulingApprovalModal.title'
   | 'game.rulingApprovalModal.updateToken'
+  | 'game.sceneMode.ambient'
+  | 'game.sceneMode.ambientKeep'
+  | 'game.sceneMode.ambientStop'
+  | 'game.sceneMode.autoExitOnCombat'
+  | 'game.sceneMode.backToGrid'
+  | 'game.sceneMode.caption'
+  | 'game.sceneMode.captionHint'
+  | 'game.sceneMode.captionPlaceholder'
+  | 'game.sceneMode.combatAutoExit'
+  | 'game.sceneMode.enterScene'
+  | 'game.sceneMode.exitScene'
+  | 'game.sceneMode.imageBusy'
+  | 'game.sceneMode.imageError'
+  | 'game.sceneMode.imageSource'
+  | 'game.sceneMode.libraryEmpty'
+  | 'game.sceneMode.libraryPickLabel'
+  | 'game.sceneMode.openScene'
+  | 'game.sceneMode.particleEmbers'
+  | 'game.sceneMode.particleFireflies'
+  | 'game.sceneMode.particleFog'
+  | 'game.sceneMode.particleMotes'
+  | 'game.sceneMode.particleNone'
+  | 'game.sceneMode.particleRain'
+  | 'game.sceneMode.particleSnow'
+  | 'game.sceneMode.particles'
+  | 'game.sceneMode.preview'
+  | 'game.sceneMode.sceneActive'
+  | 'game.sceneMode.sourceCurrentMap'
+  | 'game.sceneMode.sourceLibrary'
+  | 'game.sceneMode.sourceNone'
+  | 'game.sceneMode.sourceUpload'
+  | 'game.sceneMode.title'
+  | 'game.sceneMode.updateScene'
+  | 'game.sceneMode.uploadButton'
   | 'game.sentientItemModal.alignment'
   | 'game.sentientItemModal.cha'
   | 'game.sentientItemModal.communication'

@@ -519,6 +519,35 @@ npx vitest run src/renderer/src/hooks/use-scene-auto-exit.test.ts
 
 **Acceptance.** Starting initiative with a scene up returns every connected view to the grid (host decision, broadcast-propagated); pref-off leaves the scene up; edge-triggered (round advances don't re-fire).
 
+## Completed
+
+- **35A — scene slice.** `stores/game/types.ts`: `SceneParticleEffect`, `SceneModeState`, `SceneSliceState`
+  + `GameStoreState` intersection. NEW `scene-slice.ts` (`sceneMode`/`sceneModePrevAmbient` + setters).
+  `index.ts`: composed + reset fields. Test (5) incl. the `loadGameState` generic-spread late-joiner pin.
+- **35B — `dm:scene-mode` message.** `message-types.ts` (`MESSAGE_TYPES` + `SceneModePayload`),
+  `schemas.ts` (`SceneModePayloadSchema`, 4 MB `imageData` cap + register), `state-types.ts`
+  (`sceneMode?: unknown`), `game-sync.ts` (`sceneMode: gs.sceneMode` in the snapshot), `network/index.ts`
+  + `network/types.ts` re-exports, `game-action-handlers.ts` `handleSceneMode` + `client-handlers.ts`
+  switch case. Additive tests: schemas (valid/null/enum-reject/4 MB-reject), client-handlers (apply/clear),
+  game-sync (snapshot field).
+- **35C — particles.** NEW `scene-particles-engine.ts` (pure: `PARTICLE_PRESETS` ×6, `scaledCount`,
+  `spawnParticles`, `stepParticles` — edge wrap + linear-in-dt) + test (6). NEW `SceneParticles.tsx`
+  (DPR canvas, rAF + ResizeObserver lifecycle, `useReducedMotion` suppression, `aria-hidden`) + test (4).
+- **35D — overlay.** NEW `SceneModeOverlay.tsx` (full-bleed art / gradient, vignette + letterbox,
+  particles, `aria-live` caption, fade-in keyed on `enteredAt`, DM-only Exit pill, `role="img"`) wired
+  into `GameLayout` inside the map layer (z-[2], above tints, below chrome). i18n `game.sceneMode.*`. Test (4).
+- **35E — controller + IPC + modal.** Main `readImageData(id)` + `IMAGE_LIBRARY_READ_DATA` channel +
+  handler + preload (both files), test (4, tmp-dir round-trip). Renderer `scene-image.ts`
+  (`prepareSceneImage` — 2560×1440 cap → JPEG, 4 MB re-encode), test (3). `scene-mode-controller.ts`
+  (`enterSceneMode`/`exitSceneMode`/`isSceneActive` — broadcast + ambient snapshot/restore, first-enter-only
+  snapshot, idempotent exit), test (5). `SceneModeModal.tsx` (4 image sources, caption ≤500, particles,
+  ambient, localStorage prefs, enter/update/exit), test (5). Registered: `active-modal-types` `'sceneMode'`
+  (+test), `DmModals` branch, `DMTabPanel` button, `GameLayout` quick toggle, `SCENE_MODE_PREFS` key.
+- **35F — combat auto-exit.** NEW `use-scene-auto-exit.ts` (initiative null→non-null edge; authority +
+  scene + pref gates; `exitSceneMode` + toast) + test (5). Mounted `useSceneAutoExit(networkRole !== 'client')`.
+- **Gate.** Full 4-gate (lint, tsc web+node, vitest) green. No `bmo/pi/` touched. Inert by default:
+  `sceneMode === null` ⇒ behaviorally identical except the new (null-fast) overlay + the DM Scene controls.
+
 ## Research notes
 
 - **Product pattern (why a scene/grid split, not a new "scene" document type).** Alchemy VTT is built scene-first — "cinematic immersion and theater of the mind" with ambient sound, motion effects, and immersive art as the GM's primary tools, grid combat as the secondary mode ([alchemyrpg.com](https://alchemyrpg.com/), [StartPlaying's Alchemy guide](https://startplaying.games/blog/virtual-table-tops/the-new-players-guide-to-alchemy-rpg), [Alchemy VTT overview](https://startplaying.games/blog/posts/alchemy-vtt-what-how-to)). Foundry retrofits prove the demand and validate the overlay approach: **Storyteller's Cinema** activates a "Cinematic Mode" that *hides tactical elements (grid, tiles, drawings, non-portrait tokens)* behind full-screen mood overlays (film grain / vignette), driven from a GM control tray, with per-scene default modes and instant cross-client sync ([foundryvtt.com/packages/storyteller-cinema](https://foundryvtt.com/packages/storyteller-cinema)); **Theater of the Mind Manager** tags *sounds and lights to images* so switching the displayed image switches the soundscape — the image+ambient coupling this phase's modal implements ([foundryvtt.com/packages/totm-manager](https://foundryvtt.com/packages/totm-manager), [GitHub](https://github.com/LichFactory-Games/TotM-Manager)). Both ship as overlays on the existing scene rather than a separate document — confirming the "leave MapCanvas mounted, draw on top" design.

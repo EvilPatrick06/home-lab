@@ -259,4 +259,42 @@ describe('validateNetworkMessage', () => {
     )
     expect(result.success).toBe(false)
   })
+
+  // Phase 35 — dm:scene-mode
+  it('accepts a valid dm:scene-mode message', () => {
+    const result = validateNetworkMessage(
+      makeMessage({
+        type: 'dm:scene-mode',
+        payload: { scene: { imageData: null, caption: 'A misty crypt', particleEffect: 'fog', enteredAt: 123 } }
+      })
+    )
+    expect(result.success).toBe(true)
+  })
+
+  it('accepts a dm:scene-mode message with scene: null (return to grid)', () => {
+    const result = validateNetworkMessage(makeMessage({ type: 'dm:scene-mode', payload: { scene: null } }))
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects a dm:scene-mode message with an unknown particleEffect', () => {
+    const result = validateNetworkMessage(
+      makeMessage({
+        type: 'dm:scene-mode',
+        payload: { scene: { imageData: null, caption: null, particleEffect: 'sparkles', enteredAt: 1 } }
+      })
+    )
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects a dm:scene-mode message whose imageData exceeds 4 MB', () => {
+    const result = validateNetworkMessage(
+      makeMessage({
+        type: 'dm:scene-mode',
+        payload: {
+          scene: { imageData: 'a'.repeat(4 * 1024 * 1024 + 1), caption: null, particleEffect: 'none', enteredAt: 1 }
+        }
+      })
+    )
+    expect(result.success).toBe(false)
+  })
 })

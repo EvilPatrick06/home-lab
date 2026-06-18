@@ -8,11 +8,13 @@ import { useGameHandlers } from '../../hooks/use-game-handlers'
 import { useGameNetwork } from '../../hooks/use-game-network'
 import { useGameShortcuts } from '../../hooks/use-game-shortcuts'
 import { useMonsterAutoTurn } from '../../hooks/use-monster-auto-turn'
+import { useSceneAutoExit } from '../../hooks/use-scene-auto-exit'
 import { addToast } from '../../hooks/use-toast'
 import type { PortalEntryInfo } from '../../hooks/use-token-movement'
 import { useTokenMovement } from '../../hooks/use-token-movement'
 import { useT } from '../../i18n'
 import { useChatBridge } from '../../pages/lobby/use-lobby-bridges'
+import { exitSceneMode } from '../../services/game/scene-mode-controller'
 import { buildTokenStubFromCharacter } from '../../services/game-actions/character-token'
 import { type PlaceableToken, smartPlaceTokens } from '../../services/game-actions/token-placement'
 import { buildContentIndex } from '../../services/library/content-index'
@@ -78,6 +80,7 @@ import PortalPrompt from './overlays/PortalPrompt'
 import type { CounterspellPromptState, ShieldPromptState } from './overlays/ReactionPrompts'
 import RollRequestOverlay from './overlays/RollRequestOverlay'
 import SettingsDropdown from './overlays/SettingsDropdown'
+import SceneModeOverlay from './overlays/scene/SceneModeOverlay'
 import TimerOverlay from './overlays/TimerOverlay'
 import TokenContextMenu from './overlays/TokenContextMenu'
 import TurnNotificationBanner from './overlays/TurnNotificationBanner'
@@ -286,6 +289,8 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
   }, [])
 
   const effectiveIsDM = isDM && viewMode === 'dm'
+  // PHASE-35 — exit the cinematic scene (controller owns broadcast + ambient restore).
+  const handleExitScene = useCallback(() => exitSceneMode(), [])
   const activeMap = gameStore.maps.find((m) => m.id === gameStore.activeMapId) ?? null
   const playerConditions = character ? gameStore.conditions.filter((c) => c.entityId === character.id) : []
   const isMyTurn = (() => {
@@ -545,6 +550,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
 
   useGameEffects({ campaign, isDM, addChatMessage, sendMessage, aiInitRef, activeMap, setIsFullscreen })
   useMonsterAutoTurn() // PHASE-30 30E — opt-in enemy auto-run (no-op unless monsterAutomation.autoRun)
+  useSceneAutoExit(networkRole !== 'client') // PHASE-35 35F — host/solo exits the scene when combat starts
   useGameNetwork({
     networkRole,
     campaignId: campaign.id,
@@ -737,6 +743,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
           <div className="absolute inset-0 bg-base/60 pointer-events-none z-[1]" />
         )}
         {gameStore.underwaterCombat && <div className="absolute inset-0 bg-blue-900/15 pointer-events-none z-[1]" />}
+        <SceneModeOverlay isDM={effectiveIsDM} onExit={handleExitScene} />
         <WeatherBanner preset={gameStore.weatherOverride?.preset as WeatherType | undefined} />
         {/* P-2 (v2.1.31 QA): DiceOverlay is already mounted globally in
             App.tsx — mounting it again here registered a second listener
@@ -900,6 +907,16 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
               }
             }}
           />
+        )}
+        {/* PHASE-35 — DM quick toggle: open the scene composer, or jump straight back to the grid. */}
+        {effectiveIsDM && (
+          <button
+            type="button"
+            onClick={() => (gameStore.sceneMode ? handleExitScene() : setActiveModal('sceneMode'))}
+            className={`px-2 py-1 rounded text-xs font-semibold border cursor-pointer ${gameStore.sceneMode ? 'bg-amber-600 border-amber-500 text-white' : 'bg-surface-2 border-border text-gray-300 hover:bg-surface-3'}`}
+          >
+            {gameStore.sceneMode ? t('game.sceneMode.backToGrid') : t('game.sceneMode.openScene')}
+          </button>
         )}
         {campaign.calendar && (
           <ClockOverlay

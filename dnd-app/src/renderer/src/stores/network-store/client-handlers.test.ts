@@ -137,3 +137,40 @@ describe('handleClientMessage — dm:transfer-dm (Phase 30e)', () => {
     expect(localIsDM).toBe(false)
   })
 })
+
+describe('handleClientMessage — dm:scene-mode (Phase 35)', () => {
+  const noopGet = (() => ({}) as unknown as NetworkState) as () => NetworkState
+  const noopSet = (() => {}) as (p: Partial<NetworkState> | ((s: NetworkState) => Partial<NetworkState>)) => void
+
+  function sceneMessage(scene: unknown): NetworkMessage {
+    return {
+      type: 'dm:scene-mode',
+      payload: { scene },
+      senderId: 'host',
+      senderName: 'Host',
+      timestamp: Date.now(),
+      sequence: 0
+    }
+  }
+
+  it('applies a scene to the game store, then clears it on scene: null', async () => {
+    const { handleClientMessage } = await import('./client-handlers')
+    const { useGameStore } = await import('../use-game-store')
+    useGameStore.getState().setSceneMode(null)
+
+    handleClientMessage(
+      sceneMessage({ imageData: null, caption: 'A crypt', particleEffect: 'fog', enteredAt: 7 }),
+      noopGet,
+      noopSet
+    )
+    expect(useGameStore.getState().sceneMode).toEqual({
+      imageData: null,
+      caption: 'A crypt',
+      particleEffect: 'fog',
+      enteredAt: 7
+    })
+
+    handleClientMessage(sceneMessage(null), noopGet, noopSet)
+    expect(useGameStore.getState().sceneMode).toBeNull()
+  })
+})

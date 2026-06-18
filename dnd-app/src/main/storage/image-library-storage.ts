@@ -128,6 +128,36 @@ export async function getImage(id: string): Promise<StorageResult<{ path: string
   }
 }
 
+const MIME_BY_EXT: Record<string, string> = {
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.webp': 'image/webp',
+  '.svg': 'image/svg+xml'
+}
+
+/**
+ * PHASE-35 35E — read a library image back as a renderer-usable data URL. The bytes were
+ * magic-byte-validated + size-capped at save time; here we just id-validate and re-encode to base64.
+ */
+export async function readImageData(id: string): Promise<StorageResult<{ dataUrl: string; name: string }>> {
+  if (!isValidImageId(id)) {
+    return { success: false, error: 'Invalid image ID' }
+  }
+  try {
+    const dir = await getImageLibraryDir()
+    const metaContent = await readFile(join(dir, `${id}.meta.json`), 'utf-8')
+    const meta = JSON.parse(metaContent) as ImageLibraryMeta
+    const ext = meta.fileName.slice(meta.fileName.lastIndexOf('.')).toLowerCase()
+    const mime = MIME_BY_EXT[ext] ?? 'application/octet-stream'
+    const buf = await readFile(join(dir, meta.fileName))
+    return { success: true, data: { dataUrl: `data:${mime};base64,${buf.toString('base64')}`, name: meta.name } }
+  } catch (err) {
+    return { success: false, error: `Failed to read image: ${(err as Error).message}` }
+  }
+}
+
 /**
  * Delete an image and its metadata from the library.
  */

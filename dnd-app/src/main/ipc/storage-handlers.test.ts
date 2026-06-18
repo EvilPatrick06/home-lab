@@ -158,10 +158,10 @@ describe('storage-handlers', () => {
     expect(registeredChannels).toContain(IPC_CHANNELS.LOAD_SETTINGS)
   })
 
-  it('should register exactly 49 handlers', () => {
+  it('should register exactly 50 handlers', () => {
     registerStorageHandlers()
-    // 49 = 48 prior handlers + WIPE_ALL_DATA (Reset All Data).
-    expect(mockHandle).toHaveBeenCalledTimes(49)
+    // 50 = 49 prior handlers + IMAGE_LIBRARY_READ_DATA (PHASE-35 scene art).
+    expect(mockHandle).toHaveBeenCalledTimes(50)
   })
 
   describe('SAVE_CHARACTER handler', () => {

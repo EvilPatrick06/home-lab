@@ -418,6 +418,19 @@ const PlayAmbientPayloadSchema = z.object({
 
 const StopAmbientPayloadSchema = z.object({})
 
+// Phase 35 — scene art rides the same 4 MB data-URL budget as dm:map-change imageData.
+const MAX_SCENE_IMAGE_DATA = 4 * 1024 * 1024
+const SceneModePayloadSchema = z.object({
+  scene: z
+    .object({
+      imageData: z.string().max(MAX_SCENE_IMAGE_DATA).nullable(),
+      caption: z.string().max(500).nullable(),
+      particleEffect: z.enum(['none', 'embers', 'fireflies', 'snow', 'rain', 'fog', 'motes']),
+      enteredAt: z.number()
+    })
+    .nullable()
+})
+
 // Phase 27i — DM custom-audio sync. audioData base64-capped at ~1.5MB (post-base64
 // ≈ 1.1MB raw); larger files stay DM-local (the panel won't broadcast them).
 const MAX_CUSTOM_AUDIO_BASE64 = 1.5 * 1024 * 1024
@@ -624,6 +637,7 @@ const PAYLOAD_SCHEMAS: Partial<Record<MessageTypeString, z.ZodType>> = {
   'dm:narration': NarrationPayloadSchema,
   'dm:play-sound': PlaySoundPayloadSchema,
   'dm:play-ambient': PlayAmbientPayloadSchema,
+  'dm:scene-mode': SceneModePayloadSchema,
   'dm:stop-ambient': StopAmbientPayloadSchema,
   'dm:play-custom-audio': PlayCustomAudioPayloadSchema,
   'dm:stop-custom-audio': StopCustomAudioPayloadSchema,

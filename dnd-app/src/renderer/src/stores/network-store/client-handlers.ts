@@ -55,6 +55,7 @@ import {
   handleLightSourceUpdate,
   handleReactionPrompt,
   handleRollRequest,
+  handleSceneMode,
   handleShareHandout,
   handleShopUpdate,
   handleSlowMode,
@@ -506,6 +507,11 @@ export function handleClientMessage(
 
     case 'dm:narration': {
       handleNarration(message)
+      break
+    }
+
+    case 'dm:scene-mode': {
+      handleSceneMode(message)
       break
     }
 

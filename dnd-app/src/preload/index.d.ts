@@ -915,6 +915,7 @@ interface ImageLibraryAPI {
     error?: string
   }>
   get: (id: string) => Promise<{ success: boolean; data?: { path: string; name: string }; error?: string }>
+  readData: (id: string) => Promise<{ success: boolean; data?: { dataUrl: string; name: string }; error?: string }>
   delete: (id: string) => Promise<{ success: boolean; error?: string }>
 }
 

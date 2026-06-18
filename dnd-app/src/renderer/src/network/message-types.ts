@@ -53,6 +53,7 @@ export const MESSAGE_TYPES = [
   'dm:stop-ambient',
   'dm:play-custom-audio',
   'dm:stop-custom-audio',
+  'dm:scene-mode',
   'dm:drawing-add',
   'dm:drawings-clear',
   'chat:message',
@@ -402,6 +403,16 @@ export interface AnnouncementPayload {
 export interface NarrationPayload {
   text: string
   style: 'chat' | 'dramatic'
+}
+
+// Phase 35 — cinematic scene mode. `scene: null` returns everyone to the tactical grid.
+export interface SceneModePayload {
+  scene: {
+    imageData: string | null
+    caption: string | null
+    particleEffect: 'none' | 'embers' | 'fireflies' | 'snow' | 'rain' | 'fog' | 'motes'
+    enteredAt: number
+  } | null
 }
 
 export interface MapPingPayload {

@@ -294,6 +294,7 @@ export const IPC_CHANNELS = {
   IMAGE_LIBRARY_SAVE: 'image-library:save',
   IMAGE_LIBRARY_LIST: 'image-library:list',
   IMAGE_LIBRARY_GET: 'image-library:get',
+  IMAGE_LIBRARY_READ_DATA: 'image-library:read-data', // PHASE-35 — bytes as a data URL
   IMAGE_LIBRARY_DELETE: 'image-library:delete',
 
   // === Books ===

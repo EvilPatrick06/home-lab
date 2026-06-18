@@ -30,6 +30,7 @@ const TriggerManagerModal = lazy(() => import('../modals/dm-tools/TriggerManager
 const AiMapAnalysisModal = lazy(() => import('../modals/dm-tools/AiMapAnalysisModal'))
 const AiImageModal = lazy(() => import('../modals/dm-tools/AiImageModal'))
 const GenerateBattlemapModal = lazy(() => import('../modals/dm-tools/GenerateBattlemapModal'))
+const SceneModeModal = lazy(() => import('../modals/dm-tools/SceneModeModal'))
 
 interface DmModalsProps {
   activeModal: ActiveModal
@@ -205,6 +206,7 @@ export default function DmModals({
       {activeModal === 'aiMapAnalysis' && effectiveIsDM && <AiMapAnalysisModal onClose={close} />}
       {activeModal === 'aiImage' && effectiveIsDM && <AiImageModal onClose={close} />}
       {activeModal === 'generateBattlemap' && effectiveIsDM && <GenerateBattlemapModal onClose={close} />}
+      {activeModal === 'sceneMode' && effectiveIsDM && <SceneModeModal onClose={close} />}
     </Suspense>
   )
 }

@@ -15,6 +15,7 @@ import { createMapTokenSlice } from './map-token-slice'
 import { createOcclusionSlice } from './occlusion-slice'
 import { createPartyInventorySlice } from './party-inventory-slice'
 import { createRegionSlice } from './region-slice'
+import { createSceneSlice } from './scene-slice'
 import { createShopSlice } from './shop-slice'
 import { createSidebarSlice } from './sidebar-slice'
 import { createTerrainSlice } from './terrain-slice'
@@ -52,6 +53,7 @@ export const useGameStore = create<GameStoreState>()((...a) => {
     ...createTerrainSlice(...a),
     ...createJournalSlice(...a),
     ...createPartyInventorySlice(...a),
+    ...createSceneSlice(...a),
 
     // --- Reaction prompt ---
     pendingReactionPrompt: null,
@@ -120,6 +122,8 @@ export const useGameStore = create<GameStoreState>()((...a) => {
         sharedJournal: [],
         partyInventory: { items: [], currency: { cp: 0, sp: 0, ep: 0, gp: 0, pp: 0 }, transactionLog: [] },
         triggers: [],
+        sceneMode: null,
+        sceneModePrevAmbient: null,
         pendingTradeOffer: null,
         pendingTradeResult: null,
         inspectedCharacterData: null

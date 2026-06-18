@@ -230,6 +230,7 @@ export async function buildFullGameStatePayload(): Promise<Record<string, unknow
     combatTimer: gs.combatTimer,
     partyVisionCells: gs.partyVisionCells,
     sharedJournal: gs.sharedJournal,
+    sceneMode: gs.sceneMode, // Phase 35 — late joiners arrive into the active cinematic scene
     currentAmbient
   }
 }

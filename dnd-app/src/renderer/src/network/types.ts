@@ -52,6 +52,7 @@ export type {
   RoleChangePayload,
   RollRequestPayload,
   RollResultPayload,
+  SceneModePayload,
   SellItemPayload,
   ShopUpdatePayload,
   SlowModePayload,

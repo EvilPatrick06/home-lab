@@ -102,6 +102,8 @@ export interface NetworkGameState {
   sessionLog?: unknown[]
   combatLog?: unknown[]
   partyVisionCells?: Array<{ x: number; y: number }>
+  // Phase 35 — cinematic scene state (wire shape enforced by SceneModePayloadSchema; host-built/trusted).
+  sceneMode?: unknown
 }
 
 export interface NetworkMap {

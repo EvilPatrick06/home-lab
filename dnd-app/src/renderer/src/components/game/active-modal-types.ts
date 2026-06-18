@@ -58,6 +58,7 @@ export type ActiveModal =
   | 'aiMapAnalysis'
   | 'aiImage'
   | 'generateBattlemap'
+  | 'sceneMode'
   | 'recaps'
   | 'previouslyOn'
   | 'campaignQa'

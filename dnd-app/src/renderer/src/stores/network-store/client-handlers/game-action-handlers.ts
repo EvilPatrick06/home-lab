@@ -11,6 +11,7 @@ import type {
   NetworkMessage,
   ReactionPromptPayload,
   RollRequestPayload,
+  SceneModePayload,
   ShopUpdatePayload,
   SlowModePayload,
   TimeSyncPayload,
@@ -18,6 +19,7 @@ import type {
   TradeRequestPayload,
   TradeResultPayload
 } from '../../../network'
+import type { SceneModeState } from '../../game/types'
 import { useCharacterStore } from '../../use-character-store'
 import { useGameStore } from '../../use-game-store'
 import { useLobbyStore } from '../../use-lobby-store'
@@ -49,6 +51,12 @@ export function handleReactionPrompt(message: NetworkMessage): void {
 export function handleTradeRequest(message: NetworkMessage): void {
   const payload = message.payload as TradeRequestPayload
   useGameStore.getState().setPendingTradeOffer(payload)
+}
+
+/** Phase 35 — host enters/updates/exits a cinematic scene; `scene: null` returns to the grid. */
+export function handleSceneMode(message: NetworkMessage): void {
+  const payload = message.payload as SceneModePayload
+  useGameStore.getState().setSceneMode(payload.scene as SceneModeState | null)
 }
 
 export function handleTradeCancel(message: NetworkMessage): void {

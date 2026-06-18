@@ -25,4 +25,11 @@ describe('game-sync', () => {
     const src = fs.readFileSync(resolve(__dirname, './game-sync.ts'), 'utf-8')
     expect(src).toContain('export async function buildFullGameStatePayload')
   })
+
+  // Phase 35 — the full-state snapshot carries the active cinematic scene to late joiners.
+  it('includes sceneMode in the full-state snapshot', async () => {
+    const fs = await import('fs')
+    const src = fs.readFileSync(resolve(__dirname, './game-sync.ts'), 'utf-8')
+    expect(src).toContain('sceneMode: gs.sceneMode')
+  })
 })

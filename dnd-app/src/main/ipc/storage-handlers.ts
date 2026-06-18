@@ -50,7 +50,7 @@ import {
   loadHomebrewEntries,
   saveHomebrewEntry
 } from '../storage/homebrew-storage'
-import { deleteImage, getImage, listImages, saveImage } from '../storage/image-library-storage'
+import { deleteImage, getImage, listImages, readImageData, saveImage } from '../storage/image-library-storage'
 import {
   deleteMapFromLibrary,
   getMapFromLibrary,
@@ -386,6 +386,10 @@ export function registerStorageHandlers(): void {
 
   handle(IPC_CHANNELS.IMAGE_LIBRARY_GET, async (_event, id: string) => {
     return getImage(id)
+  })
+
+  handle(IPC_CHANNELS.IMAGE_LIBRARY_READ_DATA, async (_event, id: string) => {
+    return readImageData(id)
   })
 
   handle(IPC_CHANNELS.IMAGE_LIBRARY_DELETE, async (_event, id: string) => {

@@ -229,6 +229,28 @@ export interface TimerSliceState {
   setCombatTimer: (config: CombatTimerConfig | null) => void
 }
 
+// --- Scene mode (Phase 35) ---
+export type SceneParticleEffect = 'none' | 'embers' | 'fireflies' | 'snow' | 'rain' | 'fog' | 'motes'
+
+/** Player-visible cinematic scene state. `null` = tactical grid (default). */
+export interface SceneModeState {
+  /** JPEG/PNG data URL (≤ 4 MB, re-encoded renderer-side) or null for the gradient backdrop. */
+  imageData: string | null
+  /** Letterbox caption — VISIBLE TO ALL PLAYERS; never DM-secret text. */
+  caption: string | null
+  particleEffect: SceneParticleEffect
+  /** Epoch ms; lets clients key fade-in transitions on scene identity. */
+  enteredAt: number
+}
+
+export interface SceneSliceState {
+  sceneMode: SceneModeState | null
+  /** Host-local snapshot of the ambient track playing before the scene started (not synced). */
+  sceneModePrevAmbient: string | null
+  setSceneMode: (scene: SceneModeState | null) => void
+  setSceneModePrevAmbient: (ambient: string | null) => void
+}
+
 // PHASE-30 — DM monster-automation preferences (null = disabled, the default).
 export interface AutomationSliceState {
   monsterAutomation: MonsterAutomationConfig | null
@@ -525,5 +547,6 @@ export type GameStoreState = GameState &
   ReactionPromptSliceState &
   JournalSliceState &
   PartyInventorySliceState &
+  SceneSliceState &
   TradeEphemeralState &
   GameFlowState

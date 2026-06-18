@@ -17,7 +17,8 @@ export const SETTINGS_KEYS = {
   DICE_TRAY_POSITION: 'dice-tray-position',
   NARRATION_TTS: 'narration-tts-enabled',
   ENCOUNTER_PRESETS: 'encounter-presets',
-  AUDIO: 'dnd-vtt-audio'
+  AUDIO: 'dnd-vtt-audio',
+  SCENE_MODE_PREFS: 'dnd-vtt-scene-mode-prefs'
 } as const
 
 // Dynamic keys (campaign/character-specific)

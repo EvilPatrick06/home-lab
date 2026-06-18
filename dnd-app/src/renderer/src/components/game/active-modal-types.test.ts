@@ -64,6 +64,7 @@ describe('ActiveModal type', () => {
       'roll-table',
       'diceRoller',
       'aiImage',
+      'sceneMode',
       null
     ]
     // If this compiles and runs without errors, all values are valid

@@ -117,6 +117,7 @@ export type {
   RoleChangePayload,
   RollRequestPayload,
   RollResultPayload,
+  SceneModePayload,
   SellItemPayload,
   ShopItem,
   ShopItemCategory,
