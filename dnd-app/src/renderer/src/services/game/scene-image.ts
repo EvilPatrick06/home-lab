@@ -31,15 +31,19 @@ export async function prepareSceneImage(src: string): Promise<string> {
   ctx.drawImage(img, 0, 0, w, h)
 
   let out = canvas.toDataURL('image/jpeg', 0.85)
-  if (out.length > MAX_BYTES) {
-    // Too big even after the dimension cap — rescale by area + drop quality.
-    const factor = Math.sqrt(MAX_BYTES / out.length) * 0.9
-    const w2 = Math.max(1, Math.round(w * factor))
-    const h2 = Math.max(1, Math.round(h * factor))
-    canvas.width = w2
-    canvas.height = h2
-    ctx.drawImage(img, 0, 0, w2, h2)
-    out = canvas.toDataURL('image/jpeg', 0.7)
+  // Iteratively rescale + drop quality until under the 4 MB ceiling (peers reject anything larger).
+  let curW = w
+  let curH = h
+  let quality = 0.7
+  while (out.length > MAX_BYTES && (curW > 1 || curH > 1)) {
+    const factor = Math.min(0.9, Math.sqrt(MAX_BYTES / out.length) * 0.9)
+    curW = Math.max(1, Math.round(curW * factor))
+    curH = Math.max(1, Math.round(curH * factor))
+    canvas.width = curW
+    canvas.height = curH
+    ctx.drawImage(img, 0, 0, curW, curH)
+    out = canvas.toDataURL('image/jpeg', quality)
+    quality = Math.max(0.4, quality - 0.1)
   }
   return out
 }

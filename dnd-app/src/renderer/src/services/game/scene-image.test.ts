@@ -47,6 +47,14 @@ describe('prepareSceneImage (PHASE-35 35E)', () => {
     expect(out).toBe('data:image/jpeg;base64,SMALLER')
   })
 
+  it('keeps shrinking across multiple passes until under the ceiling', async () => {
+    const big = `data:image/jpeg;base64,${'a'.repeat(4 * 1024 * 1024 + 10)}`
+    // Two oversized passes, then a fitting one — the loop must run until it fits.
+    toDataURLQueue = [big, big, 'data:image/jpeg;base64,FINALLY']
+    const out = await prepareSceneImage('data:image/png;base64,SRC')
+    expect(out).toBe('data:image/jpeg;base64,FINALLY')
+  })
+
   it('rejects when the image fails to load', async () => {
     vi.stubGlobal(
       'Image',
