@@ -25,3 +25,8 @@
 *.PDF filter=lfs diff=lfs merge=lfs -text
 *.asar filter=lfs diff=lfs merge=lfs -text
 *.blockmap filter=lfs diff=lfs merge=lfs -text
+dnd-app/docs/phases/QA/screenshots/*.png filter=lfs diff=lfs merge=lfs -text
+dnd-app/docs/phases/QA/screenshots/*.jpg filter=lfs diff=lfs merge=lfs -text
+dnd-app/docs/phases/QA/screenshots/*.jpeg filter=lfs diff=lfs merge=lfs -text
+dnd-app/docs/phases/QA/screenshots/*.gif filter=lfs diff=lfs merge=lfs -text
+dnd-app/docs/phases/QA/screenshots/*.webp filter=lfs diff=lfs merge=lfs -text
