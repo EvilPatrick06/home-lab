@@ -106,7 +106,7 @@ Lives across multiple dirs (not yet fully encapsulated to `systems/dnd5e/` — r
 
 - **Character sheet:** `src/renderer/src/components/sheet/` (98 files)
 - **Character builder:** `src/renderer/src/components/builder/` (64 files, split into `5e/` subdirs)
-- **Level-up wizard:** `src/renderer/src/components/levelup/` (11 files)
+- **Level-up wizard:** `src/renderer/src/components/levelup/` (12 files)
 - **Combat:** `src/renderer/src/services/combat/` (58 files)
 - **Content loaders:** `src/renderer/src/services/library/` (4 files) + `@data/5e/*`
 - **Schemas:** `src/renderer/src/types/character-5e.ts`, `dm-toolbox.ts`, etc.
