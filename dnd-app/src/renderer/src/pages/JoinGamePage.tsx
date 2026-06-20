@@ -1,8 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { GameList, PasswordPrompt, UsernamePrompt } from '../components/lobby'
-import { BackButton, Input, Spinner } from '../components/ui'
-import { AUTO_REJOIN_KEY, DISPLAY_NAME_KEY, JOINED_SESSIONS_KEY, LAST_SESSION_KEY } from '../constants'
+import { BackButton, Button, Input, Spinner } from '../components/ui'
+import {
+  AUTO_REJOIN_KEY,
+  DISPLAY_NAME_KEY,
+  INVITE_CODE_LENGTH,
+  JOINED_SESSIONS_KEY,
+  LAST_SESSION_KEY
+} from '../constants'
 import { useT } from '../i18n'
 import { type LanEvent, startLanScan, stopLanScan, subscribeToLan } from '../network/lan-discovery'
 import {
@@ -34,6 +40,11 @@ export default function JoinGamePage(): JSX.Element {
       return ''
     }
   })
+  // taskId-12: explicit invite-code entry. Needed because clicking a discovered
+  // GameCard is the ONLY other join path, and there is no card when the registry
+  // is empty/unreachable — so a host who gave out a code had no way for the
+  // joiner to use it. (Restores the field removed in 0ca5303d.)
+  const [manualInviteCode, setManualInviteCode] = useState('')
   const [waitingForCampaign, setWaitingForCampaign] = useState(false)
   const [registryGames, setRegistryGames] = useState<RegistryGameEntry[]>([])
   const [lanGames, setLanGames] = useState<RegistryGameEntry[]>([])
@@ -312,6 +323,14 @@ export default function JoinGamePage(): JSX.Element {
     [pwTarget, displayName, connectWithCode, setError]
   )
 
+  const manualValid =
+    manualInviteCode.trim().length === INVITE_CODE_LENGTH && /^[A-Z0-9]+$/.test(manualInviteCode.trim().toUpperCase())
+
+  const handleManualConnect = useCallback(() => {
+    if (!manualValid || !displayName.trim()) return
+    void connectWithCode(manualInviteCode.trim().toUpperCase(), displayName.trim())
+  }, [manualInviteCode, manualValid, displayName, connectWithCode])
+
   const isConnecting = connectionState === 'connecting' || waitingForCampaign
 
   return (
@@ -341,6 +360,50 @@ export default function JoinGamePage(): JSX.Element {
           maxLength={30}
           className="max-w-xs"
         />
+      </div>
+
+      {/* taskId-12: always-visible invite-code Join field. Lets a player join a
+          game by code even when it is not in the browser (private, or registry
+          empty/unreachable). */}
+      <div className="mb-6">
+        <label className="block text-muted mb-1 text-xs uppercase tracking-wider">
+          {t('pages.joinGamePage.inviteCodeLabel')}
+        </label>
+        <div className="flex items-end gap-2">
+          <div className="flex-1 max-w-sm">
+            <input
+              type="text"
+              value={manualInviteCode}
+              onChange={(e) => setManualInviteCode(e.target.value.toUpperCase().replace(/\s+/g, ''))}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleManualConnect()
+              }}
+              placeholder={t('pages.joinGamePage.inviteCodePlaceholder')}
+              maxLength={INVITE_CODE_LENGTH + 2}
+              className="w-full p-2 rounded-md bg-surface-2 border border-border text-fg font-mono tracking-[0.2em] uppercase focus:outline-none focus:border-amber-500"
+            />
+          </div>
+          <Button
+            onClick={handleManualConnect}
+            disabled={!manualValid || !displayName.trim() || isConnecting}
+            title={
+              !displayName.trim()
+                ? t('pages.joinGamePage.displayNameRequired')
+                : !manualValid
+                  ? t('pages.joinGamePage.inviteCodePlaceholder')
+                  : undefined
+            }
+          >
+            {isConnecting ? (
+              <span className="flex items-center gap-2">
+                <Spinner size="sm" />
+                {t('pages.joinGamePage.connecting')}
+              </span>
+            ) : (
+              t('pages.joinGamePage.connect')
+            )}
+          </Button>
+        </div>
       </div>
 
       {isConnecting && (

@@ -33,11 +33,21 @@ export function registerIpcHandlers(): void {
 
   handle(
     IPC_CHANNELS.DIALOG_SAVE,
-    async (_event, options: { title: string; filters: Array<{ name: string; extensions: string[] }> }) => {
+    async (
+      _event,
+      options: { title: string; filters: Array<{ name: string; extensions: string[] }>; defaultPath?: string }
+    ) => {
       // Phase 17d (RUN-7) — `getAllWindows()[0]` is undefined when no window exists, which
       // would pass `undefined` as the parent and throw. Fall back to the parent-less dialog.
       const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0] ?? null
-      const opts = { title: options.title, filters: options.filters }
+      // Forward the renderer-supplied `defaultPath` so the native dialog pre-fills a
+      // filename instead of opening blank. Omitting the key entirely when undefined
+      // keeps Electron's own default behavior.
+      const opts = {
+        title: options.title,
+        filters: options.filters,
+        ...(options.defaultPath ? { defaultPath: options.defaultPath } : {})
+      }
       const result = win ? await dialog.showSaveDialog(win, opts) : await dialog.showSaveDialog(opts)
       if (result.canceled || !result.filePath) {
         return null

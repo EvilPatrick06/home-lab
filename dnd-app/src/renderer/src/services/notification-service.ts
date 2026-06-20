@@ -101,13 +101,27 @@ export function init(): void {
  * @param title   - Custom title (overrides the default template title).
  * @param body    - Custom body text. Falls back to the template default if omitted.
  */
-export function notify(event: NotificationEvent, title: string, body?: string): void {
-  if (!config.enabled) return
-  if (!config.enabledEvents.has(event)) return
-  if (!isSupported()) return
+/** Result of a notify() call, so explicit callers (e.g. the Settings test button) can give feedback. */
+export type NotifyResult = 'shown' | 'disabled' | 'event-off' | 'unsupported' | 'suppressed-focus'
 
-  // Only fire when the window is blurred (if configured)
-  if (config.onlyWhenBlurred && document.hasFocus()) return
+/** Options for {@link notify}. */
+export interface NotifyOptions {
+  /**
+   * Bypass the "Only When Unfocused" focus gate and always fire (when enabled +
+   * supported). Used by the explicit Settings "Test Notification" button, which is
+   * pressed with the window focused — otherwise the test would be a silent no-op.
+   */
+  force?: boolean
+}
+
+export function notify(event: NotificationEvent, title: string, body?: string, options?: NotifyOptions): NotifyResult {
+  if (!config.enabled) return 'disabled'
+  if (!config.enabledEvents.has(event)) return 'event-off'
+  if (!isSupported()) return 'unsupported'
+
+  // Only fire when the window is blurred (if configured). The explicit test path
+  // passes force:true to bypass this — a focused user testing the button must see it.
+  if (!options?.force && config.onlyWhenBlurred && document.hasFocus()) return 'suppressed-focus'
 
   const template = DEFAULT_TEMPLATES[event]
   const finalTitle = title || template.title
@@ -133,6 +147,8 @@ export function notify(event: NotificationEvent, title: string, body?: string): 
     // Bring the Electron window to front when clicked
     window.focus()
   }
+
+  return 'shown'
 }
 
 /** Enable or disable notifications for a specific event type. */

@@ -27,7 +27,13 @@ import {
 } from '../../data/bastion-events'
 import { useT } from '../../i18n'
 import { useBastionStore } from '../../stores/use-bastion-store'
-import type { BasicFacilityDef, Bastion, BastionFacilitiesData, SpecialFacilityDef } from '../../types/bastion'
+import type {
+  BasicFacilityDef,
+  Bastion,
+  BastionFacilitiesData,
+  ConstructionProject,
+  SpecialFacilityDef
+} from '../../types/bastion'
 import { ENLARGE_COSTS, FACILITY_SPACE_SQUARES } from '../../types/bastion'
 import type { Character5e } from '../../types/character-5e'
 import { ORDER_COLORS, ORDER_LABELS } from './bastion-constants'
@@ -132,6 +138,53 @@ function _getEventTablesSummary(): {
   }
 }
 
+/** In-progress construction projects for a facility tab, shown as greyed cards
+ *  with a "N/M days" progress indicator. Mirrors the Overview tab's queue so a
+ *  user who builds from the Basic/Special tab sees their queued (GP-spent)
+ *  project right there, instead of it appearing to vanish until the next turn. */
+function ConstructionQueueSection({
+  bastion,
+  projectTypes
+}: {
+  bastion: Bastion
+  projectTypes: ConstructionProject['projectType'][]
+}): JSX.Element | null {
+  const { t } = useT()
+  const projects = bastion.construction.filter((p) => projectTypes.includes(p.projectType))
+  if (projects.length === 0) return null
+  return (
+    <div className="bg-surface border border-gray-800 rounded-lg p-4 opacity-80">
+      <h3 className="text-sm font-semibold text-gray-200 mb-3">{t('pages.overviewTab.constructionQueue')}</h3>
+      <div className="space-y-2">
+        {projects.map((p) => {
+          const pct = p.daysRequired > 0 ? Math.round((p.daysCompleted / p.daysRequired) * 100) : 100
+          return (
+            <div key={p.id} className="bg-surface-2 rounded p-2">
+              <div className="flex items-center justify-between text-xs mb-1">
+                <span className="text-gray-300 capitalize">
+                  {p.projectType === 'add-special' && p.specialFacilityName
+                    ? t('pages.overviewTab.building', { name: p.specialFacilityName })
+                    : `${p.projectType.replace(/-/g, ' ')}${p.facilityType ? `: ${p.facilityType}` : ''}`}
+                </span>
+                <span className="text-gray-500">
+                  {t('pages.overviewTab.constructionProgress', {
+                    completed: p.daysCompleted,
+                    required: p.daysRequired,
+                    cost: p.cost
+                  })}
+                </span>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-1.5">
+                <div className="bg-accent-strong h-1.5 rounded-full transition-all" style={{ width: `${pct}%` }} />
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 export function BasicTab({
   bastion,
   basicDefs,
@@ -190,6 +243,7 @@ export function BasicTab({
           })}
         </div>
       )}
+      <ConstructionQueueSection bastion={bastion} projectTypes={['add-basic', 'enlarge-basic']} />
     </div>
   )
 }
@@ -505,6 +559,7 @@ export function SpecialTab({
           })}
         </div>
       )}
+      <ConstructionQueueSection bastion={bastion} projectTypes={['add-special', 'enlarge-special']} />
     </div>
   )
 }

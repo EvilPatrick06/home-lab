@@ -88,6 +88,7 @@ export default class ErrorBoundary extends Component<Props, State> {
 
       const path = await window.api.showSaveDialog({
         title: i18n.t('ui.errorBoundary.saveBugReport'),
+        defaultPath: `dnd-vtt-bug-report-${new Date().toISOString().slice(0, 10)}.txt`,
         filters: [{ name: i18n.t('ui.errorBoundary.textFilesFilter'), extensions: ['txt'] }]
       })
       if (path) {

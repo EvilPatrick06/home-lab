@@ -103,3 +103,28 @@ describe('useBuilderStore', () => {
     expect(typeof state.buildCharacter5e).toBe('function')
   })
 })
+
+describe('useBuilderStore — setTargetLevel spell caps', () => {
+  it('recomputes maxCantrips/maxPreparedSpells when the level changes (uncompletable-build regression)', async () => {
+    const { getCantripsKnown, getPreparedSpellMax } = await import('../services/character/spell-data')
+    const store = useBuilderStore
+    store.getState().resetBuilder()
+    store.getState().selectGameSystem('dnd5e')
+    const slots = store
+      .getState()
+      .buildSlots.map((s) => (s.category === 'class' ? { ...s, selectedId: 'wizard', selectedName: 'Wizard' } : s))
+    store.setState({ buildSlots: slots })
+
+    store.getState().setTargetLevel(1)
+    const cantripsL1 = store.getState().maxCantrips
+    const preparedL1 = store.getState().maxPreparedSpells
+
+    store.getState().setTargetLevel(10)
+    // Caps must track the level-derived helpers — the bug froze them at level 1,
+    // so checkboxes no-op'd and the character could never reach its required counts.
+    expect(store.getState().maxCantrips).toBe(getCantripsKnown('wizard', 10))
+    expect(store.getState().maxPreparedSpells).toBe(getPreparedSpellMax('wizard', 10) ?? 0)
+    expect(store.getState().maxCantrips).toBeGreaterThan(cantripsL1)
+    expect(store.getState().maxPreparedSpells).toBeGreaterThan(preparedL1)
+  })
+})

@@ -580,6 +580,25 @@ describe('buildGameStateSnapshot', () => {
     expect(result).toContain('Available Maps: Dungeon, Forest')
   })
 
+  it('lists in-scene NPCs from the sidebar (allies/enemies/places) with attitudes', () => {
+    const result = buildGameStateSnapshot(
+      makeStores({
+        allies: [{ id: 'a1', name: 'Korbok', attitude: 'indifferent' }],
+        enemies: [{ id: 'e1', name: 'Grik the Goblin', attitude: 'hostile' }],
+        places: [{ id: 'p1', name: 'The Rusty Flagon' }]
+      })
+    )
+    expect(result).toContain('[SCENE NPCS]')
+    expect(result).toContain('- Korbok (allies) [indifferent]')
+    expect(result).toContain('- Grik the Goblin (enemies) [hostile]')
+    expect(result).toContain('- The Rusty Flagon (places)')
+  })
+
+  it('omits the [SCENE NPCS] block when the sidebar is empty', () => {
+    const result = buildGameStateSnapshot(makeStores({ allies: [], enemies: [], places: [] }))
+    expect(result).not.toContain('[SCENE NPCS]')
+  })
+
   it('shows long rest timing info', () => {
     const result = buildGameStateSnapshot(
       makeStores({

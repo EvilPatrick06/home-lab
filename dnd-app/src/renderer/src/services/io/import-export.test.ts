@@ -98,6 +98,7 @@ describe('import-export', () => {
       expect(result).toBe(true)
       expect(mockShowSaveDialog).toHaveBeenCalledWith({
         title: 'Export Character',
+        defaultPath: 'Hero.json',
         filters: [{ name: 'JSON Files', extensions: ['json'] }]
       })
       expect(mockWriteFile).toHaveBeenCalledWith('/tmp/char.json', JSON.stringify(character, null, 2))
@@ -274,6 +275,14 @@ describe('import-export', () => {
         books: 0
       })
       expect(mockWriteFile).toHaveBeenCalledTimes(1)
+
+      // The native Save dialog must pre-fill a date-stamped backup filename (no blank field).
+      expect(mockShowSaveDialog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'Export All Data',
+          defaultPath: expect.stringMatching(/^dnd-vtt-backup-\d{4}-\d{2}-\d{2}\.dndbackup$/)
+        })
+      )
 
       const writtenJson = JSON.parse(mockWriteFile.mock.calls[0][1])
       expect(writtenJson.version).toBe(4)

@@ -7,6 +7,13 @@ import { drawTokenStatusRing } from './combat-animations'
 // `null` is a transient "load in progress" sentinel; readers treat it as falsy.
 const tokenTextureCache = new Map<string, Texture | null>()
 
+// PixiJS v8 removed Container.name (used pre-v8 to track which image a reused
+// avatar held). `.label` is already used to FIND the avatar child
+// ('avatar-container'), so we stash the image-identity key on a typed custom
+// property instead. Reused across renders so an unchanged image isn't
+// destroyed + reloaded every frame.
+type AvatarContainer = Container & { imageKey?: string }
+
 const VALID_IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp']
 
 const ENTITY_COLORS: Record<string, number> = {
@@ -65,7 +72,7 @@ export function createTokenSprite(
 ): Container {
   const container = existingContainer ?? new Container()
   // Clean up all overlay elements, but keep avatar if it's the exact same
-  const oldAvatar = container.children.find((c) => c.label === 'avatar-container')
+  const oldAvatar = container.children.find((c) => c.label === 'avatar-container') as AvatarContainer | undefined
   container.removeChildren()
 
   container.label = `token-${token.id}`
@@ -136,19 +143,20 @@ export function createTokenSprite(
     token.imagePath && VALID_IMAGE_EXTENSIONS.some((ext) => token.imagePath!.toLowerCase().endsWith(ext))
   const cachedTexture = hasValidImage ? tokenTextureCache.get(token.imagePath!) : undefined
 
-  let avatarContainer: Container | null = null
+  let avatarContainer: AvatarContainer | null = null
 
   // Can we reuse old avatar? (Must check if the imagePath is still the same, usually it is)
-  const isImageMatch = oldAvatar?.name === token.imagePath
-  const isFallbackMatch = oldAvatar?.name === `fallback-${fillColor}`
+  // PixiJS v8 removed Container.name; the image identity lives on our custom imageKey.
+  const isImageMatch = oldAvatar?.imageKey === token.imagePath
+  const isFallbackMatch = oldAvatar?.imageKey === `fallback-${fillColor}`
 
   if (oldAvatar && (isImageMatch || (!hasValidImage && isFallbackMatch))) {
     avatarContainer = oldAvatar
     container.addChild(avatarContainer)
   } else {
-    avatarContainer = new Container()
+    avatarContainer = new Container() as AvatarContainer
     avatarContainer.label = 'avatar-container'
-    avatarContainer.name = token.imagePath ?? `fallback-${fillColor}`
+    avatarContainer.imageKey = token.imagePath ?? `fallback-${fillColor}`
 
     if (cachedTexture) {
       const imgSprite = new Sprite(cachedTexture)

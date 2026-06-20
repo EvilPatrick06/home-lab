@@ -23,7 +23,7 @@ vi.mock('../network', () => ({
   setHostCampaignId: vi.fn(),
   setHostCaps: vi.fn(),
   setHostGameSystem: vi.fn(),
-  startHostAnnounce: vi.fn(async () => undefined),
+  startHostAnnounce: vi.fn(async () => ({ ok: true })),
   stopHostAnnounce: vi.fn(async () => undefined),
   updateHostAnnounce: vi.fn(async () => undefined),
   setCharacterInfo: vi.fn(),

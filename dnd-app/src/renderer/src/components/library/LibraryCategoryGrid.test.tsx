@@ -12,6 +12,12 @@ describe('LibraryCategoryGrid counts (PHASE-13 13J)', () => {
     expect(screen.getByText(/319 items/)).toBeTruthy()
   })
 
+  it('uses the singular noun for a count of 1 (no "1 items")', () => {
+    render(<LibraryCategoryGrid onSelectCategory={vi.fn()} itemCounts={{}} totalCounts={{ spells: 1 }} />)
+    expect(screen.getByText(/\b1 item\b/)).toBeTruthy()
+    expect(screen.queryByText(/1 items/)).toBeNull()
+  })
+
   it('renders official + homebrew counts together', () => {
     render(<LibraryCategoryGrid onSelectCategory={vi.fn()} itemCounts={{ spells: 4 }} totalCounts={{ spells: 319 }} />)
     expect(screen.getByText(/319 items · 4 custom/)).toBeTruthy()

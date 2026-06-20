@@ -119,8 +119,23 @@ export async function exportEntities<T>(type: EntityType, items: T[], _suggested
       data: items.length === 1 ? items[0] : items
     }
 
+    // Pre-fill a sensible filename so the native dialog doesn't open blank. Use the
+    // caller's suggested name (or, for a single item, its name/title) sanitized; fall
+    // back to the entity type. Always carries the configured extension.
+    const rawName =
+      _suggestedName ??
+      (items.length === 1
+        ? (((items[0] as Record<string, unknown> | undefined)?.name as string | undefined) ??
+          ((items[0] as Record<string, unknown> | undefined)?.title as string | undefined))
+        : undefined) ??
+      type
+    const safeName =
+      String(rawName)
+        .replace(/[<>:"/\\|?* -]+/g, '')
+        .trim() || type
     const filePath = await window.api.showSaveDialog({
       title: `Export ${config.label}${items.length > 1 ? 's' : ''}`,
+      defaultPath: `${safeName}.${config.extension}`,
       filters: [{ name: config.label, extensions: [config.extension] }]
     })
     if (!filePath) return false

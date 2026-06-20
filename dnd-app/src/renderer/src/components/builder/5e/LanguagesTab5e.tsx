@@ -108,6 +108,10 @@ export default function LanguagesTab5e(): JSX.Element {
   const allKnownLanguages = useMemo(() => {
     const seen = new Set<string>()
     const result: string[] = []
+    // 2024 PHB: Common is always known (Origin grant). Show it first as a
+    // non-removable known language; it does not consume a chosen-language slot.
+    seen.add('Common')
+    result.push('Common')
     for (const lang of speciesLanguages) {
       if (!seen.has(lang)) {
         seen.add(lang)

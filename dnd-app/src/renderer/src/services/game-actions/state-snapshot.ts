@@ -398,6 +398,25 @@ export function buildGameStateSnapshot(
     }
   }
 
+  // Scene NPC roster — the sidebar entries (allies/enemies/places) are the engine's
+  // authoritative in-scene NPC list and the ONLY targets set_npc_attitude resolves
+  // against (creature-actions.executeSetNpcAttitude). Surfacing them here biases the
+  // AI toward the NPC actually present/named in the current scene when it emits an
+  // NPC mutation, instead of grabbing an unrelated seed-pack/campaign NPC name.
+  const sceneNpcLines: string[] = []
+  for (const cat of ['allies', 'enemies', 'places'] as const) {
+    for (const e of gameStore[cat] ?? []) {
+      const attitude = e.attitude ? ` [${e.attitude}]` : ''
+      sceneNpcLines.push(`  - ${e.name} (${cat})${attitude}`)
+    }
+  }
+  if (sceneNpcLines.length > 0) {
+    lines.push(
+      '\n[SCENE NPCS] (in-scene NPCs — target these by exact name for set_npc_attitude / set_npc_location / set_npc_faction; do NOT target an NPC that is not present here or on the map)'
+    )
+    lines.push(...sceneNpcLines)
+  }
+
   lines.push('[/GAME STATE]')
   return lines.join('\n')
 }

@@ -20,7 +20,9 @@ export function SubclassSelector5e({ slot, classId }: { slot: BuildSlot; classId
       .then((all) => {
         setSubclasses(
           all
-            .filter((sc) => sc.className?.toLowerCase() === classId)
+            // The data uses `class` (e.g. "wizard"); `className` is optional and
+            // usually absent. Tolerate both, matching data-provider's filter.
+            .filter((sc) => (sc.className ?? sc.class)?.toLowerCase() === classId)
             .map((sc) => ({
               id: sc.id ?? sc.name.toLowerCase().replace(/\s+/g, '-'),
               name: sc.name,

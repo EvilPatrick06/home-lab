@@ -1668,7 +1668,19 @@ export default function SettingsPage(): JSX.Element {
           </div>
           <button
             className="mt-3 px-3 py-1 text-xs bg-surface-2 text-gray-300 rounded hover:bg-gray-700 cursor-pointer"
-            onClick={() => NotificationService.notify('your-turn', t('pages.settingsPage.testCharacter'))}
+            onClick={() => {
+              const result = NotificationService.notify('your-turn', t('pages.settingsPage.testCharacter'), undefined, {
+                force: true
+              })
+              if (result === 'shown') {
+                addToast(t('pages.settingsPage.testNotificationSent'), 'success')
+              } else if (result === 'unsupported') {
+                addToast(t('pages.settingsPage.testNotificationUnsupported'), 'error')
+              } else {
+                // 'disabled' / 'event-off' — notifications turned off in settings
+                addToast(t('pages.settingsPage.testNotificationDisabled'), 'info')
+              }
+            }}
           >
             {t('pages.settingsPage.testNotification')}
           </button>

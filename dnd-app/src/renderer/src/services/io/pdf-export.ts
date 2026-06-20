@@ -357,8 +357,10 @@ function drawBackstory(builder: PdfBuilder, char: Character5e): void {
 
 export async function exportCharacterToPdf(character: Character5e): Promise<boolean> {
   try {
+    const safeName = (character.name || 'character').replace(/[<>:"/\\|?* -]+/g, '').trim() || 'character'
     const filePath = await window.api.showSaveDialog({
       title: 'Export Character to PDF',
+      defaultPath: `${safeName}.pdf`,
       filters: [{ name: 'PDF', extensions: ['pdf'] }]
     })
     if (!filePath) return false

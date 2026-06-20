@@ -30,7 +30,7 @@ async function generate(
   // poisoned/typo'd config can't inject extra path segments, a query string, or a host
   // override (e.g. '../', ':', '?', '#', '@'). Real Gemini model ids (gemini-2.5-flash …)
   // are [a-z0-9.-] and pass unchanged.
-  if (!/^[a-zA-Z0-9.\-]+$/.test(config.geminiModel)) {
+  if (!/^[a-zA-Z0-9.-]+$/.test(config.geminiModel)) {
     return { success: false, error: `Invalid Gemini model name: "${config.geminiModel}"` }
   }
 

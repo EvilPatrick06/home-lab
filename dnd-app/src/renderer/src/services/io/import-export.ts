@@ -21,8 +21,13 @@ const JSON_FILTER = [{ name: 'JSON Files', extensions: ['json'] }]
  */
 export async function exportCharacter(character: Record<string, unknown>): Promise<boolean> {
   try {
+    const safeName =
+      String((character.name as string) || 'character')
+        .replace(/[<>:"/\\|?* -]+/g, '')
+        .trim() || 'character'
     const filePath = await window.api.showSaveDialog({
       title: 'Export Character',
+      defaultPath: `${safeName}.json`,
       filters: JSON_FILTER
     })
     if (!filePath) return false
@@ -41,8 +46,13 @@ export async function exportCharacter(character: Record<string, unknown>): Promi
  */
 export async function exportCampaign(campaign: Record<string, unknown>): Promise<boolean> {
   try {
+    const safeName =
+      String((campaign.name as string) || 'campaign')
+        .replace(/[<>:"/\\|?* -]+/g, '')
+        .trim() || 'campaign'
     const filePath = await window.api.showSaveDialog({
       title: 'Export Campaign',
+      defaultPath: `${safeName}.json`,
       filters: JSON_FILTER
     })
     if (!filePath) return false
@@ -354,8 +364,10 @@ export async function exportAllData(): Promise<BackupStats | null> {
     books: { config: safeConfig, data: bookData }
   }
 
+  const dateStamp = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
   const filePath = await window.api.showSaveDialog({
     title: 'Export All Data',
+    defaultPath: `dnd-vtt-backup-${dateStamp}.dndbackup`,
     filters: BACKUP_FILTER
   })
   if (!filePath) return null

@@ -41,6 +41,11 @@ export default function LobbyPage(): JSX.Element {
   const [showLeaveModal, setShowLeaveModal] = useState(false)
   const [codeCopied, setCodeCopied] = useState(false)
   const [reconnecting, setReconnecting] = useState(false)
+  // taskId-12: track whether the PUBLIC registry POST actually succeeded so the
+  // "listed in browser" badge reflects reality instead of just campaign settings.
+  // null = not a public host / not yet attempted; true = registered; false = failed.
+  const [registryListed, setRegistryListed] = useState<boolean | null>(null)
+  const [registryAnnounceError, setRegistryAnnounceError] = useState<string | null>(null)
   const hasInitialized = useRef(false)
   // Set by the explicit "Leave Lobby" button so the disconnect effect below does
   // not override its main-menu navigation (see confirmLeave + the effect).
@@ -232,7 +237,11 @@ export default function LobbyPage(): JSX.Element {
   useEffect(() => {
     if (!isHost || !campaignName || !inviteCode || !localPeerId || !displayName) return
     let cancelled = false
-    void startHostAnnounce({
+    const isPublic = !(campaignIsPrivate ?? false)
+    // Reset to a pending state while we (re)announce a public game.
+    setRegistryListed(null)
+    setRegistryAnnounceError(null)
+    startHostAnnounce({
       invite_code: inviteCode,
       name: campaignName || 'Untitled Game',
       host_display_name: displayName,
@@ -245,7 +254,25 @@ export default function LobbyPage(): JSX.Element {
       is_private: campaignIsPrivate ?? false,
       peer_id: localPeerId,
       hosting_mode: announceHostingMode
-    }).catch((err) => logger.warn('[Lobby] announce failed:', err))
+    })
+      .then((result) => {
+        if (cancelled) return
+        if (!isPublic) {
+          setRegistryListed(null)
+          setRegistryAnnounceError(null)
+          return
+        }
+        setRegistryListed(result.ok)
+        setRegistryAnnounceError(result.ok ? null : (result.error ?? 'unknown error'))
+      })
+      .catch((err) => {
+        if (cancelled) return
+        logger.warn('[Lobby] announce failed:', err)
+        if (isPublic) {
+          setRegistryListed(false)
+          setRegistryAnnounceError(err instanceof Error ? err.message : String(err))
+        }
+      })
     return () => {
       cancelled = true
       void stopHostAnnounce()
@@ -483,12 +510,22 @@ export default function LobbyPage(): JSX.Element {
           <div className="flex items-center gap-2">
             <span
               className={`text-xs uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                campaign.settings?.isPrivate ? 'bg-surface-2 text-gray-300' : 'bg-emerald-900/40 text-emerald-300'
+                campaign.settings?.isPrivate
+                  ? 'bg-surface-2 text-gray-300'
+                  : registryListed === false
+                    ? 'bg-red-900/40 text-red-300'
+                    : registryListed === null
+                      ? 'bg-surface-2 text-gray-300'
+                      : 'bg-emerald-900/40 text-emerald-300'
               }`}
             >
               {campaign.settings?.isPrivate
                 ? t('pages.lobbyPage.privateInviteOnly')
-                : t('pages.lobbyPage.publicListed')}
+                : registryListed === false
+                  ? t('pages.lobbyPage.publicNotListed')
+                  : registryListed === null
+                    ? t('pages.lobbyPage.publicListing')
+                    : t('pages.lobbyPage.publicListed')}
             </span>
             <button
               type="button"
@@ -510,6 +547,17 @@ export default function LobbyPage(): JSX.Element {
             >
               {campaign.settings?.isPrivate ? t('pages.lobbyPage.makePublic') : t('pages.lobbyPage.makePrivate')}
             </button>
+          </div>
+        )}
+        {/* taskId-12: honest error when a PUBLIC game failed to register with the
+            registry, so the host doesn't believe it's discoverable when it isn't. */}
+        {isHost && registryListed === false && (
+          <div className="mt-2 px-3 py-2 rounded-lg bg-red-900/20 border border-red-700/30">
+            <p className="text-xs text-red-300 font-medium">{t('pages.lobbyPage.publicListFailedTitle')}</p>
+            <p className="text-[11px] text-red-400/70 mt-0.5">
+              {t('pages.lobbyPage.publicListFailedBody')}
+              {registryAnnounceError ? ` (${registryAnnounceError})` : ''}
+            </p>
           </div>
         )}
       </div>

@@ -56,10 +56,16 @@ export function computeBuilderProficiencies5e(params: ComputeBuilderProficiencie
       return true
     })
   })()
+  // 2024 PHB: every character knows Common automatically (granted by their
+  // Origin, not chosen) plus their 2 chosen languages. Seed Common first and
+  // dedup so it always appears on the saved sheet without consuming a slot.
   const langProfs = [
-    ...chosenLangs,
-    ...(classId === 'druid' && !chosenLangs.includes('Druidic') ? ['Druidic'] : []),
-    ...(classId === 'rogue' && !chosenLangs.includes("Thieves' Cant") ? ["Thieves' Cant"] : [])
+    ...new Set([
+      'Common',
+      ...chosenLangs,
+      ...(classId === 'druid' && !chosenLangs.includes('Druidic') ? ['Druidic'] : []),
+      ...(classId === 'rogue' && !chosenLangs.includes("Thieves' Cant") ? ["Thieves' Cant"] : [])
+    ])
   ]
 
   return { weaponProfs, armorProfs, toolProfs, langProfs }

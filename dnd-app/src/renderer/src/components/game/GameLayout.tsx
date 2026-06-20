@@ -618,7 +618,16 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
     onToggleInitiative: () => setSidebarCollapsed((c) => !c),
     onToggleJournal: () => setActiveModal((m) => (m === 'sharedJournal' ? null : 'sharedJournal')),
     onOpenDice: () => setActiveModal((m) => (m === 'diceRoller' ? null : 'diceRoller')),
-    onCloseModal: () => setActiveModal(null),
+    onCloseModal: () => {
+      // Esc should also leave the full-screen map editor (back to play),
+      // not just close transient modals.
+      if (editMapMode) {
+        setEditMapMode(false)
+        setMapKey((k) => k + 1)
+        return
+      }
+      setActiveModal(null)
+    },
     onShowShortcuts: () => setActiveModal((m) => (m === 'shortcutRef' ? null : 'shortcutRef')),
     onToggleMapEditor: () => setEditMapMode((v) => !v),
     // Phase 15g — player-side shortcuts. Modal toggles so pressing the

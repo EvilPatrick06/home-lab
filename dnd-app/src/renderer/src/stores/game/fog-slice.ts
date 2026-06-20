@@ -28,6 +28,12 @@ export const createFogSlice: StateCreator<GameStoreState, [], [], FogSliceState>
           ...m,
           fogOfWar: {
             ...m.fogOfWar,
+            // Hiding fog (manual fog-hide brush or "Hide All") is an explicit DM
+            // intent to apply fog, so turn fog ON. New maps default to
+            // `enabled: false`; without this flip `drawFogOfWar` returns early
+            // (fog-overlay.ts) and nothing renders on either the DM canvas or the
+            // synced player view, so Hide All looked like a no-op.
+            enabled: true,
             revealedCells: m.fogOfWar.revealedCells.filter((c) => !toHide.has(`${c.x},${c.y}`))
           }
         }

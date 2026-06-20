@@ -11,6 +11,7 @@ import {
   generate5eBuildSlots,
   generate5eLevelUpSlots
 } from '../../../services/character/build-tree-5e'
+import { getCantripsKnown, getPreparedSpellMax } from '../../../services/character/spell-data'
 import { logger } from '../../../utils/logger'
 
 type _ClassProficiencies = ClassProficiencies
@@ -126,7 +127,21 @@ export const createCoreSlice: StateCreator<BuilderState, [], [], CoreSliceState>
       }
     }
 
-    set({ targetLevel: level, buildSlots: newSlots, classLevelChoices: cleanedChoices })
+    // Recompute spell-selection caps for the new level. These (maxCantrips /
+    // maxPreparedSpells) are the HARD caps enforced by setSelectedSpellIds; if
+    // they aren't refreshed here they stay frozen at the level they had when the
+    // class was first selected, so raising Level leaves the character unable to
+    // reach the (now higher) required spell counts — uncompletable.
+    const maxCantrips = classId ? getCantripsKnown(classId, level) : 0
+    const maxPreparedSpells = classId ? (getPreparedSpellMax(classId, level) ?? 0) : 0
+
+    set({
+      targetLevel: level,
+      buildSlots: newSlots,
+      classLevelChoices: cleanedChoices,
+      maxCantrips,
+      maxPreparedSpells
+    })
   },
 
   setActiveTab: (tab) => set({ activeTab: tab }),

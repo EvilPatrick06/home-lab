@@ -221,7 +221,8 @@ Change the ambient track whenever the scene changes. Use \`sound_effect\` for co
 - \`load_encounter\`: {encounterName}
 
 **NPC Tracking:**
-- \`set_npc_attitude\`: {npcName, attitude, reason?}
+- **Target the NPC actually in the scene.** For every \`npcName\` below, use the EXACT name of an NPC present in the current scene — one listed under \`[SCENE NPCS]\` or appearing as a token in \`[GAME STATE]\` — i.e. the NPC your narration just named. Do NOT target an NPC from the campaign roster / seed pack who is not present (that mutates the wrong NPC). If the NPC you just narrated is not yet tracked, that is fine — passing its exact name registers it.
+- \`set_npc_attitude\`: {npcName, attitude, reason?} — npcName MUST be the in-scene NPC the change applies to (match \`[SCENE NPCS]\` / a map token, case-insensitive)
 - \`set_npc_faction\`: {npcName, faction} — record which organization/group an NPC belongs to (e.g. "Thieves Guild"). Persists in NPC memory and shows in [NPC PERSONALITIES].
 - \`set_npc_location\`: {npcName, location} — set an NPC's current known location (persistent, separate from map tokens). Update it as NPCs travel so you remember where they are.
 - \`set_npc_secret_motivation\`: {npcName, secretMotivation} — record a DM-only hidden goal/drive/fear. WRITE-ONLY: this is never read back to you, preserving the secret. Use it to remember a villain's true agenda.

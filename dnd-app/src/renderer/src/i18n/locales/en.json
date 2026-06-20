@@ -2192,7 +2192,8 @@
       "defaultMapName": "Map {{num}}",
       "round": "Round {{round}}",
       "resize": "Resize",
-      "closeEditor": "Close Editor"
+      "closeEditor": "Done — Back to Game",
+      "closeEditorHint": "Exit the map editor and return to play (Esc)"
     },
     "dmNotesModal": {
       "title": "DM Notes",
@@ -3850,7 +3851,7 @@
       "exitF11": "Exit (F11)",
       "enterF11": "Enter (F11)",
       "createCharacter": "Create Character",
-      "returnToLobby": "Return to Lobby",
+      "returnToLobby": "Leave Session",
       "endSession": "End Session",
       "endSessionConfirmTitle": "End session?",
       "endSessionConfirmMessage": "This ends the session for everyone in the game. Are you sure?",
@@ -5197,7 +5198,8 @@
       "unknownItem": "Unknown Item"
     },
     "libraryCategoryGrid": {
-      "itemsCount": "{{count}} items",
+      "itemsCount_one": "{{count}} item",
+      "itemsCount_other": "{{count}} items",
       "customCount": "{{count}} custom"
     },
     "libraryDetailModal": {
@@ -6076,6 +6078,10 @@
       "copied": "Copied!",
       "privateInviteOnly": "Private — invite only",
       "publicListed": "Public — listed in browser",
+      "publicListing": "Public — listing…",
+      "publicNotListed": "Public — NOT listed (registry unreachable)",
+      "publicListFailedTitle": "Couldn't list this game in the public browser",
+      "publicListFailedBody": "The game registry couldn't be reached, so other players won't see this game in the browser. They can still join with the invite code on the same network, or check your BMO connection in Settings.",
       "togglePublicTitle": "Toggle whether this game is listed in the public browser",
       "makePublic": "Make Public",
       "makePrivate": "Make Private",
@@ -6593,6 +6599,9 @@
       "eventToggles": "Event Toggles",
       "testCharacter": "Test Character",
       "testNotification": "Test Notification",
+      "testNotificationSent": "Test notification sent.",
+      "testNotificationDisabled": "Notifications are off — enable them above to receive notifications.",
+      "testNotificationUnsupported": "Desktop notification permission is not granted in this environment.",
       "autoSave": "Auto-Save",
       "resetAutoSaveDefaults": "Reset Auto-Save Defaults",
       "enableAutoSave": "Enable Auto-Save",

@@ -30,7 +30,14 @@ interface ActiveAnnounce {
 
 let active: ActiveAnnounce | null = null
 
-export async function startHostAnnounce(payload: HostAnnouncePayload): Promise<void> {
+export interface HostAnnounceResult {
+  /** false only when a PUBLIC game failed to register with the Pi registry.
+   * Private games (and LAN-only publishes) always report ok:true. */
+  ok: boolean
+  error?: string
+}
+
+export async function startHostAnnounce(payload: HostAnnouncePayload): Promise<HostAnnounceResult> {
   await stopHostAnnounce()
 
   const lanPayload: LanPublishPayload = {
@@ -50,6 +57,7 @@ export async function startHostAnnounce(payload: HostAnnouncePayload): Promise<v
   await publishLan(lanPayload).catch(() => undefined)
 
   let stopHeartbeat = (): void => undefined
+  let announceResult: HostAnnounceResult = { ok: true }
 
   if (!payload.is_private) {
     const result = await announceGame(payload).catch((err) => ({
@@ -58,13 +66,16 @@ export async function startHostAnnounce(payload: HostAnnouncePayload): Promise<v
     }))
     if (result.ok) {
       stopHeartbeat = startHeartbeat(payload.invite_code)
+    } else {
+      // Surface the failure to the caller so the lobby can show an honest
+      // "not listed" state instead of a false "LISTED IN BROWSER" badge.
+      // We still proceed — LAN discovery gives same-subnet peers a way in.
+      announceResult = { ok: false, error: result.error }
     }
-    // If the announce failed (Pi unreachable / not configured), we
-    // intentionally proceed — LAN discovery still gives same-subnet
-    // peers a way in.
   }
 
   active = { inviteCode: payload.invite_code, isPrivate: payload.is_private, stopHeartbeat }
+  return announceResult
 }
 
 export async function updateHostAnnounce(patch: Partial<RegistryAnnouncePayload>): Promise<void> {

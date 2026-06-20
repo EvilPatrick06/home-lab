@@ -102,6 +102,8 @@ describe('entity-io', () => {
       expect(window.api.showSaveDialog).toHaveBeenCalledWith(
         expect.objectContaining({
           title: 'Export Monster / Creature',
+          // Pre-fills the single item's name + configured extension (no blank dialog).
+          defaultPath: 'Goblin.dndmonster',
           filters: [{ name: 'Monster / Creature', extensions: ['dndmonster'] }]
         })
       )

@@ -438,7 +438,7 @@ export default function SettingsDropdown({
               </button>
             )}
             <button
-              onClick={() => onLeaveGame(`/lobby/${campaign.id}`)}
+              onClick={() => onLeaveGame(`/campaign/${campaign.id}`)}
               className="w-full px-4 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
             >
               {t('game.settingsDropdown.returnToLobby')}

@@ -2192,7 +2192,8 @@
       "defaultMapName": "Mapa {{num}}",
       "round": "Asalto {{round}}",
       "resize": "Redimensionar",
-      "closeEditor": "Cerrar editor"
+      "closeEditor": "Listo — Volver al juego",
+      "closeEditorHint": "Salir del editor de mapas y volver al juego (Esc)"
     },
     "dmNotesModal": {
       "title": "Notas del DM",
@@ -3850,7 +3851,7 @@
       "exitF11": "Salir (F11)",
       "enterF11": "Entrar (F11)",
       "createCharacter": "Crear personaje",
-      "returnToLobby": "Volver a la sala",
+      "returnToLobby": "Salir de la sesión",
       "endSession": "Finalizar sesión",
       "endSessionConfirmTitle": "¿Finalizar sesión?",
       "endSessionConfirmMessage": "Esto finaliza la sesión para todos los jugadores. ¿Estás seguro?",
@@ -5197,7 +5198,8 @@
       "unknownItem": "Objeto desconocido"
     },
     "libraryCategoryGrid": {
-      "itemsCount": "{{count}} objetos",
+      "itemsCount_one": "{{count}} objeto",
+      "itemsCount_other": "{{count}} objetos",
       "customCount": "{{count}} personalizados"
     },
     "libraryDetailModal": {
@@ -6016,7 +6018,7 @@
       "joinGameDescription": "Conéctate a una partida alojada por tu Dungeon Master",
       "bastionsLabel": "Bastiones",
       "bastionsDescription": "Gestiona tus fortalezas, salas y asalariados",
-      "aboutLabel": "Acerca de y datos",
+      "aboutLabel": "Información y datos",
       "aboutDescription": "Información de la app, actualizaciones y copia de seguridad/restauración de tus datos",
       "kickedMessage": "El DM te expulsó de la partida.",
       "bannedMessage": "El DM te baneó de la partida.",
@@ -6076,6 +6078,10 @@
       "copied": "¡Copiado!",
       "privateInviteOnly": "Privada — solo por invitación",
       "publicListed": "Pública — listada en el explorador",
+      "publicListing": "Pública — listando…",
+      "publicNotListed": "Pública — NO listada (registro inalcanzable)",
+      "publicListFailedTitle": "No se pudo listar esta partida en el explorador público",
+      "publicListFailedBody": "No se pudo contactar con el registro de partidas, por lo que otros jugadores no la verán en el explorador. Aún pueden unirse con el código de invitación en la misma red, o revisa tu conexión BMO en Ajustes.",
       "togglePublicTitle": "Alternar si esta partida se lista en el explorador público",
       "makePublic": "Hacer pública",
       "makePrivate": "Hacer privada",
@@ -6593,6 +6599,9 @@
       "eventToggles": "Interruptores de eventos",
       "testCharacter": "Personaje de prueba",
       "testNotification": "Notificación de prueba",
+      "testNotificationSent": "Notificación de prueba enviada.",
+      "testNotificationDisabled": "Las notificaciones están desactivadas: actívalas arriba para recibir notificaciones.",
+      "testNotificationUnsupported": "No se ha concedido el permiso de notificaciones de escritorio en este entorno.",
       "autoSave": "Guardado automático",
       "resetAutoSaveDefaults": "Restablecer valores de guardado automático predeterminados",
       "enableAutoSave": "Activar guardado automático",

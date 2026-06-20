@@ -276,7 +276,11 @@ export default function AbilityScoreModal(): JSX.Element {
                     value={score}
                     min={1}
                     max={20}
-                    onChange={(e) => setScore(ab, parseInt(e.target.value, 10) || 1)}
+                    onChange={(e) => {
+                      const parsed = parseInt(e.target.value, 10)
+                      // Keep the previous value on empty/NaN input; setScore clamps to [1,20].
+                      setScore(ab, Number.isNaN(parsed) ? score : parsed)
+                    }}
                     className="w-16 mx-auto bg-surface border border-gray-600 rounded text-center text-lg font-bold text-fg py-1 focus:outline-none focus:border-amber-500"
                   />
                 )}

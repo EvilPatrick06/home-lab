@@ -3,7 +3,7 @@
  * Run `npm run i18n:gen-keys` (scripts/i18n/gen-key-union.mjs) to regenerate
  * after changing en.json. Source: src/renderer/src/i18n/locales/en.json.
  *
- * A literal union of every dotted leaf key in en.json (6451 keys),
+ * A literal union of every dotted leaf key in en.json (6461 keys),
  * so `t()` calls are checked at compile time instead of silently rendering a
  * raw key string when a key is typo'd or missing.
  */
@@ -1594,6 +1594,7 @@ export type TranslationKey =
   | 'game.dmBottomBar.shareMacros'
   | 'game.dmBottomBar.shareMacrosTitle'
   | 'game.dmMapEditor.closeEditor'
+  | 'game.dmMapEditor.closeEditorHint'
   | 'game.dmMapEditor.defaultMapName'
   | 'game.dmMapEditor.resize'
   | 'game.dmMapEditor.round'
@@ -4439,6 +4440,8 @@ export type TranslationKey =
   | 'library.itemCardView.weightValue'
   | 'library.libraryCategoryGrid.customCount'
   | 'library.libraryCategoryGrid.itemsCount'
+  | 'library.libraryCategoryGrid.itemsCount_one'
+  | 'library.libraryCategoryGrid.itemsCount_other'
   | 'library.libraryDetailModal.cloneAsHomebrew'
   | 'library.libraryDetailModal.confirmDelete'
   | 'library.libraryDetailModal.dragHint'
@@ -5234,7 +5237,11 @@ export type TranslationKey =
   | 'pages.lobbyPage.prepBackToMenu'
   | 'pages.lobbyPage.prepCampaignNotFound'
   | 'pages.lobbyPage.privateInviteOnly'
+  | 'pages.lobbyPage.publicListFailedBody'
+  | 'pages.lobbyPage.publicListFailedTitle'
   | 'pages.lobbyPage.publicListed'
+  | 'pages.lobbyPage.publicListing'
+  | 'pages.lobbyPage.publicNotListed'
   | 'pages.lobbyPage.scenePrepFailed'
   | 'pages.lobbyPage.scenePrepRetry'
   | 'pages.lobbyPage.scenePreparing'
@@ -5630,6 +5637,9 @@ export type TranslationKey =
   | 'pages.settingsPage.swapBindings'
   | 'pages.settingsPage.testCharacter'
   | 'pages.settingsPage.testNotification'
+  | 'pages.settingsPage.testNotificationDisabled'
+  | 'pages.settingsPage.testNotificationSent'
+  | 'pages.settingsPage.testNotificationUnsupported'
   | 'pages.settingsPage.theme'
   | 'pages.settingsPage.themeDark'
   | 'pages.settingsPage.themeHighContrast'

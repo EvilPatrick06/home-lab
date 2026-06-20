@@ -210,7 +210,8 @@ export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JS
         </button>
         <button
           onClick={onClose}
-          className="px-3 py-1 text-xs font-semibold text-gray-300 hover:text-white bg-surface-2 hover:bg-gray-700 border border-border rounded-lg transition-colors cursor-pointer"
+          title={t('game.dmMapEditor.closeEditorHint')}
+          className="px-3 py-1 text-xs font-semibold text-white bg-amber-600 hover:bg-accent-strong border border-amber-500 rounded-lg transition-colors cursor-pointer"
         >
           {t('game.dmMapEditor.closeEditor')}
         </button>
