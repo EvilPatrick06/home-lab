@@ -33,6 +33,7 @@ export const MESSAGE_TYPES = [
   'dm:transfer-dm',
   'dm:game-start',
   'dm:game-end',
+  'dm:return-to-lobby',
   'dm:character-update',
   'dm:shop-update',
   'dm:slow-mode',

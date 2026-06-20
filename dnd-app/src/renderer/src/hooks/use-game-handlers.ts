@@ -51,6 +51,7 @@ interface UseGameHandlersOptions {
 interface UseGameHandlersReturn {
   handleReadAloud: (text: string, style: 'chat' | 'dramatic') => void
   handleLeaveGame: (destination: string) => Promise<void>
+  handleReturnToLobby: () => void
   handleSaveCampaign: () => Promise<void>
   handleEndSession: () => void
   getCampaignCharacterIds: () => string[]
@@ -134,6 +135,16 @@ export function useGameHandlers({
         window.location.reload()
       }
     }, 0)
+  }
+
+  const handleReturnToLobby = (): void => {
+    // Non-destructive: keep the network session + host alive — just send everyone
+    // back to the ready-up lobby. (End Session / Leave Game do the full teardown.)
+    // gameStore is intentionally NOT reset, so the in-memory scene survives and a
+    // subsequent Start Game resumes exactly where it left off.
+    useLobbyStore.getState().setReturnedToLobby(true)
+    if (isDM) sendMessage('dm:return-to-lobby', { campaignId: campaign.id })
+    navigate(`/lobby/${campaign.id}`)
   }
 
   const handleSaveCampaign = async (): Promise<void> => {
@@ -436,6 +447,7 @@ export function useGameHandlers({
   return {
     handleReadAloud,
     handleLeaveGame,
+    handleReturnToLobby,
     handleSaveCampaign,
     handleEndSession,
     getCampaignCharacterIds,

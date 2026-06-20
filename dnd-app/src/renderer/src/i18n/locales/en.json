@@ -3851,7 +3851,7 @@
       "exitF11": "Exit (F11)",
       "enterF11": "Enter (F11)",
       "createCharacter": "Create Character",
-      "returnToLobby": "Leave Session",
+      "returnToLobby": "Return to Lobby",
       "endSession": "End Session",
       "endSessionConfirmTitle": "End session?",
       "endSessionConfirmMessage": "This ends the session for everyone in the game. Are you sure?",

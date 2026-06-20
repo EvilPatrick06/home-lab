@@ -37,6 +37,9 @@ interface SettingsDropdownProps {
   onToggleFullscreen: () => void
   isFullscreen: boolean
   onLeaveGame: (destination: string) => void
+  /** Non-destructive: go back to the ready-up lobby, keeping the session alive.
+   * Distinct from End Session / Leave Game (which tear the session down). */
+  onReturnToLobby: () => void
   onSaveCampaign?: () => Promise<void>
   onEndSession?: () => void
   onCreateCharacter?: () => void
@@ -292,6 +295,7 @@ export default function SettingsDropdown({
   onToggleFullscreen,
   isFullscreen,
   onLeaveGame,
+  onReturnToLobby,
   onSaveCampaign,
   onEndSession,
   onCreateCharacter
@@ -438,7 +442,7 @@ export default function SettingsDropdown({
               </button>
             )}
             <button
-              onClick={() => onLeaveGame(`/campaign/${campaign.id}`)}
+              onClick={onReturnToLobby}
               className="w-full px-4 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
             >
               {t('game.settingsDropdown.returnToLobby')}

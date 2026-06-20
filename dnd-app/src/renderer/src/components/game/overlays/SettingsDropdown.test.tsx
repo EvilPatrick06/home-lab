@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -42,8 +42,10 @@ function makeCampaign(aiDm: any) {
   return { id: 'c1', name: 'Test', players: [], aiDm } as any
 }
 
-function renderDropdown(aiDm: unknown) {
-  return render(
+function renderDropdown(aiDm: unknown, handlers: { onLeaveGame?: () => void; onReturnToLobby?: () => void } = {}) {
+  const onLeaveGame = handlers.onLeaveGame ?? vi.fn()
+  const onReturnToLobby = handlers.onReturnToLobby ?? vi.fn()
+  render(
     <MemoryRouter>
       <SettingsDropdown
         campaign={makeCampaign(aiDm)}
@@ -52,10 +54,12 @@ function renderDropdown(aiDm: unknown) {
         onToggle={vi.fn()}
         onToggleFullscreen={vi.fn()}
         isFullscreen={false}
-        onLeaveGame={vi.fn()}
+        onLeaveGame={onLeaveGame}
+        onReturnToLobby={onReturnToLobby}
       />
     </MemoryRouter>
   )
+  return { onLeaveGame, onReturnToLobby }
 }
 
 describe('SettingsDropdown AI DM label (PHASE-10 10A)', () => {
@@ -68,5 +72,19 @@ describe('SettingsDropdown AI DM label (PHASE-10 10A)', () => {
     renderDropdown({ enabled: true, provider: 'gemini', model: 'gemini-2.0-flash' })
     expect(screen.getByText('gemini-2.0-flash')).toBeTruthy()
     expect(screen.queryByText(/Ollama/)).toBeNull()
+  })
+})
+
+describe('SettingsDropdown — Return to Lobby (non-destructive)', () => {
+  it('"Return to Lobby" calls onReturnToLobby and does NOT tear the session down', () => {
+    const onLeaveGame = vi.fn()
+    const onReturnToLobby = vi.fn()
+    renderDropdown({ enabled: false }, { onLeaveGame, onReturnToLobby })
+
+    fireEvent.click(screen.getByText('Return to Lobby'))
+
+    expect(onReturnToLobby).toHaveBeenCalledTimes(1)
+    // Must NOT use the leave/teardown path (that's End Session / Leave Game).
+    expect(onLeaveGame).not.toHaveBeenCalled()
   })
 })

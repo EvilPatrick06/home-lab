@@ -13,6 +13,7 @@ import { addToast } from '../../hooks/use-toast'
 import type { PortalEntryInfo } from '../../hooks/use-token-movement'
 import { useTokenMovement } from '../../hooks/use-token-movement'
 import { useT } from '../../i18n'
+import { onClientMessage } from '../../network'
 import { useChatBridge } from '../../pages/lobby/use-lobby-bridges'
 import { exitSceneMode } from '../../services/game/scene-mode-controller'
 import { buildTokenStubFromCharacter } from '../../services/game-actions/character-token'
@@ -335,6 +336,20 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
     }
   }, [currentInitEntity, networkRole, character, sendMessage, gameStore])
 
+  // Client follow: when the host sends everyone back to the ready-up lobby
+  // (Return to Lobby), navigate there too — WITHOUT disconnecting. The
+  // returnedToLobby flag stops LobbyPage's in-progress auto-nav from bouncing
+  // the client straight back into /game.
+  useEffect(() => {
+    if (networkRole !== 'client') return
+    return onClientMessage((msg: { type: string; payload: unknown }) => {
+      if (msg.type === 'dm:return-to-lobby') {
+        useLobbyStore.getState().setReturnedToLobby(true)
+        navigate(`/lobby/${campaign.id}`)
+      }
+    })
+  }, [networkRole, campaign.id, navigate])
+
   // Load/save macros for current character
   useEffect(() => {
     if (character?.id) {
@@ -565,6 +580,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
   const {
     handleReadAloud,
     handleLeaveGame,
+    handleReturnToLobby,
     handleSaveCampaign,
     handleEndSession,
     getCampaignCharacterIds,
@@ -956,6 +972,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
           onToggleFullscreen={handleToggleFullscreen}
           isFullscreen={isFullscreen}
           onLeaveGame={handleLeaveGame}
+          onReturnToLobby={handleReturnToLobby}
           onSaveCampaign={effectiveIsDM ? handleSaveCampaign : undefined}
           onEndSession={effectiveIsDM ? handleEndSession : undefined}
           onCreateCharacter={effectiveIsDM ? handleCreateCharacter : undefined}

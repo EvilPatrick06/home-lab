@@ -32,6 +32,7 @@ export default function LobbyPage(): JSX.Element {
   const { campaignId } = useParams<{ campaignId: string }>()
 
   const { setCampaignId, setIsHost, addPlayer, reset: resetLobby } = useLobbyStore()
+  const returnedToLobby = useLobbyStore((s) => s.returnedToLobby)
   const { connectionState, inviteCode, localPeerId, displayName, role, disconnect, latencyMs } = useNetworkStore()
   // Phase 32 — cloud relay status (DM-only panel below).
   const connectionMode = useNetworkStore((s) => s.connectionMode)
@@ -338,6 +339,9 @@ export default function LobbyPage(): JSX.Element {
     if (role !== 'client') return
     const unsub = onClientMessage((msg: { type: string; payload: unknown }) => {
       if (msg.type === 'dm:game-start') {
+        // A fresh start re-enables the in-progress auto-nav suppressed by a prior
+        // Return to Lobby, so the client follows the host back into /game.
+        useLobbyStore.getState().setReturnedToLobby(false)
         const payload = msg.payload as { campaignId?: string; campaign?: Campaign }
         logger.info('Game start received, navigating to game:', payload.campaign?.id ?? campaignId)
         if (payload.campaign) {
@@ -362,12 +366,15 @@ export default function LobbyPage(): JSX.Element {
   const inGameAutoNavigated = useRef(false)
   useEffect(() => {
     if (role !== 'client') return
+    // Host pressed "Return to Lobby" — stay in the lobby instead of bouncing back
+    // into the in-progress game.
+    if (returnedToLobby) return
     if (inGameAutoNavigated.current) return
     if (!gameActiveMapId || !campaignId) return
     inGameAutoNavigated.current = true
     logger.info('[Lobby] Detected in-progress game on rejoin → auto-navigating to /game/', campaignId)
     navigate(`/game/${campaignId}`)
-  }, [role, gameActiveMapId, campaignId, navigate])
+  }, [role, gameActiveMapId, campaignId, navigate, returnedToLobby])
 
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 

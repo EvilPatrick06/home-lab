@@ -176,8 +176,13 @@ interface LobbyState {
   fileSharingEnabled: boolean
   chatMutedUntil: number | null // timestamp (ms) until which local player is chat-muted
   whisperHistory: ChatMessage[]
+  /** Set when a host sends everyone back to the ready-up lobby mid-session
+   * (Return to Lobby); suppresses LobbyPage's in-progress auto-navigate so a
+   * client doesn't immediately bounce back into /game. Cleared on game-start / reset. */
+  returnedToLobby: boolean
 
   setCampaignId: (id: string | null) => void
+  setReturnedToLobby: (v: boolean) => void
   addPlayer: (player: LobbyPlayer) => void
   removePlayer: (peerId: string) => void
   updatePlayer: (peerId: string, updates: Partial<LobbyPlayer>) => void
@@ -219,8 +224,10 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
   fileSharingEnabled: true,
   chatMutedUntil: null,
   whisperHistory: [],
+  returnedToLobby: false,
 
   setCampaignId: (id) => set({ campaignId: id }),
+  setReturnedToLobby: (v) => set({ returnedToLobby: v }),
 
   addPlayer: (player) => {
     let shouldNotify = false
@@ -576,7 +583,8 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
       slowModeSeconds: 0,
       fileSharingEnabled: true,
       chatMutedUntil: null,
-      whisperHistory: []
+      whisperHistory: [],
+      returnedToLobby: false
     })
 }))
 
