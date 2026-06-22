@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "wrangler": "^4.86.0"
+    "wrangler": "^4.103.0"
   },
   "overrides": {
     "ws": "^8.21.0",
