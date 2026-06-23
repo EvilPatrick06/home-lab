@@ -27,7 +27,7 @@ const CSP = [
   "style-src 'self' 'unsafe-inline'", // Tailwind runtime + React style={{}} attributes
   "img-src 'self' data: https://avatars.githubusercontent.com", // GH avatars + data: SVG noise bg
   "font-src 'self' data:", // KaTeX fonts are bundled same-origin
-  `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.workers.dev${oracleOrigin ? ` ${oracleOrigin}` : ''}`,
+  `connect-src 'self' https://*.supabase.co wss://*.supabase.co${oracleOrigin ? ` ${oracleOrigin}` : ''}`,
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

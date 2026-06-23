@@ -3,7 +3,6 @@ import {
   saveSession,
   loadSession,
   clearSession,
-  clearAllSessions,
   SESSION_KIND,
 } from './sessionResume.js';
 
@@ -50,15 +49,6 @@ describe('sessionResume', () => {
     expect(loadSession(SESSION_KIND.FLASHCARDS)).toMatchObject({ y: 2 });
   });
 
-  it('clearAllSessions removes every kind', () => {
-    saveSession(SESSION_KIND.QUIZ, { a: 1 });
-    saveSession(SESSION_KIND.FLASHCARDS, { b: 2 });
-    saveSession(SESSION_KIND.EXAM, { c: 3 });
-    clearAllSessions();
-    Object.values(SESSION_KIND).forEach(k => {
-      expect(loadSession(k)).toBeNull();
-    });
-  });
 
   it('survives malformed JSON in storage by returning null', () => {
     localStorage.setItem('ds:session:quiz', 'not json');

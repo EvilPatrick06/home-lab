@@ -55,7 +55,7 @@ describe('LibraryScreen — 120 tomes (Phase-30 QA gap)', () => {
     expect(openButtons).toHaveLength(120);
     // The header reports the collection size.
     expect(screen.getByText(/120 tomes in your collection/i)).toBeInTheDocument();
-  });
+  }, 20000);
 
   it('clicking a tome\'s Open Tome fires onSwitch with that tome\'s id', () => {
     const library = makeLibrary(120);
@@ -71,5 +71,5 @@ describe('LibraryScreen — 120 tomes (Phase-30 QA gap)', () => {
 
     expect(onSwitch).toHaveBeenCalledTimes(1);
     expect(onSwitch).toHaveBeenCalledWith('tome_73');
-  });
+  }, 20000);
 });

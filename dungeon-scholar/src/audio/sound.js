@@ -349,10 +349,3 @@ export const disarmAutoSuspend = () => {
   }
 };
 
-export const closeAudio = async () => {
-  stopBgm();
-  if (ctx) {
-    try { await ctx.close(); } catch { /* already closed */ }
-    ctx = null; masterGain = null; bgmGain = null; sfxGain = null;
-  }
-};

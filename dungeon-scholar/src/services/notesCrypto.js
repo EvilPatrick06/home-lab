@@ -24,8 +24,10 @@ const toB64 = (bytes) => {
 const fromB64 = (b64) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
 
 // ---- derived-key cache ----------------------------------------------------
-// Keyed by `${saltB64}|${iterations}`. Caches the non-extractable CryptoKey so
-// repeated saves in one session don't re-pay the ~100-300ms derivation cost.
+// Keyed by `${passphrase}|${saltB64}|${iterations}` — the passphrase component
+// is required for correctness (two passphrases sharing a salt must not collide).
+// Caches the non-extractable CryptoKey so repeated saves in one session don't
+// re-pay the ~100-300ms derivation cost.
 // Never persisted — process-memory only, cleared via clearKeyCache().
 const keyCache = new Map();
 
@@ -39,7 +41,7 @@ export function clearKeyCache() {
 /**
  * Derive a 256-bit AES-GCM key from a passphrase + salt via PBKDF2-SHA-256.
  * Result is non-extractable and usable for encrypt/decrypt. Caches by
- * salt|iterations so repeated derivations in a session are free.
+ * passphrase|salt|iterations so repeated derivations in a session are free.
  *
  * @param {string} passphrase
  * @param {Uint8Array} saltBytes

@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
   generateMap,
-  generateStarterMap,
   pickBiomeForSubject,
   BIOMES,
   BIOME_BOSS_POOL,
@@ -135,13 +134,6 @@ describe('generateMap', () => {
   });
 });
 
-describe('generateStarterMap', () => {
-  it('returns an apprentice-sized map by default', () => {
-    const out = generateStarterMap({ rng: seedRng(1) });
-    expect(out.width).toBe(SIZE_BY_DIFFICULTY.apprentice.w);
-    expect(out.height).toBe(SIZE_BY_DIFFICULTY.apprentice.h);
-  });
-});
 
 describe('BIOME_BOSS_POOL (25b — random boss per delve)', () => {
   it('every biome has at least 2 candidate bosses', () => {

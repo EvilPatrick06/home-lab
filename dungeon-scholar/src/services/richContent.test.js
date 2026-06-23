@@ -249,6 +249,17 @@ describe('parseRichContent', () => {
       const out = parseRichContent('see [docs](https://example.com)');
       expect(out.map(n => n.type)).toEqual(['text', 'link']);
     });
+
+    it('rejects a javascript: link href, emitting literal text', () => {
+      const out = parseRichContent('[click](javascript:stealCookies)');
+      expect(out.map(n => n.type)).toEqual(['text']);
+      expect(out[0].content).toBe('[click](javascript:stealCookies)');
+    });
+
+    it('rejects a data: link href, emitting literal text', () => {
+      const out = parseRichContent('[y](data:text/html,hi)');
+      expect(out.every(n => n.type === 'text')).toBe(true);
+    });
   });
 });
 

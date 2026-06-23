@@ -8,6 +8,7 @@
     "url": "https://github.com/EvilPatrick06/home-lab.git"
   },
   "main": "./out/main/index.js",
+  "engines": { "node": ">=22" },
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",

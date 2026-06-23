@@ -106,6 +106,10 @@ export const DAILY_QUEST_POOL = [
     target: 3,
     xp: 75,
     counter: 'modesUsedToday',
+    // modesUsedToday resets each day, so the diff-from-baseline math (built
+    // for cumulative counters) double-counts yesterday's modes. absolute
+    // compares the live (already today-only) count directly against target.
+    absolute: true,
   },
   {
     id: 'card_marathon',
