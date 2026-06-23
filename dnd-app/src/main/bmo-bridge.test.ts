@@ -26,6 +26,7 @@ import {
   __resetSyncReceiverState,
   applySyncBindFromSettings,
   cancelNarration,
+  enforceKeyedBind,
   getDiscordRecap,
   getDmStatus,
   pbpAdvance,
@@ -447,5 +448,23 @@ describe('play-by-post bridge (PHASE-36 36D)', () => {
     await vi.runAllTimersAsync()
     await p
     expect(String(fetchMock.mock.calls[0][0])).toContain('/api/discord/pbp/status?campaign_id=c1%2Fx')
+  })
+})
+
+describe('enforceKeyedBind (SEC: non-loopback requires a shared secret)', () => {
+  beforeEach(() => getBmoApiKey.mockReturnValue(undefined))
+  it('passes loopback hosts through regardless of key', () => {
+    expect(enforceKeyedBind('127.0.0.1')).toBe('127.0.0.1')
+    expect(enforceKeyedBind('::1')).toBe('::1')
+    expect(enforceKeyedBind('localhost')).toBe('localhost')
+  })
+  it('forces loopback for a non-loopback host when NO key is configured', () => {
+    getBmoApiKey.mockReturnValue(undefined)
+    expect(enforceKeyedBind('0.0.0.0')).toBe('127.0.0.1')
+    expect(enforceKeyedBind('192.168.1.10')).toBe('127.0.0.1')
+  })
+  it('allows a non-loopback host when a key IS configured', () => {
+    getBmoApiKey.mockReturnValue('secret-token')
+    expect(enforceKeyedBind('0.0.0.0')).toBe('0.0.0.0')
   })
 })

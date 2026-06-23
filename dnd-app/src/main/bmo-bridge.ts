@@ -22,6 +22,24 @@ const SYNC_RECEIVER_PORT = parseInt(process.env.BMO_SYNC_PORT || '5001', 10)
 const SYNC_BIND_ENV =
   process.env.BMO_SYNC_BIND && process.env.BMO_SYNC_BIND.trim() !== '' ? process.env.BMO_SYNC_BIND : ''
 let SYNC_BIND = SYNC_BIND_ENV || '127.0.0.1'
+
+function isLoopbackHost(host: string): boolean {
+  return host === '127.0.0.1' || host === '::1' || host === 'localhost'
+}
+
+// Security coupling (SEC log 2026-06-22): a non-loopback bind reach REQUIRES a
+// configured shared secret. Returns the requested host when it is loopback or a
+// key exists; otherwise refuses the non-loopback bind and forces loopback. This
+// closes the gap where the BMO_SYNC_BIND env override bound 0.0.0.0 with no key
+// (the settings path already required a key; the env path did not).
+export function enforceKeyedBind(requested: string): string {
+  if (isLoopbackHost(requested) || getBmoApiKey()) return requested
+  logToFile(
+    'ERROR',
+    `[bmo-bridge] Refusing to bind sync receiver to non-loopback host ${requested} with no shared secret configured — forcing 127.0.0.1. Set BMO_API_KEY (or bmoApiKey in settings) to enable LAN reach.`
+  )
+  return '127.0.0.1'
+}
 // Phase 28a.2 — cap inbound sync-receiver bodies (Pi callbacks are small JSON).
 const MAX_BODY_BYTES = 64 * 1024
 // Phase 28c.1 — retry schedule for transient BMO failures (not 4xx).
@@ -101,7 +119,7 @@ export function isBargeInEnabled(): boolean {
 export function applySyncBindFromSettings(settings: { bmoSyncLanEnabled?: boolean } | null | undefined): string {
   let host = '127.0.0.1'
   if (SYNC_BIND_ENV) {
-    host = SYNC_BIND_ENV
+    host = enforceKeyedBind(SYNC_BIND_ENV)
   } else if (settings?.bmoSyncLanEnabled === true) {
     if (getBmoApiKey()) {
       host = '0.0.0.0'
@@ -637,6 +655,9 @@ export function startSyncReceiver(port = SYNC_RECEIVER_PORT): void {
   // Phase 28a.2 — bind to loopback (or BMO_SYNC_BIND override) so the
   // receiver isn't reachable off-box. The Pi bot connects via SSH tunnel /
   // localhost forward.
+  // SEC log 2026-06-22 — final authoritative guard: never bind non-loopback
+  // without a configured shared secret, regardless of how SYNC_BIND was set.
+  SYNC_BIND = enforceKeyedBind(SYNC_BIND)
   syncServer.listen(port, SYNC_BIND, () => {
     logToFile('INFO', `[bmo-bridge] Sync receiver listening on ${SYNC_BIND}:${port}`)
   })
