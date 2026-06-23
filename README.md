@@ -91,6 +91,7 @@ Tool-specific instruction files: [`CLAUDE.md`](./CLAUDE.md), [`GEMINI.md`](./GEM
 **Cross-cutting:**
 - [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) — how dnd-app + bmo communicate
 - [`docs/DATA-FLOW.md`](./docs/DATA-FLOW.md) — where data lives, how it moves
+- [`docs/RULES-RETRIEVAL.md`](./docs/RULES-RETRIEVAL.md) — cross-engine rules-retrieval stack (dnd-app TS + bmo Python)
 - [`docs/SETUP.md`](./docs/SETUP.md) — full clone-to-running guide
 - [`docs/COMMANDS.md`](./docs/COMMANDS.md) — common-commands cheat sheet
 - [`docs/GLOSSARY.md`](./docs/GLOSSARY.md) — beginner-friendly term index

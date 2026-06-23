@@ -24,6 +24,10 @@ on:
       - 'bmo/pi/data/5e/**'
       - '.github/workflows/dnd-app-ci.yml'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 

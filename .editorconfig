@@ -1,5 +1,23 @@
 root = true
 
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{ts,tsx,js,jsx,mjs,cjs,json,yml,yaml}]
+indent_style = space
+indent_size = 2
+
+[*.py]
+indent_style = space
+indent_size = 4
+
+[*.md]
+trim_trailing_whitespace = false
+
+# Keep the original shell-script rule (added to stop a BOM regression).
 [*.sh]
 charset = utf-8
 insert_final_newline = true

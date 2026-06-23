@@ -1,0 +1,35 @@
+name: oracle-worker deploy
+
+# Manual, tracked deploy of the dungeon-scholar Oracle Worker. Triggered on
+# demand (workflow_dispatch) so the deploy is reproducible/auditable without
+# auto-publishing on every push. Requires repo secret CLOUDFLARE_API_TOKEN
+# (scoped to Workers Scripts:Edit for the dungeon-scholar-oracle worker).
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: oracle-worker
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: oracle-worker/package-lock.json
+      - run: npm ci
+      - name: wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: npx wrangler deploy

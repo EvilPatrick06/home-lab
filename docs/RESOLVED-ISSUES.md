@@ -280,3 +280,241 @@ The repo root has a `node_modules/` directory containing only `.vite/` and `.vit
 - [ ] If a root-level install is ever intended (e.g. shared dev tooling / a real workspace), add a root `package.json` to make it explicit; otherwise leave none.
 
 **Related files:** `node_modules/` (repo root), `.gitignore`
+
+### [2026-06-22] `security-audit.yml` never runs for `dungeon-scholar` or `oracle-worker` — their npm dependency trees get no CI vulnerability audit at all
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Added `dungeon-scholar/**` + `oracle-worker/**` to security-audit.yml push/PR paths and two new npm-audit jobs (dungeon-scholar production-deps moderate+, oracle-worker high+), so every tracked npm project is covered by the CI dependency-audit gate.
+
+- **Category:** config
+- **Severity:** medium
+- **Domain:** both
+- **Discovered by:** overall-errors
+- **During:** cross-cutting/repo-wide error scan of CI dependency/security coverage across all four projects.
+
+**Description:**
+`.github/workflows/security-audit.yml` is the repo's dependency-vulnerability gate (npm `audit:ci` for dnd-app, bandit + pip-audit for bmo). Its `push`/`pull_request` `paths:` filters are limited to `dnd-app/**`, `bmo/**`, `.github/workflows/security-audit.yml`, and `.githooks/**`, and its only two jobs are `dnd-npm-audit` (working-directory `dnd-app`) and `bmo-bandit-ide`. There is **no job and no trigger path for `dungeon-scholar/**` or `oracle-worker/**`.** Both are tracked npm projects with their own `package-lock.json`: `dungeon-scholar` ships the Supabase-auth study app (security-sensitive auth wiring) and `oracle-worker` is the Cloudflare Worker proxy that performs AI grading/chat for dungeon-scholar. Editing either project's `package.json`/lockfile to pull in a vulnerable transitive dep would **never** trigger an `npm audit` in CI. The weekly `schedule:` cron in the same file also only runs the existing two jobs, so there is no out-of-band catch either. dungeon-scholar's `deploy.yml` runs `npm run test` + `npm run build` but no audit, so the Pages deploy path does not compensate. Net: 2 of the 4 projects (one of them the auth-bearing one) have zero CI dependency-vulnerability scanning.
+
+**Reproduction (if bug):**
+1. `grep -n "paths\|working-directory\|dungeon-scholar\|oracle-worker" .github/workflows/security-audit.yml` → paths are `dnd-app/**`, `bmo/**`, the workflow, `.githooks/**`; jobs are `dnd-app` + `bmo` only.
+2. `grep -rl dungeon-scholar .github/workflows/` → `deploy.yml` only (no audit step); `grep -rl oracle-worker .github/workflows/` → nothing.
+3. Add a known-vulnerable dep to `dungeon-scholar/package.json` (or `oracle-worker/`), push.
+4. Observed: `Security audit` workflow does not run for that change; no `npm audit` failure surfaces.
+
+**Expected behavior (if bug):** every tracked npm project (dnd-app, dungeon-scholar, oracle-worker) and the pip project (bmo) should be covered by the dependency-audit gate, with trigger paths and jobs to match.
+
+**Hypothesis / root cause:** `security-audit.yml` was authored when only dnd-app + bmo existed (or were the only projects deemed in-scope); dungeon-scholar and oracle-worker were added later and never wired into the audit workflow's paths/jobs. Speculative on history; the path/job omissions are verified above.
+
+**Proposed fix / improvement:**
+- [ ] Add `dungeon-scholar/**` and `oracle-worker/**` to the `push`/`pull_request` `paths:` filters.
+- [ ] Add a `dungeon-scholar` npm-audit job (and an `oracle-worker` one, or fold the Worker into a shared npm-audit matrix) mirroring the `dnd-npm-audit` job.
+- [ ] Decide whether dungeon-scholar's auth-bearing deps warrant a stricter audit threshold than `moderate+`.
+
+**Blocked by:** nothing.
+
+**Related files:** `.github/workflows/security-audit.yml` (paths + jobs), `.github/workflows/deploy.yml` (dungeon-scholar build, no audit), `dungeon-scholar/package.json`, `dungeon-scholar/package-lock.json`, `oracle-worker/package.json`, `oracle-worker/package-lock.json`.
+
+**Related entries:** ISSUES-LOG.md → "[2026-06-22] No tracked `.github/dependabot.yml`" (the other half of the dependency-hygiene gap — Dependabot security updates are the *only* thing currently auditing dungeon-scholar/oracle-worker deps, and even those produce no scheduled version bumps).
+
+### [2026-06-22] `oracle-worker` is a production component with ZERO CI wiring — no lint/test/typecheck/deploy workflow, and its `npm test` is the failing default stub
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Added `.github/workflows/oracle-worker-ci.yml` (push/PR on oracle-worker/**: npm ci + `wrangler deploy --dry-run` build validation + test) and a manual `oracle-worker-deploy.yml` (workflow_dispatch, `wrangler deploy` via CLOUDFLARE_API_TOKEN). Replaced the failing default `test` stub with an explicit `exit 0` no-op and added `check`/`deploy` scripts.
+
+- **Category:** config, debt
+- **Severity:** medium
+- **Domain:** both
+- **Discovered by:** overall-errors
+- **During:** cross-cutting/repo-wide error scan of monorepo CI wiring vs. tracked projects.
+
+**Description:**
+`oracle-worker/` is a tracked, real production component: it is the Cloudflare Worker (`wrangler.toml` → `name = "dungeon-scholar-oracle"`, `src/worker.js`) that dungeon-scholar calls for AI grading + chat (`deploy.yml` injects `VITE_ORACLE_ENDPOINT` pointing at it). Yet **no GitHub Actions workflow references `oracle-worker` at all** (`grep -rl oracle-worker .github/workflows/` → empty). Consequences: (1) no CI lint/typecheck/test gate runs on changes to `oracle-worker/src/worker.js`; (2) its `package.json` `test` script is the npm scaffold default `echo "Error: no test specified" && exit 1`, so there is not even a local test entrypoint; (3) there is no `wrangler deploy` workflow, so the Worker is presumably deployed by hand — the deploy step is undocumented in CI and not reproducible/auditable. The only automated coverage it receives is incidental: CodeQL's `javascript-typescript` analysis scans `worker.js` (it is not in `codeql-config.yml`'s `paths-ignore`). So a regression in the Worker that breaks dungeon-scholar's AI grading/chat would pass all CI and only surface in production.
+
+**Reproduction (if bug):**
+1. `grep -rl oracle-worker .github/workflows/` → no results.
+2. `cat oracle-worker/package.json` → `"test": "echo \"Error: no test specified\" && exit 1"`, no lint/build/deploy scripts.
+3. Edit `oracle-worker/src/worker.js`, push to any branch.
+4. Observed: no oracle-worker-specific workflow runs; nothing gates the change.
+
+**Expected behavior (if bug):** the Worker should have at minimum a CI lint/typecheck (and ideally a smoke test) gate, a real `test` script (or an explicit no-op that exits 0 with a comment), and a tracked deploy path (e.g. a `wrangler deploy` workflow gated on a green check) so its release is reproducible.
+
+**Hypothesis / root cause:** `oracle-worker` was added as a small auxiliary Worker and never folded into the monorepo's CI conventions; the default `package.json` from `npm init` was committed unmodified. Speculative on history; the absence of workflow references and the stub test script are verified.
+
+**Proposed fix / improvement:**
+- [ ] Add a CI job (lint + typecheck/`wrangler deploy --dry-run` or `wrangler check`) triggered on `oracle-worker/**`.
+- [ ] Replace the failing default `test` stub with a real test or an intentional `exit 0` no-op (so a future generic `npm test` loop over projects does not spuriously fail).
+- [ ] Add a tracked `wrangler deploy` workflow (or document that deploys are manual) so the Worker release is reproducible/auditable.
+
+**Blocked by:** nothing.
+
+**Related files:** `oracle-worker/package.json` (stub test, no lint/build/deploy), `oracle-worker/src/worker.js`, `oracle-worker/wrangler.toml`, `.github/workflows/deploy.yml` (consumes the Worker via `VITE_ORACLE_ENDPOINT`), `.github/codeql/codeql-config.yml` (only incidental coverage).
+
+### [2026-06-22] Inconsistent CI concurrency policy — `dnd-app-ci`, `dnd-app-validate-5e`, and `security-audit` have NO `concurrency:` group, so integrator/agent push bursts spawn piled-up redundant runs
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Added `concurrency` groups to dnd-app-ci.yml + dnd-app-validate-5e.yml (cancel-in-progress: true, fast-feedback) and security-audit.yml (cancel-in-progress: false, security scanner), plus the new oracle-worker-ci.yml — uniform convention (cancel for gates, no-cancel for scanners).
+
+- **Category:** config, performance
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-errors
+- **During:** cross-cutting/repo-wide error scan of CI cadence vs. the many-automated-agent commit model.
+
+**Description:**
+Concurrency control is applied inconsistently across the monorepo's workflows. The bmo workflows each declare a `concurrency:` group with `cancel-in-progress: true` (`bmo-pi-pytest.yml`, `bmo-docker-build.yml`), `deploy.yml` has `group: pages`, and `codeql.yml` has one too. But `dnd-app-ci.yml`, `dnd-app-validate-5e.yml`, and `security-audit.yml` have **no `concurrency:` block at all.** `dnd-app-ci.yml` is the heaviest gate in the repo (lint → forbidden-patterns → 2× tsc → content-validate → full vitest → build → coverage → audit → circular → knip) and it triggers on **every push with no branch filter**. Under the newly-adopted high-churn model (many `auto/*` scanner branches + a daily integrator producing bursts of rapid `master` pushes — the very model `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md` was written to enable), each push to each branch starts a fresh full dnd-app-ci run and **none supersede each other**, so superseded commits keep burning a full expensive run to completion. This is the mirror-image of the already-logged CodeQL concurrency finding (CodeQL *does* cancel and thereby drops scans); here the absence of any group means wasted parallel compute and longer queues instead. The inconsistency itself (some workflows guarded, the heaviest ones not) is the cross-cutting smell.
+
+**Expected behavior (if bug):** a deliberate, consistent concurrency policy across the CI suite — at minimum the heavy push-triggered gates (`dnd-app-ci`) should have a `concurrency: { group: <wf>-${{ github.ref }}, cancel-in-progress: true }` so superseded in-flight runs on the same ref are cancelled, matching the bmo workflows.
+
+**Hypothesis / root cause:** concurrency groups were added to the bmo workflows (and CodeQL/deploy) but never back-filled onto the dnd-app + security-audit workflows; the omission was harmless under the old low-churn single-branch model and only became a cost/queue issue once the many-agent integrator model multiplied push volume. Speculative on history; the presence/absence of `concurrency:` per workflow is verified.
+
+**Proposed fix / improvement:**
+- [ ] Add a `concurrency:` group (keyed on `github.workflow` + `github.ref`, `cancel-in-progress: true`) to `dnd-app-ci.yml`, `dnd-app-validate-5e.yml`, and `security-audit.yml`, matching the bmo workflows.
+- [ ] Decide one repo-wide convention (cancel-in-progress for fast-feedback gates; `false` for security scanners per the CodeQL entry) and apply it uniformly, so concurrency policy is intentional rather than per-file accident.
+
+**Blocked by:** nothing.
+
+**Related files:** `.github/workflows/dnd-app-ci.yml` (no concurrency, runs on every push), `.github/workflows/dnd-app-validate-5e.yml` (no concurrency), `.github/workflows/security-audit.yml` (no concurrency), `.github/workflows/bmo-pi-pytest.yml` / `bmo-docker-build.yml` (have concurrency, for contrast).
+
+**Related entries:** ISSUES-LOG.md → "[2026-06-22] CodeQL `cancel-in-progress: true` cancels per-commit security scans" (same burst-cadence root cause, opposite symptom — that one cancels too much, these cancel nothing).
+
+### [2026-06-22] Root `.editorconfig` only configures `[*.sh]` — no shared editor baseline for the TS/JS/Py/JSON that dominate the repo
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Expanded root `.editorconfig` with a `[*]` baseline (utf-8, lf, final newline, trim trailing) plus per-type indent (`[*.{ts,tsx,js,jsx,mjs,cjs,json,yml,yaml}]` 2-space aligned with biome, `[*.py]` 4-space, `[*.md]` no-trim), keeping the original `[*.sh]` rule.
+
+- **Category:** docs, debt
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+- **During:** Repo-wide cleanup/reorg scan.
+
+**Description:**
+The repo-root `.editorconfig` declares `root = true` and exactly one section, `[*.sh]` (charset + final newline — added narrowly to stop a shell-script BOM, per `BMO-RESOLVED-ISSUES.md`). EditorConfig is the one config mechanism that cascades to *every* subdirectory and every editor automatically, so it is the natural place for a monorepo-wide baseline — yet it covers none of the languages that actually make up the tree: by tracked-file count the repo is ~3077 JSON, ~1323 TS, ~731 TSX, ~202 PY, ~190 MD, ~106 JS. That baseline matters more here than in a normal repo because the per-project linting is uneven: `dnd-app` ships `biome.json`, but `dungeon-scholar` and `oracle-worker` have no linter/formatter at all (logged separately), and `bmo` is Python. A shared `.editorconfig` covering indent style/size, `charset = utf-8`, `insert_final_newline`, and `trim_trailing_whitespace` for `[*.{ts,tsx,js,jsx,mjs,json,py,md}]` would give all four projects a consistent floor regardless of which (if any) linter each one runs — and costs nothing to add.
+
+**Hypothesis / root cause:** the file was created reactively for a single shell-script fix and never grown into a real cross-project baseline.
+
+**Proposed fix / improvement:**
+- [ ] Add language sections to `.editorconfig` (`[*.{ts,tsx,js,jsx,mjs}]`, `[*.{json}]`, `[*.py]`, `[*.md]`) with indent + charset + final-newline + trim-trailing-whitespace, keeping the existing `[*.sh]` rules.
+- [ ] Keep settings aligned with `dnd-app/biome.json` so the two don't fight where they overlap.
+
+**Related files:** `.editorconfig`, `dnd-app/biome.json`
+
+### [2026-06-22] `docs/RULES-RETRIEVAL.md` — a genuinely dual-domain (dnd-app + bmo) reference — is missing from the README "Docs index"
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Added `docs/RULES-RETRIEVAL.md` to the README cross-cutting Docs index alongside ARCHITECTURE/DATA-FLOW.
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+- **During:** Repo-wide cleanup/reorg scan.
+
+**Description:**
+`docs/RULES-RETRIEVAL.md` is, by its own header, "the authoritative reference for the retrieval stack across **both** engines: the TypeScript one in `dnd-app/src/main/ai/` and its Python twin in `bmo/pi/services/rag_search.py`." That makes it one of the few docs that legitimately belongs at the repo-root `docs/` (it spans two domains, unlike `docs/OLLAMA-TUNING.md` / `docs/PLUGIN-SYSTEM.md`, which are dnd-app-only — those are covered by a separate entry). Yet it appears **nowhere** in the README "Docs index" (neither the "Architecture & deep dives" list at lines ~91-100 nor the project-doc lists), and is referenced only by a completed phase doc (`dnd-app/docs/phases/completed/PHASE-24-rules-rag-hybrid.md`) and by `docs/OLLAMA-TUNING.md`. A contributor or agent browsing the README cannot discover the canonical cross-engine retrieval reference, increasing the odds the TS and Python implementations drift without anyone consulting the shared spec.
+
+**Hypothesis / root cause:** the doc was added in PHASE-24 but never wired into the README index when it landed.
+
+**Proposed fix / improvement:**
+- [ ] Add `docs/RULES-RETRIEVAL.md` to the README "Docs index" (it sits naturally alongside `ARCHITECTURE.md` / `DATA-FLOW.md` as a cross-engine architecture doc).
+- [ ] While editing the index, sweep `docs/` for any other unlinked cross-project docs so the index stays a complete map of repo-root `docs/`.
+
+**Related files:** `README.md` (Docs index, ~lines 91-100), `docs/RULES-RETRIEVAL.md`
+
+### [2026-06-22] No `.github/dependabot.yml` — version-update coverage is implicit/incomplete despite a documented integrator Dependabot workflow
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Resolved by the `.github/dependabot.yml` added earlier this run (pip `/bmo/pi`; npm `/dnd-app`,`/dungeon-scholar`,`/oracle-worker`; github-actions `/`), giving scheduled grouped version updates across every ecosystem. Duplicate of the issues-log dependabot entry.
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** Cross-cutting CI / dependency-hygiene scan.
+
+**Description:**
+The repo has **no** `.github/dependabot.yml` anywhere (searched repo-wide), yet `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md` Rule 3.B gives the daily `integrator` a whole Dependabot-PR review/merge process, and merged Dependabot PRs already exist in history (e.g. `dependabot/pip/bmo/pi/...`, PR #17). Without a config file, Dependabot only opens *security* update PRs (enabled via repo settings); scheduled *version* updates require the config. So routine version bumps are not guaranteed across the repo's ecosystems — npm in three dirs (`dnd-app/`, `dungeon-scholar/`, `oracle-worker/`), pip in `bmo/pi/` (which uses pip-tools `requirements*.in/.txt`), and `github-actions` (the workflows pin `actions/setup-node@v6`, `actions/setup-python@v6`, etc.). The result is uneven dependency freshness across all projects and a documented integrator process whose input is only partially configured.
+
+**Hypothesis / root cause:** security updates were turned on in repo settings and have been sufficient so far; nobody added an explicit version-update config as projects multiplied.
+
+**Proposed fix / improvement:**
+- [ ] Add `.github/dependabot.yml` with `package-ecosystem` entries for each path: `npm` (`/dnd-app`, `/dungeon-scholar`, `/oracle-worker`), `pip` (`/bmo/pi`), and `github-actions` (`/`), with a sensible schedule and grouping; respect bmo's pip-tools lockfile flow (`requirements.in` is the edit surface).
+- [ ] OR, if security-only updates are the deliberate policy, document that in `docs/CONTRIBUTING.md` / the integrator doc so the absence of a config is intentional, not an oversight.
+
+**Related files:** `.github/dependabot.yml` (absent), `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md` (Rule 3.B), `dnd-app/package.json`, `dungeon-scholar/package.json`, `oracle-worker/package.json`, `bmo/pi/requirements*.in`
+
+### [2026-06-22] Three CI workflows lack a `concurrency` group while six siblings have one — duplicate/superseded runs waste Actions minutes
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Resolved with the issues-log concurrency entry: added `concurrency` groups to dnd-app-ci.yml, dnd-app-validate-5e.yml, and security-audit.yml matching the other workflows.
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** Cross-cutting CI / dependency-hygiene scan.
+
+**Description:**
+Of the 9 workflows, 6 define a `concurrency:` group (`bmo-deploy`, `bmo-docker-build`, `bmo-pi-pytest`, `codeql`, `deploy`, `release`) but 3 do **not**: `dnd-app-ci.yml`, `dnd-app-validate-5e.yml`, `security-audit.yml`. All three trigger on both `push` and `pull_request`, so when a branch with an open PR is pushed, the heavy gates run **twice in parallel** (the dnd-app CI gate is the expensive one: lint → forbidden-patterns → tsc ×2 → full vitest → build → verify). `dnd-app-ci.yml` additionally has **no branch filter on `push`** (only a path filter), so any branch — including the new per-agent `auto/*` worktree branches — that touches `dnd-app/**` triggers a full run, and without `cancel-in-progress` a rapid second push stacks another full run instead of superseding the first. This is pure CI-minute / queue waste and is inconsistent with the 6 workflows that already guard against it.
+
+**Hypothesis / root cause:** `concurrency` was added to the deploy/release/long-running workflows where overlap is obviously harmful, but the everyday push-gated lint/test workflows were never retrofitted; the cost grew after the move to many per-agent `auto/*` branches.
+
+**Proposed fix / improvement:**
+- [ ] Add a `concurrency: { group: ${{ github.workflow }}-${{ github.ref }}, cancel-in-progress: true }` block to `dnd-app-ci.yml`, `dnd-app-validate-5e.yml`, and `security-audit.yml`, matching the convention the other 6 already use.
+- [ ] Consider whether `dnd-app-ci.yml`'s unfiltered-branch `push` trigger should also be scoped (the integrator merges via `master`; per-branch full runs may be redundant with the PR-event run).
+
+**Related files:** `.github/workflows/dnd-app-ci.yml`, `.github/workflows/dnd-app-validate-5e.yml`, `.github/workflows/security-audit.yml`
+
+### [2026-06-22] Root `.editorconfig` is a near-empty `*.sh`-only stub — misses an editor-agnostic baseline for all four code areas
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Resolved with the other editorconfig entry: root `.editorconfig` now carries a `[*]` baseline + per-type indent rules covering all four code areas.
+
+- **Category:** portability
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** Cross-cutting CI / dependency-hygiene scan.
+
+**Description:**
+The repo-root `.editorconfig` declares `root = true` but contains only a single `[*.sh]` block (`charset = utf-8`, `insert_final_newline = true`) — it was added narrowly to stop a shell-script BOM regression (see `BMO-RESOLVED-ISSUES.md`). EditorConfig is the one editor-agnostic, no-dependency way to enforce baseline whitespace/charset/final-newline rules consistently across the whole monorepo — TS/React (`dnd-app`, `oracle-worker`), React (`dungeon-scholar`, which ships **no** linter or `.editorconfig` of its own — see `SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`), Python (`bmo/pi`), plus JSON/Markdown/YAML across all of them. Today only shell files get any shared editor baseline; everything else relies on each project's own (and in dungeon-scholar's case absent) tooling, so indentation/charset/trailing-whitespace drift across projects has nothing catching it before commit.
+
+**Hypothesis / root cause:** the file was created for one narrow shell-BOM fix and never broadened into the cross-project baseline EditorConfig is designed to be.
+
+**Proposed fix / improvement:**
+- [ ] Expand root `.editorconfig` with a `[*]` default (`charset = utf-8`, `insert_final_newline = true`, `trim_trailing_whitespace = true`, `end_of_line = lf`) and per-type indent rules (`[*.{ts,tsx,js,jsx,json,yml,yaml}]` 2-space, `[*.py]` 4-space, `[*.md] trim_trailing_whitespace = false`).
+- [ ] Keep it advisory/non-blocking — it complements, not replaces, each project's linter; it just gives a shared floor (especially useful for dungeon-scholar, which has none).
+
+**Related files:** `.editorconfig`, `dnd-app/biome.json`, `dungeon-scholar/` (no linter), `bmo/pi/`, `oracle-worker/`
+
+### [2026-06-22] No repo-root task runner and inconsistent npm-script vocabulary across the three JS projects
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Added a root `Makefile` (install/lint/typecheck/test/build/audit/all) fanning out to dnd-app + dungeon-scholar + oracle-worker (npm) and bmo/pi (pytest), documented in `docs/CONTRIBUTING.md`; gave oracle-worker a real script vocabulary. Full lint/typecheck parity for dungeon-scholar depends on it gaining a linter, tracked separately in the dungeon-scholar suggestions log.
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** Cross-cutting CI/tooling review.
+
+**Description:**
+There is no single entry point to lint/typecheck/test/build the monorepo: no root `Makefile`, `justfile`, `Taskfile`, or root `package.json` (the root `node_modules/` is just a stray Vite cache — see the existing entry). Each area is driven by its own per-project commands, and the npm-script names are inconsistent: `dnd-app` exposes a rich, well-named set (`lint`, `lint:fix`, `format`, `test`, `test:coverage`, `circular`, `check:full`, ...); `dungeon-scholar` exposes only `dev`/`build`/`preview`/`test`/`test:watch` (no `lint`, `format`, or `typecheck`); `oracle-worker` exposes only `test`; bmo runs via `pytest` (`bmo/pi/pytest.ini`). So a contributor (or the integrator, when it wants a quick "is everything green" pass) has to remember a different command surface per project, and there is no one command that runs the whole repo's checks. A tiny root `Makefile`/`justfile` that fans out to each project's existing commands — plus a shared minimum script vocabulary (`lint`, `typecheck`, `test`, `build`) implemented in each JS `package.json` — would give uniform muscle memory and a single CI-mirroring local command, **without** needing a real npm workspace (which the root-`node_modules` entry deliberately avoids).
+
+**Proposed fix / improvement:**
+- [ ] Add a root `Makefile` or `justfile` with targets like `test`, `lint`, `build` that delegate to `dnd-app` / `dungeon-scholar` / `oracle-worker` (npm) and `bmo/pi` (pytest).
+- [ ] Standardize a common script vocabulary (`lint`, `typecheck`, `test`, `build`) across the three JS `package.json` files so the root targets are uniform (depends on dungeon-scholar gaining a linter — see related entry).
+- [ ] Document the root commands in `README.md` / `docs/CONTRIBUTING.md` as the canonical "run everything" entry point.
+
+**Related entries:** root `node_modules/` (no root workspace) entry above; dungeon-scholar missing-linter entry in `docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`.
+
+**Related files:** `README.md`, `docs/CONTRIBUTING.md`, `dnd-app/package.json`, `dungeon-scholar/package.json`, `oracle-worker/package.json`, `bmo/pi/pytest.ini`
