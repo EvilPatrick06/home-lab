@@ -57,6 +57,20 @@ function isSafeImageUrl(url) {
   } catch { return false; }
 }
 
+// SEC: link hrefs are untrusted (tomes are importable/shareable). Allow only
+// http(s)/mailto; reject javascript:, data:, vbscript:, file:, etc. Mirrors
+// isSafeImageUrl's fallback-to-literal-text behavior on rejection.
+function isSafeLinkUrl(url) {
+  if (typeof url !== 'string' || url.length === 0) return false;
+  try {
+    // Resolve against a base so ordinary relative links (e.g. "docs#x") pass,
+    // while absolute dangerous schemes (javascript:, data:, vbscript:, file:)
+    // keep their own protocol and are rejected.
+    const u = new URL(url, 'https://dungeon-scholar.invalid/');
+    return u.protocol === 'http:' || u.protocol === 'https:' || u.protocol === 'mailto:';
+  } catch { return false; }
+}
+
 export function parseRichContent(text) {
   if (typeof text !== 'string' || text.length === 0) return [];
   const nodes = [];
@@ -107,7 +121,7 @@ function pushTextish(slice, nodes) {
       }
     } else if (m[5]) {
       const lmatch = m[5].match(/^\[([^\]\n]+)\]\(([^)\s]+)\)$/);
-      if (lmatch) {
+      if (lmatch && isSafeLinkUrl(lmatch[2])) {
         nodes.push({ type: 'link', label: lmatch[1], href: lmatch[2] });
       } else {
         nodes.push({ type: 'text', content: m[5] });

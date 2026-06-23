@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Gift, ChevronRight, Library, Wand2, Copy, Hash, Upload, Scroll, BookMarked, Check, X, Star, Share2, Tag, Edit2, Trash2, ScrollText } from 'lucide-react';
 import RichContent from '../../components/RichContent.jsx';
 import { blankTomeProgress } from '../../game/tome.js';
@@ -23,12 +23,14 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
 
   // Phase 38d round-3 suggestion: pinned tomes float to the top; remaining
   // tomes keep the lastOpened recency sort.
-  const sorted = [...playerState.library].sort((a, b) => {
+  // I3: memoize the sort so renaming keystrokes don't re-sort + rebuild the
+  // whole card list on every render.
+  const sorted = useMemo(() => [...playerState.library].sort((a, b) => {
     const ap = a.pinned ? 1 : 0;
     const bp = b.pinned ? 1 : 0;
     if (ap !== bp) return bp - ap;
     return (b.lastOpened || 0) - (a.lastOpened || 0);
-  });
+  }), [playerState.library]);
 
   return (
     <div className="space-y-6">

@@ -700,10 +700,6 @@ export function generateMap({ difficulty = 'apprentice', biome = 'halls', rng = 
   return { map, rooms, decorations, mobs, boss, chests, spawn, width, height, biome };
 }
 
-export function generateStarterMap(opts = {}) {
-  return generateMap({ difficulty: 'apprentice', biome: 'halls', ...opts });
-}
-
 const tileSeed = (x, y) => {
   let h = (x * 73856093) ^ (y * 19349663);
   h = (h ^ (h >>> 13)) * 1274126177;

@@ -1,5 +1,5 @@
 import { Compass, ChevronUp, ChevronDown } from 'lucide-react';
-import { TUTORIAL_STEPS } from '../../tutorial.js';
+import { TUTORIAL_STEPS } from '../../game/tutorial.js';
 
 function TutorialPanel({ stepIndex, collapsed, onToggle, onAdvance, onSkip, onAction }) {
   const step = TUTORIAL_STEPS[stepIndex];

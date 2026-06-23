@@ -1,4 +1,4 @@
-import { migrateTutorialIndex } from '../tutorial.js';
+import { migrateTutorialIndex } from '../game/tutorial.js';
 
 export const STORAGE_KEY = 'dungeon-scholar:save:v1';
 export const SYNC_META_KEY = 'dungeon-scholar:sync:v1';
@@ -122,7 +122,6 @@ export function semanticHashState(state) {
       totalCorrect: state.totalCorrect ?? 0,
       totalAnswered: state.totalAnswered ?? 0,
       gold: state.gold ?? 0,
-      currentStreak: state.currentStreak ?? 0,
       tutorialStarted: !!state.tutorialStarted,
       tutorialCompleted: !!state.tutorialCompleted,
       tutorialStepIndex: state.tutorialStepIndex ?? 0,
