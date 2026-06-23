@@ -5,11 +5,12 @@
 
 ## Repo at a Glance
 
-Monorepo on a Raspberry Pi 5. Three domains in one git repo:
+Monorepo on a Raspberry Pi 5. Three app domains (plus the `oracle-worker/` edge worker) in one git repo:
 
 - **`dnd-app/`** — Electron VTT (TypeScript + React + Vite). Runs on player/DM laptops.
 - **`bmo/`** — Pi voice assistant + Discord bots + D&D DM engine (Python Flask). Runs 24/7 on the Pi.
 - **`dungeon-scholar/`** — Web study app (Vite + React + Vitest). Cybersecurity / IT / CS exam prep with a D&D-themed dungeon delve loop. Deployed to GitHub Pages.
+- **`oracle-worker/`** — Cloudflare Worker backing dungeon-scholar’s Oracle (AI grading/chat) proxy. Deployed to the Cloudflare edge.
 
 `dnd-app` and `bmo` communicate via HTTP: VTT → BMO on port 5000, BMO callbacks → VTT on port 5001. `dungeon-scholar` is independent.
 
