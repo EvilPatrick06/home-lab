@@ -70,6 +70,63 @@ def api_chat():
     return jsonify(result)
 
 
+
+# ── dnd-app WEB DM completion (/api/dnd/dm) ──────────────────────────
+# The browser build owns the DM system prompt (role + the [STAT_CHANGES] /
+# [DM_ACTIONS] action-tag contract + live game state); this route just runs it
+# through the cloud LLM (DND_MODEL) and returns the raw text — tags and all —
+# for the client to parse and apply. Bypassing BMO's assistant persona makes tag
+# emission reliable. Same-origin + Cloudflare Access gate the route.
+_DM_MAX_SYSTEM_LEN = 24000
+_DM_MAX_TURN_LEN = 8000
+_DM_MAX_HISTORY = 12
+
+
+def _build_dm_messages(system, message, history):
+    """Assemble a sanitized provider messages list: optional system prompt,
+    bounded prior turns (user/assistant only), then the current user message."""
+    messages = []
+    if isinstance(system, str) and system:
+        messages.append({"role": "system", "content": system[:_DM_MAX_SYSTEM_LEN]})
+    if isinstance(history, list):
+        for turn in history[-_DM_MAX_HISTORY:]:
+            if not isinstance(turn, dict):
+                continue
+            role = turn.get("role")
+            content = turn.get("content")
+            if role in ("user", "assistant") and isinstance(content, str) and content:
+                messages.append({"role": role, "content": content[:_DM_MAX_TURN_LEN]})
+    messages.append({"role": "user", "content": message})
+    return messages
+
+
+@chat_bp.route("/api/dnd/dm", methods=["POST"])
+@limiter.limit(RATE_LIMIT_CHAT)
+def api_dnd_dm():
+    data = request.json or {}
+    system = data.get("system", "")
+    message = data.get("message", "")
+    history = data.get("history", [])
+
+    if not isinstance(message, str) or not message:
+        return jsonify({"error": "No message provided"}), 400
+    if not isinstance(system, str):
+        return jsonify({"error": "Invalid system prompt"}), 400
+    if len(message) > chat_history.MAX_CHAT_MESSAGE_LEN:
+        return jsonify({"error": f"message too large (max {chat_history.MAX_CHAT_MESSAGE_LEN} chars)"}), 413
+
+    messages = _build_dm_messages(system, message, history)
+
+    try:
+        from services.cloud_providers import DND_MODEL, cloud_chat
+        text = cloud_chat(messages, model=DND_MODEL, temperature=0.8, max_tokens=2048)
+    except Exception as e:
+        log.warning(f"[dnd-dm] generation failed: {e}")
+        return jsonify({"error": "DM generation failed"}), 502
+
+    return jsonify({"text": text})
+
+
 _DND_ALLOWED_DATA_ROOTS = [
     os.path.realpath(os.path.expanduser("~/home-lab/bmo/pi/data")),
     os.path.realpath(os.path.expanduser("~/home-lab/dnd-app/src/renderer/public/data")),

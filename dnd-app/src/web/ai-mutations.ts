@@ -1,0 +1,110 @@
+/**
+ * Browser-safe extraction of structured AI-DM mutations from narration text.
+ *
+ * Mirrors the desktop main-process "tag path" (parseStatChangesDetailed /
+ * parseDmActionsDetailed) by reusing the SAME canonical zod schemas + JSON
+ * repair from `ai-schemas.ts` — which is browser-pure (only `zod` and a shared
+ * spec), so importing it into the web bundle pulls in no Node/Electron code.
+ *
+ * The renderer already APPLIES `statChanges` / `dmActions` (via the AI store and
+ * `services/game-action-executor.ts`), so parsing the tags the LLM embeds in the
+ * narration and emitting the validated arrays in `ai:stream-done` makes web
+ * mechanics behave like desktop. Malformed blocks are skipped — the prose still
+ * shows.
+ */
+import {
+  DmActionsBlockSchema,
+  repairJsonDetailed,
+  StatChangesBlockSchema,
+  validateDmActions,
+  validateStatChanges
+} from '../main/ai/ai-schemas'
+
+const STAT_BLOCK = /\[STAT_CHANGES\]\s*([\s\S]*?)\s*\[\/STAT_CHANGES\]/g
+const DM_BLOCK = /\[DM_ACTIONS\]\s*([\s\S]*?)\s*\[\/DM_ACTIONS\]/g
+
+export interface ParsedAiMutations {
+  statChanges: unknown[]
+  dmActions: Array<{ action: string; [k: string]: unknown }>
+  displayText: string
+}
+
+/** Harvest + validate every [STAT_CHANGES]/[DM_ACTIONS] block; return the clean prose. */
+export function parseAiMutations(text: string): ParsedAiMutations {
+  const statChanges: unknown[] = []
+  for (const m of text.matchAll(STAT_BLOCK)) {
+    try {
+      const { repaired } = repairJsonDetailed(m[1])
+      const block = StatChangesBlockSchema.safeParse(JSON.parse(repaired))
+      if (block.success) statChanges.push(...validateStatChanges(block.data.changes as unknown[]).valid)
+    } catch {
+      // skip malformed block — narration still renders
+    }
+  }
+
+  const dmActions: Array<{ action: string; [k: string]: unknown }> = []
+  for (const m of text.matchAll(DM_BLOCK)) {
+    try {
+      const { repaired } = repairJsonDetailed(m[1])
+      const block = DmActionsBlockSchema.safeParse(JSON.parse(repaired))
+      if (block.success) dmActions.push(...validateDmActions(block.data.actions as unknown[]).valid)
+    } catch {
+      // skip malformed block
+    }
+  }
+
+  const displayText = text
+    .replace(/\s*\[STAT_CHANGES\][\s\S]*?\[\/STAT_CHANGES\]\s*/g, ' ')
+    .replace(/\s*\[DM_ACTIONS\][\s\S]*?\[\/DM_ACTIONS\]\s*/g, ' ')
+    .replace(/[ \t]{2,}/g, ' ')
+    .trim()
+
+  return { statChanges, dmActions, displayText }
+}
+
+/**
+ * Compact instruction prepended to the player's message sent to the Pi agent so
+ * its narration carries the machine-readable tags this parser harvests. Field
+ * names match the canonical schemas (type/value/name/characterName/reason).
+ */
+export const DM_TAGGING_DIRECTIVE = [
+  'You are the Dungeon Master. Narrate the outcome in natural prose.',
+  'When game mechanics change, append machine-readable tags AFTER the prose (never mention them):',
+  '[STAT_CHANGES]{"changes":[{"type":"damage","characterName":"<name>","value":<n>,"reason":"<why>"}]}[/STAT_CHANGES]',
+  'Valid change types: damage, heal, temp_hp (each {value, reason}); add_condition, remove_condition (each {name, reason});',
+  'gold, xp ({value, reason}). Use characterName for a specific hero, omit it for the acting one.',
+  'Only emit a block when something actually changes.'
+].join(' ')
+
+const DM_ROLE =
+  'You are the Dungeon Master for a Dungeons & Dragons 5e (2024) game. Narrate vividly in the second person, ' +
+  'adjudicate the rules fairly, and keep replies to a few tight paragraphs. Address the players directly.'
+
+function capJson(v: unknown, cap: number): string {
+  try {
+    return JSON.stringify(v).slice(0, cap)
+  } catch {
+    return ''
+  }
+}
+
+export interface DmPromptContext {
+  gameState?: unknown
+  activeCreatures?: unknown
+  actingCharacterName?: string
+}
+
+/** Assemble the DM system prompt: role + the action-tag contract + live state. */
+export function buildDmSystemPrompt(ctx: DmPromptContext): string {
+  const parts = [DM_ROLE, DM_TAGGING_DIRECTIVE]
+  if (ctx.actingCharacterName) parts.push(`The acting player character is "${ctx.actingCharacterName}".`)
+  if (ctx.activeCreatures != null) {
+    const j = capJson(ctx.activeCreatures, 4000)
+    if (j) parts.push(`Active combatants and their current state (JSON): ${j}`)
+  }
+  if (ctx.gameState != null) {
+    const j = capJson(ctx.gameState, 6000)
+    if (j) parts.push(`Current game state (JSON): ${j}`)
+  }
+  return parts.join('\n\n')
+}

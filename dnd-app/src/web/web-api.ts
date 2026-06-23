@@ -16,6 +16,7 @@
  * the UI degrades gracefully instead of throwing.
  */
 
+import { buildDmSystemPrompt, parseAiMutations } from './ai-mutations'
 import { idbDelete, idbGet, idbGetAll, idbKeys, idbSet, idbWipeAll, type StoreName } from './idb'
 
 // ── Backend base URL ────────────────────────────────────────────────
@@ -36,6 +37,9 @@ const busListeners = new Map<string, Set<(data: unknown) => void>>()
 
 // In-flight AI streams, so cancelStream can abort the underlying fetch.
 const aiAborters = new Map<string, AbortController>()
+
+// Per-campaign DM conversation history (bounded) for multi-turn continuity.
+const dmHistory = new Map<string, Array<{ role: 'user' | 'assistant'; content: string }>>()
 
 function busOn(channel: string, cb: (data: unknown) => void): () => void {
   let set = busListeners.get(channel)
@@ -527,33 +531,54 @@ function createAiStub() {
     // agent yet, so those are emitted empty -- a known parity gap vs. desktop.
     chatStream: async (request: Record<string, unknown>) => {
       const streamId = genId()
-      const message = String((request?.message as string | undefined) ?? '')
-      const speaker = String((request?.senderName as string | undefined) ?? 'player')
+      const playerMessage = String((request?.message as string | undefined) ?? '')
+      const campaignId = String((request?.campaignId as string | undefined) ?? 'default')
+      const actingName = (request?.senderName as string | undefined) || undefined
+      const system = buildDmSystemPrompt({
+        gameState: request?.gameState,
+        activeCreatures: request?.activeCreatures,
+        actingCharacterName: actingName
+      })
+      const history = dmHistory.get(campaignId) ?? []
       const controller = new AbortController()
       aiAborters.set(streamId, controller)
       void (async () => {
         try {
-          const res = await fetch(`${BMO_BASE}/api/chat`, {
+          // Dedicated DM endpoint: the Pi runs the LLM with OUR system prompt
+          // (role + action-tag contract + live state), so tag emission is reliable.
+          const res = await fetch(`${BMO_BASE}/api/dnd/dm`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
             signal: controller.signal,
-            body: JSON.stringify({ message, speaker })
+            body: JSON.stringify({ system, message: playerMessage, history })
           })
           if (!res.ok) throw new Error(`AI backend returned ${res.status}`)
           const data = (await res.json()) as { text?: string }
           const text = String(data?.text ?? '')
-          for (let i = 0; i < text.length; i += 64) {
+          // Harvest structured mutations the model embedded as tags, mirroring the
+          // desktop main-process tag path; the renderer applies them on stream-done.
+          const { statChanges, dmActions, displayText } = parseAiMutations(text)
+          for (let i = 0; i < displayText.length; i += 64) {
             if (controller.signal.aborted) return
-            webEmit('ai:stream-chunk', { streamId, text: text.slice(i, i + 64) })
+            webEmit('ai:stream-chunk', { streamId, text: displayText.slice(i, i + 64) })
             await new Promise((r) => setTimeout(r, 18))
           }
+          // Remember the exchange (clean prose) for multi-turn continuity.
+          dmHistory.set(
+            campaignId,
+            [
+              ...history,
+              { role: 'user' as const, content: playerMessage },
+              { role: 'assistant' as const, content: displayText }
+            ].slice(-12)
+          )
           webEmit('ai:stream-done', {
             streamId,
             fullText: text,
-            displayText: text,
-            statChanges: [],
-            dmActions: [],
+            displayText,
+            statChanges,
+            dmActions,
             ruleCitations: []
           })
         } catch (e) {
