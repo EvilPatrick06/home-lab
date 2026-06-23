@@ -186,7 +186,8 @@ sudo docker run -d \
 sudo docker run -d \
     --name bmo-ollama \
     --restart always \
-    -p 11434:11434 \
+    -p 127.0.0.1:11434:11434 \
+    -p "[::1]:11434:11434" \
     -v ollama_data:/root/.ollama \
     ollama/ollama:latest
 
