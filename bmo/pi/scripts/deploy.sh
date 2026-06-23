@@ -155,7 +155,27 @@ fi
 
 # ── Gate 3: Tree clean (NEVER stash/clobber — the Pi checkout is also a dev tree)
 if [ -n "$(git -C "$REPO_ROOT" status --porcelain)" ]; then
-  fail "working tree is dirty; commit/clean before deploying (never auto-stashed)"
+  # The live target doubles as the shared dev tree, so concurrent automation can
+  # leave it *transiently* dirty (mid-commit log migration, half-staged edits).
+  # In production, re-poll for a short settle window before failing so a passing
+  # in-flight edit no longer turns the deploy red; a tree still dirty past the
+  # window is a hard fail (we never stash/clobber). The hermetic test harness
+  # (ALLOW_NONSTANDARD_ROOT=1) has no concurrent writers — fail immediately.
+  if [ "$ALLOW_NONSTANDARD_ROOT" = "1" ]; then
+    fail "working tree is dirty; commit/clean before deploying (never auto-stashed)"
+  fi
+  _settle_tries="${BMO_DEPLOY_DIRTY_RETRIES:-12}"
+  _settle_interval="${BMO_DEPLOY_DIRTY_INTERVAL:-5}"
+  _settle_i=0
+  while [ -n "$(git -C "$REPO_ROOT" status --porcelain)" ]; do
+    if [ "$_settle_i" -ge "$_settle_tries" ]; then
+      fail "working tree still dirty after $((_settle_tries * _settle_interval))s of settle polling; commit/clean before deploying (never auto-stashed)"
+    fi
+    _settle_i=$((_settle_i + 1))
+    log "working tree dirty (settle attempt $_settle_i/$_settle_tries) - transient dev-tree write? re-polling in ${_settle_interval}s"
+    sleep "$_settle_interval"
+  done
+  log "working tree settled clean after $_settle_i settle poll(s); continuing deploy"
 fi
 
 # ── Gate 4: Branch must be master ───────────────────────────────────────────--

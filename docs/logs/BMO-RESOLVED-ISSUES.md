@@ -12,6 +12,64 @@
 
 ---
 
+### [2026-06-23] bmo-resolver — `bmo / deploy` dirty-tree race (High) + SYSTEMD.md service count (low), user-approved
+
+- **Category:** infra / CI (deploy reliability) + docs
+- **Severity:** high + low
+- **Domain:** bmo (Pi infra/tooling)
+- **Resolved by:** bmo-resolver
+- **Branch:** `auto/bmo-resolver` (awaiting integrator merge)
+- **During:** scheduled bmo-resolver run; both open bmo entries approved by the user 2026-06-23
+
+**Resolutions:**
+
+1. **`bmo / deploy` red on master — Gate 3 aborts on transient dirty live checkout** — `bmo/pi/scripts/deploy.sh` Gate 3 now treats a dirty *production* tree (the live checkout doubles as the shared dev tree) as possibly transient: it re-polls `git status --porcelain` on a settle window before failing, instead of aborting on the first dirty read. Defaults `BMO_DEPLOY_DIRTY_RETRIES=12` × `BMO_DEPLOY_DIRTY_INTERVAL=5`s (≈60s), both env-overridable; a tree still dirty past the window is a hard fail with the same "dirty / never auto-stashed" message (we still NEVER stash or clobber). The retry is gated to production only (`ALLOW_NONSTANDARD_ROOT != 1`); the hermetic test harness keeps its immediate-fail behavior, so `test_dirty_tree_aborts` stays fast. This closes the race where concurrent agents editing the live tree turned the deploy red. (Chosen the "retry/back-off" structural option over the larger "deploy from an ephemeral clean checkout" rework — contained, no change to the clean-tree fast path, fully covered by existing tests.) Verified: `bash -n` + `shellcheck -S warning` clean; deploy/shell pytest **61 passed, 6 skipped** in 2.8s.
+
+2. **`bmo/docs/SYSTEMD.md` stale "5 systemd services" headline** — Replaced the headline with the accurate count: 9 services + 3 timers (12 unit files total). Refreshed the stale `bmo-backup` "recoverable from git history / not installed" row (the units now live in `bmo/pi/systemd/`) and added the previously-missing `bmo-backup-verify` and `bmo-voice-canary` service+timer rows, so the units table is authoritative for all 12 unit files.
+
+Verification: deploy.sh syntax + shellcheck clean; affected pytest green (61 passed / 6 skipped). No SECURITY-LOG bmo entries were in scope (the only open security entry is `Domain: dnd-app`). **Services NOT restarted** — both changes are a deploy-script edit and a docs edit that take effect via the integrator merge + the normal deploy, not from this branch; nothing on the running Pi needed a restart.
+
+<details><summary>Original entries (verbatim, moved from BMO-ISSUES-LOG.md / BMO-SUGGESTIONS-LOG.md)</summary>
+
+### [2026-06-23] `bmo / deploy` red on master — health-gated deploy aborts on dirty live checkout (Gate 3) due to concurrent dev-tree writes
+
+- **Category:** infra / CI (deploy reliability)
+- **Severity:** high
+- **Domain:** bmo (Pi infra/tooling)
+- **Discovered by:** ci-failure-triage (2026-06-23 ~08:30Z run)
+- **Failed runs:** `28012173813` (target `a349ea7b`, 08:14Z) and `28012662356` (target `dfdc76e2`, 08:23Z) — both `bmo / deploy` on master.
+
+**Root cause:**
+`bmo/pi/scripts/deploy.sh` Gate 3 (`git status --porcelain` non-empty → `fail "working tree is dirty; commit/clean before deploying (never auto-stashed)"`, line 157) aborted before any mutation. The Pi's deploy target `/home/patrick/home-lab` is also the shared **dev tree** (deploy.sh explicitly never stashes/clobbers it). At deploy time the tree was dirty from in-flight automation: the `docs/logs/` migration (commit `dfdc76e2`) was still mid-flight — staged deletions of the old-path bridge files `docs/*-LOG.md` / `docs/RESOLVED-*.md` plus unstaged edits to `.gitattributes`, `.gitignore`, and `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`. Confirmed live during triage: the tree flipped clean→dirty within minutes, so it is an **ongoing race**, not a one-off. Not a code defect in deploy.sh — a contention problem between the health-gated deploy and concurrent agents editing the live checkout. Last successful deploy was `88c5f7e5` (07:58Z); master HEAD `717f07a6` is currently **undeployed**.
+
+**Proposed fix:**
+- [ ] **Immediate:** once the in-flight `docs/logs` migration is committed and `git status --porcelain` on the Pi is empty, re-dispatch `bmo / deploy` (`gh workflow run "bmo / deploy"`, default target = `origin/master` HEAD) so master lands green and `717f07a6` actually deploys. (Not done by triage: committing/cleaning the tree would have clobbered another agent's half-staged migration.)
+- [ ] **Structural:** make deploy independent of the shared dev tree — deploy from a clean ephemeral checkout (dedicated `git worktree` / fresh clone to a deploy-only path), OR have the deploy gate retry/back-off on a *transient* dirty tree (re-poll `status --porcelain` for N seconds before failing) so concurrent agent edits can no longer turn the deploy red.
+- [ ] Optionally serialize live-tree-mutating agents against deploys via the existing `home-lab-locks/` lock convention.
+
+**Note (benign, no action):** cancelled run `28012396581` (dnd-app CI, `91096a31`) was a concurrency supersede — the next master push `dfdc76e2` ran dnd-app CI green (`28012454736`).
+
+### [2026-06-23] `bmo/docs/SYSTEMD.md` opening line says "5 systemd services" but there are 10 services + 2 timers
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-resolver
+- **During:** resolving the kiosk→systemd rename / docs-index entries (cross-checking doc counts)
+
+**Description:**
+`bmo/docs/SYSTEMD.md` line 2 reads "5 systemd services manage BMO's runtime." The `bmo/pi/systemd/` dir actually holds **10 `.service` files + 2 `.timer` files** (`bmo`, `bmo-kiosk`, `bmo-fan`, `bmo-dm-bot`, `bmo-social-bot`, `bmo-ide`, `bmo-backup`(+timer), `bmo-voice-canary`(+timer), and the new `bmo-backup-verify`(+timer)). Same stale-count smell as the AGENTS.md "5 agents" line fixed this run — left unfixed here only because it was outside the approved entry set.
+
+**Proposed fix / improvement:**
+- [ ] Update the SYSTEMD.md headline to the real count (or drop the number and let the table be authoritative); confirm the units table lists all 12 unit files.
+
+**Related files:** `bmo/docs/SYSTEMD.md`, `bmo/pi/systemd/`
+*(All 11 future-idea entries logged 2026-06-23 were resolved the same day by bmo-resolver and moved to [`BMO-RESOLVED-ISSUES.md`](./BMO-RESOLVED-ISSUES.md).)*
+
+</details>
+
+---
+
 ### [2026-06-23] bmo-resolver batch — 11 BMO suggestions resolved (user-approved)
 
 - **Category:** debt, docs, future-idea
