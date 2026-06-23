@@ -27,7 +27,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 
 ## Defined channels
 
-*Total: **229** channel strings (from `IPC_CHANNELS`).*
+*Total: **237** channel strings (from `IPC_CHANNELS`).*
 
 ### Storage: Characters
 
@@ -482,6 +482,24 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 | `CLOUD_SYNC_CHECK_STATUS` | `cloud:sync-check-campaign` |
 | `CLOUD_SYNC_LIST_CAMPAIGNS` | `cloud:sync-list-campaigns` |
 | `CLOUD_SYNC_RESTORE` | `cloud:sync-restore` |
+
+### Account (Discord OAuth login + cloud accounts)
+
+| Constant | Channel string |
+|---|---|
+| `ACCOUNT_GET_STATUS` | `account:get-status` |
+| `ACCOUNT_LOGIN` | `account:login` |
+| `ACCOUNT_LOGOUT` | `account:logout` |
+| `ACCOUNT_GET_TOKEN` | `account:get-token` |
+
+### Cloud Sync engine (per-user, per-entity; account-scoped)
+
+| Constant | Channel string |
+|---|---|
+| `SYNC_MANIFEST` | `sync:manifest` |
+| `SYNC_GET_OBJECT` | `sync:get-object` |
+| `SYNC_PUT_OBJECT` | `sync:put-object` |
+| `SYNC_DELETE_OBJECT` | `sync:delete-object` |
 
 ### LAN Discovery (Phase 29g — mDNS / Bonjour)
 

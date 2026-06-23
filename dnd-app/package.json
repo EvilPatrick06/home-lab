@@ -1,6 +1,6 @@
 {
   "name": "dnd-vtt",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "engines": {
     "node": ">=22"
   },
@@ -11,7 +11,6 @@
     "url": "https://github.com/EvilPatrick06/home-lab.git"
   },
   "main": "./out/main/index.js",
-  "engines": { "node": ">=22" },
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",
