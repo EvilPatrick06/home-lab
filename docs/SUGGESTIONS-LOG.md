@@ -155,3 +155,23 @@ The repo-root `.editorconfig` declares `root = true` but contains only a single 
 - [ ] Keep it advisory/non-blocking — it complements, not replaces, each project's linter; it just gives a shared floor (especially useful for dungeon-scholar, which has none).
 
 **Related files:** `.editorconfig`, `dnd-app/biome.json`, `dungeon-scholar/` (no linter), `bmo/pi/`, `oracle-worker/`
+
+### [2026-06-22] No repo-root task runner and inconsistent npm-script vocabulary across the three JS projects
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** Cross-cutting CI/tooling review.
+
+**Description:**
+There is no single entry point to lint/typecheck/test/build the monorepo: no root `Makefile`, `justfile`, `Taskfile`, or root `package.json` (the root `node_modules/` is just a stray Vite cache — see the existing entry). Each area is driven by its own per-project commands, and the npm-script names are inconsistent: `dnd-app` exposes a rich, well-named set (`lint`, `lint:fix`, `format`, `test`, `test:coverage`, `circular`, `check:full`, ...); `dungeon-scholar` exposes only `dev`/`build`/`preview`/`test`/`test:watch` (no `lint`, `format`, or `typecheck`); `oracle-worker` exposes only `test`; bmo runs via `pytest` (`bmo/pi/pytest.ini`). So a contributor (or the integrator, when it wants a quick "is everything green" pass) has to remember a different command surface per project, and there is no one command that runs the whole repo's checks. A tiny root `Makefile`/`justfile` that fans out to each project's existing commands — plus a shared minimum script vocabulary (`lint`, `typecheck`, `test`, `build`) implemented in each JS `package.json` — would give uniform muscle memory and a single CI-mirroring local command, **without** needing a real npm workspace (which the root-`node_modules` entry deliberately avoids).
+
+**Proposed fix / improvement:**
+- [ ] Add a root `Makefile` or `justfile` with targets like `test`, `lint`, `build` that delegate to `dnd-app` / `dungeon-scholar` / `oracle-worker` (npm) and `bmo/pi` (pytest).
+- [ ] Standardize a common script vocabulary (`lint`, `typecheck`, `test`, `build`) across the three JS `package.json` files so the root targets are uniform (depends on dungeon-scholar gaining a linter — see related entry).
+- [ ] Document the root commands in `README.md` / `docs/CONTRIBUTING.md` as the canonical "run everything" entry point.
+
+**Related entries:** root `node_modules/` (no root workspace) entry above; dungeon-scholar missing-linter entry in `docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`.
+
+**Related files:** `README.md`, `docs/CONTRIBUTING.md`, `dnd-app/package.json`, `dungeon-scholar/package.json`, `oracle-worker/package.json`, `bmo/pi/pytest.ini`
