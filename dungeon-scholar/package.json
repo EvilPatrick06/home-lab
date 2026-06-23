@@ -9,7 +9,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "audit:ci": "npm audit --omit=dev --audit-level=moderate"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.1",

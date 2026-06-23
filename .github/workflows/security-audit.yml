@@ -6,16 +6,24 @@ on:
     paths:
       - 'dnd-app/**'
       - 'bmo/**'
+      - 'dungeon-scholar/**'
+      - 'oracle-worker/**'
       - '.github/workflows/security-audit.yml'
       - '.githooks/**'
   pull_request:
     paths:
       - 'dnd-app/**'
       - 'bmo/**'
+      - 'dungeon-scholar/**'
+      - 'oracle-worker/**'
       - '.github/workflows/security-audit.yml'
       - '.githooks/**'
   schedule:
     - cron: "18 4 * * 1"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -48,8 +56,43 @@ jobs:
         run: pip install 'bandit[toml]>=1.8.0'
       - name: bandit on ide_app (high severity and up)
         run: bandit -r bmo/pi/ide_app --severity-level=high
+      - name: bandit on full bmo/pi (informational, high severity)
+        continue-on-error: true
+        run: bandit -r bmo/pi --severity-level=high
       - name: pip-audit on bmo (informational)
         continue-on-error: true
         run: |
           pip install pip-audit
           pip-audit -r bmo/pi/requirements.txt
+
+  dungeon-scholar-npm-audit:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dungeon-scholar
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: dungeon-scholar/package-lock.json
+      - run: npm ci
+      - name: npm audit (production deps, moderate+; auth-bearing app)
+        run: npm run audit:ci
+
+  oracle-worker-npm-audit:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: oracle-worker
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: oracle-worker/package-lock.json
+      - run: npm ci
+      - name: npm audit (high+)
+        run: npm audit --audit-level=high
