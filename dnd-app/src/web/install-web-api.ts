@@ -11,10 +11,12 @@
  * renderer contract authoritative without forcing the shim to re-declare all
  * ~227 channel signatures.
  */
-import { createWebApi } from './web-api'
+import { captureWebAuthToken, createWebApi } from './web-api'
 
 const target = globalThis as unknown as { api?: unknown; __DND_WEB__?: boolean }
 target.__DND_WEB__ = true
 if (typeof window !== 'undefined' && !target.api) {
   target.api = createWebApi()
+  // Capture an account token handed back by the OAuth redirect, then strip it.
+  void captureWebAuthToken()
 }

@@ -87,31 +87,42 @@ function App(): JSX.Element {
         // data worth backing up (never nag fresh/empty installs): auto-run the
         // backup (default on) if cloud/rclone is configured, else fall back to a
         // one-time nudge. Auto-backup is a no-op when the Pi/cloud isn't set up.
-        const backup = backupStaleness(settings.lastBackupTime)
-        if (backup.stale) {
-          window.api
-            .loadCampaigns()
-            .then(async (campaigns) => {
-              if (campaigns.length === 0) return
-              if (settings.autoBackupOnLaunch !== false) {
-                try {
-                  const status = await window.api.cloudSync.getStatus()
-                  if (!status.configured) return // cloud not set up → nothing to auto-back-up
-                  const c = campaigns[0] as { id: string; name: string }
-                  const res = await window.api.cloudSync.backupCampaign(c.id, c.name)
-                  if (res.success) {
-                    await window.api.saveSettings({ ...settings, lastBackupTime: new Date().toISOString() })
-                    addToast(i18n.t('notify.backup.autoDone'), 'success', 5000)
-                  }
-                } catch {
-                  /* best-effort — stay quiet on failure rather than double-notifying */
+        // Account-aware cloud strategy on launch:
+        //  - signed in  → start the per-user sync engine (it handles ALL cloud
+        //    sync, including the first-login "claim" of existing local data); the
+        //    legacy per-campaign backup is skipped to avoid redundant uploads.
+        //  - signed out → fall back to the legacy stale-campaign backup/nudge
+        //    (unchanged behavior for users without an account).
+        window.api.account
+          .getStatus()
+          .then(async (status) => {
+            if (status.signedIn) {
+              const { startSync } = await import('./services/sync/sync-engine')
+              startSync()
+              return
+            }
+            const backup = backupStaleness(settings.lastBackupTime)
+            if (!backup.stale) return
+            const campaigns = await window.api.loadCampaigns()
+            if (campaigns.length === 0) return
+            if (settings.autoBackupOnLaunch !== false) {
+              try {
+                const cloud = await window.api.cloudSync.getStatus()
+                if (!cloud.configured) return // cloud not set up → nothing to auto-back-up
+                const c = campaigns[0] as { id: string; name: string }
+                const res = await window.api.cloudSync.backupCampaign(c.id, c.name)
+                if (res.success) {
+                  await window.api.saveSettings({ ...settings, lastBackupTime: new Date().toISOString() })
+                  addToast(i18n.t('notify.backup.autoDone'), 'success', 5000)
                 }
-                return
+              } catch {
+                /* best-effort — stay quiet on failure rather than double-notifying */
               }
-              addToast(i18n.t('notify.backup.staleReminder', { days: backup.daysSince ?? 0 }), 'warning', 8000)
-            })
-            .catch(() => {})
-        }
+              return
+            }
+            addToast(i18n.t('notify.backup.staleReminder', { days: backup.daysSince ?? 0 }), 'warning', 8000)
+          })
+          .catch(() => {})
       })
       .catch((e) => logger.warn('Failed to apply saved settings at boot', e))
 

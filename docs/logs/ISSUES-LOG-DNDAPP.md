@@ -32,6 +32,16 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Medium
 
+### [2026-06-23] Cloud-sync engine covers core JSON domains only — binary + campaign-scoped stores deferred
+
+- **Category:** debt
+- **Severity:** medium
+- **During:** user-accounts / cloud-sync feature (Phases A–E)
+
+**Description:**
+The per-user cloud-sync engine (`src/renderer/src/services/sync/`) registers the core id-keyed JSON domains in `domains.ts`: characters, campaigns, bastions, custom-creatures, homebrew, shop-templates, map-library. NOT yet synced: binary stores (`image-library`, `audio`), campaign-scoped state (`game-state`, `ai-conversations`, `bans`), `books`/`book-data`, and `settings` (device-local/secret fields make it a merge, not an overwrite). The backend (`/api/sync/*`) + the `window.api.sync` transport are domain-agnostic, so closing the gap is mostly new `DOMAINS` entries.
+
+**Fix:** Add the deferred domains to `DOMAINS`. Binary domains need a non-JSON serialize/deserialize (pack the ArrayBuffer + metadata). `settings` needs a field-stripping + merge strategy (never sync `turnServers`/`bmoApiKey`/`bmoPiBaseUrl`/account token). Campaign-scoped domains list by iterating campaigns. Verify cross-device per domain.
 
 ## Low
 

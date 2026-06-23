@@ -21,7 +21,7 @@
 import { applyChangesToCharacter, buildLongRestChanges, buildShortRestChanges } from '../main/ai/stat-mutations-core'
 import type { StatChange } from '../main/ai/types'
 import type { Character5eV3 } from '../shared/types/character-5e'
-import { buildDmSystemPrompt, parseAiMutations } from './ai-mutations'
+import { parseAiMutations } from './ai-mutations'
 import { idbDelete, idbGet, idbGetAll, idbKeys, idbSet, idbWipeAll, type StoreName } from './idb'
 
 // ── Backend base URL ────────────────────────────────────────────────
@@ -72,6 +72,40 @@ function genId(): string {
 
 type Dict = Record<string, unknown>
 const ok = { success: true } as const
+
+// ── Account session (web): bearer token persisted in IndexedDB `kv` ──
+const WEB_TOKEN_KEY = 'account:session'
+async function getWebToken(): Promise<string | null> {
+  return ((await idbGet<string>('kv', WEB_TOKEN_KEY)) as string | undefined) ?? null
+}
+async function setWebToken(token: string): Promise<void> {
+  await idbSet('kv', WEB_TOKEN_KEY, token)
+}
+async function clearWebToken(): Promise<void> {
+  await idbDelete('kv', WEB_TOKEN_KEY)
+}
+
+/**
+ * On boot, capture an account bearer token handed back by the Pi's OAuth
+ * callback. Production (served from the tunnel host) delivers it in the URL
+ * fragment (`#token=`); dev:web (localhost loopback) gets it as a `?token=`
+ * query. Persists it and strips it from the URL. Called by install-web-api.
+ */
+export async function captureWebAuthToken(): Promise<void> {
+  try {
+    const fromHash = new URLSearchParams((location.hash || '').replace(/^#/, ''))
+    const fromQuery = new URLSearchParams(location.search || '')
+    const token = fromHash.get('token') || fromQuery.get('token')
+    if (token) {
+      await setWebToken(token)
+      history.replaceState(null, '', location.pathname)
+    } else if ((location.hash || '').includes('error=')) {
+      history.replaceState(null, '', location.pathname)
+    }
+  } catch {
+    /* ignore — login simply won't be captured */
+  }
+}
 
 async function saveEntity(store: StoreName, entity: Dict): Promise<Dict> {
   const id = (entity.id as string | undefined) ?? genId()
@@ -491,6 +525,133 @@ export function createWebApi() {
       listRemoteCampaigns: () => bmoFetchJson('/api/rclone/list').catch(() => ({ campaigns: [] })),
       restoreCampaign: (campaignId: string) =>
         bmoFetchJson(`/api/rclone/restore?campaignId=${encodeURIComponent(campaignId)}`).catch(() => ({ ok: false }))
+    },
+
+    // Account (Discord OAuth login + cloud-sync session). The browser carries the
+    // bearer token itself (IndexedDB); login is a same-origin redirect, the token
+    // comes back in the URL on return (captured by captureWebAuthToken).
+    account: {
+      getStatus: async () => {
+        const configured = await bmoFetchJson<{ configured: boolean }>('/api/auth/status')
+          .then((r) => !!r.configured)
+          .catch(() => false)
+        const token = await getWebToken()
+        if (!token) return { configured, signedIn: false, user: null }
+        try {
+          const res = await fetch(`${BMO_BASE}/api/account/me`, {
+            credentials: 'include',
+            headers: { Authorization: `Bearer ${token}` }
+          })
+          if (res.status === 401) {
+            await clearWebToken()
+            return { configured, signedIn: false, user: null }
+          }
+          if (!res.ok) return { configured, signedIn: true, user: null }
+          return { configured, signedIn: true, user: await res.json() }
+        } catch {
+          return { configured, signedIn: true, user: null }
+        }
+      },
+      login: async () => {
+        const returnTo = `${location.origin}${location.pathname}`
+        location.href = `${BMO_BASE}/api/auth/discord/start?return_to=${encodeURIComponent(returnTo)}`
+        return { ok: true }
+      },
+      logout: async () => {
+        const token = await getWebToken()
+        if (token) {
+          try {
+            await fetch(`${BMO_BASE}/api/auth/logout`, {
+              method: 'POST',
+              credentials: 'include',
+              headers: { Authorization: `Bearer ${token}` }
+            })
+          } catch {
+            /* ignore — clear locally regardless */
+          }
+        }
+        await clearWebToken()
+        return { ok: true }
+      },
+      getToken: () => getWebToken()
+    },
+
+    // Cloud sync engine — per-user, per-entity. The browser carries the bearer
+    // token itself (same-origin behind the tunnel).
+    sync: {
+      manifest: async () => {
+        const token = await getWebToken()
+        if (!token) return { ok: false, objects: [] as unknown[] }
+        try {
+          const res = await fetch(`${BMO_BASE}/api/sync/manifest`, {
+            credentials: 'include',
+            headers: { Authorization: `Bearer ${token}` }
+          })
+          if (!res.ok) return { ok: false, objects: [] as unknown[] }
+          const body = (await res.json()) as { objects?: unknown[] }
+          return { ok: true, objects: body.objects ?? [] }
+        } catch {
+          return { ok: false, objects: [] as unknown[] }
+        }
+      },
+      getObject: async (domain: string, id: string): Promise<ArrayBuffer | null> => {
+        const token = await getWebToken()
+        if (!token) return null
+        try {
+          const res = await fetch(
+            `${BMO_BASE}/api/sync/object?domain=${encodeURIComponent(domain)}&id=${encodeURIComponent(id)}`,
+            { credentials: 'include', headers: { Authorization: `Bearer ${token}` } }
+          )
+          if (!res.ok) return null
+          return await res.arrayBuffer()
+        } catch {
+          return null
+        }
+      },
+      putObject: async (
+        domain: string,
+        id: string,
+        version: number,
+        mtime: number,
+        hash: string | null,
+        bytes: ArrayBuffer
+      ) => {
+        const token = await getWebToken()
+        if (!token) return { accepted: false }
+        try {
+          const form = new FormData()
+          form.set('domain', domain)
+          form.set('id', id)
+          form.set('version', String(version))
+          form.set('mtime', String(mtime))
+          form.set('hash', hash ?? '')
+          form.set('blob', new Blob([bytes]), 'blob.bin')
+          const res = await fetch(`${BMO_BASE}/api/sync/object`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { Authorization: `Bearer ${token}` },
+            body: form
+          })
+          if (!res.ok) return { accepted: false }
+          return await res.json()
+        } catch {
+          return { accepted: false }
+        }
+      },
+      deleteObject: async (domain: string, id: string, version: number) => {
+        const token = await getWebToken()
+        if (!token) return { accepted: false }
+        try {
+          const res = await fetch(
+            `${BMO_BASE}/api/sync/object?domain=${encodeURIComponent(domain)}&id=${encodeURIComponent(id)}&version=${version}`,
+            { method: 'DELETE', credentials: 'include', headers: { Authorization: `Bearer ${token}` } }
+          )
+          if (!res.ok) return { accepted: false }
+          return await res.json()
+        } catch {
+          return { accepted: false }
+        }
+      }
     },
 
     // Pi game registry → /api/games*. PHASE-46: every mutation honors the

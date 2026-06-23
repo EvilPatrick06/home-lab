@@ -741,6 +741,26 @@ const api = {
     restoreCampaign: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.CLOUD_SYNC_RESTORE, campaignId)
   },
 
+  // Account (Discord OAuth login + cloud-sync session). The desktop login runs
+  // the loopback OAuth flow in the main process; the renderer only sees status.
+  account: {
+    getStatus: () => ipcRenderer.invoke(IPC_CHANNELS.ACCOUNT_GET_STATUS),
+    login: () => ipcRenderer.invoke(IPC_CHANNELS.ACCOUNT_LOGIN),
+    logout: () => ipcRenderer.invoke(IPC_CHANNELS.ACCOUNT_LOGOUT),
+    getToken: () => ipcRenderer.invoke(IPC_CHANNELS.ACCOUNT_GET_TOKEN)
+  },
+
+  // Cloud sync engine — per-user, per-entity. Routes through main (which holds
+  // the bearer token) to the Pi /api/sync/*.
+  sync: {
+    manifest: () => ipcRenderer.invoke(IPC_CHANNELS.SYNC_MANIFEST),
+    getObject: (domain: string, id: string) => ipcRenderer.invoke(IPC_CHANNELS.SYNC_GET_OBJECT, domain, id),
+    putObject: (domain: string, id: string, version: number, mtime: number, hash: string | null, bytes: ArrayBuffer) =>
+      ipcRenderer.invoke(IPC_CHANNELS.SYNC_PUT_OBJECT, domain, id, version, mtime, hash, bytes),
+    deleteObject: (domain: string, id: string, version: number) =>
+      ipcRenderer.invoke(IPC_CHANNELS.SYNC_DELETE_OBJECT, domain, id, version)
+  },
+
   // Pi game registry — all REST runs in the main process; the live feed is
   // main-process polling pushed via REGISTRY_EVENT.
   registry: {

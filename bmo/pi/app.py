@@ -122,6 +122,15 @@ def _cache_policy(response):
         response.headers.setdefault("Access-Control-Allow-Methods", "GET, OPTIONS")
         response.headers.setdefault("Access-Control-Allow-Headers", "Content-Type, Authorization")
         response.headers.setdefault("Access-Control-Max-Age", "86400")
+    # Account + cloud-sync API (/api/auth, /api/account, /api/sync): per-user
+    # JWT-gated. The web VTT is same-origin so CORS isn't needed today, but set it
+    # for parity + any future cross-origin client (e.g. dungeon-scholar). The
+    # credential is a Bearer token in Authorization (no cookies), so ACAO '*' is safe.
+    if (request.path or "").startswith(("/api/auth", "/api/account", "/api/sync")):
+        response.headers.setdefault("Access-Control-Allow-Origin", "*")
+        response.headers.setdefault("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
+        response.headers.setdefault("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        response.headers.setdefault("Access-Control-Max-Age", "600")
     if "text/html" in response.content_type:
         # 'unsafe-eval' is REQUIRED: Alpine.js compiles its `x-data` / `@click`
         # / `x-show` expressions via `new AsyncFunction(expr)` at runtime, which
@@ -265,6 +274,7 @@ def _bmo_optional_api_key():
     # the actual route's method allowlist doesn't 405 them.
     if request.method == "OPTIONS" and (
         p.startswith("/api/games") or p.startswith("/api/rclone") or p.startswith("/api/sounds")
+        or p.startswith("/api/auth") or p.startswith("/api/account") or p.startswith("/api/sync")
     ):
         return ("", 204)
     # Default (no BMO_API_KEY env set): the app is OPEN — the VTT and any LAN
@@ -279,6 +289,13 @@ def _bmo_optional_api_key():
     # the dnd-app web build + the read-only content it needs + the hardened public
     # game-chat endpoint. Everything else stays behind the key.
     if _is_public_unauthenticated_path(p):
+        return None
+    # Account + cloud-sync API carries its own per-user JWT (services/auth_guard).
+    # It must skip this shared BMO_API_KEY front door so clients holding a *user*
+    # token (not the owner key) — e.g. the anonymous-origin browser VTT — can reach
+    # it; the route-level require_user decorator is the real gate. KEEP these in
+    # lockstep with the Cloudflare Access edge bypass.
+    if p.startswith("/api/auth") or p.startswith("/api/account") or p.startswith("/api/sync"):
         return None
     if _bmo_client_is_trusted_localhost():
         return None
@@ -2800,6 +2817,8 @@ from routes.tv_api import register_tv  # noqa: E402
 from routes.chat_api import register_chat  # noqa: E402
 from routes.realtime_ws import register_realtime  # noqa: E402
 from routes.webapp_api import register_webapp  # noqa: E402
+from routes.auth_api import register_auth  # noqa: E402
+from routes.sync_api import register_sync  # noqa: E402
 
 register_system(app)    # /health, /api/wifi, /api/volume, /api/audio, /api/tts, /api/settings, …
 register_music(app)     # /api/music/*
@@ -2808,6 +2827,8 @@ register_tv(app)        # /api/tv/*
 register_chat(app)      # /api/chat*, /api/dnd/*
 register_realtime(socketio)  # SocketIO connect/chat_message/plan_*/scratchpad_*/disconnect
 register_webapp(app)    # /DungeonTableOnline/* — dnd-app web build (SPA)
+register_auth(app)      # /api/auth/* (Discord OAuth login) + /api/account/* (cloud accounts)
+register_sync(app)      # /api/sync/* — per-user cloud sync (Pi hot hub + rclone mirror to Drive)
 
 # ── Main ─────────────────────────────────────────────────────────────
 
