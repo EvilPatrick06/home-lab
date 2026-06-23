@@ -1032,6 +1032,61 @@ interface CloudSyncAPI {
   restoreCampaign: (campaignId: string) => Promise<CloudSyncResult & { campaignId: string }>
 }
 
+interface AccountUser {
+  id: string
+  username: string | null
+  global_name: string | null
+  avatar: string | null
+  email: string | null
+  quota_bytes?: number
+  used_bytes?: number
+  created_at?: number
+}
+
+interface AccountStatus {
+  configured: boolean
+  signedIn: boolean
+  user: AccountUser | null
+}
+
+interface AccountLoginResult {
+  ok: boolean
+  error?: string
+  user?: AccountUser | null
+}
+
+interface AccountAPI {
+  getStatus: () => Promise<AccountStatus>
+  login: () => Promise<AccountLoginResult>
+  logout: () => Promise<{ ok: boolean }>
+  /** Bearer token for direct (web) sync calls; null on desktop (token stays in main). */
+  getToken: () => Promise<string | null>
+}
+
+interface SyncObjectMeta {
+  domain: string
+  id: string
+  hash: string | null
+  version: number
+  mtime: number
+  size: number
+  deleted: boolean
+}
+
+interface SyncAPI {
+  manifest: () => Promise<{ ok: boolean; objects: SyncObjectMeta[]; error?: string }>
+  getObject: (domain: string, id: string) => Promise<ArrayBuffer | null>
+  putObject: (
+    domain: string,
+    id: string,
+    version: number,
+    mtime: number,
+    hash: string | null,
+    bytes: ArrayBuffer
+  ) => Promise<{ accepted: boolean; winner?: SyncObjectMeta }>
+  deleteObject: (domain: string, id: string, version: number) => Promise<{ accepted: boolean; winner?: SyncObjectMeta }>
+}
+
 interface SoundsAPI {
   /** Resolve a bundled-sound rel-path (`dice/d20-1.mp3`) to a cached on-disk
    * path, downloading + caching it from the Pi first if absent. Null on failure
@@ -1174,6 +1229,8 @@ declare global {
         books: BooksAPI
         plugins: PluginAPI
         cloudSync: CloudSyncAPI
+        account: AccountAPI
+        sync: SyncAPI
         discord: DiscordAPI
         lan: LanAPI
         registry: RegistryAPI

@@ -8,6 +8,7 @@ import { SecurityEventSchema } from '../../shared/ipc-schemas'
 import { logToFile } from '../log'
 import { logSecurityEvent } from '../security-log'
 import { handle, withSchema } from './_safe'
+import { registerAccountHandlers } from './account-handlers'
 import { registerAiHandlers } from './ai-handlers'
 import { registerAudioHandlers } from './audio-handlers'
 import { registerBmoSyncHandlers } from './bmo-sync-handlers'
@@ -23,6 +24,7 @@ import { registerPluginHandlers } from './plugin-handlers'
 import { registerRegistryHandlers } from './registry-handlers'
 import { registerSoundCacheHandlers } from './sound-cache-handlers'
 import { registerStorageHandlers } from './storage-handlers'
+import { registerSyncHandlers } from './sync-handlers'
 
 export function registerIpcHandlers(): void {
   // --- Storage handlers (character, campaign, bastion, creature, game state, homebrew, settings) ---
@@ -211,6 +213,12 @@ export function registerIpcHandlers(): void {
 
   // --- Cloud sync handlers (Google Drive via Rclone on Pi) ---
   registerCloudSyncHandlers()
+
+  // --- Account handlers (Discord OAuth login + cloud accounts) ---
+  registerAccountHandlers()
+
+  // --- Cloud sync engine handlers (per-user, per-entity → Pi /api/sync) ---
+  registerSyncHandlers()
 
   // --- BMO Pi Bridge: Sync receiver & handlers ---
   registerBmoSyncHandlers()

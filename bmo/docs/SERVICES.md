@@ -213,6 +213,24 @@ The dnd-app can't hold Google Drive credentials, so campaign backups go through 
 
 Safety: rclone runs with a FIXED argv (no shell); `campaign_id` is slug-validated (rejects path traversal); the upload body cap is raised for `/backup` only (`BMO_MAX_BACKUP_SIZE`, default 512 MiB) via Werkzeug 3.1 per-request `max_content_length`, leaving the app-wide 32 MiB guard intact. ACAO + OPTIONS preflight wired like `/api/games`. LAN-open; off-LAN gated by the Cloudflare Access service token. Tests: `tests/test_rclone_api.py` (injected fake rclone runner).
 
+### Cloud accounts + per-user sync — D&D VTT (`routes/auth_api.py`, `routes/sync_api.py`)
+
+Discord-OAuth login + a per-user, per-entity cloud sync that supersedes the single-folder rclone backup (which stays for signed-out users). Identity is a JWT signed with the Flask `SECRET_KEY`; the user id is always derived from the verified token, never the request, so users are isolated. The Pi is the hot sync hub (`data/sync/<discord_id>/` blobs + `data/sync/manifest.db`), mirrored to `gdrive:DND-VTT-Accounts/<discord_id>/` via a debounced `rclone sync` (`services/sync_mirror.py`).
+
+| Path | Method | Auth | Purpose |
+|---|---|---|---|
+| `/api/auth/status` | GET | none | `{configured}` — is Discord OAuth set up on the Pi |
+| `/api/auth/discord/start?return_to=` | GET | none (rate-limited) | 302 → Discord authorize (signed `state`; `return_to` allowlisted) |
+| `/api/auth/discord/callback?code&state` | GET | none (rate-limited) | exchange code → mint JWT → deliver to client (web: URL `#token`, desktop loopback: `?token`) |
+| `/api/auth/logout` | POST | bearer | revoke the session (`sessions.revoked`) |
+| `/api/account/me` | GET | bearer | profile + quota/usage |
+| `/api/sync/manifest` | GET | bearer | `{objects:[{domain,id,hash,version,mtime,size,deleted}]}` |
+| `/api/sync/object?domain=&id=` | GET | bearer | the entity blob (octet-stream) + `X-Sync-*` headers |
+| `/api/sync/object` | POST (multipart) | bearer | store a blob — last-writer-wins by `version`; per-entity size + per-user quota |
+| `/api/sync/object?domain=&id=&version=` | DELETE | bearer | tombstone the entity |
+
+Services: `services/jwt_util.py` (mint/verify HS256), `services/accounts.py` (`data/accounts.db` users+sessions), `services/auth_guard.py` (`require_user`), `services/sync_store.py` (manifest + on-disk blobs, LWW), `services/sync_mirror.py` (debounced rclone mirror). Off-LAN these paths are CF-Access **bypass** at the edge (browsers carry no CF creds) and gated instead by the app JWT — KEEP `/api/auth`, `/api/account`, `/api/sync` in lockstep with `app.py`'s key-gate exemptions + the CF Access bypass app. Env: `DISCORD_OAUTH_CLIENT_ID` / `DISCORD_OAUTH_CLIENT_SECRET` / `DISCORD_OAUTH_REDIRECT_URI`. Tests: `tests/test_auth.py`, `tests/test_sync.py`.
+
 ### Bundled sounds — D&D VTT audio offload (`routes/sounds_api.py`)
 
 The dnd-app prefers Pi-hosted copies of its ~130 bundled MP3s when reachable (bundled fallback otherwise), to keep the installer thin. Served read-only from the monorepo's `dnd-app/src/renderer/public/sounds/`.

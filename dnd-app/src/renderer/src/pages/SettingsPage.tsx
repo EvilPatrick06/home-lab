@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router'
 import { AccessibilitySection } from '../components/settings/AccessibilitySection'
+import { AccountSection } from '../components/settings/AccountSection'
 import { AudioSection } from '../components/settings/AudioSection'
 import { AutoSaveSection } from '../components/settings/AutoSaveSection'
 import { CloudBackupSection } from '../components/settings/CloudBackupSection'
@@ -253,6 +254,11 @@ export default function SettingsPage(): JSX.Element {
             <UpdateSection />
           </Section>
         )}
+
+        {/* Account (Discord login + cloud sync) */}
+        <Section title="Account">
+          <AccountSection />
+        </Section>
 
         {/* Cloud Backup */}
         <Section title={t('pages.settingsPage.cloudBackup')}>
