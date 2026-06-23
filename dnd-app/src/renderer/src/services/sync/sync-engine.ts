@@ -176,12 +176,3 @@ export function stopSync(): void {
   }
   if (typeof window !== 'undefined') window.removeEventListener('focus', onFocus)
 }
-
-export function isSyncRunning(): boolean {
-  return running
-}
-
-/** Force an immediate reconcile (e.g. a "Sync now" button). */
-export async function syncNow(): Promise<void> {
-  await safeReconcile()
-}

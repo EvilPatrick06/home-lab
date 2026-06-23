@@ -21,7 +21,7 @@
 import { applyChangesToCharacter, buildLongRestChanges, buildShortRestChanges } from '../main/ai/stat-mutations-core'
 import type { StatChange } from '../main/ai/types'
 import type { Character5eV3 } from '../shared/types/character-5e'
-import { parseAiMutations } from './ai-mutations'
+import { buildDmSystemPrompt, parseAiMutations } from './ai-mutations'
 import { idbDelete, idbGet, idbGetAll, idbKeys, idbSet, idbWipeAll, type StoreName } from './idb'
 
 // ── Backend base URL ────────────────────────────────────────────────

@@ -7,7 +7,6 @@
  * The renderer never sees the token.
  */
 
-import type { AccountUser } from '../../shared/account-types'
 import { getBmoAccessHeaders, getBmoBaseUrl } from '../bmo-config'
 import * as session from './account-session'
 
@@ -74,9 +73,4 @@ export async function deleteObject(domain: string, id: string, version: number):
   const res = await fetch(url, { method: 'DELETE', headers: authHeaders() })
   if (!res.ok) throw new Error(`sync delete → ${res.status}`)
   return (await res.json()) as SyncPutResult
-}
-
-// Re-exported for callers that want the cached identity without a round-trip.
-export function cachedUser(): AccountUser | null {
-  return session.getUser()
 }
