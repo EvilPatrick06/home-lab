@@ -5,12 +5,15 @@
 
 ## Project Identity
 
-**home-lab** is a monorepo with two domains that communicate via HTTP:
+**home-lab** is a monorepo with three project domains (plus one edge worker) that communicate via HTTP:
 
 1. **`dnd-app/`** — Electron desktop Virtual Tabletop (VTT) for running D&D 5e games. TypeScript + React 19 + Vite. Runs on player/DM laptops.
 2. **`bmo/`** — Raspberry Pi voice assistant named BMO. Python Flask. Runs 24/7 on a Pi 5. Hosts Discord DM bot, music, calendar, weather, smart home, and the AI Dungeon Master brain for D&D sessions.
+3. **`dungeon-scholar/`** — D&D-themed exam-prep study web app (Vite + React + Supabase). Deployed to GitHub Pages.
 
-Both live in the same git repo because they're tightly coupled: BMO narrates D&D sessions via the VTT, VTT sends combat state to BMO, Discord players interact through BMO to the VTT.
+Plus **`oracle-worker/`** — a Cloudflare Worker that backs dungeon-scholar’s Oracle proxy (AI grading/chat), wired into deploy via `VITE_ORACLE_ENDPOINT`.
+
+dnd-app and bmo are tightly coupled: BMO narrates D&D sessions via the VTT, VTT sends combat state to BMO, Discord players interact through BMO to the VTT. dungeon-scholar is independent (its only backend is oracle-worker).
 
 ## How to Start Working
 

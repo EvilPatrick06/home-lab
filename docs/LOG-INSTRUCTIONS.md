@@ -40,6 +40,7 @@ Active logs are **fully domain-split** for issues + suggestions. Security stays 
 3. Edge-cases:
    - `Domain: tooling` → file under whichever domain it most affects (most commit hooks / CI / lint configs touch one domain primarily). If genuinely multi-domain, mirror.
    - `Domain: infra` → BMO log (the Pi is BMO's host; pip/npm caches, systemd, host packages, etc.).
+   - `oracle-worker/` (Cloudflare Worker backing dungeon-scholar's Oracle proxy) → file under the **dungeon-scholar** logs; it is dungeon-scholar's backend.
    - `Domain: docs` for repo-root docs (`README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, etc.) → BMO log by default; if it's domain-specific docs, file under that domain.
    - **`Domain: both` deliberately duplicates** — small cost, big benefit (single grep finds it from either side; one fix removes both copies).
 
