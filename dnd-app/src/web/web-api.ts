@@ -77,7 +77,13 @@ async function saveEntity(store: StoreName, entity: Dict): Promise<Dict> {
   const id = (entity.id as string | undefined) ?? genId()
   const withId = { ...entity, id }
   await idbSet(store, id, withId)
-  return withId
+  // PHASE-47 F1 — return the desktop `{ success: true }` StorageResult contract
+  // (plus the id/entity for callers that read it). The persisted record
+  // (`withId`) is unchanged — `success` lives only on the return value. Without
+  // it, a store guard like `if (result && !result.success)` (bastion-store) saw
+  // `success === undefined`, bailed before `set()`, and the UI went stale until
+  // a reload.
+  return { ...withId, success: true }
 }
 
 async function loadJson<T = unknown>(path: string): Promise<T | null> {

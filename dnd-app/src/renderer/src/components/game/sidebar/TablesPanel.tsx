@@ -4,6 +4,7 @@ import { load5eRandomTables } from '../../../services/data-provider'
 import { rollFormula } from '../../../services/dice/dice-engine'
 import { useLobbyStore } from '../../../stores/use-lobby-store'
 import { cryptoRandom, cryptoRollDie } from '../../../utils/crypto-random'
+import { formatTableEntry } from './table-entry-format'
 
 interface RandomTableData {
   [key: string]: unknown
@@ -82,12 +83,16 @@ export default function TablesPanel(): JSX.Element {
     let rollInfo = ''
 
     if (table.type === 'array') {
-      const arrayData = table.data as string[]
+      const arrayData = table.data as unknown[]
       if (arrayData.length === 0) {
         result = t('game.tablesPanel.noEntriesInTable')
       } else {
         const roll = cryptoRollDie(arrayData.length)
-        result = arrayData[roll - 1]
+        // PHASE-47 F3 — entries may be objects (e.g. Weather rows); render the
+        // display field, never "[object Object]". (Secondary: such min/max
+        // range tables are still rolled 1dN by count, not weighted by range —
+        // logged to ISSUES-LOG-DNDAPP.md.)
+        result = formatTableEntry(arrayData[roll - 1], t('game.tablesPanel.unknown'))
         rollInfo = `1d${arrayData.length} = ${roll}`
       }
     } else if (table.type === 'diceTable') {

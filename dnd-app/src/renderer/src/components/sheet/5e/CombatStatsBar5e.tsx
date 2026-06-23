@@ -54,7 +54,8 @@ export default function CombatStatsBar5e({ character, readonly }: CombatStatsBar
         dexCap = dexCap + 1
       }
       const cappedDex = dexCap === 0 ? 0 : dexCap != null ? Math.min(dexMod, dexCap) : dexMod
-      ac = equippedArmor.acBonus + cappedDex
+      // PHASE-47 F2 — acBonus is bonus-over-10 (Chain Mail = 6); add the base 10.
+      ac = 10 + equippedArmor.acBonus + cappedDex
       if (hasDefenseFS) ac += 1
     } else {
       const classNames = effectiveClasses.map((c) => c.name.toLowerCase())
