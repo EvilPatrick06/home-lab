@@ -39,7 +39,7 @@ PHASE-27 extending the extraction verb set to cover board actions first.
 
 - **Resolved by:** dnd-resolver (automated)
 - **Date resolved:** 2026-06-23
-- **Resolution:** Began the per-section split (the existing pattern already had UpdateSection/PluginManager/CloudBackupSection/KeybindingEditor as separate functions). Extracted the shared panel wrapper into components/settings/SettingsSection.tsx and the largest inline panel — Accessibility (UI scale, colorblind, reduced motion, screen-reader, tooltips, font, ~195 lines, all backed by useAccessibilityStore so it needed no prop plumbing) — into components/settings/AccessibilitySection.tsx. SettingsPage.tsx dropped from 1978 to 1783 lines; the remaining inline Sections can be peeled off into components/settings/ the same way. tsc web green; SettingsPage test passes; biome clean.
+- **Resolution:** Began the per-section split (the existing pattern already had UpdateSection/PluginManager/CloudBackupSection/KeybindingEditor as separate functions). Extracted the shared panel wrapper into components/settings/SettingsSection.tsx and the largest inline panel — Accessibility (UI scale, colorblind, reduced motion, screen-reader, tooltips, font, ~195 lines, all backed by useAccessibilityStore so it needed no prop plumbing) — into components/settings/AccessibilitySection.tsx. SettingsPage.tsx dropped from 1978 to 1675 lines across two extractions (Accessibility + Notifications panels into components/settings/, plus the shared Section wrapper); remaining inline Sections peel off the same way. tsc web green; SettingsPage test passes; biome clean.
 
 - **Category:** debt, future-idea
 - **Severity:** low
