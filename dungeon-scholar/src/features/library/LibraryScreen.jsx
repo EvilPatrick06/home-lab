@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Gift, ChevronRight, Library, Wand2, Copy, Hash, Upload, Scroll, BookMarked, Check, X, Star, Share2, Tag, Edit2, Trash2, ScrollText } from 'lucide-react';
+import { Gift, ChevronRight, Library, Wand2, Copy, Hash, Upload, Scroll, BookMarked, Check, X, Star, Share2, Tag, Edit2, Trash2, ScrollText, Search } from 'lucide-react';
 import RichContent from '../../components/RichContent.jsx';
 import { blankTomeProgress } from '../../game/tome.js';
 import { isSealedTome } from '../../services/sealedTome.js';
@@ -8,6 +8,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
   const [renamingId, setRenamingId] = useState(null);
   const [renameValue, setRenameValue] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [query, setQuery] = useState(''); // S6: client-side content search
 
   const startRename = (tome) => {
     setRenamingId(tome.id);
@@ -31,6 +32,26 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
     if (ap !== bp) return bp - ap;
     return (b.lastOpened || 0) - (a.lastOpened || 0);
   }), [playerState.library]);
+
+  // S6: offline content search across tome title/subject/domain and (for
+  // unsealed tomes) flashcard + quiz text. Sealed tomes match on metadata only.
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return sorted;
+    const haystack = (tome) => {
+      const meta = tome.data.metadata || {};
+      const parts = [meta.title, meta.subject, meta.domain];
+      if (!isSealedTome(tome.data)) {
+        for (const card of (tome.data.flashcards || [])) parts.push(card.front, card.back, card.term, card.definition, card.explanation);
+        for (const item of (tome.data.quiz || [])) {
+          parts.push(item.question, item.explanation);
+          if (Array.isArray(item.options)) parts.push(...item.options);
+        }
+      }
+      return parts.filter(Boolean).join(' \u0001 ').toLowerCase();
+    };
+    return sorted.filter((t) => haystack(t).includes(q));
+  }, [sorted, query]);
 
   return (
     <div className="space-y-6">
@@ -148,8 +169,28 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
       )}
 
       {sorted.length > 0 && (
+        <div className="flex items-center gap-2 px-1">
+          <Search className="w-4 h-4 text-amber-500" aria-hidden="true" />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search tomes & cards…"
+            aria-label="Search the library by tome title or card text"
+            className="flex-1 px-3 py-2 rounded-sm border-2 border-amber-700 text-amber-100 italic text-sm focus:outline-hidden"
+            style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.5)' }}
+          />
+          {query && <span className="text-xs text-amber-700 italic whitespace-nowrap">{filtered.length} match{filtered.length === 1 ? '' : 'es'}</span>}
+        </div>
+      )}
+
+      {sorted.length > 0 && filtered.length === 0 && (
+        <div className="text-center py-8 text-amber-700 italic">No tomes or cards match thy search.</div>
+      )}
+
+      {filtered.length > 0 && (
         <div className="grid md:grid-cols-2 gap-4">
-          {sorted.map(tome => {
+          {filtered.map(tome => {
             const isActive = tome.id === playerState.activeTomeId;
             const meta = tome.data.metadata || {};
             // PHASE-41 41B: a sealed tome has no top-level content arrays (they

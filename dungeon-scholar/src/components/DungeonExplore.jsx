@@ -3609,6 +3609,18 @@ export default function DungeonExplore({
   }, [pos]);
 
   // === rAF render loop ===================================================
+  // S5: track prefers-reduced-motion (the canvas RAF loop can't be reached by
+  // the CSS media query). Used to throttle the loop + freeze ambient motion.
+  const reducedMotionRef = useRef(false);
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return undefined;
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const apply = () => { reducedMotionRef.current = mq.matches; };
+    apply();
+    mq.addEventListener?.('change', apply);
+    return () => mq.removeEventListener?.('change', apply);
+  }, []);
+
   useEffect(() => {
     if (phase !== 'world') return undefined;
     const canvas = canvasRef.current;
@@ -3616,8 +3628,15 @@ export default function DungeonExplore({
     const ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
     let raf;
+    let lastFrame = 0;
+    const REDUCED_FRAME_MS = 1000 / 15;
 
     const tick = (now) => {
+      // S5: honor prefers-reduced-motion — cap the loop to ~15fps and freeze
+      // ambient sprite cycling. Gameplay stays correct (it is time-based on now).
+      const reduce = reducedMotionRef.current;
+      if (reduce && now - lastFrame < REDUCED_FRAME_MS) { raf = requestAnimationFrame(tick); return; }
+      lastFrame = now;
       const s = stateRef.current;
       const target = s.pos;
       const start = lastPosRef.current;
@@ -3650,7 +3669,7 @@ export default function DungeonExplore({
       }
 
       const moving = t < 1;
-      const walkFrame = moving ? Math.floor(now / WALK_FRAME_MS) % 4 : 0;
+      const walkFrame = (moving && !reduce) ? Math.floor(now / WALK_FRAME_MS) % 4 : 0;
 
       // Mob AI — but pause while a battle is open or run is over. Each mob
       // ticks at its own cadence based on `nextMoveAt`. Behavior depends on
