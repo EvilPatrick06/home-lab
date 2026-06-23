@@ -1,12 +1,13 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { MemoryRouter } from 'react-router'
+import { BrowserRouter, MemoryRouter } from 'react-router'
 import './stores/register-stores'
 import App from './App'
 import ErrorBoundary from './components/ui/ErrorBoundary'
 import { initI18n } from './i18n'
 import { initPluginSystem } from './services/plugin-system'
 import { logger } from './utils/logger'
+import { isWebBuild } from './utils/platform'
 import './styles/globals.css'
 
 // Log unhandled errors to console (ErrorBoundary catches render errors,
@@ -23,12 +24,19 @@ window.addEventListener('unhandledrejection', (e) => {
 initI18n()
   .catch((e) => logger.warn('[Init] i18n init failed', e))
   .finally(() => {
+    // Web build: real URLs via BrowserRouter (basename = the Vite base,
+    // /DungeonTableOnline) so deep links + refresh land on the right page instead
+    // of resetting to the menu, and each route code-splits. Desktop runs from
+    // file://, where only the in-memory router works.
+    const isWeb = isWebBuild()
+    const Router = isWeb ? BrowserRouter : MemoryRouter
+    const basename = isWeb ? import.meta.env.BASE_URL.replace(/\/+$/, '') || undefined : undefined
     ReactDOM.createRoot(document.getElementById('root')!).render(
       <React.StrictMode>
         <ErrorBoundary>
-          <MemoryRouter>
+          <Router basename={basename}>
             <App />
-          </MemoryRouter>
+          </Router>
         </ErrorBoundary>
       </React.StrictMode>
     )

@@ -8,15 +8,15 @@ to Cloudflare Access (so the Access-protected AI DM endpoints work).
 
 Routes (all under `/DungeonTableOnline`):
 - `GET /DungeonTableOnline/`        -> index.html (the SPA shell)
-- `GET /DungeonTableOnline/<path>`  -> the built asset, served by the blueprint
-                                      static handler, which jails the request
-                                      path under the serve root (so the
-                                      file-access sink lives in framework code,
-                                      not here -- no hand-rolled path joining of
-                                      request data).
+- `GET /DungeonTableOnline/<path>`  -> the built asset if it exists (served by
+                                      `send_from_directory`, which jails the
+                                      request path under the serve root), else
+                                      index.html as the SPA fallback.
 
-The renderer uses an in-memory router, so the browser URL never leaves
-`/DungeonTableOnline/`; there are no server-side deep links to fall back for.
+The web build uses BrowserRouter (basename `/DungeonTableOnline`), so deep links
+like `/DungeonTableOnline/settings` or `/game/<id>` are real URLs. On refresh /
+direct navigation the unknown sub-path isn't a file, so it falls back to
+index.html and the client-side router renders the right page.
 
 Serve dir: `$DND_WEB_DIST` (default `/home/patrick/web-apps/DungeonTableOnline`),
 resolved once at import. If absent, the index route 404s with a friendly note
@@ -27,15 +27,15 @@ from __future__ import annotations
 
 import os
 
-from flask import Blueprint, Response, send_file
+from flask import Blueprint, Response, send_file, send_from_directory
+from werkzeug.exceptions import NotFound
 
 # Canonical (symlink-resolved) absolute serve root.
 _DIST_DIR: str = os.path.realpath(os.environ.get("DND_WEB_DIST", "/home/patrick/web-apps/DungeonTableOnline"))
 
-# The blueprint static handler serves /DungeonTableOnline/<path> from the serve
-# root and safely rejects traversal/absolute paths internally -- the only place
-# untrusted request paths touch the filesystem, and it is framework code.
-webapp_bp = Blueprint("webapp", __name__, static_folder=_DIST_DIR, static_url_path="/DungeonTableOnline")
+# No static_folder: the catch-all below owns /DungeonTableOnline/<path> so it can
+# serve real assets AND fall back to index.html for client-router deep links.
+webapp_bp = Blueprint("webapp", __name__)
 
 _NOT_DEPLOYED = (
     "Dungeon Table Online is not deployed yet. "
@@ -55,6 +55,23 @@ def _serve_index() -> Response:
 @webapp_bp.route("/DungeonTableOnline")
 def webapp_index() -> Response:
     return _serve_index()
+
+
+@webapp_bp.route("/DungeonTableOnline/<path:subpath>")
+def webapp_asset(subpath: str) -> Response:
+    """Serve a built asset if it exists, else fall back to index.html.
+
+    ``send_from_directory`` jails ``subpath`` under ``_DIST_DIR`` (rejecting
+    traversal/absolute paths) -- the only place untrusted request paths touch the
+    filesystem, and it is framework code. A miss (a BrowserRouter deep link like
+    ``/settings`` or ``/game/<id>``, or a traversal attempt) raises NotFound, which
+    we turn into the SPA shell so a refresh / direct navigation boots the app
+    instead of 404ing.
+    """
+    try:
+        return send_from_directory(_DIST_DIR, subpath)
+    except NotFound:
+        return _serve_index()
 
 
 def register_webapp(flask_app) -> None:

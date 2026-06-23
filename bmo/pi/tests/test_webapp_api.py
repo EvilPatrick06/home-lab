@@ -9,8 +9,8 @@ from flask import Flask
 
 
 def _make_app(dist_dir):
-    # The blueprint binds static_folder at import, so the serve root must be set
-    # via env BEFORE the module is (re)loaded.
+    # _DIST_DIR is resolved at import, so the serve root must be set via env
+    # BEFORE the module is (re)loaded.
     os.environ["DND_WEB_DIST"] = str(dist_dir)
     import routes.webapp_api as mod
 
@@ -38,11 +38,15 @@ def test_asset_served(tmp_path):
     assert b"console.log" in resp.data
 
 
-def test_unknown_path_404(tmp_path):
-    # In-memory router -> no server-side deep links; unknown asset paths 404.
+def test_unknown_path_serves_spa_index(tmp_path):
+    # BrowserRouter deep links: a sub-path that isn't a real asset falls back to
+    # index.html so a refresh / direct navigation boots the SPA (the client router
+    # then renders the right page) instead of 404ing.
     (tmp_path / "index.html").write_text("INDEX")
-    resp = _make_app(tmp_path).test_client().get("/DungeonTableOnline/assets/missing.js")
-    assert resp.status_code == 404
+    client = _make_app(tmp_path).test_client()
+    assert client.get("/DungeonTableOnline/settings").status_code == 200
+    resp = client.get("/DungeonTableOnline/game/abc-123")
+    assert resp.status_code == 200 and b"INDEX" in resp.data
 
 
 def test_path_traversal_rejected(tmp_path):
