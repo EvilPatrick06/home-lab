@@ -123,7 +123,9 @@ export default function DiceRenderer({
     renderer.setSize(width, height)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     renderer.shadowMap.enabled = true
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap
+    // PCFSoftShadowMap is deprecated in our three (WebGLShadowMap warns + silently
+    // uses PCFShadowMap anyway), so set the non-deprecated constant directly.
+    renderer.shadowMap.type = THREE.PCFShadowMap
     renderer.setClearColor(0x000000, 0)
     rendererRef.current = renderer
 

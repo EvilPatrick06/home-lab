@@ -10,7 +10,12 @@ vi.mock('three', () => {
   })
 
   const makeGeo = () => {
-    const attributes: Record<string, ReturnType<typeof makeMockBufferAttribute>> = {}
+    // Model a real polyhedron: non-indexed (no `index` property) with a position
+    // attribute already present. The generators now read getAttribute('position')
+    // directly, since toNonIndexed() is skipped for already-non-indexed geometry.
+    const attributes: Record<string, ReturnType<typeof makeMockBufferAttribute>> = {
+      position: makeMockBufferAttribute([0, 1, 0, -1, -1, 0, 1, -1, 0], 3)
+    }
     return {
       computeVertexNormals: vi.fn(),
       getAttribute: vi.fn((name: string) => attributes[name]),

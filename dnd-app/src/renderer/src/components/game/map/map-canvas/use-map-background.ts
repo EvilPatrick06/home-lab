@@ -33,7 +33,13 @@ export function useMapBackground(args: {
     const loadBg = async (): Promise<void> => {
       if (bgSpriteRef.current) {
         worldRef.current?.removeChild(bgSpriteRef.current)
-        bgSpriteRef.current.destroy({ children: true, texture: true })
+        // Destroy the SPRITE only — NOT the texture. The texture is owned by Assets
+        // (Assets.load below caches it under the image path). Destroying it here fires
+        // PixiJS's "Texture managed by Assets was destroyed instead of unloaded" warning
+        // AND leaves a stale cache entry that then warns "[Cache] already has key" when
+        // the same map reloads. Letting Assets keep it cached also makes re-opening a
+        // map instant (bounded by the number of distinct map images).
+        bgSpriteRef.current.destroy({ children: true })
         bgSpriteRef.current = null
       }
       if (!map?.imagePath) return

@@ -106,7 +106,8 @@ export function createD4(colors: DiceColors, isHidden: boolean, solidOnly: boole
 
   const faceLabels = ['1', '2', '3', '4']
 
-  const nonIndexedGeo = geo.toNonIndexed()
+  // Already-non-indexed polyhedra would warn on toNonIndexed(); convert only when indexed.
+  const nonIndexedGeo = geo.index ? geo.toNonIndexed() : geo
   for (let i = 0; i < 4; i++) {
     nonIndexedGeo.addGroup(i * 3, 3, i)
   }
@@ -166,7 +167,8 @@ export function createD8(colors: DiceColors, isHidden: boolean, solidOnly: boole
   const radius = 0.75 * DIE_SCALE
   const geo = new THREE.OctahedronGeometry(radius)
 
-  const nonIndexedGeo = geo.toNonIndexed()
+  // Already-non-indexed polyhedra would warn on toNonIndexed(); convert only when indexed.
+  const nonIndexedGeo = geo.index ? geo.toNonIndexed() : geo
   for (let i = 0; i < 8; i++) {
     nonIndexedGeo.addGroup(i * 3, 3, i)
   }
@@ -244,7 +246,7 @@ export function createD10(
   baseGeo.setIndex(indices)
   baseGeo.computeVertexNormals()
 
-  const nonIndexedGeo = baseGeo.toNonIndexed()
+  const nonIndexedGeo = baseGeo.index ? baseGeo.toNonIndexed() : baseGeo
   for (let i = 0; i < 10; i++) {
     nonIndexedGeo.addGroup(i * 6, 6, i)
   }
@@ -287,7 +289,8 @@ export function createD12(colors: DiceColors, isHidden: boolean, solidOnly: bool
   const radius = 0.75 * DIE_SCALE
   const geo = new THREE.DodecahedronGeometry(radius)
 
-  const nonIndexedGeo = geo.toNonIndexed()
+  // Already-non-indexed polyhedra would warn on toNonIndexed(); convert only when indexed.
+  const nonIndexedGeo = geo.index ? geo.toNonIndexed() : geo
   const totalVerts = nonIndexedGeo.getAttribute('position').count
   const trisPerFace = totalVerts / (12 * 3) > 1 ? 3 : 1
   const vertsPerFace = trisPerFace * 3
@@ -319,7 +322,8 @@ export function createD20(colors: DiceColors, isHidden: boolean, solidOnly: bool
   const radius = 0.8 * DIE_SCALE
   const geo = new THREE.IcosahedronGeometry(radius)
 
-  const nonIndexedGeo = geo.toNonIndexed()
+  // Already-non-indexed polyhedra would warn on toNonIndexed(); convert only when indexed.
+  const nonIndexedGeo = geo.index ? geo.toNonIndexed() : geo
   for (let i = 0; i < 20; i++) {
     nonIndexedGeo.addGroup(i * 3, 3, i)
   }

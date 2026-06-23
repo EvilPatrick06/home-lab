@@ -102,7 +102,9 @@ function buildTriangularFaceDie(
   isHidden: boolean,
   solidOnly: boolean = false
 ): DieDefinition {
-  const nonIndexedGeo = geo.toNonIndexed()
+  // Polyhedron-based dice geometries are already non-indexed; calling toNonIndexed()
+  // on them is a no-op that warns. Only convert when actually indexed.
+  const nonIndexedGeo = geo.index ? geo.toNonIndexed() : geo
   assignFaceGroups(nonIndexedGeo, faceCount)
   nonIndexedGeo.setAttribute('uv', new THREE.Float32BufferAttribute(buildTriangleFaceUVs(faceCount), 2))
 
@@ -220,7 +222,7 @@ function _createD10(colors: DiceColors, isHidden: boolean, isPercentile: boolean
   baseGeo.computeVertexNormals()
 
   // Convert to non-indexed for per-face materials
-  const nonIndexedGeo = baseGeo.toNonIndexed()
+  const nonIndexedGeo = baseGeo.index ? baseGeo.toNonIndexed() : baseGeo
   // 10 faces × 2 triangles = 20 triangles × 3 verts = 60 vertices
   for (let i = 0; i < 10; i++) {
     nonIndexedGeo.addGroup(i * 6, 6, i)
@@ -267,7 +269,9 @@ function _createD12(colors: DiceColors, isHidden: boolean): DieDefinition {
   const radius = 0.75 * DIE_SCALE
   const geo = new THREE.DodecahedronGeometry(radius)
 
-  const nonIndexedGeo = geo.toNonIndexed()
+  // Polyhedron-based dice geometries are already non-indexed; calling toNonIndexed()
+  // on them is a no-op that warns. Only convert when actually indexed.
+  const nonIndexedGeo = geo.index ? geo.toNonIndexed() : geo
   // Dodecahedron: 12 pentagonal faces → each tessellated to 3 triangles = 36 triangles
   const totalVerts = nonIndexedGeo.getAttribute('position').count
   const trisPerFace = totalVerts / (12 * 3) > 1 ? 3 : 1

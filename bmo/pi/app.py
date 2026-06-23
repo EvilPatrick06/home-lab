@@ -159,7 +159,10 @@ def _cache_policy(response):
             "https://lh3.googleusercontent.com "
             "https://i.ytimg.com; "
             "font-src 'self' data: https://cdn.jsdelivr.net; "
-            "connect-src 'self' ws: wss:; "
+            # `data:` in connect-src lets PixiJS's ImageBitmap feature-detect
+            # (fetch of a 1x1 data: PNG) succeed instead of falling back to the
+            # slower HTMLImage path. The Electron build's CSP already allows it.
+            "connect-src 'self' data: ws: wss:; "
             "frame-ancestors 'self'; "
             "base-uri 'self'; "
             "object-src 'none'",
