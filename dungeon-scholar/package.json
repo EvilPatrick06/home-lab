@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "audit:ci": "npm audit --omit=dev --audit-level=moderate",
     "lint": "npx --yes @biomejs/biome@2.4.16 check src",
-    "format": "npx --yes @biomejs/biome@2.4.16 check --write src"
+    "lint:fix": "npx --yes @biomejs/biome@2.4.16 check --write src",
+    "format": "npx --yes @biomejs/biome@2.4.16 format --write src"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",
