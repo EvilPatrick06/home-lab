@@ -28,6 +28,8 @@ Tested: dnd-vtt WEB build (Dungeon Table Online) v2.4.77 — 2026-06-22 · URL: 
 
 **Root cause (confirmed in source):** `bmo/pi/app.py` `_bmo_optional_api_key()` early-returns (exempts) only `p in ("/health", "/favicon.ico")` and `p.startswith("/static/")`. The webapp blueprint serves under `/DungeonTableOnline` (`static_url_path="/DungeonTableOnline"`, see `bmo/pi/routes/webapp_api.py`), which is NOT in the exemption set, so the gate 401s it.
 
+**Live update (stronger than shell-401):** Even exempting the static SPA routes is **not sufficient** — the SPA's *runtime* `/api/*` calls (registry, game state, DM bot, etc.) are still gated by the key, and a browser cannot attach `Authorization: Bearer` to its own same-origin fetches. Observed live with hardening ON: `GET /DungeonTableOnline/` → 200 (shell loads) but **every `/api/*` fetch from the page failed** (`TypeError: Failed to fetch`; `GET /api/games` → 401 via direct fetch), so the web client loads an empty shell that can't reach any data. So `BMO_API_KEY` hardening as written is fundamentally incompatible with the public browser client — it needs either a cookie/session the browser can carry, or the web origin served without the API-key gate.
+
 **Suggested action:** Add the web-app prefix to the before_request exemptions — e.g. allow `p == "/DungeonTableOnline"` or `p.startswith("/DungeonTableOnline/")` (the SPA shell + `/assets`, `/data`, `/fonts`, `/sounds`, the pdf worker) to pass without a key, the same way `/static/` is exempted. Keep `/api/*` gated.
 
 **Environment:** web build · external browser (non-localhost) · BMO_API_KEY hardening enabled
@@ -154,6 +156,33 @@ Tested: dnd-vtt WEB build (Dungeon Table Online) v2.4.77 — 2026-06-22 · URL: 
 **Note:** Positive verification (no finding): the prior desktop QA "level-10 makes the character uncompletable (caps stuck at 3/4)" High bug does **not** reproduce here — at level 10 the builder accepted 5/5 cantrips and prepared-spell selection advanced past 4 (reached 6/15), so the caps scale correctly in web v2.4.77.
 
 ## Phase 4 — Bastion + Calendar
+### Bastion Turn cycle does nothing — empty Turn Summary, no event logged, no BP/gold/day change, no turn recorded
+- **Category:** bug
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** QA Agent
+- **During:** Phase 4 — Bastion → Bastion Turns → New Turn → Issue Maintain order → Roll d100 Event
+
+**Description:** Running a full Bastion Turn produced no result. Flow: "+ New Turn" → "Bastion Turn 1: Assign orders…" → checked **"Issue Maintain order (triggers d100 event)"** → **Execute Turn** → "Orders issued. Roll for a bastion event?" → **Roll d100 Event**. The resulting **Turn Summary modal rendered empty** — just a "Bastion Turn 1" title and an X, with **no BP earned / gold / event result and no "Complete Turn" button**. After closing + reloading, **nothing changed**: Bastion Turns (0) "No turns recorded yet", Events Log (0) "No events recorded yet", **Day still 1, 0 BP, Treasury unchanged**. No console error was thrown.
+
+**Reproduction:**
+1. Open a bastion → Bastion Turns → + New Turn.
+2. Check "Issue Maintain order (triggers d100 event)" → Execute Turn → Roll d100 Event.
+3. Summary modal is empty (no outcome, no Complete Turn).
+4. Reload → Bastion Turns 0, Events Log 0, Day/BP/Treasury unchanged.
+
+**Expected behavior:** The turn should produce a Turn Summary (BP earned, gold, event), log the d100 event in Events Log, advance the day/turn counter, and record the turn — or, if a Lv-1 facility-less bastion legitimately has nothing to maintain, the summary should say so instead of rendering blank.
+
+**Hypothesis / root cause:** The turn-execution path may early-return with no special facilities to process and never populate the summary or persist a turn record; or the summary-state update fails (related to the Bastion reactivity issue above). Speculation.
+
+**Suggested action:** Populate the Turn Summary with the actual outcome (incl. a "no special facilities" empty-state), log the rolled event, persist the turn + advance the day.
+
+**Environment:** web build · English · Dark · Lv-1 owner, 2 basic facilities, 0 special
+
+**Related files:** `dnd-app/src/renderer/src/` (Bastion turn execution + Turn Summary modal + Events Log + bastion store)
+
+**Note (verified working):** Special-facility level-gating is correctly enforced — at Lv 1 the cap is 0/0 and the "Add Special Facility" button is disabled with the note "Special facilities unlock when the bastion owner reaches level 5 (2024 DMG)". The turn-cycle UI flow (New Turn → Issue Maintain → Roll/Skip d100 Event) all renders and advances through its steps.
+
 ### Bastion mutations (create, treasury deposit) persist but the UI doesn't update until a full page reload
 - **Category:** bug
 - **Severity:** medium
@@ -203,6 +232,31 @@ The data layer is fine; the **reactive UI update after a mutation is broken** in
 **Related files:** `dnd-app/src/renderer/src/pages/` (Bastion page / Create Bastion modal)
 
 ## Phase 6 — In-game: map, combat & DM tools (Solo)
+### Fog of War "Hide All" shows no visible concealment (DM view no tint; player-view inconclusive in-harness) — matches desktop report
+- **Category:** bug
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** QA Agent
+- **During:** Phase 6 — in-game → Map editor (Edit Map) → Fog tab → Hide All, then Switch to Player View (QA Solo Fighter)
+
+**Description:** In the map editor the **Fog** tab exposes Reveal/Hide brush, brush sizes (1x1/3x3/5x5), **Reveal All / Hide All**, and a Dynamic Vision toggle — the buttons respond (Hide All highlights when active). But clicking **Hide All** produced **no visible fog overlay in the DM view** (map stayed fully visible, no tint). Switching to the player view (Switch to Player View → QA Solo Fighter) the visible portion of the map also still rendered rather than being concealed. This matches the desktop QA report's High "Fog of War 'Hide All' shows no effect" finding.
+
+**Caveat (honest):** I could not get a fully clean player-view capture — the player HUD overlay plus the app's fixed in-game UI scale made it impossible to render the whole board uncovered through the browser-automation harness, so the player-view concealment check is **inconclusive/unverified** (the part I could see was not concealed). DM-view "no tint" is weaker evidence alone (some VTTs let the DM see through fog). Filing as medium + cross-referencing the desktop finding rather than asserting a hard repro.
+
+**Reproduction:**
+1. Enter a game → Map tab → Edit Map → Fog tab.
+2. Click Hide All. DM view: no visible fog/tint over the map.
+3. Switch to Player View (QA Solo Fighter): visible map area still rendered.
+
+**Expected behavior:** Hide All should conceal the whole map for players (and show a clear fog overlay in the DM view); Reveal/brush carves out visible areas.
+
+**Suggested action:** Verify the fog mask is actually rendered/applied for player view on Hide All; confirm the DM-view fog overlay draws.
+
+**Environment:** Solo game · web build · English · Dark · DM view + As player: QA Solo Fighter
+
+**Note (verified present/responsive):** The map editor works — tabs Tokens / Fog / Terrain / Regions / Grid / Npcs, a left DM-tools rail (Select, Token, Reveal Fog, Hide Fog, **Wall**, Measure), the Place-Token panel (search monsters, entity type, HP/AC/size, Prepare Token), and drawing tools (free draw / line / rect / circle / text). View-As is full-featured (Self / As player / As role: DM, Co-DM, Player, Spectator). Walls/dynamic-lighting/AoE *render effects* not deep-verified (same HUD/zoom harness limits).
+**Also:** the in-game player HUD shows **AC 16** (correct, Chain Mail) for QA Solo Fighter — confirming the Phase 2 "AC 6" bug is isolated to the **character-sheet display**, not the in-game effective-AC calc.
+
 
 ### [High] Entering a game hard-crashes ("Failed to fetch dynamically imported module: InGamePage-*.js") for any session open across a redeploy
 - **Category:** bug | portability
@@ -305,6 +359,36 @@ The data layer is fine; the **reactive UI update after a mutation is broken** in
 
 **Limitation (environment, not a bug):** Both tabs share **one browser profile** (same persistent client UUID + IndexedDB), so the two "clients" conflate — when the 2nd tab joined, the host tab's own DM identity/color was clobbered and replaced by the joiner's view. The desktop QA harness avoids this with separate `--user-data-dir` profiles; there is no in-browser equivalent with two tabs in the same profile. Full 2-client sync (HP/token/fog sync, ready toggles → start, kick/ban-rejoin, host/player rejoin-resume, End Session propagation) therefore **could not be cleanly validated** in this run — it needs two separate browsers/profiles (or two devices). See Could not test.
 
+## Phase 12 — Discord (in-app, web)
+
+### [Correction + finding] Web client IS wired to control the Discord bot, but the server endpoints `/api/dnd/start|stop|status` are missing (404) so it can't actually work
+- **Category:** bug | portability
+- **Severity:** medium
+- **Domain:** dnd-app | bmo
+- **Discovered by:** QA Agent
+- **During:** Phase 12 — in-app Discord Voice Session panel (web build) source/server verification
+
+**Correction of an earlier note:** A prior version of this report listed Discord as "out of the web SPA's surface." That was wrong. The web build **does** ship the in-app **Discord Voice Session** panel (`components/game/bottom/DiscordSessionSection.tsx`, rendered inside the **AI DM** bottom-panel tab via `DMTabPanel.tsx:237`), and `dnd-app/src/web/web-api.ts` shims its bot controls to same-origin BMO calls — `bmoStartDm → POST /api/dnd/start`, `bmoStopDm → POST /api/dnd/stop`, `bmoDmStatus → GET /api/dnd/status`. So the web client is intended to start/stop/poll the Discord DM bot.
+
+**The bug:** Those three endpoints are **not implemented on BMO**. `GET http://localhost:5000/api/dnd/status` returns **HTTP 404**, and the route table in `bmo/pi/routes/chat_api.py` defines only `/api/dnd/dm`, `/api/dnd/public/dm`, `/api/dnd/load`, `/api/dnd/sessions*`, `/api/dnd/gamestate`, `/api/dnd/players` — there is no `start`, `stop`, or `status`. The web shim wraps each call in `.catch()` returning `{running:false}` / `{ok:false}`, so the panel will **perpetually show the bot as down and the Start button will silently no-op** — the Discord voice session genuinely cannot be started or monitored from the web client. (On desktop these go through Electron IPC `BMO_START_DM`/`BMO_STATUS` to the main process, a different path, so desktop is unaffected.)
+
+**Reproduction:**
+1. Web build → enter a game with AI DM enabled → bottom panel → AI DM tab → Discord Voice Session.
+2. Status shows bot down; click Start → nothing happens (the underlying `POST /api/dnd/start` 404s and is swallowed).
+3. Server-side: `curl http://localhost:5000/api/dnd/status` → 404.
+
+**Live test (from the running page via in-page fetch):** Calling the exact endpoints the panel uses — `GET /api/dnd/status`, `POST /api/dnd/start`, `POST /api/dnd/stop` — all returned `TypeError: Failed to fetch` from the browser. Two causes confirmed: (a) **server-side those three routes don't exist** — `curl http://localhost:5000/api/dnd/status` → 404, and they're absent from `chat_api.py`'s `/api/dnd/*` table (only `dm`, `public/dm`, `load`, `sessions*`, `gamestate`, `players` exist); and (b) at test time `BMO_API_KEY` hardening was on, so **all** `/api/*` from the browser failed anyway (see the Critical finding). A same-origin control fetch to the SPA shell (`/DungeonTableOnline/`) succeeded (200), and `/api/dnd/players` (a route that DOES exist) also failed — confirming the block is the gate, not just the missing routes. Net: the web Discord bot controls can't function until (1) the three routes are added and (2) the web origin's `/api/*` is reachable from the browser.
+
+**Expected behavior:** Implement `/api/dnd/start`, `/api/dnd/stop`, `/api/dnd/status` on BMO (proxying to / driving the DM bot) so the web shim's bot controls work — or, until then, have the panel clearly state the web build can't control the bot yet.
+
+**Suggested action:** Add the three Flask routes on BMO (same DM-bot session control the Electron main process uses), matching the shapes `web-api.ts` expects (`{running}` for status, `{ok}` for start/stop).
+
+**Environment:** web build · BMO server · bot control path
+
+**Related files:** `dnd-app/src/web/web-api.ts` (~lines 411-419), `dnd-app/src/renderer/src/components/game/bottom/DiscordSessionSection.tsx`, `dnd-app/src/renderer/src/components/game/bottom/DMTabPanel.tsx`, `bmo/pi/routes/chat_api.py` (where the routes should live)
+
+**Also observed:** The panel is gated inside the **AI DM** bottom-panel tab (only shown when AI DM is enabled on the campaign), and the **BMO-DM bot process is not currently running** on the server (`pgrep discord_dm_bot` → none) — so even with working endpoints the live status would be "bot offline" right now. End-to-end voice (bot joins the Dungeon VC, speaks narration) additionally needs AI-DM narration, which needs local Ollama (unreachable from the browser — see Phase 13), plus Discord access.
+
 ## Phase 13 — Settings + themes + i18n + accessibility
 ### Rebinding a key to an already-used key is silently rejected with no conflict warning / swap-cancel flow
 - **Category:** UX
@@ -394,14 +478,14 @@ The data layer is fine; the **reactive UI update after a mutation is broken** in
 
 ## Could not test
 
-- **Bastion advance-time / Bastion Turn cycle** and **fog of war / dynamic lighting / walls+doors / AoE templates** — attempted this session but HARD-BLOCKED: mid-run the app root began returning HTTP 401 because BMO_API_KEY hardening got enabled on BMO and the static /DungeonTableOnline/* routes are not exempted from the auth gate (see the Critical finding). The browser can no longer load the app, and I did not alter BMO's auth config to work around it. These remain to be driven once the SPA routes are exempted (or the key is unset).
-The following were not testable in this unattended web run and are genuine environment/dependency blockers (not out-of-scope omissions):
+The following are genuine environment/dependency blockers (not out-of-scope omissions):
 
-- **In-game surface — now TESTED (Solo).** Reached the in-game board via a saved character + a Solo campaign → Play. After a fresh load the board works (battlemap render, DM sidebar, Combat/Magic/Dice/Map panels, drawing tools, View-As selector, `/roll` dice). Still not exercised in depth this run: fog/lighting/AoE/walls, the full combat tracker flow, every DM panel, and cross-client View-As (needs a 2nd profile). The redeploy crash on entry is filed as a High finding in Phase 6.
-- **AI Dungeon Master (local providers).** The only supported AI providers are local (Ollama / llama.cpp at `localhost:11434`). The web build is served from `https://bmo.mybmoai.work`, and the Settings → Ollama AI section reports "Ollama is not installed"; a cloud-served browser page generally cannot reach the user's loopback, so the AI DM could not be run (see the Phase 13 Ollama portability finding). No cloud AI creds are configured (known/intended — not listed as a gap).
-- **Full 2-client multiplayer matrix** (lobby ready→start, cross-client HP/token/fog sync, kick/ban-rejoin, host/player/solo rejoin-resume, End Session propagation, Cloud-vs-Self host independence). Blocked by the shared-browser-profile limitation above; needs two separate browsers/profiles or two devices.
-- **Bastion advance-time / Bastion Turn cycle** (assign facility orders, Maintain order, d100 event, Turn Summary, Complete Turn) was not run to completion — but Bastion creation, the detail view, and Treasury deposit ARE now tested (see Phase 4; the reactivity bug there is filed).
-- **Native file flows** (Export All Data, Export/Import Settings, Import, Audio upload). In the browser these become Blob downloads / `<input type=file>` pickers; not exercised to completion to honor the unattended-run no-download posture. The buttons render and are wired.
+- **AI Dungeon Master (local providers).** The only supported AI providers are local (Ollama / llama.cpp at `localhost:11434`). The web build is served from `https://bmo.mybmoai.work`, and Settings → Ollama AI reports "Ollama is not installed"; a cloud-served browser page generally cannot reach the user's loopback, so the AI DM could not be run (see the Phase 13 Ollama portability finding). No cloud AI creds are configured (known/intended — not a gap).
+- **Full 2-client multiplayer matrix** (lobby ready→start, cross-client HP/token/fog sync, kick/ban-rejoin, host/player/solo rejoin-resume, End Session propagation, Cloud-vs-Self host independence). Blocked by the shared-browser-profile limitation (two tabs share one client UUID); needs two separate browsers/profiles or two devices. (Invite-code join + host moderation controls were confirmed — see Phase 11.)
+- **Walls/dynamic-lighting/AoE-template *visual render effects* and a conclusive player-view fog-conceal check.** The map editor tools (Wall, fog brush, terrain, regions, drawing, View-As) were exercised and respond, but the player HUD overlay + the app's fixed in-game UI scale prevented a clean full-board capture through the browser-automation harness to confirm the rendered concealment/lighting effects (see the Phase 6 fog finding, filed with that caveat). Needs a real browser at normal scale (or a screenshot-capable harness).
+- **Native file flows** (Export All Data, Export/Import Settings, Import, Audio upload). In the browser these become Blob downloads / `<input type=file>` pickers; not run to completion to honor the unattended-run no-download posture. The buttons render and are wired.
 - **Discord DM bot (Phase 12).** Out of the web SPA's surface — the DM bot's slash commands and Dungeon VC live in Discord + the Pi, not the browser app, and there is no Discord access in this unattended run. The web Settings → Discord Integration section (just a "Push to Discord" toggle + Save) renders.
 
-**Screenshots:** Chrome screenshots could not be persisted to disk in this automated web-driver environment, so the `screenshots/` folder is empty and findings are documented with detailed text reproductions instead. (Noted so a future run with a screenshot-capable driver can attach evidence.)
+**Note — recurring blocker during the run:** the app was intermittently unreachable because (a) `BMO_API_KEY` hardening 401s the whole SPA (filed Critical), and (b) frequent `dnd-app` redeploys delete the chunks an open session references, hard-crashing navigation (filed High). Both were worked around by reloading/waiting; they did not prevent completing the tests above once the app was reachable.
+
+**Screenshots:** Chrome screenshots could not be persisted to disk in this automated web-driver environment, so the `screenshots/` folder is empty and findings are documented with detailed text reproductions instead.

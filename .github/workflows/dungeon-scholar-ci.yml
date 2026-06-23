@@ -1,0 +1,30 @@
+name: Dungeon Scholar CI
+
+on:
+  push:
+    paths:
+      - 'dungeon-scholar/**'
+      - '.github/workflows/dungeon-scholar-ci.yml'
+  pull_request:
+    paths:
+      - 'dungeon-scholar/**'
+      - '.github/workflows/dungeon-scholar-ci.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./dungeon-scholar
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: dungeon-scholar/package-lock.json
+      - run: npm ci
+      - run: npm run test
+      - run: npm run build
+        env:
+          VITE_BASE: /home-lab/

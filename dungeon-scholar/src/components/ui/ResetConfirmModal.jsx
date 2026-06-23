@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Skull, X } from 'lucide-react';
-import { useDialogA11y } from '../useDialogA11y.js';
+import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 
 export function ResetConfirmModal({ onConfirm, onCancel }) {
   const panelRef = useDialogA11y({ onClose: onCancel }); // 19A

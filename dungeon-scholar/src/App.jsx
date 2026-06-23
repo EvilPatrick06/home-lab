@@ -12,22 +12,22 @@ import {
 import { SignInButton } from './components/SignInButton.jsx';
 import { consumeOAuthCallback, signOut, warnIfBaseMismatch } from './services/supabase.js';
 import { useAuth } from './hooks/useAuth.js';
-import { MergeChooser } from './components/MergeChooser.jsx';
+import { MergeChooser } from './components/ui/MergeChooser.jsx';
 import { RlsWarningBanner } from './components/RlsWarningBanner.jsx';
 import { checkRlsExposure } from './services/cloudSync.js';
-import { useDialogA11y } from './components/useDialogA11y.js';
+import { useDialogA11y } from './hooks/useDialogA11y.js';
 import { AudioInviteBanner } from './components/AudioInviteBanner.jsx';
 import { ProfileChip } from './components/ProfileChip.jsx';
 import { AccountPanel } from './components/AccountPanel.jsx';
-import PromptModal from './components/PromptModal.jsx';
+import PromptModal from './components/ui/PromptModal.jsx';
 import RichContent from './components/RichContent.jsx';
-const ExamMode = React.lazy(() => import('./components/ExamMode.jsx'));
+const ExamMode = React.lazy(() => import('./features/study/ExamMode.jsx'));
 // Polish: lazy-load DungeonExplore. It's the heaviest single component
 // (sprite drawers, generateMap, biome maps) and is only used when the
 // player enters a delve, so deferring its load shrinks the initial bundle.
 const DungeonExplore = React.lazy(() => import('./components/DungeonExplore.jsx'));
 import { Shield, Zap, Brain, FlaskConical, MessageSquare, Upload, Download, Trophy, Flame, Heart, Star, Target, BookOpen, ChevronRight, X, Check, RotateCcw, Sparkles, Lock, Award, TrendingUp, Clock, AlertTriangle, Skull, Crown, Eye, EyeOff, Play, Home, Settings, FileJson, Plus, Minus, ArrowLeft, Send, Loader2, HelpCircle, Calendar, Swords, Scroll, Wand2, Castle, Gem, Library, Trash2, Copy, Edit2, BookMarked, Share2, Tag, User, Hash, ChevronDown, ChevronUp, Compass, ScrollText, CheckCircle2, Gift, Coins, Package, ShoppingBag } from 'lucide-react';
-import { TUTORIAL_STEPS, snapshotBaselines, migrateTutorialIndex } from './game/tutorial';
+import { TUTORIAL_STEPS, snapshotBaselines, migrateTutorialIndex } from './game/tutorial.js';
 import { gradeAnswer, getOracleEndpoint, isOracleConfigured, ORACLE_MODEL } from './services/oracleGrader.js';
 import { logError } from './services/logger.js';
 import { getAudioSettings, setMuted, setBgmVolume, setSfxVolume, armOnFirstGesture, armAutoSuspend, disarmAutoSuspend, playSfx, getDefaultAudioSettings, setAudioPersistErrorHandler } from './audio/sound.js';
@@ -38,6 +38,7 @@ import { pickWeakestDomain, WEAK_DOMAIN_MIN_SAMPLE, WEAK_DOMAIN_ACCURACY_THRESHO
 import { computeExamPace } from './services/examPace.js';
 import { computeExamPrediction, PREDICTION_HIGH_COVERAGE, PREDICTION_MEDIUM_COVERAGE } from './services/examPrediction.js';
 import { SRS_RATINGS, scheduleCard, dueCount, sortByDueness, filterDue } from './services/srs.js';
+import { notificationPermission, showStudyReminder } from './services/notifications.js';
 import { computeRetentionCurve, computeMilestones } from './services/forgettingCurve.js';
 
 import { TITLES, SPECIAL_TITLES, xpForLevel, getTitle } from './game/titles.js';
@@ -68,6 +69,8 @@ import ImportCodeModal from './features/library/ImportCodeModal.jsx';
 import MetadataEditModal from './features/library/MetadataEditModal.jsx';
 import TomeNotes from './components/TomeNotes.jsx';
 import PasteTomeModal from './features/library/PasteTomeModal.jsx';
+import TomeEditor from './features/library/TomeEditor.jsx';
+import { STARTER_DECKS } from './data/starterDecks.js';
 import SealedTomeGate from './features/library/SealedTomeGate.jsx';
 const RunHistoryScreen = React.lazy(() => import('./features/progression/RunHistoryScreen.jsx'));
 const ShopScreen = React.lazy(() => import('./features/progression/ShopScreen.jsx'));
@@ -78,6 +81,7 @@ const SpellbookScreen = React.lazy(() => import('./features/progression/Spellboo
 const CalendarScreen = React.lazy(() => import('./features/progression/CalendarScreen.jsx'));
 const AscensionScreen = React.lazy(() => import('./features/progression/AscensionScreen.jsx'));
 const CraftingScreen = React.lazy(() => import('./features/progression/CraftingScreen.jsx'));
+const ScholarsLedger = React.lazy(() => import('./features/progression/ScholarsLedger.jsx'));
 const QuestBoard = React.lazy(() => import('./features/quests/QuestBoard.jsx'));
 import HomeScreen from './features/home/HomeScreen.jsx';
 const FlashcardsMode = React.lazy(() => import('./features/study/FlashcardsMode.jsx'));
@@ -152,6 +156,7 @@ export default function DungeonScholarApp() {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [shareTomeId, setShareTomeId] = useState(null);
   const [editMetadataTomeId, setEditMetadataTomeId] = useState(null);
+  const [editContentTomeId, setEditContentTomeId] = useState(null);
   // Phase 40F: tome whose encrypted private notes are open (null = closed).
   const [notesTome, setNotesTome] = useState(null);
   const [showImportCodeModal, setShowImportCodeModal] = useState(false);
@@ -184,6 +189,19 @@ export default function DungeonScholarApp() {
   // Phase 21: prime the audio context on first user gesture so BGM/SFX
   // don't fail silently due to browser auto-play policies.
   useEffect(() => { armOnFirstGesture(); armAutoSuspend(); return () => disarmAutoSuspend(); }, []);
+
+  // S1: best-effort local study reminder once the library has loaded, only if
+  // the user already granted permission via the Account panel opt-in.
+  const studyRemindedRef = useRef(false);
+  useEffect(() => {
+    if (studyRemindedRef.current) return;
+    if (notificationPermission() !== 'granted') return;
+    const lib = playerState.library || [];
+    if (lib.length === 0) return;
+    studyRemindedRef.current = true;
+    const due = lib.reduce((sum, t) => sum + dueCount(t.progress?.cardProgress || {}, t.data?.flashcards || []), 0);
+    showStudyReminder({ dueCount: due });
+  }, [playerState.library]);
 
   // Phase 34b QA P10: apply theme to the root element. Re-evaluates on
   // explicit preference change AND on OS preference change (when 'system').
@@ -642,6 +660,7 @@ export default function DungeonScholarApp() {
             })),
           },
           modesUsedToday: [],
+          maxStreakToday: 0,
         };
       });
     }
@@ -664,6 +683,7 @@ export default function DungeonScholarApp() {
               claimed: false,
             })),
           },
+          maxStreakWeek: 0,
         };
       });
     }
@@ -925,6 +945,8 @@ export default function DungeonScholarApp() {
           lastSyncedAt={null}
           onClose={() => setShowAccountPanel(false)}
           onResetProgress={resetProgress}
+          playerState={playerState}
+          onImportSave={(s) => setPlayerState(s)}
         />
       )}
 
@@ -1118,6 +1140,14 @@ export default function DungeonScholarApp() {
               aria-label="Open Marketplace"
             >
               <ShoppingBag className="w-5 h-5 text-amber-300" aria-hidden="true" />
+            </button>
+            <button
+              onClick={() => setScreen('ledger')}
+              className="p-3 hover:bg-sky-900/30 rounded-sm transition border-2 border-sky-700/50 hover:border-sky-500"
+              title="Scholar's Ledger (study stats)"
+              aria-label="Open Scholar's Ledger study stats"
+            >
+              <TrendingUp className="w-5 h-5 text-sky-300" aria-hidden="true" />
             </button>
             <button
               onClick={() => setShowAchievements(true)}
@@ -1379,6 +1409,9 @@ export default function DungeonScholarApp() {
             onDuplicate={duplicateTome}
             onShare={(id) => setShareTomeId(id)}
             onEditMetadata={(id) => setEditMetadataTomeId(id)}
+            onEditContent={(id) => setEditContentTomeId(id)}
+            starterDecks={STARTER_DECKS}
+            onAddStarter={(data) => { addTomeToLibrary(data); }}
             onNotes={(tome) => setNotesTome(tome)}
             onTogglePin={(id) => {
               // Phase 38d round-3 suggestion: pin/unpin a tome so it floats
@@ -1464,6 +1497,9 @@ export default function DungeonScholarApp() {
         )}
         {screen === 'history' && (
           <RunHistoryScreen playerState={playerState} setScreen={setScreen} />
+        )}
+        {screen === 'ledger' && (
+          <ScholarsLedger playerState={playerState} setScreen={setScreen} />
         )}
         {screen === 'domainStudy' && !sealedLocked && (
           <DomainStudyScreen
@@ -1612,6 +1648,7 @@ export default function DungeonScholarApp() {
         {showPasteModal && <PasteTomeModal onClose={() => setShowPasteModal(false)} onSubmit={handlePasteImport} />}
         {showImportCodeModal && <ImportCodeModal onClose={() => setShowImportCodeModal(false)} onSubmit={handleShareCodeImport} />}
         {shareTomeId && <ShareTomeModal tome={playerState.library.find(t => t.id === shareTomeId)} onClose={() => setShareTomeId(null)} />}
+        {editContentTomeId && <TomeEditor tome={playerState.library.find(t => t.id === editContentTomeId)} onSave={(newData) => { setPlayerState(prev => ({ ...prev, library: prev.library.map(t => t.id === editContentTomeId ? { ...t, data: newData } : t) })); setEditContentTomeId(null); showNotif('Tome content updated', 'success'); }} onClose={() => setEditContentTomeId(null)} />}
         {editMetadataTomeId && <MetadataEditModal tome={playerState.library.find(t => t.id === editMetadataTomeId)} onSave={(updates) => { updateTomeMetadata(editMetadataTomeId, updates); setEditMetadataTomeId(null); showNotif('Tome metadata updated', 'success'); }} onClose={() => setEditMetadataTomeId(null)} />}
         {notesTome && <TomeNotes tome={playerState.library.find(t => t.id === notesTome.id) || notesTome} onSave={(p) => updateTomeNotes(notesTome.id, p)} onClose={() => setNotesTome(null)} />}
         {showResetConfirm && <ResetConfirmModal onConfirm={confirmReset} onCancel={() => setShowResetConfirm(false)} />}

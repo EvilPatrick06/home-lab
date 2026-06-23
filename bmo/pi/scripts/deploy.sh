@@ -130,6 +130,8 @@ rollback() {
     # shellcheck disable=SC2086  # intentional word-splitting of the unit list
     run sudo systemctl restart $RESTART_UNITS
   fi
+  # Services are back on OLD_SHA — record it so the next deploy diffs correctly.
+  [ "$DRY_RUN" -eq 0 ] && printf '%s\n' "$OLD_SHA" > "${DEPLOYED_MARKER:-$(dirname "$REPO_ROOT")/.bmo-deployed-sha}"
   if [ "$DRY_RUN" -eq 0 ]; then
     if poll_health "http://localhost:5000/health" "$HEALTH_TIMEOUT"; then
       log "rollback /health green"
@@ -179,13 +181,28 @@ git -C "$REPO_ROOT" merge-base --is-ancestor "$TARGET" origin/master \
 
 OLD_SHA="$(git -C "$REPO_ROOT" rev-parse HEAD)"
 
-if [ "$TARGET" = "$OLD_SHA" ] && [ "$SERVICES_ONLY" -eq 0 ]; then
-  log "already deployed (${OLD_SHA:0:8})"
+# The SHA the RUNNING services were last (re)started on, recorded by this script
+# after each successful restart. We base "already deployed" and the changed-file
+# diff on THIS — not the working-tree HEAD — so a tree that was advanced WITHOUT a
+# restart (e.g. a direct commit on the Pi checkout, or a prior deploy that updated
+# the tree but skipped the restart) still triggers the restart it needs. Falls
+# back to the tree HEAD when no marker exists yet (first run after this change).
+DEPLOYED_MARKER="$(dirname "$REPO_ROOT")/.bmo-deployed-sha"
+DEPLOYED_SHA="$(cat "$DEPLOYED_MARKER" 2>/dev/null || true)"
+if ! git -C "$REPO_ROOT" rev-parse --verify --quiet "${DEPLOYED_SHA}^{commit}" >/dev/null 2>&1; then
+  DEPLOYED_SHA="$OLD_SHA"
+fi
+
+# Nothing to do only when BOTH the tree AND the running services are at TARGET.
+if [ "$TARGET" = "$OLD_SHA" ] && [ "$TARGET" = "$DEPLOYED_SHA" ] && [ "$SERVICES_ONLY" -eq 0 ]; then
+  log "already deployed and running (${OLD_SHA:0:8})"
   exit 0
 fi
 
 # ── Gate 6: Compute diff + fast-forward ─────────────────────────────────────--
-CHANGED="$(git -C "$REPO_ROOT" diff --name-only "$OLD_SHA" "$TARGET")"
+# Diff against the running SHA (see DEPLOYED_SHA above) so the correct units
+# restart even when the tree was already at TARGET but services were not.
+CHANGED="$(git -C "$REPO_ROOT" diff --name-only "$DEPLOYED_SHA" "$TARGET")"
 REQS_CHANGED=0
 RESTART_UNITS=""
 
@@ -262,6 +279,8 @@ units=()
 
 if [ "${#units[@]}" -eq 0 ]; then
   log "no service-affecting changes"
+  # Code now matches TARGET and no restart was needed — advance the marker.
+  [ "$DRY_RUN" -eq 0 ] && printf '%s\n' "$TARGET" > "$DEPLOYED_MARKER"
   exit 0
 fi
 
@@ -269,6 +288,10 @@ RESTART_UNITS="${units[*]}"
 log "restarting: $RESTART_UNITS"
 # shellcheck disable=SC2086  # intentional word-splitting of the unit list
 run sudo systemctl restart $RESTART_UNITS
+
+# Record the SHA the services are now running on, so the next deploy compares
+# against what is actually running (not just the tree HEAD).
+[ "$DRY_RUN" -eq 0 ] && printf '%s\n' "$TARGET" > "$DEPLOYED_MARKER"
 
 # ── Gate 11: Health gate ────────────────────────────────────────────────────--
 if [ "$DRY_RUN" -eq 0 ]; then

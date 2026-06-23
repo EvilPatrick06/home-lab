@@ -491,6 +491,19 @@ A genuine ordering conflict (a Step that truly cannot run until another lands) i
 
 ---
 
+### 28. Auto-diagnose, don't just report symptoms — root-cause every non-clean state before reporting
+
+**Whenever you encounter a non-clean, failing, unexpected, or anomalous state — a red/failed CI run, a failing or flaky check, an unexpected diff or dirty tree, a surprising scan/QA finding, a service that's down, anything that "isn't clean" — you MUST automatically investigate the root cause before reporting:** trace it to the specific file / commit / config / step responsible, state the cause, and recommend (or, if in scope per the fix-forward + don't-defer rules, apply) the fix. Never surface a bare symptom ("X failed", "this isn't clean") and stop to wait for someone to tell you to look into it. Proactive root-cause diagnosis is the default for every agent.
+
+**This is NOT a new stop trigger — it is the opposite of one.** Auto-diagnosing does not end the turn or hand work back; it is what you do *before* the rule-9 / rule-27 (a)/(b) test even applies. Diagnose first, then:
+
+- **In scope → fix it forward.** A red CI run is normal turnaround (rule 5): read `gh run view <id> --log-failed`, trace the failing gate to its cause, commit the fix, push, keep going. "This is big / risky" is not a reason to defer the fix once you've found it (rule 27).
+- **Genuine (a) blocker or (b) new human decision → STOP-and-ask (rule 9), citing the *root cause* you found** — the file:line / commit / step — never the bare symptom. You still diagnose first; you hand over a diagnosed cause plus the decision needed, not "X is red, please advise."
+
+When you report — an end-of-run summary (rule 14), a logged finding (rule 12), or a resolver / scanner / QA writeup — lead with the diagnosed cause, not the symptom. The **Hypothesis / root cause** field in the log + QA templates (`docs/LOG-INSTRUCTIONS.md`, `QA/instructions.md`) is mandatory: cite the file / commit / step you traced it to. "X is red / failing / dirty — someone should look into why" is a rule-28 violation: *you* are that someone, and you investigate automatically. Git-mechanics restatement: `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md` Rule 4.
+
+---
+
 ## Quick reference — the loop
 
 ```

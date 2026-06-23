@@ -1,6 +1,11 @@
 # CLAUDE.md
 
 > Read automatically by Claude Code.
+
+> **Canonical source:** shared conventions (repo layout, git workflow, logging
+> rules) live in [`AGENTS.md`](./AGENTS.md). This file covers tool-specific notes;
+> when they overlap, AGENTS.md wins. Keep shared sections in sync (S11).
+
 > General project instructions: `AGENTS.md`. Structure map: `.cursorrules`.
 
 ## Repo at a Glance
@@ -65,7 +70,7 @@ Body optional for trivial changes. For multi-file refactors, describe:
 
 If this session runs as an **automated/scheduled agent** (scanner, QA, phase-maker, phase-executer, log-resolver, etc.), do **not** commit to `master`. Work on `auto/<agent-id>` in your own git worktree (`git worktree add /home/patrick/home-lab-trees/<agent-id> -B auto/<agent-id> origin/master`), commit there, and `git push -u origin auto/<agent-id>`. Never touch master's working tree, never rebase shared state, never force-push another agent's branch. A daily integrator merges clean branches into `master` and reviews Dependabot PRs. An interactive Claude Code chat may still use `master` directly. Full spec: [`docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`](docs/AUTOMATED-AGENT-GIT-WORKFLOW.md).
 
-The repo-wide implement → verify → commit → release process for automated agents (ALL domains — dnd-app, bmo, dungeon-scholar) is [`dnd-app/docs/phases/INSTRUCTIONS.md`](dnd-app/docs/phases/INSTRUCTIONS.md) (canonical, not dnd-app-only). Per that process, automated agents **attempt risky / large fixes rather than deferring them** — the `auto/*` branch + CI gate + (for resolver work) the user's approval + fix-forward is the safety net; size or risk alone is never a reason to leave or hand a fix back. Stop short only if (a) genuinely blocked, or (b) a new human decision the scope didn't cover is needed (INSTRUCTIONS.md rule 27).
+The repo-wide implement → verify → commit → release process for automated agents (ALL domains — dnd-app, bmo, dungeon-scholar) is [`dnd-app/docs/phases/INSTRUCTIONS.md`](dnd-app/docs/phases/INSTRUCTIONS.md) (canonical, not dnd-app-only). Per that process, automated agents **attempt risky / large fixes rather than deferring them** — the `auto/*` branch + CI gate + (for resolver work) the user's approval + fix-forward is the safety net; size or risk alone is never a reason to leave or hand a fix back. Stop short only if (a) genuinely blocked, or (b) a new human decision the scope didn't cover is needed (INSTRUCTIONS.md rule 27). And whenever something **isn't clean** — a red/failed CI run, a failing or flaky check, an unexpected diff or dirty tree, a surprising scan/QA finding, a down service — **automatically diagnose the root cause before reporting**: trace it to the responsible file / commit / config / step, state the cause, and fix it forward if in scope. Never surface a bare symptom and wait to be told to investigate — proactive root-cause diagnosis is the default for every agent (INSTRUCTIONS.md rule 28; git mechanics in `AUTOMATED-AGENT-GIT-WORKFLOW.md` Rule 4).
 
 ### Safety rules (Claude-specific)
 

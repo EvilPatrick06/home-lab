@@ -5,6 +5,7 @@ import { saveSession, loadSession, SESSION_KIND } from '../../services/sessionRe
 import { FilteredModeBanner } from '../../components/ui/FilteredModeBanner.jsx';
 import { DifficultyStars, BloomBadge } from '../../components/ui/badges.jsx';
 import RichContent from '../../components/RichContent.jsx';
+import { speak, ttsSupported } from '../../services/tts.js';
 
 function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, awardXP, recordAnswer, checkAchievement, playerState, updateTomeProgress, domainFilter, onExitFilter, onResumeNotify, onGoToLibrary }) {
   const [index, setIndex] = useState(0);
@@ -431,6 +432,9 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
           );
         })()}
         <RichContent as="div" text={q.question} className="text-lg text-amber-50 mb-6 italic" />
+        {ttsSupported() && (
+          <button type="button" onClick={() => speak(q.question)} aria-label="Read the riddle aloud" title="Read aloud" className="text-amber-500 hover:text-amber-300 text-sm mb-4">🔊 Read aloud</button>
+        )}
         {/* 26a: confidence calibration. Gate the answer choices behind a
             confidence rating so we can compare "how sure I was" vs "did I
             get it right". The rating locks once picked and is shown as a

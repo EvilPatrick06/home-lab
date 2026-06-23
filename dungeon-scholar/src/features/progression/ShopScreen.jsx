@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { ShoppingBag, Coins, Lock, Check } from 'lucide-react';
-import { useDialogA11y } from '../../components/useDialogA11y.js';
+import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 import { todayDateStr } from '../../services/devotion.js';
 import { ITEM_CATEGORIES, pickShopStock, sanctumCount, sanctumAtCap } from '../../game/items.js';
 
