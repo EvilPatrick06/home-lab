@@ -13,7 +13,8 @@
  */
 import { createWebApi } from './web-api'
 
-const target = globalThis as unknown as { api?: unknown }
+const target = globalThis as unknown as { api?: unknown; __DND_WEB__?: boolean }
+target.__DND_WEB__ = true
 if (typeof window !== 'undefined' && !target.api) {
   target.api = createWebApi()
 }

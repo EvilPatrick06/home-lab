@@ -34,6 +34,9 @@ async function bmoFetchJson<T = unknown>(path: string, init?: RequestInit): Prom
 // ── Lightweight main→renderer event bus (replaces ipcRenderer.on) ────
 const busListeners = new Map<string, Set<(data: unknown) => void>>()
 
+// In-flight AI streams, so cancelStream can abort the underlying fetch.
+const aiAborters = new Map<string, AbortController>()
+
 function busOn(channel: string, cb: (data: unknown) => void): () => void {
   let set = busListeners.get(channel)
   if (!set) {
@@ -517,8 +520,57 @@ function createAiStub() {
     prepareScene: (_c: string, _ids: string[]) => Promise.resolve({ ok: false }),
     getSceneStatus: (_c: string) => Promise.resolve({ status: 'idle' }),
     cancelScene: (_c: string) => Promise.resolve({ ok: true }),
-    chatStream: notWired,
-    cancelStream: (_id: string) => Promise.resolve({ ok: true }),
+    // Bridge to the Pi agent (POST /api/chat -- same-origin behind the tunnel, so
+    // the Cloudflare Access cookie authenticates). The agent routes D&D messages
+    // through its DnD context; we stream the returned narration to the renderer.
+    // Structured mutations (statChanges/dmActions) are not produced by the HTTP
+    // agent yet, so those are emitted empty -- a known parity gap vs. desktop.
+    chatStream: async (request: Record<string, unknown>) => {
+      const streamId = genId()
+      const message = String((request?.message as string | undefined) ?? '')
+      const speaker = String((request?.senderName as string | undefined) ?? 'player')
+      const controller = new AbortController()
+      aiAborters.set(streamId, controller)
+      void (async () => {
+        try {
+          const res = await fetch(`${BMO_BASE}/api/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            signal: controller.signal,
+            body: JSON.stringify({ message, speaker })
+          })
+          if (!res.ok) throw new Error(`AI backend returned ${res.status}`)
+          const data = (await res.json()) as { text?: string }
+          const text = String(data?.text ?? '')
+          for (let i = 0; i < text.length; i += 64) {
+            if (controller.signal.aborted) return
+            webEmit('ai:stream-chunk', { streamId, text: text.slice(i, i + 64) })
+            await new Promise((r) => setTimeout(r, 18))
+          }
+          webEmit('ai:stream-done', {
+            streamId,
+            fullText: text,
+            displayText: text,
+            statChanges: [],
+            dmActions: [],
+            ruleCitations: []
+          })
+        } catch (e) {
+          if (!controller.signal.aborted) {
+            webEmit('ai:stream-error', { streamId, error: e instanceof Error ? e.message : String(e) })
+          }
+        } finally {
+          aiAborters.delete(streamId)
+        }
+      })()
+      return { success: true, streamId }
+    },
+    cancelStream: (streamId: string) => {
+      aiAborters.get(streamId)?.abort()
+      aiAborters.delete(streamId)
+      return Promise.resolve({ ok: true })
+    },
     xCardRewind: (_c: string) => Promise.resolve({ ok: true }),
     applyMutations: (_id: string, _changes: unknown[]) => Promise.resolve({ ok: true }),
     longRest: (_id: string) => Promise.resolve({ ok: true }),
