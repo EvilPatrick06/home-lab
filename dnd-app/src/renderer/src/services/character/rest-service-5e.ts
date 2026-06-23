@@ -54,6 +54,7 @@ export interface ShortRestResult {
   hdSpent: Record<number, number>
   resourcesRestored: string[]
   arcaneRecoverySlotsUsed: number[]
+  exhaustionReduced: boolean
 }
 
 export interface LongRestPreview {
@@ -245,9 +246,23 @@ export function applyShortRest(
     resourcesRestored.push('Wild Shape (+1)')
   }
 
-  // Phase 15c.5 — Ranger Tireless exhaustion reduction dropped: conditions are
-  // v4 refs now (no per-instance exhaustion value). Re-add via a dedicated
-  // exhaustion-state field if/when that feature is reinstated.
+  // Ranger Tireless (level 10+): a short rest reduces Exhaustion by 1 level.
+  // PHASE-02 02A restored the condition value substrate (it rides in v4 ref
+  // overrides), so this mirrors the long-rest reduction: rebuild the inline
+  // conditions array + clear conditionRefs so the save-time shim re-derives refs.
+  const rangerLevel = getEffectiveClasses(character).find((c) => c.name.toLowerCase() === 'ranger')?.level ?? 0
+  const allConditions = getEffectiveConditions(character)
+  const exh = allConditions.find((c) => c.name === 'Exhaustion')
+  let reducedConditions: typeof allConditions | undefined
+  if (rangerLevel >= 10 && exh && (exh.value ?? 0) > 0) {
+    const newLevel = (exh.value ?? 1) - 1
+    reducedConditions =
+      newLevel <= 0
+        ? allConditions.filter((c) => c.name !== 'Exhaustion')
+        : allConditions.map((c) => (c.name === 'Exhaustion' ? { ...c, value: newLevel } : c))
+    resourcesRestored.push('Tireless (Exhaustion -1)')
+  }
+  const exhaustionReduced = !!reducedConditions
 
   // Arcane Recovery: restore selected spell slot levels
   let newSpellSlots = { ...character.spellSlotLevels }
@@ -277,6 +292,9 @@ export function applyShortRest(
     ...(Object.keys(newPactSlots).length > 0 ? { pactMagicSlotLevels: newPactSlots } : {}),
     wildShapeUses: newWildShape,
     spellSlotLevels: newSpellSlots,
+    // Tireless exhaustion reduction: hand the save-time v3->v4 shim an inline
+    // conditions array (conditionRefs cleared) so it re-derives refs with the new value.
+    ...(reducedConditions ? { conditions: reducedConditions, conditionRefs: undefined } : {}),
     updatedAt: new Date().toISOString()
   }
 
@@ -285,7 +303,8 @@ export function applyShortRest(
     totalHealing,
     hdSpent,
     resourcesRestored,
-    arcaneRecoverySlotsUsed
+    arcaneRecoverySlotsUsed,
+    exhaustionReduced
   }
 }
 

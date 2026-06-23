@@ -12,6 +12,16 @@
 
 ---
 
+### [2026-06-11] Renderer rest-service: Ranger "Tireless" exhaustion reduction
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** rest-service-5e.ts applyShortRest now implements Ranger Tireless: at ranger level 10+ a short rest reduces Exhaustion by 1 level (removing it at level 1), mirroring the long-rest reduction — it reads the v4 ref-override condition value (PHASE-02 02A) and hands the save-time shim an inline conditions array with conditionRefs cleared. Added exhaustionReduced to ShortRestResult + 'Tireless (Exhaustion -1)' to resourcesRestored. 3 new tests; full rest-service suite (32) passes. (The separate innate-spell-use restoration sub-item remains — innateUses still has no v4 home.)
+
+**Original entry:** - **[2026-06-11] Renderer rest-service: Ranger "Tireless" exhaustion reduction + innate-spell-use restoration still dropped.** `rest-service-5e.ts:248-250` (Tireless) and the comment near `:410` (innate uses) were disabled in 15c.5; PHASE-02 02A re-enabled the condition `value` substrate, so Tireless reduction is now implementable. *(found during PHASE-02 verification.)*
+
+---
+
 ### [2026-06-11] Renderer rest executors swallow rejected AI rest mutations
 
 - **Resolved by:** dnd-resolver (automated)

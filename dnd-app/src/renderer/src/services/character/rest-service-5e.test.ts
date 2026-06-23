@@ -355,3 +355,46 @@ describe('applyLongRest', () => {
     expect(result.highElfCantripSwap).toBe(true)
   })
 })
+
+describe('applyShortRest — Ranger Tireless (level 10+)', () => {
+  function rangerWithExhaustion(level: number, exhValue: number): Character5e {
+    const cond = { name: 'Exhaustion', type: 'condition', isCustom: false, value: exhValue }
+    return makeCharacter({
+      classRefs: [
+        {
+          instanceId: 'c1',
+          ref: { entryType: 'classes', entryId: 'ranger', overrides: { name: 'Ranger', hitDie: 10 } },
+          level,
+          levelTaken: 1
+        }
+      ],
+      conditionRefs: [
+        { instanceId: cond.name, ref: { entryType: 'conditions', entryId: 'exhaustion', overrides: cond } }
+      ]
+    })
+  }
+
+  it('reduces exhaustion by 1 on a short rest at ranger level 10', () => {
+    const result = applyShortRest(rangerWithExhaustion(10, 2), [])
+    expect(result.exhaustionReduced).toBe(true)
+    const exh = (result.character as { conditions?: Array<{ name: string; value?: number }> }).conditions?.find(
+      (c) => c.name === 'Exhaustion'
+    )
+    expect(exh?.value).toBe(1)
+    expect(result.resourcesRestored).toContain('Tireless (Exhaustion -1)')
+  })
+
+  it('removes exhaustion entirely when reducing from level 1', () => {
+    const result = applyShortRest(rangerWithExhaustion(10, 1), [])
+    expect(result.exhaustionReduced).toBe(true)
+    const exh = (result.character as { conditions?: Array<{ name: string }> }).conditions?.find(
+      (c) => c.name === 'Exhaustion'
+    )
+    expect(exh).toBeUndefined()
+  })
+
+  it('does NOT reduce exhaustion below ranger level 10', () => {
+    const result = applyShortRest(rangerWithExhaustion(9, 2), [])
+    expect(result.exhaustionReduced).toBe(false)
+  })
+})
