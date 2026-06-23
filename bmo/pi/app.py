@@ -233,7 +233,12 @@ BMO_REGISTRY_API_KEY = (os.environ.get("BMO_REGISTRY_API_KEY") or "").strip()
 # OTHER route stays behind the key. KEEP THIS SET IN LOCKSTEP with the Cloudflare
 # Access "bypass" applications.
 _PUBLIC_UNAUTH_EXACT = frozenset({"/api/dnd/public/dm"})
-_PUBLIC_UNAUTH_PREFIXES = ("/api/library", "/api/sounds", "/DungeonTableOnline")
+# "/api/dnd/public" covers the anonymous DM chat + the web-build DM tools
+# (battlemap / analyze-map / recap / qa) — all server-prompt-owned, rate-limited.
+# "/api/games" is public game-discovery (CORS *, already CF-Access-bypassed) so the
+# browser VTT can list/announce off-LAN; its mutations are rate-limited + bounded by
+# the optional BMO_REGISTRY_API_KEY (see _registry_authorized).
+_PUBLIC_UNAUTH_PREFIXES = ("/api/library", "/api/sounds", "/DungeonTableOnline", "/api/dnd/public", "/api/games")
 
 
 def _is_public_unauthenticated_path(p: str) -> bool:
@@ -2677,12 +2682,14 @@ def _games_registry():
 def _registry_authorized() -> bool:
     if _bmo_client_is_trusted_localhost():
         return True
-    # No separate registry key configured: defer to the front-door gate. By the
-    # time we reach a mutation route the before_request hook has already required
-    # a valid BMO_API_KEY Bearer for any non-localhost caller, so this is no
-    # longer a fail-OPEN path (the old `return True` let anyone mutate).
+    # The game registry is PUBLIC game-discovery (CORS *, CF-Access-bypassed) so the
+    # browser VTT can announce/list off-LAN even when the front-door BMO_API_KEY is
+    # set. When BMO_REGISTRY_API_KEY is configured, mutations require it
+    # (X-Registry-Key); otherwise the registry is open to callers — the per-IP rate
+    # limit (RATE_LIMIT_GAMES), the invite-code model, and heartbeat-expiry are the
+    # abuse bound, not the owner key.
     if not BMO_REGISTRY_API_KEY:
-        return _bmo_bearer_authorized()
+        return True
     presented = (request.headers.get("X-Registry-Key", "") or "").strip()
     return presented == BMO_REGISTRY_API_KEY
 

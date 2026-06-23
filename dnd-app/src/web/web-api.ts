@@ -141,6 +141,66 @@ function pickFile(accept = ''): Promise<File | null> {
   })
 }
 
+// ── AI DM tool context builders (web bridge → Pi public endpoints) ───
+function buildMapDescription(gameState: Record<string, unknown>): string {
+  const maps = (gameState.maps as Array<Record<string, unknown>> | undefined) ?? []
+  const activeId = gameState.activeMapId as string | undefined
+  const map = maps.find((m) => m.id === activeId) ?? maps[0]
+  if (!map) return ''
+  const tokens = (map.tokens as Array<Record<string, unknown>> | undefined) ?? []
+  const lines = [
+    `Map: "${map.name ?? 'Unnamed'}" (${map.gridWidth ?? '?'}x${map.gridHeight ?? '?'} grid)`,
+    '',
+    'Token positions:'
+  ]
+  for (const t of tokens) {
+    let line = `  - ${t.label ?? 'token'} (${t.entityType ?? 'unknown'}) at (${t.gridX ?? 0}, ${t.gridY ?? 0})`
+    if (t.currentHP != null && t.maxHP != null) line += ` HP: ${t.currentHP}/${t.maxHP}`
+    if (t.ac != null) line += ` AC: ${t.ac}`
+    const conds = t.conditions as string[] | undefined
+    if (conds?.length) line += ` Conditions: ${conds.join(', ')}`
+    lines.push(line)
+  }
+  if (tokens.length === 0) lines.push('  (no tokens on map)')
+  return lines.join('\n')
+}
+
+/** Assemble recap/Q&A context from what the web client has: the in-memory DM
+ * conversation + the campaign record. (Desktop has richer RAG/memory.) */
+async function buildRecapContext(campaignId: string): Promise<string> {
+  const parts: string[] = []
+  const history = dmHistory.get(campaignId) ?? []
+  if (history.length > 0) {
+    parts.push(
+      `[CONVERSATION]\n${history
+        .map((m) => `${m.role === 'user' ? 'Player' : 'DM'}: ${m.content}`)
+        .join('\n')
+        .slice(0, 6000)}`
+    )
+  }
+  try {
+    const camp = await idbGet<Record<string, unknown>>('campaigns', campaignId)
+    if (camp) {
+      const bits: string[] = []
+      if (camp.name) bits.push(`Name: ${String(camp.name)}`)
+      if (camp.description) bits.push(`Description: ${String(camp.description).slice(0, 1500)}`)
+      const journal = (camp.journal as Array<{ content?: string; text?: string }> | undefined) ?? []
+      if (journal.length > 0) {
+        bits.push(
+          `Journal:\n${journal
+            .slice(-10)
+            .map((j) => `- ${String(j.content ?? j.text ?? '').slice(0, 300)}`)
+            .join('\n')}`
+        )
+      }
+      if (bits.length > 0) parts.push(`[CAMPAIGN]\n${bits.join('\n')}`)
+    }
+  } catch {
+    /* campaign not in idb */
+  }
+  return parts.join('\n\n')
+}
+
 // ── The api object — mirrors src/preload/index.ts exactly ────────────
 export function createWebApi() {
   const api = {
@@ -861,12 +921,72 @@ function createAiStub() {
     loadConversation: (_c: string) => Promise.resolve(null),
     peekConversation: (_c: string) => Promise.resolve(null),
     deleteConversation: (_c: string) => Promise.resolve({ ok: true }),
-    generateEndOfSessionRecap: (_c: string) => notWired(),
-    generateSessionStartRecap: (_c: string, _force?: boolean) => notWired(),
-    campaignQaAsk: (_c: string, _q: string) => notWired(),
+    generateEndOfSessionRecap: async (campaignId: string) => {
+      const context = await buildRecapContext(campaignId)
+      if (!context) return { success: false, error: 'No session history to recap.' }
+      try {
+        const res = await bmoFetchJson<{ success: boolean; text?: string; error?: string }>('/api/dnd/public/recap', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ kind: 'end', context })
+        })
+        if (!res.success || !res.text) return { success: false, error: res.error ?? 'Recap failed' }
+        return { success: true, data: res.text }
+      } catch (e) {
+        return { success: false, error: e instanceof Error ? e.message : 'Recap failed (web)' }
+      }
+    },
+    generateSessionStartRecap: async (campaignId: string, _force?: boolean) => {
+      const context = await buildRecapContext(campaignId)
+      if (!context) return { success: false, error: 'No campaign history yet to recap.' }
+      try {
+        const res = await bmoFetchJson<{ success: boolean; text?: string; error?: string }>('/api/dnd/public/recap', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ kind: 'start', context })
+        })
+        if (!res.success || !res.text) return { success: false, error: res.error ?? 'Recap failed' }
+        return { success: true, data: { text: res.text, generatedAt: new Date().toISOString(), cached: false } }
+      } catch (e) {
+        return { success: false, error: e instanceof Error ? e.message : 'Recap failed (web)' }
+      }
+    },
+    campaignQaAsk: async (campaignId: string, question: string) => {
+      const context = await buildRecapContext(campaignId)
+      try {
+        const res = await bmoFetchJson<{ success: boolean; answer?: string; error?: string }>('/api/dnd/public/qa', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question, context })
+        })
+        if (!res.success || !res.answer) return { success: false, error: res.error ?? 'Q&A failed' }
+        return { success: true, data: { answer: res.answer, askedAt: new Date().toISOString() } }
+      } catch (e) {
+        return { success: false, error: e instanceof Error ? e.message : 'Q&A failed (web)' }
+      }
+    },
     campaignQaHistory: (_c: string) => Promise.resolve([] as unknown[]),
     campaignQaClear: (_c: string) => Promise.resolve({ ok: true }),
-    generateBattlemap: (_r: Record<string, unknown>) => notWired(),
+    generateBattlemap: async (request: Record<string, unknown>) => {
+      try {
+        return await bmoFetchJson<{ success: boolean; spec?: unknown; warnings?: string[]; error?: string }>(
+          '/api/dnd/public/battlemap',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              prompt: request.prompt,
+              theme: request.theme,
+              widthCells: request.widthCells,
+              heightCells: request.heightCells,
+              campaignId: request.campaignId
+            })
+          }
+        )
+      } catch (e) {
+        return { success: false, error: e instanceof Error ? e.message : 'Battlemap generation failed (web)' }
+      }
+    },
     listCloudModels: (_p: string, _k?: string) => Promise.resolve({ models: [] }),
     validateApiKey: (_p: string, _k: string) => Promise.resolve({ valid: false }),
     detectOllama: () => Promise.resolve({ installed: false, running: false }),
@@ -912,7 +1032,18 @@ function createAiStub() {
     listMemoryFiles: (_c: string) => Promise.resolve([] as unknown[]),
     readMemoryFile: (_c: string, _f: string) => Promise.resolve(''),
     clearMemory: (_c: string) => Promise.resolve({ ok: true }),
-    analyzeMap: (_g: Record<string, unknown>) => notWired(),
+    analyzeMap: async (gameState: Record<string, unknown>) => {
+      const mapDescription = buildMapDescription(gameState)
+      if (!mapDescription) return { success: false, error: 'No active map to analyze' }
+      try {
+        return await bmoFetchJson<{ success: boolean; analysis?: string; error?: string }>(
+          '/api/dnd/public/analyze-map',
+          { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mapDescription }) }
+        )
+      } catch (e) {
+        return { success: false, error: e instanceof Error ? e.message : 'Map analysis failed (web)' }
+      }
+    },
     triggerStateUpdate: (_s: Record<string, unknown>) => Promise.resolve({ ok: true }),
     setTriggerObserverEnabled: (_e: boolean) => Promise.resolve({ ok: true }),
     getTriggerObserverEnabled: () => Promise.resolve(false),
