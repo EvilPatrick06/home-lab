@@ -120,4 +120,9 @@ For a tunnelled anonymous browser (`_bmo_client_is_trusted_localhost()` is False
 
 ## Completed
 
-_None yet — planning authored 2026-06-23 from WEB-QA-report-2026-06-22._
+- 46A — DONE (2026-06-23) (`src/web/web-api.ts`) — registry `announce`/`update`/`heartbeat`/`deregister` now `.catch((e) => ({ ok:false, error }))` instead of `.catch(() => null)`, matching the desktop `{ ok }` contract (the Pi already returns `{ ok:true, … }` on success, so success passes through). `list` now wraps the Pi's bare `{ games }` into `{ ok:true, games }` (and degrades to `{ ok:true, games: [] }` on failure) so `registry-client.listGames`'s `if (!result.ok) throw` never fires in the web build. Also fixed the list query param `clientId` → `client_id` (the Pi reads `client_id`) as part of the same reconciliation.
+- 46B — DONE (2026-06-23) (`src/renderer/src/network/host-announce.ts`, `src/renderer/src/pages/LobbyPage.tsx`, `host-announce.test.ts`) — `startHostAnnounce` coerces any non-`{ ok }` announce result (null/undefined/garbage) into `{ ok:false, error:'registry unreachable' }` BEFORE the `if (result.ok)` check, so the old null-deref ("Cannot read properties of null (reading 'ok')") can't recur. LobbyPage guards `setRegistryListed(!!result?.ok)` + a clean `registryAnnounceError` ("registry unreachable") instead of a raw TypeError. New tests: announce result of `null`/`undefined` → honest failure, never throws.
+- 46B tests — `src/web/web-registry.test.ts` (new, 4 cases) — proves the shim never returns null: announce → `{ ok:false, error }` on a 401, passes through `{ ok:true }` on 201, `list` → `{ ok:true, games }` on success and `{ ok:true, games: [] }` on 500, heartbeat/deregister → `{ ok:false }` on 404.
+- 46C — DONE (2026-06-23) (doc-only; F3 logged to `docs/SUGGESTIONS-LOG-DNDAPP.md`) — recorded the `BMO_API_KEY`-hardening ↔ anonymous-web-announce interaction with exact route/gate citations and the two owner options (accept / scope an exemption). NO app/Pi code change — this is the rule-9 case (b) decision surface; the F1 graceful-failure fix is correct under either choice.
+
+_Implemented 2026-06-23 from WEB-QA-report-2026-06-22._

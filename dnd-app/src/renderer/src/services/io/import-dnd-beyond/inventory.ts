@@ -59,7 +59,10 @@ export function extractInventory(data: Record<string, unknown>): {
       armor.push({
         id: crypto.randomUUID(),
         name,
-        acBonus: def.armorClass ?? 0,
+        // PHASE-47 F2 — store the bonus OVER base 10 for body armor (the
+        // canonical convention the AC calculators read); shields keep their
+        // flat bonus.
+        acBonus: armorType === 'armor' ? Math.max(0, (def.armorClass ?? 10) - 10) : (def.armorClass ?? 0),
         equipped,
         type: armorType,
         description: stripHtmlToFixedPoint(description),

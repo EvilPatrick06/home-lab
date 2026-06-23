@@ -251,7 +251,11 @@ export async function importFoundryCharacter(): Promise<Character5e | null> {
             armor.push({
               id: item._id ?? crypto.randomUUID(),
               name,
-              acBonus: item.system?.armor?.value ?? 0,
+              // PHASE-47 F2 — bonus-over-10 for body armor; shields keep flat bonus.
+              acBonus:
+                item.system?.type?.value === 'shield'
+                  ? (item.system?.armor?.value ?? 0)
+                  : Math.max(0, (item.system?.armor?.value ?? 10) - 10),
               equipped: item.system?.equipped ?? false,
               type: item.system?.type?.value === 'shield' ? 'shield' : 'armor',
               description: desc,

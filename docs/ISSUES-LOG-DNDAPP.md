@@ -89,6 +89,23 @@ The `circular` script — `dpdm --no-warning --no-tree --transform --extensions 
 
 ## Low
 
+### [2026-06-23] Object-array roll tables (Weather) roll 1dN by count, ignoring d20Min/d20Max weighting
+
+- **Category:** bug (correctness)
+- **Severity:** low
+- **During:** PHASE-47 F3 (TablesPanel object-array formatter) — display fix landed; weighting deferred per the plan's "land (1), log (2)".
+
+**Description:**
+`src/renderer/src/components/game/sidebar/TablesPanel.tsx` normalizes a bare JSON array as `type:'array'` and rolls `1d(arrayData.length)` by element count. The Weather table (`src/renderer/public/data/5e/encounters/random-tables.json:330`) is a 5-element array of `{ d20Min, d20Max, condition }` range rows (1-14, 15-17, 18, 19-20, 20), so it is rolled **1d5 uniformly** instead of **1d20 across the ranges** — each row is equally likely (20%) rather than weighted (e.g. "Normal for the season" should be 14/20 = 70%). PHASE-47 F3 fixed the `[object Object]` display (`formatTableEntry`), but the weighting is still wrong.
+
+**Proposed fix:**
+- [ ] Teach the TablesPanel normalizer to detect a min/max-keyed object array (`d20Min`/`d20Max`, `d100Min`/…) as a range table; roll the implied die (parse `d20` from the key prefix) and match the rolled value against each row's `[min,max]`, mirroring the existing `diceTable` range-match branch.
+- [ ] Add a test rolling the Weather table many times and asserting the distribution follows the ranges, not uniform-by-count.
+
+**Related files:** `src/renderer/src/components/game/sidebar/TablesPanel.tsx`, `src/renderer/public/data/5e/encounters/random-tables.json`.
+
+---
+
 ### [2026-06-22] Biome reports ~70 lint warnings (incl. unused import/var) — non-blocking but accumulating.
 
 - **Category:** debt

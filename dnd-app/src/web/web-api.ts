@@ -77,7 +77,13 @@ async function saveEntity(store: StoreName, entity: Dict): Promise<Dict> {
   const id = (entity.id as string | undefined) ?? genId()
   const withId = { ...entity, id }
   await idbSet(store, id, withId)
-  return withId
+  // PHASE-47 F1 — return the desktop `{ success: true }` StorageResult contract
+  // (plus the id/entity for callers that read it). The persisted record
+  // (`withId`) is unchanged — `success` lives only on the return value. Without
+  // it, a store guard like `if (result && !result.success)` (bastion-store) saw
+  // `success === undefined`, bailed before `set()`, and the UI went stale until
+  // a reload.
+  return { ...withId, success: true }
 }
 
 async function loadJson<T = unknown>(path: string): Promise<T | null> {
@@ -243,9 +249,17 @@ export function createWebApi() {
       onGameFound: (_cb: (e: Dict) => void) => () => undefined,
       onGameRemoved: (_cb: (e: Dict) => void) => () => undefined,
       onBmoResolvedUrl: (_cb: (p: { url: string | null }) => void) => () => undefined,
-      onBmoSignalingStatus: (_cb: (p: { reachable: boolean | null; host: string; port: number }) => void) => () =>
-        undefined,
-      probeSignaling: () => Promise.resolve({ reachable: null })
+      // PHASE-45 F5 — wire the signaling status through the bus so the
+      // settings badge reaches a TERMINAL state instead of sitting on
+      // "Checking…". The store subscribes here at import; probeSignaling()
+      // (called on mount) emits a single { reachable: null } → the badge
+      // renders "Not applicable" (the off-LAN/tunnel default).
+      onBmoSignalingStatus: (cb: (p: { reachable: boolean | null; host: string; port: number }) => void) =>
+        busOn('lan:signaling-status', cb as (d: unknown) => void),
+      probeSignaling: () => {
+        webEmit('lan:signaling-status', { reachable: null, host: '', port: 0 })
+        return Promise.resolve({ reachable: null })
+      }
     },
 
     // Settings → IndexedDB
@@ -473,23 +487,40 @@ export function createWebApi() {
         bmoFetchJson(`/api/rclone/restore?campaignId=${encodeURIComponent(campaignId)}`).catch(() => ({ ok: false }))
     },
 
-    // Pi game registry → /api/games*
+    // Pi game registry → /api/games*. PHASE-46: every mutation honors the
+    // desktop `{ ok: boolean; error? }` contract — a failure NEVER resolves to
+    // bare `null` (which made the renderer's `if (result.ok)` null-deref). The
+    // Pi already returns `{ ok: true, … }` on success (POST 201, PATCH/DELETE/
+    // heartbeat 200), so success passes through; only the catch shape changed.
     registry: {
       announce: (payload: Dict, _baseOverride?: string) =>
-        bmoFetchJson('/api/games', { method: 'POST', body: JSON.stringify(payload) }).catch(() => null),
+        bmoFetchJson('/api/games', { method: 'POST', body: JSON.stringify(payload) }).catch((e) => ({
+          ok: false,
+          error: e instanceof Error ? e.message : String(e)
+        })),
       update: (inviteCode: string, patch: Dict, _baseOverride?: string) =>
         bmoFetchJson(`/api/games/${encodeURIComponent(inviteCode)}`, {
           method: 'PATCH',
           body: JSON.stringify(patch)
-        }).catch(() => null),
+        }).catch((e) => ({ ok: false, error: e instanceof Error ? e.message : String(e) })),
       heartbeat: (inviteCode: string, _baseOverride?: string) =>
-        bmoFetchJson(`/api/games/${encodeURIComponent(inviteCode)}/heartbeat`, { method: 'POST' }).catch(() => null),
-      deregister: (inviteCode: string, _baseOverride?: string) =>
-        bmoFetchJson(`/api/games/${encodeURIComponent(inviteCode)}`, { method: 'DELETE' }).catch(() => null),
-      list: (clientId: string | null, _baseOverride?: string) =>
-        bmoFetchJson(`/api/games${clientId ? `?clientId=${encodeURIComponent(clientId)}` : ''}`).catch(() => ({
-          games: []
+        bmoFetchJson(`/api/games/${encodeURIComponent(inviteCode)}/heartbeat`, { method: 'POST' }).catch((e) => ({
+          ok: false,
+          error: e instanceof Error ? e.message : String(e)
         })),
+      deregister: (inviteCode: string, _baseOverride?: string) =>
+        bmoFetchJson(`/api/games/${encodeURIComponent(inviteCode)}`, { method: 'DELETE' }).catch((e) => ({
+          ok: false,
+          error: e instanceof Error ? e.message : String(e)
+        })),
+      // GET /api/games returns `{ games }` with NO `ok` field, but
+      // registry-client.listGames does `if (!result.ok) throw` — so wrap to the
+      // `{ ok, games }` contract and degrade to an empty list on failure so a
+      // web list NEVER throws.
+      list: (clientId: string | null, _baseOverride?: string) =>
+        bmoFetchJson<{ games?: unknown[] }>(`/api/games${clientId ? `?client_id=${encodeURIComponent(clientId)}` : ''}`)
+          .then((r) => ({ ok: true, games: r?.games ?? [] }))
+          .catch(() => ({ ok: true, games: [] })),
       subscribe: (_subscriptionId: string, _clientId: string | null) => Promise.resolve(ok),
       unsubscribe: (_subscriptionId: string) => Promise.resolve(ok),
       onEvent: (cb: (p: { subscriptionId: string; event: Dict }) => void) =>

@@ -60,10 +60,18 @@ export async function startHostAnnounce(payload: HostAnnouncePayload): Promise<H
   let announceResult: HostAnnounceResult = { ok: true }
 
   if (!payload.is_private) {
-    const result = await announceGame(payload).catch((err) => ({
+    const raw = await announceGame(payload).catch((err) => ({
       ok: false,
       error: err instanceof Error ? err.message : String(err)
     }))
+    // PHASE-46 F1 — defence in depth: a transport that ever resolves a
+    // null/garbage value (the old web shim returned bare `null`) must not
+    // null-deref `result.ok`. Coerce anything that isn't a well-formed
+    // `{ ok }` into an honest failure.
+    const result: HostAnnounceResult =
+      raw && typeof raw === 'object' && 'ok' in raw
+        ? (raw as HostAnnounceResult)
+        : { ok: false, error: 'registry unreachable' }
     if (result.ok) {
       stopHeartbeat = startHeartbeat(payload.invite_code)
     } else {
