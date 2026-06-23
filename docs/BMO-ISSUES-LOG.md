@@ -63,6 +63,89 @@ Both Discord bots catch any startup exception in their top-level run coroutine, 
 
 ## Medium
 
+### [2026-06-22] Voice pipeline starts degraded every boot — Silero VAD disabled (no `torchaudio`) and openwakeword default models missing → energy-only VAD + energy+STT wake fallback
+
+- **Category:** config, bug
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** automated bmo error scan (live `bmo.service` boot journal + voice_pipeline.py read + venv/pip + `arecord -l`)
+
+**Description:**
+On the live Pi, the voice pipeline logs two ERROR-level failures at every boot and runs in a degraded mode:
+1. `[vad] Silero VAD not available, using energy-only` → `_load_silero_vad` (voice_pipeline.py ~240) does `import torchaudio` ("required by silero"), but **`torchaudio` is not installed** (`pip show torchaudio` → not found; `torch==2.12.0+cpu` IS installed; `torchaudio` is not in `requirements.txt`/`requirements.in`). So Silero VAD can never load and the pipeline permanently falls back to energy-only VAD (worse speech/no-speech discrimination).
+2. `[wake] openwakeword not available, using energy+STT fallback...` → `_load_wake_model` (voice_pipeline.py ~211-215) raises `RuntimeError("no wake word ONNX model files found ...")`. `openwakeword==0.6.0` and `onnxruntime==1.26.0` ARE installed, but the **default ONNX model weight files were never downloaded** (`_get_wake_model_paths()` returns empty), so wake-word detection falls back to the cruder energy+STT path.
+
+Net: both core voice-front-end models are unavailable; the assistant runs on the weaker energy-based fallbacks and prints ERROR tracebacks each boot.
+
+**Caveat (honest):** this Pi currently has **no capture device** (`arecord -l` lists zero CAPTURE hardware), so wake/VAD are paused anyway right now — the impact is **latent**. But these are real packaging/setup gaps that (a) spam ERROR tracebacks every boot and (b) will silently leave voice degraded the moment a mic is attached. The "no audio input device" pause is a separate, already-known quiet-degrade path (commit f87518cc); the model/dep gaps here are distinct.
+
+**Expected behavior:** with the documented deps + models installed, Silero VAD and openwakeword should load; if a model/dep is genuinely optional, the absence should log once at INFO (not an ERROR traceback every boot).
+
+**Hypothesis / root cause:** the 2026-04-23 CPU-only-torch venv rebuild (see resolved log) installed `torch` but never added `torchaudio`; and `setup-bmo.sh` / `install-venv.sh` do not run `openwakeword`'s model download step (e.g. `python -c "import openwakeword.utils; openwakeword.utils.download_models()"`), so the `.onnx` weights are absent.
+
+**Proposed fix / improvement:**
+- [ ] Add `torchaudio` (CPU build, matching `torch` 2.12 / the pinned index) to `requirements.in` + recompile, OR make `_load_silero_vad` degrade at INFO without a traceback if Silero is intentionally optional.
+- [ ] Add an openwakeword model-download step to `setup-bmo.sh` / `scripts/install-venv.sh` (or ship a bundled custom model) so `_get_wake_model_paths()` resolves.
+- [ ] Demote the per-boot wake/VAD-unavailable ERRORs to a single INFO when running headless / mic-absent.
+
+**Related files:** `bmo/pi/services/voice_pipeline.py` (`_load_silero_vad` ~234, `_load_wake_model` ~210, `_get_wake_model_paths`), `bmo/pi/requirements.in` / `requirements.txt`, `bmo/setup-bmo.sh`, `bmo/pi/scripts/install-venv.sh`
+
+**Related entries:** resolved 2026-04-23 "CPU-only torch venv rebuild"; wake-word quiet-degrade commit f87518cc
+
+### [2026-06-22] Pi thermal throttling — CPU hit 84°C, soft-temp limit + frequency capping occurred this boot despite `bmo-fan` active (`get_throttled=0xe0000`)
+
+- **Category:** performance, config
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** automated bmo error scan (live `bmo.service` journal + `vcgencmd measure_temp` / `get_throttled`)
+
+**Description:**
+The health monitor fired repeated CRITICALs this boot: `pi_cpu_temp: 🌡️ CPU temperature critical: 84.2°C` and `pi_power: 🌡️ Soft temperature limit active NOW (flags: 0xe0008)` (multiple cycles ~18:51–18:54). `vcgencmd get_throttled` reads **`0xe0000`** = bits 17/18/19 set → "arm frequency capping has occurred", "throttling has occurred", "soft temperature limit has occurred" (no under-voltage bits, no currently-active bits). Current temp at scan ≈ 74–75°C with `bmo-fan.service` **active** — so the fan runs but cooling is insufficient under load and the SoC has been thermally throttling. Throttling directly slows the CPU-bound voice/STT pipeline and sustained 80°C+ shortens hardware life.
+
+**Reproduction:**
+1. `vcgencmd get_throttled` → `0xe0000` (throttle/soft-limit/freq-cap occurred since boot).
+2. `journalctl -u bmo.service -b | grep -i "temperature critical"` → CPU peaked 84.2°C.
+
+**Expected behavior:** under normal load the Pi should stay below the soft-temp limit (no throttle/freq-cap bits) with the fan running.
+
+**Hypothesis / root cause:** cooling headroom is marginal — fan curve too conservative, fan/heatsink undersized for the enclosed touchscreen build, or a CPU-heavy workload (faster-whisper "small" int8 STT, onnxruntime) spiking temps. Needs a hardware/fan-curve look, not a code fix per se.
+
+**Proposed fix / improvement:**
+- [ ] Review `bmo-fan` control curve (`bmo/pi/hardware/fan_control.py`) — raise duty / lower the on-threshold so it ramps before 80°C.
+- [ ] Check enclosure airflow / heatsink contact.
+- [ ] Consider throttling background CPU work when `pi_cpu_temp` is in the critical band.
+
+**Related files:** `bmo/pi/hardware/fan_control.py`, `bmo/pi/services/monitoring.py` (`_check_*` thermal/power checks), `bmo/pi/kiosk/bmo-fan.service`
+
+### [2026-06-22] Health monitor alerts to restart `bmo-kiosk` every cycle — unit is `disabled` (not in `_OPTIONAL_DISABLED_SERVICES`); also drifts from `setup-bmo.sh` which enables it
+
+- **Category:** config, bug
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** automated bmo error scan (live journal + `systemctl is-enabled/is-active` + monitoring.py read + setup-bmo.sh read)
+
+**Description:**
+`bmo-kiosk.service` is `disabled` + `inactive` on the live Pi (never started this boot — `journalctl -u bmo-kiosk` = "No entries", `ConditionResult=no`). The health monitor lists `bmo-kiosk` in `_MONITORED_SERVICES` but `_OPTIONAL_DISABLED_SERVICES = {"bmo-fan"}` only — kiosk is **not** in that set. So `_check_systemd_services` (monitoring.py ~1133-1205) classifies the disabled kiosk as `status: down` and emits `⚙️ 🖥️ BMO Kiosk (touchscreen UI) is inactive — run: sudo systemctl restart bmo-kiosk` (Severity.WARNING) on **every** monitor cycle (~60s) — confirmed firing continuously in the live journal. The disabled/optional branch (which would mark it `info: disabled by configuration`) never triggers because kiosk isn't whitelisted there.
+
+Two intertwined problems:
+1. **Monitor false-positive / log spam:** restarting a `disabled` unit is non-actionable; the WARNING repeats every cycle (same alert-spam class as the calendar "waiting for refresh" entry — the disabled state isn't suppressed).
+2. **Possible config drift:** `setup-bmo.sh` line 372 runs `sudo systemctl enable bmo bmo-kiosk bmo-fan bmo-dm-bot bmo-social-bot` and the unit is `WantedBy=multi-user.target`, i.e. the kiosk touchscreen UI is *intended* to be enabled. Its being `disabled` on the host either is deliberate (headless / mic-less dev state — this Pi also has no capture device) or is real drift where the touchscreen UI no longer comes up at boot. **Unverified which** — flagging honestly; not restarting/mutating per scan rules.
+
+**Expected behavior:** if kiosk is intentionally optional on some hosts, add it to `_OPTIONAL_DISABLED_SERVICES` so a `disabled` unit reports `info` (not a per-cycle WARNING). If it should be running, it should be `enabled` per `setup-bmo.sh`.
+
+**Hypothesis / root cause:** `_OPTIONAL_DISABLED_SERVICES` was set up for `bmo-fan` only; kiosk's optional/disabled state was never accounted for. Whether kiosk *should* be enabled is a separate host-state question.
+
+**Proposed fix / improvement:**
+- [ ] Decide intended kiosk state for this host. If optional → add `"bmo-kiosk"` to `_OPTIONAL_DISABLED_SERVICES`. If required → re-enable (`systemctl enable --now bmo-kiosk`) — owner action, not this scan.
+- [ ] Either way, suppress/rate-limit the repeating WARNING for a unit that is `disabled` (don't tell the user to restart a disabled unit every 60s).
+
+**Related files:** `bmo/pi/services/monitoring.py` (`_OPTIONAL_DISABLED_SERVICES` ~628, `_MONITORED_SERVICES` ~1133, `_check_systemd_services` ~1135-1205), `bmo/pi/kiosk/bmo-kiosk.service`, `bmo/setup-bmo.sh` (~372)
+
+**Related entries:** [2026-06-22] Calendar monitor reports a long-expired token ... re-alerts every monitor cycle; [2026-06-22] Discord DM + Social bots swallow startup crashes
+
 ### [2026-06-22] Calendar monitor reports a long-expired token as transient "waiting for refresh" forever — never escalates, re-alerts every monitor cycle
 
 - **Category:** bug
