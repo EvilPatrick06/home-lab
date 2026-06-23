@@ -98,7 +98,7 @@ log "Setting up Python venv (PyTorch CPU-only first — no GPU on Pi)..."
 cd ~/home-lab/bmo/pi
 python3 -m venv venv
 venv/bin/pip install --upgrade pip
-venv/bin/pip install torch --index-url https://download.pytorch.org/whl/cpu
+venv/bin/pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
 venv/bin/pip install -r requirements.txt
 
 # PHASE-21 21A: streaming-TTS support for the DM bot.
