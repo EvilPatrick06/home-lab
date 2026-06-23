@@ -87,7 +87,7 @@ export async function generateBattlemapSpec(request: BattlemapGenerationRequest)
     // ONE retry with the validation issues fed back.
     user = `${buildUserPrompt(request)}\n\nYour previous output failed validation: ${parsed.issues}. Output ONLY corrected JSON.`
   }
-  if (!parsed || !parsed.ok) {
+  if (!parsed?.ok) {
     return {
       success: false,
       error: `Could not produce a valid battlemap (${parsed?.ok === false ? parsed.issues : 'unknown'})`

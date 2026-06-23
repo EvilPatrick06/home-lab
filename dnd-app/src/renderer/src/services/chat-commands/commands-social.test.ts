@@ -255,7 +255,6 @@ describe('commands-social', () => {
 
   describe('/ping command', () => {
     const pingCmd = commands.find((c) => c.name === 'ping')!
-    // biome-ignore lint/suspicious/noExplicitAny: minimal character ctx for the map-ping path
     const withToken = () => makeCtx({ character: { id: 'char-1' } as any })
 
     it('exists', () => {

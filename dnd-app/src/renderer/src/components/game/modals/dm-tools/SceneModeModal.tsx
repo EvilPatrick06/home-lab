@@ -212,10 +212,7 @@ export default function SceneModeModal({ onClose }: SceneModeModalProps): JSX.El
 
           {imageBusy && <p className="text-xs text-gray-400">{t('game.sceneMode.imageBusy')}</p>}
           {imageError && <p className="text-xs text-red-400">{imageError}</p>}
-          {imageData && (
-            // biome-ignore lint/a11y/useAltText: scene preview, described by the caption field
-            <img src={imageData} className="max-h-40 rounded border border-border mx-auto" />
-          )}
+          {imageData && <img src={imageData} className="max-h-40 rounded border border-border mx-auto" />}
 
           {/* Caption */}
           <div>

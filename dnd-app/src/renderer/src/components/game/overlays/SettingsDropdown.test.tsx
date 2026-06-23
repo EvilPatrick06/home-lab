@@ -12,18 +12,14 @@ const gameState = {
   setTurnMode: vi.fn(),
   endInitiative: vi.fn()
 }
-// biome-ignore lint/suspicious/noExplicitAny: selector mocks
 vi.mock('../../../stores/use-game-store', () => ({ useGameStore: (sel: any) => sel(gameState) }))
 const aiDmState = { paused: false, isTyping: false, setPaused: vi.fn() }
-// biome-ignore lint/suspicious/noExplicitAny: selector mocks
 vi.mock('../../../stores/use-ai-dm-store', () => ({ useAiDmStore: (sel: any) => sel(aiDmState) }))
-// biome-ignore lint/suspicious/noExplicitAny: selector mocks
 vi.mock('../../../stores/network-store', () => ({ useNetworkStore: (sel: any) => sel({ localPeerId: 'p1' }) }))
 const lobbyState = {
   getLocalDiceColors: () => ({ primary: '#fff', secondary: '#000' }),
   setDiceColors: vi.fn()
 }
-// biome-ignore lint/suspicious/noExplicitAny: selector mocks
 vi.mock('../../../stores/use-lobby-store', () => ({ useLobbyStore: (sel: any) => sel(lobbyState) }))
 vi.mock('../../../services/sound-manager', () => ({
   getAllSoundEvents: () => [],
@@ -37,7 +33,6 @@ vi.mock('../../../hooks/use-toast', () => ({ addToast: vi.fn() }))
 
 import SettingsDropdown from './SettingsDropdown'
 
-// biome-ignore lint/suspicious/noExplicitAny: minimal campaign fixture
 function makeCampaign(aiDm: any) {
   return { id: 'c1', name: 'Test', players: [], aiDm } as any
 }

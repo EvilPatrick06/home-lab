@@ -14,7 +14,8 @@ function makeStream(opts?: { signal?: AbortSignal }) {
   streamListeners.push(listeners)
   return {
     on: (event: string, cb: (...a: unknown[]) => void) => {
-      ;(listeners[event] ??= []).push(cb)
+      listeners[event] ??= []
+      listeners[event].push(cb)
     },
     finalMessage: async () => {
       if (hangUntilAbort) {

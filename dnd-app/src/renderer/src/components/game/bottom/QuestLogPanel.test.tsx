@@ -30,11 +30,9 @@ beforeEach(() => {
   getQuestLog.mockResolvedValue({ success: true, data: LOG })
   updateQuestObjective.mockResolvedValue({ success: true, data: LOG })
   advanceChapter.mockResolvedValue({ success: true, data: LOG })
-  // biome-ignore lint/suspicious/noExplicitAny: test stub of the preload api surface
   ;(window as any).api = { ai: { getQuestLog, updateQuestObjective, advanceChapter, onQuestStateChanged } }
 })
 afterEach(() => {
-  // biome-ignore lint/suspicious/noExplicitAny: cleanup
   ;(window as any).api = undefined
   vi.clearAllMocks()
 })

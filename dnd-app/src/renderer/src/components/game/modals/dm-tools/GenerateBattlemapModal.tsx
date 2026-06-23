@@ -181,10 +181,7 @@ export default function GenerateBattlemapModal({ onClose }: GenerateBattlemapMod
           {spec && (
             <div className="space-y-2 border-t border-border/40 pt-3">
               <p className="text-sm text-gray-200">{spec.name}</p>
-              {previewUrl && (
-                // biome-ignore lint/a11y/useAltText: generated map preview, described by the name above
-                <img src={previewUrl} className="max-h-72 rounded border border-border mx-auto" />
-              )}
+              {previewUrl && <img src={previewUrl} className="max-h-72 rounded border border-border mx-auto" />}
               {warnings.length > 0 && (
                 <div className="text-[11px] text-amber-400">
                   <p>{t('game.generateBattlemap.warningsTitle')}</p>

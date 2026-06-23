@@ -889,7 +889,7 @@ describe('MemoryManager concurrency (PHASE-27 27B)', () => {
 })
 
 describe('MemoryManager recap cache + Q&A log (PHASE-31 31B/31C)', () => {
-  const DIR = '/tmp/test/campaigns/c1/ai-context'
+  const _DIR = '/tmp/test/campaigns/c1/ai-context'
   let files: Map<string, string>
   beforeEach(() => {
     files = new Map<string, string>()

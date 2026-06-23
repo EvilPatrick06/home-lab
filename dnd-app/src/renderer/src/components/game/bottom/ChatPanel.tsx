@@ -203,6 +203,7 @@ export default function ChatPanel({
     const el = e.currentTarget
     stickToBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 48
   }, [])
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional — re-run the stick-to-bottom effect whenever the streaming preview changes
   useEffect(() => {
     if (stickToBottomRef.current && scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight

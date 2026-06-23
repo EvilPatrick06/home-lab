@@ -32,7 +32,7 @@ import { useDiscordSyncStore } from '../stores/use-discord-sync-store'
 import { useDiscordSync } from './use-discord-sync'
 
 let eventCb: ((e: unknown) => void) | undefined
-let initCb: ((e: unknown) => void) | undefined
+let _initCb: ((e: unknown) => void) | undefined
 const offEvent = vi.fn()
 const offInit = vi.fn()
 const bmoSyncInitiative = vi.fn().mockResolvedValue({ ok: true })
@@ -41,7 +41,7 @@ const bmoSyncGameState = vi.fn().mockResolvedValue({ ok: true })
 beforeEach(() => {
   vi.clearAllMocks()
   eventCb = undefined
-  initCb = undefined
+  _initCb = undefined
   h.subscriber = null
   useDiscordSyncStore.setState({ activity: [], syncToDiscordEnabled: false })
   vi.stubGlobal('window', {
@@ -51,7 +51,7 @@ beforeEach(() => {
         return offEvent
       },
       onBmoSyncInitiative: (cb: (e: unknown) => void) => {
-        initCb = cb
+        _initCb = cb
         return offInit
       },
       bmoSyncInitiative,

@@ -23,7 +23,6 @@ const BREAKDOWN = {
 beforeEach(() => {
   getContextInspector.mockReset()
   previewTokenBudget.mockReset()
-  // biome-ignore lint/suspicious/noExplicitAny: test stub of the preload api surface
   ;(window as any).api = { ai: { getContextInspector, previewTokenBudget } }
 })
 

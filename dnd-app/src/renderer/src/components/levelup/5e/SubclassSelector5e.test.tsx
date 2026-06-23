@@ -19,7 +19,6 @@ vi.mock('../../../services/data-provider', async (importOriginal) => {
 })
 
 vi.mock('../../../stores/use-level-up-store', () => ({
-  // biome-ignore lint/suspicious/noExplicitAny: test selector stub
   useLevelUpStore: (sel: any) => sel({ setSlotSelection: vi.fn() })
 }))
 

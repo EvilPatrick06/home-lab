@@ -216,7 +216,6 @@ export default function AiImageModal({ onClose }: AiImageModalProps): JSX.Elemen
 
               {result && (
                 <div className="space-y-2 border-t border-border/40 pt-3">
-                  {/* biome-ignore lint/a11y/useAltText: generated preview image, described by the adjacent caption */}
                   <img src={result.dataUrl} className="max-h-64 rounded border border-border mx-auto" />
                   <p className="text-[11px] text-gray-500 text-center">
                     {result.provider}

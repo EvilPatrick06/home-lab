@@ -26,7 +26,6 @@ beforeEach(() => {
   }
 })
 
-// biome-ignore lint/suspicious/noExplicitAny: test helper to reach the mocked api surface
 const api = () => (window as any).api.ai
 
 afterEach(() => vi.clearAllMocks())

@@ -34,7 +34,6 @@ beforeEach(() => {
     store: { version: 1, enabled: false, partyLocationId: null, locations: [], npcs: [], facts: [], updatedAt: '' }
   })
   setWorldStateEnabled.mockReset().mockResolvedValue({ success: true })
-  // biome-ignore lint/suspicious/noExplicitAny: test-only window augmentation (don't replace window — nukes document)
   ;(window as any).api = {
     ai: {
       configure,
@@ -56,12 +55,10 @@ beforeEach(() => {
   }
 })
 afterEach(() => {
-  // biome-ignore lint/suspicious/noExplicitAny: cleanup
   ;(window as any).api = undefined
   vi.clearAllMocks()
 })
 
-// biome-ignore lint/suspicious/noExplicitAny: minimal campaign fixture
 function campaignWith(aiDm: any): any {
   return { id: 'c1', name: 'Test', players: [], aiDm }
 }

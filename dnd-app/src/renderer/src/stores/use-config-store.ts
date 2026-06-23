@@ -1,11 +1,6 @@
 import { create } from 'zustand'
 import { getActiveCampaignId } from '../services/active-campaign-ref'
-import {
-  categoryToHomebrewKey,
-  type DataCategory,
-  mergeHomebrew,
-  mergePluginData
-} from '../services/library/content-merge'
+import { type DataCategory, mergeHomebrew, mergePluginData } from '../services/library/content-merge'
 import { logger } from '../utils/logger'
 
 /**

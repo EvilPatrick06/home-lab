@@ -24,15 +24,12 @@ vi.mock('../../../../stores/use-library-ui-store', () => ({
 vi.mock('../../../library', async () => {
   const React = await import('react')
   return {
-    // biome-ignore lint/suspicious/noExplicitAny: test stub props
     LibraryItemList: (props: any) =>
       React.createElement(
         'div',
         { 'data-testid': 'item-list', 'data-category': props.category },
-        // biome-ignore lint/suspicious/noExplicitAny: test stub props
         (props.items ?? []).map((i: any) => React.createElement('div', { key: i.id }, i.name))
       ),
-    // biome-ignore lint/suspicious/noExplicitAny: test stub props
     LibraryDetailModal: (props: any) => React.createElement('div', { 'data-testid': 'detail' }, props.item.name)
   }
 })

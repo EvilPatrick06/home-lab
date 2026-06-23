@@ -29,7 +29,7 @@ export function useMonsterAutoTurn(): void {
       const gs = useGameStore.getState()
       if (gs.isPaused) return
       const entry = gs.initiative?.entries.find((e) => e.entityId === payload.entityId)
-      if (!entry || entry.entityType !== 'enemy') return
+      if (entry?.entityType !== 'enemy') return
       const map = gs.maps.find((m) => m.id === gs.activeMapId) ?? gs.maps[0]
       const token = map?.tokens.find((tk) => tk.entityId === payload.entityId)
       if (!token?.monsterStatBlockId) return

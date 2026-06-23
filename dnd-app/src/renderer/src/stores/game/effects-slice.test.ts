@@ -75,7 +75,6 @@ describe('effects-slice', () => {
 
   describe('clearAllEffects', () => {
     function createTestStore() {
-      // biome-ignore lint/suspicious/noExplicitAny: minimal zustand harness for a unit test
       return create<any>()((set: any, get: any, api: any) => ({
         round: 1,
         ...createEffectsSlice(set, get, api)
@@ -85,17 +84,11 @@ describe('effects-slice', () => {
     it('empties every active-effect collection but keeps placed traps', () => {
       const store = createTestStore()
       const s = store.getState()
-      // biome-ignore lint/suspicious/noExplicitAny: terse fixtures for the bulk-clear assertion
       s.addCustomEffect({ id: 'c1', targetEntityId: 'e1' } as any)
-      // biome-ignore lint/suspicious/noExplicitAny: terse fixtures
       s.addDisease({ id: 'd1' } as any)
-      // biome-ignore lint/suspicious/noExplicitAny: terse fixtures
       s.addCurse({ id: 'cu1' } as any)
-      // biome-ignore lint/suspicious/noExplicitAny: terse fixtures
       s.addEnvironmentalEffect({ id: 'env1' } as any)
-      // biome-ignore lint/suspicious/noExplicitAny: terse fixtures
       s.addSpellEffect({ id: 'sp1', name: 'Bless', caster: 'X', startedRound: 1 } as any)
-      // biome-ignore lint/suspicious/noExplicitAny: terse fixtures
       s.addPlacedTrap({ id: 't1', armed: true } as any)
 
       store.getState().clearAllEffects()

@@ -37,6 +37,7 @@ export default function CampaignQaModal({ open, onClose }: CampaignQaModalProps)
     if (res.success && res.data) setHistory([...res.data].reverse()) // newest first
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional — refresh only when the modal opens
   useEffect(() => {
     if (open) void refresh()
     // eslint-disable-next-line react-hooks/exhaustive-deps

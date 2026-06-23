@@ -20,7 +20,6 @@ import { buildExtractionPrompt, EXTRACTION_SCHEMA, extractEntities, runEntityExt
 import type { LLMProvider } from './llm-provider'
 
 function makeProvider(opts: { structured?: string; chat?: string; withStructured?: boolean }): LLMProvider {
-  // biome-ignore lint/suspicious/noExplicitAny: test double of the provider surface
   const p: any = {
     type: 'ollama',
     streamChat: vi.fn(),
@@ -70,7 +69,6 @@ describe('extractEntities', () => {
     })
     const out = await extractEntities(p, 'm', 'narr', [])
     expect(out).toEqual([{ kind: 'npc', name: 'Volo', summary: 'a barkeep' }])
-    // biome-ignore lint/suspicious/noExplicitAny: spy access
     expect((p as any).structuredOnce).toHaveBeenCalled()
     expect(p.chatOnce).not.toHaveBeenCalled()
   })
@@ -95,7 +93,6 @@ describe('runEntityExtraction', () => {
     storeMock.config = { enabled: false, autoExtract: false, loreMode: 'all' }
     const p = makeProvider({ withStructured: true, structured: entitiesJson(2) })
     await runEntityExtraction('c1', p, 'm', 'narr')
-    // biome-ignore lint/suspicious/noExplicitAny: spy access
     expect((p as any).structuredOnce).not.toHaveBeenCalled()
     expect(storeMock.upsertEntity).not.toHaveBeenCalled()
   })

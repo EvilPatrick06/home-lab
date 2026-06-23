@@ -212,7 +212,6 @@ describe('calculateTotalWeight', () => {
     for (let i = 0; i < 9; i++) {
       node = { name: 'Box', quantity: 1, weight: 1, contents: [node] }
     }
-    // biome-ignore lint/suspicious/noExplicitAny: deeply-nested fixture
     const char = makeCharacter({ equipment: [node as any] })
     // 10 levels total but only the first 8 count (each weight 1) → 8.
     expect(calculateTotalWeight(char)).toBe(8)

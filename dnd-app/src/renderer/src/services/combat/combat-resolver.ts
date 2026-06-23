@@ -9,7 +9,6 @@
  */
 
 import { useGameStore } from '../../stores/use-game-store'
-import type { Character5e } from '../../types/character-5e'
 import type { MapToken } from '../../types/map'
 import { logger } from '../../utils/logger'
 import { type DiceRollResult, rollD20, rollQuiet } from '../dice/dice-service'

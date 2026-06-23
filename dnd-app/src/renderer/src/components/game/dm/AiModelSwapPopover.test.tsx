@@ -16,7 +16,6 @@ const listInstalledModels = vi.fn()
 const listCloudModels = vi.fn()
 const configure = vi.fn()
 
-// biome-ignore lint/suspicious/noExplicitAny: minimal campaign fixture
 function campaign(): any {
   return { id: 'c1', name: 'Test', players: [], aiDm: { enabled: true, provider: 'ollama', model: 'llama3.1' } }
 }
@@ -26,11 +25,9 @@ beforeEach(() => {
   listInstalledModels.mockResolvedValue(['llama3.1', 'mistral'])
   listCloudModels.mockResolvedValue([])
   configure.mockResolvedValue({ success: true })
-  // biome-ignore lint/suspicious/noExplicitAny: test stub of the preload api surface
   ;(window as any).api = { ai: { getConfig, listInstalledModels, listCloudModels, configure } }
 })
 afterEach(() => {
-  // biome-ignore lint/suspicious/noExplicitAny: cleanup
   ;(window as any).api = undefined
   vi.clearAllMocks()
 })

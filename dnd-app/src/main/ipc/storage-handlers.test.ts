@@ -209,7 +209,6 @@ describe('storage-handlers', () => {
   })
 
   describe('BOOK_IMPORT dialog-allowlist enforcement (PHASE-13 13B)', () => {
-    // biome-ignore lint/suspicious/noExplicitAny: invoke the captured raw handler
     const bookImportHandler = (): any => {
       registerStorageHandlers()
       return mockHandle.mock.calls.find((call) => call[0] === IPC_CHANNELS.BOOK_IMPORT)![1]

@@ -49,7 +49,7 @@ interface SyncEventLike {
   payload: Record<string, unknown>
 }
 
-export function useDiscordSync({ isDM, campaignId }: { isDM: boolean; campaignId: string | null | undefined }): void {
+export function useDiscordSync({ isDM }: { isDM: boolean; campaignId: string | null | undefined }): void {
   const { t } = useT()
   const addActivity = useDiscordSyncStore((s) => s.addActivity)
   const syncEnabled = useDiscordSyncStore((s) => s.syncToDiscordEnabled)

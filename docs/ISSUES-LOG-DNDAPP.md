@@ -32,34 +32,6 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Medium
 
-### [2026-06-22] `@google/genai` not installed locally — `tsc -p tsconfig.node.json` + 4 AI test suites fail on bmo.
-
-- **Category:** config
-- **Severity:** medium
-- **Domain:** dnd-app
-- **Discovered by:** dnd-errors
-- **During:** automated dnd-app error scan (running the repo's own gates on bmo).
-
-**Description:**
-On the bmo checkout, `node_modules/@google/genai` is missing while `package.json` (`"@google/genai": "^2.8.0"`) and `package-lock.json` both reference it (lockfile has the package; the orphaned, no-longer-declared `@google/generative-ai` is what is actually present on disk). The installed tree is stale relative to the manifests. Consequences observed this run:
-- `npx tsc --noEmit -p tsconfig.node.json` → `error TS2307: Cannot find module '@google/genai'` at `src/main/ai/gemini-client.ts:1` → exit 1 (so `npm run check:release` / `check:full` fail at the tsc step).
-- `npm test` → 4 suites fail to even load with `Error: Cannot find package '@google/genai'`: `src/main/ai/ai-service-file-read-cancel.test.ts`, `ai-service-restream-context.test.ts`, `ai-service-web-search-approval.test.ts`, `src/main/ipc/ai-handlers.test.ts` (all reach the real module via `provider-registry.ts → gemini-client.ts`; the dedicated `gemini-client.test.ts` passes because it mocks the import).
-
-**Reproduction (if bug):**
-1. On bmo: `cd /home/patrick/home-lab/dnd-app`
-2. `npx tsc --noEmit -p tsconfig.node.json` → TS2307, and `npm test` → 4 failed suites.
-3. `ls node_modules/@google/` shows only `generative-ai`, not `genai`.
-
-**Expected behavior (if bug):** local install matches the lockfile; tsc:node and the AI suites pass.
-
-**Hypothesis / root cause:** Local `node_modules` drift — `npm ci`/`npm install` has not been run on bmo since the migration from `@google/generative-ai` to `@google/genai`. The repo manifests are internally consistent, so a fresh-install CI run should be unaffected; this is an environment problem on the bmo checkout, not a repo defect. (Logging because it currently red-lines every local test/tsc run on bmo and can mask real regressions.)
-
-**Proposed fix / improvement:**
-- [ ] Run `npm ci` (or `npm install`) in `dnd-app/` on bmo to install `@google/genai` and prune the orphaned `@google/generative-ai`.
-- [ ] Re-run `npm test` + `tsc -p tsconfig.node.json` to confirm green.
-
-**Related files:** `dnd-app/package.json`, `dnd-app/package-lock.json`, `dnd-app/src/main/ai/gemini-client.ts`, `dnd-app/src/main/ai/provider-registry.ts`
-
 ### [2026-06-22] `npm run circular` can never fail (`--exit-code circular:0`) — the circular-dep gate is a silent no-op, and 4 cycles already exist.
 
 - **Category:** config, debt
@@ -88,25 +60,6 @@ The `circular` script — `dpdm --no-warning --no-tree --transform --extensions 
 - **[2026-06-11] AI character context is missing weapons/armor/prepared-spells/feats for all v4 characters.** `character-context.ts` still reads v4-stripped inline arrays: `knownSpells`/`preparedSpellIds` (`:137-144`), `armor` (`:168-177`), `weapons` (`:179-184`), `feats` (`:225-228`) — so the AI's "full sheet" omits them. Weapons/armor recoverable from ref `overrides`; spells need library name resolution. *(found during PHASE-02 verification; not in any phase's allocation — the conditions read was fixed in PHASE-02 02B.)*
 
 ## Low
-
-### [2026-06-22] Biome reports ~70 lint warnings (incl. unused import/var) — non-blocking but accumulating.
-
-- **Category:** debt
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-errors
-- **During:** automated dnd-app error scan (`npm run lint`).
-
-**Description:**
-`biome check src/` passes (exit 0) but emits **70 warnings + 1 info**. Sampled rule breakdown: `suspicious/noExplicitAny` (~22, many in tests), `suspicious/noAssignInExpressions` (3), and one each of `correctness/noUnusedVariables`, `correctness/noUnusedImports`, `style/useTemplate`, `complexity/useOptionalChain`. The unused-import/unused-variable ones are trivially real dead code; the `noExplicitAny` ones are mostly test doubles. Because these are configured as warnings (not errors), they don't fail lint/CI, so the count quietly grows.
-
-**Expected behavior:** zero (or a deliberately ratcheted-down) warning count.
-
-**Proposed fix / improvement:**
-- [ ] `npm run lint:fix` to clear the auto-fixable ones (unused import, useTemplate, useOptionalChain).
-- [ ] Triage remaining `noExplicitAny` — annotate intentional ones with `biome-ignore` + reason, type the rest.
-
-**Related files:** `dnd-app/biome.json`, `dnd-app/src/**`
 
 - **[2026-06-20] Builder multiclass per-level class swap doesn't recompute spell-selection caps.** `setClassLevelChoice` (`src/renderer/src/stores/builder/slices/core-slice.ts`) regenerates build slots but, unlike `setTargetLevel` (now fixed for the single-class Level-field path, QA-2026-06-19 task 3), does NOT recompute the store's `maxCantrips`/`maxPreparedSpells` enforcement caps. A multiclass build whose caster level changes via the per-level class panel could still hit stale caps in `setSelectedSpellIds`. A fully-correct fix recomputes the caps keyed on the primary/combined caster class. *(found during QA-2026-06-19 task 3 fix; the reported single-class path is fully fixed.)*
 - **[2026-06-11] Renderer rest-service: Ranger "Tireless" exhaustion reduction + innate-spell-use restoration still dropped.** `rest-service-5e.ts:248-250` (Tireless) and the comment near `:410` (innate uses) were disabled in 15c.5; PHASE-02 02A re-enabled the condition `value` substrate, so Tireless reduction is now implementable. *(found during PHASE-02 verification.)*

@@ -54,7 +54,6 @@ function makeCtx(overrides?: Partial<CommandContext>): CommandContext {
   } as unknown as CommandContext
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: ported command-result assertions accept loose shapes
 type AnyResult = any
 
 describe('commands-player-combat', () => {

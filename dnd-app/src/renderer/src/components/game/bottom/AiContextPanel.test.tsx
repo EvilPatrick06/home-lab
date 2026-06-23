@@ -17,13 +17,10 @@ beforeEach(() => {
   clearMemory.mockReset()
   readMemoryFile.mockReset()
   // Assign onto the existing happy-dom window (don't replace it — that nukes `document`).
-  // biome-ignore lint/suspicious/noExplicitAny: test-only window augmentation
   ;(window as any).api = { ai: { listMemoryFiles, clearMemory, readMemoryFile } }
-  // biome-ignore lint/suspicious/noExplicitAny: test-only window augmentation
   ;(window as any).confirm = () => true
 })
 afterEach(() => {
-  // biome-ignore lint/suspicious/noExplicitAny: test-only cleanup
   ;(window as any).api = undefined
 })
 

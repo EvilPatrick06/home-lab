@@ -31,11 +31,9 @@ beforeEach(() => {
   setEntitiesConfig.mockResolvedValue({ success: true, config: { enabled: true, autoExtract: false, loreMode: 'all' } })
   upsertEntity.mockResolvedValue({ success: true, applied: true, detail: 'updated by DM' })
   deleteEntity.mockResolvedValue({ success: true, deleted: true })
-  // biome-ignore lint/suspicious/noExplicitAny: test stub of the preload api surface
   ;(window as any).api = { ai: { getEntities, setEntitiesConfig, upsertEntity, deleteEntity } }
 })
 afterEach(() => {
-  // biome-ignore lint/suspicious/noExplicitAny: cleanup
   ;(window as any).api = undefined
   vi.clearAllMocks()
 })

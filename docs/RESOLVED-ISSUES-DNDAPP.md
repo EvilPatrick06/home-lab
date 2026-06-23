@@ -12,6 +12,65 @@
 
 ---
 
+### [2026-06-22] `@google/genai` not installed locally — `tsc -p tsconfig.node.json` + 4 AI test suites fail on bmo.
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Environment drift only, no repo defect: `@google/genai` is installed in the bmo checkout and resolves — `tsc -p tsconfig.node.json` is green and the AI suites (ai-handlers, ai-service-web-search-approval, etc. via provider-registry->gemini-client) load and pass. The orphaned `@google/generative-ai` is no longer the on-disk package. No code change required; archived.
+
+- **Category:** config
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** dnd-errors
+- **During:** automated dnd-app error scan (running the repo's own gates on bmo).
+
+**Description:**
+On the bmo checkout, `node_modules/@google/genai` is missing while `package.json` (`"@google/genai": "^2.8.0"`) and `package-lock.json` both reference it (lockfile has the package; the orphaned, no-longer-declared `@google/generative-ai` is what is actually present on disk). The installed tree is stale relative to the manifests. Consequences observed this run:
+- `npx tsc --noEmit -p tsconfig.node.json` → `error TS2307: Cannot find module '@google/genai'` at `src/main/ai/gemini-client.ts:1` → exit 1 (so `npm run check:release` / `check:full` fail at the tsc step).
+- `npm test` → 4 suites fail to even load with `Error: Cannot find package '@google/genai'`: `src/main/ai/ai-service-file-read-cancel.test.ts`, `ai-service-restream-context.test.ts`, `ai-service-web-search-approval.test.ts`, `src/main/ipc/ai-handlers.test.ts` (all reach the real module via `provider-registry.ts → gemini-client.ts`; the dedicated `gemini-client.test.ts` passes because it mocks the import).
+
+**Reproduction (if bug):**
+1. On bmo: `cd /home/patrick/home-lab/dnd-app`
+2. `npx tsc --noEmit -p tsconfig.node.json` → TS2307, and `npm test` → 4 failed suites.
+3. `ls node_modules/@google/` shows only `generative-ai`, not `genai`.
+
+**Expected behavior (if bug):** local install matches the lockfile; tsc:node and the AI suites pass.
+
+**Hypothesis / root cause:** Local `node_modules` drift — `npm ci`/`npm install` has not been run on bmo since the migration from `@google/generative-ai` to `@google/genai`. The repo manifests are internally consistent, so a fresh-install CI run should be unaffected; this is an environment problem on the bmo checkout, not a repo defect. (Logging because it currently red-lines every local test/tsc run on bmo and can mask real regressions.)
+
+**Proposed fix / improvement:**
+- [ ] Run `npm ci` (or `npm install`) in `dnd-app/` on bmo to install `@google/genai` and prune the orphaned `@google/generative-ai`.
+- [ ] Re-run `npm test` + `tsc -p tsconfig.node.json` to confirm green.
+
+**Related files:** `dnd-app/package.json`, `dnd-app/package-lock.json`, `dnd-app/src/main/ai/gemini-client.ts`, `dnd-app/src/main/ai/provider-registry.ts`
+
+---
+
+### [2026-06-22] Biome reports ~70 lint warnings (incl. unused import/var) — non-blocking but accumulating.
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Cleared all 70 Biome warnings to 0. Removed 54 stale `biome-ignore noExplicitAny` suppressions (the test override already disables that rule), applied Biome safe-fixes to the FIXABLE unused-import/var/useTemplate/useOptionalChain sites (8 files), refactored the 3 noAssignInExpressions (stat-mutations.ts x2, claude-client.test.ts) into plain statements, dropped the unused `campaignId` param in use-discord-sync.ts, and annotated the 5 intentional useExhaustiveDependencies hooks (ChatPanel, CampaignQaModal, SessionStartRecapModal) with documented biome-ignore reasons. `biome check src/` = 0 warnings; tsc node+web green; affected tests pass.
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-errors
+- **During:** automated dnd-app error scan (`npm run lint`).
+
+**Description:**
+`biome check src/` passes (exit 0) but emits **70 warnings + 1 info**. Sampled rule breakdown: `suspicious/noExplicitAny` (~22, many in tests), `suspicious/noAssignInExpressions` (3), and one each of `correctness/noUnusedVariables`, `correctness/noUnusedImports`, `style/useTemplate`, `complexity/useOptionalChain`. The unused-import/unused-variable ones are trivially real dead code; the `noExplicitAny` ones are mostly test doubles. Because these are configured as warnings (not errors), they don't fail lint/CI, so the count quietly grows.
+
+**Expected behavior:** zero (or a deliberately ratcheted-down) warning count.
+
+**Proposed fix / improvement:**
+- [ ] `npm run lint:fix` to clear the auto-fixable ones (unused import, useTemplate, useOptionalChain).
+- [ ] Triage remaining `noExplicitAny` — annotate intentional ones with `biome-ignore` + reason, type the rest.
+
+**Related files:** `dnd-app/biome.json`, `dnd-app/src/**`
+
+---
+
 ### [2026-06-22] Flaky test: `bmo-bridge.test.ts > rate-limits after 60 requests with 429 + Retry-After` (real timers race the token-bucket refill).
 
 - **Resolved by:** dnd-resolver (automated)

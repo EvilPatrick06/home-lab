@@ -296,7 +296,6 @@ describe('commands-dm-campaign', () => {
     const sceneMemoryGet = vi.fn()
 
     const setApi = () => {
-      // biome-ignore lint/suspicious/noExplicitAny: test stub of the preload surface
       ;(globalThis as any).window = { api: { ai: { endScene, sceneMemoryGet } } }
     }
 

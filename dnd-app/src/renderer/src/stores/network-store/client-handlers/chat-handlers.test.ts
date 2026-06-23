@@ -23,7 +23,6 @@ vi.mock('../../../services/map/map-utils', () => ({ createPing: mocks.createPing
 
 import { handleMapPing } from './chat-handlers'
 
-// biome-ignore lint/suspicious/noExplicitAny: minimal NetworkMessage shape for the handler under test
 function pingMsg(gridX: number, gridY: number, label?: string): any {
   return { type: 'game:map-ping', senderId: 'peer-9', senderName: 'Bob', payload: { gridX, gridY, label } }
 }

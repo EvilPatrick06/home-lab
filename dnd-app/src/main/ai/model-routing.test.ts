@@ -58,7 +58,6 @@ describe('resolveModelForTask', () => {
     const routing: AiRoutingConfig = {
       enabled: true,
       smallModel: SMALL,
-      // biome-ignore lint/suspicious/noExplicitAny: deliberately invalid key to prove it is ignored
       overrides: { narration: 'sneaky' } as any
     }
     expect(resolveModelForTask('narration', PRIMARY, routing)).toBe(PRIMARY)

@@ -12,11 +12,9 @@ beforeEach(() => {
   bmoDmStatus.mockReset()
   bmoStartDm.mockReset()
   bmoStopDm.mockReset()
-  // biome-ignore lint/suspicious/noExplicitAny: test-only window augmentation
   ;(window as any).api = { bmoDmStatus, bmoStartDm, bmoStopDm }
 })
 afterEach(() => {
-  // biome-ignore lint/suspicious/noExplicitAny: test-only cleanup
   ;(window as any).api = undefined
 })
 

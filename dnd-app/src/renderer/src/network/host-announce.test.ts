@@ -32,7 +32,6 @@ function payload(overrides: Record<string, unknown> = {}) {
     is_private: false,
     peer_id: 'peer-1',
     ...overrides
-    // biome-ignore lint/suspicious/noExplicitAny: test payload builder
   } as any
 }
 

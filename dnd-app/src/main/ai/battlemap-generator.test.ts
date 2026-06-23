@@ -42,7 +42,7 @@ describe('battlemap-generator (PHASE-34 34B)', () => {
 
   it('uses chatOncePrimary for cloud providers and accepts fenced JSON', async () => {
     providerInfo.provider = 'openai'
-    chatOncePrimary.mockResolvedValue('```json\n' + VALID + '\n```')
+    chatOncePrimary.mockResolvedValue(`\`\`\`json\n${VALID}\n\`\`\``)
     const res = await generateBattlemapSpec({ campaignId: 'c1', prompt: 'a crypt' })
     expect(res.success).toBe(true)
     expect(chatOncePrimary).toHaveBeenCalledTimes(1)

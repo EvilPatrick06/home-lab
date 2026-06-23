@@ -501,10 +501,13 @@ function applyChange(char: Character5eV3, change: StatChange): void {
       // keyed by the matching ref's instanceId.
       const matches = matchEquippableRefs(char, change.name)
       if (matches.length > 0) {
-        const state = ((char as unknown as { state?: Record<string, Record<string, boolean>> }).state ??= {})
+        const charRef = char as unknown as { state?: Record<string, Record<string, boolean>> }
+        charRef.state ??= {}
+        const state = charRef.state
         for (const m of matches) {
           const mapKey = m.kind === 'weapon' ? 'weaponEquipped' : 'armorEquipped'
-          ;(state[mapKey] ??= {})[m.instanceId] = change.equipped
+          state[mapKey] ??= {}
+          state[mapKey][m.instanceId] = change.equipped
         }
       }
       // Legacy inline fallback: the same name can appear in equipment/armor/weapons.

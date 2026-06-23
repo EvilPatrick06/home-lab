@@ -68,6 +68,7 @@ export default function SessionStartRecapModal({ open, onClose }: SessionStartRe
   }
 
   // Show the cached recap (or generate the first one) when the modal opens.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional — generate/show recap only when the modal opens
   useEffect(() => {
     if (open && !recapText && !loading) void generate(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps

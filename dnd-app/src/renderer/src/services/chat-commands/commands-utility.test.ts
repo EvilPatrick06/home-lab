@@ -352,7 +352,6 @@ describe('commands-utility', () => {
 
   describe('/export command', () => {
     const exportCmd = commands.find((c) => c.name === 'export')!
-    // biome-ignore lint/suspicious/noExplicitAny: minimal character ctx for the export path
     const withChar = makeCtx({ character: { id: 'char-1' } as any })
 
     it('exists', () => {
