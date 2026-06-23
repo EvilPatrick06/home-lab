@@ -449,6 +449,7 @@ interface UpdateStatusInfo {
   version?: string
   percent?: number
   message?: string
+  releaseNotes?: string
 }
 
 function UpdateSection(): JSX.Element {
@@ -614,6 +615,15 @@ function UpdateSection(): JSX.Element {
           <span className="text-sm text-muted animate-pulse">{t('pages.settingsPage.checking')}</span>
         )}
       </div>
+
+      {(status.state === 'available' || status.state === 'downloaded') && status.releaseNotes && (
+        <div className="mt-3 rounded-lg border border-border bg-surface-2 p-3">
+          <p className="text-xs uppercase tracking-wider text-gray-500 mb-1">{t('pages.settingsPage.whatsNew')}</p>
+          <div className="text-sm text-gray-300 whitespace-pre-wrap max-h-48 overflow-y-auto">
+            {status.releaseNotes}
+          </div>
+        </div>
+      )}
 
       {/* v2.1.16 auto-update preferences. All four default off; opt-in. */}
       <div className="mt-3 pt-3 border-t border-gray-800 space-y-2">

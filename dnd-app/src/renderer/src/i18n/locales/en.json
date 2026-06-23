@@ -6619,6 +6619,7 @@
       "toastLogRevealed": "Revealed app.log in your file manager",
       "toastLogRevealFailed": "Couldn't open the log folder",
       "logUnavailableWeb": "Logs aren't available in the browser build",
+      "whatsNew": "What's new",
       "exportSettings": "Export Settings",
       "versionMismatchConfirm": "These settings are from app version {{fileVersion}}, but you are running {{appVersion}}. Import anyway?",
       "toastSettingsImported": "Settings imported. Reloading to apply modifications...",

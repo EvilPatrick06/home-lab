@@ -31,13 +31,27 @@ import { logToFile } from './log'
 export type UpdateStatus =
   | { state: 'idle' }
   | { state: 'checking' }
-  | { state: 'available'; version: string }
+  | { state: 'available'; version: string; releaseNotes?: string }
   | { state: 'not-available' }
   | { state: 'downloading'; percent: number }
-  | { state: 'downloaded'; version: string }
+  | { state: 'downloaded'; version: string; releaseNotes?: string }
   | { state: 'error'; message: string }
 
 let currentStatus: UpdateStatus = { state: 'idle' }
+
+// Normalize electron-updater's releaseNotes (string | ReleaseNoteInfo[] | null)
+// into a plain string for the "What's New" panel. (suggestions-log 2026-06-22)
+function normalizeReleaseNotes(notes: unknown): string | undefined {
+  if (!notes) return undefined
+  if (typeof notes === 'string') return notes
+  if (Array.isArray(notes)) {
+    const parts = notes
+      .map((n) => (n && typeof n === 'object' && 'note' in n ? String((n as { note?: unknown }).note ?? '') : ''))
+      .filter(Boolean)
+    return parts.length ? parts.join('\n\n') : undefined
+  }
+  return undefined
+}
 
 /**
  * Set when an install is in flight. `window-all-closed` in main/index.ts
@@ -205,7 +219,11 @@ export function registerUpdateHandlers(): void {
 
       const result = await autoUpdater.checkForUpdates()
       if (result && result.updateInfo.version !== autoUpdater.currentVersion.version) {
-        currentStatus = { state: 'available', version: result.updateInfo.version }
+        currentStatus = {
+          state: 'available',
+          version: result.updateInfo.version,
+          releaseNotes: normalizeReleaseNotes(result.updateInfo.releaseNotes)
+        }
       } else {
         currentStatus = { state: 'not-available' }
       }
@@ -233,6 +251,7 @@ export function registerUpdateHandlers(): void {
       }
       const autoUpdater = getAutoUpdater()
       const pendingVersion = currentStatus.version
+      const pendingNotes = currentStatus.releaseNotes
 
       // Phase 14e — differential download is ENABLED (electron-updater default).
       // 14a unbundled the ~2 GB Ollama payload (installer now low-hundreds-of-MB)
@@ -258,7 +277,7 @@ export function registerUpdateHandlers(): void {
       // controlled performInstall path (triggered by the user clicking
       // "Restart and install").
       autoUpdater.autoInstallOnAppQuit = false
-      currentStatus = { state: 'downloaded', version: pendingVersion }
+      currentStatus = { state: 'downloaded', version: pendingVersion, releaseNotes: pendingNotes }
       broadcastStatus()
       return currentStatus
     } catch (err) {
@@ -334,7 +353,8 @@ async function runAutoUpdateFlow(prefs: AutoUpdatePrefs): Promise<void> {
     }
 
     const pendingVersion = result.updateInfo.version
-    currentStatus = { state: 'available', version: pendingVersion }
+    const pendingNotes = normalizeReleaseNotes(result.updateInfo.releaseNotes)
+    currentStatus = { state: 'available', version: pendingVersion, releaseNotes: pendingNotes }
     broadcastStatus()
 
     if (!prefs.autoDownloadUpdates) return
@@ -348,7 +368,7 @@ async function runAutoUpdateFlow(prefs: AutoUpdatePrefs): Promise<void> {
     await autoUpdater.downloadUpdate()
     // Phase 14f — autoInstallOnAppQuit stays false (set at init). Installs go ONLY
     // through the controlled performInstall path below, never silently on quit.
-    currentStatus = { state: 'downloaded', version: pendingVersion }
+    currentStatus = { state: 'downloaded', version: pendingVersion, releaseNotes: pendingNotes }
     broadcastStatus()
 
     if (!prefs.autoRestartAfterUpdate) return

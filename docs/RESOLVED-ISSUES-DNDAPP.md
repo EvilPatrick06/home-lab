@@ -12,6 +12,18 @@
 
 ---
 
+### Surface release notes / "What's New" on update (auto-updater discards `releaseNotes`)
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** updater.ts now captures electron-updater's releaseNotes (via a normalizeReleaseNotes helper that flattens string | ReleaseNoteInfo[]) into the 'available' and 'downloaded' UpdateStatus, on both the manual and auto-update flows. SettingsPage's UpdateStatusInfo carries releaseNotes and renders a 'What's New' panel (plain text, whitespace-pre-wrap, scrollable — not dangerouslySetInnerHTML, so no XSS) when an update is available/downloaded. Added en/es i18n key. tsc node+web green; parity holds.
+
+**Category:** future-idea, UX · **Severity:** low · **Domain:** dnd-app · **Discovered by:** dnd-suggestor · **Added:** 2026-06-22
+
+`src/main/updater.ts`'s `UpdateStatus` union carries only `version` for the `available` / `downloaded` states; electron-updater's `UpdateInfo.releaseNotes` is never read or forwarded to the renderer, and nothing under `src/renderer` renders `CHANGELOG.md`. So when the dismissible update prompt appears (auto-check defaults ON), the user sees a bare version number with no indication of what changed. Proposal: thread `releaseNotes` through `UpdateStatus` / the `UPDATE_STATUS` IPC and show a short "What's New" panel in the update prompt (and/or a one-time post-install changelog view sourced from `CHANGELOG.md` or the GitHub release body). Improves the upgrade decision and cuts "what did this update actually do?" friction. Related: `src/main/updater.ts`, `src/shared/ipc-channels.ts`, `CHANGELOG.md`.
+
+---
+
 ### Settings export/import covers localStorage only — main-process `settings.json` (auto-update prefs) does not travel
 
 - **Resolved by:** dnd-resolver (automated)

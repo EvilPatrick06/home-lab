@@ -6619,6 +6619,7 @@
       "toastLogRevealed": "Se mostró app.log en el explorador de archivos",
       "toastLogRevealFailed": "No se pudo abrir la carpeta de registros",
       "logUnavailableWeb": "Los registros no están disponibles en la versión web",
+      "whatsNew": "Novedades",
       "exportSettings": "Exportar ajustes",
       "versionMismatchConfirm": "Estos ajustes son de la versión {{fileVersion}} de la aplicación, pero estás ejecutando la {{appVersion}}. ¿Importar de todos modos?",
       "toastSettingsImported": "Ajustes importados. Recargando para aplicar las modificaciones...",
