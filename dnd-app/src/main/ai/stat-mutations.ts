@@ -2,11 +2,10 @@ import type { Character5eV3 } from '../../shared/types/character-5e'
 import { logToFile } from '../log'
 import { loadCharacter, saveCharacter } from '../storage/character-storage'
 import { repairJsonDetailed, StatChangesBlockSchema, type ValidationIssue, validateStatChanges } from './ai-schemas'
-import { hasCondition } from './character-conditions'
 // The storage-agnostic apply logic lives in `./stat-mutations-core` (browser-pure)
 // so the web build can apply mechanics identically; this module keeps the
 // file-storage wrappers + the parse/describe helpers.
-import { applyChangesToCharacter } from './stat-mutations-core'
+import { applyChangesToCharacter, buildLongRestChanges, buildShortRestChanges } from './stat-mutations-core'
 import type { MutationResult, StatChange } from './types'
 
 export interface StatChangeParseResult {
@@ -111,81 +110,7 @@ export async function applyLongRestMutations(characterId: string): Promise<Mutat
 
   // One narrowing at the opaque-storage boundary (see applyMutations).
   const char = result.data as unknown as Character5eV3
-  const changes: StatChange[] = []
-
-  // Restore HP to max and clear temp HP
-  const hp = char.hitPoints
-  if (hp) {
-    if (hp.current < hp.maximum) {
-      changes.push({ type: 'heal', value: hp.maximum - hp.current, reason: 'long rest' })
-    }
-    // Clear temp HP through the changes pipeline so it's reported in applied[] and
-    // saved (was a direct mutation that the save gate could discard — PHASE-02 02E).
-    if (hp.temporary > 0) {
-      changes.push({ type: 'clear_temp_hp', reason: 'long rest' })
-    }
-  }
-
-  // Restore all spell slots to max
-  const regularSlots = char.spellSlotLevels
-  if (regularSlots) {
-    for (const [levelStr, slot] of Object.entries(regularSlots)) {
-      const level = Number(levelStr)
-      if (!Number.isNaN(level) && slot.current < slot.max) {
-        changes.push({
-          type: 'restore_spell_slot',
-          level,
-          count: slot.max - slot.current,
-          pool: 'regular',
-          reason: 'long rest'
-        })
-      }
-    }
-  }
-
-  // Pact Magic slots also restore on long rest (in addition to short rest)
-  const pactSlots = char.pactMagicSlotLevels
-  if (pactSlots) {
-    for (const [levelStr, slot] of Object.entries(pactSlots)) {
-      const level = Number(levelStr)
-      if (!Number.isNaN(level) && slot.current < slot.max) {
-        changes.push({
-          type: 'restore_spell_slot',
-          level,
-          count: slot.max - slot.current,
-          pool: 'pact',
-          reason: 'long rest'
-        })
-      }
-    }
-  }
-
-  // Restore all class resources
-  const resources = char.classResources
-  if (resources) {
-    for (const resource of resources) {
-      if (resource.current < resource.max) {
-        changes.push({ type: 'restore_class_resource', name: resource.name, reason: 'long rest' })
-      }
-    }
-  }
-
-  // PHB 2024: a long rest restores ALL spent Hit Point Dice (2014 restored half).
-  const hitDice = char.hitDice
-  if (hitDice && hitDice.length > 0) {
-    const totalMax = hitDice.reduce((s, h) => s + h.maximum, 0)
-    const totalCurrent = hitDice.reduce((s, h) => s + h.current, 0)
-    const canRestore = totalMax - totalCurrent
-    if (canRestore > 0) {
-      changes.push({ type: 'hit_dice', value: canRestore, reason: 'long rest' })
-    }
-  }
-
-  // PHB 2024: Long rest reduces Exhaustion by 1 level (probe via the v4 helper —
-  // the inline conditions array is stripped on v4 records; PHASE-02 02B/02E).
-  if (hasCondition(char, 'exhaustion')) {
-    changes.push({ type: 'reduce_exhaustion', reason: 'long rest' })
-  }
+  const changes = buildLongRestChanges(char)
 
   if (changes.length === 0) {
     return { applied: [], rejected: [] }
@@ -211,43 +136,7 @@ export async function applyShortRestMutations(characterId: string): Promise<Muta
 
   // One narrowing at the opaque-storage boundary (see applyMutations).
   const char = result.data as unknown as Character5eV3
-  const changes: StatChange[] = []
-
-  // Restore Pact Magic slots to max (Warlock short rest recovery)
-  const pactSlots = char.pactMagicSlotLevels
-  if (pactSlots) {
-    for (const [levelStr, slot] of Object.entries(pactSlots)) {
-      const level = Number(levelStr)
-      if (!Number.isNaN(level) && slot.current < slot.max) {
-        changes.push({
-          type: 'restore_spell_slot',
-          level,
-          count: slot.max - slot.current,
-          pool: 'pact',
-          reason: 'short rest'
-        })
-      }
-    }
-  }
-
-  // Restore short-rest class resources. A resource recharges on a short rest
-  // when `shortRestRestore !== 0` (mirrors rest-service-5e.ts, the canonical
-  // renderer rest path). `'all'` restores to max (no amount → applyChange caps
-  // at max); a number restores that many, capped at max. (28d: the old branch
-  // gated on a non-existent `recharge === 'short'` field and never fired.)
-  const resources = char.classResources
-  if (resources) {
-    for (const resource of resources) {
-      if (resource.shortRestRestore !== 0 && resource.current < resource.max) {
-        changes.push({
-          type: 'restore_class_resource',
-          name: resource.name,
-          amount: resource.shortRestRestore === 'all' ? undefined : resource.shortRestRestore,
-          reason: 'short rest'
-        })
-      }
-    }
-  }
+  const changes = buildShortRestChanges(char)
 
   if (changes.length === 0) {
     return { applied: [], rejected: [] }

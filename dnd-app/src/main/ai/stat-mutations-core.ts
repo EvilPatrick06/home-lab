@@ -512,6 +512,118 @@ export function applyChange(char: Character5eV3, change: StatChange): void {
   }
 }
 
+/** Build the stat changes a long rest applies: restore all HP, all spell slots,
+ *  all class resources, restore ALL spent Hit Point Dice (PHB 2024), clear temp HP,
+ *  and reduce Exhaustion by 1. Pure: reads `char`, returns the change list. */
+export function buildLongRestChanges(char: Character5eV3): StatChange[] {
+  const changes: StatChange[] = []
+
+  const hp = char.hitPoints
+  if (hp) {
+    if (hp.current < hp.maximum) {
+      changes.push({ type: 'heal', value: hp.maximum - hp.current, reason: 'long rest' })
+    }
+    if (hp.temporary > 0) {
+      changes.push({ type: 'clear_temp_hp', reason: 'long rest' })
+    }
+  }
+
+  const regularSlots = char.spellSlotLevels
+  if (regularSlots) {
+    for (const [levelStr, slot] of Object.entries(regularSlots)) {
+      const level = Number(levelStr)
+      if (!Number.isNaN(level) && slot.current < slot.max) {
+        changes.push({
+          type: 'restore_spell_slot',
+          level,
+          count: slot.max - slot.current,
+          pool: 'regular',
+          reason: 'long rest'
+        })
+      }
+    }
+  }
+
+  const pactSlots = char.pactMagicSlotLevels
+  if (pactSlots) {
+    for (const [levelStr, slot] of Object.entries(pactSlots)) {
+      const level = Number(levelStr)
+      if (!Number.isNaN(level) && slot.current < slot.max) {
+        changes.push({
+          type: 'restore_spell_slot',
+          level,
+          count: slot.max - slot.current,
+          pool: 'pact',
+          reason: 'long rest'
+        })
+      }
+    }
+  }
+
+  const resources = char.classResources
+  if (resources) {
+    for (const resource of resources) {
+      if (resource.current < resource.max) {
+        changes.push({ type: 'restore_class_resource', name: resource.name, reason: 'long rest' })
+      }
+    }
+  }
+
+  const hitDice = char.hitDice
+  if (hitDice && hitDice.length > 0) {
+    const totalMax = hitDice.reduce((s, h) => s + h.maximum, 0)
+    const totalCurrent = hitDice.reduce((s, h) => s + h.current, 0)
+    const canRestore = totalMax - totalCurrent
+    if (canRestore > 0) {
+      changes.push({ type: 'hit_dice', value: canRestore, reason: 'long rest' })
+    }
+  }
+
+  if (hasCondition(char, 'exhaustion')) {
+    changes.push({ type: 'reduce_exhaustion', reason: 'long rest' })
+  }
+
+  return changes
+}
+
+/** Build the stat changes a short rest applies: restore Warlock Pact Magic slots
+ *  and short-rest class resources (`shortRestRestore !== 0`). Pure. */
+export function buildShortRestChanges(char: Character5eV3): StatChange[] {
+  const changes: StatChange[] = []
+
+  const pactSlots = char.pactMagicSlotLevels
+  if (pactSlots) {
+    for (const [levelStr, slot] of Object.entries(pactSlots)) {
+      const level = Number(levelStr)
+      if (!Number.isNaN(level) && slot.current < slot.max) {
+        changes.push({
+          type: 'restore_spell_slot',
+          level,
+          count: slot.max - slot.current,
+          pool: 'pact',
+          reason: 'short rest'
+        })
+      }
+    }
+  }
+
+  const resources = char.classResources
+  if (resources) {
+    for (const resource of resources) {
+      if (resource.shortRestRestore !== 0 && resource.current < resource.max) {
+        changes.push({
+          type: 'restore_class_resource',
+          name: resource.name,
+          amount: resource.shortRestRestore === 'all' ? undefined : resource.shortRestRestore,
+          reason: 'short rest'
+        })
+      }
+    }
+  }
+
+  return changes
+}
+
 /**
  * Apply a batch of stat changes to an in-memory character, mutating it in place.
  *
