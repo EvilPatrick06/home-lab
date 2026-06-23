@@ -5464,6 +5464,36 @@
       "waitingForPlayers": "Waiting for players..."
     }
   },
+  "onboarding": {
+    "skip": "Skip",
+    "back": "Back",
+    "next": "Next",
+    "done": "Get started",
+    "replay": "Replay welcome tour",
+    "stepCounter": "Step {{current}} of {{total}}",
+    "steps": {
+      "welcome": {
+        "title": "Welcome to your virtual tabletop",
+        "body": "This quick tour shows the core loop. You can skip anytime and replay it later from Settings."
+      },
+      "character": {
+        "title": "1. Create or import a character",
+        "body": "Build a 5e character from scratch, or import one from a file, D&D Beyond, or Foundry."
+      },
+      "campaign": {
+        "title": "2. Create or join a campaign",
+        "body": "Start a new campaign as DM, or join a friend's game over your local network."
+      },
+      "table": {
+        "title": "3. Play at the table",
+        "body": "Use the map, dice, hotbar, and chat. The AI DM can narrate and run encounters."
+      },
+      "help": {
+        "title": "You're ready",
+        "body": "Settings has accessibility, AI, and update options. You can replay this tour from there anytime."
+      }
+    }
+  },
   "notify": {
     "creatureActions": {
       "shortRestFailed": "A short-rest update failed to apply: {{error}}",

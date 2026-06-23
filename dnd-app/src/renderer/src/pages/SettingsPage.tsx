@@ -63,6 +63,7 @@ import { useCampaignStore } from '../stores/use-campaign-store'
 import { useCharacterStore } from '../stores/use-character-store'
 import { useConfigStore } from '../stores/use-config-store'
 import { useLibraryStore } from '../stores/use-library-store'
+import { useOnboardingStore } from '../stores/use-onboarding-store'
 import { usePluginStore } from '../stores/use-plugin-store'
 import { getAllSystems, unregisterSystem } from '../systems/init'
 import type { UserProfile } from '../types/user'
@@ -1839,6 +1840,13 @@ export default function SettingsPage(): JSX.Element {
               className="px-4 py-1.5 text-sm rounded-lg border bg-surface-2 border-border text-gray-300 hover:border-amber-600 hover:text-accent transition-colors cursor-pointer"
             >
               {t('pages.settingsPage.openLogFolder')}
+            </button>
+            <button
+              type="button"
+              onClick={() => useOnboardingStore.getState().open()}
+              className="px-4 py-1.5 text-sm rounded-lg border bg-surface-2 border-border text-gray-300 hover:border-amber-600 hover:text-accent transition-colors cursor-pointer"
+            >
+              {t('onboarding.replay')}
             </button>
             <button
               onClick={async () => {

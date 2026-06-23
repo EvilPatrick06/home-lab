@@ -12,6 +12,41 @@
 
 ---
 
+### [2026-06-22] No first-run guided onboarding / tour for new users (only targeted Ollama + screen-reader prompts)
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Added a first-run guided tour: use-onboarding-store.ts (persists hasCompletedOnboarding in localStorage so it travels with Settings export; auto-opens once on first run) and OnboardingTour.tsx — a dismissible, resumable, keyboard-navigable 5-step modal (welcome → create/import character → create/join campaign → game table → help) wired into App.tsx after the existing first-run prompts. Honors reducedMotion (no transition), skippable in one click (Esc), and re-launchable from a 'Replay welcome tour' button in Settings. en+es i18n (16 keys); parity-gated; tsc web green.
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (first-run / onboarding survey)
+
+**Description:**
+First-run UX is limited to two narrow, single-purpose prompts wired into `App.tsx`: `OllamaFirstRunPrompt` (local-LLM setup) and `ScreenReaderPrompt` (a11y mode). There is no general guided tour or "getting started" flow introducing the core loop (create/import a character → create or join a campaign → the game-table layout, dice, map, hotbar). A new user lands in a feature-dense Electron VTT with no orientation. Grep finds no `onboarding` / `tutorial` / `walkthrough` / `hasSeenWelcome` flag.
+
+**Proposed fix / improvement:**
+- [ ] Add a dismissible, resumable first-run tour (persist a `hasCompletedOnboarding` flag alongside the other a11y/settings keys) that highlights the 4-5 primary entry points.
+- [ ] Make it re-launchable from Settings/Help so it is not a one-shot, and skippable in one click for returning users.
+- [ ] Honor `reducedMotion` (no auto-advancing animated spotlights when set) and keep every step keyboard-navigable.
+
+**Related files:** `src/renderer/src/App.tsx`, `src/renderer/src/components/ui/OllamaFirstRunPrompt.tsx`, `src/renderer/src/components/ui/ScreenReaderPrompt.tsx`, `src/renderer/src/stores/use-accessibility-store.ts`
+- **During:** dnd-app tree review (main-process logging + crash handling)
+
+**Description:**
+`src/main/log.ts` writes a rotating log to `userData/logs/app.log` (5 MB × 3), and the fatal-error handler in `src/main/index.ts` (`handleFatal`) shows a `dialog.showErrorBox` that says only "A crash log was written" — with no path and no button (`showErrorBox` supports title + message only). A by-name grep across `src/` finds **zero** uses of `shell.openPath` / `shell.showItemInFolder`, and `SettingsPage.tsx` has no logs section, so there is no affordance anywhere — neither in the crash dialog nor in Settings — for a user to find, open, or export the log file. When a non-technical user hits a crash or a weird bug, they cannot produce the one artifact that would let a maintainer diagnose it without knowing the per-OS `userData` path by heart.
+
+**Proposed fix / improvement:**
+- [ ] Add an IPC (e.g. `LOG_OPEN_FOLDER`) that calls `shell.showItemInFolder(logPath)` / `shell.openPath(getLogDir())`, surfaced as an "Open log folder" button in a Settings > Diagnostics/About section.
+- [ ] Optionally add "Export logs" (zip `app.log*` to a user-chosen path) for easy bug-report attachment.
+- [ ] Include the resolved log path text in the fatal `showErrorBox` message so a crashed user at least knows where to look.
+
+**Related files:** `src/main/log.ts`, `src/main/index.ts`, `src/renderer/src/pages/SettingsPage.tsx`, `src/shared/ipc-channels.ts`
+
+---
+
 ### [2026-06-22] No user-facing export/import of a character or campaign to a portable file
 
 - **Resolved by:** dnd-resolver (automated)

@@ -5,6 +5,7 @@ import { ErrorBoundary, ShortcutsOverlay, Spinner, ToastContainer } from './comp
 import ColorblindFilters from './components/ui/ColorblindFilters'
 import GlobalSettingsButton from './components/ui/GlobalSettingsButton'
 import OllamaFirstRunPrompt from './components/ui/OllamaFirstRunPrompt'
+import OnboardingTour from './components/ui/OnboardingTour'
 import ScreenReaderAnnouncer from './components/ui/ScreenReaderAnnouncer'
 import ScreenReaderPrompt from './components/ui/ScreenReaderPrompt'
 import SkipToContent from './components/ui/SkipToContent'
@@ -217,6 +218,7 @@ function App(): JSX.Element {
       <UpdatePrompt />
       <OllamaFirstRunPrompt />
       <ScreenReaderPrompt />
+      <OnboardingTour />
       <ShortcutsOverlay open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
       <GlobalSettingsButton />
       <main id="main-content">

@@ -5464,6 +5464,36 @@
       "waitingForPlayers": "Esperando a los jugadores..."
     }
   },
+  "onboarding": {
+    "skip": "Omitir",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "done": "Comenzar",
+    "replay": "Repetir el recorrido de bienvenida",
+    "stepCounter": "Paso {{current}} de {{total}}",
+    "steps": {
+      "welcome": {
+        "title": "Bienvenido a tu mesa virtual",
+        "body": "Este breve recorrido muestra el flujo principal. Puedes omitirlo cuando quieras y repetirlo luego desde Ajustes."
+      },
+      "character": {
+        "title": "1. Crea o importa un personaje",
+        "body": "Crea un personaje de 5e desde cero o impórtalo desde un archivo, D&D Beyond o Foundry."
+      },
+      "campaign": {
+        "title": "2. Crea o únete a una campaña",
+        "body": "Inicia una campaña nueva como DM o únete a la partida de un amigo por la red local."
+      },
+      "table": {
+        "title": "3. Juega en la mesa",
+        "body": "Usa el mapa, los dados, la barra de acciones y el chat. El DM con IA puede narrar y dirigir encuentros."
+      },
+      "help": {
+        "title": "Todo listo",
+        "body": "Ajustes tiene opciones de accesibilidad, IA y actualizaciones. Puedes repetir este recorrido desde allí cuando quieras."
+      }
+    }
+  },
   "notify": {
     "creatureActions": {
       "shortRestFailed": "No se pudo aplicar una actualización de descanso corto: {{error}}",
