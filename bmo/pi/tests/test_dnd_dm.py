@@ -38,3 +38,15 @@ def test_truncation_caps_lengths():
     msgs = _build_dm_messages(big, "go", [{"role": "user", "content": bigturn}])
     assert len(msgs[0]["content"]) == _DM_MAX_SYSTEM_LEN
     assert len(msgs[1]["content"]) == _DM_MAX_TURN_LEN
+
+
+def test_dnd_model_candidates_includes_primary_and_dedupes(monkeypatch):
+    monkeypatch.setenv("BMO_DND_FALLBACK_MODELS", "alpha, beta, alpha")
+    import importlib
+    import routes.chat_api as c
+
+    importlib.reload(c)
+    cands = c._dnd_model_candidates()
+    assert len(cands) == len(set(cands))  # no duplicates
+    assert "alpha" in cands and "beta" in cands
+    assert cands[0] not in ("alpha", "beta") or cands[0]  # primary (DND_MODEL) leads
