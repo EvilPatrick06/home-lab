@@ -21,6 +21,77 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-06-22] PWA study reminders / re-engagement notifications (due cards, streak at risk)
+
+- **Category:** future-idea
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** dungeon-scholar tree review (services/srs.js, services/forgettingCurve.js, services/devotion.js, vite-plugin-pwa config)
+
+**Description:**
+The app already computes everything a re-engagement nudge needs — SRS due counts (`services/srs.js` `dueCount`/`filterDue`), forgetting-curve "at risk next week" projections (`services/forgettingCurve.js`), and a daily-devotion login streak (`services/devotion.js`) — but there is no way to pull a lapsed user back. The only "notification" surface is an in-app toast (`App.jsx` `setNotification`, purely in-DOM). There is no use of the Web Notifications API, no `Notification.requestPermission`, and no Workbox `periodicSync`, even though the app is already an installed PWA with a service worker (`vite-plugin-pwa`, `registerType: 'autoUpdate'`). A study app whose whole value proposition is spaced repetition benefits enormously from "you have N cards due / your 6-day streak resets tonight" reminders, and the data to fire them already exists.
+
+**Proposed fix / improvement:**
+- [ ] Add an opt-in "Study reminders" toggle (Home settings) that calls `Notification.requestPermission` only on explicit user action.
+- [ ] On a `periodicSync` (or a best-effort on-launch check), surface a local notification when `dueCount > 0` or the devotion streak is about to lapse.
+- [ ] Keep it fully local/offline — no push server needed; degrade silently where the API/permission is unavailable (iOS installed-PWA caveats already documented in README).
+
+**Related files:** `src/services/srs.js`, `src/services/forgettingCurve.js`, `src/services/devotion.js`, `vite.config.js` (VitePWA/workbox), `src/App.jsx`
+
+### [2026-06-22] Dedicated study-stats / analytics dashboard (accuracy trend, study time, per-domain mastery)
+
+- **Category:** future-idea
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** dungeon-scholar tree review (src/features/progression/*)
+
+**Description:**
+Study-progress signals are scattered and game-flavored rather than presented as a single learner-facing analytics view. The progression screens are all delve/RPG framed — `RunHistoryScreen` (dungeon-run summaries), `AscensionScreen`, `BestiaryScreen`, `CalendarScreen`, `CraftingScreen`, `InventoryScreen`, `ShopScreen`, `SpellbookScreen`, `StableScreen` — and the genuinely useful learning metrics live in services without a home screen: `weakDomain.js` (weakest domain), `examPrediction.js` (pass-likelihood), `examPace.js`, `forgettingCurve.js` (retention curve + milestones), `srs.js` (due/ease/interval). A learner cramming for a cert wants one place that answers "am I improving?" — accuracy over time, cards mastered vs. at-risk, time studied, and per-domain mastery trend. Today they must infer that from RPG screens and the in-exam prediction.
+
+**Proposed fix / improvement:**
+- [ ] Add a "Scholar's Ledger" (or similar) stats screen aggregating existing service outputs: retention curve (forgettingCurve), per-domain accuracy + weakest domain (weakDomain), pass-likelihood (examPrediction), SRS due/mastered counts (srs), cumulative study time.
+- [ ] Reuse the existing `RecordTile`/`OrnatePanel` UI primitives so it fits the theme with no new design system work.
+- [ ] No new tracking needed if the metrics already persist; otherwise add lightweight per-session counters to `persistence.js`.
+
+**Related files:** `src/services/weakDomain.js`, `src/services/examPrediction.js`, `src/services/forgettingCurve.js`, `src/services/srs.js`, `src/features/progression/RunHistoryScreen.jsx`, `src/services/persistence.js`
+
+### [2026-06-22] Keyboard-accessible Dungeon Delve — the canvas game has no non-pointer / screen-reader path
+
+- **Category:** UX
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** dungeon-scholar tree review (src/components/DungeonExplore.jsx)
+
+**Description:**
+The Dungeon Delve is rendered entirely on a `<canvas>` in `DungeonExplore.jsx` and exposes essentially no assistive-tech surface — a grep finds a single `role="status"` and no `aria-*`/`alt`/keyboard-move handlers in the whole ~4,500-line file. The README frames the delve as "the same study queue, just visualized," so the learning content is reachable elsewhere, but a keyboard-only or screen-reader user cannot actually *play* the delve (movement, battles, boss gates) that the rest of the app funnels them toward, and a canvas is opaque to screen readers by construction. This is distinct from the prior reduced-motion entry (that is about animation; this is about input + AT access) and from the DungeonExplore God-file refactor.
+
+**Proposed fix / improvement:**
+- [ ] Add keyboard movement/interaction bindings (arrow/WASD + confirm) with a visible focus indicator for the delve.
+- [ ] Mirror delve state into an off-canvas live region (`aria-live`) announcing room, encounter, and outcome.
+- [ ] Offer a "text delve" fallback mode that walks the same queue as a list/stepper for AT users (low extra surface since the queue logic already exists).
+
+**Related files:** `src/components/DungeonExplore.jsx`, `docs/QA-CHECKLIST.md` (add an AT pass for the delve)
+
+### [2026-06-22] Flashcards mode lacks keyboard shortcuts that Quiz/Lab/Chat/Exam already have
+
+- **Category:** UX
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** dungeon-scholar tree review (src/features/study/*)
+
+**Description:**
+Keyboard handling is inconsistent across the study modes. `QuizMode.jsx`, `LabMode.jsx`, `ChatMode.jsx`, and `ExamMode.jsx` all have key handlers (ExamMode has a documented hotkey layer), but `FlashcardsMode.jsx` has no `onKeyDown`/`e.key`/`tabIndex` handling at all — flip and self-grade are pointer-only. Flashcards is explicitly the "best for early learning" entry mode (README), so it is the mode a new user hits first and the one where rapid flip/grade keyboarding matters most for flow.
+
+**Proposed fix / improvement:**
+- [ ] Add keys to FlashcardsMode: Space/Enter to flip, and number keys (or arrows) to self-grade (e.g. 1–4 mapped to the SRS ratings in `services/srs.js` `SRS_RATINGS`).
+- [ ] Make the card focusable and show a visible focus ring; document the keys inline (a small hint row) consistent with the other modes.
+
+**Related files:** `src/features/study/FlashcardsMode.jsx`, `src/services/srs.js`
+
 ### [2026-06-22] Dungeon canvas animation ignores prefers-reduced-motion (WCAG 2.3.3)
 
 - **Category:** UX
