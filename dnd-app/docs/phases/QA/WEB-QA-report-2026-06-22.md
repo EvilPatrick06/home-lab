@@ -4,11 +4,40 @@ Tested: dnd-vtt WEB build (Dungeon Table Online) v2.4.77 — 2026-06-22 · URL: 
 
 ## Top findings (Critical & High)
 
+- **[Critical]** Enabling BMO_API_KEY hardening makes the ENTIRE web app unreachable — /DungeonTableOnline/ returns HTTP 401 (static SPA routes not exempted from the auth gate)
 - **[High]** Hosting a Public game in the web build fails to list in the registry with a JS null-deref ("Cannot read properties of null (reading 'ok')")
 - **[High]** Entering a game hard-crashes ("Failed to fetch dynamically imported module: InGamePage-*.js") for any session open across a redeploy
 
 
 ## Phase 1 — Top-level pages & navigation
+### [Critical] Enabling BMO_API_KEY hardening makes the ENTIRE web app unreachable — `/DungeonTableOnline/` returns HTTP 401 (static SPA routes not exempted from the auth gate)
+- **Category:** bug | security | portability
+- **Severity:** critical
+- **Domain:** bmo | dnd-app
+- **Discovered by:** QA Agent
+- **During:** Phase 1 — app reachability (mid-session, after BMO_API_KEY got set on BMO)
+
+**Description:** The browser SPA was loading fine earlier in this run; it is now returning **HTTP 401** at its own root: `GET https://bmo.mybmoai.work/DungeonTableOnline/` -> `{"error":"unauthorized","message":"Set BMO_API_KEY in the client as Authorization: Bearer, or use localhost."}`. The build is deployed correctly (index.html + assets present, mtime 23:02). The cause is the global `@app.before_request` auth gate in `bmo/pi/app.py` (`_bmo_optional_api_key`, ~line 241): when the opt-in `BMO_API_KEY` env var is set, every non-localhost request must carry `Authorization: Bearer <key>` — and the exemption list is only `("/health", "/favicon.ico")` + `"/static/"`. It does NOT exempt the web app routes `/DungeonTableOnline/` or `/DungeonTableOnline/assets/*`. So the moment API-key hardening is enabled, the public browser client (static HTML/JS/CSS a browser cannot send a Bearer for) is fully gated -> the entire Dungeon Table Online site is offline for all external users.
+
+**Reproduction:**
+1. Set `BMO_API_KEY` in BMO's env (the documented opt-in hardening).
+2. From any non-localhost browser, open `https://bmo.mybmoai.work/DungeonTableOnline/`.
+3. The page returns the 401 JSON instead of the app; nothing loads.
+
+**Expected behavior:** The static SPA shell + its assets (public client code) should be served WITHOUT the API key — only the actual data/mutation routes (`/api/*`) should require it. Enabling `BMO_API_KEY` should harden the API, not take the whole web client offline.
+
+**Root cause (confirmed in source):** `bmo/pi/app.py` `_bmo_optional_api_key()` early-returns (exempts) only `p in ("/health", "/favicon.ico")` and `p.startswith("/static/")`. The webapp blueprint serves under `/DungeonTableOnline` (`static_url_path="/DungeonTableOnline"`, see `bmo/pi/routes/webapp_api.py`), which is NOT in the exemption set, so the gate 401s it.
+
+**Suggested action:** Add the web-app prefix to the before_request exemptions — e.g. allow `p == "/DungeonTableOnline"` or `p.startswith("/DungeonTableOnline/")` (the SPA shell + `/assets`, `/data`, `/fonts`, `/sounds`, the pdf worker) to pass without a key, the same way `/static/` is exempted. Keep `/api/*` gated.
+
+**Environment:** web build · external browser (non-localhost) · BMO_API_KEY hardening enabled
+
+**Related files:** `bmo/pi/app.py` (`_bmo_optional_api_key` before_request, ~lines 241-280), `bmo/pi/routes/webapp_api.py`
+
+**Console output / HTTP:** `HTTP 401 {"error":"unauthorized",...}`
+
+**Blocker note:** This currently blocks all further in-browser web QA this run (the app will not load). I did not modify BMO's auth config to work around it (no-mutate-Pi rule + it is the owner's security setting).
+
 ### "Check for Updates" hangs forever on "Checking…" in the web build (no result, no error)
 - **Category:** bug | portability
 - **Severity:** medium
@@ -125,6 +154,37 @@ Tested: dnd-vtt WEB build (Dungeon Table Online) v2.4.77 — 2026-06-22 · URL: 
 **Note:** Positive verification (no finding): the prior desktop QA "level-10 makes the character uncompletable (caps stuck at 3/4)" High bug does **not** reproduce here — at level 10 the builder accepted 5/5 cantrips and prepared-spell selection advanced past 4 (reached 6/15), so the caps scale correctly in web v2.4.77.
 
 ## Phase 4 — Bastion + Calendar
+### Bastion mutations (create, treasury deposit) persist but the UI doesn't update until a full page reload
+- **Category:** bug
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** QA Agent
+- **During:** Phase 4 — Bastion: create a bastion, then Treasury → Deposit (web build)
+
+**Description:** Bastion actions succeed and persist to storage but **do not reflect in the UI until the page is reloaded**, so every action looks like it silently did nothing:
+- **Create Bastion:** with a valid name + owner (QA Solo Fighter), clicking **Create** closed the dialog but the sidebar kept showing "No bastions yet." I clicked Create again thinking it failed — after a reload, **two** "QA Test Keep" bastions appeared (Total Bastions: 2). So both creates worked; the list just never refreshed.
+- **Treasury deposit:** depositing 500 GP left the header and Overview card showing "Treasury: 0 GP". After a reload the treasury correctly showed **500 GP**.
+
+The data layer is fine; the **reactive UI update after a mutation is broken** in the Bastion subsystem. Real-world impact: users will repeat actions (duplicate bastions, double deposits) because the screen looks unchanged.
+
+**Reproduction:**
+1. Bastions → + New Bastion → name + owner → Create. Sidebar still shows the empty state (bastion not shown).
+2. Reload → the bastion(s) now appear.
+3. Open a bastion → Treasury → Deposit 500 → header/Overview still "0 GP".
+4. Reload → treasury shows 500 GP.
+
+**Expected behavior:** The bastion list and detail view should update immediately after create/deposit/withdraw/etc., without a manual reload.
+
+**Hypothesis / root cause:** The Bastion store mutation persists but doesn't trigger a re-render/subscription update (state written to storage but the React store selector isn't notified, or a new object reference isn't produced). Speculation — look at the bastion store's create/treasury actions vs how components subscribe.
+
+**Suggested action:** Ensure Bastion store mutations produce new state references / notify subscribers so the list and detail re-render without a reload.
+
+**Environment:** web build · English · Dark · saved PC "QA Solo Fighter"
+
+**Related files:** `dnd-app/src/renderer/src/` (Bastion store + Bastion page/list/detail + treasury modal)
+
+**Note (verified working after reload):** The Bastion detail view itself renders correctly — Overview cards (Basic Facilities, Special 0/0, Defenders, Treasury, BP), tabs (Basic/Special Facilities, Bastion Turns, Defenders, Events Log), Advance Time / Force Turn ("next turn in 6 days, every 7 days"), Faction Renown, Notes. Owner-gating is also resolved now that a PC exists.
+
 ### Bastion creation is gated on an Owner character; full Bastion subsystem needs a saved PC
 - **Category:** UX
 - **Severity:** info
@@ -173,6 +233,37 @@ Tested: dnd-vtt WEB build (Dungeon Table Online) v2.4.77 — 2026-06-22 · URL: 
 
 **Note (verified working after reload):** On a fresh page load the **Solo in-game board works**: the battlemap (Wizard's Tower) renders with grid, the DM left sidebar (Characters/NPCs/Allies/Enemies/Places/Bastions/Tables/Party Loot/Combat Log/Journal) is present, the Combat panel (Initiative / Quick Conditions / Monster Lookup), Magic/Dice/Map tabs, drawing tools, View-As selector, macro hotbar, and chat all render, and `/roll 1d20+5` produced a correct result (4+5=9) shown in the dice tray and chat. So the in-game surface itself is functional in the web build; the crash above is specifically the redeploy/stale-chunk issue.
 
+
+## Phase 8 — DM tools
+
+### Weather roll table outputs "[object Object]" instead of the weather result
+- **Category:** bug
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** QA Agent
+- **During:** Phase 8 — in-game left sidebar → Tables → Weather → Roll
+
+**Description:** Rolling the **Weather** roll table posts to chat: "**[weather] 1d5 = 2 — [object Object]**" — the result renders the raw JS object as `[object Object]` instead of the weather entry's text. Other tables format correctly (e.g. NPC Traits → "[npcTraits] talents 1d20 = 7 — Great at solving puzzles"), so the bug is specific to the Weather table whose entries are objects (not plain strings) and the result formatter doesn't extract the display label for that shape.
+
+**Reproduction:**
+1. Enter a game → left sidebar → Tables.
+2. Click "Roll" on **Weather**.
+3. Chat shows "[weather] 1d5 = N — [object Object]".
+
+**Expected behavior:** Show the rolled weather entry's text (like the other tables), not `[object Object]`.
+
+**Hypothesis / root cause:** The Weather table entries are structured objects; the roll-result formatter string-coerces the entry instead of reading its label/text field. Speculation — compare with how NPC Traits (works) vs Weather entries are shaped in the table data + the roll-output formatter.
+
+**Suggested action:** In the roll-table output formatter, read the entry's display field (or stringify object entries properly) for tables like Weather.
+
+**Environment:** Solo game · AI DM off · English · Dark · web build
+
+**Related files:** `dnd-app/src/renderer/src/` (roll-tables data for Weather + the table roll/output formatter)
+
+**Console output:** chat line: `[weather] 1d5 = 2 — [object Object]`
+
+**Note (verified working):** Combat is functional in the web build — Initiative Tracker (add from map, Roll Initiative → Round 1, init 18), the action-economy HUD (MOVE 30/30, ACTION/BONUS/REACTION/OBJECT, End Turn / Next turn / Prev), token placement on the battlemap, the dice tray, and other roll tables (NPC Traits/Names) all worked. (Token *drag*-movement could not be verified — WebGL/PixiJS canvas drag isn't reliably drivable via the screenshot automation harness; not filed as a bug.)
+
 ## Phase 11 — Multiplayer (web-adapted)
 
 ### [High] Hosting a Public game in the web build fails to list in the registry with a JS null-deref ("Cannot read properties of null (reading 'ok')")
@@ -215,6 +306,29 @@ Tested: dnd-vtt WEB build (Dungeon Table Online) v2.4.77 — 2026-06-22 · URL: 
 **Limitation (environment, not a bug):** Both tabs share **one browser profile** (same persistent client UUID + IndexedDB), so the two "clients" conflate — when the 2nd tab joined, the host tab's own DM identity/color was clobbered and replaced by the joiner's view. The desktop QA harness avoids this with separate `--user-data-dir` profiles; there is no in-browser equivalent with two tabs in the same profile. Full 2-client sync (HP/token/fog sync, ready toggles → start, kick/ban-rejoin, host/player rejoin-resume, End Session propagation) therefore **could not be cleanly validated** in this run — it needs two separate browsers/profiles (or two devices). See Could not test.
 
 ## Phase 13 — Settings + themes + i18n + accessibility
+### Rebinding a key to an already-used key is silently rejected with no conflict warning / swap-cancel flow
+- **Category:** UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** QA Agent
+- **During:** Phase 13 — Settings → Keybindings → rebind "Toggle Journal" to "T" (already bound to "Open Dice Roller")
+
+**Description:** Rebinding works for a free key (set "Toggle Journal" → "Y" successfully, with a Reset button appearing). But rebinding "Toggle Journal" to **"T"** — which is already assigned to "Open Dice Roller (Throw)" — produced **no conflict prompt / swap-or-cancel dialog**; the conflicting key was silently rejected and "Toggle Journal" ended up back at its default "J". The user gets no feedback that the key was taken or why their chosen key didn't stick.
+
+**Reproduction:**
+1. Settings → Keybindings → Rebind "Toggle Journal" → press **T** (Open Dice Roller's key).
+2. No conflict warning appears; Toggle Journal shows "J" (default), not "T".
+
+**Expected behavior:** Show a conflict prompt naming the action that owns the key and offering swap/cancel (as the QA spec describes), instead of silently rejecting/resetting.
+
+**Suggested action:** On a conflicting rebind, surface a conflict dialog (which action holds the key) with swap/cancel.
+
+**Environment:** web build · English · Dark · Settings → Keybindings
+
+**Related files:** `dnd-app/src/renderer/src/` (Settings keybindings panel / keybinding store conflict handling)
+
+**Note (verified working):** Colorblind Mode applies a real filter — selecting **Deuteranopia** visibly shifted the orange/gold accents to yellow-olive and Royal Purple bluer (reverted to None after). Keybind **capture** works (bound Toggle Journal → Y). The web Settings build does **not** include a Cloud Backup section or a Discord "Test Connection" (the Discord section is just a "Push to Discord" toggle + Save), so those desktop controls aren't present to test (not a gap).
+
 ### Multiplayer "WebRTC signaling server" status stuck on "Checking the signaling server…" indefinitely
 - **Category:** bug | portability
 - **Severity:** medium
@@ -279,12 +393,14 @@ Tested: dnd-vtt WEB build (Dungeon Table Online) v2.4.77 — 2026-06-22 · URL: 
 **Related files:** `dnd-app/src/renderer/src/` (Settings Updates section)
 
 ## Could not test
+
+- **Bastion advance-time / Bastion Turn cycle** and **fog of war / dynamic lighting / walls+doors / AoE templates** — attempted this session but HARD-BLOCKED: mid-run the app root began returning HTTP 401 because BMO_API_KEY hardening got enabled on BMO and the static /DungeonTableOnline/* routes are not exempted from the auth gate (see the Critical finding). The browser can no longer load the app, and I did not alter BMO's auth config to work around it. These remain to be driven once the SPA routes are exempted (or the key is unset).
 The following were not testable in this unattended web run and are genuine environment/dependency blockers (not out-of-scope omissions):
 
 - **In-game surface — now TESTED (Solo).** Reached the in-game board via a saved character + a Solo campaign → Play. After a fresh load the board works (battlemap render, DM sidebar, Combat/Magic/Dice/Map panels, drawing tools, View-As selector, `/roll` dice). Still not exercised in depth this run: fog/lighting/AoE/walls, the full combat tracker flow, every DM panel, and cross-client View-As (needs a 2nd profile). The redeploy crash on entry is filed as a High finding in Phase 6.
 - **AI Dungeon Master (local providers).** The only supported AI providers are local (Ollama / llama.cpp at `localhost:11434`). The web build is served from `https://bmo.mybmoai.work`, and the Settings → Ollama AI section reports "Ollama is not installed"; a cloud-served browser page generally cannot reach the user's loopback, so the AI DM could not be run (see the Phase 13 Ollama portability finding). No cloud AI creds are configured (known/intended — not listed as a gap).
 - **Full 2-client multiplayer matrix** (lobby ready→start, cross-client HP/token/fog sync, kick/ban-rejoin, host/player/solo rejoin-resume, End Session propagation, Cloud-vs-Self host independence). Blocked by the shared-browser-profile limitation above; needs two separate browsers/profiles or two devices.
-- **Bastion subsystem internals** (facilities, treasury/BP, Advance Time → Bastion Turn, d100 events, Turn Summary). Bastion creation requires a **saved owner PC**, which did not exist this run (see Phase 4).
+- **Bastion advance-time / Bastion Turn cycle** (assign facility orders, Maintain order, d100 event, Turn Summary, Complete Turn) was not run to completion — but Bastion creation, the detail view, and Treasury deposit ARE now tested (see Phase 4; the reactivity bug there is filed).
 - **Native file flows** (Export All Data, Export/Import Settings, Import, Audio upload). In the browser these become Blob downloads / `<input type=file>` pickers; not exercised to completion to honor the unattended-run no-download posture. The buttons render and are wired.
 - **Discord DM bot (Phase 12).** Out of the web SPA's surface — the DM bot's slash commands and Dungeon VC live in Discord + the Pi, not the browser app, and there is no Discord access in this unattended run. The web Settings → Discord Integration section (just a "Push to Discord" toggle + Save) renders.
 
