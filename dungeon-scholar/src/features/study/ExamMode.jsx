@@ -27,6 +27,7 @@ import {
   SESSION_KIND,
 } from '../../services/sessionResume.js';
 import RichContent from '../../components/RichContent.jsx';
+import { speak, ttsSupported } from '../../services/tts.js';
 import { timerAnnouncement } from '../../services/timerAnnounce.js';
 import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 
@@ -483,6 +484,9 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
             );
           })()}
           <RichContent as="div" text={q.question} className="text-lg text-amber-50 italic mb-4 leading-relaxed" />
+          {ttsSupported() && (
+            <button type="button" onClick={() => speak(q.question)} aria-label="Read the question aloud" title="Read aloud" className="text-amber-500 hover:text-amber-300 text-sm mb-3">🔊 Read aloud</button>
+          )}
           {/* Phase 30g QA #12: keyboard hotkey hint for the in-progress exam. */}
           <div className="text-[11px] italic text-amber-700/70 mb-3">
             {Array.isArray(q.options)
