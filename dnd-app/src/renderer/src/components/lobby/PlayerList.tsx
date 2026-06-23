@@ -105,7 +105,7 @@ export default function PlayerList(): JSX.Element {
   }
 
   const handleKick = (peerId: string): void => {
-    kickPeer(peerId)
+    kickPeer(peerId, players.find((p) => p.peerId === peerId)?.displayName)
     removePeer(peerId)
   }
 

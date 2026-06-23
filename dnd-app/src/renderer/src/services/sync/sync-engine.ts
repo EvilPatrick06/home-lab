@@ -159,13 +159,27 @@ function onFocus(): void {
   void safeReconcile()
 }
 
+function onVisibility(): void {
+  // Reconcile immediately when the tab becomes visible again (polling is paused
+  // while hidden), so returning to a backgrounded tab syncs without waiting a tick.
+  if (typeof document !== 'undefined' && !document.hidden) void safeReconcile()
+}
+
 /** Begin syncing (idempotent). Runs an immediate launch pull-merge, then polls. */
 export function startSync(): void {
   if (running) return
   running = true
   void safeReconcile()
-  intervalId = setInterval(() => void safeReconcile(), INTERVAL_MS)
-  if (typeof window !== 'undefined') window.addEventListener('focus', onFocus)
+  intervalId = setInterval(() => {
+    // Don't poll a backgrounded tab — it just fetches a manifest nobody's viewing
+    // every 30s. Polling resumes on focus / visibilitychange (which reconcile now).
+    if (typeof document !== 'undefined' && document.hidden) return
+    void safeReconcile()
+  }, INTERVAL_MS)
+  if (typeof window !== 'undefined') {
+    window.addEventListener('focus', onFocus)
+    document.addEventListener('visibilitychange', onVisibility)
+  }
 }
 
 export function stopSync(): void {
@@ -174,5 +188,8 @@ export function stopSync(): void {
     clearInterval(intervalId)
     intervalId = null
   }
-  if (typeof window !== 'undefined') window.removeEventListener('focus', onFocus)
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('focus', onFocus)
+    document.removeEventListener('visibilitychange', onVisibility)
+  }
 }

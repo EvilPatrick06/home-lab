@@ -466,11 +466,13 @@ export function sendToPeer(peerId: string, msg: NetworkMessage): void {
 }
 
 /** Kick a peer from the game. */
-export function kickPeer(peerId: string): void {
-  // 20g — audit moderation actions on both transports.
+export function kickPeer(peerId: string, displayName?: string): void {
+  // 20g — audit moderation actions on both transports. Prefer the caller-supplied
+  // name (the lobby UI has it); the cloud-relay transport's peerInfo doesn't always
+  // carry a displayName, which logged `displayName: undefined`.
   auditSecurityEvent('host.kick', {
     peerId,
-    displayName: (outboundOverride?.getPeerInfo(peerId) ?? peerInfoMap.get(peerId))?.displayName,
+    displayName: displayName ?? (outboundOverride?.getPeerInfo(peerId) ?? peerInfoMap.get(peerId))?.displayName,
     campaignId
   })
   if (outboundOverride) {
