@@ -9,7 +9,7 @@ User=patrick
 EnvironmentFile=-/home/patrick/home-lab/bmo/pi/.env
 Environment=XDG_RUNTIME_DIR=/run/user/1000
 Environment=GDK_BACKEND=wayland
-Environment=WLR_DRM_DEVICES=/dev/dri/card0
+Environment=WLR_DRM_DEVICES=/dev/dri/card1
 Environment=WLR_DRM_CONNECTORS=DSI-2
 Environment=WLR_XCURSOR_THEME=bmo-invisible
 Environment=WLR_XCURSOR_SIZE=1
