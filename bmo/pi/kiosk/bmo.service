@@ -1,0 +1,42 @@
+[Unit]
+Description=BMO AI Assistant
+After=network.target docker.service pipewire-stack.service
+Wants=docker.service
+StartLimitIntervalSec=300
+StartLimitBurst=10
+
+[Service]
+Type=simple
+User=patrick
+Group=patrick
+WorkingDirectory=/home/patrick/home-lab/bmo/pi
+Environment=PATH=/home/patrick/home-lab/bmo/pi/venv/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PYTHONUNBUFFERED=1
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+EnvironmentFile=/home/patrick/home-lab/bmo/pi/.env
+ExecStart=/home/patrick/home-lab/bmo/pi/venv/bin/python app.py
+Restart=on-failure
+RestartSec=5
+KillMode=process
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+SupplementaryGroups=video audio i2c gpio spi input
+
+# Sandbox hardening — main BMO needs hardware access (audio/I2C/GPIO/SPI/video/input)
+# so we keep ProtectSystem=strict + explicit ReadWritePaths but skip the
+# strictest namespace/syscall filters that block /dev/* access.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/home/patrick/home-lab/bmo/pi/data /home/patrick/home-lab/bmo/pi/config /home/patrick/.cache /home/patrick/.bmo_secret_key
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK AF_BLUETOOTH
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target

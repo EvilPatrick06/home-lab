@@ -1,0 +1,10 @@
+[Unit]
+Description=BMO runtime-state off-tree backup (gitignored data/ + calendar token)
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=patrick
+ExecStart=/home/patrick/home-lab/bmo/pi/scripts/backup-state.sh
+Nice=10
+IOSchedulingClass=idle
