@@ -1,4 +1,5 @@
 import { petLevelFromXp } from '../services/pets.js';
+import { formatYmd } from '../utils/date.js';
 import { BESTIARY_ENTRIES } from './bestiary.js';
 
 
@@ -87,7 +88,8 @@ export const DAILY_QUEST_POOL = [
     icon: '🔥',
     target: 5,
     xp: 80,
-    counter: 'currentStreak',
+    counter: 'maxStreakToday',
+    absolute: true,
   },
   {
     id: 'big_correct',
@@ -171,9 +173,11 @@ export const getCounterValue = (state, counterId) => {
     case 'vaultBanished':
       return state.vaultBanished || 0;
     case 'currentStreak':
-      // We don't persist a global current-streak; use longestStreak as the proxy.
-      // Quests targeting streaks fire when longestStreak grows from the baseline.
-      return state.longestStreak || 0;
+      return state.currentStreak || 0;
+    case 'maxStreakToday':
+      return state.maxStreakToday || 0;
+    case 'maxStreakWeek':
+      return state.maxStreakWeek || 0;
     case 'modesUsedToday':
       return (state.modesUsedToday || []).length;
     // 25j: post-Phase-16 counters powering the refreshed quest pool. All
@@ -273,7 +277,8 @@ export const WEEKLY_QUEST_POOL = [
     icon: '⭐',
     target: 20,
     xp: 600,
-    counter: 'currentStreak',
+    counter: 'maxStreakWeek',
+    absolute: true,
   },
   // 25j: post-Phase-16 weekly variants — ascension, spell slots, harvest,
   // biome bosses. The two `absolute` quests check the current value
@@ -338,7 +343,7 @@ export const currentWeekStartStr = () => {
   const day = d.getDay(); // 0 = Sunday, 1 = Monday, ...
   const diff = day === 0 ? -6 : 1 - day; // Monday-based
   d.setDate(d.getDate() + diff);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  return formatYmd(d);
 };
 
 

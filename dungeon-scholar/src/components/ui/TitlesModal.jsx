@@ -1,5 +1,5 @@
 import { Sparkles, X } from 'lucide-react';
-import { useDialogA11y } from '../useDialogA11y.js';
+import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 import { TITLES, SPECIAL_TITLES } from '../../game/titles.js';
 
 export function TitlesModal({ playerState, onSelect, onClose }) {

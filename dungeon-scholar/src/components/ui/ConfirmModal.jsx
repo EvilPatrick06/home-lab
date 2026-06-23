@@ -1,4 +1,4 @@
-import { useDialogA11y } from '../useDialogA11y.js';
+import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 
 // Phase 33c QA P3: generic in-DOM confirmation modal — replaces window.confirm
 // which was unreliable across headless / test environments. Includes an

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { BookOpen, ChevronRight, X, Send, Loader2, Wand2, Trash2 } from 'lucide-react';
 import { getOracleEndpoint, isOracleConfigured, ORACLE_MODEL } from '../../services/oracleGrader.js';
-import { useDialogA11y } from '../../components/useDialogA11y.js';
+import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 
 function ChatMode({ courseSet, tomeProgress, updateTomeProgress, checkAchievement }) {
   // Chat history lives in tome progress so it persists across navigation, reloads, and journal restores

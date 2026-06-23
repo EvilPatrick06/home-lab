@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Hash, X } from 'lucide-react';
-import { useDialogA11y } from '../../components/useDialogA11y.js';
+import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 
 function ImportCodeModal({ onClose, onSubmit }) {
   const panelRef = useDialogA11y({ onClose }); // 19A

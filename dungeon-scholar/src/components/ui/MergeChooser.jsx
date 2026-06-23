@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDialogA11y } from './useDialogA11y.js';
+import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 
 function summarize(state) {
   if (!state) return { level: 1, tomes: 0, totalCorrect: 0, totalXp: 0 };

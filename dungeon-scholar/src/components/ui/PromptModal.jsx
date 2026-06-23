@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Wand2, X, Check, ArrowLeft } from 'lucide-react';
-import { ORG_PROMPTS } from '../prompts/index.js';
-import { useDialogA11y } from './useDialogA11y.js';
+import { ORG_PROMPTS } from '../../prompts/index.js';
+import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 
 const EXAM_TARGET_LEAVE_BLANK = '<leave blank to let me infer from materials>';
 const EXAM_TARGET_LINE_REGEX = /EXAM TARGET: <[^>]+>/;

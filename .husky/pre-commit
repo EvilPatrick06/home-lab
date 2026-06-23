@@ -1,19 +1,19 @@
 #!/usr/bin/env sh
-# Phase 21c — pre-commit gate. Hooks run with cwd = git root, so cd into the app.
-# Escape hatch: `git commit --no-verify`. CI (.github/workflows/ci.yml) is the
-# authoritative gate; this is a fast local pre-flight.
-cd dnd-app || exit 1
+# Pre-commit gate — runs checks for whichever project has staged changes.
+# Escape hatch: `git commit --no-verify`. CI is the authoritative gate.
+staged() { git diff --cached --name-only --diff-filter=ACMR; }
 
-# Biome on staged files only (fast). --no-errors-on-unmatched: don't fail a
-# commit that touches no src/ files (docs-only commits, etc.).
-npm run lint -- --staged --no-errors-on-unmatched || exit 1
+# dnd-app: Biome on staged files + renderer typecheck.
+if staged | grep -q '^dnd-app/'; then
+  ( cd dnd-app && npm run lint -- --staged --no-errors-on-unmatched && npx tsc --noEmit -p tsconfig.web.json ) || exit 1
+fi
 
-# Typecheck the renderer config (the broadest surface). Move to a pre-push hook
-# if this feels slow on your machine.
-npx tsc --noEmit -p tsconfig.web.json || exit 1
+# dungeon-scholar: Biome on staged files (S10/S25).
+if staged | grep -q '^dungeon-scholar/'; then
+  ( cd dungeon-scholar && npx biome check --staged --no-errors-on-unmatched ) || exit 1
+fi
 
-# Optional secret scan — folded in from the old .githooks/ shim so a single
-# core.hooksPath (.husky) covers it. Skips gracefully when gitleaks is absent.
+# Secret scan across the staged set (folded in from the old .githooks shim).
 if command -v gitleaks >/dev/null 2>&1; then
   gitleaks protect --staged --redact || exit 1
 fi

@@ -1,6 +1,11 @@
 # CLAUDE.md
 
 > Read automatically by Claude Code.
+
+> **Canonical source:** shared conventions (repo layout, git workflow, logging
+> rules) live in [`AGENTS.md`](./AGENTS.md). This file covers tool-specific notes;
+> when they overlap, AGENTS.md wins. Keep shared sections in sync (S11).
+
 > General project instructions: `AGENTS.md`. Structure map: `.cursorrules`.
 
 ## Repo at a Glance

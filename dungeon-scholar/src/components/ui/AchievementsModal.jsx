@@ -1,5 +1,5 @@
 import { Trophy, X } from 'lucide-react';
-import { useDialogA11y } from '../useDialogA11y.js';
+import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 import { ACHIEVEMENTS } from '../../game/achievements.js';
 
 export function AchievementsModal({ playerState, onClose }) {

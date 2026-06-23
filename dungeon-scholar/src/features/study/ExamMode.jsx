@@ -19,16 +19,16 @@ import {
   pickStratifiedSample,
   gradeExamItem,
   summarizeExamResults,
-} from '../services/examSession.js';
+} from '../../services/examSession.js';
 import {
   saveSession,
   loadSession,
   clearSession,
   SESSION_KIND,
-} from '../services/sessionResume.js';
-import RichContent from './RichContent.jsx';
-import { timerAnnouncement } from '../services/timerAnnounce.js';
-import { useDialogA11y } from './useDialogA11y.js';
+} from '../../services/sessionResume.js';
+import RichContent from '../../components/RichContent.jsx';
+import { timerAnnouncement } from '../../services/timerAnnounce.js';
+import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 
 function formatClock(sec) {
   const s = Math.max(0, sec | 0);

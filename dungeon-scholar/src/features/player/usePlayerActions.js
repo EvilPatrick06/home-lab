@@ -574,6 +574,15 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
       const newGold = (prev.gold || 0) + (correct ? 1 : 0);
       let next = { ...prev, totalAnswered: newAnswered, totalCorrect: newCorrect, gold: newGold };
 
+      // I2: real cross-mode correct-answer streak. Increment on a correct
+      // answer, reset to 0 on a wrong one; record the best streak reached in
+      // the current day/week window (reset at rollover) and all-time.
+      const streak = correct ? (prev.currentStreak || 0) + 1 : 0;
+      next.currentStreak = streak;
+      next.maxStreakToday = Math.max(prev.maxStreakToday || 0, streak);
+      next.maxStreakWeek = Math.max(prev.maxStreakWeek || 0, streak);
+      next.longestStreak = Math.max(prev.longestStreak || 0, streak);
+
       // 26a: confidence calibration. When the caller passes a confidence
       // bucket ('low'/'med'/'high'), bump the matching tile on the active
       // tome's confidenceStats. Defensive: legacy callers that don't pass
@@ -786,7 +795,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
         claimable: complete && !q.claimed,
       };
     }).filter(Boolean);
-  }, [playerState.dailyQuests, playerState.library, playerState.totalCorrect, playerState.longestStreak, playerState.vaultBanished, playerState.modesUsedToday, playerState.totalLogins, playerState.pets, playerState.spellsCast, playerState.plantsHarvested, playerState.equippedSpells, playerState.bestiary, playerState.ascensions]);
+  }, [playerState.dailyQuests, playerState.library, playerState.totalCorrect, playerState.longestStreak, playerState.vaultBanished, playerState.modesUsedToday, playerState.maxStreakToday, playerState.totalLogins, playerState.pets, playerState.spellsCast, playerState.plantsHarvested, playerState.equippedSpells, playerState.bestiary, playerState.ascensions]);
 
   const claimQuest = (questId) => {
     setPlayerState(prev => {
@@ -838,7 +847,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
         claimable: complete && !q.claimed,
       };
     }).filter(Boolean);
-  }, [playerState.weeklyQuests, playerState.library, playerState.totalCorrect, playerState.longestStreak, playerState.vaultBanished, playerState.totalLogins, playerState.pets, playerState.spellsCast, playerState.plantsHarvested, playerState.equippedSpells, playerState.bestiary, playerState.ascensions]);
+  }, [playerState.weeklyQuests, playerState.maxStreakWeek, playerState.library, playerState.totalCorrect, playerState.longestStreak, playerState.vaultBanished, playerState.totalLogins, playerState.pets, playerState.spellsCast, playerState.plantsHarvested, playerState.equippedSpells, playerState.bestiary, playerState.ascensions]);
 
   const claimWeeklyQuest = (questId) => {
     setPlayerState(prev => {

@@ -20,11 +20,9 @@ export const DAILY_REWARDS = [
   { day: 7, gold: 350, xp: 200, devotion: 5, items: [{ id: 'phoenix_ember', n: 1 }],      label: 'The Phoenix Day', capstone: true },
 ];
 
-// Local YYYY-MM-DD (avoid UTC drift across midnight).
-export const todayDateStr = () => {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-};
+// Local YYYY-MM-DD (avoid UTC drift). Canonical impl lives in utils/date (S22);
+// re-exported here for the modules that import it from devotion.
+export { todayDateStr } from '../utils/date.js';
 
 // Number of calendar days between two YYYY-MM-DD strings (b - a).
 // Returns Infinity if either is missing.

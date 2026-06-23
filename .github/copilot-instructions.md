@@ -1,6 +1,11 @@
 # GitHub Copilot Instructions
 
 > Read automatically by GitHub Copilot (in-editor + PR review).
+
+> **Canonical source:** shared conventions (repo layout, git workflow, logging
+> rules) live in [`AGENTS.md`](./AGENTS.md). This file covers tool-specific notes;
+> when they overlap, AGENTS.md wins. Keep shared sections in sync (S11).
+
 > See also: `AGENTS.md`, `.cursorrules`.
 
 ## Monorepo Layout

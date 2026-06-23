@@ -122,6 +122,7 @@ export function semanticHashState(state) {
       totalCorrect: state.totalCorrect ?? 0,
       totalAnswered: state.totalAnswered ?? 0,
       gold: state.gold ?? 0,
+      longestStreak: state.longestStreak ?? 0,
       tutorialStarted: !!state.tutorialStarted,
       tutorialCompleted: !!state.tutorialCompleted,
       tutorialStepIndex: state.tutorialStepIndex ?? 0,

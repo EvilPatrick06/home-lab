@@ -12,16 +12,16 @@ import {
 import { SignInButton } from './components/SignInButton.jsx';
 import { consumeOAuthCallback, signOut, warnIfBaseMismatch } from './services/supabase.js';
 import { useAuth } from './hooks/useAuth.js';
-import { MergeChooser } from './components/MergeChooser.jsx';
+import { MergeChooser } from './components/ui/MergeChooser.jsx';
 import { RlsWarningBanner } from './components/RlsWarningBanner.jsx';
 import { checkRlsExposure } from './services/cloudSync.js';
-import { useDialogA11y } from './components/useDialogA11y.js';
+import { useDialogA11y } from './hooks/useDialogA11y.js';
 import { AudioInviteBanner } from './components/AudioInviteBanner.jsx';
 import { ProfileChip } from './components/ProfileChip.jsx';
 import { AccountPanel } from './components/AccountPanel.jsx';
-import PromptModal from './components/PromptModal.jsx';
+import PromptModal from './components/ui/PromptModal.jsx';
 import RichContent from './components/RichContent.jsx';
-const ExamMode = React.lazy(() => import('./components/ExamMode.jsx'));
+const ExamMode = React.lazy(() => import('./features/study/ExamMode.jsx'));
 // Polish: lazy-load DungeonExplore. It's the heaviest single component
 // (sprite drawers, generateMap, biome maps) and is only used when the
 // player enters a delve, so deferring its load shrinks the initial bundle.
@@ -642,6 +642,7 @@ export default function DungeonScholarApp() {
             })),
           },
           modesUsedToday: [],
+          maxStreakToday: 0,
         };
       });
     }
@@ -664,6 +665,7 @@ export default function DungeonScholarApp() {
               claimed: false,
             })),
           },
+          maxStreakWeek: 0,
         };
       });
     }

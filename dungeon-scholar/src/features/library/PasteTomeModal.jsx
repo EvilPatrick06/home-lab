@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Copy, X, Scroll } from 'lucide-react';
-import { useDialogA11y } from '../../components/useDialogA11y.js';
+import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 
 function PasteTomeModal({ onClose, onSubmit }) {
   const panelRef = useDialogA11y({ onClose }); // 19A

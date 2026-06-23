@@ -3,7 +3,7 @@ import { LogOut, CloudOff, Trash2, RotateCcw } from 'lucide-react';
 import { signOut } from '../services/supabase.js';
 import { deleteCloudSave, deleteAccount } from '../services/cloudSync.js';
 import { logError } from '../services/logger.js';
-import { useDialogA11y } from './useDialogA11y.js';
+import { useDialogA11y } from '../hooks/useDialogA11y.js';
 
 function relativeTimeFrom(date) {
   if (!date) return 'never';
