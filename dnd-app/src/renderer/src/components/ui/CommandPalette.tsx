@@ -64,6 +64,7 @@ export default function CommandPalette(): JSX.Element | null {
     }
   }, [open])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional — reset the highlight to the top whenever the query changes
   useEffect(() => {
     setSelected(0)
   }, [query])

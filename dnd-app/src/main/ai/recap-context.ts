@@ -6,7 +6,7 @@
  * is bounded so the call stays small (the recap is a single non-streaming `chatOnce`).
  */
 
-import { estimateTokens, trimToTokenBudget } from './token-budget'
+import { trimToTokenBudget } from './token-budget'
 import type { WorldStateSummary } from './types'
 
 const BLOCK_BUDGET = 1500 // estimated tokens per block

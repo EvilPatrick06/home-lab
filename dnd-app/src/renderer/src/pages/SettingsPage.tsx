@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { AccessibilitySection } from '../components/settings/AccessibilitySection'
+import { DiceSection } from '../components/settings/DiceSection'
+import { GridSection } from '../components/settings/GridSection'
 import { NotificationsSection } from '../components/settings/NotificationsSection'
 import { Section } from '../components/settings/SettingsSection'
+import { ThemeSection } from '../components/settings/ThemeSection'
 import DiscordIntegrationSettings from '../components/ui/DiscordIntegrationSettings'
 import MultiplayerStatusSection from '../components/ui/MultiplayerStatusSection'
 import OllamaManagement, { type AvailableModelList, type InstalledModelList } from '../components/ui/OllamaManagement'
-import { SETTINGS_KEYS } from '../constants'
 
 /** Re-exported Ollama model list components for use by consumers importing from SettingsPage. */
 type _AvailableModelList = typeof AvailableModelList
@@ -59,7 +61,7 @@ import {
   setMuted as setGlobalAudioMuted,
   setVolume as setGlobalVolume
 } from '../services/sound-manager'
-import { getTheme, getThemeNames, setTheme, type ThemeName } from '../services/theme-manager'
+import { setTheme } from '../services/theme-manager'
 import { type KeyCombo, useAccessibilityStore } from '../stores/use-accessibility-store'
 import { useCampaignStore } from '../stores/use-campaign-store'
 import { useCharacterStore } from '../stores/use-character-store'
@@ -70,20 +72,6 @@ import { usePluginStore } from '../stores/use-plugin-store'
 import { getAllSystems, unregisterSystem } from '../systems/init'
 import type { UserProfile } from '../types/user'
 import { logger } from '../utils/logger'
-
-const THEME_LABEL_KEYS: Record<ThemeName, string> = {
-  dark: 'pages.settingsPage.themeDark',
-  parchment: 'pages.settingsPage.themeParchment',
-  'high-contrast': 'pages.settingsPage.themeHighContrast',
-  'royal-purple': 'pages.settingsPage.themeRoyalPurple'
-}
-
-const THEME_PREVIEWS: Record<ThemeName, { bg: string; accent: string; text: string }> = {
-  dark: { bg: 'bg-surface', accent: 'bg-amber-600', text: 'text-fg' },
-  parchment: { bg: 'bg-amber-100', accent: 'bg-yellow-700', text: 'text-amber-950' },
-  'high-contrast': { bg: 'bg-black', accent: 'bg-yellow-400', text: 'text-white' },
-  'royal-purple': { bg: 'bg-purple-950', accent: 'bg-purple-500', text: 'text-gray-200' }
-}
 
 const CATEGORY_LABEL_KEYS: Record<string, string> = {
   combat: 'pages.settingsPage.categoryCombat',
@@ -1036,17 +1024,6 @@ export async function restoreDefaultSettings(): Promise<void> {
 export default function SettingsPage(): JSX.Element {
   const { t } = useT()
   const navigate = useNavigate()
-  const [activeTheme, setActiveTheme] = useState<ThemeName>(getTheme())
-  const [gridOpacity, setGridOpacity] = useState(() => {
-    const saved = localStorage.getItem(SETTINGS_KEYS.GRID_OPACITY)
-    return saved ? Number(saved) : 40
-  })
-  const [gridColor, setGridColor] = useState(() => {
-    return localStorage.getItem(SETTINGS_KEYS.GRID_COLOR) ?? '#ffffff'
-  })
-  const [diceRollMode, setDiceRollMode] = useState<'3d' | '2d'>(() => {
-    return (localStorage.getItem(SETTINGS_KEYS.DICE_MODE) as '3d' | '2d') ?? '3d'
-  })
 
   // Profile settings
   const [profileName, setProfileName] = useState('')
@@ -1117,26 +1094,6 @@ export default function SettingsPage(): JSX.Element {
   const handleEnabledChange = useCallback((val: boolean) => {
     setAudioEnabled(val)
     setGlobalAudioEnabled(val)
-  }, [])
-
-  const handleThemeChange = useCallback((theme: ThemeName) => {
-    setTheme(theme)
-    setActiveTheme(theme)
-  }, [])
-
-  const handleGridOpacityChange = useCallback((val: number) => {
-    setGridOpacity(val)
-    localStorage.setItem(SETTINGS_KEYS.GRID_OPACITY, String(val))
-  }, [])
-
-  const handleGridColorChange = useCallback((val: string) => {
-    setGridColor(val)
-    localStorage.setItem(SETTINGS_KEYS.GRID_COLOR, val)
-  }, [])
-
-  const handleDiceModeChange = useCallback((mode: '3d' | '2d') => {
-    setDiceRollMode(mode)
-    localStorage.setItem(SETTINGS_KEYS.DICE_MODE, mode)
   }, [])
 
   // Phase 17u — read returnTo state from the in-game Settings dropdown so
@@ -1221,33 +1178,7 @@ export default function SettingsPage(): JSX.Element {
         </Section>
 
         {/* Theme */}
-        <Section title={t('pages.settingsPage.theme')}>
-          <div className="grid grid-cols-2 gap-3">
-            {getThemeNames().map((theme) => {
-              const preview = THEME_PREVIEWS[theme]
-              const isActive = activeTheme === theme
-              return (
-                <button
-                  key={theme}
-                  onClick={() => handleThemeChange(theme)}
-                  className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all cursor-pointer ${
-                    isActive ? 'border-amber-500 bg-gray-700/40' : 'border-border bg-surface-2/30 hover:border-gray-600'
-                  }`}
-                >
-                  <div
-                    className={`w-10 h-10 rounded-lg ${preview.bg} border border-gray-600 flex items-center justify-center`}
-                  >
-                    <div className={`w-4 h-4 rounded ${preview.accent}`} />
-                  </div>
-                  <div className="text-left">
-                    <div className="text-sm font-medium text-gray-200">{t(THEME_LABEL_KEYS[theme])}</div>
-                    {isActive && <div className="text-xs text-accent">{t('pages.settingsPage.active')}</div>}
-                  </div>
-                </button>
-              )
-            })}
-          </div>
-        </Section>
+        <ThemeSection />
 
         {/* Audio */}
         <Section title={t('pages.settingsPage.audio')}>
@@ -1326,69 +1257,10 @@ export default function SettingsPage(): JSX.Element {
         <AccessibilitySection />
 
         {/* Grid Preferences */}
-        <Section title={t('pages.settingsPage.grid')}>
-          <div className="flex justify-end mb-2">
-            <button
-              onClick={() => {
-                handleGridOpacityChange(40)
-                handleGridColorChange('#ffffff')
-              }}
-              className="px-2 py-0.5 text-xs bg-surface border border-gray-600 rounded text-fg hover:text-red-300 cursor-pointer"
-            >
-              {t('pages.settingsPage.resetGridDefaults')}
-            </button>
-          </div>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-300">{t('pages.settingsPage.gridOpacity')}</span>
-              <div className="flex items-center gap-3">
-                <input
-                  type="range"
-                  min={0}
-                  max={100}
-                  value={gridOpacity}
-                  onChange={(e) => handleGridOpacityChange(Number(e.target.value))}
-                  className="w-36 h-1 accent-amber-500 cursor-pointer"
-                />
-                <span className="text-sm text-muted w-10 text-right">{gridOpacity}%</span>
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-300">{t('pages.settingsPage.gridColor')}</span>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  value={gridColor}
-                  onChange={(e) => handleGridColorChange(e.target.value)}
-                  className="w-8 h-8 rounded border border-gray-600 cursor-pointer bg-transparent"
-                />
-                <span className="text-sm text-muted font-mono">{gridColor}</span>
-              </div>
-            </div>
-          </div>
-        </Section>
+        <GridSection />
 
         {/* Dice Roller */}
-        <Section title={t('pages.settingsPage.diceRoller')}>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-300">{t('pages.settingsPage.defaultDiceMode')}</span>
-            <div className="flex gap-2">
-              {(['3d', '2d'] as const).map((mode) => (
-                <button
-                  key={mode}
-                  onClick={() => handleDiceModeChange(mode)}
-                  className={`px-4 py-1.5 text-sm rounded-lg border transition-colors cursor-pointer ${
-                    diceRollMode === mode
-                      ? 'bg-amber-600 border-amber-500 text-white'
-                      : 'bg-surface-2 border-border text-muted hover:border-gray-600'
-                  }`}
-                >
-                  {mode === '3d' ? t('pages.settingsPage.dice3d') : t('pages.settingsPage.dice2d')}
-                </button>
-              ))}
-            </div>
-          </div>
-        </Section>
+        <DiceSection />
 
         {/* Notifications */}
         <NotificationsSection />

@@ -23,7 +23,6 @@
 import { BrowserWindow } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc-channels'
 import { getBmoAccessHeaders, getBmoBaseUrl } from './bmo-config'
-import { logToFile } from './log'
 
 // Time-box every registry fetch. Without this, a request to an unreachable Pi
 // hangs for the full OS TCP timeout — tens of seconds on Windows — stalling
