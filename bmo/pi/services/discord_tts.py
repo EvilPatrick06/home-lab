@@ -4,9 +4,9 @@ PHASE-21 21A. Replaces the DM bot's lossy single-shot path (`text[:500]` + a
 3 s cooldown that dropped back-to-back narrations) with:
 
 - `split_sentences()` — chunk a narration at sentence boundaries so the worker can
-  synthesize chunk *i+1* while chunk *i* plays. Primary path uses `stream2sentence`
-  (generator-native, abbreviation/quote aware); a pure-regex fallback covers a
-  fresh/offline Pi where the library or its nltk `punkt` data is absent, so
+  synthesize chunk *i+1* while chunk *i* plays. Primary path uses `pysbd`
+  (rule-based, abbreviation/quote aware, no model or data-file download); a
+  pure-regex fallback covers an environment where the library is absent, so
   narration NEVER hard-fails on a missing optional dep.
 - `synthesize_chunk()` — env-driven backend ladder, first available wins:
   Kokoro-FastAPI (`KOKORO_TTS_URL`, an opt-in LAN/GPU box) → local Piper
@@ -44,6 +44,18 @@ def _regex_split(text: str) -> list[str]:
     return [p.strip() for p in parts if p.strip()]
 
 
+def _pysbd_split(text: str) -> list[str] | None:
+    """Sentence split via `pysbd` (rule-based; no tokenizer model or data-file
+    download). Returns None on ANY failure so the caller drops to `_regex_split`."""
+    try:
+        import pysbd
+
+        seg = pysbd.Segmenter(language="en", clean=False)
+        return [s.strip() for s in seg.segment(text) if s.strip()]
+    except Exception:
+        return None
+
+
 def _merge_short(sentences: list[str], min_chars: int) -> list[str]:
     """Fold fragments shorter than `min_chars` into a neighbour so a stray 'Ok.'
     rides along with the next sentence instead of becoming its own tiny clip."""
@@ -77,26 +89,16 @@ def _hard_split(sentence: str, max_chars: int) -> list[str]:
 def split_sentences(text: str, max_chars: int = 350, min_chars: int = 24) -> list[str]:
     """Split `text` into playback-sized chunks at sentence boundaries.
 
-    Pure function, no I/O. Tries `stream2sentence` first (handles abbreviations,
-    quotes, ellipses); on ANY failure (ImportError, or an nltk `LookupError` when
-    `punkt` data is missing) falls back to `_regex_split`. Both paths then merge
-    sub-`min_chars` fragments and hard-split anything over `max_chars`.
+    Pure function, no I/O. Tries `pysbd` first (handles abbreviations, quotes,
+    ellipses); on ANY failure (e.g. the library is absent) falls back to
+    `_regex_split`. Both paths then merge sub-`min_chars` fragments and
+    hard-split anything over `max_chars`.
     """
     text = (text or "").strip()
     if not text:
         return []
 
-    raw: list[str] | None = None
-    try:
-        from stream2sentence import generate_sentences
-
-        def _gen() -> Iterator[str]:
-            yield text
-
-        raw = [s.strip() for s in generate_sentences(_gen(), minimum_sentence_length=10) if s.strip()]
-    except Exception:
-        raw = None
-
+    raw = _pysbd_split(text)
     if not raw:
         raw = _regex_split(text)
 
@@ -111,18 +113,8 @@ def split_sentences_stream(
     gen: Iterator[str], max_chars: int = 350, min_chars: int = 24
 ) -> Iterator[str]:
     """Generator-native variant for a future token-stream feed (not consumed this
-    phase). Uses `stream2sentence` directly; on failure buffers the whole stream
-    and defers to `split_sentences`."""
-    try:
-        from stream2sentence import generate_sentences
-
-        for sentence in generate_sentences(gen, minimum_sentence_length=10):
-            s = sentence.strip()
-            if s:
-                yield from _hard_split(s, max_chars)
-        return
-    except Exception:
-        pass
+    phase). `pysbd` is not incremental, so this buffers the whole stream and
+    defers to `split_sentences` (pysbd -> regex fallback, then merge/hard-split)."""
     yield from split_sentences("".join(gen), max_chars=max_chars, min_chars=min_chars)
 
 
