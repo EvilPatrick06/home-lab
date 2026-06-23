@@ -254,6 +254,21 @@ function createWindow(): void {
     if (isDevToolsToggle) mainWindow.webContents.toggleDevTools()
   })
 
+  // SEC (SECURITY-LOG 2026-06-22): DevTools stays available in production for bug
+  // reports, but print the standard self-XSS warning on open so a user can't be
+  // socially-engineered into pasting attacker code into the console (which has
+  // one-paste access to the window.api IPC surface). wipeAllData and other
+  // destructive actions are separately confirmed in the renderer.
+  mainWindow.webContents.on('devtools-opened', () => {
+    if (is.dev) return
+    void mainWindow.webContents
+      .executeJavaScript(
+        "console.log('%cStop!', 'color:#e11d48;font-size:48px;font-weight:bold');" +
+          "console.log('%cThis console is for developers. Do NOT paste anything here — code pasted here can give an attacker control of your app data and accounts. If someone told you to paste something, it is a scam.', 'font-size:16px');"
+      )
+      .catch(() => {})
+  })
+
   mainWindow.webContents.setWindowOpenHandler((details) => {
     try {
       const url = new URL(details.url)
