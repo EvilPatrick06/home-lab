@@ -46,7 +46,7 @@
 │  └────────────────────────────────────────────────────────┘   │
 │                                                               │
 │  ┌──── Scheduled Tasks ───────────────────────────────────┐   │
-│  │  cron  */5 * * * *   health_check.sh → health.log      │   │
+│  │  cron  */5 * * * *   health-check.sh → health.log      │   │
 │  │  systemd timer 3 AM  backup.sh → Google Drive (rclone) │   │
 │  └────────────────────────────────────────────────────────┘   │
 └───────────────────────────────────────────────────────────────┘
@@ -161,7 +161,7 @@ The Flask app runs directly on the host because it needs low-latency access to h
 ├── docker-compose.yml        # Docker service definitions
 ├── bmo.service               # systemd unit file
 ├── backup.sh                 # Google Drive backup script
-├── health_check.sh           # Cron health check script
+├── health-check.sh           # Cron health check script
 ├── requirements.txt          # Python dependencies
 └── .audiocache/              # TTS audio cache
 ```
@@ -277,9 +277,9 @@ comes back up would not trigger a recovery notification.
 
 ### Cron health check
 
-A separate `health_check.sh` runs via cron every 5 minutes and logs to `~/home-lab/bmo/pi/logs/health.log`:
+A separate `health-check.sh` runs via cron every 5 minutes and logs to `~/home-lab/bmo/pi/logs/health.log`:
 ```
-*/5 * * * * /home/patrick/home-lab/bmo/pi/scripts/health_check.sh >> /home/patrick/home-lab/bmo/pi/logs/health.log 2>&1
+*/5 * * * * /home/patrick/home-lab/bmo/pi/scripts/health-check.sh >> /home/patrick/home-lab/bmo/pi/logs/health.log 2>&1
 ```
 
 ### Endpoints

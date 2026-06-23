@@ -98,7 +98,7 @@ pi/
 ├── scripts/                     Operational scripts (bash + python)
 │   ├── apply-access-config.sh, cloudflare-access-api.sh,
 │   ├── diagnose-cloudflare.sh, setup-cloudflare-tunnel.sh, setup-tailscale.sh
-│   ├── e2e_test.sh, health_check.sh
+│   ├── e2e-test.sh, health-check.sh
 │   └── win_proxy.py             Windows WSL2 proxy helper
 │
 ├── tests/                       Pytest — 650+ unit tests

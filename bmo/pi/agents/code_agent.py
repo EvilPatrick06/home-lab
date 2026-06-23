@@ -72,7 +72,7 @@ BMO_CHEAT_SHEET = """
 | bmo-kiosk | (display/kiosk) | — |
 | bmo-backup.timer | Runs backup.sh at 3 AM | — |
 
-Cron: */5 * * * * health_check.sh → health.log
+Cron: */5 * * * * health-check.sh → health.log
 
 ## Docker Containers (cd ~/home-lab/bmo/pi && docker compose <cmd>)
 | Container | Image | Port | Purpose |
@@ -111,7 +111,7 @@ Commands: docker compose logs -f | docker compose restart | docker ps
 | models/piper/ | Local TTS models |
 | mcp_servers/ | MCP servers (dnd_data_server.py) |
 | backup.sh | Google Drive backup (rclone) |
-| health_check.sh | Cron health check → logs |
+| health-check.sh | Cron health check → logs |
 | docker-compose.yml | Container definitions |
 | bmo.service | systemd unit (copy to /etc/systemd/system/) |
 

@@ -31,8 +31,8 @@ _PI_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 _BMOSEUP_DIR = os.path.abspath(os.path.join(_PI_DIR, "..", ".."))  # repo root / bmo
 _SCRIPTS_DIR = os.path.join(_PI_DIR, "scripts")
 
-HEALTH_CHECK_SH = os.path.join(_SCRIPTS_DIR, "health_check.sh")
-E2E_TEST_SH = os.path.join(_SCRIPTS_DIR, "e2e_test.sh")
+HEALTH_CHECK_SH = os.path.join(_SCRIPTS_DIR, "health-check.sh")
+E2E_TEST_SH = os.path.join(_SCRIPTS_DIR, "e2e-test.sh")
 SETUP_BMO_SH = os.path.join(_BMOSEUP_DIR, "bmo", "setup-bmo.sh")
 DEPLOY_SH = os.path.join(_BMOSEUP_DIR, "bmo", "docker", "deploy.sh")
 # Phase 42B: health-gated Pi deploy script (distinct from docker/deploy.sh).
@@ -135,12 +135,12 @@ class TestShellcheck:
 
 
 # ═════════════════════════════════════════════════════════════════════════════
-# health_check.sh
+# health-check.sh
 # ═════════════════════════════════════════════════════════════════════════════
 
 
 class TestHealthCheckScript:
-    """health_check.sh runs BMO service + curl + docker checks.
+    """health-check.sh runs BMO service + curl + docker checks.
 
     In a test environment these will all fail (no real Pi), so we:
       - Verify it exits 0 when every check is stubbed to succeed.
@@ -158,11 +158,11 @@ class TestHealthCheckScript:
         return p
 
     def test_script_exists(self):
-        assert os.path.isfile(HEALTH_CHECK_SH), "health_check.sh not found"
+        assert os.path.isfile(HEALTH_CHECK_SH), "health-check.sh not found"
 
     def test_syntax_valid(self):
         ok, stderr = _bash_syntax_ok(HEALTH_CHECK_SH)
-        assert ok, f"health_check.sh syntax error:\n{stderr}"
+        assert ok, f"health-check.sh syntax error:\n{stderr}"
 
     def test_exits_nonzero_when_services_down(self, tmp_path):
         """Script reports STATUS=1 when systemctl says service is inactive."""
@@ -304,17 +304,17 @@ class TestHealthCheckScript:
 
 
 # ═════════════════════════════════════════════════════════════════════════════
-# e2e_test.sh
+# e2e-test.sh
 # ═════════════════════════════════════════════════════════════════════════════
 
 
 class TestE2EScript:
     def test_script_exists(self):
-        assert os.path.isfile(E2E_TEST_SH), "e2e_test.sh not found"
+        assert os.path.isfile(E2E_TEST_SH), "e2e-test.sh not found"
 
     def test_syntax_valid(self):
         ok, stderr = _bash_syntax_ok(E2E_TEST_SH)
-        assert ok, f"e2e_test.sh syntax error:\n{stderr}"
+        assert ok, f"e2e-test.sh syntax error:\n{stderr}"
 
     def test_help_flag_not_required(self):
         """Script should accept --verbose flag without crashing on arg parsing."""
@@ -336,7 +336,7 @@ class TestE2EScript:
             "Timers",
         ]
         for section in expected_sections:
-            assert section in content, f"Expected section '{section}' not found in e2e_test.sh"
+            assert section in content, f"Expected section '{section}' not found in e2e-test.sh"
 
     def test_script_defines_pass_fail_counters(self):
         """Verify PASS/FAIL counters are initialized."""
