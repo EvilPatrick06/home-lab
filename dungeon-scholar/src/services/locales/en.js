@@ -8,4 +8,7 @@ export const en = {
   'action.save': 'Save changes',
   'action.close': 'Close',
   'ledger.title': "✦ Scholar's Ledger ✦",
+  'nav.marketplace.aria': 'Open Marketplace',
+  'nav.ledger.full': "Scholar's Ledger (study stats)",
+  'nav.ledger.aria': "Open Scholar's Ledger study stats",
 };
