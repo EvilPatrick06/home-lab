@@ -45,6 +45,7 @@ Net: both core voice-front-end models are unavailable; the assistant runs on the
 - **Resolved by:** bmo-resolver (automated)
 - **Date resolved:** 2026-06-22
 - **Resolution:** Declared+installed the missing STT engine faster-whisper, installed torchaudio (CPU) for Silero VAD, and downloaded the openwakeword default models on the live venv; added faster-whisper to requirements.in and torchaudio to the CPU torch install step; demoted the per-boot Silero/wake-unavailable ERROR tracebacks to a single INFO. Voice front-end deps now satisfied (a mic is still required for live use) (branch `auto/bmo-resolver`).
+- **Addendum 2026-06-23 (bmo-resolver):** persisted the openwakeword default-model download into `scripts/install-venv.sh` (best-effort, guarded) so future venv rebuilds fetch the wake models — not just the one-off live download.
 
 ### [2026-06-22] Pi thermal throttling — CPU hit 84°C, soft-temp limit + frequency capping occurred this boot despite `bmo-fan` active (`get_throttled=0xe0000`)
 
@@ -227,6 +228,7 @@ Off-Pi, `init_services()` wraps each hardware service (LED, OLED, camera, mic/vo
 - **Resolved by:** bmo-resolver (automated)
 - **Date resolved:** 2026-06-22
 - **Resolution:** First decomposition: extracted stateless helpers to bots/social_bot_utils.py (seam for further music/cog extraction) (branch `auto/bmo-resolver`).
+- **Addendum 2026-06-23 (bmo-resolver):** extracted the next sibling module `bots/social_youtube.py` (the 5 yt-dlp search/extract helpers, re-exported); `discord_social_bot.py` 6,967 to 6,823 lines, behaviour identical. Verified by py_compile + import smoke.
 
 ### [2026-06-22] No off-tree backup/snapshot of BMO's gitignored runtime state
 
@@ -298,6 +300,7 @@ Four tracked systemd unit files live in two different directories. Three sit tog
 - **Resolved by:** bmo-resolver (automated)
 - **Date resolved:** 2026-06-22
 - **Resolution:** kiosk/*.service is now the single source; setup-bmo.sh installs by copying those files instead of drifting heredocs; applied bot time-sync ordering live too (branch `auto/bmo-resolver`).
+- **Addendum 2026-06-23 (bmo-resolver):** physically relocated the unit (`git mv ide_app/bmo-ide.service kiosk/bmo-ide.service`) and updated the README tree + `SYSTEMD.md` + `DESIGN-CONSTRAINTS.md` path refs; the unit ExecStart still targets `ide_app/`.
 
 ### [2026-06-22] Aggregate voice-pipeline stage latency into an exported metrics endpoint
 
@@ -363,6 +366,7 @@ Four tracked systemd unit files live in two different directories. Three sit tog
 - **Resolved by:** bmo-resolver (automated)
 - **Date resolved:** 2026-06-22
 - **Resolution:** Removed the orphaned .githooks/ (husky is authoritative per CONTRIBUTING) and dropped the dead .githooks/** path filter from security-audit.yml (branch `auto/bmo-resolver`).
+- **Addendum 2026-06-23 (bmo-resolver):** completed the remaining bullet — husky `pre-commit` now runs dungeon-scholar`s vitest when its files are staged (CI `subprojects-ci.yml` remains authoritative).
 
 ### [2026-06-22] Four hand-maintained agent-instruction files will drift (AGENTS / CLAUDE / GEMINI / copilot)
 
