@@ -83,11 +83,12 @@ discord.py>=2.6,<3.0
 PyNaCl>=1.6.2
 edge-tts
 scipy
-# stream2sentence — sentence-boundary chunking for the DM bot's streaming TTS
+# pysbd — rule-based sentence-boundary chunking for the DM bot's streaming TTS
 # (PHASE-21 21A). discord_tts.split_sentences uses it when present and falls back
-# to a pure-regex splitter otherwise, so narration never hard-fails if its nltk
-# punkt data is missing. (Pulls stanza, which reuses the already-pinned torch.)
-stream2sentence
+# to a pure-regex splitter otherwise, so narration never hard-fails. Pure-Python,
+# no model/data download. Replaced stream2sentence, which hard-pinned stanza
+# 1.11.1 (CVE-2026-54499, unsafe-pickle RCE; stanza was never invoked here).
+pysbd
 
 # Hardware — Pi-specific
 RPi.GPIO

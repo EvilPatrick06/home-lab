@@ -1,7 +1,7 @@
 """PHASE-21 21A: sentence splitting + backend ladder + prosody post-processing.
 
 Splitting tests force the regex fallback (deterministic regardless of whether
-`stream2sentence`/nltk-punkt are installed) by stubbing the module to None.
+`pysbd` is installed) by stubbing the module to None.
 """
 
 import subprocess
@@ -13,8 +13,8 @@ from services import discord_tts
 
 
 def _force_regex(monkeypatch):
-    # None in sys.modules makes `from stream2sentence import ...` raise ImportError.
-    monkeypatch.setitem(sys.modules, "stream2sentence", None)
+    # None in sys.modules makes `import pysbd` raise ImportError, forcing regex.
+    monkeypatch.setitem(sys.modules, "pysbd", None)
 
 
 # ── splitting ───────────────────────────────────────────────────────
