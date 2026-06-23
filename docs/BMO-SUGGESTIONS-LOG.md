@@ -54,6 +54,111 @@ New entries go at the TOP of their section (newest first).
 - [ ] If standardizing, rename the three snake_case scripts to kebab-case and update every reference (README, ARCHITECTURE.md, cron, and any code that shells out to them) in the same change.
 
 **Related files:** `bmo/pi/scripts/e2e_test.sh`, `bmo/pi/scripts/health_check.sh`, `bmo/pi/scripts/win_proxy.py`, `bmo/README.md`, `bmo/docs/ARCHITECTURE.md`
+### [2026-06-22] No off-tree backup/snapshot of BMO's gitignored runtime state
+
+- **Category:** future-idea
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of persistence paths (settings_store / campaign_memory / list_service / chat_history) vs `.gitignore` and `scripts/deploy.sh`
+
+**Description:**
+All of BMO's accumulated, mutable state lives untracked-and-gitignored inside the working tree under `bmo/pi/data/` and is the only copy anywhere: `campaign_memory.db` (SQLite — D&D NPC/campaign memory), `dnd_sessions/` (session logs), plus a pile of JSON state — `lists.json`, `notes.json`, `alarms.json`, `play_counts.json`, `music_history.json`, `recent_chat.json`, `settings.json`, `alert_history.json`, etc. (see `.gitignore` lines ~92–119). `deploy.sh` is correctly careful (it refuses a dirty tree and never `git clean`s, so deploys do not clobber this state), but that is the *only* thing protecting it. There is no periodic backup/snapshot: an SSD/SD failure, a stray manual `git clean -fdx`, or a bad block on the single Pi disk silently destroys every D&D campaign's memory, all alarms, lists, notes, and play history with no recovery path. No `backup`/`restore`/`rsync`/`tar` of `data/` exists anywhere in `scripts/`.
+
+**Hypothesis / root cause:** State accreted file-by-file as features shipped; each module just picks its own path under `data/`. Because it is gitignored it is invisible to the git-based deploy safety net, so no one added an out-of-band copy.
+
+**Proposed fix / improvement:**
+- [ ] Add a small `scripts/backup-state.sh` that tars/rsyncs the gitignored runtime set (`campaign_memory.db`, `dnd_sessions/`, and the `data/*.json` state files) to a second location — another disk, a NAS/`rclone` remote, or at minimum a timestamped copy outside the repo tree.
+- [ ] Run it on a `systemd` timer (daily) and surface last-success age in `/api/health/full` so a stale/failed backup is visible.
+- [ ] Document restore in `DEPLOY.md` / `TROUBLESHOOTING.md`. (`rclone` is already a dependency — `routes/rclone_api.py` exists — so an off-device target is low-effort.)
+
+**Related files:** `bmo/pi/services/settings_store.py`, `bmo/pi/services/campaign_memory.py`, `bmo/pi/services/chat_history.py`, `bmo/pi/services/list_service.py`, `bmo/.gitignore`, `bmo/pi/scripts/deploy.sh`, `bmo/pi/routes/rclone_api.py`
+
+---
+
+### [2026-06-22] No cross-provider LLM failover in `cloud_chat` (+ inconsistent transient-retry across providers)
+
+- **Category:** future-idea
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of `services/cloud_providers.py` LLM routing/reliability
+
+**Description:**
+`cloud_chat()` dispatches a request to exactly one provider based on the model-name prefix (`gemini*` -> Gemini, `claude*` -> Claude, `llama/mixtral/groq-*` -> Groq) with no fallback. If the chosen provider is down or rate-limited, the call raises and the caller (voice pipeline, agents) gets nothing — for the always-on voice path that means BMO goes silent on a single-vendor outage, even though three other working LLM backends are configured. Compounding it, transient-error handling is inconsistent: `gemini_chat()` retries up to 3x on HTTP 5xx with linear backoff, but `claude_chat()` and `groq_llm_chat()` are single-shot (`post(...)` -> `raise_for_status()`), so a one-off 502/503 from Claude/Groq fails the whole turn where the same blip against Gemini would be absorbed. There is no shared retry/backoff helper and no notion of "primary down -> try secondary".
+
+**Hypothesis / root cause:** Providers were added incrementally; the retry loop was bolted onto Gemini (the flaky-preview primary) only, and routing stayed a simple prefix switch rather than a resilience layer.
+
+**Proposed fix / improvement:**
+- [ ] Factor one transient-retry helper (5xx + timeout, bounded backoff) and apply it uniformly to all three chat providers.
+- [ ] Add an opt-in failover ladder in `cloud_chat` (e.g. primary -> a configured fallback model on a *different* vendor) for non-streaming chat, gated by a setting so DM/Code-Agent determinism is not silently changed. Respect the gevent/`os.system` design constraint — keep failover at the Python routing layer, do not touch the curl paths.
+- [ ] Optionally record which provider served each turn via the metrics idea already logged (2026-06-22 "Aggregate voice-pipeline stage latency...") so failover events are observable.
+
+**Related files:** `bmo/pi/services/cloud_providers.py` (`cloud_chat`, `gemini_chat`, `claude_chat`, `groq_llm_chat`), `bmo/pi/services/voice_pipeline.py`, `bmo/docs/DESIGN-CONSTRAINTS.md` (gevent/`os.system` constraint)
+
+**Related entries:** `BMO-SUGGESTIONS-LOG.md` [2026-06-22] Aggregate voice-pipeline stage latency into an exported metrics endpoint.
+
+### [2026-06-22] Adopt `bmo_logging` everywhere — retire stray `print()` and silent `except: pass`
+
+- **Category:** future-idea, debt
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** Automated improvement-suggestion scan of the bmo/ tree.
+
+**Description:**
+`services/bmo_logging.py` is a well-built structured-logging shim (env-controlled level via `BMO_LOG_LEVEL`, optional rotating file handler, optional JSON output for Loki/Vector, a CWE-117 log-injection sanitizer, and `log.exception` for tracebacks) — but it is only referenced by **32 of 193** Python files under `pi/`. Meanwhile the production tree (excluding `cli/`, `dev/`, `scripts/`) still contains **~347 `print()` calls** and **~169 `except ...: pass` blocks that swallow the exception with no log line at all**. The prints bypass level control, journald severity, and the JSON/file sinks, so they are invisible to `journalctl -u bmo -p err` and to any future log shipping. The silent excepts hide real failures in exactly the long-running, gevent-driven paths (voice pipeline, bots, services) where a swallowed error manifests as BMO mysteriously doing nothing — the hardest class of bug to diagnose on a headless Pi. This is the observability counterpart to the already-logged bots swallow startup crashes issue, but as a codebase-wide hygiene effort rather than a single bug.
+
+**Proposed fix / improvement:**
+- [ ] Add a lint/CI check (ruff already runs — e.g. `flake8-print`/`T20`, or a forbidden-pattern grep like the dnd-app gate) that flags new `print()` in production modules under `pi/` outside `cli/`, `dev/`, `scripts/`.
+- [ ] Sweep existing `print()` calls to `get_logger(<subsystem>)` at the right level; keep `print` only in CLI/dev/diagnostic tools where stdout IS the interface.
+- [ ] Triage the ~169 `except: pass` sites: convert expected and ignorable ones to `log.debug(...)` and genuine error paths to `log.exception(...)`, so failures leave a breadcrumb instead of vanishing.
+
+**Related files:** `pi/services/bmo_logging.py`, `pi/services/voice_pipeline.py`, `pi/bots/discord_social_bot.py`, `pi/bots/discord_dm_bot.py`, `pi/app.py`, `pi/agent.py`
+
+**Related entries:** [2026-06-22] Aggregate voice-pipeline stage latency into an exported metrics endpoint; [2026-06-22] Periodic synthetic voice-path canary
+
+---
+
+### [2026-06-22] Single-user owner identity (Gavin) is hardcoded across the tree — lift into config for portability/forkability
+
+- **Category:** portability, future-idea
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** Automated improvement-suggestion scan of the bmo/ tree.
+
+**Description:**
+The owner's identity is baked into source in **~51 places**. The social bot's personality prompt hardcodes created by Gavin, who is your best friend and creator (`bots/discord_social_bot.py`), the default speaker is `gavin` in multiple spots (`agents/settings.py` `default_name`, `cli.py`, `routes/realtime_ws.py`, `routes/chat_api.py`, `dev/bmo_ui_lab_server.py`), agent tool docs use `{name: Gavin}` as the canonical example (`agent.py`, `app.py`), and the one-shot enrollment script is literally named `wake/enroll_gavin.py` (whose docstring also still references the now-obsolete `voice_profiles.pkl` — persistence moved to `voice_profiles.json`). None of this is a bug for the current single-user deployment, but it means the project can't be cleanly shared/forked or run for a second household without a find-and-replace through prompts and code. A small `owner`/`identity` config block (name, relationship descriptor, default speaker) read at startup would centralize it.
+
+**Proposed fix / improvement:**
+- [ ] Introduce an `owner`/`identity` config (name + relationship + default speaker) sourced from settings/env, with Gavin as the default value so behavior is unchanged.
+- [ ] Replace the hardcoded literals in the personality prompt, settings defaults, agent tool examples, and route fallbacks with that config.
+- [ ] Rename `enroll_gavin.py` → `enroll_voice.py` (accept a `--name`), and fix its docstring to say `voice_profiles.json`.
+
+**Related files:** `pi/bots/discord_social_bot.py`, `pi/agents/settings.py`, `pi/cli.py`, `pi/routes/realtime_ws.py`, `pi/routes/chat_api.py`, `pi/wake/enroll_gavin.py`, `pi/agent.py`, `pi/app.py`
+
+---
+
+### [2026-06-22] Expose BMO's own subsystems (timers, calendar, smart-home, lists, music) as MCP servers, not just the D&D data server
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** Automated improvement-suggestion scan of the bmo/ tree.
+
+**Description:**
+`pi/mcp_servers/` currently exposes exactly one server — `dnd_data_server.py` (5e references + RAG over stdio JSON-RPC) — and it is cleanly built with env-var-configurable data roots. BMO has a rich set of first-party capabilities behind in-process Python services (`timer_service`, `calendar_service`, `smart_home`, `list_service`, `music_service`, `weather_service`, `location_service`). Today those are reachable only through BMO's own agents/HTTP routes. Wrapping a few of them as MCP servers (the same stdio pattern the D&D server already establishes) would let *other* MCP clients — Claude Desktop, Claude Code, other agents on the LAN — drive BMO's timers/calendar/home directly, and would give BMO's own orchestrator a uniform tool interface to its subsystems instead of bespoke per-service wiring. It also makes each capability independently testable and reusable outside the Flask process.
+
+**Proposed fix / improvement:**
+- [ ] Pick 1-2 high-value, low-risk subsystems first (e.g. timers + lists) and wrap their service functions as MCP tools following `dnd_data_server.py`'s structure.
+- [ ] Register them in `mcp_servers/mcp_settings.json`; document auth/trust expectations (the README already flags that file as a code-execution surface).
+- [ ] Keep write-capable tools (smart-home control, calendar create) behind explicit opt-in so a remote MCP client can't actuate the house by default.
+
+**Related files:** `pi/mcp_servers/dnd_data_server.py`, `pi/mcp_servers/mcp_settings.json`, `pi/services/timer_service.py`, `pi/services/list_service.py`, `pi/services/smart_home.py`, `pi/services/calendar_service.py`
+
+---
 
 ### [2026-06-22] Duplicate `Two IDE implementations coexist` section in `DESIGN-CONSTRAINTS.md`
 
