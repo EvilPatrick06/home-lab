@@ -27,7 +27,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 
 ## Defined channels
 
-*Total: **227** channel strings (from `IPC_CHANNELS`).*
+*Total: **229** channel strings (from `IPC_CHANNELS`).*
 
 ### Storage: Characters
 
@@ -363,6 +363,8 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 | Constant | Channel string |
 |---|---|
 | `APP_VERSION` | `app:version` |
+| `LOG_OPEN_FOLDER` | `log:open-folder` |
+| `LOG_GET_PATH` | `log:get-path` |
 
 ### Game Data
 
