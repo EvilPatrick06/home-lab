@@ -12,6 +12,6 @@ The prod CSP (`src/main/index.ts`) sets `script-src 'self' plugin:` with no `'un
 
 ## `/calendar` route (real-world session scheduler) is orphaned by design
 
-`CalendarPage` (route `/calendar`) is a real-world session scheduler, distinct from the in-game fantasy calendar (campaign wizard + in-game DM modal). Nothing in the app navigates to `/calendar` and the main menu has no Calendar item, so it is reachable only by typing the URL. Wiring it into the menu is a product decision (the page has no backend scheduling wiring), so it is **intentionally left orphaned**; the QA spec (`docs/phases/QA/instructions.md` §4.1/§4.3b) is reconciled to note this state. _(QA-2026-06-19 task 18.)_
+`CalendarPage` (route `/calendar`) is a real-world session scheduler, distinct from the in-game fantasy calendar (campaign wizard + in-game DM modal). Nothing in the app navigates to `/calendar` and the main menu has no Calendar item, so it is reachable only by typing the URL. Wiring it into the menu is a product decision (the page has no backend scheduling wiring), so it is **intentionally left orphaned**; the QA spec (`docs/phases/QA/INSTRUCTIONS.md` §4.1/§4.3b) is reconciled to note this state. _(QA-2026-06-19 task 18.)_
 
 _Relocated from `docs/SUGGESTIONS-LOG-DNDAPP.md` on 2026-06-22._

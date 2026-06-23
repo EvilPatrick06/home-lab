@@ -4,7 +4,7 @@
 > Every agent-instruction file (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`,
 > `.cursorrules`, `.github/copilot-instructions.md`), `docs/CONTRIBUTING.md`,
 > `docs/LOG-INSTRUCTIONS.md`, `dnd-app/docs/phases/INSTRUCTIONS.md`, and
-> `dnd-app/docs/phases/QA/instructions.md` reference THIS file rather than
+> `dnd-app/docs/phases/QA/INSTRUCTIONS.md` reference THIS file rather than
 > restating the rules. If the workflow changes, change it here.
 
 ## Why this exists

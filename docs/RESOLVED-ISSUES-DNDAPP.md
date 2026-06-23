@@ -12,6 +12,35 @@
 
 ---
 
+### [2026-06-22] Inconsistent casing in the `dnd-app/docs/phases/` tree (`completed` vs `QA/Completed`, `INSTRUCTIONS.md` vs `QA/instructions.md`)
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Normalized the QA subtree casing to match the top level: `QA/Completed/` -> `QA/completed/` (matching top-level `completed/`) and `QA/instructions.md` -> `QA/INSTRUCTIONS.md` (matching top-level `INSTRUCTIONS.md`). Updated the two inbound references (dnd-app/docs/DESIGN-CONSTRAINTS.md and docs/AUTOMATED-AGENT-GIT-WORKFLOW.md); no code/CI references existed.
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+Parallel concepts in the same phases doc tree are named with different casing, which is a small but real organization smell (and a portability hazard on case-insensitive filesystems if a sibling dir is ever added):
+
+- `dnd-app/docs/phases/completed/` (lowercase `c`) vs `dnd-app/docs/phases/QA/Completed/` (capital `C`) — the two "completed archive" folders disagree.
+- `dnd-app/docs/phases/INSTRUCTIONS.md` (uppercase) vs `dnd-app/docs/phases/QA/instructions.md` (lowercase) — the two instruction files disagree.
+
+Pick one convention and apply it to both. Lowercase-kebab (`completed/`, `instructions.md`) is the more common choice in this repo; whichever is picked, the `INSTRUCTIONS.md` references and `PHASE-INDEX.md` "move to `completed/`" wording should match.
+
+**Proposed fix / improvement:**
+- [ ] Rename `docs/phases/QA/Completed/` -> `docs/phases/QA/completed/` (or rename the top-level one to match — pick one).
+- [ ] Rename `docs/phases/QA/instructions.md` -> `INSTRUCTIONS.md` (or the top-level one to lowercase — pick one) and update any references.
+- [ ] Use `git mv` so history is preserved; grep the phases docs for the old paths afterward.
+
+**Related files:** `dnd-app/docs/phases/completed/`, `dnd-app/docs/phases/QA/Completed/`, `dnd-app/docs/phases/INSTRUCTIONS.md`, `dnd-app/docs/phases/QA/instructions.md`, `dnd-app/docs/phases/PHASE-INDEX.md`
+
+---
+
 ### [2026-06-20] Builder multiclass per-level class swap doesn't recompute spell-selection caps
 
 - **Resolved by:** dnd-resolver (automated)
