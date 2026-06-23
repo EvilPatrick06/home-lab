@@ -63,6 +63,69 @@ Both Discord bots catch any startup exception in their top-level run coroutine, 
 
 ## Medium
 
+### [2026-06-22] Calendar monitor reports a long-expired token as transient "waiting for refresh" forever — never escalates, re-alerts every monitor cycle
+
+- **Category:** bug
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** automated bmo error scan (live `bmo.service` journal review + monitoring.py / calendar_service.py read)
+
+**Description:**
+On the live Pi, `config/token.json` has been expired since 2026-06-20T06:57Z (~66h at scan time) and has NOT been rewritten since 2026-06-19 23:58 (its mtime). The health monitor emits `google_calendar: 📅 Calendar token expired — waiting for refresh` (Severity.WARNING, status `degraded`) on EVERY monitor cycle — 154+ identical lines, one per ~60s — yet no auto-refresh ever occurs and there is not a single `[calendar]` refresh-loop log line in the whole boot. Calendar features are effectively down, but the only signal is a perpetual transient-looking WARNING.
+
+Two distinct problems combine here:
+1. **No escalation:** `_check_calendar_token` (services/monitoring.py ~1559-1582) treats "expiry in the past AND a refresh_token is present" as `degraded` / "waiting for auto-refresh" indefinitely. It never verifies the refresh actually happened, so a genuinely stuck/revoked token (per the 2026-04-23 resolved entry, recovery can require a *manual* `reauth_calendar.py`) is permanently misclassified as a benign transient instead of an actionable `down`/CRITICAL.
+2. **Breaker bypass / log spam:** the resolved-issue circuit-breaker (#6) only backs off statuses `down`/`unknown` (see the `finally` block feeding the breaker). The `degraded` "waiting" branch is excluded, so this exact warning re-fires every single monitor cycle forever — re-introducing the alert/log spam the breaker was added to stop.
+
+**Reproduction (if bug):**
+1. Let the calendar access token expire while a refresh_token is present but auto-refresh does not run (observed: poll loop never rewrites token.json; zero `[calendar]` lines).
+2. Watch `journalctl -u bmo.service`: `Calendar token expired — waiting for refresh` repeats every ~60s with no resolution.
+
+**Expected behavior (if bug):** after the token has been expired beyond a refresh cycle (e.g. > a few minutes / N consecutive checks) with no successful refresh, escalate to `down`/CRITICAL with the actionable reauth hint, and apply the circuit-breaker backoff to the `degraded` path so it does not re-alert every cycle.
+
+**Hypothesis / root cause:** the `degraded` "waiting for auto-refresh" branch assumes the refresh is imminent and self-healing; it has no time/attempt budget and is excluded from the breaker. The underlying refresh itself also appears not to be happening (token.json untouched, no `[calendar]` lines) — likely the refresh token is invalid and needs manual reauth (cf. resolved 2026-04-23), which is exactly the actionable state the monitor fails to surface.
+
+**Proposed fix / improvement:**
+- [ ] Track first-seen-expired time (or a consecutive-expired counter); after a threshold with no successful refresh, set status `down` + Severity.CRITICAL with the reauth command.
+- [ ] Feed the `degraded` path into the circuit-breaker (or rate-limit the WARNING) so it does not log every ~60s.
+- [ ] Optionally have the monitor (or a watchdog) trigger / verify an actual `creds.refresh()` rather than only reading the file.
+
+**Related files:** `bmo/pi/services/monitoring.py` (`_check_calendar_token`, ~1495-1620), `bmo/pi/services/calendar_service.py` (`_get_credentials`, `_poll_loop`)
+
+**Related entries:** resolved 2026-04-23 "Google Calendar `invalid_grant`"; resolved monitoring #6 circuit-breaker
+
+### [2026-06-22] System timezone auto-sync permanently fails — `sudo -n timedatectl` blocked by `NoNewPrivileges=yes`; system stays on wrong TZ + logs error every refresh
+
+- **Category:** config
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** automated bmo error scan (live `bmo.service` journal review + location_service.py read)
+
+**Description:**
+`LocationService._sync_system_timezone` (services/location_service.py ~481-509) shells out `sudo -n timedatectl set-timezone <tz>` to align the Pi clocks timezone to the detected location. But `bmo.service` runs with `NoNewPrivileges=yes` (confirmed via `systemctl show bmo.service -p NoNewPrivileges`), which forbids any setuid escalation, so the call fails every time: `[location] Could not set system timezone to America/Chicago: sudo: The "no new privileges" flag is set, which prevents sudo from running as root.` Net effect: the system timezone is never updated by this path (it detects `America/Chicago` but the Pi stays on its default `America/Denver`), and the failure is logged on every location refresh (~every 30 min, `BMO_LOCATION_REFRESH_SECONDS=1800`). `AUTO_SYSTEM_TIMEZONE` is enabled, so the doomed attempt runs each cycle.
+
+This may also cause a real correctness gap: calendar event creation hardcodes `timeZone: "America/Denver"` (calendar_service.py `create_event`) while location reports `America/Chicago` — a stuck system TZ keeps these inconsistent.
+
+**Reproduction (if bug):**
+1. Run BMO under a unit with `NoNewPrivileges=yes` (as deployed).
+2. Trigger a location refresh that detects a TZ != current system TZ.
+3. Observe `[location] Could not set system timezone ...: sudo: The "no new privileges" flag is set ...` and the system TZ unchanged.
+
+**Expected behavior (if bug):** either the timezone is actually applied, or the service does not repeatedly attempt a privileged action it can never perform (and does not log an error every 30 min).
+
+**Hypothesis / root cause:** `NoNewPrivileges=yes` (a hardening setting on the unit) is fundamentally incompatible with `sudo`. A sudoers NOPASSWD rule will NOT help under NoNewPrivileges. timedatectl set-timezone needs either polkit (via DBus, not sudo) or the privilege drop relaxed.
+
+**Proposed fix / improvement:**
+- [ ] Use the DBus/polkit path (e.g. `busctl`/`timedatectl` via system bus with a polkit rule) instead of `sudo`, which works under NoNewPrivileges.
+- [ ] OR gate the attempt behind a capability probe and disable `AUTO_SYSTEM_TIMEZONE` (or log once, not every cycle) when escalation is unavailable.
+- [ ] Verify the intended deployment TZ vs the hardcoded `America/Denver` in `create_event`.
+
+**Related files:** `bmo/pi/services/location_service.py` (`_sync_system_timezone` ~481), the `bmo.service` unit (NoNewPrivileges), `bmo/pi/services/calendar_service.py` (`create_event` hardcoded timeZone)
+
+**Related entries:** [2026-06-22] Location provider order wastes a guaranteed-failing request (ipapi 429)
+
 ### [2026-06-22] Bot services start before NTP clock sync at boot — TLS "certificate is not yet valid" crash
 
 - **Category:** config
@@ -94,6 +157,28 @@ At the 2026-06-20 00:44 boot, both bots started ~5s later and immediately failed
 
 
 ## Low
+
+### [2026-06-22] Location provider order wastes a guaranteed-failing request each refresh — ipapi.co returns HTTP 429 every cycle
+
+- **Category:** config
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** automated bmo error scan (live `bmo.service` journal review + location_service.py read)
+
+**Description:**
+`_PROVIDERS` (services/location_service.py ~97) lists `https://ipapi.co/json/` FIRST, then `https://ipwho.is/`. On this Pi, ipapi.co returns `429 Too Many Requests` on every refresh (observed every ~30 min: `[location] Provider failed (https://ipapi.co/json/): 429 ...`). The loop then falls through to ipwho.is, which succeeds — so location still works, but every refresh cycle pays one guaranteed-failing HTTP request (up to an 8s timeout window) + a log line before falling back. The free ipapi.co tier is evidently over quota / blocked for this IP, so it will keep 429-ing.
+
+Not blocking (fallback works), but pure waste + recurring log noise. Logging per the "log even minor things" directive.
+
+**Proposed fix / improvement:**
+- [ ] Reorder `_PROVIDERS` to put a working provider (ipwho.is) first, OR
+- [ ] Add a short-lived negative cache / backoff for a provider that returns 429 so it is skipped for a while.
+- [ ] Optionally downgrade the repeated 429 log to debug once a fallback has succeeded.
+
+**Related files:** `bmo/pi/services/location_service.py` (`_PROVIDERS` ~97, provider loop ~384-398)
+
+**Related entries:** [2026-06-22] System timezone auto-sync permanently fails (NoNewPrivileges)
 
 ### [2026-06-22] Ruff lint backlog: 357 errors across bmo/pi (mostly tests)
 
