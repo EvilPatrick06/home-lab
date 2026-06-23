@@ -141,3 +141,8 @@ test-results*.txt
 
 # Local AI-DM debug screenshots (user-dropped, not repo content)
 dnd-app/docs/Screenshot*.png
+
+# Scheduled/automated-agent runtime lock files (not source — see docs/AUTOMATED-AGENT-GIT-WORKFLOW.md)
+.*-resolver.lock
+**/.*-resolver.lock
+*-agent.lock
