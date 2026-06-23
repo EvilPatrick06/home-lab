@@ -3,9 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "engines": {
-    "node": ">=22"
-  },
+  "engines": { "node": ">=22" },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -13,8 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "audit:ci": "npm audit --omit=dev --audit-level=moderate",
-    "lint": "biome check src",
-    "format": "biome check --write src"
+    "lint": "npx --yes @biomejs/biome@2.4.16 check src",
+    "format": "npx --yes @biomejs/biome@2.4.16 check --write src"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",
@@ -24,7 +22,6 @@
     "react-dom": "^19.2.7"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.16",
     "@tailwindcss/postcss": "^4.3.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
