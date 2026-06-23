@@ -28,7 +28,7 @@ import threading
 import time
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from flask import Flask, Response, jsonify, render_template, request, send_from_directory, stream_with_context
+from flask import Flask, Response, jsonify, redirect, render_template, request, send_from_directory, stream_with_context
 from flask_socketio import SocketIO
 from services.bmo_logging import _s, fail, get_logger
 log = get_logger("bmo")
@@ -239,7 +239,9 @@ BMO_REGISTRY_API_KEY = (os.environ.get("BMO_REGISTRY_API_KEY") or "").strip()
 # block these (Cloudflare Access path-scoped bypasses are their edge gate); every
 # OTHER route stays behind the key. KEEP THIS SET IN LOCKSTEP with the Cloudflare
 # Access "bypass" applications.
-_PUBLIC_UNAUTH_EXACT = frozenset({"/api/dnd/public/dm"})
+# "/" only redirects to the public VTT (the admin dashboard moved to /bmo, which
+# stays gated), so the bare root must be reachable without the key gate.
+_PUBLIC_UNAUTH_EXACT = frozenset({"/api/dnd/public/dm", "/"})
 # "/api/dnd/public" covers the anonymous DM chat + the web-build DM tools
 # (battlemap / analyze-map / recap / qa) — all server-prompt-owned, rate-limited.
 # "/api/games" is public game-discovery (CORS *, already CF-Access-bypassed) so the
@@ -1014,6 +1016,14 @@ def _static_mtime(rel_path: str) -> int:
 
 @app.route("/")
 def index():
+    # The bare root is the public face of the tunnel → the VTT. The BMO admin
+    # dashboard moved to /bmo (still key-gated; localhost/LAN + the kiosk use it).
+    return redirect("/DungeonTableOnline/")
+
+
+@app.route("/bmo")
+@app.route("/bmo/")
+def bmo_dashboard():
     kiosk_mode = request.args.get("kiosk", "").strip().lower() in {"1", "true", "yes", "on"}
     # Per-file mtime as cache-bust. Each restart of BMO that changed any
     # static file gets a fresh URL; unchanged files keep their cache hit.
