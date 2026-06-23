@@ -75,3 +75,36 @@ export const DM_TAGGING_DIRECTIVE = [
   'gold, xp ({value, reason}). Use characterName for a specific hero, omit it for the acting one.',
   'Only emit a block when something actually changes.'
 ].join(' ')
+
+const DM_ROLE =
+  'You are the Dungeon Master for a Dungeons & Dragons 5e (2024) game. Narrate vividly in the second person, ' +
+  'adjudicate the rules fairly, and keep replies to a few tight paragraphs. Address the players directly.'
+
+function capJson(v: unknown, cap: number): string {
+  try {
+    return JSON.stringify(v).slice(0, cap)
+  } catch {
+    return ''
+  }
+}
+
+export interface DmPromptContext {
+  gameState?: unknown
+  activeCreatures?: unknown
+  actingCharacterName?: string
+}
+
+/** Assemble the DM system prompt: role + the action-tag contract + live state. */
+export function buildDmSystemPrompt(ctx: DmPromptContext): string {
+  const parts = [DM_ROLE, DM_TAGGING_DIRECTIVE]
+  if (ctx.actingCharacterName) parts.push(`The acting player character is "${ctx.actingCharacterName}".`)
+  if (ctx.activeCreatures != null) {
+    const j = capJson(ctx.activeCreatures, 4000)
+    if (j) parts.push(`Active combatants and their current state (JSON): ${j}`)
+  }
+  if (ctx.gameState != null) {
+    const j = capJson(ctx.gameState, 6000)
+    if (j) parts.push(`Current game state (JSON): ${j}`)
+  }
+  return parts.join('\n\n')
+}
