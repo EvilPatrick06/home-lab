@@ -152,6 +152,80 @@ QA-2026-06-19 task 8 fixed manual fog by flipping `fogOfWar.enabled = true` insi
 
 # Info / Observations
 
+### [2026-06-22] Tests writing through a Windows-style mocked `app.getPath` create a stray `C:/` directory in the repo working tree
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+A literal directory named `C:` exists at `dnd-app/C:/tmp/logs/app.log` (~3.2 KB, last written 2026-06-09) — a leftover test artifact, not real source. `src/main/log.ts` builds its log path via `join(app.getPath('userData'), 'logs', 'app.log')`. Two main-process tests mock `app.getPath` to the Windows-style string `'C:/tmp'` (`src/main/ai/ai-service-web-search-approval.test.ts`, `src/main/ai/ai-service-file-read-cancel.test.ts`). On Linux, `join('C:/tmp', 'logs', 'app.log')` is treated as RELATIVE, so any log write during those tests materializes `./C:/tmp/logs/app.log` under the `dnd-app/` cwd. `C:` is NOT gitignored, so it appears as an untracked path and risks accidental commit. (`ai-handlers.test.ts:57` already notes that `'C:/tmp'` is relative on Linux.)
+
+**Hypothesis / root cause:** test mock returns a path that is absolute on Windows but relative on POSIX; the file-logging side effect isn't redirected to a temp dir.
+
+**Proposed fix / improvement:**
+- [ ] Delete the stray `dnd-app/C:/` directory.
+- [ ] Add `C:/` to `dnd-app/.gitignore` as a guard against re-committing the artifact.
+- [ ] Mock `app.getPath` to an `os.tmpdir()`-based path (or stub the file logger) so test FS writes never leak into the repo.
+
+**Related files:** `src/main/log.ts`, `src/main/ai/ai-service-web-search-approval.test.ts`, `src/main/ai/ai-service-file-read-cancel.test.ts`, `dnd-app/.gitignore`
+
+---
+
+### [2026-06-22] Dead code: 9 unused exports/types flagged by knip (0 external references confirmed)
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/` (`npx knip`)
+
+**Description:**
+`npm run dead-code` (knip) reports the following exports as unused; each was re-verified with a repo-wide grep (including `*.test.ts(x)`) and has ZERO external references:
+
+Functions:
+- `getLocalEndpointFlavor` — `src/main/ai/ollama-client.ts:26`
+- `getConfiguredContextLength` — `src/main/ai/ollama-context.ts:106`
+- `estimateRecapPromptTokens` — `src/main/ai/recap-context.ts:68`
+- `stopAllRegistryPollers` — `src/main/registry-bridge.ts:290`
+- `routeSoloMessageToAiDm` — `src/renderer/src/services/ai-dm-routing.ts:192`
+- `hasWizardDraft` — `src/renderer/src/services/campaign-wizard-draft.ts:43`
+
+Exported types:
+- `WorldExit`, `NpcOpinion`, `WorldFact` — `src/main/ai/world-state-store.ts:60/62/64`
+- `AiProviderId` — `src/shared/ai-defaults.ts:16`
+
+Each should be removed (if truly dead) or down-scoped to a non-exported local / wired into its intended caller. A couple (`routeSoloMessageToAiDm`, `stopAllRegistryPollers`) read like partially-wired features worth a check before deletion. `check:full` runs `dead-code` but does not fail on findings, so these accumulate silently.
+
+**Proposed fix / improvement:**
+- [ ] For each symbol, confirm it isn't reserved for an in-flight feature, then delete or un-export.
+- [ ] Consider making `npm run dead-code` fail CI on new findings once the backlog is clear.
+
+**Related files:** `src/main/ai/ollama-client.ts`, `src/main/ai/ollama-context.ts`, `src/main/ai/recap-context.ts`, `src/main/registry-bridge.ts`, `src/renderer/src/services/ai-dm-routing.ts`, `src/renderer/src/services/campaign-wizard-draft.ts`, `src/main/ai/world-state-store.ts`, `src/shared/ai-defaults.ts`
+
+---
+
+### [2026-06-22] Bundle visualizer auto-opens a browser tab on every build (`open: true`) and leaves a stale 1.1 MB `bundle-stats.html` at repo root
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+`electron.vite.config.ts:17` configures rollup-plugin-visualizer as `visualizer({ open: true, filename: 'bundle-stats.html', gzipSize: true })`. `open: true` pops open a browser tab on builds that include the visualizer — noisy for CI/headless/automated builds. The generated `bundle-stats.html` (~1.1 MB, last built 2026-04-24) sits at the `dnd-app/` root; it is correctly gitignored (`.gitignore:9`) so it won't be committed, but it is a stale leftover artifact in the working tree. Consider gating the visualizer behind an env flag (e.g. only when `ANALYZE=1`) and/or `open: false`, and writing the report under a build/output dir rather than the project root.
+
+**Proposed fix / improvement:**
+- [ ] Set `open: false` (or gate the whole visualizer behind `process.env.ANALYZE`).
+- [ ] Optionally relocate the report out of the project root.
+
+**Related files:** `electron.vite.config.ts`, `dnd-app/.gitignore`
+
+---
+
 ### `/calendar` route (real-world session-scheduling calendar) is orphaned — no main-menu entry or in-app navigation
 
 **Type:** observation · **Domain:** dnd-app · **Added:** 2026-06-20
