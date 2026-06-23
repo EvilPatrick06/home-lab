@@ -43,6 +43,7 @@ export default function SpellPicker5e({
       <div className="px-4 py-2 border-b border-gray-800 flex gap-2 items-center">
         <input
           aria-label={t('builder.spellPicker.searchPlaceholder')}
+          name="spell-search"
           type="text"
           placeholder={t('builder.spellPicker.searchPlaceholder')}
           value={search}
@@ -50,6 +51,7 @@ export default function SpellPicker5e({
           className="flex-1 bg-surface-2 border border-border rounded px-2 py-1 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-amber-600"
         />
         <select
+          name="spell-level-filter"
           value={levelFilter}
           onChange={(e) => setLevelFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))}
           className="bg-surface-2 border border-border rounded px-2 py-1 text-sm text-gray-300 focus:outline-none"

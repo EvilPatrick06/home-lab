@@ -363,6 +363,7 @@ export default function ChatPanel({
           ref={inputRef}
           data-chat-input
           type="text"
+          name="chat-input"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
@@ -513,6 +514,7 @@ export default function ChatPanel({
             ref={inputRef}
             data-chat-input
             type="text"
+            name="chat-input"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {

@@ -389,6 +389,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
               <label className="block text-xs text-muted mb-1">{t('game.encounterBuilderModal.partySize')}</label>
               <input
                 type="number"
+                name="party-size"
                 min={1}
                 max={10}
                 value={partySize}
@@ -400,6 +401,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
               <label className="block text-xs text-muted mb-1">{t('game.encounterBuilderModal.partyLevel')}</label>
               <input
                 type="number"
+                name="party-level"
                 min={1}
                 max={20}
                 value={partyLevel}
@@ -451,6 +453,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
             <label className="block text-xs text-muted mb-1">{t('game.encounterBuilderModal.searchMonsters')}</label>
             <input
               type="text"
+              name="monster-search"
               value={monsterSearch}
               onChange={(e) => setMonsterSearch(e.target.value)}
               placeholder={t('game.encounterBuilderModal.searchPlaceholder')}
@@ -488,6 +491,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
             <div className="flex items-center gap-2">
               <label className="text-xs text-muted">{t('game.encounterBuilderModal.map')}</label>
               <select
+                name="map-id"
                 value={mapId}
                 onChange={(e) => setMapId(e.target.value)}
                 className="bg-surface-2 border border-gray-600 rounded px-2 py-1 text-sm text-white"
@@ -576,6 +580,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
                             <div className="flex items-center justify-center gap-1">
                               <input
                                 type="number"
+                                name="monster-start-x"
                                 min={0}
                                 value={m.startX ?? ''}
                                 onChange={(e) => setMonsterCoord(m.id, 'startX', e.target.value)}
@@ -584,6 +589,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
                               />
                               <input
                                 type="number"
+                                name="monster-start-y"
                                 min={0}
                                 value={m.startY ?? ''}
                                 onChange={(e) => setMonsterCoord(m.id, 'startY', e.target.value)}
@@ -638,6 +644,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
             <div className="flex gap-2 items-center">
               <input
                 type="text"
+                name="preset-name"
                 value={presetName}
                 onChange={(e) => setPresetName(e.target.value)}
                 placeholder={t('game.encounterBuilderModal.presetNamePlaceholder')}

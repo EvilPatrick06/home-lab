@@ -482,6 +482,7 @@ export function SpecialTab({
                   <div className="flex items-center gap-2 mt-2">
                     <span className="text-xs text-gray-500">{t('pages.facilityTabs.type')}</span>
                     <select
+                      name="garden-type"
                       value={f.gardenType || 'herb'}
                       onChange={(e) => onConfigure(f.id, { gardenType: e.target.value })}
                       className="bg-surface-2 border border-border rounded px-2 py-0.5 text-xs text-gray-300 focus:outline-none focus:border-amber-500"
@@ -497,6 +498,7 @@ export function SpecialTab({
                   <div className="flex items-center gap-2 mt-2">
                     <span className="text-xs text-gray-500">{t('pages.facilityTabs.trainer')}</span>
                     <select
+                      name="trainer-type"
                       value={f.trainerType || 'battle'}
                       onChange={(e) => onConfigure(f.id, { trainerType: e.target.value })}
                       className="bg-surface-2 border border-border rounded px-2 py-0.5 text-xs text-gray-300 focus:outline-none focus:border-amber-500"

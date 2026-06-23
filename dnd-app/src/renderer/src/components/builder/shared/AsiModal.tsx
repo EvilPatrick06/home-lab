@@ -263,6 +263,7 @@ export default function AsiModal(): JSX.Element {
           <>
             <p className="text-sm text-muted mb-3">{t('builder.asiModal.featInstruction')}</p>
             <input
+              name="feat-search"
               aria-label={t('builder.asiModal.searchFeats')}
               type="text"
               placeholder={t('builder.asiModal.searchFeats')}

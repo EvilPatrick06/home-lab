@@ -46,6 +46,7 @@ export default function PermissionsEditor({ campaign }: { campaign: Campaign }):
       <div className="flex gap-2">
         <input
           type="text"
+          name="new-role-name"
           value={newRoleName}
           onChange={(e) => setNewRoleName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
@@ -168,6 +169,7 @@ function RoleRow({
         <div className="p-3 space-y-3">
           <input
             type="text"
+            name="permission-filter"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder={t('campaign.permissionsEditor.filterPlaceholder')}
@@ -198,6 +200,7 @@ function RoleRow({
                     <label key={key} className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
                       <input
                         type="checkbox"
+                        name="permission"
                         checked={granted.has(key)}
                         onChange={(e) => setPermission(key, e.target.checked)}
                         className="w-3.5 h-3.5 rounded border-gray-600 bg-surface-2 text-accent-strong"

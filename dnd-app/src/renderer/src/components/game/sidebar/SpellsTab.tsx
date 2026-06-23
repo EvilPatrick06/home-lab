@@ -102,6 +102,7 @@ export default function SpellsTab(): JSX.Element {
       {/* Search bar */}
       <input
         type="text"
+        name="spell-search"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder={t('game.spellsTab.searchPlaceholder')}
@@ -178,6 +179,7 @@ export default function SpellsTab(): JSX.Element {
             <span className="text-xs text-muted">{t('game.spellsTab.lv')}</span>
             <input
               type="number"
+              name="ref-level"
               min={1}
               max={20}
               value={refLevel}

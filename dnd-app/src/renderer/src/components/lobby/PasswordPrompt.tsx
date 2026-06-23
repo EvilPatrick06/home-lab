@@ -28,6 +28,7 @@ export default function PasswordPrompt({ gameName, onSubmit, onCancel }: Passwor
         </p>
         <input
           type="text"
+          name="invite-code"
           value={code}
           autoFocus
           onChange={(e) => setCode(e.target.value.toUpperCase().replace(/\s+/g, ''))}

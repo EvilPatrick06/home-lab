@@ -148,6 +148,7 @@ export default function PlayByPostSection({ campaign }: PlayByPostSectionProps):
           {!session?.active ? (
             <>
               <input
+                name="pbp-scene"
                 className="w-full bg-surface-2 border border-border rounded px-2 py-1"
                 placeholder={t('game.pbp.scenePlaceholder')}
                 value={scene}
@@ -185,6 +186,7 @@ export default function PlayByPostSection({ campaign }: PlayByPostSectionProps):
               <label className="flex items-center gap-2">
                 {t('game.pbp.cadence')}
                 <select
+                  name="pbp-reminder-hours"
                   className="bg-surface-2 border border-border rounded px-1 py-0.5"
                   value={reminderHours}
                   onChange={(e) => setReminderHours(Number.parseInt(e.target.value, 10))}
@@ -197,7 +199,12 @@ export default function PlayByPostSection({ campaign }: PlayByPostSectionProps):
                 </select>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={autoSkip} onChange={(e) => setAutoSkip(e.target.checked)} />
+                <input
+                  type="checkbox"
+                  name="pbp-auto-skip"
+                  checked={autoSkip}
+                  onChange={(e) => setAutoSkip(e.target.checked)}
+                />
                 {t('game.pbp.autoSkip')}
               </label>
               <p className="text-[11px] text-gray-500">{t('game.pbp.autoSkipHint')}</p>
@@ -231,7 +238,12 @@ export default function PlayByPostSection({ campaign }: PlayByPostSectionProps):
                 </button>
               </div>
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={autoAdvance} onChange={(e) => setAutoAdvance(e.target.checked)} />
+                <input
+                  type="checkbox"
+                  name="pbp-auto-advance"
+                  checked={autoAdvance}
+                  onChange={(e) => setAutoAdvance(e.target.checked)}
+                />
                 {t('game.pbp.autoAdvance')}
               </label>
             </>

@@ -49,6 +49,7 @@ export default function PlayerHUDStats({
         {editingHP ? (
           <input
             type="number"
+            name="hp-input"
             value={hpInput}
             onChange={(e) => setHpInput(e.target.value)}
             onBlur={handleHPEdit}

@@ -193,6 +193,7 @@ export default function SharedJournalModal({
           <input
             aria-label={t('game.sharedJournalModal.titlePlaceholder')}
             type="text"
+            name="journal-title"
             placeholder={t('game.sharedJournalModal.titlePlaceholder')}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -200,6 +201,7 @@ export default function SharedJournalModal({
           />
           <textarea
             aria-label={t('game.sharedJournalModal.contentPlaceholder')}
+            name="journal-content"
             placeholder={t('game.sharedJournalModal.contentPlaceholder')}
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -217,6 +219,7 @@ export default function SharedJournalModal({
               <>
                 <span className="text-xs text-gray-500">{t('game.sharedJournalModal.visibilityLabel')}</span>
                 <select
+                  name="journal-visibility"
                   value={visibility}
                   onChange={(e) => setVisibility(e.target.value as 'public' | 'private')}
                   className="bg-surface-2 border border-border rounded px-2 py-0.5 text-xs text-gray-300 outline-none cursor-pointer"

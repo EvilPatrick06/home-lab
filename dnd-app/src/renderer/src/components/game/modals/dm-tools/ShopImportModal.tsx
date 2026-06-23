@@ -109,6 +109,7 @@ export default function ShopImportModal({ importMode, onClose, onImport }: ShopI
         </div>
 
         <input
+          name="import-search"
           type="text"
           value={importSearch}
           onChange={(e) => setImportSearch(e.target.value)}
@@ -128,6 +129,7 @@ export default function ShopImportModal({ importMode, onClose, onImport }: ShopI
               className="flex items-center gap-2 bg-surface-2/50 hover:bg-surface-2 rounded px-3 py-1.5 text-xs cursor-pointer"
             >
               <input
+                name="import-item"
                 type="checkbox"
                 checked={selectedImports.has(item.id)}
                 onChange={() => toggleImportSelection(item.id)}

@@ -52,6 +52,7 @@ export default function PlayerHUDActions({
         <span className="text-xs text-gray-500 w-14">{t('game.playerHUDActions.tempHp')}</span>
         {editingTempHP ? (
           <input
+            name="temp-hp"
             type="number"
             value={tempHPInput}
             onChange={(e) => setTempHPInput(e.target.value)}

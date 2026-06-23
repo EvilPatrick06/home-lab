@@ -66,6 +66,7 @@ export default function TimelineCard({ campaign, saveCampaign }: TimelineCardPro
         <div className="mb-4 p-3 bg-surface-2/50 rounded-lg space-y-2">
           <input
             aria-label={t('pages.timelineCard.milestoneTitlePlaceholder')}
+            name="milestone-title"
             type="text"
             placeholder={t('pages.timelineCard.milestoneTitlePlaceholder')}
             value={newMilestone.title}
@@ -74,6 +75,7 @@ export default function TimelineCard({ campaign, saveCampaign }: TimelineCardPro
           />
           <input
             aria-label={t('pages.timelineCard.descriptionPlaceholder')}
+            name="milestone-description"
             type="text"
             placeholder={t('pages.timelineCard.descriptionPlaceholder')}
             value={newMilestone.description}
@@ -83,11 +85,13 @@ export default function TimelineCard({ campaign, saveCampaign }: TimelineCardPro
           <div className="flex gap-2">
             <input
               type="date"
+              name="milestone-date"
               value={newMilestone.date}
               onChange={(e) => setNewMilestone((m) => ({ ...m, date: e.target.value }))}
               className="flex-1 bg-surface border border-border rounded px-2 py-1.5 text-sm text-fg focus:outline-none focus:border-amber-500"
             />
             <select
+              name="milestone-category"
               value={newMilestone.category}
               onChange={(e) =>
                 setNewMilestone((m) => ({ ...m, category: e.target.value as TimelineMilestone['category'] }))

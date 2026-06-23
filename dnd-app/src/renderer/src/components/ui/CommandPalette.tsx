@@ -99,6 +99,7 @@ export default function CommandPalette(): JSX.Element | null {
       >
         <input
           ref={inputRef}
+          name="command-palette-query"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => {

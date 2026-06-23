@@ -139,6 +139,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
         </div>
         <input
           type="checkbox"
+          name="discord-enabled"
           checked={config.enabled}
           onChange={(e) => updateConfig({ enabled: e.target.checked })}
           className="w-4 h-4 accent-amber-500 cursor-pointer"
@@ -183,6 +184,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
                 <label className="text-sm text-gray-300 block mb-1">{t('ui.discordIntegration.webhookUrlLabel')}</label>
                 <input
                   aria-label="https://discord.com/api/webhooks/..."
+                  name="discord-webhook-url"
                   type="password"
                   placeholder="https://discord.com/api/webhooks/..."
                   value={config.webhookUrl}
@@ -201,6 +203,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
                 <label className="text-sm text-gray-300 block mb-1">{t('ui.discordIntegration.botTokenLabel')}</label>
                 <input
                   aria-label={t('ui.discordIntegration.botTokenPlaceholder')}
+                  name="discord-bot-token"
                   type="password"
                   placeholder={t('ui.discordIntegration.botTokenPlaceholder')}
                   value={config.botToken}
@@ -213,6 +216,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
                 <label className="text-sm text-gray-300 block mb-1">{t('ui.discordIntegration.userIdLabel')}</label>
                 <input
                   aria-label={t('ui.discordIntegration.userIdPlaceholder')}
+                  name="discord-user-id"
                   type="text"
                   placeholder={t('ui.discordIntegration.userIdPlaceholder')}
                   value={config.userId}

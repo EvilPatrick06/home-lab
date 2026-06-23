@@ -432,6 +432,7 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
               <div className="flex gap-2">
                 <input
                   aria-label={t('sheet.equipmentList.itemNamePlaceholder')}
+                  name="equipment-name"
                   type="text"
                   placeholder={t('sheet.equipmentList.itemNamePlaceholder')}
                   value={equipmentForm.name}
@@ -440,6 +441,7 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
                 />
                 <input
                   aria-label={t('sheet.equipmentList.qtyPlaceholder')}
+                  name="equipment-quantity"
                   type="number"
                   min={1}
                   placeholder={t('sheet.equipmentList.qtyPlaceholder')}
@@ -472,6 +474,7 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
               <div className="text-xs text-muted font-medium mb-1">{t('sheet.equipmentList.gearShop')}</div>
               <input
                 aria-label={t('sheet.equipmentList.searchGearPlaceholder')}
+                name="gear-search"
                 type="text"
                 placeholder={t('sheet.equipmentList.searchGearPlaceholder')}
                 value={gearSearch}

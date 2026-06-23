@@ -245,6 +245,7 @@ function MagicItemCard5e({
         <div className="mt-1 flex items-center gap-2">
           {isWeaponType && weapons.length > 0 && (
             <select
+              name="linked-weapon"
               value={item.linkedWeaponId ?? ''}
               onChange={(e) => {
                 const latest = getLatest()
@@ -270,6 +271,7 @@ function MagicItemCard5e({
           )}
           {isArmorType && armors.length > 0 && (
             <select
+              name="linked-armor"
               value={item.linkedArmorId ?? ''}
               onChange={(e) => {
                 const latest = getLatest()

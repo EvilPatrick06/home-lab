@@ -86,6 +86,7 @@ export default function CommandReferenceModal({ isDM, onClose }: CommandReferenc
 
         <input
           type="text"
+          name="command-search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={t('game.commandReferenceModal.searchPlaceholder')}

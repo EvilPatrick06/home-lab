@@ -129,6 +129,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
           <div className="flex items-center gap-2">
             <input
               aria-label={t('game.handoutModal.titlePlaceholder')}
+              name="handout-title"
               type="text"
               placeholder={t('game.handoutModal.titlePlaceholder')}
               value={title}
@@ -164,6 +165,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
           {contentType === 'text' ? (
             <textarea
               aria-label={t('game.handoutModal.textPlaceholder')}
+              name="handout-content"
               placeholder={t('game.handoutModal.textPlaceholder')}
               value={content}
               onChange={(e) => setContent(e.target.value)}
@@ -174,6 +176,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
             <div className="space-y-2">
               <input
                 ref={fileInputRef}
+                name="handout-image"
                 type="file"
                 accept="image/*"
                 onChange={handleFileUpload}
@@ -202,6 +205,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
               <>
                 <span className="text-xs text-gray-500">{t('game.handoutModal.visibility')}</span>
                 <select
+                  name="handout-visibility"
                   value={visibility}
                   onChange={(e) => setVisibility(e.target.value as 'all' | 'dm-only')}
                   className="bg-surface-2 border border-border rounded px-2 py-0.5 text-xs text-gray-300 outline-none cursor-pointer"
@@ -224,6 +228,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                   <div className="flex items-center gap-2">
                     <input
                       aria-label={t('game.handoutModal.pageLabelPlaceholder', { num: idx + 2 })}
+                      name="page-label"
                       type="text"
                       placeholder={t('game.handoutModal.pageLabelPlaceholder', { num: idx + 2 })}
                       value={page.label ?? ''}
@@ -231,6 +236,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                       className="flex-1 bg-surface-2 border border-border rounded px-2 py-0.5 text-xs text-gray-200 outline-none"
                     />
                     <select
+                      name="page-content-type"
                       value={page.contentType}
                       onChange={(e) =>
                         updatePage(page.id, { contentType: e.target.value as 'text' | 'image', content: '' })
@@ -242,6 +248,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                     </select>
                     <label className="flex items-center gap-1 text-xs text-muted cursor-pointer">
                       <input
+                        name="page-dm-only"
                         type="checkbox"
                         checked={page.dmOnly ?? false}
                         onChange={(e) => updatePage(page.id, { dmOnly: e.target.checked })}
@@ -259,6 +266,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                   {page.contentType === 'text' ? (
                     <textarea
                       aria-label={t('game.handoutModal.pageContentPlaceholder')}
+                      name="page-content"
                       placeholder={t('game.handoutModal.pageContentPlaceholder')}
                       value={page.content}
                       onChange={(e) => updatePage(page.id, { content: e.target.value })}
@@ -267,6 +275,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                     />
                   ) : (
                     <input
+                      name="page-image"
                       type="file"
                       accept="image/*"
                       onChange={(e) => {

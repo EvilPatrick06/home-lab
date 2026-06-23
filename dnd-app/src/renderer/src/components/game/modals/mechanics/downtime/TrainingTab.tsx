@@ -213,6 +213,7 @@ export default function TrainingTab({
 
         {/* Selection dropdown */}
         <select
+          name="training-target"
           value={selectedTarget}
           onChange={(e) => setSelectedTarget(e.target.value)}
           className="w-full bg-surface-2 border border-gray-600 rounded text-xs text-gray-200 px-2 py-1.5"

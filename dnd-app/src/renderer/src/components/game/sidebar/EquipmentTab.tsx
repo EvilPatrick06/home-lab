@@ -46,6 +46,7 @@ export default function EquipmentTab(): JSX.Element {
   return (
     <div className="flex flex-col gap-2 min-h-0">
       <input
+        name="equipment-search"
         type="text"
         value={search}
         onChange={(e) => setSearch(e.target.value)}

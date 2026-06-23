@@ -97,6 +97,7 @@ export default function EndOfSessionModal({ open, onClose, onSkip }: EndOfSessio
               {t('game.endOfSessionModal.recapDraft')}
             </h4>
             <textarea
+              name="recap-text"
               className="w-full h-32 bg-transparent text-sm text-gray-200 resize-none focus:outline-none"
               value={recapText}
               onChange={(e) => setRecapText(e.target.value)}

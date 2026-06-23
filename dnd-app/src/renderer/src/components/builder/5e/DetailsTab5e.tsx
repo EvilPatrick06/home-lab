@@ -115,6 +115,7 @@ export default function DetailsTab5e(): JSX.Element {
           <div className="px-4 py-3 border-b border-gray-800">
             <p className="text-xs text-gray-500 mb-2">{t('builder.detailsTab.versatileFeatHint')}</p>
             <select
+              name="versatile-feat"
               value={versatileFeatId ?? ''}
               onChange={(e) => setVersatileFeat(e.target.value || null)}
               className="w-full bg-surface-2 border border-border rounded px-2 py-1.5 text-sm text-fg focus:outline-none focus:border-amber-500"

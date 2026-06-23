@@ -223,6 +223,7 @@ function SoundCustomizationSection(): JSX.Element {
           )}
           {unusedEvents.length > 0 && (
             <select
+              name="sound-override"
               className="w-full mt-1 p-1 text-xs rounded bg-surface-2 border border-border text-gray-300"
               value=""
               onChange={(e) => {
@@ -354,6 +355,7 @@ export default function SettingsDropdown({
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted">{t('game.settingsDropdown.turnMode')}</span>
                 <select
+                  name="turn-mode"
                   value={turnMode}
                   onChange={(e) => {
                     const val = e.target.value as 'initiative' | 'free'

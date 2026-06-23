@@ -200,6 +200,7 @@ export function FogToolbar({
           <div className="border-l border-border h-5 mx-1" />
           <label className="flex items-center gap-1 cursor-pointer">
             <input
+              name="dynamic-fog"
               type="checkbox"
               checked={dynamicFogEnabled ?? false}
               onChange={(e) => onDynamicFogToggle(e.target.checked)}

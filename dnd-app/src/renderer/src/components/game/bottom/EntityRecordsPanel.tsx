@@ -165,6 +165,7 @@ export default function EntityRecordsPanel({ campaignId }: EntityRecordsPanelPro
         <label className="flex items-center gap-1.5 cursor-pointer">
           <input
             type="checkbox"
+            name="entities-enabled"
             checked={config.enabled}
             onChange={(e) => patchConfig({ enabled: e.target.checked })}
           />
@@ -173,6 +174,7 @@ export default function EntityRecordsPanel({ campaignId }: EntityRecordsPanelPro
         <label className={`flex items-center gap-1.5 ${config.enabled ? 'cursor-pointer' : 'opacity-40'}`}>
           <input
             type="checkbox"
+            name="entities-auto-extract"
             checked={config.autoExtract}
             disabled={!config.enabled}
             onChange={(e) => patchConfig({ autoExtract: e.target.checked })}
@@ -183,6 +185,7 @@ export default function EntityRecordsPanel({ campaignId }: EntityRecordsPanelPro
           {t('game.entityRecordsPanel.loreMode')}
           <select
             value={config.loreMode}
+            name="lore-mode"
             onChange={(e) => patchConfig({ loreMode: e.target.value as 'all' | 'triggered' })}
             className="bg-surface-2 border border-border rounded px-1 py-0.5 text-xs"
           >
@@ -247,6 +250,7 @@ export default function EntityRecordsPanel({ campaignId }: EntityRecordsPanelPro
             <label className="block text-muted text-xs mb-1">{t('game.entityRecordsPanel.nameLabel')}</label>
             <input
               type="text"
+              name="entity-name"
               value={form.name}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg"
@@ -257,6 +261,7 @@ export default function EntityRecordsPanel({ campaignId }: EntityRecordsPanelPro
               <label className="block text-muted text-xs mb-1">{t('game.entityRecordsPanel.kindLabel')}</label>
               <select
                 value={form.kind}
+                name="entity-kind"
                 onChange={(e) => setForm((f) => ({ ...f, kind: e.target.value as EntityKind }))}
                 className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg"
               >
@@ -271,6 +276,7 @@ export default function EntityRecordsPanel({ campaignId }: EntityRecordsPanelPro
               <label className="block text-muted text-xs mb-1">{t('game.entityRecordsPanel.injectionLabel')}</label>
               <select
                 value={form.injection}
+                name="entity-injection"
                 onChange={(e) => setForm((f) => ({ ...f, injection: e.target.value as Injection }))}
                 className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg"
               >
@@ -286,6 +292,7 @@ export default function EntityRecordsPanel({ campaignId }: EntityRecordsPanelPro
             <label className="block text-muted text-xs mb-1">{t('game.entityRecordsPanel.summaryLabel')}</label>
             <textarea
               value={form.summary}
+              name="entity-summary"
               maxLength={400}
               onChange={(e) => setForm((f) => ({ ...f, summary: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg h-20 resize-none"
@@ -295,6 +302,7 @@ export default function EntityRecordsPanel({ campaignId }: EntityRecordsPanelPro
             <label className="block text-muted text-xs mb-1">{t('game.entityRecordsPanel.detailsLabel')}</label>
             <textarea
               value={form.details}
+              name="entity-details"
               maxLength={1200}
               onChange={(e) => setForm((f) => ({ ...f, details: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg h-24 resize-none"
@@ -304,6 +312,7 @@ export default function EntityRecordsPanel({ campaignId }: EntityRecordsPanelPro
             <label className="block text-muted text-xs mb-1">{t('game.entityRecordsPanel.aliasesLabel')}</label>
             <input
               type="text"
+              name="entity-aliases"
               value={form.aliases}
               onChange={(e) => setForm((f) => ({ ...f, aliases: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg"
@@ -314,6 +323,7 @@ export default function EntityRecordsPanel({ campaignId }: EntityRecordsPanelPro
             <label className="block text-muted text-xs mb-1">{t('game.entityRecordsPanel.keywordsLabel')}</label>
             <input
               type="text"
+              name="entity-keywords"
               value={form.keywords}
               onChange={(e) => setForm((f) => ({ ...f, keywords: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg"

@@ -110,6 +110,7 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
             <div className="flex items-center gap-3 mb-2">
               <input
                 type="checkbox"
+                name="pc-selected"
                 checked={state.selected}
                 onChange={() => updateState(pc.id, { selected: !state.selected })}
                 className="accent-amber-500"
@@ -166,6 +167,7 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
                       <span className="text-xs text-gray-500">{t('game.shortRestPanel.spend')}</span>
                       <input
                         type="number"
+                        name="dice-count"
                         min={0}
                         max={pc.hitDice.reduce((s, h) => s + h.current, 0)}
                         value={state.diceCount}

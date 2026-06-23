@@ -12,6 +12,7 @@ export default function LibraryFilters(): JSX.Element {
     <div className="mb-4">
       <input
         type="text"
+        name="library-search"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         placeholder={t('pages.libraryFilters.searchPlaceholder')}

@@ -94,6 +94,7 @@ function MagicItemSlot({
             <input
               aria-label={t('builder.higherLevelEquipment.searchPlaceholder', { rarity: rarityLabel })}
               type="text"
+              name="magic-item-search"
               placeholder={t('builder.higherLevelEquipment.searchPlaceholder', { rarity: rarityLabel })}
               value={search}
               onChange={(e) => setSearch(e.target.value)}

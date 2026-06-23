@@ -386,6 +386,7 @@ export function DrawingToolbar({
                 >
                   <input
                     type="color"
+                    name="draw-color"
                     value={color}
                     onChange={(e) => onColorChange(e.target.value)}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
@@ -394,6 +395,7 @@ export function DrawingToolbar({
                 </label>
                 <input
                   type="text"
+                  name="draw-color-hex"
                   value={color}
                   onChange={(e) => {
                     const v = e.target.value

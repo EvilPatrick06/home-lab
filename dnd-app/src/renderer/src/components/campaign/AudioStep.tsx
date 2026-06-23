@@ -202,6 +202,7 @@ export default function AudioStep({ audioEntries, onChange, onFilesChange }: Aud
           <input
             ref={fileInputRef}
             type="file"
+            name="audio-files"
             accept=".mp3,.ogg,.wav,.webm,.m4a"
             multiple
             className="hidden"
@@ -236,6 +237,7 @@ export default function AudioStep({ audioEntries, onChange, onFilesChange }: Aud
                 {/* Display name input */}
                 <input
                   type="text"
+                  name="audio-display-name"
                   value={entry.displayName}
                   onChange={(e) => handleDisplayNameChange(entry.id, e.target.value)}
                   className="flex-1 min-w-0 bg-surface-2 border border-border rounded px-3 py-1.5 text-sm text-fg focus:outline-none focus:border-amber-500 transition-colors"
@@ -244,6 +246,7 @@ export default function AudioStep({ audioEntries, onChange, onFilesChange }: Aud
 
                 {/* Category dropdown */}
                 <select
+                  name="audio-category"
                   value={entry.category}
                   onChange={(e) => handleCategoryChange(entry.id, e.target.value as AudioCategory)}
                   className="bg-surface-2 border border-border rounded px-2 py-1.5 text-sm text-fg focus:outline-none focus:border-amber-500 transition-colors cursor-pointer"

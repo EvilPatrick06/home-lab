@@ -31,6 +31,7 @@ export function AutoSaveSection(): JSX.Element {
           </div>
           <input
             type="checkbox"
+            name="auto-save-enabled"
             checked={autoSaveEnabled}
             onChange={(e) => {
               const val = e.target.checked
@@ -44,6 +45,7 @@ export function AutoSaveSection(): JSX.Element {
           <span className="text-sm text-gray-300">{t('pages.settingsPage.intervalMinutes')}</span>
           <input
             type="number"
+            name="auto-save-interval"
             min={1}
             max={60}
             value={autoSaveIntervalDraft}

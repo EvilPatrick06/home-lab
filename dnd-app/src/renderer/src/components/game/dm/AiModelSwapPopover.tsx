@@ -87,6 +87,7 @@ export default function AiModelSwapPopover({
           </div>
           <select
             value={selected}
+            name="ai-model"
             onChange={(e) => setSelected(e.target.value)}
             className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs mb-2 focus:outline-none focus:border-amber-500"
           >

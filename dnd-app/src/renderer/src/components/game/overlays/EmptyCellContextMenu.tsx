@@ -177,6 +177,7 @@ export default function EmptyCellContextMenu({
         <div className="p-2 w-64">
           <input
             type="text"
+            name="monster-search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('game.emptyCellContextMenu.searchPlaceholder')}

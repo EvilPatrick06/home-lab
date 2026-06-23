@@ -62,6 +62,7 @@ export default function JumpModal({
         <label className="flex items-center gap-2 cursor-pointer">
           <input
             type="checkbox"
+            name="running-start"
             checked={runningStart}
             onChange={(e) => setRunningStart(e.target.checked)}
             className="accent-amber-600"

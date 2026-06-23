@@ -149,6 +149,7 @@ export default function AddEntryForm({
         {!isPlaces && (
           <select
             value=""
+            name="npc-template"
             onChange={(e) => {
               const template = NPC_TEMPLATES.find((t) => t.name === e.target.value)
               if (template) {
@@ -192,6 +193,7 @@ export default function AddEntryForm({
 
         <input
           type="text"
+          name="entry-name"
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
@@ -203,6 +205,7 @@ export default function AddEntryForm({
           <>
             <select
               value={newPlaceType}
+              name="place-type"
               onChange={(e) => setNewPlaceType(e.target.value as PlaceType | '')}
               className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
             >
@@ -215,6 +218,7 @@ export default function AddEntryForm({
             </select>
             <select
               value={newParentId}
+              name="parent-id"
               onChange={(e) => setNewParentId(e.target.value)}
               className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
             >
@@ -227,6 +231,7 @@ export default function AddEntryForm({
             </select>
             <select
               value={newLinkedMapId}
+              name="linked-map-id"
               onChange={(e) => setNewLinkedMapId(e.target.value)}
               className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
             >
@@ -242,6 +247,7 @@ export default function AddEntryForm({
 
         <textarea
           value={newDesc}
+          name="entry-description"
           onChange={(e) => setNewDesc(e.target.value)}
           className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500 resize-none"
           rows={2}
@@ -252,6 +258,7 @@ export default function AddEntryForm({
         <label className="flex items-center gap-1.5 text-xs text-muted cursor-pointer">
           <input
             type="checkbox"
+            name="visible-to-players"
             checked={newVisible}
             onChange={(e) => setNewVisible(e.target.checked)}
             className="accent-amber-500"

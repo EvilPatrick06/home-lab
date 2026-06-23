@@ -109,6 +109,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
                 ))}
               <input
                 aria-label={t('sheet.toolProficiencies.customPlaceholder')}
+                name="custom-armor-proficiency"
                 type="text"
                 placeholder={t('sheet.toolProficiencies.customPlaceholder')}
                 value={customProfInput}
@@ -302,6 +303,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
               <div className="flex items-center gap-1">
                 <input
                   aria-label={t('sheet.toolProficiencies.customToolPlaceholder')}
+                  name="custom-tool-proficiency"
                   type="text"
                   placeholder={t('sheet.toolProficiencies.customToolPlaceholder')}
                   value={customProfInput}

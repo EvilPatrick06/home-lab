@@ -250,6 +250,7 @@ export default function SpellSelectionSection5e({
       <label className="flex items-center gap-2 text-xs text-gray-500 mb-2 cursor-pointer select-none">
         <input
           type="checkbox"
+          name="show-all-spells"
           checked={showAllSpells}
           onChange={(e) => setShowAllSpells(e.target.checked)}
           className="accent-amber-500"
@@ -324,6 +325,7 @@ export default function SpellSelectionSection5e({
           {spellSwaps.length < maxSwaps && (
             <div className="flex flex-col gap-1 mt-1">
               <select
+                name="spell-to-replace"
                 value={swapRemoveId}
                 onChange={(e) => setSwapRemoveId(e.target.value)}
                 className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
@@ -339,6 +341,7 @@ export default function SpellSelectionSection5e({
               </select>
               {swapRemoveId && (
                 <select
+                  name="replacement-spell"
                   value=""
                   onChange={(e) => {
                     if (e.target.value) {

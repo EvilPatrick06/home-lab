@@ -50,6 +50,7 @@ export default function TimerModal({ onClose }: TimerModalProps): JSX.Element {
             <label className="text-xs text-muted block mb-1">{t('game.timerModal.target')}</label>
             <input
               type="text"
+              name="timer-target-name"
               value={targetName}
               onChange={(e) => setTargetName(e.target.value)}
               placeholder={t('game.timerModal.targetPlaceholder')}
@@ -76,6 +77,7 @@ export default function TimerModal({ onClose }: TimerModalProps): JSX.Element {
             </div>
             <input
               type="number"
+              name="timer-seconds"
               value={seconds}
               onChange={(e) => setSeconds(Math.max(1, parseInt(e.target.value, 10) || 0))}
               min={1}

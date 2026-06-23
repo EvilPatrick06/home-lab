@@ -49,6 +49,7 @@ export default function GameList({ games, registryConnected, onJoin, onSpectate 
         <div className="flex-1 min-w-0">
           <input
             type="text"
+            name="game-search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('lobby.gameList.searchPlaceholder')}
@@ -57,6 +58,7 @@ export default function GameList({ games, registryConnected, onJoin, onSpectate 
         </div>
         <div className="flex items-center gap-2">
           <select
+            name="system-filter"
             value={systemFilter}
             onChange={(e) => setSystemFilter(e.target.value)}
             className="px-2 py-2 bg-surface border border-border rounded-md text-sm text-gray-200"
@@ -68,6 +70,7 @@ export default function GameList({ games, registryConnected, onJoin, onSpectate 
             ))}
           </select>
           <select
+            name="game-sort"
             value={sort}
             onChange={(e) => setSort(e.target.value as SortOption)}
             className="px-2 py-2 bg-surface border border-border rounded-md text-sm text-gray-200"
@@ -77,7 +80,12 @@ export default function GameList({ games, registryConnected, onJoin, onSpectate 
             <option value="players-desc">{t('lobby.gameList.sortPlayersDesc')}</option>
           </select>
           <label className="flex items-center gap-1 text-xs text-muted select-none cursor-pointer">
-            <input type="checkbox" checked={hideFull} onChange={(e) => setHideFull(e.target.checked)} />
+            <input
+              type="checkbox"
+              name="hide-full"
+              checked={hideFull}
+              onChange={(e) => setHideFull(e.target.checked)}
+            />
             {t('lobby.gameList.hideFull')}
           </label>
         </div>

@@ -51,6 +51,7 @@ export default function CoinBadge({
         <input
           ref={inputRef}
           type="number"
+          name="coin-value"
           min={0}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}

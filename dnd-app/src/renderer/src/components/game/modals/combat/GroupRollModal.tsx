@@ -210,6 +210,7 @@ export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRoll
             <div>
               <label className="block text-sm text-muted mb-1">{t('game.groupRollModal.skill')}</label>
               <select
+                name="skill"
                 value={skill}
                 onChange={(e) => setSkill(e.target.value)}
                 className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
@@ -225,6 +226,7 @@ export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRoll
             <div>
               <label className="block text-sm text-muted mb-1">{t('game.groupRollModal.ability')}</label>
               <select
+                name="ability"
                 value={ability}
                 onChange={(e) => setAbility(e.target.value)}
                 className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
@@ -244,6 +246,7 @@ export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRoll
               <label className="block text-sm text-muted mb-1">{t('game.groupRollModal.dc')}</label>
               <input
                 type="number"
+                name="dc"
                 min={1}
                 max={30}
                 value={dc}
@@ -254,6 +257,7 @@ export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRoll
             <div className="flex-1">
               <label className="block text-sm text-muted mb-1">{t('game.groupRollModal.scope')}</label>
               <select
+                name="scope"
                 value={scope}
                 onChange={(e) => setScope(e.target.value as 'all' | 'selected')}
                 className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
@@ -268,6 +272,7 @@ export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRoll
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
+              name="is-secret"
               checked={isSecret}
               onChange={(e) => setIsSecret(e.target.checked)}
               className="rounded bg-surface-2 border-gray-600 text-amber-600 focus:ring-amber-500"

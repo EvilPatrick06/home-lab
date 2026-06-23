@@ -66,6 +66,7 @@ export function AddBasicFacilityModal({
         <div className="flex flex-col gap-1">
           <label className="text-xs text-gray-500">{t('pages.addBasicFacilityModal.type')}</label>
           <select
+            name="basic-type"
             value={basicType}
             onChange={(e) => setBasicType(e.target.value as BasicFacilityType)}
             className="bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -85,6 +86,7 @@ export function AddBasicFacilityModal({
         <div className="flex flex-col gap-1">
           <label className="text-xs text-gray-500">{t('pages.addBasicFacilityModal.size')}</label>
           <select
+            name="basic-space"
             value={basicSpace}
             onChange={(e) => setBasicSpace(e.target.value as FacilitySpace)}
             className="bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -284,6 +286,7 @@ export function AddSpecialFacilityModal({
         <label className="flex items-center gap-2 text-xs text-muted">
           <input
             type="checkbox"
+            name="faction-override"
             checked={factionOverride}
             onChange={(e) => setFactionOverride(e.target.checked)}
             className="rounded bg-surface-2 border-gray-600"

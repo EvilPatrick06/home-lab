@@ -199,6 +199,7 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
           {pickerTab === 'custom' ? (
             <div className="space-y-2">
               <input
+                name="custom-condition-name"
                 type="text"
                 value={customName}
                 onChange={(e) => setCustomName(e.target.value)}
@@ -225,6 +226,7 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
                   </button>
                 </div>
                 <input
+                  name="custom-condition-value"
                   type="number"
                   value={customValue}
                   onChange={(e) => setCustomValue(e.target.value)}

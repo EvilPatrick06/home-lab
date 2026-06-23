@@ -158,6 +158,7 @@ export function GeneralFeatPicker({
             <div key={key} className="mt-2">
               <label className="text-xs text-amber-300 block mb-1">{config.label}</label>
               <select
+                name="feat-choice"
                 value={pendingChoices[key] ?? (selection.choices?.[key] as string) ?? ''}
                 onChange={(e) => {
                   const newChoices = { ...pendingChoices, [key]: e.target.value }
@@ -192,6 +193,7 @@ export function GeneralFeatPicker({
           <input
             aria-label={t('levelup.generalFeatPicker.searchPlaceholder')}
             type="text"
+            name="feat-search"
             placeholder={t('levelup.generalFeatPicker.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}

@@ -189,6 +189,7 @@ export function UpdateSection(): JSX.Element {
         <p className="text-xs uppercase tracking-wider text-gray-500">{t('pages.settingsPage.autoUpdatePrefs')}</p>
         <label className="flex items-start gap-2 text-xs text-gray-300 cursor-pointer">
           <input
+            name="auto-check-updates"
             type="checkbox"
             checked={autoCheckUpdates}
             onChange={(e) => {
@@ -204,6 +205,7 @@ export function UpdateSection(): JSX.Element {
         </label>
         <label className="flex items-start gap-2 text-xs text-gray-300 cursor-pointer">
           <input
+            name="auto-download-updates"
             type="checkbox"
             checked={autoDownloadUpdates}
             disabled={!autoCheckUpdates}
@@ -220,6 +222,7 @@ export function UpdateSection(): JSX.Element {
         </label>
         <label className="flex items-start gap-2 text-xs text-gray-300 cursor-pointer">
           <input
+            name="auto-restart-after-update"
             type="checkbox"
             checked={autoRestartAfterUpdate}
             disabled={!autoCheckUpdates || !autoDownloadUpdates}
@@ -236,6 +239,7 @@ export function UpdateSection(): JSX.Element {
         </label>
         <label className="flex items-start gap-2 text-xs text-gray-300 cursor-pointer">
           <input
+            name="auto-install-silent"
             type="checkbox"
             checked={autoInstallSilent}
             onChange={(e) => {

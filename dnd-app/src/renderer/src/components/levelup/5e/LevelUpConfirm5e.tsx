@@ -74,6 +74,7 @@ export function ClassLevelSelector({
     >
       <span className="text-xs text-gray-500">{t('levelup.classLevelSelector.class')}</span>
       <select
+        name="class-level-selector"
         value={selectedClassId}
         onChange={(e) => onSelect(e.target.value)}
         className="bg-surface-2 border border-gray-600 rounded px-2 py-0.5 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -241,6 +242,7 @@ export function InvocationSection5e({
       <input
         aria-label={t('levelup.invocationSection.searchPlaceholder')}
         type="text"
+        name="invocation-search"
         placeholder={t('levelup.invocationSection.searchPlaceholder')}
         value={search}
         onChange={(e) => setSearch(e.target.value)}

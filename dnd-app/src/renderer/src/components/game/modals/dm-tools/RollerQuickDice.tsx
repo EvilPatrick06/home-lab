@@ -128,6 +128,7 @@ export default function RollerQuickDice({
       {/* Custom expression + count + label */}
       <div className="flex items-center gap-1.5">
         <input
+          name="quick-expression"
           type="text"
           value={quickExpression}
           onChange={(e) => setQuickExpression(e.target.value)}
@@ -140,6 +141,7 @@ export default function RollerQuickDice({
         <label className="flex items-center gap-1 text-xs text-gray-500 shrink-0">
           <span>{t('game.rollerQuickDice.times')}</span>
           <input
+            name="quick-count"
             type="number"
             min={1}
             max={10}
@@ -149,6 +151,7 @@ export default function RollerQuickDice({
           />
         </label>
         <input
+          name="quick-label"
           type="text"
           value={quickLabel}
           onChange={(e) => setQuickLabel(e.target.value)}
@@ -167,6 +170,7 @@ export default function RollerQuickDice({
       <div className="flex items-center gap-2">
         <label className="flex items-center gap-1.5 text-xs text-muted cursor-pointer">
           <input
+            name="quick-hidden-default"
             type="checkbox"
             checked={quickHiddenDefault}
             onChange={(e) => setQuickHiddenDefault(e.target.checked)}

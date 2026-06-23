@@ -184,6 +184,7 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
             <label className="block text-muted text-xs mb-1">{t('pages.loreManager.titleLabel')}</label>
             <input
               type="text"
+              name="lore-title"
               value={form.title}
               onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -193,6 +194,7 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
           <div>
             <label className="block text-muted text-xs mb-1">{t('pages.loreManager.category')}</label>
             <select
+              name="lore-category"
               value={form.category}
               onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as LoreEntry['category'] }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -207,6 +209,7 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
           <div>
             <label className="block text-muted text-xs mb-1">{t('pages.loreManager.content')}</label>
             <textarea
+              name="lore-content"
               value={form.content}
               onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500 h-32 resize-none"
@@ -217,6 +220,7 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
             <label className="block text-muted text-xs mb-1">{t('pages.loreManager.keywordsLabel')}</label>
             <input
               type="text"
+              name="lore-keywords"
               value={form.keywords}
               onChange={(e) => setForm((f) => ({ ...f, keywords: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -227,6 +231,7 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
           <label className="flex items-center gap-2 text-sm text-gray-300">
             <input
               type="checkbox"
+              name="lore-visible-to-players"
               checked={form.isVisibleToPlayers}
               onChange={(e) => setForm((f) => ({ ...f, isVisibleToPlayers: e.target.checked }))}
               className="rounded"

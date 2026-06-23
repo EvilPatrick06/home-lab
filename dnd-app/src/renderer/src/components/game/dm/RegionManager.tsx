@@ -233,6 +233,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
           <div>
             <label className={labelClass}>{t('game.regionManager.name')}</label>
             <input
+              name="region-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t('game.regionManager.namePlaceholder')}
@@ -243,6 +244,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
           <div>
             <label className={labelClass}>{t('game.regionManager.shape')}</label>
             <select
+              name="shape-type"
               value={shapeType}
               onChange={(e) => setShapeType(e.target.value as RegionShapeType)}
               className={inputClass}
@@ -258,6 +260,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
               <div>
                 <label className={labelClass}>{t('game.regionManager.x')}</label>
                 <input
+                  name="rect-x"
                   type="number"
                   value={shapeRectX}
                   onChange={(e) => setShapeRectX(+e.target.value)}
@@ -267,6 +270,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
               <div>
                 <label className={labelClass}>{t('game.regionManager.y')}</label>
                 <input
+                  name="rect-y"
                   type="number"
                   value={shapeRectY}
                   onChange={(e) => setShapeRectY(+e.target.value)}
@@ -276,6 +280,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
               <div>
                 <label className={labelClass}>{t('game.regionManager.w')}</label>
                 <input
+                  name="rect-w"
                   type="number"
                   value={shapeRectW}
                   onChange={(e) => setShapeRectW(+e.target.value)}
@@ -286,6 +291,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
               <div>
                 <label className={labelClass}>{t('game.regionManager.h')}</label>
                 <input
+                  name="rect-h"
                   type="number"
                   value={shapeRectH}
                   onChange={(e) => setShapeRectH(+e.target.value)}
@@ -301,6 +307,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
               <div>
                 <label className={labelClass}>{t('game.regionManager.centerX')}</label>
                 <input
+                  name="circle-cx"
                   type="number"
                   value={shapeCircleCX}
                   onChange={(e) => setShapeCircleCX(+e.target.value)}
@@ -310,6 +317,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
               <div>
                 <label className={labelClass}>{t('game.regionManager.centerY')}</label>
                 <input
+                  name="circle-cy"
                   type="number"
                   value={shapeCircleCY}
                   onChange={(e) => setShapeCircleCY(+e.target.value)}
@@ -319,6 +327,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
               <div>
                 <label className={labelClass}>{t('game.regionManager.radius')}</label>
                 <input
+                  name="circle-r"
                   type="number"
                   value={shapeCircleR}
                   onChange={(e) => setShapeCircleR(+e.target.value)}
@@ -333,6 +342,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
             <div>
               <label className={labelClass}>{t('game.regionManager.points')}</label>
               <input
+                name="poly-points"
                 value={shapePolyPoints}
                 onChange={(e) => setShapePolyPoints(e.target.value)}
                 placeholder="3,3 7,3 5,7"
@@ -345,6 +355,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
             <div>
               <label className={labelClass}>{t('game.regionManager.trigger')}</label>
               <select
+                name="region-trigger"
                 value={trigger}
                 onChange={(e) => setTrigger(e.target.value as RegionTrigger)}
                 className={inputClass}
@@ -359,6 +370,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
             <div>
               <label className={labelClass}>{t('game.regionManager.action')}</label>
               <select
+                name="action-type"
                 value={actionType}
                 onChange={(e) => setActionType(e.target.value as RegionAction['type'])}
                 className={inputClass}
@@ -375,14 +387,24 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
           {actionType === 'alert-dm' && (
             <div>
               <label className={labelClass}>{t('game.regionManager.alertMessage')}</label>
-              <input value={alertMessage} onChange={(e) => setAlertMessage(e.target.value)} className={inputClass} />
+              <input
+                name="alert-message"
+                value={alertMessage}
+                onChange={(e) => setAlertMessage(e.target.value)}
+                className={inputClass}
+              />
             </div>
           )}
 
           {actionType === 'apply-condition' && (
             <div>
               <label className={labelClass}>{t('game.regionManager.condition')}</label>
-              <select value={condition} onChange={(e) => setCondition(e.target.value)} className={inputClass}>
+              <select
+                name="condition"
+                value={condition}
+                onChange={(e) => setCondition(e.target.value)}
+                className={inputClass}
+              >
                 {COMMON_CONDITIONS.map((c) => (
                   <option key={c} value={c}>
                     {c}
@@ -397,6 +419,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
               <div className="col-span-3">
                 <label className={labelClass}>{t('game.regionManager.targetMapId')}</label>
                 <input
+                  name="teleport-map-id"
                   value={teleportMapId}
                   onChange={(e) => setTeleportMapId(e.target.value)}
                   placeholder={t('game.regionManager.currentMapPlaceholder')}
@@ -406,6 +429,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
               <div>
                 <label className={labelClass}>{t('game.regionManager.gridX')}</label>
                 <input
+                  name="teleport-x"
                   type="number"
                   value={teleportX}
                   onChange={(e) => setTeleportX(+e.target.value)}
@@ -415,6 +439,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
               <div>
                 <label className={labelClass}>{t('game.regionManager.gridY')}</label>
                 <input
+                  name="teleport-y"
                   type="number"
                   value={teleportY}
                   onChange={(e) => setTeleportY(+e.target.value)}
@@ -427,6 +452,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
           <div className="flex gap-2">
             <label className="flex items-center gap-1.5 cursor-pointer">
               <input
+                name="visible-to-players"
                 type="checkbox"
                 checked={visibleToPlayers}
                 onChange={(e) => setVisibleToPlayers(e.target.checked)}
@@ -436,6 +462,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
             </label>
             <label className="flex items-center gap-1.5 cursor-pointer">
               <input
+                name="one-shot"
                 type="checkbox"
                 checked={oneShot}
                 onChange={(e) => setOneShot(e.target.checked)}
@@ -448,6 +475,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
           <div>
             <label className={labelClass}>{t('game.regionManager.color')}</label>
             <input
+              name="region-color"
               type="color"
               value={color}
               onChange={(e) => setColor(e.target.value)}

@@ -143,6 +143,7 @@ export default function AudioManager({ campaign, saveCampaign }: AudioManagerPro
             <label className="block text-muted text-xs mb-1">{t('pages.audioManager.displayName')}</label>
             <input
               type="text"
+              name="audio-display-name"
               value={audioEntryForm.displayName}
               onChange={(e) => setAudioEntryForm((f) => ({ ...f, displayName: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -151,6 +152,7 @@ export default function AudioManager({ campaign, saveCampaign }: AudioManagerPro
           <div>
             <label className="block text-muted text-xs mb-1">{t('pages.audioManager.category')}</label>
             <select
+              name="audio-category"
               value={audioEntryForm.category}
               onChange={(e) =>
                 setAudioEntryForm((f) => ({ ...f, category: e.target.value as 'ambient' | 'effect' | 'music' }))

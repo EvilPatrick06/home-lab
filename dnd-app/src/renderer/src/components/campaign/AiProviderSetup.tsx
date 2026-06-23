@@ -305,6 +305,7 @@ export default function AiProviderSetup({
             <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
+                name="ai-enabled"
                 checked={enabled}
                 onChange={(e) => onChange({ enabled: e.target.checked, provider, model, ollamaUrl, apiKey })}
                 className="w-5 h-5 rounded bg-surface-2 border-gray-600 text-accent-strong focus:ring-amber-500"
@@ -341,6 +342,7 @@ export default function AiProviderSetup({
           <label className="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
+              name="ai-enabled"
               checked={enabled}
               onChange={(e) => onChange({ enabled: e.target.checked, provider, model, ollamaUrl, apiKey })}
               className="w-5 h-5 rounded bg-surface-2 border-gray-600 text-accent-strong focus:ring-amber-500"
@@ -432,6 +434,7 @@ export default function AiProviderSetup({
                     {cloudModelsState === 'loading' ? (
                       <select
                         disabled
+                        name="cloud-model"
                         className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm opacity-60"
                       >
                         <option>{t('campaign.aiProviderSetup.modelsLoading')}</option>
@@ -439,6 +442,7 @@ export default function AiProviderSetup({
                     ) : (
                       <select
                         value={model}
+                        name="cloud-model"
                         onChange={(e) => onChange({ enabled, provider, model: e.target.value, ollamaUrl, apiKey })}
                         className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-500"
                       >
@@ -478,6 +482,7 @@ export default function AiProviderSetup({
                       {t('campaign.aiProviderSetup.localEndpointLabel')}
                     </label>
                     <select
+                      name="local-endpoint-flavor"
                       value={localEndpointFlavor}
                       onChange={(e) =>
                         onChange({
@@ -575,6 +580,7 @@ export default function AiProviderSetup({
                         <label className="block text-sm text-muted mb-1">{t('campaign.aiProviderSetup.model')}</label>
                         <select
                           value={model}
+                          name="ollama-model"
                           onChange={(e) => {
                             onChange({ enabled, provider, model: e.target.value, ollamaUrl, apiKey })
                             const isReady = isModelInstalled(e.target.value, installedModels)
@@ -612,6 +618,7 @@ export default function AiProviderSetup({
                     <label className="block text-sm text-muted mb-1">{t('campaign.aiProviderSetup.ollamaUrl')}</label>
                     <input
                       type="text"
+                      name="ollama-url"
                       value={ollamaUrl}
                       onChange={(e) => onChange({ enabled, provider, model, ollamaUrl: e.target.value, apiKey })}
                       placeholder="http://localhost:11434"
@@ -636,6 +643,7 @@ export default function AiProviderSetup({
               <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
                 <input
                   type="checkbox"
+                  name="routing-enabled"
                   checked={routingEnabled}
                   onChange={(e) =>
                     onChange({
@@ -658,6 +666,7 @@ export default function AiProviderSetup({
                     {t('campaign.aiProviderSetup.routingSmallModel')}
                   </label>
                   <select
+                    name="routing-small-model"
                     value={routingSmallModel}
                     onChange={(e) =>
                       onChange({

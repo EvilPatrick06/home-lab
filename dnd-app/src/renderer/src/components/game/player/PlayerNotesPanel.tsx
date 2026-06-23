@@ -165,6 +165,7 @@ export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPa
           <div className="flex flex-col gap-2 min-h-0">
             <input
               type="search"
+              name="note-search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t('game.playerNotesPanel.searchPlaceholder')}
@@ -208,6 +209,7 @@ export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPa
               <>
                 <input
                   type="text"
+                  name="note-title"
                   value={active.title}
                   onChange={(e) => handleUpdate({ title: e.target.value })}
                   placeholder={t('game.playerNotesPanel.titlePlaceholder')}
@@ -215,6 +217,7 @@ export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPa
                 />
                 <input
                   type="text"
+                  name="note-tags"
                   value={active.tags.join(', ')}
                   onChange={(e) =>
                     handleUpdate({
@@ -228,6 +231,7 @@ export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPa
                   className="px-2 py-1 text-[11px] rounded bg-surface-2 border border-border/50 text-gray-300"
                 />
                 <textarea
+                  name="note-content"
                   value={active.content}
                   onChange={(e) => handleUpdate({ content: e.target.value })}
                   placeholder={t('game.playerNotesPanel.contentPlaceholder')}

@@ -366,6 +366,7 @@ export default function HomebrewCreateModal({
             <div className="flex gap-2">
               <input
                 type="text"
+                name="new-field-key"
                 value={newFieldKey}
                 onChange={(e) => setNewFieldKey(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && addField()}
@@ -388,6 +389,7 @@ export default function HomebrewCreateModal({
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
+                name="campaign-only"
                 checked={campaignOnly}
                 onChange={(e) => setCampaignOnly(e.target.checked)}
                 className="w-4 h-4 rounded border-gray-600 bg-surface-2 text-accent-strong focus:ring-amber-500"
@@ -473,6 +475,7 @@ function renderEditField(key: string, value: unknown, onChange: (key: string, va
       <label className="flex items-center gap-2 cursor-pointer">
         <input
           type="checkbox"
+          name="homebrew-field-bool"
           checked={value}
           onChange={(e) => onChange(key, e.target.checked)}
           className="w-4 h-4 rounded border-gray-600 bg-surface-2 text-accent-strong focus:ring-amber-500"
@@ -488,6 +491,7 @@ function renderEditField(key: string, value: unknown, onChange: (key: string, va
     return (
       <input
         type="number"
+        name="homebrew-field-number"
         value={value}
         onChange={(e) => onChange(key, Number(e.target.value))}
         className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-fg focus:border-amber-500 focus:outline-none"
@@ -498,6 +502,7 @@ function renderEditField(key: string, value: unknown, onChange: (key: string, va
   if (typeof value === 'string' && (value.length > 100 || key === 'description' || key === 'effect')) {
     return (
       <textarea
+        name="homebrew-field-text"
         value={value}
         onChange={(e) => onChange(key, e.target.value)}
         rows={4}
@@ -510,6 +515,7 @@ function renderEditField(key: string, value: unknown, onChange: (key: string, va
     return (
       <input
         type="text"
+        name="homebrew-field-list"
         value={value.join(', ')}
         onChange={(e) =>
           onChange(
@@ -529,6 +535,7 @@ function renderEditField(key: string, value: unknown, onChange: (key: string, va
   if (typeof value === 'object' && value !== null) {
     return (
       <textarea
+        name="homebrew-field-json"
         value={JSON.stringify(value, null, 2)}
         onChange={(e) => {
           try {
@@ -546,6 +553,7 @@ function renderEditField(key: string, value: unknown, onChange: (key: string, va
   return (
     <input
       type="text"
+      name="homebrew-field-string"
       value={String(value ?? '')}
       onChange={(e) => onChange(key, e.target.value)}
       className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-fg focus:border-amber-500 focus:outline-none"
@@ -600,6 +608,7 @@ function EffectRow({
   return (
     <div className="flex flex-wrap items-center gap-2 bg-surface-2/50 border border-border rounded p-2">
       <select
+        name="effect-type"
         value={effect.type}
         onChange={(e) => changeType(e.target.value as HomebrewFeatEffect['type'])}
         className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
@@ -614,6 +623,7 @@ function EffectRow({
       {effect.type === 'ability_bonus' && (
         <>
           <select
+            name="effect-ability-target"
             value={effect.target}
             onChange={(e) => onChange({ ...effect, target: e.target.value as (typeof ABILITY_OPTIONS)[number] })}
             className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
@@ -626,6 +636,7 @@ function EffectRow({
           </select>
           <input
             type="number"
+            name="effect-ability-value"
             value={effect.value}
             onChange={(e) => onChange({ ...effect, value: Number(e.target.value) })}
             className="w-16 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
@@ -636,6 +647,7 @@ function EffectRow({
       {(effect.type === 'skill_proficiency' || effect.type === 'damage_resistance') && (
         <input
           type="text"
+          name="effect-target"
           value={effect.target}
           onChange={(e) => onChange({ ...effect, target: e.target.value })}
           placeholder={
@@ -650,6 +662,7 @@ function EffectRow({
       {(effect.type === 'speed_bonus' || effect.type === 'ac_bonus') && (
         <input
           type="number"
+          name="effect-value"
           value={effect.value}
           onChange={(e) => onChange({ ...effect, value: Number(e.target.value) })}
           className="w-20 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
@@ -659,6 +672,7 @@ function EffectRow({
       {effect.type === 'custom' && (
         <input
           type="text"
+          name="effect-description"
           value={effect.description}
           onChange={(e) => onChange({ ...effect, description: e.target.value })}
           placeholder={t('library.homebrewCreateModal.descriptionPlaceholder')}

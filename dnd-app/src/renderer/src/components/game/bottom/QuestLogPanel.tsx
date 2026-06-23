@@ -135,6 +135,7 @@ export default function QuestLogPanel({ campaignId }: { campaignId: string }): J
                     <div key={o.id} className="flex items-center gap-1.5">
                       <input
                         type="checkbox"
+                        name="objective-completed"
                         checked={o.status === 'completed'}
                         onChange={(e) => setObjective(q.name, o.id, e.target.checked ? 'complete' : 'reopen')}
                       />

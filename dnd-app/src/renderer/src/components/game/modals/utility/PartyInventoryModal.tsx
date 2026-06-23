@@ -263,6 +263,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
                   </span>
                   <input
                     aria-label={t(`game.partyInventoryModal.currencyLabels.${key}`)}
+                    name="currency-amount"
                     type="number"
                     min="0"
                     placeholder="0"
@@ -292,6 +293,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
         <div className="flex items-center gap-2 mb-2 shrink-0">
           <input
             aria-label={t('game.partyInventoryModal.searchPlaceholder')}
+            name="search-filter"
             type="text"
             placeholder={t('game.partyInventoryModal.searchPlaceholder')}
             value={searchFilter}
@@ -315,6 +317,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
               <div className="col-span-2">
                 <input
                   aria-label={t('game.partyInventoryModal.itemNamePlaceholder')}
+                  name="new-name"
                   type="text"
                   placeholder={t('game.partyInventoryModal.itemNamePlaceholder')}
                   value={newName}
@@ -324,6 +327,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
               </div>
               <input
                 aria-label={t('game.partyInventoryModal.qtyPlaceholder')}
+                name="new-quantity"
                 type="number"
                 min="1"
                 placeholder={t('game.partyInventoryModal.qtyPlaceholder')}
@@ -335,6 +339,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
             <div className="grid grid-cols-3 gap-2">
               <input
                 aria-label={t('game.partyInventoryModal.weightPlaceholder')}
+                name="new-weight"
                 type="number"
                 step="0.1"
                 min="0"
@@ -345,6 +350,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
               />
               <input
                 aria-label={t('game.partyInventoryModal.valuePlaceholder')}
+                name="new-value"
                 type="number"
                 step="0.1"
                 min="0"
@@ -354,6 +360,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
                 className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200 outline-none focus:border-amber-500/50"
               />
               <select
+                name="new-rarity"
                 value={newRarity}
                 onChange={(e) => setNewRarity(e.target.value as PartyInventoryItem['rarity'])}
                 className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200 outline-none cursor-pointer"
@@ -368,6 +375,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
             </div>
             <textarea
               aria-label={t('game.partyInventoryModal.descriptionPlaceholder')}
+              name="new-description"
               placeholder={t('game.partyInventoryModal.descriptionPlaceholder')}
               value={newDescription}
               onChange={(e) => setNewDescription(e.target.value)}
@@ -378,6 +386,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
               <label className="flex items-center gap-1.5 text-xs text-muted cursor-pointer">
                 <input
                   type="checkbox"
+                  name="new-attunement"
                   checked={newAttunement}
                   onChange={(e) => setNewAttunement(e.target.checked)}
                   className="rounded border-gray-600 cursor-pointer"
@@ -462,6 +471,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
                     <td className="py-1.5 px-2">
                       {isDM ? (
                         <select
+                          name="item-assigned-to"
                           value={item.assignedTo ?? ''}
                           onChange={(e) => handleTransfer(item.id, e.target.value)}
                           className="w-full bg-surface-2 border border-border rounded px-1 py-0.5 text-xs text-gray-300 outline-none cursor-pointer"

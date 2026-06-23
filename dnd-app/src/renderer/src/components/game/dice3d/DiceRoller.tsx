@@ -241,6 +241,7 @@ export default function DiceRoller({
       <div className="flex gap-1">
         <input
           type="text"
+          name="dice-formula"
           value={customFormula}
           onChange={(e) => setCustomFormula(e.target.value)}
           onKeyDown={(e) => {

@@ -69,6 +69,7 @@ export default function InitiativeSetupForm({
               <div key={i} className="flex gap-1 items-center">
                 <input
                   aria-label={t('game.initiativeSetupForm.namePlaceholder')}
+                  name="entry-name"
                   type="text"
                   placeholder={t('game.initiativeSetupForm.namePlaceholder')}
                   value={entry.name}
@@ -82,6 +83,7 @@ export default function InitiativeSetupForm({
                   // users entered a full initiative value (18) and were surprised when
                   // Roll added a d20 (→ 32). A persistent tooltip clarifies it's a modifier.
                   title={t('game.initiativeSetupForm.modTitle')}
+                  name="entry-modifier"
                   type="number"
                   placeholder={t('game.initiativeSetupForm.modPlaceholder')}
                   value={entry.modifier}
@@ -90,6 +92,7 @@ export default function InitiativeSetupForm({
                     text-center focus:outline-none focus:border-amber-500 text-xs"
                 />
                 <select
+                  name="entity-type"
                   value={entry.entityType}
                   onChange={(e) =>
                     onUpdateNewEntry(i, {
@@ -107,6 +110,7 @@ export default function InitiativeSetupForm({
                   title={t('game.initiativeSetupForm.surprisedTitle')}
                 >
                   <input
+                    name="surprised"
                     type="checkbox"
                     checked={entry.surprised}
                     onChange={(e) => onUpdateNewEntry(i, { surprised: e.target.checked })}
@@ -118,6 +122,7 @@ export default function InitiativeSetupForm({
                   <>
                     <input
                       aria-label={t('game.initiativeSetupForm.lrPlaceholder')}
+                      name="legendary-resistances"
                       type="number"
                       placeholder={t('game.initiativeSetupForm.lrPlaceholder')}
                       min={0}
@@ -132,6 +137,7 @@ export default function InitiativeSetupForm({
                       title={t('game.initiativeSetupForm.inLairTitle')}
                     >
                       <input
+                        name="in-lair"
                         type="checkbox"
                         checked={entry.inLair}
                         onChange={(e) => onUpdateNewEntry(i, { inLair: e.target.checked })}
@@ -164,6 +170,7 @@ export default function InitiativeSetupForm({
                     className="flex items-center gap-2 text-xs cursor-pointer hover:bg-surface-2/50 rounded px-1 py-0.5"
                   >
                     <input
+                      name="token-checked"
                       type="checkbox"
                       checked={checkedTokenIds.has(token.id)}
                       onChange={(e) => {
@@ -242,6 +249,7 @@ export default function InitiativeSetupForm({
               <div className="mt-1.5 space-y-1.5">
                 <label className="flex items-center gap-1.5 text-xs text-muted cursor-pointer">
                   <input
+                    name="timer-enabled"
                     type="checkbox"
                     checked={timerEnabled}
                     onChange={(e) => onUpdateTimerConfig({ enabled: e.target.checked })}
@@ -270,6 +278,7 @@ export default function InitiativeSetupForm({
                         </button>
                       ))}
                       <input
+                        name="custom-seconds"
                         type="number"
                         min={10}
                         max={600}

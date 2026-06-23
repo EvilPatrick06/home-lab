@@ -566,6 +566,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
                 <label className="text-xs text-muted block mb-1">{t('game.rollTableModal.tableName')}</label>
                 <input
                   type="text"
+                  name="table-name"
                   value={tableName}
                   onChange={(e) => setTableName(e.target.value)}
                   placeholder={t('game.rollTableModal.tableNamePlaceholder')}
@@ -576,6 +577,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
                 <label className="text-xs text-muted block mb-1">{t('game.rollTableModal.diceFormula')}</label>
                 <input
                   type="text"
+                  name="dice-formula"
                   value={diceFormula}
                   onChange={(e) => setDiceFormula(e.target.value)}
                   placeholder={t('game.rollTableModal.diceFormulaPlaceholder')}
@@ -604,6 +606,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
                     <div key={i} className="flex items-center gap-1.5">
                       <input
                         type="number"
+                        name="entry-min"
                         value={entry.min}
                         onChange={(e) => updateEntry(i, 'min', parseInt(e.target.value, 10) || 0)}
                         className="w-12 bg-surface-2 border border-gray-600 rounded px-1.5 py-1 text-xs text-fg text-center focus:outline-none focus:border-amber-500"
@@ -612,6 +615,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
                       <span className="text-xs text-gray-500">-</span>
                       <input
                         type="number"
+                        name="entry-max"
                         value={entry.max}
                         onChange={(e) => updateEntry(i, 'max', parseInt(e.target.value, 10) || 0)}
                         className="w-12 bg-surface-2 border border-gray-600 rounded px-1.5 py-1 text-xs text-fg text-center focus:outline-none focus:border-amber-500"
@@ -619,6 +623,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
                       />
                       <input
                         type="text"
+                        name="entry-text"
                         value={entry.text}
                         onChange={(e) => updateEntry(i, 'text', e.target.value)}
                         placeholder={t('game.rollTableModal.resultTextPlaceholder')}
@@ -626,6 +631,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
                       />
                       <input
                         type="number"
+                        name="entry-weight"
                         value={entry.weight ?? ''}
                         onChange={(e) => {
                           const val = e.target.value.trim()

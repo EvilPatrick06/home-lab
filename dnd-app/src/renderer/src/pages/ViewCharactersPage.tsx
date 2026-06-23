@@ -207,6 +207,7 @@ export default function ViewCharactersPage(): JSX.Element {
       {/* Search bar */}
       <div className="mb-4">
         <input
+          name="character-search"
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}

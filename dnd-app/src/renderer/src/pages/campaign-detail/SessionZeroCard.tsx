@@ -163,6 +163,7 @@ export default function SessionZeroCard({ campaign, saveCampaign }: SessionZeroC
             )}
             <div className="flex items-center gap-2 mt-1.5">
               <input
+                name="ban-topic"
                 value={newBanTopic}
                 onChange={(e) => setNewBanTopic(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && void addBan()}

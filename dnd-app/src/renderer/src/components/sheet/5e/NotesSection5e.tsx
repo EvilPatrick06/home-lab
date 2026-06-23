@@ -53,6 +53,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
             <span className="text-sm text-gray-300">{character.alignment || t('sheet.notesSection.none')}</span>
           ) : (
             <select
+              name="alignment"
               className={selectClass}
               defaultValue={character.alignment}
               onChange={(e) => {
@@ -80,6 +81,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
             <span className="text-sm text-gray-300 capitalize">{character.status}</span>
           ) : (
             <select
+              name="status"
               className={selectClass}
               defaultValue={character.status}
               onChange={(e) => {
@@ -106,6 +108,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
               <span className="text-sm text-gray-300">{character.xp}</span>
             ) : (
               <input
+                name="xp"
                 type="number"
                 className={`${inputClass} w-24`}
                 defaultValue={character.xp}
@@ -131,6 +134,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
           <p className="text-sm text-muted">{personality || t('sheet.notesSection.none')}</p>
         ) : (
           <textarea
+            name="personality"
             aria-label={t('sheet.notesSection.personalityPlaceholder')}
             className={textareaClass}
             defaultValue={personality}
@@ -154,6 +158,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
           <p className="text-sm text-muted">{character.details.ideals || t('sheet.notesSection.none')}</p>
         ) : (
           <textarea
+            name="ideals"
             aria-label={t('sheet.notesSection.idealsPlaceholder')}
             className={textareaClass}
             defaultValue={character.details.ideals ?? ''}
@@ -176,6 +181,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
           <p className="text-sm text-muted">{character.details.bonds || t('sheet.notesSection.none')}</p>
         ) : (
           <textarea
+            name="bonds"
             aria-label={t('sheet.notesSection.bondsPlaceholder')}
             className={textareaClass}
             defaultValue={character.details.bonds ?? ''}
@@ -198,6 +204,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
           <p className="text-sm text-muted">{character.details.flaws || t('sheet.notesSection.none')}</p>
         ) : (
           <textarea
+            name="flaws"
             aria-label={t('sheet.notesSection.flawsPlaceholder')}
             className={textareaClass}
             defaultValue={character.details.flaws ?? ''}
@@ -223,6 +230,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
           </p>
         ) : (
           <textarea
+            name="backstory"
             aria-label={t('sheet.notesSection.backstoryPlaceholder')}
             className={textareaClass}
             defaultValue={backstory}
@@ -246,6 +254,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
           <p className="text-sm text-muted whitespace-pre-wrap">{notes || t('sheet.notesSection.none')}</p>
         ) : (
           <textarea
+            name="notes"
             aria-label={t('sheet.notesSection.notesPlaceholder')}
             className={textareaClass}
             defaultValue={notes}
@@ -275,6 +284,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
               <span className="text-sm text-gray-300">{character.details.gender || t('sheet.notesSection.dash')}</span>
             ) : (
               <input
+                name="gender"
                 aria-label={t('sheet.notesSection.gender')}
                 type="text"
                 className={inputClass}
@@ -298,6 +308,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
               <span className="text-sm text-gray-300">{character.details.deity || t('sheet.notesSection.dash')}</span>
             ) : (
               <input
+                name="deity"
                 aria-label={t('sheet.notesSection.deity')}
                 type="text"
                 className={inputClass}
@@ -321,6 +332,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
               <span className="text-sm text-gray-300">{character.details.age || t('sheet.notesSection.dash')}</span>
             ) : (
               <input
+                name="age"
                 aria-label={t('sheet.notesSection.age')}
                 type="text"
                 className={inputClass}
@@ -344,6 +356,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
               <span className="text-sm text-gray-300">{character.details.height || t('sheet.notesSection.dash')}</span>
             ) : (
               <input
+                name="height"
                 aria-label={t('sheet.notesSection.height')}
                 type="text"
                 className={inputClass}
@@ -367,6 +380,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
               <span className="text-sm text-gray-300">{character.details.weight || t('sheet.notesSection.dash')}</span>
             ) : (
               <input
+                name="weight"
                 aria-label={t('sheet.notesSection.weight')}
                 type="text"
                 className={inputClass}
@@ -390,6 +404,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
               <span className="text-sm text-gray-300">{character.details.eyes || t('sheet.notesSection.dash')}</span>
             ) : (
               <input
+                name="eyes"
                 aria-label={t('sheet.notesSection.eyes')}
                 type="text"
                 className={inputClass}
@@ -413,6 +428,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
               <span className="text-sm text-gray-300">{character.details.hair || t('sheet.notesSection.dash')}</span>
             ) : (
               <input
+                name="hair"
                 aria-label={t('sheet.notesSection.hair')}
                 type="text"
                 className={inputClass}
@@ -436,6 +452,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
               <span className="text-sm text-gray-300">{character.details.skin || t('sheet.notesSection.dash')}</span>
             ) : (
               <input
+                name="skin"
                 aria-label={t('sheet.notesSection.skin')}
                 type="text"
                 className={inputClass}
@@ -460,6 +477,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
             <p className="text-sm text-gray-300">{character.details.appearance || t('sheet.notesSection.dash')}</p>
           ) : (
             <textarea
+              name="appearance"
               aria-label={t('sheet.notesSection.appearancePlaceholder')}
               className={textareaClass}
               defaultValue={character.details.appearance ?? ''}

@@ -44,6 +44,7 @@ export default function SelectionFilterBar({
       <div className="flex-1">
         <input
           type="text"
+          name="search-query"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={t('builder.selectionFilterBar.searchPlaceholder')}

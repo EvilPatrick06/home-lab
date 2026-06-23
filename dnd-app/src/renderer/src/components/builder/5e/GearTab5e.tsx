@@ -54,6 +54,7 @@ function EditableCurrencyCircle({
           <input
             ref={inputRef}
             type="number"
+            name="currency-amount"
             min={0}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}

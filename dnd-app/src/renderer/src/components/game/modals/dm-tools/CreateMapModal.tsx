@@ -172,6 +172,7 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
             <label className="text-xs text-muted block mb-1">{t('game.createMapModal.mapName')}</label>
             <input
               type="text"
+              name="map-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t('game.createMapModal.mapNamePlaceholder')}
@@ -204,6 +205,7 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
             <input
               ref={fileInputRef}
               type="file"
+              name="map-image"
               accept="image/png,image/jpeg,image/webp"
               onChange={handleImageUpload}
               className="hidden"
@@ -225,6 +227,7 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
               <label className="text-xs text-muted block mb-1">{t('game.createMapModal.width')}</label>
               <input
                 type="number"
+                name="map-width"
                 value={width}
                 onChange={(e) => setWidth(clamp(parseInt(e.target.value, 10) || 10, 10, 100))}
                 min={10}
@@ -236,6 +239,7 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
               <label className="text-xs text-muted block mb-1">{t('game.createMapModal.height')}</label>
               <input
                 type="number"
+                name="map-height"
                 value={height}
                 onChange={(e) => setHeight(clamp(parseInt(e.target.value, 10) || 10, 10, 100))}
                 min={10}
@@ -262,6 +266,7 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
             </div>
             <input
               type="range"
+              name="cell-size"
               min={20}
               max={100}
               value={cellSize}
@@ -322,12 +327,14 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
             <div className="flex items-center gap-2">
               <input
                 type="color"
+                name="background-color"
                 value={backgroundColor}
                 onChange={(e) => setBackgroundColor(e.target.value)}
                 className="w-8 h-8 rounded border border-border cursor-pointer bg-transparent"
               />
               <input
                 type="text"
+                name="background-color-hex"
                 value={backgroundColor}
                 onChange={(e) => setBackgroundColor(e.target.value)}
                 className="flex-1 px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-fg text-sm focus:outline-none focus:border-amber-500 font-mono"

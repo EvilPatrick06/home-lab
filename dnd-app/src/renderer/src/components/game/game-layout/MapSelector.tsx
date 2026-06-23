@@ -18,6 +18,7 @@ export default function MapSelector({ maps, activeMapId, onSelect }: MapSelector
   const { t } = useT()
   return (
     <select
+      name="active-map"
       value={activeMapId ?? ''}
       onChange={(e) => onSelect(e.target.value)}
       className="bg-surface/80 backdrop-blur-sm border border-border text-gray-200 text-xs rounded-lg px-2 py-1.5

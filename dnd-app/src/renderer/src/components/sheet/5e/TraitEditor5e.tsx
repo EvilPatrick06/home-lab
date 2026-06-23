@@ -147,6 +147,7 @@ export default function TraitEditor5e({
                   <input
                     aria-label={t('sheet.traitEditor.petNamePlaceholder')}
                     type="text"
+                    name="pet-name"
                     placeholder={t('sheet.traitEditor.petNamePlaceholder')}
                     value={petName}
                     onChange={(e) => setPetName(e.target.value)}
@@ -158,6 +159,7 @@ export default function TraitEditor5e({
                   <input
                     aria-label={t('sheet.traitEditor.petTypePlaceholder')}
                     type="text"
+                    name="pet-type"
                     placeholder={t('sheet.traitEditor.petTypePlaceholder')}
                     value={petType}
                     onChange={(e) => setPetType(e.target.value)}
@@ -249,6 +251,7 @@ export default function TraitEditor5e({
               <input
                 aria-label={t('sheet.traitEditor.searchLanguagesPlaceholder')}
                 type="text"
+                name="language-search"
                 placeholder={t('sheet.traitEditor.searchLanguagesPlaceholder')}
                 value={langSearch}
                 onChange={(e) => setLangSearch(e.target.value)}
@@ -290,6 +293,7 @@ export default function TraitEditor5e({
               <input
                 aria-label={t('sheet.traitEditor.languageNamePlaceholder')}
                 type="text"
+                name="language-name"
                 placeholder={t('sheet.traitEditor.languageNamePlaceholder')}
                 value={newLanguage}
                 onChange={(e) => setNewLanguage(e.target.value)}
@@ -298,6 +302,7 @@ export default function TraitEditor5e({
               <input
                 aria-label={t('sheet.traitEditor.descriptionPlaceholder')}
                 type="text"
+                name="language-description"
                 placeholder={t('sheet.traitEditor.descriptionPlaceholder')}
                 value={newLangDesc}
                 onChange={(e) => setNewLangDesc(e.target.value)}

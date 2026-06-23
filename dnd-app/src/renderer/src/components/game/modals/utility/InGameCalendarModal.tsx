@@ -191,6 +191,7 @@ export default function InGameCalendarModal({ calendar, onClose, isDM }: InGameC
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
+                name="show-weather-overlay"
                 checked={showWeatherOverlay}
                 onChange={(e) => setShowWeatherOverlay(e.target.checked)}
                 className="accent-amber-500 w-3.5 h-3.5"
@@ -221,6 +222,7 @@ export default function InGameCalendarModal({ calendar, onClose, isDM }: InGameC
             <div className="flex items-center gap-2">
               <input
                 type="number"
+                name="advance-days"
                 min={1}
                 max={365}
                 value={advanceDays}

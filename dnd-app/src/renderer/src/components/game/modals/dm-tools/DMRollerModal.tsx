@@ -287,6 +287,7 @@ export default function DMRollerModal({ onClose, onMinimize, onRestore }: DMRoll
           <div className="flex-1 flex flex-col min-h-0">
             {/* Entity dropdown */}
             <select
+              name="roller-entity"
               value={selectedEntityId ?? ''}
               onChange={(e) => handleSelectEntity(e.target.value)}
               className="w-full mb-3 px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-fg text-xs focus:outline-none focus:border-purple-500"

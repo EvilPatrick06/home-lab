@@ -115,6 +115,7 @@ export function EventsTab({ bastion }: { bastion: Bastion }): JSX.Element {
           {t('pages.eventsTab.eventsLog', { count: filteredEvents.length })}
         </h2>
         <select
+          name="event-filter-type"
           value={filterType}
           onChange={(e) => setFilterType(e.target.value)}
           className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-300 focus:outline-none focus:border-amber-500"

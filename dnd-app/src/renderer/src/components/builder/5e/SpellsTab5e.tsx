@@ -383,6 +383,7 @@ export default function SpellsTab5e(): JSX.Element {
         <label className="flex items-center gap-2 text-xs text-gray-500 mt-1 cursor-pointer select-none">
           <input
             type="checkbox"
+            name="show-all-spells"
             checked={showAllSpells}
             onChange={(e) => setShowAllSpells(e.target.checked)}
             className="accent-amber-500"

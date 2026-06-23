@@ -174,6 +174,7 @@ export default function InitiativeEntry({
           {editingId === entry.id ? (
             <input
               type="number"
+              name="initiative-total"
               value={editTotal}
               onChange={(e) => onEditChange(e.target.value)}
               onBlur={() => onEditSave(entry.id)}

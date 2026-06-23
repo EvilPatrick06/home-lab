@@ -161,6 +161,7 @@ export default function ShortRestModal5e({ character, open, onClose }: ShortRest
             <div className="flex items-center gap-3">
               <label className="text-sm text-gray-300">{t('sheet.shortRestModal.diceToSpend')}</label>
               <input
+                name="dice-count"
                 type="number"
                 min={0}
                 max={maxSpend}

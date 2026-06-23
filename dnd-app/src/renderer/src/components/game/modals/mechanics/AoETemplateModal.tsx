@@ -220,6 +220,7 @@ export default function AoETemplateModal({
                 <label className="text-xs text-gray-500">{t('game.aoeTemplateModal.x')}</label>
                 <input
                   type="number"
+                  name="origin-x"
                   min={0}
                   max={gridWidth - 1}
                   value={originX}
@@ -229,6 +230,7 @@ export default function AoETemplateModal({
                 <label className="text-xs text-gray-500">{t('game.aoeTemplateModal.y')}</label>
                 <input
                   type="number"
+                  name="origin-y"
                   min={0}
                   max={gridHeight - 1}
                   value={originY}

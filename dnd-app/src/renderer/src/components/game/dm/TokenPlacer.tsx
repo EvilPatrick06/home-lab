@@ -196,6 +196,7 @@ export default function TokenPlacer({
           <label className="block text-xs text-gray-500 mb-1">{t('game.tokenPlacer.searchMonsters')}</label>
           <input
             aria-label={t('game.tokenPlacer.searchPlaceholder')}
+            name="monster-search"
             type="text"
             placeholder={t('game.tokenPlacer.searchPlaceholder')}
             value={searchQuery}
@@ -275,6 +276,7 @@ export default function TokenPlacer({
       <div>
         <input
           aria-label={t('game.tokenPlacer.tokenNamePlaceholder')}
+          name="token-name"
           type="text"
           placeholder={t('game.tokenPlacer.tokenNamePlaceholder')}
           value={name}
@@ -288,6 +290,7 @@ export default function TokenPlacer({
         <label className="block text-xs text-gray-500">{t('game.tokenPlacer.tokenImage')}</label>
         <div className="flex items-center gap-2">
           <input
+            name="token-image"
             type="file"
             accept="image/png,image/jpeg,image/webp"
             onChange={handleImageUpload}
@@ -326,6 +329,7 @@ export default function TokenPlacer({
           <label className="block text-xs text-gray-500 mb-1">{t('game.tokenPlacer.hp')}</label>
           <input
             aria-label={t('game.tokenPlacer.currentPlaceholder')}
+            name="current-hp"
             type="number"
             placeholder={t('game.tokenPlacer.currentPlaceholder')}
             value={currentHP}
@@ -338,6 +342,7 @@ export default function TokenPlacer({
           <label className="block text-xs text-gray-500 mb-1">&nbsp;</label>
           <input
             aria-label={t('game.tokenPlacer.maxPlaceholder')}
+            name="max-hp"
             type="number"
             placeholder={t('game.tokenPlacer.maxPlaceholder')}
             value={maxHP}
@@ -353,6 +358,7 @@ export default function TokenPlacer({
           <label className="block text-xs text-gray-500 mb-1">{t('game.tokenPlacer.ac')}</label>
           <input
             aria-label={t('game.tokenPlacer.acPlaceholder')}
+            name="ac"
             type="number"
             placeholder={t('game.tokenPlacer.acPlaceholder')}
             value={ac}
@@ -365,6 +371,7 @@ export default function TokenPlacer({
           <label className="block text-xs text-gray-500 mb-1">{t('game.tokenPlacer.walkSpeed')}</label>
           <input
             aria-label={t('game.tokenPlacer.walkSpeed')}
+            name="walk-speed"
             type="number"
             placeholder="30"
             value={walkSpeed}
@@ -405,6 +412,7 @@ export default function TokenPlacer({
         <div className="flex gap-2">
           <input
             aria-label={t('game.tokenPlacer.flyPlaceholder')}
+            name="fly-speed"
             type="number"
             placeholder={t('game.tokenPlacer.flyPlaceholder')}
             value={flySpeed}
@@ -414,6 +422,7 @@ export default function TokenPlacer({
           />
           <input
             aria-label={t('game.tokenPlacer.swimPlaceholder')}
+            name="swim-speed"
             type="number"
             placeholder={t('game.tokenPlacer.swimPlaceholder')}
             value={swimSpeed}
@@ -423,6 +432,7 @@ export default function TokenPlacer({
           />
           <input
             aria-label={t('game.tokenPlacer.climbPlaceholder')}
+            name="climb-speed"
             type="number"
             placeholder={t('game.tokenPlacer.climbPlaceholder')}
             value={climbSpeed}

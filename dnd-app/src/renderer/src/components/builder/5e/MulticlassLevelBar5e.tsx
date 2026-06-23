@@ -88,6 +88,7 @@ export default function MulticlassLevelBar5e(): JSX.Element {
             <div key={lvl} className="flex items-center gap-1 bg-surface-2 rounded px-2 py-1">
               <span className="text-xs text-gray-500 font-mono w-4">{lvl}</span>
               <select
+                name="class-level-choice"
                 value={selectedClassId}
                 onChange={(e) => setClassLevelChoice(lvl, e.target.value)}
                 className="bg-transparent text-xs text-gray-200 focus:outline-none cursor-pointer"

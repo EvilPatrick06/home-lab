@@ -69,12 +69,14 @@ export default function DiceColorPicker({ colors, onChange }: DiceColorPickerPro
             <label className="text-xs text-muted w-16">{t('game.diceColorPicker.body')}</label>
             <input
               type="color"
+              name="body-color"
               value={colors.bodyColor}
               onChange={(e) => onChange({ ...colors, bodyColor: e.target.value })}
               className="w-8 h-8 rounded cursor-pointer border-0 bg-transparent"
             />
             <input
               type="text"
+              name="body-color-hex"
               value={colors.bodyColor}
               onChange={(e) => {
                 if (/^#[0-9a-fA-F]{6}$/.test(e.target.value)) {
@@ -89,12 +91,14 @@ export default function DiceColorPicker({ colors, onChange }: DiceColorPickerPro
             <label className="text-xs text-muted w-16">{t('game.diceColorPicker.numbers')}</label>
             <input
               type="color"
+              name="number-color"
               value={colors.numberColor}
               onChange={(e) => onChange({ ...colors, numberColor: e.target.value })}
               className="w-8 h-8 rounded cursor-pointer border-0 bg-transparent"
             />
             <input
               type="text"
+              name="number-color-hex"
               value={colors.numberColor}
               onChange={(e) => {
                 if (/^#[0-9a-fA-F]{6}$/.test(e.target.value)) {

@@ -186,7 +186,14 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
                 </button>
               ))}
             </div>
-            <input ref={fileRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
+            <input
+              ref={fileRef}
+              type="file"
+              name="portrait-upload"
+              accept="image/*"
+              onChange={handleFileUpload}
+              className="hidden"
+            />
           </div>
         )}
       </div>
@@ -195,6 +202,7 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
         {!readonly && editingName ? (
           <input
             type="text"
+            name="character-name"
             value={nameValue}
             onChange={(e) => setNameValue(e.target.value)}
             onBlur={saveName}
@@ -249,6 +257,7 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
             <>
               <select
                 className="text-xs bg-surface-2 border border-border rounded px-1 py-0.5 text-muted focus:outline-none focus:border-amber-500"
+                name="leveling-mode"
                 value={character.levelingMode}
                 onChange={(e) => {
                   const val = e.target.value as 'xp' | 'milestone'
@@ -265,6 +274,7 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
                   <span className="text-xs text-gray-500">{t('sheet.sheetHeader.xpColon')}</span>
                   <input
                     type="number"
+                    name="xp"
                     className="w-20 text-xs bg-surface-2 border border-border rounded px-1 py-0.5 text-gray-300 focus:outline-none focus:border-amber-500"
                     defaultValue={character.xp}
                     min={0}

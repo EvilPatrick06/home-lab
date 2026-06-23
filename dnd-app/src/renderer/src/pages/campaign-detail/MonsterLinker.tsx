@@ -37,6 +37,7 @@ export default function MonsterLinker({ onSelect, selectedId, showPreview }: Mon
     <div className="space-y-2">
       <input
         type="text"
+        name="monster-search"
         value={query}
         onChange={(e) => handleSearch(e.target.value)}
         className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"

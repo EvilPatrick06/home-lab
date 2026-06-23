@@ -94,6 +94,7 @@ export default function RuleManager({ campaign, saveCampaign }: RuleManagerProps
           <div>
             <label className="block text-muted text-xs mb-1">{t('pages.ruleManager.ruleNameLabel')}</label>
             <input
+              name="rule-name"
               type="text"
               value={form.name}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
@@ -104,6 +105,7 @@ export default function RuleManager({ campaign, saveCampaign }: RuleManagerProps
           <div>
             <label className="block text-muted text-xs mb-1">{t('pages.ruleManager.categoryLabel')}</label>
             <select
+              name="rule-category"
               value={form.category}
               onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as CustomRule['category'] }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -118,6 +120,7 @@ export default function RuleManager({ campaign, saveCampaign }: RuleManagerProps
           <div>
             <label className="block text-muted text-xs mb-1">{t('pages.ruleManager.descriptionLabel')}</label>
             <textarea
+              name="rule-description"
               value={form.description}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500 h-20 resize-none"

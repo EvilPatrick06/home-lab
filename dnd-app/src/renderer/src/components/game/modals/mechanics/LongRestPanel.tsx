@@ -46,6 +46,7 @@ export default function LongRestPanel({ pcs, states, onStatesChange }: LongRestP
             <div className="flex items-center gap-3 mb-2">
               <input
                 type="checkbox"
+                name="long-rest-selected"
                 checked={state.selected}
                 onChange={() => toggleSelected(pc.id)}
                 className="accent-blue-500"

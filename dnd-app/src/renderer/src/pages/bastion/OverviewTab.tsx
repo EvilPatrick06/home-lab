@@ -76,6 +76,7 @@ function FactionRenownSection({ bastion }: { bastion: Bastion }): JSX.Element {
       )}
       <div className="flex gap-2">
         <input
+          name="faction-name"
           type="text"
           value={newFaction}
           onChange={(e) => setNewFaction(e.target.value)}
@@ -254,6 +255,7 @@ export function OverviewTab({
       <div className="bg-surface border border-gray-800 rounded-lg p-4">
         <h3 className="text-sm font-semibold text-gray-200 mb-2">{t('pages.overviewTab.notes')}</h3>
         <textarea
+          name="bastion-notes"
           value={bastion.notes}
           onChange={(e) => useBastionStore.getState().updateNotes(bastion.id, e.target.value)}
           placeholder={t('pages.overviewTab.notesPlaceholder')}

@@ -69,6 +69,7 @@ export default function CreatureSearchModal({
           </button>
         </div>
         <input
+          name="creature-search"
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}

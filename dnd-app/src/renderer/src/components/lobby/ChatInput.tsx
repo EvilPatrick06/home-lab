@@ -271,10 +271,18 @@ export default function ChatInput(): JSX.Element {
             </svg>
           </button>
         )}
-        <input ref={fileInputRef} type="file" accept={ACCEPTED_FILES} onChange={handleFileSelect} className="hidden" />
+        <input
+          ref={fileInputRef}
+          type="file"
+          name="chat-file"
+          accept={ACCEPTED_FILES}
+          onChange={handleFileSelect}
+          className="hidden"
+        />
 
         <input
           type="text"
+          name="chat-message"
           data-chat-input
           value={value}
           onChange={(e) => setValue(e.target.value)}

@@ -82,6 +82,7 @@ export default function LevelUpWizard5e({ character, incompleteChoices }: LevelU
       <div className="flex items-center gap-4 bg-surface/50 border border-gray-800 rounded-lg p-4">
         <label className="text-sm font-semibold text-gray-300">{t('levelup.wizard.targetLevel')}</label>
         <select
+          name="target-level"
           value={targetLevel}
           onChange={(e) => setTargetLevel(Number(e.target.value))}
           className="bg-surface-2 border border-gray-600 rounded px-3 py-1.5 text-sm text-fg focus:outline-none focus:border-amber-500"

@@ -334,6 +334,7 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
           <div className="bg-surface-2/50 rounded p-3 space-y-2">
             <div className="text-xs text-muted font-medium mb-1">{t('sheet.armorManager.armorShop')}</div>
             <select
+              name="armor-select"
               value={selectedArmorIdx}
               onChange={(e) => {
                 setSelectedArmorIdx(parseInt(e.target.value, 10))
@@ -390,6 +391,7 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
               <input
                 aria-label={t('sheet.armorManager.namePlaceholder')}
                 type="text"
+                name="armor-name"
                 placeholder={t('sheet.armorManager.namePlaceholder')}
                 value={customForm.name}
                 onChange={(e) => setCustomForm((f) => ({ ...f, name: e.target.value }))}
@@ -398,6 +400,7 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
               <input
                 aria-label={t('sheet.armorManager.acBonusPlaceholder')}
                 type="number"
+                name="armor-ac-bonus"
                 placeholder={t('sheet.armorManager.acBonusPlaceholder')}
                 value={customForm.acBonus}
                 onChange={(e) => setCustomForm((f) => ({ ...f, acBonus: e.target.value }))}
@@ -406,6 +409,7 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
             </div>
             <div className="flex gap-2">
               <select
+                name="armor-type"
                 value={customForm.type}
                 onChange={(e) =>
                   setCustomForm((f) => ({ ...f, type: e.target.value as 'armor' | 'shield' | 'clothing' }))
@@ -419,6 +423,7 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
               <input
                 aria-label={t('sheet.armorManager.categoryPlaceholder')}
                 type="text"
+                name="armor-category"
                 placeholder={t('sheet.armorManager.categoryPlaceholder')}
                 value={customForm.category}
                 onChange={(e) => setCustomForm((f) => ({ ...f, category: e.target.value }))}
@@ -427,6 +432,7 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
               <input
                 aria-label={t('sheet.armorManager.costPlaceholder')}
                 type="text"
+                name="armor-cost"
                 placeholder={t('sheet.armorManager.costPlaceholder')}
                 value={customForm.cost}
                 onChange={(e) => {

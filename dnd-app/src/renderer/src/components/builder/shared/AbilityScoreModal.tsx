@@ -233,6 +233,7 @@ export default function AbilityScoreModal(): JSX.Element {
 
                 {method === 'standard' ? (
                   <select
+                    name="ability-score"
                     value={standardAssignments[ab] ?? ''}
                     onChange={(e) => {
                       const val = e.target.value ? parseInt(e.target.value, 10) : null
@@ -273,6 +274,7 @@ export default function AbilityScoreModal(): JSX.Element {
                 ) : (
                   <input
                     type="number"
+                    name="ability-score"
                     value={score}
                     min={1}
                     max={20}

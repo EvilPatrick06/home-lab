@@ -99,6 +99,7 @@ export default function HiddenDiceModal({ onClose }: HiddenDiceModalProps): JSX.
         <div className="flex gap-2 mb-3">
           <input
             type="text"
+            name="dice-formula"
             value={formula}
             onChange={(e) => setFormula(e.target.value)}
             onKeyDown={(e) => {

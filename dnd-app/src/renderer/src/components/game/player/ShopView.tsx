@@ -279,12 +279,14 @@ export default function ShopView(): JSX.Element | null {
           <div className="flex gap-1.5">
             <input
               type="text"
+              name="shop-search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t('game.shopView.searchPlaceholder')}
               className="flex-1 px-2 py-1 rounded bg-surface-2 border border-border text-xs text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
             />
             <select
+              name="shop-category"
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value as ShopItemCategory | 'all')}
               className="px-2 py-1 rounded bg-surface-2 border border-border text-xs text-fg focus:outline-none focus:border-amber-500"

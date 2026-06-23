@@ -212,6 +212,7 @@ export default function MapManager({ campaign, saveCampaign }: MapManagerProps):
             <label className="block text-muted text-xs mb-1">{t('pages.mapManager.mapNameLabel')}</label>
             <input
               type="text"
+              name="map-name"
               value={mapForm.name}
               onChange={(e) => setMapForm((f) => ({ ...f, name: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -221,6 +222,7 @@ export default function MapManager({ campaign, saveCampaign }: MapManagerProps):
           <div>
             <label className="block text-muted text-xs mb-1">{t('pages.mapManager.gridType')}</label>
             <select
+              name="grid-type"
               value={mapForm.gridType}
               onChange={(e) => setMapForm((f) => ({ ...f, gridType: e.target.value as 'square' | 'hex' }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -245,6 +247,7 @@ export default function MapManager({ campaign, saveCampaign }: MapManagerProps):
             </div>
             <input
               type="number"
+              name="cell-size"
               value={mapForm.cellSize}
               onChange={(e) => setMapForm((f) => ({ ...f, cellSize: parseInt(e.target.value, 10) || 40 }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -274,6 +277,7 @@ export default function MapManager({ campaign, saveCampaign }: MapManagerProps):
             <label className="block text-muted text-xs mb-1">{t('pages.mapManager.mapNameLabel')}</label>
             <input
               type="text"
+              name="map-name"
               value={mapEditForm.name}
               onChange={(e) => setMapEditForm((f) => ({ ...f, name: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -282,6 +286,7 @@ export default function MapManager({ campaign, saveCampaign }: MapManagerProps):
           <div>
             <label className="block text-muted text-xs mb-1">{t('pages.mapManager.gridType')}</label>
             <select
+              name="grid-type"
               value={mapEditForm.gridType}
               onChange={(e) => setMapEditForm((f) => ({ ...f, gridType: e.target.value as 'square' | 'hex' }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -294,6 +299,7 @@ export default function MapManager({ campaign, saveCampaign }: MapManagerProps):
             <label className="block text-muted text-xs mb-1">{t('pages.mapManager.cellSize')}</label>
             <input
               type="number"
+              name="cell-size"
               value={mapEditForm.cellSize}
               onChange={(e) => setMapEditForm((f) => ({ ...f, cellSize: parseInt(e.target.value, 10) || 40 }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -305,6 +311,7 @@ export default function MapManager({ campaign, saveCampaign }: MapManagerProps):
             <label className="block text-muted text-xs mb-1">{t('pages.mapManager.gridColor')}</label>
             <input
               type="color"
+              name="grid-color"
               value={mapEditForm.gridColor}
               onChange={(e) => setMapEditForm((f) => ({ ...f, gridColor: e.target.value }))}
               className="w-12 h-8 bg-surface-2 border border-border rounded cursor-pointer"
@@ -314,6 +321,7 @@ export default function MapManager({ campaign, saveCampaign }: MapManagerProps):
             <label className="block text-muted text-xs mb-1">{t('pages.mapManager.gridOpacity')}</label>
             <input
               type="range"
+              name="grid-opacity"
               value={mapEditForm.gridOpacity}
               onChange={(e) => setMapEditForm((f) => ({ ...f, gridOpacity: parseFloat(e.target.value) }))}
               min={0}

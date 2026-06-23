@@ -44,6 +44,7 @@ export default function XCardButton(): JSX.Element {
           <p className="text-sm font-semibold text-gray-200">{t('game.xCard.confirmTitle')}</p>
           <p className="text-xs text-gray-400">{t('game.xCard.confirmBody')}</p>
           <input
+            name="x-card-topic"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             placeholder={t('game.xCard.topicPlaceholder')}

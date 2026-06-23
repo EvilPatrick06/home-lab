@@ -210,6 +210,7 @@ export default function TrapPlacerPanel({
         <input
           aria-label={t('game.trapPlacerPanel.searchPlaceholder')}
           type="text"
+          name="trap-search"
           placeholder={t('game.trapPlacerPanel.searchPlaceholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}

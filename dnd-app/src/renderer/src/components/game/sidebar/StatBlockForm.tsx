@@ -134,6 +134,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
           <div>
             <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.size')}</label>
             <select
+              name="size"
               value={sb.size ?? ''}
               onChange={(e) => update({ size: (e.target.value || undefined) as SidebarEntryStatBlock['size'] })}
               className="w-full px-1.5 py-0.5 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
@@ -149,6 +150,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
           <div>
             <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.creatureType')}</label>
             <input
+              name="creature-type"
               type="text"
               value={sb.creatureType ?? ''}
               onChange={(e) => update({ creatureType: e.target.value || undefined })}
@@ -159,6 +161,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
           <div>
             <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.alignment')}</label>
             <input
+              name="alignment"
               type="text"
               value={sb.alignment ?? ''}
               onChange={(e) => update({ alignment: e.target.value || undefined })}
@@ -169,6 +172,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
           <div>
             <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.cr')}</label>
             <input
+              name="cr"
               type="text"
               value={sb.cr ?? ''}
               onChange={(e) => update({ cr: e.target.value || undefined })}
@@ -179,6 +183,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
           <div>
             <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.xp')}</label>
             <input
+              name="xp"
               type="number"
               value={sb.xp ?? ''}
               onChange={(e) => update({ xp: e.target.value ? parseInt(e.target.value, 10) || undefined : undefined })}
@@ -198,6 +203,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
               <div key={ab} className="text-center">
                 <label className="text-[9px] text-gray-500 uppercase block">{ABILITY_LABELS[ab]}</label>
                 <input
+                  name={`ability-${ab}`}
                   type="number"
                   value={score}
                   onChange={(e) => updateAbilityScore(ab, e.target.value)}
@@ -218,6 +224,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
           <div>
             <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.ac')}</label>
             <input
+              name="ac"
               type="number"
               value={sb.ac ?? ''}
               onChange={(e) => update({ ac: e.target.value ? parseInt(e.target.value, 10) : undefined })}
@@ -227,6 +234,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
           <div>
             <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.acSource')}</label>
             <input
+              name="ac-source"
               type="text"
               value={sb.acSource ?? ''}
               onChange={(e) => update({ acSource: e.target.value || undefined })}
@@ -239,6 +247,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
           <div>
             <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.hpMax')}</label>
             <input
+              name="hp-max"
               type="number"
               value={sb.hpMax ?? ''}
               onChange={(e) => update({ hpMax: e.target.value ? parseInt(e.target.value, 10) : undefined })}
@@ -248,6 +257,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
           <div>
             <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.hpCurrent')}</label>
             <input
+              name="hp-current"
               type="number"
               value={sb.hpCurrent ?? ''}
               onChange={(e) => update({ hpCurrent: e.target.value ? parseInt(e.target.value, 10) : undefined })}
@@ -257,6 +267,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
           <div>
             <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.hpTemp')}</label>
             <input
+              name="hp-temp"
               type="number"
               value={sb.hpTemp ?? ''}
               onChange={(e) => update({ hpTemp: e.target.value ? parseInt(e.target.value, 10) : undefined })}
@@ -271,6 +282,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
               <div key={type}>
                 <label className="text-[8px] text-gray-600 capitalize block">{type}</label>
                 <input
+                  name={`speed-${type}`}
                   type="number"
                   value={sb.speeds?.[type] ?? ''}
                   onChange={(e) => updateSpeed(type, e.target.value)}
@@ -294,6 +306,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
             {SAVE_NAMES.map((save) => (
               <label key={save} className="flex items-center gap-0.5 text-xs text-gray-300 cursor-pointer">
                 <input
+                  name="saving-throw"
                   type="checkbox"
                   checked={sb.savingThrows?.includes(save) ?? false}
                   onChange={() => toggleSavingThrow(save)}
@@ -309,6 +322,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
           {(sb.skills ?? []).map((skill, idx) => (
             <div key={idx} className="flex gap-1 items-center mb-0.5">
               <input
+                name="skill-name"
                 type="text"
                 value={skill.name}
                 onChange={(e) => updateSkill(idx, 'name', e.target.value)}
@@ -316,12 +330,14 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
                 placeholder={t('game.statBlockForm.skillNamePlaceholder')}
               />
               <input
+                name="skill-modifier"
                 type="number"
                 value={skill.modifier}
                 onChange={(e) => updateSkill(idx, 'modifier', e.target.value)}
                 className="w-12 px-1 py-0.5 rounded bg-surface border border-border text-xs text-fg text-center focus:outline-none focus:border-amber-500"
               />
               <select
+                name="skill-proficiency"
                 value={skill.proficiency}
                 onChange={(e) => updateSkill(idx, 'proficiency', e.target.value)}
                 className="px-1 py-0.5 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
@@ -351,6 +367,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
           <div>
             <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.resistances')}</label>
             <input
+              name="resistances"
               type="text"
               value={sb.resistances?.join(', ') ?? ''}
               onChange={(e) =>
@@ -363,6 +380,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
           <div>
             <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.immunities')}</label>
             <input
+              name="immunities"
               type="text"
               value={sb.immunities?.join(', ') ?? ''}
               onChange={(e) => update({ immunities: e.target.value ? parseCommaSeparated(e.target.value) : undefined })}
@@ -373,6 +391,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
           <div>
             <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.vulnerabilities')}</label>
             <input
+              name="vulnerabilities"
               type="text"
               value={sb.vulnerabilities?.join(', ') ?? ''}
               onChange={(e) =>
@@ -385,6 +404,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
           <div>
             <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.conditionImmunities')}</label>
             <input
+              name="condition-immunities"
               type="text"
               value={sb.conditionImmunities?.join(', ') ?? ''}
               onChange={(e) =>
@@ -403,6 +423,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
           <div>
             <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.passivePerception')}</label>
             <input
+              name="passive-perception"
               type="number"
               value={sb.passivePerception ?? ''}
               onChange={(e) => update({ passivePerception: e.target.value ? parseInt(e.target.value, 10) : undefined })}
@@ -412,6 +433,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
           <div>
             <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.sensesLabel')}</label>
             <input
+              name="senses"
               type="text"
               value={sb.senses?.join(', ') ?? ''}
               onChange={(e) => update({ senses: e.target.value ? parseCommaSeparated(e.target.value) : undefined })}

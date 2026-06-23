@@ -100,6 +100,7 @@ export default function RulesStep({ rules, onChange }: RulesStepProps): JSX.Elem
             <div>
               <label className="block text-muted mb-2 text-sm">{t('campaign.rulesStep.description')}</label>
               <textarea
+                name="rule-description"
                 aria-label={t('campaign.rulesStep.descriptionPlaceholder')}
                 className="w-full p-3 rounded-lg bg-surface-2 border border-border text-fg
                   placeholder-gray-600 focus:outline-none focus:border-amber-500 transition-colors resize-none"
@@ -113,6 +114,7 @@ export default function RulesStep({ rules, onChange }: RulesStepProps): JSX.Elem
             <div>
               <label className="block text-muted mb-2 text-sm">{t('campaign.rulesStep.category')}</label>
               <select
+                name="rule-category"
                 className="p-3 rounded-lg bg-surface-2 border border-border text-fg
                   focus:outline-none focus:border-amber-500 transition-colors cursor-pointer"
                 value={newCategory}

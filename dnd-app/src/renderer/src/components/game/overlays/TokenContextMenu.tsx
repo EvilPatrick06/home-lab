@@ -288,6 +288,7 @@ export default function TokenContextMenu({
         <div className="px-4 py-2 flex items-center gap-1">
           <input
             type="number"
+            name="hp-value"
             value={hpValue}
             onChange={(e) => setHpValue(e.target.value)}
             onKeyDown={(e) => {

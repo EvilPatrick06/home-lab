@@ -53,6 +53,7 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
         <div>
           <label className="block text-muted mb-2 text-sm">{t('campaign.detailsStep.description')}</label>
           <textarea
+            name="description"
             aria-label={t('campaign.detailsStep.descriptionPlaceholder')}
             className="w-full p-3 rounded-lg bg-surface-2 border border-border text-fg
               placeholder-gray-600 focus:outline-none focus:border-amber-500 transition-colors resize-none"
@@ -116,6 +117,7 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
             <label className="block text-muted mb-2 text-sm">{t('campaign.detailsStep.maxPlayers')}</label>
             <input
               type="number"
+              name="max-players"
               min={2}
               max={8}
               className="w-24 p-3 rounded-lg bg-surface-2 border border-border text-fg
@@ -185,6 +187,7 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
           <div>
             <label className="block text-muted mb-2 text-sm">{t('campaign.detailsStep.lobbyMessage')}</label>
             <textarea
+              name="lobby-message"
               aria-label={t('campaign.detailsStep.lobbyMessagePlaceholder')}
               className="w-full p-3 rounded-lg bg-surface-2 border border-border text-fg
                 placeholder-gray-600 focus:outline-none focus:border-amber-500 transition-colors resize-none"

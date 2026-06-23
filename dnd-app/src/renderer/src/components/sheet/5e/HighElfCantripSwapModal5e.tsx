@@ -135,6 +135,7 @@ export default function HighElfCantripSwapModal5e({
         <input
           aria-label={t('sheet.highElfCantripSwap.searchCantripsPlaceholder')}
           type="text"
+          name="search-cantrips"
           placeholder={t('sheet.highElfCantripSwap.searchCantripsPlaceholder')}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}

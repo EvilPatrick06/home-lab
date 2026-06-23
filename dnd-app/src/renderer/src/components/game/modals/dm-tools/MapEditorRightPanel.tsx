@@ -190,6 +190,7 @@ export default function MapEditorRightPanel({
                         {t('game.mapEditorRightPanel.portalConfiguration')}
                       </div>
                       <select
+                        name="portal-target-map"
                         className="w-full bg-surface border border-border rounded text-xs text-gray-200 px-2 py-1"
                         value={portalTarget?.mapId ?? ''}
                         onChange={(e) =>
@@ -214,6 +215,7 @@ export default function MapEditorRightPanel({
                           </label>
                           <input
                             type="number"
+                            name="portal-target-x"
                             className="w-full bg-surface border border-border rounded text-xs text-gray-200 px-2 py-1"
                             value={portalTarget?.gridX ?? 0}
                             onChange={(e) =>
@@ -231,6 +233,7 @@ export default function MapEditorRightPanel({
                           </label>
                           <input
                             type="number"
+                            name="portal-target-y"
                             className="w-full bg-surface border border-border rounded text-xs text-gray-200 px-2 py-1"
                             value={portalTarget?.gridY ?? 0}
                             onChange={(e) =>

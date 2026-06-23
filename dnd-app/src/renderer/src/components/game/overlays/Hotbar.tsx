@@ -108,6 +108,7 @@ function SlotEditor({
       <div className="space-y-2">
         <input
           type="text"
+          name="macro-name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder={t('game.hotbar.macroNamePlaceholder')}
@@ -115,6 +116,7 @@ function SlotEditor({
         />
         <input
           type="text"
+          name="macro-command"
           value={command}
           onChange={(e) => setCommand(e.target.value)}
           placeholder={t('game.hotbar.commandPlaceholder')}

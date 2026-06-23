@@ -126,6 +126,7 @@ export default function RulingApprovalModal(): JSX.Element | null {
           <div className="mt-4">
             <label className="block text-xs text-muted mb-1">{t('game.rulingApprovalModal.dmNoteLabel')}</label>
             <input
+              name="dm-note"
               type="text"
               value={dmNote}
               onChange={(e) => setDmNote(e.target.value)}

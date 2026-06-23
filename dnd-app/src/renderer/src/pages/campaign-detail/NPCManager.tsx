@@ -289,6 +289,7 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
               </label>
               <input
                 type="text"
+                name="quick-add-monster-search"
                 value={monsterSearchQuery}
                 onChange={(e) => handleMonsterSearch(e.target.value)}
                 className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -338,6 +339,7 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
               <label className="block text-muted text-xs mb-1">{t('pages.npcManager.nameLabel')}</label>
               <input
                 type="text"
+                name="npc-name"
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                 className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -347,6 +349,7 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
             <div>
               <label className="block text-muted text-xs mb-1">{t('pages.npcManager.roleLabel')}</label>
               <select
+                name="npc-role"
                 value={form.role ?? ''}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, role: e.target.value ? (e.target.value as NPC['role']) : undefined }))
@@ -365,6 +368,7 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
               <label className="block text-muted text-xs mb-1">{t('pages.npcManager.locationLabel')}</label>
               <input
                 type="text"
+                name="npc-location"
                 value={form.location}
                 onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
                 className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -375,6 +379,7 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
           <div>
             <label className="block text-muted text-xs mb-1">{t('pages.npcManager.descriptionLabel')}</label>
             <textarea
+              name="npc-description"
               value={form.description}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500 h-16 resize-none"
@@ -386,6 +391,7 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
               <label className="block text-muted text-xs mb-1">{t('pages.npcManager.personalityLabel')}</label>
               <input
                 type="text"
+                name="npc-personality"
                 value={form.personality}
                 onChange={(e) => setForm((f) => ({ ...f, personality: e.target.value }))}
                 className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -396,6 +402,7 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
               <label className="block text-muted text-xs mb-1">{t('pages.npcManager.motivationLabel')}</label>
               <input
                 type="text"
+                name="npc-motivation"
                 value={form.motivation}
                 onChange={(e) => setForm((f) => ({ ...f, motivation: e.target.value }))}
                 className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -406,6 +413,7 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
           <div>
             <label className="block text-muted text-xs mb-1">{t('pages.npcManager.notesLabel')}</label>
             <textarea
+              name="npc-notes"
               value={form.notes}
               onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500 h-16 resize-none"
@@ -415,6 +423,7 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
           <label className="flex items-center gap-2 text-sm text-gray-300">
             <input
               type="checkbox"
+              name="npc-visible"
               checked={form.isVisible}
               onChange={(e) => setForm((f) => ({ ...f, isVisible: e.target.checked }))}
               className="rounded"
@@ -451,6 +460,7 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
               <div className="space-y-2">
                 <input
                   type="text"
+                  name="monster-search"
                   value={monsterSearchQuery}
                   onChange={(e) => handleMonsterSearch(e.target.value)}
                   className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"

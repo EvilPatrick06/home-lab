@@ -188,6 +188,7 @@ export default function DMNotepad(): JSX.Element {
 
           {/* Search */}
           <input
+            name="notepad-search"
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -198,6 +199,7 @@ export default function DMNotepad(): JSX.Element {
           {/* New entry */}
           <div className="flex gap-1.5">
             <textarea
+              name="notepad-new-entry"
               value={newEntryText}
               onChange={(e) => setNewEntryText(e.target.value)}
               onKeyDown={(e) => {
@@ -335,6 +337,7 @@ function SessionGroup({
               {editingId === entry.id ? (
                 <div className="space-y-1">
                   <textarea
+                    name="notepad-edit-entry"
                     value={editText}
                     onChange={(e) => onEditTextChange(e.target.value)}
                     rows={3}

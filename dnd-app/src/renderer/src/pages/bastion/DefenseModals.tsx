@@ -42,6 +42,7 @@ export function RecruitDefendersModal({
             <div className="flex flex-col gap-1">
               <label className="text-xs text-gray-500">{t('pages.recruitDefendersModal.barrack')}</label>
               <select
+                name="recruit-barrack-id"
                 value={recruitBarrackId}
                 onChange={(e) => setRecruitBarrackId(e.target.value)}
                 className="bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -61,6 +62,7 @@ export function RecruitDefendersModal({
             <div className="flex flex-col gap-1">
               <label className="text-xs text-gray-500">{t('pages.recruitDefendersModal.namesLabel')}</label>
               <input
+                name="recruit-names"
                 type="text"
                 value={recruitNames}
                 onChange={(e) => setRecruitNames(e.target.value)}
@@ -119,6 +121,7 @@ export function BuildWallsModal({
         <div className="flex flex-col gap-1">
           <label className="text-xs text-gray-500">{t('pages.buildWallsModal.squaresToBuild')}</label>
           <input
+            name="wall-squares"
             type="number"
             min={1}
             max={20}

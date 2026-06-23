@@ -138,6 +138,7 @@ export default function ShopPanel(): JSX.Element {
         <div className="space-y-2">
           <input
             type="text"
+            name="shop-name"
             value={shopNameInput}
             onChange={(e) => setShopNameInput(e.target.value)}
             placeholder={t('game.shopPanel.namePlaceholder')}

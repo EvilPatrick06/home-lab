@@ -123,6 +123,7 @@ export function PluginManager(): JSX.Element {
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
+                    name="plugin-enabled"
                     checked={plugin.enabled}
                     onChange={() => handleToggle(plugin)}
                     className="sr-only peer"

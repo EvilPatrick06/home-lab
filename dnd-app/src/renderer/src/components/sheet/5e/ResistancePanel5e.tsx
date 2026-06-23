@@ -290,6 +290,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
             <input
               aria-label={t('sheet.resistancePanel.customPlaceholder')}
               type="text"
+              name="custom-defense"
               placeholder={t('sheet.resistancePanel.customPlaceholder')}
               value={customDefenseInput}
               onChange={(e) => setCustomDefenseInput(e.target.value)}

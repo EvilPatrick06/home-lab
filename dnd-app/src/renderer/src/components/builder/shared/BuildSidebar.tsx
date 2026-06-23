@@ -43,6 +43,7 @@ export default function BuildSidebar(): JSX.Element {
       <div className="p-3 border-b border-border space-y-2">
         <input
           type="text"
+          name="character-name"
           value={characterName}
           onChange={(e) => setCharacterName(e.target.value)}
           placeholder={t('builder.buildSidebar.characterNamePlaceholder')}

@@ -137,6 +137,7 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
             <label className="text-xs text-muted block mb-1">{t('game.customEffectModal.effectName')}</label>
             <input
               type="text"
+              name="effect-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t('game.customEffectModal.effectNamePlaceholder')}
@@ -148,6 +149,7 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
           <div>
             <label className="text-xs text-muted block mb-1">{t('game.customEffectModal.target')}</label>
             <select
+              name="target-id"
               value={targetId}
               onChange={(e) => setTargetId(e.target.value)}
               className="w-full bg-surface-2 border border-border rounded px-3 py-1.5 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -166,6 +168,7 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
             <div className="text-xs text-muted mb-2">{t('game.customEffectModal.addEffect')}</div>
             <div className="flex gap-2 flex-wrap">
               <select
+                name="effect-type"
                 value={effectType}
                 onChange={(e) => setEffectType(e.target.value as EffectType)}
                 className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg focus:outline-none focus:border-amber-500"
@@ -179,6 +182,7 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
               {needsNumericValue && (
                 <input
                   type="number"
+                  name="effect-value"
                   value={value}
                   onChange={(e) => setValue(e.target.value)}
                   className="w-16 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg text-center focus:outline-none focus:border-amber-500"
@@ -187,6 +191,7 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
               {needsStringValue && (
                 <input
                   type="text"
+                  name="effect-string-value"
                   value={stringValue}
                   onChange={(e) => setStringValue(e.target.value)}
                   placeholder={t('game.customEffectModal.stringValuePlaceholder')}
@@ -224,6 +229,7 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
             <label className="text-xs text-muted block mb-1">{t('game.customEffectModal.duration')}</label>
             <div className="flex gap-2">
               <select
+                name="duration-type"
                 value={durationType}
                 onChange={(e) => setDurationType(e.target.value)}
                 className="bg-surface-2 border border-border rounded px-3 py-1.5 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -237,6 +243,7 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
               {durationType && (
                 <input
                   type="number"
+                  name="duration-value"
                   min={1}
                   value={durationValue}
                   onChange={(e) => setDurationValue(e.target.value)}

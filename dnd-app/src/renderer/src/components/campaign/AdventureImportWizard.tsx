@@ -78,6 +78,7 @@ export default function AdventureImportWizard({ open, onClose, onImport }: Adven
               <label className="flex items-center gap-2 text-sm text-gray-300">
                 <input
                   type="checkbox"
+                  name="include-encounters"
                   checked={includeEncounters}
                   onChange={(e) => setIncludeEncounters(e.target.checked)}
                   className="accent-amber-500"
@@ -87,6 +88,7 @@ export default function AdventureImportWizard({ open, onClose, onImport }: Adven
               <label className="flex items-center gap-2 text-sm text-gray-300">
                 <input
                   type="checkbox"
+                  name="include-npcs"
                   checked={includeNpcs}
                   onChange={(e) => setIncludeNpcs(e.target.checked)}
                   className="accent-amber-500"

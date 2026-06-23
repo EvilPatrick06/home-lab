@@ -179,6 +179,7 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
             <label className="block text-muted text-xs mb-1">{t('pages.adventureManager.titleLabel')}</label>
             <input
               type="text"
+              name="adventure-title"
               value={form.title}
               onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -187,6 +188,7 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
           <div>
             <label className="block text-muted text-xs mb-1">{t('pages.adventureManager.levelTier')}</label>
             <select
+              name="level-tier"
               value={form.levelTier}
               onChange={(e) => setForm((f) => ({ ...f, levelTier: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -200,6 +202,7 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
           <div>
             <label className="block text-muted text-xs mb-1">{t('pages.adventureManager.premise')}</label>
             <textarea
+              name="premise"
               value={form.premise}
               onChange={(e) => setForm((f) => ({ ...f, premise: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500 h-16 resize-none"
@@ -208,6 +211,7 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
           <div>
             <label className="block text-muted text-xs mb-1">{t('pages.adventureManager.adventureHook')}</label>
             <textarea
+              name="adventure-hook"
               value={form.hook}
               onChange={(e) => setForm((f) => ({ ...f, hook: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500 h-16 resize-none"
@@ -218,6 +222,7 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
               <label className="block text-muted text-xs mb-1">{t('pages.adventureManager.villainAntagonist')}</label>
               <input
                 type="text"
+                name="villain"
                 value={form.villain}
                 onChange={(e) => setForm((f) => ({ ...f, villain: e.target.value }))}
                 className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -227,6 +232,7 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
               <label className="block text-muted text-xs mb-1">{t('pages.adventureManager.setting')}</label>
               <input
                 type="text"
+                name="setting"
                 value={form.setting}
                 onChange={(e) => setForm((f) => ({ ...f, setting: e.target.value }))}
                 className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -236,6 +242,7 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
           <div>
             <label className="block text-muted text-xs mb-1">{t('pages.adventureManager.playerStakes')}</label>
             <textarea
+              name="player-stakes"
               value={form.playerStakes}
               onChange={(e) => setForm((f) => ({ ...f, playerStakes: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500 h-16 resize-none"
@@ -244,6 +251,7 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
           <div>
             <label className="block text-muted text-xs mb-1">{t('pages.adventureManager.encounters')}</label>
             <textarea
+              name="encounters"
               value={form.encounters}
               onChange={(e) => setForm((f) => ({ ...f, encounters: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500 h-16 resize-none"
@@ -252,6 +260,7 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
           <div>
             <label className="block text-muted text-xs mb-1">{t('pages.adventureManager.climax')}</label>
             <textarea
+              name="climax"
               value={form.climax}
               onChange={(e) => setForm((f) => ({ ...f, climax: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500 h-16 resize-none"
@@ -260,6 +269,7 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
           <div>
             <label className="block text-muted text-xs mb-1">{t('pages.adventureManager.resolution')}</label>
             <textarea
+              name="resolution"
               value={form.resolution}
               onChange={(e) => setForm((f) => ({ ...f, resolution: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500 h-16 resize-none"

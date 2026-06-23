@@ -74,6 +74,7 @@ export default function VoiceCastSection({ campaignId }: Props): JSX.Element {
               <span className="text-gray-300 min-w-20 truncate">{e.speaker}</span>
               {pool.length > 0 ? (
                 <select
+                  name="voice-id"
                   className="bg-surface-2/60 border border-border/50 rounded px-1 py-0.5 text-gray-300"
                   value={e.voice_id}
                   onChange={(ev) => void onSetVoice(e.speaker, ev.target.value)}

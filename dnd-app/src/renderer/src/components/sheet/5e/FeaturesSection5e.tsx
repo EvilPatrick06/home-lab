@@ -400,6 +400,7 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
             <div className="mt-2 bg-surface-2/50 rounded p-3 space-y-2">
               <input
                 aria-label={t('sheet.features.featureNamePlaceholder')}
+                name="grant-name"
                 type="text"
                 placeholder={t('sheet.features.featureNamePlaceholder')}
                 value={grantName}
@@ -409,6 +410,7 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
               <div className="flex gap-2">
                 <input
                   aria-label={t('sheet.features.sourcePlaceholder')}
+                  name="grant-source"
                   type="text"
                   placeholder={t('sheet.features.sourcePlaceholder')}
                   value={grantSource}
@@ -417,6 +419,7 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
                 />
                 <label className="flex items-center gap-1 text-xs text-muted cursor-pointer shrink-0">
                   <input
+                    name="grant-temporary"
                     type="checkbox"
                     checked={grantTemporary}
                     onChange={(e) => setGrantTemporary(e.target.checked)}
@@ -427,6 +430,7 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
               </div>
               <textarea
                 aria-label={t('sheet.features.descriptionPlaceholder')}
+                name="grant-description"
                 placeholder={t('sheet.features.descriptionPlaceholder')}
                 value={grantDescription}
                 onChange={(e) => setGrantDescription(e.target.value)}

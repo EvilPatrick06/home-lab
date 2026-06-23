@@ -57,6 +57,7 @@ export default function ShopInventoryTable({
         </h3>
         <div className="flex items-center gap-2">
           <select
+            name="filter-category"
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value as ShopItemCategory | 'all')}
             className="bg-surface-2 border border-border rounded px-2 py-0.5 text-xs text-gray-300 focus:outline-none focus:border-amber-500"
@@ -170,6 +171,7 @@ export default function ShopInventoryTable({
                       <label className="block text-xs text-gray-500 mb-0.5">{t('game.shopInventoryTable.price')}</label>
                       <input
                         type="number"
+                        name="item-price-gp"
                         defaultValue={item.price.gp ?? 0}
                         onBlur={(e) => {
                           const gp = Number.parseFloat(e.target.value) || 0
@@ -185,6 +187,7 @@ export default function ShopInventoryTable({
                       <input
                         aria-label={t('game.shopInventoryTable.unlimited')}
                         type="number"
+                        name="item-stock-limit"
                         defaultValue={item.stockLimit ?? ''}
                         placeholder={t('game.shopInventoryTable.unlimited')}
                         onBlur={(e) => {
@@ -211,6 +214,7 @@ export default function ShopInventoryTable({
                       </label>
                       <input
                         type="number"
+                        name="item-quantity"
                         defaultValue={item.quantity}
                         onBlur={(e) => {
                           const qty = Math.max(0, Number.parseInt(e.target.value, 10) || 0)
@@ -224,6 +228,7 @@ export default function ShopInventoryTable({
                         {t('game.shopInventoryTable.rarity')}
                       </label>
                       <select
+                        name="item-rarity"
                         defaultValue={item.rarity ?? 'common'}
                         onChange={(e) => onUpdate(item.id, { rarity: e.target.value as ShopItemRarity })}
                         className="w-full bg-surface-2 border border-border rounded px-2 py-0.5 text-[11px] text-fg focus:outline-none focus:border-amber-500"
@@ -241,6 +246,7 @@ export default function ShopInventoryTable({
                     <input
                       aria-label={t('game.shopInventoryTable.dmNotesPlaceholder')}
                       type="text"
+                      name="item-dm-notes"
                       defaultValue={item.dmNotes ?? ''}
                       placeholder={t('game.shopInventoryTable.dmNotesPlaceholder')}
                       onBlur={(e) => onUpdate(item.id, { dmNotes: e.target.value.trim() || undefined })}

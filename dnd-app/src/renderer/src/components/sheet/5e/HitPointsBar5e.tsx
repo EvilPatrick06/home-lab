@@ -91,6 +91,7 @@ function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBa
         <div className="space-y-1 mt-1">
           <div className="flex items-center justify-center gap-1">
             <input
+              name="hp-current"
               type="number"
               value={hpCurrent}
               onChange={(e) => setHpCurrent(parseInt(e.target.value, 10) || 0)}
@@ -98,6 +99,7 @@ function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBa
             />
             <span className="text-gray-500">/</span>
             <input
+              name="hp-max"
               type="number"
               value={hpMax}
               onChange={(e) => setHpMax(parseInt(e.target.value, 10) || 0)}
@@ -107,6 +109,7 @@ function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBa
           <div className="flex items-center justify-center gap-1">
             <span className="text-xs text-gray-500">{t('sheet.hitPointsBar.temp')}</span>
             <input
+              name="hp-temp"
               type="number"
               value={hpTemp}
               onChange={(e) => setHpTemp(parseInt(e.target.value, 10) || 0)}
@@ -156,6 +159,7 @@ function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBa
           {!readonly && (
             <div className="flex items-center gap-1 mt-1">
               <input
+                name="hp-amount"
                 type="number"
                 value={quickAmt}
                 onChange={(e) => setQuickAmt(e.target.value)}

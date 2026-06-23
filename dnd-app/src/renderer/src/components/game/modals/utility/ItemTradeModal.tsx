@@ -155,6 +155,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
                 {t('game.itemTradeModal.tradeWith')}
               </label>
               <select
+                name="trade-target"
                 value={targetPeerId}
                 onChange={(e) => setTargetPeerId(e.target.value)}
                 className="w-full mt-1 bg-surface-2 border border-border rounded px-2 py-1.5 text-xs text-gray-200 outline-none cursor-pointer"
@@ -182,6 +183,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
                     <div key={name} className="flex items-center gap-2">
                       <label className="flex items-center gap-1.5 flex-1 text-xs text-gray-300 cursor-pointer">
                         <input
+                          name="offer-item"
                           type="checkbox"
                           checked={!!selected}
                           onChange={() => toggleItem(name, desc)}
@@ -191,6 +193,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
                       </label>
                       {selected && (
                         <input
+                          name="offer-item-quantity"
                           type="number"
                           min={1}
                           value={selected.quantity}
@@ -213,6 +216,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
                 {t('game.itemTradeModal.goldToOffer')}
               </label>
               <input
+                name="offered-gold"
                 type="number"
                 min={0}
                 value={offeredGold}
@@ -227,6 +231,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
                 {t('game.itemTradeModal.itemsYouWant')}
               </label>
               <input
+                name="requested-items"
                 aria-label={t('game.itemTradeModal.itemsWantPlaceholder')}
                 type="text"
                 placeholder={t('game.itemTradeModal.itemsWantPlaceholder')}
@@ -242,6 +247,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
                 {t('game.itemTradeModal.goldRequested')}
               </label>
               <input
+                name="requested-gold"
                 type="number"
                 min={0}
                 value={requestedGold}

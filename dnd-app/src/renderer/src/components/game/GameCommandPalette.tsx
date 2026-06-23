@@ -145,6 +145,7 @@ export default function GameCommandPalette({ onOpenModal, isDM }: GameCommandPal
       >
         <input
           ref={inputRef}
+          name="command-palette-query"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => {

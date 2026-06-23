@@ -81,6 +81,7 @@ function ActionListEditor({
           <div className="flex gap-1">
             <input
               type="text"
+              name="action-name"
               value={action.name}
               onChange={(e) => updateAction(i, { name: e.target.value })}
               placeholder={t('game.statBlockEditor.actionNamePlaceholder')}
@@ -94,6 +95,7 @@ function ActionListEditor({
             </button>
           </div>
           <textarea
+            name="action-description"
             value={action.description}
             onChange={(e) => updateAction(i, { description: e.target.value })}
             placeholder={t('game.statBlockEditor.descriptionPlaceholder')}
@@ -101,6 +103,7 @@ function ActionListEditor({
           />
           <div className="flex gap-1">
             <select
+              name="action-attack-type"
               value={action.attackType ?? ''}
               onChange={(e) =>
                 updateAction(i, { attackType: (e.target.value as MonsterAction['attackType']) || undefined })
@@ -116,6 +119,7 @@ function ActionListEditor({
               <>
                 <input
                   type="number"
+                  name="action-to-hit"
                   value={action.toHit ?? ''}
                   onChange={(e) =>
                     updateAction(i, { toHit: e.target.value ? parseInt(e.target.value, 10) : undefined })
@@ -125,6 +129,7 @@ function ActionListEditor({
                 />
                 <input
                   type="text"
+                  name="action-damage-dice"
                   value={action.damageDice ?? ''}
                   onChange={(e) => updateAction(i, { damageDice: e.target.value || undefined })}
                   placeholder={t('game.statBlockEditor.damageDicePlaceholder')}
@@ -132,6 +137,7 @@ function ActionListEditor({
                 />
                 <input
                   type="text"
+                  name="action-damage-type"
                   value={action.damageType ?? ''}
                   onChange={(e) => updateAction(i, { damageType: e.target.value || undefined })}
                   placeholder={t('game.statBlockEditor.typePlaceholder')}
@@ -164,6 +170,7 @@ function TraitListEditor({
         <div key={i} className="flex gap-1">
           <input
             type="text"
+            name="trait-name"
             value={trait.name}
             onChange={(e) => onChange(traits.map((t, idx) => (idx === i ? { ...t, name: e.target.value } : t)))}
             placeholder={t('game.statBlockEditor.namePlaceholder')}
@@ -171,6 +178,7 @@ function TraitListEditor({
           />
           <input
             type="text"
+            name="trait-description"
             value={trait.description}
             onChange={(e) => onChange(traits.map((t, idx) => (idx === i ? { ...t, description: e.target.value } : t)))}
             placeholder={t('game.statBlockEditor.descriptionPlaceholder')}
@@ -231,6 +239,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.name')}</label>
             <input
               type="text"
+              name="monster-name"
               value={value.name ?? ''}
               aria-invalid={nameError || undefined}
               aria-describedby={nameError ? nameErrorId : undefined}
@@ -250,6 +259,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.alignment')}</label>
             <input
               type="text"
+              name="alignment"
               value={value.alignment ?? ''}
               onChange={(e) => update('alignment', e.target.value)}
               className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg"
@@ -258,6 +268,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
           <div>
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.size')}</label>
             <select
+              name="size"
               value={value.size ?? 'Medium'}
               onChange={(e) => update('size', e.target.value as CreatureSize)}
               className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
@@ -272,6 +283,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
           <div>
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.type')}</label>
             <select
+              name="creature-type"
               value={value.type ?? 'Humanoid'}
               onChange={(e) => update('type', e.target.value as CreatureType)}
               className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
@@ -287,6 +299,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.cr')}</label>
             <input
               type="text"
+              name="cr"
               value={value.cr ?? ''}
               onChange={(e) => update('cr', e.target.value)}
               className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg"
@@ -297,6 +310,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.xp')}</label>
             <input
               type="number"
+              name="xp"
               value={value.xp ?? ''}
               onChange={(e) => update('xp', parseInt(e.target.value, 10) || 0)}
               className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg"
@@ -312,6 +326,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.ac')}</label>
             <input
               type="number"
+              name="ac"
               value={value.ac ?? ''}
               min={0}
               aria-invalid={acError || undefined}
@@ -331,6 +346,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.acType')}</label>
             <input
               type="text"
+              name="ac-type"
               value={value.acType ?? ''}
               onChange={(e) => update('acType', e.target.value)}
               className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg"
@@ -341,6 +357,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.hp')}</label>
             <input
               type="number"
+              name="hp"
               value={value.hp ?? ''}
               min={0}
               aria-invalid={hpError || undefined}
@@ -360,6 +377,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.hitDice')}</label>
             <input
               type="text"
+              name="hit-dice"
               value={value.hitDice ?? ''}
               onChange={(e) => update('hitDice', e.target.value)}
               className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg"
@@ -372,6 +390,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.walk')}</label>
             <input
               type="number"
+              name="speed-walk"
               value={speed.walk ?? 0}
               onChange={(e) => update('speed', { ...speed, walk: parseInt(e.target.value, 10) || 0 })}
               className="w-full bg-surface-2 border border-border rounded px-1 py-0.5 text-xs text-fg text-center"
@@ -381,6 +400,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.fly')}</label>
             <input
               type="number"
+              name="speed-fly"
               value={speed.fly ?? ''}
               onChange={(e) =>
                 update('speed', { ...speed, fly: e.target.value ? parseInt(e.target.value, 10) : undefined })
@@ -392,6 +412,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.swim')}</label>
             <input
               type="number"
+              name="speed-swim"
               value={speed.swim ?? ''}
               onChange={(e) =>
                 update('speed', { ...speed, swim: e.target.value ? parseInt(e.target.value, 10) : undefined })
@@ -403,6 +424,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.climb')}</label>
             <input
               type="number"
+              name="speed-climb"
               value={speed.climb ?? ''}
               onChange={(e) =>
                 update('speed', { ...speed, climb: e.target.value ? parseInt(e.target.value, 10) : undefined })
@@ -414,6 +436,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.burrow')}</label>
             <input
               type="number"
+              name="speed-burrow"
               value={speed.burrow ?? ''}
               onChange={(e) =>
                 update('speed', { ...speed, burrow: e.target.value ? parseInt(e.target.value, 10) : undefined })
@@ -435,6 +458,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
                 <label className="text-xs text-gray-500 uppercase text-center block">{ab}</label>
                 <input
                   type="number"
+                  name="ability-score"
                   value={abilities[ab]}
                   min={1}
                   max={30}
@@ -466,6 +490,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
               <div key={ab} className="flex items-center gap-1">
                 <input
                   type="checkbox"
+                  name="saving-throw-active"
                   checked={isActive}
                   onChange={(e) => {
                     const next = { ...saves }
@@ -485,6 +510,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
                 {isActive && (
                   <input
                     type="number"
+                    name="saving-throw-bonus"
                     value={saves[ab] ?? 0}
                     onChange={(e) => update('savingThrows', { ...saves, [ab]: parseInt(e.target.value, 10) || 0 })}
                     className="w-10 bg-surface-2 border border-border rounded px-1 py-0.5 text-xs text-fg text-center"
@@ -504,6 +530,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
           {Object.entries(value.skills ?? {}).map(([skill, bonus]) => (
             <div key={skill} className="flex gap-1 items-center">
               <select
+                name="skill-name"
                 value={skill}
                 onChange={(e) => {
                   const next = { ...value.skills }
@@ -522,6 +549,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
               </select>
               <input
                 type="number"
+                name="skill-bonus"
                 value={bonus}
                 onChange={(e) =>
                   update('skills', {
@@ -566,6 +594,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.resistances')}</label>
             <input
               type="text"
+              name="resistances"
               value={(value.resistances ?? []).join(', ')}
               onChange={(e) =>
                 update(
@@ -583,6 +612,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.vulnerabilities')}</label>
             <input
               type="text"
+              name="vulnerabilities"
               value={(value.vulnerabilities ?? []).join(', ')}
               onChange={(e) =>
                 update(
@@ -600,6 +630,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.damageImmunities')}</label>
             <input
               type="text"
+              name="damage-immunities"
               value={(value.damageImmunities ?? []).join(', ')}
               onChange={(e) =>
                 update(
@@ -617,6 +648,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.conditionImmunities')}</label>
             <input
               type="text"
+              name="condition-immunities"
               value={(value.conditionImmunities ?? []).join(', ')}
               onChange={(e) =>
                 update(
@@ -640,6 +672,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.passivePerception')}</label>
             <input
               type="number"
+              name="passive-perception"
               value={value.senses?.passivePerception ?? 10}
               onChange={(e) =>
                 update('senses', {
@@ -654,6 +687,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.darkvision')}</label>
             <input
               type="number"
+              name="darkvision"
               value={value.senses?.darkvision ?? ''}
               onChange={(e) =>
                 update('senses', {
@@ -669,6 +703,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
           <label className="text-xs text-gray-500">{t('game.statBlockEditor.languages')}</label>
           <input
             type="text"
+            name="languages"
             value={(value.languages ?? []).join(', ')}
             onChange={(e) =>
               update(
@@ -722,6 +757,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.usesPerRound')}</label>
             <input
               type="number"
+              name="legendary-uses"
               value={value.legendaryActions?.uses ?? 3}
               onChange={(e) =>
                 update('legendaryActions', {
@@ -738,6 +774,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
               <div className="flex gap-1">
                 <input
                   type="text"
+                  name="legendary-action-name"
                   value={action.name}
                   onChange={(e) => {
                     const actions = [...(value.legendaryActions?.actions ?? [])]
@@ -762,6 +799,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
                 </button>
               </div>
               <textarea
+                name="legendary-action-description"
                 value={action.description}
                 onChange={(e) => {
                   const actions = [...(value.legendaryActions?.actions ?? [])]

@@ -171,6 +171,7 @@ export default function MacroBar({ character, onRoll }: MacroBarProps): JSX.Elem
       <div className="shrink-0 flex items-center gap-1 ml-1">
         <input
           type="text"
+          name="custom-formula"
           value={customFormula}
           onChange={(e) => setCustomFormula(e.target.value)}
           onKeyDown={(e) => {

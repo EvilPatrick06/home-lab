@@ -853,6 +853,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
         </button>
         <div className="flex items-center gap-1 text-sm text-gray-300">
           <input
+            name="page-input"
             type="text"
             value={pageInput}
             onChange={(e) => setPageInput(e.target.value)}
@@ -1000,6 +1001,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
         <div className="flex items-center gap-2 px-4 py-2 bg-surface/90 border-b border-gray-800 shrink-0">
           <input
             ref={searchInputRef}
+            name="search-query"
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -1054,6 +1056,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
         <div className="flex items-center gap-2 px-4 py-2 bg-surface/90 border-b border-gray-800 shrink-0">
           <span className="text-sm text-muted">{t('library.pdfViewer.noteForPage', { page: currentPage })}</span>
           <input
+            name="annotation-text"
             type="text"
             value={annotationText}
             onChange={(e) => setAnnotationText(e.target.value)}

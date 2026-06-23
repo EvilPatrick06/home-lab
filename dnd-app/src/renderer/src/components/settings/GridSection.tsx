@@ -37,6 +37,7 @@ export function GridSection(): JSX.Element {
           <div className="flex items-center gap-3">
             <input
               type="range"
+              name="grid-opacity"
               min={0}
               max={100}
               value={gridOpacity}
@@ -51,6 +52,7 @@ export function GridSection(): JSX.Element {
           <div className="flex items-center gap-2">
             <input
               type="color"
+              name="grid-color"
               value={gridColor}
               onChange={(e) => handleGridColorChange(e.target.value)}
               className="w-8 h-8 rounded border border-gray-600 cursor-pointer bg-transparent"

@@ -237,6 +237,7 @@ export function CloudBackupSection(): JSX.Element {
       {/* Auto-backup-on-launch toggle (opt out of the automatic stale backup) */}
       <label className="flex items-start gap-2 text-sm text-gray-300">
         <input
+          name="auto-backup"
           type="checkbox"
           checked={autoBackup}
           onChange={(e) => void handleToggleAutoBackup(e.target.checked)}

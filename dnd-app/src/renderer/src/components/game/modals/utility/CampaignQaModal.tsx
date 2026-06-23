@@ -92,6 +92,7 @@ export default function CampaignQaModal({ open, onClose }: CampaignQaModalProps)
 
         <div className="flex gap-2 items-end">
           <textarea
+            name="question"
             className="flex-1 h-16 bg-surface border border-border rounded px-2 py-1 text-sm text-gray-200 resize-none focus:outline-none"
             placeholder={t('game.campaignQaModal.placeholder')}
             maxLength={2000}

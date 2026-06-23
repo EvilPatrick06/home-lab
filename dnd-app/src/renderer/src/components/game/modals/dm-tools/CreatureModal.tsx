@@ -161,6 +161,7 @@ export default function CreatureModal({
         {/* Search and filters */}
         <div className="px-4 py-2 border-b border-border/50 space-y-2">
           <input
+            name="creature-search"
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -171,6 +172,7 @@ export default function CreatureModal({
           />
           <div className="flex gap-2 flex-wrap">
             <select
+              name="type-filter"
               value={typeFilter ?? ''}
               onChange={(e) => setTypeFilter(e.target.value || null)}
               className="px-2 py-1 bg-surface-2 border border-border rounded text-xs text-gray-300 cursor-pointer"
@@ -183,6 +185,7 @@ export default function CreatureModal({
               ))}
             </select>
             <select
+              name="size-filter"
               value={sizeFilter ?? ''}
               onChange={(e) => setSizeFilter(e.target.value || null)}
               className="px-2 py-1 bg-surface-2 border border-border rounded text-xs text-gray-300 cursor-pointer"
@@ -195,6 +198,7 @@ export default function CreatureModal({
               ))}
             </select>
             <select
+              name="cr-filter"
               value={crFilter?.max?.toString() ?? ''}
               onChange={(e) => {
                 const val = e.target.value
@@ -218,6 +222,7 @@ export default function CreatureModal({
           {tab === 'summon' && (
             <div className="flex items-center gap-3">
               <input
+                name="custom-name"
                 type="text"
                 value={customName}
                 onChange={(e) => setCustomName(e.target.value)}
@@ -225,6 +230,7 @@ export default function CreatureModal({
                 className="flex-1 px-2 py-1 bg-surface-2 border border-border rounded text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-purple-500"
               />
               <input
+                name="custom-hp"
                 type="number"
                 value={customHP}
                 onChange={(e) => setCustomHP(e.target.value)}
@@ -238,6 +244,7 @@ export default function CreatureModal({
               />
               <label className="flex items-center gap-1.5 text-xs text-muted cursor-pointer shrink-0">
                 <input
+                  name="concentration"
                   type="checkbox"
                   checked={concentration}
                   onChange={(e) => setConcentration(e.target.checked)}

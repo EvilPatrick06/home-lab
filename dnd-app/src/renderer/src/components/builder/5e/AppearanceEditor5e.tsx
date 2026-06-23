@@ -25,6 +25,7 @@ export default function AppearanceEditor5e(): JSX.Element {
             <label className="text-xs text-gray-500">{t('builder.appearanceEditor.gender')}</label>
             <input
               type="text"
+              name="character-gender"
               value={characterGender}
               onChange={(e) => useBuilderStore.setState({ characterGender: e.target.value })}
               placeholder={t('builder.appearanceEditor.notSet')}
@@ -35,6 +36,7 @@ export default function AppearanceEditor5e(): JSX.Element {
             <label className="text-xs text-gray-500">{t('builder.appearanceEditor.deity')}</label>
             <input
               type="text"
+              name="character-deity"
               value={characterDeity}
               onChange={(e) => useBuilderStore.setState({ characterDeity: e.target.value })}
               placeholder={t('builder.appearanceEditor.notSet')}
@@ -45,6 +47,7 @@ export default function AppearanceEditor5e(): JSX.Element {
             <label className="text-xs text-gray-500">{t('builder.appearanceEditor.age')}</label>
             <input
               type="text"
+              name="character-age"
               value={characterAge}
               onChange={(e) => useBuilderStore.setState({ characterAge: e.target.value })}
               placeholder={t('builder.appearanceEditor.notSet')}
@@ -54,6 +57,7 @@ export default function AppearanceEditor5e(): JSX.Element {
           <div className="flex flex-col gap-1">
             <label className="text-xs text-gray-500">{t('builder.appearanceEditor.alignment')}</label>
             <select
+              name="character-alignment"
               value={characterAlignment}
               onChange={(e) => useBuilderStore.setState({ characterAlignment: e.target.value })}
               className="bg-surface-2 border border-border rounded px-2 py-1 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -79,6 +83,7 @@ export default function AppearanceEditor5e(): JSX.Element {
             <label className="text-xs text-gray-500">{t('builder.appearanceEditor.height')}</label>
             <input
               type="text"
+              name="character-height"
               value={characterHeight}
               onChange={(e) => useBuilderStore.setState({ characterHeight: e.target.value })}
               placeholder={t('builder.appearanceEditor.heightPlaceholder')}
@@ -89,6 +94,7 @@ export default function AppearanceEditor5e(): JSX.Element {
             <label className="text-xs text-gray-500">{t('builder.appearanceEditor.weight')}</label>
             <input
               type="text"
+              name="character-weight"
               value={characterWeight}
               onChange={(e) => useBuilderStore.setState({ characterWeight: e.target.value })}
               placeholder={t('builder.appearanceEditor.weightPlaceholder')}
@@ -101,6 +107,7 @@ export default function AppearanceEditor5e(): JSX.Element {
             <label className="text-xs text-gray-500">{t('builder.appearanceEditor.eyes')}</label>
             <input
               type="text"
+              name="character-eyes"
               value={characterEyes}
               onChange={(e) => useBuilderStore.setState({ characterEyes: e.target.value })}
               placeholder={t('builder.appearanceEditor.notSet')}
@@ -111,6 +118,7 @@ export default function AppearanceEditor5e(): JSX.Element {
             <label className="text-xs text-gray-500">{t('builder.appearanceEditor.hair')}</label>
             <input
               type="text"
+              name="character-hair"
               value={characterHair}
               onChange={(e) => useBuilderStore.setState({ characterHair: e.target.value })}
               placeholder={t('builder.appearanceEditor.notSet')}
@@ -121,6 +129,7 @@ export default function AppearanceEditor5e(): JSX.Element {
             <label className="text-xs text-gray-500">{t('builder.appearanceEditor.skin')}</label>
             <input
               type="text"
+              name="character-skin"
               value={characterSkin}
               onChange={(e) => useBuilderStore.setState({ characterSkin: e.target.value })}
               placeholder={t('builder.appearanceEditor.notSet')}
@@ -131,6 +140,7 @@ export default function AppearanceEditor5e(): JSX.Element {
         <div className="flex flex-col gap-1">
           <label className="text-xs text-gray-500">{t('builder.appearanceEditor.appearance')}</label>
           <textarea
+            name="character-appearance"
             value={characterAppearance}
             onChange={(e) => useBuilderStore.setState({ characterAppearance: e.target.value })}
             placeholder={t('builder.appearanceEditor.appearancePlaceholder')}

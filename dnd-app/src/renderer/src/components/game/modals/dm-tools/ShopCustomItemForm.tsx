@@ -59,6 +59,7 @@ export default function ShopCustomItemForm({ onAddItem }: ShopCustomItemFormProp
               <label className="block text-xs text-gray-500 mb-0.5">{t('game.shopCustomItemForm.name')}</label>
               <input
                 type="text"
+                name="custom-name"
                 value={customName}
                 onChange={(e) => setCustomName(e.target.value)}
                 placeholder={t('game.shopCustomItemForm.namePlaceholder')}
@@ -69,6 +70,7 @@ export default function ShopCustomItemForm({ onAddItem }: ShopCustomItemFormProp
               <label className="block text-xs text-gray-500 mb-0.5">{t('game.shopCustomItemForm.price')}</label>
               <input
                 type="number"
+                name="custom-price"
                 value={customPrice}
                 onChange={(e) => setCustomPrice(e.target.value)}
                 placeholder="0"
@@ -79,6 +81,7 @@ export default function ShopCustomItemForm({ onAddItem }: ShopCustomItemFormProp
               <label className="block text-xs text-gray-500 mb-0.5">{t('game.shopCustomItemForm.weight')}</label>
               <input
                 type="number"
+                name="custom-weight"
                 value={customWeight}
                 onChange={(e) => setCustomWeight(e.target.value)}
                 placeholder="0"
@@ -90,6 +93,7 @@ export default function ShopCustomItemForm({ onAddItem }: ShopCustomItemFormProp
             <div>
               <label className="block text-xs text-gray-500 mb-0.5">{t('game.shopCustomItemForm.category')}</label>
               <select
+                name="custom-category"
                 value={customCategory}
                 onChange={(e) => setCustomCategory(e.target.value as ShopItemCategory)}
                 className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg focus:outline-none focus:border-amber-500"
@@ -104,6 +108,7 @@ export default function ShopCustomItemForm({ onAddItem }: ShopCustomItemFormProp
             <div>
               <label className="block text-xs text-gray-500 mb-0.5">{t('game.shopCustomItemForm.rarity')}</label>
               <select
+                name="custom-rarity"
                 value={customRarity}
                 onChange={(e) => setCustomRarity(e.target.value as ShopItemRarity)}
                 className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg focus:outline-none focus:border-amber-500"
@@ -128,6 +133,7 @@ export default function ShopCustomItemForm({ onAddItem }: ShopCustomItemFormProp
           <div>
             <label className="block text-xs text-gray-500 mb-0.5">{t('game.shopCustomItemForm.description')}</label>
             <textarea
+              name="custom-description"
               value={customDescription}
               onChange={(e) => setCustomDescription(e.target.value)}
               placeholder={t('game.shopCustomItemForm.descriptionPlaceholder')}

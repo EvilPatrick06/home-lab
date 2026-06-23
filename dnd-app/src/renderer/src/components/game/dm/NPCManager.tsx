@@ -124,6 +124,7 @@ export default function NPCManager({
             </span>
             <input
               type="text"
+              name="npc-name"
               value={newNpcName}
               onChange={(e) => setNewNpcName(e.target.value)}
               className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
@@ -131,6 +132,7 @@ export default function NPCManager({
               autoFocus
             />
             <select
+              name="npc-category"
               value={newNpcCategory}
               onChange={(e) => setNewNpcCategory(e.target.value as NewNpcCategory)}
               className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
@@ -142,6 +144,7 @@ export default function NPCManager({
             <div className="flex gap-2">
               <input
                 type="number"
+                name="npc-ac"
                 value={newNpcAC}
                 onChange={(e) => setNewNpcAC(e.target.value)}
                 className="w-1/2 px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
@@ -150,6 +153,7 @@ export default function NPCManager({
               />
               <input
                 type="number"
+                name="npc-hp"
                 value={newNpcHP}
                 onChange={(e) => setNewNpcHP(e.target.value)}
                 className="w-1/2 px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"

@@ -254,6 +254,7 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
       {/* Search */}
       <div className="shrink-0 px-3 py-2 border-b border-border/50">
         <input
+          name="journal-search"
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -314,6 +315,7 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
             <div className="shrink-0 px-3 py-2 border-b border-border/50 flex items-center gap-2">
               {isEditing ? (
                 <input
+                  name="journal-entry-title"
                   type="text"
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}

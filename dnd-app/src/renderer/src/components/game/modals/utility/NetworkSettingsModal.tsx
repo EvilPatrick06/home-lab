@@ -121,6 +121,7 @@ export default function NetworkSettingsModal({ onClose }: NetworkSettingsModalPr
                 </button>
               </div>
               <input
+                name="turn-urls"
                 value={entry.urls}
                 onChange={(e) => handleChange(i, 'urls', e.target.value)}
                 placeholder={t('game.networkSettingsModal.urlPlaceholder')}
@@ -128,6 +129,7 @@ export default function NetworkSettingsModal({ onClose }: NetworkSettingsModalPr
               />
               <div className="grid grid-cols-2 gap-2">
                 <input
+                  name="turn-username"
                   value={entry.username}
                   onChange={(e) => handleChange(i, 'username', e.target.value)}
                   placeholder={t('game.networkSettingsModal.usernamePlaceholder')}
@@ -135,6 +137,7 @@ export default function NetworkSettingsModal({ onClose }: NetworkSettingsModalPr
                 />
                 <input
                   type="password"
+                  name="turn-credential"
                   value={entry.credential}
                   onChange={(e) => handleChange(i, 'credential', e.target.value)}
                   placeholder={t('game.networkSettingsModal.credentialPlaceholder')}

@@ -546,6 +546,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
         <div className="flex flex-wrap items-center gap-2 mb-2">
           <input
             type="text"
+            name="spell-search"
             value={spellSearch}
             onChange={(e) => setSpellSearch(e.target.value)}
             placeholder={t('sheet.spellcastingSection.searchPlaceholder')}

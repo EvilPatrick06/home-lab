@@ -119,6 +119,7 @@ export default function QuickConditionModal({
                 className="flex items-center gap-2 cursor-pointer hover:bg-surface-2/50 px-2 py-1 rounded"
               >
                 <input
+                  name="entity-select"
                   type="checkbox"
                   checked={selectedEntities.includes(entity.id)}
                   onChange={(e) => {
@@ -135,6 +136,7 @@ export default function QuickConditionModal({
             ))}
           </div>
           <select
+            name="selected-condition"
             value={selectedCondition}
             onChange={(e) => setSelectedCondition(e.target.value)}
             className="flex-1 px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-gray-200 text-xs focus:outline-none focus:border-amber-500"
@@ -152,6 +154,7 @@ export default function QuickConditionModal({
                 {t('game.quickConditionModal.exhaustionLevel')}
               </label>
               <input
+                name="exhaustion-level"
                 type="number"
                 min={1}
                 max={6}
@@ -168,6 +171,7 @@ export default function QuickConditionModal({
             <div className="flex items-center gap-2">
               <label className="text-xs text-muted whitespace-nowrap">{t('game.quickConditionModal.source')}</label>
               <select
+                name="source-entity"
                 value={sourceEntityId}
                 onChange={(e) => setSourceEntityId(e.target.value)}
                 className="flex-1 px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-gray-200 text-xs focus:outline-none focus:border-amber-500"
@@ -185,6 +189,7 @@ export default function QuickConditionModal({
           )}
           <div className="flex gap-2">
             <select
+              name="duration"
               value={duration}
               onChange={(e) => setDuration(e.target.value)}
               className="flex-1 px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-gray-200 text-xs focus:outline-none focus:border-amber-500"

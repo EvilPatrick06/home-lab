@@ -39,6 +39,7 @@ export function ProfileSection(): JSX.Element {
         <span className="text-sm text-gray-300">{t('pages.settingsPage.displayName')}</span>
         <input
           aria-label={t('pages.settingsPage.yourName')}
+          name="display-name"
           type="text"
           maxLength={32}
           placeholder={t('pages.settingsPage.yourName')}

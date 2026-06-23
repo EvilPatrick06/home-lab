@@ -54,6 +54,7 @@ export default function LightSourceModal({ onClose }: LightSourceModalProps): JS
           <div>
             <label className="text-xs text-muted block mb-1">{t('game.lightSourceModal.characterToken')}</label>
             <select
+              name="entity-name"
               value={entityName}
               onChange={(e) => setEntityName(e.target.value)}
               className="w-full bg-surface-2 border border-border rounded px-2 py-1.5 text-xs text-gray-200"
@@ -70,6 +71,7 @@ export default function LightSourceModal({ onClose }: LightSourceModalProps): JS
           <div>
             <label className="text-xs text-muted block mb-1">{t('game.lightSourceModal.sourceType')}</label>
             <select
+              name="selected-source"
               value={selectedSource}
               onChange={(e) => setSelectedSource(e.target.value)}
               className="w-full bg-surface-2 border border-border rounded px-2 py-1.5 text-xs text-gray-200"
@@ -92,6 +94,7 @@ export default function LightSourceModal({ onClose }: LightSourceModalProps): JS
           <div>
             <label className="text-xs text-muted block mb-1">{t('game.lightSourceModal.animation')}</label>
             <select
+              name="animation-type"
               value={animationType}
               onChange={(e) => setAnimationType(e.target.value as LightAnimationType | 'none')}
               className="w-full bg-surface-2 border border-border rounded px-2 py-1.5 text-xs text-gray-200"
@@ -111,6 +114,7 @@ export default function LightSourceModal({ onClose }: LightSourceModalProps): JS
                 </label>
                 <input
                   type="range"
+                  name="animation-intensity"
                   min={0}
                   max={100}
                   step={1}
@@ -126,6 +130,7 @@ export default function LightSourceModal({ onClose }: LightSourceModalProps): JS
                 </label>
                 <input
                   type="range"
+                  name="animation-speed"
                   min={0.1}
                   max={5.0}
                   step={0.1}

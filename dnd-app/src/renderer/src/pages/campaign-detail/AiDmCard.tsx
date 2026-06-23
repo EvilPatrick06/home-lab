@@ -224,6 +224,7 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
               <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
                 <input
                   type="checkbox"
+                  name="scene-memory"
                   checked={sceneMemoryOn}
                   onChange={(e) => handleSceneMemoryToggle(e.target.checked)}
                 />
@@ -236,6 +237,7 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
               <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
                 <input
                   type="checkbox"
+                  name="world-state"
                   checked={worldStateOn}
                   onChange={(e) => handleWorldStateToggle(e.target.checked)}
                 />
@@ -315,6 +317,7 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
               <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
                 <input
                   type="checkbox"
+                  name="rag-embeddings-enabled"
                   checked={aiDmConfig.ragEmbeddingsEnabled}
                   onChange={(e) => setAiDmConfig((p) => ({ ...p, ragEmbeddingsEnabled: e.target.checked }))}
                 />
@@ -324,6 +327,7 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
                 <div className="mt-2 pl-6">
                   <input
                     type="text"
+                    name="rag-embedding-model"
                     className="w-full bg-surface-2/60 border border-border/50 rounded px-2 py-1 text-xs text-gray-200"
                     value={aiDmConfig.ragEmbeddingModel}
                     onChange={(e) => setAiDmConfig((p) => ({ ...p, ragEmbeddingModel: e.target.value }))}
@@ -351,6 +355,7 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
             <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
               <input
                 type="checkbox"
+                name="rag-campaign-docs-enabled"
                 checked={aiDmConfig.ragCampaignDocsEnabled}
                 onChange={(e) => setAiDmConfig((p) => ({ ...p, ragCampaignDocsEnabled: e.target.checked }))}
               />
@@ -364,6 +369,7 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
             <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
               <input
                 type="checkbox"
+                name="quest-tracking-enabled"
                 checked={aiDmConfig.questTrackingEnabled}
                 onChange={(e) => setAiDmConfig((p) => ({ ...p, questTrackingEnabled: e.target.checked }))}
               />
@@ -374,6 +380,7 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
             <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
               <input
                 type="checkbox"
+                name="allow-map-generation"
                 checked={aiDmConfig.allowMapGeneration}
                 onChange={(e) => setAiDmConfig((p) => ({ ...p, allowMapGeneration: e.target.checked }))}
               />
@@ -383,6 +390,7 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
             <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
               <input
                 type="checkbox"
+                name="director-enabled"
                 checked={aiDmConfig.directorEnabled}
                 onChange={(e) => setAiDmConfig((p) => ({ ...p, directorEnabled: e.target.checked }))}
               />
@@ -394,6 +402,7 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
                 {t('pages.aiDmCard.directorCadence')}
                 <input
                   type="number"
+                  name="director-cadence"
                   min={2}
                   max={20}
                   value={aiDmConfig.directorCadence}
@@ -410,6 +419,7 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
             <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
               <input
                 type="checkbox"
+                name="oracle-enabled"
                 checked={aiDmConfig.oracleEnabled}
                 onChange={(e) => setAiDmConfig((p) => ({ ...p, oracleEnabled: e.target.checked }))}
               />

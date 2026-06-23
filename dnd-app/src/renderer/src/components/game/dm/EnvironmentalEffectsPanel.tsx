@@ -121,6 +121,7 @@ export default function EnvironmentalEffectsPanel({ onBroadcastResult }: Environ
         <span className="text-xs text-gray-500 uppercase">{t('game.environmentalEffectsPanel.addEffect')}</span>
         <input
           aria-label={t('game.environmentalEffectsPanel.searchPlaceholder')}
+          name="effect-search"
           type="text"
           placeholder={t('game.environmentalEffectsPanel.searchPlaceholder')}
           value={search}

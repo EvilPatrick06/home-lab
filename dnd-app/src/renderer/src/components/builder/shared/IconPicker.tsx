@@ -62,7 +62,14 @@ export default function IconPicker(): JSX.Element {
             {t('builder.iconPicker.upload')}
           </button>
         </div>
-        <input ref={fileRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
+        <input
+          ref={fileRef}
+          name="icon-upload"
+          type="file"
+          accept="image/*"
+          onChange={handleFileUpload}
+          className="hidden"
+        />
       </div>
 
       {/* Preset grid */}

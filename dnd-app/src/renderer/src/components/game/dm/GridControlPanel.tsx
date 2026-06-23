@@ -34,6 +34,7 @@ export default function GridControlPanel({ grid, onUpdate }: GridControlPanelPro
         </label>
         <input
           type="range"
+          name="grid-cell-size"
           min={20}
           max={100}
           value={grid.cellSize}
@@ -53,6 +54,7 @@ export default function GridControlPanel({ grid, onUpdate }: GridControlPanelPro
         </label>
         <input
           type="range"
+          name="grid-offset-x"
           min={-50}
           max={50}
           value={grid.offsetX}
@@ -72,6 +74,7 @@ export default function GridControlPanel({ grid, onUpdate }: GridControlPanelPro
         </label>
         <input
           type="range"
+          name="grid-offset-y"
           min={-50}
           max={50}
           value={grid.offsetY}
@@ -90,6 +93,7 @@ export default function GridControlPanel({ grid, onUpdate }: GridControlPanelPro
         <div className="flex items-center gap-2">
           <input
             type="color"
+            name="grid-color"
             value={grid.color}
             onChange={(e) => onUpdate({ color: e.target.value })}
             className="w-8 h-8 rounded border border-border bg-surface cursor-pointer"
@@ -105,6 +109,7 @@ export default function GridControlPanel({ grid, onUpdate }: GridControlPanelPro
         </label>
         <input
           type="range"
+          name="grid-opacity"
           min={0}
           max={100}
           value={Math.round(grid.opacity * 100)}

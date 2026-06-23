@@ -87,6 +87,7 @@ function EditableHP({
       {editingHP ? (
         <input
           ref={hpRef}
+          name="hp"
           type="number"
           value={draftHP}
           onChange={(e) => setDraftHP(e.target.value)}
@@ -111,6 +112,7 @@ function EditableHP({
               {editingTemp ? (
                 <input
                   ref={tempRef}
+                  name="temp-hp"
                   type="number"
                   min={0}
                   value={draftTemp}

@@ -80,6 +80,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
         <label className="flex items-center gap-3 cursor-pointer">
           <input
             type="checkbox"
+            name="calendar-enabled"
             checked={enabled}
             onChange={(e) => handleEnable(e.target.checked)}
             className="w-4 h-4 accent-amber-500"
@@ -127,6 +128,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                   {customMonths.map((m, i) => (
                     <div key={i} className="flex gap-2 items-center">
                       <input
+                        name="month-name"
                         value={m.name}
                         onChange={(e) => {
                           const updated = [...customMonths]
@@ -139,6 +141,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                       />
                       <input
                         type="number"
+                        name="month-days"
                         value={m.days}
                         min={1}
                         onChange={(e) => {
@@ -178,6 +181,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                 <div className="mt-2">
                   <label className="text-xs text-gray-500 block mb-1">{t('campaign.calendarStep.yearLabel')}</label>
                   <input
+                    name="year-label"
                     value={customYearLabel}
                     onChange={(e) => {
                       setCustomYearLabel(e.target.value)
@@ -201,6 +205,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                     <label className="text-xs text-gray-500 block mb-1">{t('campaign.calendarStep.year')}</label>
                     <input
                       type="number"
+                      name="starting-year"
                       value={startingYear}
                       onChange={(e) => {
                         const yr = parseInt(e.target.value, 10) || 1
@@ -215,6 +220,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                   <div>
                     <label className="text-xs text-gray-500 block mb-1">{t('campaign.calendarStep.month')}</label>
                     <select
+                      name="start-month"
                       value={startMonth}
                       onChange={(e) => {
                         setStartMonth(parseInt(e.target.value, 10))
@@ -238,6 +244,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                   </label>
                   <input
                     type="number"
+                    name="start-day"
                     value={startDay}
                     min={1}
                     max={months[startMonth]?.days ?? 365}
@@ -248,6 +255,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                 <div>
                   <label className="text-xs text-gray-500 block mb-1">{t('campaign.calendarStep.hour')}</label>
                   <select
+                    name="start-hour"
                     value={startHour}
                     onChange={(e) => setStartHour(parseInt(e.target.value, 10))}
                     className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
@@ -272,6 +280,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                 {t('campaign.calendarStep.timeDisplayMode')}
               </label>
               <select
+                name="exact-time-default"
                 value={exactTimeDefault}
                 onChange={(e) => {
                   const v = e.target.value as CalendarConfig['exactTimeDefault']

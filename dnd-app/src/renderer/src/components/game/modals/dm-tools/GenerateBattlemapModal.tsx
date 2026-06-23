@@ -95,6 +95,7 @@ export default function GenerateBattlemapModal({ onClose }: GenerateBattlemapMod
           <div>
             <label className="block text-gray-400 mb-1">{t('game.generateBattlemap.descriptionLabel')}</label>
             <textarea
+              name="battlemap-prompt"
               className="w-full h-20 bg-surface-2 border border-border rounded px-2 py-1 text-gray-200 resize-none"
               placeholder={t('game.generateBattlemap.descriptionPlaceholder')}
               maxLength={2000}
@@ -107,6 +108,7 @@ export default function GenerateBattlemapModal({ onClose }: GenerateBattlemapMod
             <label className="flex items-center gap-1.5 text-gray-400">
               {t('game.generateBattlemap.themeLabel')}
               <select
+                name="battlemap-theme"
                 className="bg-surface-2 border border-border rounded px-2 py-1 text-gray-200"
                 value={theme}
                 onChange={(e) => setTheme(e.target.value)}
@@ -122,6 +124,7 @@ export default function GenerateBattlemapModal({ onClose }: GenerateBattlemapMod
             <label className="flex items-center gap-1.5 text-gray-400">
               {t('game.generateBattlemap.sizeLabel')}
               <select
+                name="battlemap-width"
                 className="bg-surface-2 border border-border rounded px-1 py-1 text-gray-200"
                 value={width}
                 onChange={(e) => setWidth(Number.parseInt(e.target.value, 10))}
@@ -135,6 +138,7 @@ export default function GenerateBattlemapModal({ onClose }: GenerateBattlemapMod
               </select>
               <span className="text-gray-600">×</span>
               <select
+                name="battlemap-height"
                 className="bg-surface-2 border border-border rounded px-1 py-1 text-gray-200"
                 value={height}
                 onChange={(e) => setHeight(Number.parseInt(e.target.value, 10))}
@@ -150,7 +154,12 @@ export default function GenerateBattlemapModal({ onClose }: GenerateBattlemapMod
           </div>
 
           <label className="flex items-center gap-2 text-gray-400 cursor-pointer">
-            <input type="checkbox" checked={switchTo} onChange={(e) => setSwitchTo(e.target.checked)} />
+            <input
+              type="checkbox"
+              name="switch-to"
+              checked={switchTo}
+              onChange={(e) => setSwitchTo(e.target.checked)}
+            />
             {t('game.generateBattlemap.switchToLabel')}
           </label>
 

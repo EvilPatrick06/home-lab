@@ -373,6 +373,7 @@ export default function JoinGamePage(): JSX.Element {
           <div className="flex-1 max-w-sm">
             <input
               type="text"
+              name="invite-code"
               value={manualInviteCode}
               onChange={(e) => setManualInviteCode(e.target.value.toUpperCase().replace(/\s+/g, ''))}
               onKeyDown={(e) => {

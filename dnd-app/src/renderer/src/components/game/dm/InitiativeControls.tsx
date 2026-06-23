@@ -137,6 +137,7 @@ export default function InitiativeControls({
             <div className="flex gap-1 items-center">
               <input
                 aria-label={t('game.initiativeControls.namePlaceholder')}
+                name="add-name"
                 type="text"
                 placeholder={t('game.initiativeControls.namePlaceholder')}
                 value={addName}
@@ -145,6 +146,7 @@ export default function InitiativeControls({
               />
               <input
                 aria-label={t('game.initiativeControls.initPlaceholder')}
+                name="add-init"
                 type="number"
                 placeholder={t('game.initiativeControls.initPlaceholder')}
                 value={addInit}
@@ -152,6 +154,7 @@ export default function InitiativeControls({
                 className="w-12 p-1 rounded bg-surface-2 border border-border text-fg text-center text-xs focus:outline-none focus:border-amber-500"
               />
               <select
+                name="add-type"
                 value={addType}
                 onChange={(e) => setAddType(e.target.value as 'player' | 'npc' | 'enemy')}
                 className="w-14 p-1 rounded bg-surface-2 border border-border text-gray-200 text-xs cursor-pointer"

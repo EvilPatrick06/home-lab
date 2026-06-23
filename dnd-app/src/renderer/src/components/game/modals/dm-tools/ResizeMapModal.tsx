@@ -60,6 +60,7 @@ export default function ResizeMapModal({
               <label className="text-xs text-muted block mb-1">{t('game.resizeMapModal.newWidth')}</label>
               <input
                 type="number"
+                name="map-width"
                 value={width}
                 onChange={(e) => setWidth(clamp(parseInt(e.target.value, 10) || 10, 10, 200))}
                 min={10}
@@ -71,6 +72,7 @@ export default function ResizeMapModal({
               <label className="text-xs text-muted block mb-1">{t('game.resizeMapModal.newHeight')}</label>
               <input
                 type="number"
+                name="map-height"
                 value={height}
                 onChange={(e) => setHeight(clamp(parseInt(e.target.value, 10) || 10, 10, 200))}
                 min={10}

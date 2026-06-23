@@ -141,6 +141,7 @@ export default function TimeEditModal({
               <label className="text-xs text-muted block mb-1">{t('game.timeEditModal.daysToAdvance')}</label>
               <div className="flex gap-2 items-center">
                 <input
+                  name="days-to-advance"
                   type="number"
                   value={daysToAdvance}
                   min={1}
@@ -187,6 +188,7 @@ export default function TimeEditModal({
                 <div>
                   <label className="text-xs text-gray-500 block mb-1">{t('game.timeEditModal.year')}</label>
                   <input
+                    name="set-year"
                     type="number"
                     value={setYear}
                     onChange={(e) => setSetYear(parseInt(e.target.value, 10) || 1)}
@@ -198,6 +200,7 @@ export default function TimeEditModal({
                 <div>
                   <label className="text-xs text-gray-500 block mb-1">{t('game.timeEditModal.month')}</label>
                   <select
+                    name="set-month"
                     value={setMonthIndex}
                     onChange={(e) => setSetMonthIndex(parseInt(e.target.value, 10))}
                     className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
@@ -213,6 +216,7 @@ export default function TimeEditModal({
               <div>
                 <label className="text-xs text-gray-500 block mb-1">{t('game.timeEditModal.day')}</label>
                 <input
+                  name="set-day"
                   type="number"
                   value={setDay}
                   min={1}
@@ -224,6 +228,7 @@ export default function TimeEditModal({
               <div>
                 <label className="text-xs text-gray-500 block mb-1">{t('game.timeEditModal.hour')}</label>
                 <input
+                  name="set-hour"
                   type="number"
                   value={setHour}
                   min={0}
@@ -235,6 +240,7 @@ export default function TimeEditModal({
               <div>
                 <label className="text-xs text-gray-500 block mb-1">{t('game.timeEditModal.min')}</label>
                 <input
+                  name="set-minute"
                   type="number"
                   value={setMinute}
                   min={0}

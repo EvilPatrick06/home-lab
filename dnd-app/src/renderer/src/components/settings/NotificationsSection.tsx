@@ -34,6 +34,7 @@ export function NotificationsSection(): JSX.Element {
         </div>
         <input
           type="checkbox"
+          name="notifications-enabled"
           checked={notificationsEnabled}
           onChange={(e) => {
             const val = e.target.checked
@@ -50,6 +51,7 @@ export function NotificationsSection(): JSX.Element {
         </div>
         <input
           type="checkbox"
+          name="notification-sound-enabled"
           checked={NotificationService.getConfig().soundEnabled}
           onChange={(e) => NotificationService.setSoundEnabled(e.target.checked)}
           className="w-4 h-4 accent-amber-500 cursor-pointer"
@@ -62,6 +64,7 @@ export function NotificationsSection(): JSX.Element {
         </div>
         <input
           type="checkbox"
+          name="only-when-blurred"
           checked={NotificationService.getConfig().onlyWhenBlurred}
           onChange={(e) => NotificationService.setOnlyWhenBlurred(e.target.checked)}
           className="w-4 h-4 accent-amber-500 cursor-pointer"
@@ -91,6 +94,7 @@ export function NotificationsSection(): JSX.Element {
             </span>
             <input
               type="checkbox"
+              name="event-enabled"
               checked={NotificationService.getConfig().enabledEvents.has(event)}
               onChange={(e) => NotificationService.setEventEnabled(event, e.target.checked)}
               className="w-3.5 h-3.5 accent-amber-500 cursor-pointer"

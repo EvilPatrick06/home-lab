@@ -142,6 +142,7 @@ export default function AttackCalculator5e({
                 ))}
               <input
                 aria-label={t('sheet.attackCalculator.customPlaceholder')}
+                name="custom-weapon-prof"
                 type="text"
                 placeholder={t('sheet.attackCalculator.customPlaceholder')}
                 value={customWeaponProf}

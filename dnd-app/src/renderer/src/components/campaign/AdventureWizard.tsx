@@ -68,6 +68,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
               {t('campaign.adventureWizard.adventureTitle')}
             </label>
             <input
+              name="title"
               value={data.title}
               onChange={(e) => update('title', e.target.value)}
               placeholder={t('campaign.adventureWizard.adventureTitlePlaceholder')}
@@ -104,6 +105,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
               </button>
             </div>
             <textarea
+              name="premise"
               value={data.premise}
               onChange={(e) => update('premise', e.target.value)}
               placeholder={t('campaign.adventureWizard.premisePlaceholder')}
@@ -116,6 +118,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
               {t('campaign.adventureWizard.villain')}
             </label>
             <input
+              name="villain"
               value={data.villain}
               onChange={(e) => update('villain', e.target.value)}
               placeholder={t('campaign.adventureWizard.villainPlaceholder')}
@@ -127,6 +130,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
               {t('campaign.adventureWizard.setting')}
             </label>
             <input
+              name="setting"
               value={data.setting}
               onChange={(e) => update('setting', e.target.value)}
               placeholder={t('campaign.adventureWizard.settingPlaceholder')}
@@ -146,6 +150,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
               {t('campaign.adventureWizard.adventureHook')}
             </label>
             <textarea
+              name="hook"
               value={data.hook}
               onChange={(e) => update('hook', e.target.value)}
               placeholder={t('campaign.adventureWizard.adventureHookPlaceholder')}
@@ -158,6 +163,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
               {t('campaign.adventureWizard.personalStakes')}
             </label>
             <textarea
+              name="player-stakes"
               value={data.playerStakes}
               onChange={(e) => update('playerStakes', e.target.value)}
               placeholder={t('campaign.adventureWizard.personalStakesPlaceholder')}
@@ -178,6 +184,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
               {t('campaign.adventureWizard.keyEncounters')}
             </label>
             <textarea
+              name="encounters"
               value={data.encounters}
               onChange={(e) => update('encounters', e.target.value)}
               placeholder={t('campaign.adventureWizard.keyEncountersPlaceholder')}
@@ -201,6 +208,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
               {t('campaign.adventureWizard.climax')}
             </label>
             <textarea
+              name="climax"
               value={data.climax}
               onChange={(e) => update('climax', e.target.value)}
               placeholder={t('campaign.adventureWizard.climaxPlaceholder')}
@@ -213,6 +221,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
               {t('campaign.adventureWizard.resolution')}
             </label>
             <textarea
+              name="resolution"
               value={data.resolution}
               onChange={(e) => update('resolution', e.target.value)}
               placeholder={t('campaign.adventureWizard.resolutionPlaceholder')}

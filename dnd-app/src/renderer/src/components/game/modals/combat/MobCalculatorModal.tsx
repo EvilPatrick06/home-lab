@@ -112,6 +112,7 @@ export default function MobCalculatorModal({ onClose, onBroadcastResult }: MobCa
             <div>
               <label className="block text-xs text-muted mb-1">{t('game.mobCalculatorModal.numberOfAttackers')}</label>
               <input
+                name="attacker-count"
                 type="number"
                 min={1}
                 max={100}
@@ -126,6 +127,7 @@ export default function MobCalculatorModal({ onClose, onBroadcastResult }: MobCa
             <div>
               <label className="block text-xs text-muted mb-1">{t('game.mobCalculatorModal.attackBonus')}</label>
               <input
+                name="attack-bonus"
                 type="number"
                 min={-5}
                 max={20}
@@ -140,6 +142,7 @@ export default function MobCalculatorModal({ onClose, onBroadcastResult }: MobCa
             <div>
               <label className="block text-xs text-muted mb-1">{t('game.mobCalculatorModal.targetAc')}</label>
               <input
+                name="target-ac"
                 type="number"
                 min={1}
                 max={30}
@@ -157,6 +160,7 @@ export default function MobCalculatorModal({ onClose, onBroadcastResult }: MobCa
                 <span className="text-gray-600">{t('game.mobCalculatorModal.damagePerHitHint')}</span>
               </label>
               <input
+                name="damage-per-hit"
                 type="text"
                 value={damagePerHit}
                 onChange={(e) => {

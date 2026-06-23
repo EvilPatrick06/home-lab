@@ -46,6 +46,7 @@ export default function JournalEntryModal({ open, onClose, onSave, initialData }
             {t('campaign.journalEntryModal.content')}
           </label>
           <textarea
+            name="journal-content"
             className="w-full h-48 bg-surface border border-border rounded-md p-3 text-sm text-fg placeholder-gray-500 focus:outline-none focus:border-amber-500 transition-colors resize-y shadow-inner drop-shadow-sm"
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -54,6 +55,7 @@ export default function JournalEntryModal({ open, onClose, onSave, initialData }
         </div>
         <label className="flex items-center gap-2 cursor-pointer">
           <input
+            name="journal-private"
             type="checkbox"
             checked={isPrivate}
             onChange={(e) => setIsPrivate(e.target.checked)}

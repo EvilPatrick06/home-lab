@@ -56,6 +56,7 @@ export function TreasuryModal({
         <div className="flex flex-col gap-1">
           <label className="text-xs text-gray-500">{t('pages.treasuryModal.amount')}</label>
           <input
+            name="treasury-amount"
             type="number"
             min={0}
             value={treasuryAmount}
@@ -123,6 +124,7 @@ export function AdvanceTimeModal({
         <div className="flex flex-col gap-1">
           <label className="text-xs text-gray-500">{t('pages.advanceTimeModal.daysToAdvance')}</label>
           <input
+            name="advance-days"
             type="number"
             min={1}
             max={365}

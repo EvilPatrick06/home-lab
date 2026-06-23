@@ -171,12 +171,14 @@ export default function SidebarEntryList({
         </span>
         <input
           type="text"
+          name="edit-name"
           value={editName}
           onChange={(e) => setEditName(e.target.value)}
           className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
           placeholder={t('game.sidebarEntryList.namePlaceholder')}
         />
         <select
+          name="edit-place-type"
           value={editPlaceType}
           onChange={(e) => setEditPlaceType(e.target.value as PlaceType | '')}
           className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
@@ -189,6 +191,7 @@ export default function SidebarEntryList({
           ))}
         </select>
         <select
+          name="edit-parent-id"
           value={editParentId}
           onChange={(e) => setEditParentId(e.target.value)}
           className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
@@ -203,6 +206,7 @@ export default function SidebarEntryList({
             ))}
         </select>
         <select
+          name="edit-linked-map-id"
           value={editLinkedMapId}
           onChange={(e) => setEditLinkedMapId(e.target.value)}
           className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
@@ -215,6 +219,7 @@ export default function SidebarEntryList({
           ))}
         </select>
         <textarea
+          name="edit-description"
           value={editDesc}
           onChange={(e) => setEditDesc(e.target.value)}
           className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500 resize-none"
@@ -222,6 +227,7 @@ export default function SidebarEntryList({
           placeholder={t('game.sidebarEntryList.descriptionPlaceholder')}
         />
         <textarea
+          name="edit-notes"
           value={editNotes}
           onChange={(e) => setEditNotes(e.target.value)}
           className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500 resize-none"

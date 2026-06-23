@@ -70,12 +70,14 @@ export function NameDescRows({ items, onChange, showCost = false }: NameDescRowP
           <div className="flex-1 space-y-0.5">
             <input
               type="text"
+              name="item-name"
               value={item.name}
               onChange={(e) => updateRow(idx, 'name', e.target.value)}
               className="w-full px-1.5 py-0.5 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
               placeholder={t('game.statBlockFormSections.namePlaceholder')}
             />
             <textarea
+              name="item-description"
               value={item.description}
               onChange={(e) => updateRow(idx, 'description', e.target.value)}
               className="w-full px-1.5 py-0.5 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500 resize-none"
@@ -85,6 +87,7 @@ export function NameDescRows({ items, onChange, showCost = false }: NameDescRowP
             {showCost && (
               <input
                 type="number"
+                name="item-cost"
                 value={item.cost ?? ''}
                 onChange={(e) => updateRow(idx, 'cost', e.target.value)}
                 className="w-16 px-1.5 py-0.5 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
@@ -131,7 +134,13 @@ export function SpellcastingSection({
   return (
     <CollapsibleSection title={t('game.statBlockFormSections.spellcasting')}>
       <label className="flex items-center gap-1.5 text-xs text-gray-300 cursor-pointer mb-1">
-        <input type="checkbox" checked={!!spellcasting} onChange={onToggle} className="accent-amber-500" />
+        <input
+          type="checkbox"
+          name="enable-spellcasting"
+          checked={!!spellcasting}
+          onChange={onToggle}
+          className="accent-amber-500"
+        />
         {t('game.statBlockFormSections.enableSpellcasting')}
       </label>
       {spellcasting && (
@@ -140,6 +149,7 @@ export function SpellcastingSection({
             <div>
               <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockFormSections.ability')}</label>
               <select
+                name="spellcasting-ability"
                 value={spellcasting.ability}
                 onChange={(e) => onUpdate({ ability: e.target.value })}
                 className="w-full px-1 py-0.5 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
@@ -155,6 +165,7 @@ export function SpellcastingSection({
               <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockFormSections.saveDc')}</label>
               <input
                 type="number"
+                name="save-dc"
                 value={spellcasting.dc}
                 onChange={(e) => onUpdate({ dc: parseInt(e.target.value, 10) || 0 })}
                 className="w-full px-1 py-0.5 rounded bg-surface border border-border text-xs text-fg text-center focus:outline-none focus:border-amber-500"
@@ -164,6 +175,7 @@ export function SpellcastingSection({
               <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockFormSections.atkBonus')}</label>
               <input
                 type="number"
+                name="attack-bonus"
                 value={spellcasting.attackBonus}
                 onChange={(e) => onUpdate({ attackBonus: parseInt(e.target.value, 10) || 0 })}
                 className="w-full px-1 py-0.5 rounded bg-surface border border-border text-xs text-fg text-center focus:outline-none focus:border-amber-500"
@@ -180,6 +192,7 @@ export function SpellcastingSection({
                   <label className="text-[8px] text-gray-600 block">{level}</label>
                   <input
                     type="number"
+                    name="spell-slot"
                     value={spellcasting.slots?.[level] ?? ''}
                     onChange={(e) => onSlotUpdate(level, e.target.value)}
                     className="w-full px-0 py-0.5 rounded bg-surface border border-border text-xs text-fg text-center focus:outline-none focus:border-amber-500"
@@ -194,6 +207,7 @@ export function SpellcastingSection({
               {t('game.statBlockFormSections.spellsCommaSeparated')}
             </label>
             <textarea
+              name="spells"
               value={spellcasting.spells?.join(', ') ?? ''}
               onChange={(e) =>
                 onUpdate({

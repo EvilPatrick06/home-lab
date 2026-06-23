@@ -166,6 +166,7 @@ export default function DMShopModal({ onClose }: DMShopModalProps): JSX.Element 
           <div className="flex-1">
             <label className="block text-xs text-muted mb-1">{t('game.dmShopModal.shopName')}</label>
             <input
+              name="shop-name"
               type="text"
               value={shopNameInput}
               onChange={(e) => {
@@ -181,6 +182,7 @@ export default function DMShopModal({ onClose }: DMShopModalProps): JSX.Element 
               {t('game.dmShopModal.markup', { percent: Math.round(shopMarkup * 100) })}
             </label>
             <input
+              name="shop-markup"
               type="range"
               min={50}
               max={200}

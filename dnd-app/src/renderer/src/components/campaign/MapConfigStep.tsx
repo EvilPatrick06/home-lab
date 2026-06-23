@@ -251,6 +251,7 @@ export default function MapConfigStep({ maps, campaignId, onChange, adventureMap
               </div>
               <input
                 type="number"
+                name="grid-size"
                 min={20}
                 max={100}
                 className="w-24 p-3 rounded-lg bg-surface-2 border border-border text-fg

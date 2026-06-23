@@ -90,6 +90,7 @@ export default function ChaseControls({
               <label className="text-xs text-gray-500">{t('game.chaseControls.spd')}</label>
               <input
                 type="number"
+                name="participant-speed"
                 value={p.speed}
                 onChange={(e) => onUpdateSpeed(p.id, Number(e.target.value))}
                 className="w-14 bg-gray-700 border border-gray-600 rounded px-1 py-0.5 text-xs text-white text-center"
@@ -102,6 +103,7 @@ export default function ChaseControls({
               <label className="text-xs text-gray-500">{t('game.chaseControls.con')}</label>
               <input
                 type="number"
+                name="participant-con-modifier"
                 value={p.conModifier}
                 onChange={(e) => onUpdateConModifier(p.id, Number(e.target.value))}
                 className="w-10 bg-gray-700 border border-gray-600 rounded px-1 py-0.5 text-xs text-white text-center"
@@ -147,6 +149,7 @@ export default function ChaseControls({
       <div className="flex items-center gap-2">
         <input
           type="text"
+          name="new-participant-name"
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           placeholder={t('game.chaseControls.namePlaceholder')}
@@ -159,6 +162,7 @@ export default function ChaseControls({
           <label className="text-xs text-gray-500">{t('game.chaseControls.con')}</label>
           <input
             type="number"
+            name="new-participant-con-mod"
             value={newConMod}
             onChange={(e) => setNewConMod(Number(e.target.value))}
             className="w-10 bg-gray-700 border border-gray-600 rounded px-1 py-0.5 text-xs text-white text-center"
@@ -167,6 +171,7 @@ export default function ChaseControls({
         <label className="flex items-center gap-1 text-xs text-muted">
           <input
             type="checkbox"
+            name="new-participant-is-quarry"
             checked={newIsQuarry}
             onChange={(e) => setNewIsQuarry(e.target.checked)}
             className="rounded"

@@ -830,6 +830,7 @@ export default function MapCanvas({
           // type without tripping the a11y autofocus lint.
           ref={(el) => el?.focus()}
           type="text"
+          name="drawing-text"
           value={drawingTextInput.value}
           onChange={(e) => setDrawingTextInput({ ...drawingTextInput, value: e.target.value })}
           onKeyDown={(e) => {

@@ -124,6 +124,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                   {showManualMagicItem ? (
                     <div className="space-y-2">
                       <input
+                        name="magic-item-name"
                         aria-label={t('sheet.magicItemsPanel.itemNamePlaceholder')}
                         type="text"
                         placeholder={t('sheet.magicItemsPanel.itemNamePlaceholder')}
@@ -133,6 +134,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                       />
                       <div className="flex gap-2">
                         <select
+                          name="magic-item-rarity"
                           value={manualMagicItem.rarity}
                           onChange={(e) =>
                             setManualMagicItem((f) => ({ ...f, rarity: e.target.value as typeof f.rarity }))
@@ -148,6 +150,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                         </select>
                         <label className="flex items-center gap-1 text-xs text-muted cursor-pointer">
                           <input
+                            name="magic-item-attunement"
                             type="checkbox"
                             checked={manualMagicItem.attunement}
                             onChange={(e) => setManualMagicItem((f) => ({ ...f, attunement: e.target.checked }))}
@@ -157,6 +160,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                         </label>
                         <label className="flex items-center gap-1 text-xs text-yellow-500 cursor-pointer">
                           <input
+                            name="give-unidentified"
                             type="checkbox"
                             checked={giveUnidentified}
                             onChange={(e) => setGiveUnidentified(e.target.checked)}
@@ -166,6 +170,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                         </label>
                       </div>
                       <input
+                        name="magic-item-description"
                         aria-label={t('sheet.magicItemsPanel.descriptionPlaceholder')}
                         type="text"
                         placeholder={t('sheet.magicItemsPanel.descriptionPlaceholder')}
@@ -207,6 +212,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                     <div className="space-y-2">
                       <div className="flex gap-2">
                         <input
+                          name="magic-item-search"
                           aria-label={t('sheet.magicItemsPanel.searchPlaceholder')}
                           type="text"
                           placeholder={t('sheet.magicItemsPanel.searchPlaceholder')}
@@ -215,6 +221,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                           className="flex-1 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg focus:outline-none focus:border-purple-500"
                         />
                         <select
+                          name="magic-item-rarity-filter"
                           value={magicItemRarityFilter}
                           onChange={(e) => setMagicItemRarityFilter(e.target.value)}
                           className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg focus:outline-none focus:border-purple-500"
@@ -229,6 +236,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                         </select>
                         <label className="flex items-center gap-1 text-xs text-yellow-500 cursor-pointer shrink-0">
                           <input
+                            name="give-unidentified"
                             type="checkbox"
                             checked={giveUnidentified}
                             onChange={(e) => setGiveUnidentified(e.target.checked)}

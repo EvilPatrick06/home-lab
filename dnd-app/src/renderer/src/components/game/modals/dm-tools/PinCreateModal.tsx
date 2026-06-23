@@ -73,6 +73,7 @@ export default function PinCreateModal({ gridX, gridY, onCreate, onClose }: PinC
 
         <input
           type="text"
+          name="pin-label"
           value={label}
           onChange={(e) => setLabel(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && submit()}
@@ -116,6 +117,7 @@ export default function PinCreateModal({ gridX, gridY, onCreate, onClose }: PinC
 
         <input
           type="text"
+          name="linked-journal-id"
           value={linkedJournalId}
           onChange={(e) => setLinkedJournalId(e.target.value)}
           placeholder={t('game.pinCreateModal.linkedJournalPlaceholder')}
@@ -125,6 +127,7 @@ export default function PinCreateModal({ gridX, gridY, onCreate, onClose }: PinC
         <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer select-none">
           <input
             type="checkbox"
+            name="visible-to-players"
             checked={visibleToPlayers}
             onChange={(e) => setVisibleToPlayers(e.target.checked)}
             className="cursor-pointer"

@@ -55,6 +55,7 @@ export function AudioSection(): JSX.Element {
           <label className="relative inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
+              name="audio-enabled"
               checked={audioEnabled}
               onChange={(e) => handleEnabledChange(e.target.checked)}
               className="sr-only peer"
@@ -68,6 +69,7 @@ export function AudioSection(): JSX.Element {
           <label className="relative inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
+              name="audio-muted"
               checked={audioMuted}
               onChange={(e) => handleMutedChange(e.target.checked)}
               disabled={!audioEnabled}
@@ -81,6 +83,7 @@ export function AudioSection(): JSX.Element {
           <span className="text-sm text-gray-300 w-32">{t('pages.settingsPage.masterVolume')}</span>
           <input
             type="range"
+            name="master-volume"
             min="0"
             max="100"
             value={masterVolume}
@@ -95,6 +98,7 @@ export function AudioSection(): JSX.Element {
           <span className="text-sm text-gray-300 w-32">{t('pages.settingsPage.ambientMusic')}</span>
           <input
             type="range"
+            name="ambient-volume"
             min="0"
             max="100"
             value={ambientVolume}

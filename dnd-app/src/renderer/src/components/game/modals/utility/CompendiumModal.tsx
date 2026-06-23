@@ -136,6 +136,7 @@ export default function CompendiumModal({ onClose, initialCategory, initialQuery
         <div className="flex flex-col h-full min-h-0">
           {/* Search */}
           <input
+            name="compendium-search"
             aria-label={t('game.compendiumModal.searchPlaceholder')}
             type="text"
             placeholder={t('game.compendiumModal.searchPlaceholder')}

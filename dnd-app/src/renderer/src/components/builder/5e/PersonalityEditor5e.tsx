@@ -42,6 +42,7 @@ export default function PersonalityEditor5e(): JSX.Element {
             )}
           </div>
           <textarea
+            name="character-personality"
             value={characterPersonality}
             onChange={(e) => useBuilderStore.setState({ characterPersonality: e.target.value })}
             placeholder={t('builder.personalityEditor.personalityPlaceholder')}
@@ -52,6 +53,7 @@ export default function PersonalityEditor5e(): JSX.Element {
         <div className="flex flex-col gap-1">
           <label className="text-xs text-gray-500">{t('builder.personalityEditor.ideals')}</label>
           <textarea
+            name="character-ideals"
             value={characterIdeals}
             onChange={(e) => useBuilderStore.setState({ characterIdeals: e.target.value })}
             placeholder={t('builder.personalityEditor.idealsPlaceholder')}
@@ -62,6 +64,7 @@ export default function PersonalityEditor5e(): JSX.Element {
         <div className="flex flex-col gap-1">
           <label className="text-xs text-gray-500">{t('builder.personalityEditor.bonds')}</label>
           <textarea
+            name="character-bonds"
             value={characterBonds}
             onChange={(e) => useBuilderStore.setState({ characterBonds: e.target.value })}
             placeholder={t('builder.personalityEditor.bondsPlaceholder')}
@@ -72,6 +75,7 @@ export default function PersonalityEditor5e(): JSX.Element {
         <div className="flex flex-col gap-1">
           <label className="text-xs text-gray-500">{t('builder.personalityEditor.flaws')}</label>
           <textarea
+            name="character-flaws"
             value={characterFlaws}
             onChange={(e) => useBuilderStore.setState({ characterFlaws: e.target.value })}
             placeholder={t('builder.personalityEditor.flawsPlaceholder')}
@@ -82,6 +86,7 @@ export default function PersonalityEditor5e(): JSX.Element {
         <div className="flex flex-col gap-1">
           <label className="text-xs text-gray-500">{t('builder.personalityEditor.backstory')}</label>
           <textarea
+            name="character-backstory"
             value={characterBackstory}
             onChange={(e) => useBuilderStore.setState({ characterBackstory: e.target.value })}
             placeholder={t('builder.personalityEditor.backstoryPlaceholder')}
@@ -95,6 +100,7 @@ export default function PersonalityEditor5e(): JSX.Element {
       <SectionBanner label={t('builder.personalityEditor.sectionNotes')} />
       <div className="px-4 py-3 border-b border-gray-800">
         <textarea
+          name="character-notes"
           value={characterNotes}
           onChange={(e) => useBuilderStore.setState({ characterNotes: e.target.value })}
           placeholder={t('builder.personalityEditor.notesPlaceholder')}

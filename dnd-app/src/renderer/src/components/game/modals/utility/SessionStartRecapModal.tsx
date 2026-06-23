@@ -116,6 +116,7 @@ export default function SessionStartRecapModal({ open, onClose }: SessionStartRe
               </p>
             )}
             <textarea
+              name="recap-text"
               className="w-full h-40 bg-transparent text-sm text-gray-200 resize-none focus:outline-none"
               value={recapText}
               onChange={(e) => setRecapText(e.target.value)}

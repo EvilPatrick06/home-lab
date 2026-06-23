@@ -41,6 +41,7 @@ export function CreateBastionModal({
           <label className="text-xs text-gray-500">{t('pages.createBastionModal.bastionName')}</label>
           <input
             type="text"
+            name="bastion-name"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             placeholder={t('pages.createBastionModal.bastionNamePlaceholder')}
@@ -66,6 +67,7 @@ export function CreateBastionModal({
           <div className="flex flex-col gap-1">
             <label className="text-xs text-gray-500">{t('pages.createBastionModal.ownerCharacter')}</label>
             <select
+              name="bastion-owner"
               value={newOwnerId}
               onChange={(e) => setNewOwnerId(e.target.value)}
               className="bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"

@@ -186,6 +186,7 @@ export default function SceneModeModal({ onClose }: SceneModeModalProps): JSX.El
 
           {imageSource === 'upload' && (
             <input
+              name="scene-image-upload"
               type="file"
               accept="image/*"
               onChange={(e) => handleUpload(e.target.files?.[0])}
@@ -194,6 +195,7 @@ export default function SceneModeModal({ onClose }: SceneModeModalProps): JSX.El
           )}
           {imageSource === 'library' && (
             <select
+              name="library-image"
               className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-gray-200"
               onChange={(e) => handleLibraryPick(e.target.value)}
               defaultValue=""
@@ -220,6 +222,7 @@ export default function SceneModeModal({ onClose }: SceneModeModalProps): JSX.El
               {t('game.sceneMode.caption')} <span className="text-gray-600">({t('game.sceneMode.captionHint')})</span>
             </label>
             <input
+              name="caption"
               type="text"
               maxLength={500}
               value={caption}
@@ -233,6 +236,7 @@ export default function SceneModeModal({ onClose }: SceneModeModalProps): JSX.El
           <div className="flex items-center gap-2">
             <label className="text-gray-400">{t('game.sceneMode.particles')}</label>
             <select
+              name="particle-effect"
               className="bg-surface-2 border border-border rounded px-2 py-1 text-gray-200"
               value={particleEffect}
               onChange={(e) => setParticleEffect(e.target.value as SceneParticleEffect)}
@@ -249,6 +253,7 @@ export default function SceneModeModal({ onClose }: SceneModeModalProps): JSX.El
           <div className="flex items-center gap-2">
             <label className="text-gray-400">{t('game.sceneMode.ambient')}</label>
             <select
+              name="ambient-choice"
               className="bg-surface-2 border border-border rounded px-2 py-1 text-gray-200 max-w-[260px]"
               value={ambientChoice}
               onChange={(e) => setAmbientChoice(e.target.value as AmbientChoice)}
@@ -265,7 +270,12 @@ export default function SceneModeModal({ onClose }: SceneModeModalProps): JSX.El
 
           {/* Auto-exit pref */}
           <label className="flex items-center gap-2 text-gray-400 cursor-pointer">
-            <input type="checkbox" checked={autoExitOnCombat} onChange={(e) => setAutoExitOnCombat(e.target.checked)} />
+            <input
+              name="auto-exit-on-combat"
+              type="checkbox"
+              checked={autoExitOnCombat}
+              onChange={(e) => setAutoExitOnCombat(e.target.checked)}
+            />
             {t('game.sceneMode.autoExitOnCombat')}
           </label>
         </div>

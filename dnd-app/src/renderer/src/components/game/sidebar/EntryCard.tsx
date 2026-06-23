@@ -78,12 +78,14 @@ export default function EntryCard({
         <div className="space-y-2">
           <input
             type="text"
+            name="edit-name"
             value={editName}
             onChange={(e) => onEditNameChange(e.target.value)}
             className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
             placeholder={t('game.entryCard.namePlaceholder')}
           />
           <textarea
+            name="edit-desc"
             value={editDesc}
             onChange={(e) => onEditDescChange(e.target.value)}
             className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500 resize-none"
@@ -91,6 +93,7 @@ export default function EntryCard({
             placeholder={t('game.entryCard.descriptionPlaceholder')}
           />
           <textarea
+            name="edit-notes"
             value={editNotes}
             onChange={(e) => onEditNotesChange(e.target.value)}
             className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500 resize-none"

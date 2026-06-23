@@ -152,6 +152,7 @@ export default function WeatherOverridePanel(): JSX.Element {
               {t('game.weatherOverridePanel.preset')}
             </label>
             <select
+              name="weather-preset"
               value={wPreset}
               onChange={(e) => setWPreset(e.target.value)}
               className="w-full px-2 py-1 text-xs bg-surface-2 border border-border rounded text-gray-200"
@@ -170,6 +171,7 @@ export default function WeatherOverridePanel(): JSX.Element {
               {t('game.weatherOverridePanel.description')}
             </label>
             <textarea
+              name="weather-description"
               value={wDescription}
               onChange={(e) => setWDescription(e.target.value)}
               placeholder={t('game.weatherOverridePanel.descriptionPlaceholder')}
@@ -201,6 +203,7 @@ export default function WeatherOverridePanel(): JSX.Element {
               </button>
             </div>
             <input
+              name="weather-temperature"
               type="range"
               min={tempMin}
               max={tempMax}
@@ -228,6 +231,7 @@ export default function WeatherOverridePanel(): JSX.Element {
               {t('game.weatherOverridePanel.windSpeed')}
             </label>
             <select
+              name="weather-wind-speed"
               value={wWind}
               onChange={(e) => setWWind(e.target.value)}
               className="w-full px-2 py-1 text-xs bg-surface-2 border border-border rounded text-gray-200"
@@ -249,6 +253,7 @@ export default function WeatherOverridePanel(): JSX.Element {
               {MECHANICAL_EFFECTS.map((effect) => (
                 <label key={effect} className="flex items-center gap-1.5 text-[11px] text-gray-300 cursor-pointer">
                   <input
+                    name="weather-effect"
                     type="checkbox"
                     checked={wEffects.includes(effect)}
                     onChange={() => handleToggleEffect(effect)}
@@ -267,6 +272,7 @@ export default function WeatherOverridePanel(): JSX.Element {
             </label>
             <div className="flex items-center gap-2">
               <select
+                name="random-climate"
                 value={randomClimate}
                 onChange={(e) => setRandomClimate(e.target.value as Climate)}
                 className="flex-1 px-2 py-1 text-xs bg-surface-2 border border-border rounded text-gray-200"
@@ -278,6 +284,7 @@ export default function WeatherOverridePanel(): JSX.Element {
                 ))}
               </select>
               <select
+                name="random-season"
                 value={randomSeason}
                 onChange={(e) => setRandomSeason(e.target.value as WeatherSeason)}
                 className="flex-1 px-2 py-1 text-xs bg-surface-2 border border-border rounded text-gray-200"
@@ -316,6 +323,7 @@ export default function WeatherOverridePanel(): JSX.Element {
             </button>
             <div className="flex items-center gap-1 flex-1">
               <input
+                name="preset-save-name"
                 type="text"
                 value={presetSaveName}
                 onChange={(e) => setPresetSaveName(e.target.value)}

@@ -444,6 +444,7 @@ export default function OllamaManagement(): JSX.Element {
             </h4>
             <div className="flex gap-2">
               <input
+                name="custom-model-name"
                 type="text"
                 value={customModelName}
                 onChange={(e) => setCustomModelName(e.target.value)}

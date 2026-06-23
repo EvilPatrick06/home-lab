@@ -134,6 +134,7 @@ export default function BackgroundPanel5e({
             <input
               aria-label={t('sheet.backgroundPanel.customSensePlaceholder')}
               type="text"
+              name="custom-sense"
               placeholder={t('sheet.backgroundPanel.customSensePlaceholder')}
               value={customSenseInput}
               onChange={(e) => setCustomSenseInput(e.target.value)}

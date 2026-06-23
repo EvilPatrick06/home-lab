@@ -238,6 +238,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
                           </p>
                         )}
                         <input
+                          name="disease-notes"
                           aria-label={t('game.diseaseCurseTracker.addNotes')}
                           type="text"
                           placeholder={t('game.diseaseCurseTracker.addNotes')}
@@ -265,6 +266,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
         {/* Add Disease */}
         <div className="flex flex-wrap gap-1.5 mt-2">
           <select
+            name="disease-id"
             value={addDiseaseId}
             onChange={(e) => setAddDiseaseId(e.target.value)}
             className="px-2 py-1 text-xs bg-surface-2 border border-gray-600 rounded text-gray-300"
@@ -276,6 +278,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
             ))}
           </select>
           <input
+            name="disease-target"
             aria-label={t('game.diseaseCurseTracker.targetName')}
             type="text"
             placeholder={t('game.diseaseCurseTracker.targetName')}
@@ -354,6 +357,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
                           </p>
                         )}
                         <input
+                          name="curse-notes"
                           aria-label={t('game.diseaseCurseTracker.addNotes')}
                           type="text"
                           placeholder={t('game.diseaseCurseTracker.addNotes')}
@@ -381,6 +385,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
         {/* Add Curse */}
         <div className="flex flex-wrap gap-1.5 mt-2">
           <select
+            name="curse-id"
             value={addCurseId}
             onChange={(e) => setAddCurseId(e.target.value)}
             className="px-2 py-1 text-xs bg-surface-2 border border-gray-600 rounded text-gray-300"
@@ -392,6 +397,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
             ))}
           </select>
           <input
+            name="curse-target"
             aria-label={t('game.diseaseCurseTracker.targetName')}
             type="text"
             placeholder={t('game.diseaseCurseTracker.targetName')}

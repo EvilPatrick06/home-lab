@@ -81,6 +81,7 @@ export default function FallingDamageModal({
         </label>
         <input
           type="range"
+          name="fall-height"
           min={10}
           max={200}
           step={10}

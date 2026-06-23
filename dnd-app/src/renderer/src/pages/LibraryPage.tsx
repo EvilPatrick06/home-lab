@@ -612,6 +612,7 @@ export default function LibraryPage(): JSX.Element {
       <div className="mb-4">
         <input
           type="text"
+          name="library-search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={

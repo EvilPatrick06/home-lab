@@ -296,6 +296,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
                 <label className={labelClass}>{t('game.triggerManagerModal.name')}</label>
                 <input
                   type="text"
+                  name="trigger-name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={t('game.triggerManagerModal.namePlaceholder')}
@@ -307,6 +308,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
                 <div>
                   <label className={labelClass}>{t('game.triggerManagerModal.eventType')}</label>
                   <select
+                    name="trigger-event"
                     value={event}
                     onChange={(e) => setEvent(e.target.value as TriggerEvent)}
                     className={inputClass}
@@ -321,6 +323,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
                 <div>
                   <label className={labelClass}>{t('game.triggerManagerModal.action')}</label>
                   <select
+                    name="trigger-action"
                     value={action}
                     onChange={(e) => setAction(e.target.value as TriggerAction)}
                     className={inputClass}
@@ -346,6 +349,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
                     <label className={labelClass}>{t('game.triggerManagerModal.entityId')}</label>
                     <input
                       type="text"
+                      name="entity-id"
                       value={entityId}
                       onChange={(e) => setEntityId(e.target.value)}
                       placeholder={t('game.triggerManagerModal.entityIdPlaceholder')}
@@ -359,6 +363,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
                     <label className={labelClass}>{t('game.triggerManagerModal.hpThreshold')}</label>
                     <input
                       type="number"
+                      name="hp-threshold"
                       value={threshold}
                       onChange={(e) => setThreshold(Number(e.target.value))}
                       min={0}
@@ -373,6 +378,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
                     <label className={labelClass}>{t('game.triggerManagerModal.regionId')}</label>
                     <input
                       type="text"
+                      name="region-id"
                       value={regionId}
                       onChange={(e) => setRegionId(e.target.value)}
                       placeholder={t('game.triggerManagerModal.regionIdPlaceholder')}
@@ -386,6 +392,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
                     <label className={labelClass}>{t('game.triggerManagerModal.conditionName')}</label>
                     <input
                       type="text"
+                      name="condition-name"
                       value={conditionName}
                       onChange={(e) => setConditionName(e.target.value)}
                       placeholder={t('game.triggerManagerModal.conditionNamePlaceholder')}
@@ -399,6 +406,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
                     <label className={labelClass}>{t('game.triggerManagerModal.elapsedSeconds')}</label>
                     <input
                       type="number"
+                      name="elapsed-seconds"
                       value={elapsed}
                       onChange={(e) => setElapsed(Number(e.target.value))}
                       min={0}
@@ -420,6 +428,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
                         : t('game.triggerManagerModal.messageText')}
                     </label>
                     <textarea
+                      name="message-text"
                       value={messageText}
                       onChange={(e) => setMessageText(e.target.value)}
                       placeholder={
@@ -437,6 +446,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
                     <label className={labelClass}>{t('game.triggerManagerModal.soundEventId')}</label>
                     <input
                       type="text"
+                      name="sound-id"
                       value={soundId}
                       onChange={(e) => setSoundId(e.target.value)}
                       placeholder={t('game.triggerManagerModal.soundEventIdPlaceholder')}
@@ -450,6 +460,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
                     <label className={labelClass}>{t('game.triggerManagerModal.creatureId')}</label>
                     <input
                       type="text"
+                      name="creature-id"
                       value={creatureId}
                       onChange={(e) => setCreatureId(e.target.value)}
                       placeholder={t('game.triggerManagerModal.creatureIdPlaceholder')}
@@ -458,6 +469,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
                     <div className="grid grid-cols-2 gap-2 mt-2">
                       <input
                         type="number"
+                        name="spawn-grid-x"
                         min={0}
                         value={spawnGridX}
                         onChange={(e) => setSpawnGridX(e.target.value)}
@@ -466,6 +478,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
                       />
                       <input
                         type="number"
+                        name="spawn-grid-y"
                         min={0}
                         value={spawnGridY}
                         onChange={(e) => setSpawnGridY(e.target.value)}
@@ -481,6 +494,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
                   <div>
                     <label className={labelClass}>{t('game.triggerManagerModal.lightingLevel')}</label>
                     <select
+                      name="lighting-level"
                       value={lightingLevel}
                       onChange={(e) => setLightingLevel(e.target.value as 'bright' | 'dim' | 'darkness')}
                       className={inputClass}
@@ -497,6 +511,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
                 <label className="flex items-center gap-1.5 text-xs text-gray-300 cursor-pointer">
                   <input
                     type="checkbox"
+                    name="one-shot"
                     checked={oneShot}
                     onChange={(e) => setOneShot(e.target.checked)}
                     className="rounded"

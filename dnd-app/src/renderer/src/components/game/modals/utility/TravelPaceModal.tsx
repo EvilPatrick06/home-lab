@@ -118,6 +118,7 @@ export default function TravelPaceModal({ onClose }: TravelPaceModalProps): JSX.
           <div className="flex items-center gap-2 mb-2">
             <input
               type="number"
+              name="travel-distance"
               value={distance}
               onChange={(e) => setDistance(e.target.value)}
               placeholder={t('game.travelPaceModal.distancePlaceholder')}

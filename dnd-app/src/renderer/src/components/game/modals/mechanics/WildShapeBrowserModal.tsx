@@ -109,6 +109,7 @@ export default function WildShapeBrowserModal({
 
         <div className="px-4 py-2 border-b border-border/50">
           <input
+            name="beast-filter"
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}

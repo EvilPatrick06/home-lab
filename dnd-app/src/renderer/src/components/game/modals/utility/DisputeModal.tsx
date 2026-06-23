@@ -62,6 +62,7 @@ export default function DisputeModal({
         <div className="mb-4">
           <label className="text-xs text-muted block mb-1">{t('game.disputeModal.dmNoteLabel')}</label>
           <textarea
+            name="dm-note"
             value={dmNote}
             onChange={(e) => setDmNote(e.target.value)}
             placeholder={t('game.disputeModal.dmNotePlaceholder')}

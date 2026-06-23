@@ -70,6 +70,7 @@ export function FeatPicker({ character, takenFeatIds, onSelect, onClose }: FeatP
       {/* Search */}
       <input
         aria-label={t('sheet.featPicker.searchFeatsPlaceholder')}
+        name="feat-search"
         type="text"
         placeholder={t('sheet.featPicker.searchFeatsPlaceholder')}
         value={search}
@@ -144,6 +145,7 @@ export function BonusFeatPicker({ character, bonusFeats, onSelect, onClose }: Bo
 
       <input
         aria-label={t('sheet.featPicker.searchFeatsPlaceholder')}
+        name="bonus-feat-search"
         type="text"
         placeholder={t('sheet.featPicker.searchFeatsPlaceholder')}
         value={bonusFeatSearch}

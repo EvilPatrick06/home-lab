@@ -311,6 +311,7 @@ export default function ActivitiesTab({
               <label className="text-xs text-muted font-semibold">{t('game.activitiesTab.days')}</label>
               <input
                 type="number"
+                name="downtime-days"
                 min={1}
                 value={days}
                 onChange={(e) => setDays(Math.max(1, parseInt(e.target.value, 10) || 1))}

@@ -489,6 +489,7 @@ export default function InitiativeTracker({
           <label className="flex items-center gap-1.5 cursor-pointer text-gray-400">
             <input
               type="checkbox"
+              name="monster-automation-enabled"
               checked={monsterAutomation !== null}
               onChange={(e) => setMonsterAutomation(e.target.checked ? defaultAutomation : null)}
             />
@@ -499,6 +500,7 @@ export default function InitiativeTracker({
               <label className="flex items-center gap-1.5 cursor-pointer text-gray-400">
                 <input
                   type="checkbox"
+                  name="auto-run"
                   checked={monsterAutomation.autoRun}
                   onChange={(e) => patchAutomation({ autoRun: e.target.checked })}
                 />
@@ -508,6 +510,7 @@ export default function InitiativeTracker({
                 {t('game.initiativeTracker.automation.autoRunMaxInt')}
                 <input
                   type="number"
+                  name="auto-run-max-int"
                   min={1}
                   max={30}
                   value={monsterAutomation.autoRunMaxInt}
@@ -522,6 +525,7 @@ export default function InitiativeTracker({
               <label className="flex items-center gap-1.5 cursor-pointer text-gray-400">
                 <input
                   type="checkbox"
+                  name="auto-advance"
                   checked={monsterAutomation.autoAdvance}
                   onChange={(e) => patchAutomation({ autoAdvance: e.target.checked })}
                 />
@@ -530,6 +534,7 @@ export default function InitiativeTracker({
               <label className="flex items-center gap-1.5 cursor-pointer text-gray-400">
                 <input
                   type="checkbox"
+                  name="flavor-narration"
                   checked={monsterAutomation.flavorNarration}
                   onChange={(e) => patchAutomation({ flavorNarration: e.target.checked })}
                 />

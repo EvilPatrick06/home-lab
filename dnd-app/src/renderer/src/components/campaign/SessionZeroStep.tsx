@@ -179,6 +179,7 @@ export default function SessionZeroStep({
             >
               <input
                 type="checkbox"
+                name="line-topic"
                 checked={has(lineTopics, limit)}
                 onChange={() => toggleSafety(limit, 'lines')}
                 className="accent-red-500 w-3.5 h-3.5"
@@ -190,6 +191,7 @@ export default function SessionZeroStep({
         <div className="flex items-center gap-2 mt-2">
           <input
             value={customLimit}
+            name="custom-limit"
             onChange={(e) => setCustomLimit(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addCustomLimit()}
             placeholder={t('campaign.sessionZeroStep.customLimitPlaceholder')}
@@ -234,6 +236,7 @@ export default function SessionZeroStep({
             >
               <input
                 type="checkbox"
+                name="veil-topic"
                 checked={has(veilTopics, limit)}
                 onChange={() => toggleSafety(limit, 'veils')}
                 className="accent-amber-500 w-3.5 h-3.5"
@@ -245,6 +248,7 @@ export default function SessionZeroStep({
         <div className="flex items-center gap-2 mt-2">
           <input
             value={customVeil}
+            name="custom-veil"
             onChange={(e) => setCustomVeil(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addCustomVeil()}
             placeholder={t('campaign.sessionZeroStep.customVeilPlaceholder')}
@@ -387,6 +391,7 @@ export default function SessionZeroStep({
               <label className="block text-xs text-muted mb-1">{t('campaign.sessionZeroStep.ruleName')}</label>
               <input
                 value={newRuleName}
+                name="rule-name"
                 onChange={(e) => setNewRuleName(e.target.value)}
                 placeholder={t('campaign.sessionZeroStep.ruleNamePlaceholder')}
                 className="w-full px-3 py-2 text-xs bg-surface-2 border border-border rounded text-gray-200 focus:outline-none focus:border-amber-500 transition-colors"
@@ -396,6 +401,7 @@ export default function SessionZeroStep({
               <label className="block text-xs text-muted mb-1">{t('campaign.sessionZeroStep.description')}</label>
               <textarea
                 value={newRuleDescription}
+                name="rule-description"
                 onChange={(e) => setNewRuleDescription(e.target.value)}
                 placeholder={t('campaign.sessionZeroStep.descriptionPlaceholder')}
                 rows={2}
@@ -406,6 +412,7 @@ export default function SessionZeroStep({
               <label className="block text-xs text-muted mb-1">{t('campaign.sessionZeroStep.category')}</label>
               <select
                 value={newRuleCategory}
+                name="rule-category"
                 onChange={(e) => setNewRuleCategory(e.target.value as RuleCategory)}
                 className="px-3 py-2 text-xs bg-surface-2 border border-border rounded text-gray-200 focus:outline-none focus:border-amber-500 transition-colors cursor-pointer"
               >
@@ -449,6 +456,7 @@ export default function SessionZeroStep({
         </label>
         <textarea
           value={data.playSchedule}
+          name="play-schedule"
           onChange={(e) => update('playSchedule', e.target.value)}
           placeholder={t('campaign.sessionZeroStep.playSchedulePlaceholder')}
           rows={2}
@@ -463,6 +471,7 @@ export default function SessionZeroStep({
         </label>
         <textarea
           value={data.additionalNotes}
+          name="additional-notes"
           onChange={(e) => update('additionalNotes', e.target.value)}
           placeholder={t('campaign.sessionZeroStep.additionalNotesPlaceholder')}
           rows={2}

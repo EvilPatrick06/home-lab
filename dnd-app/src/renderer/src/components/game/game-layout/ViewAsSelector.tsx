@@ -17,6 +17,7 @@ export default function ViewAsSelector({ campaign, viewAs, setViewAsTarget }: Vi
   const { t } = useT()
   return (
     <select
+      name="view-as"
       value={viewAs ? (viewAs.playerId ? `player:${viewAs.playerId}` : `role:${viewAs.roleId}`) : 'self'}
       onChange={(e) => {
         const v = e.target.value

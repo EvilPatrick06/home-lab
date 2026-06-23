@@ -136,6 +136,7 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
             <label className="text-xs text-muted">{t('game.tokenEditorModal.label')}</label>
             <input
               type="text"
+              name="token-label"
               value={label}
               onChange={(e) => handleLabelChange(e.target.value)}
               maxLength={3}
@@ -148,6 +149,7 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
             <label className="text-xs text-muted">{t('game.tokenEditorModal.labelFontSize')}</label>
             <input
               type="number"
+              name="label-font-size"
               min={8}
               max={24}
               value={labelFontSize}
@@ -162,6 +164,7 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
             <div className="flex items-center gap-2">
               <input
                 type="color"
+                name="token-color"
                 value={color}
                 onChange={(e) => handleColorChange(e.target.value)}
                 className="w-8 h-8 rounded border border-border cursor-pointer bg-transparent"
@@ -176,6 +179,7 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
             <div className="flex items-center gap-2">
               <input
                 type="color"
+                name="border-color"
                 value={borderColor}
                 onChange={(e) => handleBorderColorChange(e.target.value)}
                 className="w-8 h-8 rounded border border-border cursor-pointer bg-transparent"
@@ -188,6 +192,7 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
           <div className="flex items-center justify-between">
             <label className="text-xs text-muted">{t('game.tokenEditorModal.borderStyle')}</label>
             <select
+              name="border-style"
               value={borderStyle}
               onChange={(e) => handleBorderStyleChange(e.target.value)}
               className="w-24 px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-gray-200 text-xs focus:outline-none focus:border-amber-500"
@@ -202,6 +207,7 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
           <div className="flex items-center justify-between">
             <label className="text-xs text-muted">{t('game.tokenEditorModal.sizeOverride')}</label>
             <select
+              name="size-override"
               value={sizeLabel}
               onChange={(e) => handleSizeChange(e.target.value)}
               className="w-24 px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-gray-200 text-xs focus:outline-none focus:border-amber-500"
@@ -219,6 +225,7 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
             <label className="text-xs text-muted">{t('game.tokenEditorModal.tokenImage')}</label>
             <input
               type="file"
+              name="token-image"
               accept="image/png,image/jpeg,image/webp"
               onChange={handleImageUpload}
               className="text-xs text-muted file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-surface-2 file:text-gray-300 hover:file:bg-gray-700"

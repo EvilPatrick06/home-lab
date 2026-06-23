@@ -14,6 +14,7 @@ export default function MapSelector({ maps, activeMapId, onSelectMap, onAddMap }
     <div className="relative">
       <div className="flex items-center gap-2">
         <select
+          name="active-map"
           value={activeMapId ?? ''}
           onChange={(e) => {
             if (e.target.value) onSelectMap(e.target.value)

@@ -97,6 +97,7 @@ export default function LibraryFilterBar({
       <div className="flex items-center gap-1.5">
         <span className="text-xs text-gray-500">{t('library.libraryFilterBar.sort')}</span>
         <select
+          name="sort-field"
           value={currentSort.field}
           onChange={(e) => onSortChange(e.target.value as SortField, currentSort.direction)}
           className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200 focus:outline-none focus:border-amber-500"
@@ -128,6 +129,7 @@ export default function LibraryFilterBar({
           <div className="flex items-center gap-1.5">
             <span className="text-xs text-gray-500">{t('library.libraryFilterBar.homebrew')}</span>
             <select
+              name="campaign-scope"
               value={campaignScope}
               onChange={(e) => onCampaignScopeChange(e.target.value as CampaignScopeFilter)}
               className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200 focus:outline-none focus:border-amber-500"

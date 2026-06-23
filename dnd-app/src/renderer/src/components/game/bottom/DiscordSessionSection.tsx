@@ -161,7 +161,12 @@ export default function DiscordSessionSection({ campaignId, narrationEnabled }: 
 
       {/* PHASE-22 22E: opt-in state push + Discord activity feed. */}
       <label className="flex items-center gap-2 mt-3 text-xs text-gray-300 cursor-pointer">
-        <input type="checkbox" checked={syncToDiscord} onChange={(e) => setSyncToDiscord(e.target.checked)} />
+        <input
+          type="checkbox"
+          name="sync-to-discord"
+          checked={syncToDiscord}
+          onChange={(e) => setSyncToDiscord(e.target.checked)}
+        />
         {t('game.discordSync.syncToggle')}
       </label>
       <div className="text-xs text-gray-500 mb-1">{t('game.discordSync.syncToggleDesc')}</div>

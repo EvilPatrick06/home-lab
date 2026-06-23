@@ -150,6 +150,7 @@ export default function CraftingBrowser({ characterTools, onStartCrafting }: Cra
       {/* Search */}
       <input
         aria-label={t('game.craftingBrowser.searchPlaceholder')}
+        name="search"
         type="text"
         placeholder={t('game.craftingBrowser.searchPlaceholder')}
         value={search}

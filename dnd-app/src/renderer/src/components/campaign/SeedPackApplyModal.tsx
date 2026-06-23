@@ -125,6 +125,7 @@ export default function SeedPackApplyModal({
                 <label key={s.key} className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
                   <input
                     type="checkbox"
+                    name="section-enabled"
                     checked={opts[s.key] ?? true}
                     onChange={(e) => setOpts((o) => ({ ...o, [s.key]: e.target.checked }))}
                   />

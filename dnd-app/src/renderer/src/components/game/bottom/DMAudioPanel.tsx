@@ -440,6 +440,7 @@ export default function DMAudioPanel(): JSX.Element {
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted w-14 shrink-0">{t('game.dmAudioPanel.ambient')}</span>
             <input
+              name="ambient-volume"
               type="range"
               min={0}
               max={100}
@@ -453,6 +454,7 @@ export default function DMAudioPanel(): JSX.Element {
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted w-14 shrink-0">{t('game.dmAudioPanel.master')}</span>
             <input
+              name="master-volume"
               type="range"
               min={0}
               max={100}
@@ -542,6 +544,7 @@ export default function DMAudioPanel(): JSX.Element {
 
                 {/* Volume slider */}
                 <input
+                  name="custom-audio-volume"
                   type="range"
                   min={0}
                   max={100}
@@ -587,6 +590,7 @@ export default function DMAudioPanel(): JSX.Element {
         </div>
         <div className="flex gap-1 mb-1.5">
           <input
+            name="new-playlist-name"
             type="text"
             value={newPlaylistName}
             onChange={(e) => setNewPlaylistName(e.target.value)}
@@ -685,6 +689,7 @@ export default function DMAudioPanel(): JSX.Element {
                   {/* Add-track controls */}
                   <div className="mt-1 pl-6 flex gap-1">
                     <select
+                      name="add-preset-track"
                       value=""
                       onChange={(e) => {
                         if (e.target.value) handleAddTrack(pl.id, 'preset', e.target.value)
@@ -700,6 +705,7 @@ export default function DMAudioPanel(): JSX.Element {
                     </select>
                     {customAudioEntries.length > 0 && (
                       <select
+                        name="add-custom-track"
                         value=""
                         onChange={(e) => {
                           if (e.target.value) handleAddTrack(pl.id, 'custom', e.target.value)

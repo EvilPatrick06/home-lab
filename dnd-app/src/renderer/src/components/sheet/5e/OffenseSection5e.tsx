@@ -246,6 +246,7 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
           <div className="text-xs text-muted font-medium mb-1">{t('sheet.offenseSection.customWeaponTitle')}</div>
           <div className="flex gap-2">
             <input
+              name="weapon-name"
               aria-label={t('sheet.offenseSection.namePlaceholder')}
               type="text"
               placeholder={t('sheet.offenseSection.namePlaceholder')}
@@ -254,6 +255,7 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
               className="flex-1 bg-surface-2 border border-border rounded px-2 py-1 text-sm text-fg focus:outline-none focus:border-amber-500"
             />
             <input
+              name="weapon-damage"
               aria-label={t('sheet.offenseSection.damagePlaceholder')}
               type="text"
               placeholder={t('sheet.offenseSection.damagePlaceholder')}
@@ -264,6 +266,7 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
           </div>
           <div className="flex gap-2">
             <input
+              name="weapon-damage-type"
               aria-label={t('sheet.offenseSection.damageTypePlaceholder')}
               type="text"
               placeholder={t('sheet.offenseSection.damageTypePlaceholder')}
@@ -272,6 +275,7 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
               className="flex-1 bg-surface-2 border border-border rounded px-2 py-1 text-sm text-fg focus:outline-none focus:border-amber-500"
             />
             <input
+              name="weapon-properties"
               aria-label={t('sheet.offenseSection.propertiesPlaceholder')}
               type="text"
               placeholder={t('sheet.offenseSection.propertiesPlaceholder')}
@@ -282,6 +286,7 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
           </div>
           <div className="flex gap-2">
             <input
+              name="weapon-cost"
               aria-label={t('sheet.offenseSection.costPlaceholder')}
               type="text"
               placeholder={t('sheet.offenseSection.costPlaceholder')}
@@ -296,6 +301,7 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
           {costError && <div className="text-xs text-red-400">{costError}</div>}
           <div className="flex items-center gap-3">
             <select
+              name="weapon-ability"
               value={weaponForm.ability}
               onChange={(e) => setWeaponForm((f) => ({ ...f, ability: e.target.value as 'STR' | 'DEX' }))}
               className="bg-surface-2 border border-border rounded px-2 py-1 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -305,6 +311,7 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
             </select>
             <label className="flex items-center gap-1 text-xs text-muted">
               <input
+                name="weapon-proficient"
                 type="checkbox"
                 checked={weaponForm.proficient}
                 onChange={(e) => setWeaponForm((f) => ({ ...f, proficient: e.target.checked }))}
@@ -335,6 +342,7 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
         <div className="bg-surface-2/50 rounded p-3 space-y-2 mb-3">
           <div className="text-xs text-muted font-medium mb-1">{t('sheet.offenseSection.weaponShop')}</div>
           <select
+            name="srd-weapon"
             value={selectedWeaponIdx}
             onChange={(e) => {
               setSelectedWeaponIdx(parseInt(e.target.value, 10))

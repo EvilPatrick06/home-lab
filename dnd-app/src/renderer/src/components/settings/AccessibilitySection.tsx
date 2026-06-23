@@ -76,6 +76,7 @@ export function AccessibilitySection(): JSX.Element {
           </div>
           <input
             type="range"
+            name="ui-scale"
             min={75}
             max={150}
             step={5}
@@ -157,6 +158,7 @@ export function AccessibilitySection(): JSX.Element {
             </div>
             <input
               type="checkbox"
+              name="reduced-motion"
               checked={reducedMotion}
               onChange={(e) => setReducedMotion(e.target.checked)}
               className="w-4 h-4 accent-amber-500 cursor-pointer"
@@ -170,6 +172,7 @@ export function AccessibilitySection(): JSX.Element {
             </div>
             <input
               type="checkbox"
+              name="screen-reader-mode"
               checked={screenReaderMode}
               onChange={(e) => setScreenReaderMode(e.target.checked)}
               className="w-4 h-4 accent-amber-500 cursor-pointer"
@@ -183,6 +186,7 @@ export function AccessibilitySection(): JSX.Element {
             </div>
             <input
               type="checkbox"
+              name="tooltips-enabled"
               checked={tooltipsEnabled}
               onChange={(e) => setTooltipsEnabled(e.target.checked)}
               className="w-4 h-4 accent-amber-500 cursor-pointer"

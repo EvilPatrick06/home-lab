@@ -438,6 +438,7 @@ export default function CharacterBuilder5e(): JSX.Element {
           <label className="flex items-center gap-1.5 text-xs text-muted select-none cursor-pointer">
             <input
               type="checkbox"
+              name="guided-mode"
               checked={guidedMode}
               onChange={(e) => setGuidedMode(e.target.checked)}
               className="rounded"

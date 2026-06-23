@@ -74,6 +74,7 @@ export default function WhisperModal({ isDM = true, senderName, onClose }: Whisp
           <div>
             <label className="text-xs text-muted block mb-1">{t('game.whisperModal.sendTo')}</label>
             <select
+              name="whisper-target"
               value={targetPeerId}
               onChange={(e) => setTargetPeerId(e.target.value)}
               className="w-full px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-gray-200 text-xs focus:outline-none focus:border-purple-500"
@@ -92,6 +93,7 @@ export default function WhisperModal({ isDM = true, senderName, onClose }: Whisp
           <div>
             <label className="text-xs text-muted block mb-1">{t('game.whisperModal.message')}</label>
             <textarea
+              name="whisper-message"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               className="w-full px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-fg text-xs focus:outline-none focus:border-purple-500 resize-none"

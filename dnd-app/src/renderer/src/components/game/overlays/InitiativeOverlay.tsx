@@ -132,6 +132,7 @@ export default function InitiativeOverlay({ isDM }: InitiativeOverlayProps): JSX
               >
                 <input
                   type="checkbox"
+                  name="auto-pan"
                   checked={autoPan}
                   onChange={(e) => {
                     setAutoPan(e.target.checked)

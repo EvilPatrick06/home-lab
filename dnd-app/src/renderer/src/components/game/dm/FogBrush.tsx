@@ -83,6 +83,7 @@ export default function FogBrush({
       {onDynamicFogToggle && (
         <label className="flex items-center gap-2 cursor-pointer mt-1">
           <input
+            name="dynamic-fog"
             type="checkbox"
             checked={dynamicFogEnabled ?? false}
             onChange={(e) => onDynamicFogToggle(e.target.checked)}

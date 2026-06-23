@@ -58,7 +58,12 @@ export default function AiImageSetup(): JSX.Element {
   return (
     <div className="space-y-3 text-sm">
       <label className="flex items-center gap-2 cursor-pointer text-gray-200">
-        <input type="checkbox" checked={cfg.enabled} onChange={(e) => set('enabled', e.target.checked)} />
+        <input
+          type="checkbox"
+          name="enabled"
+          checked={cfg.enabled}
+          onChange={(e) => set('enabled', e.target.checked)}
+        />
         {t('campaign.aiImageSetup.enable')}
       </label>
 
@@ -66,6 +71,7 @@ export default function AiImageSetup(): JSX.Element {
         {t('campaign.aiImageSetup.provider')}
         <select
           className={selectCls}
+          name="provider"
           value={cfg.provider}
           onChange={(e) => set('provider', e.target.value as ImageConfig['provider'])}
         >
@@ -79,6 +85,7 @@ export default function AiImageSetup(): JSX.Element {
         {t('campaign.aiImageSetup.fallback')}
         <select
           className={selectCls}
+          name="fallback-provider"
           value={cfg.fallbackProvider}
           onChange={(e) => set('fallbackProvider', e.target.value as ImageConfig['fallbackProvider'])}
         >
@@ -91,7 +98,12 @@ export default function AiImageSetup(): JSX.Element {
 
       <div>
         <label className="block text-gray-400 mb-1">{t('campaign.aiImageSetup.sdUrl')}</label>
-        <input className={inputCls} value={cfg.sdWebuiUrl} onChange={(e) => set('sdWebuiUrl', e.target.value)} />
+        <input
+          className={inputCls}
+          name="sd-webui-url"
+          value={cfg.sdWebuiUrl}
+          onChange={(e) => set('sdWebuiUrl', e.target.value)}
+        />
         <p className="text-[11px] text-gray-500 mt-0.5">{t('campaign.aiImageSetup.sdUrlHint')}</p>
       </div>
 
@@ -102,6 +114,7 @@ export default function AiImageSetup(): JSX.Element {
             {t('campaign.aiImageSetup.sdModel')}
             <input
               className={`${inputCls} max-w-[60%]`}
+              name="sd-model"
               value={cfg.sdModel}
               onChange={(e) => set('sdModel', e.target.value)}
             />
@@ -113,6 +126,7 @@ export default function AiImageSetup(): JSX.Element {
               min={1}
               max={150}
               className={`${selectCls} w-20`}
+              name="sd-steps"
               value={cfg.sdSteps}
               onChange={(e) => set('sdSteps', Number.parseInt(e.target.value, 10) || 28)}
             />
@@ -121,6 +135,7 @@ export default function AiImageSetup(): JSX.Element {
             {t('campaign.aiImageSetup.sampler')}
             <input
               className={`${inputCls} max-w-[60%]`}
+              name="sd-sampler"
               value={cfg.sdSampler}
               onChange={(e) => set('sdSampler', e.target.value)}
             />
@@ -133,6 +148,7 @@ export default function AiImageSetup(): JSX.Element {
               max={30}
               step={0.5}
               className={`${selectCls} w-20`}
+              name="sd-cfg-scale"
               value={cfg.sdCfgScale}
               onChange={(e) => set('sdCfgScale', Number.parseFloat(e.target.value) || 7)}
             />
@@ -147,6 +163,7 @@ export default function AiImageSetup(): JSX.Element {
             {t('campaign.aiImageSetup.openaiModel')}
             <input
               className={`${inputCls} max-w-[60%]`}
+              name="openai-model"
               value={cfg.openaiModel}
               onChange={(e) => set('openaiModel', e.target.value)}
             />
@@ -155,6 +172,7 @@ export default function AiImageSetup(): JSX.Element {
             {t('campaign.aiImageSetup.quality')}
             <select
               className={selectCls}
+              name="openai-quality"
               value={cfg.openaiQuality}
               onChange={(e) => set('openaiQuality', e.target.value as ImageConfig['openaiQuality'])}
             >
@@ -168,6 +186,7 @@ export default function AiImageSetup(): JSX.Element {
             {t('campaign.aiImageSetup.geminiModel')}
             <input
               className={`${inputCls} max-w-[60%]`}
+              name="gemini-model"
               value={cfg.geminiModel}
               onChange={(e) => set('geminiModel', e.target.value)}
             />
@@ -180,6 +199,7 @@ export default function AiImageSetup(): JSX.Element {
         {t('campaign.aiImageSetup.size')}
         <select
           className={selectCls}
+          name="size"
           value={cfg.size}
           onChange={(e) => set('size', e.target.value as ImageConfig['size'])}
         >

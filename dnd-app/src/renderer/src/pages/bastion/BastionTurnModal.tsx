@@ -87,6 +87,7 @@ export function BastionTurnModal({
             <label className="flex items-center gap-2 text-sm text-gray-300">
               <input
                 type="checkbox"
+                name="turn-maintain"
                 checked={turnMaintain}
                 onChange={(e) => setTurnMaintain(e.target.checked)}
                 className="rounded bg-surface-2 border-gray-600"
@@ -103,6 +104,7 @@ export function BastionTurnModal({
                       <span className="text-sm font-medium text-fg">{facility.name}</span>
                       {def && def.orders.length > 0 && (
                         <select
+                          name="facility-order-type"
                           value={currentOrder?.orderType ?? ''}
                           onChange={(e) => {
                             const val = e.target.value
@@ -130,6 +132,7 @@ export function BastionTurnModal({
                     </div>
                     {currentOrder && def && (
                       <select
+                        name="facility-order-details"
                         value={currentOrder.details}
                         onChange={(e) => {
                           const selectedName = e.target.value

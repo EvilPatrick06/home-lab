@@ -115,6 +115,7 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
             <label className="block text-muted text-xs mb-1">{t('pages.overviewCard.campaignNameLabel')}</label>
             <input
               type="text"
+              name="campaign-name"
               value={overviewForm.name}
               onChange={(e) => setOverviewForm((f) => ({ ...f, name: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -123,6 +124,7 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
           <div>
             <label className="block text-muted text-xs mb-1">{t('pages.overviewCard.descriptionLabel')}</label>
             <textarea
+              name="campaign-description"
               value={overviewForm.description}
               onChange={(e) => setOverviewForm((f) => ({ ...f, description: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500 h-20 resize-none"
@@ -133,6 +135,7 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
               <label className="block text-muted text-xs mb-1">{t('pages.overviewCard.maxPlayers')}</label>
               <input
                 type="number"
+                name="max-players"
                 value={maxPlayersDraft}
                 onChange={(e) => setMaxPlayersDraft(e.target.value)}
                 onBlur={() => {
@@ -150,6 +153,7 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
             <div>
               <label className="block text-muted text-xs mb-1">{t('pages.overviewCard.turnMode')}</label>
               <select
+                name="turn-mode"
                 value={overviewForm.turnMode}
                 onChange={(e) => setOverviewForm((f) => ({ ...f, turnMode: e.target.value as TurnMode }))}
                 className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -164,6 +168,7 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
               <label className="block text-muted text-xs mb-1">{t('pages.overviewCard.levelMin')}</label>
               <input
                 type="number"
+                name="level-min"
                 value={overviewForm.levelMin}
                 onChange={(e) =>
                   setOverviewForm((f) => ({ ...f, levelMin: Math.max(1, parseInt(e.target.value, 10) || 1) }))
@@ -177,6 +182,7 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
               <label className="block text-muted text-xs mb-1">{t('pages.overviewCard.levelMax')}</label>
               <input
                 type="number"
+                name="level-max"
                 value={overviewForm.levelMax}
                 onChange={(e) =>
                   setOverviewForm((f) => ({ ...f, levelMax: Math.max(1, parseInt(e.target.value, 10) || 1) }))
@@ -191,6 +197,7 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
             <label className="block text-muted text-xs mb-1">{t('pages.overviewCard.discordInviteUrlLabel')}</label>
             <input
               type="url"
+              name="discord-invite-url"
               value={overviewForm.discordInviteUrl}
               onChange={(e) => setOverviewForm((f) => ({ ...f, discordInviteUrl: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -200,6 +207,7 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
           <div>
             <label className="block text-muted text-xs mb-1">{t('pages.overviewCard.lobbyMessage')}</label>
             <textarea
+              name="lobby-message"
               value={overviewForm.lobbyMessage}
               onChange={(e) => setOverviewForm((f) => ({ ...f, lobbyMessage: e.target.value }))}
               className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500 h-16 resize-none"

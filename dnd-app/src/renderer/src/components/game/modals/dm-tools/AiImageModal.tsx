@@ -157,6 +157,7 @@ export default function AiImageModal({ onClose }: AiImageModalProps): JSX.Elemen
                   {t('game.aiImageModal.subjectType')}
                   <select
                     className="bg-surface-2 border border-border rounded px-2 py-1 text-gray-200"
+                    name="subject-type"
                     value={subjectType}
                     onChange={(e) => setSubjectType(e.target.value as (typeof SUBJECTS)[number])}
                   >
@@ -171,6 +172,7 @@ export default function AiImageModal({ onClose }: AiImageModalProps): JSX.Elemen
                   {t('game.aiImageModal.style')}
                   <select
                     className="bg-surface-2 border border-border rounded px-2 py-1 text-gray-200"
+                    name="style-preset"
                     value={stylePreset}
                     onChange={(e) => setStylePreset(e.target.value as (typeof STYLES)[number] | '')}
                   >
@@ -186,6 +188,7 @@ export default function AiImageModal({ onClose }: AiImageModalProps): JSX.Elemen
 
               <textarea
                 className="w-full h-20 bg-surface-2 border border-border rounded px-2 py-1 text-gray-200 resize-none"
+                name="description"
                 placeholder={t('game.aiImageModal.descriptionPlaceholder')}
                 maxLength={4000}
                 value={description}
@@ -235,6 +238,7 @@ export default function AiImageModal({ onClose }: AiImageModalProps): JSX.Elemen
                     <label className="flex items-center gap-1 text-xs text-gray-400 cursor-pointer">
                       <input
                         type="checkbox"
+                        name="share-with-players"
                         checked={shareWithPlayers}
                         onChange={(e) => setShareWithPlayers(e.target.checked)}
                       />
@@ -246,6 +250,7 @@ export default function AiImageModal({ onClose }: AiImageModalProps): JSX.Elemen
                   <div className="flex items-center gap-2">
                     <select
                       className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
+                      name="npc-id"
                       value={npcId}
                       onChange={(e) => setNpcId(e.target.value)}
                     >
@@ -271,6 +276,7 @@ export default function AiImageModal({ onClose }: AiImageModalProps): JSX.Elemen
                   <div className="flex items-center gap-2">
                     <select
                       className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
+                      name="token-id"
                       value={tokenId}
                       onChange={(e) => setTokenId(e.target.value)}
                     >
