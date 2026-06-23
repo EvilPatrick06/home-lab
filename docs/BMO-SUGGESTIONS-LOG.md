@@ -20,6 +20,77 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-06-22] Duplicate `Two IDE implementations coexist` section in `DESIGN-CONSTRAINTS.md`
+
+- **Category:** debt, docs
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+`bmo/docs/DESIGN-CONSTRAINTS.md` contains the entire `## Two IDE implementations coexist — production IDE is web/ + routes/ide.py, NOT ide_app/` section **twice, verbatim** (currently lines ~47–58 and ~60–71, each ending with the same `_Relocated from docs/BMO-SUGGESTIONS-LOG.md on 2026-06-22._` footer). Looks like the 2026-06-22 relocation pasted the block in twice. Harmless at runtime but it bloats the doc and a future edit to one copy will silently diverge from the other. Just delete one of the two identical copies.
+
+**Proposed fix / improvement:**
+- [ ] Remove one of the two identical `Two IDE implementations coexist` sections, leaving a single copy.
+
+**Related files:** `bmo/docs/DESIGN-CONSTRAINTS.md`
+
+---
+
+### [2026-06-22] `discord_social_bot.py` is a 7k-line monolith — split into a package
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+`bmo/pi/bots/discord_social_bot.py` is 277 KB / ~6,996 lines in a single file — by far the largest source file in the repo (the next bot, `discord_dm_bot.py`, is ~2,082 lines; most service modules are under 1k). A file this size is hard to navigate, review, and test, and it makes the coverage note in `.coveragerc` ("gevent-spawned branches look uncovered") harder to reason about. It almost certainly bundles several independent concerns (music, games, casual chat, command handlers, event listeners) that could each move into a `bots/social/` subpackage. Working code — reorg only, defer until someone is touching this area.
+
+**Proposed fix / improvement:**
+- [ ] Identify the cohesive feature clusters (music / games / chat / command + event registration) inside the file.
+- [ ] Extract them into a `bots/social/` package (or sibling modules) with the bot entrypoint wiring them together; keep behavior identical.
+
+**Related files:** `bmo/pi/bots/discord_social_bot.py`, `bmo/pi/bots/discord_dm_bot.py`
+
+---
+
+### [2026-06-22] Production module `agents/test_agent.py` collides with the `test_*.py` pytest glob
+
+- **Category:** debt, design-gotcha
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+`bmo/pi/agents/test_agent.py` is a **production** module (BMO's "testing agent" — runs tests, analyzes failures), but its name matches `pytest.ini`'s `python_files = test_*.py` discovery glob. It is safe today only because `testpaths = tests` scopes default collection to `tests/`; however `agents` is in the `.coveragerc` source list, and any `pytest agents/` invocation, IDE auto-discovery, or a future `testpaths` change would try to collect this non-test module and likely error on import. Confusing too: the real agent tests live in `tests/agents/test_*.py`, so a reader greps `test_agent` and gets both the production agent and its concept-namesake. Renaming the production module (e.g. `testing_agent.py` / `tests_agent.py`) removes the footgun.
+
+**Proposed fix / improvement:**
+- [ ] Rename `agents/test_agent.py` to a non-`test_`-prefixed name (e.g. `testing_agent.py`); update its import/registration in `agents/_registry.py`, `agents/__init__.py`, the router, and the `pi/README.md` tree.
+
+**Related files:** `bmo/pi/agents/test_agent.py`, `bmo/pi/agents/_registry.py`, `bmo/pi/pytest.ini`, `bmo/pi/.coveragerc`
+
+---
+
+### [2026-06-22] `authorize_calendar.py` and `reauth_calendar.py` duplicate OAuth constants/paths
+
+- **Category:** debt
+- **Severity:** info
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+The two Google Calendar OAuth helpers in `services/` legitimately differ in flow (`authorize_calendar.py` = browser `InstalledAppFlow`; `reauth_calendar.py` = headless manual code exchange), but they each re-declare the same `SCOPES`, the same `config/` dir resolution, and the same `credentials.json` / `token.json` path logic independently. If the scope list or token location ever changes, both must be edited in lock-step or they drift. Minor — a small shared helper (or module-level constants imported by both) would keep them in sync.
+
+**Proposed fix / improvement:**
+- [ ] Factor `SCOPES` + the `credentials.json`/`token.json` path resolution into one place (e.g. `calendar_service.py` or a tiny `calendar_oauth_paths` helper) and import it in both scripts.
+
+**Related files:** `bmo/pi/services/authorize_calendar.py`, `bmo/pi/services/reauth_calendar.py`, `bmo/pi/services/calendar_service.py`
+
 ### [2026-06-22] Remove stale one-off `dev/patch_*.py` + `revert_power.py` app.py-mutating scripts
 
 - **Category:** debt
@@ -218,6 +289,22 @@ The repo carries four overlapping AI-assistant guides — `AGENTS.md` (12.8K), `
 ---
 
 # Info / Observations
+
+### [2026-06-22] `pi/README.md` layout says "5 AI agents" but `agents/` holds ~40 modules
+
+- **Category:** docs
+- **Severity:** info
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+`bmo/pi/README.md` (Layout section) labels the `agents/` directory "5 AI agents — each owns one capability", but the directory actually contains ~40 agent modules (the README's own file list right below the label enumerates them all). The "5" is stale from an earlier era. Cheap to fix and avoids misleading new contributors about the agent count/architecture.
+
+**Proposed fix / improvement:**
+- [ ] Update the `agents/` one-liner in `pi/README.md` to reflect the real count (or drop the hard number, e.g. "AI agents — each owns one capability").
+
+**Related files:** `bmo/pi/README.md`
 
 ### [2026-06-22] Misspelled static asset filename `PrimeVIdeo.png`
 
