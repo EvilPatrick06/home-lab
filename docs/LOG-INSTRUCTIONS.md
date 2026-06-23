@@ -15,9 +15,12 @@ Active logs are **fully domain-split** for issues + suggestions. Security stays 
 | [`BMO-ISSUES-LOG.md`](./BMO-ISSUES-LOG.md) | git | **BMO-domain bugs, debt, broken config, perf, test failures.** Pi voice assistant + Discord bots + DM engine (Python/Flask/agents/services/wake/MCP). Also Pi-side infra/tooling that BMO depends on. |
 | [`ISSUES-LOG-DNDAPP.md`](./ISSUES-LOG-DNDAPP.md) | git | **dnd-app-domain bugs, debt, broken config, perf, test failures.** Electron VTT (TS/React/Electron/Vite/biome/vitest/Pixi/peerjs/the 5e JSON content set). |
 | [`ISSUES-LOG-DUNGEON-SCHOLAR.md`](./ISSUES-LOG-DUNGEON-SCHOLAR.md) | git | **dungeon-scholar-domain bugs, debt, broken config, perf, test failures.** Vite/React D&D-themed study app, the per-tome run/quiz/lab content set, the Supabase auth wiring. |
-| [`BMO-SUGGESTIONS-LOG.md`](./BMO-SUGGESTIONS-LOG.md) | git | **BMO-domain future ideas, design gotchas (`DO NOT X`), info observations.** |
-| [`SUGGESTIONS-LOG-DNDAPP.md`](./SUGGESTIONS-LOG-DNDAPP.md) | git | **dnd-app-domain future ideas, design gotchas, info observations.** |
-| [`SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`](./SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md) | git | **dungeon-scholar-domain future ideas, design gotchas, info observations.** |
+| [`BMO-SUGGESTIONS-LOG.md`](./BMO-SUGGESTIONS-LOG.md) | git | **BMO-domain future ideas / deferred backlog only.** Design gotchas + durable info now live in [`bmo/docs/DESIGN-CONSTRAINTS.md`](../bmo/docs/DESIGN-CONSTRAINTS.md). |
+| [`bmo/docs/DESIGN-CONSTRAINTS.md`](../bmo/docs/DESIGN-CONSTRAINTS.md) | git | **BMO-domain design gotchas + durable info/observations** (knowledge, not work). |
+| [`SUGGESTIONS-LOG-DNDAPP.md`](./SUGGESTIONS-LOG-DNDAPP.md) | git | **dnd-app-domain future ideas / deferred backlog only.** Design gotchas + durable info now live in [`dnd-app/docs/DESIGN-CONSTRAINTS.md`](../dnd-app/docs/DESIGN-CONSTRAINTS.md). |
+| [`dnd-app/docs/DESIGN-CONSTRAINTS.md`](../dnd-app/docs/DESIGN-CONSTRAINTS.md) | git | **dnd-app-domain design gotchas + durable info/observations** (knowledge, not work). |
+| [`SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`](./SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md) | git | **dungeon-scholar-domain future ideas / deferred backlog only.** Design gotchas + durable info now live in [`dungeon-scholar/docs/DESIGN-CONSTRAINTS.md`](../dungeon-scholar/docs/DESIGN-CONSTRAINTS.md). |
+| [`dungeon-scholar/docs/DESIGN-CONSTRAINTS.md`](../dungeon-scholar/docs/DESIGN-CONSTRAINTS.md) | git | **dungeon-scholar-domain design gotchas + durable info/observations** (knowledge, not work). |
 | [`SECURITY-LOG.md`](./SECURITY-LOG.md) | **gitignored** | **Security concerns, hardening backlog, incident notes — any domain (global).** Sensitive — kept local. Never put raw secret values here. |
 | [`BMO-RESOLVED-ISSUES.md`](./BMO-RESOLVED-ISSUES.md) | git | Archive of completed BMO entries (issues + suggestions). |
 | [`RESOLVED-ISSUES-DNDAPP.md`](./RESOLVED-ISSUES-DNDAPP.md) | git | Archive of completed dnd-app entries (issues + suggestions). |
@@ -31,7 +34,8 @@ Active logs are **fully domain-split** for issues + suggestions. Security stays 
    |  | Domain `bmo` | Domain `dnd-app` | Domain `dungeon-scholar` | Domain `both` (or three-way) |
    |---|---|---|---|---|
    | `bug` / `debt` / `config` / `perf` / `test` | `BMO-ISSUES-LOG.md` | `ISSUES-LOG-DNDAPP.md` | `ISSUES-LOG-DUNGEON-SCHOLAR.md` | **mirror in each relevant log** |
-   | `future-idea` / `design-gotcha` / `info` | `BMO-SUGGESTIONS-LOG.md` | `SUGGESTIONS-LOG-DNDAPP.md` | `SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` | **mirror in each relevant log** |
+   | `future-idea` (deferred work) | `BMO-SUGGESTIONS-LOG.md` | `SUGGESTIONS-LOG-DNDAPP.md` | `SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` | **mirror in each relevant log** |
+   | `design-gotcha` / `info` (durable knowledge, not work) | `bmo/docs/DESIGN-CONSTRAINTS.md` | `dnd-app/docs/DESIGN-CONSTRAINTS.md` | `dungeon-scholar/docs/DESIGN-CONSTRAINTS.md` | **document in each relevant constraints doc** |
 
 3. Edge-cases:
    - `Domain: tooling` → file under whichever domain it most affects (most commit hooks / CI / lint configs touch one domain primarily). If genuinely multi-domain, mirror.
@@ -48,10 +52,10 @@ These logs are a living record that survives across AI sessions + human work. Th
 - Bugs (confirmed + suspected) → issue log per domain (see triage rule)
 - Tech debt → issue log per domain
 - Future improvements / ideas → suggestions log per domain (or `SECURITY-LOG.md` if security-related)
-- Design gotchas (warnings for future contributors) → suggestions log per domain
+- Design gotchas (warnings for future contributors) → per-domain `docs/DESIGN-CONSTRAINTS.md` (NOT the suggestions log)
 - Security items (incidents, observations, improvement ideas) → `SECURITY-LOG.md` (global)
 - Config drift → issue log per domain
-- Info / observations → suggestions log per domain
+- Info / observations (durable knowledge) → per-domain `docs/DESIGN-CONSTRAINTS.md` (NOT the suggestions log)
 - Minor / optional stuff (log it anyway — patterns emerge)
 
 **Log EVERYTHING you find worth remembering.** Better to over-log than miss something. Future grep-ability > concise "nice-to-look-at" log.
@@ -207,10 +211,11 @@ Multiple categories allowed: `Category: bug, security` is fine.
    - Bug / debt / broken config / perf, **Domain: dnd-app** → `ISSUES-LOG-DNDAPP.md`
    - Bug / debt / broken config / perf, **Domain: dungeon-scholar** → `ISSUES-LOG-DUNGEON-SCHOLAR.md`
    - Bug / debt / broken config / perf, **Domain: both** (or three-way) → mirror in each relevant issue log
-   - Future-idea / design-gotcha / info, **Domain: bmo** → `BMO-SUGGESTIONS-LOG.md`
-   - Future-idea / design-gotcha / info, **Domain: dnd-app** → `SUGGESTIONS-LOG-DNDAPP.md`
-   - Future-idea / design-gotcha / info, **Domain: dungeon-scholar** → `SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`
-   - Future-idea / design-gotcha / info, **Domain: both** (or three-way) → mirror in each relevant suggestions log
+   - Future-idea (deferred work), **Domain: bmo** → `BMO-SUGGESTIONS-LOG.md`
+   - Future-idea (deferred work), **Domain: dnd-app** → `SUGGESTIONS-LOG-DNDAPP.md`
+   - Future-idea (deferred work), **Domain: dungeon-scholar** → `SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`
+   - Future-idea (deferred work), **Domain: both** (or three-way) → mirror in each relevant suggestions log
+   - Design-gotcha / durable info (knowledge, not work), any domain → that domain's `docs/DESIGN-CONSTRAINTS.md` (NOT a suggestions log)
    - Security (any flavor, any domain) → `SECURITY-LOG.md` (gitignored)
 
 3. **Pick severity + section** within that log (issues are grouped by severity; suggestions are grouped by category — Future ideas / Design gotchas / Info).
@@ -268,9 +273,9 @@ Follow the rotation + purge procedure in [`./SECURITY.md`](./SECURITY.md). Then 
 
 ### Design-gotcha entries
 
-**These go in the matching domain's suggestions log** ([`BMO-SUGGESTIONS-LOG.md`](./BMO-SUGGESTIONS-LOG.md) or [`SUGGESTIONS-LOG-DNDAPP.md`](./SUGGESTIONS-LOG-DNDAPP.md), or both for `Domain: both`). For things that LOOK like they should be changed but shouldn't. Save future agents from tempting but broken refactors. Examples:
-- "Don't rename `bmo/pi/bots/` to `discord/` — shadows `discord.py` library" → `BMO-SUGGESTIONS-LOG.md`
-- "Don't restructure `dnd-app/src/{main,preload,renderer,shared}/` — electron-vite hardcodes those" → `SUGGESTIONS-LOG-DNDAPP.md`
+**These go in the matching domain's [`docs/DESIGN-CONSTRAINTS.md`]** ([`bmo/docs/DESIGN-CONSTRAINTS.md`](../bmo/docs/DESIGN-CONSTRAINTS.md), [`dnd-app/docs/DESIGN-CONSTRAINTS.md`](../dnd-app/docs/DESIGN-CONSTRAINTS.md), or [`dungeon-scholar/docs/DESIGN-CONSTRAINTS.md`](../dungeon-scholar/docs/DESIGN-CONSTRAINTS.md); mirror for `Domain: both`). Design gotchas are durable knowledge, not backlog — keep them out of the action/suggestion logs. For things that LOOK like they should be changed but shouldn't. Save future agents from tempting but broken refactors. Examples:
+- "Don't rename `bmo/pi/bots/` to `discord/` — shadows `discord.py` library" → `bmo/docs/DESIGN-CONSTRAINTS.md`
+- "Don't restructure `dnd-app/src/{main,preload,renderer,shared}/` — electron-vite hardcodes those" → `dnd-app/docs/DESIGN-CONSTRAINTS.md`
 
 Format as a warning, high visibility:
 
@@ -332,9 +337,8 @@ Keeping instructions here (stable, low-churn) and the logs separate (frequently-
 - bug / debt / config / perf — `Domain: bmo` → `docs/BMO-ISSUES-LOG.md`
 - bug / debt / config / perf — `Domain: dnd-app` → `docs/ISSUES-LOG-DNDAPP.md`
 - bug / debt / config / perf — `Domain: both` → mirror in BOTH issue logs
-- future-idea / design-gotcha / info — `Domain: bmo` → `docs/BMO-SUGGESTIONS-LOG.md`
-- future-idea / design-gotcha / info — `Domain: dnd-app` → `docs/SUGGESTIONS-LOG-DNDAPP.md`
-- future-idea / design-gotcha / info — `Domain: both` → mirror in BOTH suggestions logs
+- future-idea (deferred work) — `Domain: bmo` → `docs/BMO-SUGGESTIONS-LOG.md`; dnd-app → `docs/SUGGESTIONS-LOG-DNDAPP.md`; dungeon-scholar → `docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`; both → mirror
+- design-gotcha / durable info (knowledge) — any domain → that domain's `docs/DESIGN-CONSTRAINTS.md` (NOT a suggestions log)
 - security (any flavor, any domain) → `docs/SECURITY-LOG.md` *(gitignored)*
 
 **Before fix:** grep all five tracked active logs (above) + `SECURITY-LOG.md`; log if not already present.

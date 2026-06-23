@@ -134,19 +134,7 @@ PHASE-27 extending the extraction verb set to cover board actions first.
 
 # Design gotchas (warnings for future agents)
 
-### CSP "blocks the use of eval" DevTools Issue on map load is a harmless Pixi probe — do NOT add `'unsafe-eval'`
-
-**Type:** design-gotcha · **Domain:** dnd-app · **Added:** 2026-06-20
-
-The prod CSP (`src/main/index.ts`) sets `script-src 'self' plugin:` with no `'unsafe-eval'` (dev adds it; prod doesn't). On first map render PixiJS v8 runs a feature-detection probe (`unsafeEvalSupported()` in `pixi.js/lib/utils/browser/unsafeEval`) that calls `eval`, which CSP blocks — surfacing one DevTools → Issues entry in prod builds. This is expected and harmless: Pixi detects the block and falls back to its eval-free path (`pixi.js/unsafe-eval`), and the map renders fine. **Do not "fix" it by adding `'unsafe-eval'` to the prod `script-src`** — that materially weakens CSP for zero functional gain. *(QA-2026-06-19 task 16: confirmed working, no code change.)*
-
-### Manual fog has no "disable" affordance — once "Hide All" / fog-hide enables fog, only revealing every cell hides it again
-
-**Type:** design-gotcha · **Domain:** dnd-app · **Added:** 2026-06-20
-
-QA-2026-06-19 task 8 fixed manual fog by flipping `fogOfWar.enabled = true` inside the `hideFog` action (the chokepoint for "Hide All" + the fog-hide brush) — new maps default to `enabled: false` and `drawFogOfWar` bails when disabled. Follow-up: there is no symmetric "Disable Fog" control. `Reveal All` reveals every cell but does NOT set `enabled = false`, so once fog is on the only way to fully clear it is to reveal the whole grid. Consider a Fog-tab toggle that surfaces/clears `fogOfWar.enabled`.
-
-*(none other active)*
+*(Design gotchas + standing observations are now documented in [`dnd-app/docs/DESIGN-CONSTRAINTS.md`](../dnd-app/docs/DESIGN-CONSTRAINTS.md) — per the routing rule in [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md). This section is kept only as a pointer.)*
 
 ---
 
@@ -225,14 +213,6 @@ Each should be removed (if truly dead) or down-scoped to a non-exported local / 
 **Related files:** `electron.vite.config.ts`, `dnd-app/.gitignore`
 
 ---
-
-### `/calendar` route (real-world session-scheduling calendar) is orphaned — no main-menu entry or in-app navigation
-
-**Type:** observation · **Domain:** dnd-app · **Added:** 2026-06-20
-
-`CalendarPage` (route `/calendar`) is a real-world session scheduler distinct from the in-game fantasy calendar (which lives in the campaign wizard + in-game DM modal). Nothing in the app navigates to `/calendar` and the main menu has no Calendar item, so it is reachable only by typing the URL. Wiring it into the menu is a product decision (the page has no obvious backend scheduling wiring), so it was left as-is and the QA spec (`dnd-app/docs/phases/QA/instructions.md` §4.1/§4.3b) was reconciled to note the orphaned state. *(QA-2026-06-19 task 18.)*
-
-*(none active)*
 
 ---
 

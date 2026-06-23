@@ -211,26 +211,7 @@ The repo carries four overlapping AI-assistant guides — `AGENTS.md` (12.8K), `
 
 # Design gotchas (warnings for future agents)
 
-### [2026-06-22] Two IDE implementations coexist — the production IDE is `web/` + `routes/ide.py`, NOT `ide_app/`
-
-- **Category:** design-gotcha
-- **Severity:** medium
-- **Domain:** bmo
-- **Discovered by:** bmo-cleanup
-- **During:** Automated cleanup scan of the bmo/ tree.
-
-**Description:**
-There are two separate, diverged IDE frontends in the tree, which is easy to confuse:
-- **Production** — served by the main app: `app.py` `@app.route("/ide")` renders `web/templates/ide.html`, backed by the `/api/ide/*` blueprint in `routes/ide.py`, using assets under `web/static/ide/` (`ide.css` ~1751 lines, `ide.js` ~2622 lines, `sw.js`). Runs on :5000.
-- **Experimental rebuild** — `ide_app/` ("BMO IDE Test App … A brand-new IDE built from scratch") is a standalone Flask+SocketIO app on :5001 (`ide_app/ide_app.py`, its own `bmo-ide.service`) with its OWN copies of the assets (`ide_app/static/css/ide.css` ~1140 lines, `ide_app/static/js/ide.js` ~1695 lines, `ide_app/templates/ide.html`).
-
-The two asset trees have already diverged (different sizes + md5s), so a fix applied to one will not reach the other. A future contributor editing `ide_app/` expecting it to change the live `/ide` tab (or vice-versa) will be surprised. **Decide the status of `ide_app/`:** if the rebuild is the future direction, plan the cutover and retire the `web/`-based IDE; if it's a stalled experiment, archive `ide_app/` so there is a single source of truth.
-
-**Proposed fix / improvement:**
-- [ ] Document which IDE is canonical (in `pi/README.md`), and label `ide_app/` clearly as experimental/WIP or archive it.
-- [ ] Avoid maintaining two diverging copies of `ide.css`/`ide.js`/`ide.html` long-term.
-
-**Related files:** `bmo/pi/app.py` (`/ide` route), `bmo/pi/routes/ide.py`, `bmo/pi/web/templates/ide.html`, `bmo/pi/web/static/ide/`, `bmo/pi/ide_app/ide_app.py`, `bmo/pi/ide_app/static/`, `bmo/pi/ide_app/templates/ide.html`, `bmo/pi/ide_app/bmo-ide.service`
+*(Design gotchas are now documented in [`bmo/docs/DESIGN-CONSTRAINTS.md`](../bmo/docs/DESIGN-CONSTRAINTS.md) — per the routing rule in [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md). This section is kept only as a pointer.)*
 
 > Standing warnings also live in the phase plans' Research notes under `dnd-app/docs/phases/` and in `bmo/docs/DESIGN-CONSTRAINTS.md`.
 
