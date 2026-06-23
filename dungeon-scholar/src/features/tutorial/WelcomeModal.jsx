@@ -1,6 +1,6 @@
 import { Castle, Compass } from 'lucide-react';
 import { useDialogA11y } from '../../components/useDialogA11y.js';
-import { TUTORIAL_STEPS } from '../../tutorial.js';
+import { TUTORIAL_STEPS } from '../../game/tutorial.js';
 
 function WelcomeModal({ onStart, onSkip }) {
   const panelRef = useDialogA11y({ onClose: onSkip }); // 19A

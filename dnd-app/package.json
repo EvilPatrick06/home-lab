@@ -8,10 +8,11 @@
     "url": "https://github.com/EvilPatrick06/home-lab.git"
   },
   "main": "./out/main/index.js",
+  "engines": { "node": ">=22" },
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",
-    "prepare": "cd .. && husky dnd-app/.husky",
+    "prepare": "cd .. && husky .husky",
     "preview": "electron-vite preview",
     "start": "electron-vite preview",
     "postinstall": "electron-builder install-app-deps && node scripts/build/postinstall.mjs",

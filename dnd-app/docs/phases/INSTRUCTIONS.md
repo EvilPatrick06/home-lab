@@ -2,6 +2,8 @@
 
 > How to work through the phase plans in this directory. Read this before starting any phase work.
 
+> **Scope — repo-wide / all domains (not dnd-app-only).** Despite living under `dnd-app/docs/`, this file is the **canonical implement → verify → git → release process for EVERY automated/scheduled agent across ALL domains** — `dnd-app/`, `bmo/`, `dungeon-scholar/`, and any cross-cutting resolver or agent. Its workflow (per-agent `auto/*` branch + worktree, CI as the authoritative gate, fix-forward on red, the release flow) applies repo-wide; a bmo- or dungeon-scholar-scoped agent follows these same rules — only the concrete build/test commands differ per domain (see each domain's README / `AGENTS.md`). Git mechanics: [`../../../docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`](../../../docs/AUTOMATED-AGENT-GIT-WORKFLOW.md); this file governs how agents execute and verify the work itself.
+
 > **⚠️ STATUS (updated 2026-06-10): the folder holds the ACTIVE backlog phase
 > set** — `PHASE-NN-<slug>.md` plans authored from the (now-deleted)
 > AI-DM-AUDIT.md consolidation, ordered by `PHASE-INDEX.md` (dependency
@@ -466,28 +468,18 @@ grep -E '(skip|inject-failed)' ~/.claude-tools/reply-watcher.log | tail   # diag
 - Single-session: all replies route to the tmux session named in `session-meta`. Multi-session routing needs Message-ID-tagged session IDs (future work).
 - Security: anyone with access to the user's Gmail OR the ability to compose an SMS to the user's number can inject input. The permission classifier still gates dangerous tool calls (rule 25 SMSes back to confirm), so injection alone can't trigger destructive commands without an additional approval round-trip.
 
-### 27. Deferral is a rule-9 STOP-and-ask trigger
-Never silently defer a Step / Sub-Phase / log-finding because it appears to depend on later work, conflicts with the current type system, or otherwise looks out of reach in this session. The moment you catch yourself thinking *"I'll skip this and come back after X lands"* or *"I'll write a stub and the real one later"*, treat it identically to rule 9:
+### 27. Take on risky / large fixes — do NOT defer them; implement instead
 
-1. Stop before editing or skipping. Do NOT mark the Step `PARTIAL` or `DEFERRED` on your own.
-2. Fire notify.sh per rule 23:
-   ```bash
-   ~/.claude-tools/notify.sh "warn" "Phase N — deferral candidate" \
-     "<sub-phase + step + cited line + apparent dependency + proposed defer path>"
-   ```
-3. Wait for the user's call: continue against the conflict, defer with their authorization, re-order, drop, or amend the plan.
+**Size, risk, or low confidence are NOT reasons to defer, punt, stub, or hand a fix back to the user.** Automated agents *attempt* risky and large fixes rather than leaving, documenting-and-parking, or stalling them. The safety net makes this safe: every automated fix lands on an isolated `auto/*` branch (rule 11), is gated by CI (rule 5), is merged only by the integrator, and — for user-approved resolver work — was already approved; the app is in testing (no real users); the culture is fix-forward. So "this is big / risky / a broad refactor / would touch working code / I'm not 100% sure" means **implement it, gate it, commit it, move on** — never "leave it / document it / don't force it." This is the same stance as rules 10, 152, 164, and 166-173; rule 27 names it for the deferral failure mode specifically.
 
-Common signals that you are about to silently defer (all are triggers, not permissions):
-- "Needs the Character5e v4 shape first" / "needs Step X to land first."
-- "I'll write a stub for now and the real one later."
-- "Marking PARTIAL — <some reason that wasn't on the plan>."
-- "Skipping this case because the data shape doesn't match."
-- "This depends on Phase M's work; deferring."
-- "Scope is too large for one session; I'll do part now and part later."
+When you catch yourself about to defer — "I'll skip this and come back after X lands," "I'll write a stub and the real one later," "marking PARTIAL because it's risky," "scope is too large for one session" — that impulse is the bug. Build the real thing now. A behavior change you can't runtime-verify still ships per the plan (opt-in / off-by-default if it is genuinely risky), kept green by the 4-gate; "test-later" is the user's explicit trade (**"do them all, I can test and fix later"**), not a stop reason.
 
-The user owns ordering decisions. The agent's job is to surface the conflict, cite specifics (plan line + code line + the apparent dep), and wait. Rule 9's umbrella covers this; rule 27 names it explicitly because the failure mode is recurring.
+**The ONLY legitimate reasons to stop short of completing a fix are:**
 
-If the user authorizes the deferral, document it honestly in the plan's `## Completed` section per rule 17: cite the user's directive ("deferred per user 2026-MM-DD direction") and what the deferral target is so future sessions know where to resume.
+1. **(a) Genuinely blocked / impossible** — you literally cannot complete it: a flat plan contradiction that makes the step impossible, a dependency you cannot create, an irreversible data-loss action, or a real failure you cannot resolve. This is the rule-9 path — STOP-and-ask, fire `notify.sh` per rule 23, cite the plan line + code line + the specific blocker, and wait.
+2. **(b) Needs a NEW human decision** the plan / approval / scope did not cover — a genuine judgment or product call (choosing between two valid product behaviors, an unrequested scope expansion, a security/privacy trade-off). NOT "this is big." Surface it via rule 9 the same way.
+
+A genuine ordering conflict (a Step that truly cannot run until another lands) is case (a): where the plan allows, pick the source the mechanics/effective layer already treats as canonical and make the other readers derive from it with a backward-compat fallback, then KEEP GOING; otherwise STOP-and-ask. If the user authorizes a deferral, document it honestly in the plan's `## Completed` section per rule 17 ("deferred per user 2026-MM-DD direction") with the resume target — but the agent never *originates* a defer for size or risk.
 
 ---
 
@@ -527,8 +519,10 @@ while plans remain in dnd-app/docs/phases/ (excluding INSTRUCTIONS.md):
       STOP_AND_ASK("warn", "permission required for <tool>", <action + suggested approve/deny>) (rule 25)
     if confused or conflicting:
       STOP_AND_ASK("warn", "phase N sub-phase X stopped", <reason + cited lines + suggested next>) (rule 9)
-    if about to defer / skip / stub / PARTIAL-mark a Step on your own:
-      STOP_AND_ASK("warn", "phase N — deferral candidate", <step + cited dep + proposed path>) (rule 27)
+    # rule 27: size / risk / low-confidence is NOT a defer reason — implement it (branch + CI + fix-forward is the net).
+    # STOP-and-ask ONLY if (a) genuinely blocked / impossible, or (b) it needs a NEW human decision the plan didn't cover:
+    if (a) genuinely blocked (impossible step / unresolvable failure / irreversible data loss) OR (b) a new human/product decision is required:
+      STOP_AND_ASK("warn", "phase N — blocked or needs decision", <step + cited line + (a) blocker or (b) decision>) (rule 27)
     if would-modify any meta-file:
       STOP_AND_ASK("warn", "meta-file edit requested", <which file + why>) (rule 16)
     if out-of-scope finding discovered:

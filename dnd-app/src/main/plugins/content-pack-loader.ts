@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import type { ContentCategory, PluginManifest } from '../../shared/plugin-types'
 import { logToFile } from '../log'
+import { isPathInside } from '../path-guard'
 import type { StorageResult } from '../storage/types'
 import { getPluginsDir } from './plugin-scanner'
 
@@ -19,7 +20,7 @@ export async function loadContentPackData(
     const pluginDir = resolve(join(pluginsDir, pluginId))
 
     // Path traversal protection
-    if (!pluginDir.startsWith(resolve(pluginsDir))) {
+    if (!isPathInside(pluginsDir, pluginDir)) {
       return { success: false, error: 'Invalid plugin path' }
     }
 
@@ -40,7 +41,7 @@ export async function loadContentPackData(
       const filePath = resolve(join(pluginDir, file))
 
       // Ensure file stays within plugin directory
-      if (!filePath.startsWith(pluginDir)) {
+      if (!isPathInside(pluginDir, filePath)) {
         logToFile('WARN', `Plugin ${pluginId}: path traversal attempt blocked: ${file}`)
         continue
       }

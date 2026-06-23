@@ -21,13 +21,12 @@ from __future__ import annotations
 
 import json
 import os
-import re
 import shutil as _shutil
 import threading
 import time
 import uuid
 
-from flask import Blueprint, jsonify, render_template, request
+from flask import Blueprint, jsonify, request
 from gevent.event import AsyncResult as _AsyncResult
 
 from services.bmo_logging import _s, fail, get_logger
@@ -175,8 +174,8 @@ def _save_ide_jobs():
                 serializable[jid] = s_job
             with open(_IDE_JOBS_FILE, "w", encoding="utf-8") as f:
                 json.dump(serializable, f, ensure_ascii=False)
-        except Exception as e:
-            log.exception(f"[ide] Failed to save jobs")
+        except Exception:
+            log.exception("[ide] Failed to save jobs")
 
 
 def _load_ide_jobs():
@@ -233,7 +232,6 @@ def _proxy_to_windows(op: str, params: dict, timeout: float = 10.0) -> dict:
     """Send a request to the Windows proxy and wait for the response."""
     if not STATE.win_proxy_sid:
         return {"error": "Windows proxy not connected"}
-    import uuid
     request_id = str(uuid.uuid4())
     result_event = _AsyncResult()
     STATE.win_proxy_pending[request_id] = result_event
@@ -270,7 +268,7 @@ def api_ide_tree():
         return jsonify(result)
     try:
         path = _ide_safe_path(path)
-    except PermissionError as e:
+    except PermissionError:
         log.exception("request failed")
         return jsonify({"error": "path outside IDE sandbox",
                         "sandbox_roots": list(_IDE_ALLOWED_ROOTS)}), 403
@@ -1480,8 +1478,8 @@ def register_ide(flask_app, socketio_obj, agent_obj):
                     f.write(new_content)
                 watcher = _get_file_watcher()
                 watcher.notify_change(path)
-            except Exception as e:
-                log.exception(f"[ide] Failed to apply agent edit")
+            except Exception:
+                log.exception("[ide] Failed to apply agent edit")
 
 
     # ── Windows Proxy SocketIO events ────────────────────────────────────

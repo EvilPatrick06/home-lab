@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { logToFile } from '../log'
+import { isPathInside } from '../path-guard'
 import { getPluginsDir } from './plugin-scanner'
 
 /**
@@ -14,7 +15,7 @@ async function getStoragePath(pluginId: string): Promise<string | null> {
   const pluginsDir = await getPluginsDir()
   const pluginDir = resolve(join(pluginsDir, pluginId))
 
-  if (!pluginDir.startsWith(resolve(pluginsDir))) return null
+  if (!isPathInside(pluginsDir, pluginDir)) return null
 
   await mkdir(pluginDir, { recursive: true })
   return join(pluginDir, 'storage.json')

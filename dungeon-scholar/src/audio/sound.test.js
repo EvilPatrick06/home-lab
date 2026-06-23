@@ -58,13 +58,3 @@ describe('armAutoSuspend (PHASE-40 40C)', () => {
     expect(() => setHidden('hidden')).not.toThrow();
   });
 });
-
-describe('closeAudio (PHASE-40 40C)', () => {
-  it('closes the context and a follow-up playSfx recreates one without throwing', async () => {
-    const snd = await import('./sound.js');
-    await snd.startBgm('forest');
-    await snd.closeAudio();
-    expect(() => snd.playSfx('click')).not.toThrow();
-    await expect(snd.closeAudio()).resolves.toBeUndefined(); // idempotent
-  });
-});

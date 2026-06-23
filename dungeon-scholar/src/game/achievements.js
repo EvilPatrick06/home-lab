@@ -14,8 +14,6 @@ export const ACHIEVEMENTS = [
 
   { id: 'flawless', name: 'Flawless Victory', desc: 'Complete a quest with no mistakes', icon: '💎', category: 'dungeon' },
   { id: 'comeback', name: 'Against All Odds', desc: 'Win a quest with 1 life remaining', icon: '🔥', category: 'dungeon' },
-  { id: 'cursed_run', name: 'Embrace the Curse', desc: 'Win a run with at least one curse active', icon: '☠️', category: 'dungeon' },
-  { id: 'double_curse', name: 'Twice Cursed', desc: 'Win a run with 2 curses active', icon: '👹', category: 'dungeon' },
   { id: 'no_powerups_win', name: 'Steel and Wits', desc: 'Win a run without using any power-ups', icon: '⚔️', category: 'dungeon' },
   { id: 'speed_demon', name: 'The Swift Blade', desc: 'Average under 5 seconds per challenge in a run', icon: '⚡', category: 'dungeon' },
   { id: 'five_runs', name: 'Seasoned Adventurer', desc: 'Complete 5 dungeon delves', icon: '🛡️', category: 'dungeon' },

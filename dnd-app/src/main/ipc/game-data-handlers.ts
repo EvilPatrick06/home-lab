@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import { logToFile } from '../log'
+import { isPathInside } from '../path-guard'
 import { getRendererPublicDir } from '../paths'
 import { logSecurityEvent } from '../security-log'
 import { handle } from './_safe'
@@ -22,7 +23,7 @@ export function registerGameDataHandlers(): void {
     const fullPath = resolve(join(dataBase, normalized))
 
     // Security: prevent path traversal outside the data directory
-    if (!fullPath.startsWith(resolvedBase)) {
+    if (!isPathInside(resolvedBase, fullPath)) {
       logSecurityEvent('ipc.path_traversal.denied', { channel: 'GAME_LOAD_JSON', path: relativePath })
       throw new Error('Access denied: path traversal detected')
     }

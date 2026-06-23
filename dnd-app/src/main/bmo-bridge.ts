@@ -6,7 +6,7 @@
  * Discord bot, forwarding events to the renderer process via IPC.
  */
 
-import { randomUUID } from 'node:crypto'
+import { createHash, randomUUID, timingSafeEqual } from 'node:crypto'
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http'
 import { BrowserWindow } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc-channels'
@@ -478,6 +478,15 @@ function getBearerToken(req: IncomingMessage): string | null {
   return m ? m[1].trim() : null
 }
 
+// Constant-time secret comparison. Hash both sides to equal-length digests so
+// neither the byte-by-byte short-circuit of `!==` nor a raw length difference
+// leaks information about the configured key (defense-in-depth; SEC log 2026-06-22).
+function timingSafeEqualStr(a: string, b: string): boolean {
+  const ha = createHash('sha256').update(a).digest()
+  const hb = createHash('sha256').update(b).digest()
+  return timingSafeEqual(ha, hb)
+}
+
 function clientIp(req: IncomingMessage): string {
   return req.socket.remoteAddress ?? 'unknown'
 }
@@ -554,7 +563,7 @@ export function startSyncReceiver(port = SYNC_RECEIVER_PORT): void {
         const expected = getBmoApiKey()
         if (expected) {
           const token = getBearerToken(req)
-          if (!token || token !== expected) {
+          if (!token || !timingSafeEqualStr(token, expected)) {
             sendJson(res, 401, { error: 'unauthorized' })
             return
           }

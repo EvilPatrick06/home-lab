@@ -10,7 +10,7 @@ pi/
 ├── agent.py                     Agent router entry (used by CLI + app)
 ├── cli.py                       REPL/CLI — `./venv/bin/python cli.py`
 │
-├── agents/                      5 AI agents — each owns one capability
+├── agents/                      40+ agent modules — each owns one capability
 │   ├── __init__.py, _registry.py
 │   ├── base_agent.py            base class + interface
 │   ├── orchestrator.py          top-level director
@@ -64,10 +64,8 @@ pi/
 │
 ├── dev/                         Dev tools — NOT used in production
 │   ├── claude_tools.py, dev_tools.py, file_watcher.py, terminal_service.py
-│   ├── patch_debug.py, patch_keepalive.py, patch_retry.py, patch_revert.py, patch_wol.py
-│   ├── revert_power.py, bmo_ui_lab_server.py   (webcam/YT/Calendar lab; uses web/templates)
-│   ├── benchmark_audio.py, benchmark_full.py, benchmark_llm.py, benchmark_personality.py
-│   ├── benchmarks/              thinking_budget_sweep.py, gemini_stream_probe.py (live API)
+│   ├── bmo_ui_lab_server.py     (webcam/YT/Calendar lab; uses web/templates)
+│   ├── benchmarks/              benchmark_{audio,full,llm,personality}.py + thinking_budget_sweep.py, gemini_stream_probe.py (live API)
 │   └── diagnostics/            aec_pipewire_check.py, wake_word_{auto,timed,debug}.py
 │
 ├── wake/                        Wake-word detection

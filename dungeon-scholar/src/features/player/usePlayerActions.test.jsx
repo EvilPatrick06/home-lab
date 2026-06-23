@@ -272,16 +272,10 @@ describe('usePlayerActions — ascension + celestial spend (Phase-30 QA gap)', (
     expect(s.inventory.celestial_xp_font).toBe(1);
   });
 
-  // ADAPTATION (Phase 41G): the gap spec expected "at cap → reject", but the
-  // REAL source does NOT enforce the cap for celestial (or devotion) items.
-  // purchaseItem calls sanctumAtCap(state, item) for those categories, yet
-  // sanctumCount() (items.js) short-circuits to 0 for any category !== 'sanctum'
-  // (`if (item.category !== 'sanctum' || !item.permKey) return 0;`). So
-  // sanctumAtCap is always `0 >= cap` → false for celestial items, and the
-  // purchase succeeds past the documented cap. This test locks the ACTUAL
-  // behavior; the cap-not-enforced bug is logged in
-  // docs/ISSUES-LOG-DUNGEON-SCHOLAR.md (no production change in this sub-phase).
-  it('purchaseItem(celestial) does NOT enforce the documented cap (real-behavior lock)', () => {
+  // I7 fix (scholar-resolver): sanctumCount now covers devotion + celestial,
+  // so purchaseItem enforces the documented cap for celestial wares
+  // (sanctumAtCap is true at cap, so the purchase is rejected).
+  it('purchaseItem(celestial) enforces the documented cap', () => {
     const item = findItem('celestial_revive'); // ascensionPrice 4, permKey ascAutoRevive, cap 1
     const { result } = makeHook({
       ascensionTokens: 10,
@@ -291,11 +285,10 @@ describe('usePlayerActions — ascension + celestial spend (Phase-30 QA gap)', (
     let res;
     act(() => { res = result.current.actions.purchaseItem('celestial_revive'); });
 
-    // Bug: cap is bypassed for celestial wares — the purchase goes through.
-    expect(res.ok).toBe(true);
-    // Token spent, perm counter advanced past the cap.
-    expect(result.current.playerState.ascensionTokens).toBe(10 - item.ascensionPrice); // 6
-    expect(result.current.playerState.permUpgrades[item.permKey]).toBe(1 + (item.step || 1)); // 2 > cap 1
+    // Cap enforced: purchase rejected, no token spent, counter unchanged.
+    expect(res.ok).toBe(false);
+    expect(result.current.playerState.ascensionTokens).toBe(10);
+    expect(result.current.playerState.permUpgrades[item.permKey]).toBe(1);
   });
 });
 

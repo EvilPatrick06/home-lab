@@ -18,7 +18,7 @@ from agents.scratchpad import SharedScratchpad
 _AGENT_SPECS: tuple[tuple[str, str], ...] = (
     ("agents.music_agent", "create_music_agent"),
     ("agents.smart_home_agent", "create_smart_home_agent"),
-    ("agents.test_agent", "create_test_agent"),
+    ("agents.testing_agent", "create_test_agent"),
     ("agents.security_agent", "create_security_agent"),
     ("agents.design_agent", "create_design_agent"),
     ("agents.cleanup_agent", "create_cleanup_agent"),

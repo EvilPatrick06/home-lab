@@ -10,6 +10,7 @@ Monorepo containing:
 - **`dnd-app/`** — Electron VTT for D&D 5e games (TypeScript + React 19 + Vite). Runs on player/DM laptops.
 - **`bmo/`** — Raspberry Pi voice assistant (Python 3.11 Flask, 5 AI agents, Discord bots, smart home). Runs 24/7 on the Pi 5.
 - **`dungeon-scholar/`** — Web study app (Vite + React + Vitest), deployed to GitHub Pages. Independent of the other two.
+- **`oracle-worker/`** — Cloudflare Worker backing dungeon-scholar’s Oracle (AI grading/chat) proxy. Deployed to the Cloudflare edge.
 
 `dnd-app` and `bmo` communicate via HTTP (`bmo:5000`, `vtt:5001`).
 
@@ -58,6 +59,8 @@ Before suggesting file creation, verify:
 ### Automated-agent git workflow
 
 If you are running as an **automated/scheduled agent** (scanner, QA, phase-maker, phase-executer, log-resolver, etc.), do **not** commit to `master`. Work on `auto/<agent-id>` in your own git worktree (`git worktree add /home/patrick/home-lab-trees/<agent-id> -B auto/<agent-id> origin/master`), commit there, and `git push -u origin auto/<agent-id>`. Never touch master's working tree, never rebase shared state, never force-push another agent's branch. A daily integrator merges clean branches into `master` and reviews Dependabot PRs. Humans / interactive sessions may still use `master` directly. Full spec: [`docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`](docs/AUTOMATED-AGENT-GIT-WORKFLOW.md).
+
+The repo-wide implement → verify → commit → release process for automated agents (ALL domains — dnd-app, bmo, dungeon-scholar) is [`dnd-app/docs/phases/INSTRUCTIONS.md`](dnd-app/docs/phases/INSTRUCTIONS.md) (canonical, not dnd-app-only). Per that process, automated agents **attempt risky / large fixes rather than deferring them** — the `auto/*` branch + CI gate + (for resolver work) the user's approval + fix-forward is the safety net; size or risk alone is never a reason to leave or hand a fix back. Stop short only if (a) genuinely blocked, or (b) a new human decision the scope didn't cover is needed (INSTRUCTIONS.md rule 27).
 
 ### Commit conventions
 
