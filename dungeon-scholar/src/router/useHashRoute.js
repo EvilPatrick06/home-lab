@@ -9,7 +9,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 export const SCREENS = Object.freeze([
   'home', 'library', 'shop', 'inventory', 'crafting', 'bestiary', 'stable',
   'spellbook', 'calendar', 'ascension', 'history', 'quests', 'domainStudy',
-  'vault', 'dungeon', 'flashcards', 'quiz', 'lab', 'chat', 'practiceExam',
+  'vault', 'dungeon', 'flashcards', 'quiz', 'lab', 'chat', 'practiceExam', 'ledger',
 ]);
 
 const SCREEN_SET = new Set(SCREENS);

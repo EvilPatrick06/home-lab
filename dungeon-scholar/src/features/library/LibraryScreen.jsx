@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react';
-import { Gift, ChevronRight, Library, Wand2, Copy, Hash, Upload, Scroll, BookMarked, Check, X, Star, Share2, Tag, Edit2, Trash2, ScrollText, Search } from 'lucide-react';
+import { Gift, ChevronRight, Library, Wand2, Copy, Hash, Upload, Scroll, BookMarked, Check, X, Star, Share2, Tag, Edit2, Trash2, ScrollText, Search, PencilLine } from 'lucide-react';
 import RichContent from '../../components/RichContent.jsx';
 import { blankTomeProgress } from '../../game/tome.js';
 import { isSealedTome } from '../../services/sealedTome.js';
 
-function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate, onShare, onEditMetadata, onNotes, onTogglePin, onImport, onPaste, onImportCode, onShowPrompt, setScreen, claimableQuestCount = 0 }) {
+function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate, onShare, onEditMetadata, onEditContent, onNotes, onTogglePin, onImport, onPaste, onImportCode, onShowPrompt, setScreen, claimableQuestCount = 0, starterDecks = [], onAddStarter }) {
   const [renamingId, setRenamingId] = useState(null);
   const [renameValue, setRenameValue] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
@@ -165,6 +165,22 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
               Inscribe a Tome (import JSON)
             </button>
           </div>
+          {Array.isArray(starterDecks) && starterDecks.length > 0 && (
+            <div className="mt-6 text-left max-w-md mx-auto">
+              <div className="text-xs uppercase tracking-[0.15em] italic text-amber-500 mb-2 text-center">✦ Starter decks ✦</div>
+              <div className="flex flex-col gap-2">
+                {starterDecks.map((d) => (
+                  <div key={d.id} className="p-3 rounded-sm border border-amber-800/50 flex items-center gap-3" style={{ background: 'rgba(0,0,0,0.25)' }}>
+                    <div className="flex-1">
+                      <div className="text-amber-200 italic text-sm font-bold">{d.title}</div>
+                      <div className="text-amber-100/60 italic text-xs">{d.description}</div>
+                    </div>
+                    <button onClick={() => onAddStarter?.(d.data)} className="px-3 py-2 rounded-sm text-sm border-2 border-amber-700 text-amber-200 italic hover:bg-amber-900/30 whitespace-nowrap">Add deck</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -426,6 +442,17 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                     >
                       <Tag className="w-4 h-4" aria-hidden="true" />
                     </button>
+                    {!sealed && onEditContent && (
+                      <button
+                        onClick={() => onEditContent(tome.id)}
+                        className="px-3 py-2 rounded-sm text-sm border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30"
+                        style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
+                        title={`Edit content of "${meta.title || 'this tome'}"`}
+                        aria-label={`Edit content of tome "${meta.title || 'untitled'}"`}
+                      >
+                        <PencilLine className="w-4 h-4" aria-hidden="true" />
+                      </button>
+                    )}
                     {/* Phase 40F: per-tome encrypted private notes. A filled
                         icon hints that notes already exist (locked at rest). */}
                     <button

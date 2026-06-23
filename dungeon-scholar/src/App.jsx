@@ -69,6 +69,8 @@ import ImportCodeModal from './features/library/ImportCodeModal.jsx';
 import MetadataEditModal from './features/library/MetadataEditModal.jsx';
 import TomeNotes from './components/TomeNotes.jsx';
 import PasteTomeModal from './features/library/PasteTomeModal.jsx';
+import TomeEditor from './features/library/TomeEditor.jsx';
+import { STARTER_DECKS } from './data/starterDecks.js';
 import SealedTomeGate from './features/library/SealedTomeGate.jsx';
 const RunHistoryScreen = React.lazy(() => import('./features/progression/RunHistoryScreen.jsx'));
 const ShopScreen = React.lazy(() => import('./features/progression/ShopScreen.jsx'));
@@ -79,6 +81,7 @@ const SpellbookScreen = React.lazy(() => import('./features/progression/Spellboo
 const CalendarScreen = React.lazy(() => import('./features/progression/CalendarScreen.jsx'));
 const AscensionScreen = React.lazy(() => import('./features/progression/AscensionScreen.jsx'));
 const CraftingScreen = React.lazy(() => import('./features/progression/CraftingScreen.jsx'));
+const ScholarsLedger = React.lazy(() => import('./features/progression/ScholarsLedger.jsx'));
 const QuestBoard = React.lazy(() => import('./features/quests/QuestBoard.jsx'));
 import HomeScreen from './features/home/HomeScreen.jsx';
 const FlashcardsMode = React.lazy(() => import('./features/study/FlashcardsMode.jsx'));
@@ -153,6 +156,7 @@ export default function DungeonScholarApp() {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [shareTomeId, setShareTomeId] = useState(null);
   const [editMetadataTomeId, setEditMetadataTomeId] = useState(null);
+  const [editContentTomeId, setEditContentTomeId] = useState(null);
   // Phase 40F: tome whose encrypted private notes are open (null = closed).
   const [notesTome, setNotesTome] = useState(null);
   const [showImportCodeModal, setShowImportCodeModal] = useState(false);
@@ -1138,6 +1142,14 @@ export default function DungeonScholarApp() {
               <ShoppingBag className="w-5 h-5 text-amber-300" aria-hidden="true" />
             </button>
             <button
+              onClick={() => setScreen('ledger')}
+              className="p-3 hover:bg-sky-900/30 rounded-sm transition border-2 border-sky-700/50 hover:border-sky-500"
+              title="Scholar's Ledger (study stats)"
+              aria-label="Open Scholar's Ledger study stats"
+            >
+              <TrendingUp className="w-5 h-5 text-sky-300" aria-hidden="true" />
+            </button>
+            <button
               onClick={() => setShowAchievements(true)}
               className="p-3 hover:bg-amber-900/30 rounded-sm transition border-2 border-amber-700/50 hover:border-amber-500"
               title="Hall of Glory"
@@ -1397,6 +1409,9 @@ export default function DungeonScholarApp() {
             onDuplicate={duplicateTome}
             onShare={(id) => setShareTomeId(id)}
             onEditMetadata={(id) => setEditMetadataTomeId(id)}
+            onEditContent={(id) => setEditContentTomeId(id)}
+            starterDecks={STARTER_DECKS}
+            onAddStarter={(data) => { addTomeToLibrary(data); }}
             onNotes={(tome) => setNotesTome(tome)}
             onTogglePin={(id) => {
               // Phase 38d round-3 suggestion: pin/unpin a tome so it floats
@@ -1482,6 +1497,9 @@ export default function DungeonScholarApp() {
         )}
         {screen === 'history' && (
           <RunHistoryScreen playerState={playerState} setScreen={setScreen} />
+        )}
+        {screen === 'ledger' && (
+          <ScholarsLedger playerState={playerState} setScreen={setScreen} />
         )}
         {screen === 'domainStudy' && !sealedLocked && (
           <DomainStudyScreen
@@ -1630,6 +1648,7 @@ export default function DungeonScholarApp() {
         {showPasteModal && <PasteTomeModal onClose={() => setShowPasteModal(false)} onSubmit={handlePasteImport} />}
         {showImportCodeModal && <ImportCodeModal onClose={() => setShowImportCodeModal(false)} onSubmit={handleShareCodeImport} />}
         {shareTomeId && <ShareTomeModal tome={playerState.library.find(t => t.id === shareTomeId)} onClose={() => setShareTomeId(null)} />}
+        {editContentTomeId && <TomeEditor tome={playerState.library.find(t => t.id === editContentTomeId)} onSave={(newData) => { setPlayerState(prev => ({ ...prev, library: prev.library.map(t => t.id === editContentTomeId ? { ...t, data: newData } : t) })); setEditContentTomeId(null); showNotif('Tome content updated', 'success'); }} onClose={() => setEditContentTomeId(null)} />}
         {editMetadataTomeId && <MetadataEditModal tome={playerState.library.find(t => t.id === editMetadataTomeId)} onSave={(updates) => { updateTomeMetadata(editMetadataTomeId, updates); setEditMetadataTomeId(null); showNotif('Tome metadata updated', 'success'); }} onClose={() => setEditMetadataTomeId(null)} />}
         {notesTome && <TomeNotes tome={playerState.library.find(t => t.id === notesTome.id) || notesTome} onSave={(p) => updateTomeNotes(notesTome.id, p)} onClose={() => setNotesTome(null)} />}
         {showResetConfirm && <ResetConfirmModal onConfirm={confirmReset} onCancel={() => setShowResetConfirm(false)} />}
