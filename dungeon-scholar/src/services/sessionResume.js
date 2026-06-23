@@ -46,6 +46,3 @@ export function clearSession(kind) {
   try { localStorage.removeItem(key(kind)); } catch { /* ignore */ }
 }
 
-export function clearAllSessions() {
-  Object.values(SESSION_KIND).forEach(clearSession);
-}

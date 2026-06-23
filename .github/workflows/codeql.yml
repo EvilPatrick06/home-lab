@@ -1,9 +1,8 @@
-# PHASE-43 43B: CodeQL advanced setup. Replaces GitHub "default setup" so the
-# verified non-production paths in .github/codeql/codeql-config.yml can be excluded
-# from extraction. INERT until the owner switches the repo from default setup to
-# advanced setup (Settings → Code security → Code scanning → CodeQL → "Switch to
-# advanced") — running both produces duplicate scans. Owner-action, documented in
-# the PHASE-43 plan's Completed section.
+# PHASE-43 43B: CodeQL advanced setup. This is the ACTIVE and SOLE CodeQL
+# configuration for the repo: GitHub "default setup" is OFF, so the verified
+# non-production paths in .github/codeql/codeql-config.yml are excluded from
+# extraction. Keep default setup OFF — re-enabling it would run both and produce
+# duplicate scans. Runs on every push to master, every PR, and the weekly cron.
 name: CodeQL
 
 on:
@@ -21,7 +20,10 @@ permissions:
 
 concurrency:
   group: codeql-${{ github.ref }}
-  cancel-in-progress: true
+  # CodeQL is a security scanner: don't cancel in-flight runs during master
+  # push bursts (auto/* branches consolidated by the integrator) so each merged
+  # commit gets a completed analysis, not just the last commit in the burst.
+  cancel-in-progress: false
 
 jobs:
   analyze:
@@ -34,14 +36,14 @@ jobs:
         # `actions` keeps the actions/missing-workflow-permissions family scanned.
         language: [python, javascript-typescript, actions]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
           build-mode: none
           config-file: ./.github/codeql/codeql-config.yml
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
         with:
           category: '/language:${{ matrix.language }}'

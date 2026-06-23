@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useT } from '../../../i18n'
 import type { SpellData } from './SpellSummary5e'
 import { ordinal, SpellRow } from './SpellSummary5e'
@@ -20,16 +20,22 @@ export default function SpellPicker5e({
   const [search, setSearch] = useState('')
   const [levelFilter, setLevelFilter] = useState<number | 'all'>('all')
 
-  const filtered = availableSpells.filter((s) => {
-    if (levelFilter !== 'all' && s.level !== levelFilter) return false
-    if (search) {
-      const q = search.toLowerCase()
-      if (!s.name.toLowerCase().includes(q)) return false
-    }
-    return true
-  })
+  // PHASE-48 F2 — memoize so the (potentially ~200-row) filter doesn't re-run on
+  // every render (e.g. when a child row toggles its expanded state).
+  const filtered = useMemo(
+    () =>
+      availableSpells.filter((s) => {
+        if (levelFilter !== 'all' && s.level !== levelFilter) return false
+        if (search) {
+          const q = search.toLowerCase()
+          if (!s.name.toLowerCase().includes(q)) return false
+        }
+        return true
+      }),
+    [availableSpells, levelFilter, search]
+  )
 
-  const spellLevels = [...new Set(filtered.map((s) => s.level))].sort((a, b) => a - b)
+  const spellLevels = useMemo(() => [...new Set(filtered.map((s) => s.level))].sort((a, b) => a - b), [filtered])
 
   return (
     <>
@@ -85,7 +91,7 @@ export default function SpellPicker5e({
                     key={spell.id}
                     spell={spell}
                     selected={selectedSpellIds.includes(spell.id)}
-                    onToggle={() => toggleSpell(spell.id)}
+                    onToggle={toggleSpell}
                     isOffList={offListSpellIds?.has(spell.id)}
                   />
                 ))}

@@ -1,7 +1,7 @@
-name: agent-docs drift check
+name: agent-instructions drift check
 
-# Guard against the four hand-maintained AI agent-instruction files drifting
-# apart: each tool-specific file must keep a pointer to the canonical AGENTS.md.
+# Flags when the canonical-pointer or a SYNC:agents block drifts across the four
+# hand-maintained AI-assistant guides. (BMO-SUGGESTIONS 2026-06-22.)
 on:
   push:
     paths:
@@ -9,7 +9,7 @@ on:
       - 'CLAUDE.md'
       - 'GEMINI.md'
       - '.github/copilot-instructions.md'
-      - 'scripts/check-agent-docs.mjs'
+      - 'scripts/check-agent-instructions.sh'
       - '.github/workflows/agent-docs-check.yml'
   pull_request:
     paths:
@@ -17,7 +17,7 @@ on:
       - 'CLAUDE.md'
       - 'GEMINI.md'
       - '.github/copilot-instructions.md'
-      - 'scripts/check-agent-docs.mjs'
+      - 'scripts/check-agent-instructions.sh'
       - '.github/workflows/agent-docs-check.yml'
 
 permissions:
@@ -27,5 +27,5 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - run: node scripts/check-agent-docs.mjs
+      - uses: actions/checkout@v7
+      - run: bash scripts/check-agent-instructions.sh

@@ -325,13 +325,14 @@ def claude_chat(messages: list[dict], model: str = "",
     if max_tokens > 8192:
         headers["anthropic-beta"] = "output-128k-2025-02-19"
 
-    r = _claude_session.post(f"{ANTHROPIC_BASE}/messages", json=payload,
-                      headers=headers, timeout=120)
-
-    if not r.ok:
-        err_body = r.text[:2000] if r.text else "(no body)"
-        print(f"[claude] API error {r.status_code}: {err_body}")
-        r.raise_for_status()
+    try:
+        r = _post_with_retry(_claude_session, f"{ANTHROPIC_BASE}/messages",
+                             json=payload, headers=headers, timeout=120)
+    except requests.exceptions.HTTPError as e:
+        resp = getattr(e, "response", None)
+        err_body = (getattr(resp, "text", "") or "")[:2000] or "(no body)"
+        print(f"[claude] API error {getattr(resp, 'status_code', '?')}: {err_body}")
+        raise
 
     data = r.json()
     content_blocks = data.get("content", [])
@@ -341,20 +342,77 @@ def claude_chat(messages: list[dict], model: str = "",
 # ── Unified LLM Router ───────────────────────────────────────────────────
 
 
+def _post_with_retry(session, url, *, json=None, headers=None, timeout=120,
+                     max_retries=3, backoff=1.0):
+    """POST with bounded retry on transient failures (HTTP 5xx, connection
+    errors, timeouts); returns the Response after raise_for_status(). Non-5xx
+    HTTP errors raise immediately. Shared so transient handling is uniform
+    across providers (previously only gemini_chat retried). (BMO-SUGGESTIONS.)"""
+    last_err = None
+    for attempt in range(max_retries):
+        try:
+            r = session.post(url, json=json, headers=headers, timeout=timeout)
+            r.raise_for_status()
+            return r
+        except requests.exceptions.HTTPError as e:
+            status = getattr(getattr(e, "response", None), "status_code", 0) or 0
+            if status >= 500 and attempt < max_retries - 1:
+                last_err = e
+                time.sleep(backoff * (attempt + 1))
+                continue
+            raise
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+            if attempt < max_retries - 1:
+                last_err = e
+                time.sleep(backoff * (attempt + 1))
+                continue
+            raise
+    raise last_err  # type: ignore[misc]
+
+
+def _provider_of(model: str) -> str:
+    """Vendor that serves a model name (used for cross-vendor failover)."""
+    if model.startswith("claude"):
+        return "claude"
+    if model.startswith("llama") or model.startswith("mixtral") or model.startswith("groq-"):
+        return "groq"
+    return "gemini"
+
+
+def _cloud_dispatch(messages: list[dict], model: str,
+                    temperature: float, max_tokens: int) -> str:
+    provider = _provider_of(model)
+    if provider == "claude":
+        return claude_chat(messages, model, temperature, max_tokens)
+    if provider == "groq":
+        return groq_llm_chat(messages, model, temperature, max_tokens)
+    return gemini_chat(messages, model, temperature, max_tokens)
+
+
 def cloud_chat(messages: list[dict], model: str = "",
                temperature: float = 0.8, max_tokens: int = 2048) -> str:
-    """Route chat to the correct cloud provider based on model name."""
-    model = model or PRIMARY_MODEL
+    """Route chat to the correct cloud provider based on model name.
 
-    if model.startswith("gemini"):
-        return gemini_chat(messages, model, temperature, max_tokens)
-    elif model.startswith("claude"):
-        return claude_chat(messages, model, temperature, max_tokens)
-    elif model.startswith("llama") or model.startswith("mixtral") or model.startswith("groq-"):
-        return groq_llm_chat(messages, model, temperature, max_tokens)
-    else:
-        # Default to Gemini primary
-        return gemini_chat(messages, PRIMARY_MODEL, temperature, max_tokens)
+    Optional cross-vendor failover: set BMO_LLM_FAILOVER_MODEL to a model on a
+    DIFFERENT vendor and a failed primary call retries once on that fallback.
+    Unset (default) preserves single-provider behaviour exactly, so DM/Code-Agent
+    determinism is unchanged unless the owner opts in. (BMO-SUGGESTIONS.)
+    """
+    model = model or PRIMARY_MODEL
+    try:
+        return _cloud_dispatch(messages, model, temperature, max_tokens)
+    except Exception as primary_err:
+        fallback = (os.environ.get("BMO_LLM_FAILOVER_MODEL") or "").strip()
+        if fallback and _provider_of(fallback) != _provider_of(model):
+            try:
+                print(f"[cloud_chat] primary {model} failed ({primary_err}); "
+                      f"failing over to {fallback}")
+                from services import metrics_counters
+                metrics_counters.incr("llm_failover_total")
+                return _cloud_dispatch(messages, fallback, temperature, max_tokens)
+            except Exception:
+                raise primary_err
+        raise
 
 
 # ── Groq LLM (Llama, Mixtral) ───────────────────────────────────────────
@@ -380,9 +438,8 @@ def groq_llm_chat(messages: list[dict], model: str = "llama-3.3-70b-versatile",
         "max_tokens": max_tokens,
     }
 
-    r = _groq_llm_session.post(f"{GROQ_BASE}/chat/completions",
-                                json=payload, headers=headers, timeout=60)
-    r.raise_for_status()
+    r = _post_with_retry(_groq_llm_session, f"{GROQ_BASE}/chat/completions",
+                         json=payload, headers=headers, timeout=60)
     data = r.json()
     return data["choices"][0]["message"]["content"]
 

@@ -42,6 +42,8 @@ from state import STATE
 # (syntax/import errors) without standing up the live assistant.
 BMO_PORT = int(os.environ.get("BMO_PORT", "5000"))
 BMO_CANARY = os.environ.get("BMO_CANARY", "").lower() in ("1", "true", "yes")
+# BMO_SIMULATE=1: use stub hardware adapters (LED/OLED/camera) for off-Pi dev.
+BMO_SIMULATE = os.environ.get("BMO_SIMULATE", "").lower() in ("1", "true", "yes")
 
 # ── App Setup ────────────────────────────────────────────────────────
 
@@ -164,7 +166,7 @@ _normalize_chat_speaker = chat_history.normalize_chat_speaker
 
 # PHASE-16 16C — system-audio helpers moved to services/system_audio.py; init_services'
 # volume restore is the last in-app caller.
-from services.system_audio import set_system_volume as _set_system_volume  # noqa: E402
+from services.voice.system_audio import set_system_volume as _set_system_volume  # noqa: E402
 
 
 # ── Rate limiting (cost-sensitive routes) ─────────────────────────────
@@ -214,6 +216,22 @@ BMO_API_KEY = (os.environ.get("BMO_API_KEY") or "").strip()
 BMO_REGISTRY_API_KEY = (os.environ.get("BMO_REGISTRY_API_KEY") or "").strip()
 
 
+# Paths intentionally reachable WITHOUT the BMO_API_KEY Bearer: the anonymous,
+# Cloudflare-Access-bypassed public surface of the dnd-app web build — the SPA
+# shell, the read-only 5e content it loads, and the hardened anonymous game-chat
+# endpoint. Anonymous browsers have no Bearer, so the app-level key gate must not
+# block these (Cloudflare Access path-scoped bypasses are their edge gate); every
+# OTHER route stays behind the key. KEEP THIS SET IN LOCKSTEP with the Cloudflare
+# Access "bypass" applications.
+_PUBLIC_UNAUTH_EXACT = frozenset({"/api/dnd/public/dm"})
+_PUBLIC_UNAUTH_PREFIXES = ("/api/library", "/api/sounds", "/DungeonTableOnline")
+
+
+def _is_public_unauthenticated_path(p: str) -> bool:
+    """True for the anonymous public surface (mirrors the CF Access bypasses)."""
+    return p in _PUBLIC_UNAUTH_EXACT or any(p.startswith(pre) for pre in _PUBLIC_UNAUTH_PREFIXES)
+
+
 def _bmo_client_is_trusted_localhost() -> bool:
     addr = (getattr(request, "remote_addr", None) or "") or ""
     if addr not in ("127.0.0.1", "::1", "localhost"):
@@ -256,6 +274,11 @@ def _bmo_optional_api_key():
     if not BMO_API_KEY:
         return None
     if p in ("/health", "/favicon.ico") or p.startswith("/static/"):
+        return None
+    # Anonymous public surface (mirrors the path-scoped Cloudflare Access bypasses):
+    # the dnd-app web build + the read-only content it needs + the hardened public
+    # game-chat endpoint. Everything else stays behind the key.
+    if _is_public_unauthenticated_path(p):
         return None
     if _bmo_client_is_trusted_localhost():
         return None
@@ -364,6 +387,17 @@ def init_services():
 
     log.info("[bmo] Initializing services...")
 
+    # Config preflight — classify provider keys + Calendar token; log a single
+    # summary + degraded banner so a missing/typo'd secret surfaces at boot
+    # rather than at first use. Non-fatal unless BMO_PREFLIGHT_STRICT=1.
+    try:
+        from services.config_preflight import run_preflight
+        run_preflight(logger=log)
+    except RuntimeError:
+        raise
+    except Exception:
+        log.exception("[bmo]   Config preflight failed (non-fatal)")
+
     service_map = {}
 
     # Show warmup face during initialization
@@ -371,7 +405,13 @@ def init_services():
 
     # LED controller (RGB LEDs)
     led_controller = None
-    if BMO_CANARY:
+    if BMO_SIMULATE:
+        from hardware.sim_hardware import SimLedController
+        led_controller = SimLedController(socketio=socketio)
+        led_controller.start()
+        service_map["leds"] = led_controller
+        log.info("[bmo]   LED controller: SIMULATED")
+    elif BMO_CANARY:
         from hardware.led_controller import LedController  # noqa: F401 — canary import check
         log.info("[bmo]   LED controller: CANARY (import-only)")
     else:
@@ -381,13 +421,20 @@ def init_services():
             led_controller.start()
             service_map["leds"] = led_controller
             log.info("[bmo]   LED controller: OK")
-        except Exception as e:
-            log.exception(f"[bmo]   LED controller: SKIPPED")
+        except Exception:
+            log.exception("[bmo]   LED controller: SKIPPED")
 
     # OLED face display (BMO_DISABLE_OLED=1 skips init — e.g. while display
     # hardware is broken/disconnected; every consumer None-guards oled_face)
     oled_face = None
-    if BMO_CANARY:
+    if BMO_SIMULATE:
+        from hardware.sim_hardware import SimOledFace
+        oled_face = SimOledFace(socketio=socketio)
+        oled_face.start()
+        service_map["oled_face"] = oled_face
+        oled_face.set_expression("warmup")
+        log.info("[bmo]   OLED face: SIMULATED")
+    elif BMO_CANARY:
         from hardware.oled_face import OledFace  # noqa: F401 — canary import check
         log.info("[bmo]   OLED face: CANARY (import-only)")
     elif os.environ.get("BMO_DISABLE_OLED", "").lower() in ("1", "true", "yes"):
@@ -400,29 +447,34 @@ def init_services():
             service_map["oled_face"] = oled_face
             oled_face.set_expression("warmup")
             log.info("[bmo]   OLED face: OK (warmup)")
-        except Exception as e:
-            log.exception(f"[bmo]   OLED face: SKIPPED")
+        except Exception:
+            log.exception("[bmo]   OLED face: SKIPPED")
 
     # Voice pipeline (requires pyaudio/mic hardware)
     if BMO_CANARY:
-        from services.voice_pipeline import VoicePipeline  # noqa: F401 — canary import check
+        from services.voice.voice_pipeline import VoicePipeline  # noqa: F401 — canary import check
         voice = None
         log.info("[bmo]   Voice pipeline: CANARY (import-only)")
     else:
         try:
-            from services.voice_pipeline import VoicePipeline
+            from services.voice.voice_pipeline import VoicePipeline
             voice = VoicePipeline(socketio=socketio)
             saved_voice_vol = _load_setting("volume.voice", None)
             if saved_voice_vol is not None:
                 voice._speak_volume = int(saved_voice_vol)
             service_map["voice"] = voice
             log.info("[bmo]   Voice pipeline: OK")
-        except Exception as e:
-            log.exception(f"[bmo]   Voice pipeline: SKIPPED")
+        except Exception:
+            log.exception("[bmo]   Voice pipeline: SKIPPED")
 
     # Camera (requires picamera2; BMO_DISABLE_CAMERA=1 skips init — camera
     # API routes already 503 when the service is absent)
-    if BMO_CANARY:
+    if BMO_SIMULATE:
+        from hardware.sim_hardware import SimCameraService
+        camera = SimCameraService(socketio=socketio)
+        service_map["camera"] = camera
+        log.info("[bmo]   Camera: SIMULATED")
+    elif BMO_CANARY:
         from hardware.camera_service import CameraService  # noqa: F401 — canary import check
         camera = None
         log.info("[bmo]   Camera: CANARY (import-only)")
@@ -434,8 +486,8 @@ def init_services():
             camera = CameraService(socketio=socketio)
             service_map["camera"] = camera
             log.info("[bmo]   Camera: OK")
-        except Exception as e:
-            log.exception(f"[bmo]   Camera: SKIPPED")
+        except Exception:
+            log.exception("[bmo]   Camera: SKIPPED")
 
     # Smart home / Chromecast
     if BMO_CANARY:
@@ -448,8 +500,8 @@ def init_services():
             smart_home = SmartHomeService(socketio=socketio)
             service_map["smart_home"] = smart_home
             log.info("[bmo]   Smart home: OK")
-        except Exception as e:
-            log.exception(f"[bmo]   Smart home: SKIPPED")
+        except Exception:
+            log.exception("[bmo]   Smart home: SKIPPED")
 
     # Calendar (Google API)
     if BMO_CANARY:
@@ -462,8 +514,8 @@ def init_services():
             calendar = CalendarService(socketio=socketio)
             service_map["calendar"] = calendar
             log.info("[bmo]   Calendar: OK")
-        except Exception as e:
-            log.exception(f"[bmo]   Calendar: SKIPPED")
+        except Exception:
+            log.exception("[bmo]   Calendar: SKIPPED")
 
     # Dynamic location/timezone
     if BMO_CANARY:
@@ -495,22 +547,22 @@ def init_services():
             weather = WeatherService(socketio=socketio, location_service=location_service)
             service_map["weather"] = weather
             log.info("[bmo]   Weather: OK")
-        except Exception as e:
-            log.exception(f"[bmo]   Weather: SKIPPED")
+        except Exception:
+            log.exception("[bmo]   Weather: SKIPPED")
 
     # Audio output routing (before music so music can use it)
     if BMO_CANARY:
-        from services.audio_output_service import AudioOutputService  # noqa: F401 — canary import check
+        from services.voice.audio_output_service import AudioOutputService  # noqa: F401 — canary import check
         audio_service = None
         log.info("[bmo]   Audio output: CANARY (import-only)")
     else:
         try:
-            from services.audio_output_service import AudioOutputService
+            from services.voice.audio_output_service import AudioOutputService
             audio_service = AudioOutputService()
             service_map["audio"] = audio_service
             log.info("[bmo]   Audio output: OK")
-        except Exception as e:
-            log.exception(f"[bmo]   Audio output: SKIPPED")
+        except Exception:
+            log.exception("[bmo]   Audio output: SKIPPED")
 
     # Music (requires ytmusicapi/vlc)
     if BMO_CANARY:
@@ -523,8 +575,8 @@ def init_services():
             music = MusicService(smart_home=smart_home, socketio=socketio, audio_service=audio_service)
             service_map["music"] = music
             log.info("[bmo]   Music: OK")
-        except Exception as e:
-            log.exception(f"[bmo]   Music: SKIPPED")
+        except Exception:
+            log.exception("[bmo]   Music: SKIPPED")
 
     # Timers
     if BMO_CANARY:
@@ -541,8 +593,8 @@ def init_services():
                 timers.alarm_volume = int(saved_alarm_vol)
             service_map["timers"] = timers
             log.info("[bmo]   Timers: OK")
-        except Exception as e:
-            log.exception(f"[bmo]   Timers: SKIPPED")
+        except Exception:
+            log.exception("[bmo]   Timers: SKIPPED")
 
     # Agent (core — always required)
     if BMO_CANARY:
@@ -595,8 +647,8 @@ def init_services():
                      "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1000/bus"},
             )
             log.info("[bmo]   Mic gain: 150%")
-        except Exception as e:
-            log.exception(f"[bmo]   Mic gain set failed")
+        except Exception:
+            log.exception("[bmo]   Mic gain set failed")
 
     if voice:
         log.info("[bmo]   Starting voice listener...")
@@ -616,8 +668,8 @@ def init_services():
                         return easter_egg
                 result = agent.chat(text, speaker=speaker, client_timezone=_pi_timezone())
                 return result.get("text", "")
-            except Exception as e:
-                log.exception(f"[voice] Chat error")
+            except Exception:
+                log.exception("[voice] Chat error")
                 return ""
         voice._chat_callback = _voice_chat
 
@@ -625,8 +677,8 @@ def init_services():
             """Streaming voice chat — yields text chunks for faster TTS start."""
             try:
                 return agent.chat_stream(text, speaker=speaker, client_timezone=_pi_timezone())
-            except Exception as e:
-                log.exception(f"[voice] Stream chat error")
+            except Exception:
+                log.exception("[voice] Stream chat error")
                 return iter([])
         voice._chat_stream_callback = _voice_chat_stream
 
@@ -677,7 +729,7 @@ def init_services():
             # Save voice responses (assistant messages) to chat history
             # and emit as chat_response so the frontend shows them
             elif event == "response":
-                from services.voice_pipeline import VoicePipeline
+                from services.voice.voice_pipeline import VoicePipeline
                 response_text = data.get("text", "")
                 if response_text:
                     clean_text = VoicePipeline._strip_markdown(response_text)
@@ -721,8 +773,8 @@ def init_services():
         health_checker = HealthChecker(socketio=socketio, check_interval=60)
         health_checker.start()
         log.info("[bmo]   Health checker: OK (60s interval)")
-    except Exception as e:
-        log.exception(f"[bmo]   Health checker: SKIPPED")
+    except Exception:
+        log.exception("[bmo]   Health checker: SKIPPED")
 
     # Start KDE Connect daemon (needed for notification bridge)
     try:
@@ -732,8 +784,8 @@ def init_services():
             log.info("[bmo]   KDE Connect daemon: started")
         else:
             log.info("[bmo]   KDE Connect daemon: not installed")
-    except Exception as e:
-        log.exception(f"[bmo]   KDE Connect daemon: SKIPPED")
+    except Exception:
+        log.exception("[bmo]   KDE Connect daemon: SKIPPED")
 
     # Notification service (KDE Connect bridge)
     try:
@@ -742,8 +794,8 @@ def init_services():
         notifier.start()
         service_map["notifier"] = notifier
         log.info("[bmo]   Notifications: OK")
-    except Exception as e:
-        log.exception(f"[bmo]   Notifications: SKIPPED")
+    except Exception:
+        log.exception("[bmo]   Notifications: SKIPPED")
 
     # Scene mode engine (PHASE-16 16F — TV access via routes/tv_api.py seam)
     def _scene_tv_send_key(key):
@@ -808,8 +860,8 @@ def init_services():
         if voice:
             voice._scene_service = scene_service
         log.info("[bmo]   Scene engine: OK")
-    except Exception as e:
-        log.exception(f"[bmo]   Scene engine: SKIPPED")
+    except Exception:
+        log.exception("[bmo]   Scene engine: SKIPPED")
 
     # List service
     try:
@@ -817,8 +869,8 @@ def init_services():
         list_service = ListService()
         service_map["lists"] = list_service
         log.info("[bmo]   List service: OK")
-    except Exception as e:
-        log.exception(f"[bmo]   List service: SKIPPED")
+    except Exception:
+        log.exception("[bmo]   List service: SKIPPED")
 
     # Alert service
     try:
@@ -833,8 +885,8 @@ def init_services():
             calendar.alert_service = alert_service
         if notifier:
             notifier.alert_service = alert_service
-    except Exception as e:
-        log.exception(f"[bmo]   Alert service: SKIPPED")
+    except Exception:
+        log.exception("[bmo]   Alert service: SKIPPED")
 
     # Routine service
     try:
@@ -846,8 +898,8 @@ def init_services():
         )
         service_map["routines"] = routine_service
         log.info("[bmo]   Routine service: OK")
-    except Exception as e:
-        log.exception(f"[bmo]   Routine service: SKIPPED")
+    except Exception:
+        log.exception("[bmo]   Routine service: SKIPPED")
 
     # Start routine scheduler
     if routine_service:
@@ -866,8 +918,8 @@ def init_services():
         personality_engine.start()
         service_map["personality"] = personality_engine
         log.info("[bmo]   Personality engine: OK")
-    except Exception as e:
-        log.exception(f"[bmo]   Personality engine: SKIPPED")
+    except Exception:
+        log.exception("[bmo]   Personality engine: SKIPPED")
 
     # Restore system (PipeWire) volume from saved settings
     saved_sys_vol = _load_setting("volume.system", None)
@@ -883,8 +935,8 @@ def init_services():
         from agent import LOCAL_MODEL
         _ollama.generate(model=LOCAL_MODEL, prompt="", keep_alive=-1)
         log.info(f"[bmo]   Ollama model warmed up: {LOCAL_MODEL}")
-    except Exception as e:
-        log.exception(f"[bmo]   Ollama warmup skipped")
+    except Exception:
+        log.exception("[bmo]   Ollama warmup skipped")
 
     # Set OLED to warmup expression during init, then idle
     if oled_face:
@@ -1613,8 +1665,8 @@ def api_discord_dm_sync_state():
 @app.route("/api/discord/dm/voices", methods=["GET"])
 @app.route("/api/v1/discord/dm/voices", methods=["GET"])
 def api_discord_dm_voices_get():
-    from services.discord_tts import resolve_backend
-    from services.voice_casting import VoiceCasting
+    from services.voice.discord_tts import resolve_backend
+    from services.voice.voice_casting import VoiceCasting
 
     campaign_id = request.args.get("campaign_id", "")
     if not campaign_id:
@@ -1635,7 +1687,7 @@ def api_discord_dm_voices_get():
 def api_discord_dm_voices_set():
     from dataclasses import asdict
 
-    from services.voice_casting import VoiceCasting
+    from services.voice.voice_casting import VoiceCasting
 
     data = request.json or {}
     campaign_id = data.get("campaign_id")
@@ -1653,7 +1705,7 @@ def api_discord_dm_voices_set():
 @app.route("/api/v1/discord/dm/voices", methods=["DELETE"])
 @limiter.limit(RATE_LIMIT_NARRATE)
 def api_discord_dm_voices_delete():
-    from services.voice_casting import VoiceCasting
+    from services.voice.voice_casting import VoiceCasting
 
     data = request.json or {}
     campaign_id = data.get("campaign_id")
@@ -1687,8 +1739,8 @@ def api_scene_activate():
     def _do_activate():
         try:
             scene_service.activate(name)
-        except Exception as e:
-            log.exception(f"[scene-api] Activate failed")
+        except Exception:
+            log.exception("[scene-api] Activate failed")
             import traceback
             traceback.print_exc()
 
@@ -1705,8 +1757,8 @@ def api_scene_deactivate():
     def _do_deactivate():
         try:
             scene_service.deactivate()
-        except Exception as e:
-            log.exception(f"[scene-api] Deactivate failed")
+        except Exception:
+            log.exception("[scene-api] Deactivate failed")
             import traceback
             traceback.print_exc()
 
@@ -1956,8 +2008,8 @@ def _auto_resume_after_restart():
                     "speaker": "system",
                     "agent_used": "code",
                 })
-    except Exception as e:
-        log.exception(f"[chat] Auto-resume failed")
+    except Exception:
+        log.exception("[chat] Auto-resume failed")
 
 
 def _restore_agent_history():
@@ -2764,7 +2816,12 @@ if __name__ == "__main__":
     # Wire the IDE blueprint + SocketIO handlers now that `agent` is live.
     register_ide(app, socketio, agent)
     # Phase 32 — cloud multiplayer relay on the `/game` Socket.IO namespace.
-    register_game_relay(socketio, api_key=BMO_API_KEY)
+    # The P2P game relay is part of the anonymous public surface (its /socket.io
+    # handshake has a path-scoped Cloudflare Access bypass). Its real authz is the
+    # per-game invite code enforced in relay.authorize(), NOT the front-door
+    # BMO_API_KEY — so connect must not require that key, or anonymous web players
+    # cannot join. Every non-public route still sits behind the key gate.
+    register_game_relay(socketio, api_key="")
     # Phase 36 — read-only 5e library API (/api/library) serving the seeded
     # bmo/pi/data/5e-library/ tree (empty/dormant until seed-5e-library.sh runs).
     register_library(app)
@@ -2777,8 +2834,8 @@ if __name__ == "__main__":
     if music:
         try:
             music.restore_playback()
-        except Exception as e:
-            log.exception(f"[bmo] Music restore failed")
+        except Exception:
+            log.exception("[bmo] Music restore failed")
     if BMO_CANARY:
         log.info("[bmo] CANARY boot — hardware/services skipped")
     log.info(f"[bmo] BMO is ready! Access at http://0.0.0.0:{BMO_PORT}")

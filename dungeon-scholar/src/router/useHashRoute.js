@@ -5,12 +5,10 @@
 // `404.html`. Zero new dependencies.
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-// Single source of truth for the 20 valid screen names (copied from the App render switch).
-export const SCREENS = Object.freeze([
-  'home', 'library', 'shop', 'inventory', 'crafting', 'bestiary', 'stable',
-  'spellbook', 'calendar', 'ascension', 'history', 'quests', 'domainStudy',
-  'vault', 'dungeon', 'flashcards', 'quiz', 'lab', 'chat', 'practiceExam',
-]);
+// Screen list now lives in the shared registry; re-exported here so existing
+// importers (and useHashRoute.test.jsx) keep their `from './useHashRoute.js'` path.
+import { SCREENS } from './screens.js';
+export { SCREENS };
 
 const SCREEN_SET = new Set(SCREENS);
 

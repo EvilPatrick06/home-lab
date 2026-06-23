@@ -111,7 +111,7 @@ export const findItem = (id) => ITEMS.find(it => it.id === id);
 // the player's current count, what the next purchase would cost, and whether
 // they can buy more.
 export const sanctumCount = (state, item) => {
-  if (item.category !== 'sanctum' || !item.permKey) return 0;
+  if (!['sanctum', 'devotion', 'celestial'].includes(item.category) || !item.permKey) return 0;
   const counts = state.permUpgrades || {};
   const step = item.step || 1;
   const raw = counts[item.permKey] || 0;

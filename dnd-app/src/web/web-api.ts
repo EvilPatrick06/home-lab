@@ -16,6 +16,11 @@
  * the UI degrades gracefully instead of throwing.
  */
 
+// Browser-pure apply core — SAME logic the desktop main process uses, so an
+// approved AI-DM stat change mutates the persisted character identically on web.
+import { applyChangesToCharacter, buildLongRestChanges, buildShortRestChanges } from '../main/ai/stat-mutations-core'
+import type { StatChange } from '../main/ai/types'
+import type { Character5eV3 } from '../shared/types/character-5e'
 import { buildDmSystemPrompt, parseAiMutations } from './ai-mutations'
 import { idbDelete, idbGet, idbGetAll, idbKeys, idbSet, idbWipeAll, type StoreName } from './idb'
 
@@ -72,7 +77,13 @@ async function saveEntity(store: StoreName, entity: Dict): Promise<Dict> {
   const id = (entity.id as string | undefined) ?? genId()
   const withId = { ...entity, id }
   await idbSet(store, id, withId)
-  return withId
+  // PHASE-47 F1 — return the desktop `{ success: true }` StorageResult contract
+  // (plus the id/entity for callers that read it). The persisted record
+  // (`withId`) is unchanged — `success` lives only on the return value. Without
+  // it, a store guard like `if (result && !result.success)` (bastion-store) saw
+  // `success === undefined`, bailed before `set()`, and the UI went stale until
+  // a reload.
+  return { ...withId, success: true }
 }
 
 async function loadJson<T = unknown>(path: string): Promise<T | null> {
@@ -238,9 +249,17 @@ export function createWebApi() {
       onGameFound: (_cb: (e: Dict) => void) => () => undefined,
       onGameRemoved: (_cb: (e: Dict) => void) => () => undefined,
       onBmoResolvedUrl: (_cb: (p: { url: string | null }) => void) => () => undefined,
-      onBmoSignalingStatus: (_cb: (p: { reachable: boolean | null; host: string; port: number }) => void) => () =>
-        undefined,
-      probeSignaling: () => Promise.resolve({ reachable: null })
+      // PHASE-45 F5 — wire the signaling status through the bus so the
+      // settings badge reaches a TERMINAL state instead of sitting on
+      // "Checking…". The store subscribes here at import; probeSignaling()
+      // (called on mount) emits a single { reachable: null } → the badge
+      // renders "Not applicable" (the off-LAN/tunnel default).
+      onBmoSignalingStatus: (cb: (p: { reachable: boolean | null; host: string; port: number }) => void) =>
+        busOn('lan:signaling-status', cb as (d: unknown) => void),
+      probeSignaling: () => {
+        webEmit('lan:signaling-status', { reachable: null, host: '', port: 0 })
+        return Promise.resolve({ reachable: null })
+      }
     },
 
     // Settings → IndexedDB
@@ -474,23 +493,40 @@ export function createWebApi() {
         bmoFetchJson(`/api/rclone/restore?campaignId=${encodeURIComponent(campaignId)}`).catch(() => ({ ok: false }))
     },
 
-    // Pi game registry → /api/games*
+    // Pi game registry → /api/games*. PHASE-46: every mutation honors the
+    // desktop `{ ok: boolean; error? }` contract — a failure NEVER resolves to
+    // bare `null` (which made the renderer's `if (result.ok)` null-deref). The
+    // Pi already returns `{ ok: true, … }` on success (POST 201, PATCH/DELETE/
+    // heartbeat 200), so success passes through; only the catch shape changed.
     registry: {
       announce: (payload: Dict, _baseOverride?: string) =>
-        bmoFetchJson('/api/games', { method: 'POST', body: JSON.stringify(payload) }).catch(() => null),
+        bmoFetchJson('/api/games', { method: 'POST', body: JSON.stringify(payload) }).catch((e) => ({
+          ok: false,
+          error: e instanceof Error ? e.message : String(e)
+        })),
       update: (inviteCode: string, patch: Dict, _baseOverride?: string) =>
         bmoFetchJson(`/api/games/${encodeURIComponent(inviteCode)}`, {
           method: 'PATCH',
           body: JSON.stringify(patch)
-        }).catch(() => null),
+        }).catch((e) => ({ ok: false, error: e instanceof Error ? e.message : String(e) })),
       heartbeat: (inviteCode: string, _baseOverride?: string) =>
-        bmoFetchJson(`/api/games/${encodeURIComponent(inviteCode)}/heartbeat`, { method: 'POST' }).catch(() => null),
-      deregister: (inviteCode: string, _baseOverride?: string) =>
-        bmoFetchJson(`/api/games/${encodeURIComponent(inviteCode)}`, { method: 'DELETE' }).catch(() => null),
-      list: (clientId: string | null, _baseOverride?: string) =>
-        bmoFetchJson(`/api/games${clientId ? `?clientId=${encodeURIComponent(clientId)}` : ''}`).catch(() => ({
-          games: []
+        bmoFetchJson(`/api/games/${encodeURIComponent(inviteCode)}/heartbeat`, { method: 'POST' }).catch((e) => ({
+          ok: false,
+          error: e instanceof Error ? e.message : String(e)
         })),
+      deregister: (inviteCode: string, _baseOverride?: string) =>
+        bmoFetchJson(`/api/games/${encodeURIComponent(inviteCode)}`, { method: 'DELETE' }).catch((e) => ({
+          ok: false,
+          error: e instanceof Error ? e.message : String(e)
+        })),
+      // GET /api/games returns `{ games }` with NO `ok` field, but
+      // registry-client.listGames does `if (!result.ok) throw` — so wrap to the
+      // `{ ok, games }` contract and degrade to an empty list on failure so a
+      // web list NEVER throws.
+      list: (clientId: string | null, _baseOverride?: string) =>
+        bmoFetchJson<{ games?: unknown[] }>(`/api/games${clientId ? `?client_id=${encodeURIComponent(clientId)}` : ''}`)
+          .then((r) => ({ ok: true, games: r?.games ?? [] }))
+          .catch(() => ({ ok: true, games: [] })),
       subscribe: (_subscriptionId: string, _clientId: string | null) => Promise.resolve(ok),
       unsubscribe: (_subscriptionId: string) => Promise.resolve(ok),
       onEvent: (cb: (p: { subscriptionId: string; event: Dict }) => void) =>
@@ -530,9 +566,10 @@ function createAiStub() {
     prepareScene: (_c: string, _ids: string[]) => Promise.resolve({ ok: false }),
     getSceneStatus: (_c: string) => Promise.resolve({ status: 'idle' }),
     cancelScene: (_c: string) => Promise.resolve({ ok: true }),
-    // Bridge to the Pi agent (POST /api/chat -- same-origin behind the tunnel, so
-    // the Cloudflare Access cookie authenticates). The agent routes D&D messages
-    // through its DnD context; we stream the returned narration to the renderer.
+    // Bridge to the Pi (POST /api/dnd/public/dm -- the one anonymous-reachable
+    // route, same-origin behind the tunnel via a path-scoped Cloudflare Access
+    // bypass, so no Access cookie is required). The server OWNS the DM system
+    // prompt + model and runs the LLM; we stream the returned narration back.
     // Structured mutations (statChanges/dmActions) are not produced by the HTTP
     // agent yet, so those are emitted empty -- a known parity gap vs. desktop.
     chatStream: async (request: Record<string, unknown>) => {
@@ -540,11 +577,14 @@ function createAiStub() {
       const playerMessage = String((request?.message as string | undefined) ?? '')
       const campaignId = String((request?.campaignId as string | undefined) ?? 'default')
       const actingName = (request?.senderName as string | undefined) || undefined
-      const system = buildDmSystemPrompt({
+      // System prompt + model are SERVER-owned on the public endpoint; the client
+      // sends only the player message, bounded history, and game context. The
+      // server treats `context` as untrusted in-fiction data.
+      const context = {
         gameState: request?.gameState,
         activeCreatures: request?.activeCreatures,
         actingCharacterName: actingName
-      })
+      }
       const history = dmHistory.get(campaignId) ?? []
       const controller = new AbortController()
       aiAborters.set(streamId, controller)
@@ -552,12 +592,12 @@ function createAiStub() {
         try {
           // Dedicated DM endpoint: the Pi runs the LLM with OUR system prompt
           // (role + action-tag contract + live state), so tag emission is reliable.
-          const res = await fetch(`${BMO_BASE}/api/dnd/dm`, {
+          const res = await fetch(`${BMO_BASE}/api/dnd/public/dm`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
             signal: controller.signal,
-            body: JSON.stringify({ system, message: playerMessage, history })
+            body: JSON.stringify({ message: playerMessage, history, context })
           })
           if (!res.ok) throw new Error(`AI backend returned ${res.status}`)
           const data = (await res.json()) as { text?: string }
@@ -603,9 +643,58 @@ function createAiStub() {
       return Promise.resolve({ ok: true })
     },
     xCardRewind: (_c: string) => Promise.resolve({ ok: true }),
-    applyMutations: (_id: string, _changes: unknown[]) => Promise.resolve({ ok: true }),
-    longRest: (_id: string) => Promise.resolve({ ok: true }),
-    shortRest: (_id: string) => Promise.resolve({ ok: true }),
+    // Apply AI-DM stat mutations to the persisted character (IndexedDB) using the
+    // SAME browser-pure core the desktop main process uses — so an approved (or
+    // auto-approved) mutation actually changes HP / conditions / resources on web,
+    // not just narrates. Returns the desktop MutationResult shape so the renderer's
+    // rejected-mutation alerting works identically.
+    applyMutations: async (id: string, changes: unknown[]) => {
+      const stored = await idbGet<Record<string, unknown>>('characters', id)
+      if (!stored) {
+        return {
+          applied: [],
+          rejected: (changes as StatChange[]).map((c) => ({ change: c, reason: 'Character not found' }))
+        }
+      }
+      const char = stored as unknown as Character5eV3
+      const out = applyChangesToCharacter(char, changes as StatChange[])
+      if (out.applied.length > 0) {
+        await idbSet('characters', id, char as unknown as Record<string, unknown>)
+      }
+      return out
+    },
+    // Long/short rest recovery applied to the persisted character (IndexedDB) via
+    // the SAME shared core the desktop main process uses — Warlock slots, class
+    // resources, HP, hit dice, exhaustion recover identically on web.
+    longRest: async (id: string) => {
+      const stored = await idbGet<Record<string, unknown>>('characters', id)
+      if (!stored) {
+        return {
+          applied: [],
+          rejected: [{ change: { type: 'reset_death_saves', reason: 'long rest' }, reason: 'Character not found' }]
+        }
+      }
+      const char = stored as unknown as Character5eV3
+      const changes = buildLongRestChanges(char)
+      if (changes.length === 0) return { applied: [], rejected: [] }
+      const out = applyChangesToCharacter(char, changes)
+      if (out.applied.length > 0) {
+        await idbSet('characters', id, char as unknown as Record<string, unknown>)
+      }
+      return out
+    },
+    shortRest: async (id: string) => {
+      const stored = await idbGet<Record<string, unknown>>('characters', id)
+      if (!stored) return { applied: [], rejected: [] }
+      const char = stored as unknown as Character5eV3
+      const changes = buildShortRestChanges(char)
+      if (changes.length === 0) return { applied: [], rejected: [] }
+      const out = applyChangesToCharacter(char, changes)
+      if (out.applied.length > 0) {
+        await idbSet('characters', id, char as unknown as Record<string, unknown>)
+      }
+      return out
+    },
     saveConversation: (_c: string) => Promise.resolve({ ok: true }),
     restoreConversation: (_c: string, _d: Record<string, unknown>) => Promise.resolve({ ok: true }),
     loadConversation: (_c: string) => Promise.resolve(null),

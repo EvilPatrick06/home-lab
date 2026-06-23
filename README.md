@@ -1,6 +1,6 @@
 # home-lab
 
-Three loosely coupled projects shipped from a single repo. They share a Pi, a release pipeline, and one set of contributor conventions; each one stands on its own and can be cloned + run in isolation.
+Three apps plus one edge worker, shipped from a single repo. They share a Pi, a release pipeline, and one set of contributor conventions; each one stands on its own and can be cloned + run in isolation.
 
 ## Projects
 
@@ -9,6 +9,7 @@ Three loosely coupled projects shipped from a single repo. They share a Pi, a re
 | [`dnd-app/`](./dnd-app/) | Electron Virtual Tabletop for D&D 5e — multiplayer, AI DM, maps, character sheets | TypeScript · React 19 · Vite · electron-vite · PixiJS · PeerJS | Windows / Linux laptops |
 | [`bmo/`](./bmo/) | BMO — voice assistant + Discord bots + smart-home hub + D&D narration engine | Python 3.11 · Flask + gevent · 5 AI agents · `discord.py` · `picamera2` | Raspberry Pi 5 (24/7 systemd services) |
 | [`dungeon-scholar/`](./dungeon-scholar/) | D&D-themed exam-prep study app — spaced repetition, timed practice, dungeon-delve gamification | React · Vite · Supabase · GitHub Pages | Browser (deployed via Pages) |
+| [`oracle-worker/`](./oracle-worker/) | Cloudflare Worker backing dungeon-scholar’s Oracle proxy (AI grading/chat) | TypeScript · Wrangler · Cloudflare Workers | Cloudflare edge |
 
 Each project's own README has the details:
 - 📖 [`dnd-app/README.md`](./dnd-app/README.md)
@@ -90,6 +91,7 @@ Tool-specific instruction files: [`CLAUDE.md`](./CLAUDE.md), [`GEMINI.md`](./GEM
 **Cross-cutting:**
 - [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) — how dnd-app + bmo communicate
 - [`docs/DATA-FLOW.md`](./docs/DATA-FLOW.md) — where data lives, how it moves
+- [`docs/RULES-RETRIEVAL.md`](./docs/RULES-RETRIEVAL.md) — cross-engine rules-retrieval stack (dnd-app TS + bmo Python)
 - [`docs/SETUP.md`](./docs/SETUP.md) — full clone-to-running guide
 - [`docs/COMMANDS.md`](./docs/COMMANDS.md) — common-commands cheat sheet
 - [`docs/GLOSSARY.md`](./docs/GLOSSARY.md) — beginner-friendly term index

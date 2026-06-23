@@ -5699,7 +5699,7 @@
       "downloadVersion": "Descargar v{{updateVersion}}",
       "updateAndRestart": "Actualizar y reiniciar",
       "installOnClose": "También se instalará automáticamente al cerrar la app la próxima vez",
-      "appDescription": "Una aplicación de escritorio para jugar a Dungeons & Dragons 5.ª edición en línea con amigos. Crea personajes, construye campañas y vivid aventuras juntos — sin necesidad de navegador.",
+      "appDescription": "Una aplicación para jugar a Dungeons & Dragons 5.ª edición en línea con amigos. Crea personajes, construye campañas y vive aventuras juntos.",
       "dataManagement": "Gestión de datos",
       "dataManagementDesc": "Exporta todos tus personajes, campañas, bastiones y preferencias a un único archivo de copia de seguridad, o restaura desde una copia anterior.",
       "exporting": "Exportando...",
@@ -5781,7 +5781,9 @@
       "ownerCharacter": "Propietario (personaje)",
       "selectCharacter": "Selecciona un personaje...",
       "startsWithHint": "Comienza con 2 instalaciones básicas (Dormitorio + Almacén). Añade instalaciones especiales tras la creación.",
-      "create": "Crear"
+      "create": "Crear",
+      "noCharactersHint": "Primero necesitas un personaje. Crea uno para que sea dueño de este bastión.",
+      "createCharacterCta": "Crear un personaje"
     },
     "defendersTab": {
       "totalDefenders": "Total de defensores",
@@ -7497,7 +7499,10 @@
       "description": "La aplicación encontró un error inesperado. Puedes intentarlo de nuevo o reiniciar la aplicación.",
       "tryAgain": "Intentar de nuevo",
       "restartApp": "Reiniciar la aplicación",
-      "copyErrorReport": "Copiar informe de error"
+      "copyErrorReport": "Copiar informe de error",
+      "newVersionTitle": "Hay una nueva versión disponible",
+      "newVersionDescription": "La aplicación se actualizó mientras esta página estaba abierta. Vuelve a cargar para obtener la versión más reciente.",
+      "reload": "Volver a cargar"
     },
     "floatingWindow": {
       "closeLabel": "Cerrar {{title}}"
@@ -7570,7 +7575,8 @@
       "customModelPlaceholder": "p. ej. llama3.2:1b",
       "pull": "Descargar",
       "browseModelsAt": "Explora modelos en",
-      "ollamaLibraryLink": "ollama.com/library"
+      "ollamaLibraryLink": "ollama.com/library",
+      "webLocalAiNotice": "La IA local (Ollama) se ejecuta en tu propia computadora y no es accesible desde esta versión de navegador. Instala la aplicación de escritorio para usar un Dungeon Master con IA local."
     },
     "ollamaModelList": {
       "tier": {

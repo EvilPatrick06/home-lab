@@ -61,4 +61,21 @@ describe('startHostAnnounce — result propagation (taskId-12)', () => {
     expect(result).toEqual({ ok: true })
     expect(announceGame).not.toHaveBeenCalled()
   })
+
+  // PHASE-46 F1 — a transport that resolves a null/garbage value (the old web
+  // shim returned bare `null`) must become an honest failure, NOT a thrown
+  // "Cannot read properties of null (reading 'ok')".
+  it('coerces a null announce result into an honest failure (no null-deref)', async () => {
+    announceGame.mockResolvedValue(null as unknown as { ok: boolean })
+    const result = await startHostAnnounce(payload())
+    expect(result.ok).toBe(false)
+    expect(result.error).toBe('registry unreachable')
+  })
+
+  it('coerces an undefined / shapeless announce result into an honest failure', async () => {
+    announceGame.mockResolvedValue(undefined as unknown as { ok: boolean })
+    const result = await startHostAnnounce(payload())
+    expect(result.ok).toBe(false)
+    expect(result.error).toBe('registry unreachable')
+  })
 })

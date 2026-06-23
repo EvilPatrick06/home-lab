@@ -52,7 +52,7 @@ def _bmo_websocket_authorized(auth: object | None) -> bool:
 
 def _finish_chat_response(sid, result, model_override, voice, speaker, pending_id=None):
     """Emit chat_response and run TTS. Called from main handler or background thread."""
-    from services.voice_pipeline import VoicePipeline
+    from services.voice.voice_pipeline import VoicePipeline
 
     a = _app()
 

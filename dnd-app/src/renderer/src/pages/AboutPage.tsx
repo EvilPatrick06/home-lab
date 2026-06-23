@@ -5,6 +5,7 @@ import { addToast } from '../hooks/use-toast'
 import { useT } from '../i18n'
 import { exportAllData, importAllData } from '../services/io/import-export'
 import { logger } from '../utils/logger'
+import { isWebBuild } from '../utils/platform'
 
 const TECH_STACK = [
   { name: 'Electron 40', detailKey: 'pages.aboutPage.techDesktopFramework' },
@@ -157,90 +158,92 @@ export default function AboutPage(): JSX.Element {
           <div className="text-6xl mb-3">&#9876;</div>
           <h1 className="text-3xl font-bold text-accent mb-1">{t('pages.aboutPage.appTitle')}</h1>
           <p className="text-gray-500 text-sm mb-3">{t('pages.aboutPage.version', { appVersion })}</p>
-          <div className="flex flex-col items-center gap-2">
-            <button
-              onClick={() => {
-                setUpdateStatus('checking')
-                window.api.update
-                  .checkForUpdates()
-                  .then((result) => {
-                    if (result.state === 'available') {
-                      setUpdateStatus('available')
-                      if (result.version) setUpdateVersion(result.version)
-                    } else if (result.state === 'not-available') {
-                      setUpdateStatus('up-to-date')
-                    } else if (result.state === 'downloading') {
-                      setUpdateStatus('downloading')
-                    } else if (result.state === 'downloaded') {
-                      setUpdateStatus('downloaded')
-                      if (result.version) setUpdateVersion(result.version)
-                    } else if (result.state === 'error') {
-                      setUpdateStatus('error')
-                      if (result.message) setErrorMsg(result.message)
-                    }
-                  })
-                  .catch((e) => {
-                    setUpdateStatus('error')
-                    setErrorMsg(e instanceof Error ? e.message : String(e))
-                  })
-              }}
-              disabled={updateStatus === 'checking' || updateStatus === 'downloading'}
-              className="px-4 py-1.5 text-xs font-medium rounded-lg bg-surface-2 hover:bg-gray-700 text-gray-300 border border-border cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {updateStatus === 'idle' && t('pages.aboutPage.checkForUpdates')}
-              {updateStatus === 'checking' && t('pages.aboutPage.checking')}
-              {updateStatus === 'up-to-date' && t('pages.aboutPage.upToDate')}
-              {updateStatus === 'available' &&
-                t('pages.aboutPage.updateAvailable', { updateVersion: updateVersion ?? '' })}
-              {updateStatus === 'downloading' && t('pages.aboutPage.downloading')}
-              {updateStatus === 'downloaded' && t('pages.aboutPage.updateReady')}
-              {updateStatus === 'error' &&
-                t('pages.aboutPage.checkFailed', { errorSuffix: errorMsg ? `: ${errorMsg}` : '' })}
-            </button>
-
-            {/* Download button */}
-            {updateStatus === 'available' && (
+          {!isWebBuild() && (
+            <div className="flex flex-col items-center gap-2">
               <button
                 onClick={() => {
-                  setUpdateStatus('downloading')
-                  setDownloadPercent(0)
-                  window.api.update.downloadUpdate().catch((e) => {
-                    setUpdateStatus('error')
-                    setErrorMsg(e instanceof Error ? e.message : String(e))
-                  })
+                  setUpdateStatus('checking')
+                  window.api.update
+                    .checkForUpdates()
+                    .then((result) => {
+                      if (result.state === 'available') {
+                        setUpdateStatus('available')
+                        if (result.version) setUpdateVersion(result.version)
+                      } else if (result.state === 'not-available') {
+                        setUpdateStatus('up-to-date')
+                      } else if (result.state === 'downloading') {
+                        setUpdateStatus('downloading')
+                      } else if (result.state === 'downloaded') {
+                        setUpdateStatus('downloaded')
+                        if (result.version) setUpdateVersion(result.version)
+                      } else if (result.state === 'error') {
+                        setUpdateStatus('error')
+                        if (result.message) setErrorMsg(result.message)
+                      }
+                    })
+                    .catch((e) => {
+                      setUpdateStatus('error')
+                      setErrorMsg(e instanceof Error ? e.message : String(e))
+                    })
                 }}
-                className="px-4 py-1.5 text-xs font-medium rounded-lg bg-amber-600 hover:bg-accent-strong text-white cursor-pointer"
+                disabled={updateStatus === 'checking' || updateStatus === 'downloading'}
+                className="px-4 py-1.5 text-xs font-medium rounded-lg bg-surface-2 hover:bg-gray-700 text-gray-300 border border-border cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {t('pages.aboutPage.downloadVersion', { updateVersion })}
+                {updateStatus === 'idle' && t('pages.aboutPage.checkForUpdates')}
+                {updateStatus === 'checking' && t('pages.aboutPage.checking')}
+                {updateStatus === 'up-to-date' && t('pages.aboutPage.upToDate')}
+                {updateStatus === 'available' &&
+                  t('pages.aboutPage.updateAvailable', { updateVersion: updateVersion ?? '' })}
+                {updateStatus === 'downloading' && t('pages.aboutPage.downloading')}
+                {updateStatus === 'downloaded' && t('pages.aboutPage.updateReady')}
+                {updateStatus === 'error' &&
+                  t('pages.aboutPage.checkFailed', { errorSuffix: errorMsg ? `: ${errorMsg}` : '' })}
               </button>
-            )}
 
-            {/* Download progress bar */}
-            {updateStatus === 'downloading' && (
-              <div className="w-48">
-                <div className="w-full h-2 bg-surface-2 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-accent-strong rounded-full transition-all duration-300"
-                    style={{ width: `${downloadPercent}%` }}
-                  />
-                </div>
-                <p className="text-xs text-muted mt-1">{downloadPercent}%</p>
-              </div>
-            )}
-
-            {/* Update & Restart button */}
-            {updateStatus === 'downloaded' && (
-              <>
+              {/* Download button */}
+              {updateStatus === 'available' && (
                 <button
-                  onClick={() => window.api.update.installUpdate()}
-                  className="px-4 py-1.5 text-xs font-medium rounded-lg bg-green-600 hover:bg-green-500 text-white cursor-pointer"
+                  onClick={() => {
+                    setUpdateStatus('downloading')
+                    setDownloadPercent(0)
+                    window.api.update.downloadUpdate().catch((e) => {
+                      setUpdateStatus('error')
+                      setErrorMsg(e instanceof Error ? e.message : String(e))
+                    })
+                  }}
+                  className="px-4 py-1.5 text-xs font-medium rounded-lg bg-amber-600 hover:bg-accent-strong text-white cursor-pointer"
                 >
-                  {t('pages.aboutPage.updateAndRestart')}
+                  {t('pages.aboutPage.downloadVersion', { updateVersion })}
                 </button>
-                <p className="text-xs text-gray-500">{t('pages.aboutPage.installOnClose')}</p>
-              </>
-            )}
-          </div>
+              )}
+
+              {/* Download progress bar */}
+              {updateStatus === 'downloading' && (
+                <div className="w-48">
+                  <div className="w-full h-2 bg-surface-2 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-accent-strong rounded-full transition-all duration-300"
+                      style={{ width: `${downloadPercent}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-muted mt-1">{downloadPercent}%</p>
+                </div>
+              )}
+
+              {/* Update & Restart button */}
+              {updateStatus === 'downloaded' && (
+                <>
+                  <button
+                    onClick={() => window.api.update.installUpdate()}
+                    className="px-4 py-1.5 text-xs font-medium rounded-lg bg-green-600 hover:bg-green-500 text-white cursor-pointer"
+                  >
+                    {t('pages.aboutPage.updateAndRestart')}
+                  </button>
+                  <p className="text-xs text-gray-500">{t('pages.aboutPage.installOnClose')}</p>
+                </>
+              )}
+            </div>
+          )}
         </div>
 
         <p className="text-gray-300 text-center leading-relaxed mb-10 max-w-xl mx-auto">

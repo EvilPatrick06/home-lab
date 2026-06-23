@@ -1,0 +1,10 @@
+[Unit]
+Description=BMO backup-integrity check (verifies newest off-tree state backup)
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=patrick
+ExecStart=/home/patrick/home-lab/bmo/pi/scripts/verify-backup.sh
+Nice=15
+IOSchedulingClass=idle

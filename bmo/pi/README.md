@@ -10,7 +10,7 @@ pi/
 ├── agent.py                     Agent router entry (used by CLI + app)
 ├── cli.py                       REPL/CLI — `./venv/bin/python cli.py`
 │
-├── agents/                      5 AI agents — each owns one capability
+├── agents/                      40+ agent modules — each owns one capability
 │   ├── __init__.py, _registry.py
 │   ├── base_agent.py            base class + interface
 │   ├── orchestrator.py          top-level director
@@ -32,13 +32,15 @@ pi/
 │   └── weather_agent.py
 │
 ├── services/                    Service modules — business logic
-│   ├── alert_service.py, audio_output_service.py, calendar_service.py,
-│   ├── list_service.py, location_service.py, music_service.py,
-│   ├── notification_service.py, routine_service.py, scene_service.py,
-│   ├── timer_service.py, weather_service.py
-│   ├── voice_pipeline.py        STT → agent → TTS loop
-│   ├── voice_personality.py     persona injection
-│   ├── bmo_say.py               TTS helper (Fish Audio + piper fallback)
+│   ├── alert_service.py, calendar_service.py, list_service.py,
+│   ├── location_service.py, music_service.py, notification_service.py,
+│   ├── routine_service.py, scene_service.py, timer_service.py, weather_service.py
+│   ├── voice/                   Voice + audio subpackage
+│   │   ├── voice_pipeline.py      STT → agent → TTS loop
+│   │   ├── voice_personality.py   persona injection
+│   │   ├── voice_casting.py, voice_metrics.py, voice_canary.py
+│   │   ├── bmo_say.py             TTS helper (Fish Audio + piper fallback)
+│   │   └── discord_tts.py, audio_output_service.py, system_audio.py
 │   ├── personality_engine.py    adventure time quotes + quips
 │   ├── rag_search.py            RAG over indexed docs
 │   ├── build_rag_indexes.py     index builder
@@ -60,21 +62,22 @@ pi/
 │
 ├── bots/                        Discord bots (NAMED bots/ NOT discord/ — shadows discord.py)
 │   ├── discord_dm_bot.py        D&D DM bot (player-facing, invites to session)
-│   └── discord_social_bot.py    Social bot (casual server, music, games)
+│   ├── discord_social_bot.py    Thin shim → bots.social.bot (legacy import + `-m` entry point)
+│   └── social/                  Social bot subpackage
+│       ├── bot.py               Social bot core (casual server, music, games)
+│       └── games_logic.py       Pure game/util logic (deck, XP, parsing) — unit-tested
 │
 ├── dev/                         Dev tools — NOT used in production
 │   ├── claude_tools.py, dev_tools.py, file_watcher.py, terminal_service.py
-│   ├── patch_debug.py, patch_keepalive.py, patch_retry.py, patch_revert.py, patch_wol.py
-│   ├── revert_power.py, bmo_ui_lab_server.py   (webcam/YT/Calendar lab; uses web/templates)
-│   ├── benchmark_audio.py, benchmark_full.py, benchmark_llm.py, benchmark_personality.py
-│   ├── benchmarks/              thinking_budget_sweep.py, gemini_stream_probe.py (live API)
+│   ├── bmo_ui_lab_server.py     (webcam/YT/Calendar lab; uses web/templates)
+│   ├── benchmarks/              benchmark_{audio,full,llm,personality}.py + thinking_budget_sweep.py, gemini_stream_probe.py (live API)
 │   └── diagnostics/            aec_pipewire_check.py, wake_word_{auto,timed,debug}.py
 │
 ├── wake/                        Wake-word detection
 │   ├── hey_bmo.onnx             Custom trained model
 │   ├── hey_bmo.onnx.data
 │   ├── record_wake_clips.py     Record training samples (16kHz mono WAV)
-│   ├── enroll_gavin.py          Voice profile enrollment
+│   ├── enroll_voice.py          Voice profile enrollment
 │   └── clips/                   20 training WAV files
 │
 ├── web/                         Flask UI assets
@@ -86,21 +89,21 @@ pi/
 │   └── mcp_settings.json        MCP config
 │
 ├── ide_app/                     Embedded web IDE — self-contained Flask sub-app on port 5001
-│   ├── bmo-ide.service
 │   ├── ide_app.py
 │   ├── templates/ide.html
 │   └── static/ide.{css,js}
 │
-├── kiosk/                       Systemd services for kiosk mode + bots
+├── systemd/                     Systemd units (all services + timers) + install-kiosk.sh
 │   ├── bmo-kiosk.service        Chromium fullscreen on HDMI
 │   ├── bmo-dm-bot.service       → python -m bots.discord_dm_bot
 │   ├── bmo-social-bot.service   → python -m bots.discord_social_bot
+│   ├── bmo-ide.service         Embedded web IDE on :5001 (ExecStart still points at ide_app/)
 │   └── install-kiosk.sh
 │
 ├── scripts/                     Operational scripts (bash + python)
 │   ├── apply-access-config.sh, cloudflare-access-api.sh,
 │   ├── diagnose-cloudflare.sh, setup-cloudflare-tunnel.sh, setup-tailscale.sh
-│   ├── e2e_test.sh, health_check.sh
+│   ├── e2e-test.sh, health-check.sh
 │   └── win_proxy.py             Windows WSL2 proxy helper
 │
 ├── tests/                       Pytest — 650+ unit tests
@@ -145,7 +148,7 @@ from calendar_service import CalendarService              # ✗ bare (breaks pos
 from hardware.fan_control import FanController            # ✓
 from bots.discord_dm_bot import DMBot                     # ✓
 from dev.claude_tools import invoke                       # ✓
-from wake.enroll_gavin import enroll                      # ✓
+from wake.enroll_voice import enroll                      # ✓
 ```
 
 `import discord` = `discord.py` library (installed via pip).
@@ -214,3 +217,17 @@ All BMO code uses canonical paths:
 - Web: `/home/patrick/home-lab/bmo/pi/web/`
 
 Legacy `~/bmo/` paths have been rewritten. If you find one, it's a bug — log in [`../../docs/BMO-ISSUES-LOG.md`](../../docs/BMO-ISSUES-LOG.md).
+
+## Off-Pi development (`BMO_SIMULATE=1`)
+
+Run the full app on a laptop without Pi hardware:
+
+```
+BMO_SIMULATE=1 ./venv/bin/python app.py
+```
+
+Stub LED/OLED/camera adapters (`hardware/sim_hardware.py`) replace the real
+hardware with fake-but-observable behaviour — every call is logged and pushed to
+the web UI via a `sim_hardware` SocketIO event, so the LED ring, OLED face, and
+camera surfaces can be UX-tested off-device. Voice still requires a mic (or feed
+STT from a file via the voice canary).

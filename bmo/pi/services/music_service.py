@@ -128,8 +128,8 @@ class MusicService:
             else:
                 self._playback_intent = "playing"
             self._save_playback_state()
-        except Exception as e:
-            log.exception(f"[music] Restore playback failed")
+        except Exception:
+            log.exception("[music] Restore playback failed")
 
     def _restore_seek_position(self, position_sec: float):
         """Seek during restore after allowing media a brief moment to initialize."""
@@ -430,8 +430,8 @@ class MusicService:
             self.queue.extend(related)
             self.queue_index = len(self.queue) - len(related)
             self.play(self.queue[self.queue_index], add_to_queue=False)
-        except Exception as e:
-            log.exception(f"[music] Autoplay failed")
+        except Exception:
+            log.exception("[music] Autoplay failed")
             self.stop()
 
     def previous_track(self):
@@ -727,8 +727,8 @@ class MusicService:
                     log.info(f"[music] Deduped history: {len(raw)} → {len(deduped)}")
                     self._save_history()
                 log.info(f"[music] Loaded {len(self.history)} history entries")
-        except Exception as e:
-            log.exception(f"[music] Failed to load history")
+        except Exception:
+            log.exception("[music] Failed to load history")
             self.history = []
 
     def _save_history(self):
@@ -736,8 +736,8 @@ class MusicService:
             os.makedirs(os.path.dirname(HISTORY_FILE), exist_ok=True)
             with open(HISTORY_FILE, "w") as f:
                 json.dump(self.history[:MAX_HISTORY], f)
-        except Exception as e:
-            log.exception(f"[music] Failed to save history")
+        except Exception:
+            log.exception("[music] Failed to save history")
 
     def _load_play_counts(self):
         try:
@@ -745,8 +745,8 @@ class MusicService:
                 with open(PLAY_COUNTS_FILE, "r") as f:
                     self.play_counts = json.load(f)
                 log.info(f"[music] Loaded {len(self.play_counts)} play counts")
-        except Exception as e:
-            log.exception(f"[music] Failed to load play counts")
+        except Exception:
+            log.exception("[music] Failed to load play counts")
             self.play_counts = {}
 
     def _save_play_counts(self):
@@ -754,8 +754,8 @@ class MusicService:
             os.makedirs(os.path.dirname(PLAY_COUNTS_FILE), exist_ok=True)
             with open(PLAY_COUNTS_FILE, "w") as f:
                 json.dump(self.play_counts, f)
-        except Exception as e:
-            log.exception(f"[music] Failed to save play counts")
+        except Exception:
+            log.exception("[music] Failed to save play counts")
 
     def _save_playback_state(self):
         """Persist current queue + position so playback survives restarts."""
@@ -805,8 +805,8 @@ class MusicService:
             os.makedirs(os.path.dirname(PLAYBACK_STATE_FILE), exist_ok=True)
             with open(PLAYBACK_STATE_FILE, "w") as f:
                 json.dump(state, f)
-        except Exception as e:
-            log.exception(f"[music] Failed to save playback state")
+        except Exception:
+            log.exception("[music] Failed to save playback state")
 
     def _load_playback_state(self) -> dict | None:
         """Load saved playback state from disk."""
@@ -817,8 +817,8 @@ class MusicService:
                 if state.get("queue"):
                     log.info(f"[music] Found saved playback state: {len(state['queue'])} tracks")
                     return state
-        except Exception as e:
-            log.exception(f"[music] Failed to load playback state")
+        except Exception:
+            log.exception("[music] Failed to load playback state")
         return None
 
     def _clear_playback_state(self):

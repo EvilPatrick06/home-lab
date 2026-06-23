@@ -7,6 +7,14 @@
 > `dnd-app/docs/phases/QA/INSTRUCTIONS.md` reference THIS file rather than
 > restating the rules. If the workflow changes, change it here.
 
+## Scope & stance (read first)
+
+**This file = git mechanics. [`dnd-app/docs/phases/INSTRUCTIONS.md`](../dnd-app/docs/phases/INSTRUCTIONS.md) = the execution process.** INSTRUCTIONS.md is the **canonical implement → verify → commit → release loop for EVERY automated/scheduled agent across ALL domains** — `dnd-app/`, `bmo/`, `dungeon-scholar/`, and any cross-cutting resolver. Despite its path under `dnd-app/docs/`, it is **repo-wide, not dnd-app-only**; a bmo- or dungeon-scholar-scoped agent follows the same branch/CI/fix-forward/release workflow (only the per-domain build/test commands differ). This file governs *how agents reach `master`* (branch + worktree + integrator); INSTRUCTIONS.md governs *how agents execute and verify the work itself*.
+
+**Fix-forward, attempt-risky stance.** Automated agents **take on risky and large fixes — they implement them rather than deferring, leaving, or documenting-and-punting.** Size or risk alone is never a reason to hand work back. The safety net is exactly the machinery in this file: every automated fix is isolated on an `auto/*` branch, gated by CI, merged only by the integrator, and — for user-approved resolver work — already approved; the app is in testing (no real users); the culture is fix-forward on red. An agent stops short only when **(a)** it is genuinely blocked / the work is impossible, or **(b)** the work needs a NEW human decision the approval/scope did not cover (a judgment / product call — not "this is big"). Full statement: INSTRUCTIONS.md rule 27.
+
+> The integrator's "leave it for the user" cases below (a non-clean branch in Rule 3A, a major / breaking Dependabot bump in Rule 3B) are exactly those (a)/(b) exceptions — a red or conflicting merge is a genuine blocker, and a major-version dependency bump is a new human decision about a third-party breaking change. They are **not** an agent deferring its own fix for being risky or large.
+
 ## Why this exists
 
 Around 2026-06-22, ~16 scheduled scanner/QA/phase agents all committed to the
@@ -198,6 +206,19 @@ At the end of its run the integrator reports to the user:
 If `~/.claude-tools/notify.sh` exists, a left-behind branch or a skipped
 risky/major Dependabot PR is a warn-level notification (see the STOP-and-ask
 notification convention in `dnd-app/docs/phases/INSTRUCTIONS.md`).
+
+---
+
+## Rule 4 — Auto-diagnose, don't just report symptoms
+
+**Whenever you hit a non-clean, failing, unexpected, or anomalous state — a red/failed CI run, a failing or flaky check, an unexpected diff or dirty tree, a surprising scan/QA finding, a service that's down, anything that "isn't clean" — you MUST automatically investigate the root cause before reporting:** trace it to the specific file / commit / config / step responsible, state the cause, and recommend (or, if in scope per the fix-forward + don't-defer rules, apply) the fix. Never surface a bare symptom ("X failed", "this isn't clean") and stop to wait for someone to tell you to look into it. Proactive root-cause diagnosis is the default for every agent.
+
+This is the diagnosis half of the **fix-forward, attempt-risky stance** above — applied to git mechanics:
+
+- **A red CI run on your `auto/*` branch** → read `gh run view <id> --log-failed`, find the failing gate and the commit/file that broke it, and fix it forward (INSTRUCTIONS.md rule 5). Do not push a known-red branch and walk away calling it "CI is red."
+- **The integrator leaving a branch behind** (Rule 3A — won't merge cleanly, or red/missing CI) **or skipping a Dependabot bump** (Rule 3B — major / breaking) → the report still names the *cause*: the conflicting files, or the red gate + its failing step, or the specific major-version breaking change. These are the (a)/(b) exceptions — a genuine blocker or a new human decision — so they are correctly left for the user, but they are left **diagnosed**, never as a bare symptom.
+
+Auto-diagnosis is never itself a reason to stop: you diagnose, then either fix forward (in scope) or — only for a real (a) blocker / (b) decision — STOP-and-ask citing the root cause. Canonical statement: INSTRUCTIONS.md rule 28.
 
 ---
 

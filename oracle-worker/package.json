@@ -6,8 +6,11 @@
   },
   "description": "",
   "main": "index.js",
+  "engines": { "node": ">=22" },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "check": "wrangler deploy --dry-run --outdir=dist",
+    "deploy": "wrangler deploy",
+    "test": "echo \"(oracle-worker) no unit tests yet\" && exit 0"
   },
   "keywords": [],
   "author": "",

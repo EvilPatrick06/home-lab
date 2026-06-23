@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { addToast } from '../../hooks/use-toast'
 import { useT } from '../../i18n'
+import { isWebBuild } from '../../utils/platform'
 import {
   type ActiveOp,
   AvailableModelList,
@@ -243,6 +244,22 @@ export default function OllamaManagement(): JSX.Element {
   }
 
   if (!ollamaStatus?.installed) {
+    // PHASE-45 F4 — a browser tab can't install a native binary, and the
+    // page (served from the Pi over HTTPS) can't reach a localhost Ollama.
+    // Show an explanatory notice instead of an impossible "Install Ollama".
+    if (isWebBuild()) {
+      return (
+        <div className="space-y-3">
+          <p className="text-sm text-muted">{t('ui.ollamaManagement.webLocalAiNotice')}</p>
+          <button
+            onClick={() => window.open('https://ollama.com', '_blank')}
+            className="text-accent hover:underline cursor-pointer text-sm"
+          >
+            {t('ui.ollamaManagement.ollamaComLink')}
+          </button>
+        </div>
+      )
+    }
     return (
       <div className="space-y-3">
         <p className="text-sm text-muted">

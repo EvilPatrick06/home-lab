@@ -4,6 +4,8 @@ How to log discoveries. Read this file BEFORE logging.
 
 > **Instructions file — no actual log entries here.** Entries are split across active logs by topic + domain.
 
+> **Process pointer.** This file is *where to log* out-of-scope / future work. *How* automated agents execute, verify, branch, and release — repo-wide across `dnd-app/`, `bmo/`, and `dungeon-scholar/` — is [`../dnd-app/docs/phases/INSTRUCTIONS.md`](../dnd-app/docs/phases/INSTRUCTIONS.md) (canonical for all domains, not dnd-app-only), with git mechanics in [`AUTOMATED-AGENT-GIT-WORKFLOW.md`](./AUTOMATED-AGENT-GIT-WORKFLOW.md). Logging a *future-idea / deferred-backlog* item here is for work genuinely **out of the current task's scope** — it is NOT a license to defer an in-scope fix for being risky or large (those get implemented; see INSTRUCTIONS.md rule 27). And whenever something *isn't clean* — a red CI run, a failing/flaky check, an unexpected diff, a surprising finding, a down service — diagnose the **root cause** before reporting and fill the **Hypothesis / root cause** field below with the file/commit/step you traced it to, rather than logging a bare symptom (INSTRUCTIONS.md rule 28).
+
 ---
 
 ## Which log goes where
@@ -40,6 +42,7 @@ Active logs are **fully domain-split** for issues + suggestions. Security stays 
 3. Edge-cases:
    - `Domain: tooling` → file under whichever domain it most affects (most commit hooks / CI / lint configs touch one domain primarily). If genuinely multi-domain, mirror.
    - `Domain: infra` → BMO log (the Pi is BMO's host; pip/npm caches, systemd, host packages, etc.).
+   - `oracle-worker/` (Cloudflare Worker backing dungeon-scholar's Oracle proxy) → file under the **dungeon-scholar** logs; it is dungeon-scholar's backend.
    - `Domain: docs` for repo-root docs (`README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, etc.) → BMO log by default; if it's domain-specific docs, file under that domain.
    - **`Domain: both` deliberately duplicates** — small cost, big benefit (single grep finds it from either side; one fix removes both copies).
 

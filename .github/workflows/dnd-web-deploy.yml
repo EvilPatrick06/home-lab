@@ -45,7 +45,7 @@ jobs:
       run:
         working-directory: dnd-app
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
@@ -55,15 +55,34 @@ jobs:
       - name: Build web bundle
         run: npm run build:web
       - name: Join tailnet (ephemeral)
-        uses: tailscale/github-action@v4
+        uses: tailscale/github-action@306e68a486fd2350f2bfc3b19fcd143891a4a2d8 # v4
         with:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
           ping: bmo.tail31b5d9.ts.net
-      - name: Rsync build to the Pi
+      - name: Rsync build to the Pi (retain old hashed chunks)
+        # NO --delete: an active browser session keeps importing the PREVIOUS
+        # build's content-hashed chunks (e.g. assets/InGamePage-<oldhash>.js)
+        # until it reloads. Deleting them mid-session 404s those lazy imports
+        # and hard-crashes the SPA to its error boundary. We overlay the new
+        # build (new hashed files appear; index.html is rewritten to point at
+        # them) and let a bounded retention sweep prune genuinely-stale assets
+        # after a grace window, so the serve dir does not grow unbounded.
+        env:
+          # Grace window (minutes) old hashed assets survive a redeploy. Must
+          # comfortably exceed a normal play session's "next lazy navigation"
+          # gap so in-flight sessions can finish/reload. 1440 = 24h.
+          RETENTION_MINUTES: "1440"
         run: |
-          ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new \
-            patrick@bmo.tail31b5d9.ts.net "mkdir -p /home/patrick/web-apps/DungeonTableOnline"
-          rsync -az --delete -e "ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
-            dist-web/ patrick@bmo.tail31b5d9.ts.net:/home/patrick/web-apps/DungeonTableOnline/
+          SSH='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new'
+          DEST=/home/patrick/web-apps/DungeonTableOnline
+          $SSH patrick@bmo.tail31b5d9.ts.net "mkdir -p $DEST/assets"
+          # Overlay the new build (rewrites index.html + adds new hashed chunks).
+          rsync -az -e "$SSH" dist-web/ patrick@bmo.tail31b5d9.ts.net:$DEST/
+          # Bounded retention sweep: prune ONLY hashed files under assets/ that
+          # are older than the grace window AND were not part of this deploy
+          # (rsync just refreshed the current generation's mtimes). index.html
+          # and the freshly-synced current chunks are never touched.
+          $SSH patrick@bmo.tail31b5d9.ts.net \
+            "find $DEST/assets -type f -mmin +${RETENTION_MINUTES} -delete -print | sed 's/^/pruned stale asset: /' || true"

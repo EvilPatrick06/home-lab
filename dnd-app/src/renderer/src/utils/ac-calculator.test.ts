@@ -201,7 +201,7 @@ describe('computeDynamicAC - Draconic Sorcerer', () => {
 describe('computeDynamicAC - equipped armor', () => {
   it('uses armor AC + DEX for light armor (no dex cap)', () => {
     const char = makeCharacter({
-      armor: [{ id: 'a1', name: 'Leather Armor', acBonus: 11, equipped: true, type: 'armor', dexCap: null }]
+      armor: [{ id: 'a1', name: 'Leather Armor', acBonus: 1, equipped: true, type: 'armor', dexCap: null }]
     })
     // 11 + 2 (full DEX) = 13
     expect(computeDynamicAC(char)).toBe(13)
@@ -210,7 +210,7 @@ describe('computeDynamicAC - equipped armor', () => {
   it('caps DEX bonus for medium armor (dexCap = 2)', () => {
     const char = makeCharacter({
       armor: [
-        { id: 'a1', name: 'Breastplate', acBonus: 14, equipped: true, type: 'armor', category: 'medium', dexCap: 2 }
+        { id: 'a1', name: 'Breastplate', acBonus: 4, equipped: true, type: 'armor', category: 'medium', dexCap: 2 }
       ],
       abilityScores: {
         strength: 10,
@@ -227,7 +227,7 @@ describe('computeDynamicAC - equipped armor', () => {
 
   it('allows 0 DEX bonus for heavy armor (dexCap = 0)', () => {
     const char = makeCharacter({
-      armor: [{ id: 'a1', name: 'Plate', acBonus: 18, equipped: true, type: 'armor', category: 'heavy', dexCap: 0 }],
+      armor: [{ id: 'a1', name: 'Plate', acBonus: 8, equipped: true, type: 'armor', category: 'heavy', dexCap: 0 }],
       abilityScores: {
         strength: 16,
         dexterity: 14,
@@ -244,7 +244,7 @@ describe('computeDynamicAC - equipped armor', () => {
   it('adds shield AC bonus on top of armor', () => {
     const char = makeCharacter({
       armor: [
-        { id: 'a1', name: 'Chain Mail', acBonus: 16, equipped: true, type: 'armor', dexCap: 0 },
+        { id: 'a1', name: 'Chain Mail', acBonus: 6, equipped: true, type: 'armor', dexCap: 0 },
         { id: 's1', name: 'Shield', acBonus: 2, equipped: true, type: 'shield' }
       ]
     })
@@ -254,7 +254,7 @@ describe('computeDynamicAC - equipped armor', () => {
 
   it('adds +1 for Defense fighting style when wearing armor', () => {
     const char = makeCharacter({
-      armor: [{ id: 'a1', name: 'Chain Mail', acBonus: 16, equipped: true, type: 'armor', dexCap: 0 }],
+      armor: [{ id: 'a1', name: 'Chain Mail', acBonus: 6, equipped: true, type: 'armor', dexCap: 0 }],
       feats: [{ id: 'fighting-style-defense', name: 'Defense', description: '+1 AC when wearing armor' }]
     })
     // 16 + 0 + 1 (defense) = 17
@@ -277,7 +277,7 @@ describe('computeDynamicAC - Medium Armor Master feat', () => {
   it('increases dex cap by 1 for medium armor', () => {
     const char = makeCharacter({
       armor: [
-        { id: 'a1', name: 'Breastplate', acBonus: 14, equipped: true, type: 'armor', category: 'medium', dexCap: 2 }
+        { id: 'a1', name: 'Breastplate', acBonus: 4, equipped: true, type: 'armor', category: 'medium', dexCap: 2 }
       ],
       feats: [{ id: 'medium-armor-master', name: 'Medium Armor Master', description: '' }],
       abilityScores: {
@@ -295,7 +295,7 @@ describe('computeDynamicAC - Medium Armor Master feat', () => {
 
   it('does not affect heavy armor', () => {
     const char = makeCharacter({
-      armor: [{ id: 'a1', name: 'Plate', acBonus: 18, equipped: true, type: 'armor', category: 'heavy', dexCap: 0 }],
+      armor: [{ id: 'a1', name: 'Plate', acBonus: 8, equipped: true, type: 'armor', category: 'heavy', dexCap: 0 }],
       feats: [{ id: 'medium-armor-master', name: 'Medium Armor Master', description: '' }]
     })
     // Heavy armor dexCap = 0, Medium Armor Master only applies to medium armor
@@ -312,5 +312,27 @@ describe('computeDynamicAC - shield only', () => {
     })
     // Unarmored: 10 + 2 (DEX) + 2 (shield) = 14
     expect(computeDynamicAC(char)).toBe(14)
+  })
+})
+
+// ─── PHASE-47 F2 regression — builder/sheet AC agreement ────────────
+describe('computeDynamicAC - PHASE-47 F2 builder agreement', () => {
+  it('a builder-stored Chain Mail (acBonus = baseAC - 10 = 6) yields AC 16, matching the builder', () => {
+    const char = makeCharacter({
+      // The builder's build-from-equipment-5e stores acBonus = baseAC - 10.
+      armor: [
+        { id: 'a1', name: 'Chain Mail', acBonus: 6, equipped: true, type: 'armor', category: 'heavy', dexCap: 0 }
+      ],
+      abilityScores: {
+        strength: 16,
+        dexterity: 10, // +0
+        constitution: 14,
+        intelligence: 8,
+        wisdom: 12,
+        charisma: 10
+      }
+    })
+    // Regression: previously rendered 6 (acBonus + dex). Correct PHB AC = 16.
+    expect(computeDynamicAC(char)).toBe(16)
   })
 })

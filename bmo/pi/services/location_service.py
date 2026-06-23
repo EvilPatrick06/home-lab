@@ -95,8 +95,11 @@ def _parse_ipwho(payload: dict) -> dict | None:
 
 
 _PROVIDERS = (
-    ("https://ipapi.co/json/", _parse_ipapi),
+    # ipwho.is first: ipapi.co's free tier returns HTTP 429 on this Pi every
+    # cycle, so querying it first wastes a guaranteed-failing request (+ up to
+    # an 8s timeout) before falling back. Put the working provider first.
     ("https://ipwho.is/", _parse_ipwho),
+    ("https://ipapi.co/json/", _parse_ipapi),
 )
 
 
@@ -482,6 +485,11 @@ class LocationService:
         """Align system timezone to detected timezone when enabled."""
         if not AUTO_SYSTEM_TIMEZONE or not timezone_name:
             return
+        if getattr(self, "_tz_sync_disabled", False):
+            # A prior attempt proved set-timezone can't succeed under this unit
+            # (e.g. NoNewPrivileges=yes blocks `sudo -n`). Don't retry or log
+            # every refresh — it can't work without a polkit/DBus path.
+            return
         try:
             current = subprocess.run(
                 ["timedatectl", "show", "--property=Timezone", "--value"],
@@ -504,6 +512,13 @@ class LocationService:
                 print(f"[location] System timezone updated: {timezone_name}")
             else:
                 err = (update.stderr or "").strip() or "unknown error"
-                print(f"[location] Could not set system timezone to {timezone_name}: {err}")
+                self._tz_sync_disabled = True
+                print(
+                    f"[location] System timezone auto-sync disabled — cannot set "
+                    f"timezone to {timezone_name}: {err}. Set it manually "
+                    f"(`sudo timedatectl set-timezone {timezone_name}`) or add a "
+                    f"polkit/DBus path; will not retry this run."
+                )
         except (OSError, subprocess.SubprocessError) as exc:
-            print(f"[location] Timezone sync unavailable: {exc}")
+            self._tz_sync_disabled = True
+            print(f"[location] Timezone sync unavailable, disabling further attempts: {exc}")

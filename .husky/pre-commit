@@ -1,27 +1,31 @@
 #!/usr/bin/env sh
-# Pre-commit gate (hooks run with cwd = git root). Escape hatch:
-# `git commit --no-verify`. CI is the authoritative gate; this is a fast local
-# pre-flight. Project-aware: only the projects with staged changes are checked.
-STAGED=$(git diff --cached --name-only --diff-filter=ACMR)
+# Pre-commit gate — runs checks for whichever project has staged changes.
+# Escape hatch: `git commit --no-verify`. CI is the authoritative gate.
+staged() { git diff --cached --name-only --diff-filter=ACMR; }
 
-# Biome on staged files — run from the repo ROOT so git's repo-root-relative
-# staged paths (`dnd-app/src/...`) resolve and Biome picks up dnd-app/biome.json
-# per file. The old `cd dnd-app && biome check src/ --staged` matched 0 files
-# (silent no-op, fixed 2026-06-23). --no-errors-on-unmatched: allow docs-only commits.
-./dnd-app/node_modules/.bin/biome check --staged --no-errors-on-unmatched || exit 1
-
-# dnd-app: typecheck the renderer config (broadest surface) when it has changes.
-if printf '%s\n' "$STAGED" | grep -q '^dnd-app/'; then
-  (cd dnd-app && npx tsc --noEmit -p tsconfig.web.json) || exit 1
+# dnd-app: Biome on staged files (run from repo ROOT so repo-root-relative
+# staged paths resolve and per-file dnd-app/biome.json is picked up) + renderer typecheck.
+if staged | grep -q '^dnd-app/'; then
+  ./dnd-app/node_modules/.bin/biome check --staged --no-errors-on-unmatched || exit 1
+  ( cd dnd-app && npx tsc --noEmit -p tsconfig.web.json ) || exit 1
 fi
 
-# dungeon-scholar: run its unit tests when it has staged changes (no lint/tsc script).
-if printf '%s\n' "$STAGED" | grep -q '^dungeon-scholar/'; then
-  (cd dungeon-scholar && npm test) || exit 1
+# dungeon-scholar: Biome on staged files (S10/S25).
+if staged | grep -q '^dungeon-scholar/'; then
+  ( cd dungeon-scholar && npx biome check --staged --no-errors-on-unmatched ) || exit 1
 fi
 
-# Optional secret scan across staged files (folded in from the old .githooks/
-# shim so a single core.hooksPath = .husky covers it). Skips if gitleaks absent.
+# Secret scan across the staged set (folded in from the old .githooks shim).
 if command -v gitleaks >/dev/null 2>&1; then
   gitleaks protect --staged --redact || exit 1
+fi
+
+# dungeon-scholar (VTT) pre-flight: when its files are staged, run its vitest
+# suite so a dungeon-scholar-only commit gets a local gate too (the husky hook
+# previously gated dnd-app alone). CI (.github/workflows/subprojects-ci.yml) is
+# authoritative; this is a fast local pre-flight. Escape hatch: git commit --no-verify.
+cd "$(git rev-parse --show-toplevel)" || exit 1
+if git diff --cached --name-only --diff-filter=ACMR | grep -q "^dungeon-scholar/"; then
+  echo "[pre-commit] dungeon-scholar changes staged - running its tests..."
+  ( cd dungeon-scholar && npm test --silent ) || exit 1
 fi

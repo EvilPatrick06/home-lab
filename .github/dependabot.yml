@@ -1,0 +1,48 @@
+# Dependency-update policy, version-controlled so it survives a re-clone or a
+# settings reset. Security updates are ALSO enabled via repo settings; this file
+# adds the scheduled VERSION updates that the integrator Dependabot-review job
+# (docs/AUTOMATED-AGENT-GIT-WORKFLOW.md 3B) is written to consume. Each ecosystem
+# is grouped into a single PR, matching the grouped pip/npm bumps relied on today.
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /bmo/pi
+    schedule:
+      interval: weekly
+    groups:
+      pip-deps:
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /dnd-app
+    schedule:
+      interval: weekly
+    groups:
+      npm-deps:
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /dungeon-scholar
+    schedule:
+      interval: weekly
+    groups:
+      npm-deps:
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /oracle-worker
+    schedule:
+      interval: weekly
+    groups:
+      npm-deps:
+        patterns: ["*"]
+
+  # Keeps the SHA-pinned third-party actions current (see workflows pinned to
+  # full commit SHAs with a version comment).
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]

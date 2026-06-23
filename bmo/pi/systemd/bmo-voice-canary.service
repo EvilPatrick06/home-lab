@@ -1,0 +1,11 @@
+[Unit]
+Description=BMO synthetic voice-path canary (STT regression probe)
+After=bmo.service
+
+[Service]
+Type=oneshot
+User=patrick
+WorkingDirectory=/home/patrick/home-lab/bmo/pi
+EnvironmentFile=/home/patrick/home-lab/bmo/pi/.env
+ExecStart=/home/patrick/home-lab/bmo/pi/venv/bin/python -m services.voice_canary
+Nice=15

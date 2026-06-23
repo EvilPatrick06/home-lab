@@ -5,12 +5,15 @@
 
 ## Project Identity
 
-**home-lab** is a monorepo with two domains that communicate via HTTP:
+**home-lab** is a monorepo with three project domains (plus one edge worker) that communicate via HTTP:
 
 1. **`dnd-app/`** — Electron desktop Virtual Tabletop (VTT) for running D&D 5e games. TypeScript + React 19 + Vite. Runs on player/DM laptops.
 2. **`bmo/`** — Raspberry Pi voice assistant named BMO. Python Flask. Runs 24/7 on a Pi 5. Hosts Discord DM bot, music, calendar, weather, smart home, and the AI Dungeon Master brain for D&D sessions.
+3. **`dungeon-scholar/`** — D&D-themed exam-prep study web app (Vite + React + Supabase). Deployed to GitHub Pages.
 
-Both live in the same git repo because they're tightly coupled: BMO narrates D&D sessions via the VTT, VTT sends combat state to BMO, Discord players interact through BMO to the VTT.
+Plus **`oracle-worker/`** — a Cloudflare Worker that backs dungeon-scholar’s Oracle proxy (AI grading/chat), wired into deploy via `VITE_ORACLE_ENDPOINT`.
+
+dnd-app and bmo are tightly coupled: BMO narrates D&D sessions via the VTT, VTT sends combat state to BMO, Discord players interact through BMO to the VTT. dungeon-scholar is independent (its only backend is oracle-worker).
 
 ## How to Start Working
 
@@ -48,7 +51,9 @@ git add <changed files> && git commit -m "<type>: <summary>"
 git push -u origin auto/<agent-id>          # push YOUR branch, never master
 ```
 
-Never touch `master`'s working tree, never rebase shared state, never force-push another agent's branch. The append-only logs (`ISSUES-LOG*`, `SUGGESTIONS-LOG*`, `BMO-*`, `SECURITY-LOG`, `RESOLVED-*`) use a `merge=union` driver in `.gitattributes` so concurrent appends auto-merge. A single daily **integrator** merges clean `auto/*` branches into `master` and reviews Dependabot PRs (merging safe patch/minor bumps with green CI, leaving major/risky ones for the user). Humans / interactive sessions may still use `master` directly. **Full spec: [`docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`](docs/AUTOMATED-AGENT-GIT-WORKFLOW.md).**
+Never touch `master`'s working tree, never rebase shared state, never force-push another agent's branch. The append-only logs (`ISSUES-LOG*`, `SUGGESTIONS-LOG*`, `BMO-*`, `SECURITY-LOG`, `RESOLVED-*`) use a `merge=union` driver in `.gitattributes` so concurrent appends auto-merge. A single daily **integrator** merges clean `auto/*` branches into `master` and reviews Dependabot PRs (merging safe patch/minor bumps with green CI, leaving major / breaking ones for the user — a human decision on a third-party breaking change). Humans / interactive sessions may still use `master` directly. **Full spec: [`docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`](docs/AUTOMATED-AGENT-GIT-WORKFLOW.md).**
+
+The repo-wide implement → verify → commit → release process every automated agent follows (ALL domains — dnd-app, bmo, dungeon-scholar) is **[`dnd-app/docs/phases/INSTRUCTIONS.md`](dnd-app/docs/phases/INSTRUCTIONS.md)** (canonical, not dnd-app-only). Per that process, agents **attempt risky / large fixes rather than deferring them** — the `auto/*` branch + CI gate + (for resolver work) the user's approval + fix-forward is the safety net, so size or risk alone is never a reason to leave, document, or hand a fix back. Stop short only if (a) genuinely blocked / the work is impossible, or (b) a new human decision the scope didn't cover is needed (INSTRUCTIONS.md rule 27). And whenever something **isn't clean** — a red/failed CI run, a failing or flaky check, an unexpected diff or dirty tree, a surprising scan/QA finding, a down service — **automatically diagnose the root cause before reporting**: trace it to the responsible file / commit / config / step, state the cause, and fix it forward if in scope. Never surface a bare symptom and wait to be told to investigate — proactive root-cause diagnosis is the default for every agent (INSTRUCTIONS.md rule 28; git mechanics in `AUTOMATED-AGENT-GIT-WORKFLOW.md` Rule 4).
 
 ## Structure Rules (enforce on every change)
 

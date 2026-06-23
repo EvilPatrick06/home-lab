@@ -263,8 +263,11 @@ export default function LobbyPage(): JSX.Element {
           setRegistryAnnounceError(null)
           return
         }
-        setRegistryListed(result.ok)
-        setRegistryAnnounceError(result.ok ? null : (result.error ?? 'unknown error'))
+        // PHASE-46 F1 — guard against a null/invalid result so a failed
+        // announce shows an honest "not listed" reason, never a null-deref.
+        const listed = !!result?.ok
+        setRegistryListed(listed)
+        setRegistryAnnounceError(listed ? null : (result?.error ?? 'registry unreachable'))
       })
       .catch((err) => {
         if (cancelled) return

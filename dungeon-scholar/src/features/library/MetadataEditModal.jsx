@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Tag, X, Check } from 'lucide-react';
-import { useDialogA11y } from '../../components/useDialogA11y.js';
+import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 import RichContent from '../../components/RichContent.jsx';
 
 function MetadataEditModal({ tome, onSave, onClose }) {

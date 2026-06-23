@@ -1,8 +1,5 @@
-name: dungeon-scholar CI
+name: Dungeon Scholar CI
 
-# PR + push gate for dungeon-scholar (previously only gated by the deploy
-# workflow on push to main). Runs the project's vitest suite and a production
-# build so regressions are caught at PR time.
 on:
   push:
     paths:
@@ -13,15 +10,12 @@ on:
       - 'dungeon-scholar/**'
       - '.github/workflows/dungeon-scholar-ci.yml'
 
-permissions:
-  contents: read
-
 jobs:
-  check:
+  test:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: dungeon-scholar
+        working-directory: ./dungeon-scholar
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -30,7 +24,7 @@ jobs:
           cache: npm
           cache-dependency-path: dungeon-scholar/package-lock.json
       - run: npm ci
-      - name: Test (vitest)
-        run: npm test
-      - name: Build (vite)
-        run: npm run build
+      - run: npm run test
+      - run: npm run build
+        env:
+          VITE_BASE: /home-lab/

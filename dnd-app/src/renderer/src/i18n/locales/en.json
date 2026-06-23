@@ -5699,7 +5699,7 @@
       "downloadVersion": "Download v{{updateVersion}}",
       "updateAndRestart": "Update & Restart",
       "installOnClose": "Will also install automatically on next app close",
-      "appDescription": "A desktop application for playing Dungeons & Dragons 5th Edition online with friends. Create characters, build campaigns, and adventure together — no browser required.",
+      "appDescription": "An app for playing Dungeons & Dragons 5th Edition online with friends. Create characters, build campaigns, and adventure together.",
       "dataManagement": "Data Management",
       "dataManagementDesc": "Export all your characters, campaigns, bastions, and preferences to a single backup file, or restore from a previous backup.",
       "exporting": "Exporting...",
@@ -5781,7 +5781,9 @@
       "ownerCharacter": "Owner (Character)",
       "selectCharacter": "Select a character...",
       "startsWithHint": "Starts with 2 basic facilities (Bedroom + Storage). Add special facilities after creation.",
-      "create": "Create"
+      "create": "Create",
+      "noCharactersHint": "You need a character first. Create one to own this bastion.",
+      "createCharacterCta": "Create a character"
     },
     "defendersTab": {
       "totalDefenders": "Total Defenders",
@@ -7497,7 +7499,10 @@
       "description": "The application encountered an unexpected error. You can try again or restart the app.",
       "tryAgain": "Try Again",
       "restartApp": "Restart App",
-      "copyErrorReport": "Copy Error Report"
+      "copyErrorReport": "Copy Error Report",
+      "newVersionTitle": "A new version is available",
+      "newVersionDescription": "The app was updated while this page was open. Reload to load the latest version.",
+      "reload": "Reload"
     },
     "floatingWindow": {
       "closeLabel": "Close {{title}}"
@@ -7570,7 +7575,8 @@
       "customModelPlaceholder": "e.g. llama3.2:1b",
       "pull": "Pull",
       "browseModelsAt": "Browse models at",
-      "ollamaLibraryLink": "ollama.com/library"
+      "ollamaLibraryLink": "ollama.com/library",
+      "webLocalAiNotice": "Local AI (Ollama) runs on your own computer and isn't reachable from this browser build. Install the desktop app to use a local AI Dungeon Master."
     },
     "ollamaModelList": {
       "tier": {

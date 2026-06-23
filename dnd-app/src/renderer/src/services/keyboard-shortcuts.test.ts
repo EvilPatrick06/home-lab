@@ -186,6 +186,22 @@ describe('keyboard-shortcuts', () => {
   })
 
   describe('hasConflict', () => {
+    // PHASE-48 F3 — the conflict MECHANISM the rebind UI relies on: rebinding an
+    // action to a key already bound to ANOTHER action must report the conflict
+    // (so the swap modal shows instead of a silent revert). Uses the mocked set
+    // (end-turn=Space, open-dice='d'); the real toggle-journal→'t' bindings are
+    // pinned in keyboard-shortcuts-data.test.ts against the un-mocked JSON.
+    it('flags rebinding an action to a key already used by another action', () => {
+      const result = hasConflict('end-turn', { key: 'd' })
+      expect(result.conflicting).toBe(true)
+      expect(result.conflictAction).toBe('open-dice')
+    })
+
+    it("does not flag a rebind to the action's own current key", () => {
+      const result = hasConflict('open-dice', { key: 'd' })
+      expect(result.conflicting).toBe(false)
+    })
+
     it('detects no conflict when key combo is unique', () => {
       const result = hasConflict('my-action', { key: 'q' })
       expect(result.conflicting).toBe(false)

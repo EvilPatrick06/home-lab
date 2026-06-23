@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, memo, useMemo, useState } from 'react'
 import { useT } from '../../../i18n'
 
 export interface SpellData {
@@ -26,7 +26,11 @@ export function ordinal(n: number): string {
   return 'th'
 }
 
-export function SpellRow({
+// PHASE-48 F2 — memoized so a single checkbox toggle in a long (level-10
+// Wizard) spell list re-renders only the changed row, not all ~200 rows. The
+// onToggle contract takes the spell id so callers can pass a STABLE handler
+// (the store action) rather than a per-row closure that would defeat memo.
+export const SpellRow = memo(function SpellRow({
   spell,
   selected,
   onToggle,
@@ -34,7 +38,7 @@ export function SpellRow({
 }: {
   spell: SpellData
   selected: boolean
-  onToggle: () => void
+  onToggle: (id: string) => void
   isOffList?: boolean
 }): JSX.Element {
   const { t } = useT()
@@ -43,7 +47,7 @@ export function SpellRow({
     <div className="border-b border-gray-800/50 last:border-0">
       <div className="flex items-center gap-2 px-4 py-1.5 hover:bg-surface-2/30">
         <button
-          onClick={onToggle}
+          onClick={() => onToggle(spell.id)}
           className={`w-4 h-4 rounded border flex items-center justify-center text-xs shrink-0 ${
             selected ? 'bg-amber-600 border-amber-500 text-white' : 'border-gray-600 hover:border-gray-400'
           }`}
@@ -83,7 +87,7 @@ export function SpellRow({
       )}
     </div>
   )
-}
+})
 
 export default function SpellSummary5e({
   selectedSpellIds,

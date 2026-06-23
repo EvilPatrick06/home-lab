@@ -15,6 +15,7 @@ import { PRIMORDIAL_DIALECTS } from '../../../types/character-common'
 import { logger } from '../../../utils/logger'
 import Modal from '../../ui/Modal'
 import BuildSidebar from '../shared/BuildSidebar'
+import { builderHasUnsavedContent } from './builder-dirty'
 import CharacterSummaryBar5e from './CharacterSummaryBar5e'
 import MainContentArea5e from './MainContentArea5e'
 
@@ -47,6 +48,7 @@ export default function CharacterBuilder5e(): JSX.Element {
   const buildSlots = useBuilderStore((s) => s.buildSlots)
   const editingCharacterId = useBuilderStore((s) => s.editingCharacterId)
   const characterName = useBuilderStore((s) => s.characterName)
+  const builderBuildSlots = useBuilderStore((s) => s.buildSlots)
   const backgroundAbilityBonuses = useBuilderStore((s) => s.backgroundAbilityBonuses)
   const chosenLanguages = useBuilderStore((s) => s.chosenLanguages)
   const speciesExtraLangCount = useBuilderStore((s) => s.speciesExtraLangCount)
@@ -392,7 +394,11 @@ export default function CharacterBuilder5e(): JSX.Element {
   }
 
   const handleBack = (): void => {
-    if (editingCharacterId) {
+    // PHASE-48 F1 — prompt before discarding unsaved work for a NEW build too
+    // (previously only the edit-existing path prompted), so a substantially
+    // built but unsaved character isn't lost on a single Back click. A pristine
+    // builder (no name, nothing selected) still exits without a nag.
+    if (editingCharacterId || builderHasUnsavedContent(characterName, builderBuildSlots)) {
       setShowLeaveDialog(true)
       return
     }

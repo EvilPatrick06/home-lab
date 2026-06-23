@@ -214,7 +214,7 @@ journalctl -u bmo-dm-bot -f
 journalctl -u bmo-social-bot -f
 ```
 
-After editing `bmo/pi/kiosk/bmo-*.service`, run `sudo systemctl daemon-reload && sudo systemctl restart bmo-dm-bot bmo-social-bot`.
+After editing `bmo/pi/systemd/bmo-*.service`, run `sudo systemctl daemon-reload && sudo systemctl restart bmo-dm-bot bmo-social-bot`.
 
 ## TV / VTT host changed (new LAN)
 

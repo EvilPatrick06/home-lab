@@ -52,8 +52,8 @@ def _load_custom_scenes() -> dict:
             with open(SETTINGS_PATH, "r") as f:
                 settings = json.load(f)
             return settings.get("custom_scenes", {})
-    except Exception as e:
-        log.exception(f"[scene] Failed to load custom scenes")
+    except Exception:
+        log.exception("[scene] Failed to load custom scenes")
     return {}
 
 
@@ -68,8 +68,8 @@ def _save_custom_scenes(custom: dict):
         settings["custom_scenes"] = custom
         with open(SETTINGS_PATH, "w") as f:
             json.dump(settings, f, indent=2)
-    except Exception as e:
-        log.exception(f"[scene] Failed to save custom scenes")
+    except Exception:
+        log.exception("[scene] Failed to save custom scenes")
 
 
 def _get_all_scenes() -> dict:
@@ -326,8 +326,8 @@ class SceneService:
                         brightness = led_state.get("brightness", 128)
                         led.set_brightness(brightness)
                 log.info(f"[scene] Restored LED: disabled={was_disabled}, mode={led_state.get('mode')}, color={led_state.get('color')}")
-            except Exception as e:
-                log.exception(f"[scene] LED restore failed")
+            except Exception:
+                log.exception("[scene] LED restore failed")
 
         self._saved_state = {}
         log.info("[scene] State restored")
@@ -348,8 +348,8 @@ class SceneService:
                 if led:
                     led.set_mode("off")
                 log.info("[scene] LED off")
-            except Exception as e:
-                log.exception(f"[scene] LED off failed")
+            except Exception:
+                log.exception("[scene] LED off failed")
         elif scene.get("rgb_mode"):
             try:
                 if led:
@@ -357,8 +357,8 @@ class SceneService:
                     if scene.get("rgb_brightness"):
                         led.set_brightness(scene["rgb_brightness"])
                 log.info("[scene] LED %s", _s(scene['rgb_mode']))
-            except Exception as e:
-                log.exception(f"[scene] LED mode failed")
+            except Exception:
+                log.exception("[scene] LED mode failed")
 
         # TV
         tv_power_on = self._services.get("tv_power_on")
@@ -371,8 +371,8 @@ class SceneService:
                         self._socketio.emit("notification", {"message": "TV not connected — pair in TV tab first", "type": "warning"})
                 else:
                     tv_power_off()
-            except Exception as e:
-                log.exception(f"[scene] TV off failed")
+            except Exception:
+                log.exception("[scene] TV off failed")
         elif scene.get("tv_on"):
             try:
                 if not tv_power_on:
@@ -385,8 +385,8 @@ class SceneService:
                     if scene.get("tv_app") and tv_launch:
                         tv_launch(scene["tv_app"])
                         log.info("[scene] TV → %s", _s(scene['tv_app']))
-            except Exception as e:
-                log.exception(f"[scene] TV launch failed")
+            except Exception:
+                log.exception("[scene] TV launch failed")
 
         # Music
         if scene.get("music_stop"):
@@ -403,8 +403,8 @@ class SceneService:
                     if results:
                         music.play(results[0])
                 log.info("[scene] Music → %s", _s(scene['music_playlist']))
-            except Exception as e:
-                log.exception(f"[scene] Music play failed")
+            except Exception:
+                log.exception("[scene] Music play failed")
 
     def _apply_deactivation(self, skip_restore: bool = False, deactivating_scene: str | None = None):
         """Deactivate the current scene.
@@ -487,8 +487,8 @@ class SceneService:
                             return
 
                     log.info(f"[scene] Restored active scene: {self._active_scene}")
-        except Exception as e:
-            log.exception(f"[scene] Load state failed")
+        except Exception:
+            log.exception("[scene] Load state failed")
 
     def _save_state(self):
         """Save scene state to settings.json."""
@@ -511,5 +511,5 @@ class SceneService:
                 settings["scene"]["activated_at"] = None
             with open(SETTINGS_PATH, "w") as f:
                 json.dump(settings, f, indent=2)
-        except Exception as e:
-            log.exception(f"[scene] Save state failed")
+        except Exception:
+            log.exception("[scene] Save state failed")

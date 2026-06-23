@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import {
+  exportSaveText,
+  parseImportedSave,
   loadFromLocalStorage,
   saveToLocalStorage,
   hasMeaningfulData,
@@ -297,5 +299,31 @@ describe('persistence', () => {
       vi.spyOn(localStorage, 'setItem').mockImplementation(() => { throw new Error('boom'); });
       expect(saveToLocalStorage({ level: 2 })).toEqual({ ok: false, quota: false });
     });
+  });
+});
+
+describe("save export / import (S12)", () => {
+  it("round-trips a save through exportSaveText -> parseImportedSave", () => {
+    const state = { library: [{ id: "t1" }], gold: 42, level: 3 };
+    const text = exportSaveText(state);
+    expect(text).toContain("dungeon-scholar");
+    const res = parseImportedSave(text);
+    expect(res.ok).toBe(true);
+    expect(res.state.gold).toBe(42);
+    expect(res.state.library).toHaveLength(1);
+  });
+
+  it("accepts a bare state object (no wrapper)", () => {
+    const res = parseImportedSave(JSON.stringify({ library: [], gold: 7 }));
+    expect(res.ok).toBe(true);
+    expect(res.state.gold).toBe(7);
+  });
+
+  it("rejects non-JSON", () => {
+    expect(parseImportedSave("not json").ok).toBe(false);
+  });
+
+  it("rejects JSON that is not a journal (no library array)", () => {
+    expect(parseImportedSave(JSON.stringify({ foo: 1 })).ok).toBe(false);
   });
 });

@@ -1,0 +1,54 @@
+name: subprojects CI
+
+# PR-time gate for the two internet-facing subprojects that previously had no CI
+# (dungeon-scholar VTT + oracle-worker Cloudflare Worker). Mirrors the dnd-app
+# gate's structure. (BMO-SUGGESTIONS 2026-06-22.)
+on:
+  push:
+    paths:
+      - 'dungeon-scholar/**'
+      - 'oracle-worker/**'
+      - '.github/workflows/subprojects-ci.yml'
+  pull_request:
+    paths:
+      - 'dungeon-scholar/**'
+      - 'oracle-worker/**'
+      - '.github/workflows/subprojects-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  dungeon-scholar:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dungeon-scholar
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: dungeon-scholar/package-lock.json
+      - run: npm ci
+      - name: Test (vitest)
+        run: npm test
+      - name: Build (vite)
+        run: npm run build
+
+  oracle-worker:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: oracle-worker
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: oracle-worker/package-lock.json
+      - run: npm ci
+      - name: Build check (wrangler dry-run)
+        run: npx wrangler deploy --dry-run --outdir dist

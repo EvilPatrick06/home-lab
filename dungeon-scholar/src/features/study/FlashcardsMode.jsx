@@ -4,6 +4,7 @@ import { SRS_RATINGS, scheduleCard, sortByDueness, filterDue } from '../../servi
 import { saveSession, loadSession, SESSION_KIND } from '../../services/sessionResume.js';
 import { FilteredModeBanner } from '../../components/ui/FilteredModeBanner.jsx';
 import { DifficultyStars, BloomBadge } from '../../components/ui/badges.jsx';
+import { speak, ttsSupported } from '../../services/tts.js';
 
 function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awardXP, updateTomeProgress, updateCardProgress, playerState, checkAchievement, domainFilter, onExitFilter, reviewMode, onExitReviewMode, onResumeNotify }) {
   // Phase 33b/39a QA P2: defer resume until `cards` is populated. 39a
@@ -143,6 +144,29 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
     }
   };
 
+  // S4: keyboard shortcuts (parity with Quiz/Lab/Exam). Space/Enter flips;
+  // 1-4 self-grade when flipped; arrows browse in non-review mode. Ignores
+  // keystrokes while focus is in a text field.
+  useEffect(() => {
+    const onKey = (e) => {
+      const t = e.target;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+      if (!card) return;
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        setFlipped((f) => !f);
+      } else if (flipped && ['1', '2', '3', '4'].includes(e.key)) {
+        e.preventDefault();
+        rate(Number(e.key));
+      } else if (!flipped && !reviewMode && cards.length > 0) {
+        if (e.key === 'ArrowLeft') { e.preventDefault(); setIndex((index - 1 + cards.length) % cards.length); setFlipped(false); }
+        else if (e.key === 'ArrowRight') { e.preventDefault(); setIndex((index + 1) % cards.length); setFlipped(false); }
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [card, flipped, reviewMode, index, cards]);
+
   // 26g: review-mode completion celebration.
   if (reviewMode && reviewDeck.length > 0 && index >= reviewDeck.length) {
     return (
@@ -226,9 +250,22 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
             </span>
           )}
         </span>
-        <span>Studied this session: {reviewed}</span>
+        <span className="flex items-center gap-2">
+          {ttsSupported() && (
+            <button
+              type="button"
+              onClick={() => speak(flipped ? (card.back || card.definition) : (card.front || card.term))}
+              aria-label="Read this scroll aloud"
+              title="Read aloud"
+              className="text-amber-500 hover:text-amber-300"
+            >
+              🔊
+            </button>
+          )}
+          Studied this session: {reviewed}
+        </span>
       </div>
-      <div onClick={() => setFlipped(!flipped)} className="rounded-sm p-8 min-h-[300px] flex items-center justify-center cursor-pointer transition relative" style={{
+      <div onClick={() => setFlipped(!flipped)} role="button" tabIndex={0} aria-label={flipped ? 'Flashcard answer — Space flips, 1-4 to rate' : 'Flashcard question — Space flips'} className="rounded-sm p-8 min-h-[300px] flex items-center justify-center cursor-pointer transition relative" style={{
         background: 'linear-gradient(135deg, rgba(12, 24, 41, 0.85) 0%, rgba(6, 12, 20, 0.95) 100%)',
         border: '3px double rgba(29, 78, 216, 0.6)', boxShadow: '0 0 30px rgba(59, 130, 246, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',
       }}>

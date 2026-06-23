@@ -7,9 +7,8 @@ Splitting tests force the regex fallback (deterministic regardless of whether
 import subprocess
 import sys
 
-import pytest
 
-from services import discord_tts
+from services.voice import discord_tts
 
 
 def _force_regex(monkeypatch):

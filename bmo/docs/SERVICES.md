@@ -4,7 +4,9 @@ Service modules in `bmo/pi/services/` — business logic used by agents + Flask 
 
 ## Services index
 
-### Voice + audio (6)
+### Voice + audio
+
+> These modules live in the `services/voice/` subpackage (import as `services.voice.<module>`). File names are unchanged per the "Service module names" rule in [DESIGN-CONSTRAINTS.md](./DESIGN-CONSTRAINTS.md). The cluster is: `voice_pipeline`, `voice_personality`, `voice_casting`, `voice_metrics`, `voice_canary`, `bmo_say`, `discord_tts`, `audio_output_service`, `system_audio`.
 
 | Module | Purpose |
 |---|---|

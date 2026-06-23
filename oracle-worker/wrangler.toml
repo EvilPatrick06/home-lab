@@ -1,3 +1,14 @@
 name = "dungeon-scholar-oracle"
 main = "src/worker.js"
 compatibility_date = "2026-01-01"
+account_id = "c7738b46d6dea435f5228b00b6198706"
+
+# Globally-persistent rate limiter backed by a single Durable Object instance.
+# SQLite-backed class so it works on both the Workers free and paid plans.
+[[durable_objects.bindings]]
+name = "RATE_LIMITER"
+class_name = "RateLimiter"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["RateLimiter"]

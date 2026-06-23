@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
+import { Suspense, useCallback, useEffect, useState } from 'react'
 import { Navigate, Route, Routes } from 'react-router'
 import { DiceOverlay } from './components/game/dice3d'
 import { ErrorBoundary, ShortcutsOverlay, Spinner, ToastContainer } from './components/ui'
@@ -24,24 +24,25 @@ import { init as initSoundManager, preloadEssential } from './services/sound-man
 import { applyColorblindFilter, loadSavedTheme, loadThemeDefinitions } from './services/theme-manager'
 import { useAccessibilityStore } from './stores/use-accessibility-store'
 import { initGameSystems } from './systems/init'
+import { lazyWithReload } from './utils/lazy-with-reload'
 import { logger } from './utils/logger'
 
-const ViewCharactersPage = lazy(() => import('./pages/ViewCharactersPage'))
-const JoinGamePage = lazy(() => import('./pages/JoinGamePage'))
-const MakeGamePage = lazy(() => import('./pages/MakeGamePage'))
-const AboutPage = lazy(() => import('./pages/AboutPage'))
-const LobbyPage = lazy(() => import('./pages/LobbyPage'))
-const ScenePrepPage = lazy(() => import('./pages/ScenePrepPage'))
-const InGamePage = lazy(() => import('./pages/InGamePage'))
-const CreateCharacterPage = lazy(() => import('./pages/CreateCharacterPage'))
-const CampaignDetailPage = lazy(() => import('./pages/CampaignDetailPage'))
-const CalendarPage = lazy(() => import('./pages/CalendarPage'))
-const BastionPage = lazy(() => import('./pages/BastionPage'))
-const CharacterSheet5ePage = lazy(() => import('./pages/CharacterSheet5ePage'))
-const LevelUp5ePage = lazy(() => import('./pages/LevelUp5ePage'))
-const LibraryPage = lazy(() => import('./pages/LibraryPage'))
-const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
-const SettingsPage = lazy(() => import('./pages/SettingsPage'))
+const ViewCharactersPage = lazyWithReload(() => import('./pages/ViewCharactersPage'))
+const JoinGamePage = lazyWithReload(() => import('./pages/JoinGamePage'))
+const MakeGamePage = lazyWithReload(() => import('./pages/MakeGamePage'))
+const AboutPage = lazyWithReload(() => import('./pages/AboutPage'))
+const LobbyPage = lazyWithReload(() => import('./pages/LobbyPage'))
+const ScenePrepPage = lazyWithReload(() => import('./pages/ScenePrepPage'))
+const InGamePage = lazyWithReload(() => import('./pages/InGamePage'))
+const CreateCharacterPage = lazyWithReload(() => import('./pages/CreateCharacterPage'))
+const CampaignDetailPage = lazyWithReload(() => import('./pages/CampaignDetailPage'))
+const CalendarPage = lazyWithReload(() => import('./pages/CalendarPage'))
+const BastionPage = lazyWithReload(() => import('./pages/BastionPage'))
+const CharacterSheet5ePage = lazyWithReload(() => import('./pages/CharacterSheet5ePage'))
+const LevelUp5ePage = lazyWithReload(() => import('./pages/LevelUp5ePage'))
+const LibraryPage = lazyWithReload(() => import('./pages/LibraryPage'))
+const NotFoundPage = lazyWithReload(() => import('./pages/NotFoundPage'))
+const SettingsPage = lazyWithReload(() => import('./pages/SettingsPage'))
 
 function App(): JSX.Element {
   const [shortcutsOpen, setShortcutsOpen] = useState(false)
