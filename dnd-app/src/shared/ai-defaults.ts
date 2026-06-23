@@ -13,6 +13,4 @@ export const DEFAULT_PROVIDER_MODELS = {
   gemini: 'gemini-2.0-flash'
 } as const
 
-export type AiProviderId = keyof typeof DEFAULT_PROVIDER_MODELS
-
 export const DEFAULT_AI_MODEL: string = DEFAULT_PROVIDER_MODELS.ollama

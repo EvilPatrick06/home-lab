@@ -39,7 +39,3 @@ export function clearWizardDraft(): void {
     // ignore
   }
 }
-
-export function hasWizardDraft(): boolean {
-  return loadWizardDraft() !== null
-}

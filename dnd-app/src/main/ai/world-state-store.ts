@@ -57,11 +57,8 @@ export const WorldStoreSchema = z.object({
   updatedAt: z.string()
 })
 
-export type WorldExit = z.infer<typeof WorldExitSchema>
 export type WorldLocation = z.infer<typeof WorldLocationSchema>
-export type NpcOpinion = z.infer<typeof NpcOpinionSchema>
 export type WorldNpcState = z.infer<typeof WorldNpcStateSchema>
-export type WorldFact = z.infer<typeof WorldFactSchema>
 export type WorldStore = z.infer<typeof WorldStoreSchema>
 
 const MAX_FACTS = 200

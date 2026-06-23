@@ -103,10 +103,6 @@ export function setConfiguredContextLength(n: number | undefined): void {
   configuredContextLength = n
   clearNumCtxCache() // a changed override must re-resolve
 }
-export function getConfiguredContextLength(): number | undefined {
-  return configuredContextLength
-}
-
 // ── Opt-in KV-cache tuning (AiConfig.ollamaKvCacheType) ───────────────────
 
 let ollamaKvCacheType: 'q8_0' | 'q4_0' | undefined

@@ -397,37 +397,6 @@ A literal directory named `C:` exists at `dnd-app/C:/tmp/logs/app.log` (~3.2 KB,
 
 ---
 
-### [2026-06-22] Dead code: 9 unused exports/types flagged by knip (0 external references confirmed)
-
-- **Category:** debt
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-cleanup
-- **During:** automated cleanup/reorg scan of `dnd-app/` (`npx knip`)
-
-**Description:**
-`npm run dead-code` (knip) reports the following exports as unused; each was re-verified with a repo-wide grep (including `*.test.ts(x)`) and has ZERO external references:
-
-Functions:
-- `getLocalEndpointFlavor` — `src/main/ai/ollama-client.ts:26`
-- `getConfiguredContextLength` — `src/main/ai/ollama-context.ts:106`
-- `estimateRecapPromptTokens` — `src/main/ai/recap-context.ts:68`
-- `stopAllRegistryPollers` — `src/main/registry-bridge.ts:290`
-- `routeSoloMessageToAiDm` — `src/renderer/src/services/ai-dm-routing.ts:192`
-- `hasWizardDraft` — `src/renderer/src/services/campaign-wizard-draft.ts:43`
-
-Exported types:
-- `WorldExit`, `NpcOpinion`, `WorldFact` — `src/main/ai/world-state-store.ts:60/62/64`
-- `AiProviderId` — `src/shared/ai-defaults.ts:16`
-
-Each should be removed (if truly dead) or down-scoped to a non-exported local / wired into its intended caller. A couple (`routeSoloMessageToAiDm`, `stopAllRegistryPollers`) read like partially-wired features worth a check before deletion. `check:full` runs `dead-code` but does not fail on findings, so these accumulate silently.
-
-**Proposed fix / improvement:**
-- [ ] For each symbol, confirm it isn't reserved for an in-flight feature, then delete or un-export.
-- [ ] Consider making `npm run dead-code` fail CI on new findings once the backlog is clear.
-
-**Related files:** `src/main/ai/ollama-client.ts`, `src/main/ai/ollama-context.ts`, `src/main/ai/recap-context.ts`, `src/main/registry-bridge.ts`, `src/renderer/src/services/ai-dm-routing.ts`, `src/renderer/src/services/campaign-wizard-draft.ts`, `src/main/ai/world-state-store.ts`, `src/shared/ai-defaults.ts`
-
 ---
 
 ---

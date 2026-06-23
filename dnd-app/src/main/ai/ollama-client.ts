@@ -23,10 +23,6 @@ let localEndpointFlavor: 'ollama' | 'llamacpp' = 'ollama'
 export function setLocalEndpointFlavor(flavor: 'ollama' | 'llamacpp'): void {
   localEndpointFlavor = flavor === 'llamacpp' ? 'llamacpp' : 'ollama'
 }
-export function getLocalEndpointFlavor(): 'ollama' | 'llamacpp' {
-  return localEndpointFlavor
-}
-
 /** Native `/api/chat` response object (one per NDJSON line when streaming, or the
  *  whole body when not). `message.thinking` carries thinking-model reasoning on
  *  newer servers — intentionally ignored so it never leaks into narration. */

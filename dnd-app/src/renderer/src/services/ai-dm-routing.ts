@@ -187,8 +187,3 @@ export function routePlayerMessageToAiDm(
         .sendMessage(campaignId, message, charIds, senderName, undefined, undefined, actingCharacterId)
     })
 }
-
-/** @deprecated thin wrapper kept for call sites that hold a full Campaign. */
-export function routeSoloMessageToAiDm(campaign: Campaign, message: string, senderName: string): void {
-  routePlayerMessageToAiDm(campaign.id, message, senderName, campaign.players ?? [])
-}

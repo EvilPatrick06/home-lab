@@ -65,6 +65,3 @@ export function buildSessionStartRecapPrompt(inputs: SessionStartRecapInputs): {
 }
 
 // Exported so callers can sanity-check the assembled size before dispatching.
-export function estimateRecapPromptTokens(prompt: { system: string; user: string }): number {
-  return estimateTokens(prompt.system) + estimateTokens(prompt.user)
-}

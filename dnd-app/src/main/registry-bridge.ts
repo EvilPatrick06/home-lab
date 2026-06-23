@@ -285,9 +285,3 @@ export function unsubscribeFromRegistry(subscriptionId: string): void {
   if (state.timer) clearTimeout(state.timer)
   pollers.delete(subscriptionId)
 }
-
-/** Stop all registry pollers (e.g. on app teardown). */
-export function stopAllRegistryPollers(): void {
-  for (const id of Array.from(pollers.keys())) unsubscribeFromRegistry(id)
-  logToFile('INFO', 'Registry pollers stopped')
-}
