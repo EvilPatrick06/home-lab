@@ -5663,7 +5663,9 @@
       "ownerCharacter": "Owner (Character)",
       "selectCharacter": "Select a character...",
       "startsWithHint": "Starts with 2 basic facilities (Bedroom + Storage). Add special facilities after creation.",
-      "create": "Create"
+      "create": "Create",
+      "noCharactersHint": "You need a character first. Create one to own this bastion.",
+      "createCharacterCta": "Create a character"
     },
     "defendersTab": {
       "totalDefenders": "Total Defenders",

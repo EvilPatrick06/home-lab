@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router'
 import Modal from '../../components/ui/Modal'
 import { useT } from '../../i18n'
 import type { Bastion } from '../../types/bastion'
@@ -19,6 +20,7 @@ export function CreateBastionModal({
   setSelectedBastionId: (id: string | null) => void
 }): JSX.Element {
   const { t } = useT()
+  const navigate = useNavigate()
   const [newName, setNewName] = useState('')
   const [newOwnerId, setNewOwnerId] = useState('')
 
@@ -45,21 +47,38 @@ export function CreateBastionModal({
             className="bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
           />
         </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-gray-500">{t('pages.createBastionModal.ownerCharacter')}</label>
-          <select
-            value={newOwnerId}
-            onChange={(e) => setNewOwnerId(e.target.value)}
-            className="bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
-          >
-            <option value="">{t('pages.createBastionModal.selectCharacter')}</option>
-            {characters.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name} (Lv {c.level})
-              </option>
-            ))}
-          </select>
-        </div>
+        {characters.length === 0 ? (
+          // PHASE-48 F4 — a bastion needs an owner character; guide a new user to
+          // create one instead of dead-ending on a permanently-disabled Create.
+          <div className="flex flex-col gap-2 rounded border border-border bg-surface-2/40 p-3">
+            <p className="text-xs text-gray-400">{t('pages.createBastionModal.noCharactersHint')}</p>
+            <button
+              onClick={() => {
+                onClose()
+                navigate('/characters/5e/create')
+              }}
+              className="self-start px-3 py-1.5 text-sm bg-amber-600 hover:bg-accent-strong text-white rounded font-semibold transition-colors"
+            >
+              {t('pages.createBastionModal.createCharacterCta')}
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-gray-500">{t('pages.createBastionModal.ownerCharacter')}</label>
+            <select
+              value={newOwnerId}
+              onChange={(e) => setNewOwnerId(e.target.value)}
+              className="bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
+            >
+              <option value="">{t('pages.createBastionModal.selectCharacter')}</option>
+              {characters.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name} (Lv {c.level})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <p className="text-xs text-gray-500">{t('pages.createBastionModal.startsWithHint')}</p>
         <div className="flex gap-2 justify-end">
           <button
@@ -70,7 +89,7 @@ export function CreateBastionModal({
           </button>
           <button
             onClick={handleCreate}
-            disabled={!newName.trim() || !newOwnerId}
+            disabled={!newName.trim() || !newOwnerId || characters.length === 0}
             className="px-4 py-2 text-sm bg-amber-600 hover:bg-accent-strong disabled:bg-gray-700 disabled:text-gray-500 text-white rounded font-semibold transition-colors"
           >
             {t('pages.createBastionModal.create')}

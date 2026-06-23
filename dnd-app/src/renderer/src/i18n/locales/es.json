@@ -5663,7 +5663,9 @@
       "ownerCharacter": "Propietario (personaje)",
       "selectCharacter": "Selecciona un personaje...",
       "startsWithHint": "Comienza con 2 instalaciones básicas (Dormitorio + Almacén). Añade instalaciones especiales tras la creación.",
-      "create": "Crear"
+      "create": "Crear",
+      "noCharactersHint": "Primero necesitas un personaje. Crea uno para que sea dueño de este bastión.",
+      "createCharacterCta": "Crear un personaje"
     },
     "defendersTab": {
       "totalDefenders": "Total de defensores",
