@@ -15,6 +15,7 @@ New to the BMO codebase? Read in this order: **[ARCHITECTURE](#architecture) →
 | [AGENTS.md](./AGENTS.md) | Catalog of BMO's runtime AI agents (28 routable) + the infra classes in `agents/`. |
 | [SYSTEMD.md](./SYSTEMD.md) <a id="systemd"></a> | The systemd units (services + timers); unit files live in `bmo/pi/systemd/`. |
 | [DEPLOY.md](./DEPLOY.md) | How to update BMO on the Pi from your laptop. |
+| [DISASTER-RECOVERY.md](./DISASTER-RECOVERY.md) | Cold-restore runbook (fresh Pi from backup) + the backup-integrity check. |
 | [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) <a id="troubleshooting"></a> | Common failures + fixes (disk, audio, bots, services). |
 | [DESIGN-CONSTRAINTS.md](./DESIGN-CONSTRAINTS.md) <a id="design-constraints"></a> | Design gotchas that look like bugs but are intentional — **read before refactors** touching hooks, cloud HTTP, package/module names, or shared 5e JSON. |
 | [NETWORK_ACCESS.md](./NETWORK_ACCESS.md) | Travel- / IP-change-safe network access for the headless kiosk Pi. |

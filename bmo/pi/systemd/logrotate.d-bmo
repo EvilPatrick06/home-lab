@@ -1,0 +1,18 @@
+# BMO log rotation — install with:
+#   sudo cp ~/home-lab/bmo/pi/systemd/logrotate.d-bmo /etc/logrotate.d/bmo
+# (setup-bmo.sh installs this automatically.)
+#
+# Covers the cron health-check log, which is append-only via shell redirection
+# (`*/5 * * * * .../health-check.sh >> .../logs/health.log 2>&1`) and otherwise
+# grows unbounded. Application logging already self-rotates via
+# services/bmo_logging.py (RotatingFileHandler, 10M x 5) and is NOT covered here.
+/home/patrick/home-lab/bmo/pi/logs/health.log {
+    weekly
+    rotate 4
+    compress
+    delaycompress
+    copytruncate
+    missingok
+    notifempty
+    su patrick patrick
+}

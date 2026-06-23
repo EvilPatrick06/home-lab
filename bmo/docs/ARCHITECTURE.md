@@ -203,31 +203,34 @@ curl http://localhost:5000/api/health/full | python3 -m json.tool
 
 ## Backup Strategy
 
-**Tool:** rclone → Google Drive (`gdrive:BMO-Backups/`)
+**Tool:** [`scripts/backup-state.sh`](../pi/scripts/backup-state.sh) — a timestamped `tar.gz` of runtime state written **off the repo tree** to `~/bmo-backups/`, pruned to the newest `BMO_BACKUP_KEEP` (default 14).
 
-**Schedule:** Daily at 3:00 AM MST via systemd timer (`bmo-backup.timer`)
+**Schedule:** Daily at 3:00 AM via systemd timer (`bmo-backup.timer` → `bmo-backup.service`).
 
 **What's backed up:**
-- `~/home-lab/bmo/pi/data/` — chat history, D&D sessions, notes, snapshots, alarms
-- `~/home-lab/bmo/pi/config/` — Google Calendar OAuth token
-- `~/home-lab/bmo/pi/requirements.txt` — Python dependency snapshot
+- `~/home-lab/bmo/pi/data/` — chat history, D&D sessions, notes, snapshots, alarms, play history, the SQLite DBs (`bmo_social.db`, `campaign_memory.db`)
+- `~/home-lab/bmo/pi/config/token.json` — Google Calendar OAuth token
 
-**What's excluded:** `.pyc`, `__pycache__`, `.audiocache` (TTS cache, regenerated on demand)
+**What's excluded** (re-creatable): the 5e reference data (`data/5e*`, restored via `scripts/seed-5e-library.sh`), `.pyc`, `__pycache__`, `.audiocache`. Secrets in `pi/.env` / `config/credentials.json` are NOT backed up — keep them in your own secret store.
 
 **Manual backup:**
 ```bash
-~/home-lab/bmo/pi/backup.sh
+~/home-lab/bmo/pi/scripts/backup-state.sh
 ```
 
-**Verify backup:**
+**List archives:**
 ```bash
-rclone ls gdrive:BMO-Backups/
+ls -1t ~/bmo-backups/bmo-state-*.tar.gz
 ```
 
-**Restore:**
+**Verify the newest backup is restorable** (also runs monthly via `bmo-backup-verify.timer`):
 ```bash
-rclone sync gdrive:BMO-Backups/data/ ~/home-lab/bmo/pi/data/
-rclone sync gdrive:BMO-Backups/config/ ~/home-lab/bmo/pi/config/
+~/home-lab/bmo/pi/scripts/verify-backup.sh
+```
+
+**Restore / full disaster recovery:** see [`DISASTER-RECOVERY.md`](./DISASTER-RECOVERY.md) for the fresh-Pi cold-restore runbook. Quick state restore:
+```bash
+tar -xzf ~/bmo-backups/bmo-state-YYYYMMDD-HHMMSS.tar.gz -C ~/home-lab/bmo/pi
 ```
 
 ---
@@ -281,6 +284,8 @@ A separate `health-check.sh` runs via cron every 5 minutes and logs to `~/home-l
 ```
 */5 * * * * /home/patrick/home-lab/bmo/pi/scripts/health-check.sh >> /home/patrick/home-lab/bmo/pi/logs/health.log 2>&1
 ```
+
+`logs/health.log` is rotated by `/etc/logrotate.d/bmo` (weekly, keep 4, compressed), installed by `setup-bmo.sh` from `bmo/pi/systemd/logrotate.d-bmo`. App logs self-rotate via `services/bmo_logging.py` (`RotatingFileHandler`).
 
 ### Endpoints
 
