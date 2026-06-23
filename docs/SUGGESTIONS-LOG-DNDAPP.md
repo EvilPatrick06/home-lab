@@ -44,28 +44,6 @@ Pick one convention and apply it to both. Lowercase-kebab (`completed/`, `instru
 
 ---
 
-### [2026-06-22] Duplicate, already-diverging `PLUGIN-SYSTEM.md` — one at repo-root `docs/`, one in `dnd-app/docs/`
-
-- **Category:** docs
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-cleanup
-- **During:** automated cleanup/reorg scan of `dnd-app/`
-
-**Description:**
-There are two `PLUGIN-SYSTEM.md` files, both titled `# Plugin System - dnd-app`, describing the same dnd-app plugin API:
-
-- `docs/PLUGIN-SYSTEM.md` (repo root, ~6.6 KB)
-- `dnd-app/docs/PLUGIN-SYSTEM.md` (~11.2 KB)
-
-They already disagree: the root copy is shorter/older and even points readers at the dnd-app copy for the trust model ("see the trust model in `dnd-app/docs/PLUGIN-SYSTEM.md`"), so the root file is effectively a stale partial mirror of the canonical one. Two copies of a domain-specific doc is exactly the drift pattern the per-domain doc split was meant to avoid. (Note: the dnd-app `README.md` "Plugin system" section links to `./docs/PLUGIN-SYSTEM.md`, i.e. the dnd-app copy — so the root copy has no obvious inbound link from dnd-app.)
-
-**Proposed fix / improvement:**
-- [ ] Treat `dnd-app/docs/PLUGIN-SYSTEM.md` as canonical (it is the fuller, linked one). Replace `docs/PLUGIN-SYSTEM.md` with a one-line pointer to it, or delete the root copy if nothing references it (grep first: `git grep -n "docs/PLUGIN-SYSTEM.md"`).
-- [ ] If the root copy must stay (e.g. monorepo-level index), reduce it to a stub link so the content lives in exactly one place.
-
-**Related files:** `docs/PLUGIN-SYSTEM.md`, `dnd-app/docs/PLUGIN-SYSTEM.md`, `dnd-app/README.md`
-
 ### [2026-06-22] No user-facing export/import of a character or campaign to a portable file
 
 - **Category:** future-idea, portability
@@ -187,24 +165,6 @@ First-run UX is limited to two narrow, single-purpose prompts wired into `App.ts
 - [ ] Optionally factor the shared setup-node / npm-ci steps into a composite action reused by all JS-project workflows.
 
 **Related files:** `.github/workflows/deploy.yml`, `dungeon-scholar/package.json`, `oracle-worker/package.json`
-
-### [2026-06-22] Local pre-commit hook gates only dnd-app; `.githooks/` dir is now orphaned
-
-- **Category:** future-idea
-- **Severity:** low
-- **Domain:** both
-- **Discovered by:** overall-suggestor
-- **During:** cross-cutting repo-wide scan
-
-**Description:**
-`.husky/pre-commit` does `cd dnd-app` then runs biome + tsc on that project only. Commits touching `dungeon-scholar`, `oracle-worker`, or repo-root tooling get no local lint/typecheck/test pre-flight (dungeon-scholar`s first gate is the deploy workflow; oracle-worker has none). Separately, `.githooks/pre-commit` is now redundant — its gitleaks shim was folded into `.husky/` per that hook`s own comment, yet the old dir remains and can confuse anyone setting `core.hooksPath`.
-
-**Proposed fix / improvement:**
-- [ ] Make the hook detect which project(s) have staged changes and run each one`s lint/typecheck (at minimum add dungeon-scholar test/build).
-- [ ] Delete the orphaned `.githooks/` directory once `.husky` is confirmed authoritative.
-
-**Related entries:** `ISSUES-LOG-DNDAPP.md` [2026-06-16] pre-commit `--staged` no-op (distinct dnd-app-only bug).
-**Related files:** `.husky/pre-commit`, `.githooks/pre-commit`
 
 ### [2026-06-22] Four hand-maintained agent-instruction files will drift (AGENTS / CLAUDE / GEMINI / copilot)
 

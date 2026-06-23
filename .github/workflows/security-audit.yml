@@ -7,13 +7,11 @@ on:
       - 'dnd-app/**'
       - 'bmo/**'
       - '.github/workflows/security-audit.yml'
-      - '.githooks/**'
   pull_request:
     paths:
       - 'dnd-app/**'
       - 'bmo/**'
       - '.github/workflows/security-audit.yml'
-      - '.githooks/**'
   schedule:
     - cron: "18 4 * * 1"
 

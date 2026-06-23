@@ -1,23 +1,27 @@
 #!/usr/bin/env sh
-# Phase 21c — pre-commit gate. Hooks run with cwd = git root, so cd into the app.
-# Escape hatch: `git commit --no-verify`. CI (.github/workflows/ci.yml) is the
-# authoritative gate; this is a fast local pre-flight.
-# Biome on staged files only (fast). Run from the repo ROOT (hooks already run
-# with cwd = git root) so git's repo-root-relative staged paths (`dnd-app/src/...`)
-# resolve and Biome picks up `dnd-app/biome.json` per file. The old form
-# `cd dnd-app && biome check src/ --staged` matched 0 staged files (silent no-op,
-# fixed 2026-06-23) because the `src/` arg + dnd-app cwd filtered everything out.
-# --no-errors-on-unmatched: don't fail a docs-only commit that touches no src/.
+# Pre-commit gate (hooks run with cwd = git root). Escape hatch:
+# `git commit --no-verify`. CI is the authoritative gate; this is a fast local
+# pre-flight. Project-aware: only the projects with staged changes are checked.
+STAGED=$(git diff --cached --name-only --diff-filter=ACMR)
+
+# Biome on staged files — run from the repo ROOT so git's repo-root-relative
+# staged paths (`dnd-app/src/...`) resolve and Biome picks up dnd-app/biome.json
+# per file. The old `cd dnd-app && biome check src/ --staged` matched 0 files
+# (silent no-op, fixed 2026-06-23). --no-errors-on-unmatched: allow docs-only commits.
 ./dnd-app/node_modules/.bin/biome check --staged --no-errors-on-unmatched || exit 1
 
-cd dnd-app || exit 1
+# dnd-app: typecheck the renderer config (broadest surface) when it has changes.
+if printf '%s\n' "$STAGED" | grep -q '^dnd-app/'; then
+  (cd dnd-app && npx tsc --noEmit -p tsconfig.web.json) || exit 1
+fi
 
-# Typecheck the renderer config (the broadest surface). Move to a pre-push hook
-# if this feels slow on your machine.
-npx tsc --noEmit -p tsconfig.web.json || exit 1
+# dungeon-scholar: run its unit tests when it has staged changes (no lint/tsc script).
+if printf '%s\n' "$STAGED" | grep -q '^dungeon-scholar/'; then
+  (cd dungeon-scholar && npm test) || exit 1
+fi
 
-# Optional secret scan — folded in from the old .githooks/ shim so a single
-# core.hooksPath (.husky) covers it. Skips gracefully when gitleaks is absent.
+# Optional secret scan across staged files (folded in from the old .githooks/
+# shim so a single core.hooksPath = .husky covers it). Skips if gitleaks absent.
 if command -v gitleaks >/dev/null 2>&1; then
   gitleaks protect --staged --redact || exit 1
 fi
