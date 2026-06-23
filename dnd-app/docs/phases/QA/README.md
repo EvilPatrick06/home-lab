@@ -12,7 +12,7 @@ Output folder for autonomous QA passes on **dnd-app** (the Electron VTT).
 
 ## How reports get here
 
-The QA agent runs against the **latest published release** (launched via `../../../scripts/dev/two-windows-test.bat`), writes its report incrementally to this folder, saves evidence screenshots under `screenshots/`, then commits and pushes **only this folder** to `master`. The agent is otherwise read-only on the repo and the Pi — it never edits source or the issue/suggestion logs.
+The QA agent runs against the **latest published release** (launched via `../../../scripts/dev/two-windows-test.bat`), writes its report incrementally to this folder, saves evidence screenshots under `screenshots/`, then commits **only this folder** on its own branch `auto/qa` (never `master`) and pushes that branch; the daily integrator merges it into `master`. The agent is otherwise read-only on the repo and the Pi — it never edits source or the issue/suggestion logs. See [`AUTOMATED-AGENT-GIT-WORKFLOW.md`](../../../../docs/AUTOMATED-AGENT-GIT-WORKFLOW.md).
 
 ## Note for editing agents / triage
 

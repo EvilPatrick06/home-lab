@@ -55,6 +55,10 @@ Before suggesting file creation, verify:
 - `calendar` → keep `services/calendar_service.py` (shadows Python stdlib `calendar` otherwise)
 - `list` → avoid as module name (Python builtin)
 
+### Automated-agent git workflow
+
+If you are running as an **automated/scheduled agent** (scanner, QA, phase-maker, phase-executer, log-resolver, etc.), do **not** commit to `master`. Work on `auto/<agent-id>` in your own git worktree (`git worktree add /home/patrick/home-lab-trees/<agent-id> -B auto/<agent-id> origin/master`), commit there, and `git push -u origin auto/<agent-id>`. Never touch master's working tree, never rebase shared state, never force-push another agent's branch. A daily integrator merges clean branches into `master` and reviews Dependabot PRs. Humans / interactive sessions may still use `master` directly. Full spec: [`docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`](docs/AUTOMATED-AGENT-GIT-WORKFLOW.md).
+
 ### Commit conventions
 
 Imperative mood, 72-char summary:
@@ -103,6 +107,7 @@ Read `docs/LOG-INSTRUCTIONS.md` before your first log append for the template + 
 | Resolved bmo entries | `docs/BMO-RESOLVED-ISSUES.md` |
 | Resolved dnd-app entries | `docs/RESOLVED-ISSUES-DNDAPP.md` |
 | Where-to-log triage | `docs/LOG-INSTRUCTIONS.md` |
+| Automated-agent git workflow | `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md` |
 | BMO troubleshooting | `bmo/docs/TROUBLESHOOTING.md` |
 | Running the app | `docs/COMMANDS.md` |
 | Terms (beginner) | `docs/GLOSSARY.md` |

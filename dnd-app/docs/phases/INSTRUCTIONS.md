@@ -15,7 +15,7 @@
 > `completed/` (rule 8)**.
 >
 > For any extensive dnd-app work outside a plan file, these rules still apply
-> in full: the 4-gate (rule 5), git discipline (master only, rule 11), ISO
+> in full: the 4-gate (rule 5), git discipline (per-agent branch + worktree, rule 11), ISO
 > dates (rule 18), STOP-and-ask escalation (rule 9), and **especially rule
 > 10/151/153 (NO mid-run status reports or turn-ending prose — the last thing
 > in every response is a tool call) and rule 27/159 (NO deferral / "needs
@@ -64,7 +64,7 @@ npx biome check --write src/      # instant autofix/format only
 
 then commit + push (rule 7), then **immediately start the next phase**. The CI workflow `.github/workflows/dnd-app-ci.yml` runs the full gate on the push — Lint (biome) → Forbidden patterns → Typecheck (web) → Typecheck (node) → Validate content schemas → **Tests (`npm test` = full vitest)** → Build (electron-vite) → Verify artifacts → Bundle-size guard → Coverage baseline → Security audit → Circular deps → No-skipped-tests → Dead code (knip). bmo/pi changes additionally trigger `bmo-pi-pytest.yml`. CI is more thorough than the old local 4-gate ever was.
 
-**Watch + fix-forward (NOT STOP-and-ask).** On each push, run a background CI watcher (poll `gh run list --branch master` for the pushed SHA). When it reports a workflow conclusion = `failure`: drop in, read `gh run view <id> --log-failed`, fix the cause, commit the fix (fix-forward — a new commit on master, do NOT amend/force-push), push, and continue. A red CI run is normal turnaround, **not** a rule-9 STOP trigger. Confirm conclusion=success per rule 12.
+**Watch + fix-forward (NOT STOP-and-ask).** On each push, run a background CI watcher (poll `gh run list --branch auto/phase-executer` for the pushed SHA). When it reports a workflow conclusion = `failure`: drop in, read `gh run view <id> --log-failed`, fix the cause, commit the fix (fix-forward — a new commit on master, do NOT amend/force-push), push, and continue. A red CI run is normal turnaround, **not** a rule-9 STOP trigger. Confirm conclusion=success per rule 12.
 
 **NEVER `ScheduleWakeup` / sleep / park on a timer to WAIT for CI, an anchor-verify, or a review (user 2026-06-17, emphatic).** Waiting is idle is wrong. The background watcher + workflow notifications are the ONLY trigger to circle back. Between pushes you are ALWAYS doing the next phase's real work — including starting the next phase's implementation rather than waiting on its anchor-verify (fold anchors in when they land). The only ways a turn ends are rule-9 (genuine blocker) or rule-14 (folder empty).
 
@@ -72,7 +72,7 @@ then commit + push (rule 7), then **immediately start the next phase**. The CI w
 
 1. Single `git add` of every file touched during the phase.
 2. Single commit, phase-scoped message: `feat(<scope>): phase N — <one-line theme>`. Body lists each sub-phase.
-3. Single `git push origin HEAD:master` + launch the CI watcher + start the next phase.
+3. Single `git push -u origin auto/phase-executer` (your agent branch — NEVER master; rule 11) + launch the CI watcher + start the next phase.
 
 For phases that touch the Pi side (`bmo/pi/`), the cheap targeted check is the affected pytest file; CI's `bmo-pi-pytest.yml` runs the full pytest gate on push.
 
@@ -173,24 +173,26 @@ Stopping or handing back the turn when the work is merely large/hard/long/manual
 When you catch yourself about to write the word "DEFERRED" or "needs app verification" or "out of scope for this pass" in a plan stamp or commit, stop: that is the bug. Implement the item instead, gate it, commit it, and start the next one.
 
 
-### 11. Always work on master
-- No feature branches.
-- No new branches at all.
-- All commits go straight to `master`.
-- All pushes go to `origin master`.
-- Keep the local branch list and the GitHub branch list both equal to `[master]`.
-- **If a remote branch other than `master` exists** (e.g., from a previous AI session, a dependabot PR, a stale review branch), this is a **rule 9 STOP-and-ask trigger**. Do NOT delete it without explicit user permission. Present the user with:
+### 11. Automated agents work on their OWN branch + worktree — never master
+This phase loop runs as an **automated agent** (`agent-id: phase-executer`). Per the repo-wide policy in [`AUTOMATED-AGENT-GIT-WORKFLOW.md`](../../../docs/AUTOMATED-AGENT-GIT-WORKFLOW.md), it does **NOT** commit to `master`.
+
+- Work on branch **`auto/phase-executer`** inside the dedicated worktree **`/home/patrick/home-lab-trees/phase-executer`**, created off the latest `origin/master` (refresh command in rule 15).
+- **All** phase commits go to `auto/phase-executer`; **all** pushes are `git push -u origin auto/phase-executer`.
+- **Never** commit to `master`, **never** touch master's working tree or index, **never** rebase shared state (`master`, or another agent's branch). Rebasing your OWN `auto/phase-executer` onto `origin/master` is allowed (rule 15).
+- **Never** force-push another agent's branch and **never** delete a branch you don't own — branch cleanup belongs to the integrator.
+- You never merge to `master` yourself. The daily **integrator** (a separate scheduled job) merges `auto/phase-executer` into `master` once CI is green and it merges cleanly, then deletes the branch; if it can't merge cleanly it leaves the branch and reports to the user. Full integrator spec (incl. Dependabot handling): [`AUTOMATED-AGENT-GIT-WORKFLOW.md`](../../../docs/AUTOMATED-AGENT-GIT-WORKFLOW.md).
+
+**Foreign-branch sweep (changed under the per-agent model).** Other `auto/*` branches are now **expected** — they belong to the sibling scheduled agents (scanners, QA, phase-maker, log-resolver) and the integrator owns their lifecycle. Do **NOT** STOP-and-ask just because non-master branches exist. The sweep now only flags a branch that is **neither `master` nor `auto/*`** (e.g. a stray `feature/*`, a leftover review branch, an unexpected human topic branch). That remains a **rule 9 STOP-and-ask trigger** — present the user with:
   - The branch name (local and/or remote)
   - When it was last committed to + by whom
   - What's on it (`git log master..<branch>` summary, file-changed list)
-  - The proposed action (delete via `git push origin :<branch>` + `git branch -D <branch>`, or keep, or merge)
-  - Wait for the user's call. Then follow exactly.
+  - The proposed action (keep / merge / delete). Wait for the user's call; never delete it yourself.
 
-**When to sweep** — the foreign-branch check fires at TWO points, not just one:
-- **Top of every phase iteration**, as part of rule 15's `git fetch` block (the entry-gate check).
-- **Every progress checkpoint during a phase** (rule 21, every ~5 sub-phases), so branches that appear mid-phase (a dependabot PR opened mid-run, a side branch from another contributor, a stray push from another AI session) get caught within ~5 sub-phases instead of sitting unnoticed until the next phase starts.
+**When to sweep** — same two points as before:
+- **Top of every phase iteration**, as part of rule 15's refresh block.
+- **Every progress checkpoint during a phase** (rule 21, every ~5 sub-phases).
 
-Both points run the same one-liner: `git fetch origin --quiet && git ls-remote --heads origin | grep -v 'refs/heads/master$'`. Non-empty output → STOP+ask per the protocol above. Cost per mid-phase sweep is one `git fetch` against origin (negligible).
+Both run: `git fetch origin --quiet && git ls-remote --heads origin | grep -vE 'refs/heads/(master|auto/)'`. Non-empty output → STOP+ask per the protocol above. Dependabot PR branches are the integrator's responsibility, not this loop's.
 
 Tags are fine (the release flow creates `vX.Y.Z` tags), but only via `cut.mjs` — never `git push --tags` (would push intermediate lightweight tags). Verify `.github/workflows/release.yml`'s tag filter is restricted to `'v*.*.*'` before pushing any tags manually.
 
@@ -277,12 +279,15 @@ If no findings were logged, say so: "No new entries logged this run."
 At the top of every phase iteration (before rule 1 picks the earliest plan), refresh local from remote:
 
 ```bash
-git fetch origin
+# Refresh from origin and (re)create your agent worktree off the latest master.
+git -C /home/patrick/home-lab fetch origin --quiet
+git worktree add /home/patrick/home-lab-trees/phase-executer -B auto/phase-executer origin/master 2>/dev/null \
+  || { cd /home/patrick/home-lab-trees/phase-executer && git fetch origin --quiet && git rebase origin/master; }
+cd /home/patrick/home-lab-trees/phase-executer
 git status                # confirm clean
-git pull origin master --ff-only
 ```
 
-If `--ff-only` fails (divergence), this is a rule 9 STOP-and-ask trigger. The user may have pushed a fix-up or another session's work; do not force-merge.
+If the rebase onto `origin/master` hits conflicts git can't auto-resolve (the append-only logs union-merge automatically, so a real conflict means overlapping code edits), this is a rule 9 STOP-and-ask trigger — another session or the integrator may have changed the same lines; do not force it.
 
 This catches the silent-corruption case where remote master moved while a session was idle. Without it, the loop can write commits against a stale tree and produce conflict-laden pushes.
 
@@ -500,11 +505,12 @@ touch ~/.claude-tools/heartbeat
 #   wait for user
 
 while plans remain in dnd-app/docs/phases/ (excluding INSTRUCTIONS.md):
-  REFRESH: git fetch origin && git pull origin master --ff-only (rule 15)
-    -> ff-only fails: STOP_AND_ASK("error", "ff-only failed", <diff summary>)
+  REFRESH (rule 15): git fetch origin; git worktree add /home/patrick/home-lab-trees/phase-executer \
+             -B auto/phase-executer origin/master  (or: cd into it; git fetch; git rebase origin/master)
+    -> rebase conflict it can't auto-resolve: STOP_AND_ASK("error", "rebase onto origin/master conflicted", <diff summary>)
 
-  CHECK: any remote branch other than master?
-    -> yes: STOP_AND_ASK("warn", "foreign branch found", <branch info>) (rule 11)
+  CHECK: any remote branch that is neither master nor auto/* ?  (auto/* belong to the sibling agents + integrator — expected)
+    -> yes: STOP_AND_ASK("warn", "unexpected branch found", <branch info>) (rule 11)
     -> no: continue
 
   plan = earliest phase-N-plan.md
@@ -534,8 +540,8 @@ while plans remain in dnd-app/docs/phases/ (excluding INSTRUCTIONS.md):
       emit progress checkpoint (rule 21)
       touch ~/.claude-tools/heartbeat                                     (rule 24)
       git fetch origin --quiet                                            (rule 11 mid-phase sweep)
-      if `git ls-remote --heads origin | grep -v 'refs/heads/master$'` is non-empty:
-        STOP_AND_ASK("warn", "foreign branch found mid-phase", <branch + last commit + diff stat + recommendation>) (rule 11)
+      if `git ls-remote --heads origin | grep -vE 'refs/heads/(master|auto/)'` is non-empty:
+        STOP_AND_ASK("warn", "unexpected branch found mid-phase", <branch + last commit + diff stat + recommendation>) (rule 11)
 
   # END-OF-PHASE 4-gate + single commit (rule 5, user 2026-05-19):
   run 4-gate (lint + tsc-web + tsc-node + vitest; pytest if Pi-side)
@@ -545,7 +551,7 @@ while plans remain in dnd-app/docs/phases/ (excluding INSTRUCTIONS.md):
   git add <every file touched during the phase>
   git mv dnd-app/docs/phases/PHASE-NN-<slug>.md dnd-app/docs/phases/completed/   (rule 8 — never delete)
   git commit -m "feat(<scope>): phase N — <one-line theme>" -m "<body listing each sub-phase>"
-  git push origin master
+  git push -u origin auto/phase-executer   # your agent branch, NEVER master (rule 11; integrator merges to master)
   touch ~/.claude-tools/heartbeat                                         (rule 24)
   # NO release here (rule 6, user 2026-06-10) — releases happen once, after the LAST phase,
   # or mid-run ONLY on an explicit user ask.

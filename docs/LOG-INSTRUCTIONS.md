@@ -66,6 +66,12 @@ These logs are a living record that survives across AI sessions + human work. Th
 
 ---
 
+## Automated agents: append on your own branch
+
+If you are an automated/scheduled agent, you do **not** append to these logs on `master`. You append on your `auto/<agent-id>` branch in your own git worktree; the append-only logs use a `merge=union` driver (see [`/.gitattributes`](../.gitattributes)) so concurrent appends from parallel agents auto-merge when the daily integrator consolidates the branches. Full workflow: [`./AUTOMATED-AGENT-GIT-WORKFLOW.md`](./AUTOMATED-AGENT-GIT-WORKFLOW.md).
+
+---
+
 ## The decision rule (read this first)
 
 Before appending an entry, ask: **Am I fixing this in the current session / PR?**

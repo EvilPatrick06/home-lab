@@ -60,6 +60,10 @@ Body optional for trivial changes. For multi-file refactors, describe:
 - Why (if non-obvious)
 - Migration notes (if paths/imports affected)
 
+### Automated-agent git workflow
+
+If this session runs as an **automated/scheduled agent** (scanner, QA, phase-maker, phase-executer, log-resolver, etc.), do **not** commit to `master`. Work on `auto/<agent-id>` in your own git worktree (`git worktree add /home/patrick/home-lab-trees/<agent-id> -B auto/<agent-id> origin/master`), commit there, and `git push -u origin auto/<agent-id>`. Never touch master's working tree, never rebase shared state, never force-push another agent's branch. A daily integrator merges clean branches into `master` and reviews Dependabot PRs. An interactive Claude Code chat may still use `master` directly. Full spec: [`docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`](docs/AUTOMATED-AGENT-GIT-WORKFLOW.md).
+
 ### Safety rules (Claude-specific)
 
 - **Never** `sudo rm -rf` without confirming the path twice

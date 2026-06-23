@@ -83,6 +83,8 @@ Read in order:
 
 Tool-specific instruction files: [`CLAUDE.md`](./CLAUDE.md), [`GEMINI.md`](./GEMINI.md), [`.github/copilot-instructions.md`](./.github/copilot-instructions.md).
 
+**Automated / scheduled agents** (scanners, QA, the phase agents, the log-resolver) follow a per-agent branch + worktree workflow and never commit to `master` — each pushes its own `auto/<agent-id>` branch and a daily integrator consolidates them. See [`docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`](./docs/AUTOMATED-AGENT-GIT-WORKFLOW.md).
+
 ## Docs index
 
 **Cross-cutting:**
@@ -94,6 +96,7 @@ Tool-specific instruction files: [`CLAUDE.md`](./CLAUDE.md), [`GEMINI.md`](./GEM
 - [`docs/BACKUP.md`](./docs/BACKUP.md) — backup strategy (Pi + GitHub LFS + cloud)
 - [`docs/SECURITY.md`](./docs/SECURITY.md) — posture, reporting, secret-handling
 - [`docs/CONTRIBUTING.md`](./docs/CONTRIBUTING.md) — branch / commit conventions
+- [`docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`](./docs/AUTOMATED-AGENT-GIT-WORKFLOW.md) — per-agent branch + worktree + integrator workflow
 - [`docs/CHANGELOG.md`](./docs/CHANGELOG.md) — release history
 
 **Active logs (split by domain — grep before opening a "new" bug):**

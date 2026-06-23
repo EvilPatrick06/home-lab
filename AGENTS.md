@@ -35,6 +35,21 @@ cd bmo/pi && ./venv/bin/python -m pytest
 cd dungeon-scholar && npm test && npm run build
 ```
 
+## Automated-agent git workflow
+
+**If you are an automated/scheduled agent (scanner, QA, phase-maker, phase-executer, log-resolver, etc.) you MUST NOT commit to `master`.** Work on your own branch `auto/<agent-id>` in your own git worktree, push that branch, and let the daily integrator merge it:
+
+```bash
+git -C /home/patrick/home-lab fetch origin --quiet
+git worktree add /home/patrick/home-lab-trees/<agent-id> -B auto/<agent-id> origin/master
+cd /home/patrick/home-lab-trees/<agent-id>
+# ...edit...
+git add <changed files> && git commit -m "<type>: <summary>"
+git push -u origin auto/<agent-id>          # push YOUR branch, never master
+```
+
+Never touch `master`'s working tree, never rebase shared state, never force-push another agent's branch. The append-only logs (`ISSUES-LOG*`, `SUGGESTIONS-LOG*`, `BMO-*`, `SECURITY-LOG`, `RESOLVED-*`) use a `merge=union` driver in `.gitattributes` so concurrent appends auto-merge. A single daily **integrator** merges clean `auto/*` branches into `master` and reviews Dependabot PRs (merging safe patch/minor bumps with green CI, leaving major/risky ones for the user). Humans / interactive sessions may still use `master` directly. **Full spec: [`docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`](docs/AUTOMATED-AGENT-GIT-WORKFLOW.md).**
+
 ## Structure Rules (enforce on every change)
 
 1. **Feature over type**: group by what it does (inventory, combat, calendar) not what kind (components, services, utils)

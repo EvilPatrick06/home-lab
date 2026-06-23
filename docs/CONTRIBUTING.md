@@ -28,6 +28,8 @@ See [`./SETUP.md`](./SETUP.md).
 - `chore/<short-name>` — tooling, deps, CI
 - `docs/<short-name>` — docs only
 
+**Automated / scheduled agents** (scanners, QA, the phase-maker / phase-executer, the log-resolver, and any other unattended worker) do **not** commit to `master` and do **not** use the `feature/*`-style branches above. Each works on its own `auto/<agent-id>` branch in its own git worktree, pushes that branch, and a single daily **integrator** merges the clean branches into `master` (and reviews Dependabot PRs). See [`./AUTOMATED-AGENT-GIT-WORKFLOW.md`](./AUTOMATED-AGENT-GIT-WORKFLOW.md).
+
 ## Pre-commit hook (Husky)
 
 Running `npm install` in `dnd-app/` wires a [Husky](https://typicode.github.io/husky/) pre-commit hook automatically (via the `prepare` script, which initializes `.husky/` at the repo root and points `core.hooksPath` there). The hook (`.husky/pre-commit`):
@@ -211,6 +213,7 @@ This repo is heavily AI-assisted. Whether you're human or AI:
 - Append findings to the right log per `./LOG-INSTRUCTIONS.md`
 - Use the TODO tracker for multi-step tasks
 - Small focused PRs > mega-commits
+- **Running as an automated/scheduled agent?** Follow [`./AUTOMATED-AGENT-GIT-WORKFLOW.md`](./AUTOMATED-AGENT-GIT-WORKFLOW.md) — branch `auto/<agent-id>` + worktree, never `master`
 
 ## Conduct
 

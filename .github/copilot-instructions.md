@@ -56,6 +56,10 @@ Issues should reference the matching active log if logging a bug (per domain —
 - Describe what/why (not just what)
 - Note any active-log entries resolved (`BMO-ISSUES-LOG.md` / `ISSUES-LOG-DNDAPP.md` / `BMO-SUGGESTIONS-LOG.md` / `SUGGESTIONS-LOG-DNDAPP.md`)
 
+## Automated-agent git workflow
+
+Automated/scheduled agents (scanners, QA, phase-maker, phase-executer, log-resolver, etc.) do **not** commit to `master`. Each works on its own `auto/<agent-id>` branch in its own git worktree and pushes that branch; a daily **integrator** merges the clean branches into `master` and reviews Dependabot PRs (merging safe patch/minor bumps with green CI, leaving major/risky ones for manual review). The append-only logs use a `merge=union` driver so concurrent appends auto-merge. Humans / interactive sessions may still use `master`. Full spec: [`../docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`](../docs/AUTOMATED-AGENT-GIT-WORKFLOW.md).
+
 ## Forbidden Patterns
 
 - `from X import Y` where `X` is a BMO submodule (use `from services.X import Y`)
@@ -65,6 +69,7 @@ Issues should reference the matching active log if logging a bug (per domain —
 - `let` where `const` works (biome rule)
 - New files at `bmo/pi/` root without justification — they go in a subpackage
 - New files at `dnd-app/` root without justification — configs only
+- Automated/scheduled agents committing directly to `master` — they use `auto/<agent-id>` + a worktree (see `../docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`)
 
 ## Encouraged Patterns
 

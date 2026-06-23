@@ -223,10 +223,15 @@ When something's wrong, **reproduce it** so your report has clean steps. Cross-c
 ## 8. The report (your only deliverable)
 
 **Output location + commit.** Everything you produce goes into **`dnd-app/docs/phases/QA/`** in the repo (path: `C:\Users\evilp\work\home-lab\dnd-app\docs\phases\QA\`; on GitHub: `https://github.com/EvilPatrick06/home-lab/tree/master/dnd-app/docs/phases/QA`). Create the folder if it doesn't exist. Put the report there and **all screenshots** there too — keep screenshots in a `screenshots/` subfolder (e.g. `dnd-app/docs/phases/QA/screenshots/`) and reference them from the report with relative links. When done, **commit and push** the QA folder:
-- `git pull` first (avoid a stale-base push).
+- **Never commit to `master`.** QA is an automated agent (id `qa`): it works on its own branch `auto/qa` in its own git worktree and lets the daily integrator merge it (full spec: [`AUTOMATED-AGENT-GIT-WORKFLOW.md`](../../../../docs/AUTOMATED-AGENT-GIT-WORKFLOW.md)). From your clone root:
+  ```bash
+  git fetch origin
+  git worktree add ../home-lab-trees/qa -B auto/qa origin/master   # sibling worktree, off the latest master
+  cd ../home-lab-trees/qa
+  ```
 - Stage **only** the QA folder: `git add dnd-app/docs/phases/QA` — do **not** `git add .` or stage anything else; if the working tree has other modified/untracked files from the test run, leave them unstaged.
 - **Screenshots are binary — route them through Git LFS.** The repo already uses LFS; make sure the QA screenshots are LFS-tracked (e.g. `git lfs track "dnd-app/docs/phases/QA/screenshots/**"` if not already covered, and stage the resulting `.gitattributes` change *only if* it's the QA path) before committing, and keep images compressed/reasonably sized.
-- Commit with a clear message (e.g. `docs(qa): QA report YYYY-MM-DD + screenshots`) and `git push` to `master`.
+- Commit with a clear message (e.g. `docs(qa): QA report YYYY-MM-DD + screenshots`) and push **your branch** — `git push -u origin auto/qa`. Do **not** push `master`; the daily integrator merges clean `auto/*` branches into `master`.
 - If the commit would include anything outside the QA folder, stop and fix the staging — never push other changes.
 - **If your git tooling can't stage/commit/push** (auth, hooks, sandbox limits, etc.), run the same git commands directly in the user's **PowerShell** terminal instead — don't let a tooling hiccup leave the report unpublished.
 

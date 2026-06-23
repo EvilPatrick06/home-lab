@@ -79,6 +79,7 @@
 │   ├── CONTRIBUTING.md               branch/commit conventions
 │   ├── CHANGELOG.md                  version history
 │   ├── LOG-INSTRUCTIONS.md           which-log-where + entry templates
+│   ├── AUTOMATED-AGENT-GIT-WORKFLOW.md  per-agent branch+worktree+integrator workflow
 │   ├── BMO-ISSUES-LOG.md                  active bugs / debt — bmo domain
 │   ├── ISSUES-LOG-DNDAPP.md               active bugs / debt — dnd-app domain
 │   ├── ISSUES-LOG-DUNGEON-SCHOLAR.md      active bugs / debt — dungeon-scholar domain
@@ -166,6 +167,7 @@ All are for **unfixed or deferred** work that crosses session boundaries.
 - **Commits**: imperative mood, summary ≤ 72 chars
 - **Prefer small focused PRs** over mega-commits
 - **Always `git status` before committing** — check no secrets leak
+- **Automated/scheduled agents** (scanners, QA, phase-maker/executer, log-resolver) **never commit to `master`.** Each works on its own branch `auto/<agent-id>` in its own worktree (`/home/patrick/home-lab-trees/<agent-id>`) and pushes that branch; a daily integrator merges the clean branches into `master` and reviews Dependabot PRs. Active logs union-merge (`.gitattributes`). Humans/interactive sessions may still use `master`. Full spec: `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`.
 
 ## For AI Sessions
 

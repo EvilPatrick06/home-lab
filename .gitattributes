@@ -30,3 +30,15 @@ dnd-app/docs/phases/QA/screenshots/*.jpg filter=lfs diff=lfs merge=lfs -text
 dnd-app/docs/phases/QA/screenshots/*.jpeg filter=lfs diff=lfs merge=lfs -text
 dnd-app/docs/phases/QA/screenshots/*.gif filter=lfs diff=lfs merge=lfs -text
 dnd-app/docs/phases/QA/screenshots/*.webp filter=lfs diff=lfs merge=lfs -text
+
+# --- Append-only log docs: union merge ---------------------------------------
+# Concurrent appends from parallel automated-agent branches (auto/<agent-id>)
+# auto-merge instead of conflicting. See docs/AUTOMATED-AGENT-GIT-WORKFLOW.md.
+# Patterns are bare globs so they match the log basenames in any directory.
+ISSUES-LOG*           merge=union
+BMO-ISSUES-LOG*       merge=union
+SUGGESTIONS-LOG*      merge=union
+BMO-SUGGESTIONS-LOG*  merge=union
+SECURITY-LOG*         merge=union
+RESOLVED-*            merge=union
+BMO-RESOLVED-*        merge=union
