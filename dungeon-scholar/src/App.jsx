@@ -927,6 +927,8 @@ export default function DungeonScholarApp() {
           lastSyncedAt={null}
           onClose={() => setShowAccountPanel(false)}
           onResetProgress={resetProgress}
+          playerState={playerState}
+          onImportSave={(s) => setPlayerState(s)}
         />
       )}
 

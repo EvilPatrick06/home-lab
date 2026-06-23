@@ -202,3 +202,29 @@ export function clearSyncMeta() {
     // ignore
   }
 }
+
+// S12: portable save export/import (offline backup file). The in-app quota
+// error copy promises "export thy journal" — these provide it.
+export function exportSaveText(state) {
+  return JSON.stringify(
+    { app: 'dungeon-scholar', schema_ver: CURRENT_SCHEMA_VER, exportedAt: new Date().toISOString(), state },
+    null,
+    2,
+  );
+}
+
+export function parseImportedSave(text) {
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    return { ok: false, error: 'That file is not valid JSON.' };
+  }
+  // Accept both the wrapped export shape and a bare state object.
+  const state = parsed && parsed.app === 'dungeon-scholar' && parsed.state ? parsed.state : parsed;
+  if (!state || typeof state !== 'object' || !Array.isArray(state.library)) {
+    return { ok: false, error: 'This file is not a Dungeon Scholar journal.' };
+  }
+  const ver = parsed && typeof parsed.schema_ver === 'number' ? parsed.schema_ver : (state.schemaVer ?? CURRENT_SCHEMA_VER);
+  return { ok: true, state: migrateIfNeeded(state, ver) };
+}
