@@ -39,64 +39,7 @@ New entries go at the TOP of their section (newest first).
 
 ---
 
-### [2026-06-22] Inconsistent script naming in `pi/scripts/` (kebab-case vs snake_case)
-
-- **Category:** debt
-- **Severity:** info
-- **Domain:** bmo
-- **Discovered by:** bmo-cleanup
-- **During:** Automated cleanup scan of the bmo/ tree.
-
-**Description:**
-`bmo/pi/scripts/` mixes two naming conventions. Most entries are kebab-case (`apply-access-config.sh`, `cloudflare-access-api.sh`, `deploy.sh`, `diagnose-cloudflare.sh`, `install-venv.sh`, `seed-5e-library.sh`, `setup-cloudflare-tunnel.sh`, `setup-tailscale.sh`, `sync-shared-5e-json.sh`, `check-complexity.py`), but three use snake_case: `e2e_test.sh`, `health_check.sh`, `win_proxy.py`. Standardizing on one convention (kebab-case is the clear majority) would make the directory tidier and easier to scan. CAVEAT: the three odd-ones-out are referenced elsewhere — `health_check.sh` appears in `bmo/README.md`, `docs/ARCHITECTURE.md` (including a cron example) and is wired into a real crontab; `win_proxy` symbols appear in `state.py` / `routes/ide.py`. Any rename must update all those references (and the live crontab / any systemd unit) in lock-step, so this is low-value churn — log it, fix opportunistically rather than as a standalone change.
-
-**Proposed fix / improvement:**
-- [ ] If standardizing, rename the three snake_case scripts to kebab-case and update every reference (README, ARCHITECTURE.md, cron, and any code that shells out to them) in the same change.
-
-**Related files:** `bmo/pi/scripts/e2e_test.sh`, `bmo/pi/scripts/health_check.sh`, `bmo/pi/scripts/win_proxy.py`, `bmo/README.md`, `bmo/docs/ARCHITECTURE.md`
-### [2026-06-22] No off-tree backup/snapshot of BMO's gitignored runtime state
-
-- **Category:** future-idea
-- **Severity:** medium
-- **Domain:** bmo
-- **Discovered by:** bmo-suggestor
-- **During:** read-only review of persistence paths (settings_store / campaign_memory / list_service / chat_history) vs `.gitignore` and `scripts/deploy.sh`
-
-**Description:**
-All of BMO's accumulated, mutable state lives untracked-and-gitignored inside the working tree under `bmo/pi/data/` and is the only copy anywhere: `campaign_memory.db` (SQLite — D&D NPC/campaign memory), `dnd_sessions/` (session logs), plus a pile of JSON state — `lists.json`, `notes.json`, `alarms.json`, `play_counts.json`, `music_history.json`, `recent_chat.json`, `settings.json`, `alert_history.json`, etc. (see `.gitignore` lines ~92–119). `deploy.sh` is correctly careful (it refuses a dirty tree and never `git clean`s, so deploys do not clobber this state), but that is the *only* thing protecting it. There is no periodic backup/snapshot: an SSD/SD failure, a stray manual `git clean -fdx`, or a bad block on the single Pi disk silently destroys every D&D campaign's memory, all alarms, lists, notes, and play history with no recovery path. No `backup`/`restore`/`rsync`/`tar` of `data/` exists anywhere in `scripts/`.
-
-**Hypothesis / root cause:** State accreted file-by-file as features shipped; each module just picks its own path under `data/`. Because it is gitignored it is invisible to the git-based deploy safety net, so no one added an out-of-band copy.
-
-**Proposed fix / improvement:**
-- [ ] Add a small `scripts/backup-state.sh` that tars/rsyncs the gitignored runtime set (`campaign_memory.db`, `dnd_sessions/`, and the `data/*.json` state files) to a second location — another disk, a NAS/`rclone` remote, or at minimum a timestamped copy outside the repo tree.
-- [ ] Run it on a `systemd` timer (daily) and surface last-success age in `/api/health/full` so a stale/failed backup is visible.
-- [ ] Document restore in `DEPLOY.md` / `TROUBLESHOOTING.md`. (`rclone` is already a dependency — `routes/rclone_api.py` exists — so an off-device target is low-effort.)
-
-**Related files:** `bmo/pi/services/settings_store.py`, `bmo/pi/services/campaign_memory.py`, `bmo/pi/services/chat_history.py`, `bmo/pi/services/list_service.py`, `bmo/.gitignore`, `bmo/pi/scripts/deploy.sh`, `bmo/pi/routes/rclone_api.py`
-
 ---
-
-### [2026-06-22] No cross-provider LLM failover in `cloud_chat` (+ inconsistent transient-retry across providers)
-
-- **Category:** future-idea
-- **Severity:** medium
-- **Domain:** bmo
-- **Discovered by:** bmo-suggestor
-- **During:** read-only review of `services/cloud_providers.py` LLM routing/reliability
-
-**Description:**
-`cloud_chat()` dispatches a request to exactly one provider based on the model-name prefix (`gemini*` -> Gemini, `claude*` -> Claude, `llama/mixtral/groq-*` -> Groq) with no fallback. If the chosen provider is down or rate-limited, the call raises and the caller (voice pipeline, agents) gets nothing — for the always-on voice path that means BMO goes silent on a single-vendor outage, even though three other working LLM backends are configured. Compounding it, transient-error handling is inconsistent: `gemini_chat()` retries up to 3x on HTTP 5xx with linear backoff, but `claude_chat()` and `groq_llm_chat()` are single-shot (`post(...)` -> `raise_for_status()`), so a one-off 502/503 from Claude/Groq fails the whole turn where the same blip against Gemini would be absorbed. There is no shared retry/backoff helper and no notion of "primary down -> try secondary".
-
-**Hypothesis / root cause:** Providers were added incrementally; the retry loop was bolted onto Gemini (the flaky-preview primary) only, and routing stayed a simple prefix switch rather than a resilience layer.
-
-**Proposed fix / improvement:**
-- [ ] Factor one transient-retry helper (5xx + timeout, bounded backoff) and apply it uniformly to all three chat providers.
-- [ ] Add an opt-in failover ladder in `cloud_chat` (e.g. primary -> a configured fallback model on a *different* vendor) for non-streaming chat, gated by a setting so DM/Code-Agent determinism is not silently changed. Respect the gevent/`os.system` design constraint — keep failover at the Python routing layer, do not touch the curl paths.
-- [ ] Optionally record which provider served each turn via the metrics idea already logged (2026-06-22 "Aggregate voice-pipeline stage latency...") so failover events are observable.
-
-**Related files:** `bmo/pi/services/cloud_providers.py` (`cloud_chat`, `gemini_chat`, `claude_chat`, `groq_llm_chat`), `bmo/pi/services/voice_pipeline.py`, `bmo/docs/DESIGN-CONSTRAINTS.md` (gevent/`os.system` constraint)
-
-**Related entries:** `BMO-SUGGESTIONS-LOG.md` [2026-06-22] Aggregate voice-pipeline stage latency into an exported metrics endpoint.
 
 ### [2026-06-22] Adopt `bmo_logging` everywhere — retire stray `print()` and silent `except: pass`
 
@@ -185,43 +128,9 @@ The owner's identity is baked into source in **~51 places**. The social bot's pe
 
 ---
 
-### [2026-06-22] Consolidate scattered systemd `.service` units into one location
-
-- **Category:** debt
-- **Severity:** low
-- **Domain:** bmo
-- **Discovered by:** bmo-cleanup
-- **During:** Automated cleanup scan of the bmo/ tree.
-
-**Description:**
-Four tracked systemd unit files live in two different directories. Three sit together in `bmo/pi/kiosk/` (`bmo-kiosk.service`, `bmo-dm-bot.service`, `bmo-social-bot.service`) alongside `install-kiosk.sh`, while a fourth — `bmo-ide.service` — sits off on its own in `bmo/pi/ide_app/`. There is no single place to look for "what units does this host run", and the kiosk installer can't pick up the IDE unit. Either co-locate all units (e.g. a `bmo/pi/kiosk/` or new `bmo/pi/systemd/` dir) or document why the IDE unit is intentionally separate.
-
-**Proposed fix / improvement:**
-- [ ] Pick a canonical home for unit files (likely `bmo/pi/kiosk/` since the installer is there, or a dedicated `systemd/` dir).
-- [ ] Move `ide_app/bmo-ide.service` there (update any install script / docs that reference its path).
-
-**Related files:** `bmo/pi/ide_app/bmo-ide.service`, `bmo/pi/kiosk/bmo-kiosk.service`, `bmo/pi/kiosk/bmo-dm-bot.service`, `bmo/pi/kiosk/bmo-social-bot.service`, `bmo/pi/kiosk/install-kiosk.sh`
-
 ---
 
 ---
-
-### [2026-06-22] Aggregate voice-pipeline stage latency into an exported metrics endpoint
-
-- **Category:** future-idea
-- **Severity:** low
-- **Domain:** bmo
-- **Discovered by:** bmo-suggestor
-- **During:** read-only review of the voice pipeline + monitoring stack
-
-**Description:**
-`services/voice_pipeline.py` already takes ad-hoc per-stage timestamps (`_t_stt0`, `_t_chat0`, the `record` elapsed log) and `services/bmo_logging.py` can emit JSON, but STT/LLM/TTS stage durations and agent-routing time are only written as scattered log lines — never aggregated or exported. `services/monitoring.py` tracks a per-service health-check `response_time`, but that is liveness latency, not the user-perceived "wake -> spoken reply" budget. There is no `/api/metrics` (or Prometheus text) endpoint and no rolling p50/p95 for the voice path, so latency regressions are invisible until BMO subjectively "feels slow."
-
-**Proposed fix / improvement:**
-- [ ] Add a small in-process metrics collector (counters + histograms / ring buffer) fed by the existing `_t_*` timers, recording each stage duration and the chosen agent route.
-- [ ] Expose it at `/api/metrics` (JSON, or Prometheus text for scraping) and optionally surface p50/p95 inside `/api/health/full`.
-
-**Related files:** `services/voice_pipeline.py`, `services/monitoring.py`, `app.py`, `services/bmo_logging.py`
 
 ### [2026-06-22] Mock-hardware "simulator" run mode for off-Pi development
 
@@ -257,66 +166,6 @@ Off-Pi, `init_services()` wraps each hardware service (LED, OLED, camera, mic/vo
 
 **Related files:** `dev/benchmark_full.py`, `services/monitoring.py`, `services/voice_pipeline.py`, `wake/clips`, `health_check.sh`
 
-### [2026-06-22] No PR-time CI gate for dungeon-scholar or oracle-worker
-
-- **Category:** future-idea
-- **Severity:** medium
-- **Domain:** both
-- **Discovered by:** overall-suggestor
-- **During:** cross-cutting repo-wide scan
-
-**Description:**
-`dnd-app` has a dedicated CI gate (lint + forbidden-patterns + tsc + tests + build smoke + circular + audit). `dungeon-scholar` runs `npm run test` ONLY as a precondition of the Pages deploy (`deploy.yml`, push to main) — there is no `pull_request`-triggered test/build gate, so a PR merges green and only fails later at deploy time. `oracle-worker` has a `test` script but zero workflows reference it, so its tests never run in CI.
-
-**Proposed fix / improvement:**
-- [ ] Add `dungeon-scholar-ci.yml` (path-filtered test + build on push + PR).
-- [ ] Add `oracle-worker-ci.yml` (npm ci + test).
-- [ ] Optionally factor the shared setup-node / npm-ci steps into a composite action reused by all JS-project workflows.
-
-**Related files:** `.github/workflows/deploy.yml`, `dungeon-scholar/package.json`, `oracle-worker/package.json`
-
-### [2026-06-22] Local pre-commit hook gates only dnd-app; `.githooks/` dir is now orphaned
-
-- **Category:** future-idea
-- **Severity:** low
-- **Domain:** both
-- **Discovered by:** overall-suggestor
-- **During:** cross-cutting repo-wide scan
-
-**Description:**
-`.husky/pre-commit` does `cd dnd-app` then runs biome + tsc on that project only. Commits touching `dungeon-scholar`, `oracle-worker`, or repo-root tooling get no local lint/typecheck/test pre-flight (dungeon-scholar`s first gate is the deploy workflow; oracle-worker has none). Separately, `.githooks/pre-commit` is now redundant — its gitleaks shim was folded into `.husky/` per that hook`s own comment, yet the old dir remains and can confuse anyone setting `core.hooksPath`.
-
-**Proposed fix / improvement:**
-- [ ] Make the hook detect which project(s) have staged changes and run each one`s lint/typecheck (at minimum add dungeon-scholar test/build).
-- [ ] Delete the orphaned `.githooks/` directory once `.husky` is confirmed authoritative.
-
-**Related entries:** `ISSUES-LOG-DNDAPP.md` [2026-06-16] pre-commit `--staged` no-op (distinct dnd-app-only bug).
-**Related files:** `.husky/pre-commit`, `.githooks/pre-commit`
-
-### [2026-06-22] Four hand-maintained agent-instruction files will drift (AGENTS / CLAUDE / GEMINI / copilot)
-
-- **Category:** future-idea
-- **Severity:** low
-- **Domain:** both
-- **Discovered by:** overall-suggestor
-- **During:** cross-cutting repo-wide scan
-
-**Description:**
-The repo carries four overlapping AI-assistant guides — `AGENTS.md` (12.8K), `CLAUDE.md` (11.3K), `GEMINI.md` (5.2K), `.github/copilot-instructions.md` (4.6K) — each maintained by hand. They cover much of the same ground (repo layout, conventions, logging rules) and will drift out of sync as the repo evolves.
-
-**Proposed fix / improvement:**
-- [ ] Designate one canonical source (e.g. `AGENTS.md`); generate or symlink the others from it, or add a sync check that flags when shared sections diverge.
-- [ ] At minimum, have each file link to the canonical one for shared sections instead of duplicating them.
-
-**Related files:** `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.github/copilot-instructions.md`
-
-> **2026-06-10 — Backlog consolidated.** All previously-open entries (the app.py
-> blueprint-refactor remainder, flask-talisman, the gevent ThreadPoolExecutor /
-> requests-vs-httpx gotchas, and the venv/threading observations) became
-> the numbered phase plans under `dnd-app/docs/phases/` (start at `PHASE-INDEX.md`); the consolidating audit was deleted once the phase set was authored (2026-06-11). Add new BMO items below as they appear.
-
-*(none active)*
-
 ---
 
 # Design gotchas (warnings for future agents)
@@ -328,22 +177,6 @@ The repo carries four overlapping AI-assistant guides — `AGENTS.md` (12.8K), `
 ---
 
 # Info / Observations
-
-### [2026-06-22] `docs/ARCHITECTURE.md` Pi-filesystem layout + health-check cron path are stale (pre-monorepo `~/bmo/`)
-
-- **Category:** docs
-- **Severity:** low
-- **Domain:** bmo
-- **Discovered by:** bmo-cleanup
-- **During:** Automated cleanup scan of the bmo/ tree.
-
-**Description:**
-`bmo/docs/ARCHITECTURE.md` still documents a deployment rooted at `~/bmo/`. Its "Pi filesystem layout" tree places `health_check.sh`, `bmo.service`, `requirements.txt`, `docker-compose.yml`, `backup.sh`, `venv/`, and `logs/` directly under a `~/bmo/` root, and the cron example reads `*/5 * * * * /home/patrick/bmo/health_check.sh >> /home/patrick/bmo/logs/health.log`. But the project is now an in-place monorepo: `deploy.sh` sets `REPO_ROOT=/home/patrick/home-lab` and runs from `bmo/pi/` directly (no rsync to `~/bmo/`), `health_check.sh` actually lives at `bmo/pi/scripts/health_check.sh`, and `/home/patrick/bmo` does not exist on the host. So the documented filesystem tree and the cron path are stale and would mislead anyone setting up monitoring straight from the doc.
-
-**Proposed fix / improvement:**
-- [ ] Update the ARCHITECTURE.md filesystem-layout tree and the cron example to the current `home-lab/bmo/pi/...` paths (script at `pi/scripts/health_check.sh`); confirm the live crontab path while doing so.
-
-**Related files:** `bmo/docs/ARCHITECTURE.md`, `bmo/pi/scripts/health_check.sh`, `bmo/pi/scripts/deploy.sh`
 
 ---
 
