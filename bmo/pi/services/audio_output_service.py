@@ -300,8 +300,8 @@ class AudioOutputService:
                     log.info("[audio] Moved stream %s → %s", _s(stream_idx), _s(sink_name))
                 else:
                     log.warning(f"[audio] Failed to move stream {stream_idx}: {err}")
-        except Exception as e:
-            log.exception(f"[audio] Stream move failed")
+        except Exception:
+            log.exception("[audio] Stream move failed")
 
     def get_function_output(self, function: str) -> int | None:
         """Get the device ID assigned to a function, or None for system default."""
@@ -359,8 +359,8 @@ class AudioOutputService:
             proc.stdin.write("quit\n")
             proc.stdin.flush()
             out, _ = proc.communicate(timeout=5)
-        except Exception as e:
-            log.exception(f"[bt] Scan process error")
+        except Exception:
+            log.exception("[bt] Scan process error")
             try:
                 proc.kill()
             except Exception:
@@ -446,7 +446,7 @@ class AudioOutputService:
             proc.stdin.flush()
             out, _ = proc.communicate(timeout=5)
         except Exception as e:
-            log.exception(f"[bt] Pair session error")
+            log.exception("[bt] Pair session error")
             try:
                 proc.kill()
             except Exception:
@@ -502,8 +502,8 @@ class AudioOutputService:
                 self._routing = {k: int(v) for k, v in raw.items() if v is not None}
                 # Load saved descriptions for re-resolving after reboot
                 self._routing_desc = settings.get("audio_routing_desc", {})
-        except Exception as e:
-            log.exception(f"[audio] Failed to load routing")
+        except Exception:
+            log.exception("[audio] Failed to load routing")
             self._routing = {}
             self._routing_desc = {}
 
@@ -537,8 +537,8 @@ class AudioOutputService:
                     log.info(f"[audio] Cannot resolve saved device for {func}: '{desc}' — not found in current sinks")
             if updated:
                 self._save_routing()
-        except Exception as e:
-            log.exception(f"[audio] Routing resolve failed")
+        except Exception:
+            log.exception("[audio] Routing resolve failed")
 
     def _save_routing(self):
         """Save routing preferences to settings.json."""
@@ -552,8 +552,8 @@ class AudioOutputService:
             settings["audio_routing_desc"] = self._routing_desc
             with open(SETTINGS_PATH, "w") as f:
                 json.dump(settings, f, indent=2)
-        except Exception as e:
-            log.exception(f"[audio] Failed to save routing")
+        except Exception:
+            log.exception("[audio] Failed to save routing")
 
     # ── Convenience ─────────────────────────────────────────────────
 

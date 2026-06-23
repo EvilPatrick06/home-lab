@@ -152,7 +152,7 @@ class AgentOrchestrator:
                     return relayed
 
             return result
-        except Exception as e:
+        except Exception:
             # Round 4 #1 (2026-05-17): never leak the raw exception repr
             # (KeyError comes through as bare `'state'`, ValueError comes
             # through as `'x is not y'`, etc). Log the full exception

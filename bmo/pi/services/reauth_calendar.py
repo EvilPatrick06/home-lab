@@ -12,11 +12,9 @@ import requests as http_requests
 from google.oauth2.credentials import Credentials
 
 from services.bmo_logging import _s, get_logger
-log = get_logger("reauth_calendar")
+from services.calendar_oauth_config import CONFIG_DIR, SCOPES
 
-_PI_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CONFIG_DIR = os.path.join(_PI_ROOT, "config")
-SCOPES = ["https://www.googleapis.com/auth/calendar"]
+log = get_logger("reauth_calendar")
 
 
 def main():

@@ -113,8 +113,8 @@ class NotificationService:
                 log.info(f"[notify] Found devices: {', '.join(self._devices.values())}")
             else:
                 log.info("[notify] No paired KDE Connect devices found")
-        except Exception as e:
-            log.exception(f"[notify] Device discovery failed")
+        except Exception:
+            log.exception("[notify] Device discovery failed")
 
     # ── Monitoring Loop ──────────────────────────────────────────────
 
@@ -153,8 +153,8 @@ class NotificationService:
                     buffer = []
 
             proc.terminate()
-        except Exception as e:
-            log.exception(f"[notify] Monitor loop error")
+        except Exception:
+            log.exception("[notify] Monitor loop error")
             # Fallback: poll notifications via CLI
             self._poll_loop()
 
@@ -189,8 +189,8 @@ class NotificationService:
                 # Keep known_ids from growing unbounded
                 if len(known_ids) > 500:
                     known_ids = set(list(known_ids)[-200:])
-            except Exception as e:
-                log.exception(f"[notify] Poll error")
+            except Exception:
+                log.exception("[notify] Poll error")
             time.sleep(5)
 
     def _process_dbus_signal(self, lines: list[str]):
@@ -282,8 +282,8 @@ class NotificationService:
                     app = package_name
 
             return app, title, body
-        except Exception as e:
-            log.exception(f"[notify] D-Bus property fetch failed")
+        except Exception:
+            log.exception("[notify] D-Bus property fetch failed")
             return "unknown", "", ""
 
     def _handle_notification(self, app: str, title: str, body: str,
@@ -354,8 +354,8 @@ class NotificationService:
             notif_volume = self._load_notif_volume()
             try:
                 self.voice.speak(announcement, volume=notif_volume)
-            except Exception as e:
-                log.exception(f"[notify] TTS failed")
+            except Exception:
+                log.exception("[notify] TTS failed")
 
         # Package delivery detection → alert service
         if self.alert_service:
@@ -553,8 +553,8 @@ class NotificationService:
             }
             with open(UNKNOWN_NOTIF_LOG, "a") as f:
                 f.write(json.dumps(entry) + "\n")
-        except Exception as e:
-            log.exception(f"[notify] Failed to log unknown notification")
+        except Exception:
+            log.exception("[notify] Failed to log unknown notification")
 
     def _load_notif_volume(self) -> int:
         """Load notification volume from settings."""
@@ -598,8 +598,8 @@ class NotificationService:
                     return True
                 else:
                     log.warning(f"[notify] Reply failed: {result.stderr.strip()}")
-            except Exception as e:
-                log.exception(f"[notify] Reply error")
+            except Exception:
+                log.exception("[notify] Reply error")
 
         return False
 
@@ -641,8 +641,8 @@ class NotificationService:
             }
             with open(SETTINGS_PATH, "w") as f:
                 json.dump(settings, f, indent=2)
-        except Exception as e:
-            log.exception(f"[notify] Save settings failed")
+        except Exception:
+            log.exception("[notify] Save settings failed")
 
     def _load_settings(self):
         try:
