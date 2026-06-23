@@ -16,7 +16,12 @@
  * the UI degrades gracefully instead of throwing.
  */
 
-import { parseAiMutations } from './ai-mutations'
+// Browser-pure apply core — SAME logic the desktop main process uses, so an
+// approved AI-DM stat change mutates the persisted character identically on web.
+import { applyChangesToCharacter, buildLongRestChanges, buildShortRestChanges } from '../main/ai/stat-mutations-core'
+import type { StatChange } from '../main/ai/types'
+import type { Character5eV3 } from '../shared/types/character-5e'
+import { buildDmSystemPrompt, parseAiMutations } from './ai-mutations'
 import { idbDelete, idbGet, idbGetAll, idbKeys, idbSet, idbWipeAll, type StoreName } from './idb'
 
 // ── Backend base URL ────────────────────────────────────────────────
@@ -601,9 +606,58 @@ function createAiStub() {
       return Promise.resolve({ ok: true })
     },
     xCardRewind: (_c: string) => Promise.resolve({ ok: true }),
-    applyMutations: (_id: string, _changes: unknown[]) => Promise.resolve({ ok: true }),
-    longRest: (_id: string) => Promise.resolve({ ok: true }),
-    shortRest: (_id: string) => Promise.resolve({ ok: true }),
+    // Apply AI-DM stat mutations to the persisted character (IndexedDB) using the
+    // SAME browser-pure core the desktop main process uses — so an approved (or
+    // auto-approved) mutation actually changes HP / conditions / resources on web,
+    // not just narrates. Returns the desktop MutationResult shape so the renderer's
+    // rejected-mutation alerting works identically.
+    applyMutations: async (id: string, changes: unknown[]) => {
+      const stored = await idbGet<Record<string, unknown>>('characters', id)
+      if (!stored) {
+        return {
+          applied: [],
+          rejected: (changes as StatChange[]).map((c) => ({ change: c, reason: 'Character not found' }))
+        }
+      }
+      const char = stored as unknown as Character5eV3
+      const out = applyChangesToCharacter(char, changes as StatChange[])
+      if (out.applied.length > 0) {
+        await idbSet('characters', id, char as unknown as Record<string, unknown>)
+      }
+      return out
+    },
+    // Long/short rest recovery applied to the persisted character (IndexedDB) via
+    // the SAME shared core the desktop main process uses — Warlock slots, class
+    // resources, HP, hit dice, exhaustion recover identically on web.
+    longRest: async (id: string) => {
+      const stored = await idbGet<Record<string, unknown>>('characters', id)
+      if (!stored) {
+        return {
+          applied: [],
+          rejected: [{ change: { type: 'reset_death_saves', reason: 'long rest' }, reason: 'Character not found' }]
+        }
+      }
+      const char = stored as unknown as Character5eV3
+      const changes = buildLongRestChanges(char)
+      if (changes.length === 0) return { applied: [], rejected: [] }
+      const out = applyChangesToCharacter(char, changes)
+      if (out.applied.length > 0) {
+        await idbSet('characters', id, char as unknown as Record<string, unknown>)
+      }
+      return out
+    },
+    shortRest: async (id: string) => {
+      const stored = await idbGet<Record<string, unknown>>('characters', id)
+      if (!stored) return { applied: [], rejected: [] }
+      const char = stored as unknown as Character5eV3
+      const changes = buildShortRestChanges(char)
+      if (changes.length === 0) return { applied: [], rejected: [] }
+      const out = applyChangesToCharacter(char, changes)
+      if (out.applied.length > 0) {
+        await idbSet('characters', id, char as unknown as Record<string, unknown>)
+      }
+      return out
+    },
     saveConversation: (_c: string) => Promise.resolve({ ok: true }),
     restoreConversation: (_c: string, _d: Record<string, unknown>) => Promise.resolve({ ok: true }),
     loadConversation: (_c: string) => Promise.resolve(null),
