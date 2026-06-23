@@ -19,14 +19,19 @@ REG_FAN_DUTY = 0x06
 PWM_FREQ = 100000  # 100 kHz — inaudible
 
 # (cpu_temp_celsius, duty 0-255), ordered cool -> hot.
+# Ramped earlier/harder after observed soft-temp throttling at ~84C with the
+# old curve (full duty only at 80C). Reaches full duty by 75C and adds mid-band
+# duty for more cooling headroom before the SoC soft limit. Trade-off: slightly
+# more fan noise under moderate load. Hardware airflow/heatsink contact should
+# still be checked (see BMO-ISSUES thermal entry).
 FAN_CURVE = [
-    (50, 0),
-    (55, 40),
-    (60, 70),
-    (65, 110),
-    (70, 160),
-    (75, 210),
-    (80, 255),
+    (45, 0),
+    (50, 60),
+    (55, 100),
+    (60, 140),
+    (65, 180),
+    (70, 215),
+    (75, 255),
 ]
 
 HYSTERESIS = 3          # degrees: stay at current duty until curve at (T + H) demands more

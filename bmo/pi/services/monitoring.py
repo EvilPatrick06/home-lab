@@ -625,7 +625,10 @@ class HealthChecker:
         "pihole_dns",
         "cloudflared",
     }
-    _OPTIONAL_DISABLED_SERVICES = {"bmo-fan"}
+    # bmo-kiosk is deliberately disabled on headless/mic-less hosts; treat a
+    # disabled unit as info (not a per-cycle "restart me" WARNING). An
+    # enabled-but-failed kiosk still alerts (this only covers disabled/masked).
+    _OPTIONAL_DISABLED_SERVICES = {"bmo-fan", "bmo-kiosk"}
 
     def _service_label(self, name: str) -> str:
         if name in self._SERVICE_LABELS:
