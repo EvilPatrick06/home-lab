@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { AccessibilitySection } from '../components/settings/AccessibilitySection'
+import { AudioSection } from '../components/settings/AudioSection'
+import { AutoSaveSection } from '../components/settings/AutoSaveSection'
 import { DiceSection } from '../components/settings/DiceSection'
 import { GridSection } from '../components/settings/GridSection'
 import { NotificationsSection } from '../components/settings/NotificationsSection'
@@ -24,7 +26,6 @@ import type { AutoSaveConfig, SaveVersion } from '../services/io/auto-save'
 type _AutoSaveConfig = AutoSaveConfig
 type _SaveVersion = SaveVersion
 
-import * as AutoSave from '../services/io/auto-save'
 import {
   type EntityType,
   type ExportEnvelope,
@@ -52,10 +53,6 @@ type _NotificationEvent = NotificationEvent
 import { DISPLAY_NAME_KEY } from '../constants'
 import { i18n, LOCALE_LABELS, SUPPORTED_LOCALES, setLocale, useT } from '../i18n'
 import {
-  getAmbientVolume,
-  getVolume,
-  isEnabled as isAudioSystemEnabled,
-  isMuted as isAudioSystemMuted,
   setAmbientVolume as setGlobalAmbientVolume,
   setEnabled as setGlobalAudioEnabled,
   setMuted as setGlobalAudioMuted,
@@ -1061,40 +1058,10 @@ export default function SettingsPage(): JSX.Element {
   // Notification settings
 
   // Auto-save settings
-  const [autoSaveEnabled, setAutoSaveEnabled] = useState(() => AutoSave.getConfig().enabled)
-  const [autoSaveInterval, setAutoSaveInterval] = useState(() => AutoSave.getConfig().intervalMs / 60000)
-  // Draft string so users can type intermediate states like "-" or "1" → "12" without
-  // each keystroke being clamped (which made "-99" snap to MAX after the user only meant MIN).
-  // Clamping happens onBlur, against the final string.
-  const [autoSaveIntervalDraft, setAutoSaveIntervalDraft] = useState(() => String(autoSaveInterval))
 
   // Accessibility store
 
   // Audio settings
-  const [masterVolume, setMasterVolume] = useState(() => getVolume() * 100)
-  const [ambientVolume, setAmbientVolumeState] = useState(() => getAmbientVolume() * 100)
-  const [audioMuted, setAudioMuted] = useState(() => isAudioSystemMuted())
-  const [audioEnabled, setAudioEnabled] = useState(() => isAudioSystemEnabled())
-
-  const handleMasterVolumeChange = useCallback((val: number) => {
-    setMasterVolume(val)
-    setGlobalVolume(val / 100)
-  }, [])
-
-  const handleAmbientVolumeChange = useCallback((val: number) => {
-    setAmbientVolumeState(val)
-    setGlobalAmbientVolume(val / 100)
-  }, [])
-
-  const handleMutedChange = useCallback((val: boolean) => {
-    setAudioMuted(val)
-    setGlobalAudioMuted(val)
-  }, [])
-
-  const handleEnabledChange = useCallback((val: boolean) => {
-    setAudioEnabled(val)
-    setGlobalAudioEnabled(val)
-  }, [])
 
   // Phase 17u — read returnTo state from the in-game Settings dropdown so
   // we can surface a "Return to game" link at the top.
@@ -1181,77 +1148,7 @@ export default function SettingsPage(): JSX.Element {
         <ThemeSection />
 
         {/* Audio */}
-        <Section title={t('pages.settingsPage.audio')}>
-          <div className="flex justify-end mb-2">
-            <button
-              onClick={() => {
-                handleMasterVolumeChange(100)
-                handleAmbientVolumeChange(30)
-                handleMutedChange(false)
-                handleEnabledChange(true)
-              }}
-              className="px-2 py-0.5 text-xs bg-surface border border-gray-600 rounded text-fg hover:text-red-300 cursor-pointer"
-            >
-              {t('pages.settingsPage.resetAudioDefaults')}
-            </button>
-          </div>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-300">{t('pages.settingsPage.soundSystem')}</span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={audioEnabled}
-                  onChange={(e) => handleEnabledChange(e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-300 after:border after:border-gray-300 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-600" />
-              </label>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-300">{t('pages.settingsPage.muteAllSounds')}</span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={audioMuted}
-                  onChange={(e) => handleMutedChange(e.target.checked)}
-                  disabled={!audioEnabled}
-                  className="sr-only peer"
-                />
-                <div className="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-300 after:border after:border-gray-300 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-600 peer-disabled:opacity-50" />
-              </label>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-300 w-32">{t('pages.settingsPage.masterVolume')}</span>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={masterVolume}
-                onChange={(e) => handleMasterVolumeChange(Number(e.target.value))}
-                disabled={!audioEnabled || audioMuted}
-                className="flex-1 h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer disabled:opacity-50"
-              />
-              <span className="text-xs text-muted w-8 text-right">{Math.round(masterVolume)}%</span>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-300 w-32">{t('pages.settingsPage.ambientMusic')}</span>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={ambientVolume}
-                onChange={(e) => handleAmbientVolumeChange(Number(e.target.value))}
-                disabled={!audioEnabled || audioMuted}
-                className="flex-1 h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer disabled:opacity-50"
-              />
-              <span className="text-xs text-muted w-8 text-right">{Math.round(ambientVolume)}%</span>
-            </div>
-          </div>
-        </Section>
+        <AudioSection />
 
         {/* Accessibility */}
         <AccessibilitySection />
@@ -1266,59 +1163,7 @@ export default function SettingsPage(): JSX.Element {
         <NotificationsSection />
 
         {/* Auto-Save */}
-        <Section title={t('pages.settingsPage.autoSave')}>
-          <div className="flex justify-end mb-2">
-            <button
-              onClick={() => {
-                setAutoSaveEnabled(true)
-                setAutoSaveInterval(5)
-                setAutoSaveIntervalDraft('5')
-                AutoSave.setConfig({ enabled: true, intervalMs: 300000 })
-              }}
-              className="px-2 py-0.5 text-xs bg-surface border border-gray-600 rounded text-fg hover:text-red-300 cursor-pointer"
-            >
-              {t('pages.settingsPage.resetAutoSaveDefaults')}
-            </button>
-          </div>
-          <div className="space-y-4">
-            <label className="flex items-center justify-between cursor-pointer">
-              <div>
-                <span className="text-sm text-gray-300">{t('pages.settingsPage.enableAutoSave')}</span>
-                <p className="text-xs text-gray-500">{t('pages.settingsPage.enableAutoSaveDesc')}</p>
-              </div>
-              <input
-                type="checkbox"
-                checked={autoSaveEnabled}
-                onChange={(e) => {
-                  const val = e.target.checked
-                  setAutoSaveEnabled(val)
-                  AutoSave.setConfig({ enabled: val })
-                }}
-                className="w-4 h-4 accent-amber-500 cursor-pointer"
-              />
-            </label>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-300">{t('pages.settingsPage.intervalMinutes')}</span>
-              <input
-                type="number"
-                min={1}
-                max={60}
-                value={autoSaveIntervalDraft}
-                onChange={(e) => setAutoSaveIntervalDraft(e.target.value)}
-                onBlur={() => {
-                  const raw = parseInt(autoSaveIntervalDraft, 10)
-                  const numeric = Number.isFinite(raw) ? raw : 1
-                  const val = numeric < 1 ? 1 : numeric > 60 ? 60 : numeric
-                  setAutoSaveInterval(val)
-                  setAutoSaveIntervalDraft(String(val))
-                  AutoSave.setConfig({ intervalMs: val * 60000 })
-                }}
-                disabled={!autoSaveEnabled}
-                className="w-20 px-2 py-1 text-sm bg-surface border border-border rounded text-gray-300 disabled:opacity-50"
-              />
-            </div>
-          </div>
-        </Section>
+        <AutoSaveSection />
 
         {/* Import/Export Settings */}
         <Section title={t('pages.settingsPage.settingsImportExport')}>
