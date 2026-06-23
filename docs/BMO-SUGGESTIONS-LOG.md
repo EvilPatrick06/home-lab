@@ -20,6 +20,41 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-06-22] `agent.py` mixes the core LLM-routing brain with D&D-specific helpers — extract the D&D helpers
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+`bmo/pi/agent.py` is the second-largest source file in the repo (~2,167 lines / 99 KB) and its module docstring scopes it to "Cloud API AI with local Ollama fallback" — i.e. model selection plus `llm_chat` / `llm_chat_stream` routing and RAG. Interleaved among those, however, it also carries a cluster of D&D-domain helpers that have nothing to do with LLM routing: `_summarize_character`, `_load_character_file`, `_discover_maps`, `_parse_cr`, `_build_dm_data_context`, `_calculate_encounter_difficulty`, and `_load_monster_stat_block` (lines ~562-818). Those belong with the existing D&D logic in `services/dnd_engine.py` / `agents/dnd_dm.py`, not in the generic agent brain. Extracting them would shrink the core file, sharpen its single responsibility (LLM routing + RAG), and put the encounter/monster/character math next to the rest of the D&D engine. Working code — reorg only, defer until someone is already in this area.
+
+**Proposed fix / improvement:**
+- [ ] Move the D&D helper functions out of `agent.py` into `services/dnd_engine.py` (or a new `services/dnd_dm_data.py`); update imports in `agent.py` and any callers.
+- [ ] Leave LLM routing / RAG (`llm_chat*`, `_select_model`, `get_resolved_model`, `rag_search`, `BmoAgent`) in `agent.py`.
+
+**Related files:** `bmo/pi/agent.py`, `bmo/pi/services/dnd_engine.py`, `bmo/pi/agents/dnd_dm.py`
+
+---
+
+### [2026-06-22] Inconsistent script naming in `pi/scripts/` (kebab-case vs snake_case)
+
+- **Category:** debt
+- **Severity:** info
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+`bmo/pi/scripts/` mixes two naming conventions. Most entries are kebab-case (`apply-access-config.sh`, `cloudflare-access-api.sh`, `deploy.sh`, `diagnose-cloudflare.sh`, `install-venv.sh`, `seed-5e-library.sh`, `setup-cloudflare-tunnel.sh`, `setup-tailscale.sh`, `sync-shared-5e-json.sh`, `check-complexity.py`), but three use snake_case: `e2e_test.sh`, `health_check.sh`, `win_proxy.py`. Standardizing on one convention (kebab-case is the clear majority) would make the directory tidier and easier to scan. CAVEAT: the three odd-ones-out are referenced elsewhere — `health_check.sh` appears in `bmo/README.md`, `docs/ARCHITECTURE.md` (including a cron example) and is wired into a real crontab; `win_proxy` symbols appear in `state.py` / `routes/ide.py`. Any rename must update all those references (and the live crontab / any systemd unit) in lock-step, so this is low-value churn — log it, fix opportunistically rather than as a standalone change.
+
+**Proposed fix / improvement:**
+- [ ] If standardizing, rename the three snake_case scripts to kebab-case and update every reference (README, ARCHITECTURE.md, cron, and any code that shells out to them) in the same change.
+
+**Related files:** `bmo/pi/scripts/e2e_test.sh`, `bmo/pi/scripts/health_check.sh`, `bmo/pi/scripts/win_proxy.py`, `bmo/README.md`, `bmo/docs/ARCHITECTURE.md`
+
 ### [2026-06-22] Duplicate `Two IDE implementations coexist` section in `DESIGN-CONSTRAINTS.md`
 
 - **Category:** debt, docs
@@ -289,6 +324,22 @@ The repo carries four overlapping AI-assistant guides — `AGENTS.md` (12.8K), `
 ---
 
 # Info / Observations
+
+### [2026-06-22] `docs/ARCHITECTURE.md` Pi-filesystem layout + health-check cron path are stale (pre-monorepo `~/bmo/`)
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+`bmo/docs/ARCHITECTURE.md` still documents a deployment rooted at `~/bmo/`. Its "Pi filesystem layout" tree places `health_check.sh`, `bmo.service`, `requirements.txt`, `docker-compose.yml`, `backup.sh`, `venv/`, and `logs/` directly under a `~/bmo/` root, and the cron example reads `*/5 * * * * /home/patrick/bmo/health_check.sh >> /home/patrick/bmo/logs/health.log`. But the project is now an in-place monorepo: `deploy.sh` sets `REPO_ROOT=/home/patrick/home-lab` and runs from `bmo/pi/` directly (no rsync to `~/bmo/`), `health_check.sh` actually lives at `bmo/pi/scripts/health_check.sh`, and `/home/patrick/bmo` does not exist on the host. So the documented filesystem tree and the cron path are stale and would mislead anyone setting up monitoring straight from the doc.
+
+**Proposed fix / improvement:**
+- [ ] Update the ARCHITECTURE.md filesystem-layout tree and the cron example to the current `home-lab/bmo/pi/...` paths (script at `pi/scripts/health_check.sh`); confirm the live crontab path while doing so.
+
+**Related files:** `bmo/docs/ARCHITECTURE.md`, `bmo/pi/scripts/health_check.sh`, `bmo/pi/scripts/deploy.sh`
 
 ### [2026-06-22] `pi/README.md` layout says "5 AI agents" but `agents/` holds ~40 modules
 
