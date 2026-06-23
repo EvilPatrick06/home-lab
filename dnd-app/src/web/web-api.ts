@@ -16,7 +16,7 @@
  * the UI degrades gracefully instead of throwing.
  */
 
-import { buildDmSystemPrompt, parseAiMutations } from './ai-mutations'
+import { parseAiMutations } from './ai-mutations'
 import { idbDelete, idbGet, idbGetAll, idbKeys, idbSet, idbWipeAll, type StoreName } from './idb'
 
 // ── Backend base URL ────────────────────────────────────────────────
@@ -524,9 +524,10 @@ function createAiStub() {
     prepareScene: (_c: string, _ids: string[]) => Promise.resolve({ ok: false }),
     getSceneStatus: (_c: string) => Promise.resolve({ status: 'idle' }),
     cancelScene: (_c: string) => Promise.resolve({ ok: true }),
-    // Bridge to the Pi agent (POST /api/chat -- same-origin behind the tunnel, so
-    // the Cloudflare Access cookie authenticates). The agent routes D&D messages
-    // through its DnD context; we stream the returned narration to the renderer.
+    // Bridge to the Pi (POST /api/dnd/public/dm -- the one anonymous-reachable
+    // route, same-origin behind the tunnel via a path-scoped Cloudflare Access
+    // bypass, so no Access cookie is required). The server OWNS the DM system
+    // prompt + model and runs the LLM; we stream the returned narration back.
     // Structured mutations (statChanges/dmActions) are not produced by the HTTP
     // agent yet, so those are emitted empty -- a known parity gap vs. desktop.
     chatStream: async (request: Record<string, unknown>) => {
@@ -534,11 +535,14 @@ function createAiStub() {
       const playerMessage = String((request?.message as string | undefined) ?? '')
       const campaignId = String((request?.campaignId as string | undefined) ?? 'default')
       const actingName = (request?.senderName as string | undefined) || undefined
-      const system = buildDmSystemPrompt({
+      // System prompt + model are SERVER-owned on the public endpoint; the client
+      // sends only the player message, bounded history, and game context. The
+      // server treats `context` as untrusted in-fiction data.
+      const context = {
         gameState: request?.gameState,
         activeCreatures: request?.activeCreatures,
         actingCharacterName: actingName
-      })
+      }
       const history = dmHistory.get(campaignId) ?? []
       const controller = new AbortController()
       aiAborters.set(streamId, controller)
@@ -546,12 +550,12 @@ function createAiStub() {
         try {
           // Dedicated DM endpoint: the Pi runs the LLM with OUR system prompt
           // (role + action-tag contract + live state), so tag emission is reliable.
-          const res = await fetch(`${BMO_BASE}/api/dnd/dm`, {
+          const res = await fetch(`${BMO_BASE}/api/dnd/public/dm`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
             signal: controller.signal,
-            body: JSON.stringify({ system, message: playerMessage, history })
+            body: JSON.stringify({ message: playerMessage, history, context })
           })
           if (!res.ok) throw new Error(`AI backend returned ${res.status}`)
           const data = (await res.json()) as { text?: string }
