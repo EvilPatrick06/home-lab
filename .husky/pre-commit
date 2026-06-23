@@ -21,3 +21,13 @@ npx tsc --noEmit -p tsconfig.web.json || exit 1
 if command -v gitleaks >/dev/null 2>&1; then
   gitleaks protect --staged --redact || exit 1
 fi
+
+# dungeon-scholar (VTT) pre-flight: when its files are staged, run its vitest
+# suite so a dungeon-scholar-only commit gets a local gate too (the husky hook
+# previously gated dnd-app alone). CI (.github/workflows/subprojects-ci.yml) is
+# authoritative; this is a fast local pre-flight. Escape hatch: git commit --no-verify.
+cd "$(git rev-parse --show-toplevel)" || exit 1
+if git diff --cached --name-only --diff-filter=ACMR | grep -q "^dungeon-scholar/"; then
+  echo "[pre-commit] dungeon-scholar changes staged - running its tests..."
+  ( cd dungeon-scholar && npm test --silent ) || exit 1
+fi

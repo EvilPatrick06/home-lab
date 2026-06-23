@@ -84,7 +84,6 @@ pi/
 │   └── mcp_settings.json        MCP config
 │
 ├── ide_app/                     Embedded web IDE — self-contained Flask sub-app on port 5001
-│   ├── bmo-ide.service
 │   ├── ide_app.py
 │   ├── templates/ide.html
 │   └── static/ide.{css,js}
@@ -93,6 +92,7 @@ pi/
 │   ├── bmo-kiosk.service        Chromium fullscreen on HDMI
 │   ├── bmo-dm-bot.service       → python -m bots.discord_dm_bot
 │   ├── bmo-social-bot.service   → python -m bots.discord_social_bot
+│   ├── bmo-ide.service         Embedded web IDE on :5001 (ExecStart still points at ide_app/)
 │   └── install-kiosk.sh
 │
 ├── scripts/                     Operational scripts (bash + python)
