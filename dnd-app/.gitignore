@@ -5,6 +5,8 @@ node_modules/
 out/
 dist/
 *.log
+# Defensive: literal `C:` dir from a Windows-style userData path on a Linux run
+C:/
 # rollup-plugin-visualizer (ANALYZE=1 npm run build)
 bundle-stats.html
 # Bundled Ollama binary — fetched at build time per platform, not source-tracked

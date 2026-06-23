@@ -2,11 +2,15 @@
 # Phase 21c — pre-commit gate. Hooks run with cwd = git root, so cd into the app.
 # Escape hatch: `git commit --no-verify`. CI (.github/workflows/ci.yml) is the
 # authoritative gate; this is a fast local pre-flight.
-cd dnd-app || exit 1
+# Biome on staged files only (fast). Run from the repo ROOT (hooks already run
+# with cwd = git root) so git's repo-root-relative staged paths (`dnd-app/src/...`)
+# resolve and Biome picks up `dnd-app/biome.json` per file. The old form
+# `cd dnd-app && biome check src/ --staged` matched 0 staged files (silent no-op,
+# fixed 2026-06-23) because the `src/` arg + dnd-app cwd filtered everything out.
+# --no-errors-on-unmatched: don't fail a docs-only commit that touches no src/.
+./dnd-app/node_modules/.bin/biome check --staged --no-errors-on-unmatched || exit 1
 
-# Biome on staged files only (fast). --no-errors-on-unmatched: don't fail a
-# commit that touches no src/ files (docs-only commits, etc.).
-npm run lint -- --staged --no-errors-on-unmatched || exit 1
+cd dnd-app || exit 1
 
 # Typecheck the renderer config (the broadest surface). Move to a pre-push hook
 # if this feels slow on your machine.
