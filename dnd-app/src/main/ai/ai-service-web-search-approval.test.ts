@@ -11,8 +11,8 @@ const mocked = vi.hoisted(() => ({
 vi.mock('electron', () => ({
   app: {
     isPackaged: false,
-    getPath: vi.fn(() => 'C:/tmp'),
-    getAppPath: vi.fn(() => 'C:/app')
+    getPath: vi.fn(() => '/tmp/dnd-test'),
+    getAppPath: vi.fn(() => '/tmp/dnd-app-test')
   },
   BrowserWindow: {
     getAllWindows: vi.fn(() => [{ webContents: { send: mocked.sendMock } }])

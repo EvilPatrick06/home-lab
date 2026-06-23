@@ -170,24 +170,6 @@ First-run UX is limited to two narrow, single-purpose prompts wired into `App.ts
 
 **Related files:** `src/renderer/src/pages/SettingsPage.tsx`
 
-### [2026-06-22] Pin one Node version for the whole monorepo (.nvmrc / engines) instead of repeating `node-version: 22`
-
-- **Category:** portability
-- **Severity:** low
-- **Domain:** both
-- **Discovered by:** overall-suggestor
-- **During:** cross-cutting repo-wide scan
-
-**Description:**
-`node-version: 22` is hardcoded in 7 places across 5 workflows (`dnd-app-ci`, `security-audit`, `dnd-app-validate-5e`, `release` ×3, `deploy`). There is no root `.nvmrc`, no `engines.node` field in any package.json (`dnd-app` / `dungeon-scholar` / `oracle-worker`), and no Volta pin. Local contributors can build on any Node, and bumping the toolchain means hand-editing every workflow.
-
-**Proposed fix / improvement:**
-- [ ] Add a root `.nvmrc` (e.g. `22`).
-- [ ] Add a matching `engines.node` to each project package.json.
-- [ ] Switch workflows to `node-version-file: .nvmrc` so the version lives in one place.
-
-**Related files:** `.github/workflows/*.yml`, `dnd-app/package.json`, `dungeon-scholar/package.json`, `oracle-worker/package.json`
-
 ### [2026-06-22] No PR-time CI gate for dungeon-scholar or oracle-worker
 
 - **Category:** future-idea
@@ -374,26 +356,6 @@ These read as one-off codemods / migration helpers (kebab-case rename, console.l
 
 **Related files:** `tools/run-audit.js`, `tools/replace-console-logs.js`, `tools/rename-to-kebab.js`, `tools/electron-security.js`, `tools/find-data.js`, `tools/find-unused-imports.js`, `tools/knip-summary.js`
 
-
-### [2026-06-22] Tests writing through a Windows-style mocked `app.getPath` create a stray `C:/` directory in the repo working tree
-
-- **Category:** debt
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-cleanup
-- **During:** automated cleanup/reorg scan of `dnd-app/`
-
-**Description:**
-A literal directory named `C:` exists at `dnd-app/C:/tmp/logs/app.log` (~3.2 KB, last written 2026-06-09) — a leftover test artifact, not real source. `src/main/log.ts` builds its log path via `join(app.getPath('userData'), 'logs', 'app.log')`. Two main-process tests mock `app.getPath` to the Windows-style string `'C:/tmp'` (`src/main/ai/ai-service-web-search-approval.test.ts`, `src/main/ai/ai-service-file-read-cancel.test.ts`). On Linux, `join('C:/tmp', 'logs', 'app.log')` is treated as RELATIVE, so any log write during those tests materializes `./C:/tmp/logs/app.log` under the `dnd-app/` cwd. `C:` is NOT gitignored, so it appears as an untracked path and risks accidental commit. (`ai-handlers.test.ts:57` already notes that `'C:/tmp'` is relative on Linux.)
-
-**Hypothesis / root cause:** test mock returns a path that is absolute on Windows but relative on POSIX; the file-logging side effect isn't redirected to a temp dir.
-
-**Proposed fix / improvement:**
-- [ ] Delete the stray `dnd-app/C:/` directory.
-- [ ] Add `C:/` to `dnd-app/.gitignore` as a guard against re-committing the artifact.
-- [ ] Mock `app.getPath` to an `os.tmpdir()`-based path (or stub the file logger) so test FS writes never leak into the repo.
-
-**Related files:** `src/main/log.ts`, `src/main/ai/ai-service-web-search-approval.test.ts`, `src/main/ai/ai-service-file-read-cancel.test.ts`, `dnd-app/.gitignore`
 
 ---
 
