@@ -12,7 +12,7 @@
 //   - a hard max_tokens clamp + input-size caps to bound per-request spend.
 //   - optional shared-secret gate (ORACLE_PROXY_TOKEN) + Referer cross-check.
 // Stronger controls (a Groq spend cap/alert) require Groq dashboard config.
-// See docs/SECURITY-LOG.md + dungeon-scholar/docs/oracle-setup.md.
+// See docs/logs/SECURITY-LOG.md + dungeon-scholar/docs/oracle-setup.md.
 
 const ALLOWED_ORIGIN = "https://evilpatrick06.github.io";
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";

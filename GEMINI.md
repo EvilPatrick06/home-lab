@@ -26,7 +26,7 @@ Monorepo containing:
 Gemini has a large context window. Use it:
 - Read `.cursorrules` + `AGENTS.md` + relevant domain READMEs in one batch at start
 - Pull in up to 10 related files when investigating a change
-- Keep the consolidated backlog + active logs in context for multi-step work — `dnd-app/docs/phases/PHASE-INDEX.md` (backlog phase set, all domains, 2026-06-11), `docs/BMO-ISSUES-LOG.md` (bmo), `docs/ISSUES-LOG-DNDAPP.md` (dnd-app), `docs/BMO-SUGGESTIONS-LOG.md`, `docs/SUGGESTIONS-LOG-DNDAPP.md`, `docs/SECURITY-LOG.md` (global, gitignored)
+- Keep the consolidated backlog + active logs in context for multi-step work — `dnd-app/docs/phases/PHASE-INDEX.md` (backlog phase set, all domains, 2026-06-11), `docs/logs/BMO-ISSUES-LOG.md` (bmo), `docs/logs/ISSUES-LOG-DNDAPP.md` (dnd-app), `docs/logs/BMO-SUGGESTIONS-LOG.md`, `docs/logs/SUGGESTIONS-LOG-DNDAPP.md`, `docs/logs/SECURITY-LOG.md` (global, gitignored)
 
 ### When generating code
 
@@ -85,13 +85,13 @@ The log is for **unfixed or deferred** work:
 
 - **Fixing it in this session?** → Just fix it. The commit is the record. Do NOT log.
 - **Out of scope / can't fix now?** → APPEND to the right log per **Domain**:
-  - dnd-app bug/debt → `docs/ISSUES-LOG-DNDAPP.md`
-  - bmo bug/debt → `docs/BMO-ISSUES-LOG.md`
-  - both-domain bug/debt → mirror in BOTH `docs/BMO-ISSUES-LOG.md` AND `docs/ISSUES-LOG-DNDAPP.md`
-  - bmo idea / design-gotcha / info → `docs/BMO-SUGGESTIONS-LOG.md`
-  - dnd-app idea / design-gotcha / info → `docs/SUGGESTIONS-LOG-DNDAPP.md`
+  - dnd-app bug/debt → `docs/logs/ISSUES-LOG-DNDAPP.md`
+  - bmo bug/debt → `docs/logs/BMO-ISSUES-LOG.md`
+  - both-domain bug/debt → mirror in BOTH `docs/logs/BMO-ISSUES-LOG.md` AND `docs/logs/ISSUES-LOG-DNDAPP.md`
+  - bmo idea / design-gotcha / info → `docs/logs/BMO-SUGGESTIONS-LOG.md`
+  - dnd-app idea / design-gotcha / info → `docs/logs/SUGGESTIONS-LOG-DNDAPP.md`
   - both-domain idea / design-gotcha / info → mirror in BOTH suggestions logs
-  - security (any domain) → `docs/SECURITY-LOG.md` (gitignored)
+  - security (any domain) → `docs/logs/SECURITY-LOG.md` (gitignored)
   Log even minor out-of-scope items.
 - **Unsure?** → See "The decision rule" at the top of `docs/LOG-INSTRUCTIONS.md`.
 
@@ -107,13 +107,13 @@ Read `docs/LOG-INSTRUCTIONS.md` before your first log append for the template + 
 | IPC channels | `dnd-app/docs/IPC-SURFACE.md` |
 | BMO services | `bmo/docs/SERVICES.md` |
 | BMO agents | `bmo/docs/AGENTS.md` |
-| Bugs / debt — bmo | `docs/BMO-ISSUES-LOG.md` |
-| Bugs / debt — dnd-app | `docs/ISSUES-LOG-DNDAPP.md` |
-| Future ideas / design gotchas — bmo | `docs/BMO-SUGGESTIONS-LOG.md` |
-| Future ideas / design gotchas — dnd-app | `docs/SUGGESTIONS-LOG-DNDAPP.md` |
-| Security concerns / incidents (any domain) | `docs/SECURITY-LOG.md` *(gitignored)* |
-| Resolved bmo entries | `docs/BMO-RESOLVED-ISSUES.md` |
-| Resolved dnd-app entries | `docs/RESOLVED-ISSUES-DNDAPP.md` |
+| Bugs / debt — bmo | `docs/logs/BMO-ISSUES-LOG.md` |
+| Bugs / debt — dnd-app | `docs/logs/ISSUES-LOG-DNDAPP.md` |
+| Future ideas / design gotchas — bmo | `docs/logs/BMO-SUGGESTIONS-LOG.md` |
+| Future ideas / design gotchas — dnd-app | `docs/logs/SUGGESTIONS-LOG-DNDAPP.md` |
+| Security concerns / incidents (any domain) | `docs/logs/SECURITY-LOG.md` *(gitignored)* |
+| Resolved bmo entries | `docs/logs/BMO-RESOLVED-ISSUES.md` |
+| Resolved dnd-app entries | `docs/logs/RESOLVED-ISSUES-DNDAPP.md` |
 | Where-to-log triage | `docs/LOG-INSTRUCTIONS.md` |
 | Automated-agent git workflow | `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md` |
 | BMO troubleshooting | `bmo/docs/TROUBLESHOOTING.md` |

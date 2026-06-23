@@ -1,6 +1,6 @@
 # BMO docs index
 
-Reference documentation for the BMO Pi (voice assistant + Discord bots + DM engine + Pi infra). For the cross-domain logs (active bugs, suggestions, security, resolved) see the repo-root [`docs/`](../../docs/) — start with [`BMO-ISSUES-LOG.md`](../../docs/BMO-ISSUES-LOG.md) and [`BMO-SUGGESTIONS-LOG.md`](../../docs/BMO-SUGGESTIONS-LOG.md).
+Reference documentation for the BMO Pi (voice assistant + Discord bots + DM engine + Pi infra). For the cross-domain logs (active bugs, suggestions, security, resolved) see the repo-root [`docs/`](../../docs/) — start with [`BMO-ISSUES-LOG.md`](../../docs/logs/BMO-ISSUES-LOG.md) and [`BMO-SUGGESTIONS-LOG.md`](../../docs/logs/BMO-SUGGESTIONS-LOG.md).
 
 ## Start here
 

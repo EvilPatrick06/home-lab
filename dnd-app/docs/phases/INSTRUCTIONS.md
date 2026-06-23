@@ -213,11 +213,11 @@ Triage to the right file (per `docs/LOG-INSTRUCTIONS.md`):
 
 | Finding kind | Domain | Log file |
 |---|---|---|
-| Bug / debt / config / perf / test failure | dnd-app | `docs/ISSUES-LOG-DNDAPP.md` |
-| Bug / debt / config / perf / test failure | BMO | `docs/BMO-ISSUES-LOG.md` |
-| Future idea / design gotcha / observation | dnd-app | `docs/SUGGESTIONS-LOG-DNDAPP.md` |
-| Future idea / design gotcha / observation | BMO | `docs/BMO-SUGGESTIONS-LOG.md` |
-| Security concern | any | `docs/SECURITY-LOG.md` (gitignored) |
+| Bug / debt / config / perf / test failure | dnd-app | `docs/logs/ISSUES-LOG-DNDAPP.md` |
+| Bug / debt / config / perf / test failure | BMO | `docs/logs/BMO-ISSUES-LOG.md` |
+| Future idea / design gotcha / observation | dnd-app | `docs/logs/SUGGESTIONS-LOG-DNDAPP.md` |
+| Future idea / design gotcha / observation | BMO | `docs/logs/BMO-SUGGESTIONS-LOG.md` |
+| Security concern | any | `docs/logs/SECURITY-LOG.md` (gitignored) |
 | Cross-cutting | dnd-app + BMO | mirror in BOTH relevant logs |
 
 Use the entry template + severity / category fields from `docs/LOG-INSTRUCTIONS.md`. Date the entry. Cite file paths and line numbers. Be specific enough that a future contributor (or future you) can act on the entry without re-discovering it.
@@ -276,7 +276,7 @@ Include both code-level problems (a failing test, a plan step that didn't match 
 If new test files / docs / memory entries / phase-plan amendments were created during the run, list them with file paths so the user can find them. Do NOT re-paste their contents.
 
 **3. Logged-finding count.** If rule 12 fired (out-of-scope finding logged to one of the triage files), report:
-- Count + log file: "Logged 3 entries in `docs/ISSUES-LOG-DNDAPP.md`, 1 in `docs/SUGGESTIONS-LOG-DNDAPP.md`, 0 in `docs/SECURITY-LOG.md`."
+- Count + log file: "Logged 3 entries in `docs/logs/ISSUES-LOG-DNDAPP.md`, 1 in `docs/logs/SUGGESTIONS-LOG-DNDAPP.md`, 0 in `docs/logs/SECURITY-LOG.md`."
 - Closing line: "Review at your convenience."
 
 Do NOT describe the findings inline. The user's preference is to triage on their own time; the summary just signals that the logs grew.
@@ -306,12 +306,12 @@ The following files are **meta**: they govern AI behavior, persistent state, or 
 
 - `dnd-app/docs/phases/INSTRUCTIONS.md` (this file)
 - `/home/patrick/.claude/projects/-home-patrick-home-lab/memory/*` (memory store)
-- `docs/SECURITY-LOG.md` (gitignored — sensitive)
+- `docs/logs/SECURITY-LOG.md` (gitignored — sensitive)
 - `CLAUDE.md`, `AGENTS.md`, `.cursorrules` (repo-level AI guidance)
 
 Modifying any of them is a **rule 9 STOP-and-ask trigger**. Even seemingly-helpful edits (adding a memory entry, tightening a rule, appending to SECURITY-LOG) need user permission first. Phase work touches plan files (`phase-N-plan.md`), code, and the per-domain ISSUES/SUGGESTIONS logs — those are in scope; the meta-files are not.
 
-Exception: rule 12 (logging out-of-scope findings) explicitly authorizes appends to `docs/SECURITY-LOG.md` for new security findings discovered DURING phase work. That's the only auto-touched meta-file, and it's append-only.
+Exception: rule 12 (logging out-of-scope findings) explicitly authorizes appends to `docs/logs/SECURITY-LOG.md` for new security findings discovered DURING phase work. That's the only auto-touched meta-file, and it's append-only.
 
 ### 17. Update the plan's `Completed` section after every sub-phase
 4-gate green is not enough on its own. As part of the per-sub-phase exit criteria, also update the phase plan's `## Completed` section with a precise file:line citation and a one-line summary of what landed.

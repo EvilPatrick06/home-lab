@@ -24,7 +24,7 @@ dungeon-scholar.
 - [ ] Full local study (flashcards, quiz, practice exam, dungeon delve) works with the network fully offline after first load (PWA shell cached).
 
 ## Dungeon Delve — full run (apprentice)
-- [ ] Enter a delve: movement, a mob battle, an elite, a boss kill, the run-summary screen, and a Chronicle/run-history entry all work end to end. **Note: curses/modifiers are vestigial — nothing to test there** (logged in `docs/ISSUES-LOG-DUNGEON-SCHOLAR.md`).
+- [ ] Enter a delve: movement, a mob battle, an elite, a boss kill, the run-summary screen, and a Chronicle/run-history entry all work end to end. **Note: curses/modifiers are vestigial — nothing to test there** (logged in `docs/logs/ISSUES-LOG-DUNGEON-SCHOLAR.md`).
 - [ ] Stable equip effects inside a delve: an equipped owl's XP bonus and a dragon's shield apply as described.
 
 ## Daily Devotion

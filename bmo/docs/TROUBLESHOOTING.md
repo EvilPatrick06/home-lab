@@ -1,6 +1,6 @@
 # BMO Troubleshooting
 
-Common failures + fixes. Also check [`../../docs/BMO-ISSUES-LOG.md`](../../docs/BMO-ISSUES-LOG.md) for logged BMO bugs and [`../../docs/BMO-SUGGESTIONS-LOG.md`](../../docs/BMO-SUGGESTIONS-LOG.md) for design-gotchas.
+Common failures + fixes. Also check [`../../docs/logs/BMO-ISSUES-LOG.md`](../../docs/logs/BMO-ISSUES-LOG.md) for logged BMO bugs and [`../../docs/logs/BMO-SUGGESTIONS-LOG.md`](../../docs/logs/BMO-SUGGESTIONS-LOG.md) for design-gotchas.
 
 ## BMO won't start
 
@@ -38,7 +38,7 @@ Common causes:
 - **Check audio input:** `pactl list short sources` — is your mic detected?
 - **Check wake-word model exists:** `ls -la bmo/pi/wake/hey_bmo.onnx`
 - **Check openwakeword logs:** `journalctl -u bmo | grep -i "wake"`
-- **Fallback active?** If logs say "openwakeword not available, using energy+STT fallback" — that still works, just less accurate. See [BMO-ISSUES-LOG.md](../../docs/BMO-ISSUES-LOG.md) for the model file issue.
+- **Fallback active?** If logs say "openwakeword not available, using energy+STT fallback" — that still works, just less accurate. See [BMO-ISSUES-LOG.md](../../docs/logs/BMO-ISSUES-LOG.md) for the model file issue.
 
 ### STT fails
 
@@ -149,7 +149,7 @@ rm -rf ~/.cache/chromium-bmo/Default/Cache/*
 ## MCP servers fail to initialize
 
 - **Symptom:** `[mcp] Initialized: 0/3 servers, 0 tools`
-- **Fix:** Tracked in [BMO-ISSUES-LOG.md](../../docs/BMO-ISSUES-LOG.md). Probably path issue in `mcp_servers/mcp_settings.json` or server script crashing.
+- **Fix:** Tracked in [BMO-ISSUES-LOG.md](../../docs/logs/BMO-ISSUES-LOG.md). Probably path issue in `mcp_servers/mcp_settings.json` or server script crashing.
 
 ## Service keeps restarting
 
@@ -226,7 +226,7 @@ Set in `bmo/pi/.env` (see `bmo/.env.template`): `BMO_TV_HOST`, `VTT_SYNC_URL`. R
 
 ## Still stuck?
 
-1. Search [`BMO-ISSUES-LOG.md`](../../docs/BMO-ISSUES-LOG.md) and [`BMO-SUGGESTIONS-LOG.md`](../../docs/BMO-SUGGESTIONS-LOG.md)
+1. Search [`BMO-ISSUES-LOG.md`](../../docs/logs/BMO-ISSUES-LOG.md) and [`BMO-SUGGESTIONS-LOG.md`](../../docs/logs/BMO-SUGGESTIONS-LOG.md)
 2. Check recent commits: `cd ~/home-lab && git log --oneline -20`
 3. Ask an AI agent (Cursor/Claude/Gemini) — they have all the context via `AGENTS.md`
 4. File an issue on GitHub with:

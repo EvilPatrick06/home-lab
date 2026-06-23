@@ -235,7 +235,7 @@ For remote laptop-to-Pi editing + push: [`docs/DEPLOY.md`](./docs/DEPLOY.md).
 
 ## Known limitations
 
-Active bugs / debt → [`../docs/BMO-ISSUES-LOG.md`](../docs/BMO-ISSUES-LOG.md). Design-gotchas + future-ideas → [`../docs/BMO-SUGGESTIONS-LOG.md`](../docs/BMO-SUGGESTIONS-LOG.md). Grep both before debugging or proposing.
+Active bugs / debt → [`../docs/logs/BMO-ISSUES-LOG.md`](../docs/logs/BMO-ISSUES-LOG.md). Design-gotchas + future-ideas → [`../docs/logs/BMO-SUGGESTIONS-LOG.md`](../docs/logs/BMO-SUGGESTIONS-LOG.md). Grep both before debugging or proposing.
 
 ## License
 

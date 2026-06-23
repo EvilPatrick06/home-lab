@@ -200,7 +200,7 @@ To let installed copies reach Pi/cloud features off-LAN with no per-player setup
 
 If broken, check:
 - `bmo/docs/TROUBLESHOOTING.md`
-- The matching active log: `docs/BMO-ISSUES-LOG.md` (bmo bugs), `docs/ISSUES-LOG-DNDAPP.md` (dnd-app bugs); also `docs/BMO-SUGGESTIONS-LOG.md` + `docs/SUGGESTIONS-LOG-DNDAPP.md` for design-gotchas / known-quirks
+- The matching active log: `docs/logs/BMO-ISSUES-LOG.md` (bmo bugs), `docs/logs/ISSUES-LOG-DNDAPP.md` (dnd-app bugs); also `docs/logs/BMO-SUGGESTIONS-LOG.md` + `docs/logs/SUGGESTIONS-LOG-DNDAPP.md` for design-gotchas / known-quirks
 - `journalctl -u bmo -f` + dnd-app logs (Help → Open Logs)
 
 ## dungeon-scholar (optional)

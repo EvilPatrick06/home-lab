@@ -113,13 +113,13 @@ Union-merge covers (by filename glob, any directory):
 
 | Glob | Files it covers |
 |---|---|
-| `ISSUES-LOG*` | `docs/ISSUES-LOG.md`, `docs/ISSUES-LOG-DNDAPP.md`, `docs/ISSUES-LOG-DUNGEON-SCHOLAR.md` |
-| `BMO-ISSUES-LOG*` | `docs/BMO-ISSUES-LOG.md` |
-| `SUGGESTIONS-LOG*` | `docs/SUGGESTIONS-LOG.md`, `docs/SUGGESTIONS-LOG-DNDAPP.md`, `docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` |
-| `BMO-SUGGESTIONS-LOG*` | `docs/BMO-SUGGESTIONS-LOG.md` |
-| `SECURITY-LOG*` | `docs/SECURITY-LOG.md` *(gitignored — rule is inert but kept for the day it is tracked)* |
-| `RESOLVED-*` | `docs/RESOLVED-ISSUES.md`, `docs/RESOLVED-ISSUES-DNDAPP.md`, `docs/RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`, `docs/RESOLVED-SECURITY-ISSUES.md` |
-| `BMO-RESOLVED-*` | `docs/BMO-RESOLVED-ISSUES.md` |
+| `ISSUES-LOG*` | `docs/logs/ISSUES-LOG.md`, `docs/logs/ISSUES-LOG-DNDAPP.md`, `docs/logs/ISSUES-LOG-DUNGEON-SCHOLAR.md` |
+| `BMO-ISSUES-LOG*` | `docs/logs/BMO-ISSUES-LOG.md` |
+| `SUGGESTIONS-LOG*` | `docs/logs/SUGGESTIONS-LOG.md`, `docs/logs/SUGGESTIONS-LOG-DNDAPP.md`, `docs/logs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` |
+| `BMO-SUGGESTIONS-LOG*` | `docs/logs/BMO-SUGGESTIONS-LOG.md` |
+| `SECURITY-LOG*` | `docs/logs/SECURITY-LOG.md` *(gitignored — rule is inert but kept for the day it is tracked)* |
+| `RESOLVED-*` | `docs/logs/RESOLVED-ISSUES.md`, `docs/logs/RESOLVED-ISSUES-DNDAPP.md`, `docs/logs/RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`, `docs/logs/RESOLVED-SECURITY-ISSUES.md` |
+| `BMO-RESOLVED-*` | `docs/logs/BMO-RESOLVED-ISSUES.md` |
 
 **Caveat — union merge concatenates; it does not reason.** It is ideal for
 *append-at-bottom* (or append-at-top) log entries. It can produce odd ordering
@@ -273,3 +273,19 @@ Automated agent:                         Integrator (daily):
                                              major / red       -> leave + report
                                            report merged / left-behind / PRs
 ```
+
+## TODO (temporary) — remove the docs/logs migration bridge symlinks
+
+On 2026-06-23 the active/archive logs moved from `docs/` into `docs/logs/`.
+To avoid breaking scheduled agents whose prompts still write to the old
+`docs/<LOG>.md` paths, each old path is now a symlink into `docs/logs/`:
+
+    docs/ISSUES-LOG.md -> logs/ISSUES-LOG.md   (and the other 13 logs)
+
+These symlinks are a TEMPORARY compatibility bridge. Once every scheduled-task
+prompt has been updated to target `docs/logs/<LOG>.md` directly:
+  1. Delete the 14 `docs/<LOG>.md` bridge symlinks (12 tracked + the 2 gitignored
+     security ones: SECURITY-LOG.md, RESOLVED-SECURITY-ISSUES.md).
+  2. Remove the "TEMPORARY transition bridge" bare-glob block in `.gitattributes`.
+  3. Remove the old `docs/SECURITY-LOG.md` / `docs/RESOLVED-SECURITY-ISSUES.md`
+     bridge lines from `.gitignore`.

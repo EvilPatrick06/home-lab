@@ -32,13 +32,13 @@ Read in order:
    domains (2026-06-11 — every open log entry became a numbered phase plan; the
    consolidating audit was deleted once the set was authored)
 4. Active logs (new items since the consolidation land here first):
-   - `docs/BMO-ISSUES-LOG.md` — BMO-domain bugs + debt
-   - `docs/ISSUES-LOG-DNDAPP.md` — dnd-app-domain bugs + debt
-   - `docs/ISSUES-LOG-DUNGEON-SCHOLAR.md` — dungeon-scholar-domain bugs + debt
-   - `docs/BMO-SUGGESTIONS-LOG.md` — BMO-domain ideas + design gotchas + info
-   - `docs/SUGGESTIONS-LOG-DNDAPP.md` — dnd-app-domain ideas + design gotchas + info
-   - `docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` — dungeon-scholar-domain ideas + design gotchas + info
-   - `docs/SECURITY-LOG.md` — security (global, gitignored)
+   - `docs/logs/BMO-ISSUES-LOG.md` — BMO-domain bugs + debt
+   - `docs/logs/ISSUES-LOG-DNDAPP.md` — dnd-app-domain bugs + debt
+   - `docs/logs/ISSUES-LOG-DUNGEON-SCHOLAR.md` — dungeon-scholar-domain bugs + debt
+   - `docs/logs/BMO-SUGGESTIONS-LOG.md` — BMO-domain ideas + design gotchas + info
+   - `docs/logs/SUGGESTIONS-LOG-DNDAPP.md` — dnd-app-domain ideas + design gotchas + info
+   - `docs/logs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` — dungeon-scholar-domain ideas + design gotchas + info
+   - `docs/logs/SECURITY-LOG.md` — security (global, gitignored)
 5. Domain doc: `dnd-app/README.md`, `bmo/README.md`, or `dungeon-scholar/README.md`
 
 ### Tool preferences (Claude Code)
@@ -186,7 +186,7 @@ Tasks left as `pending`/`in_progress` at session end are reported as incomplete 
 Try in order:
 1. Grep all active logs — has this been seen before?
    ```bash
-   grep -i "<keyword>" docs/BMO-ISSUES-LOG.md docs/ISSUES-LOG-DNDAPP.md docs/BMO-SUGGESTIONS-LOG.md docs/SUGGESTIONS-LOG-DNDAPP.md docs/SECURITY-LOG.md
+   grep -i "<keyword>" docs/logs/BMO-ISSUES-LOG.md docs/logs/ISSUES-LOG-DNDAPP.md docs/logs/BMO-SUGGESTIONS-LOG.md docs/logs/SUGGESTIONS-LOG-DNDAPP.md docs/logs/SECURITY-LOG.md
    ```
 2. `bmo/docs/TROUBLESHOOTING.md` — BMO-specific patterns
 3. `git log --oneline -20` — recent changes may give context

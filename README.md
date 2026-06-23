@@ -77,9 +77,9 @@ Read in order:
 3. [`docs/LOG-INSTRUCTIONS.md`](./docs/LOG-INSTRUCTIONS.md) — which log to write to + when not to
 4. [`dnd-app/docs/phases/PHASE-INDEX.md`](./dnd-app/docs/phases/PHASE-INDEX.md) — the backlog phase set (2026-06-11) for all three domains
 5. The active issue / suggestion logs for the domain you're working in:
-   - **dnd-app** → [`docs/ISSUES-LOG-DNDAPP.md`](./docs/ISSUES-LOG-DNDAPP.md) + [`docs/SUGGESTIONS-LOG-DNDAPP.md`](./docs/SUGGESTIONS-LOG-DNDAPP.md)
-   - **bmo** → [`docs/BMO-ISSUES-LOG.md`](./docs/BMO-ISSUES-LOG.md) + [`docs/BMO-SUGGESTIONS-LOG.md`](./docs/BMO-SUGGESTIONS-LOG.md)
-   - **dungeon-scholar** → [`docs/ISSUES-LOG-DUNGEON-SCHOLAR.md`](./docs/ISSUES-LOG-DUNGEON-SCHOLAR.md) + [`docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`](./docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md)
+   - **dnd-app** → [`docs/logs/ISSUES-LOG-DNDAPP.md`](./docs/logs/ISSUES-LOG-DNDAPP.md) + [`docs/logs/SUGGESTIONS-LOG-DNDAPP.md`](./docs/logs/SUGGESTIONS-LOG-DNDAPP.md)
+   - **bmo** → [`docs/logs/BMO-ISSUES-LOG.md`](./docs/logs/BMO-ISSUES-LOG.md) + [`docs/logs/BMO-SUGGESTIONS-LOG.md`](./docs/logs/BMO-SUGGESTIONS-LOG.md)
+   - **dungeon-scholar** → [`docs/logs/ISSUES-LOG-DUNGEON-SCHOLAR.md`](./docs/logs/ISSUES-LOG-DUNGEON-SCHOLAR.md) + [`docs/logs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`](./docs/logs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md)
 6. Project READMEs ([`dnd-app/README.md`](./dnd-app/README.md), [`bmo/README.md`](./bmo/README.md), [`dungeon-scholar/README.md`](./dungeon-scholar/README.md)) before touching code.
 
 Tool-specific instruction files: [`CLAUDE.md`](./CLAUDE.md), [`GEMINI.md`](./GEMINI.md), [`.github/copilot-instructions.md`](./.github/copilot-instructions.md).
@@ -102,10 +102,10 @@ Tool-specific instruction files: [`CLAUDE.md`](./CLAUDE.md), [`GEMINI.md`](./GEM
 - [`docs/CHANGELOG.md`](./docs/CHANGELOG.md) — release history
 
 **Active logs (split by domain — grep before opening a "new" bug):**
-- Bugs: [`docs/ISSUES-LOG-DNDAPP.md`](./docs/ISSUES-LOG-DNDAPP.md) · [`docs/BMO-ISSUES-LOG.md`](./docs/BMO-ISSUES-LOG.md) · [`docs/ISSUES-LOG-DUNGEON-SCHOLAR.md`](./docs/ISSUES-LOG-DUNGEON-SCHOLAR.md)
-- Future-ideas / gotchas: [`docs/SUGGESTIONS-LOG-DNDAPP.md`](./docs/SUGGESTIONS-LOG-DNDAPP.md) · [`docs/BMO-SUGGESTIONS-LOG.md`](./docs/BMO-SUGGESTIONS-LOG.md) · [`docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`](./docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md)
-- Resolved archive: [`docs/RESOLVED-ISSUES-DNDAPP.md`](./docs/RESOLVED-ISSUES-DNDAPP.md) · [`docs/BMO-RESOLVED-ISSUES.md`](./docs/BMO-RESOLVED-ISSUES.md) · [`docs/RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`](./docs/RESOLVED-ISSUES-DUNGEON-SCHOLAR.md)
-- Security log (gitignored): `docs/SECURITY-LOG.md`
+- Bugs: [`docs/logs/ISSUES-LOG-DNDAPP.md`](./docs/logs/ISSUES-LOG-DNDAPP.md) · [`docs/logs/BMO-ISSUES-LOG.md`](./docs/logs/BMO-ISSUES-LOG.md) · [`docs/logs/ISSUES-LOG-DUNGEON-SCHOLAR.md`](./docs/logs/ISSUES-LOG-DUNGEON-SCHOLAR.md)
+- Future-ideas / gotchas: [`docs/logs/SUGGESTIONS-LOG-DNDAPP.md`](./docs/logs/SUGGESTIONS-LOG-DNDAPP.md) · [`docs/logs/BMO-SUGGESTIONS-LOG.md`](./docs/logs/BMO-SUGGESTIONS-LOG.md) · [`docs/logs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`](./docs/logs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md)
+- Resolved archive: [`docs/logs/RESOLVED-ISSUES-DNDAPP.md`](./docs/logs/RESOLVED-ISSUES-DNDAPP.md) · [`docs/logs/BMO-RESOLVED-ISSUES.md`](./docs/logs/BMO-RESOLVED-ISSUES.md) · [`docs/logs/RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`](./docs/logs/RESOLVED-ISSUES-DUNGEON-SCHOLAR.md)
+- Security log (gitignored): `docs/logs/SECURITY-LOG.md`
 
 **Per-project deep dives:**
 - [`dnd-app/docs/IPC-SURFACE.md`](./dnd-app/docs/IPC-SURFACE.md) — Electron IPC channel catalogue

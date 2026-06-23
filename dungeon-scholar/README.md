@@ -207,9 +207,9 @@ except Home is `React.lazy`-loaded as its own chunk, keeping the initial bundle 
 
 ## Known limitations + future-ideas
 
-- Active bugs / debt → [`../docs/ISSUES-LOG-DUNGEON-SCHOLAR.md`](../docs/ISSUES-LOG-DUNGEON-SCHOLAR.md)
-- Future-ideas + design-gotchas → [`../docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`](../docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md)
-- Resolved archive → [`../docs/RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`](../docs/RESOLVED-ISSUES-DUNGEON-SCHOLAR.md)
+- Active bugs / debt → [`../docs/logs/ISSUES-LOG-DUNGEON-SCHOLAR.md`](../docs/logs/ISSUES-LOG-DUNGEON-SCHOLAR.md)
+- Future-ideas + design-gotchas → [`../docs/logs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`](../docs/logs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md)
+- Resolved archive → [`../docs/logs/RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`](../docs/logs/RESOLVED-ISSUES-DUNGEON-SCHOLAR.md)
 
 ## License
 

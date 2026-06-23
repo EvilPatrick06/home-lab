@@ -16,7 +16,7 @@ The QA agent runs against the **latest published release** (launched via `../../
 
 ## Note for editing agents / triage
 
-These reports are **not** the tracked issue logs. Findings here still need triaging into the real logs (`docs/ISSUES-LOG-DNDAPP.md` / `docs/SUGGESTIONS-LOG-DNDAPP.md`) per `docs/LOG-INSTRUCTIONS.md`. Each finding uses a template that mirrors those logs' fields to make that hand-off easy. A finding may be marked `already in <log>` (already tracked) or `unverified — <why>` (couldn't be confirmed in the run).
+These reports are **not** the tracked issue logs. Findings here still need triaging into the real logs (`docs/logs/ISSUES-LOG-DNDAPP.md` / `docs/logs/SUGGESTIONS-LOG-DNDAPP.md`) per `docs/LOG-INSTRUCTIONS.md`. Each finding uses a template that mirrors those logs' fields to make that hand-off easy. A finding may be marked `already in <log>` (already tracked) or `unverified — <why>` (couldn't be confirmed in the run).
 
 ## Conventions
 

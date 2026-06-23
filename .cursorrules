@@ -139,13 +139,13 @@
 ## Logging Bugs / Issues / Future Work
 
 The active logs are fully split by domain (security is the only global log):
-- `docs/BMO-ISSUES-LOG.md` — bmo bugs / debt / config / perf
-- `docs/ISSUES-LOG-DNDAPP.md` — dnd-app bugs / debt / config / perf
-- `docs/ISSUES-LOG-DUNGEON-SCHOLAR.md` — dungeon-scholar bugs / debt / config / perf
-- `docs/BMO-SUGGESTIONS-LOG.md` — bmo ideas / gotchas / info
-- `docs/SUGGESTIONS-LOG-DNDAPP.md` — dnd-app ideas / gotchas / info
-- `docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` — dungeon-scholar ideas / gotchas / info
-- `docs/SECURITY-LOG.md` — security (gitignored, global, any domain)
+- `docs/logs/BMO-ISSUES-LOG.md` — bmo bugs / debt / config / perf
+- `docs/logs/ISSUES-LOG-DNDAPP.md` — dnd-app bugs / debt / config / perf
+- `docs/logs/ISSUES-LOG-DUNGEON-SCHOLAR.md` — dungeon-scholar bugs / debt / config / perf
+- `docs/logs/BMO-SUGGESTIONS-LOG.md` — bmo ideas / gotchas / info
+- `docs/logs/SUGGESTIONS-LOG-DNDAPP.md` — dnd-app ideas / gotchas / info
+- `docs/logs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` — dungeon-scholar ideas / gotchas / info
+- `docs/logs/SECURITY-LOG.md` — security (gitignored, global, any domain)
 - `Domain: both` entries → mirror in BOTH issue logs (or BOTH suggestion logs); fix once, remove from both copies.
 
 All are for **unfixed or deferred** work that crosses session boundaries.
@@ -174,7 +174,7 @@ All are for **unfixed or deferred** work that crosses session boundaries.
 ## For AI Sessions
 
 - Start by reading this file + AGENTS.md (or your tool-specific file)
-- Check the relevant active logs before starting new work — `docs/BMO-ISSUES-LOG.md` (bmo bugs), `docs/ISSUES-LOG-DNDAPP.md` (dnd-app bugs), `docs/ISSUES-LOG-DUNGEON-SCHOLAR.md` (dungeon-scholar bugs), `docs/BMO-SUGGESTIONS-LOG.md` + `docs/SUGGESTIONS-LOG-DNDAPP.md` + `docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` (gotchas/ideas)
+- Check the relevant active logs before starting new work — `docs/logs/BMO-ISSUES-LOG.md` (bmo bugs), `docs/logs/ISSUES-LOG-DNDAPP.md` (dnd-app bugs), `docs/logs/ISSUES-LOG-DUNGEON-SCHOLAR.md` (dungeon-scholar bugs), `docs/logs/BMO-SUGGESTIONS-LOG.md` + `docs/logs/SUGGESTIONS-LOG-DNDAPP.md` + `docs/logs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` (gotchas/ideas)
 - When in doubt about structure, check this file first
 - When in doubt about protocol, check `docs/ARCHITECTURE.md`
 - When debugging, check `bmo/docs/TROUBLESHOOTING.md` + the active issue logs (above)

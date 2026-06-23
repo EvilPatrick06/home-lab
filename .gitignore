@@ -126,6 +126,11 @@ bmo/pi/services/data/*.db
 bmo/pi/venv.broken.*/
 
 # Local-only security log + its resolved-archive (kept out of git so concerns/incidents stay local)
+# Sensitive security logs - content now lives in docs/logs/ (migrated 2026-06-23)
+docs/logs/SECURITY-LOG.md
+docs/logs/RESOLVED-SECURITY-ISSUES.md
+# TEMPORARY bridge symlinks at the old paths - keep ignored so they are not tracked.
+# Remove with the docs/logs migration symlinks once scheduled-task prompts are updated.
 docs/SECURITY-LOG.md
 docs/RESOLVED-SECURITY-ISSUES.md
 

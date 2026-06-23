@@ -36,7 +36,7 @@ labels: bug
 
 ## Known issues checked?
 
-- [ ] Searched all active logs — [`BMO-ISSUES-LOG.md`](../../docs/BMO-ISSUES-LOG.md), [`ISSUES-LOG-DNDAPP.md`](../../docs/ISSUES-LOG-DNDAPP.md), [`BMO-SUGGESTIONS-LOG.md`](../../docs/BMO-SUGGESTIONS-LOG.md), [`SUGGESTIONS-LOG-DNDAPP.md`](../../docs/SUGGESTIONS-LOG-DNDAPP.md) — this isn't a tracked entry
+- [ ] Searched all active logs — [`BMO-ISSUES-LOG.md`](../../docs/logs/BMO-ISSUES-LOG.md), [`ISSUES-LOG-DNDAPP.md`](../../docs/logs/ISSUES-LOG-DNDAPP.md), [`BMO-SUGGESTIONS-LOG.md`](../../docs/logs/BMO-SUGGESTIONS-LOG.md), [`SUGGESTIONS-LOG-DNDAPP.md`](../../docs/logs/SUGGESTIONS-LOG-DNDAPP.md) — this isn't a tracked entry
 - [ ] Searched [`bmo/docs/TROUBLESHOOTING.md`](../../bmo/docs/TROUBLESHOOTING.md)
 - [ ] Searched existing GitHub issues
 

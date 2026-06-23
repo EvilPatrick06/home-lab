@@ -205,7 +205,7 @@ Multiple categories allowed: `Category: bug, security` is fine.
 
 1. **Grep first** — is this already logged in any of the active logs?
    ```bash
-   grep -i "<keyword>" docs/BMO-ISSUES-LOG.md docs/ISSUES-LOG-DNDAPP.md docs/ISSUES-LOG-DUNGEON-SCHOLAR.md docs/BMO-SUGGESTIONS-LOG.md docs/SUGGESTIONS-LOG-DNDAPP.md docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md docs/SECURITY-LOG.md
+   grep -i "<keyword>" docs/logs/BMO-ISSUES-LOG.md docs/logs/ISSUES-LOG-DNDAPP.md docs/logs/ISSUES-LOG-DUNGEON-SCHOLAR.md docs/logs/BMO-SUGGESTIONS-LOG.md docs/logs/SUGGESTIONS-LOG-DNDAPP.md docs/logs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md docs/logs/SECURITY-LOG.md
    ```
    If found, don't duplicate. Add a dated comment under the existing entry OR just read and move on.
 
@@ -337,12 +337,12 @@ Keeping instructions here (stable, low-churn) and the logs separate (frequently-
 ## Quick reference
 
 **Log entry:** append to the right log per the triage table at top:
-- bug / debt / config / perf — `Domain: bmo` → `docs/BMO-ISSUES-LOG.md`
-- bug / debt / config / perf — `Domain: dnd-app` → `docs/ISSUES-LOG-DNDAPP.md`
+- bug / debt / config / perf — `Domain: bmo` → `docs/logs/BMO-ISSUES-LOG.md`
+- bug / debt / config / perf — `Domain: dnd-app` → `docs/logs/ISSUES-LOG-DNDAPP.md`
 - bug / debt / config / perf — `Domain: both` → mirror in BOTH issue logs
-- future-idea (deferred work) — `Domain: bmo` → `docs/BMO-SUGGESTIONS-LOG.md`; dnd-app → `docs/SUGGESTIONS-LOG-DNDAPP.md`; dungeon-scholar → `docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`; both → mirror
+- future-idea (deferred work) — `Domain: bmo` → `docs/logs/BMO-SUGGESTIONS-LOG.md`; dnd-app → `docs/logs/SUGGESTIONS-LOG-DNDAPP.md`; dungeon-scholar → `docs/logs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`; both → mirror
 - design-gotcha / durable info (knowledge) — any domain → that domain's `docs/DESIGN-CONSTRAINTS.md` (NOT a suggestions log)
-- security (any flavor, any domain) → `docs/SECURITY-LOG.md` *(gitignored)*
+- security (any flavor, any domain) → `docs/logs/SECURITY-LOG.md` *(gitignored)*
 
 **Before fix:** grep all five tracked active logs (above) + `SECURITY-LOG.md`; log if not already present.
 

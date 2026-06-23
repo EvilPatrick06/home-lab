@@ -22,9 +22,9 @@ dnd-app and bmo are tightly coupled: BMO narrates D&D sessions via the VTT, VTT 
 cat .cursorrules                              # structure map
 cat docs/ARCHITECTURE.md                      # cross-domain protocol
 # preexisting bugs (grep all domain logs so you don't re-discover):
-cat docs/BMO-ISSUES-LOG.md docs/ISSUES-LOG-DNDAPP.md docs/ISSUES-LOG-DUNGEON-SCHOLAR.md
+cat docs/logs/BMO-ISSUES-LOG.md docs/logs/ISSUES-LOG-DNDAPP.md docs/logs/ISSUES-LOG-DUNGEON-SCHOLAR.md
 # preexisting future-ideas / design-gotchas (active logs) + canonical constraints:
-cat docs/BMO-SUGGESTIONS-LOG.md docs/SUGGESTIONS-LOG-DNDAPP.md docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md
+cat docs/logs/BMO-SUGGESTIONS-LOG.md docs/logs/SUGGESTIONS-LOG-DNDAPP.md docs/logs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md
 cat bmo/docs/DESIGN-CONSTRAINTS.md
 
 # 2. Work in the right directory
@@ -130,13 +130,13 @@ Protocol details: `docs/ARCHITECTURE.md`
 
 The logs are for work that **crosses session boundaries**:
 
-- `docs/BMO-ISSUES-LOG.md` — BMO-domain bugs + debt
-- `docs/ISSUES-LOG-DNDAPP.md` — dnd-app-domain bugs + debt
-- `docs/ISSUES-LOG-DUNGEON-SCHOLAR.md` — dungeon-scholar-domain bugs + debt
-- `docs/BMO-SUGGESTIONS-LOG.md` — BMO-domain ideas / design gotchas / info
-- `docs/SUGGESTIONS-LOG-DNDAPP.md` — dnd-app-domain ideas / design gotchas / info
-- `docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` — dungeon-scholar-domain ideas / design gotchas / info
-- `docs/SECURITY-LOG.md` — security (gitignored, any domain)
+- `docs/logs/BMO-ISSUES-LOG.md` — BMO-domain bugs + debt
+- `docs/logs/ISSUES-LOG-DNDAPP.md` — dnd-app-domain bugs + debt
+- `docs/logs/ISSUES-LOG-DUNGEON-SCHOLAR.md` — dungeon-scholar-domain bugs + debt
+- `docs/logs/BMO-SUGGESTIONS-LOG.md` — BMO-domain ideas / design gotchas / info
+- `docs/logs/SUGGESTIONS-LOG-DNDAPP.md` — dnd-app-domain ideas / design gotchas / info
+- `docs/logs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` — dungeon-scholar-domain ideas / design gotchas / info
+- `docs/logs/SECURITY-LOG.md` — security (gitignored, any domain)
 - `Domain: both` (or three-way) entries → mirrored in each relevant log. Triage table: `docs/LOG-INSTRUCTIONS.md`
 
 Before appending, decide:
