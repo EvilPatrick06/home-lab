@@ -1,0 +1,69 @@
+# Build + deploy the dnd-app WEB build (Dungeon Table Online) to the Pi, which
+# serves it same-origin behind the Cloudflare tunnel at
+# https://bmo.mybmoai.work/DungeonTableOnline/ .
+#
+# Keeps the web version in lock-step with the desktop app: every master push
+# that touches dnd-app rebuilds and redeploys the browser SPA.
+#
+# Auth model (identical to bmo-deploy.yml): ephemeral Tailscale OAuth join +
+# Tailscale SSH — no SSH-key secrets stored. Dormant by design: without
+# TS_OAUTH_CLIENT_ID / TS_OAUTH_SECRET the gate emits a notice and the deploy
+# job is skipped, so the workflow lands GREEN, not red.
+name: dnd-web / deploy
+on:
+  push:
+    branches: [master]
+    paths:
+      - "dnd-app/**"
+      - ".github/workflows/dnd-web-deploy.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: dnd-web-deploy
+  cancel-in-progress: false
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      has-secrets: ${{ steps.check.outputs.ok }}
+    steps:
+      - id: check
+        env:
+          HAS_ID: ${{ secrets.TS_OAUTH_CLIENT_ID != '' }}
+          HAS_SECRET: ${{ secrets.TS_OAUTH_SECRET != '' }}
+        run: |
+          ok=false; [ "$HAS_ID" = "true" ] && [ "$HAS_SECRET" = "true" ] && ok=true
+          echo "ok=$ok" >> "$GITHUB_OUTPUT"
+          [ "$ok" = "true" ] || echo "::notice::dnd-web deploy skipped — TS_OAUTH secrets not configured."
+  deploy:
+    needs: gate
+    if: needs.gate.outputs.has-secrets == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: dnd-app
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: dnd-app/package-lock.json
+      - run: npm ci
+      - name: Build web bundle
+        run: npm run build:web
+      - name: Join tailnet (ephemeral)
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+          ping: bmo.tail31b5d9.ts.net
+      - name: Rsync build to the Pi
+        run: |
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new \
+            patrick@bmo.tail31b5d9.ts.net "mkdir -p /home/patrick/web-apps/DungeonTableOnline"
+          rsync -az --delete -e "ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
+            dist-web/ patrick@bmo.tail31b5d9.ts.net:/home/patrick/web-apps/DungeonTableOnline/

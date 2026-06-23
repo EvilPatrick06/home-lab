@@ -1,0 +1,704 @@
+/**
+ * WEB build implementation of `window.api` — the browser counterpart to the
+ * Electron preload bridge (`src/preload/index.ts`). The desktop renderer reaches
+ * every native/main-process capability through `window.api.*`; in the browser
+ * there is no preload, so this module recreates the SAME object shape, routing:
+ *
+ *   - storage / settings / per-entity content  → IndexedDB (see `idb.ts`)
+ *   - bundled 5e game data (`game.load*`)       → fetch from the static bundle
+ *   - library / sounds / registry / cloud / bmo → the BMO Pi backend (same-origin
+ *     when served from the Cloudflare tunnel; CORS-allowed prefixes otherwise)
+ *   - file dialogs / fs                         → File System Access + download
+ *   - desktop-only (updater, LAN mDNS, Ollama)  → safe no-ops (capability-gated)
+ *
+ * Keeping the shape identical to the preload means the 127 renderer call sites
+ * need zero changes. Methods not yet bridged resolve to conservative defaults so
+ * the UI degrades gracefully instead of throwing.
+ */
+
+import { idbDelete, idbGet, idbGetAll, idbKeys, idbSet, idbWipeAll, type StoreName } from './idb'
+
+// ── Backend base URL ────────────────────────────────────────────────
+// Served same-origin behind the Cloudflare tunnel in production ('' → /api/*).
+// For `dev:web` (localhost) point at the public tunnel via VITE_BMO_BASE.
+const BMO_BASE: string = (import.meta.env.VITE_BMO_BASE as string | undefined) ?? ''
+// Static asset base (Vite `base`, e.g. /TableOnline/). Bundled 5e JSON lives here.
+const ASSET_BASE: string = import.meta.env.BASE_URL ?? '/'
+
+async function bmoFetchJson<T = unknown>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`${BMO_BASE}${path}`, { credentials: 'include', ...init })
+  if (!res.ok) throw new Error(`BMO ${path} → ${res.status}`)
+  return (await res.json()) as T
+}
+
+// ── Lightweight main→renderer event bus (replaces ipcRenderer.on) ────
+const busListeners = new Map<string, Set<(data: unknown) => void>>()
+
+function busOn(channel: string, cb: (data: unknown) => void): () => void {
+  let set = busListeners.get(channel)
+  if (!set) {
+    set = new Set()
+    busListeners.set(channel, set)
+  }
+  set.add(cb)
+  return () => set?.delete(cb)
+}
+
+function busClear(channel: string): void {
+  busListeners.get(channel)?.clear()
+}
+
+/** Emit a synthetic main→renderer event (used by bridged backend streams). */
+export function webEmit(channel: string, data: unknown): void {
+  for (const cb of busListeners.get(channel) ?? []) cb(data)
+}
+
+// ── Helpers ─────────────────────────────────────────────────────────
+function genId(): string {
+  return (crypto as Crypto).randomUUID()
+}
+
+type Dict = Record<string, unknown>
+const ok = { success: true } as const
+
+async function saveEntity(store: StoreName, entity: Dict): Promise<Dict> {
+  const id = (entity.id as string | undefined) ?? genId()
+  const withId = { ...entity, id }
+  await idbSet(store, id, withId)
+  return withId
+}
+
+async function loadJson<T = unknown>(path: string): Promise<T | null> {
+  const clean = path.replace(/^\.\//, '').replace(/^\//, '')
+  try {
+    const res = await fetch(`${ASSET_BASE}${clean}`)
+    if (!res.ok) return null
+    return (await res.json()) as T
+  } catch {
+    return null
+  }
+}
+
+function pickFile(accept = ''): Promise<File | null> {
+  return new Promise((resolve) => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    if (accept) input.accept = accept
+    input.onchange = () => resolve(input.files?.[0] ?? null)
+    input.click()
+  })
+}
+
+// ── The api object — mirrors src/preload/index.ts exactly ────────────
+export function createWebApi() {
+  const api = {
+    // Character storage
+    saveCharacter: (character: Dict) => saveEntity('characters', character),
+    loadCharacters: () => idbGetAll('characters'),
+    loadCharacter: (id: string) => idbGet('characters', id),
+    deleteCharacter: async (id: string) => {
+      await idbDelete('characters', id)
+      return ok
+    },
+    wipeAllData: async () => {
+      await idbWipeAll()
+      return ok
+    },
+    listCharacterVersions: (_id: string) => Promise.resolve([] as unknown[]),
+    restoreCharacterVersion: (_id: string, _fileName: string) => Promise.resolve(null),
+
+    // Campaign storage
+    saveCampaign: (campaign: Dict) => saveEntity('campaigns', campaign),
+    loadCampaigns: () => idbGetAll('campaigns'),
+    loadCampaign: (id: string) => idbGet('campaigns', id),
+    deleteCampaign: async (id: string) => {
+      await idbDelete('campaigns', id)
+      return ok
+    },
+
+    // Bastion storage
+    saveBastion: (bastion: Dict) => saveEntity('bastions', bastion),
+    loadBastions: () => idbGetAll('bastions'),
+    loadBastion: (id: string) => idbGet('bastions', id),
+    deleteBastion: async (id: string) => {
+      await idbDelete('bastions', id)
+      return ok
+    },
+
+    // Custom creature storage
+    saveCustomCreature: (creature: Dict) => saveEntity('custom-creatures', creature),
+    loadCustomCreatures: () => idbGetAll('custom-creatures'),
+    loadCustomCreature: (id: string) => idbGet('custom-creatures', id),
+    deleteCustomCreature: async (id: string) => {
+      await idbDelete('custom-creatures', id)
+      return ok
+    },
+
+    // Homebrew storage (keyed `<category>/<id>`)
+    saveHomebrew: async (entry: Dict) => {
+      const id = (entry.id as string | undefined) ?? genId()
+      const category = (entry.category as string | undefined) ?? 'misc'
+      const withId = { ...entry, id, category }
+      await idbSet('homebrew', `${category}/${id}`, withId)
+      return withId
+    },
+    loadHomebrewByCategory: async (category: string) => {
+      const all = (await idbGetAll<Dict>('homebrew')) ?? []
+      return all.filter((e) => e.category === category)
+    },
+    loadAllHomebrew: () => idbGetAll('homebrew'),
+    deleteHomebrew: async (category: string, id: string) => {
+      await idbDelete('homebrew', `${category}/${id}`)
+      return ok
+    },
+
+    // File dialogs → File System Access / download-upload
+    showSaveDialog: (options: { title: string; defaultPath?: string }) =>
+      Promise.resolve({ canceled: false, filePath: options.defaultPath ?? 'export.json' }),
+    showOpenDialog: async (_options: { title: string }) => {
+      const file = await pickFile()
+      return file ? { canceled: false, filePaths: [file.name], __file: file } : { canceled: true, filePaths: [] }
+    },
+
+    // Game state storage (keyed by campaignId)
+    saveGameState: async (campaignId: string, state: Dict) => {
+      await idbSet('game-state', campaignId, state)
+      return ok
+    },
+    loadGameState: (campaignId: string) => idbGet('game-state', campaignId),
+    deleteGameState: async (campaignId: string) => {
+      await idbDelete('game-state', campaignId)
+      return ok
+    },
+
+    // Ban storage
+    loadBans: async (campaignId: string) =>
+      (await idbGet('bans', campaignId)) ?? { peerIds: [], names: [], clients: [] },
+    saveBans: async (campaignId: string, banData: Dict) => {
+      await idbSet('bans', campaignId, banData)
+      return ok
+    },
+
+    // File I/O → IndexedDB-backed virtual fs
+    readFile: (path: string) => idbGet('kv', `fs:${path}`),
+    readFileBinary: (path: string) => idbGet('kv', `fsb:${path}`),
+    writeFile: async (path: string, content: string) => {
+      await idbSet('kv', `fs:${path}`, content)
+      return ok
+    },
+    writeFileBinary: async (path: string, buffer: ArrayBuffer) => {
+      await idbSet('kv', `fsb:${path}`, buffer)
+      return ok
+    },
+
+    // Window controls → Fullscreen API
+    toggleFullscreen: async () => {
+      if (document.fullscreenElement) await document.exitFullscreen()
+      else await document.documentElement.requestFullscreen().catch(() => undefined)
+      return !!document.fullscreenElement
+    },
+    isFullscreen: () => Promise.resolve(!!document.fullscreenElement),
+    openDevTools: () => Promise.resolve(),
+
+    // AI DM — bridged to the Pi where wired; conservative stubs otherwise.
+    ai: createAiStub(),
+
+    // AI image generation (opt-in) — stubbed for web MVP.
+    aiImage: {
+      getConfig: () => Promise.resolve({ enabled: false, provider: 'none' }),
+      configure: (config: Dict) => idbSet('kv', 'ai-image-config', config).then(() => ok),
+      checkProviders: () => Promise.resolve({ available: [] as string[] }),
+      generate: (_request: Dict) => Promise.reject(new Error('AI image generation is not available in the web build')),
+      onProgress: (_cb: (d: { progress: number; etaSeconds: number }) => void) => undefined,
+      removeProgressListener: () => undefined
+    },
+
+    // App updates → replaced by deploy-on-release; no-ops in the web build.
+    update: {
+      checkForUpdates: () => Promise.resolve({ state: 'web', message: 'Web build auto-updates on deploy' }),
+      downloadUpdate: () => Promise.resolve(),
+      installUpdate: () => Promise.resolve(),
+      onStatus: (_cb: (s: Dict) => void) => () => undefined,
+      removeStatusListener: () => undefined
+    },
+
+    // LAN discovery (mDNS) — not available in browsers; off-LAN uses the Pi.
+    lan: {
+      startScan: () => Promise.resolve(ok),
+      stopScan: () => Promise.resolve(ok),
+      publish: (_entry: Dict) => Promise.resolve(ok),
+      unpublish: () => Promise.resolve(ok),
+      onGameFound: (_cb: (e: Dict) => void) => () => undefined,
+      onGameRemoved: (_cb: (e: Dict) => void) => () => undefined,
+      onBmoResolvedUrl: (_cb: (p: { url: string | null }) => void) => () => undefined,
+      onBmoSignalingStatus: (_cb: (p: { reachable: boolean | null; host: string; port: number }) => void) => () =>
+        undefined,
+      probeSignaling: () => Promise.resolve({ reachable: null })
+    },
+
+    // Settings → IndexedDB
+    saveSettings: async (settings: Dict) => {
+      await idbSet('settings', 'app', settings)
+      return ok
+    },
+    loadSettings: async () => (await idbGet('settings', 'app')) ?? {},
+
+    // Audio custom tracks → IndexedDB blobs + object URLs
+    audioUploadCustom: async (
+      campaignId: string,
+      fileName: string,
+      buffer: ArrayBuffer,
+      displayName: string,
+      category: string
+    ) => {
+      await idbSet('audio', `${campaignId}/${fileName}`, { buffer, displayName, category, fileName })
+      return ok
+    },
+    audioListCustom: async (campaignId: string) => {
+      const keys = await idbKeys('audio')
+      const mine = keys.filter((k) => k.startsWith(`${campaignId}/`))
+      return Promise.all(
+        mine.map(async (k) => {
+          const rec = (await idbGet<Dict>('audio', k)) ?? {}
+          return { fileName: rec.fileName, displayName: rec.displayName, category: rec.category }
+        })
+      )
+    },
+    audioDeleteCustom: async (campaignId: string, fileName: string) => {
+      await idbDelete('audio', `${campaignId}/${fileName}`)
+      return ok
+    },
+    audioGetCustomPath: async (campaignId: string, fileName: string) => {
+      const rec = await idbGet<Dict>('audio', `${campaignId}/${fileName}`)
+      if (!rec?.buffer) return null
+      return URL.createObjectURL(new Blob([rec.buffer as ArrayBuffer]))
+    },
+    audioPickFile: async () => {
+      const file = await pickFile('audio/*')
+      if (!file) return { canceled: true }
+      return { canceled: false, fileName: file.name, buffer: await file.arrayBuffer() }
+    },
+
+    // App info
+    getVersion: () => Promise.resolve(__APP_VERSION__),
+
+    // Security audit → console (no main-process log in the browser)
+    logSecurityEvent: (event: string, details?: Dict) => {
+      console.info('[security]', event, details ?? {})
+      return Promise.resolve(ok)
+    },
+
+    // Game data — bundled 5e JSON fetched from the static bundle
+    game: createGameApi(),
+
+    // Map Library → IndexedDB
+    mapLibrary: {
+      save: async (id: string, name: string, data: Dict) => {
+        await idbSet('map-library', id, { id, name, data })
+        return ok
+      },
+      list: async () => ((await idbGetAll<Dict>('map-library')) ?? []).map((m) => ({ id: m.id, name: m.name })),
+      get: (id: string) => idbGet('map-library', id),
+      delete: async (id: string) => {
+        await idbDelete('map-library', id)
+        return ok
+      }
+    },
+
+    // Shop Templates → IndexedDB
+    shopTemplates: {
+      save: async (template: Dict) => {
+        await idbSet('shop-templates', template.id as string, template)
+        return ok
+      },
+      list: () => idbGetAll('shop-templates'),
+      get: (id: string) => idbGet('shop-templates', id),
+      delete: async (id: string) => {
+        await idbDelete('shop-templates', id)
+        return ok
+      }
+    },
+
+    // Image Library → IndexedDB blobs
+    imageLibrary: {
+      save: async (id: string, name: string, buffer: ArrayBuffer, extension: string) => {
+        await idbSet('image-library', id, { id, name, buffer, extension })
+        return ok
+      },
+      list: async () =>
+        ((await idbGetAll<Dict>('image-library')) ?? []).map((i) => ({
+          id: i.id,
+          name: i.name,
+          extension: i.extension
+        })),
+      get: (id: string) => idbGet('image-library', id),
+      readData: async (id: string) => {
+        const rec = await idbGet<Dict>('image-library', id)
+        if (!rec?.buffer) return null
+        return URL.createObjectURL(new Blob([rec.buffer as ArrayBuffer]))
+      },
+      delete: async (id: string) => {
+        await idbDelete('image-library', id)
+        return ok
+      }
+    },
+
+    // Books → IndexedDB (config + per-book data)
+    books: {
+      loadConfig: async () => (await idbGet('kv', 'books-config')) ?? { books: [] },
+      add: async (config: Dict) => {
+        const cfg = ((await idbGet<{ books: Dict[] }>('kv', 'books-config')) ?? { books: [] }) as { books: Dict[] }
+        cfg.books.push(config)
+        await idbSet('kv', 'books-config', cfg)
+        return ok
+      },
+      remove: async (bookId: string) => {
+        const cfg = ((await idbGet<{ books: Dict[] }>('kv', 'books-config')) ?? { books: [] }) as { books: Dict[] }
+        cfg.books = cfg.books.filter((b) => b.id !== bookId)
+        await idbSet('kv', 'books-config', cfg)
+        return ok
+      },
+      import: (_sourcePath: string, _title: string, _bookId: string) =>
+        Promise.reject(new Error('Book import is not available in the web build')),
+      readFile: (filePath: string) => idbGet('book-data', `file:${filePath}`),
+      loadData: async (bookId: string) => (await idbGet('book-data', bookId)) ?? { bookmarks: [], annotations: [] },
+      saveData: async (bookId: string, data: Dict) => {
+        await idbSet('book-data', bookId, data)
+        return ok
+      }
+    },
+
+    // Plugins → IndexedDB (filesystem scan/install degrade to no-op)
+    plugins: {
+      scan: () => Promise.resolve([] as unknown[]),
+      enable: async (pluginId: string) => {
+        await idbSet('plugins', `enabled:${pluginId}`, true)
+        return ok
+      },
+      disable: async (pluginId: string) => {
+        await idbDelete('plugins', `enabled:${pluginId}`)
+        return ok
+      },
+      loadContent: (_pluginId: string, _manifest: Dict) => Promise.resolve(null),
+      getEnabled: async () => {
+        const keys = await idbKeys('plugins')
+        return keys.filter((k) => k.startsWith('enabled:')).map((k) => k.slice('enabled:'.length))
+      },
+      install: () => Promise.reject(new Error('Plugin install is not available in the web build')),
+      uninstall: async (pluginId: string) => {
+        await idbDelete('plugins', `enabled:${pluginId}`)
+        return ok
+      },
+      storageGet: (pluginId: string, key: string) => idbGet('plugin-storage', `${pluginId}/${key}`),
+      storageSet: async (pluginId: string, key: string, value: unknown) => {
+        await idbSet('plugin-storage', `${pluginId}/${key}`, value)
+        return ok
+      },
+      storageDelete: async (pluginId: string, key: string) => {
+        await idbDelete('plugin-storage', `${pluginId}/${key}`)
+        return ok
+      }
+    },
+
+    // BMO Pi Bridge — same-origin REST calls to the Pi (best-effort)
+    bmoStartDm: (campaignId: string) =>
+      bmoFetchJson('/api/dnd/start', { method: 'POST', body: JSON.stringify({ campaignId }) }).catch(() => ({
+        ok: false
+      })),
+    bmoStopDm: () => bmoFetchJson('/api/dnd/stop', { method: 'POST' }).catch(() => ({ ok: false })),
+    bmoNarrate: (payload: Dict) =>
+      bmoFetchJson('/api/dnd/narrate', { method: 'POST', body: JSON.stringify(payload) }).catch(() => ({ ok: false })),
+    bmoNarrateCancel: () => bmoFetchJson('/api/dnd/narrate/cancel', { method: 'POST' }).catch(() => ({ ok: false })),
+    bmoDmStatus: () => bmoFetchJson('/api/dnd/status').catch(() => ({ running: false })),
+    bmoDiscordRecap: (_mode?: 'live' | 'last') => Promise.resolve({ recap: '' }),
+    bmoPbpStart: (p: Dict) =>
+      bmoFetchJson('/api/dnd/pbp/start', { method: 'POST', body: JSON.stringify(p) }).catch(() => ({ ok: false })),
+    bmoPbpAdvance: (p: Dict) =>
+      bmoFetchJson('/api/dnd/pbp/advance', { method: 'POST', body: JSON.stringify(p) }).catch(() => ({ ok: false })),
+    bmoPbpSkip: (p: Dict) =>
+      bmoFetchJson('/api/dnd/pbp/skip', { method: 'POST', body: JSON.stringify(p) }).catch(() => ({ ok: false })),
+    bmoPbpSetScene: (p: Dict) =>
+      bmoFetchJson('/api/dnd/pbp/scene', { method: 'POST', body: JSON.stringify(p) }).catch(() => ({ ok: false })),
+    bmoPbpStop: (p: Dict) =>
+      bmoFetchJson('/api/dnd/pbp/stop', { method: 'POST', body: JSON.stringify(p) }).catch(() => ({ ok: false })),
+    bmoPbpStatus: (_p: Dict) => bmoFetchJson('/api/dnd/pbp/status').catch(() => ({ running: false })),
+    bmoSetNarrationEnabled: (_enabled: boolean) => Promise.resolve(ok),
+    bmoSetBargeInEnabled: (_enabled: boolean) => Promise.resolve(ok),
+    bmoVoiceCastGet: (_campaignId: string) => Promise.resolve({ cast: {} }),
+    bmoVoiceCastSet: (_payload: Dict) => Promise.resolve(ok),
+    bmoVoiceCastReset: (_campaignId: string, _speaker: string) => Promise.resolve(ok),
+    onBmoNarrationStatus: (cb: (status: unknown) => void) => busOn('bmo:narration-status', cb),
+    bmoSyncInitiative: (_initiative: Dict) => Promise.resolve(ok),
+    bmoSyncGameState: (_state: Dict) => Promise.resolve(ok),
+    onBmoSyncEvent: (cb: (e: unknown) => void) => busOn('bmo:sync-event', cb),
+    onBmoSyncInitiative: (cb: (e: unknown) => void) => busOn('bmo:sync-initiative-event', cb),
+
+    // Discord Integration → Pi
+    discord: {
+      getConfig: async () => (await idbGet('kv', 'discord-config')) ?? { enabled: false },
+      saveConfig: async (config: Dict) => {
+        await idbSet('kv', 'discord-config', config)
+        return ok
+      },
+      testConnection: () => Promise.resolve({ ok: false, message: 'Configure on the desktop app' }),
+      sendMessage: (_text: string, _campaignName?: string) => Promise.resolve(ok)
+    },
+
+    // Cloud Sync (Google Drive via Rclone on the Pi)
+    cloudSync: {
+      getStatus: () => bmoFetchJson('/api/rclone/status').catch(() => ({ available: false })),
+      backupCampaign: (campaignId: string, campaignName: string) =>
+        bmoFetchJson('/api/rclone/backup', {
+          method: 'POST',
+          body: JSON.stringify({ campaignId, campaignName })
+        }).catch(() => ({ ok: false })),
+      checkCampaignStatus: (campaignId: string) =>
+        bmoFetchJson(`/api/rclone/status?campaignId=${encodeURIComponent(campaignId)}`).catch(() => ({
+          exists: false
+        })),
+      listRemoteCampaigns: () => bmoFetchJson('/api/rclone/list').catch(() => ({ campaigns: [] })),
+      restoreCampaign: (campaignId: string) =>
+        bmoFetchJson(`/api/rclone/restore?campaignId=${encodeURIComponent(campaignId)}`).catch(() => ({ ok: false }))
+    },
+
+    // Pi game registry → /api/games*
+    registry: {
+      announce: (payload: Dict, _baseOverride?: string) =>
+        bmoFetchJson('/api/games', { method: 'POST', body: JSON.stringify(payload) }).catch(() => null),
+      update: (inviteCode: string, patch: Dict, _baseOverride?: string) =>
+        bmoFetchJson(`/api/games/${encodeURIComponent(inviteCode)}`, {
+          method: 'PATCH',
+          body: JSON.stringify(patch)
+        }).catch(() => null),
+      heartbeat: (inviteCode: string, _baseOverride?: string) =>
+        bmoFetchJson(`/api/games/${encodeURIComponent(inviteCode)}/heartbeat`, { method: 'POST' }).catch(() => null),
+      deregister: (inviteCode: string, _baseOverride?: string) =>
+        bmoFetchJson(`/api/games/${encodeURIComponent(inviteCode)}`, { method: 'DELETE' }).catch(() => null),
+      list: (clientId: string | null, _baseOverride?: string) =>
+        bmoFetchJson(`/api/games${clientId ? `?clientId=${encodeURIComponent(clientId)}` : ''}`).catch(() => ({
+          games: []
+        })),
+      subscribe: (_subscriptionId: string, _clientId: string | null) => Promise.resolve(ok),
+      unsubscribe: (_subscriptionId: string) => Promise.resolve(ok),
+      onEvent: (cb: (p: { subscriptionId: string; event: Dict }) => void) =>
+        busOn('registry:event', cb as (d: unknown) => void)
+    },
+
+    // Pi 5e library → /api/library*
+    library: {
+      manifest: () => bmoFetchJson('/api/library/manifest').catch(() => null),
+      file: (rel: string) => bmoFetchJson(`/api/library/file?path=${encodeURIComponent(rel)}`).catch(() => null)
+    },
+
+    // Sound cache → return a direct Pi URL the renderer can play
+    sounds: {
+      cacheGet: (rel: string): Promise<string | null> =>
+        Promise.resolve(`${BMO_BASE}/api/sounds/file?path=${encodeURIComponent(rel)}`),
+      prewarm: (): Promise<{ ok: boolean }> => Promise.resolve({ ok: true })
+    }
+  }
+  return api
+}
+
+// ── AI DM stub — full shape, conservative defaults ───────────────────
+function createAiStub() {
+  const noopUnsub = () => () => undefined
+  const notWired = (): Promise<never> =>
+    Promise.reject(new Error('The AI DM backend is not yet bridged in the web build'))
+  return {
+    configure: (config: Record<string, unknown>) => idbSet('kv', 'ai-config', config).then(() => ({ success: true })),
+    getConfig: async () => (await idbGet('kv', 'ai-config')) ?? { provider: 'none', configured: false },
+    checkProviders: () => Promise.resolve({ available: [] as string[] }),
+    buildIndex: () => Promise.resolve({ chunkCount: 0 }),
+    loadIndex: () => Promise.resolve({ loaded: false }),
+    getChunkCount: () => Promise.resolve(0),
+    getEmbedIndexStatus: () => Promise.resolve({ ready: false, count: 0 }),
+    rebuildEmbedIndex: () => Promise.resolve({ ready: false }),
+    prepareScene: (_c: string, _ids: string[]) => Promise.resolve({ ok: false }),
+    getSceneStatus: (_c: string) => Promise.resolve({ status: 'idle' }),
+    cancelScene: (_c: string) => Promise.resolve({ ok: true }),
+    chatStream: notWired,
+    cancelStream: (_id: string) => Promise.resolve({ ok: true }),
+    xCardRewind: (_c: string) => Promise.resolve({ ok: true }),
+    applyMutations: (_id: string, _changes: unknown[]) => Promise.resolve({ ok: true }),
+    longRest: (_id: string) => Promise.resolve({ ok: true }),
+    shortRest: (_id: string) => Promise.resolve({ ok: true }),
+    saveConversation: (_c: string) => Promise.resolve({ ok: true }),
+    restoreConversation: (_c: string, _d: Record<string, unknown>) => Promise.resolve({ ok: true }),
+    loadConversation: (_c: string) => Promise.resolve(null),
+    peekConversation: (_c: string) => Promise.resolve(null),
+    deleteConversation: (_c: string) => Promise.resolve({ ok: true }),
+    generateEndOfSessionRecap: (_c: string) => notWired(),
+    generateSessionStartRecap: (_c: string, _force?: boolean) => notWired(),
+    campaignQaAsk: (_c: string, _q: string) => notWired(),
+    campaignQaHistory: (_c: string) => Promise.resolve([] as unknown[]),
+    campaignQaClear: (_c: string) => Promise.resolve({ ok: true }),
+    generateBattlemap: (_r: Record<string, unknown>) => notWired(),
+    listCloudModels: (_p: string, _k?: string) => Promise.resolve({ models: [] }),
+    validateApiKey: (_p: string, _k: string) => Promise.resolve({ valid: false }),
+    detectOllama: () => Promise.resolve({ installed: false, running: false }),
+    getVram: () => Promise.resolve({ totalMb: 0 }),
+    downloadOllama: () => notWired(),
+    installOllama: (_p: string) => notWired(),
+    startOllama: () => notWired(),
+    pullModel: (_m: string) => notWired(),
+    getCuratedModels: () => Promise.resolve([] as unknown[]),
+    listInstalledModels: () => Promise.resolve([] as unknown[]),
+    listInstalledModelsDetailed: () => Promise.resolve([] as unknown[]),
+    checkOllamaUpdate: () => Promise.resolve({ updateAvailable: false }),
+    updateOllama: () => notWired(),
+    deleteModel: (_m: string) => Promise.resolve({ ok: true }),
+    getTokenBudget: (_c?: string) => Promise.resolve({ used: 0, max: 0 }),
+    getContextInspector: (_c: string) => Promise.resolve({ sections: [] }),
+    getConnectionStatus: () => Promise.resolve({ status: 'disconnected', consecutiveFailures: 0 }),
+    getTokenMeter: () => Promise.resolve({ used: 0, max: 0 }),
+    previewTokenBudget: (_c: string, _ids: string[]) => Promise.resolve({ used: 0, max: 0 }),
+    syncWorldState: (_c: string, _s: Record<string, unknown>) => Promise.resolve({ ok: true }),
+    syncCombatState: (_c: string, _s: Record<string, unknown>) => Promise.resolve({ ok: true }),
+    sceneMemoryGet: (_c: string) => Promise.resolve({ enabled: false, scenes: [] }),
+    sceneMemorySetEnabled: (_c: string, _e: boolean) => Promise.resolve({ ok: true }),
+    endScene: (_c: string, _l?: string) => Promise.resolve({ ok: true }),
+    logNpcInteraction: (_c: string, _n: string, _s: string, _a: string) => Promise.resolve({ ok: true }),
+    setNpcRelationship: (_c: string, _n: string, _t: string, _r: string, _d: string) => Promise.resolve({ ok: true }),
+    setNpcFields: (_c: string, _n: string, _f: Record<string, unknown>) => Promise.resolve({ ok: true }),
+    updateQuestLog: (_c: string, _o: string, _n: string, _d?: string, _ch?: boolean) => Promise.resolve({ ok: true }),
+    adjustFactionStanding: (_c: string, _f: string, _d: number) => Promise.resolve({ ok: true }),
+    getQuestLog: (_c: string) => Promise.resolve({ quests: [] }),
+    updateQuestObjective: (_c: string, _p: unknown) => Promise.resolve({ ok: true }),
+    advanceChapter: (_c: string, _p: unknown) => Promise.resolve({ ok: true }),
+    seedQuests: (_c: string, _q: unknown[]) => Promise.resolve({ ok: true }),
+    oracleFateCheck: (_c: string, _p: unknown) => Promise.resolve({ result: 'unknown' }),
+    oracleSetChaos: (_c: string, _p: unknown) => Promise.resolve({ ok: true }),
+    getEntities: (_c: string) => Promise.resolve({ entities: [] }),
+    upsertEntity: (_c: string, _p: unknown) => Promise.resolve({ ok: true }),
+    deleteEntity: (_c: string, _i: string) => Promise.resolve({ ok: true }),
+    setEntitiesConfig: (_c: string, _p: unknown) => Promise.resolve({ ok: true }),
+    getWorldState: (_c: string) => Promise.resolve({ enabled: false, state: {} }),
+    setWorldStateEnabled: (_c: string, _e: boolean) => Promise.resolve({ ok: true }),
+    applyWorldDelta: (_c: string, _d: unknown) => Promise.resolve({ ok: true }),
+    listMemoryFiles: (_c: string) => Promise.resolve([] as unknown[]),
+    readMemoryFile: (_c: string, _f: string) => Promise.resolve(''),
+    clearMemory: (_c: string) => Promise.resolve({ ok: true }),
+    analyzeMap: (_g: Record<string, unknown>) => notWired(),
+    triggerStateUpdate: (_s: Record<string, unknown>) => Promise.resolve({ ok: true }),
+    setTriggerObserverEnabled: (_e: boolean) => Promise.resolve({ ok: true }),
+    getTriggerObserverEnabled: () => Promise.resolve(false),
+    onTriggerFired: (_cb: (d: unknown) => void) => undefined,
+    removeTriggerListener: () => busClear('ai:trigger-fired'),
+    onStreamChunk: (cb: (d: { streamId: string; text: string }) => void) =>
+      busOn('ai:stream-chunk', cb as (d: unknown) => void),
+    onStreamDone: (cb: (d: unknown) => void) => busOn('ai:stream-done', cb),
+    onStreamError: (cb: (d: { streamId: string; error: string }) => void) =>
+      busOn('ai:stream-error', cb as (d: unknown) => void),
+    onQuestStateChanged: (cb: (d: unknown) => void) => busOn('ai:quest-state-changed', cb),
+    onIndexProgress: (cb: (d: { percent: number; stage: string }) => void) =>
+      busOn('ai:index-progress', cb as (d: unknown) => void),
+    onEmbedIndexProgress: (cb: (d: { percent: number }) => void) =>
+      busOn('ai:embed-index-progress', cb as (d: unknown) => void),
+    onOllamaProgress: (cb: (d: { type: string; percent: number }) => void) =>
+      busOn('ai:ollama-progress', cb as (d: unknown) => void),
+    onStreamFileRead: (cb: (d: unknown) => void) => busOn('ai:stream-file-read', cb),
+    onStreamWebSearch: (cb: (d: unknown) => void) => busOn('ai:stream-web-search', cb),
+    onStreamStatus: (cb: (d: unknown) => void) => busOn('ai:stream-status', cb),
+    onConnectionStatus: (cb: (d: unknown) => void) => busOn('ai:connection-status-changed', cb),
+    approveWebSearch: (_id: string, _approved: boolean) => Promise.resolve({ ok: true }),
+    removeAllAiListeners: () => {
+      for (const ch of [
+        'ai:stream-chunk',
+        'ai:stream-done',
+        'ai:stream-error',
+        'ai:index-progress',
+        'ai:ollama-progress',
+        'ai:stream-file-read',
+        'ai:stream-web-search',
+        'ai:stream-status',
+        'ai:connection-status-changed'
+      ])
+        busClear(ch)
+      void noopUnsub
+    }
+  }
+}
+
+// ── Game data API — every bundled 5e JSON path from the preload ──────
+function createGameApi() {
+  const j = (p: string) => loadJson(p)
+  return {
+    loadJson: (path: string) => loadJson(path.replace(/^\.\//, '')),
+    loadSpecies: () => j('data/5e/character/species.json'),
+    loadSpeciesTraits: () => j('data/5e/character/species-traits.json'),
+    loadClasses: () => j('data/5e/character/classes.json'),
+    loadBackgrounds: () => j('data/5e/character/backgrounds.json'),
+    loadClassFeatures: () => j('data/5e/character/class-features.json'),
+    loadFeats: () => j('data/5e/character/feats.json'),
+    loadSubclasses: () => j('data/5e/character/subclasses.json'),
+    loadStartingEquipment: () => j('data/5e/character/starting-equipment.json'),
+    loadSpeciesSpells: () => j('data/5e/character/species-spells.json'),
+    loadAbilityScoreConfig: () => j('data/5e/character/ability-score-config.json'),
+    loadPresetIcons: () => j('data/5e/character/preset-icons.json'),
+    loadLanguageD12Table: () => j('data/5e/character/language-d12-table.json'),
+    loadSpells: () => j('data/5e/spells/spells.json'),
+    loadEquipment: () => j('data/5e/equipment/equipment.json'),
+    loadLightSources: () => j('data/5e/equipment/light-sources.json'),
+    loadMagicItems: () => j('data/5e/equipment/magic-items.json'),
+    loadMounts: () => j('data/5e/equipment/mounts.json'),
+    loadSentientItems: () => j('data/5e/equipment/sentient-items.json'),
+    loadTrinkets: () => j('data/5e/equipment/trinkets.json'),
+    loadVariantItems: () => j('data/5e/equipment/variant-items.json'),
+    loadWearableItems: () => j('data/5e/equipment/wearable-items.json'),
+    loadCurrencyConfig: () => j('data/5e/equipment/currency-config.json'),
+    loadMonsters: () => j('data/5e/dm/npcs/monsters.json'),
+    loadNpcs: () => j('data/5e/dm/npcs/npcs.json'),
+    loadCreatures: () => j('data/5e/dm/npcs/creatures.json'),
+    loadCreatureTypes: () => j('data/5e/dm/npcs/creature-types.json'),
+    loadNpcNames: () => j('data/5e/dm/npcs/generation-tables/npc-names.json'),
+    loadNpcAppearance: () => j('data/5e/dm/npcs/generation-tables/npc-appearance.json'),
+    loadNpcMannerisms: () => j('data/5e/dm/npcs/generation-tables/npc-mannerisms.json'),
+    loadAlignmentDescriptions: () => j('data/5e/dm/npcs/generation-tables/alignment-descriptions.json'),
+    loadPersonalityTables: () => j('data/5e/dm/npcs/generation-tables/personality-tables.json'),
+    loadChaseTables: () => j('data/5e/encounters/chase-tables.json'),
+    loadEncounterBudgets: () => j('data/5e/encounters/encounter-budgets.json'),
+    loadEncounterPresets: () => j('data/5e/encounters/encounter-presets.json'),
+    loadRandomTables: () => j('data/5e/encounters/random-tables.json'),
+    loadConditions: () => j('data/5e/hazards/conditions.json'),
+    loadCurses: () => j('data/5e/hazards/curses.json'),
+    loadDiseases: () => j('data/5e/hazards/diseases.json'),
+    loadEnvironmentalEffects: () => j('data/5e/hazards/environmental-effects.json'),
+    loadHazards: () => j('data/5e/hazards/hazards.json'),
+    loadPoisons: () => j('data/5e/hazards/poisons.json'),
+    loadTraps: () => j('data/5e/hazards/traps.json'),
+    loadSupernaturalGifts: () => j('data/5e/hazards/supernatural-gifts.json'),
+    loadBastionEvents: () => j('data/5e/bastions/bastion-events.json'),
+    loadBastionFacilities: () => j('data/5e/bastions/bastion-facilities.json'),
+    loadCalendarPresets: () => j('data/5e/world/calendar-presets.json'),
+    loadCraftingTools: () => j('data/5e/world/crafting.json'),
+    loadDowntime: () => j('data/5e/world/downtime.json'),
+    loadSettlements: () => j('data/5e/world/settlements.json'),
+    loadSiegeEquipment: () => j('data/5e/world/siege-equipment.json'),
+    loadTreasureTables: () => j('data/5e/world/treasure-tables.json'),
+    loadWeatherGeneration: () => j('data/5e/world/weather-generation.json'),
+    loadBuiltInMaps: () => j('data/5e/world/built-in-maps.json'),
+    loadSessionZeroConfig: () => j('data/5e/world/session-zero-config.json'),
+    loadAdventureSeeds: () => j('data/5e/world/adventure-seeds.json'),
+    loadEffectDefinitions: () => j('data/5e/game/mechanics/effect-definitions.json'),
+    loadFightingStyles: () => j('data/5e/game/mechanics/fighting-styles.json'),
+    loadLanguages: () => j('data/5e/game/mechanics/languages.json'),
+    loadSkills: () => j('data/5e/game/mechanics/skills.json'),
+    loadSpellSlots: () => j('data/5e/game/mechanics/spell-slots.json'),
+    loadWeaponMastery: () => j('data/5e/game/mechanics/weapon-mastery.json'),
+    loadXpThresholds: () => j('data/5e/game/mechanics/xp-thresholds.json'),
+    loadClassResources: () => j('data/5e/game/mechanics/class-resources.json'),
+    loadSpeciesResources: () => j('data/5e/game/mechanics/species-resources.json'),
+    loadDiceTypes: () => j('data/5e/game/mechanics/dice-types.json'),
+    loadLightingTravel: () => j('data/5e/game/mechanics/lighting-travel.json'),
+    loadSoundEvents: () => j('data/audio/sound-events.json'),
+    loadAmbientTracks: () => j('data/audio/ambient-tracks.json'),
+    loadKeyboardShortcuts: () => j('data/ui/keyboard-shortcuts.json'),
+    loadThemes: () => j('data/ui/themes.json'),
+    loadDiceColors: () => j('data/ui/dice-colors.json'),
+    loadDmTabs: () => j('data/ui/dm-tabs.json'),
+    loadNotificationTemplates: () => j('data/ui/notification-templates.json'),
+    loadRarityOptions: () => j('data/ui/rarity-options.json'),
+    loadModeration: () => j('data/5e/game/ai/moderation.json')
+  }
+}

@@ -13,3 +13,6 @@ resources/ollama/
 
 # PHASE-38 — generated TypeDoc plugin-API docs (regenerate with `npm run docs:api`)
 docs/api/
+
+# Web (browser) build output
+dist-web/
