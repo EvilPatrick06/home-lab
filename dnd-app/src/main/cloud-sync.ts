@@ -22,7 +22,23 @@ import { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 import { app } from 'electron'
 import { create as tarCreate, extract as tarExtract } from 'tar'
-import { getBmoAccessHeaders, getBmoBaseUrl } from './bmo-config'
+import { getBmoAccessHeaders, getBmoApiKey, getBmoBaseUrl } from './bmo-config'
+
+// Defense-in-depth (SECURITY-LOG 2026-06-22): send the BMO_API_KEY bearer on the
+// sensitive /api/rclone/* routes IN ADDITION to the CF Access service-token
+// headers, so the Pi can gate cloud backup on an app-level secret rather than CF
+// Access alone (the CF token ships inside every distributed binary). Harmless
+// until the Pi enforces it; the Pi-side enforcement and the CF-token rotation are
+// tracked separately (bmo-domain / operational).
+function rcloneHeaders(extra?: Record<string, string>): Record<string, string> {
+  const key = getBmoApiKey()
+  return {
+    ...extra,
+    ...getBmoAccessHeaders(),
+    ...(key ? { Authorization: `Bearer ${key}` } : {})
+  }
+}
+
 import { logToFile } from './log'
 
 // A reachability/status probe must fail FAST. Without a short ceiling, the
@@ -78,7 +94,7 @@ export async function checkRemoteStatus(): Promise<RcloneStatus> {
     const res = await fetch(`${getBmoBaseUrl()}/api/rclone/status`, {
       method: 'GET',
       signal: controller.signal,
-      headers: { 'Content-Type': 'application/json', ...getBmoAccessHeaders() }
+      headers: rcloneHeaders({ 'Content-Type': 'application/json' })
     })
 
     if (!res.ok) {
@@ -159,7 +175,7 @@ export async function syncCampaignToDrive(campaignId: string, campaignName: stri
       const res = await fetch(`${getBmoBaseUrl()}/api/rclone/backup`, {
         method: 'POST',
         signal: controller.signal,
-        headers: { ...getBmoAccessHeaders() },
+        headers: rcloneHeaders(),
         body: form
       })
       if (!res.ok) {
@@ -208,7 +224,7 @@ export async function restoreCampaignFromDrive(campaignId: string): Promise<Clou
       const res = await fetch(`${getBmoBaseUrl()}/api/rclone/restore?campaignId=${encodeURIComponent(campaignId)}`, {
         method: 'GET',
         signal: controller.signal,
-        headers: { ...getBmoAccessHeaders() }
+        headers: rcloneHeaders()
       })
       if (res.status === 404) {
         return { success: false, error: 'No backup found for this campaign on Google Drive.' }
@@ -256,7 +272,7 @@ async function fetchRemoteList(): Promise<Array<{ id: string; size: number; modi
     const res = await fetch(`${getBmoBaseUrl()}/api/rclone/list`, {
       method: 'GET',
       signal: controller.signal,
-      headers: { ...getBmoAccessHeaders() }
+      headers: rcloneHeaders()
     })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const body = (await res.json()) as {

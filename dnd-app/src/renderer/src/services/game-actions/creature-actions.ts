@@ -4,6 +4,8 @@
  * creature-conditions.ts; the dead duplicates here were removed in PHASE-08 08C.)
  */
 
+import { pushDmAlert } from '../../components/game/overlays/DmAlertTray'
+import { i18n } from '../../i18n'
 import { play as playSound } from '../sound-manager'
 import { broadcastConditionSync, broadcastTokenSync } from './broadcast-helpers'
 import { resolveTokenByLabel } from './name-resolver'
@@ -177,7 +179,9 @@ export function executeShortRest(
   const resolved = resolveCharacterIds(names, stores)
   for (const { charId } of resolved) {
     if (charId) {
-      window.api.ai.shortRest(charId).catch(() => {})
+      window.api.ai
+        .shortRest(charId)
+        .catch((err) => pushDmAlert('error', i18n.t('notify.creatureActions.shortRestFailed', { error: String(err) })))
     }
   }
 
@@ -241,7 +245,9 @@ export function executeLongRest(
   const resolved = resolveCharacterIds(names, stores)
   for (const { charId } of resolved) {
     if (charId) {
-      window.api.ai.longRest(charId).catch(() => {})
+      window.api.ai
+        .longRest(charId)
+        .catch((err) => pushDmAlert('error', i18n.t('notify.creatureActions.longRestFailed', { error: String(err) })))
     }
   }
 

@@ -5465,6 +5465,10 @@
     }
   },
   "notify": {
+    "creatureActions": {
+      "shortRestFailed": "A short-rest update failed to apply: {{error}}",
+      "longRestFailed": "A long-rest update failed to apply: {{error}}"
+    },
     "discordSync": {
       "playerJoined": "{{name}} joined the Discord session",
       "playerLeft": "{{name}} left the Discord session",
