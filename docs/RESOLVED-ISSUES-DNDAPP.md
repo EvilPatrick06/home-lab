@@ -12,6 +12,16 @@
 
 ---
 
+### [2026-06-11] AI character context missing weapons/armor/prepared-spells/feats for v4 characters
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Already resolved in-tree by PHASE-11 11G (BUG-2 / G36), which post-dates this 2026-06-11 entry. character-context.ts reads inline arrays first and falls back to the v4 refs for every section: knownSpellRefs (with state.preparedSpellIds + resolveEntryName('spells')), weaponRefs and armorRefs (display from ref overrides + state.weaponEquipped/armorEquipped), and featRefs (resolveEntryName('feats')). character-context.test.ts exercises knownSpellRefs/weaponRefs/armorRefs; all 39 tests pass. No code change needed.
+
+**Original entry:** - **[2026-06-11] AI character context is missing weapons/armor/prepared-spells/feats for all v4 characters.** `character-context.ts` still reads v4-stripped inline arrays: `knownSpells`/`preparedSpellIds` (`:137-144`), `armor` (`:168-177`), `weapons` (`:179-184`), `feats` (`:225-228`) — so the AI's "full sheet" omits them. Weapons/armor recoverable from ref `overrides`; spells need library name resolution. *(found during PHASE-02 verification; not in any phase's allocation — the conditions read was fixed in PHASE-02 02B.)*
+
+---
+
 ### [2026-06-11] Renderer rest-service: Ranger "Tireless" exhaustion reduction
 
 - **Resolved by:** dnd-resolver (automated)
