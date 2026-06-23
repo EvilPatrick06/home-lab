@@ -5581,7 +5581,7 @@
       "downloadVersion": "Descargar v{{updateVersion}}",
       "updateAndRestart": "Actualizar y reiniciar",
       "installOnClose": "También se instalará automáticamente al cerrar la app la próxima vez",
-      "appDescription": "Una aplicación de escritorio para jugar a Dungeons & Dragons 5.ª edición en línea con amigos. Crea personajes, construye campañas y vivid aventuras juntos — sin necesidad de navegador.",
+      "appDescription": "Una aplicación para jugar a Dungeons & Dragons 5.ª edición en línea con amigos. Crea personajes, construye campañas y vive aventuras juntos.",
       "dataManagement": "Gestión de datos",
       "dataManagementDesc": "Exporta todos tus personajes, campañas, bastiones y preferencias a un único archivo de copia de seguridad, o restaura desde una copia anterior.",
       "exporting": "Exportando...",
@@ -7450,7 +7450,8 @@
       "customModelPlaceholder": "p. ej. llama3.2:1b",
       "pull": "Descargar",
       "browseModelsAt": "Explora modelos en",
-      "ollamaLibraryLink": "ollama.com/library"
+      "ollamaLibraryLink": "ollama.com/library",
+      "webLocalAiNotice": "La IA local (Ollama) se ejecuta en tu propia computadora y no es accesible desde esta versión de navegador. Instala la aplicación de escritorio para usar un Dungeon Master con IA local."
     },
     "ollamaModelList": {
       "tier": {

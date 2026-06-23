@@ -147,4 +147,9 @@ grep -n "lan:\|probeSignaling\|onBmoSignalingStatus" dnd-app/src/web/web-api.ts
 
 ## Completed
 
-_None yet — planning authored 2026-06-23 from WEB-QA-report-2026-06-22._
+- 45A — DONE (2026-06-23) (`pages/AboutPage.tsx`, `pages/SettingsPage.tsx`, `pages/AboutPage.test.tsx`) — gated the AboutPage Hero update controls (Check-for-Updates + download/progress/install) behind `{!isWebBuild() && …}` and the SettingsPage `Updates` `<Section>` likewise. Cloud Backup left UNGATED — verified it routes to the Pi via `cloudSync.backupCampaign → /api/rclone/backup` (reachable in the web build), so it is not desktop-only. No renderer-side auto-check exists (desktop auto-check lives in `src/main/*`). New AboutPage render tests: control present on desktop, absent when `__DND_WEB__` set.
+- 45B — DONE (2026-06-23) (`i18n/locales/{en,es}.json`) — reworded `pages.aboutPage.appDescription` to a build-neutral sentence ("An app for playing D&D 5e online with friends…") true in both desktop and browser; dropped the false "desktop application … no browser required". Mirrored in es.json.
+- 45C — DONE (2026-06-23) (`components/ui/OllamaManagement.tsx`, `i18n/locales/{en,es}.json` + regenerated `generated-keys.ts`, `OllamaManagement.test.tsx`) — in the web build the not-installed branch now renders an explanatory `ui.ollamaManagement.webLocalAiNotice` ("Local AI runs on your computer and isn't reachable from this browser build…") + the informational ollama.com link, instead of the impossible native "Install Ollama" button. Desktop panel unchanged. Tests assert the gate both ways.
+- 45D — DONE (2026-06-23) (`src/web/web-api.ts`, `src/web/web-signaling-status.test.ts`) — wired the web shim's `lan.onBmoSignalingStatus`/`probeSignaling` through the existing `busOn`/`webEmit` bus: probing emits a single `{reachable:null,host:'',port:0}` that the `use-signaling-status-store` subscription consumes, so `checkedAt` becomes non-null and the Multiplayer badge resolves to the terminal "Not applicable" state instead of sitting on "Checking…". New test: probe drives one terminal status; unsubscribe stops callbacks.
+
+_Implemented 2026-06-23 from WEB-QA-report-2026-06-22._

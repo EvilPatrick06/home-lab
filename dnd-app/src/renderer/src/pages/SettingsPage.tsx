@@ -4,6 +4,7 @@ import DiscordIntegrationSettings from '../components/ui/DiscordIntegrationSetti
 import MultiplayerStatusSection from '../components/ui/MultiplayerStatusSection'
 import OllamaManagement, { type AvailableModelList, type InstalledModelList } from '../components/ui/OllamaManagement'
 import { SETTINGS_KEYS } from '../constants'
+import { isWebBuild } from '../utils/platform'
 
 /** Re-exported Ollama model list components for use by consumers importing from SettingsPage. */
 type _AvailableModelList = typeof AvailableModelList
@@ -1872,10 +1873,13 @@ export default function SettingsPage(): JSX.Element {
           })()}
         </Section>
 
-        {/* Updates */}
-        <Section title={t('pages.settingsPage.updates')}>
-          <UpdateSection />
-        </Section>
+        {/* Updates — desktop-only (auto-updater is Electron; the web build
+            updates on reload). Hidden in the web build (PHASE-45). */}
+        {!isWebBuild() && (
+          <Section title={t('pages.settingsPage.updates')}>
+            <UpdateSection />
+          </Section>
+        )}
 
         {/* Cloud Backup */}
         <Section title={t('pages.settingsPage.cloudBackup')}>

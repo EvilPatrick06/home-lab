@@ -243,9 +243,17 @@ export function createWebApi() {
       onGameFound: (_cb: (e: Dict) => void) => () => undefined,
       onGameRemoved: (_cb: (e: Dict) => void) => () => undefined,
       onBmoResolvedUrl: (_cb: (p: { url: string | null }) => void) => () => undefined,
-      onBmoSignalingStatus: (_cb: (p: { reachable: boolean | null; host: string; port: number }) => void) => () =>
-        undefined,
-      probeSignaling: () => Promise.resolve({ reachable: null })
+      // PHASE-45 F5 — wire the signaling status through the bus so the
+      // settings badge reaches a TERMINAL state instead of sitting on
+      // "Checking…". The store subscribes here at import; probeSignaling()
+      // (called on mount) emits a single { reachable: null } → the badge
+      // renders "Not applicable" (the off-LAN/tunnel default).
+      onBmoSignalingStatus: (cb: (p: { reachable: boolean | null; host: string; port: number }) => void) =>
+        busOn('lan:signaling-status', cb as (d: unknown) => void),
+      probeSignaling: () => {
+        webEmit('lan:signaling-status', { reachable: null, host: '', port: 0 })
+        return Promise.resolve({ reachable: null })
+      }
     },
 
     // Settings → IndexedDB
