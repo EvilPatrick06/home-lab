@@ -20,6 +20,50 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-06-22] No off-tree backup/snapshot of BMO's gitignored runtime state
+
+- **Category:** future-idea
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of persistence paths (settings_store / campaign_memory / list_service / chat_history) vs `.gitignore` and `scripts/deploy.sh`
+
+**Description:**
+All of BMO's accumulated, mutable state lives untracked-and-gitignored inside the working tree under `bmo/pi/data/` and is the only copy anywhere: `campaign_memory.db` (SQLite — D&D NPC/campaign memory), `dnd_sessions/` (session logs), plus a pile of JSON state — `lists.json`, `notes.json`, `alarms.json`, `play_counts.json`, `music_history.json`, `recent_chat.json`, `settings.json`, `alert_history.json`, etc. (see `.gitignore` lines ~92–119). `deploy.sh` is correctly careful (it refuses a dirty tree and never `git clean`s, so deploys do not clobber this state), but that is the *only* thing protecting it. There is no periodic backup/snapshot: an SSD/SD failure, a stray manual `git clean -fdx`, or a bad block on the single Pi disk silently destroys every D&D campaign's memory, all alarms, lists, notes, and play history with no recovery path. No `backup`/`restore`/`rsync`/`tar` of `data/` exists anywhere in `scripts/`.
+
+**Hypothesis / root cause:** State accreted file-by-file as features shipped; each module just picks its own path under `data/`. Because it is gitignored it is invisible to the git-based deploy safety net, so no one added an out-of-band copy.
+
+**Proposed fix / improvement:**
+- [ ] Add a small `scripts/backup-state.sh` that tars/rsyncs the gitignored runtime set (`campaign_memory.db`, `dnd_sessions/`, and the `data/*.json` state files) to a second location — another disk, a NAS/`rclone` remote, or at minimum a timestamped copy outside the repo tree.
+- [ ] Run it on a `systemd` timer (daily) and surface last-success age in `/api/health/full` so a stale/failed backup is visible.
+- [ ] Document restore in `DEPLOY.md` / `TROUBLESHOOTING.md`. (`rclone` is already a dependency — `routes/rclone_api.py` exists — so an off-device target is low-effort.)
+
+**Related files:** `bmo/pi/services/settings_store.py`, `bmo/pi/services/campaign_memory.py`, `bmo/pi/services/chat_history.py`, `bmo/pi/services/list_service.py`, `bmo/.gitignore`, `bmo/pi/scripts/deploy.sh`, `bmo/pi/routes/rclone_api.py`
+
+---
+
+### [2026-06-22] No cross-provider LLM failover in `cloud_chat` (+ inconsistent transient-retry across providers)
+
+- **Category:** future-idea
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of `services/cloud_providers.py` LLM routing/reliability
+
+**Description:**
+`cloud_chat()` dispatches a request to exactly one provider based on the model-name prefix (`gemini*` -> Gemini, `claude*` -> Claude, `llama/mixtral/groq-*` -> Groq) with no fallback. If the chosen provider is down or rate-limited, the call raises and the caller (voice pipeline, agents) gets nothing — for the always-on voice path that means BMO goes silent on a single-vendor outage, even though three other working LLM backends are configured. Compounding it, transient-error handling is inconsistent: `gemini_chat()` retries up to 3x on HTTP 5xx with linear backoff, but `claude_chat()` and `groq_llm_chat()` are single-shot (`post(...)` -> `raise_for_status()`), so a one-off 502/503 from Claude/Groq fails the whole turn where the same blip against Gemini would be absorbed. There is no shared retry/backoff helper and no notion of "primary down -> try secondary".
+
+**Hypothesis / root cause:** Providers were added incrementally; the retry loop was bolted onto Gemini (the flaky-preview primary) only, and routing stayed a simple prefix switch rather than a resilience layer.
+
+**Proposed fix / improvement:**
+- [ ] Factor one transient-retry helper (5xx + timeout, bounded backoff) and apply it uniformly to all three chat providers.
+- [ ] Add an opt-in failover ladder in `cloud_chat` (e.g. primary -> a configured fallback model on a *different* vendor) for non-streaming chat, gated by a setting so DM/Code-Agent determinism is not silently changed. Respect the gevent/`os.system` design constraint — keep failover at the Python routing layer, do not touch the curl paths.
+- [ ] Optionally record which provider served each turn via the metrics idea already logged (2026-06-22 "Aggregate voice-pipeline stage latency...") so failover events are observable.
+
+**Related files:** `bmo/pi/services/cloud_providers.py` (`cloud_chat`, `gemini_chat`, `claude_chat`, `groq_llm_chat`), `bmo/pi/services/voice_pipeline.py`, `bmo/docs/DESIGN-CONSTRAINTS.md` (gevent/`os.system` constraint)
+
+**Related entries:** `BMO-SUGGESTIONS-LOG.md` [2026-06-22] Aggregate voice-pipeline stage latency into an exported metrics endpoint.
+
 ### [2026-06-22] Adopt `bmo_logging` everywhere — retire stray `print()` and silent `except: pass`
 
 - **Category:** future-idea, debt
