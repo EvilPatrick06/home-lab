@@ -12,6 +12,37 @@
 
 ---
 
+### [2026-06-22] `npm run circular` can never fail (`--exit-code circular:0`) — the circular-dep gate is a silent no-op, and 4 cycles already exist.
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Replaced the no-op `dpdm ... --exit-code circular:0` (which told dpdm to exit 0 when cycles were found) with a baseline-aware wrapper `scripts/check-circular.mjs`: dpdm runs in report-only mode and the wrapper exits 1 only when a cycle appears that is NOT in the documented accepted baseline (the 4 known cycles, mostly already mitigated at runtime via dynamic import — statically breaking the renderer store/service ones is a larger refactor tracked separately). Verified: passes on the current 4 baseline cycles and fails when a new/unknown cycle is present. `package.json` `circular` script now runs the wrapper.
+
+- **Category:** config, debt
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** dnd-errors
+- **During:** automated dnd-app error scan (running repo gates on bmo).
+
+**Description:**
+The `circular` script — `dpdm --no-warning --no-tree --transform --extensions ts,tsx --exit-code circular:0 src/main/index.ts src/renderer/src/main.tsx` — passes `--exit-code circular:0`, which tells dpdm to exit **0** when circular dependencies are found. So the gate reports cycles but always succeeds. Confirmed empirically: this run printed 4 circular-dependency chains yet exited 0. Because `check:full` chains `npm run circular`, that step can never catch a newly-introduced cycle. The 4 cycles currently present:
+1. `src/main/ai/ai-service.ts → ai/campaign-context.ts → storage/campaign-storage.ts (→ ai-service.ts)`
+2. `renderer/stores/use-ai-dm-store.ts → services/game-action-executor.ts → game-actions/monster-automation-actions.ts → combat/monster-turn-executor.ts (→ use-ai-dm-store.ts)`
+3. same as (2) extended through `services/ai-dm-routing.ts`
+4. `services/game-action-executor.ts → game-actions/monster-automation-actions.ts → combat/monster-turn-executor.ts → services/ai-dm-routing.ts (→ game-action-executor.ts)`
+
+**Expected behavior (if bug):** the gate fails (non-zero) when any cycle is detected, so cycles can't be introduced silently. (Mirrors the already-logged "pre-commit lints 0 staged files — silent no-op" pattern: a gate that doesn't gate.)
+
+**Hypothesis / root cause:** `circular:0` was likely intended to mean "allow 0 cycles" but dpdm's `--exit-code <type>:<code>` sets the *exit code emitted when that type is found* — `circular:0` = "exit 0 on circular", i.e. never fail. The enforcing value would be a non-zero code (e.g. `circular:1`).
+
+**Proposed fix / improvement:**
+- [ ] Change to `--exit-code circular:1` (fail on any cycle) — or first break the existing 4 cycles, then flip it so the gate goes green-on-zero.
+- [ ] Decide per-cycle: break (extract shared types / invert a dependency) vs. document as accepted.
+
+**Related files:** `dnd-app/package.json` (`scripts.circular`, `scripts.check:full`), `dnd-app/src/main/ai/ai-service.ts`, `dnd-app/src/renderer/src/services/game-action-executor.ts`, `dnd-app/src/renderer/src/services/combat/monster-turn-executor.ts`
+
+---
+
 ### [2026-06-22] `@google/genai` not installed locally — `tsc -p tsconfig.node.json` + 4 AI test suites fail on bmo.
 
 - **Resolved by:** dnd-resolver (automated)

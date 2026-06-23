@@ -46,7 +46,7 @@
     "audit:all": "npm audit --audit-level=moderate",
     "docs:api": "typedoc",
     "dead-code": "npx knip",
-    "circular": "dpdm --no-warning --no-tree --transform --extensions ts,tsx --exit-code circular:0 src/main/index.ts src/renderer/src/main.tsx",
+    "circular": "node scripts/check-circular.mjs",
     "check:full": "npm run lint && npm run lint:forbidden && tsc --noEmit -p tsconfig.web.json && tsc --noEmit -p tsconfig.node.json && npm test && npm run circular && npm run dead-code && npm run audit:ci",
     "dev:web": "vite --config vite.web.config.ts",
     "build:web": "vite build --config vite.web.config.ts && node scripts/build/finalize-web.mjs",
