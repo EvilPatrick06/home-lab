@@ -245,3 +245,58 @@ export const snapshotBaselines = (state) => {
     dungeonAttempts: state.dungeonAttempts || 0,
   };
 };
+
+// Tutorial auto-advance predicate. Given a step's `autoCondition` and a snapshot
+// of the relevant player/library counters, returns whether the condition is now
+// met. Extracted from App.jsx (App.jsx God-component follow-up) so this pure
+// logic is unit-testable and App.jsx stays composition-focused.
+export function tutorialAutoConditionMet(condition, ctx) {
+  const {
+    playerState,
+    totalCardsAcrossLib = 0,
+    totalQuizAnsweredAcrossLib = 0,
+    totalLabsAttemptedAcrossLib = 0,
+    totalOracleAcrossLib = 0,
+  } = ctx || {};
+  const visits = (playerState && playerState.tutorialVisits) || {};
+  switch (condition) {
+    case 'has_tome':
+      return ((playerState && playerState.library) || []).length > 0;
+    case 'studied_card':
+      return totalCardsAcrossLib > 0;
+    case 'solved_quiz':
+      return totalQuizAnsweredAcrossLib > 0;
+    case 'lab_step':
+      return totalLabsAttemptedAcrossLib > 0;
+    case 'oracle_used':
+      return totalOracleAcrossLib > 0;
+    case 'dungeon_completed':
+      return ((playerState && playerState.dungeonAttempts) || 0) > 0;
+    case 'library_visited':
+      return !!visits.library;
+    case 'vault_visited':
+      return !!visits.vault;
+    case 'quests_visited':
+      return !!visits.quests;
+    case 'achievements_viewed':
+      return !!visits.achievements;
+    case 'titles_viewed':
+      return !!visits.titles;
+    case 'bestiary_visited':
+      return !!visits.bestiary;
+    case 'stable_visited':
+      return !!visits.stable;
+    case 'spellbook_visited':
+      return !!visits.spellbook;
+    case 'calendar_visited':
+      return !!visits.calendar;
+    case 'crafting_visited':
+      return !!visits.crafting;
+    case 'domain_study_visited':
+      return !!visits.domain_study_visited;
+    case 'ascension_screen_visited':
+      return !!visits.ascension;
+    default:
+      return false;
+  }
+}

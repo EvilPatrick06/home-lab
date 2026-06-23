@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { TUTORIAL_STEPS, snapshotBaselines, migrateTutorialIndex, OLD_TUTORIAL_ORDER } from './tutorial';
+import { TUTORIAL_STEPS, snapshotBaselines, migrateTutorialIndex, OLD_TUTORIAL_ORDER, tutorialAutoConditionMet } from './tutorial';
 
 describe('tutorial module sanity', () => {
   it('arithmetic still works', () => {
@@ -140,5 +140,45 @@ describe('snapshotBaselines', () => {
 
   it('returns zero labsAttempted for empty state', () => {
     expect(snapshotBaselines({}).labsAttempted).toBe(0);
+  });
+});
+
+describe('tutorialAutoConditionMet', () => {
+  const base = { playerState: { library: [], tutorialVisits: {}, dungeonAttempts: 0 } };
+
+  it('returns false for an unknown condition', () => {
+    expect(tutorialAutoConditionMet('not_a_real_condition', base)).toBe(false);
+  });
+
+  it('counter-backed conditions read the provided totals', () => {
+    expect(tutorialAutoConditionMet('studied_card', { ...base, totalCardsAcrossLib: 0 })).toBe(false);
+    expect(tutorialAutoConditionMet('studied_card', { ...base, totalCardsAcrossLib: 3 })).toBe(true);
+    expect(tutorialAutoConditionMet('solved_quiz', { ...base, totalQuizAnsweredAcrossLib: 1 })).toBe(true);
+    expect(tutorialAutoConditionMet('lab_step', { ...base, totalLabsAttemptedAcrossLib: 1 })).toBe(true);
+    expect(tutorialAutoConditionMet('oracle_used', { ...base, totalOracleAcrossLib: 1 })).toBe(true);
+  });
+
+  it('has_tome reflects library length', () => {
+    expect(tutorialAutoConditionMet('has_tome', base)).toBe(false);
+    expect(tutorialAutoConditionMet('has_tome', { playerState: { library: [{}], tutorialVisits: {} } })).toBe(true);
+  });
+
+  it('dungeon_completed reflects dungeonAttempts', () => {
+    expect(tutorialAutoConditionMet('dungeon_completed', base)).toBe(false);
+    expect(tutorialAutoConditionMet('dungeon_completed', { playerState: { library: [], tutorialVisits: {}, dungeonAttempts: 2 } })).toBe(true);
+  });
+
+  it('visit conditions read tutorialVisits flags (incl. ascension alias)', () => {
+    const visited = { playerState: { library: [], tutorialVisits: { library: true, vault: true, ascension: true, domain_study_visited: true } } };
+    expect(tutorialAutoConditionMet('library_visited', visited)).toBe(true);
+    expect(tutorialAutoConditionMet('vault_visited', visited)).toBe(true);
+    expect(tutorialAutoConditionMet('ascension_screen_visited', visited)).toBe(true);
+    expect(tutorialAutoConditionMet('domain_study_visited', visited)).toBe(true);
+    expect(tutorialAutoConditionMet('spellbook_visited', visited)).toBe(false);
+  });
+
+  it('tolerates a missing ctx / playerState', () => {
+    expect(tutorialAutoConditionMet('has_tome')).toBe(false);
+    expect(tutorialAutoConditionMet('library_visited', {})).toBe(false);
   });
 });

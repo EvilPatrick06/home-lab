@@ -12,8 +12,8 @@ import {
   POTION_EFFECTS,
   takeForesightPreview,
   revealDecoration,
-} from '../game/dungeonMap.js';
-import { isDifficultyUnlocked, DIFFICULTY_ORDER } from '../game/difficulty.js';
+} from '../../game/dungeonMap.js';
+import { isDifficultyUnlocked, DIFFICULTY_ORDER } from '../../game/difficulty.js';
 
 // Seedable RNG so map-gen assertions are deterministic per test.
 const seedRng = (seed) => {

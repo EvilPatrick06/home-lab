@@ -4,10 +4,10 @@
 // Reach the boss room and survive its 5-question gauntlet to win the run.
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { startBgm, stopBgm, playSfx } from '../audio/sound.js';
-import { petLevelFromXp } from '../services/pets.js';
-import { POTION_EFFECTS, takeForesightPreview, TILE, BIOMES, pickBiomeForSubject, ROOMS_BY_DIFFICULTY, SIZE_BY_DIFFICULTY, DIFF_CONFIG, BIOME_BOSS_POOL, makeSeededRng, generateMap, revealDecoration, buildQuestionLogEntry, MOB_AGGRO_RANGE } from '../game/dungeonMap.js';
-import { TILE_PX, drawTile, drawChest, drawPlayer, drawWeapon, DECO_DRAWERS, MOB_DRAWERS, BOSS_DRAWERS, BOSS_DISPLAY, PET_DRAWERS } from './dungeon/tileRenderer.js';
+import { startBgm, stopBgm, playSfx } from '../../audio/sound.js';
+import { petLevelFromXp } from '../../services/pets.js';
+import { POTION_EFFECTS, takeForesightPreview, TILE, BIOMES, pickBiomeForSubject, ROOMS_BY_DIFFICULTY, SIZE_BY_DIFFICULTY, DIFF_CONFIG, BIOME_BOSS_POOL, makeSeededRng, generateMap, revealDecoration, buildQuestionLogEntry, MOB_AGGRO_RANGE } from '../../game/dungeonMap.js';
+import { TILE_PX, drawTile, drawChest, drawPlayer, drawWeapon, DECO_DRAWERS, MOB_DRAWERS, BOSS_DRAWERS, BOSS_DISPLAY, PET_DRAWERS } from './tileRenderer.js';
 
 // === Equipment effects ==================================================
 // In-dungeon stat bonuses for equipped items. Items live in App.jsx ITEMS;
