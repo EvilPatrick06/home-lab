@@ -147,7 +147,10 @@ def _cache_policy(response):
             # "Could not create web worker(s)" warning). worker-src is
             # added separately for completeness — modern browsers split
             # worker URLs into their own directive.
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.jsdelivr.net https://cdn.socket.io; "
+            # static.cloudflareinsights.com serves the CF Web Analytics beacon that
+            # Cloudflare auto-injects on the tunnel; allow it (+ its RUM endpoint in
+            # connect-src below) so it loads instead of being CSP-blocked.
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.jsdelivr.net https://cdn.socket.io https://static.cloudflareinsights.com; "
             "worker-src 'self' blob: https://cdn.jsdelivr.net; "
             "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
             # Round 3 #14 (2026-05-17): allow YouTube + Google Calendar
@@ -162,7 +165,8 @@ def _cache_policy(response):
             # `data:` in connect-src lets PixiJS's ImageBitmap feature-detect
             # (fetch of a 1x1 data: PNG) succeed instead of falling back to the
             # slower HTMLImage path. The Electron build's CSP already allows it.
-            "connect-src 'self' data: ws: wss:; "
+            # cloudflareinsights.com is the CF Web Analytics RUM beacon endpoint.
+            "connect-src 'self' data: ws: wss: https://cloudflareinsights.com; "
             "frame-ancestors 'self'; "
             "base-uri 'self'; "
             "object-src 'none'",
