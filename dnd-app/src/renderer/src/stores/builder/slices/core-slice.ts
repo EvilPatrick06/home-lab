@@ -167,6 +167,14 @@ export const createCoreSlice: StateCreator<BuilderState, [], [], CoreSliceState>
       }
     }
 
-    set({ classLevelChoices: updatedChoices, buildSlots: newSlots })
+    // Recompute spell-selection caps (mirrors setTargetLevel) so a multiclass
+    // per-level class swap that changes the caster level doesn't leave
+    // maxCantrips / maxPreparedSpells frozen at their prior values — those are
+    // the HARD caps enforced by setSelectedSpellIds. Keyed on the primary class +
+    // target level, consistent with the single-class Level-field path.
+    const maxCantrips = primaryClassId ? getCantripsKnown(primaryClassId, targetLevel) : 0
+    const maxPreparedSpells = primaryClassId ? (getPreparedSpellMax(primaryClassId, targetLevel) ?? 0) : 0
+
+    set({ classLevelChoices: updatedChoices, buildSlots: newSlots, maxCantrips, maxPreparedSpells })
   }
 })
