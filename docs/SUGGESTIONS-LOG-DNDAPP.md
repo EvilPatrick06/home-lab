@@ -21,24 +21,6 @@ New entries go at the TOP of their section (newest first).
 
 ---
 
-### [2026-06-22] `SettingsPage.tsx` is a ~1,950-LOC god component — split into per-section panels
-
-- **Category:** debt, future-idea
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-suggestor
-- **During:** dnd-app tree review (largest hand-written source files)
-
-**Description:**
-`src/renderer/src/pages/SettingsPage.tsx` is 1,946 LOC — the single largest hand-authored source file in the app (excluding the generated `i18n/generated-keys.ts`). It bundles every settings domain into one component: accessibility, theme, keybindings, grid, dice, audio, auto-update prefs, and the export/import logic (see the separate export-prefs entry below). A file this size is hard to review, easy to merge-conflict on (every settings tweak touches the same file), and obscures which state each section owns. The app already presents a per-section UI; extracting each section into its own `settings/<Section>Panel.tsx` (driven by a small tab registry) would shrink the parent to a router shell and make each panel independently testable.
-
-**Proposed fix / improvement:**
-- [ ] Extract each settings section into `pages/settings/<Section>Panel.tsx`, leaving `SettingsPage.tsx` as a tab host.
-- [ ] Co-locate each panel's local state/handlers with its panel; share only cross-cutting state via the existing stores.
-- [ ] Add focused unit tests per panel (a 1,946-LOC component is effectively untestable in isolation today).
-
-**Related files:** `src/renderer/src/pages/SettingsPage.tsx`
-
 ### Slim the narration prompt's tag instructions once structured extraction is the default (PHASE-23 follow-up)
 
 **Type:** future-idea · **Domain:** dnd-app · **Added:** 2026-06-16
