@@ -135,3 +135,41 @@ The repo root has a `node_modules/` directory containing only `.vite/` and `.vit
 - [ ] If a root-level install is ever intended (e.g. shared dev tooling / a real workspace), add a root `package.json` to make it explicit; otherwise leave none.
 
 **Related files:** `node_modules/` (repo root), `.gitignore`
+
+### [2026-06-22] Root `.editorconfig` only configures `[*.sh]` — no shared editor baseline for the TS/JS/Py/JSON that dominate the repo
+
+- **Category:** docs, debt
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+- **During:** Repo-wide cleanup/reorg scan.
+
+**Description:**
+The repo-root `.editorconfig` declares `root = true` and exactly one section, `[*.sh]` (charset + final newline — added narrowly to stop a shell-script BOM, per `BMO-RESOLVED-ISSUES.md`). EditorConfig is the one config mechanism that cascades to *every* subdirectory and every editor automatically, so it is the natural place for a monorepo-wide baseline — yet it covers none of the languages that actually make up the tree: by tracked-file count the repo is ~3077 JSON, ~1323 TS, ~731 TSX, ~202 PY, ~190 MD, ~106 JS. That baseline matters more here than in a normal repo because the per-project linting is uneven: `dnd-app` ships `biome.json`, but `dungeon-scholar` and `oracle-worker` have no linter/formatter at all (logged separately), and `bmo` is Python. A shared `.editorconfig` covering indent style/size, `charset = utf-8`, `insert_final_newline`, and `trim_trailing_whitespace` for `[*.{ts,tsx,js,jsx,mjs,json,py,md}]` would give all four projects a consistent floor regardless of which (if any) linter each one runs — and costs nothing to add.
+
+**Hypothesis / root cause:** the file was created reactively for a single shell-script fix and never grown into a real cross-project baseline.
+
+**Proposed fix / improvement:**
+- [ ] Add language sections to `.editorconfig` (`[*.{ts,tsx,js,jsx,mjs}]`, `[*.{json}]`, `[*.py]`, `[*.md]`) with indent + charset + final-newline + trim-trailing-whitespace, keeping the existing `[*.sh]` rules.
+- [ ] Keep settings aligned with `dnd-app/biome.json` so the two don't fight where they overlap.
+
+**Related files:** `.editorconfig`, `dnd-app/biome.json`
+
+### [2026-06-22] `docs/RULES-RETRIEVAL.md` — a genuinely dual-domain (dnd-app + bmo) reference — is missing from the README "Docs index"
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+- **During:** Repo-wide cleanup/reorg scan.
+
+**Description:**
+`docs/RULES-RETRIEVAL.md` is, by its own header, "the authoritative reference for the retrieval stack across **both** engines: the TypeScript one in `dnd-app/src/main/ai/` and its Python twin in `bmo/pi/services/rag_search.py`." That makes it one of the few docs that legitimately belongs at the repo-root `docs/` (it spans two domains, unlike `docs/OLLAMA-TUNING.md` / `docs/PLUGIN-SYSTEM.md`, which are dnd-app-only — those are covered by a separate entry). Yet it appears **nowhere** in the README "Docs index" (neither the "Architecture & deep dives" list at lines ~91-100 nor the project-doc lists), and is referenced only by a completed phase doc (`dnd-app/docs/phases/completed/PHASE-24-rules-rag-hybrid.md`) and by `docs/OLLAMA-TUNING.md`. A contributor or agent browsing the README cannot discover the canonical cross-engine retrieval reference, increasing the odds the TS and Python implementations drift without anyone consulting the shared spec.
+
+**Hypothesis / root cause:** the doc was added in PHASE-24 but never wired into the README index when it landed.
+
+**Proposed fix / improvement:**
+- [ ] Add `docs/RULES-RETRIEVAL.md` to the README "Docs index" (it sits naturally alongside `ARCHITECTURE.md` / `DATA-FLOW.md` as a cross-engine architecture doc).
+- [ ] While editing the index, sweep `docs/` for any other unlinked cross-project docs so the index stays a complete map of repo-root `docs/`.
+
+**Related files:** `README.md` (Docs index, ~lines 91-100), `docs/RULES-RETRIEVAL.md`
