@@ -214,6 +214,22 @@ BMO_API_KEY = (os.environ.get("BMO_API_KEY") or "").strip()
 BMO_REGISTRY_API_KEY = (os.environ.get("BMO_REGISTRY_API_KEY") or "").strip()
 
 
+# Paths intentionally reachable WITHOUT the BMO_API_KEY Bearer: the anonymous,
+# Cloudflare-Access-bypassed public surface of the dnd-app web build — the SPA
+# shell, the read-only 5e content it loads, and the hardened anonymous game-chat
+# endpoint. Anonymous browsers have no Bearer, so the app-level key gate must not
+# block these (Cloudflare Access path-scoped bypasses are their edge gate); every
+# OTHER route stays behind the key. KEEP THIS SET IN LOCKSTEP with the Cloudflare
+# Access "bypass" applications.
+_PUBLIC_UNAUTH_EXACT = frozenset({"/api/dnd/public/dm"})
+_PUBLIC_UNAUTH_PREFIXES = ("/api/library", "/api/sounds", "/DungeonTableOnline")
+
+
+def _is_public_unauthenticated_path(p: str) -> bool:
+    """True for the anonymous public surface (mirrors the CF Access bypasses)."""
+    return p in _PUBLIC_UNAUTH_EXACT or any(p.startswith(pre) for pre in _PUBLIC_UNAUTH_PREFIXES)
+
+
 def _bmo_client_is_trusted_localhost() -> bool:
     addr = (getattr(request, "remote_addr", None) or "") or ""
     if addr not in ("127.0.0.1", "::1", "localhost"):
@@ -256,6 +272,11 @@ def _bmo_optional_api_key():
     if not BMO_API_KEY:
         return None
     if p in ("/health", "/favicon.ico") or p.startswith("/static/"):
+        return None
+    # Anonymous public surface (mirrors the path-scoped Cloudflare Access bypasses):
+    # the dnd-app web build + the read-only content it needs + the hardened public
+    # game-chat endpoint. Everything else stays behind the key.
+    if _is_public_unauthenticated_path(p):
         return None
     if _bmo_client_is_trusted_localhost():
         return None
