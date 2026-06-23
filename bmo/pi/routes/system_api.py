@@ -67,6 +67,12 @@ def api_health_full():
         "down_services": raw.get("down_services", []) or [],
         "down_required_services": raw.get("down_required_services", []) or [],
     }
+    # Config preflight summary (provider keys + Calendar token). Cheap, no logging.
+    try:
+        from services.config_preflight import run_preflight
+        payload["config"] = run_preflight()
+    except Exception:
+        payload["config"] = {}
     # Pass through any additional keys the checker emits (forward-compat)
     # but document the canonical set above.
     for k, v in raw.items():

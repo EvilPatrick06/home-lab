@@ -387,6 +387,17 @@ def init_services():
 
     log.info("[bmo] Initializing services...")
 
+    # Config preflight — classify provider keys + Calendar token; log a single
+    # summary + degraded banner so a missing/typo'd secret surfaces at boot
+    # rather than at first use. Non-fatal unless BMO_PREFLIGHT_STRICT=1.
+    try:
+        from services.config_preflight import run_preflight
+        run_preflight(logger=log)
+    except RuntimeError:
+        raise
+    except Exception:
+        log.exception("[bmo]   Config preflight failed (non-fatal)")
+
     service_map = {}
 
     # Show warmup face during initialization
