@@ -212,3 +212,17 @@ All BMO code uses canonical paths:
 - Web: `/home/patrick/home-lab/bmo/pi/web/`
 
 Legacy `~/bmo/` paths have been rewritten. If you find one, it's a bug — log in [`../../docs/BMO-ISSUES-LOG.md`](../../docs/BMO-ISSUES-LOG.md).
+
+## Off-Pi development (`BMO_SIMULATE=1`)
+
+Run the full app on a laptop without Pi hardware:
+
+```
+BMO_SIMULATE=1 ./venv/bin/python app.py
+```
+
+Stub LED/OLED/camera adapters (`hardware/sim_hardware.py`) replace the real
+hardware with fake-but-observable behaviour — every call is logged and pushed to
+the web UI via a `sim_hardware` SocketIO event, so the LED ring, OLED face, and
+camera surfaces can be UX-tested off-device. Voice still requires a mic (or feed
+STT from a file via the voice canary).

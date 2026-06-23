@@ -42,6 +42,8 @@ from state import STATE
 # (syntax/import errors) without standing up the live assistant.
 BMO_PORT = int(os.environ.get("BMO_PORT", "5000"))
 BMO_CANARY = os.environ.get("BMO_CANARY", "").lower() in ("1", "true", "yes")
+# BMO_SIMULATE=1: use stub hardware adapters (LED/OLED/camera) for off-Pi dev.
+BMO_SIMULATE = os.environ.get("BMO_SIMULATE", "").lower() in ("1", "true", "yes")
 
 # ── App Setup ────────────────────────────────────────────────────────
 
@@ -371,7 +373,13 @@ def init_services():
 
     # LED controller (RGB LEDs)
     led_controller = None
-    if BMO_CANARY:
+    if BMO_SIMULATE:
+        from hardware.sim_hardware import SimLedController
+        led_controller = SimLedController(socketio=socketio)
+        led_controller.start()
+        service_map["leds"] = led_controller
+        log.info("[bmo]   LED controller: SIMULATED")
+    elif BMO_CANARY:
         from hardware.led_controller import LedController  # noqa: F401 — canary import check
         log.info("[bmo]   LED controller: CANARY (import-only)")
     else:
@@ -387,7 +395,14 @@ def init_services():
     # OLED face display (BMO_DISABLE_OLED=1 skips init — e.g. while display
     # hardware is broken/disconnected; every consumer None-guards oled_face)
     oled_face = None
-    if BMO_CANARY:
+    if BMO_SIMULATE:
+        from hardware.sim_hardware import SimOledFace
+        oled_face = SimOledFace(socketio=socketio)
+        oled_face.start()
+        service_map["oled_face"] = oled_face
+        oled_face.set_expression("warmup")
+        log.info("[bmo]   OLED face: SIMULATED")
+    elif BMO_CANARY:
         from hardware.oled_face import OledFace  # noqa: F401 — canary import check
         log.info("[bmo]   OLED face: CANARY (import-only)")
     elif os.environ.get("BMO_DISABLE_OLED", "").lower() in ("1", "true", "yes"):
@@ -422,7 +437,12 @@ def init_services():
 
     # Camera (requires picamera2; BMO_DISABLE_CAMERA=1 skips init — camera
     # API routes already 503 when the service is absent)
-    if BMO_CANARY:
+    if BMO_SIMULATE:
+        from hardware.sim_hardware import SimCameraService
+        camera = SimCameraService(socketio=socketio)
+        service_map["camera"] = camera
+        log.info("[bmo]   Camera: SIMULATED")
+    elif BMO_CANARY:
         from hardware.camera_service import CameraService  # noqa: F401 — canary import check
         camera = None
         log.info("[bmo]   Camera: CANARY (import-only)")
