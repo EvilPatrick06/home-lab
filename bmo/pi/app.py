@@ -231,6 +231,20 @@ BMO_API_KEY = (os.environ.get("BMO_API_KEY") or "").strip()
 # is set).
 BMO_REGISTRY_API_KEY = (os.environ.get("BMO_REGISTRY_API_KEY") or "").strip()
 
+# Cloudflare Access JWT trust: lets the owner — authenticated at the Cloudflare
+# Access edge (the login the tunnel already enforces for non-bypassed paths) —
+# reach the key-gated admin surface (/bmo, /ide, the control APIs) through the
+# tunnel with no Bearer. Flask VERIFIES the Access JWT (signature against the team
+# JWKS + audience + issuer), so it can't be forged; CF_ACCESS_ALLOWED_EMAILS adds an
+# optional second gate for the IDE's code-execution surface. Opt-in: both
+# TEAM_DOMAIN + AUD must be set, else the trust is OFF and the key gate is unchanged.
+# AUD = the Access application's "Application Audience (AUD) Tag".
+CF_ACCESS_TEAM_DOMAIN = (os.environ.get("CF_ACCESS_TEAM_DOMAIN") or "").strip()
+CF_ACCESS_AUD = (os.environ.get("CF_ACCESS_AUD") or "").strip()
+CF_ACCESS_ALLOWED_EMAILS = frozenset(
+    e.strip().lower() for e in (os.environ.get("CF_ACCESS_ALLOWED_EMAILS") or "").split(",") if e.strip()
+)
+
 
 # Paths intentionally reachable WITHOUT the BMO_API_KEY Bearer: the anonymous,
 # Cloudflare-Access-bypassed public surface of the dnd-app web build — the SPA
@@ -279,6 +293,48 @@ def _bmo_bearer_authorized() -> bool:
     return auth == f"Bearer {BMO_API_KEY}"
 
 
+_cf_jwks_client = None
+
+
+def _cf_access_authenticated() -> bool:
+    """True iff the request carries a VALID Cloudflare Access JWT for this app.
+
+    Verifies the token (``Cf-Access-Jwt-Assertion`` header, or the
+    ``CF_Authorization`` cookie CF sets) against the team's published signing keys
+    + the application audience + issuer, and (if configured) an email allowlist.
+    Any failure — missing / invalid / expired token, wrong aud or iss, a disallowed
+    email, or the trust simply not being configured — returns False, so the caller
+    falls through to the key gate. Never fail-OPEN.
+    """
+    if not (CF_ACCESS_TEAM_DOMAIN and CF_ACCESS_AUD):
+        return False
+    token = (request.headers.get("Cf-Access-Jwt-Assertion") or request.cookies.get("CF_Authorization") or "").strip()
+    if not token:
+        return False
+    global _cf_jwks_client
+    try:
+        import jwt
+        from jwt import PyJWKClient
+
+        if _cf_jwks_client is None:
+            _cf_jwks_client = PyJWKClient(
+                f"https://{CF_ACCESS_TEAM_DOMAIN}/cdn-cgi/access/certs", cache_keys=True, timeout=5
+            )
+        signing_key = _cf_jwks_client.get_signing_key_from_jwt(token)
+        claims = jwt.decode(
+            token,
+            signing_key.key,
+            algorithms=["RS256"],
+            audience=CF_ACCESS_AUD,
+            issuer=f"https://{CF_ACCESS_TEAM_DOMAIN}",
+        )
+    except Exception:
+        return False
+    if CF_ACCESS_ALLOWED_EMAILS and (claims.get("email") or "").lower() not in CF_ACCESS_ALLOWED_EMAILS:
+        return False
+    return True
+
+
 @app.before_request
 def _bmo_optional_api_key():
     p = request.path or ""
@@ -320,6 +376,10 @@ def _bmo_optional_api_key():
     # that one streaming route. Confined to /api/games/stream so the less-safe
     # query-param credential isn't accepted app-wide.
     if p == "/api/games/stream" and (request.args.get("api_key") or "") == BMO_API_KEY:
+        return None
+    # Owner authenticated at the Cloudflare Access edge (a verified Access JWT) —
+    # allow the gated admin surface (/bmo, /ide, control APIs) through the tunnel.
+    if _cf_access_authenticated():
         return None
     return (
         jsonify(
