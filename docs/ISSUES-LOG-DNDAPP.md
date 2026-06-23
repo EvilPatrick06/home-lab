@@ -113,6 +113,34 @@ The `circular` script — `dpdm --no-warning --no-tree --transform --extensions 
 
 ## Low
 
+### [2026-06-22] Renderer tests in the default `node` vitest env spam 200+ ERROR-level "window is not defined" loader failures (test-setup never stubs `window.api.game.loadJson`).
+
+- **Category:** test, debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-errors
+- **During:** automated dnd-app error scan (`npm test` on bmo — full suite passed 8178/8178, but stderr is flooded).
+
+**Description:**
+`vitest.config.ts` sets `environment: 'node'` globally with **no** `environmentMatchGlobs`, so a renderer test only gets a DOM if it opts in with a `// @vitest-environment happy-dom` docblock — only **66 of 711** renderer test files do. Any renderer test left in the default `node` env that transitively loads 5e content errors out: `data-provider.loadJson` (`src/renderer/src/services/data-provider.ts:141`) calls `window.api.game.loadJson(path)` as the bundled-file fallback, and `window` is undefined in node. `src/test-setup.ts` only stubs the *remote* library (`__setRemoteLibraryDeps({ fetchManifest: () => Promise.resolve(null) })`); it never stubs the `window.api.game.loadJson` bundled-file path, so every miss throws. This run emitted **212** `data-provider.ts:141` failures / **143** `ReferenceError: window is not defined` lines (+4 `localStorage is not defined` from the client-id module), surfacing as `[ERROR] Failed to load wearable items / effect definitions / equipment data / conditions data / bastion event tables / 5e skills …`. Tests still pass (loaders catch the throw and fall through, and assertions do not depend on that data), so this is noise rather than failure — but 200+ ERROR-level lines per run can bury a genuinely new error and makes `npm test` output hard to read.
+
+**Reproduction (if bug):**
+1. `cd dnd-app && npm test 2>&1 | grep -c "window is not defined"` → ~143 (and `grep -c data-provider.ts:141` → ~212).
+2. Concrete originator: `src/renderer/src/services/__tests__/codebase-integrity.test.ts` (node env — no `@vitest-environment` docblock) imports the chat-command registry, which lazily loads 5e data via `use-config-store` and throws at the `window.api.game.loadJson` fallback.
+
+**Expected behavior (if bug):** a clean test run with no ERROR-level loader spam; data loads in tests resolve deterministically to bundled JSON (or are stubbed) regardless of vitest environment.
+
+**Hypothesis / root cause:** `test-setup.ts` stubs only the remote-library manifest, leaving the bundled-file fallback (`window.api.game.loadJson`) unstubbed; combined with the all-`node` default environment, every renderer test that touches 5e content without its own mock hits an undefined `window`.
+
+**Proposed fix / improvement:**
+- [ ] In `test-setup.ts`, also stub the bundled-file loader (provide a global `window.api.game.loadJson` returning canned/empty JSON, or inject a node-safe `loadJson` dep) so misses resolve instead of throwing.
+- [ ] OR add `environmentMatchGlobs` (e.g. `src/renderer/**` → `happy-dom`) so renderer tests get a DOM by default and stop relying on per-file docblocks.
+- [ ] OR guard `data-provider.loadJson` to no-op/return null when `window?.api?.game?.loadJson` is unavailable instead of throwing.
+
+**Related files:** `dnd-app/vitest.config.ts`, `dnd-app/src/test-setup.ts`, `dnd-app/src/renderer/src/services/data-provider.ts` (`:141`), `dnd-app/src/renderer/src/stores/use-config-store.ts` (`:140`), `dnd-app/src/renderer/src/services/__tests__/codebase-integrity.test.ts`
+
+**Related entries:** [2026-06-22] Flaky/slow test: `CharacterSheet5ePage.test.tsx` times out at 15s on bmo (same `data-provider.ts:141` window failure observed as a symptom there; this entry is the suite-wide root cause + global fix, distinct from that one file's timeout).
+
 ### [2026-06-22] Flaky/slow test: `CharacterSheet5ePage.test.tsx > renders the sheet for a saved character` times out at 15s on bmo.
 
 - **Category:** test, performance
