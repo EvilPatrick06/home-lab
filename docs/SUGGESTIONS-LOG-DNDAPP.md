@@ -108,6 +108,70 @@ Modules holding the same kind of "miscellaneous helper functions" are named with
 **Related files:** `dnd-app/src/renderer/src/services/combat/attack-helpers.ts`, `dnd-app/src/renderer/src/components/game/modals/combat/attack-utils.ts`, `dnd-app/src/renderer/src/services/character/equipment-utilities.ts`, `dnd-app/src/renderer/src/services/chat-commands/{commands-utility,commands-player-utility,helpers}.ts`
 
 ---
+### [2026-06-23] No end-to-end / full-app test harness despite a CI-built browser target ideal for it
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (test tooling + web-target survey)
+
+**Description:**
+The suite is large and healthy at the unit/component layer — 841 `*.test.ts(x)` files run under vitest + `@testing-library/react` + happy-dom — but there is **no end-to-end / integration layer**: no Playwright, Spectron, or WebdriverIO anywhere in `package.json`, and no `e2e/` directory. So nothing exercises a full user journey across module boundaries (launch → create/import a character → create or join a campaign → land on the game table → roll dice / open the map). This is the class of regression unit tests structurally cannot catch (store-to-IPC-to-renderer wiring, route transitions, real DOM focus/keyboard flow). The app is unusually well-positioned to add this cheaply: `npm run build:web` already produces a real browser build that CI builds (`dnd-app-ci.yml`) and deploys (`dnd-web-deploy.yml`), and `docs/WEB-VERSION-PLAN.md` explicitly designs the web target to be "drivable by Claude-for-Chrome for automated QA." A Playwright smoke suite driving the deployed/served web build would close the integration gap without needing to automate Electron.
+
+**Proposed fix / improvement:**
+- [ ] Add Playwright (or similar) with a handful of smoke specs against the `build:web` output (serve via `preview:web`), covering the primary loop end-to-end.
+- [ ] Wire it as a separate, possibly non-blocking CI job at first (it already builds the web bundle), promoting to required once stable.
+- [ ] Keep the suite small + deterministic (seed data, no network to live BMO Pi) so it stays fast and is not flaky.
+
+**Related files:** `package.json` (scripts `build:web`/`preview:web`), `.github/workflows/dnd-app-ci.yml`, `.github/workflows/dnd-web-deploy.yml`, `dnd-app/docs/WEB-VERSION-PLAN.md`, `vitest.config.ts`
+
+---
+
+### [2026-06-23] Rich, hand-built accessibility feature set has no automated a11y regression guard
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (accessibility store + test tooling survey)
+
+**Description:**
+The app carries a deliberately broad accessibility investment: `use-accessibility-store.ts` models `uiScale` (75-150% text scaling applied to `documentElement.fontSize`), `colorblindMode` (deuteranopia/protanopia/tritanopia via `ColorblindFilters` + `applyColorblindFilter`), `reducedMotion` (auto-seeded from `prefers-reduced-motion`), `screenReaderMode`, `tooltipsEnabled`, and full `customKeybindings`, plus a dedicated `high-contrast` theme. None of it is protected by an **automated a11y regression check** — there is no `axe-core` / `jest-axe` in `package.json` and no a11y assertions in the component tests (biome lint covers some static JSX-a11y rules, but not rendered-DOM contrast, roles, names, or focus order). With ~92 modals and a steady stream of new UI, a missing `aria-label`, an unlabeled control, or a contrast regression in a new component would ship silently and quietly erode the investment the a11y store represents.
+
+**Proposed fix / improvement:**
+- [ ] Add `jest-axe` (vitest-compatible) and assert zero violations in the existing render tests for high-traffic components (modals, the game table, character sheet, settings panels).
+- [ ] Optionally run an `axe` pass over the deployed/served `build:web` output as a CI step (pairs naturally with the e2e harness suggested 2026-06-23).
+- [ ] Start non-blocking to triage the existing baseline, then gate on *new* violations once clean.
+
+**Related files:** `src/renderer/src/stores/use-accessibility-store.ts`, `src/renderer/src/components/ui/ColorblindFilters.tsx`, `src/renderer/src/services/theme-manager.ts`, `src/renderer/src/components/game/modals/*`, `package.json`
+
+**Related entries:** see "No end-to-end / full-app test harness…" (2026-06-23) — an axe-over-web-build pass would share that harness.
+
+---
+
+### [2026-06-23] `locale-parity` test is hardcoded to `es`; adding a new locale silently escapes key/placeholder checking
+
+- **Category:** future-idea, docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (i18n config + parity test survey)
+
+**Description:**
+The i18n infrastructure is strong (synchronous bundled locales, `gen-key-union.mjs`, a `generated-keys` union test, and `locale-parity.test.ts` proving key-set + `{{interpolation}}` parity), but it is wired specifically for the *two* locales that exist: `config.ts` declares `SUPPORTED_LOCALES = [en, es]`, and `locale-parity.test.ts` `import es from ./locales/es.json` with a hardcoded `describe(es locale parity, …)`. So adding a third locale (say `fr.json`) would: (a) require editing `SUPPORTED_LOCALES` + `LOCALE_LABELS` by hand, and (b) **not** be covered by the parity/placeholder test at all unless someone duplicates the test block — exactly the "second locale missing keys passes silently" gap the test author called out, just shifted one locale over. Separately, `i18n/README.md` documents adding a *key* but not adding a *locale*, so the end-to-end "add a language" path is undocumented.
+
+**Hypothesis / root cause:** the parity test + supported-locale list were authored for the en→es pair (Phase 34a) and not generalized, since only one translation exists today.
+
+**Proposed fix / improvement:**
+- [ ] Make `locale-parity.test.ts` data-driven: iterate every non-`en` entry in `SUPPORTED_LOCALES`, loading each `locales/<code>.json` and asserting key-set + placeholder parity, so any future locale is auto-covered.
+- [ ] Add an "Adding a new locale" section to `i18n/README.md` (create `<code>.json`, extend `SUPPORTED_LOCALES` + `LOCALE_LABELS`, run the parity test) to lower the barrier to community translations.
+- [ ] Optional: a tiny scaffold script that copies `en.json` to a new locale stub so translators start from a complete key tree.
+
+**Related files:** `src/renderer/src/i18n/config.ts`, `src/renderer/src/i18n/locale-parity.test.ts`, `src/renderer/src/i18n/README.md`, `src/renderer/src/i18n/locales/{en,es}.json`, `scripts/i18n/gen-key-union.mjs`
+
+---
+
 ### [2026-06-22] Inconsistent casing in the `dnd-app/docs/phases/` tree (`completed` vs `QA/Completed`, `INSTRUCTIONS.md` vs `QA/instructions.md`)
 
 - **Category:** docs
