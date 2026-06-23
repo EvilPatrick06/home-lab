@@ -43,26 +43,7 @@ The App.jsx God-component entry was resolved in three parts (see `RESOLVED-ISSUE
 # Low-severity polish / info
 
 *(none currently logged)*
-### [2026-06-23] i18n scaffold (`services/i18n.js` + `locales/en.js`) is unreferenced in production code
 
-- **Category:** future-idea
-- **Severity:** low
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-cleanup
-- **During:** dungeon-scholar tree cleanup/structure scan
-
-**Description:**
-The minimal i18n foundation added previously (`src/services/i18n.js` exporting `t`, `setLocale`, `getLocale`, `availableLocales`, over `src/services/locales/en.js`) is currently wired up but never used: grep finds no non-test import of `services/i18n`, no `t(` call sites in `src/features/` or `src/components/`, and `locales/en.js` holds only ~11 keys while UI strings remain hardcoded inline. The scaffold is correct and intentionally opt-in (its own header comment says full extraction is "an incremental, opt-in effort"), but an unused abstraction tends to rot — keys drift from real copy and the next contributor can't tell whether to use `t()` or keep hardcoding. Logged as info so the gap between "scaffold exists" and "scaffold used" is visible.
-
-**Hypothesis / root cause:** the i18n layer was added as a foundation (resolved entry "App is English-only…") but no follow-up migrated any real strings through `t()`, so the module sits unreferenced.
-
-**Proposed fix / improvement:**
-- [ ] Migrate a first slice of high-traffic chrome strings (nav labels, common buttons, modal titles) through `t()` to validate the API and grow `en.js`, OR
-- [ ] If i18n is not a near-term goal, add a short note in `docs/DESIGN-CONSTRAINTS.md` recording that the scaffold is intentionally dormant (so it isn't mistaken for dead code and removed).
-
-**Related files:** `src/services/i18n.js`, `src/services/locales/en.js`
-
-**Related entries:** Resolved — "App is English-only with no internationalization layer" (added the scaffold this entry observes is still unused).
 ### [2026-06-23] Local autosave-snapshot ring buffer for crash / accidental-reset recovery
 
 - **Category:** future-idea
