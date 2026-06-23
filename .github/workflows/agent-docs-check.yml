@@ -1,0 +1,31 @@
+name: agent-docs drift check
+
+# Guard against the four hand-maintained AI agent-instruction files drifting
+# apart: each tool-specific file must keep a pointer to the canonical AGENTS.md.
+on:
+  push:
+    paths:
+      - 'AGENTS.md'
+      - 'CLAUDE.md'
+      - 'GEMINI.md'
+      - '.github/copilot-instructions.md'
+      - 'scripts/check-agent-docs.mjs'
+      - '.github/workflows/agent-docs-check.yml'
+  pull_request:
+    paths:
+      - 'AGENTS.md'
+      - 'CLAUDE.md'
+      - 'GEMINI.md'
+      - '.github/copilot-instructions.md'
+      - 'scripts/check-agent-docs.mjs'
+      - '.github/workflows/agent-docs-check.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - run: node scripts/check-agent-docs.mjs

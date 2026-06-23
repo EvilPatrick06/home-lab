@@ -12,6 +12,35 @@
 
 ---
 
+### [2026-06-22] Four hand-maintained agent-instruction files will drift (AGENTS / CLAUDE / GEMINI / copilot)
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** The 'link to canonical' part was already in place — AGENTS.md is the designated canonical source and CLAUDE.md / GEMINI.md / .github/copilot-instructions.md each header-link to it for shared sections. Added the missing drift guard: scripts/check-agent-docs.mjs (fails if any secondary file drops its AGENTS.md pointer) wired into a path-scoped .github/workflows/agent-docs-check.yml. Guard passes on the current tree.
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** cross-cutting repo-wide scan
+
+**Description:**
+The repo carries four overlapping AI-assistant guides — `AGENTS.md` (12.8K), `CLAUDE.md` (11.3K), `GEMINI.md` (5.2K), `.github/copilot-instructions.md` (4.6K) — each maintained by hand. They cover much of the same ground (repo layout, conventions, logging rules) and will drift out of sync as the repo evolves.
+
+**Proposed fix / improvement:**
+- [ ] Designate one canonical source (e.g. `AGENTS.md`); generate or symlink the others from it, or add a sync check that flags when shared sections diverge.
+- [ ] At minimum, have each file link to the canonical one for shared sections instead of duplicating them.
+
+**Related files:** `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.github/copilot-instructions.md`
+
+> **2026-06-10 — Backlog consolidated.** All previously-open entries (incl. the
+> still-open residuals of the 2026-05-18 phase-plan absorption: Phase 33a backup
+> migration framework, 33c ModalScaffold, 33d bundle-size CI guard — and the
+> Phase 15 library-invariant observation) became the numbered phase plans under [`../dnd-app/docs/phases/`](../dnd-app/docs/phases/) (start at [`PHASE-INDEX.md`](../dnd-app/docs/phases/PHASE-INDEX.md)); the consolidating audit was deleted once the phase set was authored (2026-06-11). Add new
+> dnd-app ideas below as they appear.
+
+---
+
 ### Surface release notes / "What's New" on update (auto-updater discards `releaseNotes`)
 
 - **Resolved by:** dnd-resolver (automated)
