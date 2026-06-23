@@ -88,7 +88,7 @@ pi/
 │   ├── templates/ide.html
 │   └── static/ide.{css,js}
 │
-├── kiosk/                       Systemd services for kiosk mode + bots
+├── systemd/                     Systemd units (all services + timers) + install-kiosk.sh
 │   ├── bmo-kiosk.service        Chromium fullscreen on HDMI
 │   ├── bmo-dm-bot.service       → python -m bots.discord_dm_bot
 │   ├── bmo-social-bot.service   → python -m bots.discord_social_bot

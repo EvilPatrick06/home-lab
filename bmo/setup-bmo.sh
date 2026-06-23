@@ -218,13 +218,13 @@ sudo docker run -d \
 # ── 10. Systemd Services ────────────────────────────────────────
 log "Installing systemd services..."
 
-# Unit files live in bmo/pi/kiosk/ as the single source of truth (consolidated
+# Unit files live in bmo/pi/systemd/ as the single source of truth (consolidated
 # 2026-06-22 — they were previously duplicated as inline heredocs here and had
-# drifted from the kiosk/ copies). Install by copying those files.
+# drifted from the systemd/ copies). Install by copying those files.
 for unit in bmo.service bmo-kiosk.service bmo-fan.service bmo-dm-bot.service \
             bmo-social-bot.service bmo-backup.service bmo-backup.timer \
             bmo-voice-canary.service bmo-voice-canary.timer; do
-  sudo cp "/home/patrick/home-lab/bmo/pi/kiosk/$unit" /etc/systemd/system/
+  sudo cp "/home/patrick/home-lab/bmo/pi/systemd/$unit" /etc/systemd/system/
 done
 
 # Chromium policy: always allow geolocation for local kiosk origin

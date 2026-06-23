@@ -38,7 +38,7 @@ from pathlib import Path
 SCOPE_TOP_LEVEL = ("agent.py", "app.py", "cli.py", "state.py")
 # Subpackages that ARE production source.
 SCOPE_DIRS = ("agents", "bots", "hardware", "mcp_servers", "routes", "services", "wake")
-# Skip-list: kiosk is templates, ide_app/dev are separate, tests/scripts/web
+# Skip-list: systemd holds unit files, ide_app/dev are separate, tests/scripts/web
 # are not production source. __pycache__ / venv obvious.
 SKIP_PARTS = {"__pycache__", "tests", "venv", "node_modules"}
 

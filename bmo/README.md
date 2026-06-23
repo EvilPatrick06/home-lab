@@ -171,7 +171,7 @@ bmo/
 │   ├── web/                         Flask templates + static (CSS, JS, IDE)
 │   ├── mcp_servers/                 MCP server for D&D data
 │   ├── ide_app/                     Embedded web IDE
-│   ├── kiosk/                       systemd files + install-kiosk.sh
+│   ├── systemd/                     systemd units (.service/.timer) + install-kiosk.sh
 │   ├── scripts/                     Deploy + diagnostics (cloudflare, tailscale, e2e test, health check, apply-patch)
 │   ├── tests/                       Pytest suite (test_game_registry.py + ~30 other test files)
 │   ├── data/                        Content JSON + runtime state
@@ -182,12 +182,14 @@ bmo/
 │   └── tailwind.config.js
 │
 ├── docs/
+│   ├── README.md                   Docs index (start here)
 │   ├── ARCHITECTURE.md              Overall BMO architecture
-│   ├── AGENTS.md                    5 AI-agent roles + routing
+│   ├── AGENTS.md                    AI-agent catalog (28 routable) + routing
 │   ├── SERVICES.md                  Services + ports + endpoints
+│   ├── SYSTEMD.md                   Service management
+│   ├── DESIGN-CONSTRAINTS.md        Intentional gotchas (read before refactors)
 │   ├── TROUBLESHOOTING.md           Common failures + fixes
 │   ├── DEPLOY.md                    Update from laptop via SSH
-│   ├── SYSTEMD.md                   Service management
 │   ├── NETWORK_ACCESS.md            LAN / Tailscale / Cloudflare tunnel setup
 │   └── CLOUDFLARE_TUNNEL_SETUP.md
 │
@@ -199,7 +201,7 @@ bmo/
 
 ## Agents
 
-5 specialized AI agents — see [`docs/AGENTS.md`](./docs/AGENTS.md) for the full list. Highlights:
+A set of specialized AI agents (28 routable) — see the [docs index](./docs/README.md) and [`docs/AGENTS.md`](./docs/AGENTS.md) for the full list. Highlights:
 
 - `orchestrator` — top-level director
 - `router` — 3-tier intent classifier (prefix → keywords → LLM fallback)

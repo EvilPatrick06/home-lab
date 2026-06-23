@@ -49,7 +49,7 @@ BMO and dnd-app **do not** read each other’s data dirs. **HTTP only** (e.g. `b
 There are two separate, diverged IDE frontends in `bmo/pi/`:
 
 - **Production (canonical):** `app.py` `@app.route("/ide")` renders `web/templates/ide.html`, backed by the `/api/ide/*` blueprint in `routes/ide.py`, with assets under `web/static/ide/` (`ide.css`, `ide.js`, `sw.js`). Runs on :5000.
-- **Experimental rebuild:** `ide_app/` — a standalone Flask+SocketIO app on :5001 (`ide_app/ide_app.py`, its own `bmo-ide.service` (unit file in `kiosk/`)) carrying its OWN diverged copies of the assets (`ide_app/static/...`, `ide_app/templates/ide.html`).
+- **Experimental rebuild:** `ide_app/` — a standalone Flask+SocketIO app on :5001 (`ide_app/ide_app.py`, its own `bmo-ide.service` (unit file in `systemd/`)) carrying its OWN diverged copies of the assets (`ide_app/static/...`, `ide_app/templates/ide.html`).
 
 The two asset trees have already diverged (different sizes + md5s), so a fix applied to one will **not** reach the other. A contributor editing `ide_app/` expecting it to change the live `/ide` tab (or vice-versa) will be surprised. Treat `web/` + `routes/ide.py` as the **single source of truth**; `ide_app/` is a stalled/experimental rebuild — plan a cutover and retire one side rather than maintaining two diverging copies of `ide.css`/`ide.js`/`ide.html`.
 
