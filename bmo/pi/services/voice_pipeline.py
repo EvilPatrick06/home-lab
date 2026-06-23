@@ -212,7 +212,12 @@ class VoicePipeline:
             from openwakeword.model import Model
             paths = _get_wake_model_paths()
             if not paths:
-                raise RuntimeError("no wake word ONNX model files found (use custom model or install openwakeword default models)")
+                # No ONNX wake models installed — an expected setup gap on hosts
+                # without the openwakeword default models (or a custom model).
+                # Log once at INFO and fall back to energy+STT (caller handles
+                # None); not an ERROR traceback every boot.
+                log.info("[wake] no wake-word ONNX models found — using energy+STT fallback")
+                return None
             try:
                 self._wake_model = Model(
                     wakeword_models=paths,
@@ -246,6 +251,11 @@ class VoicePipeline:
             )
             self._silero_vad = model
             log.info("[vad] Silero VAD loaded")
+        except ImportError as exc:
+            # torchaudio (a silero dep) isn't installed in this venv — an
+            # expected optional-dependency gap, not an error. Log once at INFO
+            # instead of an ERROR traceback every boot; energy-only VAD is used.
+            log.info("[vad] Silero VAD unavailable (%s), using energy-only", exc)
         except Exception:
             log.exception("[vad] Silero VAD not available, using energy-only")
         return self._silero_vad
