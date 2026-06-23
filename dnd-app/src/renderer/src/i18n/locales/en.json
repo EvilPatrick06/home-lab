@@ -7374,7 +7374,10 @@
       "description": "The application encountered an unexpected error. You can try again or restart the app.",
       "tryAgain": "Try Again",
       "restartApp": "Restart App",
-      "copyErrorReport": "Copy Error Report"
+      "copyErrorReport": "Copy Error Report",
+      "newVersionTitle": "A new version is available",
+      "newVersionDescription": "The app was updated while this page was open. Reload to load the latest version.",
+      "reload": "Reload"
     },
     "floatingWindow": {
       "closeLabel": "Close {{title}}"

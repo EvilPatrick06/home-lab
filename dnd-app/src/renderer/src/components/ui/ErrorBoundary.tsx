@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
 import { i18n } from '../../i18n'
+import { isChunkLoadError } from '../../utils/lazy-with-reload'
 import { logger } from '../../utils/logger'
 
 interface Props {
@@ -10,16 +11,19 @@ interface Props {
 interface State {
   hasError: boolean
   error: Error | null
+  isChunkError: boolean
 }
 
 export default class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props)
-    this.state = { hasError: false, error: null }
+    this.state = { hasError: false, error: null, isChunkError: false }
   }
 
   static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error }
+    // A stale-chunk failure after a redeploy (PHASE-44) is not a real crash —
+    // surface a "new version, reload" affordance instead of the generic error.
+    return { hasError: true, error, isChunkError: isChunkLoadError(error) }
   }
 
   private componentStack: string | undefined
@@ -31,7 +35,7 @@ export default class ErrorBoundary extends Component<Props, State> {
   }
 
   handleRetry = (): void => {
-    this.setState({ hasError: false, error: null })
+    this.setState({ hasError: false, error: null, isChunkError: false })
   }
 
   handleRestart = (): void => {
@@ -112,6 +116,26 @@ export default class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       if (this.props.fallback !== undefined) {
         return this.props.fallback
+      }
+      if (this.state.isChunkError) {
+        // PHASE-44 F3b backstop: the lazyWithReload one-shot already tried a
+        // reload and the chunk is still gone (or this boundary caught the
+        // failure directly). Offer an explicit reload-to-latest rather than the
+        // scary generic crash UI. Strings are i18n-keyed but kept terse.
+        return (
+          <div className="h-screen w-screen flex items-center justify-center bg-base text-fg">
+            <div className="max-w-md w-full mx-4 bg-surface border border-amber-500/50 rounded-xl p-8 shadow-2xl">
+              <h1 className="text-xl font-bold text-amber-400 mb-2">{i18n.t('ui.errorBoundary.newVersionTitle')}</h1>
+              <p className="text-sm text-muted mb-6">{i18n.t('ui.errorBoundary.newVersionDescription')}</p>
+              <button
+                onClick={this.handleRestart}
+                className="w-full px-4 py-2.5 text-sm font-semibold bg-amber-600 hover:bg-accent-strong text-white rounded-lg cursor-pointer transition-colors"
+              >
+                {i18n.t('ui.errorBoundary.reload')}
+              </button>
+            </div>
+          </div>
+        )
       }
       return (
         <div className="h-screen w-screen flex items-center justify-center bg-base text-fg">

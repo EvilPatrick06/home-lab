@@ -7374,7 +7374,10 @@
       "description": "La aplicación encontró un error inesperado. Puedes intentarlo de nuevo o reiniciar la aplicación.",
       "tryAgain": "Intentar de nuevo",
       "restartApp": "Reiniciar la aplicación",
-      "copyErrorReport": "Copiar informe de error"
+      "copyErrorReport": "Copiar informe de error",
+      "newVersionTitle": "Hay una nueva versión disponible",
+      "newVersionDescription": "La aplicación se actualizó mientras esta página estaba abierta. Vuelve a cargar para obtener la versión más reciente.",
+      "reload": "Volver a cargar"
     },
     "floatingWindow": {
       "closeLabel": "Cerrar {{title}}"

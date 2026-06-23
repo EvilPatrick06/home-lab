@@ -74,16 +74,46 @@ def test_public_dm_endpoint_exempt_from_key(monkeypatch):
 
 
 def test_public_web_surface_exempt_from_key(monkeypatch):
-    """The dnd-app web build + the read-only content it loads stay anonymous."""
+    """The dnd-app web build + the read-only content it loads stay anonymous.
+
+    This is the regression guard for the Critical web-build outage (a hardened
+    ``BMO_API_KEY`` 401-ing the entire public SPA). It pins a representative
+    path under EVERY entry in the anonymous-exempt set so dropping any prefix
+    from ``_PUBLIC_UNAUTH_PREFIXES`` / ``_PUBLIC_UNAUTH_EXACT`` fails CI.
+
+    KEEP THIS LIST IN LOCKSTEP with ``app._PUBLIC_UNAUTH_PREFIXES`` /
+    ``_PUBLIC_UNAUTH_EXACT`` and the path-scoped Cloudflare-Access "bypass"
+    applications (see the comment above ``_PUBLIC_UNAUTH_EXACT`` in app.py).
+    """
     monkeypatch.setattr(app_module, "BMO_API_KEY", "k")
     for path in (
+        # SPA shell + a hashed asset chunk + bundled read-only 5e content
         "/DungeonTableOnline/",
         "/DungeonTableOnline/assets/app.js",
+        "/DungeonTableOnline/assets/index.web-C8ECHjSO.js",
+        "/DungeonTableOnline/data/5e/classes.json",
+        # content APIs the SPA fetches anonymously
         "/api/library/manifest",
         "/api/sounds/file",
+        # hardened anonymous game-chat endpoint (exact-match exemption)
+        "/api/dnd/public/dm",
     ):
         with _ctx(path, remote="203.0.113.7"):
             assert app_module._bmo_optional_api_key() is None, path
+
+
+def test_exemption_set_covers_every_documented_prefix(monkeypatch):
+    """Pin that every prefix in the live exemption set is actually honoured —
+    if a prefix is added to ``_PUBLIC_UNAUTH_PREFIXES`` it must let an anonymous
+    request through, and if one is removed this asserts the gap. Iterates the
+    real set so the test tracks the source rather than a hand-copied list."""
+    monkeypatch.setattr(app_module, "BMO_API_KEY", "k")
+    for prefix in app_module._PUBLIC_UNAUTH_PREFIXES:
+        with _ctx(f"{prefix}/probe", remote="203.0.113.7"):
+            assert app_module._bmo_optional_api_key() is None, prefix
+    for exact in app_module._PUBLIC_UNAUTH_EXACT:
+        with _ctx(exact, remote="203.0.113.7"):
+            assert app_module._bmo_optional_api_key() is None, exact
 
 
 def test_sibling_private_dnd_route_still_gated(monkeypatch):
