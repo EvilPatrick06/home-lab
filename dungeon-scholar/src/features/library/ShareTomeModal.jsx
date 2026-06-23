@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo } from 'react';
 import { Share2, X, Download, Check, Copy, Lock, Loader2 } from 'lucide-react';
-import { useDialogA11y } from '../../components/useDialogA11y.js';
+import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 import { encodeTomeShareCode } from '../../game/tome.js';
 import { sealTome, isSealedTome } from '../../services/sealedTome.js';
 

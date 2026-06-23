@@ -6,6 +6,9 @@ export const DEFAULT_STATE = {
   totalCorrect: 0,
   totalAnswered: 0,
   longestStreak: 0,
+  currentStreak: 0,           // I2: live cross-mode correct-answer streak; resets on a wrong answer
+  maxStreakToday: 0,          // best currentStreak reached today (resets at daily rollover)
+  maxStreakWeek: 0,           // best currentStreak reached this week (resets at weekly rollover)
   oracleMessages: 0,
   vaultBanished: 0,
   modesUsed: [],

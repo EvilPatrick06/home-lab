@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
-import { LogOut, CloudOff, Trash2, RotateCcw } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { LogOut, CloudOff, Trash2, RotateCcw, Download, Upload, Bell } from 'lucide-react';
 import { signOut } from '../services/supabase.js';
 import { deleteCloudSave, deleteAccount } from '../services/cloudSync.js';
 import { logError } from '../services/logger.js';
-import { useDialogA11y } from './useDialogA11y.js';
+import { useDialogA11y } from '../hooks/useDialogA11y.js';
+ import { exportSaveText, parseImportedSave } from '../services/persistence.js';
+ import { todayDateStr } from '../utils/date.js';
+ import { requestStudyReminders, notificationsSupported, notificationPermission } from '../services/notifications.js';
 
 function relativeTimeFrom(date) {
   if (!date) return 'never';
@@ -14,10 +17,45 @@ function relativeTimeFrom(date) {
   return `${Math.floor(sec / 3600)} hr ago`;
 }
 
-export function AccountPanel({ user, syncStatus, lastSyncedAt, onClose, onAfterDeleteCloud, onAfterDeleteAccount, onResetProgress }) {
+export function AccountPanel({ user, syncStatus, lastSyncedAt, onClose, onAfterDeleteCloud, onAfterDeleteAccount, onResetProgress, playerState, onImportSave }) {
   const [confirmKind, setConfirmKind] = useState(null);
   const [typedConfirm, setTypedConfirm] = useState('');
   const [busy, setBusy] = useState(false);
+  const fileRef = useRef(null);
+  const [importErr, setImportErr] = useState('');
+  const [remindMsg, setRemindMsg] = useState('');
+
+  // S12: export the player save to a portable JSON file (reuses the Blob +
+  // object-URL download pattern from ShareTomeModal).
+  const doExportJournal = () => {
+    try {
+      const blob = new Blob([exportSaveText(playerState)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `dungeon-scholar-save-${todayDateStr()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setImportErr('Could not export the journal.');
+    }
+  };
+
+  const doImportJournal = (ev) => {
+    const file = ev.target.files && ev.target.files[0];
+    ev.target.value = '';
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const res = parseImportedSave(String(reader.result || ''));
+      if (!res.ok) { setImportErr(res.error); return; }
+      setImportErr('');
+      onImportSave?.(res.state);
+      onClose();
+    };
+    reader.onerror = () => setImportErr('Could not read that file.');
+    reader.readAsText(file);
+  };
   // 19A: hook called before the early return (hooks must be unconditional);
   // `active: !!user` arms the trap only while the panel is actually rendered.
   const panelRef = useDialogA11y({ onClose, active: !!user });
@@ -89,6 +127,29 @@ export function AccountPanel({ user, syncStatus, lastSyncedAt, onClose, onAfterD
                 <RotateCcw className="w-4 h-4" /> Begin Anew (reset local progress)
               </button>
             )}
+            <div className="h-px bg-amber-900/40 my-1" />
+            <div className="text-[10px] uppercase tracking-wider italic text-amber-500/80 font-bold">Backup</div>
+            <button onClick={doExportJournal} disabled={busy || !playerState} className="w-full px-3 py-2 rounded-sm border-2 border-amber-700 text-amber-200 italic text-sm hover:bg-amber-900/30 flex items-center gap-2" title="Download thy save as a portable JSON file">
+              <Download className="w-4 h-4" /> Export journal (backup file)
+            </button>
+            <button onClick={() => fileRef.current?.click()} disabled={busy} className="w-full px-3 py-2 rounded-sm border-2 border-amber-700 text-amber-200 italic text-sm hover:bg-amber-900/30 flex items-center gap-2" title="Restore a previously exported journal file">
+              <Upload className="w-4 h-4" /> Import journal
+            </button>
+            <input ref={fileRef} type="file" accept="application/json,.json" onChange={doImportJournal} className="hidden" />
+            {importErr && (
+              <div className="text-xs italic text-red-300">✗ {importErr}</div>
+            )}
+            {notificationsSupported() && (
+              <button
+                onClick={async () => { const ok = await requestStudyReminders(); setRemindMsg(ok ? 'Study reminders enabled — thou shalt be nudged when scrolls are due.' : (notificationPermission() === 'denied' ? 'Reminders blocked in browser settings.' : 'Reminders not enabled.')); }}
+                disabled={busy}
+                className="w-full px-3 py-2 rounded-sm border-2 border-amber-700 text-amber-200 italic text-sm hover:bg-amber-900/30 flex items-center gap-2"
+                title="Opt in to local study reminders (no account or server needed)"
+              >
+                <Bell className="w-4 h-4" /> Enable study reminders
+              </button>
+            )}
+            {remindMsg && <div className="text-xs italic text-amber-300">{remindMsg}</div>}
             <div className="h-px bg-amber-900/40 my-1" />
             <div className="text-[10px] uppercase tracking-wider italic text-red-400/80 font-bold">⚠ Destructive · cloud</div>
             <button onClick={() => setConfirmKind('cloud')} disabled={busy} className="w-full px-3 py-2 rounded-sm border-2 border-orange-700 text-orange-200 italic text-sm hover:bg-orange-900/30 flex items-center gap-2">

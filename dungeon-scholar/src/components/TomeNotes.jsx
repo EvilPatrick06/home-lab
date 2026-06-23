@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ScrollText, X, Lock, Unlock, Save, Trash2, AlertTriangle } from 'lucide-react';
 import { encryptPayload, decryptPayload, clearKeyCache } from '../services/notesCrypto.js';
-import { useDialogA11y } from './useDialogA11y.js';
+import { useDialogA11y } from '../hooks/useDialogA11y.js';
 
 // Phase 40F: per-tome encrypted private notes modal.
 //

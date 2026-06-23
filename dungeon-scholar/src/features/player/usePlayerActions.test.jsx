@@ -385,3 +385,19 @@ describe('usePlayerActions — tome deletion (Phase-30 QA gap)', () => {
     expect(s.activeTomeId).toBeNull();
   });
 });
+
+describe('usePlayerActions — streak tracking (I2)', () => {
+  it('recordAnswer builds currentStreak on correct and resets on wrong', () => {
+    const { result } = makeHook();
+    act(() => { result.current.actions.recordAnswer(true, { id: 'q1' }); });
+    act(() => { result.current.actions.recordAnswer(true, { id: 'q2' }); });
+    expect(result.current.playerState.currentStreak).toBe(2);
+    expect(result.current.playerState.maxStreakToday).toBe(2);
+    expect(result.current.playerState.maxStreakWeek).toBe(2);
+    act(() => { result.current.actions.recordAnswer(false, { id: 'q3' }); });
+    expect(result.current.playerState.currentStreak).toBe(0);
+    // window maxima retain the best reached
+    expect(result.current.playerState.maxStreakToday).toBe(2);
+    expect(result.current.playerState.longestStreak).toBe(2);
+  });
+});

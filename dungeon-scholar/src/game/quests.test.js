@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { DAILY_QUEST_POOL, WEEKLY_QUEST_POOL, pickDailyQuests, pickWeeklyQuests, currentWeekStartStr } from './quests.js';
+import { DAILY_QUEST_POOL, WEEKLY_QUEST_POOL, pickDailyQuests, pickWeeklyQuests, currentWeekStartStr, getCounterValue } from './quests.js';
 
 describe('pickDailyQuests (PHASE-39 39A)', () => {
   it('is deterministic for a fixed date', () => {
@@ -36,5 +36,23 @@ describe('pickWeeklyQuests / currentWeekStartStr (PHASE-39 39A)', () => {
 
   it('currentWeekStartStr returns a YYYY-MM-DD string', () => {
     expect(currentWeekStartStr()).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+});
+
+describe('streak quest counters (I2)', () => {
+  it('getCounterValue reads the real streak window counters', () => {
+    const s = { currentStreak: 3, maxStreakToday: 6, maxStreakWeek: 14 };
+    expect(getCounterValue(s, 'currentStreak')).toBe(3);
+    expect(getCounterValue(s, 'maxStreakToday')).toBe(6);
+    expect(getCounterValue(s, 'maxStreakWeek')).toBe(14);
+  });
+
+  it('flawless_streak / weekly_streak are absolute against window-max counters', () => {
+    const daily = DAILY_QUEST_POOL.find((q) => q.id === 'flawless_streak');
+    expect(daily.absolute).toBe(true);
+    expect(daily.counter).toBe('maxStreakToday');
+    const weekly = WEEKLY_QUEST_POOL.find((q) => q.id === 'weekly_streak');
+    expect(weekly.absolute).toBe(true);
+    expect(weekly.counter).toBe('maxStreakWeek');
   });
 });

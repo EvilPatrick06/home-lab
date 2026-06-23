@@ -1,6 +1,11 @@
 # GEMINI.md
 
 > Read automatically by Gemini CLI / Gemini Code Assist.
+
+> **Canonical source:** shared conventions (repo layout, git workflow, logging
+> rules) live in [`AGENTS.md`](./AGENTS.md). This file covers tool-specific notes;
+> when they overlap, AGENTS.md wins. Keep shared sections in sync (S11).
+
 > General project instructions: `AGENTS.md`. Structure map: `.cursorrules`.
 
 ## Project Summary
