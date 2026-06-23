@@ -1,0 +1,27 @@
+name: Oracle Worker CI
+
+on:
+  push:
+    paths:
+      - 'oracle-worker/**'
+      - '.github/workflows/oracle-worker-ci.yml'
+  pull_request:
+    paths:
+      - 'oracle-worker/**'
+      - '.github/workflows/oracle-worker-ci.yml'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./oracle-worker
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: oracle-worker/package-lock.json
+      - run: npm ci
+      - run: node --check src/worker.js

@@ -2764,6 +2764,15 @@ export default function DungeonExplore({
   const [mistakes, setMistakes] = useState(0);
   const [runState, setRunState] = useState('alive'); // alive | victory | death
   const [battle, setBattle] = useState(null);
+  // S3: off-canvas screen-reader announcements for the (otherwise opaque) delve.
+  const [liveMsg, setLiveMsg] = useState('');
+  useEffect(() => {
+    if (phase !== 'world') return;
+    if (runState === 'victory') { setLiveMsg('Victory! The delve is won.'); return; }
+    if (runState === 'death') { setLiveMsg('Defeat. The delve has ended.'); return; }
+    if (battle) { setLiveMsg('A foe blocks the path — a battle begins. Answer the riddle to fight.'); return; }
+    setLiveMsg('');
+  }, [phase, battle, runState]);
   const [endSummary, setEndSummary] = useState(null);
   // Brief notification banner for potion/revive/buff feedback.
   const [notice, setNotice] = useState(null);
@@ -4244,10 +4253,14 @@ export default function DungeonExplore({
         </div>
       </div>
 
+      {/* S3: live region — announces encounters/outcomes for screen readers. */}
+      <div className="sr-only" role="status" aria-live="assertive">{liveMsg}</div>
       <div
         ref={containerRef}
         tabIndex={0}
-        className="mx-auto outline-hidden rounded-sm relative select-none"
+        role="application"
+        aria-label="Dungeon delve. Arrow keys or WASD to move, E to interact, Z X or C to cast spells, 1 2 or 3 for potions, Escape to leave."
+        className="mx-auto rounded-sm relative select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300"
         style={{
           width: '100%',
           maxWidth: CANVAS_W,
