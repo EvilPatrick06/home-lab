@@ -32,16 +32,14 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Medium
 
-### [2026-06-23] Cloud-sync engine covers core JSON domains only — binary + campaign-scoped stores deferred
+### [2026-06-23] Cloud-sync residual: book config/PDFs not synced; binary re-hashed each reconcile
 
 - **Category:** debt
-- **Severity:** medium
-- **During:** user-accounts / cloud-sync feature (Phases A–E)
+- **Severity:** low
+- **During:** user-accounts / cloud-sync feature
 
 **Description:**
-The per-user cloud-sync engine (`src/renderer/src/services/sync/`) registers the core id-keyed JSON domains in `domains.ts`: characters, campaigns, bastions, custom-creatures, homebrew, shop-templates, map-library. NOT yet synced: binary stores (`image-library`, `audio`), campaign-scoped state (`game-state`, `ai-conversations`, `bans`), `books`/`book-data`, and `settings` (device-local/secret fields make it a merge, not an overwrite). The backend (`/api/sync/*`) + the `window.api.sync` transport are domain-agnostic, so closing the gap is mostly new `DOMAINS` entries.
-
-**Fix:** Add the deferred domains to `DOMAINS`. Binary domains need a non-JSON serialize/deserialize (pack the ArrayBuffer + metadata). `settings` needs a field-stripping + merge strategy (never sync `turnServers`/`bmoApiKey`/`bmoPiBaseUrl`/account token). Campaign-scoped domains list by iterating campaigns. Verify cross-device per domain.
+The sync engine now covers ALL user-data domains (`src/renderer/src/services/sync/domains.ts`): characters, campaigns, bastions, custom-creatures, homebrew, shop-templates, map-library, **settings** (device-local/secret stripped; theme+accessibility applied on pull), **game-state**, **ai-conversations**, **bans**, **book-data**, and the binary **image-library** + **audio** (packed container, byte-cached). Two residual gaps: (1) book CONFIG + custom PDF files aren't synced — only per-book bookmarks/annotations are, so custom-book notes re-attach only if the same PDF is re-imported with the same id (core books are fine). (2) Each reconcile re-serializes + re-hashes every entity; binary bytes are cached (no re-read) but still re-hashed every cycle — a manifest-diff that skips unchanged entities via a cheap metadata change-key would cut reconcile cost for large libraries.
 
 ## Low
 
