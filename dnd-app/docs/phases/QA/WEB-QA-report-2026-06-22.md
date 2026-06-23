@@ -5,6 +5,8 @@ Tested: dnd-vtt WEB build (Dungeon Table Online) v2.4.77 — 2026-06-22 · URL: 
 ## Top findings (Critical & High)
 
 - **[High]** Hosting a Public game in the web build fails to list in the registry with a JS null-deref ("Cannot read properties of null (reading 'ok')")
+- **[High]** Entering a game hard-crashes ("Failed to fetch dynamically imported module: InGamePage-*.js") for any session open across a redeploy
+
 
 ## Phase 1 — Top-level pages & navigation
 ### "Check for Updates" hangs forever on "Checking…" in the web build (no result, no error)
@@ -49,6 +51,30 @@ Tested: dnd-vtt WEB build (Dungeon Table Online) v2.4.77 — 2026-06-22 · URL: 
 **Related files:** `dnd-app/src/renderer/src/pages/` (About page), `i18n/locales/en.json`
 
 ## Phase 2 — Character builder + level-up
+### Saved character sheet shows AC 6 while the builder showed AC 16 after equipping Chain Mail
+- **Category:** bug
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** QA Agent
+- **During:** Phase 2 — build + save a Dwarf Fighter (chose Chain Mail starting equipment)
+
+**Description:** While building a level-1 Dwarf Fighter and selecting the "Chain Mail, Greatsword, Flail, 8 Javelins" class starting-equipment option, the builder header updated AC to **16** (Chain Mail base AC). After saving, the **character sheet and the character-list card both show AC 6**. AC 6 doesn't correspond to Chain Mail (16) or unarmored (10 + Dex; here ~12), so the saved AC looks wrong/inconsistent with what the builder displayed.
+
+**Reproduction:**
+1. Build a Fighter; pick the Chain Mail starting-equipment option (builder header shows AC 16).
+2. Save the character.
+3. Open the saved sheet / view the list card → AC shows 6.
+
+**Expected behavior:** Saved AC should match the equipped armor shown during building (Chain Mail → AC 16), or, if starting equipment isn't auto-equipped, AC should be the correct unarmored value — not 6.
+
+**Hypothesis / root cause:** Possibly starting armor lands in inventory unequipped and the sheet's AC calc mishandles it (and even unarmored wouldn't be 6). Speculation — needs a look at the AC computation vs builder-preview path.
+
+**Suggested action:** Reconcile the builder's AC preview with the saved-sheet AC calculation; confirm starting armor is equipped/counted consistently.
+
+**Environment:** web build · English · Dark · level-1 Dwarf Fighter, Chain Mail
+
+**Related files:** `dnd-app/src/renderer/src/` (character sheet AC calc, `effective-character-5e`), builder equipment handling
+
 ### Leaving the character builder mid-build discards the draft with no "unsaved changes" confirmation
 - **Category:** UX
 - **Severity:** medium
@@ -115,6 +141,37 @@ Tested: dnd-vtt WEB build (Dungeon Table Online) v2.4.77 — 2026-06-22 · URL: 
 **Environment:** web build · English · Dark theme · browser tab
 
 **Related files:** `dnd-app/src/renderer/src/pages/` (Bastion page / Create Bastion modal)
+
+## Phase 6 — In-game: map, combat & DM tools (Solo)
+
+### [High] Entering a game hard-crashes ("Failed to fetch dynamically imported module: InGamePage-*.js") for any session open across a redeploy
+- **Category:** bug | portability
+- **Severity:** high
+- **Domain:** dnd-app | bmo
+- **Discovered by:** QA Agent
+- **During:** Phase 6 — Solo game → Play (in-game board entry), session loaded before a redeploy landed
+
+**Description:** Clicking **Play** on a Solo game threw the app-level error boundary: "Something went wrong … **Failed to fetch dynamically imported module: https://bmo.mybmoai.work/DungeonTableOnline/assets/InGamePage-ey1ziH5k.js**" (console: `TypeError: Failed to fetch dynamically imported module`, thrown from `index.web-C8ECHjSO.js`). The in-game board is a lazy-loaded route chunk (`InGamePage-*.js`); the fetch 404'd. After a full page reload the in-game board loaded and worked fine (map renders, dice roll, DM panels — see note below), which pins the cause to a **stale chunk after redeploy**.
+
+**Root cause (confirmed):** The deploy workflow `dnd-web-deploy.yml` rsyncs the build to the Pi with **`--delete`**. A redeploy landed mid-session (server went from `index.web-C8ECHjSO.js` → `index.web-CyoBDaL1.js`, and `InGamePage-ey1ziH5k.js` → `InGamePage-Drz7-vr_.js`, mtimes 22:49 vs the 22:02 build my tab had loaded). `--delete` removed the **old hashed chunk** my already-loaded SPA still references, so the lazy import 404'd. Verified: `GET …/assets/InGamePage-ey1ziH5k.js` → **HTTP 404**; the server only has the newer `InGamePage-Drz7-vr_.js`. Since `dnd-web-deploy` fires on **every master push touching `dnd-app/`** (frequent), **every active player session breaks on their next route navigation** after a deploy — and there is no service worker / cache to serve the old chunk, and the failed dynamic import is not caught with a "new version — reload" prompt (it just hard-crashes to the error boundary).
+
+**Reproduction:**
+1. Open the web app; navigate around (so an old index is loaded).
+2. Trigger a `dnd-app` redeploy (or wait for one).
+3. Navigate to a lazy route (Play a game / open a page whose chunk wasn't already fetched).
+4. App crashes with "Failed to fetch dynamically imported module".
+
+**Expected behavior:** A redeploy should not hard-crash active sessions. Options: keep old hashed chunks for a grace window (don't `rsync --delete`, or delete on a delay/retention), add a service worker to cache the app shell + chunks, and/or catch failed dynamic imports and prompt "A new version is available — reload" instead of throwing to the error boundary.
+
+**Suggested action:** Drop `--delete` (or add asset retention) in `dnd-web-deploy.yml`; add a lazy-import error handler that triggers a reload-to-latest; consider a PWA service worker for the DTO build.
+
+**Environment:** Solo game · AI DM off · English · Dark · web build
+
+**Related files:** `.github/workflows/dnd-web-deploy.yml` (rsync `--delete`), `dnd-app/src/renderer/src/` route-level `React.lazy`/error boundary, `dnd-app/vite.web.config.ts`
+
+**Console output:** `TypeError: Failed to fetch dynamically imported module: https://bmo.mybmoai.work/DungeonTableOnline/assets/InGamePage-ey1ziH5k.js`
+
+**Note (verified working after reload):** On a fresh page load the **Solo in-game board works**: the battlemap (Wizard's Tower) renders with grid, the DM left sidebar (Characters/NPCs/Allies/Enemies/Places/Bastions/Tables/Party Loot/Combat Log/Journal) is present, the Combat panel (Initiative / Quick Conditions / Monster Lookup), Magic/Dice/Map tabs, drawing tools, View-As selector, macro hotbar, and chat all render, and `/roll 1d20+5` produced a correct result (4+5=9) shown in the dice tray and chat. So the in-game surface itself is functional in the web build; the crash above is specifically the redeploy/stale-chunk issue.
 
 ## Phase 11 — Multiplayer (web-adapted)
 
@@ -224,7 +281,7 @@ Tested: dnd-vtt WEB build (Dungeon Table Online) v2.4.77 — 2026-06-22 · URL: 
 ## Could not test
 The following were not testable in this unattended web run and are genuine environment/dependency blockers (not out-of-scope omissions):
 
-- **In-game surface (Phases 6–10: map/canvas, combat, DM tools, View As, AI-DM solo).** Reaching the in-game board requires either (a) a started multiplayer game — but the host's start control stays **"Waiting for Players…"** until a *distinct* second client joins, and the two-tabs-one-profile setup conflates client identities (see Phase 11), so a clean start could not be driven; or (b) a **Solo** game, which requires a **saved character** as the PC (the builder draft was not saved, and completing+saving a full sheet — equipment, languages, alignment — was not finished in the time available). Net: the map editor, combat tracker, DM panels, View-As, and AI-DM action surface were not exercised in-board this run.
+- **In-game surface — now TESTED (Solo).** Reached the in-game board via a saved character + a Solo campaign → Play. After a fresh load the board works (battlemap render, DM sidebar, Combat/Magic/Dice/Map panels, drawing tools, View-As selector, `/roll` dice). Still not exercised in depth this run: fog/lighting/AoE/walls, the full combat tracker flow, every DM panel, and cross-client View-As (needs a 2nd profile). The redeploy crash on entry is filed as a High finding in Phase 6.
 - **AI Dungeon Master (local providers).** The only supported AI providers are local (Ollama / llama.cpp at `localhost:11434`). The web build is served from `https://bmo.mybmoai.work`, and the Settings → Ollama AI section reports "Ollama is not installed"; a cloud-served browser page generally cannot reach the user's loopback, so the AI DM could not be run (see the Phase 13 Ollama portability finding). No cloud AI creds are configured (known/intended — not listed as a gap).
 - **Full 2-client multiplayer matrix** (lobby ready→start, cross-client HP/token/fog sync, kick/ban-rejoin, host/player/solo rejoin-resume, End Session propagation, Cloud-vs-Self host independence). Blocked by the shared-browser-profile limitation above; needs two separate browsers/profiles or two devices.
 - **Bastion subsystem internals** (facilities, treasury/BP, Advance Time → Bastion Turn, d100 events, Turn Summary). Bastion creation requires a **saved owner PC**, which did not exist this run (see Phase 4).
