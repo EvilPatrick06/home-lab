@@ -32,7 +32,14 @@ const BMO_BASE: string = (import.meta.env.VITE_BMO_BASE as string | undefined) ?
 const ASSET_BASE: string = import.meta.env.BASE_URL ?? '/'
 
 async function bmoFetchJson<T = unknown>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${BMO_BASE}${path}`, { credentials: 'include', ...init })
+  // Default Content-Type for JSON bodies — Flask's request.get_json() returns None
+  // (→ fields read as missing) unless the mimetype is application/json. The registry
+  // mutations (/api/games announce/patch) post a JSON body with no header otherwise.
+  const headers =
+    init?.body != null
+      ? { 'Content-Type': 'application/json', ...((init.headers as Record<string, string> | undefined) ?? {}) }
+      : init?.headers
+  const res = await fetch(`${BMO_BASE}${path}`, { credentials: 'include', ...init, headers })
   if (!res.ok) throw new Error(`BMO ${path} → ${res.status}`)
   return (await res.json()) as T
 }
