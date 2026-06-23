@@ -39,7 +39,7 @@ def run_canary() -> dict:
             result.update(stage="no_clip", detail=f"no wav clips in {_CLIPS_DIR}")
             return _write(result)
 
-        from services.voice_pipeline import VoicePipeline
+        from services.voice.voice_pipeline import VoicePipeline
         vp = VoicePipeline()
 
         t0 = time.time()

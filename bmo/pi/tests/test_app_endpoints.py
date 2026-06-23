@@ -755,7 +755,7 @@ class TestPrometheusMetrics:
         assert "# TYPE bmo_llm_failover_total counter" in body
 
     def test_metrics_includes_voice_stage(self, client):
-        from services import voice_metrics
+        from services.voice import voice_metrics
         voice_metrics.record_stage("stt", 0.5)
         body = client.get("/metrics").get_data(as_text=True)
         assert "bmo_voice_stage_seconds" in body

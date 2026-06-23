@@ -25,7 +25,7 @@ for _mod in ("vlc", "pychromecast", "androidtvremote2", "spidev"):
     sys.modules.setdefault(_mod, MagicMock())
 
 from bots.discord_dm_bot import DMBot
-from services.voice_personality import NPC_PROSODY, get_prosody, normalize_emotion
+from services.voice.voice_personality import NPC_PROSODY, get_prosody, normalize_emotion
 
 
 # ── get_prosody ────────────────────────────────────────────────────

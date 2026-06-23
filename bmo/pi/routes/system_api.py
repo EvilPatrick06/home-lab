@@ -4,7 +4,7 @@ volume/audio/bluetooth/TTS-output, settings/config.
 Extracted from app.py 2026-06-10, PHASE-16 16C. The blueprint carries ABSOLUTE paths
 (spanning /health + /api/...), so it has no url_prefix. Service singletons are resolved
 late via `_app()` (so app.py's test-suite `app.<svc> = mock` monkeypatching keeps working);
-volume helpers come from services.system_audio, dotted settings from services.settings_store.
+volume helpers come from services.voice.system_audio, dotted settings from services.settings_store.
 """
 
 import logging
@@ -16,7 +16,7 @@ import threading
 
 from flask import Blueprint, jsonify, request, send_from_directory
 
-from services import system_audio
+from services.voice import system_audio
 from services.settings_store import load_setting, save_setting
 from state import STATE
 
@@ -806,7 +806,7 @@ def _prometheus_text() -> str:
 
     # Voice pipeline stage latency aggregates
     try:
-        from services import voice_metrics
+        from services.voice import voice_metrics
         m = voice_metrics.get_metrics()
         if m:
             lines.append("# HELP bmo_voice_stage_seconds Voice pipeline stage latency (seconds)")
@@ -879,7 +879,7 @@ def api_metrics_prometheus():
 @system_bp.route("/api/metrics/voice")
 def api_metrics_voice():
     """Per-stage voice-pipeline latency aggregates (count/avg/p50/p95/max seconds)."""
-    from services import voice_metrics
+    from services.voice import voice_metrics
     return jsonify({"stages": voice_metrics.get_metrics()})
 
 

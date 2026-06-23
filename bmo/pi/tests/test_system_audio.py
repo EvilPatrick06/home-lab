@@ -2,7 +2,7 @@
 
 from unittest.mock import MagicMock
 
-from services import system_audio
+from services.voice import system_audio
 
 
 def _fake_run(stdout="", returncode=0):

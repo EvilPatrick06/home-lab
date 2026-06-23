@@ -73,7 +73,7 @@ The Flask app runs directly on the host because it needs low-latency access to h
 | Service | File | Port | Purpose |
 |---------|------|------|---------|
 | Web UI + API | `app.py` | 5000 | Main Flask/SocketIO server |
-| Voice Pipeline | `voice_pipeline.py` | — | Wake word → Groq STT → LLM → Fish TTS |
+| Voice Pipeline | `voice/voice_pipeline.py` | — | Wake word → Groq STT → LLM → Fish TTS |
 | Agent Orchestrator | `agents/orchestrator.py` | — | Routes queries to 20 specialist agents |
 | Cloud Providers | `cloud_providers.py` | — | Gemini/Groq/Fish/Claude API wrappers |
 | Camera | `camera_service.py` | — | picamera2 object detection |

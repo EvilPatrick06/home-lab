@@ -32,13 +32,15 @@ pi/
 │   └── weather_agent.py
 │
 ├── services/                    Service modules — business logic
-│   ├── alert_service.py, audio_output_service.py, calendar_service.py,
-│   ├── list_service.py, location_service.py, music_service.py,
-│   ├── notification_service.py, routine_service.py, scene_service.py,
-│   ├── timer_service.py, weather_service.py
-│   ├── voice_pipeline.py        STT → agent → TTS loop
-│   ├── voice_personality.py     persona injection
-│   ├── bmo_say.py               TTS helper (Fish Audio + piper fallback)
+│   ├── alert_service.py, calendar_service.py, list_service.py,
+│   ├── location_service.py, music_service.py, notification_service.py,
+│   ├── routine_service.py, scene_service.py, timer_service.py, weather_service.py
+│   ├── voice/                   Voice + audio subpackage
+│   │   ├── voice_pipeline.py      STT → agent → TTS loop
+│   │   ├── voice_personality.py   persona injection
+│   │   ├── voice_casting.py, voice_metrics.py, voice_canary.py
+│   │   ├── bmo_say.py             TTS helper (Fish Audio + piper fallback)
+│   │   └── discord_tts.py, audio_output_service.py, system_audio.py
 │   ├── personality_engine.py    adventure time quotes + quips
 │   ├── rag_search.py            RAG over indexed docs
 │   ├── build_rag_indexes.py     index builder

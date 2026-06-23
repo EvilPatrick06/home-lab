@@ -2,7 +2,7 @@
 
 Extracted from app.py 2026-06-10, PHASE-16 16D. The music service is resolved late via
 `_music()` (so a failed init → None → AttributeError → Flask 500, the pre-extraction
-behavior). Auto-unmute helpers come from services.system_audio.
+behavior). Auto-unmute helpers come from services.voice.system_audio.
 """
 
 import logging
@@ -10,7 +10,7 @@ import logging
 from flask import Blueprint, jsonify, request
 
 from services.bmo_logging import fail
-from services.system_audio import get_system_audio_state, unmute_sink
+from services.voice.system_audio import get_system_audio_state, unmute_sink
 
 log = logging.getLogger("bmo")
 

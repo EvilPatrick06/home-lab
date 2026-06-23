@@ -1864,7 +1864,7 @@ class HealthChecker:
         """Surface the synthetic voice-path canary so a silent STT/TTS regression
         (while /health stays green) raises a Discord alert. (BMO-SUGGESTIONS.)"""
         try:
-            from services import voice_canary
+            from services.voice import voice_canary
             status = voice_canary.read_status()
         except Exception:
             status = None

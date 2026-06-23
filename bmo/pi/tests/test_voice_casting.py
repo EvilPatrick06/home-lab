@@ -7,8 +7,8 @@ model and no KOKORO_TTS_URL, so resolve_backend() would otherwise pick fish).
 
 import pytest
 
-from services import voice_casting
-from services.voice_casting import KOKORO_POOL, VoiceCasting
+from services.voice import voice_casting
+from services.voice.voice_casting import KOKORO_POOL, VoiceCasting
 
 _GROUP_OF = {p["id"]: p["group"] for p in KOKORO_POOL}
 

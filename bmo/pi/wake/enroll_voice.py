@@ -76,7 +76,7 @@ def main():
     print("Enrolling voice profile...")
     # Import here so the script can show prompts before loading heavy models
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    from services.voice_pipeline import VoicePipeline
+    from services.voice.voice_pipeline import VoicePipeline
 
     vp = VoicePipeline()
     vp.enroll_speaker(name, clip_paths)

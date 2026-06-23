@@ -29,7 +29,7 @@ def _app():
 
 def _strip_markdown(text: str) -> str:
     """Remove markdown formatting so the web UI shows plain English."""
-    from services.voice_pipeline import VoicePipeline
+    from services.voice.voice_pipeline import VoicePipeline
     return VoicePipeline._strip_markdown(text)
 
 

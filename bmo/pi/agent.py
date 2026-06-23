@@ -16,7 +16,7 @@ import ollama as ollama_client
 
 from services.cloud_providers import cloud_chat, gemini_chat_stream, groq_llm_chat_stream, PRIMARY_MODEL, ROUTER_MODEL, DND_MODEL
 from dev.dev_tools import dispatch_tool
-from services.voice_personality import parse_response_tags
+from services.voice.voice_personality import parse_response_tags
 
 CODE_AGENT_RESUME_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/code_agent_resume.json")
 from agents.settings import init_settings
