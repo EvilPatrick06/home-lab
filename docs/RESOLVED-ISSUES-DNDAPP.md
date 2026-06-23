@@ -12,6 +12,15 @@
 
 ---
 
+### [2026-06-22] No global command palette / quick-action launcher (Ctrl+K) for the ~92 modals and actions
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Added a global Ctrl/Cmd+K command palette (CommandPalette.tsx, wired into App.tsx): a search box + keyboard-navigable (up/down/enter/esc) action list. v1 registers top-level navigation (home, characters, create character, make/join campaign, library, bastions, calendar, settings, about) plus global actions (replay onboarding tour, open log folder) via a simple action registry that can be extended toward the full modal set. en+es i18n (15 keys); parity-gated; tsc web green.
+
+
+---
+
 ### [2026-06-22] No first-run guided onboarding / tour for new users (only targeted Ollama + screen-reader prompts)
 
 - **Resolved by:** dnd-resolver (automated)

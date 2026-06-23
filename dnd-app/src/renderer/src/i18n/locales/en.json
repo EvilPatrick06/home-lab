@@ -5494,6 +5494,25 @@
       }
     }
   },
+  "commandPalette": {
+    "placeholder": "Type a command or search…",
+    "empty": "No matching actions",
+    "hint": "↑↓ to navigate · Enter to run · Esc to close",
+    "actions": {
+      "home": "Go to Home",
+      "characters": "View Characters",
+      "createCharacter": "Create Character",
+      "makeCampaign": "Create Campaign",
+      "joinGame": "Join Game",
+      "library": "Open Library",
+      "bastions": "Open Bastions",
+      "calendar": "Open Calendar",
+      "settings": "Open Settings",
+      "about": "About",
+      "replayTour": "Replay welcome tour",
+      "openLog": "Open log folder"
+    }
+  },
   "notify": {
     "creatureActions": {
       "shortRestFailed": "A short-rest update failed to apply: {{error}}",

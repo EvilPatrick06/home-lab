@@ -5494,6 +5494,25 @@
       }
     }
   },
+  "commandPalette": {
+    "placeholder": "Escribe un comando o busca…",
+    "empty": "No hay acciones coincidentes",
+    "hint": "↑↓ para navegar · Enter para ejecutar · Esc para cerrar",
+    "actions": {
+      "home": "Ir al inicio",
+      "characters": "Ver personajes",
+      "createCharacter": "Crear personaje",
+      "makeCampaign": "Crear campaña",
+      "joinGame": "Unirse a una partida",
+      "library": "Abrir biblioteca",
+      "bastions": "Abrir bastiones",
+      "calendar": "Abrir calendario",
+      "settings": "Abrir ajustes",
+      "about": "Acerca de",
+      "replayTour": "Repetir el recorrido de bienvenida",
+      "openLog": "Abrir carpeta de registros"
+    }
+  },
   "notify": {
     "creatureActions": {
       "shortRestFailed": "No se pudo aplicar una actualización de descanso corto: {{error}}",

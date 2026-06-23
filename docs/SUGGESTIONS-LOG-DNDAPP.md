@@ -21,7 +21,6 @@ New entries go at the TOP of their section (newest first).
 
 ---
 
-### [2026-06-22] No global command palette / quick-action launcher (Ctrl+K) for the ~92 modals and actions
 ### [2026-06-22] `SettingsPage.tsx` is a ~1,950-LOC god component — split into per-section panels
 
 - **Category:** debt, future-idea

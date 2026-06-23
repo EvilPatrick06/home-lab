@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router'
 import { DiceOverlay } from './components/game/dice3d'
 import { ErrorBoundary, ShortcutsOverlay, Spinner, ToastContainer } from './components/ui'
 import ColorblindFilters from './components/ui/ColorblindFilters'
+import CommandPalette from './components/ui/CommandPalette'
 import GlobalSettingsButton from './components/ui/GlobalSettingsButton'
 import OllamaFirstRunPrompt from './components/ui/OllamaFirstRunPrompt'
 import OnboardingTour from './components/ui/OnboardingTour'
@@ -219,6 +220,7 @@ function App(): JSX.Element {
       <OllamaFirstRunPrompt />
       <ScreenReaderPrompt />
       <OnboardingTour />
+      <CommandPalette />
       <ShortcutsOverlay open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
       <GlobalSettingsButton />
       <main id="main-content">
