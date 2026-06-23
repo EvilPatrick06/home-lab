@@ -89,24 +89,6 @@ First-run UX is limited to two narrow, single-purpose prompts wired into `App.ts
 
 **Related files:** `src/main/log.ts`, `src/main/index.ts`, `src/renderer/src/pages/SettingsPage.tsx`, `src/shared/ipc-channels.ts`
 
-### [2026-06-22] macOS target is configured but never built or shipped (no `macos-latest` in the release matrix)
-
-- **Category:** portability, future-idea
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-suggestor
-- **During:** dnd-app tree review (release workflow vs package.json build config)
-
-**Description:**
-`package.json` defines a full mac build path (`build:mac`, `release:mac`, and a `build.mac` electron-builder block producing DMG + ZIP) and the README documents macOS as a supported-in-principle target, but `.github/workflows/release.yml`'s build matrix is only `windows-latest` + `ubuntu-latest` — zero `macos`/`dmg` references in the workflow. So the mac config is dormant: it is never exercised in CI and no macOS artifact is ever published. The result is config that can silently rot (electron-builder mac options drift untested) and a documented platform users cannot actually download. electron-builder cannot produce signed/notarized mac artifacts off a non-mac runner, so closing this needs a `macos-latest` matrix leg, not just a flag.
-
-**Proposed fix / improvement:**
-- [ ] Add a `macos-latest` leg to the `build` matrix in `release.yml` (even unsigned, to start) so the mac config is at least built and smoke-tested each release.
-- [ ] Decide on signing/notarization (Developer ID + notarytool) before publishing mac artifacts, or clearly mark mac builds as unsigned in the release notes.
-- [ ] If macOS support is deferred indefinitely, note that explicitly next to the `build.mac` config so contributors know it is intentionally dormant.
-
-**Related files:** `.github/workflows/release.yml`, `dnd-app/package.json`, `dnd-app/README.md`
-
 ### [2026-06-22] `SettingsPage.tsx` is a ~1,950-LOC god component — split into per-section panels
 
 - **Category:** debt, future-idea

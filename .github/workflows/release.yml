@@ -105,9 +105,18 @@ jobs:
         include:
           - os: windows-latest
             builder-flag: '--win'
+            experimental: false
           - os: ubuntu-latest
             builder-flag: '--linux'
+            experimental: false
+          # macOS (dmg + zip) — unsigned for now and NON-BLOCKING, so a mac
+          # failure never blocks the Win/Linux release. Add Apple signing /
+          # notarization secrets to promote it to a required, signed artifact.
+          - os: macos-latest
+            builder-flag: '--mac'
+            experimental: true
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.experimental }}
     defaults:
       run:
         working-directory: dnd-app
@@ -158,6 +167,9 @@ jobs:
           # (on-LAN is unaffected; off-LAN cloud falls back to login-gated).
           CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
           CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+          # macOS: no Apple signing cert configured yet — skip signing so the mac
+          # leg produces an unsigned build instead of failing on cert discovery.
+          CSC_IDENTITY_AUTO_DISCOVERY: false
         run: |
           npm run build:index
           npx electron-vite build
@@ -173,8 +185,11 @@ jobs:
           path: |
             dnd-app/dist/*.exe
             dnd-app/dist/*.AppImage
+            dnd-app/dist/*.dmg
+            dnd-app/dist/*-mac.zip
             dnd-app/dist/latest.yml
             dnd-app/dist/latest-linux.yml
+            dnd-app/dist/latest-mac.yml
             dnd-app/dist/*.blockmap
           if-no-files-found: error
           retention-days: 1

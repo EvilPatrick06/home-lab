@@ -12,6 +12,30 @@
 
 ---
 
+### [2026-06-22] macOS target is configured but never built or shipped (no `macos-latest` in the release matrix)
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Added a macos-latest leg (`--mac`, dmg+zip) to the release.yml build matrix. It's NON-BLOCKING (continue-on-error via a matrix `experimental` flag) so a mac failure never blocks the Win/Linux release, and builds unsigned (CSC_IDENTITY_AUTO_DISCOVERY: false) since no Apple cert is configured. Added mac artifact globs (*.dmg, *-mac.zip, latest-mac.yml) to the upload + they flow to the release via the existing merge-multiple download. To promote mac to a required, signed, notarized artifact, add Apple signing secrets and flip experimental:false + extend the publish verify list.
+
+- **Category:** portability, future-idea
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (release workflow vs package.json build config)
+
+**Description:**
+`package.json` defines a full mac build path (`build:mac`, `release:mac`, and a `build.mac` electron-builder block producing DMG + ZIP) and the README documents macOS as a supported-in-principle target, but `.github/workflows/release.yml`'s build matrix is only `windows-latest` + `ubuntu-latest` — zero `macos`/`dmg` references in the workflow. So the mac config is dormant: it is never exercised in CI and no macOS artifact is ever published. The result is config that can silently rot (electron-builder mac options drift untested) and a documented platform users cannot actually download. electron-builder cannot produce signed/notarized mac artifacts off a non-mac runner, so closing this needs a `macos-latest` matrix leg, not just a flag.
+
+**Proposed fix / improvement:**
+- [ ] Add a `macos-latest` leg to the `build` matrix in `release.yml` (even unsigned, to start) so the mac config is at least built and smoke-tested each release.
+- [ ] Decide on signing/notarization (Developer ID + notarytool) before publishing mac artifacts, or clearly mark mac builds as unsigned in the release notes.
+- [ ] If macOS support is deferred indefinitely, note that explicitly next to the `build.mac` config so contributors know it is intentionally dormant.
+
+**Related files:** `.github/workflows/release.yml`, `dnd-app/package.json`, `dnd-app/README.md`
+
+---
+
 ### [2026-06-22] Inconsistent casing in the `dnd-app/docs/phases/` tree (`completed` vs `QA/Completed`, `INSTRUCTIONS.md` vs `QA/instructions.md`)
 
 - **Resolved by:** dnd-resolver (automated)
