@@ -65,6 +65,8 @@ Body optional for trivial changes. For multi-file refactors, describe:
 
 If this session runs as an **automated/scheduled agent** (scanner, QA, phase-maker, phase-executer, log-resolver, etc.), do **not** commit to `master`. Work on `auto/<agent-id>` in your own git worktree (`git worktree add /home/patrick/home-lab-trees/<agent-id> -B auto/<agent-id> origin/master`), commit there, and `git push -u origin auto/<agent-id>`. Never touch master's working tree, never rebase shared state, never force-push another agent's branch. A daily integrator merges clean branches into `master` and reviews Dependabot PRs. An interactive Claude Code chat may still use `master` directly. Full spec: [`docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`](docs/AUTOMATED-AGENT-GIT-WORKFLOW.md).
 
+The repo-wide implement → verify → commit → release process for automated agents (ALL domains — dnd-app, bmo, dungeon-scholar) is [`dnd-app/docs/phases/INSTRUCTIONS.md`](dnd-app/docs/phases/INSTRUCTIONS.md) (canonical, not dnd-app-only). Per that process, automated agents **attempt risky / large fixes rather than deferring them** — the `auto/*` branch + CI gate + (for resolver work) the user's approval + fix-forward is the safety net; size or risk alone is never a reason to leave or hand a fix back. Stop short only if (a) genuinely blocked, or (b) a new human decision the scope didn't cover is needed (INSTRUCTIONS.md rule 27).
+
 ### Safety rules (Claude-specific)
 
 - **Never** `sudo rm -rf` without confirming the path twice

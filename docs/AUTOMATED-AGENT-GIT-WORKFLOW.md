@@ -7,6 +7,14 @@
 > `dnd-app/docs/phases/QA/instructions.md` reference THIS file rather than
 > restating the rules. If the workflow changes, change it here.
 
+## Scope & stance (read first)
+
+**This file = git mechanics. [`dnd-app/docs/phases/INSTRUCTIONS.md`](../dnd-app/docs/phases/INSTRUCTIONS.md) = the execution process.** INSTRUCTIONS.md is the **canonical implement → verify → commit → release loop for EVERY automated/scheduled agent across ALL domains** — `dnd-app/`, `bmo/`, `dungeon-scholar/`, and any cross-cutting resolver. Despite its path under `dnd-app/docs/`, it is **repo-wide, not dnd-app-only**; a bmo- or dungeon-scholar-scoped agent follows the same branch/CI/fix-forward/release workflow (only the per-domain build/test commands differ). This file governs *how agents reach `master`* (branch + worktree + integrator); INSTRUCTIONS.md governs *how agents execute and verify the work itself*.
+
+**Fix-forward, attempt-risky stance.** Automated agents **take on risky and large fixes — they implement them rather than deferring, leaving, or documenting-and-punting.** Size or risk alone is never a reason to hand work back. The safety net is exactly the machinery in this file: every automated fix is isolated on an `auto/*` branch, gated by CI, merged only by the integrator, and — for user-approved resolver work — already approved; the app is in testing (no real users); the culture is fix-forward on red. An agent stops short only when **(a)** it is genuinely blocked / the work is impossible, or **(b)** the work needs a NEW human decision the approval/scope did not cover (a judgment / product call — not "this is big"). Full statement: INSTRUCTIONS.md rule 27.
+
+> The integrator's "leave it for the user" cases below (a non-clean branch in Rule 3A, a major / breaking Dependabot bump in Rule 3B) are exactly those (a)/(b) exceptions — a red or conflicting merge is a genuine blocker, and a major-version dependency bump is a new human decision about a third-party breaking change. They are **not** an agent deferring its own fix for being risky or large.
+
 ## Why this exists
 
 Around 2026-06-22, ~16 scheduled scanner/QA/phase agents all committed to the

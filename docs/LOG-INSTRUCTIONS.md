@@ -4,6 +4,8 @@ How to log discoveries. Read this file BEFORE logging.
 
 > **Instructions file — no actual log entries here.** Entries are split across active logs by topic + domain.
 
+> **Process pointer.** This file is *where to log* out-of-scope / future work. *How* automated agents execute, verify, branch, and release — repo-wide across `dnd-app/`, `bmo/`, and `dungeon-scholar/` — is [`../dnd-app/docs/phases/INSTRUCTIONS.md`](../dnd-app/docs/phases/INSTRUCTIONS.md) (canonical for all domains, not dnd-app-only), with git mechanics in [`AUTOMATED-AGENT-GIT-WORKFLOW.md`](./AUTOMATED-AGENT-GIT-WORKFLOW.md). Logging a *future-idea / deferred-backlog* item here is for work genuinely **out of the current task's scope** — it is NOT a license to defer an in-scope fix for being risky or large (those get implemented; see INSTRUCTIONS.md rule 27).
+
 ---
 
 ## Which log goes where
