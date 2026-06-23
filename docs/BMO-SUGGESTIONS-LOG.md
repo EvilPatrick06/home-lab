@@ -160,22 +160,6 @@ The owner's identity is baked into source in **~51 places**. The social bot's pe
 
 ---
 
-### [2026-06-22] Duplicate `Two IDE implementations coexist` section in `DESIGN-CONSTRAINTS.md`
-
-- **Category:** debt, docs
-- **Severity:** low
-- **Domain:** bmo
-- **Discovered by:** bmo-cleanup
-- **During:** Automated cleanup scan of the bmo/ tree.
-
-**Description:**
-`bmo/docs/DESIGN-CONSTRAINTS.md` contains the entire `## Two IDE implementations coexist — production IDE is web/ + routes/ide.py, NOT ide_app/` section **twice, verbatim** (currently lines ~47–58 and ~60–71, each ending with the same `_Relocated from docs/BMO-SUGGESTIONS-LOG.md on 2026-06-22._` footer). Looks like the 2026-06-22 relocation pasted the block in twice. Harmless at runtime but it bloats the doc and a future edit to one copy will silently diverge from the other. Just delete one of the two identical copies.
-
-**Proposed fix / improvement:**
-- [ ] Remove one of the two identical `Two IDE implementations coexist` sections, leaving a single copy.
-
-**Related files:** `bmo/docs/DESIGN-CONSTRAINTS.md`
-
 ---
 
 ### [2026-06-22] `discord_social_bot.py` is a 7k-line monolith — split into a package
@@ -197,57 +181,7 @@ The owner's identity is baked into source in **~51 places**. The social bot's pe
 
 ---
 
-### [2026-06-22] Production module `agents/test_agent.py` collides with the `test_*.py` pytest glob
-
-- **Category:** debt, design-gotcha
-- **Severity:** low
-- **Domain:** bmo
-- **Discovered by:** bmo-cleanup
-- **During:** Automated cleanup scan of the bmo/ tree.
-
-**Description:**
-`bmo/pi/agents/test_agent.py` is a **production** module (BMO's "testing agent" — runs tests, analyzes failures), but its name matches `pytest.ini`'s `python_files = test_*.py` discovery glob. It is safe today only because `testpaths = tests` scopes default collection to `tests/`; however `agents` is in the `.coveragerc` source list, and any `pytest agents/` invocation, IDE auto-discovery, or a future `testpaths` change would try to collect this non-test module and likely error on import. Confusing too: the real agent tests live in `tests/agents/test_*.py`, so a reader greps `test_agent` and gets both the production agent and its concept-namesake. Renaming the production module (e.g. `testing_agent.py` / `tests_agent.py`) removes the footgun.
-
-**Proposed fix / improvement:**
-- [ ] Rename `agents/test_agent.py` to a non-`test_`-prefixed name (e.g. `testing_agent.py`); update its import/registration in `agents/_registry.py`, `agents/__init__.py`, the router, and the `pi/README.md` tree.
-
-**Related files:** `bmo/pi/agents/test_agent.py`, `bmo/pi/agents/_registry.py`, `bmo/pi/pytest.ini`, `bmo/pi/.coveragerc`
-
 ---
-
-### [2026-06-22] `authorize_calendar.py` and `reauth_calendar.py` duplicate OAuth constants/paths
-
-- **Category:** debt
-- **Severity:** info
-- **Domain:** bmo
-- **Discovered by:** bmo-cleanup
-- **During:** Automated cleanup scan of the bmo/ tree.
-
-**Description:**
-The two Google Calendar OAuth helpers in `services/` legitimately differ in flow (`authorize_calendar.py` = browser `InstalledAppFlow`; `reauth_calendar.py` = headless manual code exchange), but they each re-declare the same `SCOPES`, the same `config/` dir resolution, and the same `credentials.json` / `token.json` path logic independently. If the scope list or token location ever changes, both must be edited in lock-step or they drift. Minor — a small shared helper (or module-level constants imported by both) would keep them in sync.
-
-**Proposed fix / improvement:**
-- [ ] Factor `SCOPES` + the `credentials.json`/`token.json` path resolution into one place (e.g. `calendar_service.py` or a tiny `calendar_oauth_paths` helper) and import it in both scripts.
-
-**Related files:** `bmo/pi/services/authorize_calendar.py`, `bmo/pi/services/reauth_calendar.py`, `bmo/pi/services/calendar_service.py`
-
-### [2026-06-22] Remove stale one-off `dev/patch_*.py` + `revert_power.py` app.py-mutating scripts
-
-- **Category:** debt
-- **Severity:** low
-- **Domain:** bmo
-- **Discovered by:** bmo-cleanup
-- **During:** Automated cleanup scan of the bmo/ tree.
-
-**Description:**
-`bmo/pi/dev/` holds six throwaway, one-shot scripts that read `../app.py`, do string-replacement surgery on it, and write it back: `patch_debug.py`, `patch_keepalive.py`, `patch_retry.py`, `patch_revert.py`, `patch_wol.py`, and `revert_power.py`. They were all last touched 2026-04-24 to fix the (now-resolved) RCA-TV power/WoL endpoint, and the comments confirm they are single-use migrations ("Revert to POWER for everything - WAKEUP doesn't work on this RCA TV", "Add WoL fallback...", etc.). They are no longer referenced anywhere except the `pi/README.md` directory tree. Keeping live "edit app.py in place" scripts around is a footgun — a future agent could re-run one and silently corrupt `app.py`.
-
-**Proposed fix / improvement:**
-- [ ] Confirm the corresponding changes are already merged into `app.py` (they are — the TV power work is resolved).
-- [ ] Delete the six scripts, or move them under `_archive/` if history is wanted.
-- [ ] Drop their line from the `pi/README.md` directory tree.
-
-**Related files:** `bmo/pi/dev/patch_debug.py`, `bmo/pi/dev/patch_keepalive.py`, `bmo/pi/dev/patch_retry.py`, `bmo/pi/dev/patch_revert.py`, `bmo/pi/dev/patch_wol.py`, `bmo/pi/dev/revert_power.py`, `bmo/pi/README.md`
 
 ---
 
@@ -269,23 +203,6 @@ Four tracked systemd unit files live in two different directories. Three sit tog
 **Related files:** `bmo/pi/ide_app/bmo-ide.service`, `bmo/pi/kiosk/bmo-kiosk.service`, `bmo/pi/kiosk/bmo-dm-bot.service`, `bmo/pi/kiosk/bmo-social-bot.service`, `bmo/pi/kiosk/install-kiosk.sh`
 
 ---
-
-### [2026-06-22] `dev/` benchmark layout is inconsistent (loose files vs `benchmarks/` subdir)
-
-- **Category:** debt
-- **Severity:** low
-- **Domain:** bmo
-- **Discovered by:** bmo-cleanup
-- **During:** Automated cleanup scan of the bmo/ tree.
-
-**Description:**
-`bmo/pi/dev/` keeps four benchmarks as loose files at its root (`benchmark_audio.py`, `benchmark_full.py`, `benchmark_llm.py`, `benchmark_personality.py`) while two others live in a `dev/benchmarks/` subdir (`gemini_stream_probe.py`, `thinking_budget_sweep.py`). Diagnostics were already consolidated into `dev/diagnostics/` in a prior pass, so the half-migrated benchmark split is the odd one out. Moving the four loose `benchmark_*.py` into `dev/benchmarks/` would make `dev/` uniform (benchmarks/, diagnostics/, ai-temp/ + true dev tools at root).
-
-**Proposed fix / improvement:**
-- [ ] Move `dev/benchmark_*.py` into `dev/benchmarks/` (rename to drop the `benchmark_` prefix, or keep it — just be consistent).
-- [ ] Update any docs/README tree references.
-
-**Related files:** `bmo/pi/dev/benchmark_audio.py`, `bmo/pi/dev/benchmark_full.py`, `bmo/pi/dev/benchmark_llm.py`, `bmo/pi/dev/benchmark_personality.py`, `bmo/pi/dev/benchmarks/`
 
 ---
 
@@ -339,24 +256,6 @@ Off-Pi, `init_services()` wraps each hardware service (LED, OLED, camera, mic/vo
 - [ ] Run it on a slow cadence (cron / systemd timer) and feed pass/fail + latency into `monitoring.py` so the existing Discord alert path fires on regression.
 
 **Related files:** `dev/benchmark_full.py`, `services/monitoring.py`, `services/voice_pipeline.py`, `wake/clips`, `health_check.sh`
-
-### [2026-06-22] Pin one Node version for the whole monorepo (.nvmrc / engines) instead of repeating `node-version: 22`
-
-- **Category:** portability
-- **Severity:** low
-- **Domain:** both
-- **Discovered by:** overall-suggestor
-- **During:** cross-cutting repo-wide scan
-
-**Description:**
-`node-version: 22` is hardcoded in 7 places across 5 workflows (`dnd-app-ci`, `security-audit`, `dnd-app-validate-5e`, `release` ×3, `deploy`). There is no root `.nvmrc`, no `engines.node` field in any package.json (`dnd-app` / `dungeon-scholar` / `oracle-worker`), and no Volta pin. Local contributors can build on any Node, and bumping the toolchain means hand-editing every workflow.
-
-**Proposed fix / improvement:**
-- [ ] Add a root `.nvmrc` (e.g. `22`).
-- [ ] Add a matching `engines.node` to each project package.json.
-- [ ] Switch workflows to `node-version-file: .nvmrc` so the version lives in one place.
-
-**Related files:** `.github/workflows/*.yml`, `dnd-app/package.json`, `dungeon-scholar/package.json`, `oracle-worker/package.json`
 
 ### [2026-06-22] No PR-time CI gate for dungeon-scholar or oracle-worker
 
@@ -445,35 +344,6 @@ The repo carries four overlapping AI-assistant guides — `AGENTS.md` (12.8K), `
 - [ ] Update the ARCHITECTURE.md filesystem-layout tree and the cron example to the current `home-lab/bmo/pi/...` paths (script at `pi/scripts/health_check.sh`); confirm the live crontab path while doing so.
 
 **Related files:** `bmo/docs/ARCHITECTURE.md`, `bmo/pi/scripts/health_check.sh`, `bmo/pi/scripts/deploy.sh`
-
-### [2026-06-22] `pi/README.md` layout says "5 AI agents" but `agents/` holds ~40 modules
-
-- **Category:** docs
-- **Severity:** info
-- **Domain:** bmo
-- **Discovered by:** bmo-cleanup
-- **During:** Automated cleanup scan of the bmo/ tree.
-
-**Description:**
-`bmo/pi/README.md` (Layout section) labels the `agents/` directory "5 AI agents — each owns one capability", but the directory actually contains ~40 agent modules (the README's own file list right below the label enumerates them all). The "5" is stale from an earlier era. Cheap to fix and avoids misleading new contributors about the agent count/architecture.
-
-**Proposed fix / improvement:**
-- [ ] Update the `agents/` one-liner in `pi/README.md` to reflect the real count (or drop the hard number, e.g. "AI agents — each owns one capability").
-
-**Related files:** `bmo/pi/README.md`
-
-### [2026-06-22] Misspelled static asset filename `PrimeVIdeo.png`
-
-- **Category:** debt
-- **Severity:** info
-- **Domain:** bmo
-- **Discovered by:** bmo-cleanup
-- **During:** Automated cleanup scan of the bmo/ tree.
-
-**Description:**
-The TV-app launcher image `bmo/pi/web/static/img/PrimeVIdeo.png` has a capitalization typo (`VIdeo` instead of `Video`). It works today because `web/templates/index.html:1163` references it with the exact same misspelling, but the inconsistent casing is a small naming smell next to its siblings (`Netflix.png`, `YouTube.png`, `Plex.png`, etc.) and is a portability hazard on case-sensitive vs case-insensitive filesystems. Low priority — only worth fixing alongside other `index.html` asset churn (rename file + update the one `<img src>`).
-
-**Related files:** `bmo/pi/web/static/img/PrimeVIdeo.png`, `bmo/pi/web/templates/index.html`
 
 ---
 

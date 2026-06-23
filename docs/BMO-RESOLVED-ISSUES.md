@@ -12,6 +12,386 @@
 
 ---
 
+### [2026-06-22] Duplicate `Two IDE implementations coexist` section in `DESIGN-CONSTRAINTS.md`
+
+- **Category:** debt, docs
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+`bmo/docs/DESIGN-CONSTRAINTS.md` contains the entire `## Two IDE implementations coexist — production IDE is web/ + routes/ide.py, NOT ide_app/` section **twice, verbatim** (currently lines ~47–58 and ~60–71, each ending with the same `_Relocated from docs/BMO-SUGGESTIONS-LOG.md on 2026-06-22._` footer). Looks like the 2026-06-22 relocation pasted the block in twice. Harmless at runtime but it bloats the doc and a future edit to one copy will silently diverge from the other. Just delete one of the two identical copies.
+
+**Proposed fix / improvement:**
+- [ ] Remove one of the two identical `Two IDE implementations coexist` sections, leaving a single copy.
+
+**Related files:** `bmo/docs/DESIGN-CONSTRAINTS.md`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Removed the duplicated copy of the section (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Production module `agents/test_agent.py` collides with the `test_*.py` pytest glob
+
+- **Category:** debt, design-gotcha
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+`bmo/pi/agents/test_agent.py` is a **production** module (BMO's "testing agent" — runs tests, analyzes failures), but its name matches `pytest.ini`'s `python_files = test_*.py` discovery glob. It is safe today only because `testpaths = tests` scopes default collection to `tests/`; however `agents` is in the `.coveragerc` source list, and any `pytest agents/` invocation, IDE auto-discovery, or a future `testpaths` change would try to collect this non-test module and likely error on import. Confusing too: the real agent tests live in `tests/agents/test_*.py`, so a reader greps `test_agent` and gets both the production agent and its concept-namesake. Renaming the production module (e.g. `testing_agent.py` / `tests_agent.py`) removes the footgun.
+
+**Proposed fix / improvement:**
+- [ ] Rename `agents/test_agent.py` to a non-`test_`-prefixed name (e.g. `testing_agent.py`); update its import/registration in `agents/_registry.py`, `agents/__init__.py`, the router, and the `pi/README.md` tree.
+
+**Related files:** `bmo/pi/agents/test_agent.py`, `bmo/pi/agents/_registry.py`, `bmo/pi/pytest.ini`, `bmo/pi/.coveragerc`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Renamed to agents/testing_agent.py and updated the _registry import path (branch `auto/bmo-resolver`).
+
+### [2026-06-22] `authorize_calendar.py` and `reauth_calendar.py` duplicate OAuth constants/paths
+
+- **Category:** debt
+- **Severity:** info
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+The two Google Calendar OAuth helpers in `services/` legitimately differ in flow (`authorize_calendar.py` = browser `InstalledAppFlow`; `reauth_calendar.py` = headless manual code exchange), but they each re-declare the same `SCOPES`, the same `config/` dir resolution, and the same `credentials.json` / `token.json` path logic independently. If the scope list or token location ever changes, both must be edited in lock-step or they drift. Minor — a small shared helper (or module-level constants imported by both) would keep them in sync.
+
+**Proposed fix / improvement:**
+- [ ] Factor `SCOPES` + the `credentials.json`/`token.json` path resolution into one place (e.g. `calendar_service.py` or a tiny `calendar_oauth_paths` helper) and import it in both scripts.
+
+**Related files:** `bmo/pi/services/authorize_calendar.py`, `bmo/pi/services/reauth_calendar.py`, `bmo/pi/services/calendar_service.py`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Extracted shared paths/scopes to services/calendar_oauth_config.py (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Remove stale one-off `dev/patch_*.py` + `revert_power.py` app.py-mutating scripts
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+`bmo/pi/dev/` holds six throwaway, one-shot scripts that read `../app.py`, do string-replacement surgery on it, and write it back: `patch_debug.py`, `patch_keepalive.py`, `patch_retry.py`, `patch_revert.py`, `patch_wol.py`, and `revert_power.py`. They were all last touched 2026-04-24 to fix the (now-resolved) RCA-TV power/WoL endpoint, and the comments confirm they are single-use migrations ("Revert to POWER for everything - WAKEUP doesn't work on this RCA TV", "Add WoL fallback...", etc.). They are no longer referenced anywhere except the `pi/README.md` directory tree. Keeping live "edit app.py in place" scripts around is a footgun — a future agent could re-run one and silently corrupt `app.py`.
+
+**Proposed fix / improvement:**
+- [ ] Confirm the corresponding changes are already merged into `app.py` (they are — the TV power work is resolved).
+- [ ] Delete the six scripts, or move them under `_archive/` if history is wanted.
+- [ ] Drop their line from the `pi/README.md` directory tree.
+
+**Related files:** `bmo/pi/dev/patch_debug.py`, `bmo/pi/dev/patch_keepalive.py`, `bmo/pi/dev/patch_retry.py`, `bmo/pi/dev/patch_revert.py`, `bmo/pi/dev/patch_wol.py`, `bmo/pi/dev/revert_power.py`, `bmo/pi/README.md`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Deleted dev/patch_*.py + revert_power.py and updated the README tree (branch `auto/bmo-resolver`).
+
+### [2026-06-22] `dev/` benchmark layout is inconsistent (loose files vs `benchmarks/` subdir)
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+`bmo/pi/dev/` keeps four benchmarks as loose files at its root (`benchmark_audio.py`, `benchmark_full.py`, `benchmark_llm.py`, `benchmark_personality.py`) while two others live in a `dev/benchmarks/` subdir (`gemini_stream_probe.py`, `thinking_budget_sweep.py`). Diagnostics were already consolidated into `dev/diagnostics/` in a prior pass, so the half-migrated benchmark split is the odd one out. Moving the four loose `benchmark_*.py` into `dev/benchmarks/` would make `dev/` uniform (benchmarks/, diagnostics/, ai-temp/ + true dev tools at root).
+
+**Proposed fix / improvement:**
+- [ ] Move `dev/benchmark_*.py` into `dev/benchmarks/` (rename to drop the `benchmark_` prefix, or keep it — just be consistent).
+- [ ] Update any docs/README tree references.
+
+**Related files:** `bmo/pi/dev/benchmark_audio.py`, `bmo/pi/dev/benchmark_full.py`, `bmo/pi/dev/benchmark_llm.py`, `bmo/pi/dev/benchmark_personality.py`, `bmo/pi/dev/benchmarks/`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Moved loose benchmark_*.py into dev/benchmarks/ (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Pin one Node version for the whole monorepo (.nvmrc / engines) instead of repeating `node-version: 22`
+
+- **Category:** portability
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** cross-cutting repo-wide scan
+
+**Description:**
+`node-version: 22` is hardcoded in 7 places across 5 workflows (`dnd-app-ci`, `security-audit`, `dnd-app-validate-5e`, `release` ×3, `deploy`). There is no root `.nvmrc`, no `engines.node` field in any package.json (`dnd-app` / `dungeon-scholar` / `oracle-worker`), and no Volta pin. Local contributors can build on any Node, and bumping the toolchain means hand-editing every workflow.
+
+**Proposed fix / improvement:**
+- [ ] Add a root `.nvmrc` (e.g. `22`).
+- [ ] Add a matching `engines.node` to each project package.json.
+- [ ] Switch workflows to `node-version-file: .nvmrc` so the version lives in one place.
+
+**Related files:** `.github/workflows/*.yml`, `dnd-app/package.json`, `dungeon-scholar/package.json`, `oracle-worker/package.json`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Added root .nvmrc; workflows now use node-version-file (branch `auto/bmo-resolver`).
+
+### [2026-06-22] `pi/README.md` layout says "5 AI agents" but `agents/` holds ~40 modules
+
+- **Category:** docs
+- **Severity:** info
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+`bmo/pi/README.md` (Layout section) labels the `agents/` directory "5 AI agents — each owns one capability", but the directory actually contains ~40 agent modules (the README's own file list right below the label enumerates them all). The "5" is stale from an earlier era. Cheap to fix and avoids misleading new contributors about the agent count/architecture.
+
+**Proposed fix / improvement:**
+- [ ] Update the `agents/` one-liner in `pi/README.md` to reflect the real count (or drop the hard number, e.g. "AI agents — each owns one capability").
+
+**Related files:** `bmo/pi/README.md`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Corrected to 40+ agent modules and refreshed the dev/ tree (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Misspelled static asset filename `PrimeVIdeo.png`
+
+- **Category:** debt
+- **Severity:** info
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+The TV-app launcher image `bmo/pi/web/static/img/PrimeVIdeo.png` has a capitalization typo (`VIdeo` instead of `Video`). It works today because `web/templates/index.html:1163` references it with the exact same misspelling, but the inconsistent casing is a small naming smell next to its siblings (`Netflix.png`, `YouTube.png`, `Plex.png`, etc.) and is a portability hazard on case-sensitive vs case-insensitive filesystems. Low priority — only worth fixing alongside other `index.html` asset churn (rename file + update the one `<img src>`).
+
+**Related files:** `bmo/pi/web/static/img/PrimeVIdeo.png`, `bmo/pi/web/templates/index.html`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Verified already correct in tree (PrimeVideo.png); stale observation (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Discord DM + Social bots swallow startup crashes and exit 0 — `Restart=on-failure` never fires; bots stay down indefinitely
+
+- **Category:** bug
+- **Severity:** high
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** automated bmo error scan (read-only journal review + code read)
+
+**Description:**
+Both Discord bots catch any startup exception in their top-level run coroutine, log it, and return normally instead of re-raising. Because the process then exits 0, systemd `Restart=on-failure` does not trigger, so a single startup crash takes the bot down until a human restarts it. Observed live: both `bmo-dm-bot` and `bmo-social-bot` crashed at the 2026-06-20 00:45 boot and have been `inactive (dead)` for 2+ days (`systemctl is-active` returns `inactive` for both; no process running).
+
+**Reproduction (if bug):**
+1. Cause `await _bot.start(...)` to raise on startup (e.g. a transient network/TLS failure at boot).
+2. The `except Exception as e:` block logs "DM bot crashed" / "Social bot crashed" and the coroutine returns.
+3. `asyncio.run(...)` / `run_until_complete(...)` completes; process exits 0.
+4. Observed: systemd logs `Deactivated successfully` (status=0/SUCCESS); `Restart=on-failure` does not restart; bot stays down.
+
+**Expected behavior (if bug):** an unexpected startup crash should exit non-zero so `Restart=on-failure` + `RestartSec=10` brings the bot back (or the bot should retry internally with backoff). Only `discord.LoginFailure` (a real config error) should exit 0.
+
+**Hypothesis / root cause:** the broad `except Exception` was meant to log crashes cleanly, but combined with `Restart=on-failure` it defeats auto-recovery. The crash handler should re-raise / `raise SystemExit(1)` for generic exceptions while keeping LoginFailure as a clean exit.
+
+**Proposed fix / improvement:**
+- [ ] After logging a non-LoginFailure crash, `raise` / `raise SystemExit(1)` so systemd restarts.
+- [ ] Or add internal reconnect/backoff for transient failures.
+- [ ] Consider `Restart=always` for these transient-tolerant services.
+
+**Related files:** `bmo/pi/bots/discord_dm_bot.py` (`_run_dm_bot`, ~line 2041; `__main__` ~2076), `bmo/pi/bots/discord_social_bot.py` (`_run_social_bot`, ~line 6949; `__main__` ~6978)
+
+**Related entries:** [2026-06-22] Bot services start before NTP clock sync at boot
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Re-raise non-LoginFailure startup crashes so systemd Restart=on-failure recovers the bot (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Calendar monitor reports a long-expired token as transient "waiting for refresh" forever — never escalates, re-alerts every monitor cycle
+
+- **Category:** bug
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** automated bmo error scan (live `bmo.service` journal review + monitoring.py / calendar_service.py read)
+
+**Description:**
+On the live Pi, `config/token.json` has been expired since 2026-06-20T06:57Z (~66h at scan time) and has NOT been rewritten since 2026-06-19 23:58 (its mtime). The health monitor emits `google_calendar: 📅 Calendar token expired — waiting for refresh` (Severity.WARNING, status `degraded`) on EVERY monitor cycle — 154+ identical lines, one per ~60s — yet no auto-refresh ever occurs and there is not a single `[calendar]` refresh-loop log line in the whole boot. Calendar features are effectively down, but the only signal is a perpetual transient-looking WARNING.
+
+Two distinct problems combine here:
+1. **No escalation:** `_check_calendar_token` (services/monitoring.py ~1559-1582) treats "expiry in the past AND a refresh_token is present" as `degraded` / "waiting for auto-refresh" indefinitely. It never verifies the refresh actually happened, so a genuinely stuck/revoked token (per the 2026-04-23 resolved entry, recovery can require a *manual* `reauth_calendar.py`) is permanently misclassified as a benign transient instead of an actionable `down`/CRITICAL.
+2. **Breaker bypass / log spam:** the resolved-issue circuit-breaker (#6) only backs off statuses `down`/`unknown` (see the `finally` block feeding the breaker). The `degraded` "waiting" branch is excluded, so this exact warning re-fires every single monitor cycle forever — re-introducing the alert/log spam the breaker was added to stop.
+
+**Reproduction (if bug):**
+1. Let the calendar access token expire while a refresh_token is present but auto-refresh does not run (observed: poll loop never rewrites token.json; zero `[calendar]` lines).
+2. Watch `journalctl -u bmo.service`: `Calendar token expired — waiting for refresh` repeats every ~60s with no resolution.
+
+**Expected behavior (if bug):** after the token has been expired beyond a refresh cycle (e.g. > a few minutes / N consecutive checks) with no successful refresh, escalate to `down`/CRITICAL with the actionable reauth hint, and apply the circuit-breaker backoff to the `degraded` path so it does not re-alert every cycle.
+
+**Hypothesis / root cause:** the `degraded` "waiting for auto-refresh" branch assumes the refresh is imminent and self-healing; it has no time/attempt budget and is excluded from the breaker. The underlying refresh itself also appears not to be happening (token.json untouched, no `[calendar]` lines) — likely the refresh token is invalid and needs manual reauth (cf. resolved 2026-04-23), which is exactly the actionable state the monitor fails to surface.
+
+**Proposed fix / improvement:**
+- [ ] Track first-seen-expired time (or a consecutive-expired counter); after a threshold with no successful refresh, set status `down` + Severity.CRITICAL with the reauth command.
+- [ ] Feed the `degraded` path into the circuit-breaker (or rate-limit the WARNING) so it does not log every ~60s.
+- [ ] Optionally have the monitor (or a watchdog) trigger / verify an actual `creds.refresh()` rather than only reading the file.
+
+**Related files:** `bmo/pi/services/monitoring.py` (`_check_calendar_token`, ~1495-1620), `bmo/pi/services/calendar_service.py` (`_get_credentials`, `_poll_loop`)
+
+**Related entries:** resolved 2026-04-23 "Google Calendar `invalid_grant`"; resolved monitoring #6 circuit-breaker
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Escalate to down/CRITICAL after a 10m grace with reauth hint; circuit-breaker stops per-cycle WARNING spam (branch `auto/bmo-resolver`).
+
+### [2026-06-22] System timezone auto-sync permanently fails — `sudo -n timedatectl` blocked by `NoNewPrivileges=yes`; system stays on wrong TZ + logs error every refresh
+
+- **Category:** config
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** automated bmo error scan (live `bmo.service` journal review + location_service.py read)
+
+**Description:**
+`LocationService._sync_system_timezone` (services/location_service.py ~481-509) shells out `sudo -n timedatectl set-timezone <tz>` to align the Pi clocks timezone to the detected location. But `bmo.service` runs with `NoNewPrivileges=yes` (confirmed via `systemctl show bmo.service -p NoNewPrivileges`), which forbids any setuid escalation, so the call fails every time: `[location] Could not set system timezone to America/Chicago: sudo: The "no new privileges" flag is set, which prevents sudo from running as root.` Net effect: the system timezone is never updated by this path (it detects `America/Chicago` but the Pi stays on its default `America/Denver`), and the failure is logged on every location refresh (~every 30 min, `BMO_LOCATION_REFRESH_SECONDS=1800`). `AUTO_SYSTEM_TIMEZONE` is enabled, so the doomed attempt runs each cycle.
+
+This may also cause a real correctness gap: calendar event creation hardcodes `timeZone: "America/Denver"` (calendar_service.py `create_event`) while location reports `America/Chicago` — a stuck system TZ keeps these inconsistent.
+
+**Reproduction (if bug):**
+1. Run BMO under a unit with `NoNewPrivileges=yes` (as deployed).
+2. Trigger a location refresh that detects a TZ != current system TZ.
+3. Observe `[location] Could not set system timezone ...: sudo: The "no new privileges" flag is set ...` and the system TZ unchanged.
+
+**Expected behavior (if bug):** either the timezone is actually applied, or the service does not repeatedly attempt a privileged action it can never perform (and does not log an error every 30 min).
+
+**Hypothesis / root cause:** `NoNewPrivileges=yes` (a hardening setting on the unit) is fundamentally incompatible with `sudo`. A sudoers NOPASSWD rule will NOT help under NoNewPrivileges. timedatectl set-timezone needs either polkit (via DBus, not sudo) or the privilege drop relaxed.
+
+**Proposed fix / improvement:**
+- [ ] Use the DBus/polkit path (e.g. `busctl`/`timedatectl` via system bus with a polkit rule) instead of `sudo`, which works under NoNewPrivileges.
+- [ ] OR gate the attempt behind a capability probe and disable `AUTO_SYSTEM_TIMEZONE` (or log once, not every cycle) when escalation is unavailable.
+- [ ] Verify the intended deployment TZ vs the hardcoded `America/Denver` in `create_event`.
+
+**Related files:** `bmo/pi/services/location_service.py` (`_sync_system_timezone` ~481), the `bmo.service` unit (NoNewPrivileges), `bmo/pi/services/calendar_service.py` (`create_event` hardcoded timeZone)
+
+**Related entries:** [2026-06-22] Location provider order wastes a guaranteed-failing request (ipapi 429)
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Disable and log once when sudo set-timezone can never run under NoNewPrivileges (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Bot services start before NTP clock sync at boot — TLS "certificate is not yet valid" crash
+
+- **Category:** config
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** automated bmo error scan (journal review of the 2026-06-20 boot)
+
+**Description:**
+At the 2026-06-20 00:44 boot, both bots started ~5s later and immediately failed connecting to `gateway.discord.gg:443` with `SSLCertVerificationError: certificate is not yet valid`. This is a clock-skew-at-boot symptom: the Pi clock was behind real time before `systemd-timesyncd` corrected it, so Discord's TLS cert looked "not yet valid". The bot units order only on `network-online.target`, not on time sync, so they can start before the clock is correct. (`timedatectl` now shows the clock synchronized — the failure window is boot-time only.) This SSL failure is the trigger that then hits the swallow-and-exit-0 bug above, leaving the bots down for days. The surfaced crash text was `'NoneType' object has no attribute 'sequence'` — discord.py's gateway/reconnect path NPEs after the TLS handshake fails, and the bots report it as a generic crash.
+
+**Reproduction (if bug):**
+1. Boot the Pi with the clock behind real time (no/empty RTC seed, before timesyncd corrects).
+2. Bot services start on `network-online.target` before time sync.
+3. TLS to `gateway.discord.gg` fails: "certificate is not yet valid".
+
+**Expected behavior (if bug):** bots should not attempt to connect until the clock is sane.
+
+**Hypothesis / root cause:** missing `After=time-sync.target` + `Wants=time-sync.target` ordering (and/or no fake-hwclock seeding) means `network-online.target` precedes a correct clock.
+
+**Proposed fix / improvement:**
+- [ ] Add `After=time-sync.target` and `Wants=time-sync.target` to both bot unit `[Unit]` sections.
+- [ ] Verify fake-hwclock / RTC seeding so the boot clock is not wildly behind.
+- [ ] Combine with internal connect retry/backoff (see related bug).
+
+**Related files:** `bmo/pi/kiosk/bmo-dm-bot.service`, `bmo/pi/kiosk/bmo-social-bot.service`
+
+**Related entries:** [2026-06-22] Discord DM + Social bots swallow startup crashes and exit 0
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Added After/Wants=time-sync.target to both bot units (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Location provider order wastes a guaranteed-failing request each refresh — ipapi.co returns HTTP 429 every cycle
+
+- **Category:** config
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** automated bmo error scan (live `bmo.service` journal review + location_service.py read)
+
+**Description:**
+`_PROVIDERS` (services/location_service.py ~97) lists `https://ipapi.co/json/` FIRST, then `https://ipwho.is/`. On this Pi, ipapi.co returns `429 Too Many Requests` on every refresh (observed every ~30 min: `[location] Provider failed (https://ipapi.co/json/): 429 ...`). The loop then falls through to ipwho.is, which succeeds — so location still works, but every refresh cycle pays one guaranteed-failing HTTP request (up to an 8s timeout window) + a log line before falling back. The free ipapi.co tier is evidently over quota / blocked for this IP, so it will keep 429-ing.
+
+Not blocking (fallback works), but pure waste + recurring log noise. Logging per the "log even minor things" directive.
+
+**Proposed fix / improvement:**
+- [ ] Reorder `_PROVIDERS` to put a working provider (ipwho.is) first, OR
+- [ ] Add a short-lived negative cache / backoff for a provider that returns 429 so it is skipped for a while.
+- [ ] Optionally downgrade the repeated 429 log to debug once a fallback has succeeded.
+
+**Related files:** `bmo/pi/services/location_service.py` (`_PROVIDERS` ~97, provider loop ~384-398)
+
+**Related entries:** [2026-06-22] System timezone auto-sync permanently fails (NoNewPrivileges)
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Reordered _PROVIDERS so working ipwho.is is queried before the 429-ing ipapi.co (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Ruff lint backlog: 357 errors across bmo/pi (mostly tests)
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** automated bmo error scan (`ruff check . --statistics`)
+
+**Description:**
+`ruff check .` in `bmo/pi` reports 357 errors (198 auto-fixable): 120 F841 unused-variable, 93 F541 f-string-missing-placeholders, 62 E702 multiple-statements-on-one-line-semicolon, 45 E402 module-import-not-at-top, 21 F811 redefined-while-unused, 7 F401 unused-import, 6 E741 ambiguous-variable-name, plus minor. Concentrated in `tests/` (e.g. unused `mock_q` / `mock_thread` mocks in `tests/test_voice_pipeline.py`). Mostly cosmetic, but the F811 redefinitions and F841 unused mocks can hide real test bugs (a patched mock that is never asserted on). Not blocking — lint is evidently not gating CI or these would fail there.
+
+Note: ruff also reports 1 invalid-syntax in a non-source file (a `def f[T](...)` PEP 695 fixture string under a path outside the tracked source set) — not a real source bug; all git-tracked `bmo/**/*.py` compile cleanly under Python 3.11.
+
+**Proposed fix / improvement:**
+- [ ] Run `ruff check bmo/pi --fix` for the 198 safe fixes, review the diff.
+- [ ] Manually address F811 / F841 in tests (may reveal unasserted mocks).
+
+**Related files:** `bmo/pi/tests/test_voice_pipeline.py`, and others across `bmo/pi`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Applied 197 safe ruff autofixes across bmo/pi; residual unsafe F841/F811 left for manual review (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Health monitor alerts to restart `bmo-kiosk` every cycle — unit is `disabled` (not in `_OPTIONAL_DISABLED_SERVICES`); also drifts from `setup-bmo.sh` which enables it
+
+- **Category:** config, bug
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** automated bmo error scan (live journal + `systemctl is-enabled/is-active` + monitoring.py read + setup-bmo.sh read)
+
+**Description:**
+`bmo-kiosk.service` is `disabled` + `inactive` on the live Pi (never started this boot — `journalctl -u bmo-kiosk` = "No entries", `ConditionResult=no`). The health monitor lists `bmo-kiosk` in `_MONITORED_SERVICES` but `_OPTIONAL_DISABLED_SERVICES = {"bmo-fan"}` only — kiosk is **not** in that set. So `_check_systemd_services` (monitoring.py ~1133-1205) classifies the disabled kiosk as `status: down` and emits `⚙️ 🖥️ BMO Kiosk (touchscreen UI) is inactive — run: sudo systemctl restart bmo-kiosk` (Severity.WARNING) on **every** monitor cycle (~60s) — confirmed firing continuously in the live journal. The disabled/optional branch (which would mark it `info: disabled by configuration`) never triggers because kiosk isn't whitelisted there.
+
+Two intertwined problems:
+1. **Monitor false-positive / log spam:** restarting a `disabled` unit is non-actionable; the WARNING repeats every cycle (same alert-spam class as the calendar "waiting for refresh" entry — the disabled state isn't suppressed).
+2. **Possible config drift:** `setup-bmo.sh` line 372 runs `sudo systemctl enable bmo bmo-kiosk bmo-fan bmo-dm-bot bmo-social-bot` and the unit is `WantedBy=multi-user.target`, i.e. the kiosk touchscreen UI is *intended* to be enabled. Its being `disabled` on the host either is deliberate (headless / mic-less dev state — this Pi also has no capture device) or is real drift where the touchscreen UI no longer comes up at boot. **Unverified which** — flagging honestly; not restarting/mutating per scan rules.
+
+**Expected behavior:** if kiosk is intentionally optional on some hosts, add it to `_OPTIONAL_DISABLED_SERVICES` so a `disabled` unit reports `info` (not a per-cycle WARNING). If it should be running, it should be `enabled` per `setup-bmo.sh`.
+
+**Hypothesis / root cause:** `_OPTIONAL_DISABLED_SERVICES` was set up for `bmo-fan` only; kiosk's optional/disabled state was never accounted for. Whether kiosk *should* be enabled is a separate host-state question.
+
+**Proposed fix / improvement:**
+- [ ] Decide intended kiosk state for this host. If optional → add `"bmo-kiosk"` to `_OPTIONAL_DISABLED_SERVICES`. If required → re-enable (`systemctl enable --now bmo-kiosk`) — owner action, not this scan.
+- [ ] Either way, suppress/rate-limit the repeating WARNING for a unit that is `disabled` (don't tell the user to restart a disabled unit every 60s).
+
+**Related files:** `bmo/pi/services/monitoring.py` (`_OPTIONAL_DISABLED_SERVICES` ~628, `_MONITORED_SERVICES` ~1133, `_check_systemd_services` ~1135-1205), `bmo/pi/kiosk/bmo-kiosk.service`, `bmo/setup-bmo.sh` (~372)
+
+**Related entries:** [2026-06-22] Calendar monitor reports a long-expired token ... re-alerts every monitor cycle; [2026-06-22] Discord DM + Social bots swallow startup crashes
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Added bmo-kiosk to _OPTIONAL_DISABLED_SERVICES so a disabled unit reports info, not a per-cycle WARNING (branch `auto/bmo-resolver`).
+
 ### [2026-05-17] Phase 41 (BMO) — Static cache-busting (root cause of "QA still reproduces after fixes shipped")
 
 - **Original symptom:** User re-ran the Round 4 QA report against the production deployment after Phase 39+40 shipped and reported the SAME bugs — even though my curl verification showed every fix WAS live in the served files.
