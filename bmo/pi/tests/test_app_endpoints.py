@@ -736,3 +736,37 @@ class TestDiscordPbpProxy:
         with patch.object(requests, "post", side_effect=requests.ConnectionError("refused")):
             r = client.post("/api/discord/pbp/stop", json={"campaign_id": "c1"})
         assert r.status_code == 503 and r.get_json()["error"] == "DM bot not running"
+
+
+# ── /metrics (Prometheus) + health/full config block ──────────────────
+
+class TestPrometheusMetrics:
+    def test_metrics_endpoint_text_plain_200(self, client):
+        r = client.get("/metrics")
+        assert r.status_code == 200
+        assert r.mimetype == "text/plain"
+
+    def test_metrics_includes_counters(self, client):
+        from services import metrics_counters
+        metrics_counters.reset()
+        metrics_counters.incr("llm_failover_total", 2)
+        body = client.get("/metrics").get_data(as_text=True)
+        assert "bmo_llm_failover_total 2" in body
+        assert "# TYPE bmo_llm_failover_total counter" in body
+
+    def test_metrics_includes_voice_stage(self, client):
+        from services.voice import voice_metrics
+        voice_metrics.record_stage("stt", 0.5)
+        body = client.get("/metrics").get_data(as_text=True)
+        assert "bmo_voice_stage_seconds" in body
+
+    def test_health_full_has_config_block(self, client, bmo_app):
+        import app as bmo_app_module
+        original = bmo_app_module.health_checker
+        bmo_app_module.health_checker = None
+        try:
+            data = client.get("/api/health/full").get_json()
+            assert "config" in data
+            assert "banner" in data["config"]
+        finally:
+            bmo_app_module.health_checker = original

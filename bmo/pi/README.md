@@ -32,13 +32,15 @@ pi/
 │   └── weather_agent.py
 │
 ├── services/                    Service modules — business logic
-│   ├── alert_service.py, audio_output_service.py, calendar_service.py,
-│   ├── list_service.py, location_service.py, music_service.py,
-│   ├── notification_service.py, routine_service.py, scene_service.py,
-│   ├── timer_service.py, weather_service.py
-│   ├── voice_pipeline.py        STT → agent → TTS loop
-│   ├── voice_personality.py     persona injection
-│   ├── bmo_say.py               TTS helper (Fish Audio + piper fallback)
+│   ├── alert_service.py, calendar_service.py, list_service.py,
+│   ├── location_service.py, music_service.py, notification_service.py,
+│   ├── routine_service.py, scene_service.py, timer_service.py, weather_service.py
+│   ├── voice/                   Voice + audio subpackage
+│   │   ├── voice_pipeline.py      STT → agent → TTS loop
+│   │   ├── voice_personality.py   persona injection
+│   │   ├── voice_casting.py, voice_metrics.py, voice_canary.py
+│   │   ├── bmo_say.py             TTS helper (Fish Audio + piper fallback)
+│   │   └── discord_tts.py, audio_output_service.py, system_audio.py
 │   ├── personality_engine.py    adventure time quotes + quips
 │   ├── rag_search.py            RAG over indexed docs
 │   ├── build_rag_indexes.py     index builder
@@ -60,7 +62,10 @@ pi/
 │
 ├── bots/                        Discord bots (NAMED bots/ NOT discord/ — shadows discord.py)
 │   ├── discord_dm_bot.py        D&D DM bot (player-facing, invites to session)
-│   └── discord_social_bot.py    Social bot (casual server, music, games)
+│   ├── discord_social_bot.py    Thin shim → bots.social.bot (legacy import + `-m` entry point)
+│   └── social/                  Social bot subpackage
+│       ├── bot.py               Social bot core (casual server, music, games)
+│       └── games_logic.py       Pure game/util logic (deck, XP, parsing) — unit-tested
 │
 ├── dev/                         Dev tools — NOT used in production
 │   ├── claude_tools.py, dev_tools.py, file_watcher.py, terminal_service.py
@@ -88,7 +93,7 @@ pi/
 │   ├── templates/ide.html
 │   └── static/ide.{css,js}
 │
-├── kiosk/                       Systemd services for kiosk mode + bots
+├── systemd/                     Systemd units (all services + timers) + install-kiosk.sh
 │   ├── bmo-kiosk.service        Chromium fullscreen on HDMI
 │   ├── bmo-dm-bot.service       → python -m bots.discord_dm_bot
 │   ├── bmo-social-bot.service   → python -m bots.discord_social_bot

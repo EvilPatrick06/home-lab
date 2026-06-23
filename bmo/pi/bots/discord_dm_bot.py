@@ -41,7 +41,7 @@ if not discord.opus.is_loaded():
 
 from services.cloud_providers import cloud_chat, DND_MODEL
 from services.dnd_engine import roll_dice
-from services.discord_tts import (
+from services.voice.discord_tts import (
     VoiceSpec,
     apply_prosody,
     resolve_backend,
@@ -56,8 +56,8 @@ from agents.vtt_sync import (
     validate_sync_config,
     vtt_state,
 )
-from services.voice_casting import VoiceCasting
-from services.voice_personality import get_prosody, parse_response_tags
+from services.voice.voice_casting import VoiceCasting
+from services.voice.voice_personality import get_prosody, parse_response_tags
 
 # ── Configuration ────────────────────────────────────────────────────
 

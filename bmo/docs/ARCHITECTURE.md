@@ -73,7 +73,7 @@ The Flask app runs directly on the host because it needs low-latency access to h
 | Service | File | Port | Purpose |
 |---------|------|------|---------|
 | Web UI + API | `app.py` | 5000 | Main Flask/SocketIO server |
-| Voice Pipeline | `voice_pipeline.py` | — | Wake word → Groq STT → LLM → Fish TTS |
+| Voice Pipeline | `voice/voice_pipeline.py` | — | Wake word → Groq STT → LLM → Fish TTS |
 | Agent Orchestrator | `agents/orchestrator.py` | — | Routes queries to 20 specialist agents |
 | Cloud Providers | `cloud_providers.py` | — | Gemini/Groq/Fish/Claude API wrappers |
 | Camera | `camera_service.py` | — | picamera2 object detection |
@@ -170,7 +170,7 @@ The Flask app runs directly on the host because it needs low-latency access to h
 
 ## Deployment
 
-This Pi is the source of truth. Code lives in `/home/patrick/home-lab/bmo/pi/` (monorepo) and is installed via `bmo/setup-bmo.sh`. Systemd unit definitions live in `bmo/pi/kiosk/` and `bmo/pi/ide_app/`. Docker containers (ollama, peerjs, coturn, pihole) are launched by `setup-bmo.sh` directly via `docker run`.
+This Pi is the source of truth. Code lives in `/home/patrick/home-lab/bmo/pi/` (monorepo) and is installed via `bmo/setup-bmo.sh`. Systemd unit definitions live in `bmo/pi/systemd/`. Docker containers (ollama, peerjs, coturn, pihole) are launched by `setup-bmo.sh` directly via `docker run`.
 
 The legacy `bmo/docker/` SSH-deploy path (from a dev laptop → flat `~/home-lab/bmo/pi/` on the Pi) was retired on 2026-04-23 and the on-disk archive deleted. Recoverable from git history: `git log --all --full-history -- bmo/docker/`.
 4. Installs Python dependencies (unless `--quick`)
@@ -203,36 +203,42 @@ curl http://localhost:5000/api/health/full | python3 -m json.tool
 
 ## Backup Strategy
 
-**Tool:** rclone → Google Drive (`gdrive:BMO-Backups/`)
+**Tool:** [`scripts/backup-state.sh`](../pi/scripts/backup-state.sh) — a timestamped `tar.gz` of runtime state written **off the repo tree** to `~/bmo-backups/`, pruned to the newest `BMO_BACKUP_KEEP` (default 14).
 
-**Schedule:** Daily at 3:00 AM MST via systemd timer (`bmo-backup.timer`)
+**Schedule:** Daily at 3:00 AM via systemd timer (`bmo-backup.timer` → `bmo-backup.service`).
 
 **What's backed up:**
-- `~/home-lab/bmo/pi/data/` — chat history, D&D sessions, notes, snapshots, alarms
-- `~/home-lab/bmo/pi/config/` — Google Calendar OAuth token
-- `~/home-lab/bmo/pi/requirements.txt` — Python dependency snapshot
+- `~/home-lab/bmo/pi/data/` — chat history, D&D sessions, notes, snapshots, alarms, play history, the SQLite DBs (`bmo_social.db`, `campaign_memory.db`)
+- `~/home-lab/bmo/pi/config/token.json` — Google Calendar OAuth token
 
-**What's excluded:** `.pyc`, `__pycache__`, `.audiocache` (TTS cache, regenerated on demand)
+**What's excluded** (re-creatable): the 5e reference data (`data/5e*`, restored via `scripts/seed-5e-library.sh`), `.pyc`, `__pycache__`, `.audiocache`. Secrets in `pi/.env` / `config/credentials.json` are NOT backed up — keep them in your own secret store.
 
 **Manual backup:**
 ```bash
-~/home-lab/bmo/pi/backup.sh
+~/home-lab/bmo/pi/scripts/backup-state.sh
 ```
 
-**Verify backup:**
+**List archives:**
 ```bash
-rclone ls gdrive:BMO-Backups/
+ls -1t ~/bmo-backups/bmo-state-*.tar.gz
 ```
 
-**Restore:**
+**Verify the newest backup is restorable** (also runs monthly via `bmo-backup-verify.timer`):
 ```bash
-rclone sync gdrive:BMO-Backups/data/ ~/home-lab/bmo/pi/data/
-rclone sync gdrive:BMO-Backups/config/ ~/home-lab/bmo/pi/config/
+~/home-lab/bmo/pi/scripts/verify-backup.sh
+```
+
+**Restore / full disaster recovery:** see [`DISASTER-RECOVERY.md`](./DISASTER-RECOVERY.md) for the fresh-Pi cold-restore runbook. Quick state restore:
+```bash
+tar -xzf ~/bmo-backups/bmo-state-YYYYMMDD-HHMMSS.tar.gz -C ~/home-lab/bmo/pi
 ```
 
 ---
 
 ## Monitoring & Alerting
+
+**Metrics export.** `GET /metrics` serves Prometheus text-exposition (hand-rolled, no extra dependency): voice-pipeline stage latency (`bmo_voice_stage_seconds`), Pi resource gauges (`bmo_pi_cpu_temp_celsius`/`cpu_percent`/`ram_percent`/`disk_percent`), per-service up/down (`bmo_service_up`), and process-lifetime fallback counters (`bmo_llm_failover_total`, `bmo_stt_cloud_fallback_total`, `bmo_tts_fallback_total`). The endpoint reads cached state only (no subprocess), so it is cheap to scrape. `GET /api/metrics/voice` keeps the JSON snapshot. Point a lightweight scraper (e.g. a single-binary VictoriaMetrics, mind the Pi disk budget) at `/metrics` for history.
+
 
 ### Health Checks (every 60 seconds)
 
@@ -281,6 +287,8 @@ A separate `health-check.sh` runs via cron every 5 minutes and logs to `~/home-l
 ```
 */5 * * * * /home/patrick/home-lab/bmo/pi/scripts/health-check.sh >> /home/patrick/home-lab/bmo/pi/logs/health.log 2>&1
 ```
+
+`logs/health.log` is rotated by `/etc/logrotate.d/bmo` (weekly, keep 4, compressed), installed by `setup-bmo.sh` from `bmo/pi/systemd/logrotate.d-bmo`. App logs self-rotate via `services/bmo_logging.py` (`RotatingFileHandler`).
 
 ### Endpoints
 

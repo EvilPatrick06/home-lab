@@ -38,7 +38,7 @@ _cloud_mod.fish_audio_tts = MagicMock(return_value=b"")
 _cloud_mod.GROQ_API_KEY = "test-key"
 sys.modules["cloud_providers"] = _cloud_mod
 
-# Stub `agent` so services.voice_pipeline can load before a real BmoAgent is needed;
+# Stub `agent` so services.voice.voice_pipeline can load before a real BmoAgent is needed;
 # tests/agents/test_base_agent clears this MagicMock before `import agent` if present.
 if "agent" not in sys.modules:
     _agent_mod = MagicMock()
@@ -84,7 +84,7 @@ def pipeline():
          patch("sounddevice.rec", return_value=np.zeros((16000, 1), dtype="int16")), \
          patch("sounddevice.wait"), \
          patch("os.makedirs"):
-        from services.voice_pipeline import VoicePipeline
+        from services.voice.voice_pipeline import VoicePipeline
         vp = VoicePipeline(socketio=None, chat_callback=None)
         return vp
 
@@ -98,7 +98,7 @@ def pipeline_with_callback():
          patch("sounddevice.rec", return_value=np.zeros((16000, 1), dtype="int16")), \
          patch("sounddevice.wait"), \
          patch("os.makedirs"):
-        from services.voice_pipeline import VoicePipeline
+        from services.voice.voice_pipeline import VoicePipeline
         vp = VoicePipeline(socketio=None, chat_callback=mock_callback)
         vp._chat_callback = mock_callback
         return vp, mock_callback
@@ -109,7 +109,7 @@ def pipeline_with_callback():
 class TestInstantiation:
     def test_pipeline_creates_without_hardware(self, pipeline):
         """Pipeline instantiates even with no mic/speaker attached."""
-        from services.voice_pipeline import VoicePipeline
+        from services.voice.voice_pipeline import VoicePipeline
         assert isinstance(pipeline, VoicePipeline)
 
     def test_initial_state_not_running(self, pipeline):
@@ -122,7 +122,7 @@ class TestInstantiation:
 
     def test_default_silence_threshold(self, pipeline):
         """Silence threshold defaults to the module constant."""
-        from services.voice_pipeline import SILENCE_THRESHOLD
+        from services.voice.voice_pipeline import SILENCE_THRESHOLD
         assert pipeline._silence_threshold == SILENCE_THRESHOLD
 
     def test_audio_queue_empty_on_init(self, pipeline):
@@ -168,7 +168,7 @@ class TestWakeWordDetection:
     def test_oww_score_below_threshold_does_not_trigger(self, pipeline):
         """OWW prediction below threshold leaves _wake_triggered False."""
         pipeline._wake_triggered = False
-        from services.voice_pipeline import WAKE_OWW_THRESHOLD
+        from services.voice.voice_pipeline import WAKE_OWW_THRESHOLD
 
         mock_model = MagicMock()
         # Score well below threshold
@@ -192,7 +192,7 @@ class TestWakeWordDetection:
     def test_oww_score_above_threshold_triggers(self, pipeline):
         """OWW prediction above threshold sets wake triggered flag."""
         pipeline._wake_triggered = False
-        from services.voice_pipeline import WAKE_OWW_THRESHOLD
+        from services.voice.voice_pipeline import WAKE_OWW_THRESHOLD
 
         mock_model = MagicMock()
         # Score above threshold
@@ -209,13 +209,13 @@ class TestWakeWordDetection:
 
     def test_wake_variants_set_contains_bmo(self, pipeline):
         """WAKE_VARIANTS includes the canonical 'bmo' spelling."""
-        from services.voice_pipeline import WAKE_VARIANTS
+        from services.voice.voice_pipeline import WAKE_VARIANTS
         assert "bmo" in WAKE_VARIANTS
 
     def test_wake_variant_regex_matches_bmo_in_sentence(self, pipeline):
         """Regex matching used in two-stage STT confirmation works."""
         import re
-        from services.voice_pipeline import WAKE_VARIANTS
+        from services.voice.voice_pipeline import WAKE_VARIANTS
 
         text_lower = "hey bmo what time is it"
         matched = any(
@@ -227,7 +227,7 @@ class TestWakeWordDetection:
     def test_wake_variant_regex_no_match_on_unrelated_text(self, pipeline):
         """Regex does not falsely match unrelated text."""
         import re
-        from services.voice_pipeline import WAKE_VARIANTS
+        from services.voice.voice_pipeline import WAKE_VARIANTS
 
         text_lower = "i wonder what the weather is"
         matched = any(
@@ -297,7 +297,7 @@ class TestSTT:
 
         with patch.object(pipeline, "_local_transcribe", side_effect=RuntimeError("no model")), \
              patch.object(pipeline, "_cloud_transcribe", return_value="what's the weather") as mock_cloud, \
-             patch("services.voice_pipeline._check_cloud", return_value=True):
+             patch("services.voice.voice_pipeline._check_cloud", return_value=True):
             result = pipeline.transcribe(str(wav_path))
             mock_cloud.assert_called_once()
             assert result == "what's the weather"
@@ -321,7 +321,7 @@ class TestSTT:
             "segments": [{"no_speech_probability": 0.9, "avg_logprob": -0.5}],
             "duration": 1.0,
         }
-        with patch("services.voice_pipeline.groq_stt", return_value=high_no_speech):
+        with patch("services.voice.voice_pipeline.groq_stt", return_value=high_no_speech):
             result = pipeline._cloud_transcribe(str(loud_wav))
             assert result == ""
 
@@ -331,7 +331,7 @@ class TestSTT:
 
         # Local whisper fails, cloud returns empty
         with patch.object(pipeline, "_load_whisper", side_effect=RuntimeError("no model")), \
-             patch("services.voice_pipeline.groq_stt", return_value={"text": "okay", "segments": []}):
+             patch("services.voice.voice_pipeline.groq_stt", return_value={"text": "okay", "segments": []}):
             result = pipeline._quick_stt(wav_bytes)
             # "okay" is in _WHISPER_HALLUCINATIONS
             assert result == ""
@@ -634,7 +634,7 @@ class TestInputDeviceGuard:
     def test_await_input_device_logs_warning_only_once_while_absent(self, pipeline):
         pipeline._running = False
         with patch("sounddevice.query_devices", side_effect=Exception("no device")), \
-             patch("services.voice_pipeline.log") as mock_log:
+             patch("services.voice.voice_pipeline.log") as mock_log:
             pipeline._await_input_device()
             pipeline._await_input_device()
             pipeline._await_input_device()
@@ -644,6 +644,6 @@ class TestInputDeviceGuard:
     def test_await_input_device_logs_resume_when_device_returns(self, pipeline):
         pipeline._no_input_device = True
         with patch("sounddevice.query_devices", return_value={"name": "mic"}), \
-             patch("services.voice_pipeline.log") as mock_log:
+             patch("services.voice.voice_pipeline.log") as mock_log:
             assert pipeline._await_input_device() is True
             mock_log.info.assert_called_once()

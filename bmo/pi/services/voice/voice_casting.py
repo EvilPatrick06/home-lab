@@ -24,8 +24,8 @@ import tempfile
 import threading
 from dataclasses import asdict, dataclass
 
-from services.discord_tts import resolve_backend
-from services.voice_personality import NPC_PROSODY
+from services.voice.discord_tts import resolve_backend
+from services.voice.voice_personality import NPC_PROSODY
 
 # Kokoro-FastAPI voice ids grouped by vocal character. Blends (`a+b`) are valid ids
 # too — a few are included for variety. Exact character is tuning, not correctness.

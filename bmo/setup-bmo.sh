@@ -218,13 +218,14 @@ sudo docker run -d \
 # ── 10. Systemd Services ────────────────────────────────────────
 log "Installing systemd services..."
 
-# Unit files live in bmo/pi/kiosk/ as the single source of truth (consolidated
+# Unit files live in bmo/pi/systemd/ as the single source of truth (consolidated
 # 2026-06-22 — they were previously duplicated as inline heredocs here and had
-# drifted from the kiosk/ copies). Install by copying those files.
+# drifted from the systemd/ copies). Install by copying those files.
 for unit in bmo.service bmo-kiosk.service bmo-fan.service bmo-dm-bot.service \
             bmo-social-bot.service bmo-backup.service bmo-backup.timer \
+            bmo-backup-verify.service bmo-backup-verify.timer \
             bmo-voice-canary.service bmo-voice-canary.timer; do
-  sudo cp "/home/patrick/home-lab/bmo/pi/kiosk/$unit" /etc/systemd/system/
+  sudo cp "/home/patrick/home-lab/bmo/pi/systemd/$unit" /etc/systemd/system/
 done
 
 # Chromium policy: always allow geolocation for local kiosk origin
@@ -238,7 +239,7 @@ EOF
 
 # ── 11. Enable Services ─────────────────────────────────────────
 sudo systemctl daemon-reload
-sudo systemctl enable bmo bmo-kiosk bmo-fan bmo-dm-bot bmo-social-bot bmo-backup.timer bmo-voice-canary.timer
+sudo systemctl enable bmo bmo-kiosk bmo-fan bmo-dm-bot bmo-social-bot bmo-backup.timer bmo-backup-verify.timer bmo-voice-canary.timer
 sudo systemctl enable avahi-daemon
 sudo systemctl restart avahi-daemon
 
@@ -299,6 +300,15 @@ sudo tee /etc/systemd/system/getty@tty1.service.d/10-no-cursor.conf > /dev/null 
 [Service]
 ExecStartPre=/bin/sh -c '/usr/bin/setterm -cursor off >/dev/tty1 || true'
 EOF
+
+# ── Log rotation (cron health-check log) ─────────────────────────
+# The cron health-check appends to logs/health.log forever; install a
+# logrotate entry so it cannot fill the disk. App logs self-rotate (see
+# services/bmo_logging.py) and are not covered here.
+if [ -f /home/patrick/home-lab/bmo/pi/systemd/logrotate.d-bmo ]; then
+  sudo cp /home/patrick/home-lab/bmo/pi/systemd/logrotate.d-bmo /etc/logrotate.d/bmo
+  log "Installed /etc/logrotate.d/bmo (rotates logs/health.log weekly)"
+fi
 
 # ── Done ─────────────────────────────────────────────────────────
 log "══════════════════════════════════════════════════"

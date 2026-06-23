@@ -166,7 +166,7 @@ _normalize_chat_speaker = chat_history.normalize_chat_speaker
 
 # PHASE-16 16C — system-audio helpers moved to services/system_audio.py; init_services'
 # volume restore is the last in-app caller.
-from services.system_audio import set_system_volume as _set_system_volume  # noqa: E402
+from services.voice.system_audio import set_system_volume as _set_system_volume  # noqa: E402
 
 
 # ── Rate limiting (cost-sensitive routes) ─────────────────────────────
@@ -387,6 +387,17 @@ def init_services():
 
     log.info("[bmo] Initializing services...")
 
+    # Config preflight — classify provider keys + Calendar token; log a single
+    # summary + degraded banner so a missing/typo'd secret surfaces at boot
+    # rather than at first use. Non-fatal unless BMO_PREFLIGHT_STRICT=1.
+    try:
+        from services.config_preflight import run_preflight
+        run_preflight(logger=log)
+    except RuntimeError:
+        raise
+    except Exception:
+        log.exception("[bmo]   Config preflight failed (non-fatal)")
+
     service_map = {}
 
     # Show warmup face during initialization
@@ -441,12 +452,12 @@ def init_services():
 
     # Voice pipeline (requires pyaudio/mic hardware)
     if BMO_CANARY:
-        from services.voice_pipeline import VoicePipeline  # noqa: F401 — canary import check
+        from services.voice.voice_pipeline import VoicePipeline  # noqa: F401 — canary import check
         voice = None
         log.info("[bmo]   Voice pipeline: CANARY (import-only)")
     else:
         try:
-            from services.voice_pipeline import VoicePipeline
+            from services.voice.voice_pipeline import VoicePipeline
             voice = VoicePipeline(socketio=socketio)
             saved_voice_vol = _load_setting("volume.voice", None)
             if saved_voice_vol is not None:
@@ -541,12 +552,12 @@ def init_services():
 
     # Audio output routing (before music so music can use it)
     if BMO_CANARY:
-        from services.audio_output_service import AudioOutputService  # noqa: F401 — canary import check
+        from services.voice.audio_output_service import AudioOutputService  # noqa: F401 — canary import check
         audio_service = None
         log.info("[bmo]   Audio output: CANARY (import-only)")
     else:
         try:
-            from services.audio_output_service import AudioOutputService
+            from services.voice.audio_output_service import AudioOutputService
             audio_service = AudioOutputService()
             service_map["audio"] = audio_service
             log.info("[bmo]   Audio output: OK")
@@ -718,7 +729,7 @@ def init_services():
             # Save voice responses (assistant messages) to chat history
             # and emit as chat_response so the frontend shows them
             elif event == "response":
-                from services.voice_pipeline import VoicePipeline
+                from services.voice.voice_pipeline import VoicePipeline
                 response_text = data.get("text", "")
                 if response_text:
                     clean_text = VoicePipeline._strip_markdown(response_text)
@@ -1654,8 +1665,8 @@ def api_discord_dm_sync_state():
 @app.route("/api/discord/dm/voices", methods=["GET"])
 @app.route("/api/v1/discord/dm/voices", methods=["GET"])
 def api_discord_dm_voices_get():
-    from services.discord_tts import resolve_backend
-    from services.voice_casting import VoiceCasting
+    from services.voice.discord_tts import resolve_backend
+    from services.voice.voice_casting import VoiceCasting
 
     campaign_id = request.args.get("campaign_id", "")
     if not campaign_id:
@@ -1676,7 +1687,7 @@ def api_discord_dm_voices_get():
 def api_discord_dm_voices_set():
     from dataclasses import asdict
 
-    from services.voice_casting import VoiceCasting
+    from services.voice.voice_casting import VoiceCasting
 
     data = request.json or {}
     campaign_id = data.get("campaign_id")
@@ -1694,7 +1705,7 @@ def api_discord_dm_voices_set():
 @app.route("/api/v1/discord/dm/voices", methods=["DELETE"])
 @limiter.limit(RATE_LIMIT_NARRATE)
 def api_discord_dm_voices_delete():
-    from services.voice_casting import VoiceCasting
+    from services.voice.voice_casting import VoiceCasting
 
     data = request.json or {}
     campaign_id = data.get("campaign_id")

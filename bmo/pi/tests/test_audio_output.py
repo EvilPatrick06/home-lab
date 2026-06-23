@@ -95,8 +95,8 @@ def audio_service(tmp_path):
 
     with patch("subprocess.run", return_value=_wpctl_ok()), \
          patch("subprocess.Popen"), \
-         patch("services.audio_output_service.SETTINGS_PATH", settings_path):
-        import services.audio_output_service as aos_module
+         patch("services.voice.audio_output_service.SETTINGS_PATH", settings_path):
+        import services.voice.audio_output_service as aos_module
         import importlib
         importlib.reload(aos_module)
         svc = aos_module.AudioOutputService.__new__(aos_module.AudioOutputService)
@@ -111,43 +111,43 @@ def audio_service(tmp_path):
 
 class TestSinkParsing:
     def test_parse_sinks_returns_list(self, audio_service):
-        with patch("services.audio_output_service._run", return_value=(0, WPCTL_STATUS_SAMPLE, "")):
+        with patch("services.voice.audio_output_service._run", return_value=(0, WPCTL_STATUS_SAMPLE, "")):
             sinks = audio_service.list_sinks()
         assert isinstance(sinks, list)
 
     def test_parse_sinks_finds_two_devices(self, audio_service):
-        with patch("services.audio_output_service._run", return_value=(0, WPCTL_STATUS_SAMPLE, "")):
+        with patch("services.voice.audio_output_service._run", return_value=(0, WPCTL_STATUS_SAMPLE, "")):
             sinks = audio_service.list_sinks()
         assert len(sinks) == 2
 
     def test_parse_sinks_default_marked(self, audio_service):
-        with patch("services.audio_output_service._run", return_value=(0, WPCTL_STATUS_SAMPLE, "")):
+        with patch("services.voice.audio_output_service._run", return_value=(0, WPCTL_STATUS_SAMPLE, "")):
             sinks = audio_service.list_sinks()
         default = [s for s in sinks if s.is_default]
         assert len(default) == 1
         assert default[0].pw_id == 78
 
     def test_parse_sinks_non_default(self, audio_service):
-        with patch("services.audio_output_service._run", return_value=(0, WPCTL_STATUS_SAMPLE, "")):
+        with patch("services.voice.audio_output_service._run", return_value=(0, WPCTL_STATUS_SAMPLE, "")):
             sinks = audio_service.list_sinks()
         non_default = [s for s in sinks if not s.is_default]
         assert len(non_default) == 1
         assert non_default[0].pw_id == 79
 
     def test_list_sinks_returns_empty_on_failure(self, audio_service):
-        with patch("services.audio_output_service._run", return_value=(1, "", "error")):
+        with patch("services.voice.audio_output_service._run", return_value=(1, "", "error")):
             sinks = audio_service.list_sinks()
         assert sinks == []
 
     def test_list_sources_parsed(self, audio_service):
-        with patch("services.audio_output_service._run", return_value=(0, WPCTL_STATUS_SAMPLE, "")):
+        with patch("services.voice.audio_output_service._run", return_value=(0, WPCTL_STATUS_SAMPLE, "")):
             sources = audio_service.list_sources()
         assert isinstance(sources, list)
         assert len(sources) == 1
         assert sources[0].pw_id == 83
 
     def test_audio_device_to_dict(self, audio_service):
-        import services.audio_output_service as aos
+        import services.voice.audio_output_service as aos
         dev = aos.AudioDevice(78, "sink_78", "Built-in Audio", is_default=True)
         d = dev.to_dict()
         assert d["id"] == 78
@@ -160,19 +160,19 @@ class TestSinkParsing:
 
 class TestDefaultSink:
     def test_get_default_sink_returns_marked_device(self, audio_service):
-        with patch("services.audio_output_service._run", return_value=(0, WPCTL_STATUS_SAMPLE, "")):
+        with patch("services.voice.audio_output_service._run", return_value=(0, WPCTL_STATUS_SAMPLE, "")):
             default = audio_service.get_default_sink()
         assert default is not None
         assert default.is_default is True
         assert default.pw_id == 78
 
     def test_get_default_sink_returns_none_when_no_sinks(self, audio_service):
-        with patch("services.audio_output_service._run", return_value=(1, "", "")):
+        with patch("services.voice.audio_output_service._run", return_value=(1, "", "")):
             default = audio_service.get_default_sink()
         assert default is None
 
     def test_get_default_source(self, audio_service):
-        with patch("services.audio_output_service._run", return_value=(0, WPCTL_STATUS_SAMPLE, "")):
+        with patch("services.voice.audio_output_service._run", return_value=(0, WPCTL_STATUS_SAMPLE, "")):
             source = audio_service.get_default_source()
         assert source is not None
         assert source.pw_id == 83
@@ -182,18 +182,18 @@ class TestDefaultSink:
 
 class TestOutputSwitching:
     def test_set_default_output_calls_wpctl(self, audio_service):
-        with patch("services.audio_output_service._run", return_value=(0, "", "")) as mock_run:
+        with patch("services.voice.audio_output_service._run", return_value=(0, "", "")) as mock_run:
             result = audio_service.set_default_output(79)
         assert result is True
         mock_run.assert_called_once_with(["wpctl", "set-default", "79"])
 
     def test_set_default_output_returns_false_on_failure(self, audio_service):
-        with patch("services.audio_output_service._run", return_value=(1, "", "Device not found")):
+        with patch("services.voice.audio_output_service._run", return_value=(1, "", "Device not found")):
             result = audio_service.set_default_output(999)
         assert result is False
 
     def test_set_default_input_calls_wpctl(self, audio_service):
-        with patch("services.audio_output_service._run", return_value=(0, "", "")) as mock_run:
+        with patch("services.voice.audio_output_service._run", return_value=(0, "", "")) as mock_run:
             result = audio_service.set_default_input(83)
         assert result is True
         mock_run.assert_called_once_with(["wpctl", "set-default", "83"])
@@ -203,7 +203,7 @@ class TestOutputSwitching:
 
 class TestDeviceRouting:
     def test_set_function_output_stores_routing(self, audio_service, tmp_path):
-        import services.audio_output_service as aos
+        import services.voice.audio_output_service as aos
 
         def _fake_run(cmd, timeout=10):
             if cmd[0] == "wpctl":
@@ -215,7 +215,7 @@ class TestDeviceRouting:
                 aos.AudioDevice(79, "sink_79", "USB Audio Device", is_default=False)
             ]
 
-        with patch("services.audio_output_service._run", side_effect=_fake_run), \
+        with patch("services.voice.audio_output_service._run", side_effect=_fake_run), \
              patch.object(audio_service, "list_sinks", side_effect=_fake_list_sinks), \
              patch.object(audio_service, "_get_sink_node_name", return_value="alsa_output.usb"), \
              patch.object(audio_service, "_move_all_streams"), \
@@ -235,7 +235,7 @@ class TestDeviceRouting:
         assert result == 78
 
     def test_find_device_by_name_partial_match(self, audio_service):
-        import services.audio_output_service as aos
+        import services.voice.audio_output_service as aos
         with patch.object(audio_service, "list_sinks", return_value=[
             aos.AudioDevice(78, "sink_78", "Built-in Audio Digital Stereo (HDMI)", True),
             aos.AudioDevice(79, "sink_79", "USB Audio Device", False),
@@ -245,7 +245,7 @@ class TestDeviceRouting:
         assert result.pw_id == 79
 
     def test_find_device_by_name_no_match_returns_none(self, audio_service):
-        import services.audio_output_service as aos
+        import services.voice.audio_output_service as aos
         with patch.object(audio_service, "list_sinks", return_value=[
             aos.AudioDevice(78, "sink_78", "Built-in Audio", True),
         ]):
@@ -257,7 +257,7 @@ class TestDeviceRouting:
 
 class TestGetStatus:
     def test_get_status_returns_dict_with_keys(self, audio_service):
-        import services.audio_output_service as aos
+        import services.voice.audio_output_service as aos
         with patch.object(audio_service, "get_default_sink",
                           return_value=aos.AudioDevice(78, "sink_78", "Built-in Audio", True)), \
              patch.object(audio_service, "list_sinks",
@@ -271,7 +271,7 @@ class TestGetStatus:
             assert key in status, f"Missing key: {key}"
 
     def test_get_status_sinks_are_dicts(self, audio_service):
-        import services.audio_output_service as aos
+        import services.voice.audio_output_service as aos
         sink = aos.AudioDevice(78, "sink_78", "Built-in Audio", True)
         with patch.object(audio_service, "get_default_sink", return_value=sink), \
              patch.object(audio_service, "list_sinks", return_value=[sink]), \
@@ -292,13 +292,13 @@ def voice_pipeline(tmp_path):
     os.makedirs(tts_cache, exist_ok=True)
 
     # Import voice_pipeline now that stubs are in sys.modules
-    import services.voice_pipeline as vp_module
+    import services.voice.voice_pipeline as vp_module
 
     # Override TTS cache dir on the module
     original_cache_dir = vp_module.TTS_CACHE_DIR
     vp_module.TTS_CACHE_DIR = tts_cache
 
-    with patch("services.voice_pipeline._load_voice_settings", return_value={
+    with patch("services.voice.voice_pipeline._load_voice_settings", return_value={
         "tts_provider": "auto",
         "stt_provider": "auto",
         "wake_enabled": False,

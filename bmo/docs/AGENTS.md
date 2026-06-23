@@ -1,6 +1,6 @@
 # BMO Agents
 
-5 specialized AI agents, each owning one capability. The orchestrator picks which one(s) to invoke based on user intent.
+A set of specialized AI agents (28 routable), each owning one capability. The orchestrator picks which one(s) to invoke based on user intent. See the per-section counts below for the authoritative breakdown.
 
 The registered/routable count is 28 (the `create_*_agent()` calls in `agent.py` + `agents/_registry.py`); the tables below also list the infrastructure classes (base class, orchestrator, router, helpers) that live in `agents/` but are not routed agents themselves.
 

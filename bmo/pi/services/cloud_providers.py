@@ -407,6 +407,8 @@ def cloud_chat(messages: list[dict], model: str = "",
             try:
                 print(f"[cloud_chat] primary {model} failed ({primary_err}); "
                       f"failing over to {fallback}")
+                from services import metrics_counters
+                metrics_counters.incr("llm_failover_total")
                 return _cloud_dispatch(messages, fallback, temperature, max_tokens)
             except Exception:
                 raise primary_err

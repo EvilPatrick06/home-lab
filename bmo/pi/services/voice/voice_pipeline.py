@@ -25,7 +25,7 @@ import sounddevice as sd
 from services.cloud_providers import groq_stt, fish_audio_tts
 
 from services.bmo_logging import _s, get_logger
-from services.voice_metrics import record_stage as _record_stage
+from services.voice.voice_metrics import record_stage as _record_stage
 log = get_logger("voice_pipeline")
 
 MODELS_DIR = os.path.expanduser("~/home-lab/bmo/pi/models")
@@ -882,6 +882,8 @@ class VoicePipeline:
             try:
                 from services.cloud_providers import groq_stt, GROQ_API_KEY
                 if GROQ_API_KEY:
+                    from services import metrics_counters
+                    metrics_counters.incr("stt_cloud_fallback_total")
                     result = groq_stt(wav_bytes, prompt="Hey BMO.")
                     text = result.get("text", "")
                     segments = result.get("segments", [])
@@ -1767,6 +1769,8 @@ class VoicePipeline:
                     self._bmo_speak(text, emotion)
                     return
                 except Exception:
+                    from services import metrics_counters
+                    metrics_counters.incr("tts_fallback_total")
                     log.exception("[tts] Piper BMO failed, trying Fish Audio")
 
             try:
@@ -2095,7 +2099,7 @@ class VoicePipeline:
 
     def _bmo_speak(self, text: str, emotion: str | None = None):
         """Generate speech with custom Piper BMO voice + emotion prosody via sox."""
-        from services.voice_personality import get_prosody
+        from services.voice.voice_personality import get_prosody
 
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as raw_file:
             raw_path = raw_file.name

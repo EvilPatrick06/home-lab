@@ -8,7 +8,7 @@ import subprocess
 import sys
 
 
-from services import discord_tts
+from services.voice import discord_tts
 
 
 def _force_regex(monkeypatch):
