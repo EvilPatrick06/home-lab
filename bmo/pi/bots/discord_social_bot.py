@@ -33,6 +33,13 @@ import wave
 from typing import Optional
 
 import discord
+
+from bots.social_bot_utils import (
+    _build_progress_bar,
+    _format_duration,
+    _is_playlist_url,
+    _pcm_to_wav_48k,
+)
 from discord import app_commands
 from discord.ext import commands, tasks
 
@@ -286,20 +293,6 @@ def _get_queue(guild_id: int) -> MusicQueue:
     if guild_id not in _music_queues:
         _music_queues[guild_id] = MusicQueue()
     return _music_queues[guild_id]
-
-
-def _pcm_to_wav_48k(pcm_bytes: bytes) -> bytes:
-    """Convert 48kHz stereo 16-bit PCM to mono WAV for STT (replaces deprecated audioop)."""
-    # Left channel only — same as audioop.tomono(pcm, 2, 1, 0)
-    stereo = np.frombuffer(pcm_bytes, dtype=np.int16).reshape(-1, 2)
-    mono = stereo[:, 0].tobytes()
-    buf = io.BytesIO()
-    with wave.open(buf, "wb") as wf:
-        wf.setnchannels(1)
-        wf.setsampwidth(2)  # 16-bit
-        wf.setframerate(48000)
-        wf.writeframes(mono)
-    return buf.getvalue()
 
 
 if HAS_VOICE_RECV:
@@ -557,25 +550,6 @@ def _extract_audio_url(url: str) -> tuple[Optional[str], dict]:
         return None, {}
 
 
-def _format_duration(seconds) -> str:
-    if not seconds or seconds <= 0:
-        return "?:??"
-    seconds = int(seconds)
-    m, s = divmod(seconds, 60)
-    h, m = divmod(m, 60)
-    if h > 0:
-        return f"{h}:{m:02d}:{s:02d}"
-    return f"{m}:{s:02d}"
-
-
-def _is_playlist_url(url: str) -> bool:
-    """Check if a URL is a YouTube/YouTube Music playlist."""
-    return bool(re.match(
-        r'https?://(www\.)?(youtube\.com|music\.youtube\.com)/(playlist\?|watch\?.*list=)',
-        url
-    ))
-
-
 def _extract_playlist_tracks(url: str) -> tuple[str, list[dict]]:
     """Extract all tracks from a YouTube/YT Music playlist URL.
     Returns (playlist_title, list_of_track_dicts).
@@ -670,15 +644,6 @@ async def _ai_respond(channel_id: int, user_text: str) -> str:
 
 
 # ── Music Control View (buttons in chat) ─────────────────────────────
-
-
-def _build_progress_bar(elapsed: float, total: float, width: int = 12) -> str:
-    """Build a text progress bar like: ▬▬▬▬🔘▬▬▬▬▬▬▬"""
-    if total <= 0:
-        return "▬" * width
-    ratio = max(0.0, min(elapsed / total, 1.0))
-    pos = int(ratio * (width - 1))
-    return "▬" * pos + "🔘" + "▬" * (width - 1 - pos)
 
 
 class VolumeSelect(discord.ui.Select):
