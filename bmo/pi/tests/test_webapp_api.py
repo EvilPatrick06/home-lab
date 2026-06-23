@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib
+import os
 
 from flask import Flask
 
@@ -11,7 +12,7 @@ def _make_app(dist_dir):
     import routes.webapp_api as mod
 
     importlib.reload(mod)
-    mod._DIST_DIR = dist_dir.resolve()
+    mod._DIST_DIR = os.path.realpath(str(dist_dir))
     app = Flask(__name__)
     mod.register_webapp(app)
     return app

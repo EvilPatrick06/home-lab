@@ -20,13 +20,14 @@ If absent, every route 404s with a friendly note until the first deploy lands.
 from __future__ import annotations
 
 import os
-from pathlib import Path
 
-from flask import Blueprint, Response, send_from_directory
+from flask import Blueprint, Response, send_file
 
 webapp_bp = Blueprint("webapp", __name__)
 
-_DIST_DIR: Path = Path(os.environ.get("DND_WEB_DIST", "/home/patrick/web-apps/DungeonTableOnline")).resolve()
+# Canonical (symlink-resolved) absolute serve root. Resolving once at import
+# time means the per-request guard compares against a stable real path.
+_DIST_DIR: str = os.path.realpath(os.environ.get("DND_WEB_DIST", "/home/patrick/web-apps/DungeonTableOnline"))
 
 _NOT_DEPLOYED = (
     "Dungeon Table Online is not deployed yet. "
@@ -34,19 +35,27 @@ _NOT_DEPLOYED = (
 )
 
 
-def _safe_under_dist(rel: str) -> Path | None:
-    """Resolve `rel` under the dist dir, rejecting path traversal."""
-    candidate = (_DIST_DIR / rel).resolve()
-    if candidate == _DIST_DIR or _DIST_DIR in candidate.parents:
-        return candidate
+def _resolve_within_dist(rel: str) -> str | None:
+    """Map a request-supplied relative path to an absolute path JAILED under the
+    serve root, or None if it escapes.
+
+    Uses the path-injection barrier CodeQL recognizes (CWE-022/023/036/073/099):
+    normalize with ``os.path.realpath`` FIRST (collapsing ``..`` and following
+    symlinks), then require the result to stay within the real serve root. The
+    *normalized* value is what callers use at the file sink — never the raw
+    request string — so traversal and absolute-path inputs cannot escape.
+    """
+    full = os.path.realpath(os.path.join(_DIST_DIR, rel))
+    if full == _DIST_DIR or full.startswith(_DIST_DIR + os.sep):
+        return full
     return None
 
 
 def _serve_index() -> Response:
-    index = _DIST_DIR / "index.html"
-    if not index.is_file():
+    index = os.path.join(_DIST_DIR, "index.html")
+    if not os.path.isfile(index):
         return Response(_NOT_DEPLOYED, status=404, mimetype="text/plain")
-    return send_from_directory(str(_DIST_DIR), "index.html")
+    return send_file(index)
 
 
 @webapp_bp.route("/DungeonTableOnline/")
@@ -57,9 +66,9 @@ def webapp_index() -> Response:
 
 @webapp_bp.route("/DungeonTableOnline/<path:filename>")
 def webapp_asset(filename: str) -> Response:
-    target = _safe_under_dist(filename)
-    if target is not None and target.is_file():
-        return send_from_directory(str(_DIST_DIR), filename)
+    full = _resolve_within_dist(filename)
+    if full is not None and os.path.isfile(full):
+        return send_file(full)
     # SPA fallback — unknown path under the app base serves index.html so deep
     # links / refreshes load the app instead of 404ing.
     return _serve_index()
