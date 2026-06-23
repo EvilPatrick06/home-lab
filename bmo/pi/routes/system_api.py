@@ -791,6 +791,91 @@ def api_tts_audio_file(filename):
     return send_from_directory(tts_dir, base)
 
 
+def _prom_escape(v: str) -> str:
+    return str(v).replace("\\", "\\\\").replace('"', '\\"').replace("\n", " ")
+
+
+def _prometheus_text() -> str:
+    """Hand-rolled Prometheus text-exposition (no prometheus_client dependency).
+
+    Cheap by design: reads the in-memory voice-metric rings, process counters,
+    the health-checker's CACHED service-status dict (NOT get_status(), which
+    shells out per service), and a single get_pi_stats() sample. Safe to scrape.
+    """
+    lines: list[str] = []
+
+    # Voice pipeline stage latency aggregates
+    try:
+        from services import voice_metrics
+        m = voice_metrics.get_metrics()
+        if m:
+            lines.append("# HELP bmo_voice_stage_seconds Voice pipeline stage latency (seconds)")
+            lines.append("# TYPE bmo_voice_stage_seconds gauge")
+            for stage, agg in m.items():
+                st = _prom_escape(stage)
+                for label, key in (("avg", "avg_s"), ("p50", "p50_s"), ("p95", "p95_s"), ("max", "max_s")):
+                    lines.append(f'bmo_voice_stage_seconds{{stage="{st}",stat="{label}"}} {agg.get(key, 0.0)}')
+            lines.append("# HELP bmo_voice_stage_samples Samples currently in each stage ring")
+            lines.append("# TYPE bmo_voice_stage_samples gauge")
+            for stage, agg in m.items():
+                lines.append(f'bmo_voice_stage_samples{{stage="{_prom_escape(stage)}"}} {agg.get("count", 0)}')
+    except Exception:
+        pass
+
+    # Pi resource stats (single cheap sample)
+    try:
+        from services import monitoring
+        stats = monitoring.get_pi_stats() or {}
+        gauges = {
+            "bmo_pi_cpu_temp_celsius": stats.get("cpu_temp"),
+            "bmo_pi_cpu_percent": stats.get("cpu_percent"),
+            "bmo_pi_ram_percent": stats.get("ram_percent"),
+            "bmo_pi_disk_percent": stats.get("disk_percent"),
+        }
+        for name, val in gauges.items():
+            if val is None:
+                continue
+            lines.append(f"# TYPE {name} gauge")
+            lines.append(f"{name} {val}")
+    except Exception:
+        pass
+
+    # Service up/down gauges from the CACHED status dict (no subprocess)
+    try:
+        hc = _app().health_checker
+        cached = getattr(hc, "_service_status", {}) if hc else {}
+        if cached:
+            lines.append("# HELP bmo_service_up Service health (1=up, 0=down/degraded/unknown)")
+            lines.append("# TYPE bmo_service_up gauge")
+            for name, info in cached.items():
+                status = (info or {}).get("status", "unknown")
+                up = 1 if status == "up" else 0
+                lines.append(f'bmo_service_up{{service="{_prom_escape(name)}",status="{_prom_escape(status)}"}} {up}')
+    except Exception:
+        pass
+
+    # Process-lifetime counters (provider fallbacks, etc.)
+    try:
+        from services import metrics_counters
+        counters = metrics_counters.get_all()
+        for name, val in sorted(counters.items()):
+            metric = name if name.startswith("bmo_") else f"bmo_{name}"
+            lines.append(f"# TYPE {metric} counter")
+            lines.append(f"{metric} {val}")
+    except Exception:
+        pass
+
+    return "\n".join(lines) + "\n"
+
+
+@system_bp.route("/metrics")
+def api_metrics_prometheus():
+    """Prometheus text-exposition endpoint (voice latency, Pi stats, service
+    up/down, fallback counters). Hand-rolled; see _prometheus_text."""
+    from flask import Response
+    return Response(_prometheus_text(), mimetype="text/plain; version=0.0.4; charset=utf-8")
+
+
 @system_bp.route("/api/metrics/voice")
 def api_metrics_voice():
     """Per-stage voice-pipeline latency aggregates (count/avg/p50/p95/max seconds)."""

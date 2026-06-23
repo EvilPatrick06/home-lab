@@ -882,6 +882,8 @@ class VoicePipeline:
             try:
                 from services.cloud_providers import groq_stt, GROQ_API_KEY
                 if GROQ_API_KEY:
+                    from services import metrics_counters
+                    metrics_counters.incr("stt_cloud_fallback_total")
                     result = groq_stt(wav_bytes, prompt="Hey BMO.")
                     text = result.get("text", "")
                     segments = result.get("segments", [])
@@ -1767,6 +1769,8 @@ class VoicePipeline:
                     self._bmo_speak(text, emotion)
                     return
                 except Exception:
+                    from services import metrics_counters
+                    metrics_counters.incr("tts_fallback_total")
                     log.exception("[tts] Piper BMO failed, trying Fish Audio")
 
             try:

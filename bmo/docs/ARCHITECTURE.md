@@ -237,6 +237,9 @@ tar -xzf ~/bmo-backups/bmo-state-YYYYMMDD-HHMMSS.tar.gz -C ~/home-lab/bmo/pi
 
 ## Monitoring & Alerting
 
+**Metrics export.** `GET /metrics` serves Prometheus text-exposition (hand-rolled, no extra dependency): voice-pipeline stage latency (`bmo_voice_stage_seconds`), Pi resource gauges (`bmo_pi_cpu_temp_celsius`/`cpu_percent`/`ram_percent`/`disk_percent`), per-service up/down (`bmo_service_up`), and process-lifetime fallback counters (`bmo_llm_failover_total`, `bmo_stt_cloud_fallback_total`, `bmo_tts_fallback_total`). The endpoint reads cached state only (no subprocess), so it is cheap to scrape. `GET /api/metrics/voice` keeps the JSON snapshot. Point a lightweight scraper (e.g. a single-binary VictoriaMetrics, mind the Pi disk budget) at `/metrics` for history.
+
+
 ### Health Checks (every 60 seconds)
 
 `monitoring.py` runs a background thread that checks:
