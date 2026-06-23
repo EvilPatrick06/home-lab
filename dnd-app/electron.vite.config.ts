@@ -14,7 +14,7 @@ const pkg = JSON.parse(readFileSync(fileURLToPath(new URL('./package.json', impo
 async function analyzePlugin(): Promise<Plugin | null> {
   if (process.env.ANALYZE !== '1') return null
   const { visualizer } = await import('rollup-plugin-visualizer')
-  return visualizer({ open: true, filename: 'bundle-stats.html', gzipSize: true }) as Plugin
+  return visualizer({ open: false, filename: 'bundle-stats.html', gzipSize: true }) as Plugin
 }
 
 /** Suppress Vite 7 warnings about JSON imports from public dir (loaded via @data alias). */
