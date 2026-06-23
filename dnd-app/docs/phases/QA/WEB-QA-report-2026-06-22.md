@@ -154,6 +154,33 @@ Tested: dnd-vtt WEB build (Dungeon Table Online) v2.4.77 — 2026-06-22 · URL: 
 **Note:** Positive verification (no finding): the prior desktop QA "level-10 makes the character uncompletable (caps stuck at 3/4)" High bug does **not** reproduce here — at level 10 the builder accepted 5/5 cantrips and prepared-spell selection advanced past 4 (reached 6/15), so the caps scale correctly in web v2.4.77.
 
 ## Phase 4 — Bastion + Calendar
+### Bastion Turn cycle does nothing — empty Turn Summary, no event logged, no BP/gold/day change, no turn recorded
+- **Category:** bug
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** QA Agent
+- **During:** Phase 4 — Bastion → Bastion Turns → New Turn → Issue Maintain order → Roll d100 Event
+
+**Description:** Running a full Bastion Turn produced no result. Flow: "+ New Turn" → "Bastion Turn 1: Assign orders…" → checked **"Issue Maintain order (triggers d100 event)"** → **Execute Turn** → "Orders issued. Roll for a bastion event?" → **Roll d100 Event**. The resulting **Turn Summary modal rendered empty** — just a "Bastion Turn 1" title and an X, with **no BP earned / gold / event result and no "Complete Turn" button**. After closing + reloading, **nothing changed**: Bastion Turns (0) "No turns recorded yet", Events Log (0) "No events recorded yet", **Day still 1, 0 BP, Treasury unchanged**. No console error was thrown.
+
+**Reproduction:**
+1. Open a bastion → Bastion Turns → + New Turn.
+2. Check "Issue Maintain order (triggers d100 event)" → Execute Turn → Roll d100 Event.
+3. Summary modal is empty (no outcome, no Complete Turn).
+4. Reload → Bastion Turns 0, Events Log 0, Day/BP/Treasury unchanged.
+
+**Expected behavior:** The turn should produce a Turn Summary (BP earned, gold, event), log the d100 event in Events Log, advance the day/turn counter, and record the turn — or, if a Lv-1 facility-less bastion legitimately has nothing to maintain, the summary should say so instead of rendering blank.
+
+**Hypothesis / root cause:** The turn-execution path may early-return with no special facilities to process and never populate the summary or persist a turn record; or the summary-state update fails (related to the Bastion reactivity issue above). Speculation.
+
+**Suggested action:** Populate the Turn Summary with the actual outcome (incl. a "no special facilities" empty-state), log the rolled event, persist the turn + advance the day.
+
+**Environment:** web build · English · Dark · Lv-1 owner, 2 basic facilities, 0 special
+
+**Related files:** `dnd-app/src/renderer/src/` (Bastion turn execution + Turn Summary modal + Events Log + bastion store)
+
+**Note (verified working):** Special-facility level-gating is correctly enforced — at Lv 1 the cap is 0/0 and the "Add Special Facility" button is disabled with the note "Special facilities unlock when the bastion owner reaches level 5 (2024 DMG)". The turn-cycle UI flow (New Turn → Issue Maintain → Roll/Skip d100 Event) all renders and advances through its steps.
+
 ### Bastion mutations (create, treasury deposit) persist but the UI doesn't update until a full page reload
 - **Category:** bug
 - **Severity:** medium
@@ -203,6 +230,31 @@ The data layer is fine; the **reactive UI update after a mutation is broken** in
 **Related files:** `dnd-app/src/renderer/src/pages/` (Bastion page / Create Bastion modal)
 
 ## Phase 6 — In-game: map, combat & DM tools (Solo)
+### Fog of War "Hide All" shows no visible concealment (DM view no tint; player-view inconclusive in-harness) — matches desktop report
+- **Category:** bug
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** QA Agent
+- **During:** Phase 6 — in-game → Map editor (Edit Map) → Fog tab → Hide All, then Switch to Player View (QA Solo Fighter)
+
+**Description:** In the map editor the **Fog** tab exposes Reveal/Hide brush, brush sizes (1x1/3x3/5x5), **Reveal All / Hide All**, and a Dynamic Vision toggle — the buttons respond (Hide All highlights when active). But clicking **Hide All** produced **no visible fog overlay in the DM view** (map stayed fully visible, no tint). Switching to the player view (Switch to Player View → QA Solo Fighter) the visible portion of the map also still rendered rather than being concealed. This matches the desktop QA report's High "Fog of War 'Hide All' shows no effect" finding.
+
+**Caveat (honest):** I could not get a fully clean player-view capture — the player HUD overlay plus the app's fixed in-game UI scale made it impossible to render the whole board uncovered through the browser-automation harness, so the player-view concealment check is **inconclusive/unverified** (the part I could see was not concealed). DM-view "no tint" is weaker evidence alone (some VTTs let the DM see through fog). Filing as medium + cross-referencing the desktop finding rather than asserting a hard repro.
+
+**Reproduction:**
+1. Enter a game → Map tab → Edit Map → Fog tab.
+2. Click Hide All. DM view: no visible fog/tint over the map.
+3. Switch to Player View (QA Solo Fighter): visible map area still rendered.
+
+**Expected behavior:** Hide All should conceal the whole map for players (and show a clear fog overlay in the DM view); Reveal/brush carves out visible areas.
+
+**Suggested action:** Verify the fog mask is actually rendered/applied for player view on Hide All; confirm the DM-view fog overlay draws.
+
+**Environment:** Solo game · web build · English · Dark · DM view + As player: QA Solo Fighter
+
+**Note (verified present/responsive):** The map editor works — tabs Tokens / Fog / Terrain / Regions / Grid / Npcs, a left DM-tools rail (Select, Token, Reveal Fog, Hide Fog, **Wall**, Measure), the Place-Token panel (search monsters, entity type, HP/AC/size, Prepare Token), and drawing tools (free draw / line / rect / circle / text). View-As is full-featured (Self / As player / As role: DM, Co-DM, Player, Spectator). Walls/dynamic-lighting/AoE *render effects* not deep-verified (same HUD/zoom harness limits).
+**Also:** the in-game player HUD shows **AC 16** (correct, Chain Mail) for QA Solo Fighter — confirming the Phase 2 "AC 6" bug is isolated to the **character-sheet display**, not the in-game effective-AC calc.
+
 
 ### [High] Entering a game hard-crashes ("Failed to fetch dynamically imported module: InGamePage-*.js") for any session open across a redeploy
 - **Category:** bug | portability
@@ -394,14 +446,14 @@ The data layer is fine; the **reactive UI update after a mutation is broken** in
 
 ## Could not test
 
-- **Bastion advance-time / Bastion Turn cycle** and **fog of war / dynamic lighting / walls+doors / AoE templates** — attempted this session but HARD-BLOCKED: mid-run the app root began returning HTTP 401 because BMO_API_KEY hardening got enabled on BMO and the static /DungeonTableOnline/* routes are not exempted from the auth gate (see the Critical finding). The browser can no longer load the app, and I did not alter BMO's auth config to work around it. These remain to be driven once the SPA routes are exempted (or the key is unset).
-The following were not testable in this unattended web run and are genuine environment/dependency blockers (not out-of-scope omissions):
+The following are genuine environment/dependency blockers (not out-of-scope omissions):
 
-- **In-game surface — now TESTED (Solo).** Reached the in-game board via a saved character + a Solo campaign → Play. After a fresh load the board works (battlemap render, DM sidebar, Combat/Magic/Dice/Map panels, drawing tools, View-As selector, `/roll` dice). Still not exercised in depth this run: fog/lighting/AoE/walls, the full combat tracker flow, every DM panel, and cross-client View-As (needs a 2nd profile). The redeploy crash on entry is filed as a High finding in Phase 6.
-- **AI Dungeon Master (local providers).** The only supported AI providers are local (Ollama / llama.cpp at `localhost:11434`). The web build is served from `https://bmo.mybmoai.work`, and the Settings → Ollama AI section reports "Ollama is not installed"; a cloud-served browser page generally cannot reach the user's loopback, so the AI DM could not be run (see the Phase 13 Ollama portability finding). No cloud AI creds are configured (known/intended — not listed as a gap).
-- **Full 2-client multiplayer matrix** (lobby ready→start, cross-client HP/token/fog sync, kick/ban-rejoin, host/player/solo rejoin-resume, End Session propagation, Cloud-vs-Self host independence). Blocked by the shared-browser-profile limitation above; needs two separate browsers/profiles or two devices.
-- **Bastion advance-time / Bastion Turn cycle** (assign facility orders, Maintain order, d100 event, Turn Summary, Complete Turn) was not run to completion — but Bastion creation, the detail view, and Treasury deposit ARE now tested (see Phase 4; the reactivity bug there is filed).
-- **Native file flows** (Export All Data, Export/Import Settings, Import, Audio upload). In the browser these become Blob downloads / `<input type=file>` pickers; not exercised to completion to honor the unattended-run no-download posture. The buttons render and are wired.
+- **AI Dungeon Master (local providers).** The only supported AI providers are local (Ollama / llama.cpp at `localhost:11434`). The web build is served from `https://bmo.mybmoai.work`, and Settings → Ollama AI reports "Ollama is not installed"; a cloud-served browser page generally cannot reach the user's loopback, so the AI DM could not be run (see the Phase 13 Ollama portability finding). No cloud AI creds are configured (known/intended — not a gap).
+- **Full 2-client multiplayer matrix** (lobby ready→start, cross-client HP/token/fog sync, kick/ban-rejoin, host/player/solo rejoin-resume, End Session propagation, Cloud-vs-Self host independence). Blocked by the shared-browser-profile limitation (two tabs share one client UUID); needs two separate browsers/profiles or two devices. (Invite-code join + host moderation controls were confirmed — see Phase 11.)
+- **Walls/dynamic-lighting/AoE-template *visual render effects* and a conclusive player-view fog-conceal check.** The map editor tools (Wall, fog brush, terrain, regions, drawing, View-As) were exercised and respond, but the player HUD overlay + the app's fixed in-game UI scale prevented a clean full-board capture through the browser-automation harness to confirm the rendered concealment/lighting effects (see the Phase 6 fog finding, filed with that caveat). Needs a real browser at normal scale (or a screenshot-capable harness).
+- **Native file flows** (Export All Data, Export/Import Settings, Import, Audio upload). In the browser these become Blob downloads / `<input type=file>` pickers; not run to completion to honor the unattended-run no-download posture. The buttons render and are wired.
 - **Discord DM bot (Phase 12).** Out of the web SPA's surface — the DM bot's slash commands and Dungeon VC live in Discord + the Pi, not the browser app, and there is no Discord access in this unattended run. The web Settings → Discord Integration section (just a "Push to Discord" toggle + Save) renders.
 
-**Screenshots:** Chrome screenshots could not be persisted to disk in this automated web-driver environment, so the `screenshots/` folder is empty and findings are documented with detailed text reproductions instead. (Noted so a future run with a screenshot-capable driver can attach evidence.)
+**Note — recurring blocker during the run:** the app was intermittently unreachable because (a) `BMO_API_KEY` hardening 401s the whole SPA (filed Critical), and (b) frequent `dnd-app` redeploys delete the chunks an open session references, hard-crashing navigation (filed High). Both were worked around by reloading/waiting; they did not prevent completing the tests above once the app was reachable.
+
+**Screenshots:** Chrome screenshots could not be persisted to disk in this automated web-driver environment, so the `screenshots/` folder is empty and findings are documented with detailed text reproductions instead.
