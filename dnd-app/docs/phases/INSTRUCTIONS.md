@@ -18,7 +18,10 @@
 >
 > For any extensive dnd-app work outside a plan file, these rules still apply
 > in full: the 4-gate (rule 5), git discipline (per-agent branch + worktree, rule 11), ISO
-> dates (rule 18), STOP-and-ask escalation (rule 9), and **especially rule
+> dates (rule 18), the single STOP-and-ask test (rule 9, identical to rule 27:
+> stop ONLY for **(a)** a genuine blocker / impossibility or **(b)** a new human
+> decision the plan didn't cover — NEVER for size / risk / scope / low
+> confidence), and **especially rule
 > 10/151/153 (NO mid-run status reports or turn-ending prose — the last thing
 > in every response is a tool call) and rule 27/159 (NO deferral / "needs
 > testing" / "out of scope" / scope-questions — implement it, gate, commit,
@@ -125,17 +128,22 @@ Include the move in the phase commit (or a tiny follow-up `chore(phases): phase 
 
 Progress is visible the same way: the top-level `phases/` folder shrinks as work lands; a plan still at top level is unfinished work; `completed/` holds everything that shipped.
 
-### 9. If something is confusing or seems conflicting, STOP and ask
-If you encounter any of the following, do NOT improvise. Stop and ask the user:
-- A step's described pre-state doesn't match the actual code, and the right fix isn't obvious
-- Two parts of the same plan contradict each other
-- The plan conflicts with another phase plan that depends on it or is depended on by it
-- A constraint or acceptance criterion is ambiguous
-- A test fails for a reason the plan doesn't address
-- Scope creep is tempting ("while I'm in here, should I also...")
-- A file the plan says to touch doesn't exist, OR a file the plan doesn't mention needs changes
+### 9. STOP-and-ask ONLY for (a) a genuine blocker or (b) a new human decision — never for size/risk/scope
 
-When asking: cite the specific plan line, the specific code line, and the specific concern. Give the user enough context to answer without re-reading everything.
+This is the **single escalation test for the whole file, and it is identical to rule 27.** Do not improvise around a real blocker — but do not stop for size, risk, breadth, or low confidence either. Stop and ask the user **only** when one of these two cases genuinely holds:
+
+- **(a) Genuinely blocked / impossible** — you literally cannot complete the step correctly. Examples: two parts of the same plan flatly contradict each other so a step is impossible; this plan contradicts a plan it depends on (or that depends on it) in a way that makes the work impossible; a described pre-state contradicts the code *and* you cannot determine the intended behavior; a dependency you cannot create; a test failure you genuinely cannot diagnose or resolve; an irreversible / destructive / data-loss action the plan did not authorize.
+- **(b) Needs a NEW human decision** the plan / approval / scope did not cover — a real product or judgment call. Examples: choosing between two valid product behaviors; an unrequested scope *expansion* that is itself a product decision; a security / privacy trade-off; a breaking third-party major-version bump. **"This is big / risky / a broad refactor / I'm not 100% sure" is explicitly NOT such a decision.**
+
+**These are NOT rule-9 triggers — handle them and keep going (never stop, defer, stub, or hand back):**
+
+- **Size, risk, breadth, length, or low confidence.** Implement it anyway; the `auto/*` branch + CI + fix-forward is the safety net (rule 27). A behavior change you can't runtime-verify still ships per the plan (opt-in / off-by-default if genuinely risky).
+- **An ambiguous constraint / acceptance criterion you can resolve sensibly.** Pick the reasonable reading, implement, and note the assumption in the plan's `## Completed`. It is only case (b) if the choice is a genuine product decision.
+- **Plan drift you can correct** (file moved, lines shifted, function renamed, a named file is missing but the intended target is clear, or a file the plan didn't list needs an in-scope edit to finish the assigned fix). Update the plan inline per rule 3 / rule 22 and proceed — case (a) only if you truly cannot tell what the plan intended.
+- **A failing test / red gate you can fix.** Fix it forward (rule 5); a red gate or red CI run is normal turnaround, not a stop.
+- **"Scope creep is tempting" — a *separate*, unrelated finding.** Do NOT inline-fix it: log it per rule 12 and keep executing the in-scope work. Making the in-scope edits the assigned fix actually requires is not scope creep — that is the work (rule 27).
+
+When case (a) or (b) genuinely holds: cite the specific plan line, the specific code line, and the specific blocker or the specific decision; fire `notify.sh` per rule 23; then wait. Give the user enough context to answer without re-reading everything.
 
 After asking, follow the user's instructions exactly. No improvising, no second-guessing once they've answered.
 
@@ -153,7 +161,7 @@ Don't pause for confirmation between sub-phases. Don't pause for confirmation be
 - "I reached a natural checkpoint / milestone." Checkpoints are for a one-line progress note (rule 21), not for stopping.
 - "The remaining items are a roadmap I generated myself (e.g. from a review/audit), not formal phase-plan files." **A self-generated roadmap or task-list is treated EXACTLY like the plan folder** — every remaining item is a sub-phase to grind. "These are big / XL / policy-laden / behavior-risky / need a user decision" is NOT a stop reason: implement each one, and if a feature changes runtime behavior in a risky way, ship it **opt-in / off-by-default** and keep going — never pause to ask the user which item to do or to "reply continue." (Reaffirmed 2026-06-02 after the agent shipped 8 releases then twice stopped to ask "which big feature next?" / "reply continue" — the user was furious.)
 
-Stopping or handing back the turn when the work is merely large/hard/long/manual-test-suggested/"a big feature needing direction" is **breaking this rule**. Only a genuine rule-9 trigger (confusion, contradiction, ambiguity that blocks correct work, a real failure you can't resolve) or an explicit user "stop" ends the loop.
+Stopping or handing back the turn when the work is merely large/hard/long/manual-test-suggested/"a big feature needing direction" is **breaking this rule**. Only a genuine rule-9 trigger — **(a)** genuinely blocked / impossible, or **(b)** a new human decision the plan didn't cover (the exact same (a)/(b) test as rule 27) — or an explicit user "stop" ends the loop. "Big / risky / scope / low confidence" is none of those.
 
 **Do not mark anything `COMPLETE`/`DONE` and then end the turn as if handing off.** Completing a sub-phase means: commit, push, then *immediately* start the next sub-phase/phase in the same turn. The only acceptable ways a turn ends are (a) a rule-9 STOP-and-ask (which surfaces to the user), or (b) every plan in the folder is shipped and removed and the rule-14 end-of-run summary is written. A "completed, here's a summary, want me to continue?" ending is a rule-10 violation.
 
@@ -319,7 +327,7 @@ Example after sub-phase `15a` ships:
 
 Commit the doc edit in the SAME commit as the code (or as a follow-up commit before pushing). The Completed section is the progress tracker; if it stays empty after sub-phases land, future sessions can't tell what's done without re-running verification.
 
-If a sub-phase lands partially (some Steps green, others deferred), reflect that honestly: `DONE` for the green parts, `PARTIAL — <reason>` for the rest. Never mark something `DONE` you didn't verify.
+A sub-phase only ever lands *partially* because a rule-9 case fired and the user authorized leaving the rest — i.e. **(a)** a genuine blocker stopped a Step, or **(b)** a new human decision is pending (rule 27). It is **never** partial because the work was big or risky — that gets implemented (rule 27). When a partial is legitimate, reflect it honestly: `DONE` for the verified parts, `PARTIAL — <reason; add "deferred per user YYYY-MM-DD" when the user authorized it>` for the rest. Never self-originate a defer, and never mark something `DONE` you didn't verify.
 
 ### 18. ISO-date every stamp
 Anywhere the loop writes a date — log entries (rule 12), summary timestamps (rule 14), `Completed` "verified <date>" lines (rule 17), commit message dates, memory entries — use ISO format `YYYY-MM-DD` and pull the value from the system:
@@ -373,7 +381,7 @@ THEN start implementation against the corrected plan. The implementation commit 
 
 Rationale: mixing plan edits with implementation hides the "the plan was wrong" signal in the diff. Future contributors reading `git log` should see a clear sequence: "plan amended → work done against amended plan." Not: "everything changed at once, good luck."
 
-If the amendment is large (multiple Steps need rewording, a Sub-Phase needs splitting), treat it as a rule 9 STOP-and-ask trigger — the plan may need user input before you can sensibly correct it.
+**Amendment size is not a stop reason.** A large-but-clear amendment (multiple Steps reworded, a Sub-Phase split) is normal work — land it in its own commit per this rule and proceed (rule 27). Treat it as a rule 9 STOP-and-ask **only** when correcting it hits the (a)/(b) test: **(a)** the plan is internally contradictory so you genuinely cannot tell what it *should* say, or **(b)** the correction requires a new product / judgment call the plan didn't cover.
 
 ### 23. SMS the user on every STOP-and-ask trigger
 Any time rule 9 fires — or any rule that cites it (10, 11, 15, 16, 19, 22) — call the notification script BEFORE waiting on the user. The user is not at the terminal during long runs; silent STOPs waste hours.
@@ -508,9 +516,9 @@ while plans remain in dnd-app/docs/phases/ (excluding INSTRUCTIONS.md):
   plan = earliest phase-N-plan.md
   review(plan)
   verify(plan, code)
-    -> plan drift discovered: amend plan first in its own commit (rule 22)
+    -> plan drift discovered: amend plan first in its own commit (rule 22) — large-but-clear amendments are normal work, just land them
        touch ~/.claude-tools/heartbeat
-    -> amendment is large/ambiguous: STOP_AND_ASK("warn", "plan amendment too large", <details>)
+    -> amendment hits the (a)/(b) test (a: plan is contradictory, can't tell intended; b: needs a new product call): STOP_AND_ASK("warn", "plan amendment needs a decision", <details>)  # size alone is NOT a trigger (rule 22/27)
 
   sub_phase_counter = 0
   for each sub-phase in plan:
@@ -537,15 +545,15 @@ while plans remain in dnd-app/docs/phases/ (excluding INSTRUCTIONS.md):
       if `git ls-remote --heads origin | grep -vE 'refs/heads/(master|auto/)'` is non-empty:
         STOP_AND_ASK("warn", "unexpected branch found mid-phase", <branch + last commit + diff stat + recommendation>) (rule 11)
 
-  # END-OF-PHASE 4-gate + single commit (rule 5, user 2026-05-19):
-  run 4-gate (lint + tsc-web + tsc-node + vitest; pytest if Pi-side)
-  if 4-gate red:
-    STOP_AND_ASK("warn", "phase N — 4-gate red at end-of-phase", <which gate + cited line + fix path>) (rule 5)
-    fix in place + re-run until green; do NOT commit, do NOT advance phase
+  # END-OF-PHASE biome autofix + single commit (rule 5, user 2026-05-19 / 2026-06-17):
+  cd dnd-app && npx biome check --write src/     # instant autofix/format ONLY — do NOT run the full local 4-gate (rule 5)
   git add <every file touched during the phase>
   git mv dnd-app/docs/phases/PHASE-NN-<slug>.md dnd-app/docs/phases/completed/   (rule 8 — never delete)
   git commit -m "feat(<scope>): phase N — <one-line theme>" -m "<body listing each sub-phase>"
   git push -u origin auto/phase-executer   # your agent branch, NEVER master (rule 11; integrator merges to master)
+  launch background CI watcher (rule 5) + immediately start the next phase
+  # CI runs the authoritative full gate on the push. A red CI conclusion is fix-forward (rule 5) — a NEW commit, NOT amend/force —
+  # and is NOT a rule-9 STOP. STOP_AND_ASK only if a failure is genuinely unresolvable (case (a), rule 9/27).
   touch ~/.claude-tools/heartbeat                                         (rule 24)
   # NO release here (rule 6, user 2026-06-10) — releases happen once, after the LAST phase,
   # or mid-run ONLY on an explicit user ask.
