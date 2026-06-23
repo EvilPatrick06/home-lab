@@ -12,6 +12,254 @@
 
 ---
 
+### Add a CI gate enforcing en/es locale key parity (check-keys.mjs validates en.json only)
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Added scripts/i18n/check-locale-parity.mjs (npm `i18n:check-parity`) and wired it into `check:full`: it flattens every non-source locale and exits non-zero on any key missing from OR extra vs en.json. check-keys.mjs only validated that referenced keys exist in en.json. es.json is currently in parity (6411 keys, exit 0).
+
+**Category:** future-idea · **Severity:** low · **Domain:** dnd-app · **Discovered by:** dnd-suggestor · **Added:** 2026-06-22
+
+`scripts/i18n/check-keys.mjs` flattens `en.json` and fails when a renderer `t('literal')` call references a key missing from **en.json** — but nothing validates that `es.json` carries the same key set. Today parity is perfect (both locales flatten to 6411 leaf keys, zero diff either direction), so the gap is latent: a contributor who adds an `en` key and forgets the matching `es` key gets no CI failure — `es` users silently fall back to the en string (or the raw key if i18next fallback is disabled). Proposal: extend `check-keys.mjs` (or add `scripts/i18n/check-locale-parity.mjs` wired into `check:full` / `check:release`) to diff every non-source locale's flattened key set against `en.json` and exit non-zero on any missing/extra key. Cheap insurance that scales as more locales are added. Related: `scripts/i18n/gen-key-union.mjs`, `src/renderer/src/i18n/locales/{en,es}.json`.
+
+---
+
+### [2026-06-22] Duplicate, already-diverging `PLUGIN-SYSTEM.md` — one at repo-root `docs/`, one in `dnd-app/docs/`
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Reduced the stale repo-root docs/PLUGIN-SYSTEM.md (the shorter, drifted mirror) to a one-line pointer at the canonical dnd-app/docs/PLUGIN-SYSTEM.md (the fuller copy the dnd-app README links to). No live inbound links broken — only historical phase-doc mentions reference the root copy; dnd-app/scripts/build/sync-doc-counts.mjs targets the dnd-app copy.
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+There are two `PLUGIN-SYSTEM.md` files, both titled `# Plugin System - dnd-app`, describing the same dnd-app plugin API:
+
+- `docs/PLUGIN-SYSTEM.md` (repo root, ~6.6 KB)
+- `dnd-app/docs/PLUGIN-SYSTEM.md` (~11.2 KB)
+
+They already disagree: the root copy is shorter/older and even points readers at the dnd-app copy for the trust model ("see the trust model in `dnd-app/docs/PLUGIN-SYSTEM.md`"), so the root file is effectively a stale partial mirror of the canonical one. Two copies of a domain-specific doc is exactly the drift pattern the per-domain doc split was meant to avoid. (Note: the dnd-app `README.md` "Plugin system" section links to `./docs/PLUGIN-SYSTEM.md`, i.e. the dnd-app copy — so the root copy has no obvious inbound link from dnd-app.)
+
+**Proposed fix / improvement:**
+- [ ] Treat `dnd-app/docs/PLUGIN-SYSTEM.md` as canonical (it is the fuller, linked one). Replace `docs/PLUGIN-SYSTEM.md` with a one-line pointer to it, or delete the root copy if nothing references it (grep first: `git grep -n "docs/PLUGIN-SYSTEM.md"`).
+- [ ] If the root copy must stay (e.g. monorepo-level index), reduce it to a stub link so the content lives in exactly one place.
+
+**Related files:** `docs/PLUGIN-SYSTEM.md`, `dnd-app/docs/PLUGIN-SYSTEM.md`, `dnd-app/README.md`
+
+---
+
+### [2026-06-22] Local pre-commit hook gates only dnd-app; `.githooks/` dir is now orphaned
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** (1) Deleted the orphaned .githooks/ dir — its gitleaks shim was already folded into .husky/pre-commit and core.hooksPath points at .husky; removed the now-pointless .githooks/** path triggers from security-audit.yml. (2) Made .husky/pre-commit project-aware via `git diff --cached`: the Biome staged-check runs repo-wide, dnd-app tsc:web runs only when dnd-app files are staged, and dungeon-scholar `npm test` runs when its files are staged (oracle-worker has no test/build script). Hook syntax validated.
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** cross-cutting repo-wide scan
+
+**Description:**
+`.husky/pre-commit` does `cd dnd-app` then runs biome + tsc on that project only. Commits touching `dungeon-scholar`, `oracle-worker`, or repo-root tooling get no local lint/typecheck/test pre-flight (dungeon-scholar`s first gate is the deploy workflow; oracle-worker has none). Separately, `.githooks/pre-commit` is now redundant — its gitleaks shim was folded into `.husky/` per that hook`s own comment, yet the old dir remains and can confuse anyone setting `core.hooksPath`.
+
+**Proposed fix / improvement:**
+- [ ] Make the hook detect which project(s) have staged changes and run each one`s lint/typecheck (at minimum add dungeon-scholar test/build).
+- [ ] Delete the orphaned `.githooks/` directory once `.husky` is confirmed authoritative.
+
+**Related entries:** `ISSUES-LOG-DNDAPP.md` [2026-06-16] pre-commit `--staged` no-op (distinct dnd-app-only bug).
+**Related files:** `.husky/pre-commit`, `.githooks/pre-commit`
+
+---
+
+### [2026-06-22] Stale one-off data-pipeline scripts (~6,000 LOC) linger in `scripts/{extract,generate,fix,batch-utils,codemods}` with no callers
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Deleted the retired one-time 5e pipeline: scripts/{extract,generate,fix,batch-utils,codemods} (40 files, ~6k LOC; zero code references — the dataset is stable and committed). Removing them orphaned the `@langchain/langgraph` devDependency, which was pruned from package.json + package-lock.json. Updated docs/DATA-FLOW.md. knip's broad scripts/** entry glob still covers remaining scripts; `npm run dead-code` exits 0.
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+The 5e content set is fully built and shipped (3,033 JSON files under `src/renderer/public/data/5e/`), but the one-time pipeline that produced it still sits in the tree as live source:
+
+- `scripts/extract/` — 17 files, ~3,195 LOC (`extract-5e-data`, `extract-monsters`, `extract-weapons`, `extract-subclasses-to-batch`, …)
+- `scripts/generate/` — 9 files, ~1,425 LOC (incl. clearly historical `generate-phase4-batch`, `generate-phase5-batch`, `generate-mass-batch`, `generate-mega-batch`)
+- `scripts/fix/` — 4 files, ~813 LOC (`fix-data-placements`, `fix-monster-enums`, `phase4-discovery`, `reorganize-data`)
+- `scripts/batch-utils/` — 8 files, ~616 LOC (`monitor-phase4-batch`, `resume-batch`, `retry-failed`, `check-batch`, …)
+- `scripts/codemods/` — `form-aria-label.mjs`, `semantic-tokens.mjs`
+
+A by-name grep across the whole repo shows ZERO references to any of these from app code, `package.json` scripts, or `.github/workflows/` — the only inbound mentions are the few cross-references *between* the batch scripts themselves and one historical doc line (`docs/DATA-FLOW.md:27` cites `scripts/extract/`). They were last meaningfully touched 2026-04-23/24 (only moved since, in the monorepo reorg). `knip` cannot flag them because `knip.json` globs `scripts/**/*.ts` + `scripts/**/*.mjs` as entry points, so the whole pile is invisible to `npm run dead-code` and accumulates silently.
+
+**Hypothesis / root cause:** one-time extraction/migration/QA-batch tooling that was never archived after the data set stabilized; the broad knip `entry` glob hides it from dead-code detection.
+
+**Proposed fix / improvement:**
+- [ ] Confirm with the maintainer that the 5e data set is frozen (no planned re-extraction), then move these dirs under a clearly-labeled `scripts/_oneoff/` (or `_archive/`) — or delete them, since git history preserves them.
+- [ ] If kept for reproducibility, add a `scripts/README.md` separating "active" (wired to npm/CI) from "historical pipeline" scripts so contributors don't mistake them for live tooling.
+- [ ] Narrow the `knip.json` `scripts/**` entry glob to the scripts actually invoked, so future one-off scripts surface as unused.
+
+**Related files:** `scripts/extract/`, `scripts/generate/`, `scripts/fix/`, `scripts/batch-utils/`, `scripts/codemods/`, `knip.json`, `docs/DATA-FLOW.md`
+
+---
+
+### [2026-06-22] Five overlapping `scripts/audit/*` data-audit scripts (~3,100 LOC) — accreted duplication, none wired into npm/CI
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Consolidated: removed the 4 redundant audit scripts (comprehensive-audit, data-audit, deep-verify, data-audit-full; ~2.4k LOC, zero references) and kept the canonical ultimate-audit.ts (the one cited in DATA-FLOW.md). The live, wired-in files — check-5e-cross-refs.mjs (validate:5e), validate-content-vs-schemas.ts (validate:content), and shared-5e-sync.test.ts (CI) — are untouched.
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+`scripts/audit/` contains five scripts that all do essentially the same job — walk the 5e source markdown (PHB/DMG/MM), cross-reference the extracted JSON, validate schemas, and flag missing/duplicate/truncated entries — distinguished mostly by escalating names rather than scope:
+
+- `comprehensive-audit.ts` (923 LOC) — "COMPREHENSIVE D&D 5.5e DATA AUDIT"
+- `ultimate-audit.ts` (732 LOC) — "ULTIMATE D&D 5.5e DATA AUDIT"
+- `data-audit.ts` (608 LOC) — "Phase 6 — Comprehensive Data Audit v2"
+- `deep-verify.ts` (525 LOC) — "DEEP DATA VERIFICATION"
+- `data-audit-full.ts` (336 LOC) — "Comprehensive D&D 5.5e Data Audit"
+
+Only `ultimate-audit.ts` is referenced anywhere (one line in `docs/DATA-FLOW.md`); the npm `validate:5e` / `validate:content` scripts use the *separate* `check-5e-cross-refs.mjs` and `validate-content-vs-schemas.ts`, so none of these five run in CI or via any npm script. The naming pattern ("v2", "full", "comprehensive", "deep", "ultimate") is a classic sign of an audit that kept getting rewritten from scratch instead of refactored, leaving every prior version behind.
+
+**Hypothesis / root cause:** iterative re-authoring of the data-QA audit during the extraction phase; old versions never removed once the next "definitive" one landed.
+
+**Proposed fix / improvement:**
+- [ ] Pick one canonical audit (likely `ultimate-audit.ts`, the doc-referenced one), verify it subsumes the others, and delete the remaining four.
+- [ ] If the canonical audit is worth keeping, wire it into an npm script (e.g. `audit:data`) so it doesn't rot.
+- [ ] Update `docs/DATA-FLOW.md` if the kept script's name changes.
+
+**Related files:** `scripts/audit/comprehensive-audit.ts`, `scripts/audit/ultimate-audit.ts`, `scripts/audit/data-audit.ts`, `scripts/audit/deep-verify.ts`, `scripts/audit/data-audit-full.ts`, `docs/DATA-FLOW.md`
+
+---
+
+### [2026-06-22] `tools/` holds 7 unreferenced one-off maintenance/codemod scripts (~1,830 LOC, incl. a 1,096-LOC `run-audit.js`)
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Deleted dnd-app/tools/ entirely (7 scripts, ~1.8k LOC): run-audit.js + its only consumer electron-security.js, plus replace-console-logs / rename-to-kebab / find-data / find-unused-imports / knip-summary — all zero external references (the codemods already ran; lint + dead-code are now handled by biome + knip). Removed the now-empty `tools/**/*.js` entry glob from knip.json.
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+The top-level `dnd-app/tools/` directory contains seven JS scripts, none of which are referenced by `package.json`, CI workflows, or app code (by-name grep returns zero inbound references; the sole mention is one historical phase doc citing `replace-console-logs.js`):
+
+- `run-audit.js` (1,096 LOC), `replace-console-logs.js` (225), `rename-to-kebab.js` (194), `electron-security.js` (248), `find-data.js` (28), `find-unused-imports.js` (17), `knip-summary.js` (23)
+
+These read as one-off codemods / migration helpers (kebab-case rename, console.log replacement) and ad-hoc audit tooling that overlap with the now-standard tooling actually wired into npm (`biome`, `knip`, the `scripts/audit/` + `scripts/lint/` scripts). `tools/` also duplicates the role of `scripts/` with no documented distinction between the two directories, which is itself a structural smell. `electron-security.js` is worth a closer look before deletion — confirm it isn't a stale copy of security settings now enforced in `src/main/`.
+
+**Hypothesis / root cause:** ad-hoc tooling dropped into a second top-level scripts directory during earlier refactors; never cleaned up or folded into `scripts/`.
+
+**Proposed fix / improvement:**
+- [ ] Confirm each `tools/*` script is superseded (knip/biome cover the lint/dead-code ones; the codemods already ran), then delete or move the survivors under `scripts/maintenance/`.
+- [ ] Collapse `tools/` into `scripts/` (or document why both exist) so contributors have one place to look for repo tooling.
+
+**Related files:** `tools/run-audit.js`, `tools/replace-console-logs.js`, `tools/rename-to-kebab.js`, `tools/electron-security.js`, `tools/find-data.js`, `tools/find-unused-imports.js`, `tools/knip-summary.js`
+
+---
+
+### [2026-06-22] Tests writing through a Windows-style mocked `app.getPath` create a stray `C:/` directory in the repo working tree
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Root cause already fixed by the log.ts guard (the Windows-path log-leak issue): a non-POSIX userData path now redirects to os.tmpdir(). Additionally repointed the two test mocks (ai-service-web-search-approval, ai-service-file-read-cancel) from 'C:/tmp'/'C:/app' to POSIX-absolute /tmp paths so no stray C:/ dir can materialize. Stray dir removed and `C:/` gitignored (with the log.ts fix). Both tests pass.
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+A literal directory named `C:` exists at `dnd-app/C:/tmp/logs/app.log` (~3.2 KB, last written 2026-06-09) — a leftover test artifact, not real source. `src/main/log.ts` builds its log path via `join(app.getPath('userData'), 'logs', 'app.log')`. Two main-process tests mock `app.getPath` to the Windows-style string `'C:/tmp'` (`src/main/ai/ai-service-web-search-approval.test.ts`, `src/main/ai/ai-service-file-read-cancel.test.ts`). On Linux, `join('C:/tmp', 'logs', 'app.log')` is treated as RELATIVE, so any log write during those tests materializes `./C:/tmp/logs/app.log` under the `dnd-app/` cwd. `C:` is NOT gitignored, so it appears as an untracked path and risks accidental commit. (`ai-handlers.test.ts:57` already notes that `'C:/tmp'` is relative on Linux.)
+
+**Hypothesis / root cause:** test mock returns a path that is absolute on Windows but relative on POSIX; the file-logging side effect isn't redirected to a temp dir.
+
+**Proposed fix / improvement:**
+- [ ] Delete the stray `dnd-app/C:/` directory.
+- [ ] Add `C:/` to `dnd-app/.gitignore` as a guard against re-committing the artifact.
+- [ ] Mock `app.getPath` to an `os.tmpdir()`-based path (or stub the file logger) so test FS writes never leak into the repo.
+
+**Related files:** `src/main/log.ts`, `src/main/ai/ai-service-web-search-approval.test.ts`, `src/main/ai/ai-service-file-read-cancel.test.ts`, `dnd-app/.gitignore`
+
+---
+
+### [2026-06-22] Pin one Node version for the whole monorepo (.nvmrc / engines) instead of repeating `node-version: 22`
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Added root `.nvmrc` (22), `engines.node` (>=22) to dnd-app/dungeon-scholar/oracle-worker package.json, and switched all 8 `node-version: 22` pins across 6 workflows (dnd-app-ci, dnd-web-deploy, security-audit, dnd-app-validate-5e, release x3, deploy) to `node-version-file: .nvmrc`. Workflow YAML validated; the toolchain version now lives in one place.
+
+- **Category:** portability
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** cross-cutting repo-wide scan
+
+**Description:**
+`node-version: 22` is hardcoded in 7 places across 5 workflows (`dnd-app-ci`, `security-audit`, `dnd-app-validate-5e`, `release` ×3, `deploy`). There is no root `.nvmrc`, no `engines.node` field in any package.json (`dnd-app` / `dungeon-scholar` / `oracle-worker`), and no Volta pin. Local contributors can build on any Node, and bumping the toolchain means hand-editing every workflow.
+
+**Proposed fix / improvement:**
+- [ ] Add a root `.nvmrc` (e.g. `22`).
+- [ ] Add a matching `engines.node` to each project package.json.
+- [ ] Switch workflows to `node-version-file: .nvmrc` so the version lives in one place.
+
+**Related files:** `.github/workflows/*.yml`, `dnd-app/package.json`, `dungeon-scholar/package.json`, `oracle-worker/package.json`
+
+---
+
+### [2026-06-22] Dead code: 9 unused exports/types flagged by knip (0 external references confirmed)
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Removed all 10 genuinely-dead exports knip flagged (each grep-confirmed def-only): functions getLocalEndpointFlavor, getConfiguredContextLength, estimateRecapPromptTokens, stopAllRegistryPollers, routeSoloMessageToAiDm, hasWizardDraft; types WorldExit, NpcOpinion, WorldFact, AiProviderId. `buildDmSystemPrompt` was a knip false-positive (used by the web build, which wasn't in knip's entry set) — added src/web/main.web.tsx as a knip entry so it's seen as used, and added dpdm to knip ignoreDependencies (now invoked via scripts/check-circular.mjs). `npm run dead-code` is exit 0 with zero findings; tsc node+web green; registry-bridge (10) + world-state-store (17) tests pass.
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/` (`npx knip`)
+
+**Description:**
+`npm run dead-code` (knip) reports the following exports as unused; each was re-verified with a repo-wide grep (including `*.test.ts(x)`) and has ZERO external references:
+
+Functions:
+- `getLocalEndpointFlavor` — `src/main/ai/ollama-client.ts:26`
+- `getConfiguredContextLength` — `src/main/ai/ollama-context.ts:106`
+- `estimateRecapPromptTokens` — `src/main/ai/recap-context.ts:68`
+- `stopAllRegistryPollers` — `src/main/registry-bridge.ts:290`
+- `routeSoloMessageToAiDm` — `src/renderer/src/services/ai-dm-routing.ts:192`
+- `hasWizardDraft` — `src/renderer/src/services/campaign-wizard-draft.ts:43`
+
+Exported types:
+- `WorldExit`, `NpcOpinion`, `WorldFact` — `src/main/ai/world-state-store.ts:60/62/64`
+- `AiProviderId` — `src/shared/ai-defaults.ts:16`
+
+Each should be removed (if truly dead) or down-scoped to a non-exported local / wired into its intended caller. A couple (`routeSoloMessageToAiDm`, `stopAllRegistryPollers`) read like partially-wired features worth a check before deletion. `check:full` runs `dead-code` but does not fail on findings, so these accumulate silently.
+
+**Proposed fix / improvement:**
+- [ ] For each symbol, confirm it isn't reserved for an in-flight feature, then delete or un-export.
+- [ ] Consider making `npm run dead-code` fail CI on new findings once the backlog is clear.
+
+**Related files:** `src/main/ai/ollama-client.ts`, `src/main/ai/ollama-context.ts`, `src/main/ai/recap-context.ts`, `src/main/registry-bridge.ts`, `src/renderer/src/services/ai-dm-routing.ts`, `src/renderer/src/services/campaign-wizard-draft.ts`, `src/main/ai/world-state-store.ts`, `src/shared/ai-defaults.ts`
+
+---
+
 ### [2026-06-22] `npm run circular` can never fail (`--exit-code circular:0`) — the circular-dep gate is a silent no-op, and 4 cycles already exist.
 
 - **Resolved by:** dnd-resolver (automated)
