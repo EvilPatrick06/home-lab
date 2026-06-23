@@ -16,6 +16,11 @@
  * the UI degrades gracefully instead of throwing.
  */
 
+// Browser-pure apply core — SAME logic the desktop main process uses, so an
+// approved AI-DM stat change mutates the persisted character identically on web.
+import { applyChangesToCharacter } from '../main/ai/stat-mutations-core'
+import type { StatChange } from '../main/ai/types'
+import type { Character5eV3 } from '../shared/types/character-5e'
 import { buildDmSystemPrompt, parseAiMutations } from './ai-mutations'
 import { idbDelete, idbGet, idbGetAll, idbKeys, idbSet, idbWipeAll, type StoreName } from './idb'
 
@@ -597,7 +602,26 @@ function createAiStub() {
       return Promise.resolve({ ok: true })
     },
     xCardRewind: (_c: string) => Promise.resolve({ ok: true }),
-    applyMutations: (_id: string, _changes: unknown[]) => Promise.resolve({ ok: true }),
+    // Apply AI-DM stat mutations to the persisted character (IndexedDB) using the
+    // SAME browser-pure core the desktop main process uses — so an approved (or
+    // auto-approved) mutation actually changes HP / conditions / resources on web,
+    // not just narrates. Returns the desktop MutationResult shape so the renderer's
+    // rejected-mutation alerting works identically.
+    applyMutations: async (id: string, changes: unknown[]) => {
+      const stored = await idbGet<Record<string, unknown>>('characters', id)
+      if (!stored) {
+        return {
+          applied: [],
+          rejected: (changes as StatChange[]).map((c) => ({ change: c, reason: 'Character not found' }))
+        }
+      }
+      const char = stored as unknown as Character5eV3
+      const out = applyChangesToCharacter(char, changes as StatChange[])
+      if (out.applied.length > 0) {
+        await idbSet('characters', id, char as unknown as Record<string, unknown>)
+      }
+      return out
+    },
     longRest: (_id: string) => Promise.resolve({ ok: true }),
     shortRest: (_id: string) => Promise.resolve({ ok: true }),
     saveConversation: (_c: string) => Promise.resolve({ ok: true }),
