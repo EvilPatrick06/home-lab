@@ -2747,6 +2747,7 @@ from routes.calendar_api import register_calendar  # noqa: E402
 from routes.tv_api import register_tv  # noqa: E402
 from routes.chat_api import register_chat  # noqa: E402
 from routes.realtime_ws import register_realtime  # noqa: E402
+from routes.webapp_api import register_webapp  # noqa: E402
 
 register_system(app)    # /health, /api/wifi, /api/volume, /api/audio, /api/tts, /api/settings, …
 register_music(app)     # /api/music/*
@@ -2754,6 +2755,7 @@ register_calendar(app)  # /api/calendar/* + OAuth flow
 register_tv(app)        # /api/tv/*
 register_chat(app)      # /api/chat*, /api/dnd/*
 register_realtime(socketio)  # SocketIO connect/chat_message/plan_*/scratchpad_*/disconnect
+register_webapp(app)    # /DungeonTableOnline/* — dnd-app web build (SPA)
 
 # ── Main ─────────────────────────────────────────────────────────────
 

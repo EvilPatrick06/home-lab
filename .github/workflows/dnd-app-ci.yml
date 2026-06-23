@@ -62,6 +62,12 @@ jobs:
         run: |
           test -f out/main/index.js || { echo "missing out/main/index.js"; exit 1; }
           test -f out/renderer/index.html || { echo "missing out/renderer/index.html"; exit 1; }
+      - name: Build (web SPA)
+        run: npm run build:web
+      - name: Verify web build artifacts
+        run: |
+          test -f dist-web/index.html || { echo "missing dist-web/index.html"; exit 1; }
+          test -d dist-web/assets || { echo "missing dist-web/assets"; exit 1; }
       - name: Bundle size guard (13O)
         run: npm run check:bundle-size
       - name: Coverage baseline (28h)
