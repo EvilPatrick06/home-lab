@@ -481,23 +481,40 @@ export function createWebApi() {
         bmoFetchJson(`/api/rclone/restore?campaignId=${encodeURIComponent(campaignId)}`).catch(() => ({ ok: false }))
     },
 
-    // Pi game registry → /api/games*
+    // Pi game registry → /api/games*. PHASE-46: every mutation honors the
+    // desktop `{ ok: boolean; error? }` contract — a failure NEVER resolves to
+    // bare `null` (which made the renderer's `if (result.ok)` null-deref). The
+    // Pi already returns `{ ok: true, … }` on success (POST 201, PATCH/DELETE/
+    // heartbeat 200), so success passes through; only the catch shape changed.
     registry: {
       announce: (payload: Dict, _baseOverride?: string) =>
-        bmoFetchJson('/api/games', { method: 'POST', body: JSON.stringify(payload) }).catch(() => null),
+        bmoFetchJson('/api/games', { method: 'POST', body: JSON.stringify(payload) }).catch((e) => ({
+          ok: false,
+          error: e instanceof Error ? e.message : String(e)
+        })),
       update: (inviteCode: string, patch: Dict, _baseOverride?: string) =>
         bmoFetchJson(`/api/games/${encodeURIComponent(inviteCode)}`, {
           method: 'PATCH',
           body: JSON.stringify(patch)
-        }).catch(() => null),
+        }).catch((e) => ({ ok: false, error: e instanceof Error ? e.message : String(e) })),
       heartbeat: (inviteCode: string, _baseOverride?: string) =>
-        bmoFetchJson(`/api/games/${encodeURIComponent(inviteCode)}/heartbeat`, { method: 'POST' }).catch(() => null),
-      deregister: (inviteCode: string, _baseOverride?: string) =>
-        bmoFetchJson(`/api/games/${encodeURIComponent(inviteCode)}`, { method: 'DELETE' }).catch(() => null),
-      list: (clientId: string | null, _baseOverride?: string) =>
-        bmoFetchJson(`/api/games${clientId ? `?clientId=${encodeURIComponent(clientId)}` : ''}`).catch(() => ({
-          games: []
+        bmoFetchJson(`/api/games/${encodeURIComponent(inviteCode)}/heartbeat`, { method: 'POST' }).catch((e) => ({
+          ok: false,
+          error: e instanceof Error ? e.message : String(e)
         })),
+      deregister: (inviteCode: string, _baseOverride?: string) =>
+        bmoFetchJson(`/api/games/${encodeURIComponent(inviteCode)}`, { method: 'DELETE' }).catch((e) => ({
+          ok: false,
+          error: e instanceof Error ? e.message : String(e)
+        })),
+      // GET /api/games returns `{ games }` with NO `ok` field, but
+      // registry-client.listGames does `if (!result.ok) throw` — so wrap to the
+      // `{ ok, games }` contract and degrade to an empty list on failure so a
+      // web list NEVER throws.
+      list: (clientId: string | null, _baseOverride?: string) =>
+        bmoFetchJson<{ games?: unknown[] }>(`/api/games${clientId ? `?client_id=${encodeURIComponent(clientId)}` : ''}`)
+          .then((r) => ({ ok: true, games: r?.games ?? [] }))
+          .catch(() => ({ ok: true, games: [] })),
       subscribe: (_subscriptionId: string, _clientId: string | null) => Promise.resolve(ok),
       unsubscribe: (_subscriptionId: string) => Promise.resolve(ok),
       onEvent: (cb: (p: { subscriptionId: string; event: Dict }) => void) =>

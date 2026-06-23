@@ -19,6 +19,24 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-06-23] Public web hosting cannot announce to the registry under `BMO_API_KEY` hardening (product/security decision)
+
+- **Category:** design-gotcha / product-decision
+- **Severity:** low
+- **Domain:** both (dnd-app renderer + bmo Pi `/api/games*` gate)
+- **During:** PHASE-46 (web registry announce) — F3, surfaced not decided per the plan + INSTRUCTIONS rule 9 case (b).
+
+**Description:**
+`/api/games*` is NOT in the Pi front-door public-unauth exemption set (`_PUBLIC_UNAUTH_PREFIXES` = `/api/library`, `/api/sounds`, `/DungeonTableOnline`; `_PUBLIC_UNAUTH_EXACT` = `/api/dnd/public/dm`) — see `bmo/pi/app.py:228` and PHASE-44 F1. With no `BMO_API_KEY` set the app is open, so an anonymous tunnelled browser host CAN announce (`_registry_authorized()` → `_bmo_bearer_authorized()` → True, `bmo/pi/app.py:2658`). But once `BMO_API_KEY` is set, two layers reject an anonymous web host's `POST /api/games`: the front-door gate 401s it (not exempt) and `_bmo_bearer_authorized()` fails (no Bearer). So a **Public web-hosted game cannot be listed under hardening**. PHASE-46 F1 makes this fail gracefully (honest "not listed — <reason>" instead of the null-deref), which is correct under either choice below — but whether Public web hosting *should* work under hardening is an owner call.
+
+**Proposed fix / improvement (owner decision):**
+- [ ] (a) Accept it — Public web hosting requires an unhardened deployment; the UI now fails gracefully (no further work). OR
+- [ ] (b) If Public web hosting must work under hardening, scope a separate phase adding a narrowly-scoped exemption or a host credential for the registry mutation routes — keep the `_PUBLIC_UNAUTH_PREFIXES` ↔ Cloudflare-Access bypass lockstep (PHASE-44 F1) and the PHASE-43 hardening-triage reachability philosophy in mind (don't blanket-open `/api/games*`).
+
+**Related files:** `bmo/pi/app.py:228` (`_PUBLIC_UNAUTH_PREFIXES`), `bmo/pi/app.py:2658` (`_registry_authorized`), `bmo/pi/app.py:2690` (`POST /api/games`), `dnd-app/src/web/web-api.ts` (registry shim), `dnd-app/src/renderer/src/network/host-announce.ts`.
+
+---
+
 ### [2026-06-23] `src/main/ai/` is a flat directory of 57 source modules — group into subfolders
 
 - **Category:** debt
