@@ -27,7 +27,7 @@ const ExamMode = React.lazy(() => import('./components/ExamMode.jsx'));
 // player enters a delve, so deferring its load shrinks the initial bundle.
 const DungeonExplore = React.lazy(() => import('./components/DungeonExplore.jsx'));
 import { Shield, Zap, Brain, FlaskConical, MessageSquare, Upload, Download, Trophy, Flame, Heart, Star, Target, BookOpen, ChevronRight, X, Check, RotateCcw, Sparkles, Lock, Award, TrendingUp, Clock, AlertTriangle, Skull, Crown, Eye, EyeOff, Play, Home, Settings, FileJson, Plus, Minus, ArrowLeft, Send, Loader2, HelpCircle, Calendar, Swords, Scroll, Wand2, Castle, Gem, Library, Trash2, Copy, Edit2, BookMarked, Share2, Tag, User, Hash, ChevronDown, ChevronUp, Compass, ScrollText, CheckCircle2, Gift, Coins, Package, ShoppingBag } from 'lucide-react';
-import { TUTORIAL_STEPS, snapshotBaselines, migrateTutorialIndex } from './tutorial';
+import { TUTORIAL_STEPS, snapshotBaselines, migrateTutorialIndex } from './game/tutorial';
 import { gradeAnswer, getOracleEndpoint, isOracleConfigured, ORACLE_MODEL } from './services/oracleGrader.js';
 import { logError } from './services/logger.js';
 import { getAudioSettings, setMuted, setBgmVolume, setSfxVolume, armOnFirstGesture, armAutoSuspend, disarmAutoSuspend, playSfx, getDefaultAudioSettings, setAudioPersistErrorHandler } from './audio/sound.js';
