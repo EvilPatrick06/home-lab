@@ -24,7 +24,7 @@ Where every kind of data lives, how it moves, and who owns it.
 | World data (planes, gods, cosmology) | `dnd-app/src/renderer/public/data/5e/world/*.json` | JSON | 231 files |
 | Hazards, maps, rules reference | `dnd-app/src/renderer/public/data/5e/{hazards,maps,rules}/` | JSON | 55 files |
 
-Source of truth. Built via `dnd-app/scripts/extract/` from the DMG/PHB/MM PDFs. Validated by `scripts/audit/ultimate-audit.ts`.
+Source of truth (the committed 5e JSON set under `dnd-app/src/renderer/public/data/5e/`). The one-time extraction/generation pipeline that originally produced it has been retired now that the data is stable; it is validated by `scripts/audit/ultimate-audit.ts`.
 
 BMO maintains a mirror:
 - `bmo/pi/data/5e/` — common subset BMO needs for agents (encounter-presets, conditions, random-tables, spells, magic-items)

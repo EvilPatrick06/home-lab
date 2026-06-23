@@ -8,7 +8,6 @@
     "src/renderer/src/main.tsx",
     "scripts/**/*.ts",
     "scripts/**/*.mjs",
-    "tools/**/*.js",
     "src/renderer/src/types/**/*.ts",
     "src/shared/types/**/*.ts",
     "src/shared/ipc-schemas.ts",
