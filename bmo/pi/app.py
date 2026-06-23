@@ -2785,7 +2785,12 @@ if __name__ == "__main__":
     # Wire the IDE blueprint + SocketIO handlers now that `agent` is live.
     register_ide(app, socketio, agent)
     # Phase 32 — cloud multiplayer relay on the `/game` Socket.IO namespace.
-    register_game_relay(socketio, api_key=BMO_API_KEY)
+    # The P2P game relay is part of the anonymous public surface (its /socket.io
+    # handshake has a path-scoped Cloudflare Access bypass). Its real authz is the
+    # per-game invite code enforced in relay.authorize(), NOT the front-door
+    # BMO_API_KEY — so connect must not require that key, or anonymous web players
+    # cannot join. Every non-public route still sits behind the key gate.
+    register_game_relay(socketio, api_key="")
     # Phase 36 — read-only 5e library API (/api/library) serving the seeded
     # bmo/pi/data/5e-library/ tree (empty/dormant until seed-5e-library.sh runs).
     register_library(app)
