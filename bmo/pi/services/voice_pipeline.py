@@ -25,6 +25,7 @@ import sounddevice as sd
 from services.cloud_providers import groq_stt, fish_audio_tts
 
 from services.bmo_logging import _s, get_logger
+from services.voice_metrics import record_stage as _record_stage
 log = get_logger("voice_pipeline")
 
 MODELS_DIR = os.path.expanduser("~/home-lab/bmo/pi/models")
@@ -1120,6 +1121,7 @@ class VoicePipeline:
             speaker = self.identify_speaker(temp_path)
             _t_spk1 = time.time()
             log.info(f"[timing] identify_speaker() took {_t_spk1 - _t_spk0:.2f}s")
+            _record_stage("identify_speaker", _t_spk1 - _t_spk0)
 
             # Transcribe
             self._emit("status", {"state": "thinking"})
@@ -1127,6 +1129,7 @@ class VoicePipeline:
             text = self.transcribe(temp_path)
             _t_stt1 = time.time()
             log.info(f"[timing] transcribe() took {_t_stt1 - _t_stt0:.2f}s")
+            _record_stage("stt", _t_stt1 - _t_stt0)
             if not text or text.strip() == "":
                 self._emit("status", {"state": "idle"})
                 return None
@@ -1552,6 +1555,7 @@ class VoicePipeline:
 
         elapsed = time.time() - start_time
         log.info(f"[record] Done ({elapsed:.1f}s, {len(chunks)} chunks, spoke={started_speaking})")
+        _record_stage("record", elapsed)
 
         if not started_speaking:
             return None
@@ -1945,6 +1949,7 @@ class VoicePipeline:
             capture_output=True, timeout=120, env=env,
         )
         elapsed = time.time() - start
+        _record_stage("tts", elapsed)
         if result.returncode != 0:
             log.warning(f"[tts] ffplay error (rc={result.returncode}, {elapsed:.1f}s): {result.stderr.decode().strip()}")
         else:

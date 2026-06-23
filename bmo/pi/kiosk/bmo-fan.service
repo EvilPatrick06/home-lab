@@ -1,0 +1,13 @@
+[Unit]
+Description=BMO Case Fan Controller
+After=multi-user.target
+
+[Service]
+Type=simple
+User=patrick
+ExecStart=/usr/bin/python3 /home/patrick/home-lab/bmo/pi/hardware/fan_control.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

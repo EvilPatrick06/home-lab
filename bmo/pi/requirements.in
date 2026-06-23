@@ -20,6 +20,12 @@ openwakeword
 # Speaker verification
 resemblyzer
 
+# STT — faster-whisper (ctranslate2 backend) is the primary local STT engine the
+# voice pipeline imports in _load_whisper(). It was missing from this file, so
+# fresh venvs have NO STT and transcribe() raises ModuleNotFoundError (surfaced
+# by the voice canary). ctranslate2 is independent of torch, so no CUDA risk.
+faster-whisper
+
 # TTS — local fallback only (cloud primary is Fish Audio)
 piper-tts
 

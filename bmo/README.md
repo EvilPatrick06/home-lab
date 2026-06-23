@@ -74,7 +74,7 @@ cooling loops:
   interpolation between rungs and EMA-smoothed input temperature so idle
   doesn't oscillate. PWM frequency 100 kHz (inaudible).
 
-`pi/scripts/health_check.sh` raises a warning at > 75 °C and a critical alert
+`pi/scripts/health-check.sh` raises a warning at > 75 °C and a critical alert
 at > 80 °C, and reads `vcgencmd get_throttled` so sticky under-voltage /
 past-throttle bits are surfaced even after the Pi cools off.
 

@@ -450,6 +450,9 @@ class HealthChecker:
         # Check Google Calendar token
         self._check_calendar_token()
 
+        # Check synthetic voice-path canary (reads the timer-written status file)
+        self._check_voice_canary()
+
         # Check Cloudflare Tunnel
         self._check_cloudflared()
 
@@ -1856,6 +1859,47 @@ class HealthChecker:
                     self.socketio.emit("bmo_status", {"expression": "idle"})
 
     # ── Alert Emission ───────────────────────────────────────────────
+
+    def _check_voice_canary(self):
+        """Surface the synthetic voice-path canary so a silent STT/TTS regression
+        (while /health stays green) raises a Discord alert. (BMO-SUGGESTIONS.)"""
+        try:
+            from services import voice_canary
+            status = voice_canary.read_status()
+        except Exception:
+            status = None
+        now = time.time()
+        if not status:
+            self._service_status["voice_canary"] = {
+                "status": "unknown", "last_check": now,
+                "message": "voice canary has not run yet", "response_time": None,
+            }
+            return
+        age_h = (now - status.get("ts", 0)) / 3600
+        stale_h = float(os.environ.get("BMO_CANARY_STALE_H", "26"))
+        if status.get("ok"):
+            if age_h > stale_h:
+                self._service_status["voice_canary"] = {
+                    "status": "degraded", "last_check": now,
+                    "message": f"last canary OK but {age_h:.0f}h ago (>{stale_h:.0f}h)",
+                    "response_time": None,
+                }
+            else:
+                self._service_status["voice_canary"] = {
+                    "status": "up", "last_check": now,
+                    "message": f"voice path OK (STT {status.get('stt_s', '?')}s, {age_h:.1f}h ago)",
+                    "response_time": None,
+                }
+            return
+        self._service_status["voice_canary"] = {
+            "status": "down", "last_check": now,
+            "message": f"voice canary FAILED at {status.get('stage')}: {status.get('detail', '')}",
+            "response_time": None,
+        }
+        self._emit_alert(
+            Severity.WARNING, "voice_canary",
+            f"🎤 Voice path canary failed ({status.get('stage')}): {status.get('detail', '')}",
+        )
 
     def _emit_alert(self, level: Severity, service: str, message: str):
         """Route an alert to all configured destinations.

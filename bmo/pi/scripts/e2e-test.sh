@@ -1,14 +1,14 @@
 #!/bin/bash
-# e2e_test.sh — End-to-end health test for all BMO services
+# e2e-test.sh — End-to-end health test for all BMO services
 #
 # Usage:
-#   bash e2e_test.sh              # Run all tests
-#   bash e2e_test.sh --verbose    # Show response bodies
+#   bash e2e-test.sh              # Run all tests
+#   bash e2e-test.sh --verbose    # Show response bodies
 #
 # Run from Pi or via SSH:
-#   ssh patrick@bmo.local "bash ~/home-lab/bmo/pi/scripts/e2e_test.sh"
+#   ssh patrick@bmo.local "bash ~/home-lab/bmo/pi/scripts/e2e-test.sh"
 #   # or if you use an SSH alias:
-#   ssh patrick@bmo "bash ~/home-lab/bmo/pi/scripts/e2e_test.sh"
+#   ssh patrick@bmo "bash ~/home-lab/bmo/pi/scripts/e2e-test.sh"
 
 set -uo pipefail
 
