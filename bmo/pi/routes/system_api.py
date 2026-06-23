@@ -785,6 +785,13 @@ def api_tts_audio_file(filename):
     return send_from_directory(tts_dir, base)
 
 
+@system_bp.route("/api/metrics/voice")
+def api_metrics_voice():
+    """Per-stage voice-pipeline latency aggregates (count/avg/p50/p95/max seconds)."""
+    from services import voice_metrics
+    return jsonify({"stages": voice_metrics.get_metrics()})
+
+
 # ── Settings / config ─────────────────────────────────────────────────
 
 @system_bp.route("/api/settings")
