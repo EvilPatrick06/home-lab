@@ -10,8 +10,14 @@ const XP_THRESHOLDS_5E: number[] = [
 // Overwrite with JSON data when available
 load5eXpThresholds()
   .then((data) => {
-    XP_THRESHOLDS_5E.length = 0
-    XP_THRESHOLDS_5E.push(...data)
+    // Only overwrite the hardcoded defaults with a non-empty array. data-provider's
+    // loadJson returns null when the bundled-file bridge is unavailable (e.g. the
+    // vitest `node` env); guarding here keeps the built-in 5e thresholds instead of
+    // clearing them to an empty array.
+    if (Array.isArray(data) && data.length > 0) {
+      XP_THRESHOLDS_5E.length = 0
+      XP_THRESHOLDS_5E.push(...data)
+    }
   })
   .catch((e) => logger.warn('Failed to load XP thresholds data', e))
 
