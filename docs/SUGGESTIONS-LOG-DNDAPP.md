@@ -19,6 +19,95 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-06-23] `src/main/ai/` is a flat directory of 57 source modules — group into subfolders
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+`src/main/ai/` holds ~57 non-test `.ts` modules (114 files counting co-located tests) flat in a single directory, with only `image/` and `prompt-sections/` broken out into subfolders. Several clear logical clusters are obvious from the filenames and would read far better grouped:
+
+- **Provider clients** — `claude-client.ts`, `gemini-client.ts`, `openai-client.ts`, `ollama-client.ts`, `embedding-client.ts` (+ `provider-registry.ts`, `llm-provider.ts`, `model-routing.ts`) → a `clients/` subfolder.
+- **Memory / retrieval** — `memory-manager.ts`, `vector-store.ts`, `embedding-index.ts`, `hybrid-search.ts`, `search-engine.ts`, `keyword-extractor.ts`, `entity-store.ts`, `entity-extraction.ts` → a `memory/` subfolder.
+- **Context assembly** — `context-builder.ts`, `campaign-context.ts`, `character-context.ts`, `recap-context.ts`, `ollama-context.ts`, `chunk-builder.ts`, `token-budget.ts` → a `context/` subfolder.
+
+Flat dirs this large make it hard to see module boundaries and inflate the cost of every `ls`/grep. Grouping is purely organizational (no behavior change).
+
+**Proposed fix / improvement:**
+- [ ] Agree on a small set of subfolders (`clients/`, `memory/`, `context/`, plus the existing `image/`, `prompt-sections/`).
+- [ ] `git mv` modules + their co-located `*.test.ts` together so history is preserved.
+- [ ] Update imports (TS path updates) and re-run `npm run circular` + `npm run dead-code` to confirm nothing broke.
+
+**Related files:** `dnd-app/src/main/ai/` (whole tree)
+
+**Related entries:** [2026-06-23] `ai-service.ts` god file; circular-dependency entry in `ISSUES-LOG-DNDAPP.md` (ai-service.ts ↔ campaign-context.ts ↔ campaign-storage.ts)
+
+---
+
+### [2026-06-23] `ai-service.ts` is a ~1,740-LOC (71 KB) god file — decompose into focused modules
+
+- **Category:** debt
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+`src/main/ai/ai-service.ts` is the single largest hand-written module in the codebase at ~1,739 LOC / 71 KB (its co-located `ai-service.test.ts` is ~46 KB, and there are three additional split-out test files: `ai-service-file-read-cancel`, `ai-service-restream-context`, `ai-service-web-search-approval`). It is the main-process counterpart to the already-logged `SettingsPage.tsx` god component, but on the backend side. A file this size is hard to navigate, concentrates merge conflicts, and is implicated in the existing circular-dependency entry (`ai-service.ts → campaign-context.ts → campaign-storage.ts → ai-service.ts`) — decomposition is the natural way to break that cycle.
+
+**Proposed fix / improvement:**
+- [ ] Identify cohesive responsibilities inside `ai-service.ts` (e.g. request orchestration, streaming/restream handling, file-read/cancel, web-search approval — the test split already hints at the seams) and extract each into its own module under `src/main/ai/`.
+- [ ] Keep `ai-service.ts` as a thin orchestrator that wires the extracted pieces together.
+- [ ] Re-run `npm run circular` to confirm the extraction also resolves the ai-service ↔ campaign-context cycle.
+
+**Related files:** `dnd-app/src/main/ai/ai-service.ts`, `dnd-app/src/main/ai/ai-service.test.ts`
+
+**Related entries:** [2026-06-22] `SettingsPage.tsx` is a ~1,950-LOC god component; circular-dependency entry in `ISSUES-LOG-DNDAPP.md`
+
+---
+
+### [2026-06-23] `data-provider.ts` (840 LOC) sits beside a same-named `data-provider/` folder — fold the monolith into the folder
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+`src/renderer/src/services/` contains both a 30 KB / ~840-LOC monolith `data-provider.ts` AND a `data-provider/` directory (`build-slot-options.ts`, `companion-files.ts`, `extracted-data-types.ts`, `transformers.ts`). Having a big single file living next to a folder of the same name — where helpers have already started being peeled off into the folder — is a half-finished refactor and a navigation smell (which one is the "real" data provider?). The cleaner end-state is to move `data-provider.ts` into the folder as `data-provider/index.ts` (so existing `services/data-provider` imports keep resolving) and continue splitting it into the sibling modules.
+
+**Proposed fix / improvement:**
+- [ ] `git mv src/renderer/src/services/data-provider.ts src/renderer/src/services/data-provider/index.ts` (imports of `services/data-provider` resolve to the folder index unchanged).
+- [ ] Continue extracting cohesive chunks from `index.ts` into sibling files in the folder.
+- [ ] Re-run `npm run dead-code` / `npm run circular` after the move.
+
+**Related files:** `dnd-app/src/renderer/src/services/data-provider.ts`, `dnd-app/src/renderer/src/services/data-provider/`
+
+---
+
+### [2026-06-23] Inconsistent helper-module filename suffix: `-utils` vs `-helpers` vs `-utility/-utilities`
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+Modules holding the same kind of "miscellaneous helper functions" are named with three different conventions across `src/`: `*-utils.ts` (9 files, e.g. `map-utils.ts`, `attack-utils.ts`, `dice-utils.ts`), `*-helpers.ts` (5 files, e.g. `attack-helpers.ts`, `dice-helpers.ts`, `broadcast-helpers.ts`), a bare `helpers.ts` (1), and `*-utility/-utilities.ts` (3, e.g. `equipment-utilities.ts`, `commands-utility.ts`, `commands-player-utility.ts`). The inconsistency is most visible in the combat code, which has BOTH `services/combat/attack-helpers.ts` and `components/game/modals/combat/attack-utils.ts`, and in chat-commands (`commands-utility.ts` + `commands-player-utility.ts` + `helpers.ts`). Picking one suffix (e.g. `-utils`) and renaming the others would make the codebase easier to grep and reason about.
+
+**Proposed fix / improvement:**
+- [ ] Decide on a single convention (suggest `-utils.ts`) and document it in `CONTRIBUTING.md` / `dnd-app/docs/DESIGN-CONSTRAINTS.md`.
+- [ ] `git mv` the `-helpers.ts` / `-utility.ts` / `-utilities.ts` files to the chosen suffix (and their co-located tests) and update imports.
+- [ ] Optionally add a `forbidden-patterns` lint check for new files using a non-canonical suffix.
+
+**Related files:** `dnd-app/src/renderer/src/services/combat/attack-helpers.ts`, `dnd-app/src/renderer/src/components/game/modals/combat/attack-utils.ts`, `dnd-app/src/renderer/src/services/character/equipment-utilities.ts`, `dnd-app/src/renderer/src/services/chat-commands/{commands-utility,commands-player-utility,helpers}.ts`
+
+---
 ### [2026-06-22] Inconsistent casing in the `dnd-app/docs/phases/` tree (`completed` vs `QA/Completed`, `INSTRUCTIONS.md` vs `QA/instructions.md`)
 
 - **Category:** docs
