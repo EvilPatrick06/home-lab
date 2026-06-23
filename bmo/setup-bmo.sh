@@ -98,7 +98,7 @@ log "Setting up Python venv (PyTorch CPU-only first — no GPU on Pi)..."
 cd ~/home-lab/bmo/pi
 python3 -m venv venv
 venv/bin/pip install --upgrade pip
-venv/bin/pip install torch --index-url https://download.pytorch.org/whl/cpu
+venv/bin/pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
 venv/bin/pip install -r requirements.txt
 
 # PHASE-21 21A: streaming-TTS support for the DM bot.
@@ -186,7 +186,8 @@ sudo docker run -d \
 sudo docker run -d \
     --name bmo-ollama \
     --restart always \
-    -p 11434:11434 \
+    -p 127.0.0.1:11434:11434 \
+    -p "[::1]:11434:11434" \
     -v ollama_data:/root/.ollama \
     ollama/ollama:latest
 
@@ -217,72 +218,14 @@ sudo docker run -d \
 # ── 10. Systemd Services ────────────────────────────────────────
 log "Installing systemd services..."
 
-# BMO main service
-sudo tee /etc/systemd/system/bmo.service > /dev/null << 'EOF'
-[Unit]
-Description=BMO AI Assistant
-After=network.target docker.service
-Wants=docker.service
-
-[Service]
-Type=simple
-User=patrick
-Group=patrick
-WorkingDirectory=/home/patrick/home-lab/bmo/pi
-Environment=PATH=/home/patrick/home-lab/bmo/pi/venv/bin:/usr/local/bin:/usr/bin:/bin
-Environment=PYTHONUNBUFFERED=1
-Environment=XDG_RUNTIME_DIR=/run/user/1000
-EnvironmentFile=/home/patrick/home-lab/bmo/pi/.env
-ExecStart=/home/patrick/home-lab/bmo/pi/venv/bin/python app.py
-Restart=on-failure
-RestartSec=5
-LimitNOFILE=65536
-StandardOutput=journal
-StandardError=journal
-SupplementaryGroups=video audio i2c gpio spi input
-PrivateTmp=true
-NoNewPrivileges=true
-ProtectSystem=strict
-ReadWritePaths=/home/patrick/home-lab/bmo/pi
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-# BMO Kiosk (Chromium via cage — no desktop needed)
-sudo tee /etc/systemd/system/bmo-kiosk.service > /dev/null << 'EOF'
-[Unit]
-Description=BMO Kiosk — Chromium fullscreen on HDMI
-After=bmo.service
-Wants=bmo.service
-
-[Service]
-Type=simple
-User=patrick
-EnvironmentFile=-/home/patrick/home-lab/bmo/pi/.env
-Environment=XDG_RUNTIME_DIR=/run/user/1000
-Environment=GDK_BACKEND=wayland
-Environment=WLR_DRM_DEVICES=/dev/dri/card0
-Environment=WLR_DRM_CONNECTORS=DSI-2
-Environment=WLR_XCURSOR_THEME=bmo-invisible
-Environment=WLR_XCURSOR_SIZE=1
-Environment=WLR_NO_HARDWARE_CURSORS=1
-Environment=XCURSOR_THEME=bmo-invisible
-Environment=XCURSOR_SIZE=1
-Environment=XCURSOR_PATH=/home/patrick/.icons:/usr/share/icons
-
-# Wait for BMO Flask to be ready
-ExecStartPre=/bin/bash -c 'for i in {1..30}; do curl -sf http://localhost:5000/health > /dev/null && break; sleep 1; done'
-ExecStart=/bin/bash -lc 'export GOOGLE_API_KEY="${GOOGLE_MAPS_API_KEY:-}"; exec /usr/bin/cage -- chromium --kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble --disable-restore-session-state --disable-features=TranslateUI --disable-component-update --disable-domain-reliability --disable-sync --dns-prefetch-disable --no-default-browser-check --password-store=basic --check-for-update-interval=31536000 --no-first-run --start-fullscreen --touch-events=enabled --ash-hide-cursor-on-touch --enable-touchview --enable-pinch --use-fake-ui-for-media-stream --autoplay-policy=no-user-gesture-required --force-device-scale-factor=1 --high-dpi-support=1 --window-size=800,480 --user-data-dir=/home/patrick/.config/chromium-bmo --enable-logging=stderr --v=1 --unsafely-treat-insecure-origin-as-secure=http://127.0.0.1:5000,http://localhost:5000 http://127.0.0.1:5000/?kiosk=1'
-
-ExecStartPost=/bin/bash -c 'sleep 20; /usr/bin/chromium --headless --disable-gpu --no-sandbox --use-fake-ui-for-media-stream --virtual-time-budget=25000 --run-all-compositor-stages-before-draw --dump-dom http://127.0.0.1:5000/?kiosk=1 > /dev/null 2>&1 || true'
-
-Restart=on-failure
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
-EOF
+# Unit files live in bmo/pi/kiosk/ as the single source of truth (consolidated
+# 2026-06-22 — they were previously duplicated as inline heredocs here and had
+# drifted from the kiosk/ copies). Install by copying those files.
+for unit in bmo.service bmo-kiosk.service bmo-fan.service bmo-dm-bot.service \
+            bmo-social-bot.service bmo-backup.service bmo-backup.timer \
+            bmo-voice-canary.service bmo-voice-canary.timer; do
+  sudo cp "/home/patrick/home-lab/bmo/pi/kiosk/$unit" /etc/systemd/system/
+done
 
 # Chromium policy: always allow geolocation for local kiosk origin
 sudo mkdir -p /etc/chromium/policies/managed
@@ -293,83 +236,9 @@ sudo tee /etc/chromium/policies/managed/bmo-geolocation.json > /dev/null << 'EOF
 }
 EOF
 
-# BMO Fan Controller
-sudo tee /etc/systemd/system/bmo-fan.service > /dev/null << 'EOF'
-[Unit]
-Description=BMO Case Fan Controller
-After=multi-user.target
-
-[Service]
-Type=simple
-User=patrick
-ExecStart=/usr/bin/python3 /home/patrick/home-lab/bmo/pi/hardware/fan_control.py
-Restart=always
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-# BMO DM Discord Bot
-sudo tee /etc/systemd/system/bmo-dm-bot.service > /dev/null << 'EOF'
-[Unit]
-Description=BMO DM Discord Bot — D&D Dungeon Master
-After=network-online.target bmo.service
-Wants=network-online.target
-
-[Service]
-Type=simple
-User=patrick
-WorkingDirectory=/home/patrick/home-lab/bmo/pi
-EnvironmentFile=/home/patrick/home-lab/bmo/pi/.env
-ExecStart=/home/patrick/home-lab/bmo/pi/venv/bin/python -m bots.discord_dm_bot
-Restart=on-failure
-RestartSec=10
-# PHASE-21 21A: headroom for in-process Piper (libritts_r) onnxruntime inference.
-MemoryMax=1G
-CPUQuota=150%
-StandardOutput=append:/home/patrick/home-lab/bmo/pi/data/logs/dm-bot.log
-StandardError=append:/home/patrick/home-lab/bmo/pi/data/logs/dm-bot.log
-PrivateTmp=true
-NoNewPrivileges=true
-ProtectSystem=strict
-ReadWritePaths=/home/patrick/home-lab/bmo/pi
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-# BMO Social Discord Bot
-sudo tee /etc/systemd/system/bmo-social-bot.service > /dev/null << 'EOF'
-[Unit]
-Description=BMO Social Discord Bot — Music, Chat & Fun
-After=network-online.target bmo.service
-Wants=network-online.target
-
-[Service]
-Type=simple
-User=patrick
-WorkingDirectory=/home/patrick/home-lab/bmo/pi
-EnvironmentFile=/home/patrick/home-lab/bmo/pi/.env
-ExecStart=/home/patrick/home-lab/bmo/pi/venv/bin/python -m bots.discord_social_bot
-Restart=on-failure
-RestartSec=10
-MemoryMax=512M
-CPUQuota=50%
-StandardOutput=append:/home/patrick/home-lab/bmo/pi/data/logs/social-bot.log
-StandardError=append:/home/patrick/home-lab/bmo/pi/data/logs/social-bot.log
-PrivateTmp=true
-NoNewPrivileges=true
-ProtectSystem=strict
-ReadWritePaths=/home/patrick/home-lab/bmo/pi
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
 # ── 11. Enable Services ─────────────────────────────────────────
 sudo systemctl daemon-reload
-sudo systemctl enable bmo bmo-kiosk bmo-fan bmo-dm-bot bmo-social-bot
+sudo systemctl enable bmo bmo-kiosk bmo-fan bmo-dm-bot bmo-social-bot bmo-backup.timer bmo-voice-canary.timer
 sudo systemctl enable avahi-daemon
 sudo systemctl restart avahi-daemon
 

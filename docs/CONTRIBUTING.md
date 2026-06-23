@@ -218,3 +218,18 @@ This repo is heavily AI-assisted. Whether you're human or AI:
 ## Conduct
 
 Be kind. Be specific. Be willing to be wrong.
+
+## Repo task runner (`make`)
+
+A root `Makefile` provides one uniform entry point that fans out to each
+project's own commands (there is no npm workspace — each project installs
+independently):
+
+- `make install` — `npm ci` in dnd-app, dungeon-scholar, oracle-worker
+- `make lint` / `make typecheck` — dnd-app (biome / tsc)
+- `make test` — all three npm projects + `bmo/pi` pytest
+- `make build` — dnd-app + dungeon-scholar builds + oracle-worker `wrangler --dry-run`
+- `make audit` — npm audit across the JS projects
+- `make all` — lint + typecheck + test + build
+
+CI remains the authoritative gate; `make` is a local convenience mirror.

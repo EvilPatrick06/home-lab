@@ -3,9 +3,11 @@
 # Escape hatch: `git commit --no-verify`. CI is the authoritative gate.
 staged() { git diff --cached --name-only --diff-filter=ACMR; }
 
-# dnd-app: Biome on staged files + renderer typecheck.
+# dnd-app: Biome on staged files (run from repo ROOT so repo-root-relative
+# staged paths resolve and per-file dnd-app/biome.json is picked up) + renderer typecheck.
 if staged | grep -q '^dnd-app/'; then
-  ( cd dnd-app && npm run lint -- --staged --no-errors-on-unmatched && npx tsc --noEmit -p tsconfig.web.json ) || exit 1
+  ./dnd-app/node_modules/.bin/biome check --staged --no-errors-on-unmatched || exit 1
+  ( cd dnd-app && npx tsc --noEmit -p tsconfig.web.json ) || exit 1
 fi
 
 # dungeon-scholar: Biome on staged files (S10/S25).

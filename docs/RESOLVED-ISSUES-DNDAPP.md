@@ -12,6 +12,188 @@
 
 ---
 
+### [2026-06-22] Flaky test: `bmo-bridge.test.ts > rate-limits after 60 requests with 429 + Retry-After` (real timers race the token-bucket refill).
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** bmo-bridge rate-limit test now freezes Date.now() (real timers stay live for network I/O) during the 60-request burst via vi.useFakeTimers({ toFake: ['Date'] }), so the token bucket cannot refill mid-loop on slow hosts. All 28 bmo-bridge tests pass.
+
+- **Category:** test
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** dnd-errors
+- **During:** automated dnd-app error scan (`npm test` on bmo).
+
+**Description:**
+`src/main/bmo-bridge.test.ts:336` fires 60 sequential `await fetch` POSTs (expects 200) then expects the 61st to be `429` with `Retry-After: 60`. It failed this run with `AssertionError: expected 200 to be 429`. The limiter (`bmo-bridge.ts:30-49`) is a token bucket: capacity 60, refill **1 token/sec** off real `Date.now()`. The test uses real timers, so if the 60 awaited round-trips take ≥~1s of wall-clock, the bucket refills ≥1 token and the 61st request still finds a token → 200. On bmo (a slow host) the loop took >1s; on a fast CI runner the 61 requests likely finish in well under 1s and it passes — i.e. hardware-dependent flakiness rooted in a real test-design fragility (timing assumption, not fake timers).
+
+**Reproduction (if bug):** Run `npm test` on a slow machine (bmo) — the rate-limit test intermittently returns 200 for the 61st request.
+
+**Expected behavior (if bug):** the 61st request is deterministically 429 regardless of how long the first 60 take.
+
+**Hypothesis / root cause:** Test relies on real `Date.now()` / real network timing and assumes all 61 requests complete inside one 1s refill interval.
+
+**Proposed fix / improvement:**
+- [ ] Use `vi.useFakeTimers()` and drive `Date.now()` so no refill happens mid-loop, or assert against the bucket directly.
+- [ ] Alternatively widen capacity vs. test count, or freeze time around the burst.
+
+**Related files:** `dnd-app/src/main/bmo-bridge.test.ts` (~`:319-338`), `dnd-app/src/main/bmo-bridge.ts` (`:30-49` rate limiter)
+
+---
+
+### [2026-06-22] Renderer tests in the default `node` vitest env spam 200+ ERROR-level "window is not defined" loader failures (test-setup never stubs `window.api.game.loadJson`).
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** data-provider.loadJson now returns null instead of throwing when the bundled-file IPC bridge (window.api.game.loadJson) is absent — e.g. the vitest `node` env — so the 200+ `window is not defined` / loader ERROR lines are gone. Production renderer always has the bridge, so behavior there is unchanged. codebase-integrity test passes.
+
+- **Category:** test, debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-errors
+- **During:** automated dnd-app error scan (`npm test` on bmo — full suite passed 8178/8178, but stderr is flooded).
+
+**Description:**
+`vitest.config.ts` sets `environment: 'node'` globally with **no** `environmentMatchGlobs`, so a renderer test only gets a DOM if it opts in with a `// @vitest-environment happy-dom` docblock — only **66 of 711** renderer test files do. Any renderer test left in the default `node` env that transitively loads 5e content errors out: `data-provider.loadJson` (`src/renderer/src/services/data-provider.ts:141`) calls `window.api.game.loadJson(path)` as the bundled-file fallback, and `window` is undefined in node. `src/test-setup.ts` only stubs the *remote* library (`__setRemoteLibraryDeps({ fetchManifest: () => Promise.resolve(null) })`); it never stubs the `window.api.game.loadJson` bundled-file path, so every miss throws. This run emitted **212** `data-provider.ts:141` failures / **143** `ReferenceError: window is not defined` lines (+4 `localStorage is not defined` from the client-id module), surfacing as `[ERROR] Failed to load wearable items / effect definitions / equipment data / conditions data / bastion event tables / 5e skills …`. Tests still pass (loaders catch the throw and fall through, and assertions do not depend on that data), so this is noise rather than failure — but 200+ ERROR-level lines per run can bury a genuinely new error and makes `npm test` output hard to read.
+
+**Reproduction (if bug):**
+1. `cd dnd-app && npm test 2>&1 | grep -c "window is not defined"` → ~143 (and `grep -c data-provider.ts:141` → ~212).
+2. Concrete originator: `src/renderer/src/services/__tests__/codebase-integrity.test.ts` (node env — no `@vitest-environment` docblock) imports the chat-command registry, which lazily loads 5e data via `use-config-store` and throws at the `window.api.game.loadJson` fallback.
+
+**Expected behavior (if bug):** a clean test run with no ERROR-level loader spam; data loads in tests resolve deterministically to bundled JSON (or are stubbed) regardless of vitest environment.
+
+**Hypothesis / root cause:** `test-setup.ts` stubs only the remote-library manifest, leaving the bundled-file fallback (`window.api.game.loadJson`) unstubbed; combined with the all-`node` default environment, every renderer test that touches 5e content without its own mock hits an undefined `window`.
+
+**Proposed fix / improvement:**
+- [ ] In `test-setup.ts`, also stub the bundled-file loader (provide a global `window.api.game.loadJson` returning canned/empty JSON, or inject a node-safe `loadJson` dep) so misses resolve instead of throwing.
+- [ ] OR add `environmentMatchGlobs` (e.g. `src/renderer/**` → `happy-dom`) so renderer tests get a DOM by default and stop relying on per-file docblocks.
+- [ ] OR guard `data-provider.loadJson` to no-op/return null when `window?.api?.game?.loadJson` is unavailable instead of throwing.
+
+**Related files:** `dnd-app/vitest.config.ts`, `dnd-app/src/test-setup.ts`, `dnd-app/src/renderer/src/services/data-provider.ts` (`:141`), `dnd-app/src/renderer/src/stores/use-config-store.ts` (`:140`), `dnd-app/src/renderer/src/services/__tests__/codebase-integrity.test.ts`
+
+**Related entries:** [2026-06-22] Flaky/slow test: `CharacterSheet5ePage.test.tsx` times out at 15s on bmo (same `data-provider.ts:141` window failure observed as a symptom there; this entry is the suite-wide root cause + global fix, distinct from that one file's timeout).
+
+---
+
+### [2026-06-22] Flaky/slow test: `CharacterSheet5ePage.test.tsx > renders the sheet for a saved character` times out at 15s on bmo.
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Same data-provider guard removes the failing-loader churn; CharacterSheet5ePage.test.tsx now renders in ~3s (was 13-15s, hitting the 15s timeout). Both tests in the file pass.
+
+- **Category:** test, performance
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-errors
+- **During:** automated dnd-app error scan (`npm test` on bmo).
+
+**Description:**
+`src/renderer/src/pages/CharacterSheet5ePage.test.tsx:38` ("renders the sheet for a saved character (not the not-found fallback)") failed with `Error: Test timed out in 15000ms` (retry total ~28.5s). Its sibling in the same file ("survives toolbar interactions…") passed but took **13.4s** — right at the 15s ceiling — so the whole file sits on the edge of the timeout under parallel CPU contention on the Pi. The test's stderr is full of `TypeError: window.api.game.loadJson is not a function` / `ReferenceError: window is not defined` from `data-provider.ts:141`, suggesting the page's many lazy data loads (conditions, effects, languages, XP thresholds, wearables, …) churn through failing loaders before the awaited element appears, inflating runtime. Likely passes on a faster CI runner, but the file is fragile to host speed.
+
+**Expected behavior (if bug):** test completes well within its timeout on all supported hardware.
+
+**Hypothesis / root cause:** Heavy component + many sequential failing data loads in jsdom, near the global 15s `testTimeout`, aggravated by slow hardware / parallel load. May also indicate the test's `window.api.game.loadJson` mock is incomplete so loaders retry/fall through.
+
+**Proposed fix / improvement:**
+- [ ] Stub `window.api.game.loadJson` fully (return canned JSON) so the page hydrates fast instead of erroring through every loader.
+- [ ] Consider a per-test/file timeout bump or running this file non-parallel; profile where the 13-15s goes.
+
+**Related files:** `dnd-app/src/renderer/src/pages/CharacterSheet5ePage.test.tsx`, `dnd-app/src/renderer/src/services/data-provider.ts` (`:141`)
+
+---
+
+### [2026-06-22] Windows-path leak creates a literal `dnd-app/C:/tmp/logs/app.log` directory on Linux runs.
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** log.ts getLogDir() now guards a Windows-style userData path on a non-Windows run (drive-letter / backslash / non-`/`-absolute -> falls back to os.tmpdir()/dnd-app/logs), so mkdirSync can no longer create a literal `C:` directory. Removed the stray dnd-app/C:/ dir and added `C:/` to .gitignore defensively. log tests pass.
+
+- **Category:** config, portability
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-errors
+- **During:** automated dnd-app error scan (tree walk).
+
+**Description:**
+A stray directory `dnd-app/C:/tmp/logs/` containing `app.log` exists in the working tree (untracked; `*.log` keeps the file out of git, but the literal `C:` dir is real clutter). It was created when the file logger (`src/main/log.ts` `getLogDir()` → `join(app.getPath('userData'), 'logs')`) received a **Windows-style** userData path (`C:\tmp`) during a run on Linux: posix `join` keeps `C:\tmp` verbatim, so `mkdirSync` created a folder literally named `C:` under the cwd. Contents are real app warnings (e.g. repeated `[AI] configured Ollama model "llama3.2:3b" not installed; using "llama3.1"`), last written 2026-06-09 — stale.
+
+**Expected behavior (if bug):** on Linux, logs go under the real userData dir (`~/.config/<app>/logs`), never a literal `C:` directory inside the repo.
+
+**Hypothesis / root cause:** `app.getPath('userData')` returned (or was overridden to) a Windows path while running on Linux (dev/test harness or a cross-platform env override). No guard normalizes/validates the platform of the returned path before `join`.
+
+**Proposed fix / improvement:**
+- [ ] Delete the stray `dnd-app/C:/` directory.
+- [ ] Find what set userData to `C:\tmp` on a Linux run (test setup / env var) and fix it; optionally assert the log dir is absolute-for-this-platform.
+- [ ] Consider adding `C:/` to `.gitignore` defensively (or just the cleanup above).
+
+**Related files:** `dnd-app/src/main/log.ts` (`getLogDir`), `dnd-app/.gitignore`
+
+---
+
+### [2026-06-16] Pre-commit hook lints 0 staged files — local biome gate is a silent no-op
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** `.husky/pre-commit` now runs Biome's staged check from the repo ROOT via `./dnd-app/node_modules/.bin/biome check --staged --no-errors-on-unmatched`, so git's repo-root-relative staged paths (`dnd-app/src/...`) resolve and Biome picks up dnd-app/biome.json per file. The old `cd dnd-app && npm run lint -- --staged` (= `biome check src/ --staged`) matched 0 staged files.
+
+**Original entry:** - **[2026-06-16] Pre-commit hook lints 0 staged files — the local biome gate is a silent no-op.** `.husky/pre-commit` does `cd dnd-app` then `npm run lint -- --staged` (= `biome check src/ --staged`). Run from the `dnd-app/` subdir, biome's `--staged` receives git's repo-root-relative staged paths (`dnd-app/src/…`) and filters them against the `src/` path arg in cwd `dnd-app/`, matching nothing → "Checked 0 files in …µs" → the commit passes regardless of lint/format errors. Let a formatter error (an over-long `flattenToChunks` signature) slip through to CI in PHASE-24, turning `dnd-app CI` red (fixed by `biome check --write` + amend). Fix options: drop the `src/` path arg when `--staged` is passed, run biome from the repo root, or stop passing a path with `--staged`. *(found during the PHASE-24 release.)*
+
+---
+
+### [2026-06-22] `dnd-app/README.md` "Directory layout" + cross-references have drifted out of sync with the tree
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** README count de-drifted (`3,041`→`~3,000`, 4 places) and the phases layout line now points at PHASE-INDEX.md instead of the stale `phase-15..28` range. Fixed on auto/dnd-resolver.
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+The `dnd-app/README.md` "Directory layout" block and a few inline references no longer match the repo and will keep misleading contributors:
+
+- **Phase range is stale.** Layout says `docs/phases/ open-work plans (phase-15 through phase-28)`, and the "Multiplayer architecture (Phase 29)" heading reads as current. In reality the phase set is `PHASE-01`..`PHASE-43`, with 43 plans already in `docs/phases/completed/` and `PHASE-INDEX.md` tracking the run.
+- **5e file count is wrong in 4 places.** README repeats `3,041 JSON files` (lines ~14, ~94, ~215, ~270) but `find src/renderer/public/data/5e -name "*.json"` returns **3,033** (the codebase-integrity test and a prior log entry also use 3,033).
+- **`docs/` list is incomplete.** The layout only names `IPC-SURFACE.md`, `PLUGIN-SYSTEM.md`, and `phases/`, omitting the other tracked docs that exist today: `ASSET-OFFLOAD.md`, `DEPENDENCIES.md`, `DESIGN-CONSTRAINTS.md`, `LLAMA-SERVER.md`, `RELEASE.md`, `SEED-PACKS.md`, `UI-LAYERS.md`.
+- **`tools/` is described as legit dev tooling** ("dev utilities (audit runner, console->logger sweep, knip-summary)") even though a separate scan flagged every `tools/*` script as unreferenced one-offs. If those get removed, this line becomes doubly wrong.
+
+**Proposed fix / improvement:**
+- [ ] Replace the hardcoded `3,041` with the real count (3,033) — or, better, drop the exact number from prose so it cannot drift (e.g. "~3,000 JSON files").
+- [ ] Update the phases reference to point at `PHASE-INDEX.md` rather than a fixed `phase-15..28` range.
+- [ ] List all current `docs/*.md` files (or say "see `docs/`") instead of an outdated subset.
+- [ ] Reconcile the `tools/` description with whatever the `tools/` cleanup decides.
+- [ ] Consider a tiny CI/check script that asserts the README 5e count matches the actual file count so this specific number stops rotting.
+
+**Related files:** `dnd-app/README.md`, `dnd-app/docs/phases/PHASE-INDEX.md`, `dnd-app/src/renderer/public/data/5e/`, `dnd-app/docs/`, `dnd-app/tools/`
+
+---
+
+### [2026-06-22] Bundle visualizer auto-opens a browser tab on every build (`open: true`) and leaves a stale 1.1 MB `bundle-stats.html` at repo root
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Already satisfied in the current tree: `electron.vite.config.ts` uses `visualizer({ open: false, ... })`, `bundle-stats.html` is gitignored (`.gitignore:9`), and no stale artifact exists in the working tree. Archived; no code change needed.
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+`electron.vite.config.ts:17` configures rollup-plugin-visualizer as `visualizer({ open: true, filename: 'bundle-stats.html', gzipSize: true })`. `open: true` pops open a browser tab on builds that include the visualizer — noisy for CI/headless/automated builds. The generated `bundle-stats.html` (~1.1 MB, last built 2026-04-24) sits at the `dnd-app/` root; it is correctly gitignored (`.gitignore:9`) so it won't be committed, but it is a stale leftover artifact in the working tree. Consider gating the visualizer behind an env flag (e.g. only when `ANALYZE=1`) and/or `open: false`, and writing the report under a build/output dir rather than the project root.
+
+**Proposed fix / improvement:**
+- [ ] Set `open: false` (or gate the whole visualizer behind `process.env.ANALYZE`).
+- [ ] Optionally relocate the report out of the project root.
+
+**Related files:** `electron.vite.config.ts`, `dnd-app/.gitignore`
+
+---
+
 ### [2026-04-26] React.memo applied to top tree-rendered components + convention doc
 
 - **Original severity:** low

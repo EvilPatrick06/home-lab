@@ -16,13 +16,11 @@ longer matches the index (e.g., wrapping the indexed column in a function).
 
 from __future__ import annotations
 
-import os
 import sys
 import sqlite3
 import time
 from pathlib import Path
 
-import pytest
 
 
 # Make sure the bot module is importable. tests/conftest.py mocks gevent and

@@ -65,6 +65,36 @@ def test_health_is_exempt(monkeypatch):
         assert app_module._bmo_optional_api_key() is None
 
 
+def test_public_dm_endpoint_exempt_from_key(monkeypatch):
+    """The anonymous game-chat endpoint is reachable without the Bearer (it is
+    opened to the internet via a path-scoped Cloudflare Access bypass)."""
+    monkeypatch.setattr(app_module, "BMO_API_KEY", "k")
+    with _ctx("/api/dnd/public/dm", remote="203.0.113.7"):
+        assert app_module._bmo_optional_api_key() is None
+
+
+def test_public_web_surface_exempt_from_key(monkeypatch):
+    """The dnd-app web build + the read-only content it loads stay anonymous."""
+    monkeypatch.setattr(app_module, "BMO_API_KEY", "k")
+    for path in (
+        "/DungeonTableOnline/",
+        "/DungeonTableOnline/assets/app.js",
+        "/api/library/manifest",
+        "/api/sounds/file",
+    ):
+        with _ctx(path, remote="203.0.113.7"):
+            assert app_module._bmo_optional_api_key() is None, path
+
+
+def test_sibling_private_dnd_route_still_gated(monkeypatch):
+    """Exempting /api/dnd/public/dm must NOT open the rest of /api/dnd/*."""
+    monkeypatch.setattr(app_module, "BMO_API_KEY", "k")
+    for path in ("/api/dnd/dm", "/api/dnd/load", "/api/dnd/sessions"):
+        with _ctx(path, remote="203.0.113.7"):
+            resp = app_module._bmo_optional_api_key()
+            assert resp is not None and resp[1] == 401, path
+
+
 def test_sse_stream_accepts_api_key_query(monkeypatch):
     """EventSource can't set a header, so /api/games/stream accepts ?api_key=."""
     monkeypatch.setattr(app_module, "BMO_API_KEY", "k")

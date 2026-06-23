@@ -12,7 +12,7 @@
  */
 
 import { lookup } from 'node:dns/promises'
-import Bonjour from 'bonjour-service'
+import Bonjour, { type BrowserConfig, type Service } from 'bonjour-service'
 import { BrowserWindow } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc-channels'
 import {
@@ -24,12 +24,9 @@ import {
 import { getBmoBaseUrl, setDiscoveredBmoUrl } from './bmo-config'
 import { logToFile } from './log'
 
-// bonjour-service@1.4 switched to `export = Bonjour` (a class merged with a
-// namespace): `Service` is a namespace VALUE and `BrowserConfig` is no longer
-// re-exported at the package root, so derive the TYPES we need from the class
-// surface (the default-imported `Bonjour` is usable as both value + instance type).
-type Service = InstanceType<typeof Bonjour.Service>
-type BrowserConfig = NonNullable<Parameters<Bonjour['find']>[0]>
+// bonjour-service@1.4.1 exposes `Service` and `BrowserConfig` as named exports
+// (the default export is the `Bonjour` class). Import the types directly rather
+// than deriving them off the class surface.
 
 const SERVICE_TYPE = 'dndvtt'
 const BMO_SERVICE_TYPE = 'bmo'

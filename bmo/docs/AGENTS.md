@@ -4,6 +4,8 @@
 
 The registered/routable count is 28 (the `create_*_agent()` calls in `agent.py` + `agents/_registry.py`); the tables below also list the infrastructure classes (base class, orchestrator, router, helpers) that live in `agents/` but are not routed agents themselves.
 
+> **Automated/scheduled agents working on bmo follow the repo-wide process.** The implement → verify → commit → release loop, the per-agent `auto/*` branch + worktree + integrator git workflow, and the **attempt risky / large fixes (do NOT defer for size or risk) stance** are the same for bmo as for every domain. Canonical process: [`../../dnd-app/docs/phases/INSTRUCTIONS.md`](../../dnd-app/docs/phases/INSTRUCTIONS.md) (repo-wide, not dnd-app-only); git mechanics: [`../../docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`](../../docs/AUTOMATED-AGENT-GIT-WORKFLOW.md). This file itself is just the bmo agent catalog.
+
 ## Agent list
 
 ### Core infrastructure (12)

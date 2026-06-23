@@ -2040,6 +2040,10 @@ async def _run_dm_bot() -> None:
         _log("Invalid Discord bot token — check DISCORD_DM_BOT_TOKEN")
     except Exception as e:
         _log("DM bot crashed: %s", e)
+        # Re-raise so the process exits non-zero and systemd Restart=on-failure
+        # brings the bot back. Only discord.LoginFailure (a real config error)
+        # exits cleanly. The in-process thread runner catches this re-raise.
+        raise
     finally:
         if _bot and not _bot.is_closed():
             await _bot.close()

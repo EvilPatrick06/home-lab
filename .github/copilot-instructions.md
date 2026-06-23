@@ -63,7 +63,9 @@ Issues should reference the matching active log if logging a bug (per domain —
 
 ## Automated-agent git workflow
 
-Automated/scheduled agents (scanners, QA, phase-maker, phase-executer, log-resolver, etc.) do **not** commit to `master`. Each works on its own `auto/<agent-id>` branch in its own git worktree and pushes that branch; a daily **integrator** merges the clean branches into `master` and reviews Dependabot PRs (merging safe patch/minor bumps with green CI, leaving major/risky ones for manual review). The append-only logs use a `merge=union` driver so concurrent appends auto-merge. Humans / interactive sessions may still use `master`. Full spec: [`../docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`](../docs/AUTOMATED-AGENT-GIT-WORKFLOW.md).
+Automated/scheduled agents (scanners, QA, phase-maker, phase-executer, log-resolver, etc.) do **not** commit to `master`. Each works on its own `auto/<agent-id>` branch in its own git worktree and pushes that branch; a daily **integrator** merges the clean branches into `master` and reviews Dependabot PRs (merging safe patch/minor bumps with green CI, leaving major / breaking ones for manual review — a human decision on a third-party breaking change). The append-only logs use a `merge=union` driver so concurrent appends auto-merge. Humans / interactive sessions may still use `master`. Full spec: [`../docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`](../docs/AUTOMATED-AGENT-GIT-WORKFLOW.md).
+
+The repo-wide implement → verify → commit → release process for automated agents (ALL domains — dnd-app, bmo, dungeon-scholar) is [`../dnd-app/docs/phases/INSTRUCTIONS.md`](../dnd-app/docs/phases/INSTRUCTIONS.md) (canonical, not dnd-app-only). Per that process, automated agents **attempt risky / large fixes rather than deferring them** — the `auto/*` branch + CI gate + (for resolver work) the user's approval + fix-forward is the safety net; size or risk alone is never a reason to leave or hand a fix back. Stop short only if (a) genuinely blocked, or (b) a new human decision the scope didn't cover is needed (INSTRUCTIONS.md rule 27).
 
 ## Forbidden Patterns
 

@@ -12,6 +12,806 @@
 
 ---
 
+### [2026-06-22] Voice pipeline starts degraded every boot — Silero VAD disabled (no `torchaudio`) and openwakeword default models missing → energy-only VAD + energy+STT wake fallback
+
+- **Category:** config, bug
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** automated bmo error scan (live `bmo.service` boot journal + voice_pipeline.py read + venv/pip + `arecord -l`)
+
+**Description:**
+On the live Pi, the voice pipeline logs two ERROR-level failures at every boot and runs in a degraded mode:
+1. `[vad] Silero VAD not available, using energy-only` → `_load_silero_vad` (voice_pipeline.py ~240) does `import torchaudio` ("required by silero"), but **`torchaudio` is not installed** (`pip show torchaudio` → not found; `torch==2.12.0+cpu` IS installed; `torchaudio` is not in `requirements.txt`/`requirements.in`). So Silero VAD can never load and the pipeline permanently falls back to energy-only VAD (worse speech/no-speech discrimination).
+2. `[wake] openwakeword not available, using energy+STT fallback...` → `_load_wake_model` (voice_pipeline.py ~211-215) raises `RuntimeError("no wake word ONNX model files found ...")`. `openwakeword==0.6.0` and `onnxruntime==1.26.0` ARE installed, but the **default ONNX model weight files were never downloaded** (`_get_wake_model_paths()` returns empty), so wake-word detection falls back to the cruder energy+STT path.
+
+Net: both core voice-front-end models are unavailable; the assistant runs on the weaker energy-based fallbacks and prints ERROR tracebacks each boot.
+
+**Caveat (honest):** this Pi currently has **no capture device** (`arecord -l` lists zero CAPTURE hardware), so wake/VAD are paused anyway right now — the impact is **latent**. But these are real packaging/setup gaps that (a) spam ERROR tracebacks every boot and (b) will silently leave voice degraded the moment a mic is attached. The "no audio input device" pause is a separate, already-known quiet-degrade path (commit f87518cc); the model/dep gaps here are distinct.
+
+**Expected behavior:** with the documented deps + models installed, Silero VAD and openwakeword should load; if a model/dep is genuinely optional, the absence should log once at INFO (not an ERROR traceback every boot).
+
+**Hypothesis / root cause:** the 2026-04-23 CPU-only-torch venv rebuild (see resolved log) installed `torch` but never added `torchaudio`; and `setup-bmo.sh` / `install-venv.sh` do not run `openwakeword`'s model download step (e.g. `python -c "import openwakeword.utils; openwakeword.utils.download_models()"`), so the `.onnx` weights are absent.
+
+**Proposed fix / improvement:**
+- [ ] Add `torchaudio` (CPU build, matching `torch` 2.12 / the pinned index) to `requirements.in` + recompile, OR make `_load_silero_vad` degrade at INFO without a traceback if Silero is intentionally optional.
+- [ ] Add an openwakeword model-download step to `setup-bmo.sh` / `scripts/install-venv.sh` (or ship a bundled custom model) so `_get_wake_model_paths()` resolves.
+- [ ] Demote the per-boot wake/VAD-unavailable ERRORs to a single INFO when running headless / mic-absent.
+
+**Related files:** `bmo/pi/services/voice_pipeline.py` (`_load_silero_vad` ~234, `_load_wake_model` ~210, `_get_wake_model_paths`), `bmo/pi/requirements.in` / `requirements.txt`, `bmo/setup-bmo.sh`, `bmo/pi/scripts/install-venv.sh`
+
+**Related entries:** resolved 2026-04-23 "CPU-only torch venv rebuild"; wake-word quiet-degrade commit f87518cc
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Declared+installed the missing STT engine faster-whisper, installed torchaudio (CPU) for Silero VAD, and downloaded the openwakeword default models on the live venv; added faster-whisper to requirements.in and torchaudio to the CPU torch install step; demoted the per-boot Silero/wake-unavailable ERROR tracebacks to a single INFO. Voice front-end deps now satisfied (a mic is still required for live use) (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Pi thermal throttling — CPU hit 84°C, soft-temp limit + frequency capping occurred this boot despite `bmo-fan` active (`get_throttled=0xe0000`)
+
+- **Category:** performance, config
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** automated bmo error scan (live `bmo.service` journal + `vcgencmd measure_temp` / `get_throttled`)
+
+**Description:**
+The health monitor fired repeated CRITICALs this boot: `pi_cpu_temp: 🌡️ CPU temperature critical: 84.2°C` and `pi_power: 🌡️ Soft temperature limit active NOW (flags: 0xe0008)` (multiple cycles ~18:51–18:54). `vcgencmd get_throttled` reads **`0xe0000`** = bits 17/18/19 set → "arm frequency capping has occurred", "throttling has occurred", "soft temperature limit has occurred" (no under-voltage bits, no currently-active bits). Current temp at scan ≈ 74–75°C with `bmo-fan.service` **active** — so the fan runs but cooling is insufficient under load and the SoC has been thermally throttling. Throttling directly slows the CPU-bound voice/STT pipeline and sustained 80°C+ shortens hardware life.
+
+**Reproduction:**
+1. `vcgencmd get_throttled` → `0xe0000` (throttle/soft-limit/freq-cap occurred since boot).
+2. `journalctl -u bmo.service -b | grep -i "temperature critical"` → CPU peaked 84.2°C.
+
+**Expected behavior:** under normal load the Pi should stay below the soft-temp limit (no throttle/freq-cap bits) with the fan running.
+
+**Hypothesis / root cause:** cooling headroom is marginal — fan curve too conservative, fan/heatsink undersized for the enclosed touchscreen build, or a CPU-heavy workload (faster-whisper "small" int8 STT, onnxruntime) spiking temps. Needs a hardware/fan-curve look, not a code fix per se.
+
+**Proposed fix / improvement:**
+- [ ] Review `bmo-fan` control curve (`bmo/pi/hardware/fan_control.py`) — raise duty / lower the on-threshold so it ramps before 80°C.
+- [ ] Check enclosure airflow / heatsink contact.
+- [ ] Consider throttling background CPU work when `pi_cpu_temp` is in the critical band.
+
+**Related files:** `bmo/pi/hardware/fan_control.py`, `bmo/pi/services/monitoring.py` (`_check_*` thermal/power checks), `bmo/pi/kiosk/bmo-fan.service`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Shipped the code-addressable mitigation — fan curve ramps earlier/harder (full duty by 75C vs 80C + more mid-band duty) for thermal headroom; the physical airflow/heatsink-contact check the entry flags is hardware, not code (branch `auto/bmo-resolver`).
+
+### [2026-06-22] `agent.py` mixes the core LLM-routing brain with D&D-specific helpers — extract the D&D helpers
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+`bmo/pi/agent.py` is the second-largest source file in the repo (~2,167 lines / 99 KB) and its module docstring scopes it to "Cloud API AI with local Ollama fallback" — i.e. model selection plus `llm_chat` / `llm_chat_stream` routing and RAG. Interleaved among those, however, it also carries a cluster of D&D-domain helpers that have nothing to do with LLM routing: `_summarize_character`, `_load_character_file`, `_discover_maps`, `_parse_cr`, `_build_dm_data_context`, `_calculate_encounter_difficulty`, and `_load_monster_stat_block` (lines ~562-818). Those belong with the existing D&D logic in `services/dnd_engine.py` / `agents/dnd_dm.py`, not in the generic agent brain. Extracting them would shrink the core file, sharpen its single responsibility (LLM routing + RAG), and put the encounter/monster/character math next to the rest of the D&D engine. Working code — reorg only, defer until someone is already in this area.
+
+**Proposed fix / improvement:**
+- [ ] Move the D&D helper functions out of `agent.py` into `services/dnd_engine.py` (or a new `services/dnd_dm_data.py`); update imports in `agent.py` and any callers.
+- [ ] Leave LLM routing / RAG (`llm_chat*`, `_select_model`, `get_resolved_model`, `rag_search`, `BmoAgent`) in `agent.py`.
+
+**Related files:** `bmo/pi/agent.py`, `bmo/pi/services/dnd_engine.py`, `bmo/pi/agents/dnd_dm.py`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Extracted the 7 D&D helpers + DND_DATA_DIR to services/dnd_dm_data.py; agent.py re-exports them and shrinks ~250 lines (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Single-user owner identity (Gavin) is hardcoded across the tree — lift into config for portability/forkability
+
+- **Category:** portability, future-idea
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** Automated improvement-suggestion scan of the bmo/ tree.
+
+**Description:**
+The owner's identity is baked into source in **~51 places**. The social bot's personality prompt hardcodes created by Gavin, who is your best friend and creator (`bots/discord_social_bot.py`), the default speaker is `gavin` in multiple spots (`agents/settings.py` `default_name`, `cli.py`, `routes/realtime_ws.py`, `routes/chat_api.py`, `dev/bmo_ui_lab_server.py`), agent tool docs use `{name: Gavin}` as the canonical example (`agent.py`, `app.py`), and the one-shot enrollment script is literally named `wake/enroll_gavin.py` (whose docstring also still references the now-obsolete `voice_profiles.pkl` — persistence moved to `voice_profiles.json`). None of this is a bug for the current single-user deployment, but it means the project can't be cleanly shared/forked or run for a second household without a find-and-replace through prompts and code. A small `owner`/`identity` config block (name, relationship descriptor, default speaker) read at startup would centralize it.
+
+**Proposed fix / improvement:**
+- [ ] Introduce an `owner`/`identity` config (name + relationship + default speaker) sourced from settings/env, with Gavin as the default value so behavior is unchanged.
+- [ ] Replace the hardcoded literals in the personality prompt, settings defaults, agent tool examples, and route fallbacks with that config.
+- [ ] Rename `enroll_gavin.py` → `enroll_voice.py` (accept a `--name`), and fix its docstring to say `voice_profiles.json`.
+
+**Related files:** `pi/bots/discord_social_bot.py`, `pi/agents/settings.py`, `pi/cli.py`, `pi/routes/realtime_ws.py`, `pi/routes/chat_api.py`, `pi/wake/enroll_gavin.py`, `pi/agent.py`, `pi/app.py`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Added services/identity.py (Gavin defaults, env-overridable); wired social-bot prompt + settings default; renamed enroll_gavin.py -> enroll_voice.py with --name + .json docstring fix (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Expose BMO's own subsystems (timers, calendar, smart-home, lists, music) as MCP servers, not just the D&D data server
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** Automated improvement-suggestion scan of the bmo/ tree.
+
+**Description:**
+`pi/mcp_servers/` currently exposes exactly one server — `dnd_data_server.py` (5e references + RAG over stdio JSON-RPC) — and it is cleanly built with env-var-configurable data roots. BMO has a rich set of first-party capabilities behind in-process Python services (`timer_service`, `calendar_service`, `smart_home`, `list_service`, `music_service`, `weather_service`, `location_service`). Today those are reachable only through BMO's own agents/HTTP routes. Wrapping a few of them as MCP servers (the same stdio pattern the D&D server already establishes) would let *other* MCP clients — Claude Desktop, Claude Code, other agents on the LAN — drive BMO's timers/calendar/home directly, and would give BMO's own orchestrator a uniform tool interface to its subsystems instead of bespoke per-service wiring. It also makes each capability independently testable and reusable outside the Flask process.
+
+**Proposed fix / improvement:**
+- [ ] Pick 1-2 high-value, low-risk subsystems first (e.g. timers + lists) and wrap their service functions as MCP tools following `dnd_data_server.py`'s structure.
+- [ ] Register them in `mcp_servers/mcp_settings.json`; document auth/trust expectations (the README already flags that file as a code-execution surface).
+- [ ] Keep write-capable tools (smart-home control, calendar create) behind explicit opt-in so a remote MCP client can't actuate the house by default.
+
+**Related files:** `pi/mcp_servers/dnd_data_server.py`, `pi/mcp_servers/mcp_settings.json`, `pi/services/timer_service.py`, `pi/services/list_service.py`, `pi/services/smart_home.py`, `pi/services/calendar_service.py`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Added mcp_servers/bmo_lists_server.py (file-backed lists as MCP tools, write tools gated); registered in mcp_settings.json. Timers left out (in-process state) (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Mock-hardware "simulator" run mode for off-Pi development
+
+- **Category:** portability
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of init_services() + hardware/ adapters
+
+**Description:**
+Off-Pi, `init_services()` wraps each hardware service (LED, OLED, camera, mic/voice) in try/except and simply SKIPs it on `ImportError`; CANARY mode is import-only. A contributor on a laptop can boot Flask but cannot exercise the LED ring, OLED face, camera, or the wake -> STT -> TTS flow at all — those subsystems are absent, not simulated. There is no functional-stub layer (virtual LED/OLED state surfaced to the web UI, file/synthetic mic input, canned camera frames) to develop or UX-test the full experience off-device.
+
+**Proposed fix / improvement:**
+- [ ] Add a `BMO_SIMULATE=1` mode providing stub hardware adapters that implement the same interfaces with fake-but-observable behavior (LED/OLED state pushed to the existing web UI; mic fed from a wav file or injected text; camera returns a static/sample frame).
+- [ ] Document it in `DEPLOY.md` / `bmo/pi/README.md` so off-Pi end-to-end UX testing is a first-class path.
+
+**Related files:** `app.py` (`init_services`), `hardware/led_controller.py`, `hardware/oled_face.py`, `hardware/camera_service.py`, `services/voice_pipeline.py`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Added hardware/sim_hardware.py stubs + BMO_SIMULATE=1 wiring in init_services for LED/OLED/camera; documented in README (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Periodic synthetic voice-path canary wired into monitoring + Discord alerts
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of dev/ benchmarks + monitoring
+
+**Description:**
+`dev/benchmark_full.py` / `benchmark_audio.py` / `benchmark_llm.py` already exercise the STT -> LLM -> TTS path, but they are manual one-off dev tools. `services/monitoring.py` and the cron health check only probe liveness/HTTP status, not the real end-to-end voice path. A regression that leaves `/health` green but breaks actual STT/TTS quality or latency (model swap, cloud API change, mic config drift) goes unnoticed until a human talks to BMO. Recorded wake clips already exist under `wake/clips` (`record_wake_clips.py`).
+
+**Proposed fix / improvement:**
+- [ ] Wrap a lightweight synthetic run (feed a known clip -> assert transcript approximately matches + TTS produced + stage latency under budget), building on `benchmark_full.py` rather than duplicating it.
+- [ ] Run it on a slow cadence (cron / systemd timer) and feed pass/fail + latency into `monitoring.py` so the existing Discord alert path fires on regression.
+
+**Related files:** `dev/benchmark_full.py`, `services/monitoring.py`, `services/voice_pipeline.py`, `wake/clips`, `health_check.sh`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Added services/voice_canary.py + monitoring._check_voice_canary + bmo-voice-canary.timer; surfaced a real gap (faster_whisper missing) (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Adopt `bmo_logging` everywhere — retire stray `print()` and silent `except: pass`
+
+- **Category:** future-idea, debt
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** Automated improvement-suggestion scan of the bmo/ tree.
+
+**Description:**
+`services/bmo_logging.py` is a well-built structured-logging shim (env-controlled level via `BMO_LOG_LEVEL`, optional rotating file handler, optional JSON output for Loki/Vector, a CWE-117 log-injection sanitizer, and `log.exception` for tracebacks) — but it is only referenced by **32 of 193** Python files under `pi/`. Meanwhile the production tree (excluding `cli/`, `dev/`, `scripts/`) still contains **~347 `print()` calls** and **~169 `except ...: pass` blocks that swallow the exception with no log line at all**. The prints bypass level control, journald severity, and the JSON/file sinks, so they are invisible to `journalctl -u bmo -p err` and to any future log shipping. The silent excepts hide real failures in exactly the long-running, gevent-driven paths (voice pipeline, bots, services) where a swallowed error manifests as BMO mysteriously doing nothing — the hardest class of bug to diagnose on a headless Pi. This is the observability counterpart to the already-logged bots swallow startup crashes issue, but as a codebase-wide hygiene effort rather than a single bug.
+
+**Proposed fix / improvement:**
+- [ ] Add a lint/CI check (ruff already runs — e.g. `flake8-print`/`T20`, or a forbidden-pattern grep like the dnd-app gate) that flags new `print()` in production modules under `pi/` outside `cli/`, `dev/`, `scripts/`.
+- [ ] Sweep existing `print()` calls to `get_logger(<subsystem>)` at the right level; keep `print` only in CLI/dev/diagnostic tools where stdout IS the interface.
+- [ ] Triage the ~169 `except: pass` sites: convert expected and ignorable ones to `log.debug(...)` and genuine error paths to `log.exception(...)`, so failures leave a breadcrumb instead of vanishing.
+
+**Related files:** `pi/services/bmo_logging.py`, `pi/services/voice_pipeline.py`, `pi/bots/discord_social_bot.py`, `pi/bots/discord_dm_bot.py`, `pi/app.py`, `pi/agent.py`
+
+**Related entries:** [2026-06-22] Aggregate voice-pipeline stage latency into an exported metrics endpoint; [2026-06-22] Periodic synthetic voice-path canary
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Added a print() ratchet (scripts/check-no-new-prints.sh + CI + .print-baseline=163) so production prints can't grow; existing convert opportunistically (branch `auto/bmo-resolver`).
+
+### [2026-06-22] `discord_social_bot.py` is a 7k-line monolith — split into a package
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+`bmo/pi/bots/discord_social_bot.py` is 277 KB / ~6,996 lines in a single file — by far the largest source file in the repo (the next bot, `discord_dm_bot.py`, is ~2,082 lines; most service modules are under 1k). A file this size is hard to navigate, review, and test, and it makes the coverage note in `.coveragerc` ("gevent-spawned branches look uncovered") harder to reason about. It almost certainly bundles several independent concerns (music, games, casual chat, command handlers, event listeners) that could each move into a `bots/social/` subpackage. Working code — reorg only, defer until someone is touching this area.
+
+**Proposed fix / improvement:**
+- [ ] Identify the cohesive feature clusters (music / games / chat / command + event registration) inside the file.
+- [ ] Extract them into a `bots/social/` package (or sibling modules) with the bot entrypoint wiring them together; keep behavior identical.
+
+**Related files:** `bmo/pi/bots/discord_social_bot.py`, `bmo/pi/bots/discord_dm_bot.py`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** First decomposition: extracted stateless helpers to bots/social_bot_utils.py (seam for further music/cog extraction) (branch `auto/bmo-resolver`).
+
+### [2026-06-22] No off-tree backup/snapshot of BMO's gitignored runtime state
+
+- **Category:** future-idea
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of persistence paths (settings_store / campaign_memory / list_service / chat_history) vs `.gitignore` and `scripts/deploy.sh`
+
+**Description:**
+All of BMO's accumulated, mutable state lives untracked-and-gitignored inside the working tree under `bmo/pi/data/` and is the only copy anywhere: `campaign_memory.db` (SQLite — D&D NPC/campaign memory), `dnd_sessions/` (session logs), plus a pile of JSON state — `lists.json`, `notes.json`, `alarms.json`, `play_counts.json`, `music_history.json`, `recent_chat.json`, `settings.json`, `alert_history.json`, etc. (see `.gitignore` lines ~92–119). `deploy.sh` is correctly careful (it refuses a dirty tree and never `git clean`s, so deploys do not clobber this state), but that is the *only* thing protecting it. There is no periodic backup/snapshot: an SSD/SD failure, a stray manual `git clean -fdx`, or a bad block on the single Pi disk silently destroys every D&D campaign's memory, all alarms, lists, notes, and play history with no recovery path. No `backup`/`restore`/`rsync`/`tar` of `data/` exists anywhere in `scripts/`.
+
+**Hypothesis / root cause:** State accreted file-by-file as features shipped; each module just picks its own path under `data/`. Because it is gitignored it is invisible to the git-based deploy safety net, so no one added an out-of-band copy.
+
+**Proposed fix / improvement:**
+- [ ] Add a small `scripts/backup-state.sh` that tars/rsyncs the gitignored runtime set (`campaign_memory.db`, `dnd_sessions/`, and the `data/*.json` state files) to a second location — another disk, a NAS/`rclone` remote, or at minimum a timestamped copy outside the repo tree.
+- [ ] Run it on a `systemd` timer (daily) and surface last-success age in `/api/health/full` so a stale/failed backup is visible.
+- [ ] Document restore in `DEPLOY.md` / `TROUBLESHOOTING.md`. (`rclone` is already a dependency — `routes/rclone_api.py` exists — so an off-device target is low-effort.)
+
+**Related files:** `bmo/pi/services/settings_store.py`, `bmo/pi/services/campaign_memory.py`, `bmo/pi/services/chat_history.py`, `bmo/pi/services/list_service.py`, `bmo/.gitignore`, `bmo/pi/scripts/deploy.sh`, `bmo/pi/routes/rclone_api.py`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Added backup-state.sh + bmo-backup.service/.timer (daily 03:00, keep 14); enabled live and took a first backup (branch `auto/bmo-resolver`).
+
+### [2026-06-22] No cross-provider LLM failover in `cloud_chat` (+ inconsistent transient-retry across providers)
+
+- **Category:** future-idea
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of `services/cloud_providers.py` LLM routing/reliability
+
+**Description:**
+`cloud_chat()` dispatches a request to exactly one provider based on the model-name prefix (`gemini*` -> Gemini, `claude*` -> Claude, `llama/mixtral/groq-*` -> Groq) with no fallback. If the chosen provider is down or rate-limited, the call raises and the caller (voice pipeline, agents) gets nothing — for the always-on voice path that means BMO goes silent on a single-vendor outage, even though three other working LLM backends are configured. Compounding it, transient-error handling is inconsistent: `gemini_chat()` retries up to 3x on HTTP 5xx with linear backoff, but `claude_chat()` and `groq_llm_chat()` are single-shot (`post(...)` -> `raise_for_status()`), so a one-off 502/503 from Claude/Groq fails the whole turn where the same blip against Gemini would be absorbed. There is no shared retry/backoff helper and no notion of "primary down -> try secondary".
+
+**Hypothesis / root cause:** Providers were added incrementally; the retry loop was bolted onto Gemini (the flaky-preview primary) only, and routing stayed a simple prefix switch rather than a resilience layer.
+
+**Proposed fix / improvement:**
+- [ ] Factor one transient-retry helper (5xx + timeout, bounded backoff) and apply it uniformly to all three chat providers.
+- [ ] Add an opt-in failover ladder in `cloud_chat` (e.g. primary -> a configured fallback model on a *different* vendor) for non-streaming chat, gated by a setting so DM/Code-Agent determinism is not silently changed. Respect the gevent/`os.system` design constraint — keep failover at the Python routing layer, do not touch the curl paths.
+- [ ] Optionally record which provider served each turn via the metrics idea already logged (2026-06-22 "Aggregate voice-pipeline stage latency...") so failover events are observable.
+
+**Related files:** `bmo/pi/services/cloud_providers.py` (`cloud_chat`, `gemini_chat`, `claude_chat`, `groq_llm_chat`), `bmo/pi/services/voice_pipeline.py`, `bmo/docs/DESIGN-CONSTRAINTS.md` (gevent/`os.system` constraint)
+
+**Related entries:** `BMO-SUGGESTIONS-LOG.md` [2026-06-22] Aggregate voice-pipeline stage latency into an exported metrics endpoint.
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Added shared _post_with_retry (claude+groq now retry 5xx like gemini) and an opt-in cross-vendor failover ladder in cloud_chat gated by BMO_LLM_FAILOVER_MODEL (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Consolidate scattered systemd `.service` units into one location
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+Four tracked systemd unit files live in two different directories. Three sit together in `bmo/pi/kiosk/` (`bmo-kiosk.service`, `bmo-dm-bot.service`, `bmo-social-bot.service`) alongside `install-kiosk.sh`, while a fourth — `bmo-ide.service` — sits off on its own in `bmo/pi/ide_app/`. There is no single place to look for "what units does this host run", and the kiosk installer can't pick up the IDE unit. Either co-locate all units (e.g. a `bmo/pi/kiosk/` or new `bmo/pi/systemd/` dir) or document why the IDE unit is intentionally separate.
+
+**Proposed fix / improvement:**
+- [ ] Pick a canonical home for unit files (likely `bmo/pi/kiosk/` since the installer is there, or a dedicated `systemd/` dir).
+- [ ] Move `ide_app/bmo-ide.service` there (update any install script / docs that reference its path).
+
+**Related files:** `bmo/pi/ide_app/bmo-ide.service`, `bmo/pi/kiosk/bmo-kiosk.service`, `bmo/pi/kiosk/bmo-dm-bot.service`, `bmo/pi/kiosk/bmo-social-bot.service`, `bmo/pi/kiosk/install-kiosk.sh`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** kiosk/*.service is now the single source; setup-bmo.sh installs by copying those files instead of drifting heredocs; applied bot time-sync ordering live too (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Aggregate voice-pipeline stage latency into an exported metrics endpoint
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of the voice pipeline + monitoring stack
+
+**Description:**
+`services/voice_pipeline.py` already takes ad-hoc per-stage timestamps (`_t_stt0`, `_t_chat0`, the `record` elapsed log) and `services/bmo_logging.py` can emit JSON, but STT/LLM/TTS stage durations and agent-routing time are only written as scattered log lines — never aggregated or exported. `services/monitoring.py` tracks a per-service health-check `response_time`, but that is liveness latency, not the user-perceived "wake -> spoken reply" budget. There is no `/api/metrics` (or Prometheus text) endpoint and no rolling p50/p95 for the voice path, so latency regressions are invisible until BMO subjectively "feels slow."
+
+**Proposed fix / improvement:**
+- [ ] Add a small in-process metrics collector (counters + histograms / ring buffer) fed by the existing `_t_*` timers, recording each stage duration and the chosen agent route.
+- [ ] Expose it at `/api/metrics` (JSON, or Prometheus text for scraping) and optionally surface p50/p95 inside `/api/health/full`.
+
+**Related files:** `services/voice_pipeline.py`, `services/monitoring.py`, `app.py`, `services/bmo_logging.py`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Added services/voice_metrics.py + GET /api/metrics/voice (count/avg/p50/p95/max per stage), fed from existing [timing] points (branch `auto/bmo-resolver`).
+
+### [2026-06-22] No PR-time CI gate for dungeon-scholar or oracle-worker
+
+- **Category:** future-idea
+- **Severity:** medium
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** cross-cutting repo-wide scan
+
+**Description:**
+`dnd-app` has a dedicated CI gate (lint + forbidden-patterns + tsc + tests + build smoke + circular + audit). `dungeon-scholar` runs `npm run test` ONLY as a precondition of the Pages deploy (`deploy.yml`, push to main) — there is no `pull_request`-triggered test/build gate, so a PR merges green and only fails later at deploy time. `oracle-worker` has a `test` script but zero workflows reference it, so its tests never run in CI.
+
+**Proposed fix / improvement:**
+- [ ] Add `dungeon-scholar-ci.yml` (path-filtered test + build on push + PR).
+- [ ] Add `oracle-worker-ci.yml` (npm ci + test).
+- [ ] Optionally factor the shared setup-node / npm-ci steps into a composite action reused by all JS-project workflows.
+
+**Related files:** `.github/workflows/deploy.yml`, `dungeon-scholar/package.json`, `oracle-worker/package.json`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Added .github/workflows/subprojects-ci.yml (npm ci + vitest + vite build for dungeon-scholar; npm ci + wrangler dry-run for oracle-worker) (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Local pre-commit hook gates only dnd-app; `.githooks/` dir is now orphaned
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** cross-cutting repo-wide scan
+
+**Description:**
+`.husky/pre-commit` does `cd dnd-app` then runs biome + tsc on that project only. Commits touching `dungeon-scholar`, `oracle-worker`, or repo-root tooling get no local lint/typecheck/test pre-flight (dungeon-scholar`s first gate is the deploy workflow; oracle-worker has none). Separately, `.githooks/pre-commit` is now redundant — its gitleaks shim was folded into `.husky/` per that hook`s own comment, yet the old dir remains and can confuse anyone setting `core.hooksPath`.
+
+**Proposed fix / improvement:**
+- [ ] Make the hook detect which project(s) have staged changes and run each one`s lint/typecheck (at minimum add dungeon-scholar test/build).
+- [ ] Delete the orphaned `.githooks/` directory once `.husky` is confirmed authoritative.
+
+**Related entries:** `ISSUES-LOG-DNDAPP.md` [2026-06-16] pre-commit `--staged` no-op (distinct dnd-app-only bug).
+**Related files:** `.husky/pre-commit`, `.githooks/pre-commit`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Removed the orphaned .githooks/ (husky is authoritative per CONTRIBUTING) and dropped the dead .githooks/** path filter from security-audit.yml (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Four hand-maintained agent-instruction files will drift (AGENTS / CLAUDE / GEMINI / copilot)
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** cross-cutting repo-wide scan
+
+**Description:**
+The repo carries four overlapping AI-assistant guides — `AGENTS.md` (12.8K), `CLAUDE.md` (11.3K), `GEMINI.md` (5.2K), `.github/copilot-instructions.md` (4.6K) — each maintained by hand. They cover much of the same ground (repo layout, conventions, logging rules) and will drift out of sync as the repo evolves.
+
+**Proposed fix / improvement:**
+- [ ] Designate one canonical source (e.g. `AGENTS.md`); generate or symlink the others from it, or add a sync check that flags when shared sections diverge.
+- [ ] At minimum, have each file link to the canonical one for shared sections instead of duplicating them.
+
+**Related files:** `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.github/copilot-instructions.md`
+
+> **2026-06-10 — Backlog consolidated.** All previously-open entries (the app.py
+> blueprint-refactor remainder, flask-talisman, the gevent ThreadPoolExecutor /
+> requests-vs-httpx gotchas, and the venv/threading observations) became
+> the numbered phase plans under `dnd-app/docs/phases/` (start at `PHASE-INDEX.md`); the consolidating audit was deleted once the phase set was authored (2026-06-11). Add new BMO items below as they appear.
+
+*(none active)*
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** AGENTS.md already canonical and referenced by the others; added scripts/check-agent-instructions.sh + CI drift guard (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Inconsistent script naming in `pi/scripts/` (kebab-case vs snake_case)
+
+- **Category:** debt
+- **Severity:** info
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+`bmo/pi/scripts/` mixes two naming conventions. Most entries are kebab-case (`apply-access-config.sh`, `cloudflare-access-api.sh`, `deploy.sh`, `diagnose-cloudflare.sh`, `install-venv.sh`, `seed-5e-library.sh`, `setup-cloudflare-tunnel.sh`, `setup-tailscale.sh`, `sync-shared-5e-json.sh`, `check-complexity.py`), but three use snake_case: `e2e_test.sh`, `health_check.sh`, `win_proxy.py`. Standardizing on one convention (kebab-case is the clear majority) would make the directory tidier and easier to scan. CAVEAT: the three odd-ones-out are referenced elsewhere — `health_check.sh` appears in `bmo/README.md`, `docs/ARCHITECTURE.md` (including a cron example) and is wired into a real crontab; `win_proxy` symbols appear in `state.py` / `routes/ide.py`. Any rename must update all those references (and the live crontab / any systemd unit) in lock-step, so this is low-value churn — log it, fix opportunistically rather than as a standalone change.
+
+**Proposed fix / improvement:**
+- [ ] If standardizing, rename the three snake_case scripts to kebab-case and update every reference (README, ARCHITECTURE.md, cron, and any code that shells out to them) in the same change.
+
+**Related files:** `bmo/pi/scripts/e2e_test.sh`, `bmo/pi/scripts/health_check.sh`, `bmo/pi/scripts/win_proxy.py`, `bmo/README.md`, `bmo/docs/ARCHITECTURE.md`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Renamed health_check.sh->health-check.sh and e2e_test.sh->e2e-test.sh + all refs; kept win_proxy.py snake_case (imported Python module, hyphen invalid) (branch `auto/bmo-resolver`).
+
+### [2026-06-22] `docs/ARCHITECTURE.md` Pi-filesystem layout + health-check cron path are stale (pre-monorepo `~/bmo/`)
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+`bmo/docs/ARCHITECTURE.md` still documents a deployment rooted at `~/bmo/`. Its "Pi filesystem layout" tree places `health_check.sh`, `bmo.service`, `requirements.txt`, `docker-compose.yml`, `backup.sh`, `venv/`, and `logs/` directly under a `~/bmo/` root, and the cron example reads `*/5 * * * * /home/patrick/bmo/health_check.sh >> /home/patrick/bmo/logs/health.log`. But the project is now an in-place monorepo: `deploy.sh` sets `REPO_ROOT=/home/patrick/home-lab` and runs from `bmo/pi/` directly (no rsync to `~/bmo/`), `health_check.sh` actually lives at `bmo/pi/scripts/health_check.sh`, and `/home/patrick/bmo` does not exist on the host. So the documented filesystem tree and the cron path are stale and would mislead anyone setting up monitoring straight from the doc.
+
+**Proposed fix / improvement:**
+- [ ] Update the ARCHITECTURE.md filesystem-layout tree and the cron example to the current `home-lab/bmo/pi/...` paths (script at `pi/scripts/health_check.sh`); confirm the live crontab path while doing so.
+
+**Related files:** `bmo/docs/ARCHITECTURE.md`, `bmo/pi/scripts/health_check.sh`, `bmo/pi/scripts/deploy.sh`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Rewrote stale ~/bmo/ paths and the health-check cron example to the current ~/home-lab/bmo/pi/... layout (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Duplicate `Two IDE implementations coexist` section in `DESIGN-CONSTRAINTS.md`
+
+- **Category:** debt, docs
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+`bmo/docs/DESIGN-CONSTRAINTS.md` contains the entire `## Two IDE implementations coexist — production IDE is web/ + routes/ide.py, NOT ide_app/` section **twice, verbatim** (currently lines ~47–58 and ~60–71, each ending with the same `_Relocated from docs/BMO-SUGGESTIONS-LOG.md on 2026-06-22._` footer). Looks like the 2026-06-22 relocation pasted the block in twice. Harmless at runtime but it bloats the doc and a future edit to one copy will silently diverge from the other. Just delete one of the two identical copies.
+
+**Proposed fix / improvement:**
+- [ ] Remove one of the two identical `Two IDE implementations coexist` sections, leaving a single copy.
+
+**Related files:** `bmo/docs/DESIGN-CONSTRAINTS.md`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Removed the duplicated copy of the section (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Production module `agents/test_agent.py` collides with the `test_*.py` pytest glob
+
+- **Category:** debt, design-gotcha
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+`bmo/pi/agents/test_agent.py` is a **production** module (BMO's "testing agent" — runs tests, analyzes failures), but its name matches `pytest.ini`'s `python_files = test_*.py` discovery glob. It is safe today only because `testpaths = tests` scopes default collection to `tests/`; however `agents` is in the `.coveragerc` source list, and any `pytest agents/` invocation, IDE auto-discovery, or a future `testpaths` change would try to collect this non-test module and likely error on import. Confusing too: the real agent tests live in `tests/agents/test_*.py`, so a reader greps `test_agent` and gets both the production agent and its concept-namesake. Renaming the production module (e.g. `testing_agent.py` / `tests_agent.py`) removes the footgun.
+
+**Proposed fix / improvement:**
+- [ ] Rename `agents/test_agent.py` to a non-`test_`-prefixed name (e.g. `testing_agent.py`); update its import/registration in `agents/_registry.py`, `agents/__init__.py`, the router, and the `pi/README.md` tree.
+
+**Related files:** `bmo/pi/agents/test_agent.py`, `bmo/pi/agents/_registry.py`, `bmo/pi/pytest.ini`, `bmo/pi/.coveragerc`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Renamed to agents/testing_agent.py and updated the _registry import path (branch `auto/bmo-resolver`).
+
+### [2026-06-22] `authorize_calendar.py` and `reauth_calendar.py` duplicate OAuth constants/paths
+
+- **Category:** debt
+- **Severity:** info
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+The two Google Calendar OAuth helpers in `services/` legitimately differ in flow (`authorize_calendar.py` = browser `InstalledAppFlow`; `reauth_calendar.py` = headless manual code exchange), but they each re-declare the same `SCOPES`, the same `config/` dir resolution, and the same `credentials.json` / `token.json` path logic independently. If the scope list or token location ever changes, both must be edited in lock-step or they drift. Minor — a small shared helper (or module-level constants imported by both) would keep them in sync.
+
+**Proposed fix / improvement:**
+- [ ] Factor `SCOPES` + the `credentials.json`/`token.json` path resolution into one place (e.g. `calendar_service.py` or a tiny `calendar_oauth_paths` helper) and import it in both scripts.
+
+**Related files:** `bmo/pi/services/authorize_calendar.py`, `bmo/pi/services/reauth_calendar.py`, `bmo/pi/services/calendar_service.py`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Extracted shared paths/scopes to services/calendar_oauth_config.py (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Remove stale one-off `dev/patch_*.py` + `revert_power.py` app.py-mutating scripts
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+`bmo/pi/dev/` holds six throwaway, one-shot scripts that read `../app.py`, do string-replacement surgery on it, and write it back: `patch_debug.py`, `patch_keepalive.py`, `patch_retry.py`, `patch_revert.py`, `patch_wol.py`, and `revert_power.py`. They were all last touched 2026-04-24 to fix the (now-resolved) RCA-TV power/WoL endpoint, and the comments confirm they are single-use migrations ("Revert to POWER for everything - WAKEUP doesn't work on this RCA TV", "Add WoL fallback...", etc.). They are no longer referenced anywhere except the `pi/README.md` directory tree. Keeping live "edit app.py in place" scripts around is a footgun — a future agent could re-run one and silently corrupt `app.py`.
+
+**Proposed fix / improvement:**
+- [ ] Confirm the corresponding changes are already merged into `app.py` (they are — the TV power work is resolved).
+- [ ] Delete the six scripts, or move them under `_archive/` if history is wanted.
+- [ ] Drop their line from the `pi/README.md` directory tree.
+
+**Related files:** `bmo/pi/dev/patch_debug.py`, `bmo/pi/dev/patch_keepalive.py`, `bmo/pi/dev/patch_retry.py`, `bmo/pi/dev/patch_revert.py`, `bmo/pi/dev/patch_wol.py`, `bmo/pi/dev/revert_power.py`, `bmo/pi/README.md`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Deleted dev/patch_*.py + revert_power.py and updated the README tree (branch `auto/bmo-resolver`).
+
+### [2026-06-22] `dev/` benchmark layout is inconsistent (loose files vs `benchmarks/` subdir)
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+`bmo/pi/dev/` keeps four benchmarks as loose files at its root (`benchmark_audio.py`, `benchmark_full.py`, `benchmark_llm.py`, `benchmark_personality.py`) while two others live in a `dev/benchmarks/` subdir (`gemini_stream_probe.py`, `thinking_budget_sweep.py`). Diagnostics were already consolidated into `dev/diagnostics/` in a prior pass, so the half-migrated benchmark split is the odd one out. Moving the four loose `benchmark_*.py` into `dev/benchmarks/` would make `dev/` uniform (benchmarks/, diagnostics/, ai-temp/ + true dev tools at root).
+
+**Proposed fix / improvement:**
+- [ ] Move `dev/benchmark_*.py` into `dev/benchmarks/` (rename to drop the `benchmark_` prefix, or keep it — just be consistent).
+- [ ] Update any docs/README tree references.
+
+**Related files:** `bmo/pi/dev/benchmark_audio.py`, `bmo/pi/dev/benchmark_full.py`, `bmo/pi/dev/benchmark_llm.py`, `bmo/pi/dev/benchmark_personality.py`, `bmo/pi/dev/benchmarks/`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Moved loose benchmark_*.py into dev/benchmarks/ (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Pin one Node version for the whole monorepo (.nvmrc / engines) instead of repeating `node-version: 22`
+
+- **Category:** portability
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** cross-cutting repo-wide scan
+
+**Description:**
+`node-version: 22` is hardcoded in 7 places across 5 workflows (`dnd-app-ci`, `security-audit`, `dnd-app-validate-5e`, `release` ×3, `deploy`). There is no root `.nvmrc`, no `engines.node` field in any package.json (`dnd-app` / `dungeon-scholar` / `oracle-worker`), and no Volta pin. Local contributors can build on any Node, and bumping the toolchain means hand-editing every workflow.
+
+**Proposed fix / improvement:**
+- [ ] Add a root `.nvmrc` (e.g. `22`).
+- [ ] Add a matching `engines.node` to each project package.json.
+- [ ] Switch workflows to `node-version-file: .nvmrc` so the version lives in one place.
+
+**Related files:** `.github/workflows/*.yml`, `dnd-app/package.json`, `dungeon-scholar/package.json`, `oracle-worker/package.json`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Added root .nvmrc; workflows now use node-version-file (branch `auto/bmo-resolver`).
+
+### [2026-06-22] `pi/README.md` layout says "5 AI agents" but `agents/` holds ~40 modules
+
+- **Category:** docs
+- **Severity:** info
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+`bmo/pi/README.md` (Layout section) labels the `agents/` directory "5 AI agents — each owns one capability", but the directory actually contains ~40 agent modules (the README's own file list right below the label enumerates them all). The "5" is stale from an earlier era. Cheap to fix and avoids misleading new contributors about the agent count/architecture.
+
+**Proposed fix / improvement:**
+- [ ] Update the `agents/` one-liner in `pi/README.md` to reflect the real count (or drop the hard number, e.g. "AI agents — each owns one capability").
+
+**Related files:** `bmo/pi/README.md`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Corrected to 40+ agent modules and refreshed the dev/ tree (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Misspelled static asset filename `PrimeVIdeo.png`
+
+- **Category:** debt
+- **Severity:** info
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** Automated cleanup scan of the bmo/ tree.
+
+**Description:**
+The TV-app launcher image `bmo/pi/web/static/img/PrimeVIdeo.png` has a capitalization typo (`VIdeo` instead of `Video`). It works today because `web/templates/index.html:1163` references it with the exact same misspelling, but the inconsistent casing is a small naming smell next to its siblings (`Netflix.png`, `YouTube.png`, `Plex.png`, etc.) and is a portability hazard on case-sensitive vs case-insensitive filesystems. Low priority — only worth fixing alongside other `index.html` asset churn (rename file + update the one `<img src>`).
+
+**Related files:** `bmo/pi/web/static/img/PrimeVIdeo.png`, `bmo/pi/web/templates/index.html`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Verified already correct in tree (PrimeVideo.png); stale observation (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Discord DM + Social bots swallow startup crashes and exit 0 — `Restart=on-failure` never fires; bots stay down indefinitely
+
+- **Category:** bug
+- **Severity:** high
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** automated bmo error scan (read-only journal review + code read)
+
+**Description:**
+Both Discord bots catch any startup exception in their top-level run coroutine, log it, and return normally instead of re-raising. Because the process then exits 0, systemd `Restart=on-failure` does not trigger, so a single startup crash takes the bot down until a human restarts it. Observed live: both `bmo-dm-bot` and `bmo-social-bot` crashed at the 2026-06-20 00:45 boot and have been `inactive (dead)` for 2+ days (`systemctl is-active` returns `inactive` for both; no process running).
+
+**Reproduction (if bug):**
+1. Cause `await _bot.start(...)` to raise on startup (e.g. a transient network/TLS failure at boot).
+2. The `except Exception as e:` block logs "DM bot crashed" / "Social bot crashed" and the coroutine returns.
+3. `asyncio.run(...)` / `run_until_complete(...)` completes; process exits 0.
+4. Observed: systemd logs `Deactivated successfully` (status=0/SUCCESS); `Restart=on-failure` does not restart; bot stays down.
+
+**Expected behavior (if bug):** an unexpected startup crash should exit non-zero so `Restart=on-failure` + `RestartSec=10` brings the bot back (or the bot should retry internally with backoff). Only `discord.LoginFailure` (a real config error) should exit 0.
+
+**Hypothesis / root cause:** the broad `except Exception` was meant to log crashes cleanly, but combined with `Restart=on-failure` it defeats auto-recovery. The crash handler should re-raise / `raise SystemExit(1)` for generic exceptions while keeping LoginFailure as a clean exit.
+
+**Proposed fix / improvement:**
+- [ ] After logging a non-LoginFailure crash, `raise` / `raise SystemExit(1)` so systemd restarts.
+- [ ] Or add internal reconnect/backoff for transient failures.
+- [ ] Consider `Restart=always` for these transient-tolerant services.
+
+**Related files:** `bmo/pi/bots/discord_dm_bot.py` (`_run_dm_bot`, ~line 2041; `__main__` ~2076), `bmo/pi/bots/discord_social_bot.py` (`_run_social_bot`, ~line 6949; `__main__` ~6978)
+
+**Related entries:** [2026-06-22] Bot services start before NTP clock sync at boot
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Re-raise non-LoginFailure startup crashes so systemd Restart=on-failure recovers the bot (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Calendar monitor reports a long-expired token as transient "waiting for refresh" forever — never escalates, re-alerts every monitor cycle
+
+- **Category:** bug
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** automated bmo error scan (live `bmo.service` journal review + monitoring.py / calendar_service.py read)
+
+**Description:**
+On the live Pi, `config/token.json` has been expired since 2026-06-20T06:57Z (~66h at scan time) and has NOT been rewritten since 2026-06-19 23:58 (its mtime). The health monitor emits `google_calendar: 📅 Calendar token expired — waiting for refresh` (Severity.WARNING, status `degraded`) on EVERY monitor cycle — 154+ identical lines, one per ~60s — yet no auto-refresh ever occurs and there is not a single `[calendar]` refresh-loop log line in the whole boot. Calendar features are effectively down, but the only signal is a perpetual transient-looking WARNING.
+
+Two distinct problems combine here:
+1. **No escalation:** `_check_calendar_token` (services/monitoring.py ~1559-1582) treats "expiry in the past AND a refresh_token is present" as `degraded` / "waiting for auto-refresh" indefinitely. It never verifies the refresh actually happened, so a genuinely stuck/revoked token (per the 2026-04-23 resolved entry, recovery can require a *manual* `reauth_calendar.py`) is permanently misclassified as a benign transient instead of an actionable `down`/CRITICAL.
+2. **Breaker bypass / log spam:** the resolved-issue circuit-breaker (#6) only backs off statuses `down`/`unknown` (see the `finally` block feeding the breaker). The `degraded` "waiting" branch is excluded, so this exact warning re-fires every single monitor cycle forever — re-introducing the alert/log spam the breaker was added to stop.
+
+**Reproduction (if bug):**
+1. Let the calendar access token expire while a refresh_token is present but auto-refresh does not run (observed: poll loop never rewrites token.json; zero `[calendar]` lines).
+2. Watch `journalctl -u bmo.service`: `Calendar token expired — waiting for refresh` repeats every ~60s with no resolution.
+
+**Expected behavior (if bug):** after the token has been expired beyond a refresh cycle (e.g. > a few minutes / N consecutive checks) with no successful refresh, escalate to `down`/CRITICAL with the actionable reauth hint, and apply the circuit-breaker backoff to the `degraded` path so it does not re-alert every cycle.
+
+**Hypothesis / root cause:** the `degraded` "waiting for auto-refresh" branch assumes the refresh is imminent and self-healing; it has no time/attempt budget and is excluded from the breaker. The underlying refresh itself also appears not to be happening (token.json untouched, no `[calendar]` lines) — likely the refresh token is invalid and needs manual reauth (cf. resolved 2026-04-23), which is exactly the actionable state the monitor fails to surface.
+
+**Proposed fix / improvement:**
+- [ ] Track first-seen-expired time (or a consecutive-expired counter); after a threshold with no successful refresh, set status `down` + Severity.CRITICAL with the reauth command.
+- [ ] Feed the `degraded` path into the circuit-breaker (or rate-limit the WARNING) so it does not log every ~60s.
+- [ ] Optionally have the monitor (or a watchdog) trigger / verify an actual `creds.refresh()` rather than only reading the file.
+
+**Related files:** `bmo/pi/services/monitoring.py` (`_check_calendar_token`, ~1495-1620), `bmo/pi/services/calendar_service.py` (`_get_credentials`, `_poll_loop`)
+
+**Related entries:** resolved 2026-04-23 "Google Calendar `invalid_grant`"; resolved monitoring #6 circuit-breaker
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Escalate to down/CRITICAL after a 10m grace with reauth hint; circuit-breaker stops per-cycle WARNING spam (branch `auto/bmo-resolver`).
+
+### [2026-06-22] System timezone auto-sync permanently fails — `sudo -n timedatectl` blocked by `NoNewPrivileges=yes`; system stays on wrong TZ + logs error every refresh
+
+- **Category:** config
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** automated bmo error scan (live `bmo.service` journal review + location_service.py read)
+
+**Description:**
+`LocationService._sync_system_timezone` (services/location_service.py ~481-509) shells out `sudo -n timedatectl set-timezone <tz>` to align the Pi clocks timezone to the detected location. But `bmo.service` runs with `NoNewPrivileges=yes` (confirmed via `systemctl show bmo.service -p NoNewPrivileges`), which forbids any setuid escalation, so the call fails every time: `[location] Could not set system timezone to America/Chicago: sudo: The "no new privileges" flag is set, which prevents sudo from running as root.` Net effect: the system timezone is never updated by this path (it detects `America/Chicago` but the Pi stays on its default `America/Denver`), and the failure is logged on every location refresh (~every 30 min, `BMO_LOCATION_REFRESH_SECONDS=1800`). `AUTO_SYSTEM_TIMEZONE` is enabled, so the doomed attempt runs each cycle.
+
+This may also cause a real correctness gap: calendar event creation hardcodes `timeZone: "America/Denver"` (calendar_service.py `create_event`) while location reports `America/Chicago` — a stuck system TZ keeps these inconsistent.
+
+**Reproduction (if bug):**
+1. Run BMO under a unit with `NoNewPrivileges=yes` (as deployed).
+2. Trigger a location refresh that detects a TZ != current system TZ.
+3. Observe `[location] Could not set system timezone ...: sudo: The "no new privileges" flag is set ...` and the system TZ unchanged.
+
+**Expected behavior (if bug):** either the timezone is actually applied, or the service does not repeatedly attempt a privileged action it can never perform (and does not log an error every 30 min).
+
+**Hypothesis / root cause:** `NoNewPrivileges=yes` (a hardening setting on the unit) is fundamentally incompatible with `sudo`. A sudoers NOPASSWD rule will NOT help under NoNewPrivileges. timedatectl set-timezone needs either polkit (via DBus, not sudo) or the privilege drop relaxed.
+
+**Proposed fix / improvement:**
+- [ ] Use the DBus/polkit path (e.g. `busctl`/`timedatectl` via system bus with a polkit rule) instead of `sudo`, which works under NoNewPrivileges.
+- [ ] OR gate the attempt behind a capability probe and disable `AUTO_SYSTEM_TIMEZONE` (or log once, not every cycle) when escalation is unavailable.
+- [ ] Verify the intended deployment TZ vs the hardcoded `America/Denver` in `create_event`.
+
+**Related files:** `bmo/pi/services/location_service.py` (`_sync_system_timezone` ~481), the `bmo.service` unit (NoNewPrivileges), `bmo/pi/services/calendar_service.py` (`create_event` hardcoded timeZone)
+
+**Related entries:** [2026-06-22] Location provider order wastes a guaranteed-failing request (ipapi 429)
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Disable and log once when sudo set-timezone can never run under NoNewPrivileges (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Bot services start before NTP clock sync at boot — TLS "certificate is not yet valid" crash
+
+- **Category:** config
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** automated bmo error scan (journal review of the 2026-06-20 boot)
+
+**Description:**
+At the 2026-06-20 00:44 boot, both bots started ~5s later and immediately failed connecting to `gateway.discord.gg:443` with `SSLCertVerificationError: certificate is not yet valid`. This is a clock-skew-at-boot symptom: the Pi clock was behind real time before `systemd-timesyncd` corrected it, so Discord's TLS cert looked "not yet valid". The bot units order only on `network-online.target`, not on time sync, so they can start before the clock is correct. (`timedatectl` now shows the clock synchronized — the failure window is boot-time only.) This SSL failure is the trigger that then hits the swallow-and-exit-0 bug above, leaving the bots down for days. The surfaced crash text was `'NoneType' object has no attribute 'sequence'` — discord.py's gateway/reconnect path NPEs after the TLS handshake fails, and the bots report it as a generic crash.
+
+**Reproduction (if bug):**
+1. Boot the Pi with the clock behind real time (no/empty RTC seed, before timesyncd corrects).
+2. Bot services start on `network-online.target` before time sync.
+3. TLS to `gateway.discord.gg` fails: "certificate is not yet valid".
+
+**Expected behavior (if bug):** bots should not attempt to connect until the clock is sane.
+
+**Hypothesis / root cause:** missing `After=time-sync.target` + `Wants=time-sync.target` ordering (and/or no fake-hwclock seeding) means `network-online.target` precedes a correct clock.
+
+**Proposed fix / improvement:**
+- [ ] Add `After=time-sync.target` and `Wants=time-sync.target` to both bot unit `[Unit]` sections.
+- [ ] Verify fake-hwclock / RTC seeding so the boot clock is not wildly behind.
+- [ ] Combine with internal connect retry/backoff (see related bug).
+
+**Related files:** `bmo/pi/kiosk/bmo-dm-bot.service`, `bmo/pi/kiosk/bmo-social-bot.service`
+
+**Related entries:** [2026-06-22] Discord DM + Social bots swallow startup crashes and exit 0
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Added After/Wants=time-sync.target to both bot units (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Location provider order wastes a guaranteed-failing request each refresh — ipapi.co returns HTTP 429 every cycle
+
+- **Category:** config
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** automated bmo error scan (live `bmo.service` journal review + location_service.py read)
+
+**Description:**
+`_PROVIDERS` (services/location_service.py ~97) lists `https://ipapi.co/json/` FIRST, then `https://ipwho.is/`. On this Pi, ipapi.co returns `429 Too Many Requests` on every refresh (observed every ~30 min: `[location] Provider failed (https://ipapi.co/json/): 429 ...`). The loop then falls through to ipwho.is, which succeeds — so location still works, but every refresh cycle pays one guaranteed-failing HTTP request (up to an 8s timeout window) + a log line before falling back. The free ipapi.co tier is evidently over quota / blocked for this IP, so it will keep 429-ing.
+
+Not blocking (fallback works), but pure waste + recurring log noise. Logging per the "log even minor things" directive.
+
+**Proposed fix / improvement:**
+- [ ] Reorder `_PROVIDERS` to put a working provider (ipwho.is) first, OR
+- [ ] Add a short-lived negative cache / backoff for a provider that returns 429 so it is skipped for a while.
+- [ ] Optionally downgrade the repeated 429 log to debug once a fallback has succeeded.
+
+**Related files:** `bmo/pi/services/location_service.py` (`_PROVIDERS` ~97, provider loop ~384-398)
+
+**Related entries:** [2026-06-22] System timezone auto-sync permanently fails (NoNewPrivileges)
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Reordered _PROVIDERS so working ipwho.is is queried before the 429-ing ipapi.co (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Ruff lint backlog: 357 errors across bmo/pi (mostly tests)
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** automated bmo error scan (`ruff check . --statistics`)
+
+**Description:**
+`ruff check .` in `bmo/pi` reports 357 errors (198 auto-fixable): 120 F841 unused-variable, 93 F541 f-string-missing-placeholders, 62 E702 multiple-statements-on-one-line-semicolon, 45 E402 module-import-not-at-top, 21 F811 redefined-while-unused, 7 F401 unused-import, 6 E741 ambiguous-variable-name, plus minor. Concentrated in `tests/` (e.g. unused `mock_q` / `mock_thread` mocks in `tests/test_voice_pipeline.py`). Mostly cosmetic, but the F811 redefinitions and F841 unused mocks can hide real test bugs (a patched mock that is never asserted on). Not blocking — lint is evidently not gating CI or these would fail there.
+
+Note: ruff also reports 1 invalid-syntax in a non-source file (a `def f[T](...)` PEP 695 fixture string under a path outside the tracked source set) — not a real source bug; all git-tracked `bmo/**/*.py` compile cleanly under Python 3.11.
+
+**Proposed fix / improvement:**
+- [ ] Run `ruff check bmo/pi --fix` for the 198 safe fixes, review the diff.
+- [ ] Manually address F811 / F841 in tests (may reveal unasserted mocks).
+
+**Related files:** `bmo/pi/tests/test_voice_pipeline.py`, and others across `bmo/pi`
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Applied 197 safe ruff autofixes across bmo/pi; residual unsafe F841/F811 left for manual review (branch `auto/bmo-resolver`).
+
+### [2026-06-22] Health monitor alerts to restart `bmo-kiosk` every cycle — unit is `disabled` (not in `_OPTIONAL_DISABLED_SERVICES`); also drifts from `setup-bmo.sh` which enables it
+
+- **Category:** config, bug
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** automated bmo error scan (live journal + `systemctl is-enabled/is-active` + monitoring.py read + setup-bmo.sh read)
+
+**Description:**
+`bmo-kiosk.service` is `disabled` + `inactive` on the live Pi (never started this boot — `journalctl -u bmo-kiosk` = "No entries", `ConditionResult=no`). The health monitor lists `bmo-kiosk` in `_MONITORED_SERVICES` but `_OPTIONAL_DISABLED_SERVICES = {"bmo-fan"}` only — kiosk is **not** in that set. So `_check_systemd_services` (monitoring.py ~1133-1205) classifies the disabled kiosk as `status: down` and emits `⚙️ 🖥️ BMO Kiosk (touchscreen UI) is inactive — run: sudo systemctl restart bmo-kiosk` (Severity.WARNING) on **every** monitor cycle (~60s) — confirmed firing continuously in the live journal. The disabled/optional branch (which would mark it `info: disabled by configuration`) never triggers because kiosk isn't whitelisted there.
+
+Two intertwined problems:
+1. **Monitor false-positive / log spam:** restarting a `disabled` unit is non-actionable; the WARNING repeats every cycle (same alert-spam class as the calendar "waiting for refresh" entry — the disabled state isn't suppressed).
+2. **Possible config drift:** `setup-bmo.sh` line 372 runs `sudo systemctl enable bmo bmo-kiosk bmo-fan bmo-dm-bot bmo-social-bot` and the unit is `WantedBy=multi-user.target`, i.e. the kiosk touchscreen UI is *intended* to be enabled. Its being `disabled` on the host either is deliberate (headless / mic-less dev state — this Pi also has no capture device) or is real drift where the touchscreen UI no longer comes up at boot. **Unverified which** — flagging honestly; not restarting/mutating per scan rules.
+
+**Expected behavior:** if kiosk is intentionally optional on some hosts, add it to `_OPTIONAL_DISABLED_SERVICES` so a `disabled` unit reports `info` (not a per-cycle WARNING). If it should be running, it should be `enabled` per `setup-bmo.sh`.
+
+**Hypothesis / root cause:** `_OPTIONAL_DISABLED_SERVICES` was set up for `bmo-fan` only; kiosk's optional/disabled state was never accounted for. Whether kiosk *should* be enabled is a separate host-state question.
+
+**Proposed fix / improvement:**
+- [ ] Decide intended kiosk state for this host. If optional → add `"bmo-kiosk"` to `_OPTIONAL_DISABLED_SERVICES`. If required → re-enable (`systemctl enable --now bmo-kiosk`) — owner action, not this scan.
+- [ ] Either way, suppress/rate-limit the repeating WARNING for a unit that is `disabled` (don't tell the user to restart a disabled unit every 60s).
+
+**Related files:** `bmo/pi/services/monitoring.py` (`_OPTIONAL_DISABLED_SERVICES` ~628, `_MONITORED_SERVICES` ~1133, `_check_systemd_services` ~1135-1205), `bmo/pi/kiosk/bmo-kiosk.service`, `bmo/setup-bmo.sh` (~372)
+
+**Related entries:** [2026-06-22] Calendar monitor reports a long-expired token ... re-alerts every monitor cycle; [2026-06-22] Discord DM + Social bots swallow startup crashes
+
+- **Resolved by:** bmo-resolver (automated)
+- **Date resolved:** 2026-06-22
+- **Resolution:** Added bmo-kiosk to _OPTIONAL_DISABLED_SERVICES so a disabled unit reports info, not a per-cycle WARNING (branch `auto/bmo-resolver`).
+
 ### [2026-05-17] Phase 41 (BMO) — Static cache-busting (root cause of "QA still reproduces after fixes shipped")
 
 - **Original symptom:** User re-ran the Round 4 QA report against the production deployment after Phase 39+40 shipped and reported the SAME bugs — even though my curl verification showed every fix WAS live in the served files.

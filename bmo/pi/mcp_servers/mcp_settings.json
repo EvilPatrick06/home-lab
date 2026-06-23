@@ -4,7 +4,9 @@
       "dnd_data": {
         "transport": "stdio",
         "command": "python3",
-        "args": ["/home/patrick/home-lab/bmo/pi/mcp_servers/dnd_data_server.py"],
+        "args": [
+          "/home/patrick/home-lab/bmo/pi/mcp_servers/dnd_data_server.py"
+        ],
         "env": {
           "DND_MARKDOWN_ROOT": "/home/patrick/home-lab/bmo/pi/data/5e-references",
           "DND_JSON_ROOT": "/home/patrick/home-lab/bmo/pi/data/5e",
@@ -16,7 +18,8 @@
         "transport": "stdio",
         "command": "npx",
         "args": [
-          "-y", "@modelcontextprotocol/server-filesystem",
+          "-y",
+          "@modelcontextprotocol/server-filesystem",
           "/home/patrick/home-lab/bmo/pi",
           "/home/patrick/home-lab/bmo/pi/data"
         ],
@@ -25,7 +28,10 @@
       "web_search": {
         "transport": "stdio",
         "command": "npx",
-        "args": ["-y", "@anthropic/mcp-server-brave-search"],
+        "args": [
+          "-y",
+          "@anthropic/mcp-server-brave-search"
+        ],
         "env": {
           "BRAVE_API_KEY": ""
         },
@@ -35,12 +41,23 @@
       "ssh": {
         "transport": "stdio",
         "command": "npx",
-        "args": ["-y", "@anthropic/mcp-server-ssh"],
+        "args": [
+          "-y",
+          "@anthropic/mcp-server-ssh"
+        ],
         "env": {
           "SSH_KEY_PATH": "/home/patrick/.ssh/id_ed25519"
         },
         "lazy": true,
         "description": "SSH access to remote hosts (requires explicit permission)"
+      },
+      "bmo_lists": {
+        "transport": "stdio",
+        "command": "python3",
+        "args": [
+          "/home/patrick/home-lab/bmo/pi/mcp_servers/bmo_lists_server.py"
+        ],
+        "description": "BMO named lists (shopping/todo) \u2014 read + (confirmed) write, file-backed via ListService"
       }
     },
     "agent_tools": {
@@ -59,6 +76,9 @@
       "smart_home": [
         "mcp__filesystem__read_file",
         "mcp__filesystem__list_directory"
+      ],
+      "conversation": [
+        "mcp__bmo_lists__*"
       ]
     },
     "readonly_tools": [
@@ -84,7 +104,13 @@
       "execute_command",
       "write_file",
       "edit_file",
-      "ssh_command"
+      "ssh_command",
+      "mcp__bmo_lists__create_list",
+      "mcp__bmo_lists__delete_list",
+      "mcp__bmo_lists__add_item",
+      "mcp__bmo_lists__remove_item",
+      "mcp__bmo_lists__check_item",
+      "mcp__bmo_lists__clear_list"
     ]
   },
   "hooks": {
@@ -92,22 +118,22 @@
       {
         "matcher": "mcp__ssh__*",
         "type": "require_confirmation",
-        "message": "SSH access requested — approve this remote command?"
+        "message": "SSH access requested \u2014 approve this remote command?"
       },
       {
         "matcher": "mcp__filesystem__write_file",
         "type": "require_confirmation",
-        "message": "File write requested — approve this modification?"
+        "message": "File write requested \u2014 approve this modification?"
       },
       {
         "matcher": "mcp__filesystem__edit_file",
         "type": "require_confirmation",
-        "message": "File edit requested — approve this modification?"
+        "message": "File edit requested \u2014 approve this modification?"
       },
       {
         "matcher": "mcp__filesystem__delete_file",
         "type": "require_confirmation",
-        "message": "File deletion requested — approve this destructive action?"
+        "message": "File deletion requested \u2014 approve this destructive action?"
       }
     ],
     "postToolUse": []

@@ -1,7 +1,11 @@
-name: Oracle Worker CI
+name: oracle-worker CI
 
+# Gates changes to the Cloudflare Worker that backs dungeon-scholar's Oracle
+# (AI grading/chat). Builds the Worker without publishing (wrangler --dry-run,
+# no token needed) and runs its test script.
 on:
   push:
+    branches: [master, main]
     paths:
       - 'oracle-worker/**'
       - '.github/workflows/oracle-worker-ci.yml'
@@ -10,18 +14,29 @@ on:
       - 'oracle-worker/**'
       - '.github/workflows/oracle-worker-ci.yml'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: oracle-worker
+
 jobs:
   check:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./oracle-worker
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
-          node-version-file: .nvmrc
+          node-version: "22"
           cache: npm
           cache-dependency-path: oracle-worker/package-lock.json
       - run: npm ci
-      - run: node --check src/worker.js
+      - name: Validate Worker build (no publish)
+        run: npx wrangler deploy --dry-run --outdir=dist
+      - name: Tests
+        run: npm test

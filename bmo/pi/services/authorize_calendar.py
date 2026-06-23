@@ -7,16 +7,24 @@ Usage:
 """
 
 import os
+import sys
 
 from google.auth.exceptions import RefreshError
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 
-SCOPES = ["https://www.googleapis.com/auth/calendar"]
-_CONFIG_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config")
-CREDENTIALS_PATH = os.path.join(_CONFIG_DIR, "credentials.json")
-TOKEN_PATH = os.path.join(_CONFIG_DIR, "token.json")
+_PI_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _PI_ROOT not in sys.path:
+    sys.path.insert(0, _PI_ROOT)
+
+from services.calendar_oauth_config import (  # noqa: E402
+    CREDENTIALS_PATH,
+    SCOPES,
+    TOKEN_PATH,
+)
+
+_CONFIG_DIR = os.path.dirname(CREDENTIALS_PATH)
 
 
 def authorize():

@@ -3,6 +3,7 @@ import { join, resolve } from 'node:path'
 import { app } from 'electron'
 import type { PluginManifest, PluginStatus } from '../../shared/plugin-types'
 import { logToFile } from '../log'
+import { isPathInside } from '../path-guard'
 import type { StorageResult } from '../storage/types'
 import { getEnabledPluginIds } from './plugin-config'
 
@@ -66,7 +67,7 @@ export function validateManifest(raw: unknown): { valid: boolean; manifest?: Plu
  */
 async function validateEntryFile(pluginDir: string, entry: string): Promise<string | undefined> {
   const entryPath = resolve(join(pluginDir, entry))
-  if (!entryPath.startsWith(resolve(pluginDir))) {
+  if (!isPathInside(pluginDir, entryPath)) {
     return `Entry path traversal: ${entry}`
   }
   try {
@@ -104,7 +105,7 @@ export async function scanPlugins(): Promise<StorageResult<PluginStatus[]>> {
       // Path traversal protection
       const resolvedDir = resolve(pluginDir)
       const resolvedBase = resolve(pluginsDir)
-      if (!resolvedDir.startsWith(resolvedBase)) continue
+      if (!isPathInside(resolvedBase, resolvedDir)) continue
 
       try {
         const raw = JSON.parse(await readFile(manifestPath, 'utf-8'))
