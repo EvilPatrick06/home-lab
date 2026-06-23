@@ -57,15 +57,3 @@ Related: `bmo/pi/app.py` (`/ide` route), `bmo/pi/routes/ide.py`, `bmo/pi/web/tem
 
 _Relocated from `docs/BMO-SUGGESTIONS-LOG.md` on 2026-06-22._
 
-## Two IDE implementations coexist — production IDE is `web/` + `routes/ide.py`, NOT `ide_app/`
-
-There are two separate, diverged IDE frontends in `bmo/pi/`:
-
-- **Production (canonical):** `app.py` `@app.route("/ide")` renders `web/templates/ide.html`, backed by the `/api/ide/*` blueprint in `routes/ide.py`, with assets under `web/static/ide/` (`ide.css`, `ide.js`, `sw.js`). Runs on :5000.
-- **Experimental rebuild:** `ide_app/` — a standalone Flask+SocketIO app on :5001 (`ide_app/ide_app.py`, its own `bmo-ide.service`) carrying its OWN diverged copies of the assets (`ide_app/static/...`, `ide_app/templates/ide.html`).
-
-The two asset trees have already diverged (different sizes + md5s), so a fix applied to one will **not** reach the other. A contributor editing `ide_app/` expecting it to change the live `/ide` tab (or vice-versa) will be surprised. Treat `web/` + `routes/ide.py` as the **single source of truth**; `ide_app/` is a stalled/experimental rebuild — plan a cutover and retire one side rather than maintaining two diverging copies of `ide.css`/`ide.js`/`ide.html`.
-
-Related: `bmo/pi/app.py` (`/ide` route), `bmo/pi/routes/ide.py`, `bmo/pi/web/templates/ide.html`, `bmo/pi/web/static/ide/`, `bmo/pi/ide_app/`.
-
-_Relocated from `docs/BMO-SUGGESTIONS-LOG.md` on 2026-06-22._

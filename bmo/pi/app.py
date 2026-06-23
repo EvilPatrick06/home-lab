@@ -381,8 +381,8 @@ def init_services():
             led_controller.start()
             service_map["leds"] = led_controller
             log.info("[bmo]   LED controller: OK")
-        except Exception as e:
-            log.exception(f"[bmo]   LED controller: SKIPPED")
+        except Exception:
+            log.exception("[bmo]   LED controller: SKIPPED")
 
     # OLED face display (BMO_DISABLE_OLED=1 skips init — e.g. while display
     # hardware is broken/disconnected; every consumer None-guards oled_face)
@@ -400,8 +400,8 @@ def init_services():
             service_map["oled_face"] = oled_face
             oled_face.set_expression("warmup")
             log.info("[bmo]   OLED face: OK (warmup)")
-        except Exception as e:
-            log.exception(f"[bmo]   OLED face: SKIPPED")
+        except Exception:
+            log.exception("[bmo]   OLED face: SKIPPED")
 
     # Voice pipeline (requires pyaudio/mic hardware)
     if BMO_CANARY:
@@ -417,8 +417,8 @@ def init_services():
                 voice._speak_volume = int(saved_voice_vol)
             service_map["voice"] = voice
             log.info("[bmo]   Voice pipeline: OK")
-        except Exception as e:
-            log.exception(f"[bmo]   Voice pipeline: SKIPPED")
+        except Exception:
+            log.exception("[bmo]   Voice pipeline: SKIPPED")
 
     # Camera (requires picamera2; BMO_DISABLE_CAMERA=1 skips init — camera
     # API routes already 503 when the service is absent)
@@ -434,8 +434,8 @@ def init_services():
             camera = CameraService(socketio=socketio)
             service_map["camera"] = camera
             log.info("[bmo]   Camera: OK")
-        except Exception as e:
-            log.exception(f"[bmo]   Camera: SKIPPED")
+        except Exception:
+            log.exception("[bmo]   Camera: SKIPPED")
 
     # Smart home / Chromecast
     if BMO_CANARY:
@@ -448,8 +448,8 @@ def init_services():
             smart_home = SmartHomeService(socketio=socketio)
             service_map["smart_home"] = smart_home
             log.info("[bmo]   Smart home: OK")
-        except Exception as e:
-            log.exception(f"[bmo]   Smart home: SKIPPED")
+        except Exception:
+            log.exception("[bmo]   Smart home: SKIPPED")
 
     # Calendar (Google API)
     if BMO_CANARY:
@@ -462,8 +462,8 @@ def init_services():
             calendar = CalendarService(socketio=socketio)
             service_map["calendar"] = calendar
             log.info("[bmo]   Calendar: OK")
-        except Exception as e:
-            log.exception(f"[bmo]   Calendar: SKIPPED")
+        except Exception:
+            log.exception("[bmo]   Calendar: SKIPPED")
 
     # Dynamic location/timezone
     if BMO_CANARY:
@@ -495,8 +495,8 @@ def init_services():
             weather = WeatherService(socketio=socketio, location_service=location_service)
             service_map["weather"] = weather
             log.info("[bmo]   Weather: OK")
-        except Exception as e:
-            log.exception(f"[bmo]   Weather: SKIPPED")
+        except Exception:
+            log.exception("[bmo]   Weather: SKIPPED")
 
     # Audio output routing (before music so music can use it)
     if BMO_CANARY:
@@ -509,8 +509,8 @@ def init_services():
             audio_service = AudioOutputService()
             service_map["audio"] = audio_service
             log.info("[bmo]   Audio output: OK")
-        except Exception as e:
-            log.exception(f"[bmo]   Audio output: SKIPPED")
+        except Exception:
+            log.exception("[bmo]   Audio output: SKIPPED")
 
     # Music (requires ytmusicapi/vlc)
     if BMO_CANARY:
@@ -523,8 +523,8 @@ def init_services():
             music = MusicService(smart_home=smart_home, socketio=socketio, audio_service=audio_service)
             service_map["music"] = music
             log.info("[bmo]   Music: OK")
-        except Exception as e:
-            log.exception(f"[bmo]   Music: SKIPPED")
+        except Exception:
+            log.exception("[bmo]   Music: SKIPPED")
 
     # Timers
     if BMO_CANARY:
@@ -541,8 +541,8 @@ def init_services():
                 timers.alarm_volume = int(saved_alarm_vol)
             service_map["timers"] = timers
             log.info("[bmo]   Timers: OK")
-        except Exception as e:
-            log.exception(f"[bmo]   Timers: SKIPPED")
+        except Exception:
+            log.exception("[bmo]   Timers: SKIPPED")
 
     # Agent (core — always required)
     if BMO_CANARY:
@@ -595,8 +595,8 @@ def init_services():
                      "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1000/bus"},
             )
             log.info("[bmo]   Mic gain: 150%")
-        except Exception as e:
-            log.exception(f"[bmo]   Mic gain set failed")
+        except Exception:
+            log.exception("[bmo]   Mic gain set failed")
 
     if voice:
         log.info("[bmo]   Starting voice listener...")
@@ -616,8 +616,8 @@ def init_services():
                         return easter_egg
                 result = agent.chat(text, speaker=speaker, client_timezone=_pi_timezone())
                 return result.get("text", "")
-            except Exception as e:
-                log.exception(f"[voice] Chat error")
+            except Exception:
+                log.exception("[voice] Chat error")
                 return ""
         voice._chat_callback = _voice_chat
 
@@ -625,8 +625,8 @@ def init_services():
             """Streaming voice chat — yields text chunks for faster TTS start."""
             try:
                 return agent.chat_stream(text, speaker=speaker, client_timezone=_pi_timezone())
-            except Exception as e:
-                log.exception(f"[voice] Stream chat error")
+            except Exception:
+                log.exception("[voice] Stream chat error")
                 return iter([])
         voice._chat_stream_callback = _voice_chat_stream
 
@@ -721,8 +721,8 @@ def init_services():
         health_checker = HealthChecker(socketio=socketio, check_interval=60)
         health_checker.start()
         log.info("[bmo]   Health checker: OK (60s interval)")
-    except Exception as e:
-        log.exception(f"[bmo]   Health checker: SKIPPED")
+    except Exception:
+        log.exception("[bmo]   Health checker: SKIPPED")
 
     # Start KDE Connect daemon (needed for notification bridge)
     try:
@@ -732,8 +732,8 @@ def init_services():
             log.info("[bmo]   KDE Connect daemon: started")
         else:
             log.info("[bmo]   KDE Connect daemon: not installed")
-    except Exception as e:
-        log.exception(f"[bmo]   KDE Connect daemon: SKIPPED")
+    except Exception:
+        log.exception("[bmo]   KDE Connect daemon: SKIPPED")
 
     # Notification service (KDE Connect bridge)
     try:
@@ -742,8 +742,8 @@ def init_services():
         notifier.start()
         service_map["notifier"] = notifier
         log.info("[bmo]   Notifications: OK")
-    except Exception as e:
-        log.exception(f"[bmo]   Notifications: SKIPPED")
+    except Exception:
+        log.exception("[bmo]   Notifications: SKIPPED")
 
     # Scene mode engine (PHASE-16 16F — TV access via routes/tv_api.py seam)
     def _scene_tv_send_key(key):
@@ -808,8 +808,8 @@ def init_services():
         if voice:
             voice._scene_service = scene_service
         log.info("[bmo]   Scene engine: OK")
-    except Exception as e:
-        log.exception(f"[bmo]   Scene engine: SKIPPED")
+    except Exception:
+        log.exception("[bmo]   Scene engine: SKIPPED")
 
     # List service
     try:
@@ -817,8 +817,8 @@ def init_services():
         list_service = ListService()
         service_map["lists"] = list_service
         log.info("[bmo]   List service: OK")
-    except Exception as e:
-        log.exception(f"[bmo]   List service: SKIPPED")
+    except Exception:
+        log.exception("[bmo]   List service: SKIPPED")
 
     # Alert service
     try:
@@ -833,8 +833,8 @@ def init_services():
             calendar.alert_service = alert_service
         if notifier:
             notifier.alert_service = alert_service
-    except Exception as e:
-        log.exception(f"[bmo]   Alert service: SKIPPED")
+    except Exception:
+        log.exception("[bmo]   Alert service: SKIPPED")
 
     # Routine service
     try:
@@ -846,8 +846,8 @@ def init_services():
         )
         service_map["routines"] = routine_service
         log.info("[bmo]   Routine service: OK")
-    except Exception as e:
-        log.exception(f"[bmo]   Routine service: SKIPPED")
+    except Exception:
+        log.exception("[bmo]   Routine service: SKIPPED")
 
     # Start routine scheduler
     if routine_service:
@@ -866,8 +866,8 @@ def init_services():
         personality_engine.start()
         service_map["personality"] = personality_engine
         log.info("[bmo]   Personality engine: OK")
-    except Exception as e:
-        log.exception(f"[bmo]   Personality engine: SKIPPED")
+    except Exception:
+        log.exception("[bmo]   Personality engine: SKIPPED")
 
     # Restore system (PipeWire) volume from saved settings
     saved_sys_vol = _load_setting("volume.system", None)
@@ -883,8 +883,8 @@ def init_services():
         from agent import LOCAL_MODEL
         _ollama.generate(model=LOCAL_MODEL, prompt="", keep_alive=-1)
         log.info(f"[bmo]   Ollama model warmed up: {LOCAL_MODEL}")
-    except Exception as e:
-        log.exception(f"[bmo]   Ollama warmup skipped")
+    except Exception:
+        log.exception("[bmo]   Ollama warmup skipped")
 
     # Set OLED to warmup expression during init, then idle
     if oled_face:
@@ -1687,8 +1687,8 @@ def api_scene_activate():
     def _do_activate():
         try:
             scene_service.activate(name)
-        except Exception as e:
-            log.exception(f"[scene-api] Activate failed")
+        except Exception:
+            log.exception("[scene-api] Activate failed")
             import traceback
             traceback.print_exc()
 
@@ -1705,8 +1705,8 @@ def api_scene_deactivate():
     def _do_deactivate():
         try:
             scene_service.deactivate()
-        except Exception as e:
-            log.exception(f"[scene-api] Deactivate failed")
+        except Exception:
+            log.exception("[scene-api] Deactivate failed")
             import traceback
             traceback.print_exc()
 
@@ -1956,8 +1956,8 @@ def _auto_resume_after_restart():
                     "speaker": "system",
                     "agent_used": "code",
                 })
-    except Exception as e:
-        log.exception(f"[chat] Auto-resume failed")
+    except Exception:
+        log.exception("[chat] Auto-resume failed")
 
 
 def _restore_agent_history():
@@ -2777,8 +2777,8 @@ if __name__ == "__main__":
     if music:
         try:
             music.restore_playback()
-        except Exception as e:
-            log.exception(f"[bmo] Music restore failed")
+        except Exception:
+            log.exception("[bmo] Music restore failed")
     if BMO_CANARY:
         log.info("[bmo] CANARY boot — hardware/services skipped")
     log.info(f"[bmo] BMO is ready! Access at http://0.0.0.0:{BMO_PORT}")

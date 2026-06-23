@@ -261,8 +261,8 @@ def _send_discord_webhook(level: Severity, service: str, message: str) -> bool:
             timeout=5,
         )
         return r.status_code in (200, 204)
-    except Exception as e:
-        log.exception(f"[monitor] Discord webhook failed")
+    except Exception:
+        log.exception("[monitor] Discord webhook failed")
         return False
 
 
@@ -339,8 +339,8 @@ class HealthChecker:
             if os.path.exists(self._state_file):
                 with open(self._state_file, "r") as f:
                     return json.load(f)
-        except Exception as e:
-            log.exception(f"[monitor] Could not load saved state")
+        except Exception:
+            log.exception("[monitor] Could not load saved state")
         return {}
 
     def _save_prev_status(self):
@@ -349,8 +349,8 @@ class HealthChecker:
             os.makedirs(os.path.dirname(self._state_file), exist_ok=True)
             with open(self._state_file, "w") as f:
                 json.dump(self._prev_status, f)
-        except Exception as e:
-            log.exception(f"[monitor] Could not save state")
+        except Exception:
+            log.exception("[monitor] Could not save state")
 
     def _load_discord_alert_state(self) -> dict[str, str]:
         """Load persisted Discord dedupe state across restarts."""
@@ -362,8 +362,8 @@ class HealthChecker:
                     fingerprints = payload.get("fingerprints")
                     if isinstance(fingerprints, dict):
                         return {str(k): str(v) for k, v in fingerprints.items()}
-        except Exception as e:
-            log.exception(f"[monitor] Could not load alert state")
+        except Exception:
+            log.exception("[monitor] Could not load alert state")
         return {}
 
     def _save_discord_alert_state(self):
@@ -372,8 +372,8 @@ class HealthChecker:
             payload = {"fingerprints": self._discord_last_fingerprint}
             with open(self._alert_state_file, "w", encoding="utf-8") as f:
                 json.dump(payload, f)
-        except Exception as e:
-            log.exception(f"[monitor] Could not save alert state")
+        except Exception:
+            log.exception("[monitor] Could not save alert state")
 
     # ── Lifecycle ────────────────────────────────────────────────────
 
@@ -409,8 +409,8 @@ class HealthChecker:
                 break
             try:
                 self.check_all()
-            except Exception as e:
-                log.exception(f"[monitor] Check loop error")
+            except Exception:
+                log.exception("[monitor] Check loop error")
 
     def check_all(self):
         """Run all health checks and process results."""
@@ -854,8 +854,8 @@ class HealthChecker:
                 log.warning(f"[monitor] Docker ps failed: {result.stderr.strip()}")
                 return
             containers = [n.strip() for n in result.stdout.strip().split("\n") if n.strip()]
-        except Exception as e:
-            log.exception(f"[monitor] Docker discovery failed")
+        except Exception:
+            log.exception("[monitor] Docker discovery failed")
             return
 
         if not containers:
@@ -1569,6 +1569,34 @@ class HealthChecker:
                                 "📅 Calendar token expired and cannot auto-refresh",
                             )
                             return
+                        expired_since = getattr(self, "_calendar_expired_since", None)
+                        if expired_since is None:
+                            expired_since = now
+                            self._calendar_expired_since = expired_since
+                        expired_for = now - expired_since
+                        # A live refresh_token should auto-refresh within a cycle
+                        # or two. If it is STILL expired after the grace window,
+                        # auto-refresh is not happening (revoked / invalid_grant)
+                        # and a human must re-authorize. Escalate to actionable
+                        # CRITICAL instead of a perpetual "waiting" WARNING;
+                        # status=down also feeds the circuit breaker (finally
+                        # below) which stops the per-cycle alert spam.
+                        if expired_for > 600:  # 10 min grace for auto-refresh
+                            mins = expired_for / 60
+                            self._service_status["google_calendar"] = {
+                                "status": "down", "last_check": now,
+                                "message": (
+                                    f"Token expired {mins:.0f}m with no successful "
+                                    "auto-refresh — run reauth_calendar.py"
+                                ),
+                                "response_time": None,
+                            }
+                            self._emit_alert(
+                                Severity.CRITICAL, "google_calendar",
+                                "📅 Calendar token expired and auto-refresh is not "
+                                "happening — run reauth_calendar.py to re-authorize",
+                            )
+                            return
                         self._service_status["google_calendar"] = {
                             "status": "degraded", "last_check": now,
                             "message": "Token expired — waiting for auto-refresh",
@@ -1608,6 +1636,8 @@ class HealthChecker:
                 "message": f"Token OK (modified {age_days:.0f}d ago)",
                 "response_time": None,
             }
+            # Token healthy again — reset the expired-since escalation clock.
+            self._calendar_expired_since = None
         except Exception as e:
             self._service_status["google_calendar"] = {
                 "status": "unknown", "last_check": now,

@@ -1,7 +1,7 @@
 [Unit]
 Description=BMO Social Discord Bot — Music, Chat & Fun
-After=network-online.target bmo.service
-Wants=network-online.target
+After=network-online.target time-sync.target bmo.service
+Wants=network-online.target time-sync.target
 StartLimitIntervalSec=300
 StartLimitBurst=5
 

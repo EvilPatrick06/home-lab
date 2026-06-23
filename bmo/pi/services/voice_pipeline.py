@@ -246,8 +246,8 @@ class VoicePipeline:
             )
             self._silero_vad = model
             log.info("[vad] Silero VAD loaded")
-        except Exception as e:
-            log.exception(f"[vad] Silero VAD not available, using energy-only")
+        except Exception:
+            log.exception("[vad] Silero VAD not available, using energy-only")
         return self._silero_vad
 
     def _silero_check_speech(self, audio_int16: np.ndarray) -> float:
@@ -270,8 +270,8 @@ class VoicePipeline:
                 if max_prob > 0.5:
                     break  # Early exit — speech confirmed
             return max_prob
-        except Exception as e:
-            log.exception(f"[vad] Silero error")
+        except Exception:
+            log.exception("[vad] Silero error")
             return 1.0
 
     def _load_voice_profiles(self):
@@ -341,8 +341,8 @@ class VoicePipeline:
             os.makedirs(os.path.dirname(settings_path), exist_ok=True)
             with open(settings_path, "w") as f:
                 _json.dump(settings, f, indent=2)
-        except Exception as e:
-            log.exception(f"[voice] Failed to save settings")
+        except Exception:
+            log.exception("[voice] Failed to save settings")
 
     # ── Wake Word Detection (always local — must be instant) ──────────
 
@@ -421,8 +421,8 @@ class VoicePipeline:
                         self._wake_triggered = False
                         time.sleep(0.2)
                         self._on_wake()
-                except Exception as e:
-                    log.exception(f"[wake] Porcupine error, restarting in 2s...")
+                except Exception:
+                    log.exception("[wake] Porcupine error, restarting in 2s...")
                     time.sleep(2)
             return
 
@@ -440,8 +440,8 @@ class VoicePipeline:
             oww_model = self._load_wake_model()
             mode = "single-stage" if WAKE_USE_CUSTOM else "OWW + STT confirm"
             log.info(f"[wake] Listening for 'hey BMO' ({mode})...")
-        except Exception as e:
-            log.exception(f"[wake] openwakeword not available, using energy+STT fallback...")
+        except Exception:
+            log.exception("[wake] openwakeword not available, using energy+STT fallback...")
 
         while self._running:
             if not self._await_input_device():
@@ -461,8 +461,8 @@ class VoicePipeline:
                     self._wake_triggered = False
                     time.sleep(0.2)
                     self._on_wake()
-            except Exception as e:
-                log.exception(f"[wake] Listener error, restarting in 2s...")
+            except Exception:
+                log.exception("[wake] Listener error, restarting in 2s...")
                 time.sleep(2)
 
     def _wake_listen_cycle_porcupine(self):
@@ -607,8 +607,8 @@ class VoicePipeline:
                 blocksize=input_chunk_size,
                 callback=audio_callback,
             )
-        except Exception as e:
-            log.exception(f"[wake] FATAL: Failed to open mic stream")
+        except Exception:
+            log.exception("[wake] FATAL: Failed to open mic stream")
             time.sleep(2)
             return
 
@@ -644,8 +644,8 @@ class VoicePipeline:
                 audio_f32 = chunk.flatten().astype(np.float32) / 32768.0
                 try:
                     prediction = oww_model.predict(audio_f32)
-                except Exception as e:
-                    log.exception(f"[wake] predict() error")
+                except Exception:
+                    log.exception("[wake] predict() error")
                     time.sleep(0.5)
                     continue
 
@@ -710,8 +710,8 @@ class VoicePipeline:
                         return
                     else:
                         oww_model.reset()
-                except Exception as e:
-                    log.exception(f"[wake] STT confirm failed")
+                except Exception:
+                    log.exception("[wake] STT confirm failed")
                     oww_model.reset()
 
     def _check_aec(self):
@@ -824,8 +824,8 @@ class VoicePipeline:
                         # Exit the stream context first, then handle wake
                         self._wake_triggered = True
                         return
-                except Exception as e:
-                    log.exception(f"[wake] STT check failed")
+                except Exception:
+                    log.exception("[wake] STT check failed")
 
     def _pcm_to_wav(self, pcm_bytes: bytes) -> bytes:
         """Convert raw PCM to WAV format for STT."""
@@ -965,8 +965,8 @@ class VoicePipeline:
             except Exception:
                 try:
                     self._edge_speak(text)
-                except Exception as e:
-                    log.exception(f"[tts-worker] All TTS failed")
+                except Exception:
+                    log.exception("[tts-worker] All TTS failed")
             finally:
                 self._tts_worker_active.clear()
 
@@ -1066,8 +1066,8 @@ class VoicePipeline:
             worker.join(timeout=5.0)
 
             return full_text
-        except Exception as e:
-            log.exception(f"[stream] Error")
+        except Exception:
+            log.exception("[stream] Error")
             self._tts_queue.put(None)
             return full_text
         finally:
@@ -1162,8 +1162,8 @@ class VoicePipeline:
                         clean = self._strip_markdown(response)
                         self._emit("response", {"text": clean, "speaker": speaker})
                         return response
-                except Exception as e:
-                    log.exception(f"[stream] Streaming failed, falling back to sync")
+                except Exception:
+                    log.exception("[stream] Streaming failed, falling back to sync")
 
             # Sync path: closing phrases and fallback
             if is_follow_up and is_closing:
@@ -1192,8 +1192,8 @@ class VoicePipeline:
                         return ""
                     return response
             return None
-        except Exception as e:
-            log.exception(f"[wake] Response error")
+        except Exception:
+            log.exception("[wake] Response error")
             self._emit("status", {"state": "idle"})
             return None
         finally:
@@ -1415,8 +1415,8 @@ class VoicePipeline:
                 f"All done! I've learned your voice from {len(clips)} samples, {name}. "
                 f"I'll recognize you from now on!"
             )
-        except Exception as e:
-            log.exception(f"[voice] Enrollment failed")
+        except Exception:
+            log.exception("[voice] Enrollment failed")
             return "Hmm, I had trouble learning your voice. Let's try again later!"
         finally:
             for path in extra_clips:
@@ -1598,13 +1598,13 @@ class VoicePipeline:
             # Auto: local Whisper first, Groq fallback
             try:
                 text = self._local_transcribe(audio_path)
-            except Exception as e:
-                log.exception(f"[stt] Local STT failed, falling back to Groq")
+            except Exception:
+                log.exception("[stt] Local STT failed, falling back to Groq")
                 if _check_cloud():
                     try:
                         text = self._cloud_transcribe(audio_path)
-                    except Exception as e2:
-                        log.exception(f"[stt] Groq STT also failed")
+                    except Exception:
+                        log.exception("[stt] Groq STT also failed")
 
         cleaned = text.strip().lower().rstrip(".,!?")
         if cleaned in self._TRANSCRIPTION_HALLUCINATIONS:
@@ -1752,24 +1752,24 @@ class VoicePipeline:
                 try:
                     self._bmo_speak(text, emotion)
                     return
-                except Exception as e:
-                    log.exception(f"[tts] Piper BMO failed, trying Fish Audio")
+                except Exception:
+                    log.exception("[tts] Piper BMO failed, trying Fish Audio")
 
             try:
                 self._cloud_speak(text, speaker)
                 return
-            except Exception as e:
-                log.exception(f"[tts] Fish Audio failed, trying edge-tts")
+            except Exception:
+                log.exception("[tts] Fish Audio failed, trying edge-tts")
 
             try:
                 self._edge_speak(text)
                 return
-            except Exception as e:
-                log.exception(f"[tts] edge-tts failed, falling back to local")
+            except Exception:
+                log.exception("[tts] edge-tts failed, falling back to local")
 
             self._local_speak(text)
-        except Exception as e:
-            log.exception(f"[tts] All TTS failed")
+        except Exception:
+            log.exception("[tts] All TTS failed")
         finally:
             # Restore persisted volume if we temporarily changed it
             if volume is not None:
@@ -1813,8 +1813,8 @@ class VoicePipeline:
                 with open(path, "wb") as f:
                     f.write(audio_bytes)
             self._tts_cache_evict()
-        except Exception as e:
-            log.exception(f"[tts-cache] Save failed")
+        except Exception:
+            log.exception("[tts-cache] Save failed")
 
     def _tts_cache_evict(self):
         """Evict oldest cache entries if total size exceeds TTS_CACHE_MAX_MB."""
@@ -1840,8 +1840,8 @@ class VoicePipeline:
                 os.unlink(path)
                 total -= size
                 log.info(f"[tts-cache] Evicted: {os.path.basename(path)}")
-        except Exception as e:
-            log.exception(f"[tts-cache] Eviction error")
+        except Exception:
+            log.exception("[tts-cache] Eviction error")
 
     def _prewarm_tts_cache(self):
         """Pre-warm TTS cache with common phrases on startup."""
@@ -2118,8 +2118,8 @@ class VoicePipeline:
             self._tts_cache_put(text, cache_speaker, audio_bytes, ext=".wav")
 
             self._play_audio(play_path)
-        except FileNotFoundError as e:
-            log.exception(f"[tts] Piper BMO not available")
+        except FileNotFoundError:
+            log.exception("[tts] Piper BMO not available")
             raise
         finally:
             for p in (raw_path, prosody_path):
@@ -2162,8 +2162,8 @@ class VoicePipeline:
             if best_name != "unknown":
                 log.info("[speaker] Identified: %s (score=%.2f)", _s(best_name), best_score)
             return best_name
-        except Exception as e:
-            log.exception(f"[speaker] Identification failed, returning unknown")
+        except Exception:
+            log.exception("[speaker] Identification failed, returning unknown")
             return "unknown"
 
     def enroll_speaker(self, name: str, audio_paths: list[str]):

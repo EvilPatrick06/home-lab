@@ -364,8 +364,8 @@ class AgentRouter:
                 if valid in agent_name:
                     return valid
 
-        except Exception as e:
-            log.exception(f"[router] LLM classification failed")
+        except Exception:
+            log.exception("[router] LLM classification failed")
 
         return None
 

@@ -60,7 +60,7 @@ class McpClient:
                 else:
                     log.info("[mcp:%s] Unknown transport: %s", _s(self.name), _s(self._transport))
                     return False
-            except Exception as e:
+            except Exception:
                 log.exception("[mcp:%s] Connection failed", _s(self.name))
                 return False
 
@@ -308,7 +308,7 @@ class McpClient:
         # Start SSE listener to get the message endpoint
         try:
             self._start_sse_listener(url, headers)
-        except Exception as e:
+        except Exception:
             log.exception("[mcp:%s] SSE connection failed", _s(self.name))
             self._http_client = None
             return False

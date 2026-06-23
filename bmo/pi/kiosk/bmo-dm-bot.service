@@ -1,7 +1,7 @@
 [Unit]
 Description=BMO DM Discord Bot — D&D Dungeon Master
-After=network-online.target bmo.service
-Wants=network-online.target
+After=network-online.target time-sync.target bmo.service
+Wants=network-online.target time-sync.target
 StartLimitIntervalSec=300
 StartLimitBurst=5
 

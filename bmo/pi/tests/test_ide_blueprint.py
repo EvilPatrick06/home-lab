@@ -12,7 +12,7 @@ We patch the allow-list to include tmp_path so tests work without touching
 
 import json
 import sys
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 

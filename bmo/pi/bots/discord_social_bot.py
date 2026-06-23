@@ -6947,6 +6947,10 @@ async def _run_social_bot() -> None:
         logger.error("Invalid social bot token — check DISCORD_SOCIAL_BOT_TOKEN")
     except Exception as e:
         logger.error("Social bot crashed: %s", e)
+        # Re-raise so the process exits non-zero and systemd Restart=on-failure
+        # brings the bot back. Only discord.LoginFailure (a real config error)
+        # exits cleanly. The in-process thread runner catches this re-raise.
+        raise
     finally:
         if _bot and not _bot.is_closed():
             await _bot.close()

@@ -1,7 +1,11 @@
 """Quick script: join a VC, speak via TTS, disconnect.
 Uses discord.py (not py-cord) for Dave protocol support.
 """
-import asyncio, io, os, sys, logging
+import asyncio
+import io
+import os
+import sys
+import logging
 sys.path.insert(0, os.path.dirname(__file__))
 logging.basicConfig(level=logging.DEBUG)
 import discord
