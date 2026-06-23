@@ -7,11 +7,16 @@ const XP_THRESHOLDS_5E: number[] = [
   265000, 305000, 355000
 ]
 
-// Overwrite with JSON data when available
+// Overwrite with JSON data when available. Guard against a null / empty
+// resolution (the data store returns null when the loader can't reach the
+// library bridge, e.g. in node tests) so we never wipe the hardcoded defaults
+// above and leave every threshold reading as 0.
 load5eXpThresholds()
   .then((data) => {
-    XP_THRESHOLDS_5E.length = 0
-    XP_THRESHOLDS_5E.push(...data)
+    if (Array.isArray(data) && data.length > 0) {
+      XP_THRESHOLDS_5E.length = 0
+      XP_THRESHOLDS_5E.push(...data)
+    }
   })
   .catch((e) => logger.warn('Failed to load XP thresholds data', e))
 
