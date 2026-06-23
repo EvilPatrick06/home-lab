@@ -12,6 +12,30 @@
 
 ---
 
+### [2026-06-22] No PR-time CI gate for dungeon-scholar or oracle-worker
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Added two PR+push CI gates scoped by path: .github/workflows/dungeon-scholar-ci.yml (npm ci -> vitest -> vite build) and .github/workflows/oracle-worker-ci.yml (npm ci -> `wrangler deploy --dry-run`, which bundles the worker and validates wrangler.toml without deploying or needing credentials). Both use node-version-file: .nvmrc (the root pin added in S10).
+
+- **Category:** future-idea
+- **Severity:** medium
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** cross-cutting repo-wide scan
+
+**Description:**
+`dnd-app` has a dedicated CI gate (lint + forbidden-patterns + tsc + tests + build smoke + circular + audit). `dungeon-scholar` runs `npm run test` ONLY as a precondition of the Pages deploy (`deploy.yml`, push to main) — there is no `pull_request`-triggered test/build gate, so a PR merges green and only fails later at deploy time. `oracle-worker` has a `test` script but zero workflows reference it, so its tests never run in CI.
+
+**Proposed fix / improvement:**
+- [ ] Add `dungeon-scholar-ci.yml` (path-filtered test + build on push + PR).
+- [ ] Add `oracle-worker-ci.yml` (npm ci + test).
+- [ ] Optionally factor the shared setup-node / npm-ci steps into a composite action reused by all JS-project workflows.
+
+**Related files:** `.github/workflows/deploy.yml`, `dungeon-scholar/package.json`, `oracle-worker/package.json`
+
+---
+
 ### [2026-06-22] macOS target is configured but never built or shipped (no `macos-latest` in the release matrix)
 
 - **Resolved by:** dnd-resolver (automated)

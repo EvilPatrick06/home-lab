@@ -1,0 +1,34 @@
+name: oracle-worker CI
+
+# PR + push gate for the oracle-worker Cloudflare Worker (previously had no CI
+# gate at all). `wrangler deploy --dry-run` bundles the worker and validates
+# wrangler.toml without deploying or needing account credentials.
+on:
+  push:
+    paths:
+      - 'oracle-worker/**'
+      - '.github/workflows/oracle-worker-ci.yml'
+  pull_request:
+    paths:
+      - 'oracle-worker/**'
+      - '.github/workflows/oracle-worker-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: oracle-worker
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: oracle-worker/package-lock.json
+      - run: npm ci
+      - name: Validate worker (wrangler dry-run)
+        run: npx wrangler deploy --dry-run
