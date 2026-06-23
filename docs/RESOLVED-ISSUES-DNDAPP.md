@@ -12,6 +12,18 @@
 
 ---
 
+### Settings export/import covers localStorage only — main-process `settings.json` (auto-update prefs) does not travel
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Stale — already covered. SettingsPage Export Settings includes `settings = await window.api.loadSettings()` (not just localStorage), and the auto-update prefs (autoCheckUpdates/autoDownloadUpdates/autoRestartAfterUpdate/autoInstallSilent) are stored in that same settings object: persistAutoPrefs does loadSettings()+saveSettings({...settings,...patch}), and settings-storage persists the whole object to settings.json with no key allowlist. Import restores via saveSettings(item.settings). So the four update prefs DO travel with an export. No code change needed; archived.
+
+**Category:** future-idea, portability · **Severity:** low · **Domain:** dnd-app · **Discovered by:** dnd-suggestor · **Added:** 2026-06-22
+
+`SettingsPage.tsx`'s Export Settings (~L1753) iterates `localStorage` and dumps every key into the export JSON; Import writes them back. That captures a11y, theme, keybindings, grid, dice, audio, etc. — but the auto-update preferences (`autoCheckUpdates`, `autoDownloadUpdates`, `autoRestartAfterUpdate`, `autoInstallSilent`) live in the **main process** at `userData/settings.json` (see `updater.ts > loadAutoUpdatePrefs`), so they are silently excluded. A user exporting settings to migrate to a new machine loses those four prefs with no warning. Proposal: add an IPC round-trip so export pulls `settings.json` (merged under a namespaced key) and import writes it back through the main process — or, at minimum, note in the export UI that update prefs are machine-local. Low severity (only 4 prefs, easily re-set), but it makes "Export Settings" quietly incomplete. Related: `src/renderer/src/pages/SettingsPage.tsx`, `src/main/updater.ts`.
+
+---
+
 ### [2026-06-22] No in-app way to locate, open, or export the app log for bug reports
 
 - **Resolved by:** dnd-resolver (automated)
