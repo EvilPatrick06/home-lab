@@ -28,6 +28,8 @@ Tested: dnd-vtt WEB build (Dungeon Table Online) v2.4.77 — 2026-06-22 · URL: 
 
 **Root cause (confirmed in source):** `bmo/pi/app.py` `_bmo_optional_api_key()` early-returns (exempts) only `p in ("/health", "/favicon.ico")` and `p.startswith("/static/")`. The webapp blueprint serves under `/DungeonTableOnline` (`static_url_path="/DungeonTableOnline"`, see `bmo/pi/routes/webapp_api.py`), which is NOT in the exemption set, so the gate 401s it.
 
+**Live update (stronger than shell-401):** Even exempting the static SPA routes is **not sufficient** — the SPA's *runtime* `/api/*` calls (registry, game state, DM bot, etc.) are still gated by the key, and a browser cannot attach `Authorization: Bearer` to its own same-origin fetches. Observed live with hardening ON: `GET /DungeonTableOnline/` → 200 (shell loads) but **every `/api/*` fetch from the page failed** (`TypeError: Failed to fetch`; `GET /api/games` → 401 via direct fetch), so the web client loads an empty shell that can't reach any data. So `BMO_API_KEY` hardening as written is fundamentally incompatible with the public browser client — it needs either a cookie/session the browser can carry, or the web origin served without the API-key gate.
+
 **Suggested action:** Add the web-app prefix to the before_request exemptions — e.g. allow `p == "/DungeonTableOnline"` or `p.startswith("/DungeonTableOnline/")` (the SPA shell + `/assets`, `/data`, `/fonts`, `/sounds`, the pdf worker) to pass without a key, the same way `/static/` is exempted. Keep `/api/*` gated.
 
 **Environment:** web build · external browser (non-localhost) · BMO_API_KEY hardening enabled
@@ -356,6 +358,36 @@ The data layer is fine; the **reactive UI update after a mutation is broken** in
 **Description (verified working, no defect):** Cloud Relay hosting connects ("Connected"); lobby chat, player list, color confirm, slow-mode/files/auto-mod controls render and work; sending a host chat message posts. A second browser tab successfully **joined via invite code (9TNQ6Y)** — "QA Player has joined the lobby" appeared and the host then saw "QA Player" in its players list **with full moderation controls (Kick / Ban / Make DM / Demote)**. So invite-code Cloud Relay join is functional in the web build even though the public registry listing is broken (see the High finding above).
 
 **Limitation (environment, not a bug):** Both tabs share **one browser profile** (same persistent client UUID + IndexedDB), so the two "clients" conflate — when the 2nd tab joined, the host tab's own DM identity/color was clobbered and replaced by the joiner's view. The desktop QA harness avoids this with separate `--user-data-dir` profiles; there is no in-browser equivalent with two tabs in the same profile. Full 2-client sync (HP/token/fog sync, ready toggles → start, kick/ban-rejoin, host/player rejoin-resume, End Session propagation) therefore **could not be cleanly validated** in this run — it needs two separate browsers/profiles (or two devices). See Could not test.
+
+## Phase 12 — Discord (in-app, web)
+
+### [Correction + finding] Web client IS wired to control the Discord bot, but the server endpoints `/api/dnd/start|stop|status` are missing (404) so it can't actually work
+- **Category:** bug | portability
+- **Severity:** medium
+- **Domain:** dnd-app | bmo
+- **Discovered by:** QA Agent
+- **During:** Phase 12 — in-app Discord Voice Session panel (web build) source/server verification
+
+**Correction of an earlier note:** A prior version of this report listed Discord as "out of the web SPA's surface." That was wrong. The web build **does** ship the in-app **Discord Voice Session** panel (`components/game/bottom/DiscordSessionSection.tsx`, rendered inside the **AI DM** bottom-panel tab via `DMTabPanel.tsx:237`), and `dnd-app/src/web/web-api.ts` shims its bot controls to same-origin BMO calls — `bmoStartDm → POST /api/dnd/start`, `bmoStopDm → POST /api/dnd/stop`, `bmoDmStatus → GET /api/dnd/status`. So the web client is intended to start/stop/poll the Discord DM bot.
+
+**The bug:** Those three endpoints are **not implemented on BMO**. `GET http://localhost:5000/api/dnd/status` returns **HTTP 404**, and the route table in `bmo/pi/routes/chat_api.py` defines only `/api/dnd/dm`, `/api/dnd/public/dm`, `/api/dnd/load`, `/api/dnd/sessions*`, `/api/dnd/gamestate`, `/api/dnd/players` — there is no `start`, `stop`, or `status`. The web shim wraps each call in `.catch()` returning `{running:false}` / `{ok:false}`, so the panel will **perpetually show the bot as down and the Start button will silently no-op** — the Discord voice session genuinely cannot be started or monitored from the web client. (On desktop these go through Electron IPC `BMO_START_DM`/`BMO_STATUS` to the main process, a different path, so desktop is unaffected.)
+
+**Reproduction:**
+1. Web build → enter a game with AI DM enabled → bottom panel → AI DM tab → Discord Voice Session.
+2. Status shows bot down; click Start → nothing happens (the underlying `POST /api/dnd/start` 404s and is swallowed).
+3. Server-side: `curl http://localhost:5000/api/dnd/status` → 404.
+
+**Live test (from the running page via in-page fetch):** Calling the exact endpoints the panel uses — `GET /api/dnd/status`, `POST /api/dnd/start`, `POST /api/dnd/stop` — all returned `TypeError: Failed to fetch` from the browser. Two causes confirmed: (a) **server-side those three routes don't exist** — `curl http://localhost:5000/api/dnd/status` → 404, and they're absent from `chat_api.py`'s `/api/dnd/*` table (only `dm`, `public/dm`, `load`, `sessions*`, `gamestate`, `players` exist); and (b) at test time `BMO_API_KEY` hardening was on, so **all** `/api/*` from the browser failed anyway (see the Critical finding). A same-origin control fetch to the SPA shell (`/DungeonTableOnline/`) succeeded (200), and `/api/dnd/players` (a route that DOES exist) also failed — confirming the block is the gate, not just the missing routes. Net: the web Discord bot controls can't function until (1) the three routes are added and (2) the web origin's `/api/*` is reachable from the browser.
+
+**Expected behavior:** Implement `/api/dnd/start`, `/api/dnd/stop`, `/api/dnd/status` on BMO (proxying to / driving the DM bot) so the web shim's bot controls work — or, until then, have the panel clearly state the web build can't control the bot yet.
+
+**Suggested action:** Add the three Flask routes on BMO (same DM-bot session control the Electron main process uses), matching the shapes `web-api.ts` expects (`{running}` for status, `{ok}` for start/stop).
+
+**Environment:** web build · BMO server · bot control path
+
+**Related files:** `dnd-app/src/web/web-api.ts` (~lines 411-419), `dnd-app/src/renderer/src/components/game/bottom/DiscordSessionSection.tsx`, `dnd-app/src/renderer/src/components/game/bottom/DMTabPanel.tsx`, `bmo/pi/routes/chat_api.py` (where the routes should live)
+
+**Also observed:** The panel is gated inside the **AI DM** bottom-panel tab (only shown when AI DM is enabled on the campaign), and the **BMO-DM bot process is not currently running** on the server (`pgrep discord_dm_bot` → none) — so even with working endpoints the live status would be "bot offline" right now. End-to-end voice (bot joins the Dungeon VC, speaks narration) additionally needs AI-DM narration, which needs local Ollama (unreachable from the browser — see Phase 13), plus Discord access.
 
 ## Phase 13 — Settings + themes + i18n + accessibility
 ### Rebinding a key to an already-used key is silently rejected with no conflict warning / swap-cancel flow
