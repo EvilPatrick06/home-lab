@@ -78,6 +78,27 @@ def _post(client, ip, body):
     return client.post("/api/dnd/public/dm", json=body, headers={"CF-Connecting-IP": ip})
 
 
+def _mock_cloud_chat(monkeypatch, fake):
+    """Patch the cloud_chat the public DM route actually invokes.
+
+    The route does ``from services.cloud_providers import cloud_chat`` at call
+    time, which resolves via ``sys.modules["services.cloud_providers"]``. Other
+    suites (e.g. test_claude_tools) install a MagicMock stub at that key and do
+    not restore it, so the string form
+    ``monkeypatch.setattr("services.cloud_providers.cloud_chat", ...)`` -- which
+    resolves the module through the parent-package *attribute* -- can patch a
+    different module object than the one the route imports, leaving the route
+    calling the unpatched MagicMock (a non-JSON-serializable return). Patch the
+    exact sys.modules object instead so it holds regardless of suite ordering.
+    """
+    import importlib
+
+    cp = importlib.import_module("services.cloud_providers")
+    monkeypatch.setattr(cp, "cloud_chat", fake, raising=False)
+
+
+
+
 def test_public_dm_requires_message(client):
     assert _post(client, "198.51.100.10", {}).status_code == 400
     assert _post(client, "198.51.100.11", {"message": "   "}).status_code == 400
@@ -91,7 +112,7 @@ def test_public_dm_413_over_max_len(client):
 
 
 def test_public_dm_happy_path(client, monkeypatch):
-    monkeypatch.setattr("services.cloud_providers.cloud_chat", lambda *a, **k: "You step into the cavern.")
+    _mock_cloud_chat(monkeypatch, lambda *a, **k: "You step into the cavern.")
     r = _post(client, "198.51.100.13", {"message": "I look around", "context": {"actingCharacterName": "Aria"}})
     assert r.status_code == 200
     assert r.get_json()["text"].startswith("You step")
@@ -106,7 +127,7 @@ def test_public_dm_ignores_client_system_and_model(client, monkeypatch):
         captured["max_tokens"] = max_tokens
         return "narration"
 
-    monkeypatch.setattr("services.cloud_providers.cloud_chat", fake)
+    _mock_cloud_chat(monkeypatch, fake)
     r = _post(
         client,
         "198.51.100.14",
@@ -131,7 +152,7 @@ def test_public_dm_ignores_client_system_and_model(client, monkeypatch):
 
 
 def test_public_dm_rate_limited(client, monkeypatch):
-    monkeypatch.setattr("services.cloud_providers.cloud_chat", lambda *a, **k: "ok")
+    _mock_cloud_chat(monkeypatch, lambda *a, **k: "ok")
     ip = "203.0.113.77"
     codes = [_post(client, ip, {"message": "go"}).status_code for _ in range(8)]
     assert 429 in codes  # per-minute cap kicks in
