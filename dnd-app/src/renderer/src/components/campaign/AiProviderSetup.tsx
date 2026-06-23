@@ -3,6 +3,7 @@ import { DEFAULT_PROVIDER_MODELS } from '../../../../shared/ai-defaults'
 import { AI_PROVIDER_LABELS, AI_PROVIDERS, DEFAULT_OLLAMA_URL } from '../../constants'
 import { useT } from '../../i18n'
 import type { AiProviderType } from '../../types/campaign'
+import { isWebBuild } from '../../utils/platform'
 import { Button, Card } from '../ui'
 
 type SetupPhase = 'idle' | 'detecting' | 'downloading' | 'installing' | 'starting' | 'pulling' | 'ready' | 'error'
@@ -159,6 +160,13 @@ export default function AiProviderSetup({
   useEffect(() => {
     if (!enabled) return
 
+    // Web build: the AI DM runs on the BMO cloud (Pi public DM) — always "ready",
+    // no local Ollama / API-key setup.
+    if (isWebBuild()) {
+      onProviderReady(true)
+      return
+    }
+
     if (provider === 'ollama') {
       detectOllamaStatus()
     } else {
@@ -280,6 +288,47 @@ export default function AiProviderSetup({
 
   const modelFitsGpu = (m: CuratedModel): boolean => vramMB === 0 || m.vramMB <= vramMB
   const isSetupBusy = ['downloading', 'installing', 'starting', 'pulling'].includes(setupPhase)
+
+  // Web build: the AI Dungeon Master runs on the BMO cloud (the Pi's public DM
+  // endpoint) — a browser can't run local Ollama, and no per-user provider/API-key
+  // is used (the in-game DM always uses the cloud). Show the enable toggle + a simple
+  // "cloud" panel instead of the local/provider setup, which would otherwise hit
+  // notWired() ("not bridged") and block the wizard. Readiness is handled by the
+  // effect above (onProviderReady(true) when enabled).
+  if (isWebBuild()) {
+    return (
+      <div>
+        <h2 className="text-xl font-semibold mb-2">{t('campaign.aiProviderSetup.title')}</h2>
+        <p className="text-muted text-sm mb-6">{t('campaign.aiProviderSetup.subtitle')}</p>
+        <div className="max-w-2xl space-y-4">
+          <Card>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={enabled}
+                onChange={(e) => onChange({ enabled: e.target.checked, provider, model, ollamaUrl, apiKey })}
+                className="w-5 h-5 rounded bg-surface-2 border-gray-600 text-accent-strong focus:ring-amber-500"
+              />
+              <div>
+                <span className="font-medium">{t('campaign.aiProviderSetup.enable')}</span>
+                <p className="text-muted text-sm mt-0.5">{t('campaign.aiProviderSetup.enableDesc')}</p>
+              </div>
+            </label>
+          </Card>
+          {enabled && (
+            <Card>
+              <h3 className="font-medium mb-1">☁️ Cloud Dungeon Master</h3>
+              <p className="text-muted text-sm">
+                On the web, the AI Dungeon Master runs on the BMO cloud — no local Ollama, model download, or API key
+                needed. It narrates scenes, runs combat, manages NPCs, and tracks character stats, just like on desktop.
+                You keep full DM control and can override at any time.
+              </p>
+            </Card>
+          )}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div>
