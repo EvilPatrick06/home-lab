@@ -19,6 +19,7 @@ import { UpdateSection } from '../components/settings/UpdateSection'
 import DiscordIntegrationSettings from '../components/ui/DiscordIntegrationSettings'
 import MultiplayerStatusSection from '../components/ui/MultiplayerStatusSection'
 import OllamaManagement, { type AvailableModelList, type InstalledModelList } from '../components/ui/OllamaManagement'
+import { useAccount } from '../services/account/use-account'
 import { useCampaignStore } from '../stores/use-campaign-store'
 import { useCharacterStore } from '../stores/use-character-store'
 import { useConfigStore } from '../stores/use-config-store'
@@ -172,6 +173,11 @@ export default function SettingsPage(): JSX.Element {
   // we can surface a "Return to game" link at the top.
   const location = useLocation()
   const returnTo = (location.state as { returnTo?: string })?.returnTo
+  // Once signed into a cloud account, the Account section is the single saving
+  // story — hide the legacy Cloud Backup + the local Auto-save sections. Both
+  // stay visible when signed out.
+  const { status: accountStatus } = useAccount()
+  const signedIn = accountStatus?.signedIn === true
 
   return (
     <div className="h-screen bg-base text-fg overflow-y-auto">
@@ -233,8 +239,8 @@ export default function SettingsPage(): JSX.Element {
         {/* Notifications */}
         <NotificationsSection />
 
-        {/* Auto-Save */}
-        <AutoSaveSection />
+        {/* Auto-Save (local version snapshots) — hidden once signed into a cloud account */}
+        {!signedIn && <AutoSaveSection />}
 
         {/* Import/Export Settings */}
         <SettingsImportExportSection />
@@ -260,10 +266,12 @@ export default function SettingsPage(): JSX.Element {
           <AccountSection />
         </Section>
 
-        {/* Cloud Backup */}
-        <Section title={t('pages.settingsPage.cloudBackup')}>
-          <CloudBackupSection />
-        </Section>
+        {/* Cloud Backup (legacy rclone) — superseded by the Account section once signed in */}
+        {!signedIn && (
+          <Section title={t('pages.settingsPage.cloudBackup')}>
+            <CloudBackupSection />
+          </Section>
+        )}
 
         {/* Ollama AI */}
         <Section title={t('pages.settingsPage.ollamaAi')}>
