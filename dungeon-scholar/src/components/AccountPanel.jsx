@@ -1,11 +1,12 @@
 import React, { useRef, useState } from 'react';
-import { LogOut, CloudOff, Trash2, RotateCcw, Download, Upload } from 'lucide-react';
+import { LogOut, CloudOff, Trash2, RotateCcw, Download, Upload, Bell } from 'lucide-react';
 import { signOut } from '../services/supabase.js';
 import { deleteCloudSave, deleteAccount } from '../services/cloudSync.js';
 import { logError } from '../services/logger.js';
 import { useDialogA11y } from '../hooks/useDialogA11y.js';
  import { exportSaveText, parseImportedSave } from '../services/persistence.js';
  import { todayDateStr } from '../utils/date.js';
+ import { requestStudyReminders, notificationsSupported, notificationPermission } from '../services/notifications.js';
 
 function relativeTimeFrom(date) {
   if (!date) return 'never';
@@ -22,6 +23,7 @@ export function AccountPanel({ user, syncStatus, lastSyncedAt, onClose, onAfterD
   const [busy, setBusy] = useState(false);
   const fileRef = useRef(null);
   const [importErr, setImportErr] = useState('');
+  const [remindMsg, setRemindMsg] = useState('');
 
   // S12: export the player save to a portable JSON file (reuses the Blob +
   // object-URL download pattern from ShareTomeModal).
@@ -137,6 +139,17 @@ export function AccountPanel({ user, syncStatus, lastSyncedAt, onClose, onAfterD
             {importErr && (
               <div className="text-xs italic text-red-300">✗ {importErr}</div>
             )}
+            {notificationsSupported() && (
+              <button
+                onClick={async () => { const ok = await requestStudyReminders(); setRemindMsg(ok ? 'Study reminders enabled — thou shalt be nudged when scrolls are due.' : (notificationPermission() === 'denied' ? 'Reminders blocked in browser settings.' : 'Reminders not enabled.')); }}
+                disabled={busy}
+                className="w-full px-3 py-2 rounded-sm border-2 border-amber-700 text-amber-200 italic text-sm hover:bg-amber-900/30 flex items-center gap-2"
+                title="Opt in to local study reminders (no account or server needed)"
+              >
+                <Bell className="w-4 h-4" /> Enable study reminders
+              </button>
+            )}
+            {remindMsg && <div className="text-xs italic text-amber-300">{remindMsg}</div>}
             <div className="h-px bg-amber-900/40 my-1" />
             <div className="text-[10px] uppercase tracking-wider italic text-red-400/80 font-bold">⚠ Destructive · cloud</div>
             <button onClick={() => setConfirmKind('cloud')} disabled={busy} className="w-full px-3 py-2 rounded-sm border-2 border-orange-700 text-orange-200 italic text-sm hover:bg-orange-900/30 flex items-center gap-2">

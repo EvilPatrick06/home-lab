@@ -38,6 +38,7 @@ import { pickWeakestDomain, WEAK_DOMAIN_MIN_SAMPLE, WEAK_DOMAIN_ACCURACY_THRESHO
 import { computeExamPace } from './services/examPace.js';
 import { computeExamPrediction, PREDICTION_HIGH_COVERAGE, PREDICTION_MEDIUM_COVERAGE } from './services/examPrediction.js';
 import { SRS_RATINGS, scheduleCard, dueCount, sortByDueness, filterDue } from './services/srs.js';
+import { notificationPermission, showStudyReminder } from './services/notifications.js';
 import { computeRetentionCurve, computeMilestones } from './services/forgettingCurve.js';
 
 import { TITLES, SPECIAL_TITLES, xpForLevel, getTitle } from './game/titles.js';
@@ -184,6 +185,19 @@ export default function DungeonScholarApp() {
   // Phase 21: prime the audio context on first user gesture so BGM/SFX
   // don't fail silently due to browser auto-play policies.
   useEffect(() => { armOnFirstGesture(); armAutoSuspend(); return () => disarmAutoSuspend(); }, []);
+
+  // S1: best-effort local study reminder once the library has loaded, only if
+  // the user already granted permission via the Account panel opt-in.
+  const studyRemindedRef = useRef(false);
+  useEffect(() => {
+    if (studyRemindedRef.current) return;
+    if (notificationPermission() !== 'granted') return;
+    const lib = playerState.library || [];
+    if (lib.length === 0) return;
+    studyRemindedRef.current = true;
+    const due = lib.reduce((sum, t) => sum + dueCount(t.progress?.cardProgress || {}, t.data?.flashcards || []), 0);
+    showStudyReminder({ dueCount: due });
+  }, [playerState.library]);
 
   // Phase 34b QA P10: apply theme to the root element. Re-evaluates on
   // explicit preference change AND on OS preference change (when 'system').

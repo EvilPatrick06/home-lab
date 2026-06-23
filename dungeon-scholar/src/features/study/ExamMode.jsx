@@ -52,6 +52,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
   const [timerAnnounce, setTimerAnnounce] = useState('');
   const prevSecondsRef = useRef(0);
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
+  const [flagged, setFlagged] = useState([]); // S13: per-question flag-for-review
   // 19A: inline submit-confirm overlay — hook armed only while it's rendered.
   const submitConfirmRef = useDialogA11y({ onClose: () => setShowSubmitConfirm(false), active: showSubmitConfirm });
   const [resultsSummary, setResultsSummary] = useState(null);
@@ -76,8 +77,10 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
     const totalSec = preset.minutes * 60;
     const deadline = Date.now() + totalSec * 1000;
     const blankAnswers = new Array(picked.length).fill(null);
+    const blankFlags = new Array(picked.length).fill(false);
     setSample(picked);
     setAnswers(blankAnswers);
+    setFlagged(blankFlags);
     setCurrentIdx(0);
     setSecondsLeft(totalSec);
     prevSecondsRef.current = totalSec; // 19D: seed the milestone baseline
@@ -97,6 +100,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
       startedAt: startedAtRef.current,
       sample: picked,
       answers: blankAnswers,
+      flagged: blankFlags,
       currentIdx: 0,
     });
     setPhase('inProgress');
@@ -157,9 +161,10 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
       startedAt: startedAtRef.current,
       sample,
       answers,
+      flagged,
       currentIdx,
     });
-  }, [phase, sample, answers, currentIdx, tomeId]);
+  }, [phase, sample, answers, flagged, currentIdx, tomeId]);
 
   // Phase 30b QA #4: warn before unload while an exam is active. Browsers
   // ignore the custom message but still surface their own "leave site?"
@@ -230,6 +235,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
     startedAtRef.current = saved.startedAt || Date.now();
     setSample(saved.sample);
     setAnswers(Array.isArray(saved.answers) ? saved.answers : new Array(saved.sample.length).fill(null));
+    setFlagged(Array.isArray(saved.flagged) ? saved.flagged : new Array(saved.sample.length).fill(false));
     setCurrentIdx(typeof saved.currentIdx === 'number' ? saved.currentIdx : 0);
     const remainingSec = Math.max(0, Math.ceil((saved.deadlineMs - Date.now()) / 1000));
     setSecondsLeft(remainingSec);
@@ -260,6 +266,19 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
     const a = answers[next];
     setTextInput(typeof a === 'string' ? a : '');
   };
+
+  // S13: jump straight to a question (navigator grid / review gate).
+  const goToIndex = (i) => {
+    if (i < 0 || i >= sample.length) return;
+    setCurrentIdx(i);
+    const a = answers[i];
+    setTextInput(typeof a === 'string' ? a : '');
+  };
+  const toggleFlag = (i) => setFlagged((f) => {
+    const n = (f.length === sample.length ? [...f] : new Array(sample.length).fill(false));
+    n[i] = !n[i];
+    return n;
+  });
 
   if (phase === 'setup') {
     const past = Array.isArray(tomeProgress?.practiceExams) ? tomeProgress.practiceExams : [];
@@ -399,6 +418,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
     const isTF = q.type === 'truefalse';
     const isFIB = q.type === 'fillblank' || q.type === 'fill_in_blank';
     const answeredCount = answers.filter(x => x !== null && x !== undefined && x !== '').length;
+    const flaggedCount = flagged.filter(Boolean).length;
     const lowTime = secondsLeft < 5 * 60;
 
     return (
@@ -562,6 +582,12 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
             style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>
             <ArrowLeft className="w-4 h-4 inline mr-1" /> Prior
           </button>
+          <button onClick={() => toggleFlag(currentIdx)} aria-pressed={!!flagged[currentIdx]}
+            className="px-3 py-2 rounded-sm text-sm font-bold italic border-2"
+            style={{ borderColor: flagged[currentIdx] ? '#f59e0b' : 'rgba(180,83,9,0.5)', color: flagged[currentIdx] ? '#fcd34d' : '#d6b88a', background: 'rgba(var(--surface-amber, 41, 24, 12), 0.5)' }}
+            title="Flag this riddle for review">
+            {flagged[currentIdx] ? '⚑ Flagged' : '⚐ Flag'}
+          </button>
           <div className="flex-1 text-center text-[10px] italic text-amber-700">
             ✦ Tap an option to lock thine answer — advance with Next. Thou may revisit prior riddles.
           </div>
@@ -571,6 +597,30 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
             Next <ArrowRight className="w-4 h-4 inline ml-1" />
           </button>
         </div>
+
+        {sample.length > 1 && (
+          <div className="flex flex-wrap gap-1 justify-center" role="group" aria-label="Question navigator">
+            {sample.map((_, i) => {
+              const ans = answers[i] !== null && answers[i] !== undefined && answers[i] !== '';
+              const fl = flagged[i];
+              const cur = i === currentIdx;
+              return (
+                <button key={i} onClick={() => goToIndex(i)}
+                  aria-label={`Go to riddle ${i + 1}${ans ? ', answered' : ', unanswered'}${fl ? ', flagged' : ''}`}
+                  title={`Riddle ${i + 1}${fl ? ' (flagged)' : ''}`}
+                  className="w-7 h-7 text-[11px] rounded-sm border tabular-nums italic flex items-center justify-center"
+                  style={{
+                    background: ans ? 'rgba(6,78,59,0.6)' : 'rgba(63,63,70,0.35)',
+                    borderColor: cur ? '#fde047' : (fl ? '#f59e0b' : 'rgba(120,113,108,0.5)'),
+                    color: ans ? '#a7f3d0' : '#d6d3d1',
+                    boxShadow: cur ? '0 0 8px rgba(253,224,71,0.6)' : (fl ? '0 0 6px rgba(245,158,11,0.5)' : 'none'),
+                  }}>
+                  {fl ? '⚑' : (i + 1)}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {showSubmitConfirm && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4">
@@ -583,6 +633,13 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
               <p className="text-sm italic text-amber-100 mb-3">
                 Thou hast answered <span className="font-bold tabular-nums">{answeredCount}</span> of <span className="font-bold tabular-nums">{sample.length}</span>. Unanswered riddles count as wrong.
               </p>
+              {flaggedCount > 0 && (
+                <p className="text-sm italic text-amber-200 mb-3">
+                  <span className="font-bold tabular-nums">{flaggedCount}</span> riddle{flaggedCount === 1 ? '' : 's'} flagged for review.
+                  <button onClick={() => { const i = flagged.findIndex(Boolean); if (i >= 0) { goToIndex(i); setShowSubmitConfirm(false); } }}
+                    className="ml-2 underline text-amber-300">Jump to first flagged</button>
+                </p>
+              )}
               <p className="text-xs italic text-amber-700 mb-4">
                 Time remaining: <span className="tabular-nums">{formatClock(secondsLeft)}</span>. Once submitted, thy verdict is final.
               </p>
