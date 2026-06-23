@@ -221,7 +221,8 @@ log "Installing systemd services..."
 # 2026-06-22 — they were previously duplicated as inline heredocs here and had
 # drifted from the kiosk/ copies). Install by copying those files.
 for unit in bmo.service bmo-kiosk.service bmo-fan.service bmo-dm-bot.service \
-            bmo-social-bot.service bmo-backup.service bmo-backup.timer; do
+            bmo-social-bot.service bmo-backup.service bmo-backup.timer \
+            bmo-voice-canary.service bmo-voice-canary.timer; do
   sudo cp "/home/patrick/home-lab/bmo/pi/kiosk/$unit" /etc/systemd/system/
 done
 
@@ -236,7 +237,7 @@ EOF
 
 # ── 11. Enable Services ─────────────────────────────────────────
 sudo systemctl daemon-reload
-sudo systemctl enable bmo bmo-kiosk bmo-fan bmo-dm-bot bmo-social-bot bmo-backup.timer
+sudo systemctl enable bmo bmo-kiosk bmo-fan bmo-dm-bot bmo-social-bot bmo-backup.timer bmo-voice-canary.timer
 sudo systemctl enable avahi-daemon
 sudo systemctl restart avahi-daemon
 

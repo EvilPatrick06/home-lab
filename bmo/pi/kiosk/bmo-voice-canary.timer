@@ -1,0 +1,10 @@
+[Unit]
+Description=Run the BMO voice-path canary on a slow cadence
+
+[Timer]
+OnCalendar=*-*-* 06,18:30:00
+Persistent=true
+RandomizedDelaySec=600
+
+[Install]
+WantedBy=timers.target
