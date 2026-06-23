@@ -1819,6 +1819,20 @@ export default function SettingsPage(): JSX.Element {
             <button
               onClick={async () => {
                 try {
+                  const res = await window.api.log.openFolder()
+                  if (res.ok) addToast(t('pages.settingsPage.toastLogRevealed'), 'success')
+                  else addToast(t('pages.settingsPage.logUnavailableWeb'), 'info')
+                } catch {
+                  addToast(t('pages.settingsPage.toastLogRevealFailed'), 'error')
+                }
+              }}
+              className="px-4 py-1.5 text-sm rounded-lg border bg-surface-2 border-border text-gray-300 hover:border-amber-600 hover:text-accent transition-colors cursor-pointer"
+            >
+              {t('pages.settingsPage.openLogFolder')}
+            </button>
+            <button
+              onClick={async () => {
+                try {
                   const result = await importDndBeyondCharacter()
                   if (result) {
                     addToast(t('pages.settingsPage.toastDdbImported'), 'success')

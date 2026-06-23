@@ -236,6 +236,8 @@ export const IPC_CHANNELS = {
 
   // === App Info ===
   APP_VERSION: 'app:version',
+  LOG_OPEN_FOLDER: 'log:open-folder',
+  LOG_GET_PATH: 'log:get-path',
 
   // === Game Data ===
   GAME_LOAD_JSON: 'game:load-json',

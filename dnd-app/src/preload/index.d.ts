@@ -1180,6 +1180,10 @@ declare global {
         library: LibraryAPI
         sounds: SoundsAPI
         getVersion: () => Promise<string>
+        log: {
+          openFolder: () => Promise<{ ok: boolean; path: string }>
+          getPath: () => Promise<string>
+        }
         // Security audit (20g)
         logSecurityEvent: (event: string, details?: Record<string, unknown>) => Promise<void>
         // BMO Pi Bridge

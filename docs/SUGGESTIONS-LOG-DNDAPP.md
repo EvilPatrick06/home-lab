@@ -42,24 +42,6 @@ The app can persist characters/campaigns locally (`src/main/storage/*`), sync vi
 **Related entries:** see "Settings export/import covers localStorage only…" (same file) — a character/campaign exporter is a different, additive feature.
 
 ### [2026-06-22] No global command palette / quick-action launcher (Ctrl+K) for the ~92 modals and actions
-### [2026-06-22] No in-app way to locate, open, or export the app log for bug reports
-
-- **Category:** future-idea, UX
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-suggestor
-- **During:** dnd-app tree review (renderer UX/navigation survey)
-
-**Description:**
-There are ~92 modal components under `components/game/modals/` plus many overlays, DM tools, and a `ShortcutReferenceModal`, but no fuzzy command-palette / quick-action launcher (no `cmdk`, no `palette`/`action launcher`/`quick-switch` handler anywhere in the renderer). Reaching a given tool means knowing its menu/toolbar location or its specific hotkey. A single Ctrl/Cmd-K palette that fuzzy-searches "open X modal / run Y action / jump to Z" would cut navigation depth dramatically for both DMs and players and would pair naturally with the existing keybinding system (`use-accessibility-store` already models `customKeybindings`).
-
-**Proposed fix / improvement:**
-- [ ] Add a palette component (own modal) registered on a global Ctrl/Cmd-K, listing actions sourced from the same registry that drives the existing shortcut/keybinding map so the two stay in sync.
-- [ ] Seed it with "open modal" entries (derive from the modal-group registries) plus high-frequency actions (roll, end turn, open compendium, search library).
-- [ ] Respect `customKeybindings` and screen-reader mode; ensure full keyboard operability and focus return on close.
-
-**Related files:** `src/renderer/src/components/game/modals/utility/ShortcutReferenceModal.tsx`, `src/renderer/src/components/game/modal-groups/*`, `src/renderer/src/stores/use-accessibility-store.ts`
-
 ### [2026-06-22] No first-run guided onboarding / tour for new users (only targeted Ollama + screen-reader prompts)
 
 - **Category:** future-idea, UX

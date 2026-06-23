@@ -6,7 +6,7 @@ import { app } from 'electron'
 const MAX_LOG_SIZE = 5 * 1024 * 1024 // 5 MB
 const MAX_LOG_FILES = 3
 
-function getLogDir(): string {
+export function getLogDir(): string {
   let base = app.getPath('userData')
   // Guard against a Windows-style userData path leaking onto a non-Windows run
   // (e.g. a test/env override of `C:\\tmp`): posix `join` keeps `C:\\tmp` verbatim
@@ -40,6 +40,10 @@ function rotateLogIfNeeded(logPath: string): void {
   } catch {
     /* file doesn't exist yet */
   }
+}
+
+export function getLogFilePath(): string {
+  return join(getLogDir(), 'app.log')
 }
 
 export function logToFile(level: string, message: string, stack?: string): void {

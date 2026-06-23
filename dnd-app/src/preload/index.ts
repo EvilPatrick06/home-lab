@@ -454,6 +454,12 @@ const api = {
   // App info
   getVersion: () => ipcRenderer.invoke(IPC_CHANNELS.APP_VERSION),
 
+  // App log access (for bug reports) — reveal app.log in the OS file manager / get its path.
+  log: {
+    openFolder: (): Promise<{ ok: boolean; path: string }> => ipcRenderer.invoke(IPC_CHANNELS.LOG_OPEN_FOLDER),
+    getPath: (): Promise<string> => ipcRenderer.invoke(IPC_CHANNELS.LOG_GET_PATH)
+  },
+
   // Security audit (20g) — forward a renderer-side security event to the
   // main-process audit log. Fire-and-forget from the caller's perspective.
   logSecurityEvent: (event: string, details?: Record<string, unknown>) =>

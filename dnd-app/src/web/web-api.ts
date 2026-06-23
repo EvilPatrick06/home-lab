@@ -289,6 +289,12 @@ export function createWebApi() {
     // App info
     getVersion: () => Promise.resolve(__APP_VERSION__),
 
+    // App log — the browser build has no main-process log file.
+    log: {
+      openFolder: () => Promise.resolve({ ok: false, path: '' }),
+      getPath: () => Promise.resolve('')
+    },
+
     // Security audit → console (no main-process log in the browser)
     logSecurityEvent: (event: string, details?: Dict) => {
       console.info('[security]', event, details ?? {})

@@ -18,6 +18,7 @@ import { registerGameDataHandlers } from './game-data-handlers'
 import { registerImageGenHandlers } from './image-gen-handlers'
 import { registerLanHandlers } from './lan-handlers'
 import { registerLibraryHandlers } from './library-handlers'
+import { registerLogHandlers } from './log-handlers'
 import { registerPluginHandlers } from './plugin-handlers'
 import { registerRegistryHandlers } from './registry-handlers'
 import { registerSoundCacheHandlers } from './sound-cache-handlers'
@@ -26,6 +27,9 @@ import { registerStorageHandlers } from './storage-handlers'
 export function registerIpcHandlers(): void {
   // --- Storage handlers (character, campaign, bastion, creature, game state, homebrew, settings) ---
   registerStorageHandlers()
+
+  // --- App log access (open/reveal app.log for bug reports) ---
+  registerLogHandlers()
 
   // --- Ban storage moved to storage-handlers.ts ---
 

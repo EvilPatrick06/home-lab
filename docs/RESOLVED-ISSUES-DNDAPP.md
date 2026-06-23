@@ -12,6 +12,30 @@
 
 ---
 
+### [2026-06-22] No in-app way to locate, open, or export the app log for bug reports
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Added in-app log access: new IPC log:open-folder / log:get-path (src/main/ipc/log-handlers.ts) reveal app.log in the OS file manager via shell.showItemInFolder (fallback shell.openPath of the logs dir). Exposed as window.api.log.{openFolder,getPath} in the preload (+ index.d.ts type + a no-op web shim), and added an 'Open log folder' button to SettingsPage's Import/Export section with toasts (en+es i18n). tsc node+web green; locale parity holds.
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (renderer UX/navigation survey)
+
+**Description:**
+There are ~92 modal components under `components/game/modals/` plus many overlays, DM tools, and a `ShortcutReferenceModal`, but no fuzzy command-palette / quick-action launcher (no `cmdk`, no `palette`/`action launcher`/`quick-switch` handler anywhere in the renderer). Reaching a given tool means knowing its menu/toolbar location or its specific hotkey. A single Ctrl/Cmd-K palette that fuzzy-searches "open X modal / run Y action / jump to Z" would cut navigation depth dramatically for both DMs and players and would pair naturally with the existing keybinding system (`use-accessibility-store` already models `customKeybindings`).
+
+**Proposed fix / improvement:**
+- [ ] Add a palette component (own modal) registered on a global Ctrl/Cmd-K, listing actions sourced from the same registry that drives the existing shortcut/keybinding map so the two stay in sync.
+- [ ] Seed it with "open modal" entries (derive from the modal-group registries) plus high-frequency actions (roll, end turn, open compendium, search library).
+- [ ] Respect `customKeybindings` and screen-reader mode; ensure full keyboard operability and focus return on close.
+
+**Related files:** `src/renderer/src/components/game/modals/utility/ShortcutReferenceModal.tsx`, `src/renderer/src/components/game/modal-groups/*`, `src/renderer/src/stores/use-accessibility-store.ts`
+
+---
+
 ### [2026-06-22] No PR-time CI gate for dungeon-scholar or oracle-worker
 
 - **Resolved by:** dnd-resolver (automated)
