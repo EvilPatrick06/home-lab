@@ -42,15 +42,3 @@ docs/logs/BMO-SUGGESTIONS-LOG*  merge=union
 docs/logs/SECURITY-LOG*         merge=union
 docs/logs/RESOLVED-*            merge=union
 docs/logs/BMO-RESOLVED-*        merge=union
-# TEMPORARY transition bridge - bare basename globs keep union merge working for
-# the old docs/<LOG>.md paths (symlinks today, or a regular file if a scanner
-# re-creates one before scheduled-task prompts are updated). REMOVE these seven
-# lines together with the docs/<LOG>.md bridge symlinks once every scheduled-task
-# prompt points at docs/logs/. See docs/AUTOMATED-AGENT-GIT-WORKFLOW.md.
-ISSUES-LOG*           merge=union
-BMO-ISSUES-LOG*       merge=union
-SUGGESTIONS-LOG*      merge=union
-BMO-SUGGESTIONS-LOG*  merge=union
-SECURITY-LOG*         merge=union
-RESOLVED-*            merge=union
-BMO-RESOLVED-*        merge=union

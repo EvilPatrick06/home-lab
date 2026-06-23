@@ -1,1 +1,0 @@
-logs/BMO-RESOLVED-ISSUES.md

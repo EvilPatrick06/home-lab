@@ -273,19 +273,3 @@ Automated agent:                         Integrator (daily):
                                              major / red       -> leave + report
                                            report merged / left-behind / PRs
 ```
-
-## TODO (temporary) — remove the docs/logs migration bridge symlinks
-
-On 2026-06-23 the active/archive logs moved from `docs/` into `docs/logs/`.
-To avoid breaking scheduled agents whose prompts still write to the old
-`docs/<LOG>.md` paths, each old path is now a symlink into `docs/logs/`:
-
-    docs/ISSUES-LOG.md -> logs/ISSUES-LOG.md   (and the other 13 logs)
-
-These symlinks are a TEMPORARY compatibility bridge. Once every scheduled-task
-prompt has been updated to target `docs/logs/<LOG>.md` directly:
-  1. Delete the 14 `docs/<LOG>.md` bridge symlinks (12 tracked + the 2 gitignored
-     security ones: SECURITY-LOG.md, RESOLVED-SECURITY-ISSUES.md).
-  2. Remove the "TEMPORARY transition bridge" bare-glob block in `.gitattributes`.
-  3. Remove the old `docs/SECURITY-LOG.md` / `docs/RESOLVED-SECURITY-ISSUES.md`
-     bridge lines from `.gitignore`.

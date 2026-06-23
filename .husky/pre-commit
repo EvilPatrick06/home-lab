@@ -14,9 +14,16 @@ if staged | grep -q '^dnd-app/'; then
   ( cd dnd-app && npx tsc --noEmit -p tsconfig.web.json ) || exit 1
 fi
 
-# dungeon-scholar: Biome on staged files (S10/S25).
+# dungeon-scholar: Biome on staged files (S10/S25). Run from INSIDE dungeon-scholar
+# so its biome.json is the project root (same per-project scoping as the dnd-app
+# block above — avoids Biome's "nested root configuration" error that occurs when
+# biome runs from the repo root and discovers both subproject roots at once).
+# dungeon-scholar has no local biome dependency, so invoke the correctly-scoped,
+# version-pinned package explicitly (matching its package.json lint script). Bare
+# `npx biome` must NOT be used: it resolves to an unrelated abandoned `biome`
+# package, not the linter, and aborts in non-interactive (hook) contexts.
 if staged | grep -q '^dungeon-scholar/'; then
-  ( cd dungeon-scholar && npx biome check --staged --no-errors-on-unmatched ) || exit 1
+  ( cd dungeon-scholar && npx --yes @biomejs/biome@2.4.16 check --staged --no-errors-on-unmatched ) || exit 1
 fi
 
 # Secret scan across the staged set (folded in from the old .githooks shim).

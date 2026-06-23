@@ -1,1 +1,0 @@
-logs/RESOLVED-ISSUES-DNDAPP.md
