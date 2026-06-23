@@ -24,7 +24,7 @@ under `[Unreleased]` and cut a dated, versioned section when a release is tagged
 ### Changed
 - Dungeon canvas now honors `prefers-reduced-motion` (WCAG 2.3.3) in the render loop, not just CSS.
 - Architecture cleanup: `DungeonExplore` God-file split into the React component, `components/dungeon/tileRenderer.js`, and `game/dungeonMap.js`; `DungeonExplore.jsx` colocated under `components/dungeon/`.
-- `App.jsx` de-godded: tutorial auto-condition logic moved to `game/tutorial.js`, a screen registry added at `router/screens.js`, and the modal-visibility cluster moved behind a `useAppModals()` hook.
+- `App.jsx` de-godded: tutorial auto-condition logic moved to `game/tutorial.js`, a screen registry added at `router/screens.js`, and the modal-visibility cluster moved behind a `useAppModals()` hook. The screen router now renders through that registry via a single `screenViews` dispatch (with an `App.test.jsx` smoke test) instead of a ~21-branch inline `screen === ...` ladder.
 
 ### Infrastructure
 - PR-time CI gate added for dungeon-scholar / oracle-worker.

@@ -840,6 +840,319 @@ export default function DungeonScholarApp() {
   const xpNeeded = xpForLevel(playerState.level);
   const xpPercent = (playerState.xp / xpNeeded) * 100;
 
+  // Screen registry dispatch — collapses the former ~21-branch `screen === ...`
+  // ladder into a single lookup keyed by the screen id (the canonical screen
+  // list + gating live in router/screens.js). Each thunk returns exactly the
+  // JSX its inline branch did, preserving its courseSet / sealedLocked guard.
+  const screenViews = {
+    home: () => (
+          <HomeScreen
+            courseSet={courseSet}
+            tomeProgress={tomeProgress}
+            setScreen={setScreen}
+            trackModeUse={trackModeUse}
+            onImport={() => fileInputRef.current?.click()}
+            onPaste={() => openModal('paste')}
+            onImportCode={() => openModal('importCode')}
+            onShowPrompt={() => openModal('prompt')}
+            playerState={playerState}
+            signedIn={!!user}
+            onResetProgress={resetProgress}
+            onOpenLibrary={() => setScreen('library')}
+            onShowAchievements={() => openModal('achievements')}
+            onEnterReviews={() => { setReviewMode(true); trackModeUse('flashcards'); setScreen('flashcards'); }}
+            onSetTheme={(t) => {
+              // Phase 46h: every theme switch surfaces an Undo toast (Ctrl+Z
+              // compatible — the global hotkey from 45d invokes the active
+              // toast's onClick). Capturing prev.theme outside the updater keeps
+              // the closure stable for the undo callback. PHASE-41 (QA16): Light
+              // is now a FULL theme, so the old "panels stay dark" intro is gone.
+              const prevTheme = playerState.theme || 'dark';
+              if (prevTheme === t) return;
+              setPlayerState(prev => {
+                const next = { ...prev, theme: t };
+                if (t === 'light' && !prev.lightModeIntroShown) {
+                  next.lightModeIntroShown = true;
+                }
+                return next;
+              });
+              const labelOf = (id) => id === 'light' ? 'Light' : id === 'system' ? 'Match System' : 'Dark';
+              const introTail = (t === 'light' && !playerState.lightModeIntroShown)
+                ? ' (parchment-light pages, panels, and text)'
+                : '';
+              setTimeout(() => showNotif(
+                `Theme: ${labelOf(t)}${introTail} · Undo (Ctrl+Z)`,
+                'info',
+                () => {
+                  setPlayerState(prev => ({ ...prev, theme: prevTheme }));
+                  showNotif(`Theme reverted to ${labelOf(prevTheme)}`, 'info', null, 1800);
+                },
+                7000,
+              ), 50);
+            }}
+            onRestartTutorial={() => {
+              setPlayerState(prev => ({
+                ...prev,
+                tutorialStepIndex: 0,
+                tutorialCompleted: false,
+                tutorialStarted: true,
+                tutorialPanelCollapsed: false,
+                tutorialBaselines: snapshotBaselines(prev),
+              }));
+              showNotif('Tutorial restarted', 'info');
+            }}
+          />
+    ),
+    library: () => (
+          <LibraryScreen
+            playerState={playerState}
+            onSwitch={switchActiveTome}
+            onDelete={deleteTome}
+            onRename={renameTome}
+            onDuplicate={duplicateTome}
+            onShare={(id) => setShareTomeId(id)}
+            onEditMetadata={(id) => setEditMetadataTomeId(id)}
+            onEditContent={(id) => setEditContentTomeId(id)}
+            starterDecks={STARTER_DECKS}
+            onAddStarter={(data) => { addTomeToLibrary(data); }}
+            onNotes={(tome) => setNotesTome(tome)}
+            onTogglePin={(id) => {
+              // Phase 38d round-3 suggestion: pin/unpin a tome so it floats
+              // to the top of the Library — useful once a user has 5+ tomes
+              // and the active-only badge isn't enough navigation.
+              setPlayerState(prev => ({
+                ...prev,
+                library: prev.library.map(t => t.id === id ? { ...t, pinned: !t.pinned } : t),
+              }));
+            }}
+            onImport={() => fileInputRef.current?.click()}
+            onPaste={() => openModal('paste')}
+            onImportCode={() => openModal('importCode')}
+            onShowPrompt={() => openModal('prompt')}
+            setScreen={setScreen}
+            claimableQuestCount={claimableQuestCount}
+          />
+    ),
+    quests: () => (
+          <QuestBoard
+            dailyQuests={dailyQuestStatus}
+            dailyDate={playerState.dailyQuests?.date}
+            onClaimDaily={claimQuest}
+            onClaimAllDaily={claimAllQuests}
+            weeklyQuests={weeklyQuestStatus}
+            weekStart={playerState.weeklyQuests?.weekStart}
+            onClaimWeekly={claimWeeklyQuest}
+            onClaimAllWeekly={claimAllWeeklyQuests}
+            storyChains={storyChainStatus}
+            onClaimStoryStep={claimStoryStep}
+          />
+    ),
+    inventory: () => (
+          <InventoryScreen
+            playerState={playerState}
+            setScreen={setScreen}
+            onEquip={equipItem}
+            onUnequip={unequipSlot}
+            onEquipPotion={equipPotion}
+            onUnequipPotion={unequipPotion}
+            onEquipSpell={equipSpell}
+            onUnequipSpell={unequipSpell}
+          />
+    ),
+    shop: () => (
+          <ShopScreen playerState={playerState} setScreen={setScreen} onPurchase={purchaseItem} />
+    ),
+    crafting: () => (
+          <CraftingScreen playerState={playerState} setScreen={setScreen} onCraft={craftRecipe} />
+    ),
+    bestiary: () => (
+          <BestiaryScreen playerState={playerState} setScreen={setScreen} />
+    ),
+    stable: () => (
+          <StableScreen
+            playerState={playerState}
+            setScreen={setScreen}
+            onEquipPet={equipPet}
+            onUnequipPet={unequipPet}
+          />
+    ),
+    spellbook: () => (
+          <SpellbookScreen
+            playerState={playerState}
+            setScreen={setScreen}
+            onEquipSpell={equipSpell}
+            onUnequipSpell={unequipSpell}
+          />
+    ),
+    calendar: () => (
+          <CalendarScreen
+            playerState={playerState}
+            setScreen={setScreen}
+            onClaim={claimDailyReward}
+          />
+    ),
+    ascension: () => (
+          <AscensionScreen
+            playerState={playerState}
+            setScreen={setScreen}
+            onAscend={ascend}
+          />
+    ),
+    history: () => (
+          <RunHistoryScreen playerState={playerState} setScreen={setScreen} />
+    ),
+    ledger: () => (
+          <ScholarsLedger playerState={playerState} setScreen={setScreen} />
+    ),
+    domainStudy: () =>
+      !sealedLocked && (
+          <DomainStudyScreen
+            playerState={playerState}
+            setScreen={setScreen}
+            onSetExamDate={setTomeExamDate}
+            onMarkVisited={() => {
+              setPlayerState(prev => {
+                const visits = prev.tutorialVisits || {};
+                if (visits.domain_study_visited) return prev;
+                return { ...prev, tutorialVisits: { ...visits, domain_study_visited: true } };
+              });
+            }}
+            onStudyDomain={(mode, domainName) => {
+              setDomainFilter(domainName);
+              if (mode === 'quiz') { trackModeUse('quiz'); setScreen('quiz'); }
+              else if (mode === 'flashcards') { trackModeUse('flashcards'); setScreen('flashcards'); }
+            }}
+          />
+      ),
+    dungeon: () =>
+      courseSet && (
+            <DungeonExplore
+              onExit={() => setScreen('home')}
+              playerState={playerState}
+              subject={courseSet?.metadata?.subject}
+              courseSet={courseSet}
+              tomeProgress={tomeProgress}
+              awardXP={awardXP}
+              awardGold={awardGold}
+              recordAnswer={recordAnswer}
+              checkAchievement={checkAchievement}
+              unlockSpecialTitle={unlockSpecialTitle}
+              updateProgress={updateProgress}
+              updateTomeProgress={updateTomeProgress}
+              trackDungeonAttempt={trackDungeonAttempt}
+              onViewHistory={() => setScreen('history')}
+              consumeItem={consumeItem}
+              giveItem={giveItem}
+              recordBestiary={recordBestiary}
+              recordSpellCast={recordSpellCast}
+              recordHarvest={recordHarvest}
+              awardPetXp={awardPetXp}
+              petCatalog={Object.values(PETS)}
+              spellCatalog={Object.values(SPELLS)}
+              itemCatalog={ITEMS}
+              equipItem={equipItem}
+              unequipSlot={unequipSlot}
+              equipPet={equipPet}
+              unequipPet={unequipPet}
+              equipPotion={equipPotion}
+              unequipPotion={unequipPotion}
+              equipSpell={equipSpell}
+              unequipSpell={unequipSpell}
+            />
+      ),
+    flashcards: () =>
+      courseSet && (
+          <FlashcardsMode
+            courseSet={courseSet}
+            tomeId={playerState.activeTomeId}
+            cards={shuffledActivities.flashcards}
+            tomeProgress={tomeProgress}
+            playerState={playerState}
+            awardXP={awardXP}
+            updateTomeProgress={updateTomeProgress}
+            updateCardProgress={updateCardProgress}
+            checkAchievement={checkAchievement}
+            domainFilter={domainFilter}
+            onExitFilter={() => { setDomainFilter(null); setScreen('domainStudy'); }}
+            reviewMode={reviewMode}
+            onExitReviewMode={() => { setReviewMode(false); setScreen('home'); }}
+            onResumeNotify={(info) => showNotif(`Resumed Scroll ${info.index + 1} of ${info.total}`, 'success', null, 1500)}
+          />
+      ),
+    quiz: () =>
+      courseSet && (
+          <QuizMode
+            courseSet={courseSet}
+            tomeId={playerState.activeTomeId}
+            questions={shuffledActivities.quiz}
+            tomeProgress={tomeProgress}
+            playerState={playerState}
+            awardXP={awardXP}
+            recordAnswer={recordAnswer}
+            checkAchievement={checkAchievement}
+            updateTomeProgress={updateTomeProgress}
+            domainFilter={domainFilter}
+            onExitFilter={() => { setDomainFilter(null); setScreen('domainStudy'); }}
+            onResumeNotify={(info) => showNotif(
+              `Resumed Riddle ${Math.min(info.progressCount + 1, info.total)} of ${info.total}${info.streak > 0 ? ` · Streak ${info.streak}` : ''}`,
+              'success', null, 1500,
+            )}
+            onGoToLibrary={() => setScreen('library')}
+          />
+      ),
+    lab: () =>
+      courseSet && (
+          <LabMode
+            courseSet={courseSet}
+            tomeProgress={tomeProgress}
+            playerState={playerState}
+            awardXP={awardXP}
+            recordAnswer={recordAnswer}
+            updateTomeProgress={updateTomeProgress}
+            checkAchievement={checkAchievement}
+            onPendingConfirm={setPendingConfirm}
+            onGoToLibrary={() => setScreen('library')}
+          />
+      ),
+    chat: () =>
+      courseSet && (
+          <ChatMode
+            courseSet={courseSet}
+            tomeProgress={tomeProgress}
+            updateTomeProgress={updateTomeProgress}
+            checkAchievement={checkAchievement}
+          />
+      ),
+    practiceExam: () =>
+      courseSet && (
+            <ExamMode
+              courseSet={courseSet}
+              tomeId={playerState.activeTomeId}
+              tomeProgress={tomeProgress}
+              updateTomeProgress={updateTomeProgress}
+              awardXP={awardXP}
+              onExit={() => setScreen('home')}
+              onResumeNotify={(info) => showNotif(
+                `Resumed trial — Riddle ${info.currentIdx + 1} of ${info.total} · ${info.remainingLabel} left`,
+                'success', null, 1500,
+              )}
+            />
+      ),
+    vault: () =>
+      !sealedLocked && (
+          <MistakeVault
+            courseSet={courseSet}
+            tomeProgress={tomeProgress}
+            playerState={playerState}
+            onRemove={removeFromVault}
+            checkAchievement={checkAchievement}
+            unlockSpecialTitle={unlockSpecialTitle}
+            awardXP={awardXP}
+            onGoHome={() => setScreen('home')}
+          />
+      ),
+  };
+
   return (
     <div className="min-h-screen text-amber-50 relative overflow-hidden dungeon-bg-root" style={{
       fontFamily: "'Cinzel', 'Trajan Pro', Georgia, serif",
@@ -1279,310 +1592,14 @@ export default function DungeonScholarApp() {
             and the player is on a content-consuming screen, render the unlock
             prompt INSTEAD of the screen. Home/library/shop/etc. stay reachable
             while locked (they don't read decrypted content). */}
-        {sealedLocked && SEALED_GATED.includes(screen) && (
+        {sealedLocked && SEALED_GATED.includes(screen) ? (
           <SealedTomeGate
             title={activeTome.data.metadata.title}
             onUnlock={(pass) => unlockSealedTome(activeTome.id, pass)}
             onBack={() => setScreen('library')}
           />
-        )}
-        {screen === 'home' && (
-          <HomeScreen
-            courseSet={courseSet}
-            tomeProgress={tomeProgress}
-            setScreen={setScreen}
-            trackModeUse={trackModeUse}
-            onImport={() => fileInputRef.current?.click()}
-            onPaste={() => openModal('paste')}
-            onImportCode={() => openModal('importCode')}
-            onShowPrompt={() => openModal('prompt')}
-            playerState={playerState}
-            signedIn={!!user}
-            onResetProgress={resetProgress}
-            onOpenLibrary={() => setScreen('library')}
-            onShowAchievements={() => openModal('achievements')}
-            onEnterReviews={() => { setReviewMode(true); trackModeUse('flashcards'); setScreen('flashcards'); }}
-            onSetTheme={(t) => {
-              // Phase 46h: every theme switch surfaces an Undo toast (Ctrl+Z
-              // compatible — the global hotkey from 45d invokes the active
-              // toast's onClick). Capturing prev.theme outside the updater keeps
-              // the closure stable for the undo callback. PHASE-41 (QA16): Light
-              // is now a FULL theme, so the old "panels stay dark" intro is gone.
-              const prevTheme = playerState.theme || 'dark';
-              if (prevTheme === t) return;
-              setPlayerState(prev => {
-                const next = { ...prev, theme: t };
-                if (t === 'light' && !prev.lightModeIntroShown) {
-                  next.lightModeIntroShown = true;
-                }
-                return next;
-              });
-              const labelOf = (id) => id === 'light' ? 'Light' : id === 'system' ? 'Match System' : 'Dark';
-              const introTail = (t === 'light' && !playerState.lightModeIntroShown)
-                ? ' (parchment-light pages, panels, and text)'
-                : '';
-              setTimeout(() => showNotif(
-                `Theme: ${labelOf(t)}${introTail} · Undo (Ctrl+Z)`,
-                'info',
-                () => {
-                  setPlayerState(prev => ({ ...prev, theme: prevTheme }));
-                  showNotif(`Theme reverted to ${labelOf(prevTheme)}`, 'info', null, 1800);
-                },
-                7000,
-              ), 50);
-            }}
-            onRestartTutorial={() => {
-              setPlayerState(prev => ({
-                ...prev,
-                tutorialStepIndex: 0,
-                tutorialCompleted: false,
-                tutorialStarted: true,
-                tutorialPanelCollapsed: false,
-                tutorialBaselines: snapshotBaselines(prev),
-              }));
-              showNotif('Tutorial restarted', 'info');
-            }}
-          />
-        )}
-        {screen === 'library' && (
-          <LibraryScreen
-            playerState={playerState}
-            onSwitch={switchActiveTome}
-            onDelete={deleteTome}
-            onRename={renameTome}
-            onDuplicate={duplicateTome}
-            onShare={(id) => setShareTomeId(id)}
-            onEditMetadata={(id) => setEditMetadataTomeId(id)}
-            onEditContent={(id) => setEditContentTomeId(id)}
-            starterDecks={STARTER_DECKS}
-            onAddStarter={(data) => { addTomeToLibrary(data); }}
-            onNotes={(tome) => setNotesTome(tome)}
-            onTogglePin={(id) => {
-              // Phase 38d round-3 suggestion: pin/unpin a tome so it floats
-              // to the top of the Library — useful once a user has 5+ tomes
-              // and the active-only badge isn't enough navigation.
-              setPlayerState(prev => ({
-                ...prev,
-                library: prev.library.map(t => t.id === id ? { ...t, pinned: !t.pinned } : t),
-              }));
-            }}
-            onImport={() => fileInputRef.current?.click()}
-            onPaste={() => openModal('paste')}
-            onImportCode={() => openModal('importCode')}
-            onShowPrompt={() => openModal('prompt')}
-            setScreen={setScreen}
-            claimableQuestCount={claimableQuestCount}
-          />
-        )}
-        {screen === 'quests' && (
-          <QuestBoard
-            dailyQuests={dailyQuestStatus}
-            dailyDate={playerState.dailyQuests?.date}
-            onClaimDaily={claimQuest}
-            onClaimAllDaily={claimAllQuests}
-            weeklyQuests={weeklyQuestStatus}
-            weekStart={playerState.weeklyQuests?.weekStart}
-            onClaimWeekly={claimWeeklyQuest}
-            onClaimAllWeekly={claimAllWeeklyQuests}
-            storyChains={storyChainStatus}
-            onClaimStoryStep={claimStoryStep}
-          />
-        )}
-        {screen === 'inventory' && (
-          <InventoryScreen
-            playerState={playerState}
-            setScreen={setScreen}
-            onEquip={equipItem}
-            onUnequip={unequipSlot}
-            onEquipPotion={equipPotion}
-            onUnequipPotion={unequipPotion}
-            onEquipSpell={equipSpell}
-            onUnequipSpell={unequipSpell}
-          />
-        )}
-        {screen === 'shop' && (
-          <ShopScreen playerState={playerState} setScreen={setScreen} onPurchase={purchaseItem} />
-        )}
-        {screen === 'crafting' && (
-          <CraftingScreen playerState={playerState} setScreen={setScreen} onCraft={craftRecipe} />
-        )}
-        {screen === 'bestiary' && (
-          <BestiaryScreen playerState={playerState} setScreen={setScreen} />
-        )}
-        {screen === 'stable' && (
-          <StableScreen
-            playerState={playerState}
-            setScreen={setScreen}
-            onEquipPet={equipPet}
-            onUnequipPet={unequipPet}
-          />
-        )}
-        {screen === 'spellbook' && (
-          <SpellbookScreen
-            playerState={playerState}
-            setScreen={setScreen}
-            onEquipSpell={equipSpell}
-            onUnequipSpell={unequipSpell}
-          />
-        )}
-        {screen === 'calendar' && (
-          <CalendarScreen
-            playerState={playerState}
-            setScreen={setScreen}
-            onClaim={claimDailyReward}
-          />
-        )}
-        {screen === 'ascension' && (
-          <AscensionScreen
-            playerState={playerState}
-            setScreen={setScreen}
-            onAscend={ascend}
-          />
-        )}
-        {screen === 'history' && (
-          <RunHistoryScreen playerState={playerState} setScreen={setScreen} />
-        )}
-        {screen === 'ledger' && (
-          <ScholarsLedger playerState={playerState} setScreen={setScreen} />
-        )}
-        {screen === 'domainStudy' && !sealedLocked && (
-          <DomainStudyScreen
-            playerState={playerState}
-            setScreen={setScreen}
-            onSetExamDate={setTomeExamDate}
-            onMarkVisited={() => {
-              setPlayerState(prev => {
-                const visits = prev.tutorialVisits || {};
-                if (visits.domain_study_visited) return prev;
-                return { ...prev, tutorialVisits: { ...visits, domain_study_visited: true } };
-              });
-            }}
-            onStudyDomain={(mode, domainName) => {
-              setDomainFilter(domainName);
-              if (mode === 'quiz') { trackModeUse('quiz'); setScreen('quiz'); }
-              else if (mode === 'flashcards') { trackModeUse('flashcards'); setScreen('flashcards'); }
-            }}
-          />
-        )}
-        {screen === 'dungeon' && courseSet && (
-            <DungeonExplore
-              onExit={() => setScreen('home')}
-              playerState={playerState}
-              subject={courseSet?.metadata?.subject}
-              courseSet={courseSet}
-              tomeProgress={tomeProgress}
-              awardXP={awardXP}
-              awardGold={awardGold}
-              recordAnswer={recordAnswer}
-              checkAchievement={checkAchievement}
-              unlockSpecialTitle={unlockSpecialTitle}
-              updateProgress={updateProgress}
-              updateTomeProgress={updateTomeProgress}
-              trackDungeonAttempt={trackDungeonAttempt}
-              onViewHistory={() => setScreen('history')}
-              consumeItem={consumeItem}
-              giveItem={giveItem}
-              recordBestiary={recordBestiary}
-              recordSpellCast={recordSpellCast}
-              recordHarvest={recordHarvest}
-              awardPetXp={awardPetXp}
-              petCatalog={Object.values(PETS)}
-              spellCatalog={Object.values(SPELLS)}
-              itemCatalog={ITEMS}
-              equipItem={equipItem}
-              unequipSlot={unequipSlot}
-              equipPet={equipPet}
-              unequipPet={unequipPet}
-              equipPotion={equipPotion}
-              unequipPotion={unequipPotion}
-              equipSpell={equipSpell}
-              unequipSpell={unequipSpell}
-            />
-        )}
-        {screen === 'flashcards' && courseSet && (
-          <FlashcardsMode
-            courseSet={courseSet}
-            tomeId={playerState.activeTomeId}
-            cards={shuffledActivities.flashcards}
-            tomeProgress={tomeProgress}
-            playerState={playerState}
-            awardXP={awardXP}
-            updateTomeProgress={updateTomeProgress}
-            updateCardProgress={updateCardProgress}
-            checkAchievement={checkAchievement}
-            domainFilter={domainFilter}
-            onExitFilter={() => { setDomainFilter(null); setScreen('domainStudy'); }}
-            reviewMode={reviewMode}
-            onExitReviewMode={() => { setReviewMode(false); setScreen('home'); }}
-            onResumeNotify={(info) => showNotif(`Resumed Scroll ${info.index + 1} of ${info.total}`, 'success', null, 1500)}
-          />
-        )}
-        {screen === 'quiz' && courseSet && (
-          <QuizMode
-            courseSet={courseSet}
-            tomeId={playerState.activeTomeId}
-            questions={shuffledActivities.quiz}
-            tomeProgress={tomeProgress}
-            playerState={playerState}
-            awardXP={awardXP}
-            recordAnswer={recordAnswer}
-            checkAchievement={checkAchievement}
-            updateTomeProgress={updateTomeProgress}
-            domainFilter={domainFilter}
-            onExitFilter={() => { setDomainFilter(null); setScreen('domainStudy'); }}
-            onResumeNotify={(info) => showNotif(
-              `Resumed Riddle ${Math.min(info.progressCount + 1, info.total)} of ${info.total}${info.streak > 0 ? ` · Streak ${info.streak}` : ''}`,
-              'success', null, 1500,
-            )}
-            onGoToLibrary={() => setScreen('library')}
-          />
-        )}
-        {screen === 'lab' && courseSet && (
-          <LabMode
-            courseSet={courseSet}
-            tomeProgress={tomeProgress}
-            playerState={playerState}
-            awardXP={awardXP}
-            recordAnswer={recordAnswer}
-            updateTomeProgress={updateTomeProgress}
-            checkAchievement={checkAchievement}
-            onPendingConfirm={setPendingConfirm}
-            onGoToLibrary={() => setScreen('library')}
-          />
-        )}
-        {screen === 'chat' && courseSet && (
-          <ChatMode
-            courseSet={courseSet}
-            tomeProgress={tomeProgress}
-            updateTomeProgress={updateTomeProgress}
-            checkAchievement={checkAchievement}
-          />
-        )}
-        {screen === 'practiceExam' && courseSet && (
-            <ExamMode
-              courseSet={courseSet}
-              tomeId={playerState.activeTomeId}
-              tomeProgress={tomeProgress}
-              updateTomeProgress={updateTomeProgress}
-              awardXP={awardXP}
-              onExit={() => setScreen('home')}
-              onResumeNotify={(info) => showNotif(
-                `Resumed trial — Riddle ${info.currentIdx + 1} of ${info.total} · ${info.remainingLabel} left`,
-                'success', null, 1500,
-              )}
-            />
-        )}
-        {screen === 'vault' && !sealedLocked && (
-          <MistakeVault
-            courseSet={courseSet}
-            tomeProgress={tomeProgress}
-            playerState={playerState}
-            onRemove={removeFromVault}
-            checkAchievement={checkAchievement}
-            unlockSpecialTitle={unlockSpecialTitle}
-            awardXP={awardXP}
-            onGoHome={() => setScreen('home')}
-          />
+        ) : (
+          screenViews[screen]?.()
         )}
         </React.Suspense>
 

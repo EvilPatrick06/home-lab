@@ -13,6 +13,32 @@
 
 ---
 
+### [2026-06-23] Resolved by scholar-resolver — App.jsx screen router collapsed through the registry (branch auto/scholar-resolver)
+
+> **Resolved 2026-06-23 (scholar-resolver):** Follow-up to the App.jsx God-component resolution, completed on the user's explicit go-ahead. Added an App-level smoke test (`src/App.test.jsx`) that mounts the full app and drives home / library / course-set-gated quiz / ledger by hash as the safety net, then replaced the ~21-branch `{screen === 'x' && (...)}` ladder with a single `screenViews[screen]?.()` dispatch — a screen->renderer map where each thunk returns exactly the prior JSX and preserves its courseSet / sealedLocked guard. The canonical screen list + gating still live in `router/screens.js`. Local vitest (57 files / 620 tests, incl. the new smoke test) + production build (VITE_BASE=/home-lab/) green.
+
+### [2026-06-23] `App.jsx` screen-router: render the ~22 `screen ===` branches through the `router/screens.js` registry
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-resolver
+- **During:** resolving the App.jsx God-component entry
+
+**Description:**
+The App.jsx God-component entry was resolved in three parts (see `RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`): the tutorial auto-condition `switch` moved to `game/tutorial.js`, the modal-visibility flag cluster moved behind a `useAppModals()` hook, and a screen registry was added at `router/screens.js` (now the single source of truth for the valid-screen list and the course-set / sealed gating sets). What remains is the deepest structural piece: App.jsx still renders the ~22 `{screen === 'x' && (<Screen .../>)}` branches inline. Collapsing that ladder into a registry-driven `<ActiveScreen />` is valuable but was held back from the resolver run because App.jsx has no component-level test (`App.test.jsx` does not exist), so a blind prop-threading rewrite of every screen is not safely verifiable.
+
+**Proposed fix / improvement:**
+- [ ] Add a minimal `App.test.jsx` smoke test (mount + switch a few screens + open/close a modal) so the refactor is verifiable.
+- [ ] Extend `router/screens.js` to map each screen id to its lazy component + a props selector, then replace the inline `screen === ...` ladder with a single `<ActiveScreen screen={screen} ctx={...} />`.
+
+**Related files:** `src/App.jsx`, `src/router/screens.js`, `src/hooks/useAppModals.js`, `src/game/tutorial.js`
+
+**Related entries:** Resolved — "`src/App.jsx` is a ~1,700-line God-component" (this run's partial resolution; this is the tracked remainder).
+
+---
+
+
 ### [2026-06-23] Resolved by scholar-resolver — App.jsx de-godding + structure & docs wave (branch auto/scholar-resolver)
 
 > Five user-approved dungeon-scholar suggestions implemented this run. Local vitest suite (56 files / 616 tests) + production build (VITE_BASE=/home-lab/) green.
