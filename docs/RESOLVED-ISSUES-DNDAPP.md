@@ -12,6 +12,16 @@
 
 ---
 
+### [2026-06-11] Renderer rest executors swallow rejected AI rest mutations
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** creature-actions.ts executeShortRest/executeLongRest no longer fire `window.api.ai.shortRest/longRest(...).catch(() => {})` silently — a rejected rest batch now surfaces via pushDmAlert('error', ...) (new i18n keys notify.creatureActions.shortRestFailed/longRestFailed in en + es, parity-gated). tsc web green; creature-actions tests (22) pass; locale parity holds (6413 keys).
+
+**Original entry:** - **[2026-06-11] Renderer rest executors swallow rejected AI rest mutations.** `creature-actions.ts:609,673` call `window.api.ai.longRest/shortRest` fire-and-forget with `.catch(() => {})` — a rejected rest batch is invisible (PHASE-02 02F routed the direct applyMutations path through the DM-alert tray, but not these two rest entry points). *(found during PHASE-02 verification.)*
+
+---
+
 ### Add a CI gate enforcing en/es locale key parity (check-keys.mjs validates en.json only)
 
 - **Resolved by:** dnd-resolver (automated)

@@ -5465,6 +5465,10 @@
     }
   },
   "notify": {
+    "creatureActions": {
+      "shortRestFailed": "No se pudo aplicar una actualización de descanso corto: {{error}}",
+      "longRestFailed": "No se pudo aplicar una actualización de descanso largo: {{error}}"
+    },
     "discordSync": {
       "playerJoined": "{{name}} se unió a la sesión de Discord",
       "playerLeft": "{{name}} salió de la sesión de Discord",
