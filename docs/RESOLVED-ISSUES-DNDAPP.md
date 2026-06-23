@@ -12,6 +12,307 @@
 
 ---
 
+### Slim the narration prompt's tag instructions once structured extraction is the default (PHASE-23 follow-up)
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Implemented the config-gated slim (PHASE-27 shipped, so the board-action verbs are stable). buildCharacterRulesPrompt({ slimExtractedStatTags }) deterministically drops the [STAT_CHANGES] bullets for EXACTLY the types the structured extractor captures (EXTRACTOR_COVERED_TAG_TYPES = the 11 flat player types of structured-extraction's EXTRACTION_CHANGE_TYPES + the 4 mapped creature_* forms) and adds a one-line note; everything the extractor can't do — extended player types, sheet mutations, the non-mapped creature_* verbs, and ALL [DM_ACTIONS] — is retained. Threaded via assembleSystemPrompt({ slimExtractedStatTags }) <- conversation-manager.structuredExtractionAlways <- ai-service (currentConfig.structuredExtraction === 'always'). The default/off path returns the byte-identical full prompt, preserving Ollama's KV-cache prefix (PHASE-11 11B). Tests: byte-stability of the default, exact slim behavior, and a drift guard asserting every slimmed player type is in EXTRACTION_CHANGE_TYPES. tsc node+web green; character-rules (23) + prompt-assembler (7) + conversation-manager (55) pass; circular gate clean.
+
+NOTE: full removal of tag instructions + repairJson retirement remain correctly gated — the extractor still doesn't cover the extended/sheet/board verbs and is Ollama-only, and criterion (c) (getRepairJsonStats().modified == 0 across releases) is a telemetry observation. This slim is the safe, non-regressing portion that 'always' users get now.
+
+**Type:** future-idea · **Domain:** dnd-app · **Added:** 2026-06-16
+
+PHASE-23 added opt-in two-call structured extraction (`aiDm.structuredExtraction`), but
+the narration prompt keeps its `[STAT_CHANGES]`/`[DM_ACTIONS]` instructions in ALL modes
+(forking the system prompt by config + regressing DM board actions, which extraction
+doesn't cover, was not worth it now). Once `structuredExtraction: 'always'` is the
+default AND `getRepairJsonStats().modified` stays at zero across releases, removing the
+tag-emission instructions from `prompt-sections/*` + retiring `repairJson` becomes
+worthwhile (retirement criteria live in `src/main/ai/AI_ACTION_CONTRACT.md`). Depends on
+PHASE-27 extending the extraction verb set to cover board actions first.
+
+*(none active)*
+
+---
+
+### [2026-06-22] `SettingsPage.tsx` is a ~1,950-LOC god component — split into per-section panels
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Began the per-section split (the existing pattern already had UpdateSection/PluginManager/CloudBackupSection/KeybindingEditor as separate functions). Extracted the shared panel wrapper into components/settings/SettingsSection.tsx and the largest inline panel — Accessibility (UI scale, colorblind, reduced motion, screen-reader, tooltips, font, ~195 lines, all backed by useAccessibilityStore so it needed no prop plumbing) — into components/settings/AccessibilitySection.tsx. SettingsPage.tsx dropped from 1978 to 1783 lines; the remaining inline Sections can be peeled off into components/settings/ the same way. tsc web green; SettingsPage test passes; biome clean.
+
+- **Category:** debt, future-idea
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (largest hand-written source files)
+
+**Description:**
+`src/renderer/src/pages/SettingsPage.tsx` is 1,946 LOC — the single largest hand-authored source file in the app (excluding the generated `i18n/generated-keys.ts`). It bundles every settings domain into one component: accessibility, theme, keybindings, grid, dice, audio, auto-update prefs, and the export/import logic (see the separate export-prefs entry below). A file this size is hard to review, easy to merge-conflict on (every settings tweak touches the same file), and obscures which state each section owns. The app already presents a per-section UI; extracting each section into its own `settings/<Section>Panel.tsx` (driven by a small tab registry) would shrink the parent to a router shell and make each panel independently testable.
+
+**Proposed fix / improvement:**
+- [ ] Extract each settings section into `pages/settings/<Section>Panel.tsx`, leaving `SettingsPage.tsx` as a tab host.
+- [ ] Co-locate each panel's local state/handlers with its panel; share only cross-cutting state via the existing stores.
+- [ ] Add focused unit tests per panel (a 1,946-LOC component is effectively untestable in isolation today).
+
+**Related files:** `src/renderer/src/pages/SettingsPage.tsx`
+
+---
+
+### [2026-06-22] No global command palette / quick-action launcher (Ctrl+K) for the ~92 modals and actions
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Added a global Ctrl/Cmd+K command palette (CommandPalette.tsx, wired into App.tsx): a search box + keyboard-navigable (up/down/enter/esc) action list. v1 registers top-level navigation (home, characters, create character, make/join campaign, library, bastions, calendar, settings, about) plus global actions (replay onboarding tour, open log folder) via a simple action registry that can be extended toward the full modal set. en+es i18n (15 keys); parity-gated; tsc web green.
+
+
+---
+
+### [2026-06-22] No first-run guided onboarding / tour for new users (only targeted Ollama + screen-reader prompts)
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Added a first-run guided tour: use-onboarding-store.ts (persists hasCompletedOnboarding in localStorage so it travels with Settings export; auto-opens once on first run) and OnboardingTour.tsx — a dismissible, resumable, keyboard-navigable 5-step modal (welcome → create/import character → create/join campaign → game table → help) wired into App.tsx after the existing first-run prompts. Honors reducedMotion (no transition), skippable in one click (Esc), and re-launchable from a 'Replay welcome tour' button in Settings. en+es i18n (16 keys); parity-gated; tsc web green.
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (first-run / onboarding survey)
+
+**Description:**
+First-run UX is limited to two narrow, single-purpose prompts wired into `App.tsx`: `OllamaFirstRunPrompt` (local-LLM setup) and `ScreenReaderPrompt` (a11y mode). There is no general guided tour or "getting started" flow introducing the core loop (create/import a character → create or join a campaign → the game-table layout, dice, map, hotbar). A new user lands in a feature-dense Electron VTT with no orientation. Grep finds no `onboarding` / `tutorial` / `walkthrough` / `hasSeenWelcome` flag.
+
+**Proposed fix / improvement:**
+- [ ] Add a dismissible, resumable first-run tour (persist a `hasCompletedOnboarding` flag alongside the other a11y/settings keys) that highlights the 4-5 primary entry points.
+- [ ] Make it re-launchable from Settings/Help so it is not a one-shot, and skippable in one click for returning users.
+- [ ] Honor `reducedMotion` (no auto-advancing animated spotlights when set) and keep every step keyboard-navigable.
+
+**Related files:** `src/renderer/src/App.tsx`, `src/renderer/src/components/ui/OllamaFirstRunPrompt.tsx`, `src/renderer/src/components/ui/ScreenReaderPrompt.tsx`, `src/renderer/src/stores/use-accessibility-store.ts`
+- **During:** dnd-app tree review (main-process logging + crash handling)
+
+**Description:**
+`src/main/log.ts` writes a rotating log to `userData/logs/app.log` (5 MB × 3), and the fatal-error handler in `src/main/index.ts` (`handleFatal`) shows a `dialog.showErrorBox` that says only "A crash log was written" — with no path and no button (`showErrorBox` supports title + message only). A by-name grep across `src/` finds **zero** uses of `shell.openPath` / `shell.showItemInFolder`, and `SettingsPage.tsx` has no logs section, so there is no affordance anywhere — neither in the crash dialog nor in Settings — for a user to find, open, or export the log file. When a non-technical user hits a crash or a weird bug, they cannot produce the one artifact that would let a maintainer diagnose it without knowing the per-OS `userData` path by heart.
+
+**Proposed fix / improvement:**
+- [ ] Add an IPC (e.g. `LOG_OPEN_FOLDER`) that calls `shell.showItemInFolder(logPath)` / `shell.openPath(getLogDir())`, surfaced as an "Open log folder" button in a Settings > Diagnostics/About section.
+- [ ] Optionally add "Export logs" (zip `app.log*` to a user-chosen path) for easy bug-report attachment.
+- [ ] Include the resolved log path text in the fatal `showErrorBox` message so a crashed user at least knows where to look.
+
+**Related files:** `src/main/log.ts`, `src/main/index.ts`, `src/renderer/src/pages/SettingsPage.tsx`, `src/shared/ipc-channels.ts`
+
+---
+
+### [2026-06-22] No user-facing export/import of a character or campaign to a portable file
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Stale — already implemented. Characters: src/renderer/src/services/io/character-io.ts (exportCharacterToFile / importCharacterFromFile via the native save/open dialogs), wired into ViewCharactersPage (per-card Export + Import menu). Campaigns: src/renderer/src/services/io/campaign-io.ts (exportCampaignToFile / importCampaignFromFile, incl. game state), wired into CampaignDetailPage + StartStep (export) and MakeGamePage (import). The entry's 'grep returns nothing' was outdated. No code change needed; archived.
+
+- **Category:** future-idea, portability
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (storage + renderer survey for data-portability features)
+
+**Description:**
+The app can persist characters/campaigns locally (`src/main/storage/*`), sync via cloud (`cloud:sync-backup`), and import books (`book:import`), and `SettingsPage.tsx` already has an Export/Import Settings flow — but there is no equivalent "export this character (or campaign) to a `.json` file" / "import character from file" action. A user who wants to share a built character with a friend, move one character between machines without enabling cloud sync, or keep a manual off-app backup of a single character has no supported path. Grep for `exportCharacter` / `downloadJson` / `exportToJson` / a save-file dialog around character data returns nothing in the renderer or `src/main` (only the JS `export` keyword and the settings exporter).
+
+**Proposed fix / improvement:**
+- [ ] Add a main-process IPC (`character:export-file` / `character:import-file`) that serializes the stored character (already a JSON-shaped, schema-versioned object — reuse `migrations.ts` on import) through a `showSaveDialog` / `showOpenDialog`.
+- [ ] Add an "Export…" / "Import…" affordance in the character list / sheet toolbar (and optionally the campaign list).
+- [ ] On import, run the existing migration pipeline so older-schema files upgrade cleanly, and validate against the 5e schema before committing.
+
+**Related files:** `src/main/storage/character-storage.ts`, `src/main/storage/migrations.ts`, `src/main/ipc/index.ts`, `src/renderer/src/pages/SettingsPage.tsx` (existing settings-export pattern to mirror)
+
+**Related entries:** see "Settings export/import covers localStorage only…" (same file) — a character/campaign exporter is a different, additive feature.
+
+---
+
+### [2026-06-22] Four hand-maintained agent-instruction files will drift (AGENTS / CLAUDE / GEMINI / copilot)
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** The 'link to canonical' part was already in place — AGENTS.md is the designated canonical source and CLAUDE.md / GEMINI.md / .github/copilot-instructions.md each header-link to it for shared sections. Added the missing drift guard: scripts/check-agent-docs.mjs (fails if any secondary file drops its AGENTS.md pointer) wired into a path-scoped .github/workflows/agent-docs-check.yml. Guard passes on the current tree.
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** cross-cutting repo-wide scan
+
+**Description:**
+The repo carries four overlapping AI-assistant guides — `AGENTS.md` (12.8K), `CLAUDE.md` (11.3K), `GEMINI.md` (5.2K), `.github/copilot-instructions.md` (4.6K) — each maintained by hand. They cover much of the same ground (repo layout, conventions, logging rules) and will drift out of sync as the repo evolves.
+
+**Proposed fix / improvement:**
+- [ ] Designate one canonical source (e.g. `AGENTS.md`); generate or symlink the others from it, or add a sync check that flags when shared sections diverge.
+- [ ] At minimum, have each file link to the canonical one for shared sections instead of duplicating them.
+
+**Related files:** `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.github/copilot-instructions.md`
+
+> **2026-06-10 — Backlog consolidated.** All previously-open entries (incl. the
+> still-open residuals of the 2026-05-18 phase-plan absorption: Phase 33a backup
+> migration framework, 33c ModalScaffold, 33d bundle-size CI guard — and the
+> Phase 15 library-invariant observation) became the numbered phase plans under [`../dnd-app/docs/phases/`](../dnd-app/docs/phases/) (start at [`PHASE-INDEX.md`](../dnd-app/docs/phases/PHASE-INDEX.md)); the consolidating audit was deleted once the phase set was authored (2026-06-11). Add new
+> dnd-app ideas below as they appear.
+
+---
+
+### Surface release notes / "What's New" on update (auto-updater discards `releaseNotes`)
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** updater.ts now captures electron-updater's releaseNotes (via a normalizeReleaseNotes helper that flattens string | ReleaseNoteInfo[]) into the 'available' and 'downloaded' UpdateStatus, on both the manual and auto-update flows. SettingsPage's UpdateStatusInfo carries releaseNotes and renders a 'What's New' panel (plain text, whitespace-pre-wrap, scrollable — not dangerouslySetInnerHTML, so no XSS) when an update is available/downloaded. Added en/es i18n key. tsc node+web green; parity holds.
+
+**Category:** future-idea, UX · **Severity:** low · **Domain:** dnd-app · **Discovered by:** dnd-suggestor · **Added:** 2026-06-22
+
+`src/main/updater.ts`'s `UpdateStatus` union carries only `version` for the `available` / `downloaded` states; electron-updater's `UpdateInfo.releaseNotes` is never read or forwarded to the renderer, and nothing under `src/renderer` renders `CHANGELOG.md`. So when the dismissible update prompt appears (auto-check defaults ON), the user sees a bare version number with no indication of what changed. Proposal: thread `releaseNotes` through `UpdateStatus` / the `UPDATE_STATUS` IPC and show a short "What's New" panel in the update prompt (and/or a one-time post-install changelog view sourced from `CHANGELOG.md` or the GitHub release body). Improves the upgrade decision and cuts "what did this update actually do?" friction. Related: `src/main/updater.ts`, `src/shared/ipc-channels.ts`, `CHANGELOG.md`.
+
+---
+
+### Settings export/import covers localStorage only — main-process `settings.json` (auto-update prefs) does not travel
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Stale — already covered. SettingsPage Export Settings includes `settings = await window.api.loadSettings()` (not just localStorage), and the auto-update prefs (autoCheckUpdates/autoDownloadUpdates/autoRestartAfterUpdate/autoInstallSilent) are stored in that same settings object: persistAutoPrefs does loadSettings()+saveSettings({...settings,...patch}), and settings-storage persists the whole object to settings.json with no key allowlist. Import restores via saveSettings(item.settings). So the four update prefs DO travel with an export. No code change needed; archived.
+
+**Category:** future-idea, portability · **Severity:** low · **Domain:** dnd-app · **Discovered by:** dnd-suggestor · **Added:** 2026-06-22
+
+`SettingsPage.tsx`'s Export Settings (~L1753) iterates `localStorage` and dumps every key into the export JSON; Import writes them back. That captures a11y, theme, keybindings, grid, dice, audio, etc. — but the auto-update preferences (`autoCheckUpdates`, `autoDownloadUpdates`, `autoRestartAfterUpdate`, `autoInstallSilent`) live in the **main process** at `userData/settings.json` (see `updater.ts > loadAutoUpdatePrefs`), so they are silently excluded. A user exporting settings to migrate to a new machine loses those four prefs with no warning. Proposal: add an IPC round-trip so export pulls `settings.json` (merged under a namespaced key) and import writes it back through the main process — or, at minimum, note in the export UI that update prefs are machine-local. Low severity (only 4 prefs, easily re-set), but it makes "Export Settings" quietly incomplete. Related: `src/renderer/src/pages/SettingsPage.tsx`, `src/main/updater.ts`.
+
+---
+
+### [2026-06-22] No in-app way to locate, open, or export the app log for bug reports
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Added in-app log access: new IPC log:open-folder / log:get-path (src/main/ipc/log-handlers.ts) reveal app.log in the OS file manager via shell.showItemInFolder (fallback shell.openPath of the logs dir). Exposed as window.api.log.{openFolder,getPath} in the preload (+ index.d.ts type + a no-op web shim), and added an 'Open log folder' button to SettingsPage's Import/Export section with toasts (en+es i18n). tsc node+web green; locale parity holds.
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (renderer UX/navigation survey)
+
+**Description:**
+There are ~92 modal components under `components/game/modals/` plus many overlays, DM tools, and a `ShortcutReferenceModal`, but no fuzzy command-palette / quick-action launcher (no `cmdk`, no `palette`/`action launcher`/`quick-switch` handler anywhere in the renderer). Reaching a given tool means knowing its menu/toolbar location or its specific hotkey. A single Ctrl/Cmd-K palette that fuzzy-searches "open X modal / run Y action / jump to Z" would cut navigation depth dramatically for both DMs and players and would pair naturally with the existing keybinding system (`use-accessibility-store` already models `customKeybindings`).
+
+**Proposed fix / improvement:**
+- [ ] Add a palette component (own modal) registered on a global Ctrl/Cmd-K, listing actions sourced from the same registry that drives the existing shortcut/keybinding map so the two stay in sync.
+- [ ] Seed it with "open modal" entries (derive from the modal-group registries) plus high-frequency actions (roll, end turn, open compendium, search library).
+- [ ] Respect `customKeybindings` and screen-reader mode; ensure full keyboard operability and focus return on close.
+
+**Related files:** `src/renderer/src/components/game/modals/utility/ShortcutReferenceModal.tsx`, `src/renderer/src/components/game/modal-groups/*`, `src/renderer/src/stores/use-accessibility-store.ts`
+
+---
+
+### [2026-06-22] No PR-time CI gate for dungeon-scholar or oracle-worker
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Added two PR+push CI gates scoped by path: .github/workflows/dungeon-scholar-ci.yml (npm ci -> vitest -> vite build) and .github/workflows/oracle-worker-ci.yml (npm ci -> `wrangler deploy --dry-run`, which bundles the worker and validates wrangler.toml without deploying or needing credentials). Both use node-version-file: .nvmrc (the root pin added in S10).
+
+- **Category:** future-idea
+- **Severity:** medium
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** cross-cutting repo-wide scan
+
+**Description:**
+`dnd-app` has a dedicated CI gate (lint + forbidden-patterns + tsc + tests + build smoke + circular + audit). `dungeon-scholar` runs `npm run test` ONLY as a precondition of the Pages deploy (`deploy.yml`, push to main) — there is no `pull_request`-triggered test/build gate, so a PR merges green and only fails later at deploy time. `oracle-worker` has a `test` script but zero workflows reference it, so its tests never run in CI.
+
+**Proposed fix / improvement:**
+- [ ] Add `dungeon-scholar-ci.yml` (path-filtered test + build on push + PR).
+- [ ] Add `oracle-worker-ci.yml` (npm ci + test).
+- [ ] Optionally factor the shared setup-node / npm-ci steps into a composite action reused by all JS-project workflows.
+
+**Related files:** `.github/workflows/deploy.yml`, `dungeon-scholar/package.json`, `oracle-worker/package.json`
+
+---
+
+### [2026-06-22] macOS target is configured but never built or shipped (no `macos-latest` in the release matrix)
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Added a macos-latest leg (`--mac`, dmg+zip) to the release.yml build matrix. It's NON-BLOCKING (continue-on-error via a matrix `experimental` flag) so a mac failure never blocks the Win/Linux release, and builds unsigned (CSC_IDENTITY_AUTO_DISCOVERY: false) since no Apple cert is configured. Added mac artifact globs (*.dmg, *-mac.zip, latest-mac.yml) to the upload + they flow to the release via the existing merge-multiple download. To promote mac to a required, signed, notarized artifact, add Apple signing secrets and flip experimental:false + extend the publish verify list.
+
+- **Category:** portability, future-idea
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (release workflow vs package.json build config)
+
+**Description:**
+`package.json` defines a full mac build path (`build:mac`, `release:mac`, and a `build.mac` electron-builder block producing DMG + ZIP) and the README documents macOS as a supported-in-principle target, but `.github/workflows/release.yml`'s build matrix is only `windows-latest` + `ubuntu-latest` — zero `macos`/`dmg` references in the workflow. So the mac config is dormant: it is never exercised in CI and no macOS artifact is ever published. The result is config that can silently rot (electron-builder mac options drift untested) and a documented platform users cannot actually download. electron-builder cannot produce signed/notarized mac artifacts off a non-mac runner, so closing this needs a `macos-latest` matrix leg, not just a flag.
+
+**Proposed fix / improvement:**
+- [ ] Add a `macos-latest` leg to the `build` matrix in `release.yml` (even unsigned, to start) so the mac config is at least built and smoke-tested each release.
+- [ ] Decide on signing/notarization (Developer ID + notarytool) before publishing mac artifacts, or clearly mark mac builds as unsigned in the release notes.
+- [ ] If macOS support is deferred indefinitely, note that explicitly next to the `build.mac` config so contributors know it is intentionally dormant.
+
+**Related files:** `.github/workflows/release.yml`, `dnd-app/package.json`, `dnd-app/README.md`
+
+---
+
+### [2026-06-22] Inconsistent casing in the `dnd-app/docs/phases/` tree (`completed` vs `QA/Completed`, `INSTRUCTIONS.md` vs `QA/instructions.md`)
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Normalized the QA subtree casing to match the top level: `QA/Completed/` -> `QA/completed/` (matching top-level `completed/`) and `QA/instructions.md` -> `QA/INSTRUCTIONS.md` (matching top-level `INSTRUCTIONS.md`). Updated the two inbound references (dnd-app/docs/DESIGN-CONSTRAINTS.md and docs/AUTOMATED-AGENT-GIT-WORKFLOW.md); no code/CI references existed.
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+Parallel concepts in the same phases doc tree are named with different casing, which is a small but real organization smell (and a portability hazard on case-insensitive filesystems if a sibling dir is ever added):
+
+- `dnd-app/docs/phases/completed/` (lowercase `c`) vs `dnd-app/docs/phases/QA/Completed/` (capital `C`) — the two "completed archive" folders disagree.
+- `dnd-app/docs/phases/INSTRUCTIONS.md` (uppercase) vs `dnd-app/docs/phases/QA/instructions.md` (lowercase) — the two instruction files disagree.
+
+Pick one convention and apply it to both. Lowercase-kebab (`completed/`, `instructions.md`) is the more common choice in this repo; whichever is picked, the `INSTRUCTIONS.md` references and `PHASE-INDEX.md` "move to `completed/`" wording should match.
+
+**Proposed fix / improvement:**
+- [ ] Rename `docs/phases/QA/Completed/` -> `docs/phases/QA/completed/` (or rename the top-level one to match — pick one).
+- [ ] Rename `docs/phases/QA/instructions.md` -> `INSTRUCTIONS.md` (or the top-level one to lowercase — pick one) and update any references.
+- [ ] Use `git mv` so history is preserved; grep the phases docs for the old paths afterward.
+
+**Related files:** `dnd-app/docs/phases/completed/`, `dnd-app/docs/phases/QA/Completed/`, `dnd-app/docs/phases/INSTRUCTIONS.md`, `dnd-app/docs/phases/QA/instructions.md`, `dnd-app/docs/phases/PHASE-INDEX.md`
+
+---
+
+### [2026-06-20] Builder multiclass per-level class swap doesn't recompute spell-selection caps
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** core-slice.ts setClassLevelChoice now recomputes maxCantrips/maxPreparedSpells (keyed on the primary class + targetLevel), mirroring setTargetLevel, so a multiclass per-level class swap that changes the caster level no longer leaves the HARD spell-selection caps (enforced by setSelectedSpellIds) frozen at their prior values. Added a regression test; core-slice tests pass.
+
+**Original entry:** - **[2026-06-20] Builder multiclass per-level class swap doesn't recompute spell-selection caps.** `setClassLevelChoice` (`src/renderer/src/stores/builder/slices/core-slice.ts`) regenerates build slots but, unlike `setTargetLevel` (now fixed for the single-class Level-field path, QA-2026-06-19 task 3), does NOT recompute the store's `maxCantrips`/`maxPreparedSpells` enforcement caps. A multiclass build whose caster level changes via the per-level class panel could still hit stale caps in `setSelectedSpellIds`. A fully-correct fix recomputes the caps keyed on the primary/combined caster class. *(found during QA-2026-06-19 task 3 fix; the reported single-class path is fully fixed.)*
+
+---
+
+### [2026-06-11] AI character context missing weapons/armor/prepared-spells/feats for v4 characters
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Already resolved in-tree by PHASE-11 11G (BUG-2 / G36), which post-dates this 2026-06-11 entry. character-context.ts reads inline arrays first and falls back to the v4 refs for every section: knownSpellRefs (with state.preparedSpellIds + resolveEntryName('spells')), weaponRefs and armorRefs (display from ref overrides + state.weaponEquipped/armorEquipped), and featRefs (resolveEntryName('feats')). character-context.test.ts exercises knownSpellRefs/weaponRefs/armorRefs; all 39 tests pass. No code change needed.
+
+**Original entry:** - **[2026-06-11] AI character context is missing weapons/armor/prepared-spells/feats for all v4 characters.** `character-context.ts` still reads v4-stripped inline arrays: `knownSpells`/`preparedSpellIds` (`:137-144`), `armor` (`:168-177`), `weapons` (`:179-184`), `feats` (`:225-228`) — so the AI's "full sheet" omits them. Weapons/armor recoverable from ref `overrides`; spells need library name resolution. *(found during PHASE-02 verification; not in any phase's allocation — the conditions read was fixed in PHASE-02 02B.)*
+
+---
+
+### [2026-06-11] Renderer rest-service: Ranger "Tireless" exhaustion reduction
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** rest-service-5e.ts applyShortRest now implements Ranger Tireless: at ranger level 10+ a short rest reduces Exhaustion by 1 level (removing it at level 1), mirroring the long-rest reduction — it reads the v4 ref-override condition value (PHASE-02 02A) and hands the save-time shim an inline conditions array with conditionRefs cleared. Added exhaustionReduced to ShortRestResult + 'Tireless (Exhaustion -1)' to resourcesRestored. 3 new tests; full rest-service suite (32) passes. Innate-spell-use restoration is now also implemented: applyLongRest refills innate/limited casts (remaining→max) via the same save-time shim (inline knownSpells, knownSpellRefs cleared), with its test flipped to assert restoration.
+
+**Original entry:** - **[2026-06-11] Renderer rest-service: Ranger "Tireless" exhaustion reduction + innate-spell-use restoration still dropped.** `rest-service-5e.ts:248-250` (Tireless) and the comment near `:410` (innate uses) were disabled in 15c.5; PHASE-02 02A re-enabled the condition `value` substrate, so Tireless reduction is now implementable. *(found during PHASE-02 verification.)*
+
+---
+
 ### [2026-06-11] Renderer rest executors swallow rejected AI rest mutations
 
 - **Resolved by:** dnd-resolver (automated)

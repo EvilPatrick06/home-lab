@@ -414,7 +414,20 @@ export function applyLongRest(character: Character5e): LongRestResult {
   // Death saves reset
   const newDeathSaves = { successes: 0, failures: 0 }
 
-  // Phase 15c.5 — innate-spell-use restoration dropped (no v4 home for innateUses).
+  // Innate spell-use restoration: a long rest refills innate/limited casts.
+  // PHASE-02 02A restored the substrate; mirror the cast path + the exhaustion
+  // handling — hand the save-time v3->v4 shim an inline knownSpells array
+  // (knownSpellRefs cleared) so it re-derives refs carrying the refreshed innateUses.
+  const knownForRest = getEffectiveKnownSpells(character)
+  let restoredKnownSpells: typeof knownForRest | undefined
+  if (knownForRest.some((sp) => sp.innateUses && sp.innateUses.remaining !== sp.innateUses.max)) {
+    restoredKnownSpells = knownForRest.map((sp) =>
+      sp.innateUses && sp.innateUses.remaining !== sp.innateUses.max
+        ? { ...sp, innateUses: { ...sp.innateUses, remaining: sp.innateUses.max } }
+        : sp
+    )
+    resourcesRestored.push('Innate Spell Uses')
+  }
 
   // Human: Heroic Inspiration
   const isHuman = character.species?.toLowerCase() === 'human'
@@ -461,6 +474,7 @@ export function applyLongRest(character: Character5e): LongRestResult {
     // Exhaustion reduction: hand the save-time v3→v4 shim an inline conditions array
     // (with conditionRefs cleared) so it re-derives refs carrying the new value.
     ...(reducedConditions ? { conditions: reducedConditions, conditionRefs: undefined } : {}),
+    ...(restoredKnownSpells ? { knownSpells: restoredKnownSpells, knownSpellRefs: undefined } : {}),
     updatedAt: new Date().toISOString()
   }
 
