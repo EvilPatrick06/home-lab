@@ -12,6 +12,32 @@
 
 ---
 
+### [2026-06-22] No user-facing export/import of a character or campaign to a portable file
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Stale — already implemented. Characters: src/renderer/src/services/io/character-io.ts (exportCharacterToFile / importCharacterFromFile via the native save/open dialogs), wired into ViewCharactersPage (per-card Export + Import menu). Campaigns: src/renderer/src/services/io/campaign-io.ts (exportCampaignToFile / importCampaignFromFile, incl. game state), wired into CampaignDetailPage + StartStep (export) and MakeGamePage (import). The entry's 'grep returns nothing' was outdated. No code change needed; archived.
+
+- **Category:** future-idea, portability
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (storage + renderer survey for data-portability features)
+
+**Description:**
+The app can persist characters/campaigns locally (`src/main/storage/*`), sync via cloud (`cloud:sync-backup`), and import books (`book:import`), and `SettingsPage.tsx` already has an Export/Import Settings flow — but there is no equivalent "export this character (or campaign) to a `.json` file" / "import character from file" action. A user who wants to share a built character with a friend, move one character between machines without enabling cloud sync, or keep a manual off-app backup of a single character has no supported path. Grep for `exportCharacter` / `downloadJson` / `exportToJson` / a save-file dialog around character data returns nothing in the renderer or `src/main` (only the JS `export` keyword and the settings exporter).
+
+**Proposed fix / improvement:**
+- [ ] Add a main-process IPC (`character:export-file` / `character:import-file`) that serializes the stored character (already a JSON-shaped, schema-versioned object — reuse `migrations.ts` on import) through a `showSaveDialog` / `showOpenDialog`.
+- [ ] Add an "Export…" / "Import…" affordance in the character list / sheet toolbar (and optionally the campaign list).
+- [ ] On import, run the existing migration pipeline so older-schema files upgrade cleanly, and validate against the 5e schema before committing.
+
+**Related files:** `src/main/storage/character-storage.ts`, `src/main/storage/migrations.ts`, `src/main/ipc/index.ts`, `src/renderer/src/pages/SettingsPage.tsx` (existing settings-export pattern to mirror)
+
+**Related entries:** see "Settings export/import covers localStorage only…" (same file) — a character/campaign exporter is a different, additive feature.
+
+---
+
 ### [2026-06-22] Four hand-maintained agent-instruction files will drift (AGENTS / CLAUDE / GEMINI / copilot)
 
 - **Resolved by:** dnd-resolver (automated)
