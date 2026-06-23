@@ -770,10 +770,19 @@ def api_tts_output_set():
 
 @system_bp.route("/api/tts/audio/<path:filename>")
 def api_tts_audio_file(filename):
-    """Serve a TTS audio file for browser playback."""
+    """Serve a TTS audio file for browser playback.
+
+    Only audio-typed basenames are served — never an arbitrary file from the
+    shared system temp dir. send_from_directory already blocks ../ traversal;
+    this also stops the route being a confused deputy over everything in /tmp.
+    (SECURITY-LOG 2026-06-22.)
+    """
     import tempfile
+    base = os.path.basename(filename)
+    if base != filename or not re.match(r"^[A-Za-z0-9._-]+\.(wav|mp3|ogg|opus|webm)$", base):
+        return jsonify({"error": "not found"}), 404
     tts_dir = tempfile.gettempdir()
-    return send_from_directory(tts_dir, filename)
+    return send_from_directory(tts_dir, base)
 
 
 # ── Settings / config ─────────────────────────────────────────────────
@@ -786,6 +795,26 @@ def api_settings():
     if not settings:
         return jsonify({"error": "Settings not initialized"}), 500
     return jsonify(settings.to_dict_redacted())
+
+
+# Keys a remote/UI client must never write over HTTP: anything whose value is
+# later executed as a shell command (hooks.*) or any secret-bearing key. Writing
+# these via POST /api/settings is a privilege-escalation-to-RCE / secret-tamper
+# primitive (hooks run via subprocess shell=True on the next agent tool call), so
+# reject them with 403. (SECURITY-LOG 2026-06-22.) Denylist, not allowlist: it
+# closes the dangerous keys without breaking legitimate UI-pref writes.
+_SETTINGS_HTTP_BLOCKED_PREFIXES = ("hooks.", "hooks")
+_SETTINGS_HTTP_SECRET_MARKERS = (
+    "api_key", "apikey", "token", "secret", "password", "passwd",
+    "credential", "private_key",
+)
+
+
+def _settings_key_blocked_for_http(key):
+    k = (key or "").strip().lower()
+    if k == "hooks" or k.startswith("hooks."):
+        return True
+    return any(marker in k for marker in _SETTINGS_HTTP_SECRET_MARKERS)
 
 
 @system_bp.route("/api/settings", methods=["POST"])
@@ -803,6 +832,14 @@ def api_settings_set():
 
     if not key:
         return jsonify({"error": "No key provided"}), 400
+
+    if _settings_key_blocked_for_http(key):
+        log.warning("[settings] Rejected HTTP write to protected key: %s", key)
+        return jsonify({
+            "error": "forbidden",
+            "message": "This settings key cannot be modified over HTTP (executable or secret key).",
+            "key": key,
+        }), 403
 
     settings.set(key, value, level=level)
     return jsonify({"success": True, "key": key, "value": value, "level": level})
