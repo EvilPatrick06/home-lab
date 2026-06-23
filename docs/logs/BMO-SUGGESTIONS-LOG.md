@@ -20,22 +20,7 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
-### [2026-06-23] `bmo/docs/SYSTEMD.md` opening line says "5 systemd services" but there are 10 services + 2 timers
-
-- **Category:** docs
-- **Severity:** low
-- **Domain:** bmo
-- **Discovered by:** bmo-resolver
-- **During:** resolving the kiosk→systemd rename / docs-index entries (cross-checking doc counts)
-
-**Description:**
-`bmo/docs/SYSTEMD.md` line 2 reads "5 systemd services manage BMO's runtime." The `bmo/pi/systemd/` dir actually holds **10 `.service` files + 2 `.timer` files** (`bmo`, `bmo-kiosk`, `bmo-fan`, `bmo-dm-bot`, `bmo-social-bot`, `bmo-ide`, `bmo-backup`(+timer), `bmo-voice-canary`(+timer), and the new `bmo-backup-verify`(+timer)). Same stale-count smell as the AGENTS.md "5 agents" line fixed this run — left unfixed here only because it was outside the approved entry set.
-
-**Proposed fix / improvement:**
-- [ ] Update the SYSTEMD.md headline to the real count (or drop the number and let the table be authoritative); confirm the units table lists all 12 unit files.
-
-**Related files:** `bmo/docs/SYSTEMD.md`, `bmo/pi/systemd/`
-*(All 11 future-idea entries logged 2026-06-23 were resolved the same day by bmo-resolver and moved to [`BMO-RESOLVED-ISSUES.md`](./BMO-RESOLVED-ISSUES.md).)*
+*(none currently logged — newest first when added)*
 
 ---
 

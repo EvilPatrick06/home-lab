@@ -47,6 +47,7 @@ New entries go at the TOP of their severity section (newest first within each se
 - [ ] Optionally serialize live-tree-mutating agents against deploys via the existing `home-lab-locks/` lock convention.
 
 **Note (benign, no action):** cancelled run `28012396581` (dnd-app CI, `91096a31`) was a concurrency supersede — the next master push `dfdc76e2` ran dnd-app CI green (`28012454736`).
+*(none currently logged)*
 
 
 ## Medium
