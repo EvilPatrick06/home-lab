@@ -20,6 +20,57 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-06-22] Aggregate voice-pipeline stage latency into an exported metrics endpoint
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of the voice pipeline + monitoring stack
+
+**Description:**
+`services/voice_pipeline.py` already takes ad-hoc per-stage timestamps (`_t_stt0`, `_t_chat0`, the `record` elapsed log) and `services/bmo_logging.py` can emit JSON, but STT/LLM/TTS stage durations and agent-routing time are only written as scattered log lines — never aggregated or exported. `services/monitoring.py` tracks a per-service health-check `response_time`, but that is liveness latency, not the user-perceived "wake -> spoken reply" budget. There is no `/api/metrics` (or Prometheus text) endpoint and no rolling p50/p95 for the voice path, so latency regressions are invisible until BMO subjectively "feels slow."
+
+**Proposed fix / improvement:**
+- [ ] Add a small in-process metrics collector (counters + histograms / ring buffer) fed by the existing `_t_*` timers, recording each stage duration and the chosen agent route.
+- [ ] Expose it at `/api/metrics` (JSON, or Prometheus text for scraping) and optionally surface p50/p95 inside `/api/health/full`.
+
+**Related files:** `services/voice_pipeline.py`, `services/monitoring.py`, `app.py`, `services/bmo_logging.py`
+
+### [2026-06-22] Mock-hardware "simulator" run mode for off-Pi development
+
+- **Category:** portability
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of init_services() + hardware/ adapters
+
+**Description:**
+Off-Pi, `init_services()` wraps each hardware service (LED, OLED, camera, mic/voice) in try/except and simply SKIPs it on `ImportError`; CANARY mode is import-only. A contributor on a laptop can boot Flask but cannot exercise the LED ring, OLED face, camera, or the wake -> STT -> TTS flow at all — those subsystems are absent, not simulated. There is no functional-stub layer (virtual LED/OLED state surfaced to the web UI, file/synthetic mic input, canned camera frames) to develop or UX-test the full experience off-device.
+
+**Proposed fix / improvement:**
+- [ ] Add a `BMO_SIMULATE=1` mode providing stub hardware adapters that implement the same interfaces with fake-but-observable behavior (LED/OLED state pushed to the existing web UI; mic fed from a wav file or injected text; camera returns a static/sample frame).
+- [ ] Document it in `DEPLOY.md` / `bmo/pi/README.md` so off-Pi end-to-end UX testing is a first-class path.
+
+**Related files:** `app.py` (`init_services`), `hardware/led_controller.py`, `hardware/oled_face.py`, `hardware/camera_service.py`, `services/voice_pipeline.py`
+
+### [2026-06-22] Periodic synthetic voice-path canary wired into monitoring + Discord alerts
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of dev/ benchmarks + monitoring
+
+**Description:**
+`dev/benchmark_full.py` / `benchmark_audio.py` / `benchmark_llm.py` already exercise the STT -> LLM -> TTS path, but they are manual one-off dev tools. `services/monitoring.py` and the cron health check only probe liveness/HTTP status, not the real end-to-end voice path. A regression that leaves `/health` green but breaks actual STT/TTS quality or latency (model swap, cloud API change, mic config drift) goes unnoticed until a human talks to BMO. Recorded wake clips already exist under `wake/clips` (`record_wake_clips.py`).
+
+**Proposed fix / improvement:**
+- [ ] Wrap a lightweight synthetic run (feed a known clip -> assert transcript approximately matches + TTS produced + stage latency under budget), building on `benchmark_full.py` rather than duplicating it.
+- [ ] Run it on a slow cadence (cron / systemd timer) and feed pass/fail + latency into `monitoring.py` so the existing Discord alert path fires on regression.
+
+**Related files:** `dev/benchmark_full.py`, `services/monitoring.py`, `services/voice_pipeline.py`, `wake/clips`, `health_check.sh`
+
 ### [2026-06-22] Pin one Node version for the whole monorepo (.nvmrc / engines) instead of repeating `node-version: 22`
 
 - **Category:** portability
