@@ -5,9 +5,9 @@ import SpellPicker5e from './SpellPicker5e'
 import type { SpellData } from './SpellSummary5e'
 
 const spells: SpellData[] = [
-  { id: 'fire-bolt', name: 'Fire Bolt', level: 0 },
-  { id: 'mage-armor', name: 'Mage Armor', level: 1 },
-  { id: 'shield', name: 'Shield', level: 1 }
+  { id: 'fire-bolt', name: 'Fire Bolt', level: 0, description: 'A mote of fire.' },
+  { id: 'mage-armor', name: 'Mage Armor', level: 1, description: 'Protective magical force.' },
+  { id: 'shield', name: 'Shield', level: 1, description: 'An invisible barrier.' }
 ]
 
 describe('SpellPicker5e (PHASE-48 F2 memo contract)', () => {
