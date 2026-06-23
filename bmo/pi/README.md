@@ -62,7 +62,10 @@ pi/
 │
 ├── bots/                        Discord bots (NAMED bots/ NOT discord/ — shadows discord.py)
 │   ├── discord_dm_bot.py        D&D DM bot (player-facing, invites to session)
-│   └── discord_social_bot.py    Social bot (casual server, music, games)
+│   ├── discord_social_bot.py    Thin shim → bots.social.bot (legacy import + `-m` entry point)
+│   └── social/                  Social bot subpackage
+│       ├── bot.py               Social bot core (casual server, music, games)
+│       └── games_logic.py       Pure game/util logic (deck, XP, parsing) — unit-tested
 │
 ├── dev/                         Dev tools — NOT used in production
 │   ├── claude_tools.py, dev_tools.py, file_watcher.py, terminal_service.py

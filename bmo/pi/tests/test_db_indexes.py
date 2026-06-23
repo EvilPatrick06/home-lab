@@ -34,7 +34,7 @@ if str(PI_ROOT) not in sys.path:
 def _fresh_db(tmp_path, monkeypatch) -> sqlite3.Connection:
     """Create a fresh test DB by patching DB_PATH and calling the bot's
     actual _get_db(). Returns the connected db (caller closes)."""
-    import bots.discord_social_bot as bot_mod
+    import bots.social.bot as bot_mod
 
     db_file = tmp_path / "bmo_social_test.db"
     monkeypatch.setattr(bot_mod, "DB_PATH", db_file)
