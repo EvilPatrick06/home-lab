@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { addToast } from '../../hooks/use-toast'
 import { useT } from '../../i18n'
+import { isWebBuild } from '../../utils/platform'
 
 /**
  * Phase 14c — one-time "Install Ollama for local AI?" prompt.
@@ -20,6 +21,8 @@ export default function OllamaFirstRunPrompt(): JSX.Element | null {
 
   useEffect(() => {
     let cancelled = false
+    // Web build has no local Ollama to install — never prompt.
+    if (isWebBuild()) return
     if (localStorage.getItem(FLAG_KEY) === 'true') return
     void window.api.ai
       .detectOllama()
