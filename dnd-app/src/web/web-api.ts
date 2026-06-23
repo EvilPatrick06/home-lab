@@ -16,6 +16,7 @@
  * the UI degrades gracefully instead of throwing.
  */
 
+import { DM_TAGGING_DIRECTIVE, parseAiMutations } from './ai-mutations'
 import { idbDelete, idbGet, idbGetAll, idbKeys, idbSet, idbWipeAll, type StoreName } from './idb'
 
 // ── Backend base URL ────────────────────────────────────────────────
@@ -527,7 +528,7 @@ function createAiStub() {
     // agent yet, so those are emitted empty -- a known parity gap vs. desktop.
     chatStream: async (request: Record<string, unknown>) => {
       const streamId = genId()
-      const message = String((request?.message as string | undefined) ?? '')
+      const playerMessage = String((request?.message as string | undefined) ?? '')
       const speaker = String((request?.senderName as string | undefined) ?? 'player')
       const controller = new AbortController()
       aiAborters.set(streamId, controller)
@@ -538,22 +539,25 @@ function createAiStub() {
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
             signal: controller.signal,
-            body: JSON.stringify({ message, speaker })
+            body: JSON.stringify({ message: `${DM_TAGGING_DIRECTIVE}\n\nPlayer: ${playerMessage}`, speaker })
           })
           if (!res.ok) throw new Error(`AI backend returned ${res.status}`)
           const data = (await res.json()) as { text?: string }
           const text = String(data?.text ?? '')
-          for (let i = 0; i < text.length; i += 64) {
+          // Harvest structured mutations the model embedded as tags, mirroring the
+          // desktop main-process tag path; the renderer applies them on stream-done.
+          const { statChanges, dmActions, displayText } = parseAiMutations(text)
+          for (let i = 0; i < displayText.length; i += 64) {
             if (controller.signal.aborted) return
-            webEmit('ai:stream-chunk', { streamId, text: text.slice(i, i + 64) })
+            webEmit('ai:stream-chunk', { streamId, text: displayText.slice(i, i + 64) })
             await new Promise((r) => setTimeout(r, 18))
           }
           webEmit('ai:stream-done', {
             streamId,
             fullText: text,
-            displayText: text,
-            statChanges: [],
-            dmActions: [],
+            displayText,
+            statChanges,
+            dmActions,
             ruleCitations: []
           })
         } catch (e) {
