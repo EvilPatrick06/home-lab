@@ -12,6 +12,29 @@
 
 ---
 
+### Slim the narration prompt's tag instructions once structured extraction is the default (PHASE-23 follow-up)
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Implemented the config-gated slim (PHASE-27 shipped, so the board-action verbs are stable). buildCharacterRulesPrompt({ slimExtractedStatTags }) deterministically drops the [STAT_CHANGES] bullets for EXACTLY the types the structured extractor captures (EXTRACTOR_COVERED_TAG_TYPES = the 11 flat player types of structured-extraction's EXTRACTION_CHANGE_TYPES + the 4 mapped creature_* forms) and adds a one-line note; everything the extractor can't do — extended player types, sheet mutations, the non-mapped creature_* verbs, and ALL [DM_ACTIONS] — is retained. Threaded via assembleSystemPrompt({ slimExtractedStatTags }) <- conversation-manager.structuredExtractionAlways <- ai-service (currentConfig.structuredExtraction === 'always'). The default/off path returns the byte-identical full prompt, preserving Ollama's KV-cache prefix (PHASE-11 11B). Tests: byte-stability of the default, exact slim behavior, and a drift guard asserting every slimmed player type is in EXTRACTION_CHANGE_TYPES. tsc node+web green; character-rules (23) + prompt-assembler (7) + conversation-manager (55) pass; circular gate clean.
+
+NOTE: full removal of tag instructions + repairJson retirement remain correctly gated — the extractor still doesn't cover the extended/sheet/board verbs and is Ollama-only, and criterion (c) (getRepairJsonStats().modified == 0 across releases) is a telemetry observation. This slim is the safe, non-regressing portion that 'always' users get now.
+
+**Type:** future-idea · **Domain:** dnd-app · **Added:** 2026-06-16
+
+PHASE-23 added opt-in two-call structured extraction (`aiDm.structuredExtraction`), but
+the narration prompt keeps its `[STAT_CHANGES]`/`[DM_ACTIONS]` instructions in ALL modes
+(forking the system prompt by config + regressing DM board actions, which extraction
+doesn't cover, was not worth it now). Once `structuredExtraction: 'always'` is the
+default AND `getRepairJsonStats().modified` stays at zero across releases, removing the
+tag-emission instructions from `prompt-sections/*` + retiring `repairJson` becomes
+worthwhile (retirement criteria live in `src/main/ai/AI_ACTION_CONTRACT.md`). Depends on
+PHASE-27 extending the extraction verb set to cover board actions first.
+
+*(none active)*
+
+---
+
 ### [2026-06-22] `SettingsPage.tsx` is a ~1,950-LOC god component — split into per-section panels
 
 - **Resolved by:** dnd-resolver (automated)

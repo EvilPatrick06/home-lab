@@ -1019,6 +1019,7 @@ export function startChat(
       conv.mapGenerationAllowed =
         ((await loadCampaignById(request.campaignId))?.aiDm as { allowMapGeneration?: boolean } | undefined)
           ?.allowMapGeneration === true
+      conv.structuredExtractionAlways = (currentConfig.structuredExtraction ?? 'off') === 'always'
       const { systemPrompt, messages } = await conv.getMessagesForApi(contextBlock, built.breakdown.truncated ?? false)
 
       // Stream response

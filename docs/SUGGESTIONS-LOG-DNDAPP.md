@@ -21,21 +21,6 @@ New entries go at the TOP of their section (newest first).
 
 ---
 
-### Slim the narration prompt's tag instructions once structured extraction is the default (PHASE-23 follow-up)
-
-**Type:** future-idea · **Domain:** dnd-app · **Added:** 2026-06-16
-
-PHASE-23 added opt-in two-call structured extraction (`aiDm.structuredExtraction`), but
-the narration prompt keeps its `[STAT_CHANGES]`/`[DM_ACTIONS]` instructions in ALL modes
-(forking the system prompt by config + regressing DM board actions, which extraction
-doesn't cover, was not worth it now). Once `structuredExtraction: 'always'` is the
-default AND `getRepairJsonStats().modified` stays at zero across releases, removing the
-tag-emission instructions from `prompt-sections/*` + retiring `repairJson` becomes
-worthwhile (retirement criteria live in `src/main/ai/AI_ACTION_CONTRACT.md`). Depends on
-PHASE-27 extending the extraction verb set to cover board actions first.
-
-*(none active)*
-
 ---
 
 # Design gotchas (warnings for future agents)

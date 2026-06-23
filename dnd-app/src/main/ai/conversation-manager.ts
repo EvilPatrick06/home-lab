@@ -38,6 +38,9 @@ export class ConversationManager {
   private _overflowSplitNeeded = false
   /** PHASE-34 34H: when true, the system prompt advertises generate_battlemap. Stable per campaign. */
   mapGenerationAllowed = false
+  // PHASE-23 follow-up: when structuredExtraction:'always', slim the redundant
+  // [STAT_CHANGES] tag bullets the extractor already covers.
+  structuredExtractionAlways = false
 
   /** Set the callback used for summarization (provided by AiService). */
   setSummarizeCallback(cb: (text: string) => Promise<string>): void {
@@ -187,7 +190,10 @@ export class ConversationManager {
       contextBlock?.includes('chase')
     const hasCombat = contextBlock?.includes('Initiative:')
     const systemPrompt =
-      assembleSystemPrompt({ allowMapGeneration: this.mapGenerationAllowed }) +
+      assembleSystemPrompt({
+        allowMapGeneration: this.mapGenerationAllowed,
+        slimExtractedStatTags: this.structuredExtractionAlways
+      }) +
       (hasCombat ? COMBAT_TACTICS_PROMPT : '') +
       (includesPlanarContent ? PLANAR_RULES_CONTEXT : '') +
       (includesToolboxContent ? DM_TOOLBOX_CONTEXT : '') +

@@ -184,3 +184,54 @@ export interface CreatureMutationEvent {
 export interface StatChangeSet {
   changes: (StatChangeEvent | CreatureMutationEvent)[]
 }
+
+// ── Structured-extraction slim (suggestions-log 2026-06-22 / PHASE-23 follow-up) ──
+// When `structuredExtraction: 'always'` is active (Ollama), the post-narration
+// structured extractor captures these core numeric changes straight from the prose,
+// so repeating their verbose [STAT_CHANGES] tag bullets in the prompt is redundant.
+// We strip EXACTLY those bullets (and nothing the extractor can't do — extended
+// types, sheet mutations, the non-mapped creature_* verbs, and all [DM_ACTIONS]
+// stay). Player entries here MUST be a subset of structured-extraction's
+// EXTRACTION_CHANGE_TYPES (asserted in character-rules.test.ts); the creature_*
+// entries mirror its CREATURE_COMPATIBLE set.
+export const EXTRACTOR_COVERED_TAG_TYPES: readonly string[] = [
+  'damage',
+  'heal',
+  'temp_hp',
+  'add_condition',
+  'remove_condition',
+  'expend_spell_slot',
+  'restore_spell_slot',
+  'add_item',
+  'remove_item',
+  'gold',
+  'xp',
+  'creature_damage',
+  'creature_heal',
+  'creature_add_condition',
+  'creature_remove_condition'
+]
+
+/**
+ * The character rules. With `slimExtractedStatTags`, drops the [STAT_CHANGES] tag
+ * bullets for the types the structured extractor already covers (a deterministic
+ * subset — never removes anything extraction can't capture). Without it, returns
+ * the byte-stable full prompt so the default path keeps Ollama's KV-cache prefix.
+ */
+export function buildCharacterRulesPrompt(opts?: { slimExtractedStatTags?: boolean }): string {
+  if (!opts?.slimExtractedStatTags) return CHARACTER_RULES_PROMPT
+  const covered = new Set(EXTRACTOR_COVERED_TAG_TYPES)
+  const kept = CHARACTER_RULES_PROMPT.split('\n').filter((line) => {
+    const m = line.match(/^\s*- \*\*([a-z_]+)\*\*:/)
+    return !(m && covered.has(m[1]))
+  })
+  const idx = kept.findIndex((l) => l.includes('- Valid change types:'))
+  if (idx >= 0) {
+    kept.splice(
+      idx + 1,
+      0,
+      '  - _(Structured extraction is ON: the core numeric changes (damage, heal, temp HP, add/remove condition, spell slots, add/remove item, gold, XP) and their creature_* forms are captured automatically from your prose — you may omit those. Still emit every change type listed below, and all [DM_ACTIONS].)_'
+    )
+  }
+  return kept.join('\n')
+}

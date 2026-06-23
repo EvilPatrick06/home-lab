@@ -10,7 +10,7 @@
  * reachable modes and saved zero tokens; it was removed in 11B.)
  */
 
-import { CHARACTER_RULES_PROMPT } from './prompt-sections/character-rules'
+import { buildCharacterRulesPrompt } from './prompt-sections/character-rules'
 import { COMBAT_RULES_PROMPT } from './prompt-sections/combat-rules'
 import { DM_ACTIONS_SCHEMA_PROMPT, GENERATE_BATTLEMAP_PROMPT } from './prompt-sections/dm-actions-schema'
 import { EXPLORATION_RULES_PROMPT } from './prompt-sections/exploration-rules'
@@ -23,10 +23,10 @@ import { VOICE_NARRATION_PROMPT } from './prompt-sections/voice-narration'
  * `allowMapGeneration` flag appends the generate_battlemap action doc; it is stable per-campaign
  * (a settings flag, not per-turn), so the KV-cache prefix is preserved within a campaign.
  */
-export function assembleSystemPrompt(opts?: { allowMapGeneration?: boolean }): string {
+export function assembleSystemPrompt(opts?: { allowMapGeneration?: boolean; slimExtractedStatTags?: boolean }): string {
   const sections = [
     NARRATIVE_RULES_PROMPT,
-    CHARACTER_RULES_PROMPT,
+    buildCharacterRulesPrompt({ slimExtractedStatTags: opts?.slimExtractedStatTags }),
     COMBAT_RULES_PROMPT,
     EXPLORATION_RULES_PROMPT,
     SOCIAL_RULES_PROMPT,

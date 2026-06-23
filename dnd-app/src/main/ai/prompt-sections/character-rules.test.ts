@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
+import { EXTRACTION_CHANGE_TYPES } from '../structured-extraction'
 import type { CreatureMutationEvent, StatChangeEvent, StatChangeSet } from './character-rules'
-import { CHARACTER_RULES_PROMPT } from './character-rules'
+import { buildCharacterRulesPrompt, CHARACTER_RULES_PROMPT, EXTRACTOR_COVERED_TAG_TYPES } from './character-rules'
 
 describe('character-rules', () => {
   // ── CHARACTER_RULES_PROMPT ──
@@ -219,5 +220,44 @@ describe('character-rules', () => {
       }
       expect(set.changes).toHaveLength(2)
     })
+  })
+})
+
+describe('buildCharacterRulesPrompt — structured-extraction slim (S17)', () => {
+  it('returns the byte-identical full prompt by default (KV-cache prefix preserved)', () => {
+    expect(buildCharacterRulesPrompt()).toBe(CHARACTER_RULES_PROMPT)
+    expect(buildCharacterRulesPrompt({ slimExtractedStatTags: false })).toBe(CHARACTER_RULES_PROMPT)
+  })
+
+  it('drops ONLY the extractor-covered [STAT_CHANGES] bullets when slimmed', () => {
+    const slim = buildCharacterRulesPrompt({ slimExtractedStatTags: true })
+    // covered → bullet removed
+    for (const t of EXTRACTOR_COVERED_TAG_TYPES) {
+      expect(slim).not.toContain(`- **${t}**:`)
+    }
+    // not covered → bullet retained
+    for (const t of [
+      'death_save',
+      'use_class_resource',
+      'heroic_inspiration',
+      'hit_dice',
+      'creature_kill',
+      'creature_set_immunity',
+      'set_ability_score',
+      'set_equipped'
+    ]) {
+      expect(slim).toContain(`- **${t}**:`)
+    }
+    // a note explains the omission, and DM_ACTIONS routing is untouched
+    expect(slim).toContain('Structured extraction is ON')
+    expect(slim).toContain('[DM_ACTIONS]')
+    expect(slim.length).toBeLessThan(CHARACTER_RULES_PROMPT.length)
+  })
+
+  it('never slims a player type the structured extractor cannot capture (drift guard)', () => {
+    const playerCovered = EXTRACTOR_COVERED_TAG_TYPES.filter((t) => !t.startsWith('creature_'))
+    for (const t of playerCovered) {
+      expect(EXTRACTION_CHANGE_TYPES).toContain(t)
+    }
   })
 })
