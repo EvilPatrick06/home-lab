@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
-"""Bootstrap voice enrollment for Gavin.
+"""Bootstrap voice enrollment for the owner (default: Gavin).
 
-Records 3x 5-second clips from the mic and enrolls "Gavin" as a speaker profile.
-Run once on the Pi to create ~/home-lab/bmo/pi/data/voice_profiles.pkl, then future
-enrollment can happen via voice commands or the API.
+Records 3x 5-second clips from the mic and enrolls a speaker profile.
+Run once on the Pi to create ~/home-lab/bmo/pi/data/voice_profiles.json, then
+future enrollment can happen via voice commands or the API.
 
 Usage:
     source ~/home-lab/bmo/pi/venv/bin/activate
-    python enroll_gavin.py
+    python enroll_voice.py [--name NAME]   # default name: $BMO_OWNER_NAME or Gavin
 """
 
+import argparse
 import os
 import sys
 import wave
@@ -50,10 +51,16 @@ def save_wav(path: str, audio: np.ndarray):
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Enroll a speaker voice profile.")
+    parser.add_argument("--name", default=os.environ.get("BMO_OWNER_NAME", "Gavin"),
+                        help="Speaker name to enroll (default: $BMO_OWNER_NAME or Gavin)")
+    args = parser.parse_args()
+    name = args.name
+
     os.makedirs(DATA_DIR, exist_ok=True)
     clip_paths = []
 
-    print("=== BMO Voice Enrollment: Gavin ===\n")
+    print(f"=== BMO Voice Enrollment: {name} ===\n")
     print(f"I'll record {NUM_CLIPS} clips of {CLIP_DURATION}s each.")
     print("Speak naturally at your normal volume and distance from BMO.\n")
 
@@ -61,7 +68,7 @@ def main():
         print(f"Clip {i + 1}/{NUM_CLIPS}: {PROMPTS[i]}")
         input("Press Enter when ready...")
         audio = record_clip(CLIP_DURATION)
-        path = os.path.join(DATA_DIR, f"enroll_gavin_{i}.wav")
+        path = os.path.join(DATA_DIR, f"enroll_{name.lower()}_{i}.wav")
         save_wav(path, audio)
         clip_paths.append(path)
         print()
@@ -72,15 +79,15 @@ def main():
     from services.voice_pipeline import VoicePipeline
 
     vp = VoicePipeline()
-    vp.enroll_speaker("Gavin", clip_paths)
+    vp.enroll_speaker(name, clip_paths)
 
     # Clean up clip files
     for path in clip_paths:
         if os.path.exists(path):
             os.unlink(path)
 
-    print(f"\nDone! Profile saved to {os.path.expanduser('~/home-lab/bmo/pi/data/voice_profiles.pkl')}")
-    print("Restart BMO and say 'Hey BMO' — it should recognize you as Gavin.")
+    print(f"\nDone! Profile saved to {os.path.expanduser('~/home-lab/bmo/pi/data/voice_profiles.json')}")
+    print(f"Restart BMO and say 'Hey BMO' — it should recognize you as {name}.")
 
 
 if __name__ == "__main__":

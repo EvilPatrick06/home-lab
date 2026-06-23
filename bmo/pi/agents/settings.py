@@ -9,6 +9,7 @@ Deep merge: dicts merge recursively, lists/scalars replace entirely.
 """
 
 from __future__ import annotations
+from services.identity import DEFAULT_SPEAKER
 
 import json
 import os
@@ -74,7 +75,7 @@ def _get_default_settings() -> dict:
             "auto_approve_plans": False,
         },
         "speaker": {
-            "default_name": "gavin",
+            "default_name": DEFAULT_SPEAKER,
             "voice_enabled": True,
             "tts_speed": 1.0,
         },

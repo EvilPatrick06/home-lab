@@ -72,7 +72,7 @@ pi/
 │   ├── hey_bmo.onnx             Custom trained model
 │   ├── hey_bmo.onnx.data
 │   ├── record_wake_clips.py     Record training samples (16kHz mono WAV)
-│   ├── enroll_gavin.py          Voice profile enrollment
+│   ├── enroll_voice.py          Voice profile enrollment
 │   └── clips/                   20 training WAV files
 │
 ├── web/                         Flask UI assets
@@ -143,7 +143,7 @@ from calendar_service import CalendarService              # ✗ bare (breaks pos
 from hardware.fan_control import FanController            # ✓
 from bots.discord_dm_bot import DMBot                     # ✓
 from dev.claude_tools import invoke                       # ✓
-from wake.enroll_gavin import enroll                      # ✓
+from wake.enroll_voice import enroll                      # ✓
 ```
 
 `import discord` = `discord.py` library (installed via pip).
