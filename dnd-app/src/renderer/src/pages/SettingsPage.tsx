@@ -1,4 +1,3 @@
-import { useCallback, useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { AccessibilitySection } from '../components/settings/AccessibilitySection'
 import { AudioSection } from '../components/settings/AudioSection'
@@ -7,8 +6,12 @@ import { CloudBackupSection } from '../components/settings/CloudBackupSection'
 import { DiceSection } from '../components/settings/DiceSection'
 import { GridSection } from '../components/settings/GridSection'
 import { KeybindingEditor } from '../components/settings/KeybindingEditor'
+import { LanguageSection } from '../components/settings/LanguageSection'
 import { NotificationsSection } from '../components/settings/NotificationsSection'
 import { PluginManager } from '../components/settings/PluginManager'
+import { ProfileSection } from '../components/settings/ProfileSection'
+import { RegisteredGameSystemsSection } from '../components/settings/RegisteredGameSystemsSection'
+import { SettingsImportExportSection } from '../components/settings/SettingsImportExportSection'
 import { Section } from '../components/settings/SettingsSection'
 import { ThemeSection } from '../components/settings/ThemeSection'
 import { UpdateSection } from '../components/settings/UpdateSection'
@@ -25,7 +28,6 @@ import { logger } from '../utils/logger'
 type _AvailableModelList = typeof AvailableModelList
 type _InstalledModelList = typeof InstalledModelList
 
-import { addToast } from '../hooks/use-toast'
 import type { ValidationResult } from '../network'
 
 type _ValidationResult = ValidationResult
@@ -35,25 +37,17 @@ import type { AutoSaveConfig, SaveVersion } from '../services/io/auto-save'
 type _AutoSaveConfig = AutoSaveConfig
 type _SaveVersion = SaveVersion
 
-import {
-  type EntityType,
-  type ExportEnvelope,
-  exportEntities,
-  type ImportResult,
-  importEntities
-} from '../services/io/entity-io'
+import type { EntityType, ExportEnvelope, ImportResult } from '../services/io/entity-io'
 
 type _EntityType = EntityType
 type _ExportEnvelope = ExportEnvelope
 type _ImportResult = ImportResult<unknown>
 
-import { importDndBeyondCharacter } from '../services/io/import-export'
 import type { NotificationEvent } from '../services/notification-service'
 
 type _NotificationEvent = NotificationEvent
 
-import { DISPLAY_NAME_KEY } from '../constants'
-import { i18n, LOCALE_LABELS, SUPPORTED_LOCALES, setLocale, useT } from '../i18n'
+import { useT } from '../i18n'
 import {
   setAmbientVolume as setGlobalAmbientVolume,
   setEnabled as setGlobalAudioEnabled,
@@ -62,9 +56,6 @@ import {
 } from '../services/sound-manager'
 import { setTheme } from '../services/theme-manager'
 import { useAccessibilityStore } from '../stores/use-accessibility-store'
-import { useOnboardingStore } from '../stores/use-onboarding-store'
-import { getAllSystems, unregisterSystem } from '../systems/init'
-import type { UserProfile } from '../types/user'
 
 // Phase 17q — split the previous "Factory Reset" into two clearly-scoped
 // operations. `resetAllData` (was `factoryResetAllSettings`) keeps its
@@ -167,39 +158,6 @@ export default function SettingsPage(): JSX.Element {
   const { t } = useT()
   const navigate = useNavigate()
 
-  // Profile settings
-  const [profileName, setProfileName] = useState('')
-  const [profileLoaded, setProfileLoaded] = useState(false)
-
-  useEffect(() => {
-    window.api.loadSettings().then((settings) => {
-      if (settings.userProfile?.displayName) {
-        setProfileName(settings.userProfile.displayName)
-      }
-      setProfileLoaded(true)
-    })
-  }, [])
-
-  const saveProfile = useCallback(
-    async (name: string) => {
-      if (!profileLoaded || !name.trim()) return
-      try {
-        const settings = await window.api.loadSettings()
-        const profile: UserProfile = settings.userProfile ?? {
-          id: crypto.randomUUID(),
-          displayName: '',
-          createdAt: new Date().toISOString()
-        }
-        profile.displayName = name.trim()
-        await window.api.saveSettings({ ...settings, userProfile: profile })
-        localStorage.setItem(DISPLAY_NAME_KEY, name.trim())
-      } catch {
-        // save failed silently
-      }
-    },
-    [profileLoaded]
-  )
-
   // Notification settings
 
   // Auto-save settings
@@ -250,44 +208,10 @@ export default function SettingsPage(): JSX.Element {
       {/* Content */}
       <div className="max-w-5xl mx-auto px-6 py-6 space-y-6">
         {/* Profile */}
-        <Section title={t('pages.settingsPage.profile')}>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-300">{t('pages.settingsPage.displayName')}</span>
-            <input
-              aria-label={t('pages.settingsPage.yourName')}
-              type="text"
-              maxLength={32}
-              placeholder={t('pages.settingsPage.yourName')}
-              value={profileName}
-              onChange={(e) => setProfileName(e.target.value)}
-              onBlur={() => saveProfile(profileName)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') saveProfile(profileName)
-              }}
-              className="w-48 px-3 py-1.5 text-sm bg-surface border border-border rounded-lg text-gray-200 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
-            />
-          </div>
-          <p className="text-xs text-gray-500 mt-2">{t('pages.settingsPage.displayNameHint')}</p>
-        </Section>
+        <ProfileSection />
 
         {/* Language */}
-        <Section title={t('pages.settingsPage.language')}>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-300">{t('pages.settingsPage.language')}</span>
-            <select
-              value={i18n.language}
-              onChange={(e) => setLocale(e.target.value as (typeof SUPPORTED_LOCALES)[number])}
-              className="w-48 px-3 py-1.5 text-sm bg-surface border border-border rounded-lg text-gray-200 focus:border-amber-500 focus:outline-none"
-            >
-              {SUPPORTED_LOCALES.map((loc) => (
-                <option key={loc} value={loc}>
-                  {LOCALE_LABELS[loc]}
-                </option>
-              ))}
-            </select>
-          </div>
-          <p className="text-xs text-gray-500 mt-2">{t('pages.settingsPage.languageDescription')}</p>
-        </Section>
+        <LanguageSection />
 
         {/* Theme */}
         <ThemeSection />
@@ -311,118 +235,7 @@ export default function SettingsPage(): JSX.Element {
         <AutoSaveSection />
 
         {/* Import/Export Settings */}
-        <Section title={t('pages.settingsPage.settingsImportExport')}>
-          <p className="text-xs text-muted mb-3">{t('pages.settingsPage.settingsImportExportDesc')}</p>
-          <div className="flex gap-2">
-            <button
-              onClick={async () => {
-                try {
-                  const settings = await window.api.loadSettings()
-                  const prefs: Record<string, string> = {}
-                  for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i)
-                    // Export all settings keys, even those without dnd-vtt- prefixes
-                    if (key) prefs[key] = localStorage.getItem(key) ?? ''
-                  }
-
-                  // Use the globally defined __APP_VERSION__ constant
-                  const appVersion = __APP_VERSION__
-                  const ok = await exportEntities('settings', [{ settings, preferences: prefs, appVersion }])
-                  if (ok) addToast(t('pages.settingsPage.toastSettingsExported'), 'success')
-                } catch {
-                  addToast(t('pages.settingsPage.toastSettingsExportFailed'), 'error')
-                }
-              }}
-              className="px-4 py-1.5 text-sm rounded-lg border bg-surface-2 border-border text-gray-300 hover:border-amber-600 hover:text-accent transition-colors cursor-pointer"
-            >
-              {t('pages.settingsPage.exportSettings')}
-            </button>
-            <button
-              onClick={async () => {
-                try {
-                  const result = await importEntities<{
-                    settings?: Record<string, unknown>
-                    preferences?: Record<string, string>
-                    appVersion?: string
-                  }>('settings')
-                  if (!result) return
-                  const item = result.items[0]
-
-                  if (item.appVersion && item.appVersion !== __APP_VERSION__) {
-                    if (
-                      !window.confirm(
-                        t('pages.settingsPage.versionMismatchConfirm', {
-                          fileVersion: item.appVersion,
-                          appVersion: __APP_VERSION__
-                        })
-                      )
-                    ) {
-                      return
-                    }
-                  }
-
-                  if (item.settings) {
-                    await window.api.saveSettings(item.settings as Parameters<typeof window.api.saveSettings>[0])
-                  }
-                  if (item.preferences) {
-                    for (const [key, value] of Object.entries(item.preferences)) {
-                      if (typeof value === 'string') {
-                        localStorage.setItem(key, value)
-                      }
-                    }
-                  }
-
-                  addToast(t('pages.settingsPage.toastSettingsImported'), 'success')
-                  setTimeout(() => window.location.reload(), 1500)
-                } catch (err) {
-                  addToast(
-                    err instanceof Error ? err.message : t('pages.settingsPage.toastSettingsImportFailed'),
-                    'error'
-                  )
-                }
-              }}
-              className="px-4 py-1.5 text-sm rounded-lg border bg-surface-2 border-border text-gray-300 hover:border-amber-600 hover:text-accent transition-colors cursor-pointer"
-            >
-              {t('pages.settingsPage.importSettings')}
-            </button>
-            <button
-              onClick={async () => {
-                try {
-                  const res = await window.api.log.openFolder()
-                  if (res.ok) addToast(t('pages.settingsPage.toastLogRevealed'), 'success')
-                  else addToast(t('pages.settingsPage.logUnavailableWeb'), 'info')
-                } catch {
-                  addToast(t('pages.settingsPage.toastLogRevealFailed'), 'error')
-                }
-              }}
-              className="px-4 py-1.5 text-sm rounded-lg border bg-surface-2 border-border text-gray-300 hover:border-amber-600 hover:text-accent transition-colors cursor-pointer"
-            >
-              {t('pages.settingsPage.openLogFolder')}
-            </button>
-            <button
-              type="button"
-              onClick={() => useOnboardingStore.getState().open()}
-              className="px-4 py-1.5 text-sm rounded-lg border bg-surface-2 border-border text-gray-300 hover:border-amber-600 hover:text-accent transition-colors cursor-pointer"
-            >
-              {t('onboarding.replay')}
-            </button>
-            <button
-              onClick={async () => {
-                try {
-                  const result = await importDndBeyondCharacter()
-                  if (result) {
-                    addToast(t('pages.settingsPage.toastDdbImported'), 'success')
-                  }
-                } catch {
-                  addToast(t('pages.settingsPage.toastDdbImportFailed'), 'error')
-                }
-              }}
-              className="px-4 py-1.5 text-sm rounded-lg border bg-surface-2 border-border text-gray-300 hover:border-purple-600 hover:text-purple-400 transition-colors cursor-pointer"
-            >
-              {t('pages.settingsPage.ddbImport')}
-            </button>
-          </div>
-        </Section>
+        <SettingsImportExportSection />
 
         {/* Content Packs & Plugins */}
         <Section title={t('pages.settingsPage.contentPacksPlugins')}>
@@ -430,37 +243,7 @@ export default function SettingsPage(): JSX.Element {
         </Section>
 
         {/* Game Systems */}
-        <Section title={t('pages.settingsPage.registeredGameSystems')}>
-          {(() => {
-            const systems = getAllSystems()
-            if (systems.length === 0) {
-              return <p className="text-xs text-gray-500">{t('pages.settingsPage.noGameSystems')}</p>
-            }
-            return (
-              <div className="space-y-2">
-                {systems.map((sys) => (
-                  <div key={sys.id} className="flex items-center justify-between py-2 px-3 bg-surface-2/40 rounded-lg">
-                    <div className="flex-1 min-w-0">
-                      <span className="text-sm text-gray-200 font-medium">{sys.name}</span>
-                      <span className="text-xs text-gray-500 ml-2 font-mono">{sys.id}</span>
-                    </div>
-                    {sys.id !== 'dnd5e' && (
-                      <button
-                        onClick={() => {
-                          unregisterSystem(sys.id)
-                          addToast(t('pages.settingsPage.toastSystemUnregistered', { name: sys.name }), 'success')
-                        }}
-                        className="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-muted hover:text-red-400 hover:border-red-600 cursor-pointer"
-                      >
-                        {t('pages.settingsPage.remove')}
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )
-          })()}
-        </Section>
+        <RegisteredGameSystemsSection />
 
         {/* Updates */}
         <Section title={t('pages.settingsPage.updates')}>
