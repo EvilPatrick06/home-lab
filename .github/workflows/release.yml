@@ -157,14 +157,32 @@ jobs:
             xdg-utils libatspi2.0-0 libuuid1 libsecret-1-0
         working-directory: .
 
+      # Guard against a botched Cloudflare-token rotation shipping a release with a
+      # missing/blanked CF Access service token baked in — off-LAN cloud backup
+      # would silently break for every install. Fail the release build when either
+      # secret is empty. Set repo variable ALLOW_MISSING_CF_TOKEN=1 to ship a
+      # deliberately token-less build (e.g. a fork that doesn't use CF Access).
+      - name: Guard — CF Access token present
+        if: ${{ vars.ALLOW_MISSING_CF_TOKEN != '1' }}
+        shell: bash
+        env:
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+        run: |
+          if [ -z "$CF_ACCESS_CLIENT_ID" ] || [ -z "$CF_ACCESS_CLIENT_SECRET" ]; then
+            echo "::error::CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET are unset — a release would ship with no Cloudflare Access token and off-LAN cloud backup would break. Set the repo secrets (e.g. after rotating the token) or set repo variable ALLOW_MISSING_CF_TOKEN=1 to ship intentionally token-less."
+            exit 1
+          fi
+          echo "CF Access service token secrets present."
+
       # Build the installer/AppImage but DO NOT publish — the `publish` job uploads after tests
       # pass, so a test-failing build never reaches users.
       - name: Build (no publish)
         env:
           # Cloudflare Access service token baked into the MAIN bundle so off-LAN
-          # Pi/cloud features authenticate with no per-user setup. Optional: when
-          # these repo secrets are unset they resolve to '' → no auth headers sent
-          # (on-LAN is unaffected; off-LAN cloud falls back to login-gated).
+          # Pi/cloud features authenticate with no per-user setup. The guard step
+          # above fails the release if these are empty (unless ALLOW_MISSING_CF_TOKEN=1),
+          # so a botched rotation can't silently ship a token-less build.
           CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
           CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
           # macOS: no Apple signing cert configured yet — skip signing so the mac
