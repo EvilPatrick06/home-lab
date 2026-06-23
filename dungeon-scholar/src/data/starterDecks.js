@@ -46,4 +46,47 @@ export const STARTER_DECKS = [
       labs: [],
     },
   },
+  {
+    id: 'starter-network-plus',
+    title: 'CompTIA Network+ — Fundamentals',
+    description: 'Core networking facts (OSI, ports, addressing). Community starter deck — verify against the current official exam objectives.',
+    data: {
+      metadata: { title: 'CompTIA Network+ — Fundamentals', subject: 'Networking', author: 'Dungeon Scholar (community starter)', description: 'Bedrock networking fundamentals. Not official exam content — verify against current objectives.' },
+      flashcards: [
+        c('np1', 'List the 7 OSI layers, bottom to top.', 'Physical, Data Link, Network, Transport, Session, Presentation, Application (mnemonic: Please Do Not Throw Sausage Pizza Away).', 'OSI Model'),
+        c('np2', 'Which OSI layer do IP addresses and routing operate at?', 'Layer 3, the Network layer.', 'OSI Model'),
+        c('np3', 'TCP vs UDP — key difference?', 'TCP is connection-oriented and reliable (handshake, ordering, retransmission); UDP is connectionless and best-effort (lower overhead, no guaranteed delivery).', 'Transport'),
+        c('np4', 'Default ports: HTTP, HTTPS, SSH, DNS?', 'HTTP 80, HTTPS 443, SSH 22, DNS 53.', 'Ports'),
+        c('np5', 'IPv4 private address ranges (RFC 1918)?', '10.0.0.0/8, 172.16.0.0/12, and 192.168.0.0/16.', 'Addressing'),
+        c('np6', 'How many usable hosts in a /24?', '256 total addresses, 254 usable (network + broadcast addresses are reserved).', 'Subnetting'),
+        c('np7', 'What does DHCP do?', 'Automatically assigns IP addresses and network config (gateway, DNS) to hosts (DORA: Discover, Offer, Request, Acknowledge).', 'Services'),
+      ],
+      quiz: [
+        q('npq1', 'At which OSI layer do switches primarily operate?', ['Layer 2 (Data Link)', 'Layer 3 (Network)', 'Layer 1 (Physical)', 'Layer 4 (Transport)'], 0, 'Switches forward frames using MAC addresses at Layer 2.'),
+        q('npq2', 'Which port does HTTPS use by default?', ['443', '80', '22', '8080'], 0, 'HTTPS (HTTP over TLS) defaults to TCP port 443.'),
+      ],
+      labs: [],
+    },
+  },
+  {
+    id: 'starter-security-plus',
+    title: 'CompTIA Security+ — Fundamentals',
+    description: 'Core security concepts (CIA triad, crypto, access control). Community starter deck — verify against the current official exam objectives.',
+    data: {
+      metadata: { title: 'CompTIA Security+ — Fundamentals', subject: 'Security', author: 'Dungeon Scholar (community starter)', description: 'Bedrock security fundamentals. Not official exam content — verify against current objectives.' },
+      flashcards: [
+        c('sp1', 'What is the CIA triad?', 'Confidentiality (keep data private), Integrity (data is unaltered/trustworthy), Availability (data/systems are accessible when needed).', 'Concepts'),
+        c('sp2', 'Symmetric vs asymmetric encryption?', 'Symmetric uses one shared key for encrypt + decrypt (fast; e.g., AES). Asymmetric uses a public/private key pair (e.g., RSA); used for key exchange and digital signatures.', 'Cryptography'),
+        c('sp3', 'What property does hashing provide, and is it reversible?', 'Integrity — a fixed-length one-way fingerprint of data. It is not reversible (e.g., SHA-256).', 'Cryptography'),
+        c('sp4', 'What is multi-factor authentication (MFA)?', 'Authentication using two or more distinct factors: something you know, something you have, and/or something you are.', 'Access Control'),
+        c('sp5', 'Define the principle of least privilege.', 'Grant users and processes only the minimum access rights needed to perform their function, and no more.', 'Access Control'),
+        c('sp6', 'What is phishing?', 'A social-engineering attack that tricks a victim into revealing credentials or sensitive data, usually via deceptive email/messages impersonating a trusted source.', 'Threats'),
+      ],
+      quiz: [
+        q('spq1', 'Which CIA principle does ransomware most directly attack?', ['Availability', 'Confidentiality', 'Integrity', 'Non-repudiation'], 0, 'Ransomware encrypts data to deny access, directly harming availability.'),
+        q('spq2', 'Which is an example of "something you have"?', ['A hardware security token', 'A password', 'A fingerprint', 'A PIN'], 0, 'A token/smart card is a possession factor; passwords/PINs are knowledge, fingerprints are inherence.'),
+      ],
+      labs: [],
+    },
+  },
 ];
