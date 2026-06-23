@@ -5,7 +5,11 @@
 
 help:
 	@echo "Targets: install lint typecheck test build audit all"
-	@echo "Fans out to dnd-app + dungeon-scholar + oracle-worker (npm) and bmo/pi (pytest)."
+	@echo "  lint      -> dnd-app + dungeon-scholar (biome); oracle-worker (no-op, no lint surface yet)"
+	@echo "  typecheck -> dnd-app only (dungeon-scholar/oracle-worker have no standalone tsc; vite/wrangler transpile)"
+	@echo "  test      -> dnd-app + dungeon-scholar + oracle-worker (npm) + bmo/pi (pytest)"
+	@echo "  build     -> dnd-app + dungeon-scholar (npm) + oracle-worker (wrangler dry-run)"
+	@echo "  audit     -> each project: npm run audit:ci"
 
 install:
 	cd dnd-app && npm ci
@@ -14,7 +18,12 @@ install:
 
 lint:
 	cd dnd-app && npm run lint
+	cd dungeon-scholar && npm run lint
+	cd oracle-worker && npm run lint
 
+# typecheck covers dnd-app only: dungeon-scholar has no tsconfig/tsc step (Vite
+# transpiles; no standalone typecheck) and oracle-worker is validated by its
+# wrangler dry-run under `build`. Revisit if either gains a tsconfig.
 typecheck:
 	cd dnd-app && npx tsc --noEmit -p tsconfig.web.json
 
@@ -31,7 +40,7 @@ build:
 
 audit:
 	cd dnd-app && npm run audit:ci
-	cd dungeon-scholar && npm audit --omit=dev --audit-level=moderate
-	cd oracle-worker && npm audit --audit-level=high
+	cd dungeon-scholar && npm run audit:ci
+	cd oracle-worker && npm run audit:ci
 
 all: lint typecheck test build
