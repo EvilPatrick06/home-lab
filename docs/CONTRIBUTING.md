@@ -44,6 +44,29 @@ Escape hatch: `git commit --no-verify`. CI (`.github/workflows/ci.yml`) is the a
 
 CI runs `dnd-app`'s `npm run audit:ci` (production dependencies only, moderate and above), plus Python `bandit` on `bmo/pi/ide_app` (see `.github/workflows/security-audit.yml`). For a full tree including devDependencies (e.g. LangChain used only in extract scripts), run `cd dnd-app && npm run audit:all`.
 
+## Script vocabulary
+
+Each JS project installs independently (no npm workspace); the root `Makefile` fans
+out to per-project npm scripts, so the script **names must mean the same thing** in
+every `package.json`. Canonical vocabulary:
+
+| Script | Meaning | Must not |
+|---|---|---|
+| `lint` | Report problems only — no writes (`biome check`). | mutate files |
+| `lint:fix` | Lint **and autofix** (`biome check --write`). | — |
+| `format` | **Formatting only**, autofixed (`biome format --write`). | apply lint fixes |
+| `typecheck` | `tsc --noEmit` for the project (where a tsconfig exists). | emit build output |
+| `test` | Run the test suite once, non-watch. | — |
+| `build` | Produce the project's build artifact (or a dry-run validation). | — |
+| `audit:ci` | Dependency audit at the project's CI threshold. | — |
+
+The key distinction: `format` **never** applies lint autofixes, and `lint:fix` is the
+only script that both lints and writes. Previously `dungeon-scholar`'s `format` ran
+`biome check --write` (lint + format), so `npm run format` meant something different
+there than in `dnd-app`; it has been split into `format` + `lint:fix` to match.
+Projects without a surface for a given verb (e.g. `oracle-worker` has no linter) ship a
+no-op stub so the Makefile fan-out stays uniform.
+
 ## Commits
 
 Imperative mood. Summary ≤ 72 chars.

@@ -5,7 +5,6 @@ name: oracle-worker CI
 # no token needed) and runs its test script.
 on:
   push:
-    branches: [master, main]
     paths:
       - 'oracle-worker/**'
       - '.github/workflows/oracle-worker-ci.yml'
