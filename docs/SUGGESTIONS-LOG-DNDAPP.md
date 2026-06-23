@@ -19,6 +19,81 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-06-22] `dnd-app/README.md` "Directory layout" + cross-references have drifted out of sync with the tree
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+The `dnd-app/README.md` "Directory layout" block and a few inline references no longer match the repo and will keep misleading contributors:
+
+- **Phase range is stale.** Layout says `docs/phases/ open-work plans (phase-15 through phase-28)`, and the "Multiplayer architecture (Phase 29)" heading reads as current. In reality the phase set is `PHASE-01`..`PHASE-43`, with 43 plans already in `docs/phases/completed/` and `PHASE-INDEX.md` tracking the run.
+- **5e file count is wrong in 4 places.** README repeats `3,041 JSON files` (lines ~14, ~94, ~215, ~270) but `find src/renderer/public/data/5e -name "*.json"` returns **3,033** (the codebase-integrity test and a prior log entry also use 3,033).
+- **`docs/` list is incomplete.** The layout only names `IPC-SURFACE.md`, `PLUGIN-SYSTEM.md`, and `phases/`, omitting the other tracked docs that exist today: `ASSET-OFFLOAD.md`, `DEPENDENCIES.md`, `DESIGN-CONSTRAINTS.md`, `LLAMA-SERVER.md`, `RELEASE.md`, `SEED-PACKS.md`, `UI-LAYERS.md`.
+- **`tools/` is described as legit dev tooling** ("dev utilities (audit runner, console->logger sweep, knip-summary)") even though a separate scan flagged every `tools/*` script as unreferenced one-offs. If those get removed, this line becomes doubly wrong.
+
+**Proposed fix / improvement:**
+- [ ] Replace the hardcoded `3,041` with the real count (3,033) — or, better, drop the exact number from prose so it cannot drift (e.g. "~3,000 JSON files").
+- [ ] Update the phases reference to point at `PHASE-INDEX.md` rather than a fixed `phase-15..28` range.
+- [ ] List all current `docs/*.md` files (or say "see `docs/`") instead of an outdated subset.
+- [ ] Reconcile the `tools/` description with whatever the `tools/` cleanup decides.
+- [ ] Consider a tiny CI/check script that asserts the README 5e count matches the actual file count so this specific number stops rotting.
+
+**Related files:** `dnd-app/README.md`, `dnd-app/docs/phases/PHASE-INDEX.md`, `dnd-app/src/renderer/public/data/5e/`, `dnd-app/docs/`, `dnd-app/tools/`
+
+---
+
+### [2026-06-22] Inconsistent casing in the `dnd-app/docs/phases/` tree (`completed` vs `QA/Completed`, `INSTRUCTIONS.md` vs `QA/instructions.md`)
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+Parallel concepts in the same phases doc tree are named with different casing, which is a small but real organization smell (and a portability hazard on case-insensitive filesystems if a sibling dir is ever added):
+
+- `dnd-app/docs/phases/completed/` (lowercase `c`) vs `dnd-app/docs/phases/QA/Completed/` (capital `C`) — the two "completed archive" folders disagree.
+- `dnd-app/docs/phases/INSTRUCTIONS.md` (uppercase) vs `dnd-app/docs/phases/QA/instructions.md` (lowercase) — the two instruction files disagree.
+
+Pick one convention and apply it to both. Lowercase-kebab (`completed/`, `instructions.md`) is the more common choice in this repo; whichever is picked, the `INSTRUCTIONS.md` references and `PHASE-INDEX.md` "move to `completed/`" wording should match.
+
+**Proposed fix / improvement:**
+- [ ] Rename `docs/phases/QA/Completed/` -> `docs/phases/QA/completed/` (or rename the top-level one to match — pick one).
+- [ ] Rename `docs/phases/QA/instructions.md` -> `INSTRUCTIONS.md` (or the top-level one to lowercase — pick one) and update any references.
+- [ ] Use `git mv` so history is preserved; grep the phases docs for the old paths afterward.
+
+**Related files:** `dnd-app/docs/phases/completed/`, `dnd-app/docs/phases/QA/Completed/`, `dnd-app/docs/phases/INSTRUCTIONS.md`, `dnd-app/docs/phases/QA/instructions.md`, `dnd-app/docs/phases/PHASE-INDEX.md`
+
+---
+
+### [2026-06-22] Duplicate, already-diverging `PLUGIN-SYSTEM.md` — one at repo-root `docs/`, one in `dnd-app/docs/`
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+There are two `PLUGIN-SYSTEM.md` files, both titled `# Plugin System - dnd-app`, describing the same dnd-app plugin API:
+
+- `docs/PLUGIN-SYSTEM.md` (repo root, ~6.6 KB)
+- `dnd-app/docs/PLUGIN-SYSTEM.md` (~11.2 KB)
+
+They already disagree: the root copy is shorter/older and even points readers at the dnd-app copy for the trust model ("see the trust model in `dnd-app/docs/PLUGIN-SYSTEM.md`"), so the root file is effectively a stale partial mirror of the canonical one. Two copies of a domain-specific doc is exactly the drift pattern the per-domain doc split was meant to avoid. (Note: the dnd-app `README.md` "Plugin system" section links to `./docs/PLUGIN-SYSTEM.md`, i.e. the dnd-app copy — so the root copy has no obvious inbound link from dnd-app.)
+
+**Proposed fix / improvement:**
+- [ ] Treat `dnd-app/docs/PLUGIN-SYSTEM.md` as canonical (it is the fuller, linked one). Replace `docs/PLUGIN-SYSTEM.md` with a one-line pointer to it, or delete the root copy if nothing references it (grep first: `git grep -n "docs/PLUGIN-SYSTEM.md"`).
+- [ ] If the root copy must stay (e.g. monorepo-level index), reduce it to a stub link so the content lives in exactly one place.
+
+**Related files:** `docs/PLUGIN-SYSTEM.md`, `dnd-app/docs/PLUGIN-SYSTEM.md`, `dnd-app/README.md`
+
+
 ### [2026-06-22] Pin one Node version for the whole monorepo (.nvmrc / engines) instead of repeating `node-version: 22`
 
 - **Category:** portability
