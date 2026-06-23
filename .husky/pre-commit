@@ -3,10 +3,14 @@
 # Escape hatch: `git commit --no-verify`. CI is the authoritative gate.
 staged() { git diff --cached --name-only --diff-filter=ACMR; }
 
-# dnd-app: Biome on staged files (run from repo ROOT so repo-root-relative
-# staged paths resolve and per-file dnd-app/biome.json is picked up) + renderer typecheck.
+# dnd-app: Biome on staged files + renderer typecheck. Run from INSIDE dnd-app
+# (matching CI's `working-directory: dnd-app` and the dungeon-scholar block below)
+# so dnd-app/biome.json is the project root. Running biome from the repo root makes
+# Biome treat the git root as the project root and reject dnd-app/biome.json as a
+# nested root config ("Found a nested root configuration"). biome --staged still
+# resolves repo-root-relative staged paths via git from within the subdir.
 if staged | grep -q '^dnd-app/'; then
-  ./dnd-app/node_modules/.bin/biome check --staged --no-errors-on-unmatched || exit 1
+  ( cd dnd-app && ./node_modules/.bin/biome check --staged --no-errors-on-unmatched ) || exit 1
   ( cd dnd-app && npx tsc --noEmit -p tsconfig.web.json ) || exit 1
 fi
 
