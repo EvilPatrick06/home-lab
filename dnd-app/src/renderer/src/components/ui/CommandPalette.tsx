@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import { Z } from '../../constants'
 import { useT } from '../../i18n'
 import { useOnboardingStore } from '../../stores/use-onboarding-store'
@@ -15,6 +15,7 @@ interface PaletteAction {
 export default function CommandPalette(): JSX.Element | null {
   const { t } = useT()
   const navigate = useNavigate()
+  const location = useLocation()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(0)
@@ -48,13 +49,15 @@ export default function CommandPalette(): JSX.Element | null {
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        // In a game session the in-game GameCommandPalette owns Ctrl/Cmd+K.
+        if (location.pathname.startsWith('/game/')) return
         e.preventDefault()
         setOpen((o) => !o)
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [])
+  }, [location.pathname])
 
   useEffect(() => {
     if (open) {

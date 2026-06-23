@@ -42,6 +42,7 @@ import DMBottomBar from './bottom/DMBottomBar'
 import PlayerBottomBar from './bottom/PlayerBottomBar'
 // DiceOverlay imported in App.tsx only — see P-2 comment below.
 import DiceTray from './dice3d/DiceTray'
+import GameCommandPalette from './GameCommandPalette'
 import type { ActiveModal } from './GameModalDispatcher'
 import GameModalDispatcher from './GameModalDispatcher'
 import {
@@ -1219,6 +1220,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
 
       {/* Modals */}
       <ModalErrorBoundary modalName="Game Modal" onClose={() => setActiveModal(null)}>
+        <GameCommandPalette onOpenModal={setActiveModal} isDM={effectiveIsDM} />
         <GameModalDispatcher
           activeModal={activeModal}
           setActiveModal={setActiveModal}
