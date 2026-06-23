@@ -4,11 +4,40 @@ Tested: dnd-vtt WEB build (Dungeon Table Online) v2.4.77 — 2026-06-22 · URL: 
 
 ## Top findings (Critical & High)
 
+- **[Critical]** Enabling BMO_API_KEY hardening makes the ENTIRE web app unreachable — /DungeonTableOnline/ returns HTTP 401 (static SPA routes not exempted from the auth gate)
 - **[High]** Hosting a Public game in the web build fails to list in the registry with a JS null-deref ("Cannot read properties of null (reading 'ok')")
 - **[High]** Entering a game hard-crashes ("Failed to fetch dynamically imported module: InGamePage-*.js") for any session open across a redeploy
 
 
 ## Phase 1 — Top-level pages & navigation
+### [Critical] Enabling BMO_API_KEY hardening makes the ENTIRE web app unreachable — `/DungeonTableOnline/` returns HTTP 401 (static SPA routes not exempted from the auth gate)
+- **Category:** bug | security | portability
+- **Severity:** critical
+- **Domain:** bmo | dnd-app
+- **Discovered by:** QA Agent
+- **During:** Phase 1 — app reachability (mid-session, after BMO_API_KEY got set on BMO)
+
+**Description:** The browser SPA was loading fine earlier in this run; it is now returning **HTTP 401** at its own root: `GET https://bmo.mybmoai.work/DungeonTableOnline/` -> `{"error":"unauthorized","message":"Set BMO_API_KEY in the client as Authorization: Bearer, or use localhost."}`. The build is deployed correctly (index.html + assets present, mtime 23:02). The cause is the global `@app.before_request` auth gate in `bmo/pi/app.py` (`_bmo_optional_api_key`, ~line 241): when the opt-in `BMO_API_KEY` env var is set, every non-localhost request must carry `Authorization: Bearer <key>` — and the exemption list is only `("/health", "/favicon.ico")` + `"/static/"`. It does NOT exempt the web app routes `/DungeonTableOnline/` or `/DungeonTableOnline/assets/*`. So the moment API-key hardening is enabled, the public browser client (static HTML/JS/CSS a browser cannot send a Bearer for) is fully gated -> the entire Dungeon Table Online site is offline for all external users.
+
+**Reproduction:**
+1. Set `BMO_API_KEY` in BMO's env (the documented opt-in hardening).
+2. From any non-localhost browser, open `https://bmo.mybmoai.work/DungeonTableOnline/`.
+3. The page returns the 401 JSON instead of the app; nothing loads.
+
+**Expected behavior:** The static SPA shell + its assets (public client code) should be served WITHOUT the API key — only the actual data/mutation routes (`/api/*`) should require it. Enabling `BMO_API_KEY` should harden the API, not take the whole web client offline.
+
+**Root cause (confirmed in source):** `bmo/pi/app.py` `_bmo_optional_api_key()` early-returns (exempts) only `p in ("/health", "/favicon.ico")` and `p.startswith("/static/")`. The webapp blueprint serves under `/DungeonTableOnline` (`static_url_path="/DungeonTableOnline"`, see `bmo/pi/routes/webapp_api.py`), which is NOT in the exemption set, so the gate 401s it.
+
+**Suggested action:** Add the web-app prefix to the before_request exemptions — e.g. allow `p == "/DungeonTableOnline"` or `p.startswith("/DungeonTableOnline/")` (the SPA shell + `/assets`, `/data`, `/fonts`, `/sounds`, the pdf worker) to pass without a key, the same way `/static/` is exempted. Keep `/api/*` gated.
+
+**Environment:** web build · external browser (non-localhost) · BMO_API_KEY hardening enabled
+
+**Related files:** `bmo/pi/app.py` (`_bmo_optional_api_key` before_request, ~lines 241-280), `bmo/pi/routes/webapp_api.py`
+
+**Console output / HTTP:** `HTTP 401 {"error":"unauthorized",...}`
+
+**Blocker note:** This currently blocks all further in-browser web QA this run (the app will not load). I did not modify BMO's auth config to work around it (no-mutate-Pi rule + it is the owner's security setting).
+
 ### "Check for Updates" hangs forever on "Checking…" in the web build (no result, no error)
 - **Category:** bug | portability
 - **Severity:** medium
@@ -364,6 +393,8 @@ The data layer is fine; the **reactive UI update after a mutation is broken** in
 **Related files:** `dnd-app/src/renderer/src/` (Settings Updates section)
 
 ## Could not test
+
+- **Bastion advance-time / Bastion Turn cycle** and **fog of war / dynamic lighting / walls+doors / AoE templates** — attempted this session but HARD-BLOCKED: mid-run the app root began returning HTTP 401 because BMO_API_KEY hardening got enabled on BMO and the static /DungeonTableOnline/* routes are not exempted from the auth gate (see the Critical finding). The browser can no longer load the app, and I did not alter BMO's auth config to work around it. These remain to be driven once the SPA routes are exempted (or the key is unset).
 The following were not testable in this unattended web run and are genuine environment/dependency blockers (not out-of-scope omissions):
 
 - **In-game surface — now TESTED (Solo).** Reached the in-game board via a saved character + a Solo campaign → Play. After a fresh load the board works (battlemap render, DM sidebar, Combat/Magic/Dice/Map panels, drawing tools, View-As selector, `/roll` dice). Still not exercised in depth this run: fog/lighting/AoE/walls, the full combat tracker flow, every DM panel, and cross-client View-As (needs a 2nd profile). The redeploy crash on entry is filed as a High finding in Phase 6.
