@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { extname, join, resolve } from 'node:path'
 import { protocol } from 'electron'
 import { logToFile } from '../log'
+import { isPathInside } from '../path-guard'
 import { getPluginsDir } from './plugin-scanner'
 
 const MIME_TYPES: Record<string, string> = {
@@ -38,7 +39,7 @@ export function registerPluginProtocol(): void {
       const resolvedBase = resolve(join(pluginsDir, pluginId))
 
       // Path traversal protection
-      if (!resolvedPath.startsWith(resolvedBase)) {
+      if (!isPathInside(resolvedBase, resolvedPath)) {
         logToFile('WARN', `Plugin protocol: path traversal blocked for ${pluginId}: ${filePath}`)
         return new Response('Access denied', { status: 403 })
       }

@@ -8,6 +8,7 @@ import { app } from 'electron'
 // promote it to a direct prod dep so behavior is stable across upgrades.
 import extract from 'extract-zip'
 import { logToFile } from '../log'
+import { isPathInside } from '../path-guard'
 import { logSecurityEvent } from '../security-log'
 import type { StorageResult } from '../storage/types'
 import { removePluginConfig } from './plugin-config'
@@ -145,7 +146,7 @@ export async function installFromZip(zipPath: string): Promise<StorageResult<str
     const targetDir = resolve(join(pluginsDir, pluginId))
 
     // Path traversal protection
-    if (!targetDir.startsWith(resolve(pluginsDir))) {
+    if (!isPathInside(pluginsDir, targetDir)) {
       await rm(tempDir, { recursive: true, force: true })
       return { success: false, error: 'Invalid plugin ID (path traversal)' }
     }
@@ -193,7 +194,7 @@ export async function uninstallPlugin(id: string): Promise<StorageResult<boolean
     const pluginDir = resolve(join(pluginsDir, id))
 
     // Path traversal protection
-    if (!pluginDir.startsWith(resolve(pluginsDir))) {
+    if (!isPathInside(pluginsDir, pluginDir)) {
       return { success: false, error: 'Invalid plugin path' }
     }
 
