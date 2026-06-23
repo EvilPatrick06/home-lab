@@ -318,7 +318,7 @@ describe('applyLongRest', () => {
     expect(result.character.hitPoints.temporary).toBe(0)
   })
 
-  it('does not restore innate spell uses (dropped in 15c.5)', () => {
+  it('restores innate spell uses on a long rest (PHASE-02 02A — v4 substrate)', () => {
     const spell = {
       id: 'burning-hands',
       name: 'Burning Hands',
@@ -329,9 +329,13 @@ describe('applyLongRest', () => {
     const char = makeCharacter({
       knownSpellRefs: [{ instanceId: spell.id, ref: { entryType: 'spells', entryId: spell.id, overrides: spell } }]
     })
-    // Phase 15c.5 — innate-spell-use restoration dropped (no v4 home for innateUses).
     const result = applyLongRest(char)
-    expect(result.hpRestored).toBeGreaterThanOrEqual(0)
+    // The save-time shim re-derives refs from the inline knownSpells we hand it.
+    const restored = (
+      result.character as { knownSpells?: Array<{ id: string; innateUses?: { remaining: number } }> }
+    ).knownSpells?.find((sp) => sp.id === 'burning-hands')
+    expect(restored?.innateUses?.remaining).toBe(1)
+    expect(result.resourcesRestored).toContain('Innate Spell Uses')
   })
 
   it('flags High Elf cantrip swap eligibility', () => {
