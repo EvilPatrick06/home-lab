@@ -100,6 +100,18 @@ def _build_dm_messages(system, message, history):
     return messages
 
 
+def _dnd_model_candidates():
+    """DM model fallback chain: the configured DND_MODEL first, then resilient
+    fallbacks (so the endpoint keeps working if the primary provider is out of
+    credits / unavailable, and auto-recovers to the primary once it is funded).
+    Override the fallbacks with BMO_DND_FALLBACK_MODELS (comma-separated)."""
+    from services.cloud_providers import DND_MODEL
+    raw = os.environ.get("BMO_DND_FALLBACK_MODELS", "llama-3.3-70b-versatile,gemini-3-flash")
+    chain = [DND_MODEL] + [m.strip() for m in raw.split(",") if m.strip()]
+    seen = set()
+    return [m for m in chain if m and not (m in seen or seen.add(m))]
+
+
 @chat_bp.route("/api/dnd/dm", methods=["POST"])
 @limiter.limit(RATE_LIMIT_CHAT)
 def api_dnd_dm():
@@ -117,11 +129,21 @@ def api_dnd_dm():
 
     messages = _build_dm_messages(system, message, history)
 
-    try:
-        from services.cloud_providers import DND_MODEL, cloud_chat
-        text = cloud_chat(messages, model=DND_MODEL, temperature=0.8, max_tokens=2048)
-    except Exception as e:
-        log.warning(f"[dnd-dm] generation failed: {e}")
+    from services.cloud_providers import cloud_chat
+
+    text = ""
+    last_err = None
+    for model in _dnd_model_candidates():
+        try:
+            text = cloud_chat(messages, model=model, temperature=0.8, max_tokens=2048)
+            if text and text.strip():
+                break
+        except Exception as e:  # try the next provider in the chain
+            last_err = e
+            log.warning(f"[dnd-dm] model {model} failed: {e}")
+
+    if not (text and text.strip()):
+        log.warning(f"[dnd-dm] all DM models failed: {last_err}")
         return jsonify({"error": "DM generation failed"}), 502
 
     return jsonify({"text": text})
