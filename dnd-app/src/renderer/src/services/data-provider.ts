@@ -138,7 +138,18 @@ export async function loadJson<T>(path: string): Promise<T> {
     jsonCache.set(path, remote)
     return remote
   }
-  const data = (await window.api.game.loadJson(path)) as T
+  // Bundled-file fallback via the main-process IPC bridge. In non-DOM test
+  // envs (vitest `node`) `window`/`window.api.game.loadJson` is absent; return
+  // null instead of throwing so callers fall through to their empty/default
+  // handling deterministically (no `window is not defined` loader spam, and the
+  // heavy renderer pages stop churning through failing loaders). In the real
+  // renderer this bridge always exists, so production behavior is unchanged.
+  const loader = typeof window !== 'undefined' ? window.api?.game?.loadJson : undefined
+  if (typeof loader !== 'function') {
+    jsonCache.set(path, null)
+    return null as T
+  }
+  const data = (await loader(path)) as T
   jsonCache.set(path, data)
   return data
 }

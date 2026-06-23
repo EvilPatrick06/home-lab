@@ -318,23 +318,32 @@ describe('sync receiver hardening (Phase 28a.2/.3/.4)', () => {
   })
 
   it('rate-limits after 60 requests with 429 + Retry-After', async () => {
-    // First 60 should succeed.
-    for (let i = 0; i < 60; i++) {
-      const res = await fetch(`${BASE}/api/sync`, {
+    // Freeze Date.now() (real timers stay live for network I/O) so the token
+    // bucket cannot refill mid-burst on slow hosts — the loop of 60 real
+    // round-trips took >1s on bmo and refilled a token, flaking the 61st.
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-01-01T00:00:00Z'))
+    try {
+      // First 60 should succeed.
+      for (let i = 0; i < 60; i++) {
+        const res = await fetch(`${BASE}/api/sync`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(validEvent)
+        })
+        expect(res.status).toBe(200)
+      }
+      // 61st should be rate-limited.
+      const limited = await fetch(`${BASE}/api/sync`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(validEvent)
       })
-      expect(res.status).toBe(200)
+      expect(limited.status).toBe(429)
+      expect(limited.headers.get('retry-after')).toBe('60')
+    } finally {
+      vi.useRealTimers()
     }
-    // 61st should be rate-limited.
-    const limited = await fetch(`${BASE}/api/sync`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(validEvent)
-    })
-    expect(limited.status).toBe(429)
-    expect(limited.headers.get('retry-after')).toBe('60')
   })
 
   it('validates initiative endpoint with InitiativeSyncSchema', async () => {
