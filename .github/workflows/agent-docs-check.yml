@@ -1,0 +1,31 @@
+name: agent-instructions drift check
+
+# Flags when the canonical-pointer or a SYNC:agents block drifts across the four
+# hand-maintained AI-assistant guides. (BMO-SUGGESTIONS 2026-06-22.)
+on:
+  push:
+    paths:
+      - 'AGENTS.md'
+      - 'CLAUDE.md'
+      - 'GEMINI.md'
+      - '.github/copilot-instructions.md'
+      - 'scripts/check-agent-instructions.sh'
+      - '.github/workflows/agent-docs-check.yml'
+  pull_request:
+    paths:
+      - 'AGENTS.md'
+      - 'CLAUDE.md'
+      - 'GEMINI.md'
+      - '.github/copilot-instructions.md'
+      - 'scripts/check-agent-instructions.sh'
+      - '.github/workflows/agent-docs-check.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - run: bash scripts/check-agent-instructions.sh
