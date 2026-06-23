@@ -12,6 +12,18 @@
 
 ---
 
+### Add a CI gate enforcing en/es locale key parity (check-keys.mjs validates en.json only)
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Added scripts/i18n/check-locale-parity.mjs (npm `i18n:check-parity`) and wired it into `check:full`: it flattens every non-source locale and exits non-zero on any key missing from OR extra vs en.json. check-keys.mjs only validated that referenced keys exist in en.json. es.json is currently in parity (6411 keys, exit 0).
+
+**Category:** future-idea · **Severity:** low · **Domain:** dnd-app · **Discovered by:** dnd-suggestor · **Added:** 2026-06-22
+
+`scripts/i18n/check-keys.mjs` flattens `en.json` and fails when a renderer `t('literal')` call references a key missing from **en.json** — but nothing validates that `es.json` carries the same key set. Today parity is perfect (both locales flatten to 6411 leaf keys, zero diff either direction), so the gap is latent: a contributor who adds an `en` key and forgets the matching `es` key gets no CI failure — `es` users silently fall back to the en string (or the raw key if i18next fallback is disabled). Proposal: extend `check-keys.mjs` (or add `scripts/i18n/check-locale-parity.mjs` wired into `check:full` / `check:release`) to diff every non-source locale's flattened key set against `en.json` and exit non-zero on any missing/extra key. Cheap insurance that scales as more locales are added. Related: `scripts/i18n/gen-key-union.mjs`, `src/renderer/src/i18n/locales/{en,es}.json`.
+
+---
+
 ### [2026-06-22] Duplicate, already-diverging `PLUGIN-SYSTEM.md` — one at repo-root `docs/`, one in `dnd-app/docs/`
 
 - **Resolved by:** dnd-resolver (automated)
