@@ -147,10 +147,24 @@ class CalendarService:
 
     # ── Read Events ──────────────────────────────────────────────────
 
-    def get_upcoming_events(self, days_ahead: int = 7, max_results: int = 20) -> list[dict]:
-        """Fetch upcoming events from Google Calendar."""
+    def get_upcoming_events(self, days_ahead: int = 7, max_results: int = 20, time_min=None) -> list[dict]:
+        """Fetch events from Google Calendar.
+
+        By default the window starts at *now* (upcoming events). Pass ``time_min``
+        (a datetime or an ISO-8601 string) to start it elsewhere — the dashboard's
+        Day view passes start-of-today and the Week view passes the week's Sunday,
+        so already-started + earlier-this-week events are included instead of only
+        events strictly after the current instant.
+        """
         service = self._get_service()
-        now = datetime.datetime.now(tz=datetime.timezone.utc)
+        if isinstance(time_min, str):
+            try:
+                time_min = datetime.datetime.fromisoformat(time_min.replace("Z", "+00:00"))
+            except ValueError:
+                time_min = None
+        now = time_min or datetime.datetime.now(tz=datetime.timezone.utc)
+        if now.tzinfo is None:
+            now = now.replace(tzinfo=datetime.timezone.utc)
         time_max = now + datetime.timedelta(days=days_ahead)
 
         result = (

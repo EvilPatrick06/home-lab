@@ -1677,14 +1677,22 @@ function bmo() {
     // ── Calendar ──────────────────────────────────────────────
 
     getFilteredCalEvents() {
-      if (this.calDays !== 1) return this.calEvents;
-      // Day mode: only show today's events
-      const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
-      return this.calEvents.filter(e => {
-        const start = (e.start || '').slice(0, 10);
-        const date = (e.date || '').slice(0, 10);
-        return start === today || date === today;
-      });
+      // Filter the fetched window down to the active view, using the ISO fields
+      // (e.start is a human-readable string, NOT a date — the old slice(0,10) on it
+      // never matched, so Day always showed "free today"). An event is shown when it
+      // OVERLAPS the range, so an already-started event still counts as today.
+      const startMs = (e) => new Date(e.start_iso || e.start).getTime();
+      const endMs = (e) => new Date(e.end_iso || e.end || e.start_iso || e.start).getTime();
+      const overlaps = (e, lo, hi) => startMs(e) < hi && endMs(e) >= lo;
+      if (this.calDays === 1) {
+        const lo = new Date(); lo.setHours(0, 0, 0, 0);                 // today 00:00 (local)
+        const hi = new Date(lo); hi.setDate(hi.getDate() + 1);          // tomorrow 00:00
+        return this.calEvents.filter(e => overlaps(e, lo.getTime(), hi.getTime()));
+      }
+      const lo = new Date(); lo.setDate(lo.getDate() - lo.getDay());    // back to Sunday (0=Sun)
+      lo.setHours(0, 0, 0, 0);
+      const hi = new Date(lo); hi.setDate(hi.getDate() + 7);            // next Sunday 00:00
+      return this.calEvents.filter(e => overlaps(e, lo.getTime(), hi.getTime()));
     },
 
     async fetchCalendar() {
@@ -1696,7 +1704,13 @@ function bmo() {
         return;
       }
       try {
-        const res = await fetch(`/api/calendar/events?days=${this.calDays}`);
+        // Fetch one fixed window — this week's Sunday for ~2 weeks — and let
+        // getFilteredCalEvents() scope it to the Day/Week view. Starting at Sunday
+        // (not now) so the current week's earlier days + already-started events show.
+        const winStart = new Date();
+        winStart.setDate(winStart.getDate() - winStart.getDay()); // back to Sunday (0=Sun)
+        winStart.setHours(0, 0, 0, 0);
+        const res = await fetch(`/api/calendar/events?days=14&from=${encodeURIComponent(winStart.toISOString())}`);
         const data = await res.json();
         if (!res.ok) {
           if (!this.calOffline) console.warn('[cal] API error:', res.status, data);
@@ -1706,7 +1720,8 @@ function bmo() {
         if (this.calOffline) console.info('[cal] recovered');
         this.calOffline = false;
         this.calEvents = data.events || data || [];
-        if (this.calEvents.length > 0) this.nextEvent = this.calEvents[0];
+        const nowMs = Date.now();
+        this.nextEvent = this.calEvents.find((e) => new Date(e.start_iso || e.start).getTime() >= nowMs) || null;
         try { localStorage.setItem('bmo_cal_events', JSON.stringify(this.calEvents)); } catch {}
       } catch (e) {
         if (!this.calOffline) console.warn('[cal] fetch failed:', e?.message || e);

@@ -51,8 +51,11 @@ def _require_calendar_service():
 def api_calendar_events():
     calendar = _calendar()
     days = int(request.args.get("days", 7))
+    # Optional window start (ISO-8601). The dashboard passes start-of-today (Day) or
+    # the week's Sunday (Week) so the view isn't a rolling-from-now window.
+    time_min = request.args.get("from") or None
     try:
-        events = calendar.get_upcoming_events(days_ahead=days)
+        events = calendar.get_upcoming_events(days_ahead=days, time_min=time_min)
         return jsonify({"events": events})
     except RuntimeError:
         return jsonify({"offline": True, "events": [], "needs_auth": True})
