@@ -14,6 +14,20 @@ How to triage: [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md)
 
 > Resolved cross-cutting / `Domain: both` entries moved out of `ISSUES-LOG.md` + `SUGGESTIONS-LOG.md`. Newest first.
 
+### [2026-06-24] Monorepo subproject metadata inconsistent — oracle-worker README/description + per-subproject LICENSE
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-24
+- **Resolution:** Added `oracle-worker/README.md` and filled its empty `package.json` `description`. Standardised licensing **per subproject** (user decision): copied the repo's ISC `LICENSE` verbatim into `dungeon-scholar/`, `bmo/`, and `oracle-worker/` (root + dnd-app already had one), added the missing `"license": "ISC"` to `dungeon-scholar/package.json` (dnd-app + oracle-worker already declared ISC), and pointed the bmo + dungeon-scholar README License sections at their own `LICENSE` instead of "inherited from parent repo". All five (root + four subprojects) now carry a LICENSE and declare ISC consistently.
+- **Branch:** auto/overall-resolver
+
+- **Category:** docs, debt
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+
+**Original problem:** Subproject top-level metadata was inconsistent: oracle-worker had no README and an empty package `description`; a LICENSE existed only at root + dnd-app (two of five) with no stated convention. README/description were fixed first; the LICENSE convention was held for a human decision, which the user resolved as per-subproject.
+
 ### [2026-06-24] Monorepo Node pin incomplete — 4 CI jobs still hardcode `node-version: "22"` instead of `.nvmrc`
 
 - **Resolved by:** overall-resolver (automated)
