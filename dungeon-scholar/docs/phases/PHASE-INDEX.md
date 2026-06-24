@@ -17,13 +17,22 @@
 > authored and executed under the **repo-wide** `dnd-app/docs/phases/` set and live in
 > `dnd-app/docs/phases/completed/`. This per-domain index is the home for **new**
 > dungeon-scholar phase plans authored from the dungeon-scholar QA reports
-> (`QA/QA-report-*.md`) by the dungeon-scholar phase-maker, going forward.
+> (`QA/QA-report-*.md`) by the dungeon-scholar phase-maker, going forward. The
+> numbering below is **local to this folder** (it restarts at PHASE-01) — it is not a
+> continuation of the dnd-app phase numbers.
 
 | # | Plan file | Domain | Depends on | Status |
 |---|---|---|---|---|
-| _(none yet)_ | — | dungeon-scholar | — | — |
+| 01 | [`PHASE-01-routing-pwa-update-resilience.md`](./PHASE-01-routing-pwa-update-resilience.md) | dungeon-scholar | — | pending |
+| 02 | [`PHASE-02-load-noise-ux-docs-round.md`](./PHASE-02-load-noise-ux-docs-round.md) | dungeon-scholar | — | pending |
 
-> **No active plans yet.** New plans land here when the dungeon-scholar phase-maker
-> consolidates a QA report into `PHASE-NN-<slug>.md` files. Add a row per plan
-> (numeric order), list prerequisites in **Depends on**, and update **Status**
-> (`pending` → `in progress` → `done`) as the ds-phase-executer ships each one.
+> **Source:** both plans were consolidated from `QA/QA-report-2026-06-24.md` (now in
+> `QA/completed/`) by the dungeon-scholar phase-maker. PHASE-01 carries the report's
+> only High (a lazy-route navigation crashing into the error boundary after a deploy —
+> the dungeon-scholar analogue of dnd-app PHASE-44C); PHASE-02 bundles the five
+> low-severity findings (Supabase token-refresh console noise, the 404-ing README
+> URL, the delve viewport overflow, the unit-less quest gold reward, and the
+> "streak broken" devotion copy). Neither depends on the other; run PHASE-01 first
+> by severity. Add a row per future plan (numeric order), list prerequisites in
+> **Depends on**, and update **Status** (`pending` → `in progress` → `done`) as the
+> ds-phase-executer ships each one.
