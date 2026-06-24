@@ -17,12 +17,12 @@ from services.bmo_logging import get_logger
 
 log = get_logger("voice_canary")
 
-_PI_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_PI_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 _DATA_DIR = os.path.join(_PI_ROOT, "data")
 STATUS_PATH = os.path.join(_DATA_DIR, "voice_canary_status.json")
 _CLIPS_DIR = os.path.join(_PI_ROOT, "wake", "clips")
 # Max acceptable STT latency before the canary flags a regression.
-STT_BUDGET_S = float(os.environ.get("BMO_CANARY_STT_BUDGET_S", "15"))
+STT_BUDGET_S = float(os.environ.get("BMO_CANARY_STT_BUDGET_S", "75"))
 
 
 def _pick_clip() -> str | None:
@@ -42,17 +42,31 @@ def run_canary() -> dict:
         from services.voice.voice_pipeline import VoicePipeline
         vp = VoicePipeline()
 
+        # Exercise the local Whisper path directly. We use _local_transcribe (raw
+        # model output) rather than transcribe(), because transcribe() applies a
+        # hallucination filter that maps short wake-word clips ("hey bmo") to an
+        # empty string -- so a healthy STT engine looked "empty" and the canary
+        # false-alarmed. Raw, non-empty output within budget = model loaded & ran.
+        # Drop in a real-speech clip (known phrase) to also assert content.
         t0 = time.time()
-        transcript = (vp.transcribe(clip) or "").strip()
+        try:
+            raw = (vp._local_transcribe(clip) or "").strip()
+        except Exception as e:  # noqa: BLE001
+            result["stt_s"] = round(time.time() - t0, 3)
+            result.update(stage="stt_error", detail=f"local STT raised: {str(e)[:200]}")
+            return _write(result)
         stt_s = round(time.time() - t0, 3)
         result["stt_s"] = stt_s
-        result["transcript"] = transcript[:200]
+        result["transcript"] = raw[:200]
 
-        if not transcript:
-            result.update(stage="stt_empty", detail="STT returned empty transcript")
-            return _write(result)
+        # Runaway/hung STT is a real regression (cold model load is ~40s, so the
+        # default budget leaves headroom; override via BMO_CANARY_STT_BUDGET_S).
         if stt_s > STT_BUDGET_S:
             result.update(stage="stt_slow", detail=f"STT {stt_s}s > budget {STT_BUDGET_S}s")
+            return _write(result)
+        # No raw tokens at all = Whisper/deps regression while /health stays green.
+        if not raw:
+            result.update(stage="stt_empty", detail="local Whisper produced no tokens")
             return _write(result)
 
         # TTS leg is opt-in (needs an audio device) so the canary stays safe on
