@@ -257,6 +257,7 @@
         <div class="text-xs text-text-dim uppercase tracking-wider mb-1">Notes</div>
         <form @submit.prevent="addNote()" class="flex gap-1 mb-1">
           <input x-model="newNoteText" type="text" placeholder="Add a note..."
+                 @keydown.enter.prevent.stop="addNote()"
                  class="flex-1 bg-surface rounded px-3 py-1.5 text-sm text-text outline-none focus:ring-1 focus:ring-accent">
           <button type="submit" class="bg-accent text-surface-dark px-3 py-1.5 rounded text-sm font-medium">+</button>
         </form>
@@ -1257,7 +1258,7 @@
         <!-- Quick presets -->
         <div class="flex gap-1.5 justify-center">
           <template x-for="p in [{s:30,l:'30s'},{s:60,l:'1m'},{s:180,l:'3m'},{s:300,l:'5m'},{s:600,l:'10m'},{s:900,l:'15m'},{s:1800,l:'30m'},{s:3600,l:'1h'}]" :key="p.s">
-            <button @click="newTimerSec = p.s; createTimerRaw()"
+            <button @click="startPresetTimer(p.s, p.l)"
                     class="w-12 h-12 rounded-full bg-surface-light hover:bg-accent/20 text-sm font-medium text-text-muted hover:text-accent transition-colors"
                     x-text="p.l"></button>
           </template>
@@ -1345,14 +1346,14 @@
               <div class="text-sm text-text-dim" x-text="item.target_time"></div>
               <div x-show="item.target_date" class="text-xs text-text-muted" x-text="item.target_date"></div>
               <div x-show="item.repeat && item.repeat !== 'none'" class="text-xs text-accent" x-text="alarmRepeatLabel(item)"></div>
-              <div x-show="item.type === 'alarm' && item.repeat && item.repeat !== 'none'"
+              <div x-show="item.type === 'alarm'"
                    class="text-[11px] text-text-muted" x-text="alarmEnabledLabel(item)"></div>
               <div x-show="item.tag && item.tag !== 'reminder'" class="text-xs text-text-muted" x-text="item.tag === 'wake-up' ? '\u2600\uFE0F Wake Up' : item.tag"></div>
             </div>
             <!-- Actions -->
             <div class="flex gap-1.5 shrink-0">
-              <button x-show="item.type === 'alarm' && item.repeat && item.repeat !== 'none'"
-                      @click="toggleRecurringAlarm(item)"
+              <button x-show="item.type === 'alarm'"
+                      @click="toggleAlarm(item)"
                       class="text-xs px-2 py-1 rounded-lg transition-colors"
                       :class="item.enabled === false ? 'bg-surface text-text-muted' : 'bg-accent/20 text-accent'"
                       x-text="item.enabled === false ? 'Off' : 'On'"></button>
@@ -1474,6 +1475,19 @@
           </div>
         </template>
         <p x-show="!volumeLevels" class="text-sm text-text-dim text-center py-2">Loading...</p>
+      </div>
+
+      <!-- 03G: OLED Face — manual expression picker (transient; agent resumes on next chat turn) -->
+      <div class="bg-surface-light rounded-lg p-3">
+        <h3 class="text-base font-bold mb-2">🙂 Face</h3>
+        <div class="grid grid-cols-3 gap-2">
+          <template x-for="f in ['idle','happy','surprised','sleepy','concerned','excited','thinking','speaking','listening','error','looking_around']" :key="f">
+            <button @click="setFace(f)"
+                    class="px-2 py-2 rounded text-xs font-medium bg-surface text-text-muted hover:bg-accent/20 hover:text-accent transition-colors capitalize"
+                    x-text="f.replace('_',' ')"></button>
+          </template>
+        </div>
+        <p class="text-[11px] text-text-dim mt-2">Manual override; BMO resumes automatic expressions on the next chat turn.</p>
       </div>
 
       <!-- Scene Modes -->

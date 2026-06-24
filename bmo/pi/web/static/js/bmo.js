@@ -29,6 +29,7 @@ window.addEventListener('unhandledrejection', (e) => {
 
 // ── Google Places Autocomplete ──────────────────────────────────
 let _placesLoaded = false;
+let _placesWarned = false;
 let _placesCallbacks = [];
 
 function loadPlacesAPI(apiKey) {
@@ -37,7 +38,11 @@ function loadPlacesAPI(apiKey) {
   const script = document.createElement('script');
   script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=_onPlacesReady&loading=async`;
   script.async = true;
-  script.onerror = () => console.warn('Failed to load Google Places API');
+  script.onerror = () => {
+    if (_placesWarned) return;   // 03B: at most once per session
+    _placesWarned = true;
+    console.warn('[bmo] Google Places API failed to load — check the API key, its HTTP-referrer restriction (must include this host), and that the Maps JS API is enabled.');
+  };
   document.head.appendChild(script);
 }
 
@@ -409,6 +414,10 @@ function bmo() {
 
     init() {
       this.refreshClientTimezone(true);
+      // 03A: seed an authoritative TZ from the cached weather payload before the
+      // first paint so the clock never flashes browser-local then jumps an hour
+      // when the weather/location socket event (or /api/config) lands.
+      try { this.timezone = JSON.parse(localStorage.getItem('bmo_weather_cached'))?.timezone || this.timezone; } catch {}
       this.updateClock();
       setInterval(() => this.updateClock(), 1000);
       setInterval(() => this.refreshClientTimezone(false), 60000);
@@ -476,8 +485,24 @@ function bmo() {
       this.fetchNotes();
       this.fetchTvStatus();
 
-      // Poll music state every 2s (on any tab since now-playing bar is global)
-      setInterval(() => this.fetchMusicState(), 2000);
+      // 03H: music-state poll with backoff + scoping. Polls only when the music
+      // tab is active OR a song is playing (now-playing strip is global), and
+      // lengthens the interval on repeated non-2xx (2s→…→30s cap) so a down
+      // /api/music/state (503) stops flooding the network; resets to 2s on 2xx.
+      this._musicPollDelay = 2000;
+      const scheduleMusicPoll = () => {
+        this._musicPollTimer = setTimeout(async () => {
+          const active = this.tab === 'music' || !!(this.musicState && this.musicState.song);
+          if (!active) {
+            this._musicPollDelay = 2000;
+          } else {
+            const ok = await this.fetchMusicState();
+            this._musicPollDelay = ok ? 2000 : Math.min(this._musicPollDelay * 2, 30000);
+          }
+          scheduleMusicPoll();
+        }, this._musicPollDelay);
+      };
+      scheduleMusicPoll();
       // Poll timers every 1s
       setInterval(() => { if (this.timerItems.length > 0 || this.tab === 'timers') this.fetchTimers(); }, 1000);
       // Poll calendar every 5 min
@@ -629,8 +654,11 @@ function bmo() {
     // ── Clock ─────────────────────────────────────────────────
 
     updateClock() {
+      // 03A: render correct-or-absent, never wrong-then-right. Until the
+      // authoritative TZ is known, skip the tick (no browser-local fallback).
+      if (!this.timezone) return;
       const now = new Date();
-      const options = this.timezone ? { timeZone: this.timezone } : {};
+      const options = { timeZone: this.timezone };
       this.clock = now.toLocaleTimeString('en-US', {
         ...options,
         hour: '2-digit',
@@ -1612,6 +1640,7 @@ function bmo() {
     async fetchMusicState() {
       try {
         const res = await fetch('/api/music/state');
+        if (!res.ok) return false;   // 03H: 503 (service down) → caller backs off
         const state = await res.json();
         // Volume is managed locally — always preserve current slider value
         if (this.musicState.volume !== undefined) {
@@ -1620,7 +1649,8 @@ function bmo() {
         this.musicState = state;
         // Sync settings slider
         if (this.volumeLevels) this.volumeLevels.music = this.musicState.volume;
-      } catch {}
+        return true;
+      } catch { return false; }
     },
 
     async fetchMusicDevices() {
@@ -2102,9 +2132,38 @@ function bmo() {
 
     // ── Camera ────────────────────────────────────────────────
 
+    async setFace(expression) {
+      // 03G: manual OLED face picker (Settings). Posts to the existing
+      // /api/oled/expression set endpoint; the agent's _sync_expression resumes
+      // driving the face on the next chat turn, so this is a transient override.
+      try {
+        const res = await fetch('/api/oled/expression', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ expression }),
+        });
+        if (!res.ok) { this.showNotification('Could not set face', 'error'); return; }
+        this.showNotification(`Face set to ${expression}`, 'success');
+      } catch {
+        this.showNotification('Could not set face', 'error');
+      }
+    },
+
     async cameraSnapshot() {
-      await fetch('/api/camera/snapshot', { method: 'POST' });
-      this.showNotification('Snapshot saved!');
+      // 03H: surface backend failures (e.g. 503 'camera unavailable') instead of
+      // a silent no-op — parity with the camera-view Snap.
+      try {
+        const res = await fetch('/api/camera/snapshot', { method: 'POST' });
+        if (!res.ok) {
+          let msg = `Snapshot failed (${res.status})`;
+          try { const d = await res.json(); if (d?.error) msg = `Snapshot failed: ${d.error}`; } catch {}
+          this.showNotification(msg, 'error');
+          return;
+        }
+        this.showNotification('Snapshot saved!');
+      } catch (e) {
+        this.showNotification('Snapshot failed: ' + (e.message || 'network'), 'error');
+      }
     },
 
     async cameraDescribe() {
@@ -2207,6 +2266,29 @@ function bmo() {
       this.fetchTimers();
     },
 
+    async startPresetTimer(seconds, label) {
+      // 03D: quick-start preset — one tap = one timer, WITHOUT mutating the
+      // custom newTimerSec/Min/Label fields (so a later Start can't reuse a
+      // lingering preset value and create an accidental second timer).
+      if (!seconds || seconds <= 0) return;
+      await fetch('/api/timers/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ seconds, label: label || `${seconds}s timer` }),
+      });
+      this.fetchTimers();
+    },
+
+    _warnIfAlarmSilent() {
+      // 03F: cross-check 'armed' vs 'audible' at arm/enable time. A non-blocking
+      // warning only — never auto-change the user's volume.
+      const v = this.volumeLevels;
+      if (!v) return;
+      if (v.alarms === 0 || v.system === 0) {
+        this.showNotification('Alarm volume is 0% — this alarm will be silent. Raise Alarms or Master volume in Settings.', 'warning');
+      }
+    },
+
     async createAlarmFromTime() {
       // Round 4 #22 (2026-05-17): server-side guard in case the
       // template's :disabled binding didn't engage (defensive).
@@ -2229,6 +2311,7 @@ function bmo() {
       this.alarmLabel = '';
       this.alarmTag = 'reminder';
       this.fetchTimers();
+      this._warnIfAlarmSilent();
     },
 
     async createScheduledAlarm() {
@@ -2257,6 +2340,7 @@ function bmo() {
       this.schedRepeatDays = [];
       this.schedTag = 'reminder';
       this.fetchTimers();
+      this._warnIfAlarmSilent();
     },
 
     toggleAlarmDay(day) {
@@ -2403,8 +2487,11 @@ function bmo() {
       this.fetchTimers();
     },
 
-    async toggleRecurringAlarm(item) {
-      if (!item || item.type !== 'alarm' || !item.repeat || item.repeat === 'none') return;
+    async toggleAlarm(item) {
+      // 03E: enable/disable any alarm (one-off or recurring). The backend
+      // set_alarm_enabled + Alarm.check() both honor the flag regardless of
+      // repeat, so a disabled one-off simply won't fire until re-enabled.
+      if (!item || item.type !== 'alarm') return;
       const enabled = item.enabled === false;
       await fetch(`/api/alarms/${item.id}/enabled`, {
         method: 'POST',
@@ -2412,7 +2499,10 @@ function bmo() {
         body: JSON.stringify({ enabled, client_timezone: this.clientTimezone }),
       });
       this.fetchTimers();
+      if (enabled) this._warnIfAlarmSilent();   // 03F: warn if re-enabling into 0% volume
     },
+    // Back-compat alias (older callers): recurring-only entry point now general.
+    toggleRecurringAlarm(item) { return this.toggleAlarm(item); },
 
     // ── Weather ───────────────────────────────────────────────
 
