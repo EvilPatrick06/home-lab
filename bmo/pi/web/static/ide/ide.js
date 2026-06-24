@@ -77,19 +77,39 @@
 
   // ── Socket.IO ───────────────────────────────────────────────
 
+  let wasDisconnected = false;  // 02B: only announce 'reconnected' after a real drop
+
   function initSocket() {
-    socket = io();
-    
+    // 02B: bounded auto-reconnect so a transient WS/polling drop self-heals.
+    socket = io({ reconnection: true, reconnectionAttempts: Infinity, reconnectionDelayMax: 10000 });
+
     socket.on('connect', () => {
       $('#connection-status').className = 'status-dot online';
       const txt = document.getElementById('connection-text');
       if (txt) txt.textContent = 'Connected';
+      if (wasDisconnected) {
+        wasDisconnected = false;
+        // 02B: re-establish each PTY (server keys sessions by socket sid, which
+        // changes on reconnect) and tell the user the pane is live again.
+        for (const t of state.terminals) {
+          if (t.term) t.term.writeln('\r\n[terminal reconnected]');
+          const cols = (t.term && t.term.cols) || 80;
+          const rows = (t.term && t.term.rows) || 24;
+          socket.emit('terminal_open', { term_id: t.id, cols, rows });
+        }
+      }
     });
-    
+
     socket.on('disconnect', () => {
+      wasDisconnected = true;
       $('#connection-status').className = 'status-dot offline';
       const txt = document.getElementById('connection-text');
       if (txt) txt.textContent = 'Offline';
+      // 02B: write a visible line into each open terminal instead of leaving a
+      // blank pane behind an 'Offline' dot.
+      for (const t of state.terminals) {
+        if (t.term) t.term.writeln('\r\n[terminal offline — reconnecting…]');
+      }
     });
     
     socket.on('terminal_output', (data) => {

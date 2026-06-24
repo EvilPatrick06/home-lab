@@ -94,3 +94,7 @@ Expected:
 - ingress validation succeeds
 - config points to `http://localhost:5000`
 - local Flask returns HTTP 200
+
+## Websocket upgrade through Access (PHASE-02 02E, 2026-06-24)
+
+If the dashboard chat or IDE terminal hang over `https://bmo.mybmoai.work` but work on the LAN, socket.io is likely stuck on HTTP long-polling because **Cloudflare Access** is blocking the websocket upgrade on `/socket.io/*`. The LAN-vs-tunnel verification procedure and the exact Access policy / `cloudflared tunnel ingress validate` fix are in [`CLOUDFLARE_TUNNEL_SETUP.md`](./CLOUDFLARE_TUNNEL_SETUP.md) → "Realtime / websocket verification". The in-repo app is already WS-capable; this is an edge-config (owner) action, not an app change.

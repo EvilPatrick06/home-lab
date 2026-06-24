@@ -58,3 +58,38 @@ def test_settings_post_400_on_missing_key(client):
     r = client.post("/api/settings", json={"value": 1})
     # Either settings-not-initialized (500) or missing-key (400); both are non-200 guards.
     assert r.status_code in (400, 500)
+
+
+# ── PHASE-01 01D — status summary distinguishes error / off / ok ──
+
+def test_status_summary_monitoring_error(client):
+    import app as bmo
+    bmo.health_checker = None
+    bmo.health_checker_error = "RuntimeError(\"psutil missing\")"
+    r = client.get("/api/status/summary")
+    assert r.status_code == 200
+    body = r.get_json()
+    assert body["monitoring"] == "error"
+    assert "psutil missing" in body["detail"]
+    bmo.health_checker_error = None  # reset
+
+
+def test_status_summary_monitoring_off(client):
+    import app as bmo
+    bmo.health_checker = None
+    bmo.health_checker_error = None
+    r = client.get("/api/status/summary")
+    assert r.status_code == 200
+    assert r.get_json()["monitoring"] == "off"
+
+
+def test_status_summary_monitoring_ok(client):
+    import app as bmo
+    from unittest.mock import MagicMock
+    hc = MagicMock()
+    hc.get_status.return_value = {"overall": "healthy", "services": {"a": {}}, "pi_stats": {}}
+    bmo.health_checker = hc
+    r = client.get("/api/status/summary")
+    assert r.status_code == 200
+    assert r.get_json()["monitoring"] == "ok"
+    bmo.health_checker = None  # reset

@@ -412,12 +412,14 @@ voice = None
 camera = None
 calendar = None
 music = None
+music_init_error = None
 smart_home = None
 weather = None
 timers = None
 agent = None
 led_controller = None
 health_checker = None
+health_checker_error = None
 notifier = None
 audio_service = None
 scene_service = None
@@ -472,7 +474,7 @@ def init_services():
     """Initialize all services. Called once on startup.
     Gracefully skips hardware-dependent services when running on non-Pi platforms.
     """
-    global voice, camera, calendar, music, smart_home, weather, timers, agent, led_controller, health_checker, notifier, audio_service, scene_service, oled_face, list_service, alert_service, routine_service, personality_engine, location_service
+    global voice, camera, calendar, music, music_init_error, smart_home, weather, timers, agent, led_controller, health_checker, health_checker_error, notifier, audio_service, scene_service, oled_face, list_service, alert_service, routine_service, personality_engine, location_service
 
     from agent import BmoAgent
 
@@ -666,7 +668,8 @@ def init_services():
             music = MusicService(smart_home=smart_home, socketio=socketio, audio_service=audio_service)
             service_map["music"] = music
             log.info("[bmo]   Music: OK")
-        except Exception:
+        except Exception as e:
+            music_init_error = repr(e)
             log.exception("[bmo]   Music: SKIPPED")
 
     # Timers
@@ -864,7 +867,8 @@ def init_services():
         health_checker = HealthChecker(socketio=socketio, check_interval=60)
         health_checker.start()
         log.info("[bmo]   Health checker: OK (60s interval)")
-    except Exception:
+    except Exception as e:
+        health_checker_error = repr(e)
         log.exception("[bmo]   Health checker: SKIPPED")
 
     # Start KDE Connect daemon (needed for notification bridge)

@@ -57,3 +57,17 @@ Related: `bmo/pi/app.py` (`/ide` route), `bmo/pi/routes/ide.py`, `bmo/pi/web/tem
 
 _Relocated from `docs/BMO-SUGGESTIONS-LOG.md` on 2026-06-22._
 
+
+## Test persistence must never touch the live `recent_chat.json` (PHASE-01 01E)
+
+Module-level path constants resolved at import (`chat_history.RECENT_CHAT_FILE`, `DND_LOG_DIR`) are how a test write escapes into production data — this is what leaked ~200 seeded "Hello from BMO!" rows into the live chat buffer. Two-layer guard now in place: an **autouse** `_isolate_chat_history` fixture in `bmo/pi/tests/conftest.py` monkeypatches both constants to `tmp_path` for every test, and `save_recent_message` refuses a real-path write when `PYTEST_CURRENT_TEST` is set. A new chat-history test must still write to a tmp path (never the real constant). **Owner one-time cleanup (live-Pi data mutation, not an executer action):** the already-polluted `recent_chat.json` on the Pi must be cleared once via the dashboard "clear history" control (`POST /api/chat/clear`) or by deleting the file. Added 2026-06-24.
+
+Related: `bmo/pi/services/chat_history.py`, `bmo/pi/tests/conftest.py`.
+
+## Dashboard UX decisions (PHASE-03, 2026-06-24)
+
+- **Google Places loader is retained-and-keyed, not removed.** `loadPlacesAPI` stays gated on `c.maps_api_key` (`bmo/pi/web/static/js/bmo.js`); its `onerror` now logs one informative, once-per-session warning naming the likely cause (API key, HTTP-referrer restriction must include this host, Maps JS API enabled) instead of a recurring bare warning. If the key/referrer is fixed the location autocomplete works; the loader simply does nothing when unkeyed.
+- **OLED face has a manual Settings picker now.** A "Face" card on the Settings tab posts to the existing `/api/oled/expression` endpoint (`setFace()`); it is a **transient override** — the agent\x27s `_sync_expression` resumes driving the face on the next chat turn. The face is therefore both agent-driven (default) and manually settable (override), resolving the QA "phantom control" inventory mismatch.
+- **Header clock renders correct-or-absent.** `updateClock()` skips the tick until an authoritative `this.timezone` is known (seeded from the cached weather payload at init, then `/api/config` / `weather_update`); it never falls back to browser-local, so the displayed hour can briefly be blank but never wrong-then-right. (The Pi-system-TZ vs configured-location-TZ reconciliation remains an owner/config decision — out of scope.)
+
+Related: `bmo/pi/web/static/js/bmo.js`, `bmo/pi/web/templates/index.html`.

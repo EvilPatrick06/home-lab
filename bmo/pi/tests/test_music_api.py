@@ -53,3 +53,33 @@ def test_play_no_unmute_skips_unmute(client):
 
 def test_queue_add_requires_song(client):
     assert client.post("/api/music/queue/add", json={}).status_code == 400
+
+
+# ── PHASE-01 01B — None-service degrades to 503 (not a 500 HTML page) ──
+
+@pytest.fixture()
+def client_no_music(monkeypatch):
+    monkeypatch.setattr(music_api, "_music", lambda: None)
+    flask_app = Flask(__name__)
+    music_api.register_music(flask_app)
+    flask_app.config["TESTING"] = True
+    return flask_app.test_client()
+
+
+def test_state_returns_503_when_service_none(client_no_music):
+    r = client_no_music.get("/api/music/state")
+    assert r.status_code == 503
+    assert "error" in r.get_json()
+
+
+def test_search_returns_503_when_service_none(client_no_music):
+    r = client_no_music.get("/api/music/search?q=test")
+    assert r.status_code == 503
+    assert "error" in r.get_json()
+
+
+def test_state_ok_when_service_present(client):
+    client._music.get_state.return_value = {"is_playing": False}
+    r = client.get("/api/music/state")
+    assert r.status_code == 200
+    assert r.get_json()["is_playing"] is False

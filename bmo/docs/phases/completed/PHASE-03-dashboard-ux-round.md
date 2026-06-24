@@ -266,3 +266,16 @@ sed -n '470,479p' bmo/pi/web/static/js/bmo.js         # music/timers/tv/calendar
 ## Completed
 
 *(Filled during execution per INSTRUCTIONS.md rule 17 — one entry per sub-phase as it lands.)*
+
+### Execution log (2026-06-24)
+
+- **03A** — `bmo.js`: seed `this.timezone` from the cached weather payload before the first `updateClock()`; `updateClock()` now returns early when TZ is unknown (correct-or-absent, no browser-local flash). Single `updateClock()` path feeds both clocks.
+- **03B** — `bmo.js`: `loadPlacesAPI` `onerror` now logs one informative, once-per-session warning (`_placesWarned`) naming key/referrer/Maps-API-enabled causes; loader stays gated on `maps_api_key`. Decision (retained-and-keyed) recorded in `DESIGN-CONSTRAINTS.md`.
+- **03C** — `index.html`: notes input gains `@keydown.enter.prevent.stop="addNote()"` (parity with the music field); form + button paths retained; `addNote()` already clears the field.
+- **03D** — preset buttons now call `startPresetTimer(p.s, p.l)` (new `bmo.js` method) which POSTs one timer WITHOUT touching `newTimerSec/Min/Label`; the custom builder + Start path is untouched → no accidental second timer.
+- **03E** — backend `set_alarm_enabled` + `Alarm.check()` already honor `enabled` for any alarm, so the On/Off toggle + enabled label now render for all alarms (`x-show="item.type === \x27alarm\x27"`); handler generalized to `toggleAlarm(item)` (`toggleRecurringAlarm` kept as a back-compat alias). A disabled one-off stays in the list and won\x27t fire until re-enabled.
+- **03F** — `bmo.js` `_warnIfAlarmSilent()` (reads the already-loaded `volumeLevels.alarms`/`.system`) fires a non-blocking warning on alarm create (`createAlarmFromTime`, `createScheduledAlarm`) and on enable; never auto-changes volume.
+- **03G** — a manual "Face" picker card on Settings posts the full expression vocabulary to the existing `/api/oled/expression` endpoint via `setFace()`; transient override (agent resumes on next chat turn). Resolves the phantom-control mismatch; documented in `DESIGN-CONSTRAINTS.md`.
+- **03H** — `cameraSnapshot()` (quick-snap) now surfaces a 503/error toast like the main Snap; `fetchMusicState()` returns ok-ness and the music poll is a self-scheduling backoff (2s→×2→30s cap, reset on 2xx) gated on `tab===music || now-playing` so a down `/api/music/state` stops flooding.
+- **Checks:** `node --check` clean on `bmo.js`+`ide.js`; `test_app_endpoints`+`test_face_state`+`test_timer_service` = 164 passed; no Python touched (JS/template/docs only); no new `print()`.
+- **Out of scope (unchanged):** central polling scheduler (per-poll backoff + tab-scope done instead); Pi-system vs configured-location TZ reconciliation (owner/config); ~375px viewport pass (needs real phone-width QA).

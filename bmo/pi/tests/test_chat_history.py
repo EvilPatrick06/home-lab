@@ -50,3 +50,41 @@ def test_save_chat_message_with_dm_agent_also_writes_dnd_log(tmp_path, monkeypat
     assert (tmp_path / "dnd").exists()
     files = list((tmp_path / "dnd").glob("session_*.json"))
     assert len(files) == 1
+
+
+# ── PHASE-01 01E — test isolation: persistence can never hit the live store ──
+
+def test_autouse_fixture_redirects_recent_chat_off_live_path():
+    # the autouse _isolate_chat_history fixture must have repointed the constant
+    assert not chat_history.RECENT_CHAT_FILE.endswith(
+        "/home-lab/bmo/pi/data/recent_chat.json"
+    )
+
+
+def test_save_writes_tmp_not_live(tmp_path, monkeypatch):
+    monkeypatch.setattr(chat_history, "RECENT_CHAT_FILE", str(tmp_path / "recent.json"))
+    chat_history.set_agent_resolver(lambda: None)
+    chat_history.save_chat_message({"role": "user", "text": "hello"})
+    assert (tmp_path / "recent.json").exists()
+    saved = json.loads((tmp_path / "recent.json").read_text())
+    assert saved[-1]["text"] == "hello"
+
+
+def test_guard_refuses_real_path_write_under_pytest(monkeypatch):
+    # simulate a test that forgot to redirect: point at the real live path and
+    # confirm the defense-in-depth guard refuses to write it under pytest.
+    import os as _os
+    monkeypatch.setattr(
+        chat_history, "RECENT_CHAT_FILE",
+        _os.path.expanduser("~/home-lab/bmo/pi/data/recent_chat.json"),
+    )
+    before = (
+        _os.path.exists(chat_history.RECENT_CHAT_FILE)
+        and _os.path.getmtime(chat_history.RECENT_CHAT_FILE)
+    )
+    chat_history.save_recent_message({"role": "user", "text": "SHOULD NOT PERSIST"})
+    after = (
+        _os.path.exists(chat_history.RECENT_CHAT_FILE)
+        and _os.path.getmtime(chat_history.RECENT_CHAT_FILE)
+    )
+    assert before == after  # untouched (guard returned early)
