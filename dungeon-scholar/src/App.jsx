@@ -1,80 +1,183 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { usePlayerState } from './hooks/usePlayerState.js';
-import { hasMeaningfulData } from './services/persistence.js';
-import { checkImportSize } from './services/importLimits.js';
-import { t } from './services/i18n.js';
-import { COURSE_SET_GATED, SEALED_GATED } from './router/screens.js';
-import { useAppModals } from './hooks/useAppModals.js';
-import { isSealedTome, unsealTome } from './services/sealedTome.js';
-import {
-  saveSession,
-  loadSession,
-  clearSession,
-  SESSION_KIND,
-} from './services/sessionResume.js';
-import { SignInButton } from './components/SignInButton.jsx';
-import { consumeOAuthCallback, signOut, warnIfBaseMismatch } from './services/supabase.js';
-import { useAuth } from './hooks/useAuth.js';
-import { MergeChooser } from './components/ui/MergeChooser.jsx';
-import { RlsWarningBanner } from './components/RlsWarningBanner.jsx';
-import { checkRlsExposure } from './services/cloudSync.js';
-import { useDialogA11y } from './hooks/useDialogA11y.js';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { AccountPanel } from './components/AccountPanel.jsx';
 import { AudioInviteBanner } from './components/AudioInviteBanner.jsx';
 import { ProfileChip } from './components/ProfileChip.jsx';
-import { AccountPanel } from './components/AccountPanel.jsx';
-import PromptModal from './components/ui/PromptModal.jsx';
 import RichContent from './components/RichContent.jsx';
+import { RlsWarningBanner } from './components/RlsWarningBanner.jsx';
+import { SignInButton } from './components/SignInButton.jsx';
+import { MergeChooser } from './components/ui/MergeChooser.jsx';
+import PromptModal from './components/ui/PromptModal.jsx';
+import { useAppModals } from './hooks/useAppModals.js';
+import { useAuth } from './hooks/useAuth.js';
+import { useDialogA11y } from './hooks/useDialogA11y.js';
+import { usePlayerState } from './hooks/usePlayerState.js';
+import { COURSE_SET_GATED, SEALED_GATED } from './router/screens.js';
+import { checkRlsExposure } from './services/cloudSync.js';
+import { setLocale, t } from './services/i18n.js';
+import { checkImportSize } from './services/importLimits.js';
+import { hasMeaningfulData, writeSnapshot } from './services/persistence.js';
+import { isSealedTome, unsealTome } from './services/sealedTome.js';
+import { clearSession, loadSession, SESSION_KIND, saveSession } from './services/sessionResume.js';
+import { consumeOAuthCallback, signOut, warnIfBaseMismatch } from './services/supabase.js';
+
 const ExamMode = React.lazy(() => import('./features/study/ExamMode.jsx'));
 // Polish: lazy-load DungeonExplore. It's the heaviest single component
 // (sprite drawers, generateMap, biome maps) and is only used when the
 // player enters a delve, so deferring its load shrinks the initial bundle.
 const DungeonExplore = React.lazy(() => import('./components/dungeon/DungeonExplore.jsx'));
-import { Shield, Zap, Brain, FlaskConical, MessageSquare, Upload, Download, Trophy, Flame, Heart, Star, Target, BookOpen, ChevronRight, X, Check, RotateCcw, Sparkles, Lock, Award, TrendingUp, Clock, AlertTriangle, Skull, Crown, Eye, EyeOff, Play, Home, Settings, FileJson, Plus, Minus, ArrowLeft, Send, Loader2, HelpCircle, Calendar, Swords, Scroll, Wand2, Castle, Gem, Library, Trash2, Copy, Edit2, BookMarked, Share2, Tag, User, Hash, ChevronDown, ChevronUp, Compass, ScrollText, CheckCircle2, Gift, Coins, Package, ShoppingBag } from 'lucide-react';
-import { TUTORIAL_STEPS, snapshotBaselines, migrateTutorialIndex, tutorialAutoConditionMet } from './game/tutorial.js';
-import { gradeAnswer, getOracleEndpoint, isOracleConfigured, ORACLE_MODEL } from './services/oracleGrader.js';
-import { logError } from './services/logger.js';
-import { getAudioSettings, setMuted, setBgmVolume, setSfxVolume, armOnFirstGesture, armAutoSuspend, disarmAutoSuspend, playSfx, getDefaultAudioSettings, setAudioPersistErrorHandler } from './audio/sound.js';
-import { PETS, PET_LEVEL_XP, PET_MAX_LEVEL, petLevelFromXp, findPet } from './services/pets.js';
-import { SPELLS, findSpell } from './services/spells.js';
-import { DAILY_REWARDS, todayDateStr, dayDiff, computeNextClaim, evaluateClaim } from './services/devotion.js';
-import { pickWeakestDomain, WEAK_DOMAIN_MIN_SAMPLE, WEAK_DOMAIN_ACCURACY_THRESHOLD } from './services/weakDomain.js';
-import { computeExamPace } from './services/examPace.js';
-import { computeExamPrediction, PREDICTION_HIGH_COVERAGE, PREDICTION_MEDIUM_COVERAGE } from './services/examPrediction.js';
-import { SRS_RATINGS, scheduleCard, dueCount, sortByDueness, filterDue } from './services/srs.js';
-import { notificationPermission, showStudyReminder } from './services/notifications.js';
-import { computeRetentionCurve, computeMilestones } from './services/forgettingCurve.js';
 
-import { TITLES, SPECIAL_TITLES, xpForLevel, getTitle } from './game/titles.js';
-import { DAILY_QUEST_POOL, WEEKLY_QUEST_POOL, STORY_CHAINS, getCounterValue, pickDailyQuests, pickWeeklyQuests, currentWeekStartStr, COUNTER_ACTIONS, formatStoryAction } from './game/quests.js';
-import { ITEM_CATEGORIES, ITEMS, RECIPES, findItem, sanctumCount, sanctumAtCap, pickShopStock } from './game/items.js';
-import { BESTIARY_ENTRIES } from './game/bestiary.js';
-import { DIFFICULTIES, DIFFICULTY_ORDER, BOSS_TYPES, BOSS_ORDER, rollBoss, isDifficultyUnlocked } from './game/difficulty.js';
-import { ACHIEVEMENTS } from './game/achievements.js';
-import { generateTomeId, encodeTomeShareCode, decodeTomeShareCode, normalizeTomeData, blankTomeProgress, summarizeRunHistory, formatDuration, shuffleArray } from './game/tome.js';
-import { DEFAULT_STATE } from './game/defaultState.js';
+import {
+  AlertTriangle,
+  ArrowLeft,
+  Award,
+  BookMarked,
+  BookOpen,
+  Brain,
+  Calendar,
+  Castle,
+  Check,
+  CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  ChevronUp,
+  Clock,
+  Coins,
+  Compass,
+  Copy,
+  Crown,
+  Download,
+  Edit2,
+  Eye,
+  EyeOff,
+  FileJson,
+  Flame,
+  FlaskConical,
+  Gem,
+  Gift,
+  Hash,
+  Heart,
+  HelpCircle,
+  Home,
+  Keyboard,
+  Library,
+  Loader2,
+  Lock,
+  MessageSquare,
+  Minus,
+  Package,
+  Play,
+  Plus,
+  RotateCcw,
+  Scroll,
+  ScrollText,
+  Send,
+  Settings,
+  Share2,
+  Shield,
+  ShoppingBag,
+  Skull,
+  Sparkles,
+  Star,
+  Swords,
+  Tag,
+  Target,
+  Trash2,
+  TrendingUp,
+  Trophy,
+  Upload,
+  User,
+  Wand2,
+  X,
+  Zap,
+} from 'lucide-react';
+import {
+  armAutoSuspend,
+  armOnFirstGesture,
+  disarmAutoSuspend,
+  getAudioSettings,
+  getDefaultAudioSettings,
+  playSfx,
+  setAudioPersistErrorHandler,
+  setBgmVolume,
+  setMuted,
+  setSfxVolume,
+} from './audio/sound.js';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
-
-import { OrnatePanel } from './components/ui/OrnatePanel.jsx';
-import { CollapsibleGroup } from './components/ui/CollapsibleGroup.jsx';
-import { ModeCard } from './components/ui/ModeCard.jsx';
-import { BLOOM_PALETTE, DifficultyStars, BloomBadge } from './components/ui/badges.jsx';
-import { FilteredModeBanner } from './components/ui/FilteredModeBanner.jsx';
-import { RecordTile } from './components/ui/RecordTile.jsx';
-import { ConfirmModal } from './components/ui/ConfirmModal.jsx';
-import { ResetConfirmModal } from './components/ui/ResetConfirmModal.jsx';
 import { AchievementsModal } from './components/ui/AchievementsModal.jsx';
+import { BLOOM_PALETTE, BloomBadge, DifficultyStars } from './components/ui/badges.jsx';
+import { CollapsibleGroup } from './components/ui/CollapsibleGroup.jsx';
+import { ConfirmModal } from './components/ui/ConfirmModal.jsx';
+import { FilteredModeBanner } from './components/ui/FilteredModeBanner.jsx';
+import { ModeCard } from './components/ui/ModeCard.jsx';
+import { OrnatePanel } from './components/ui/OrnatePanel.jsx';
+import { RecordTile } from './components/ui/RecordTile.jsx';
+import { ResetConfirmModal } from './components/ui/ResetConfirmModal.jsx';
+import ShortcutHelpModal from './components/ui/ShortcutHelpModal.jsx';
 import { TitlesModal } from './components/ui/TitlesModal.jsx';
-import WelcomeModal from './features/tutorial/WelcomeModal.jsx';
 import TutorialPanel from './features/tutorial/TutorialPanel.jsx';
+import WelcomeModal from './features/tutorial/WelcomeModal.jsx';
+import { ACHIEVEMENTS } from './game/achievements.js';
+import { BESTIARY_ENTRIES } from './game/bestiary.js';
+import { DEFAULT_STATE } from './game/defaultState.js';
+import {
+  BOSS_ORDER,
+  BOSS_TYPES,
+  DIFFICULTIES,
+  DIFFICULTY_ORDER,
+  isDifficultyUnlocked,
+  rollBoss,
+} from './game/difficulty.js';
+import { findItem, ITEM_CATEGORIES, ITEMS, pickShopStock, RECIPES, sanctumAtCap, sanctumCount } from './game/items.js';
+import {
+  COUNTER_ACTIONS,
+  currentWeekStartStr,
+  DAILY_QUEST_POOL,
+  formatStoryAction,
+  getCounterValue,
+  pickDailyQuests,
+  pickWeeklyQuests,
+  STORY_CHAINS,
+  WEEKLY_QUEST_POOL,
+} from './game/quests.js';
+import { getTitle, SPECIAL_TITLES, TITLES, xpForLevel } from './game/titles.js';
+import {
+  blankTomeProgress,
+  decodeTomeShareCode,
+  encodeTomeShareCode,
+  formatDuration,
+  generateTomeId,
+  normalizeTomeData,
+  shuffleArray,
+  summarizeRunHistory,
+} from './game/tome.js';
+import { migrateTutorialIndex, snapshotBaselines, TUTORIAL_STEPS, tutorialAutoConditionMet } from './game/tutorial.js';
+import { computeNextClaim, DAILY_REWARDS, dayDiff, evaluateClaim, todayDateStr } from './services/devotion.js';
+import { computeExamPace } from './services/examPace.js';
+import {
+  computeExamPrediction,
+  PREDICTION_HIGH_COVERAGE,
+  PREDICTION_MEDIUM_COVERAGE,
+} from './services/examPrediction.js';
+import { computeMilestones, computeRetentionCurve } from './services/forgettingCurve.js';
+import { logError } from './services/logger.js';
+import { notificationPermission, showStudyReminder } from './services/notifications.js';
+import { getOracleEndpoint, gradeAnswer, isOracleConfigured, ORACLE_MODEL } from './services/oracleGrader.js';
+import { findPet, PET_LEVEL_XP, PET_MAX_LEVEL, PETS, petLevelFromXp } from './services/pets.js';
+import { findSpell, SPELLS } from './services/spells.js';
+import { dueCount, filterDue, SRS_RATINGS, scheduleCard, sortByDueness } from './services/srs.js';
+import { pickWeakestDomain, WEAK_DOMAIN_ACCURACY_THRESHOLD, WEAK_DOMAIN_MIN_SAMPLE } from './services/weakDomain.js';
+
 const LibraryScreen = React.lazy(() => import('./features/library/LibraryScreen.jsx'));
-import ShareTomeModal from './features/library/ShareTomeModal.jsx';
+
+import TomeNotes from './components/TomeNotes.jsx';
+import { STARTER_DECKS } from './data/starterDecks.js';
 import ImportCodeModal from './features/library/ImportCodeModal.jsx';
 import MetadataEditModal from './features/library/MetadataEditModal.jsx';
-import TomeNotes from './components/TomeNotes.jsx';
 import PasteTomeModal from './features/library/PasteTomeModal.jsx';
-import TomeEditor from './features/library/TomeEditor.jsx';
-import { STARTER_DECKS } from './data/starterDecks.js';
 import SealedTomeGate from './features/library/SealedTomeGate.jsx';
+import ShareTomeModal from './features/library/ShareTomeModal.jsx';
+import TomeEditor from './features/library/TomeEditor.jsx';
+
 const RunHistoryScreen = React.lazy(() => import('./features/progression/RunHistoryScreen.jsx'));
 const ShopScreen = React.lazy(() => import('./features/progression/ShopScreen.jsx'));
 const InventoryScreen = React.lazy(() => import('./features/progression/InventoryScreen.jsx'));
@@ -86,13 +189,16 @@ const AscensionScreen = React.lazy(() => import('./features/progression/Ascensio
 const CraftingScreen = React.lazy(() => import('./features/progression/CraftingScreen.jsx'));
 const ScholarsLedger = React.lazy(() => import('./features/progression/ScholarsLedger.jsx'));
 const QuestBoard = React.lazy(() => import('./features/quests/QuestBoard.jsx'));
+
 import HomeScreen from './features/home/HomeScreen.jsx';
+
 const FlashcardsMode = React.lazy(() => import('./features/study/FlashcardsMode.jsx'));
 const QuizMode = React.lazy(() => import('./features/study/QuizMode.jsx'));
 const LabMode = React.lazy(() => import('./features/study/LabMode.jsx'));
 const ChatMode = React.lazy(() => import('./features/study/ChatMode.jsx'));
 const MistakeVault = React.lazy(() => import('./features/study/MistakeVault.jsx'));
 const DomainStudyScreen = React.lazy(() => import('./features/study/DomainStudyScreen.jsx'));
+
 import { usePlayerActions } from './features/player/usePlayerActions.js';
 import { useHashRoute } from './router/useHashRoute.js';
 
@@ -136,10 +242,19 @@ export default function DungeonScholarApp() {
   // (RLS off / mis-policied). Read-only, so StrictMode double-invoke is harmless.
   const [rlsExposed, setRlsExposed] = useState(false);
   useEffect(() => {
-    if (!user?.id) { setRlsExposed(false); return; }
+    if (!user?.id) {
+      setRlsExposed(false);
+      return;
+    }
     let active = true;
-    checkRlsExposure(user.id).then((r) => { if (active && r.checked) setRlsExposed(r.exposed); }).catch(() => {});
-    return () => { active = false; };
+    checkRlsExposure(user.id)
+      .then((r) => {
+        if (active && r.checked) setRlsExposed(r.exposed);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
   }, [user?.id]);
   // Phase 33c QA P3: pending in-app confirmation (replaces window.confirm
   // which was unreliable — headless QA tools auto-dismissed it, making the
@@ -183,7 +298,11 @@ export default function DungeonScholarApp() {
 
   // Phase 21: prime the audio context on first user gesture so BGM/SFX
   // don't fail silently due to browser auto-play policies.
-  useEffect(() => { armOnFirstGesture(); armAutoSuspend(); return () => disarmAutoSuspend(); }, []);
+  useEffect(() => {
+    armOnFirstGesture();
+    armAutoSuspend();
+    return () => disarmAutoSuspend();
+  }, []);
 
   // S1: best-effort local study reminder once the library has loaded, only if
   // the user already granted permission via the Account panel opt-in.
@@ -214,13 +333,31 @@ export default function DungeonScholarApp() {
     if (playerState.theme !== 'system' || !window.matchMedia) return;
     const mq = window.matchMedia('(prefers-color-scheme: light)');
     const onChange = () => apply();
-    try { mq.addEventListener('change', onChange); }
-    catch { mq.addListener?.(onChange); }
+    try {
+      mq.addEventListener('change', onChange);
+    } catch {
+      mq.addListener?.(onChange);
+    }
     return () => {
-      try { mq.removeEventListener('change', onChange); }
-      catch { mq.removeListener?.(onChange); }
+      try {
+        mq.removeEventListener('change', onChange);
+      } catch {
+        mq.removeListener?.(onChange);
+      }
     };
   }, [playerState.theme]);
+
+  // S7 i18n: apply the saved UI language on load and whenever it changes.
+  // setLocale is a module singleton; this keeps it in sync with playerState.
+  useEffect(() => {
+    setLocale(playerState.locale || 'en');
+  }, [playerState.locale]);
+
+  // CVD: reflect the colorblind-safe palette opt-in onto the root element so
+  // analytics surfaces can branch their accuracy scale.
+  useEffect(() => {
+    document.documentElement.setAttribute('data-cvd', playerState.colorblind ? 'true' : 'false');
+  }, [playerState.colorblind]);
 
   // 25e2: Clear the Domain Study filter whenever the player navigates away
   // from Quiz/Flashcards. The filter is a per-launch decision, not sticky
@@ -277,8 +414,8 @@ export default function DungeonScholarApp() {
     const curIdx = playerState.tutorialStepIndex;
     const curStep = TUTORIAL_STEPS[curIdx];
     const willAdvance = !playerState.tutorialCompleted && curStep && curStep.id === currentId;
-    const willComplete = willAdvance && (curIdx + 1) >= TUTORIAL_STEPS.length;
-    setPlayerState(prev => {
+    const willComplete = willAdvance && curIdx + 1 >= TUTORIAL_STEPS.length;
+    setPlayerState((prev) => {
       if (prev.tutorialCompleted) return prev;
       const currentIdx = prev.tutorialStepIndex;
       const currentStep = TUTORIAL_STEPS[currentIdx];
@@ -309,13 +446,13 @@ export default function DungeonScholarApp() {
   };
 
   const skipTutorial = () => {
-    setPlayerState(prev => ({ ...prev, tutorialCompleted: true, tutorialStarted: true }));
+    setPlayerState((prev) => ({ ...prev, tutorialCompleted: true, tutorialStarted: true }));
     closeModal('welcome');
     showNotif('Tutorial skipped — thy path is thine own', 'info');
   };
 
   const startTutorial = () => {
-    setPlayerState(prev => ({
+    setPlayerState((prev) => ({
       ...prev,
       tutorialStarted: true,
       tutorialBaselines: snapshotBaselines(prev),
@@ -324,7 +461,7 @@ export default function DungeonScholarApp() {
   };
 
   const toggleTutorialPanel = () => {
-    setPlayerState(prev => ({ ...prev, tutorialPanelCollapsed: !prev.tutorialPanelCollapsed }));
+    setPlayerState((prev) => ({ ...prev, tutorialPanelCollapsed: !prev.tutorialPanelCollapsed }));
   };
 
   // Phase 38a/39c/43a/44c: showNotif with optional onClick (deep-links),
@@ -448,7 +585,7 @@ export default function DungeonScholarApp() {
   // autoCondition useEffect above watches tutorialVisits and advances.
   useEffect(() => {
     if (!tutorialOpenedSurface) return undefined;
-    const stillOpen = (
+    const stillOpen =
       (tutorialOpenedSurface === 'library' && screen === 'library') ||
       (tutorialOpenedSurface === 'vault' && screen === 'vault') ||
       (tutorialOpenedSurface === 'quests' && screen === 'quests') ||
@@ -459,11 +596,10 @@ export default function DungeonScholarApp() {
       (tutorialOpenedSurface === 'spellbook' && screen === 'spellbook') ||
       (tutorialOpenedSurface === 'calendar' && screen === 'calendar') ||
       (tutorialOpenedSurface === 'crafting' && screen === 'crafting') ||
-      (tutorialOpenedSurface === 'ascension' && screen === 'ascension')
-    );
+      (tutorialOpenedSurface === 'ascension' && screen === 'ascension');
     if (!stillOpen) {
       const key = tutorialOpenedSurface;
-      setPlayerState(prev => ({
+      setPlayerState((prev) => ({
         ...prev,
         tutorialVisits: { ...(prev.tutorialVisits || {}), [key]: true },
       }));
@@ -474,7 +610,7 @@ export default function DungeonScholarApp() {
   // Active tome convenience accessor
   const activeTome = useMemo(() => {
     if (!playerState.activeTomeId) return null;
-    const entry = playerState.library.find(t => t.id === playerState.activeTomeId);
+    const entry = playerState.library.find((t) => t.id === playerState.activeTomeId);
     return entry || null;
   }, [playerState.activeTomeId, playerState.library]);
 
@@ -482,7 +618,7 @@ export default function DungeonScholarApp() {
   // session. `courseSet` resolves to the in-memory decrypted object (or null
   // while locked); `sealedLocked` gates the content screens below.
   const activeSealed = !!(activeTome && isSealedTome(activeTome.data));
-  const courseSet = activeTome ? (activeSealed ? (unsealedTomes[activeTome.id] || null) : activeTome.data) : null;
+  const courseSet = activeTome ? (activeSealed ? unsealedTomes[activeTome.id] || null : activeTome.data) : null;
   const sealedLocked = activeSealed && !unsealedTomes[activeTome.id];
   const tomeProgress = activeTome?.progress || blankTomeProgress();
 
@@ -506,13 +642,35 @@ export default function DungeonScholarApp() {
   // per session. sync.localSaveFailed is sticky, so this effect fires exactly once.
   useEffect(() => {
     if (!sync.localSaveFailed) return;
-    showNotif('Thy progress cannot be saved on this device — sign in for cloud backup, or export thy journal.', 'error', null, 8000);
+    showNotif(
+      'Thy progress cannot be saved on this device — sign in for cloud backup, or export thy journal.',
+      'error',
+      null,
+      8000,
+    );
   }, [sync.localSaveFailed]);
 
   // M10 (17F): route audio-settings persistence failures through the same toast.
   useEffect(() => {
     setAudioPersistErrorHandler(() => showNotif('Audio settings cannot be saved on this device.', 'info'));
   }, []);
+
+  // In-app keyboard-shortcut help: `?` opens the ShortcutHelpModal so the
+  // per-mode bindings are discoverable. Skip when typing in a field so we
+  // don't hijack a literal '?' the user is entering.
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key !== '?') return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const tg = e.target;
+      const tag = tg && tg.tagName ? tg.tagName.toLowerCase() : '';
+      if (tag === 'input' || tag === 'textarea' || (tg && tg.isContentEditable)) return;
+      e.preventDefault();
+      openModal('shortcuts');
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [openModal]);
 
   // Phase 45d: window-level Ctrl+Z / Cmd+Z global hotkey. Triggers the
   // active notification's onClick (Undo for vault vanquish) when one is
@@ -529,7 +687,11 @@ export default function DungeonScholarApp() {
       if (tag === 'input' || tag === 'textarea' || (t && t.isContentEditable)) return;
       if (!notification || typeof notification.onClick !== 'function') return;
       e.preventDefault();
-      try { notification.onClick(); } catch { /* ignore */ }
+      try {
+        notification.onClick();
+      } catch {
+        /* ignore */
+      }
       if (notifTimeoutRef.current) {
         clearTimeout(notifTimeoutRef.current);
         notifTimeoutRef.current = null;
@@ -555,7 +717,7 @@ export default function DungeonScholarApp() {
     for (const id of current) {
       if (seenAchievementsRef.current.has(id)) continue;
       seenAchievementsRef.current.add(id);
-      const ach = ACHIEVEMENTS.find(a => a.id === id);
+      const ach = ACHIEVEMENTS.find((a) => a.id === id);
       // No "(+gold)" suffix: only checkAchievement grants gold; the 14 other
       // grant paths (recordAnswer/trackModeUse/addTomeToLibrary/updateProgress
       // milestones) award none, so a fixed suffix would be a false claim. The
@@ -592,13 +754,13 @@ export default function DungeonScholarApp() {
   useEffect(() => {
     const today = todayDateStr();
     if (!playerState.dailyQuests || playerState.dailyQuests.date !== today) {
-      setPlayerState(prev => {
+      setPlayerState((prev) => {
         const picked = pickDailyQuests(today, 3);
         return {
           ...prev,
           dailyQuests: {
             date: today,
-            quests: picked.map(q => ({
+            quests: picked.map((q) => ({
               id: q.id,
               baseline: getCounterValue(prev, q.counter),
               claimed: false,
@@ -616,13 +778,13 @@ export default function DungeonScholarApp() {
   useEffect(() => {
     const weekStart = currentWeekStartStr();
     if (!playerState.weeklyQuests || playerState.weeklyQuests.weekStart !== weekStart) {
-      setPlayerState(prev => {
+      setPlayerState((prev) => {
         const picked = pickWeeklyQuests(weekStart, 3);
         return {
           ...prev,
           weeklyQuests: {
             weekStart,
-            quests: picked.map(q => ({
+            quests: picked.map((q) => ({
               id: q.id,
               baseline: getCounterValue(prev, q.counter),
               claimed: false,
@@ -641,10 +803,10 @@ export default function DungeonScholarApp() {
   // when cloud sync replaces state with a version that lacks the field.
   // The defensive sp-init in claimStoryStep handles the missing-entry case.
   useEffect(() => {
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       let changed = false;
       const next = { ...(prev.storyProgress || {}) };
-      STORY_CHAINS.forEach(chain => {
+      STORY_CHAINS.forEach((chain) => {
         if (!next[chain.id]) {
           const firstStep = chain.steps[0];
           next[chain.id] = {
@@ -662,12 +824,10 @@ export default function DungeonScholarApp() {
   }, []);
 
   const switchActiveTome = (tomeId) => {
-    setPlayerState(prev => ({
+    setPlayerState((prev) => ({
       ...prev,
       activeTomeId: tomeId,
-      library: prev.library.map(t =>
-        t.id === tomeId ? { ...t, lastOpened: Date.now() } : t
-      ),
+      library: prev.library.map((t) => (t.id === tomeId ? { ...t, lastOpened: Date.now() } : t)),
     }));
     setScreen('home');
   };
@@ -684,9 +844,7 @@ export default function DungeonScholarApp() {
       setPlayerState((prev) => ({
         ...prev,
         activeTomeId: pendingTomeId,
-        library: prev.library.map((t) =>
-          t.id === pendingTomeId ? { ...t, lastOpened: Date.now() } : t
-        ),
+        library: prev.library.map((t) => (t.id === pendingTomeId ? { ...t, lastOpened: Date.now() } : t)),
       }));
     } else {
       showNotif('That tome is not in thy library.', 'error');
@@ -769,6 +927,41 @@ export default function DungeonScholarApp() {
     }
   };
 
+  // I3 (Web Share Target): when the OS share sheet sends a tome to the
+  // installed PWA, the service worker stashes the payload and redirects here
+  // with ?share-target=1. Pull it from the cache and run it through the same
+  // paste-import path, then strip the query so a refresh won't re-import.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('share-target') !== '1') return;
+    (async () => {
+      try {
+        if (typeof caches !== 'undefined') {
+          const cache = await caches.open('ds-share-target');
+          const res = await cache.match('shared-tome');
+          if (res) {
+            const text = await res.text();
+            await cache.delete('shared-tome');
+            if (text && text.trim() && handlePasteImport(text)) {
+              setScreen('library');
+            }
+          }
+        }
+      } catch {
+        /* ignore — nothing to import */
+      }
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('share-target');
+        window.history.replaceState({}, '', url.pathname + url.search + url.hash);
+      } catch {
+        /* ignore */
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleShareCodeImport = (code) => {
     const sizeCheck = checkImportSize(code.length); // PHASE-40 40A (L14): reject before atob/decode
     if (!sizeCheck.ok) {
@@ -796,30 +989,31 @@ export default function DungeonScholarApp() {
   // returned as a value — NEVER thrown across the UI boundary — so the gate can
   // render a friendly error without an uncaught-rejection crash.
   const unlockSealedTome = async (tomeId, passphrase) => {
-    const entry = playerState.library.find(t => t.id === tomeId);
+    const entry = playerState.library.find((t) => t.id === tomeId);
     if (!entry || !isSealedTome(entry.data)) return { ok: false, reason: 'not-sealed' };
     try {
       const tome = await unsealTome(entry.data, passphrase);
-      setUnsealedTomes(prev => ({ ...prev, [tomeId]: tome }));
+      setUnsealedTomes((prev) => ({ ...prev, [tomeId]: tome }));
       return { ok: true };
     } catch (err) {
       return { ok: false, reason: err.message };
     }
   };
 
-  const lockSealedTome = (tomeId) => setUnsealedTomes(prev => {
-    const n = { ...prev };
-    delete n[tomeId];
-    return n;
-  });
+  const lockSealedTome = (tomeId) =>
+    setUnsealedTomes((prev) => {
+      const n = { ...prev };
+      delete n[tomeId];
+      return n;
+    });
 
   // PHASE-41 41B: prune decrypted entries for tomes no longer in the library
   // (deleted/banished), so a deleted sealed tome can't linger unlocked in memory.
   useEffect(() => {
-    setUnsealedTomes(prev => {
-      const ids = new Set(playerState.library.map(t => t.id));
+    setUnsealedTomes((prev) => {
+      const ids = new Set(playerState.library.map((t) => t.id));
       const keys = Object.keys(prev);
-      if (keys.every(k => ids.has(k))) return prev; // no stale keys
+      if (keys.every((k) => ids.has(k))) return prev; // no stale keys
       const next = {};
       for (const k of keys) if (ids.has(k)) next[k] = prev[k];
       return next;
@@ -831,9 +1025,25 @@ export default function DungeonScholarApp() {
   };
 
   const confirmReset = () => {
+    // I1: snapshot the pre-reset state so the wipe is undoable for one step
+    // (works signed-out via the Undo toast / Ctrl+Z hotkey, no cloud needed).
+    const preReset = playerState;
+    writeSnapshot(preReset, { force: true, reason: 'pre-reset' });
     setPlayerState(DEFAULT_STATE);
     closeModal('resetConfirm');
-    showNotif('Saga reset — thy journey begins anew', 'info');
+    setTimeout(
+      () =>
+        showNotif(
+          'Saga reset — thy journey begins anew · Undo (Ctrl+Z)',
+          'info',
+          () => {
+            setPlayerState(preReset);
+            showNotif('Saga restored from snapshot', 'info', null, 1800);
+          },
+          8000,
+        ),
+      50,
+    );
   };
 
   const currentTitle = getTitle(playerState.level, playerState.selectedTitle, playerState.unlockedTitles);
@@ -846,327 +1056,351 @@ export default function DungeonScholarApp() {
   // JSX its inline branch did, preserving its courseSet / sealedLocked guard.
   const screenViews = {
     home: () => (
-          <HomeScreen
-            courseSet={courseSet}
-            tomeProgress={tomeProgress}
-            setScreen={setScreen}
-            trackModeUse={trackModeUse}
-            onImport={() => fileInputRef.current?.click()}
-            onPaste={() => openModal('paste')}
-            onImportCode={() => openModal('importCode')}
-            onShowPrompt={() => openModal('prompt')}
-            playerState={playerState}
-            signedIn={!!user}
-            onResetProgress={resetProgress}
-            onOpenLibrary={() => setScreen('library')}
-            onShowAchievements={() => openModal('achievements')}
-            onEnterReviews={() => { setReviewMode(true); trackModeUse('flashcards'); setScreen('flashcards'); }}
-            onSetTheme={(t) => {
-              // Phase 46h: every theme switch surfaces an Undo toast (Ctrl+Z
-              // compatible — the global hotkey from 45d invokes the active
-              // toast's onClick). Capturing prev.theme outside the updater keeps
-              // the closure stable for the undo callback. PHASE-41 (QA16): Light
-              // is now a FULL theme, so the old "panels stay dark" intro is gone.
-              const prevTheme = playerState.theme || 'dark';
-              if (prevTheme === t) return;
-              setPlayerState(prev => {
-                const next = { ...prev, theme: t };
-                if (t === 'light' && !prev.lightModeIntroShown) {
-                  next.lightModeIntroShown = true;
-                }
-                return next;
-              });
-              const labelOf = (id) => id === 'light' ? 'Light' : id === 'system' ? 'Match System' : 'Dark';
-              const introTail = (t === 'light' && !playerState.lightModeIntroShown)
-                ? ' (parchment-light pages, panels, and text)'
-                : '';
-              setTimeout(() => showNotif(
+      <HomeScreen
+        courseSet={courseSet}
+        tomeProgress={tomeProgress}
+        setScreen={setScreen}
+        trackModeUse={trackModeUse}
+        onImport={() => fileInputRef.current?.click()}
+        onPaste={() => openModal('paste')}
+        onImportCode={() => openModal('importCode')}
+        onShowPrompt={() => openModal('prompt')}
+        playerState={playerState}
+        signedIn={!!user}
+        onResetProgress={resetProgress}
+        onOpenLibrary={() => setScreen('library')}
+        onShowAchievements={() => openModal('achievements')}
+        onEnterReviews={() => {
+          setReviewMode(true);
+          trackModeUse('flashcards');
+          setScreen('flashcards');
+        }}
+        onSetLocale={(loc) => {
+          setLocale(loc);
+          setPlayerState((prev) => ({ ...prev, locale: loc }));
+        }}
+        onToggleColorblind={(on) => setPlayerState((prev) => ({ ...prev, colorblind: !!on }))}
+        onSetTheme={(t) => {
+          // Phase 46h: every theme switch surfaces an Undo toast (Ctrl+Z
+          // compatible — the global hotkey from 45d invokes the active
+          // toast's onClick). Capturing prev.theme outside the updater keeps
+          // the closure stable for the undo callback. PHASE-41 (QA16): Light
+          // is now a FULL theme, so the old "panels stay dark" intro is gone.
+          const prevTheme = playerState.theme || 'dark';
+          if (prevTheme === t) return;
+          setPlayerState((prev) => {
+            const next = { ...prev, theme: t };
+            if (t === 'light' && !prev.lightModeIntroShown) {
+              next.lightModeIntroShown = true;
+            }
+            return next;
+          });
+          const labelOf = (id) => (id === 'light' ? 'Light' : id === 'system' ? 'Match System' : 'Dark');
+          const introTail =
+            t === 'light' && !playerState.lightModeIntroShown ? ' (parchment-light pages, panels, and text)' : '';
+          setTimeout(
+            () =>
+              showNotif(
                 `Theme: ${labelOf(t)}${introTail} · Undo (Ctrl+Z)`,
                 'info',
                 () => {
-                  setPlayerState(prev => ({ ...prev, theme: prevTheme }));
+                  setPlayerState((prev) => ({ ...prev, theme: prevTheme }));
                   showNotif(`Theme reverted to ${labelOf(prevTheme)}`, 'info', null, 1800);
                 },
                 7000,
-              ), 50);
-            }}
-            onRestartTutorial={() => {
-              setPlayerState(prev => ({
-                ...prev,
-                tutorialStepIndex: 0,
-                tutorialCompleted: false,
-                tutorialStarted: true,
-                tutorialPanelCollapsed: false,
-                tutorialBaselines: snapshotBaselines(prev),
-              }));
-              showNotif('Tutorial restarted', 'info');
-            }}
-          />
+              ),
+            50,
+          );
+        }}
+        onRestartTutorial={() => {
+          setPlayerState((prev) => ({
+            ...prev,
+            tutorialStepIndex: 0,
+            tutorialCompleted: false,
+            tutorialStarted: true,
+            tutorialPanelCollapsed: false,
+            tutorialBaselines: snapshotBaselines(prev),
+          }));
+          showNotif('Tutorial restarted', 'info');
+        }}
+      />
     ),
     library: () => (
-          <LibraryScreen
-            playerState={playerState}
-            onSwitch={switchActiveTome}
-            onDelete={deleteTome}
-            onRename={renameTome}
-            onDuplicate={duplicateTome}
-            onShare={(id) => setShareTomeId(id)}
-            onEditMetadata={(id) => setEditMetadataTomeId(id)}
-            onEditContent={(id) => setEditContentTomeId(id)}
-            starterDecks={STARTER_DECKS}
-            onAddStarter={(data) => { addTomeToLibrary(data); }}
-            onNotes={(tome) => setNotesTome(tome)}
-            onTogglePin={(id) => {
-              // Phase 38d round-3 suggestion: pin/unpin a tome so it floats
-              // to the top of the Library — useful once a user has 5+ tomes
-              // and the active-only badge isn't enough navigation.
-              setPlayerState(prev => ({
-                ...prev,
-                library: prev.library.map(t => t.id === id ? { ...t, pinned: !t.pinned } : t),
-              }));
-            }}
-            onImport={() => fileInputRef.current?.click()}
-            onPaste={() => openModal('paste')}
-            onImportCode={() => openModal('importCode')}
-            onShowPrompt={() => openModal('prompt')}
-            setScreen={setScreen}
-            claimableQuestCount={claimableQuestCount}
-          />
+      <LibraryScreen
+        playerState={playerState}
+        onSwitch={switchActiveTome}
+        onDelete={deleteTome}
+        onRename={renameTome}
+        onDuplicate={duplicateTome}
+        onShare={(id) => setShareTomeId(id)}
+        onEditMetadata={(id) => setEditMetadataTomeId(id)}
+        onEditContent={(id) => setEditContentTomeId(id)}
+        starterDecks={STARTER_DECKS}
+        onAddStarter={(data) => {
+          addTomeToLibrary(data);
+        }}
+        onNotes={(tome) => setNotesTome(tome)}
+        onTogglePin={(id) => {
+          // Phase 38d round-3 suggestion: pin/unpin a tome so it floats
+          // to the top of the Library — useful once a user has 5+ tomes
+          // and the active-only badge isn't enough navigation.
+          setPlayerState((prev) => ({
+            ...prev,
+            library: prev.library.map((t) => (t.id === id ? { ...t, pinned: !t.pinned } : t)),
+          }));
+        }}
+        onImport={() => fileInputRef.current?.click()}
+        onPaste={() => openModal('paste')}
+        onImportCode={() => openModal('importCode')}
+        onShowPrompt={() => openModal('prompt')}
+        setScreen={setScreen}
+        claimableQuestCount={claimableQuestCount}
+      />
     ),
     quests: () => (
-          <QuestBoard
-            dailyQuests={dailyQuestStatus}
-            dailyDate={playerState.dailyQuests?.date}
-            onClaimDaily={claimQuest}
-            onClaimAllDaily={claimAllQuests}
-            weeklyQuests={weeklyQuestStatus}
-            weekStart={playerState.weeklyQuests?.weekStart}
-            onClaimWeekly={claimWeeklyQuest}
-            onClaimAllWeekly={claimAllWeeklyQuests}
-            storyChains={storyChainStatus}
-            onClaimStoryStep={claimStoryStep}
-          />
+      <QuestBoard
+        dailyQuests={dailyQuestStatus}
+        dailyDate={playerState.dailyQuests?.date}
+        onClaimDaily={claimQuest}
+        onClaimAllDaily={claimAllQuests}
+        weeklyQuests={weeklyQuestStatus}
+        weekStart={playerState.weeklyQuests?.weekStart}
+        onClaimWeekly={claimWeeklyQuest}
+        onClaimAllWeekly={claimAllWeeklyQuests}
+        storyChains={storyChainStatus}
+        onClaimStoryStep={claimStoryStep}
+      />
     ),
     inventory: () => (
-          <InventoryScreen
-            playerState={playerState}
-            setScreen={setScreen}
-            onEquip={equipItem}
-            onUnequip={unequipSlot}
-            onEquipPotion={equipPotion}
-            onUnequipPotion={unequipPotion}
-            onEquipSpell={equipSpell}
-            onUnequipSpell={unequipSpell}
-          />
+      <InventoryScreen
+        playerState={playerState}
+        setScreen={setScreen}
+        onEquip={equipItem}
+        onUnequip={unequipSlot}
+        onEquipPotion={equipPotion}
+        onUnequipPotion={unequipPotion}
+        onEquipSpell={equipSpell}
+        onUnequipSpell={unequipSpell}
+      />
     ),
-    shop: () => (
-          <ShopScreen playerState={playerState} setScreen={setScreen} onPurchase={purchaseItem} />
-    ),
-    crafting: () => (
-          <CraftingScreen playerState={playerState} setScreen={setScreen} onCraft={craftRecipe} />
-    ),
-    bestiary: () => (
-          <BestiaryScreen playerState={playerState} setScreen={setScreen} />
-    ),
+    shop: () => <ShopScreen playerState={playerState} setScreen={setScreen} onPurchase={purchaseItem} />,
+    crafting: () => <CraftingScreen playerState={playerState} setScreen={setScreen} onCraft={craftRecipe} />,
+    bestiary: () => <BestiaryScreen playerState={playerState} setScreen={setScreen} />,
     stable: () => (
-          <StableScreen
-            playerState={playerState}
-            setScreen={setScreen}
-            onEquipPet={equipPet}
-            onUnequipPet={unequipPet}
-          />
+      <StableScreen playerState={playerState} setScreen={setScreen} onEquipPet={equipPet} onUnequipPet={unequipPet} />
     ),
     spellbook: () => (
-          <SpellbookScreen
-            playerState={playerState}
-            setScreen={setScreen}
-            onEquipSpell={equipSpell}
-            onUnequipSpell={unequipSpell}
-          />
+      <SpellbookScreen
+        playerState={playerState}
+        setScreen={setScreen}
+        onEquipSpell={equipSpell}
+        onUnequipSpell={unequipSpell}
+      />
     ),
-    calendar: () => (
-          <CalendarScreen
-            playerState={playerState}
-            setScreen={setScreen}
-            onClaim={claimDailyReward}
-          />
-    ),
-    ascension: () => (
-          <AscensionScreen
-            playerState={playerState}
-            setScreen={setScreen}
-            onAscend={ascend}
-          />
-    ),
-    history: () => (
-          <RunHistoryScreen playerState={playerState} setScreen={setScreen} />
-    ),
-    ledger: () => (
-          <ScholarsLedger playerState={playerState} setScreen={setScreen} />
-    ),
+    calendar: () => <CalendarScreen playerState={playerState} setScreen={setScreen} onClaim={claimDailyReward} />,
+    ascension: () => <AscensionScreen playerState={playerState} setScreen={setScreen} onAscend={ascend} />,
+    history: () => <RunHistoryScreen playerState={playerState} setScreen={setScreen} />,
+    ledger: () => <ScholarsLedger playerState={playerState} setScreen={setScreen} />,
     domainStudy: () =>
       !sealedLocked && (
-          <DomainStudyScreen
-            playerState={playerState}
-            setScreen={setScreen}
-            onSetExamDate={setTomeExamDate}
-            onMarkVisited={() => {
-              setPlayerState(prev => {
-                const visits = prev.tutorialVisits || {};
-                if (visits.domain_study_visited) return prev;
-                return { ...prev, tutorialVisits: { ...visits, domain_study_visited: true } };
-              });
-            }}
-            onStudyDomain={(mode, domainName) => {
-              setDomainFilter(domainName);
-              if (mode === 'quiz') { trackModeUse('quiz'); setScreen('quiz'); }
-              else if (mode === 'flashcards') { trackModeUse('flashcards'); setScreen('flashcards'); }
-            }}
-          />
+        <DomainStudyScreen
+          playerState={playerState}
+          setScreen={setScreen}
+          onSetExamDate={setTomeExamDate}
+          onMarkVisited={() => {
+            setPlayerState((prev) => {
+              const visits = prev.tutorialVisits || {};
+              if (visits.domain_study_visited) return prev;
+              return { ...prev, tutorialVisits: { ...visits, domain_study_visited: true } };
+            });
+          }}
+          onStudyDomain={(mode, domainName) => {
+            setDomainFilter(domainName);
+            if (mode === 'quiz') {
+              trackModeUse('quiz');
+              setScreen('quiz');
+            } else if (mode === 'flashcards') {
+              trackModeUse('flashcards');
+              setScreen('flashcards');
+            }
+          }}
+        />
       ),
     dungeon: () =>
       courseSet && (
-            <DungeonExplore
-              onExit={() => setScreen('home')}
-              playerState={playerState}
-              subject={courseSet?.metadata?.subject}
-              courseSet={courseSet}
-              tomeProgress={tomeProgress}
-              awardXP={awardXP}
-              awardGold={awardGold}
-              recordAnswer={recordAnswer}
-              checkAchievement={checkAchievement}
-              unlockSpecialTitle={unlockSpecialTitle}
-              updateProgress={updateProgress}
-              updateTomeProgress={updateTomeProgress}
-              trackDungeonAttempt={trackDungeonAttempt}
-              onViewHistory={() => setScreen('history')}
-              consumeItem={consumeItem}
-              giveItem={giveItem}
-              recordBestiary={recordBestiary}
-              recordSpellCast={recordSpellCast}
-              recordHarvest={recordHarvest}
-              awardPetXp={awardPetXp}
-              petCatalog={Object.values(PETS)}
-              spellCatalog={Object.values(SPELLS)}
-              itemCatalog={ITEMS}
-              equipItem={equipItem}
-              unequipSlot={unequipSlot}
-              equipPet={equipPet}
-              unequipPet={unequipPet}
-              equipPotion={equipPotion}
-              unequipPotion={unequipPotion}
-              equipSpell={equipSpell}
-              unequipSpell={unequipSpell}
-            />
+        <DungeonExplore
+          onExit={() => setScreen('home')}
+          playerState={playerState}
+          subject={courseSet?.metadata?.subject}
+          courseSet={courseSet}
+          tomeProgress={tomeProgress}
+          awardXP={awardXP}
+          awardGold={awardGold}
+          recordAnswer={recordAnswer}
+          checkAchievement={checkAchievement}
+          unlockSpecialTitle={unlockSpecialTitle}
+          updateProgress={updateProgress}
+          updateTomeProgress={updateTomeProgress}
+          trackDungeonAttempt={trackDungeonAttempt}
+          onViewHistory={() => setScreen('history')}
+          consumeItem={consumeItem}
+          giveItem={giveItem}
+          recordBestiary={recordBestiary}
+          recordSpellCast={recordSpellCast}
+          recordHarvest={recordHarvest}
+          awardPetXp={awardPetXp}
+          petCatalog={Object.values(PETS)}
+          spellCatalog={Object.values(SPELLS)}
+          itemCatalog={ITEMS}
+          equipItem={equipItem}
+          unequipSlot={unequipSlot}
+          equipPet={equipPet}
+          unequipPet={unequipPet}
+          equipPotion={equipPotion}
+          unequipPotion={unequipPotion}
+          equipSpell={equipSpell}
+          unequipSpell={unequipSpell}
+        />
       ),
     flashcards: () =>
       courseSet && (
-          <FlashcardsMode
-            courseSet={courseSet}
-            tomeId={playerState.activeTomeId}
-            cards={shuffledActivities.flashcards}
-            tomeProgress={tomeProgress}
-            playerState={playerState}
-            awardXP={awardXP}
-            updateTomeProgress={updateTomeProgress}
-            updateCardProgress={updateCardProgress}
-            checkAchievement={checkAchievement}
-            domainFilter={domainFilter}
-            onExitFilter={() => { setDomainFilter(null); setScreen('domainStudy'); }}
-            reviewMode={reviewMode}
-            onExitReviewMode={() => { setReviewMode(false); setScreen('home'); }}
-            onResumeNotify={(info) => showNotif(`Resumed Scroll ${info.index + 1} of ${info.total}`, 'success', null, 1500)}
-          />
+        <FlashcardsMode
+          courseSet={courseSet}
+          tomeId={playerState.activeTomeId}
+          cards={shuffledActivities.flashcards}
+          tomeProgress={tomeProgress}
+          playerState={playerState}
+          awardXP={awardXP}
+          updateTomeProgress={updateTomeProgress}
+          updateCardProgress={updateCardProgress}
+          checkAchievement={checkAchievement}
+          domainFilter={domainFilter}
+          onExitFilter={() => {
+            setDomainFilter(null);
+            setScreen('domainStudy');
+          }}
+          reviewMode={reviewMode}
+          onExitReviewMode={() => {
+            setReviewMode(false);
+            setScreen('home');
+          }}
+          onResumeNotify={(info) =>
+            showNotif(`Resumed Scroll ${info.index + 1} of ${info.total}`, 'success', null, 1500)
+          }
+        />
       ),
     quiz: () =>
       courseSet && (
-          <QuizMode
-            courseSet={courseSet}
-            tomeId={playerState.activeTomeId}
-            questions={shuffledActivities.quiz}
-            tomeProgress={tomeProgress}
-            playerState={playerState}
-            awardXP={awardXP}
-            recordAnswer={recordAnswer}
-            checkAchievement={checkAchievement}
-            updateTomeProgress={updateTomeProgress}
-            domainFilter={domainFilter}
-            onExitFilter={() => { setDomainFilter(null); setScreen('domainStudy'); }}
-            onResumeNotify={(info) => showNotif(
+        <QuizMode
+          courseSet={courseSet}
+          tomeId={playerState.activeTomeId}
+          questions={shuffledActivities.quiz}
+          tomeProgress={tomeProgress}
+          playerState={playerState}
+          awardXP={awardXP}
+          recordAnswer={recordAnswer}
+          checkAchievement={checkAchievement}
+          updateTomeProgress={updateTomeProgress}
+          domainFilter={domainFilter}
+          onExitFilter={() => {
+            setDomainFilter(null);
+            setScreen('domainStudy');
+          }}
+          onResumeNotify={(info) =>
+            showNotif(
               `Resumed Riddle ${Math.min(info.progressCount + 1, info.total)} of ${info.total}${info.streak > 0 ? ` · Streak ${info.streak}` : ''}`,
-              'success', null, 1500,
-            )}
-            onGoToLibrary={() => setScreen('library')}
-          />
+              'success',
+              null,
+              1500,
+            )
+          }
+          onGoToLibrary={() => setScreen('library')}
+        />
       ),
     lab: () =>
       courseSet && (
-          <LabMode
-            courseSet={courseSet}
-            tomeProgress={tomeProgress}
-            playerState={playerState}
-            awardXP={awardXP}
-            recordAnswer={recordAnswer}
-            updateTomeProgress={updateTomeProgress}
-            checkAchievement={checkAchievement}
-            onPendingConfirm={setPendingConfirm}
-            onGoToLibrary={() => setScreen('library')}
-          />
+        <LabMode
+          courseSet={courseSet}
+          tomeProgress={tomeProgress}
+          playerState={playerState}
+          awardXP={awardXP}
+          recordAnswer={recordAnswer}
+          updateTomeProgress={updateTomeProgress}
+          checkAchievement={checkAchievement}
+          onPendingConfirm={setPendingConfirm}
+          onGoToLibrary={() => setScreen('library')}
+        />
       ),
     chat: () =>
       courseSet && (
-          <ChatMode
-            courseSet={courseSet}
-            tomeProgress={tomeProgress}
-            updateTomeProgress={updateTomeProgress}
-            checkAchievement={checkAchievement}
-          />
+        <ChatMode
+          courseSet={courseSet}
+          tomeProgress={tomeProgress}
+          updateTomeProgress={updateTomeProgress}
+          checkAchievement={checkAchievement}
+        />
       ),
     practiceExam: () =>
       courseSet && (
-            <ExamMode
-              courseSet={courseSet}
-              tomeId={playerState.activeTomeId}
-              tomeProgress={tomeProgress}
-              updateTomeProgress={updateTomeProgress}
-              awardXP={awardXP}
-              onExit={() => setScreen('home')}
-              onResumeNotify={(info) => showNotif(
-                `Resumed trial — Riddle ${info.currentIdx + 1} of ${info.total} · ${info.remainingLabel} left`,
-                'success', null, 1500,
-              )}
-            />
+        <ExamMode
+          courseSet={courseSet}
+          tomeId={playerState.activeTomeId}
+          tomeProgress={tomeProgress}
+          updateTomeProgress={updateTomeProgress}
+          awardXP={awardXP}
+          onExit={() => setScreen('home')}
+          onResumeNotify={(info) =>
+            showNotif(
+              `Resumed trial — Riddle ${info.currentIdx + 1} of ${info.total} · ${info.remainingLabel} left`,
+              'success',
+              null,
+              1500,
+            )
+          }
+        />
       ),
     vault: () =>
       !sealedLocked && (
-          <MistakeVault
-            courseSet={courseSet}
-            tomeProgress={tomeProgress}
-            playerState={playerState}
-            onRemove={removeFromVault}
-            checkAchievement={checkAchievement}
-            unlockSpecialTitle={unlockSpecialTitle}
-            awardXP={awardXP}
-            onGoHome={() => setScreen('home')}
-          />
+        <MistakeVault
+          courseSet={courseSet}
+          tomeProgress={tomeProgress}
+          playerState={playerState}
+          onRemove={removeFromVault}
+          checkAchievement={checkAchievement}
+          unlockSpecialTitle={unlockSpecialTitle}
+          awardXP={awardXP}
+          onGoHome={() => setScreen('home')}
+        />
       ),
   };
 
   return (
-    <div className="min-h-screen text-amber-50 relative overflow-hidden dungeon-bg-root" style={{
-      fontFamily: "'Cinzel', 'Trajan Pro', Georgia, serif",
-      background: 'radial-gradient(ellipse at top, #1a0e08 0%, #0a0604 50%, #000000 100%)',
-    }}>
-      <div className="fixed inset-0 opacity-[0.04] pointer-events-none dungeon-bg-noise" style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-      }} />
-      <div className="fixed inset-0 pointer-events-none dungeon-bg-vignette" style={{
-        background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.7) 100%)',
-      }} />
-      <div className="fixed inset-0 pointer-events-none dungeon-bg-corners" style={{
-        background: 'radial-gradient(circle at 20% 80%, rgba(255,140,0,0.08), transparent 40%), radial-gradient(circle at 80% 20%, rgba(220,38,38,0.06), transparent 40%)',
-      }} />
+    <div
+      className="min-h-screen text-amber-50 relative overflow-hidden dungeon-bg-root"
+      style={{
+        fontFamily: "'Cinzel', 'Trajan Pro', Georgia, serif",
+        background: 'radial-gradient(ellipse at top, #1a0e08 0%, #0a0604 50%, #000000 100%)',
+      }}
+    >
+      <div
+        className="fixed inset-0 opacity-[0.04] pointer-events-none dungeon-bg-noise"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+        }}
+      />
+      <div
+        className="fixed inset-0 pointer-events-none dungeon-bg-vignette"
+        style={{
+          background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.7) 100%)',
+        }}
+      />
+      <div
+        className="fixed inset-0 pointer-events-none dungeon-bg-corners"
+        style={{
+          background:
+            'radial-gradient(circle at 20% 80%, rgba(255,140,0,0.08), transparent 40%), radial-gradient(circle at 80% 20%, rgba(220,38,38,0.06), transparent 40%)',
+        }}
+      />
 
       {/* Phase 43c: hidden KaTeX sentinel. RichContent encounters a math
           node here on every page load, triggering the lazy-import of the
@@ -1220,7 +1454,11 @@ export default function DungeonScholarApp() {
           onConfirm={() => {
             const fn = pendingConfirm.onConfirm;
             setPendingConfirm(null);
-            try { fn?.(); } catch { /* ignore */ }
+            try {
+              fn?.();
+            } catch {
+              /* ignore */
+            }
           }}
           onCancel={() => setPendingConfirm(null)}
         />
@@ -1240,7 +1478,11 @@ export default function DungeonScholarApp() {
           tabIndex={notification.onClick ? 0 : undefined}
           onClick={() => {
             if (!notification.onClick) return;
-            try { notification.onClick(); } catch { /* ignore */ }
+            try {
+              notification.onClick();
+            } catch {
+              /* ignore */
+            }
             setNotification(null);
           }}
           onMouseEnter={() => {
@@ -1275,17 +1517,26 @@ export default function DungeonScholarApp() {
             if (!notification.onClick) return;
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
-              try { notification.onClick(); } catch { /* ignore */ }
+              try {
+                notification.onClick();
+              } catch {
+                /* ignore */
+              }
               setNotification(null);
             }
           }}
           className={`fixed top-20 left-1/2 -translate-x-1/2 z-50 max-w-md px-6 py-3 rounded border-2 backdrop-blur-md text-center ${
-            notification.type === 'levelup' ? 'bg-amber-900/80 border-amber-400 text-amber-100' :
-            notification.type === 'achievement' ? 'bg-purple-900/80 border-purple-400 text-purple-100' :
-            notification.type === 'xp' ? 'bg-emerald-900/80 border-emerald-500 text-emerald-100' :
-            notification.type === 'success' ? 'bg-emerald-900/80 border-emerald-500 text-emerald-100' :
-            notification.type === 'error' ? 'bg-red-900/80 border-red-500 text-red-100' :
-            'bg-stone-900/80 border-stone-600 text-amber-50'
+            notification.type === 'levelup'
+              ? 'bg-amber-900/80 border-amber-400 text-amber-100'
+              : notification.type === 'achievement'
+                ? 'bg-purple-900/80 border-purple-400 text-purple-100'
+                : notification.type === 'xp'
+                  ? 'bg-emerald-900/80 border-emerald-500 text-emerald-100'
+                  : notification.type === 'success'
+                    ? 'bg-emerald-900/80 border-emerald-500 text-emerald-100'
+                    : notification.type === 'error'
+                      ? 'bg-red-900/80 border-red-500 text-red-100'
+                      : 'bg-stone-900/80 border-stone-600 text-amber-50'
           } ${notification.onClick ? 'cursor-pointer hover:brightness-110' : ''}`}
           style={{ boxShadow: '0 0 20px rgba(245, 158, 11, 0.3)' }}
         >
@@ -1309,16 +1560,22 @@ export default function DungeonScholarApp() {
         <header className="flex items-center justify-between mb-8 pb-4 border-b-2 border-amber-700/40">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <Castle className="w-10 h-10 text-amber-400" style={{ filter: 'drop-shadow(0 0 8px rgba(245, 158, 11, 0.5))' }} />
+              <Castle
+                className="w-10 h-10 text-amber-400"
+                style={{ filter: 'drop-shadow(0 0 8px rgba(245, 158, 11, 0.5))' }}
+              />
             </div>
             <div>
-              <h1 className="text-3xl font-bold tracking-wider" style={{
-                background: 'linear-gradient(to bottom, #fbbf24 0%, #d97706 50%, #92400e 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                textShadow: '0 0 20px rgba(245, 158, 11, 0.3)',
-                fontFamily: "'Cinzel', serif",
-              }}>
+              <h1
+                className="text-3xl font-bold tracking-wider"
+                style={{
+                  background: 'linear-gradient(to bottom, #fbbf24 0%, #d97706 50%, #92400e 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  textShadow: '0 0 20px rgba(245, 158, 11, 0.3)',
+                  fontFamily: "'Cinzel', serif",
+                }}
+              >
                 DUNGEON SCHOLAR
               </h1>
               <p className="text-xs text-amber-700 tracking-[0.3em] italic">⚜ A SCHOLAR'S QUEST ⚜</p>
@@ -1326,6 +1583,15 @@ export default function DungeonScholarApp() {
           </div>
           {/* Phase 30f QA #14: navigation landmark for the action-button row. */}
           <nav aria-label="Primary" className="flex items-center gap-3 text-sm">
+            {/* Keyboard-shortcut help — also reachable via the `?` hotkey. */}
+            <button
+              onClick={() => openModal('shortcuts')}
+              className="p-2 rounded-sm border-2 border-amber-700/60 text-amber-300 hover:bg-amber-900/30"
+              title="Keyboard shortcuts (?)"
+              aria-label="Show keyboard shortcuts"
+            >
+              <Keyboard className="w-4 h-4" aria-hidden="true" />
+            </button>
             {/* Gold pill */}
             {/* Phase 30h QA #15/#20: each header counter now carries an aria-label
                 that names the destination AND inlines the count, so the icon-to-page
@@ -1334,24 +1600,36 @@ export default function DungeonScholarApp() {
             <div
               className="px-3 py-2 rounded-sm border-2 border-amber-700/60 flex items-center gap-2"
               style={{
-                background: 'linear-gradient(to bottom, rgba(var(--surface-amber-strong, 120, 53, 15), 0.5), rgba(var(--surface-amber, 41, 24, 12), 0.85))',
+                background:
+                  'linear-gradient(to bottom, rgba(var(--surface-amber-strong, 120, 53, 15), 0.5), rgba(var(--surface-amber, 41, 24, 12), 0.85))',
                 boxShadow: '0 0 10px rgba(245, 158, 11, 0.15), inset 0 0 10px rgba(0,0,0,0.4)',
               }}
               title={`Gold: ${playerState.gold || 0}`}
               aria-label={`Gold: ${playerState.gold || 0}`}
             >
-              <Coins className="w-4 h-4 text-amber-300" style={{ filter: 'drop-shadow(0 0 4px rgba(245, 158, 11, 0.6))' }} aria-hidden="true" />
+              <Coins
+                className="w-4 h-4 text-amber-300"
+                style={{ filter: 'drop-shadow(0 0 4px rgba(245, 158, 11, 0.6))' }}
+                aria-hidden="true"
+              />
               <span className="text-amber-200 font-bold italic tabular-nums">{playerState.gold || 0}</span>
             </div>
             <button
               onClick={() => setScreen('quests')}
               className="p-3 hover:bg-purple-900/30 rounded-sm transition border-2 border-purple-700/50 hover:border-purple-500 relative"
               title={claimableQuestCount > 0 ? `Quest Board (${claimableQuestCount} ready to claim)` : 'Quest Board'}
-              aria-label={claimableQuestCount > 0 ? `Open Quest Board, ${claimableQuestCount} reward${claimableQuestCount === 1 ? '' : 's'} ready to claim` : 'Open Quest Board'}
+              aria-label={
+                claimableQuestCount > 0
+                  ? `Open Quest Board, ${claimableQuestCount} reward${claimableQuestCount === 1 ? '' : 's'} ready to claim`
+                  : 'Open Quest Board'
+              }
             >
               <ScrollText className="w-5 h-5 text-purple-300" aria-hidden="true" />
               {claimableQuestCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-purple-500 text-amber-50 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border border-purple-300 animate-pulse" aria-hidden="true">
+                <span
+                  className="absolute -top-1 -right-1 bg-purple-500 text-amber-50 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border border-purple-300 animate-pulse"
+                  aria-hidden="true"
+                >
                   {claimableQuestCount}
                 </span>
               )}
@@ -1364,7 +1642,10 @@ export default function DungeonScholarApp() {
             >
               <Library className="w-5 h-5 text-amber-400" aria-hidden="true" />
               {playerState.library.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-amber-500 text-amber-950 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border border-amber-300" aria-hidden="true">
+                <span
+                  className="absolute -top-1 -right-1 bg-amber-500 text-amber-950 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border border-amber-300"
+                  aria-hidden="true"
+                >
                   {playerState.library.length}
                 </span>
               )}
@@ -1383,7 +1664,10 @@ export default function DungeonScholarApp() {
                 >
                   <Package className="w-5 h-5 text-emerald-300" aria-hidden="true" />
                   {inventoryCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-emerald-500 text-amber-950 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border border-emerald-300" aria-hidden="true">
+                    <span
+                      className="absolute -top-1 -right-1 bg-emerald-500 text-amber-950 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border border-emerald-300"
+                      aria-hidden="true"
+                    >
                       {inventoryCount}
                     </span>
                   )}
@@ -1437,10 +1721,13 @@ export default function DungeonScholarApp() {
                           // submitted-empty vs abandoned).
                           if (saved.tomeId) {
                             const elapsedSec = saved.totalSeconds
-                              ? Math.max(0, saved.totalSeconds - Math.max(0, Math.ceil((saved.deadlineMs - Date.now()) / 1000)))
+                              ? Math.max(
+                                  0,
+                                  saved.totalSeconds - Math.max(0, Math.ceil((saved.deadlineMs - Date.now()) / 1000)),
+                                )
                               : 0;
                             const answeredCount = Array.isArray(saved.answers)
-                              ? saved.answers.filter(a => a !== null && a !== undefined && a !== '').length
+                              ? saved.answers.filter((a) => a !== null && a !== undefined && a !== '').length
                               : 0;
                             const record = {
                               startedAt: saved.startedAt || Date.now(),
@@ -1452,12 +1739,15 @@ export default function DungeonScholarApp() {
                               byDomain: {},
                               status: 'abandoned',
                             };
-                            setPlayerState(prev => ({
+                            setPlayerState((prev) => ({
                               ...prev,
-                              library: prev.library.map(t => {
+                              library: prev.library.map((t) => {
                                 if (t.id !== saved.tomeId) return t;
                                 const prior = Array.isArray(t.progress?.practiceExams) ? t.progress.practiceExams : [];
-                                return { ...t, progress: { ...t.progress, practiceExams: [...prior, record].slice(-20) } };
+                                return {
+                                  ...t,
+                                  progress: { ...t.progress, practiceExams: [...prior, record].slice(-20) },
+                                };
                               }),
                             }));
                           }
@@ -1484,60 +1774,75 @@ export default function DungeonScholarApp() {
         </header>
 
         <main id="main-content" tabIndex={-1}>
-        <ErrorBoundary onReset={() => setScreen('home')}>
-        <div className="mb-6 p-4 rounded-sm relative" style={{
-          background: 'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.9) 0%, rgba(var(--surface-modal, 20, 12, 6), 0.9) 100%)',
-          border: '2px solid rgba(180, 83, 9, 0.5)',
-          boxShadow: '0 0 30px rgba(180, 83, 9, 0.15), inset 0 0 20px rgba(0,0,0,0.5)',
-        }}>
-          <div className="absolute top-1 left-1 text-amber-700 text-xs">⚜</div>
-          <div className="absolute top-1 right-1 text-amber-700 text-xs">⚜</div>
-          <div className="absolute bottom-1 left-1 text-amber-700 text-xs">⚜</div>
-          <div className="absolute bottom-1 right-1 text-amber-700 text-xs">⚜</div>
+          <ErrorBoundary onReset={() => setScreen('home')}>
+            <div
+              className="mb-6 p-4 rounded-sm relative"
+              style={{
+                background:
+                  'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.9) 0%, rgba(var(--surface-modal, 20, 12, 6), 0.9) 100%)',
+                border: '2px solid rgba(180, 83, 9, 0.5)',
+                boxShadow: '0 0 30px rgba(180, 83, 9, 0.15), inset 0 0 20px rgba(0,0,0,0.5)',
+              }}
+            >
+              <div className="absolute top-1 left-1 text-amber-700 text-xs">⚜</div>
+              <div className="absolute top-1 right-1 text-amber-700 text-xs">⚜</div>
+              <div className="absolute bottom-1 left-1 text-amber-700 text-xs">⚜</div>
+              <div className="absolute bottom-1 right-1 text-amber-700 text-xs">⚜</div>
 
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <div className="w-16 h-16 flex items-center justify-center text-3xl font-bold border-2 border-amber-500 text-amber-200" style={{
-                  background: 'radial-gradient(circle, rgba(var(--surface-amber-strong, 120, 53, 15), 0.8) 0%, rgba(var(--surface-amber, 41, 24, 12), 0.9) 100%)',
-                  clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                  boxShadow: '0 0 15px rgba(245, 158, 11, 0.4)',
-                  textShadow: '0 0 10px rgba(245, 158, 11, 0.8)',
-                }}>
-                  {playerState.level}
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <div
+                      className="w-16 h-16 flex items-center justify-center text-3xl font-bold border-2 border-amber-500 text-amber-200"
+                      style={{
+                        background:
+                          'radial-gradient(circle, rgba(var(--surface-amber-strong, 120, 53, 15), 0.8) 0%, rgba(var(--surface-amber, 41, 24, 12), 0.9) 100%)',
+                        clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                        boxShadow: '0 0 15px rgba(245, 158, 11, 0.4)',
+                        textShadow: '0 0 10px rgba(245, 158, 11, 0.8)',
+                      }}
+                    >
+                      {playerState.level}
+                    </div>
+                  </div>
+                  <div>
+                    <button
+                      onClick={() => openModal('titles')}
+                      className="text-xl font-bold text-amber-300 hover:text-amber-200 transition flex items-center gap-1 italic"
+                      style={{ textShadow: '0 0 10px rgba(245, 158, 11, 0.4)' }}
+                    >
+                      {currentTitle} <ChevronRight className="w-4 h-4" />
+                    </button>
+                    <div className="text-xs text-amber-700 tracking-wider">
+                      ⚔ Level {playerState.level} • {playerState.totalXp.toLocaleString()} Total XP ⚔
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <button
-                  onClick={() => openModal('titles')}
-                  className="text-xl font-bold text-amber-300 hover:text-amber-200 transition flex items-center gap-1 italic"
-                  style={{ textShadow: '0 0 10px rgba(245, 158, 11, 0.4)' }}
-                >
-                  {currentTitle} <ChevronRight className="w-4 h-4" />
-                </button>
-                <div className="text-xs text-amber-700 tracking-wider">⚔ Level {playerState.level} • {playerState.totalXp.toLocaleString()} Total XP ⚔</div>
-              </div>
-            </div>
-            <div className="flex-1 min-w-[200px] max-w-md">
-              <div className="flex justify-between text-xs mb-1">
-                <span className="text-amber-700 tracking-widest">EXPERIENCE</span>
-                <span className="text-amber-400">{playerState.xp} / {xpNeeded}</span>
-              </div>
-              <div className="h-4 rounded-full overflow-hidden border-2 border-amber-800" style={{
-                background: 'linear-gradient(to bottom, #1c1917 0%, #0c0a09 100%)',
-                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.6)',
-              }}>
-                <div
-                  className="h-full transition-all duration-500"
-                  style={{
-                    width: `${xpPercent}%`,
-                    background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 50%, #b45309 100%)',
-                    boxShadow: '0 0 10px rgba(245, 158, 11, 0.6)',
-                  }}
-                />
-              </div>
-            </div>
-            {/* Phase 40a QA P1: each counter now has an aria-label + title
+                <div className="flex-1 min-w-[200px] max-w-md">
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-amber-700 tracking-widest">EXPERIENCE</span>
+                    <span className="text-amber-400">
+                      {playerState.xp} / {xpNeeded}
+                    </span>
+                  </div>
+                  <div
+                    className="h-4 rounded-full overflow-hidden border-2 border-amber-800"
+                    style={{
+                      background: 'linear-gradient(to bottom, #1c1917 0%, #0c0a09 100%)',
+                      boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.6)',
+                    }}
+                  >
+                    <div
+                      className="h-full transition-all duration-500"
+                      style={{
+                        width: `${xpPercent}%`,
+                        background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 50%, #b45309 100%)',
+                        boxShadow: '0 0 10px rgba(245, 158, 11, 0.6)',
+                      }}
+                    />
+                  </div>
+                </div>
+                {/* Phase 40a QA P1: each counter now has an aria-label + title
                 that names what it actually tracks. The visible label stays
                 short for the dungeon aesthetic, but hover / screen reader
                 gets the precise definition so users don't expect the
@@ -1545,117 +1850,204 @@ export default function DungeonScholarApp() {
                 Dungeon-Delve label is renamed "DELVES" — clearer mapping
                 to the in-product Dungeon Delve concept, and avoids the
                 quest-board collision that triggered the QA report. */}
-            <div className="flex gap-4 text-sm">
-              <div className="text-center" title={`Riddles answered correctly (lifetime): ${playerState.totalCorrect}`} aria-label={`Victories — ${playerState.totalCorrect} correct riddles answered, lifetime`}>
-                <div className="text-emerald-400 font-bold text-lg" style={{ textShadow: '0 0 8px rgba(16, 185, 129, 0.5)' }}>{playerState.totalCorrect}</div>
-                <div className="text-xs text-amber-700 tracking-wider">VICTORIES</div>
-              </div>
-              <div
-                className="text-center"
-                title={`Dungeon Delve runs completed across all tomes (Quest Board claims are tracked separately on the Quest Board itself)`}
-                aria-label={`Delves — ${playerState.library.reduce((sum, t) => sum + (t.progress?.runsCompleted || 0), 0)} Dungeon Delve runs completed across all tomes. Not the same as Quest Board claims.`}
-              >
-                <div className="text-purple-400 font-bold text-lg" style={{ textShadow: '0 0 8px rgba(168, 85, 247, 0.5)' }}>
-                  {playerState.library.reduce((sum, t) => sum + (t.progress?.runsCompleted || 0), 0)}
+                <div className="flex gap-4 text-sm">
+                  <div
+                    className="text-center"
+                    title={`Riddles answered correctly (lifetime): ${playerState.totalCorrect}`}
+                    aria-label={`Victories — ${playerState.totalCorrect} correct riddles answered, lifetime`}
+                  >
+                    <div
+                      className="text-emerald-400 font-bold text-lg"
+                      style={{ textShadow: '0 0 8px rgba(16, 185, 129, 0.5)' }}
+                    >
+                      {playerState.totalCorrect}
+                    </div>
+                    <div className="text-xs text-amber-700 tracking-wider">VICTORIES</div>
+                  </div>
+                  <div
+                    className="text-center"
+                    title={`Dungeon Delve runs completed across all tomes (Quest Board claims are tracked separately on the Quest Board itself)`}
+                    aria-label={`Delves — ${playerState.library.reduce((sum, t) => sum + (t.progress?.runsCompleted || 0), 0)} Dungeon Delve runs completed across all tomes. Not the same as Quest Board claims.`}
+                  >
+                    <div
+                      className="text-purple-400 font-bold text-lg"
+                      style={{ textShadow: '0 0 8px rgba(168, 85, 247, 0.5)' }}
+                    >
+                      {playerState.library.reduce((sum, t) => sum + (t.progress?.runsCompleted || 0), 0)}
+                    </div>
+                    <div className="text-xs text-amber-700 tracking-wider">DELVES</div>
+                  </div>
+                  <div
+                    className="text-center"
+                    title={`Dungeon-lord bosses defeated across all tomes`}
+                    aria-label={`Dragons — ${playerState.library.reduce((sum, t) => sum + (t.progress?.bossesDefeated || 0), 0)} dungeon-lord bosses defeated across all tomes`}
+                  >
+                    <div
+                      className="text-red-400 font-bold text-lg"
+                      style={{ textShadow: '0 0 8px rgba(239, 68, 68, 0.5)' }}
+                    >
+                      {playerState.library.reduce((sum, t) => sum + (t.progress?.bossesDefeated || 0), 0)}
+                    </div>
+                    <div className="text-xs text-amber-700 tracking-wider">DRAGONS</div>
+                  </div>
                 </div>
-                <div className="text-xs text-amber-700 tracking-wider">DELVES</div>
-              </div>
-              <div
-                className="text-center"
-                title={`Dungeon-lord bosses defeated across all tomes`}
-                aria-label={`Dragons — ${playerState.library.reduce((sum, t) => sum + (t.progress?.bossesDefeated || 0), 0)} dungeon-lord bosses defeated across all tomes`}
-              >
-                <div className="text-red-400 font-bold text-lg" style={{ textShadow: '0 0 8px rgba(239, 68, 68, 0.5)' }}>
-                  {playerState.library.reduce((sum, t) => sum + (t.progress?.bossesDefeated || 0), 0)}
-                </div>
-                <div className="text-xs text-amber-700 tracking-wider">DRAGONS</div>
+                {user && <ProfileChip user={user} syncStatus={sync.status} onOpen={() => openModal('account')} />}
               </div>
             </div>
-            {user && (
-              <ProfileChip
-                user={user}
-                syncStatus={sync.status}
-                onOpen={() => openModal('account')}
-              />
-            )}
-          </div>
-        </div>
 
-        {/* PHASE-39 39H: one Suspense boundary for every lazy-loaded screen (HomeScreen
+            {/* PHASE-39 39H: one Suspense boundary for every lazy-loaded screen (HomeScreen
             stays static so first paint never suspends). Modals/tutorial panel below stay outside. */}
-        <React.Suspense fallback={
-          <div className="flex items-center justify-center py-24 text-amber-300 italic">
-            <Loader2 className="w-6 h-6 animate-spin mr-3" /> Summoning...
-          </div>
-        }>
-        {/* PHASE-41 41B: chokepoint. When the active tome is sealed-but-locked
+            <React.Suspense
+              fallback={
+                <div className="flex items-center justify-center py-24 text-amber-300 italic">
+                  <Loader2 className="w-6 h-6 animate-spin mr-3" /> Summoning...
+                </div>
+              }
+            >
+              {/* PHASE-41 41B: chokepoint. When the active tome is sealed-but-locked
             and the player is on a content-consuming screen, render the unlock
             prompt INSTEAD of the screen. Home/library/shop/etc. stay reachable
             while locked (they don't read decrypted content). */}
-        {sealedLocked && SEALED_GATED.includes(screen) ? (
-          <SealedTomeGate
-            title={activeTome.data.metadata.title}
-            onUnlock={(pass) => unlockSealedTome(activeTome.id, pass)}
-            onBack={() => setScreen('library')}
-          />
-        ) : (
-          screenViews[screen]?.()
-        )}
-        </React.Suspense>
+              {sealedLocked && SEALED_GATED.includes(screen) ? (
+                <SealedTomeGate
+                  title={activeTome.data.metadata.title}
+                  onUnlock={(pass) => unlockSealedTome(activeTome.id, pass)}
+                  onBack={() => setScreen('library')}
+                />
+              ) : (
+                screenViews[screen]?.()
+              )}
+            </React.Suspense>
 
-        <input type="file" ref={fileInputRef} accept=".json" onChange={handleImportFile} className="hidden" />
+            <input type="file" ref={fileInputRef} accept=".json" onChange={handleImportFile} className="hidden" />
 
-        {modalOpen.prompt && <PromptModal onClose={() => closeModal('prompt')} />}
-        {modalOpen.paste && <PasteTomeModal onClose={() => closeModal('paste')} onSubmit={handlePasteImport} />}
-        {modalOpen.importCode && <ImportCodeModal onClose={() => closeModal('importCode')} onSubmit={handleShareCodeImport} />}
-        {shareTomeId && <ShareTomeModal tome={playerState.library.find(t => t.id === shareTomeId)} onClose={() => setShareTomeId(null)} />}
-        {editContentTomeId && <TomeEditor tome={playerState.library.find(t => t.id === editContentTomeId)} onSave={(newData) => { setPlayerState(prev => ({ ...prev, library: prev.library.map(t => t.id === editContentTomeId ? { ...t, data: newData } : t) })); setEditContentTomeId(null); showNotif('Tome content updated', 'success'); }} onClose={() => setEditContentTomeId(null)} />}
-        {editMetadataTomeId && <MetadataEditModal tome={playerState.library.find(t => t.id === editMetadataTomeId)} onSave={(updates) => { updateTomeMetadata(editMetadataTomeId, updates); setEditMetadataTomeId(null); showNotif('Tome metadata updated', 'success'); }} onClose={() => setEditMetadataTomeId(null)} />}
-        {notesTome && <TomeNotes tome={playerState.library.find(t => t.id === notesTome.id) || notesTome} onSave={(p) => updateTomeNotes(notesTome.id, p)} onClose={() => setNotesTome(null)} />}
-        {modalOpen.resetConfirm && <ResetConfirmModal onConfirm={confirmReset} onCancel={() => closeModal('resetConfirm')} />}
-        {modalOpen.achievements && <AchievementsModal playerState={playerState} onClose={() => closeModal('achievements')} />}
-        {modalOpen.welcome && <WelcomeModal onStart={startTutorial} onSkip={skipTutorial} />}
+            {modalOpen.prompt && <PromptModal onClose={() => closeModal('prompt')} />}
+            {modalOpen.paste && <PasteTomeModal onClose={() => closeModal('paste')} onSubmit={handlePasteImport} />}
+            {modalOpen.importCode && (
+              <ImportCodeModal onClose={() => closeModal('importCode')} onSubmit={handleShareCodeImport} />
+            )}
+            {shareTomeId && (
+              <ShareTomeModal
+                tome={playerState.library.find((t) => t.id === shareTomeId)}
+                onClose={() => setShareTomeId(null)}
+              />
+            )}
+            {editContentTomeId && (
+              <TomeEditor
+                tome={playerState.library.find((t) => t.id === editContentTomeId)}
+                onSave={(newData) => {
+                  setPlayerState((prev) => ({
+                    ...prev,
+                    library: prev.library.map((t) => (t.id === editContentTomeId ? { ...t, data: newData } : t)),
+                  }));
+                  setEditContentTomeId(null);
+                  showNotif('Tome content updated', 'success');
+                }}
+                onClose={() => setEditContentTomeId(null)}
+              />
+            )}
+            {editMetadataTomeId && (
+              <MetadataEditModal
+                tome={playerState.library.find((t) => t.id === editMetadataTomeId)}
+                onSave={(updates) => {
+                  updateTomeMetadata(editMetadataTomeId, updates);
+                  setEditMetadataTomeId(null);
+                  showNotif('Tome metadata updated', 'success');
+                }}
+                onClose={() => setEditMetadataTomeId(null)}
+              />
+            )}
+            {notesTome && (
+              <TomeNotes
+                tome={playerState.library.find((t) => t.id === notesTome.id) || notesTome}
+                onSave={(p) => updateTomeNotes(notesTome.id, p)}
+                onClose={() => setNotesTome(null)}
+              />
+            )}
+            {modalOpen.resetConfirm && (
+              <ResetConfirmModal onConfirm={confirmReset} onCancel={() => closeModal('resetConfirm')} />
+            )}
+            {modalOpen.shortcuts && <ShortcutHelpModal onClose={() => closeModal('shortcuts')} />}
+            {modalOpen.achievements && (
+              <AchievementsModal playerState={playerState} onClose={() => closeModal('achievements')} />
+            )}
+            {modalOpen.welcome && <WelcomeModal onStart={startTutorial} onSkip={skipTutorial} />}
 
-        {/* Tutorial side panel */}
-        {playerState.tutorialStarted && !playerState.tutorialCompleted && (
-          <TutorialPanel
-            stepIndex={playerState.tutorialStepIndex}
-            collapsed={playerState.tutorialPanelCollapsed}
-            onToggle={toggleTutorialPanel}
-            onAdvance={advanceTutorial}
-            onSkip={skipTutorial}
-            onAction={(stepId) => {
-              if (stepId === 'forge_tome') openModal('prompt');
-              else if (stepId === 'library_tour') { setTutorialOpenedSurface('library'); setScreen('library'); }
-              else if (stepId === 'study_scroll') { trackModeUse('flashcards'); setScreen('flashcards'); }
-              else if (stepId === 'solve_riddle') { trackModeUse('quiz'); setScreen('quiz'); }
-              else if (stepId === 'face_trial') { trackModeUse('lab'); setScreen('lab'); }
-              else if (stepId === 'vault_intro') { setTutorialOpenedSurface('vault'); setScreen('vault'); }
-              else if (stepId === 'consult_oracle') { trackModeUse('chat'); setScreen('chat'); }
-              else if (stepId === 'quest_board') { setTutorialOpenedSurface('quests'); setScreen('quests'); }
-              else if (stepId === 'enter_dungeon') { trackModeUse('dungeon'); setScreen('dungeon'); }
-              else if (stepId === 'view_achievements') { setTutorialOpenedSurface('achievements'); openModal('achievements'); }
-              else if (stepId === 'view_titles_levels') { setTutorialOpenedSurface('titles'); openModal('titles'); }
-              else if (stepId === 'bestiary_intro') { setTutorialOpenedSurface('bestiary'); setScreen('bestiary'); }
-              else if (stepId === 'stable_intro') { setTutorialOpenedSurface('stable'); setScreen('stable'); }
-              else if (stepId === 'spellbook_intro') { setTutorialOpenedSurface('spellbook'); setScreen('spellbook'); }
-              else if (stepId === 'calendar_intro') { setTutorialOpenedSurface('calendar'); setScreen('calendar'); }
-              else if (stepId === 'crafting_intro') { setTutorialOpenedSurface('crafting'); setScreen('crafting'); }
-              else if (stepId === 'domain_intro') { setScreen('domainStudy'); }
-              else if (stepId === 'ascension_intro') { setTutorialOpenedSurface('ascension'); setScreen('ascension'); }
-            }}
-          /> )}
-        {modalOpen.titles && (
-          <TitlesModal
-            playerState={playerState}
-            onSelect={(t) => {
-              setPlayerState(prev => ({ ...prev, selectedTitle: t }));
-              closeModal('titles');
-            }}
-            onClose={() => closeModal('titles')}
-          />
-        )}
-        </ErrorBoundary>
+            {/* Tutorial side panel */}
+            {playerState.tutorialStarted && !playerState.tutorialCompleted && (
+              <TutorialPanel
+                stepIndex={playerState.tutorialStepIndex}
+                collapsed={playerState.tutorialPanelCollapsed}
+                onToggle={toggleTutorialPanel}
+                onAdvance={advanceTutorial}
+                onSkip={skipTutorial}
+                onAction={(stepId) => {
+                  if (stepId === 'forge_tome') openModal('prompt');
+                  else if (stepId === 'library_tour') {
+                    setTutorialOpenedSurface('library');
+                    setScreen('library');
+                  } else if (stepId === 'study_scroll') {
+                    trackModeUse('flashcards');
+                    setScreen('flashcards');
+                  } else if (stepId === 'solve_riddle') {
+                    trackModeUse('quiz');
+                    setScreen('quiz');
+                  } else if (stepId === 'face_trial') {
+                    trackModeUse('lab');
+                    setScreen('lab');
+                  } else if (stepId === 'vault_intro') {
+                    setTutorialOpenedSurface('vault');
+                    setScreen('vault');
+                  } else if (stepId === 'consult_oracle') {
+                    trackModeUse('chat');
+                    setScreen('chat');
+                  } else if (stepId === 'quest_board') {
+                    setTutorialOpenedSurface('quests');
+                    setScreen('quests');
+                  } else if (stepId === 'enter_dungeon') {
+                    trackModeUse('dungeon');
+                    setScreen('dungeon');
+                  } else if (stepId === 'view_achievements') {
+                    setTutorialOpenedSurface('achievements');
+                    openModal('achievements');
+                  } else if (stepId === 'view_titles_levels') {
+                    setTutorialOpenedSurface('titles');
+                    openModal('titles');
+                  } else if (stepId === 'bestiary_intro') {
+                    setTutorialOpenedSurface('bestiary');
+                    setScreen('bestiary');
+                  } else if (stepId === 'stable_intro') {
+                    setTutorialOpenedSurface('stable');
+                    setScreen('stable');
+                  } else if (stepId === 'spellbook_intro') {
+                    setTutorialOpenedSurface('spellbook');
+                    setScreen('spellbook');
+                  } else if (stepId === 'calendar_intro') {
+                    setTutorialOpenedSurface('calendar');
+                    setScreen('calendar');
+                  } else if (stepId === 'crafting_intro') {
+                    setTutorialOpenedSurface('crafting');
+                    setScreen('crafting');
+                  } else if (stepId === 'domain_intro') {
+                    setScreen('domainStudy');
+                  } else if (stepId === 'ascension_intro') {
+                    setTutorialOpenedSurface('ascension');
+                    setScreen('ascension');
+                  }
+                }}
+              />
+            )}
+            {modalOpen.titles && (
+              <TitlesModal
+                playerState={playerState}
+                onSelect={(t) => {
+                  setPlayerState((prev) => ({ ...prev, selectedTitle: t }));
+                  closeModal('titles');
+                }}
+                onClose={() => closeModal('titles')}
+              />
+            )}
+          </ErrorBoundary>
         </main>
       </div>
     </div>

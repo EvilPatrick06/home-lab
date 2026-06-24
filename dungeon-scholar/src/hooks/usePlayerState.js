@@ -1,19 +1,20 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import {
-  loadFromLocalStorage,
-  saveToLocalStorage,
-  hasMeaningfulData,
-  hashState,
-  semanticHashState,
-  migrateIfNeeded,
-  CURRENT_SCHEMA_VER,
-  loadSyncMeta,
-  saveSyncMeta,
-  clearSyncMeta,
-} from '../services/persistence.js';
-import { pullSave, pushSave, upsertProfile, subscribeSaves } from '../services/cloudSync.js';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { applyBackfills } from '../services/backfill.js';
+import { pullSave, pushSave, subscribeSaves, upsertProfile } from '../services/cloudSync.js';
 import { logError } from '../services/logger.js';
+import {
+  CURRENT_SCHEMA_VER,
+  clearSyncMeta,
+  hashState,
+  hasMeaningfulData,
+  loadFromLocalStorage,
+  loadSyncMeta,
+  migrateIfNeeded,
+  saveSyncMeta,
+  saveToLocalStorage,
+  semanticHashState,
+  writeSnapshot,
+} from '../services/persistence.js';
 
 const LOCAL_DEBOUNCE_MS = 500;
 // Phase 37d QA round-6 suggestion: bumped cloud debounce from 500ms → 1500ms
@@ -71,7 +72,9 @@ export function usePlayerState(defaultState, user = null) {
   // M10 (17F): sticky flag — set the first time a local save fails (quota /
   // private mode). Stickiness IS the de-dupe: the App-level toast fires once.
   const [localSaveFailed, setLocalSaveFailed] = useState(false);
-  const noteSaveResult = (res) => { if (res && res.ok === false) setLocalSaveFailed(true); };
+  const noteSaveResult = (res) => {
+    if (res && res.ok === false) setLocalSaveFailed(true);
+  };
 
   const latestRef = useRef(state);
   const localTimeoutRef = useRef(null);
@@ -96,12 +99,16 @@ export function usePlayerState(defaultState, user = null) {
       const buf = recentLocalHashesRef.current;
       buf.push(hash);
       if (buf.length > 50) buf.shift();
-    } catch { /* ignore stringify failures (cyclic, etc.) */ }
+    } catch {
+      /* ignore stringify failures (cyclic, etc.) */
+    }
   };
 
   const userRef = useRef(user);
   const userId = user?.id ?? null;
-  useEffect(() => { userRef.current = user; }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    userRef.current = user;
+  }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const writeSyncMeta = useCallback((meta) => {
     saveSyncMeta(meta);
@@ -110,21 +117,24 @@ export function usePlayerState(defaultState, user = null) {
 
   // Apply a state from a remote source (Realtime or another tab) without
   // triggering broadcast/push back out.
-  const applyRemoteState = useCallback((nextState, cloudUpdatedAt) => {
-    applyingRemoteRef.current = true;
-    try {
-      latestRef.current = nextState;
-      setStateInternal(nextState);
-      trackLocalHash(nextState);
-      noteSaveResult(saveToLocalStorage(nextState));
-      if (cloudUpdatedAt) {
-        lastKnownCloudUpdatedAtRef.current = cloudUpdatedAt;
-        writeSyncMeta({ lastSyncedAt: cloudUpdatedAt, dirty: false });
+  const applyRemoteState = useCallback(
+    (nextState, cloudUpdatedAt) => {
+      applyingRemoteRef.current = true;
+      try {
+        latestRef.current = nextState;
+        setStateInternal(nextState);
+        trackLocalHash(nextState);
+        noteSaveResult(saveToLocalStorage(nextState));
+        if (cloudUpdatedAt) {
+          lastKnownCloudUpdatedAtRef.current = cloudUpdatedAt;
+          writeSyncMeta({ lastSyncedAt: cloudUpdatedAt, dirty: false });
+        }
+      } finally {
+        applyingRemoteRef.current = false;
       }
-    } finally {
-      applyingRemoteRef.current = false;
-    }
-  }, [writeSyncMeta]);
+    },
+    [writeSyncMeta],
+  );
 
   const pushNow = useCallback(async () => {
     const u = userRef.current;
@@ -141,7 +151,9 @@ export function usePlayerState(defaultState, user = null) {
       if (next < RETRY_DELAYS_MS.length) {
         retryAttemptRef.current = next + 1;
         setStatus('saving');
-        setTimeout(() => { pushNow(); }, RETRY_DELAYS_MS[next]);
+        setTimeout(() => {
+          pushNow();
+        }, RETRY_DELAYS_MS[next]);
       } else {
         setStatus('offline');
         retryAttemptRef.current = 0;
@@ -165,43 +177,50 @@ export function usePlayerState(defaultState, user = null) {
     }
   }, [pushNow]);
 
-  const setState = useCallback((next) => {
-    setStateInternal((prev) => {
-      const resolved = typeof next === 'function' ? next(prev) : next;
-      latestRef.current = resolved;
-      trackLocalHash(resolved);
+  const setState = useCallback(
+    (next) => {
+      setStateInternal((prev) => {
+        const resolved = typeof next === 'function' ? next(prev) : next;
+        latestRef.current = resolved;
+        trackLocalHash(resolved);
 
-      if (localTimeoutRef.current) clearTimeout(localTimeoutRef.current);
-      localTimeoutRef.current = setTimeout(() => {
-        noteSaveResult(saveToLocalStorage(latestRef.current));
-        localTimeoutRef.current = null;
-      }, LOCAL_DEBOUNCE_MS);
+        if (localTimeoutRef.current) clearTimeout(localTimeoutRef.current);
+        localTimeoutRef.current = setTimeout(() => {
+          noteSaveResult(saveToLocalStorage(latestRef.current));
+          // I1: keep a throttled rotating snapshot for local crash/reset recovery.
+          writeSnapshot(latestRef.current);
+          localTimeoutRef.current = null;
+        }, LOCAL_DEBOUNCE_MS);
 
-      // Don't broadcast/push back if we're applying a remote update.
-      if (!applyingRemoteRef.current) {
-        // Broadcast to other tabs in the same browser (signed-in or not — local
-        // sync helps even guest users with multiple tabs open).
-        if (broadcastChannelRef.current) {
-          try {
-            broadcastChannelRef.current.postMessage({ type: 'state', state: resolved });
-          } catch { /* channel may be closed */ }
+        // Don't broadcast/push back if we're applying a remote update.
+        if (!applyingRemoteRef.current) {
+          // Broadcast to other tabs in the same browser (signed-in or not — local
+          // sync helps even guest users with multiple tabs open).
+          if (broadcastChannelRef.current) {
+            try {
+              broadcastChannelRef.current.postMessage({ type: 'state', state: resolved });
+            } catch {
+              /* channel may be closed */
+            }
+          }
+
+          if (userRef.current) {
+            const meta = loadSyncMeta();
+            if (!meta.dirty) saveSyncMeta({ ...meta, dirty: true });
+
+            if (cloudTimeoutRef.current) clearTimeout(cloudTimeoutRef.current);
+            cloudTimeoutRef.current = setTimeout(() => {
+              cloudTimeoutRef.current = null;
+              pushNow();
+            }, CLOUD_DEBOUNCE_MS);
+          }
         }
 
-        if (userRef.current) {
-          const meta = loadSyncMeta();
-          if (!meta.dirty) saveSyncMeta({ ...meta, dirty: true });
-
-          if (cloudTimeoutRef.current) clearTimeout(cloudTimeoutRef.current);
-          cloudTimeoutRef.current = setTimeout(() => {
-            cloudTimeoutRef.current = null;
-            pushNow();
-          }, CLOUD_DEBOUNCE_MS);
-        }
-      }
-
-      return resolved;
-    });
-  }, [pushNow]);
+        return resolved;
+      });
+    },
+    [pushNow],
+  );
 
   // BroadcastChannel for cross-tab same-browser live updates.
   useEffect(() => {
@@ -215,22 +234,37 @@ export function usePlayerState(defaultState, user = null) {
       try {
         const incomingHash = JSON.stringify(ev.data.state);
         if (recentLocalHashesRef.current.includes(incomingHash)) return;
-      } catch { /* fall through and apply */ }
+      } catch {
+        /* fall through and apply */
+      }
       applyRemoteState(ev.data.state, null);
     };
     return () => {
-      try { channel.close(); } catch { /* ignore */ }
+      try {
+        channel.close();
+      } catch {
+        /* ignore */
+      }
       if (broadcastChannelRef.current === channel) broadcastChannelRef.current = null;
     };
   }, [applyRemoteState]);
 
   // Flush listeners.
   useEffect(() => {
-    const onUnload = () => { flushLocal(); flushCloud(); };
-    const onVisibility = () => {
-      if (document.visibilityState === 'hidden') { flushLocal(); flushCloud(); }
+    const onUnload = () => {
+      flushLocal();
+      flushCloud();
     };
-    const onBlur = () => { flushLocal(); flushCloud(); };
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') {
+        flushLocal();
+        flushCloud();
+      }
+    };
+    const onBlur = () => {
+      flushLocal();
+      flushCloud();
+    };
     window.addEventListener('beforeunload', onUnload);
     document.addEventListener('visibilitychange', onVisibility);
     window.addEventListener('blur', onBlur);
@@ -355,7 +389,9 @@ export function usePlayerState(defaultState, user = null) {
       }
     })();
 
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [userId, applyRemoteState, writeSyncMeta]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Realtime subscription for cross-device live updates.
@@ -374,45 +410,52 @@ export function usePlayerState(defaultState, user = null) {
           lastKnownCloudUpdatedAtRef.current = cloud.updatedAt;
           return;
         }
-      } catch { /* fall through and apply */ }
+      } catch {
+        /* fall through and apply */
+      }
       const cloudData = applyBackfills(migrateIfNeeded(cloud.data, cloud.schemaVer));
       applyRemoteState(cloudData, cloud.updatedAt);
     });
     return unsub;
   }, [userId, applyRemoteState]);
 
-  const resolveMerge = useCallback(async (choice) => {
-    if (!user) return;
-    if (choice === 'cancel') {
+  const resolveMerge = useCallback(
+    async (choice) => {
+      if (!user) return;
+      if (choice === 'cancel') {
+        setMergeRequired(false);
+        setLocalPreview(null);
+        setCloudPreview(null);
+        return;
+      }
+      if (choice === 'local') {
+        try {
+          const { updatedAt } = await pushSave(user.id, latestRef.current);
+          lastKnownCloudUpdatedAtRef.current = updatedAt;
+          writeSyncMeta({ lastSyncedAt: updatedAt, dirty: false });
+        } catch (err) {
+          setStatus('offline');
+        }
+      } else if (choice === 'cloud' && cloudPreview) {
+        applyRemoteState(cloudPreview, null);
+        // We don't have the cloud's updated_at handy here, so do a quick pull
+        // to sync our lastKnownCloudUpdatedAt + lastSyncedAt.
+        try {
+          const fresh = await pullSave(user.id);
+          if (fresh) {
+            lastKnownCloudUpdatedAtRef.current = fresh.updatedAt;
+            writeSyncMeta({ lastSyncedAt: fresh.updatedAt, dirty: false });
+          }
+        } catch {
+          /* ignore — local already replaced */
+        }
+      }
       setMergeRequired(false);
       setLocalPreview(null);
       setCloudPreview(null);
-      return;
-    }
-    if (choice === 'local') {
-      try {
-        const { updatedAt } = await pushSave(user.id, latestRef.current);
-        lastKnownCloudUpdatedAtRef.current = updatedAt;
-        writeSyncMeta({ lastSyncedAt: updatedAt, dirty: false });
-      } catch (err) {
-        setStatus('offline');
-      }
-    } else if (choice === 'cloud' && cloudPreview) {
-      applyRemoteState(cloudPreview, null);
-      // We don't have the cloud's updated_at handy here, so do a quick pull
-      // to sync our lastKnownCloudUpdatedAt + lastSyncedAt.
-      try {
-        const fresh = await pullSave(user.id);
-        if (fresh) {
-          lastKnownCloudUpdatedAtRef.current = fresh.updatedAt;
-          writeSyncMeta({ lastSyncedAt: fresh.updatedAt, dirty: false });
-        }
-      } catch { /* ignore — local already replaced */ }
-    }
-    setMergeRequired(false);
-    setLocalPreview(null);
-    setCloudPreview(null);
-  }, [user, cloudPreview, writeSyncMeta, applyRemoteState]);
+    },
+    [user, cloudPreview, writeSyncMeta, applyRemoteState],
+  );
 
   const sync = { mergeRequired, localPreview, cloudPreview, resolveMerge, status, lastSyncedAt, localSaveFailed };
   return [state, setState, sync];

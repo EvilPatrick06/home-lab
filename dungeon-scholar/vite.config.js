@@ -55,12 +55,21 @@ export default defineConfig({
     // Installable, offline-first PWA. The plugin derives `scope` and
     // `start_url` from Vite's `base`, so we don't hardcode them here — that's
     // what lets the manifest track VITE_BASE across the /dungeon-scholar/ and
-    // /home-lab/ deploys. DELIBERATELY no `runtimeCaching`: Supabase and the
-    // Oracle worker are cross-origin and must stay network-only. Workbox passes
-    // through any request its precache/route table doesn't match, so leaving
-    // those origins unconfigured keeps cloud sync + Oracle live-only (and they
-    // simply fail offline, which is the correct behavior).
+    // /home-lab/ deploys.
+    //
+    // I3 (Web Share Target): the manifest declares a POST/multipart share_target
+    // so the installed PWA can receive a shared `.json` tome (or shared text)
+    // from the OS share sheet. GitHub Pages can't run server code, so we use
+    // `injectManifest` with a custom SW (src/sw.js) that intercepts the share
+    // POST, stashes the payload, and redirects into the existing import flow.
+    // DELIBERATELY no runtimeCaching: Supabase and the Oracle worker are
+    // cross-origin and must stay network-only (Workbox passes through any
+    // request its precache table doesn't match, so leaving them unconfigured
+    // keeps cloud sync + Oracle live-only — the correct behavior).
     VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       includeAssets: ['apple-touch-icon.png'],
@@ -77,12 +86,24 @@ export default defineConfig({
           { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
           { src: 'pwa-maskable-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
+        // I3: receive a shared tome JSON (or text) from the OS share sheet.
+        // `action` is resolved relative to the manifest scope (Vite `base`).
+        share_target: {
+          action: 'share-target',
+          method: 'POST',
+          enctype: 'multipart/form-data',
+          params: {
+            title: 'title',
+            text: 'text',
+            url: 'url',
+            files: [
+              { name: 'tome', accept: ['application/json', '.json'] },
+            ],
+          },
+        },
       },
-      workbox: {
+      injectManifest: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
-        cleanupOutdatedCaches: true,
-        clientsClaim: true,
-        skipWaiting: true,
       },
     }),
   ],

@@ -1,8 +1,9 @@
 import { ArrowLeft } from 'lucide-react';
 import { OrnatePanel } from '../../components/ui/OrnatePanel.jsx';
 import { RecordTile } from '../../components/ui/RecordTile.jsx';
-import { dueCount } from '../../services/srs.js';
+import { barColor, tierLabel } from '../../services/accuracyPalette.js';
 import { isSealedTome } from '../../services/sealedTome.js';
+import { dueCount } from '../../services/srs.js';
 
 // S2: Scholar's Ledger — a learner-facing analytics view aggregating the
 // study signals that were previously scattered across the RPG screens.
@@ -10,11 +11,15 @@ function ScholarsLedger({ playerState, setScreen }) {
   const lib = playerState.library || [];
   const unsealed = (t) => !isSealedTome(t.data);
   const cardsReviewed = lib.reduce((s, t) => s + (t.progress?.cardsReviewed || 0), 0);
-  const due = lib.reduce((s, t) => s + (unsealed(t) ? dueCount(t.progress?.cardProgress || {}, t.data?.flashcards || []) : 0), 0);
+  const due = lib.reduce(
+    (s, t) => s + (unsealed(t) ? dueCount(t.progress?.cardProgress || {}, t.data?.flashcards || []) : 0),
+    0,
+  );
   const inRotation = lib.reduce((s, t) => s + Object.keys(t.progress?.cardProgress || {}).length, 0);
   const totalAnswered = playerState.totalAnswered || 0;
   const totalCorrect = playerState.totalCorrect || 0;
   const accuracy = totalAnswered ? Math.round((100 * totalCorrect) / totalAnswered) : 0;
+  const cvd = !!playerState.colorblind; // CVD: colorblind-safe accuracy palette
 
   const domains = {};
   for (const t of lib) {
@@ -25,18 +30,28 @@ function ScholarsLedger({ playerState, setScreen }) {
     }
   }
   const domainRows = Object.entries(domains)
-    .map(([domain, st]) => ({ domain, total: st.total, correct: st.correct, acc: st.total ? Math.round((100 * st.correct) / st.total) : 0 }))
+    .map(([domain, st]) => ({
+      domain,
+      total: st.total,
+      correct: st.correct,
+      acc: st.total ? Math.round((100 * st.correct) / st.total) : 0,
+    }))
     .sort((a, b) => a.acc - b.acc);
   const weakest = domainRows.find((r) => r.total >= 5) || domainRows[0] || null;
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <h2 className="text-2xl font-bold text-amber-200 italic" style={{ textShadow: '0 0 12px rgba(245, 158, 11, 0.4)' }}>
+        <h2
+          className="text-2xl font-bold text-amber-200 italic"
+          style={{ textShadow: '0 0 12px rgba(245, 158, 11, 0.4)' }}
+        >
           ✦ Scholar's Ledger ✦
         </h2>
-        <button onClick={() => setScreen('home')}
-          className="px-3 py-2 rounded-sm text-sm border-2 border-amber-700 text-amber-200 flex items-center gap-1 italic hover:bg-amber-900/30">
+        <button
+          onClick={() => setScreen('home')}
+          className="px-3 py-2 rounded-sm text-sm border-2 border-amber-700 text-amber-200 flex items-center gap-1 italic hover:bg-amber-900/30"
+        >
           <ArrowLeft className="w-4 h-4" /> Back to the Hearth
         </button>
       </div>
@@ -54,25 +69,34 @@ function ScholarsLedger({ playerState, setScreen }) {
         <OrnatePanel color="rose">
           <div className="text-xs text-rose-300 uppercase tracking-[0.15em] italic mb-1">Weakest domain</div>
           <div className="text-lg font-bold text-rose-200 italic">
-            {weakest.domain} — {weakest.acc}% <span className="text-sm text-rose-200/70">({weakest.correct}/{weakest.total})</span>
+            {weakest.domain} — {weakest.acc}%{' '}
+            <span className="text-sm text-rose-200/70">
+              ({weakest.correct}/{weakest.total})
+            </span>
           </div>
-          <div className="text-xs text-amber-100/70 italic mt-1">Drill this domain in Quiz or the dungeon to shore it up.</div>
+          <div className="text-xs text-amber-100/70 italic mt-1">
+            Drill this domain in Quiz or the dungeon to shore it up.
+          </div>
         </OrnatePanel>
       )}
 
       <OrnatePanel color="sapphire">
         <h3 className="text-base font-bold text-sky-200 italic mb-3">Per-domain mastery</h3>
         {domainRows.length === 0 ? (
-          <div className="text-sm text-amber-100/60 italic">No domain data yet — answer some quiz riddles or delve to populate this.</div>
+          <div className="text-sm text-amber-100/60 italic">
+            No domain data yet — answer some quiz riddles or delve to populate this.
+          </div>
         ) : (
           <div className="space-y-1">
             {domainRows.map((r) => (
               <div key={r.domain} className="flex items-center gap-2 text-sm">
                 <div className="flex-1 italic text-amber-100 truncate">{r.domain}</div>
                 <div className="w-40 h-2 rounded bg-black/40 overflow-hidden">
-                  <div style={{ width: `${r.acc}%`, height: '100%', background: r.acc < 70 ? '#f43f5e' : '#10b981' }} />
+                  <div style={{ width: `${r.acc}%`, height: '100%', background: barColor(r.acc, cvd) }} />
                 </div>
-                <div className="w-24 text-right tabular-nums text-amber-200 italic">{r.acc}% ({r.total})</div>
+                <div className="w-28 text-right tabular-nums text-amber-200 italic">
+                  {r.acc}% · {tierLabel(r.acc)} <span className="text-amber-200/60">({r.total})</span>
+                </div>
               </div>
             ))}
           </div>

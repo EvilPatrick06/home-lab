@@ -48,3 +48,9 @@ Switch to Light (Home → Visual Theme → ☀ Light) and visually scan every sc
 - [ ] Every modal (share/import/paste/metadata, notes, sealed-tome gate, reset/confirm, achievements/titles, account panel) and the tutorial panel.
 - [ ] Focus rings are visible on light surfaces (Tab through buttons/inputs); the skip-link is legible.
 - [ ] Switch back to Dark → everything is unchanged from before (dark is the default and byte-identical).
+
+## Colorblind-safe palette
+Enable Home -> Visual Theme -> "Colorblind-safe palette", then verify the analytics read correctly without relying on hue:
+- [ ] Domain Codex (Domain Study) per-domain bars and Scholar's Ledger "Per-domain mastery" bars switch from the red-green ramp to the CVD-safe blue-orange ramp.
+- [ ] Each bar is still paired with its numeric % and a tier word (Mastered / Strong / Fair / Weak), so accuracy is legible with hue ignored.
+- [ ] Toggle the option off → the bars return to the default red-green ramp; the setting persists across reloads (saved in playerState.colorblind).
