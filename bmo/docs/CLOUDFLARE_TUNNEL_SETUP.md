@@ -113,3 +113,13 @@ cloudflared tunnel ingress rule https://bmo.mybmoai.work/socket.io/   # which in
 Then re-run **Step 1** against the external URL and confirm the `websocket` (101) upgrade now appears and chat/IDE recover.
 
 See also [`NETWORK_ACCESS.md`](./NETWORK_ACCESS.md) for the Access app overview.
+
+### Verification result (2026-06-24)
+
+Ran Step 1 + a direct upgrade probe from the Pi. **The websocket upgrade completes end-to-end through Cloudflare — no edge fix is needed.**
+
+- App side (`http://127.0.0.1:5000/socket.io/?EIO=4&transport=polling`): handshake advertises `"upgrades":["websocket"]`.
+- External polling (`https://bmo.mybmoai.work/socket.io/?EIO=4&transport=polling`): **HTTP 200** — Cloudflare Access does **not** challenge `/socket.io/` (it reaches Flask).
+- External websocket upgrade (same URL, `transport=websocket` + `Upgrade: websocket`): **`HTTP/1.1 101 Switching Protocols`** with a valid `Sec-WebSocket-Accept` and a `CF-RAY` header (so it traversed Cloudflare\x27s edge) — identical to the LAN result.
+
+Conclusion: cloudflared proxies the upgrade and Access permits it; the QA-observed "stuck on polling" was transient / client-side, now further guarded by PHASE-02\x27s explicit reconnection + upgrade-error breadcrumb. **An Access bypass on `/socket.io/*` was deliberately NOT applied** — it would expose the realtime channel without auth for no current benefit. Re-open this section only if a future QA pass reproduces a stuck-on-polling state AND the 101 probe above fails externally.
