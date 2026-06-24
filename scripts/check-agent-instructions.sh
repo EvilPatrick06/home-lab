@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Drift guard for the hand-maintained AI-assistant instruction files. AGENTS.md
-# is canonical (see its header); CLAUDE.md / GEMINI.md / copilot-instructions.md
+# is canonical (see its header); CLAUDE.md / GEMINI.md / .cursorrules / copilot-instructions.md
 # must keep pointing at it for shared guidance instead of silently duplicating
 # and drifting. If AGENTS.md wraps a block in <!-- SYNC:agents START/END -->
 # markers, every other file that carries the same markers must match it byte for
@@ -8,7 +8,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-secondary=("CLAUDE.md" "GEMINI.md" ".github/copilot-instructions.md")
+secondary=("CLAUDE.md" "GEMINI.md" ".cursorrules" ".github/copilot-instructions.md")
 fail=0
 
 for f in "${secondary[@]}"; do
