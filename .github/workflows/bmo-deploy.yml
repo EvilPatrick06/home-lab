@@ -55,6 +55,9 @@ jobs:
           ok=false; [ "$HAS_ID" = "true" ] && [ "$HAS_SECRET" = "true" ] && ok=true
           echo "ok=$ok" >> "$GITHUB_OUTPUT"
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ -n "$DISPATCH_SHA" ] && ! printf '%s' "$DISPATCH_SHA" | grep -qE '^[0-9a-fA-F]{7,40}$'; then
+              echo "::error::target_sha must be 7-40 hex chars (or empty for origin/master HEAD)"; exit 1
+            fi
             echo "target=$DISPATCH_SHA" >> "$GITHUB_OUTPUT"
           else
             echo "target=$RUN_SHA" >> "$GITHUB_OUTPUT"
@@ -79,6 +82,15 @@ jobs:
         env:
           TARGET: ${{ needs.gate.outputs.target }}
         run: |
-          ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new \
-            patrick@bmo.tail31b5d9.ts.net \
-            "/home/patrick/home-lab/bmo/pi/scripts/deploy.sh $TARGET"
+          # $TARGET is validated to ^[0-9a-fA-F]{7,40}$ (or empty) in the gate
+          # job, so it cannot reach the remote shell as anything but a SHA.
+          # Empty => no arg => deploy.sh defaults to origin/master HEAD.
+          if [ -n "$TARGET" ]; then
+            ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new \
+              patrick@bmo.tail31b5d9.ts.net \
+              "/home/patrick/home-lab/bmo/pi/scripts/deploy.sh $TARGET"
+          else
+            ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new \
+              patrick@bmo.tail31b5d9.ts.net \
+              "/home/patrick/home-lab/bmo/pi/scripts/deploy.sh"
+          fi
