@@ -32,6 +32,18 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Medium
 
+### [2026-06-24] Stale superseded branch `feat/user-accounts-cloud-sync` won't merge — recommend delete
+
+- **Category:** chore / repo-hygiene
+- **Severity:** medium
+- **Found by:** integrator (daily branch consolidation)
+- **Responsible:** dnd-app domain owner (human-owned `feat/*` branch, not an `auto/<agent>`)
+
+**Description:**
+The integrator could not cleanly merge `feat/user-accounts-cloud-sync` into master (real conflicts in `dnd-app/src/renderer/src/pages/SettingsPage.tsx` plus add/add conflicts in `dnd-app/src/renderer/src/services/sync/{domains.ts,sync-engine.ts}`). **Root cause:** the branch's feature was already integrated into master via **squash PR #30** (`ba088b84 feat: user accounts + per-user cloud sync (Discord OAuth)`) and then *extended* by newer master commits — `b18c3747` (wire all remaining sync domains), `9e3d7617` (pause sync polling when tab hidden), `049e5a72` (knip cleanup). Because PR #30 was squash-merged, git shares no commit with the branch, so its now-old file versions collide as add/add. The branch's merge-base is the ancient `5cbbe926`; `git diff master..origin/feat/user-accounts-cloud-sync` would **revert 6478 lines across 288 files** — undoing the full-domain sync, the polling perf fix, and unrelated dungeon-scholar/qa-infra work. Merging it would be destructive, so the integrator left it untouched.
+
+**What's needed:** Confirm the feature is fully captured on master (it is — see PR #30 + follow-ups) and **delete the stale branch** (`git push origin :feat/user-accounts-cloud-sync`). Left for the human owner because it is a `feat/*` branch and deletion of human-owned branches is outside the integrator's auto-cleanup scope. Do NOT merge it.
+
 ### [2026-06-23] Cloud-sync residual: book config/PDFs not synced; binary re-hashed each reconcile
 
 - **Category:** debt
