@@ -64,27 +64,6 @@ New entries go at the TOP of their section (newest first).
 
 **Related files:** `src/features/library/LibraryScreen.jsx`, `src/features/library/MetadataEditModal.jsx`
 
-### [2026-06-24] Exportable / shareable tome-completion certificate ("diploma")
-
-- **Category:** future-idea
-- **Severity:** low
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-suggestor
-- **During:** scheduled improvement-scan of the dungeon-scholar tree
-
-**Description:**
-The app has a rich progression/identity layer — titles (`game/titles.js`), achievements (`game/achievements.js`), the Scholar's Ledger, the Ascension screen — but all of it stays *inside* the app. There is no artifact a learner can take *out* to mark finishing a tome or hitting mastery. An on-theme, generated "Certificate of Completion / diploma" (canvas → PNG, or print-to-PDF via the browser) when a tome reaches a mastery threshold would give a satisfying capstone and a shareable proof-of-study, leaning into the existing D&D framing (an illuminated scroll naming the scholar, the tome, the date, and the title earned). Honest severity: low — celebratory/motivational, not functional.
-
-**Hypothesis / root cause:** N/A — additive feature.
-
-**Proposed fix / improvement:**
-- [ ] Detect a per-tome "mastery" milestone (e.g. all cards past an SRS interval / exam passed).
-- [ ] Render a styled certificate (scholar name from profile, tome title, date, earned title) to canvas → downloadable PNG + print stylesheet for PDF.
-- [ ] Offer it from the tome screen / achievements modal when the milestone is reached.
-
-**Related files:** `src/game/titles.js`, `src/game/achievements.js`, `src/features/progression/ScholarsLedger.jsx`, `src/features/progression/AscensionScreen.jsx`
-
-
 # Design gotchas (warnings for future agents)
 
 *(none currently logged)*

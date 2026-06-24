@@ -13,6 +13,27 @@
 
 ---
 
+### [2026-06-24] Exportable / shareable tome-completion certificate ("diploma")
+> **Resolved 2026-06-24 (scholar-resolver):** Added `src/services/certificate.js`: a per-tome mastery milestone (`tomeMasteryPct`/`isTomeMastered` — >=80% of cards reviewed >=2x and past a 1-week stability horizon) + a canvas-rendered illuminated certificate (`renderCertificatePng`) naming the scholar, earned title, tome, date and mastery%, with PNG download + print-to-PDF. New `CertificateModal`; the Scholar's Ledger now shows a Diplomas section listing mastered tomes each with a Certificate button (scholar name from the signed-in profile, title from `getTitle`). 9 unit tests + production build green.
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement-scan of the dungeon-scholar tree
+
+**Description:**
+The app has a rich progression/identity layer — titles (`game/titles.js`), achievements (`game/achievements.js`), the Scholar's Ledger, the Ascension screen — but all of it stays *inside* the app. There is no artifact a learner can take *out* to mark finishing a tome or hitting mastery. An on-theme, generated "Certificate of Completion / diploma" (canvas → PNG, or print-to-PDF via the browser) when a tome reaches a mastery threshold would give a satisfying capstone and a shareable proof-of-study, leaning into the existing D&D framing (an illuminated scroll naming the scholar, the tome, the date, and the title earned). Honest severity: low — celebratory/motivational, not functional.
+
+**Hypothesis / root cause:** N/A — additive feature.
+
+**Proposed fix / improvement:**
+- [ ] Detect a per-tome "mastery" milestone (e.g. all cards past an SRS interval / exam passed).
+- [ ] Render a styled certificate (scholar name from profile, tome title, date, earned title) to canvas → downloadable PNG + print stylesheet for PDF.
+- [ ] Offer it from the tome screen / achievements modal when the milestone is reached.
+
+**Related files:** `src/game/titles.js`, `src/game/achievements.js`, `src/features/progression/ScholarsLedger.jsx`, `src/features/progression/AscensionScreen.jsx`
+
 ### [2026-06-24] Import external study-deck formats (Anki .apkg / Quizlet / CSV) into tomes
 > **Resolved 2026-06-24 (scholar-resolver):** Added `src/services/deckImport.js` (quote-aware CSV + TSV/Quizlet tab-export parser, header-row detection, optional 3rd column -> card domain) that builds a tome via `normalizeTomeData` and routes through the existing `addTomeToLibrary` path. New `ImportDeckModal` + a Home-screen 'Import Deck (CSV/Quizlet)' button (modal key `importDeck`). 11 unit tests + production build green. `.apkg` (zipped SQLite, needs a sql.js/WASM reader + bundle-size decision) left as a documented follow-up, matching the entry's own stretch-goal framing.
 

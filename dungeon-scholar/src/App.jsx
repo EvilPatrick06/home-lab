@@ -1223,7 +1223,9 @@ export default function DungeonScholarApp() {
     calendar: () => <CalendarScreen playerState={playerState} setScreen={setScreen} onClaim={claimDailyReward} />,
     ascension: () => <AscensionScreen playerState={playerState} setScreen={setScreen} onAscend={ascend} />,
     history: () => <RunHistoryScreen playerState={playerState} setScreen={setScreen} />,
-    ledger: () => <ScholarsLedger playerState={playerState} setScreen={setScreen} />,
+    ledger: () => (
+      <ScholarsLedger playerState={playerState} setScreen={setScreen} scholarName={user?.githubLogin || 'Scholar'} />
+    ),
     domainStudy: () =>
       !sealedLocked && (
         <DomainStudyScreen
