@@ -23,9 +23,18 @@
 
 | # | Plan file | Domain | Depends on | Status |
 |---|---|---|---|---|
-| _(none yet)_ | — | bmo | — | — |
+| 01 | [`PHASE-01-backend-route-correctness.md`](./PHASE-01-backend-route-correctness.md) | bmo | — | pending |
+| 02 | [`PHASE-02-realtime-reliability.md`](./PHASE-02-realtime-reliability.md) | bmo | 01 (soft) | pending |
+| 03 | [`PHASE-03-dashboard-ux-round.md`](./PHASE-03-dashboard-ux-round.md) | bmo | 01, 02 (soft) | pending |
 
-> **No active plans yet.** New plans land here when the bmo phase-maker consolidates
-> a QA report into `PHASE-NN-<slug>.md` files. Add a row per plan (numeric order),
-> list prerequisites in **Depends on**, and update **Status** (`pending` →
-> `in progress` → `done`) as the bmo-phase-executer ships each one.
+> **Provenance of this batch:** PHASE-01..03 were consolidated from
+> `QA/QA-report-2026-06-24.md` (now in `QA/completed/`) by the bmo phase-maker on
+> 2026-06-24. They split the report's findings by layer: **01** = server-side
+> route/service correctness (the 404/500s: list, music, calendar, monitoring,
+> seeded chat data); **02** = realtime reliability over Cloudflare (chat send
+> watchdog, IDE terminal, socket.io WS upgrade); **03** = dashboard UX & frontend
+> resilience (clock TZ, Places warning, notes Enter, timer/alarm UX, poll backoff).
+> Dependencies are **soft** — the layers touch disjoint files and can land in any
+> order, but 01→02→03 is the recommended order (fix structure before polish). The
+> bmo-phase-executer updates the Status column (`pending` → `in progress` → `done`)
+> as it ships each plan.
