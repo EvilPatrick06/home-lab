@@ -14,6 +14,83 @@ How to triage: [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md)
 
 > Whole-repo structural + convention items (`Domain: both`). Per-project items live in the domain-split logs.
 
+### [2026-06-24] `.nvmrc` consolidation is incomplete — 4 workflows still hardcode `node-version: "22"`
+
+- **Category:** debt, config
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** scheduled overall-suggestor cross-cutting scan (2026-06-24)
+
+**Description:**
+The 2026-06-22 "Pin one Node version for the whole monorepo (.nvmrc / engines)" work (resolved in all three RESOLVED logs) added a root `.nvmrc` (`22`) + `engines.node` and claimed it "switched all 8 `node-version: 22` pins across 6 workflows … to `node-version-file: .nvmrc`". That resolution missed four occurrences that still hardcode the version literally:
+- `.github/workflows/oracle-worker-ci.yml` (setup-node `node-version: "22"`)
+- `.github/workflows/oracle-worker-deploy.yml` (setup-node `node-version: "22"`)
+- `.github/workflows/security-audit.yml` line ~75 (the dungeon-scholar / auth-bearing-app audit job)
+- `.github/workflows/security-audit.yml` line ~91 (the oracle-worker audit job)
+
+`security-audit.yml` uses `node-version-file: .nvmrc` in its first job (line ~39) but the other two setup-node steps in the same file were left on the literal pin, and the two `oracle-worker-*` workflows were never part of the resolved entry's enumerated list at all. Net effect: bumping `.nvmrc` to a future Node (the whole point of the consolidation) would silently leave these four CI/deploy steps on 22 — re-introducing exactly the toolchain drift that issue set out to eliminate. Harmless today (all are 22), but it is latent single-source-of-truth drift across the oracle-worker (dungeon-scholar's backend) and the repo-wide security gate.
+
+**Hypothesis / root cause:** The consolidation pass enumerated workflows by hand and (a) only converted the first setup-node step in `security-audit.yml`, missing its two later jobs, and (b) never included the two `oracle-worker-*` workflows in its list.
+
+**Proposed fix / improvement:**
+- [ ] Replace `node-version: "22"` with `node-version-file: .nvmrc` in `oracle-worker-ci.yml`, `oracle-worker-deploy.yml`, and both later setup-node steps in `security-audit.yml`.
+- [ ] Add a guard so this cannot silently recur: e.g. a grep step / CI check failing on any `node-version:` literal in `.github/workflows/` (everything should use `node-version-file`).
+
+**Blocked by:** None — mechanical 4-line change; worth a guard so the "one source of truth" invariant is actually enforced.
+
+**Related files:** `.github/workflows/oracle-worker-ci.yml`, `.github/workflows/oracle-worker-deploy.yml`, `.github/workflows/security-audit.yml`, `.nvmrc`
+
+**Related entries:** RESOLVED-ISSUES-DNDAPP.md / BMO-RESOLVED-ISSUES.md / RESOLVED-ISSUES-DUNGEON-SCHOLAR.md "[2026-06-22] Pin one Node version for the whole monorepo".
+
+### [2026-06-24] Agent-instruction drift guard omits `.cursorrules` (the fifth peer instruction file)
+
+- **Category:** debt, docs
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** scheduled overall-suggestor cross-cutting scan (2026-06-24)
+
+**Description:**
+The agent-instruction drift guard (`scripts/check-agent-instructions.sh`, run by `.github/workflows/agent-docs-check.yml`) enforces that the tool-specific AI guides keep pointing at the canonical `AGENTS.md` (and byte-match any `SYNC:agents` block). Its `secondary` set is exactly `CLAUDE.md`, `GEMINI.md`, `.github/copilot-instructions.md` — three files. But `.cursorrules` (a 15 KB hand-maintained AI-assistant instruction file at the repo root) is a fifth peer guide and is NOT covered: it is absent from the script's `secondary` array AND from the workflow's `paths:` triggers, so editing `.cursorrules` doesn't even run the check. `AUTOMATED-AGENT-GIT-WORKFLOW.md`'s own header explicitly lists `.cursorrules` alongside `AGENTS.md`/`CLAUDE.md`/`GEMINI.md`/`copilot-instructions.md` as the agent-instruction files that reference the canonical workflow — so the guard's scope is narrower than the documented set it is meant to protect. `.cursorrules` currently does reference `AGENTS.md` (3×), so it passes today by luck, not by enforcement; it could silently drop the pointer or drift and nothing would fail.
+
+**Hypothesis / root cause:** The guard was built (2026-06-22, RESOLVED-ISSUES-DNDAPP.md) around the four files known at the time; `.cursorrules` was either added later or simply not enumerated, and the workflow `paths:` filter was copied from the same four-file list.
+
+**Proposed fix / improvement:**
+- [ ] Add `.cursorrules` to the `secondary` array in `scripts/check-agent-instructions.sh` (it already handles "file missing" and "no AGENTS.md reference").
+- [ ] Add `.cursorrules` to both the `push` and `pull_request` `paths:` lists in `.github/workflows/agent-docs-check.yml`.
+- [ ] (Optional) If `SYNC:agents` blocks are ever introduced, decide whether `.cursorrules` carries one.
+
+**Blocked by:** None.
+
+**Related files:** `scripts/check-agent-instructions.sh`, `.github/workflows/agent-docs-check.yml`, `.cursorrules`, `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`
+
+**Related entries:** see sibling entry "[2026-06-24] Orphaned `scripts/check-agent-docs.mjs`" below — same drift-guard area.
+
+### [2026-06-24] Orphaned `scripts/check-agent-docs.mjs` — superseded duplicate of the drift guard, wired to nothing
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** scheduled overall-suggestor cross-cutting scan (2026-06-24)
+
+**Description:**
+There are TWO agent-instruction drift checkers in the repo doing the same job: `scripts/check-agent-docs.mjs` (Node) and `scripts/check-agent-instructions.sh` (bash). The `.mjs` was the original (it is the one named in the resolved entry that created the guard, RESOLVED-ISSUES-DNDAPP.md:177), but `.github/workflows/agent-docs-check.yml` now invokes only `bash scripts/check-agent-instructions.sh`. A repo-wide grep finds NO reference to `check-agent-docs.mjs` anywhere (no workflow, no package.json script, no Makefile, no husky hook) — it is dead code. It is also a strictly weaker check than the `.sh` that replaced it: the `.sh` additionally enforces the `SYNC:agents` byte-for-byte block, which the `.mjs` does not. Leaving it in `scripts/` invites a future contributor to "fix"/run the wrong one, or to update one checker's file list and not the other (e.g. when adding `.cursorrules` per the sibling entry).
+
+**Hypothesis / root cause:** The bash version superseded the Node version when the `SYNC:agents` block check was added, and the now-redundant `.mjs` was never deleted.
+
+**Proposed fix / improvement:**
+- [ ] Delete `scripts/check-agent-docs.mjs` (the `.sh` + its workflow are the live guard), OR
+- [ ] If a Node implementation is preferred, consolidate onto ONE checker and point the workflow at it — but do not keep both.
+- [ ] Whichever survives, make it the single place the agent-instruction file list (incl. `.cursorrules`) is maintained.
+
+**Blocked by:** None — confirm no out-of-repo caller references the `.mjs` first (grep of this repo finds none).
+
+**Related files:** `scripts/check-agent-docs.mjs`, `scripts/check-agent-instructions.sh`, `.github/workflows/agent-docs-check.yml`
+
+**Related entries:** sibling entry "[2026-06-24] Agent-instruction drift guard omits `.cursorrules`".
+
 ### [2026-06-23] Biome engine version drift across the JS projects despite the shared base config
 
 - **Category:** debt, config
