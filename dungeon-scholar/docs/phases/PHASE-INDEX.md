@@ -23,7 +23,7 @@
 
 | # | Plan file | Domain | Depends on | Status |
 |---|---|---|---|---|
-| 01 | [`PHASE-01-routing-pwa-update-resilience.md`](./PHASE-01-routing-pwa-update-resilience.md) | dungeon-scholar | — | pending |
+| 01 | [`PHASE-01-routing-pwa-update-resilience.md`](./PHASE-01-routing-pwa-update-resilience.md) | dungeon-scholar | — | done |
 | 02 | [`PHASE-02-load-noise-ux-docs-round.md`](./PHASE-02-load-noise-ux-docs-round.md) | dungeon-scholar | — | pending |
 
 > **Source:** both plans were consolidated from `QA/QA-report-2026-06-24.md` (now in
