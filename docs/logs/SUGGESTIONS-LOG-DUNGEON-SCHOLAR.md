@@ -44,26 +44,6 @@ New entries go at the TOP of their section (newest first).
 
 # Low-severity polish / info
 
-### [2026-06-24] Library bulk / multi-select actions (export, delete, tag many tomes at once)
-
-- **Category:** UX
-- **Severity:** low
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-suggestor
-- **During:** scheduled improvement-scan of the dungeon-scholar tree
-
-**Description:**
-`LibraryScreen.jsx` now has search and virtualization (per resolved entries), so a large library scales for *finding* one tome. It still has no way to act on *several* tomes at once — every operation (export, delete, edit metadata) is one tome at a time. A user curating a sizeable shelf (the virtualization work was driven by a 120-tome QA scenario) has no "select all matching → export" or "select 5 → delete" affordance. A lightweight multi-select mode (checkbox per row + a bulk action bar: export-as-bundle, delete, add a shared tag/category) would meaningfully cut the click cost of housekeeping. Honest severity: low — pure quality-of-life; everything is already achievable one-by-one.
-
-**Hypothesis / root cause:** N/A — the library was built around single-tome interactions; bulk selection was never added.
-
-**Proposed fix / improvement:**
-- [ ] Add a "Select" toggle that shows a checkbox per library row.
-- [ ] Surface a bulk-action bar (export selected, delete selected, tag selected) when ≥1 is checked.
-- [ ] Reuse the existing export/delete/metadata paths per selected id.
-
-**Related files:** `src/features/library/LibraryScreen.jsx`, `src/features/library/MetadataEditModal.jsx`
-
 # Design gotchas (warnings for future agents)
 
 *(none currently logged)*

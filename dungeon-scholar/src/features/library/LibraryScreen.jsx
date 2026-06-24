@@ -3,12 +3,15 @@ import { Gift, ChevronRight, Library, Wand2, Copy, Hash, Upload, Scroll, BookMar
 import RichContent from '../../components/RichContent.jsx';
 import { blankTomeProgress } from '../../game/tome.js';
 import { isSealedTome } from '../../services/sealedTome.js';
+import { buildTomeBundle, bundleFilename, downloadTextFile } from '../../services/libraryBulk.js';
 
-function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate, onShare, onEditMetadata, onEditContent, onNotes, onTogglePin, onImport, onPaste, onImportCode, onShowPrompt, setScreen, claimableQuestCount = 0, starterDecks = [], onAddStarter }) {
+function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate, onShare, onEditMetadata, onEditContent, onNotes, onTogglePin, onImport, onPaste, onImportCode, onShowPrompt, onBulkTag, setScreen, claimableQuestCount = 0, starterDecks = [], onAddStarter }) {
   const [renamingId, setRenamingId] = useState(null);
   const [renameValue, setRenameValue] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [query, setQuery] = useState(''); // S6: client-side content search
+  const [selectMode, setSelectMode] = useState(false); // bulk multi-select
+  const [selectedIds, setSelectedIds] = useState(() => new Set());
 
   const startRename = (tome) => {
     setRenamingId(tome.id);
@@ -52,6 +55,33 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
     };
     return sorted.filter((t) => haystack(t).includes(q));
   }, [sorted, query]);
+
+  const selectedCount = selectedIds.size;
+  const toggleSelect = (id) =>
+    setSelectedIds((prev) => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
+  const toggleSelectMode = () => {
+    setSelectMode((m) => !m);
+    setSelectedIds(new Set());
+  };
+  const selectAllFiltered = () => setSelectedIds(new Set(filtered.map((t) => t.id)));
+  const doBulkExport = () => {
+    const tomes = playerState.library.filter((t) => selectedIds.has(t.id));
+    if (tomes.length) downloadTextFile(JSON.stringify(buildTomeBundle(tomes), null, 2), bundleFilename(tomes.length));
+  };
+  const doBulkTag = () => {
+    const tag = typeof window !== 'undefined' && window.prompt ? window.prompt('Add a tag to the selected tomes:') : '';
+    if (tag && tag.trim() && typeof onBulkTag === 'function') onBulkTag(Array.from(selectedIds), tag.trim());
+  };
+  const doBulkDelete = () => {
+    if (typeof window !== 'undefined' && window.confirm && !window.confirm(`Banish ${selectedCount} selected tome(s)? This cannot be undone.`)) return;
+    for (const id of Array.from(selectedIds)) onDelete(id);
+    setSelectedIds(new Set());
+  };
 
   return (
     <div className="space-y-6">
@@ -200,6 +230,37 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
         </div>
       )}
 
+      {sorted.length > 0 && (
+        <div className="flex items-center gap-2 px-1 flex-wrap">
+          <button
+            onClick={toggleSelectMode}
+            className="px-3 py-2 rounded-sm text-sm border-2 border-amber-700 text-amber-200 italic hover:bg-amber-900/30 flex items-center gap-1"
+          >
+            <Check className="w-4 h-4" aria-hidden="true" /> {selectMode ? 'Done' : 'Select'}
+          </button>
+          {selectMode && (
+            <>
+              <span className="text-xs text-amber-200 italic">{selectedCount} selected</span>
+              <button onClick={selectAllFiltered} className="px-2 py-1 rounded-sm text-xs border-2 border-amber-700 text-amber-200 hover:bg-amber-900/30">
+                Select all{query ? ' shown' : ''}
+              </button>
+              <button onClick={() => setSelectedIds(new Set())} disabled={!selectedCount} className="px-2 py-1 rounded-sm text-xs border-2 border-amber-700 text-amber-200 disabled:opacity-40">
+                Clear
+              </button>
+              <button onClick={doBulkExport} disabled={!selectedCount} className="px-2 py-1 rounded-sm text-xs border-2 border-sky-700 text-sky-200 disabled:opacity-40 flex items-center gap-1">
+                <Share2 className="w-3 h-3" aria-hidden="true" /> Export
+              </button>
+              <button onClick={doBulkTag} disabled={!selectedCount} className="px-2 py-1 rounded-sm text-xs border-2 border-emerald-700 text-emerald-200 disabled:opacity-40 flex items-center gap-1">
+                <Tag className="w-3 h-3" aria-hidden="true" /> Tag
+              </button>
+              <button onClick={doBulkDelete} disabled={!selectedCount} className="px-2 py-1 rounded-sm text-xs border-2 border-red-800 text-red-300 disabled:opacity-40 flex items-center gap-1">
+                <Trash2 className="w-3 h-3" aria-hidden="true" /> Banish
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
       {sorted.length > 0 && filtered.length === 0 && (
         <div className="text-center py-8 text-amber-700 italic">No tomes or cards match thy search.</div>
       )}
@@ -242,6 +303,17 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                 <div className="absolute top-1 right-1 text-amber-700/60 text-xs">⚜</div>
                 <div className="absolute bottom-1 left-1 text-amber-700/60 text-xs">⚜</div>
                 <div className="absolute bottom-1 right-1 text-amber-700/60 text-xs">⚜</div>
+                {selectMode && (
+                  <button
+                    onClick={() => toggleSelect(tome.id)}
+                    aria-pressed={selectedIds.has(tome.id)}
+                    aria-label={`${selectedIds.has(tome.id) ? 'Deselect' : 'Select'} tome "${meta.title || 'untitled'}"`}
+                    className="absolute top-3 left-3 z-10 w-6 h-6 rounded-sm border-2 border-amber-400 flex items-center justify-center"
+                    style={{ background: selectedIds.has(tome.id) ? 'linear-gradient(to bottom, #fde047, #f59e0b)' : 'rgba(10,6,4,0.7)' }}
+                  >
+                    {selectedIds.has(tome.id) && <Check className="w-4 h-4 text-amber-950" aria-hidden="true" />}
+                  </button>
+                )}
 
                 {isActive && (
                   <div className="absolute top-3 right-3 text-xs px-3 py-1 rounded-sm text-amber-950 font-bold tracking-wider" style={{

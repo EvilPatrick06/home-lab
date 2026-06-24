@@ -13,6 +13,27 @@
 
 ---
 
+### [2026-06-24] Library bulk / multi-select actions (export, delete, tag many tomes at once)
+> **Resolved 2026-06-24 (scholar-resolver):** Added a Select mode to the Library: a per-row checkbox + a bulk action bar (Select-all-shown, Clear, Export, Tag, Banish). Export bundles the selected tomes' data into a downloadable JSON; Tag applies a shared tag to every selected tome; Banish reuses the existing per-tome delete. New pure helpers in `src/services/libraryBulk.js` (`buildTomeBundle`/`bundleFilename`/`applyTagToTomes`/`downloadTextFile`) with 6 unit tests; LibraryScreen tests + production build green.
+
+- **Category:** UX
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement-scan of the dungeon-scholar tree
+
+**Description:**
+`LibraryScreen.jsx` now has search and virtualization (per resolved entries), so a large library scales for *finding* one tome. It still has no way to act on *several* tomes at once — every operation (export, delete, edit metadata) is one tome at a time. A user curating a sizeable shelf (the virtualization work was driven by a 120-tome QA scenario) has no "select all matching → export" or "select 5 → delete" affordance. A lightweight multi-select mode (checkbox per row + a bulk action bar: export-as-bundle, delete, add a shared tag/category) would meaningfully cut the click cost of housekeeping. Honest severity: low — pure quality-of-life; everything is already achievable one-by-one.
+
+**Hypothesis / root cause:** N/A — the library was built around single-tome interactions; bulk selection was never added.
+
+**Proposed fix / improvement:**
+- [ ] Add a "Select" toggle that shows a checkbox per library row.
+- [ ] Surface a bulk-action bar (export selected, delete selected, tag selected) when ≥1 is checked.
+- [ ] Reuse the existing export/delete/metadata paths per selected id.
+
+**Related files:** `src/features/library/LibraryScreen.jsx`, `src/features/library/MetadataEditModal.jsx`
+
 ### [2026-06-24] Exportable / shareable tome-completion certificate ("diploma")
 > **Resolved 2026-06-24 (scholar-resolver):** Added `src/services/certificate.js`: a per-tome mastery milestone (`tomeMasteryPct`/`isTomeMastered` — >=80% of cards reviewed >=2x and past a 1-week stability horizon) + a canvas-rendered illuminated certificate (`renderCertificatePng`) naming the scholar, earned title, tome, date and mastery%, with PNG download + print-to-PDF. New `CertificateModal`; the Scholar's Ledger now shows a Diplomas section listing mastered tomes each with a Certificate button (scholar name from the signed-in profile, title from `getTitle`). 9 unit tests + production build green.
 

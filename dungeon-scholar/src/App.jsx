@@ -177,6 +177,7 @@ import MetadataEditModal from './features/library/MetadataEditModal.jsx';
 import PasteTomeModal from './features/library/PasteTomeModal.jsx';
 import ImportDeckModal from './features/library/ImportDeckModal.jsx';
 import { deckTextToTome } from './services/deckImport.js';
+import { applyTagToTomes } from './services/libraryBulk.js';
 import SealedTomeGate from './features/library/SealedTomeGate.jsx';
 import ShareTomeModal from './features/library/ShareTomeModal.jsx';
 import TomeEditor from './features/library/TomeEditor.jsx';
@@ -1157,6 +1158,7 @@ export default function DungeonScholarApp() {
         onShare={(id) => setShareTomeId(id)}
         onEditMetadata={(id) => setEditMetadataTomeId(id)}
         onEditContent={(id) => setEditContentTomeId(id)}
+        onBulkTag={(ids, tag) => setPlayerState((prev) => ({ ...prev, library: applyTagToTomes(prev.library, ids, tag) }))}
         starterDecks={STARTER_DECKS}
         onAddStarter={(data) => {
           addTomeToLibrary(data);
