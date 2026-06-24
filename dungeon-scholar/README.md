@@ -215,4 +215,4 @@ except Home is `React.lazy`-loaded as its own chunk, keeping the initial bundle 
 
 ## License
 
-ISC — inherited from the parent repo.
+ISC. See [`LICENSE`](./LICENSE).

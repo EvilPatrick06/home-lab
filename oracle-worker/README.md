@@ -39,3 +39,7 @@ the `RateLimiter` Durable Object binding, and its SQLite migration). Secrets
 CI: `.github/workflows/oracle-worker-ci.yml` runs the dry-run build + tests on
 every change; `.github/workflows/oracle-worker-deploy.yml` is a manual
 (`workflow_dispatch`) deploy.
+
+## License
+
+ISC. See [`LICENSE`](./LICENSE).
