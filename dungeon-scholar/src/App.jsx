@@ -176,6 +176,7 @@ import ImportCodeModal from './features/library/ImportCodeModal.jsx';
 import MetadataEditModal from './features/library/MetadataEditModal.jsx';
 import PasteTomeModal from './features/library/PasteTomeModal.jsx';
 import ImportDeckModal from './features/library/ImportDeckModal.jsx';
+import OcclusionAuthor from './features/library/OcclusionAuthor.jsx';
 import { deckTextToTome } from './services/deckImport.js';
 import { applyTagToTomes } from './services/libraryBulk.js';
 import SealedTomeGate from './features/library/SealedTomeGate.jsx';
@@ -949,6 +950,13 @@ export default function DungeonScholarApp() {
     return true;
   };
 
+  // Item: create a tome from an authored image-occlusion card.
+  const handleOcclusionCreate = (tome) => {
+    if (!addTomeToLibrary(tome)) return false;
+    showNotif(`Occlusion tome inscribed: ${tome.metadata.title}`, 'success');
+    return true;
+  };
+
   // I3 (Web Share Target): when the OS share sheet sends a tome to the
   // installed PWA, the service worker stashes the payload and redirects here
   // with ?share-target=1. Pull it from the cache and run it through the same
@@ -1087,6 +1095,7 @@ export default function DungeonScholarApp() {
         onPaste={() => openModal('paste')}
         onImportCode={() => openModal('importCode')}
         onImportDeck={() => openModal('importDeck')}
+        onAuthorOcclusion={() => openModal('occlusionAuthor')}
         onShowPrompt={() => openModal('prompt')}
         playerState={playerState}
         signedIn={!!user}
@@ -1177,6 +1186,7 @@ export default function DungeonScholarApp() {
         onPaste={() => openModal('paste')}
         onImportCode={() => openModal('importCode')}
         onImportDeck={() => openModal('importDeck')}
+        onAuthorOcclusion={() => openModal('occlusionAuthor')}
         onShowPrompt={() => openModal('prompt')}
         setScreen={setScreen}
         claimableQuestCount={claimableQuestCount}
@@ -1952,6 +1962,9 @@ export default function DungeonScholarApp() {
             {modalOpen.paste && <PasteTomeModal onClose={() => closeModal('paste')} onSubmit={handlePasteImport} />}
             {modalOpen.importDeck && (
               <ImportDeckModal onClose={() => closeModal('importDeck')} onSubmit={handleDeckImport} />
+            )}
+            {modalOpen.occlusionAuthor && (
+              <OcclusionAuthor onClose={() => closeModal('occlusionAuthor')} onCreate={handleOcclusionCreate} />
             )}
             {modalOpen.importCode && (
               <ImportCodeModal onClose={() => closeModal('importCode')} onSubmit={handleShareCodeImport} />

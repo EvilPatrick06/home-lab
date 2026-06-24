@@ -13,6 +13,27 @@
 
 ---
 
+### [2026-06-24] Image-occlusion flashcards for diagram-heavy material
+> **Resolved 2026-06-24 (scholar-resolver):** Added an `occlusion` flashcard type (`src/services/occlusion.js`: fractional-coord masks, validation, image-src allowlist, authoring helpers — 9 unit tests). `OcclusionCard` renders masked regions in FlashcardsMode (opaque + '?' unflipped, translucent + answer on flip); occlusion cards ride the existing SRS path unchanged (they carry a card id) and import like any flashcard. A click-to-place `OcclusionAuthor` modal (pick image -> click to drop masks -> label each) inscribes a one-card tome via `addTomeToLibrary`, reachable from a new Home 'Author Occlusion Card' button. Production build green. (Per-region-per-review masking left as a possible refinement; current behavior masks all regions and reveals all on flip.)
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement-scan of the dungeon-scholar tree
+
+**Description:**
+`src/components/RichContent.jsx` already renders inline images (the `n.type === 'image'` branch) alongside Mermaid diagrams and code blocks, so cards can *show* a network topology, an OSI stack, an AWS architecture, etc. What's missing is the single most effective way to *study* such images: image occlusion — masking one or more labeled regions and asking the learner to recall what's hidden. This is a staple of medical/IT exam prep (Anki's Image Occlusion add-on is one of its most popular). Given that diagram-heavy cert content (subnetting layouts, port maps, trust boundaries) is squarely in this app's wheelhouse, an occlusion card type would be a high-value, on-brand learning enhancement. Honest severity: low — net-new study mode, not a gap in existing function.
+
+**Hypothesis / root cause:** N/A — additive feature.
+
+**Proposed fix / improvement:**
+- [ ] Define an `occlusion` card type: image + array of rectangular mask regions (each with the answer text).
+- [ ] Author UI to draw/place masks over an uploaded image; render one masked region per review with reveal-on-flip.
+- [ ] Route through the existing SRS/quiz scoring so occlusion cards earn progress like any other.
+
+**Related files:** `src/components/RichContent.jsx`, `src/features/study/FlashcardsMode.jsx`, `src/services/richContent.js`
+
 ### [2026-06-24] Library bulk / multi-select actions (export, delete, tag many tomes at once)
 > **Resolved 2026-06-24 (scholar-resolver):** Added a Select mode to the Library: a per-row checkbox + a bulk action bar (Select-all-shown, Clear, Export, Tag, Banish). Export bundles the selected tomes' data into a downloadable JSON; Tag applies a shared tag to every selected tome; Banish reuses the existing per-tome delete. New pure helpers in `src/services/libraryBulk.js` (`buildTomeBundle`/`bundleFilename`/`applyTagToTomes`/`downloadTextFile`) with 6 unit tests; LibraryScreen tests + production build green.
 

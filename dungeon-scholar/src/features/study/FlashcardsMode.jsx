@@ -5,6 +5,8 @@ import { saveSession, loadSession, SESSION_KIND } from '../../services/sessionRe
 import { FilteredModeBanner } from '../../components/ui/FilteredModeBanner.jsx';
 import { DifficultyStars, BloomBadge } from '../../components/ui/badges.jsx';
 import { speak, ttsSupported } from '../../services/tts.js';
+import { isOcclusionCard } from '../../services/occlusion.js';
+import OcclusionCard from '../../components/OcclusionCard.jsx';
 
 function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awardXP, updateTomeProgress, updateCardProgress, playerState, checkAchievement, domainFilter, onExitFilter, reviewMode, onExitReviewMode, onResumeNotify }) {
   // Phase 33b/39a QA P2: defer resume until `cards` is populated. 39a
@@ -269,11 +271,15 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
         background: 'linear-gradient(135deg, rgba(12, 24, 41, 0.85) 0%, rgba(6, 12, 20, 0.95) 100%)',
         border: '3px double rgba(29, 78, 216, 0.6)', boxShadow: '0 0 30px rgba(59, 130, 246, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',
       }}>
-        <div className="text-center">
-          <div className="text-xs text-sky-400 tracking-[0.3em] mb-3 italic">{flipped ? '✦ THE ANSWER ✦' : '✦ THE QUESTION ✦'}</div>
-          <div className="text-xl text-amber-50 italic leading-relaxed">{flipped ? (card.back || card.definition) : (card.front || card.term)}</div>
-          {!flipped && <div className="text-xs text-amber-700 mt-4 italic">~ Touch the scroll to reveal ~</div>}
-        </div>
+        {isOcclusionCard(card) ? (
+          <OcclusionCard card={card} flipped={flipped} />
+        ) : (
+          <div className="text-center">
+            <div className="text-xs text-sky-400 tracking-[0.3em] mb-3 italic">{flipped ? '✦ THE ANSWER ✦' : '✦ THE QUESTION ✦'}</div>
+            <div className="text-xl text-amber-50 italic leading-relaxed">{flipped ? (card.back || card.definition) : (card.front || card.term)}</div>
+            {!flipped && <div className="text-xs text-amber-700 mt-4 italic">~ Touch the scroll to reveal ~</div>}
+          </div>
+        )}
       </div>
       {flipped && (
         <>
