@@ -21,28 +21,6 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
-### [2026-06-24] Import external study-deck formats (Anki .apkg / Quizlet / CSV) into tomes
-
-- **Category:** future-idea
-- **Severity:** medium
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-suggestor
-- **During:** scheduled improvement-scan of the dungeon-scholar tree
-
-**Description:**
-Today the only ways to get content into the app are: hand-write/author a tome, paste/file-pick a `TOME-V1:` share code, or import the bundled starter decks (`src/data/starterDecks.js`). All inbound paths assume the app's own JSON schema (`encodeTomeShareCode`/`decodeTomeShareCode` + `normalizeTomeData` in `src/game/tome.js`). The huge existing corpus of study content already lives in Anki `.apkg`, Quizlet exports, and plain CSV/TSV — none of which can be brought in without manual retyping. A small client-side converter (file-pick → parse → map fields to flashcards/quiz, then route through the existing import path) would dramatically lower the content barrier and complement the resolved "bundle more starter tomes" + "in-app authoring" work rather than duplicate it (those create content; this *imports* existing content). CSV is trivial (header→field mapping); Quizlet's tab/newline export is nearly as easy; `.apkg` is a zipped SQLite DB so it needs sql.js or a lightweight reader and is the stretch goal.
-
-**Hypothesis / root cause:** N/A — additive feature, not a defect.
-
-**Proposed fix / improvement:**
-- [ ] Add a "Import from CSV/Quizlet" modal alongside `ImportCodeModal`/`PasteTomeModal` with a column→field mapping step.
-- [ ] Parse CSV/TSV + Quizlet tab-export into `{flashcards, quiz}` and feed through `normalizeTomeData` → existing import flow.
-- [ ] (Stretch) `.apkg` reader via sql.js to extract notes/fields; map basic note types to flashcards.
-
-**Related files:** `src/game/tome.js`, `src/features/library/ImportCodeModal.jsx`, `src/features/library/PasteTomeModal.jsx`, `src/data/starterDecks.js`
-
-**Related entries:** distinct from the resolved "PWA Web Share Target to import a tome JSON" (that is a *transport* for the app's own JSON, not a format converter).
-
 ### [2026-06-24] Image-occlusion flashcards for diagram-heavy material
 
 - **Category:** future-idea

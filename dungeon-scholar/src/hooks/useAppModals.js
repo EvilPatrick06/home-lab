@@ -12,6 +12,7 @@ export const APP_MODALS = Object.freeze([
   'paste', // Paste-tome import
   'resetConfirm', // Reset-progress confirm
   'importCode', // Share-code import
+  'importDeck', // CSV/Quizlet deck import
   'welcome', // First-run welcome
   'account', // Account panel
   'shortcuts', // Keyboard-shortcut help overlay
