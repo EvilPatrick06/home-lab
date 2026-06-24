@@ -14,6 +14,78 @@ How to triage: [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md)
 
 > Whole-repo structural + convention items (`Domain: both`). Per-project items live in the domain-split logs.
 
+### [2026-06-24] Two overlapping agent-instruction drift-guard scripts; `check-agent-docs.mjs` is dead code
+
+- **Category:** debt, docs
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+- **During:** scheduled overall-cleanup cross-cutting scan (2026-06-24)
+
+**Description:**
+`scripts/` contains two scripts that guard the same thing — that the secondary AI-assistant instruction files keep their pointer to the canonical `AGENTS.md`: `scripts/check-agent-instructions.sh` and `scripts/check-agent-docs.mjs`. They were added by two different resolver runs (see `BMO-RESOLVED-ISSUES.md:752` for the `.sh`, `RESOLVED-ISSUES-DNDAPP.md:177` for the `.mjs`) and never reconciled. The `.sh` is a strict superset: it does the same `AGENTS.md`-pointer check AND a byte-for-byte `SYNC:agents` block comparison. Only the `.sh` is wired into CI (`.github/workflows/agent-docs-check.yml` runs `bash scripts/check-agent-instructions.sh`); `check-agent-docs.mjs` is referenced nowhere outside its own resolved-log entry — it is orphaned/dead. Two scripts for one job invites the classic drift-of-the-drift-guards problem (someone updates one, not the other). Separately: `grep -c "SYNC:agents"` returns 0 across `AGENTS.md` and all secondaries, so the `.sh` script''s byte-comparison half is currently inert — the SYNC-marker mechanism is coded + documented but no markers are actually deployed in the files.
+
+**Hypothesis / root cause:** Two resolvers independently solved "guard the agent-instruction pointer" without grepping for an existing guard; the later `.sh` superseded the `.mjs` but the `.mjs` was never deleted.
+
+**Proposed fix / improvement:**
+- [ ] Delete `scripts/check-agent-docs.mjs` (the CI-wired `check-agent-instructions.sh` already covers it).
+- [ ] Confirm nothing references the `.mjs` first: `grep -rn "check-agent-docs" . --include=*.yml --include=*.json --include=*.sh --include=Makefile` (current result: nothing live).
+- [ ] Optional: either deploy real `<!-- SYNC:agents START/END -->` markers around the shared block in `AGENTS.md` + each secondary so the byte-comparison half does something, or trim that half of the `.sh` + its comment to match reality.
+
+**Blocked by:** None — a file deletion + optional follow-up.
+
+**Related files:** `scripts/check-agent-docs.mjs`, `scripts/check-agent-instructions.sh`, `.github/workflows/agent-docs-check.yml`, `AGENTS.md`
+
+### [2026-06-24] `.cursorrules` is excluded from the agent-instruction drift guard and its title is stale
+
+- **Category:** debt, docs
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+- **During:** scheduled overall-cleanup cross-cutting scan (2026-06-24)
+
+**Description:**
+`AUTOMATED-AGENT-GIT-WORKFLOW.md` lists `.cursorrules` as one of the hand-maintained agent-instruction files alongside `AGENTS.md` / `CLAUDE.md` / `GEMINI.md` / `.github/copilot-instructions.md`. But the drift guard (`scripts/check-agent-instructions.sh`, and the dead `check-agent-docs.mjs`) only validates `CLAUDE.md`, `GEMINI.md`, and `.github/copilot-instructions.md` — `.cursorrules` is not in either script''s `secondary` list. So `.cursorrules` can silently drop its `AGENTS.md` pointer or drift from the canonical guidance and CI will stay green. Evidence it is already drifting: `.cursorrules`''s very first line reads `# Cursor Rules — home-lab Monorepo (dnd-app + bmo)`, which predates dungeon-scholar and oracle-worker — it names only two of the four subprojects, so the canonical "this is a 4-project monorepo" framing every other instruction file carries is already stale here. `.cursorrules` does still reference `AGENTS.md` (3x), so adding it to the guard would pass on the pointer check today; the stale title is a separate content fix.
+
+**Hypothesis / root cause:** The guard was written around the three "tool" files that live next to `AGENTS.md`; `.cursorrules` (a dotfile at repo root) was overlooked. The title line was written when the repo was `dnd-app + bmo` only and never updated as the monorepo grew.
+
+**Proposed fix / improvement:**
+- [ ] Add `.cursorrules` to the `secondary` list in `scripts/check-agent-instructions.sh` (and to the SYNC-block loop if markers get deployed).
+- [ ] Update the `.cursorrules` header to name all four subprojects (dnd-app, dungeon-scholar, bmo, oracle-worker), matching the framing in `AGENTS.md` / `README.md`.
+- [ ] Sweep `.cursorrules` for other `dnd-app + bmo`-era staleness while there.
+
+**Blocked by:** None.
+
+**Related files:** `.cursorrules`, `scripts/check-agent-instructions.sh`, `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`, `AGENTS.md`
+
+### [2026-06-24] Monorepo subproject metadata is inconsistent — oracle-worker has no README + empty package description; LICENSE only at root + dnd-app
+
+- **Category:** docs, debt
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+- **During:** scheduled overall-cleanup cross-cutting scan (2026-06-24)
+
+**Description:**
+The four subprojects scaffold their top-level metadata inconsistently, which makes the monorepo read unevenly and weakens per-project discoverability:
+- **README:** `dnd-app`, `dungeon-scholar`, and `bmo` each have a top-level `README.md`; `oracle-worker` has none — yet the root `README.md` lists oracle-worker as a first-class subproject (dungeon-scholar''s Oracle proxy backend). It is the only subproject a contributor can''t orient to from its own folder.
+- **package.json `description`:** `oracle-worker/package.json` has `"description": ""` (empty), while `dnd-app` and `dungeon-scholar` carry real descriptions.
+- **LICENSE:** a `LICENSE` sits at the repo root AND is duplicated verbatim in `dnd-app/LICENSE`, but `dungeon-scholar`, `bmo`, and `oracle-worker` have none — so license coverage is asserted in two of five places with no stated convention (is the root LICENSE meant to cover all subprojects, or is each expected to carry its own?).
+
+None of these is a bug; together they''re low-grade structural drift worth one consistency pass.
+
+**Hypothesis / root cause:** Subprojects were created at different times by different efforts; oracle-worker was scaffolded minimally as a small Cloudflare Worker (just `package.json` + `src` + `wrangler.toml`) and never got the README/description the older projects have. The dnd-app LICENSE is likely a leftover from when it was a standalone repo before being folded into the monorepo.
+
+**Proposed fix / improvement:**
+- [ ] Add a short `oracle-worker/README.md` (what it is — the Oracle proxy Worker for dungeon-scholar — how to dev/deploy via wrangler, link back to dungeon-scholar).
+- [ ] Fill `oracle-worker/package.json`''s `description`.
+- [ ] Decide the LICENSE convention: either keep a single root `LICENSE` and drop the duplicate `dnd-app/LICENSE` (documenting in the root README that it covers all subprojects), or add `LICENSE` to every subproject. One or the other, not the current two-of-five.
+
+**Blocked by:** The LICENSE half is a (small) human/licensing decision — note it, don''t guess.
+
+**Related files:** `oracle-worker/`, `oracle-worker/package.json`, `LICENSE`, `dnd-app/LICENSE`, `README.md`
+
+
 ### [2026-06-23] Biome engine version drift across the JS projects despite the shared base config
 
 - **Category:** debt, config
