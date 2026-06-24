@@ -11,7 +11,7 @@ export const supabase = (url && key)
   ? createClient(url, key, {
       auth: {
         flowType: 'pkce',
-        autoRefreshToken: true,
+        autoRefreshToken: false, // PHASE-02 (F1): refresh driven explicitly in useAuth (only with a live session) so a signed-out load never starts GoTrue's token-refresh retry loop.
         persistSession: true,
         detectSessionInUrl: false, // we handle exchange manually in App.jsx
       },

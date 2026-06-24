@@ -2203,7 +2203,11 @@ export default function DungeonExplore({
         className="mx-auto rounded-sm relative select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300"
         style={{
           width: '100%',
-          maxWidth: CANVAS_W,
+          // PHASE-02 (F3): cap to the viewport (minus ~header+padding) so entering
+          // a delve never adds a page-level scrollbar; min() keeps the CANVAS_W cap
+          // and the aspect ratio while scaling down to fit. dvh (not vh) so mobile
+          // browser chrome does not reintroduce the overflow.
+          maxWidth: `min(${CANVAS_W}px, calc((100dvh - 210px) * ${CANVAS_W} / ${CANVAS_H}))`,
           aspectRatio: `${CANVAS_W} / ${CANVAS_H}`,
           background: '#0a0604',
           border: `3px double ${biome.accent}`,

@@ -19,12 +19,13 @@ import { hasMeaningfulData, writeSnapshot } from './services/persistence.js';
 import { isSealedTome, unsealTome } from './services/sealedTome.js';
 import { clearSession, loadSession, SESSION_KIND, saveSession } from './services/sessionResume.js';
 import { consumeOAuthCallback, signOut, warnIfBaseMismatch } from './services/supabase.js';
+import { lazyWithReload } from './utils/lazyWithReload.js';
 
-const ExamMode = React.lazy(() => import('./features/study/ExamMode.jsx'));
+const ExamMode = lazyWithReload(() => import('./features/study/ExamMode.jsx'));
 // Polish: lazy-load DungeonExplore. It's the heaviest single component
 // (sprite drawers, generateMap, biome maps) and is only used when the
 // player enters a delve, so deferring its load shrinks the initial bundle.
-const DungeonExplore = React.lazy(() => import('./components/dungeon/DungeonExplore.jsx'));
+const DungeonExplore = lazyWithReload(() => import('./components/dungeon/DungeonExplore.jsx'));
 
 import {
   AlertTriangle,
@@ -167,7 +168,7 @@ import { findSpell, SPELLS } from './services/spells.js';
 import { dueCount, filterDue, SRS_RATINGS, scheduleCard, sortByDueness } from './services/srs.js';
 import { pickWeakestDomain, WEAK_DOMAIN_ACCURACY_THRESHOLD, WEAK_DOMAIN_MIN_SAMPLE } from './services/weakDomain.js';
 
-const LibraryScreen = React.lazy(() => import('./features/library/LibraryScreen.jsx'));
+const LibraryScreen = lazyWithReload(() => import('./features/library/LibraryScreen.jsx'));
 
 import TomeNotes from './components/TomeNotes.jsx';
 import { STARTER_DECKS } from './data/starterDecks.js';
@@ -178,26 +179,26 @@ import SealedTomeGate from './features/library/SealedTomeGate.jsx';
 import ShareTomeModal from './features/library/ShareTomeModal.jsx';
 import TomeEditor from './features/library/TomeEditor.jsx';
 
-const RunHistoryScreen = React.lazy(() => import('./features/progression/RunHistoryScreen.jsx'));
-const ShopScreen = React.lazy(() => import('./features/progression/ShopScreen.jsx'));
-const InventoryScreen = React.lazy(() => import('./features/progression/InventoryScreen.jsx'));
-const BestiaryScreen = React.lazy(() => import('./features/progression/BestiaryScreen.jsx'));
-const StableScreen = React.lazy(() => import('./features/progression/StableScreen.jsx'));
-const SpellbookScreen = React.lazy(() => import('./features/progression/SpellbookScreen.jsx'));
-const CalendarScreen = React.lazy(() => import('./features/progression/CalendarScreen.jsx'));
-const AscensionScreen = React.lazy(() => import('./features/progression/AscensionScreen.jsx'));
-const CraftingScreen = React.lazy(() => import('./features/progression/CraftingScreen.jsx'));
-const ScholarsLedger = React.lazy(() => import('./features/progression/ScholarsLedger.jsx'));
-const QuestBoard = React.lazy(() => import('./features/quests/QuestBoard.jsx'));
+const RunHistoryScreen = lazyWithReload(() => import('./features/progression/RunHistoryScreen.jsx'));
+const ShopScreen = lazyWithReload(() => import('./features/progression/ShopScreen.jsx'));
+const InventoryScreen = lazyWithReload(() => import('./features/progression/InventoryScreen.jsx'));
+const BestiaryScreen = lazyWithReload(() => import('./features/progression/BestiaryScreen.jsx'));
+const StableScreen = lazyWithReload(() => import('./features/progression/StableScreen.jsx'));
+const SpellbookScreen = lazyWithReload(() => import('./features/progression/SpellbookScreen.jsx'));
+const CalendarScreen = lazyWithReload(() => import('./features/progression/CalendarScreen.jsx'));
+const AscensionScreen = lazyWithReload(() => import('./features/progression/AscensionScreen.jsx'));
+const CraftingScreen = lazyWithReload(() => import('./features/progression/CraftingScreen.jsx'));
+const ScholarsLedger = lazyWithReload(() => import('./features/progression/ScholarsLedger.jsx'));
+const QuestBoard = lazyWithReload(() => import('./features/quests/QuestBoard.jsx'));
 
 import HomeScreen from './features/home/HomeScreen.jsx';
 
-const FlashcardsMode = React.lazy(() => import('./features/study/FlashcardsMode.jsx'));
-const QuizMode = React.lazy(() => import('./features/study/QuizMode.jsx'));
-const LabMode = React.lazy(() => import('./features/study/LabMode.jsx'));
-const ChatMode = React.lazy(() => import('./features/study/ChatMode.jsx'));
-const MistakeVault = React.lazy(() => import('./features/study/MistakeVault.jsx'));
-const DomainStudyScreen = React.lazy(() => import('./features/study/DomainStudyScreen.jsx'));
+const FlashcardsMode = lazyWithReload(() => import('./features/study/FlashcardsMode.jsx'));
+const QuizMode = lazyWithReload(() => import('./features/study/QuizMode.jsx'));
+const LabMode = lazyWithReload(() => import('./features/study/LabMode.jsx'));
+const ChatMode = lazyWithReload(() => import('./features/study/ChatMode.jsx'));
+const MistakeVault = lazyWithReload(() => import('./features/study/MistakeVault.jsx'));
+const DomainStudyScreen = lazyWithReload(() => import('./features/study/DomainStudyScreen.jsx'));
 
 import { usePlayerActions } from './features/player/usePlayerActions.js';
 import { useHashRoute } from './router/useHashRoute.js';
