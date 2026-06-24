@@ -2,13 +2,13 @@ import { existsSync, readdirSync, readFileSync } from 'fs'
 import { join, resolve } from 'path'
 import { describe, expect, it } from 'vitest'
 
-const ROOT = resolve(__dirname, '../../../../../')
+const ROOT = resolve(__dirname, '../../../../')
 
 // ─── Suite 1: IPC Channels ───────────────────────────────────────
 
 describe('IPC channels', () => {
   it('exports at least 50 channel constants', async () => {
-    const { IPC_CHANNELS } = await import('../../../../shared/ipc-channels')
+    const { IPC_CHANNELS } = await import('../../../shared/ipc-channels')
     const count = Object.keys(IPC_CHANNELS).length
     expect(count).toBeGreaterThanOrEqual(50)
   })

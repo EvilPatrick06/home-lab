@@ -14,4 +14,14 @@ The prod CSP (`src/main/index.ts`) sets `script-src 'self' plugin:` with no `'un
 
 `CalendarPage` (route `/calendar`) is a real-world session scheduler, distinct from the in-game fantasy calendar (campaign wizard + in-game DM modal). Nothing in the app navigates to `/calendar` and the main menu has no Calendar item, so it is reachable only by typing the URL. Wiring it into the menu is a product decision (the page has no backend scheduling wiring), so it is **intentionally left orphaned**; the QA spec (`docs/phases/QA/INSTRUCTIONS.md` §4.1/§4.3b) is reconciled to note this state. _(QA-2026-06-19 task 18.)_
 
+## Cross-cutting / repo-wide tests live in `src/renderer/src/test/`, not co-located
+
+Tests are co-located next to the module they cover ~everywhere. The one deliberate
+exception is `src/renderer/src/test/codebase-integrity.test.ts` — a meta test that
+asserts properties of the codebase as a whole (IPC-channel count, the 5e JSON data
+set parses, chat-command registry shape) rather than one module, so it has no single
+module to sit beside. Such cross-cutting checks belong in `src/renderer/src/test/`.
+Do **not** “fix” this by forcing it back next to an arbitrary module, and do not add a
+stray `__tests__/` directory — add new repo-wide checks here instead. _(dnd-resolver 2026-06-24.)_
+
 _Relocated from `docs/SUGGESTIONS-LOG-DNDAPP.md` on 2026-06-22._

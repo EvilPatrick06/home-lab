@@ -798,8 +798,10 @@ function createAiStub() {
     // route, same-origin behind the tunnel via a path-scoped Cloudflare Access
     // bypass, so no Access cookie is required). The server OWNS the DM system
     // prompt + model and runs the LLM; we stream the returned narration back.
-    // Structured mutations (statChanges/dmActions) are not produced by the HTTP
-    // agent yet, so those are emitted empty -- a known parity gap vs. desktop.
+    // Structured mutations (statChanges/dmActions) ARE produced on web: the
+    // server-owned DM prompt makes the narration carry the same
+    // [STAT_CHANGES]/[DM_ACTIONS] tags, which parseAiMutations harvests below
+    // and emits on ai:stream-done -- parity with the desktop tag path.
     chatStream: async (request: Record<string, unknown>) => {
       const streamId = genId()
       const playerMessage = String((request?.message as string | undefined) ?? '')
