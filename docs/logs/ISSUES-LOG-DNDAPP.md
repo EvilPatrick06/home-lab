@@ -34,6 +34,8 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ### [2026-06-23] Cloud-sync residual: book config/PDFs not synced; binary re-hashed each reconcile
 
+> _dnd-resolver 2026-06-24: approved but deferred this run - the manifest-diff + book-file sync is feature-sized work left for a focused effort (see SUGGESTIONS-LOG note)._
+
 - **Category:** debt
 - **Severity:** low
 - **During:** user-accounts / cloud-sync feature

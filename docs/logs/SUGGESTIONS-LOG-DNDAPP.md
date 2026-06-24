@@ -19,6 +19,17 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+> **2026-06-24 (dnd-resolver) - approved-but-deferred this run.** The entries below
+> were APPROVED (approve-all) but NOT implemented in this run: the two MapSelector /
+> ChatPanel / NPCManager rename, the `.dndvtt` open-file handler, the Report-a-bug
+> path, Settings search, the `src/main/ai` 57-module reorg, the `ai-service.ts`
+> decompose, the helper-suffix rename, the e2e (Playwright) harness, the a11y (jest-axe)
+> guard, and the settings.json main-process-prefs export. Each is a large refactor, a
+> new test harness, or a UI feature needing interactive/visual verification; committing
+> them unverified onto the shared `auto/dnd-resolver` branch would risk blocking the
+> integrator from merging the verified fixes already pushed there (commit 21fc4bec).
+> They are left diagnosed for a dedicated focused run, not abandoned.
+
 > **2026-06-24 (dnd-resolver) - integration note (updated).** The prior salvage
 > branch `auto/dnd-resolver-salvage` (tip `6f4d6a9b`) is now fully contained in
 > `origin/master` (rev-list count origin/master..salvage = 0). Five of its six
