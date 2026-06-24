@@ -14,6 +14,7 @@ export const APP_MODALS = Object.freeze([
   'importCode', // Share-code import
   'welcome', // First-run welcome
   'account', // Account panel
+  'shortcuts', // Keyboard-shortcut help overlay
 ]);
 
 export function useAppModals() {

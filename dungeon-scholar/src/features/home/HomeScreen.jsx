@@ -1,13 +1,37 @@
-import { Brain, FlaskConical, MessageSquare, Trophy, Heart, Star, Target, BookOpen, RotateCcw, Clock, Skull, Settings, Calendar, Swords, Scroll, Wand2, Library, Copy, Hash, Compass, ScrollText, Package, ShoppingBag } from 'lucide-react';
-import { dueCount } from '../../services/srs.js';
-import { todayDateStr } from '../../services/devotion.js';
-import { ACHIEVEMENTS } from '../../game/achievements.js';
-import { OrnatePanel } from '../../components/ui/OrnatePanel.jsx';
+import {
+  BookOpen,
+  Brain,
+  Calendar,
+  Clock,
+  Compass,
+  Copy,
+  FlaskConical,
+  Hash,
+  Heart,
+  Library,
+  MessageSquare,
+  Package,
+  RotateCcw,
+  Scroll,
+  ScrollText,
+  Settings,
+  ShoppingBag,
+  Skull,
+  Star,
+  Swords,
+  Target,
+  Trophy,
+  Wand2,
+} from 'lucide-react';
+import { AudioInviteBanner } from '../../components/AudioInviteBanner.jsx';
+import RichContent from '../../components/RichContent.jsx';
+import { SignInButton } from '../../components/SignInButton.jsx';
 import { CollapsibleGroup } from '../../components/ui/CollapsibleGroup.jsx';
 import { ModeCard } from '../../components/ui/ModeCard.jsx';
-import RichContent from '../../components/RichContent.jsx';
-import { AudioInviteBanner } from '../../components/AudioInviteBanner.jsx';
-import { SignInButton } from '../../components/SignInButton.jsx';
+import { OrnatePanel } from '../../components/ui/OrnatePanel.jsx';
+import { ACHIEVEMENTS } from '../../game/achievements.js';
+import { todayDateStr } from '../../services/devotion.js';
+import { dueCount } from '../../services/srs.js';
 import AudioPanel from './AudioPanel.jsx';
 import ThemePanel from './ThemePanel.jsx';
 
@@ -16,24 +40,53 @@ import ThemePanel from './ThemePanel.jsx';
 // session-scoped (no persistence) — the home grid is short enough that this
 // keeps the implementation small while letting players collapse what they
 // don't need today.
-function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport, onPaste, onImportCode, onShowPrompt, playerState, signedIn, onResetProgress, onOpenLibrary, onRestartTutorial, onShowAchievements, onEnterReviews, onSetTheme }) {
+function HomeScreen({
+  courseSet,
+  tomeProgress,
+  setScreen,
+  trackModeUse,
+  onImport,
+  onPaste,
+  onImportCode,
+  onShowPrompt,
+  playerState,
+  signedIn,
+  onResetProgress,
+  onOpenLibrary,
+  onRestartTutorial,
+  onShowAchievements,
+  onEnterReviews,
+  onSetTheme,
+  onSetLocale,
+  onToggleColorblind,
+}) {
   const reviewsDue = dueCount(tomeProgress?.cardProgress || {}, courseSet?.flashcards || []);
   if (!courseSet) {
     return (
       <div className="space-y-6">
         <AudioInviteBanner />
-        <div className="text-center py-12 px-6 rounded-sm relative" style={{
-          background: 'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.7) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.9) 100%)',
-          border: '3px double rgba(180, 83, 9, 0.5)',
-          boxShadow: '0 0 40px rgba(180, 83, 9, 0.2), inset 0 0 30px rgba(0,0,0,0.6)',
-        }}>
+        <div
+          className="text-center py-12 px-6 rounded-sm relative"
+          style={{
+            background:
+              'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.7) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.9) 100%)',
+            border: '3px double rgba(180, 83, 9, 0.5)',
+            boxShadow: '0 0 40px rgba(180, 83, 9, 0.2), inset 0 0 30px rgba(0,0,0,0.6)',
+          }}
+        >
           <div className="absolute top-2 left-2 text-amber-700 text-lg">⚜</div>
           <div className="absolute top-2 right-2 text-amber-700 text-lg">⚜</div>
           <div className="absolute bottom-2 left-2 text-amber-700 text-lg">⚜</div>
           <div className="absolute bottom-2 right-2 text-amber-700 text-lg">⚜</div>
 
-          <Scroll className="w-20 h-20 mx-auto text-amber-500 mb-4" style={{ filter: 'drop-shadow(0 0 12px rgba(245, 158, 11, 0.6))' }} />
-          <h2 className="text-3xl font-bold mb-3 text-amber-300 italic" style={{ textShadow: '0 0 15px rgba(245, 158, 11, 0.4)' }}>
+          <Scroll
+            className="w-20 h-20 mx-auto text-amber-500 mb-4"
+            style={{ filter: 'drop-shadow(0 0 12px rgba(245, 158, 11, 0.6))' }}
+          />
+          <h2
+            className="text-3xl font-bold mb-3 text-amber-300 italic"
+            style={{ textShadow: '0 0 15px rgba(245, 158, 11, 0.4)' }}
+          >
             ~ The Library Awaits ~
           </h2>
           <p className="text-amber-100/80 mb-6 max-w-md mx-auto italic leading-relaxed">
@@ -58,7 +111,8 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
               onClick={onImport}
               className="px-6 py-3 font-bold rounded-sm flex items-center gap-2 transition text-amber-200 border-2 border-amber-700 italic"
               style={{
-                background: 'linear-gradient(to bottom, rgba(var(--surface-amber-strong, 120, 53, 15), 0.6) 0%, rgba(var(--surface-amber, 41, 24, 12), 0.9) 100%)',
+                background:
+                  'linear-gradient(to bottom, rgba(var(--surface-amber-strong, 120, 53, 15), 0.6) 0%, rgba(var(--surface-amber, 41, 24, 12), 0.9) 100%)',
               }}
             >
               <Scroll className="w-5 h-5" /> Inscribe a Tome
@@ -67,7 +121,8 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
               onClick={onPaste}
               className="px-6 py-3 font-bold rounded-sm flex items-center gap-2 transition text-amber-200 border-2 border-amber-700 italic"
               style={{
-                background: 'linear-gradient(to bottom, rgba(var(--surface-amber-strong, 120, 53, 15), 0.6) 0%, rgba(var(--surface-amber, 41, 24, 12), 0.9) 100%)',
+                background:
+                  'linear-gradient(to bottom, rgba(var(--surface-amber-strong, 120, 53, 15), 0.6) 0%, rgba(var(--surface-amber, 41, 24, 12), 0.9) 100%)',
               }}
             >
               <Copy className="w-5 h-5" /> Paste Tome Text
@@ -76,7 +131,8 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
               onClick={onImportCode}
               className="px-6 py-3 font-bold rounded-sm flex items-center gap-2 transition text-purple-200 border-2 border-purple-700 italic"
               style={{
-                background: 'linear-gradient(to bottom, rgba(76, 29, 149, 0.6) 0%, rgba(var(--surface-purple, 31, 12, 41), 0.9) 100%)',
+                background:
+                  'linear-gradient(to bottom, rgba(76, 29, 149, 0.6) 0%, rgba(var(--surface-purple, 31, 12, 41), 0.9) 100%)',
               }}
             >
               <Hash className="w-5 h-5" /> Import Share Code
@@ -85,7 +141,8 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
               onClick={onShowPrompt}
               className="px-6 py-3 font-bold rounded-sm flex items-center gap-2 transition text-amber-200 border-2 border-amber-700 italic"
               style={{
-                background: 'linear-gradient(to bottom, rgba(var(--surface-amber-strong, 120, 53, 15), 0.6) 0%, rgba(var(--surface-amber, 41, 24, 12), 0.9) 100%)',
+                background:
+                  'linear-gradient(to bottom, rgba(var(--surface-amber-strong, 120, 53, 15), 0.6) 0%, rgba(var(--surface-amber, 41, 24, 12), 0.9) 100%)',
               }}
             >
               <Wand2 className="w-5 h-5" /> Forge Tome with Magic
@@ -94,7 +151,10 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
         </div>
 
         <OrnatePanel color="purple">
-          <h3 className="text-lg font-bold mb-4 text-purple-300 flex items-center gap-2 italic" style={{ textShadow: '0 0 10px rgba(168, 85, 247, 0.4)' }}>
+          <h3
+            className="text-lg font-bold mb-4 text-purple-300 flex items-center gap-2 italic"
+            style={{ textShadow: '0 0 10px rgba(168, 85, 247, 0.4)' }}
+          >
             <BookOpen className="w-5 h-5" /> ✦ What Lies Within a Sacred Tome ✦
           </h3>
           <div className="grid md:grid-cols-2 gap-4 text-sm">
@@ -137,32 +197,52 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
               row with a warning preamble so the user can't mis-click. */}
           <div className="flex flex-wrap gap-3">
             {!playerState.tutorialCompleted && !playerState.tutorialStarted && (
-              <button onClick={onRestartTutorial} className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
-                style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.7)' }}>
+              <button
+                onClick={onRestartTutorial}
+                className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
+                style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.7)' }}
+              >
                 <Compass className="w-4 h-4" /> Begin Tutorial
               </button>
             )}
             {(playerState.tutorialCompleted || playerState.tutorialStartedAndSkipped) && (
-              <button onClick={onRestartTutorial} className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
-                style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.7)' }}>
+              <button
+                onClick={onRestartTutorial}
+                className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
+                style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.7)' }}
+              >
                 <Compass className="w-4 h-4" /> Replay Tutorial
               </button>
             )}
             {!signedIn && <SignInButton />}
           </div>
           <div className="mt-3 pt-3 border-t border-red-900/40">
-            <div className="text-[10px] uppercase tracking-wider italic text-red-400/80 mb-2 font-bold">⚠ Destructive</div>
-            <button onClick={onResetProgress} className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-red-800 text-red-300 hover:bg-red-900/30 italic"
+            <div className="text-[10px] uppercase tracking-wider italic text-red-400/80 mb-2 font-bold">
+              ⚠ Destructive
+            </div>
+            <button
+              onClick={onResetProgress}
+              className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-red-800 text-red-300 hover:bg-red-900/30 italic"
               style={{ background: 'rgba(41, 12, 12, 0.7)' }}
-              aria-label="Begin Anew — permanently erases all local progress (a confirmation dialog will appear)">
+              aria-label="Begin Anew — permanently erases all local progress (a confirmation dialog will appear)"
+            >
               <RotateCcw className="w-4 h-4" aria-hidden="true" /> Begin Anew
             </button>
-            <span className="ml-3 text-[10px] italic text-red-300/70">Erases all local progress. Confirmation required.</span>
+            <span className="ml-3 text-[10px] italic text-red-300/70">
+              Erases all local progress. Confirmation required.
+            </span>
           </div>
         </OrnatePanel>
 
         <AudioPanel />
-        <ThemePanel currentTheme={playerState.theme || 'dark'} onSetTheme={onSetTheme} />
+        <ThemePanel
+          currentTheme={playerState.theme || 'dark'}
+          onSetTheme={onSetTheme}
+          currentLocale={playerState.locale || 'en'}
+          onSetLocale={onSetLocale}
+          colorblind={!!playerState.colorblind}
+          onToggleColorblind={onToggleColorblind}
+        />
       </div>
     );
   }
@@ -170,11 +250,15 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
   return (
     <div className="space-y-6">
       <AudioInviteBanner />
-      <div className="p-6 rounded-sm relative" style={{
-        background: 'linear-gradient(135deg, rgba(var(--surface-amber-strong, 120, 53, 15), 0.4) 0%, rgba(var(--surface-amber, 41, 24, 12), 0.9) 100%)',
-        border: '3px double rgba(245, 158, 11, 0.5)',
-        boxShadow: '0 0 30px rgba(245, 158, 11, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
-      }}>
+      <div
+        className="p-6 rounded-sm relative"
+        style={{
+          background:
+            'linear-gradient(135deg, rgba(var(--surface-amber-strong, 120, 53, 15), 0.4) 0%, rgba(var(--surface-amber, 41, 24, 12), 0.9) 100%)',
+          border: '3px double rgba(245, 158, 11, 0.5)',
+          boxShadow: '0 0 30px rgba(245, 158, 11, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
+        }}
+      >
         <div className="absolute top-2 left-2 text-amber-500 text-sm">⚜</div>
         <div className="absolute top-2 right-2 text-amber-500 text-sm">⚜</div>
         <div className="absolute bottom-2 left-2 text-amber-500 text-sm">⚜</div>
@@ -183,41 +267,71 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex-1 min-w-[250px]">
             <div className="text-xs text-amber-600 tracking-[0.3em] mb-1">⚔ ACTIVE TOME ⚔</div>
-            <h2 className="text-2xl font-bold text-amber-200 italic" style={{ textShadow: '0 0 12px rgba(245, 158, 11, 0.4)' }}>
+            <h2
+              className="text-2xl font-bold text-amber-200 italic"
+              style={{ textShadow: '0 0 12px rgba(245, 158, 11, 0.4)' }}
+            >
               {courseSet.metadata.title}
             </h2>
             {courseSet.metadata.description && (
               /* Phase 34a QA P11: render rich content in active-tome description. */
-              <RichContent
-                text={courseSet.metadata.description}
-                className="text-amber-100/70 text-sm mt-1 italic"
-              />
+              <RichContent text={courseSet.metadata.description} className="text-amber-100/70 text-sm mt-1 italic" />
             )}
             {(courseSet.metadata.subject || courseSet.metadata.author || courseSet.metadata.difficulty) && (
               <div className="flex flex-wrap gap-2 mt-2 text-xs">
                 {courseSet.metadata.subject && (
-                  <span className="px-2 py-0.5 rounded-sm italic" style={{
-                    background: 'rgba(var(--surface-purple, 31, 12, 41), 0.7)', border: '1px solid rgba(126, 34, 206, 0.5)', color: '#d8b4fe',
-                  }}>📚 {courseSet.metadata.subject}</span>
+                  <span
+                    className="px-2 py-0.5 rounded-sm italic"
+                    style={{
+                      background: 'rgba(var(--surface-purple, 31, 12, 41), 0.7)',
+                      border: '1px solid rgba(126, 34, 206, 0.5)',
+                      color: '#d8b4fe',
+                    }}
+                  >
+                    📚 {courseSet.metadata.subject}
+                  </span>
                 )}
                 {courseSet.metadata.author && (
-                  <span className="px-2 py-0.5 rounded-sm italic" style={{
-                    background: 'rgba(12, 24, 41, 0.7)', border: '1px solid rgba(29, 78, 216, 0.5)', color: '#93c5fd',
-                  }}>✒️ {courseSet.metadata.author}</span>
+                  <span
+                    className="px-2 py-0.5 rounded-sm italic"
+                    style={{
+                      background: 'rgba(12, 24, 41, 0.7)',
+                      border: '1px solid rgba(29, 78, 216, 0.5)',
+                      color: '#93c5fd',
+                    }}
+                  >
+                    ✒️ {courseSet.metadata.author}
+                  </span>
                 )}
                 {courseSet.metadata.difficulty && (
-                  <span className="px-2 py-0.5 rounded-sm italic" style={{
-                    background: 'rgba(41, 12, 12, 0.7)', border: '1px solid rgba(185, 28, 28, 0.5)', color: '#fca5a5',
-                  }}>{'★'.repeat(courseSet.metadata.difficulty)}{'☆'.repeat(5 - courseSet.metadata.difficulty)}</span>
+                  <span
+                    className="px-2 py-0.5 rounded-sm italic"
+                    style={{
+                      background: 'rgba(41, 12, 12, 0.7)',
+                      border: '1px solid rgba(185, 28, 28, 0.5)',
+                      color: '#fca5a5',
+                    }}
+                  >
+                    {'★'.repeat(courseSet.metadata.difficulty)}
+                    {'☆'.repeat(5 - courseSet.metadata.difficulty)}
+                  </span>
                 )}
               </div>
             )}
             {courseSet.metadata.tags && courseSet.metadata.tags.length > 0 && (
               <div className="flex flex-wrap gap-1 mt-2">
                 {courseSet.metadata.tags.map((tag, ti) => (
-                  <span key={ti} className="px-2 py-0.5 rounded-sm text-[10px] italic" style={{
-                    background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)', border: '1px solid rgba(245, 158, 11, 0.4)', color: '#fcd34d',
-                  }}>#{tag}</span>
+                  <span
+                    key={ti}
+                    className="px-2 py-0.5 rounded-sm text-[10px] italic"
+                    style={{
+                      background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)',
+                      border: '1px solid rgba(245, 158, 11, 0.4)',
+                      color: '#fcd34d',
+                    }}
+                  >
+                    #{tag}
+                  </span>
                 ))}
               </div>
             )}
@@ -225,9 +339,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
               <span>📜 {courseSet.flashcards?.length || 0} scrolls</span>
               <span>🎯 {courseSet.quiz?.length || 0} riddles</span>
               <span>⚗️ {courseSet.labs?.length || 0} trials</span>
-              {(tomeProgress?.runsCompleted || 0) > 0 && (
-                <span>⚔️ {tomeProgress.runsCompleted} runs completed</span>
-              )}
+              {(tomeProgress?.runsCompleted || 0) > 0 && <span>⚔️ {tomeProgress.runsCompleted} runs completed</span>}
             </div>
           </div>
           <button
@@ -250,7 +362,10 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
             icon={<Swords className="w-8 h-8" />}
             color="red"
             featured
-            onClick={() => { trackModeUse('dungeon'); setScreen('dungeon'); }}
+            onClick={() => {
+              trackModeUse('dungeon');
+              setScreen('dungeon');
+            }}
           />
           <ModeCard
             title="Scrolls of Knowledge"
@@ -259,7 +374,10 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
             color="sapphire"
             disabled={(courseSet?.flashcards?.length || 0) === 0}
             disabledReason="This tome has no scrolls — inscribe one with flashcards to enable."
-            onClick={() => { trackModeUse('flashcards'); setScreen('flashcards'); }}
+            onClick={() => {
+              trackModeUse('flashcards');
+              setScreen('flashcards');
+            }}
           />
           <ModeCard
             title="Riddles of the Sphinx"
@@ -268,7 +386,10 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
             color="purple"
             disabled={(courseSet?.quiz?.length || 0) === 0}
             disabledReason="This tome has no riddles — inscribe one with quiz items to enable."
-            onClick={() => { trackModeUse('quiz'); setScreen('quiz'); }}
+            onClick={() => {
+              trackModeUse('quiz');
+              setScreen('quiz');
+            }}
           />
           <ModeCard
             title="Trials of Skill"
@@ -277,14 +398,20 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
             color="rose"
             disabled={(courseSet?.labs?.length || 0) === 0}
             disabledReason="This tome has no trials — inscribe one with lab items to enable."
-            onClick={() => { trackModeUse('lab'); setScreen('lab'); }}
+            onClick={() => {
+              trackModeUse('lab');
+              setScreen('lab');
+            }}
           />
           <ModeCard
             title="The Oracle"
             desc="Commune with the AI Oracle. Seek explanations, request riddles, and uncover deeper mysteries of this tome."
             icon={<Wand2 className="w-8 h-8" />}
             color="amber"
-            onClick={() => { trackModeUse('chat'); setScreen('chat'); }}
+            onClick={() => {
+              trackModeUse('chat');
+              setScreen('chat');
+            }}
           />
           <ModeCard
             title="Domain Codex"
@@ -300,16 +427,23 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
             color="purple"
             disabled={(courseSet?.quiz?.length || 0) < 5}
             disabledReason="A trial needs at least 5 riddles — current tome has too few."
-            onClick={() => { trackModeUse('practiceExam'); setScreen('practiceExam'); }}
+            onClick={() => {
+              trackModeUse('practiceExam');
+              setScreen('practiceExam');
+            }}
           />
           <ModeCard
             title={reviewsDue > 0 ? `✦ Reviews Due (${reviewsDue}) ✦` : 'Reviews Due'}
-            desc={reviewsDue > 0
-              ? `${reviewsDue} scroll${reviewsDue === 1 ? '' : 's'} await${reviewsDue === 1 ? 's' : ''} thy review — the spaced-repetition oracle hath scheduled them for today. Drill while memory is fresh.`
-              : `No scrolls due — return on the morrow. Every scroll thou ratest schedules its next visit.`}
+            desc={
+              reviewsDue > 0
+                ? `${reviewsDue} scroll${reviewsDue === 1 ? '' : 's'} await${reviewsDue === 1 ? 's' : ''} thy review — the spaced-repetition oracle hath scheduled them for today. Drill while memory is fresh.`
+                : `No scrolls due — return on the morrow. Every scroll thou ratest schedules its next visit.`
+            }
             icon={<RotateCcw className="w-8 h-8" />}
             color={reviewsDue > 0 ? 'sapphire' : 'amber'}
-            onClick={() => { if (reviewsDue > 0) onEnterReviews?.(); }}
+            onClick={() => {
+              if (reviewsDue > 0) onEnterReviews?.();
+            }}
           />
         </div>
       </CollapsibleGroup>
@@ -402,7 +536,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
           <ModeCard
             title="Chronicle of Delves"
             desc={
-              ((tomeProgress?.runHistory || []).length === 0)
+              (tomeProgress?.runHistory || []).length === 0
                 ? `Each completed dungeon delve becomes a chronicled chapter — start a delve from the Dungeon to inscribe thy first.`
                 : `Review past dungeon runs, personal records, and per-question reviews. ${(tomeProgress?.runHistory || []).length} delve${(tomeProgress?.runHistory || []).length === 1 ? '' : 's'} chronicled.`
             }
@@ -413,7 +547,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
           <ModeCard
             title="Bestiary"
             desc={
-              (Object.keys(playerState?.bestiary || {}).length === 0)
+              Object.keys(playerState?.bestiary || {}).length === 0
                 ? `Defeat each foe at least once in the Dungeon to unlock its lore — entries unlock automatically as thou prevail.`
                 : `Lore on every foe felled in the dungeon. ${Object.keys(playerState?.bestiary || {}).length}/${20} entries unlocked.`
             }
@@ -431,32 +565,52 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
               row with a warning preamble so the user can't mis-click. */}
           <div className="flex flex-wrap gap-3">
             {!playerState.tutorialCompleted && !playerState.tutorialStarted && (
-              <button onClick={onRestartTutorial} className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
-                style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.7)' }}>
+              <button
+                onClick={onRestartTutorial}
+                className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
+                style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.7)' }}
+              >
                 <Compass className="w-4 h-4" /> Begin Tutorial
               </button>
             )}
             {(playerState.tutorialCompleted || playerState.tutorialStartedAndSkipped) && (
-              <button onClick={onRestartTutorial} className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
-                style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.7)' }}>
+              <button
+                onClick={onRestartTutorial}
+                className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
+                style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.7)' }}
+              >
                 <Compass className="w-4 h-4" /> Replay Tutorial
               </button>
             )}
             {!signedIn && <SignInButton />}
           </div>
           <div className="mt-3 pt-3 border-t border-red-900/40">
-            <div className="text-[10px] uppercase tracking-wider italic text-red-400/80 mb-2 font-bold">⚠ Destructive</div>
-            <button onClick={onResetProgress} className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-red-800 text-red-300 hover:bg-red-900/30 italic"
+            <div className="text-[10px] uppercase tracking-wider italic text-red-400/80 mb-2 font-bold">
+              ⚠ Destructive
+            </div>
+            <button
+              onClick={onResetProgress}
+              className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-red-800 text-red-300 hover:bg-red-900/30 italic"
               style={{ background: 'rgba(41, 12, 12, 0.7)' }}
-              aria-label="Begin Anew — permanently erases all local progress (a confirmation dialog will appear)">
+              aria-label="Begin Anew — permanently erases all local progress (a confirmation dialog will appear)"
+            >
               <RotateCcw className="w-4 h-4" aria-hidden="true" /> Begin Anew
             </button>
-            <span className="ml-3 text-[10px] italic text-red-300/70">Erases all local progress. Confirmation required.</span>
+            <span className="ml-3 text-[10px] italic text-red-300/70">
+              Erases all local progress. Confirmation required.
+            </span>
           </div>
         </OrnatePanel>
 
         <AudioPanel />
-        <ThemePanel currentTheme={playerState.theme || 'dark'} onSetTheme={onSetTheme} />
+        <ThemePanel
+          currentTheme={playerState.theme || 'dark'}
+          onSetTheme={onSetTheme}
+          currentLocale={playerState.locale || 'en'}
+          onSetLocale={onSetLocale}
+          colorblind={!!playerState.colorblind}
+          onToggleColorblind={onToggleColorblind}
+        />
       </CollapsibleGroup>
     </div>
   );

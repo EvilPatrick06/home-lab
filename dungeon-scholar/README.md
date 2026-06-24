@@ -64,6 +64,8 @@ standalone window / home-screen icon with no browser chrome.
 **Add to Home Screen**. The icon then launches the app full-screen like a native
 app.
 
+**Share a tome into the app (Web Share Target):** once installed on Chromium-based Android (or desktop Chrome/Edge), Dungeon Scholar registers as a share target — share a `.json` tome (or shared text) from another app or the OS share sheet and pick **Dungeon Scholar** to import it straight into your library. *Platform support is Chromium/Android only; iOS Safari and Firefox ignore the share target harmlessly.*
+
 **Offline + updates:**
 - Works offline after the first visit; the app shell and tomes are cached by the
   service worker.

@@ -1,4 +1,3 @@
-
 export const DEFAULT_STATE = {
   level: 1,
   xp: 0,
@@ -6,9 +5,9 @@ export const DEFAULT_STATE = {
   totalCorrect: 0,
   totalAnswered: 0,
   longestStreak: 0,
-  currentStreak: 0,           // I2: live cross-mode correct-answer streak; resets on a wrong answer
-  maxStreakToday: 0,          // best currentStreak reached today (resets at daily rollover)
-  maxStreakWeek: 0,           // best currentStreak reached this week (resets at weekly rollover)
+  currentStreak: 0, // I2: live cross-mode correct-answer streak; resets on a wrong answer
+  maxStreakToday: 0, // best currentStreak reached today (resets at daily rollover)
+  maxStreakWeek: 0, // best currentStreak reached this week (resets at weekly rollover)
   oracleMessages: 0,
   vaultBanished: 0,
   modesUsed: [],
@@ -24,6 +23,13 @@ export const DEFAULT_STATE = {
   // Light theme is intentionally PARTIAL — only the body background swaps to
   // off-white; the dungeon panels stay dark by design.
   theme: 'dark',
+  // S7 i18n: selected UI language. 'en' default; applied via setLocale on
+  // load and changed from the Theme panel language picker. App chrome only.
+  locale: 'en',
+  // CVD: colorblind-safe analytics palette opt-in. When true, the per-domain
+  // accuracy bars / analytics use a CVD-safe blue-orange scale (paired with a
+  // tier label) instead of red-green. Applied via data-cvd on the root.
+  colorblind: false,
   // Library system
   library: [],
   activeTomeId: null,
@@ -55,12 +61,12 @@ export const DEFAULT_STATE = {
   // Dungeon attempt counter (any started run, including defeats)
   dungeonAttempts: 0,
   // Daily Quests
-  dailyQuests: null,           // { date, quests: [{ id, baseline, claimed }] }
-  modesUsedToday: [],          // tracked separately so it can reset daily
+  dailyQuests: null, // { date, quests: [{ id, baseline, claimed }] }
+  modesUsedToday: [], // tracked separately so it can reset daily
   // Weekly Quests
-  weeklyQuests: null,          // { weekStart, quests: [{ id, baseline, claimed }] }
+  weeklyQuests: null, // { weekStart, quests: [{ id, baseline, claimed }] }
   // Story Quest Chains — keyed by chain id
-  storyProgress: {},           // { [chainId]: { stepIndex, baseline, completed, claimedSteps: [] } }
+  storyProgress: {}, // { [chainId]: { stepIndex, baseline, completed, claimedSteps: [] } }
   // Phase 17: Bestiary defeat tracker. { [kind]: { defeats, firstDefeatedAt } }
   bestiary: {},
   // Phase 18: Stable. Pets hatched from purchased eggs. The pet currently
@@ -72,7 +78,7 @@ export const DEFAULT_STATE = {
   // quick-slot spell ids (hotkeys Z/X/C inside the dungeon). maxMana is
   // the per-delve mana pool (mana itself is not persisted — it resets
   // each delve in DungeonExplore).
-  spellbook: {},                 // { [spellId]: { learnedAt } }
+  spellbook: {}, // { [spellId]: { learnedAt } }
   equippedSpells: [null, null, null],
   maxMana: 3,
   // Phase 20: Daily Devotion calendar. The scholar earns devotion by
@@ -102,7 +108,7 @@ export const DEFAULT_STATE = {
   plantsHarvested: 0,
   // Currency & Inventory
   gold: 0,
-  inventory: {},               // { [itemId]: count } — consumables and cosmetics
+  inventory: {}, // { [itemId]: count } — consumables and cosmetics
   // Currently-equipped item ids per slot. Equipment grants in-dungeon
   // bonuses (HP, shields, XP/gold mults) and renders on the player sprite.
   // potions is a 3-element array — quick-use slots usable from hotkeys 1/2/3
@@ -114,7 +120,8 @@ export const DEFAULT_STATE = {
     pet: null,
     potions: [null, null, null],
   },
-  permUpgrades: {              // Sanctum stacks; raw counts (multiply by step for actual percent)
+  permUpgrades: {
+    // Sanctum stacks; raw counts (multiply by step for actual percent)
     maxHp: 0,
     goldDropPct: 0,
     startingPotions: 0,
