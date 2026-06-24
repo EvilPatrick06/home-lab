@@ -76,9 +76,14 @@ Runtime state lost on fresh restore:
 - Campaign memory → `campaign_memory.db` lost; re-tell BMO about your campaign
 - Calendar cache → refreshes from Google
 
-**To avoid losing runtime state**, enable a backup service:
-- Template lived at `bmo/docker/bmo-backup.{service,timer}` pre-cleanup — recoverable from git history if you want it (`git log --all --full-history -- bmo/docker/bmo-backup.service`). Daily backup of `bmo/pi/data/` to external location (SSD, cloud). Not currently installed.
-- Configure the target in the recovered template and install via `/etc/systemd/system/` before enabling.
+**Runtime-state backup — INSTALLED and active (since 2026-06-22).** A systemd timer backs up the gitignored runtime state off-tree so it survives a repo re-clone or working-tree wipe:
+
+- `bmo-backup.timer` -> `bmo-backup.service` runs `bmo/pi/scripts/backup-state.sh` daily at 03:00 (`Persistent=true`, so a missed run fires on next boot).
+- It writes a timestamped `bmo-state-YYYYMMDD-HHMMSS.tar.gz` to `~/bmo-backups/` (override with `\$BMO_BACKUP_DIR`), containing `bmo/pi/data/` (campaign memory, D&D sessions, lists, notes, alarms, play history, etc.) plus `config/token.json`. Large seedable 5e reference data is excluded (re-creatable via `seed-5e-library.sh`).
+- Retention: newest 14 archives kept (`\$BMO_BACKUP_KEEP`); older ones pruned automatically.
+- `bmo-backup-verify.timer` -> `bmo-backup-verify.service` runs `bmo/pi/scripts/verify-backup.sh` monthly (1st at 04:30) as an integrity check.
+
+> WARNING: the destination `~/bmo-backups/` is on the **same NVMe disk** as the source (`/dev/nvme0n1p2`). It is off-tree but **not offsite** -- it protects against repo re-clone / accidental deletion, not against disk failure. For true 3-2-1, sync `~/bmo-backups/` to an external SSD or cloud target.
 
 ## LFS (D&D rulebook PDFs)
 
@@ -119,5 +124,5 @@ If ALL copies lost (local + remote + Pi):
 Status:
 - Code: ✓ 3 copies (GitHub + Pi + ≥1 laptop)
 - Character sheets: ⚠ only on DM's laptop (add cloud sync for %APPDATA%)
-- Runtime state: ⚠ only on Pi (set up `bmo-backup.service`)
+- Runtime state: ✓ backed up daily off-tree (`bmo-backup.timer` -> `~/bmo-backups/`, 14 kept) — ⚠ but still only on the Pi disk; add an offsite copy for true 3-2-1
 - LFS PDFs: ⚠ only on GitHub LFS + whoever has `git lfs pull`'d
