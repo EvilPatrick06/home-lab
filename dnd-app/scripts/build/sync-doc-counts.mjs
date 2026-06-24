@@ -22,6 +22,10 @@ const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url))
 const DND_APP_ROOT = join(SCRIPT_DIR, '..', '..')
 const REPO_ROOT = join(DND_APP_ROOT, '..')
 
+// --check (dry-run): write nothing; exit non-zero if any doc count has drifted.
+// Lets CI gate doc-count drift without mutating the tree.
+const CHECK = process.argv.includes('--check')
+
 /** Recursively count files under `dir` matching `pred(filename)`. 0 if absent. */
 function countFiles(dir, pred) {
   if (!existsSync(dir)) return 0
@@ -105,7 +109,9 @@ const sites = [
   {
     path: join(REPO_ROOT, 'README.md'),
     re: /## Current state \(\d{4}-\d{2}-\d{2}\)/,
-    replace: () => `## Current state (${today})`
+    replace: () => `## Current state (${today})`,
+    // Date changes every day; only refreshed at release time, never gated by --check.
+    dynamic: true
   },
   // dnd-app/README.md: "**Current version:** v2.4.70"
   {
@@ -191,8 +197,9 @@ const sites = [
 ]
 
 let changed = 0
+let drift = 0
 let missing = 0
-for (const { path, re, replace } of sites) {
+for (const { path, re, replace, dynamic } of sites) {
   if (!existsSync(path)) {
     console.log(`! sync-doc-counts: ${path} not found — skipped`)
     continue
@@ -208,6 +215,13 @@ for (const { path, re, replace } of sites) {
   } else if (after === before) {
     // Matched but already at the right value — idempotent no-op.
     console.log(`= sync-doc-counts: ${path} already up to date for ${re}`)
+  } else if (CHECK) {
+    if (dynamic) {
+      console.log(`~ sync-doc-counts: ${path} dynamic (date) — not gated`)
+      continue
+    }
+    drift += 1
+    console.log(`✗ sync-doc-counts: DRIFT in ${path} for ${re} — run \`npm run sync:doc-counts\` and commit`)
   } else {
     writeFileSync(path, after)
     changed += 1
@@ -215,6 +229,10 @@ for (const { path, re, replace } of sites) {
   }
 }
 if (missing) console.log(`! ${missing} site(s) missing`)
+if (CHECK && drift > 0) {
+  console.error(`\nsync-doc-counts --check: ${drift} doc count(s) drifted. Run \`npm run sync:doc-counts\` and commit the result.`)
+  process.exit(1)
+}
 console.log(
   `Counts: version=${appVersion}, dnd test files=${c.dndTestFiles}, sheet=${c.sheet}, builder=${c.builder}, ` +
     `levelup=${c.levelup}, combat=${c.combat}, bmo tests=${c.bmoTestFiles}, agents=${bmoAgents}, ` +

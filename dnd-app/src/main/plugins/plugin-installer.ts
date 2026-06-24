@@ -60,6 +60,14 @@ async function assertAllowedEntries(dir: string): Promise<string | null> {
   for (const entry of entries) {
     if (entry.name.includes('..')) return entry.name
     const full = join(dir, entry.name)
+    // Reject symlinks (and any non-file/non-dir dirent): a symlink whose own
+    // name has no `..` and an allowed extension would otherwise survive the
+    // checks below, then be moved into the plugin dir where the content-pack
+    // loader could follow it out of the tree (arbitrary file read / cross-plugin
+    // reach). Trust-on-install leans on these structural checks, so close the gap.
+    if (entry.isSymbolicLink() || (!entry.isDirectory() && !entry.isFile())) {
+      return entry.name
+    }
     if (entry.isDirectory()) {
       const bad = await assertAllowedEntries(full)
       if (bad) return bad

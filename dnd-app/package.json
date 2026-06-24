@@ -51,7 +51,7 @@
     "docs:api": "typedoc",
     "dead-code": "npx knip",
     "circular": "node scripts/check-circular.mjs",
-    "check:full": "npm run lint && npm run lint:forbidden && tsc --noEmit -p tsconfig.web.json && tsc --noEmit -p tsconfig.node.json && npm test && npm run circular && npm run dead-code && npm run i18n:check-parity && npm run audit:ci",
+    "check:full": "npm run lint && npm run lint:forbidden && npm run sync:doc-counts -- --check && tsc --noEmit -p tsconfig.web.json && tsc --noEmit -p tsconfig.node.json && npm test && npm run circular && npm run dead-code && npm run i18n:check-parity && npm run audit:ci",
     "dev:web": "vite --config vite.web.config.ts",
     "build:web": "vite build --config vite.web.config.ts && node scripts/build/finalize-web.mjs",
     "preview:web": "vite preview --config vite.web.config.ts"
@@ -183,7 +183,6 @@
   "devDependencies": {
     "@biomejs/biome": "^2.5.0",
     "@electron-toolkit/utils": "^4.0.0",
-    "@langchain/langgraph": "^1.4.5",
     "@msgpack/msgpack": "^3.1.3",
     "@tailwindcss/vite": "^4.3.1",
     "@tanstack/react-virtual": "^3.14.3",

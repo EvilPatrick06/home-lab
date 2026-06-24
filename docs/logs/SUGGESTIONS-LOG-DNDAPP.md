@@ -19,48 +19,18 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
-> **2026-06-23 (dnd-resolver) — integration note.** Six entries below are ALREADY
-> IMPLEMENTED by a prior `dnd-resolver` run, but that code is stranded on the
-> **local, unpushed** branch `auto/dnd-resolver-salvage` (last commit `6f4d6a9b`,
-> 2026-06-23): it was never pushed to origin, so the integrator never merged it —
-> yet that run's resolution notes DID reach master's `RESOLVED-*.md` (via the
-> union-merge driver). So master's resolved logs are AHEAD of master's code for:
-> command palette (Ctrl+K), first-run onboarding tour, character/campaign
-> export-import, in-app log open/export, update "What's New" release notes, and
-> settings.json (main-process prefs) export. They are kept here as still-open
-> w.r.t. master. **Fix = push + integrate `auto/dnd-resolver-salvage`** (a human /
-> integrator call) — NOT re-implement, which would duplicate and conflict with the
-> stranded branch. The other entries here (src/main/ai reorg, ai-service.ts
-> decompose, helper-suffix, e2e + a11y harness) are genuinely open and untouched
-> by that branch.
-
----
-
-### [2026-06-24] README "Directory layout" is stale — references a non-existent `tools/` dir and wrong `scripts/` subfolders
-
-- **Category:** docs
-- **Severity:** medium
-- **Domain:** dnd-app
-- **Discovered by:** dnd-cleanup
-- **During:** automated cleanup/reorg scan of `dnd-app/`
-
-**Description:**
-The `## Directory layout` block in `dnd-app/README.md` (the canonical onboarding map for the repo) has drifted out of sync with the tree it documents. Concretely:
-
-- It lists a top-level **`tools/`** directory (“dev utilities (audit runner, console→logger sweep, knip-summary)”) that **does not exist** — `ls dnd-app/tools` is a no-such-file. (The `knip.json` at the root and `scripts/audit/` suggest those utilities now live under `scripts/`.)
-- Under `scripts/` it lists **`extract/`, `generate/`, `batch-utils/`, `fix/`** — **none of which exist**.
-- It **omits six** `scripts/` subfolders that **do** exist: `dev/`, `i18n/`, `lib/`, `lint/`, `maintenance/`, `smoke/`.
-- The `docs/` portion lists only 3 files (`IPC-SURFACE.md`, `PLUGIN-SYSTEM.md`, `phases/`) while `dnd-app/docs/` actually holds 10 top-level docs (also `ASSET-OFFLOAD.md`, `DEPENDENCIES.md`, `DESIGN-CONSTRAINTS.md`, `LLAMA-SERVER.md`, `RELEASE.md`, `SEED-PACKS.md`, `UI-LAYERS.md`, `WEB-VERSION-PLAN.md`).
-
-A stale directory map is actively misleading for new contributors and agents — it sends them looking for folders that were renamed/removed and hides the ones in use.
-
-**Proposed fix / improvement:**
-- [ ] Rewrite the `scripts/` portion to match the real subdirs: `audit/ build/ dev/ i18n/ lib/ lint/ maintenance/ release/ schemas/ smoke/ submit/`.
-- [ ] Remove the `tools/` entry (or, if those utilities still exist somewhere, point the entry at their real path).
-- [ ] List the full `docs/` set (or generalize to “see `docs/` — IPC, plugin, release, design-constraints, etc.” so it stops bit-rotting per-file).
-- [ ] Consider a tiny CI check (or a `scripts/` doc-lint) that diffs the documented top-level layout against the actual tree to catch future drift.
-
-**Related files:** `dnd-app/README.md` (§ Directory layout, ~L185–240), `dnd-app/scripts/`, `dnd-app/docs/`
+> **2026-06-24 (dnd-resolver) - integration note (updated).** The prior salvage
+> branch `auto/dnd-resolver-salvage` (tip `6f4d6a9b`) is now fully contained in
+> `origin/master` (rev-list count origin/master..salvage = 0). Five of its six
+> features are verified present on master and have been MOVED to
+> `RESOLVED-ISSUES-DNDAPP.md`: command palette `CommandPalette.tsx`, first-run
+> onboarding tour `use-onboarding-store.ts` + `OnboardingTour.tsx`, character and
+> campaign export-import `services/io/character-io.ts` + `campaign-io.ts`, in-app log
+> open/export `ipc/log-handlers.ts` `LOG_OPEN_FOLDER`, and the update release-notes
+> panel `updater.ts` + `UpdateSection.tsx`. The SIXTH - settings.json main-process
+> prefs export - is still genuinely open (no settings.json in the export path) and is
+> kept as its own entry below. The other entries here - `src/main/ai` reorg,
+> `ai-service.ts` decompose, helper-suffix, e2e + a11y harness - remain open.
 
 ---
 
@@ -89,22 +59,6 @@ They are not identical (one has an Add-map affordance, different Tailwind classe
 
 ---
 
-### [2026-06-24] Lone `services/__tests__/` directory breaks the otherwise-universal co-located test convention
-
-- **Category:** debt
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-cleanup
-- **During:** automated cleanup/reorg scan of `dnd-app/`
-
-**Description:**
-The suite co-locates tests next to source essentially everywhere — ~849 `*.test.ts(x)` files sit beside the module they cover, and there is exactly **one** `__tests__/` directory in the whole tree: `src/renderer/src/services/__tests__/`, containing a single file `codebase-integrity.test.ts`. A reader (or a test-glob/coverage config) now has to account for two layouts for one outlier. The file itself is plausibly a deliberately cross-cutting test (it asserts something about the codebase as a whole rather than one module), which is a legitimate reason not to co-locate — but if so, the *convention* is undocumented, so the directory just looks like an inconsistency.
-
-**Proposed fix / improvement:**
-- [ ] If `codebase-integrity.test.ts` is a per-module test in disguise, move it next to its subject and delete the empty `__tests__/` dir to make the tree 100% co-located.
-- [ ] If it is genuinely repo-wide, either relocate it to a clearly named home for cross-cutting checks (e.g. `src/renderer/src/test/` or a top-level `meta`/integrity test area) **and** add a one-line note to `dnd-app/docs/DESIGN-CONSTRAINTS.md` documenting that non-co-located tests live there — so the exception is intentional and discoverable rather than a stray `__tests__/`.
-
-**Related files:** `src/renderer/src/services/__tests__/codebase-integrity.test.ts`, `dnd-app/vitest.config.ts`, `dnd-app/docs/DESIGN-CONSTRAINTS.md`
 ### [2026-06-24] OS file association `.dndvtt` is declared in the build config but has no open-file / argv handler
 
 - **Category:** future-idea, UX
@@ -124,28 +78,6 @@ The suite co-locates tests next to source essentially everywhere — ~849 `*.tes
 **Related files:** `dnd-app/package.json` (`build.fileAssociations`), `src/main/index.ts` (`second-instance` handler ~L335), `src/shared/ipc-channels.ts`
 
 **Related entries:** [2026-06-22] "No user-facing export/import of a character or campaign to a portable file" (this is the open-side handler for the file that entry's exporter would produce); dnd-resolver integration note at top of this section.
-
----
-
-### [2026-06-24] No opt-in crash capture (`crashReporter`) — renderer/main crashes leave no diagnostic artifact
-
-- **Category:** future-idea
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-suggestor
-- **During:** dnd-app tree review (main-process crash-handling survey)
-
-**Description:**
-The app captures *logical* errors well — `src/main/log.ts` writes a rotating `userData/logs/app.log`, and `handleFatal` in `src/main/index.ts` shows an error box — but there is **no Electron `crashReporter`** initialized anywhere (`grep "crashReporter" src/` → none) and no third-party crash SDK (`sentry`/`@sentry` → none). A hard *native* crash (a renderer GPU/Chromium crash, a `SIGSEGV` in a native module like Pixi/Three/cannon-es, an OOM) bypasses the JS log entirely and produces nothing the user or a maintainer can act on — it just vanishes. `crashReporter.start({ uploadToServer: false })` would at minimum drop a local minidump under `userData/Crashpad/`, and the renderer `'render-process-gone'` / `'child-process-gone'` events could be logged to `app.log`, turning an invisible crash into a retrievable artifact. This complements (does not duplicate) the already-logged "open/export the app log" idea: that one surfaces the *existing* JS log; this one captures the class of crash the JS log structurally can't see.
-
-**Proposed fix / improvement:**
-- [ ] Call `crashReporter.start({ submitURL: '', uploadToServer: false, compress: true })` early in `src/main/index.ts` so native crashes write a local minidump (no network egress — privacy-preserving, opt-in to upload only).
-- [ ] Add `webContents.on('render-process-gone', …)` and `app.on('child-process-gone', …)` listeners that log reason/exitCode to `app.log`.
-- [ ] Surface the Crashpad folder from the same "Open log folder" affordance proposed in the log-access entry, so crash dumps are attachable to a bug report.
-
-**Related files:** `src/main/index.ts` (`handleFatal`, app bootstrap), `src/main/log.ts`
-
-**Related entries:** [2026-06-22] "No in-app way to locate, open, or export the app log for bug reports" (shares the log/diagnostics-folder affordance); see the "Report a bug" entry below.
 
 ---
 
@@ -304,84 +236,9 @@ The app carries a deliberately broad accessibility investment: `use-accessibilit
 
 ---
 
-### [2026-06-22] No user-facing export/import of a character or campaign to a portable file
-
-- **Category:** future-idea, portability
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-suggestor
-- **During:** dnd-app tree review (storage + renderer survey for data-portability features)
-
-**Description:**
-The app can persist characters/campaigns locally (`src/main/storage/*`), sync via cloud (`cloud:sync-backup`), and import books (`book:import`), and `SettingsPage.tsx` already has an Export/Import Settings flow — but there is no equivalent "export this character (or campaign) to a `.json` file" / "import character from file" action. A user who wants to share a built character with a friend, move one character between machines without enabling cloud sync, or keep a manual off-app backup of a single character has no supported path. Grep for `exportCharacter` / `downloadJson` / `exportToJson` / a save-file dialog around character data returns nothing in the renderer or `src/main` (only the JS `export` keyword and the settings exporter).
-
-**Proposed fix / improvement:**
-- [ ] Add a main-process IPC (`character:export-file` / `character:import-file`) that serializes the stored character (already a JSON-shaped, schema-versioned object — reuse `migrations.ts` on import) through a `showSaveDialog` / `showOpenDialog`.
-- [ ] Add an "Export…" / "Import…" affordance in the character list / sheet toolbar (and optionally the campaign list).
-- [ ] On import, run the existing migration pipeline so older-schema files upgrade cleanly, and validate against the 5e schema before committing.
-
-**Related files:** `src/main/storage/character-storage.ts`, `src/main/storage/migrations.ts`, `src/main/ipc/index.ts`, `src/renderer/src/pages/SettingsPage.tsx` (existing settings-export pattern to mirror)
-
-**Related entries:** see "Settings export/import covers localStorage only…" (same file) — a character/campaign exporter is a different, additive feature.
-
-### [2026-06-22] No global command palette / quick-action launcher (Ctrl+K) for the ~92 modals and actions
-### [2026-06-22] No in-app way to locate, open, or export the app log for bug reports
-
-- **Category:** future-idea, UX
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-suggestor
-- **During:** dnd-app tree review (renderer UX/navigation survey)
-
-**Description:**
-There are ~92 modal components under `components/game/modals/` plus many overlays, DM tools, and a `ShortcutReferenceModal`, but no fuzzy command-palette / quick-action launcher (no `cmdk`, no `palette`/`action launcher`/`quick-switch` handler anywhere in the renderer). Reaching a given tool means knowing its menu/toolbar location or its specific hotkey. A single Ctrl/Cmd-K palette that fuzzy-searches "open X modal / run Y action / jump to Z" would cut navigation depth dramatically for both DMs and players and would pair naturally with the existing keybinding system (`use-accessibility-store` already models `customKeybindings`).
-
-**Proposed fix / improvement:**
-- [ ] Add a palette component (own modal) registered on a global Ctrl/Cmd-K, listing actions sourced from the same registry that drives the existing shortcut/keybinding map so the two stay in sync.
-- [ ] Seed it with "open modal" entries (derive from the modal-group registries) plus high-frequency actions (roll, end turn, open compendium, search library).
-- [ ] Respect `customKeybindings` and screen-reader mode; ensure full keyboard operability and focus return on close.
-
-**Related files:** `src/renderer/src/components/game/modals/utility/ShortcutReferenceModal.tsx`, `src/renderer/src/components/game/modal-groups/*`, `src/renderer/src/stores/use-accessibility-store.ts`
-
-### [2026-06-22] No first-run guided onboarding / tour for new users (only targeted Ollama + screen-reader prompts)
-
-- **Category:** future-idea, UX
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-suggestor
-- **During:** dnd-app tree review (first-run / onboarding survey)
-
-**Description:**
-First-run UX is limited to two narrow, single-purpose prompts wired into `App.tsx`: `OllamaFirstRunPrompt` (local-LLM setup) and `ScreenReaderPrompt` (a11y mode). There is no general guided tour or "getting started" flow introducing the core loop (create/import a character → create or join a campaign → the game-table layout, dice, map, hotbar). A new user lands in a feature-dense Electron VTT with no orientation. Grep finds no `onboarding` / `tutorial` / `walkthrough` / `hasSeenWelcome` flag.
-
-**Proposed fix / improvement:**
-- [ ] Add a dismissible, resumable first-run tour (persist a `hasCompletedOnboarding` flag alongside the other a11y/settings keys) that highlights the 4-5 primary entry points.
-- [ ] Make it re-launchable from Settings/Help so it is not a one-shot, and skippable in one click for returning users.
-- [ ] Honor `reducedMotion` (no auto-advancing animated spotlights when set) and keep every step keyboard-navigable.
-
-**Related files:** `src/renderer/src/App.tsx`, `src/renderer/src/components/ui/OllamaFirstRunPrompt.tsx`, `src/renderer/src/components/ui/ScreenReaderPrompt.tsx`, `src/renderer/src/stores/use-accessibility-store.ts`
-- **During:** dnd-app tree review (main-process logging + crash handling)
-
-**Description:**
-`src/main/log.ts` writes a rotating log to `userData/logs/app.log` (5 MB × 3), and the fatal-error handler in `src/main/index.ts` (`handleFatal`) shows a `dialog.showErrorBox` that says only "A crash log was written" — with no path and no button (`showErrorBox` supports title + message only). A by-name grep across `src/` finds **zero** uses of `shell.openPath` / `shell.showItemInFolder`, and `SettingsPage.tsx` has no logs section, so there is no affordance anywhere — neither in the crash dialog nor in Settings — for a user to find, open, or export the log file. When a non-technical user hits a crash or a weird bug, they cannot produce the one artifact that would let a maintainer diagnose it without knowing the per-OS `userData` path by heart.
-
-**Proposed fix / improvement:**
-- [ ] Add an IPC (e.g. `LOG_OPEN_FOLDER`) that calls `shell.showItemInFolder(logPath)` / `shell.openPath(getLogDir())`, surfaced as an "Open log folder" button in a Settings > Diagnostics/About section.
-- [ ] Optionally add "Export logs" (zip `app.log*` to a user-chosen path) for easy bug-report attachment.
-- [ ] Include the resolved log path text in the fatal `showErrorBox` message so a crashed user at least knows where to look.
-
-**Related files:** `src/main/log.ts`, `src/main/index.ts`, `src/renderer/src/pages/SettingsPage.tsx`, `src/shared/ipc-channels.ts`
-
-### Surface release notes / "What's New" on update (auto-updater discards `releaseNotes`)
-
-**Category:** future-idea, UX · **Severity:** low · **Domain:** dnd-app · **Discovered by:** dnd-suggestor · **Added:** 2026-06-22
-
-`src/main/updater.ts`'s `UpdateStatus` union carries only `version` for the `available` / `downloaded` states; electron-updater's `UpdateInfo.releaseNotes` is never read or forwarded to the renderer, and nothing under `src/renderer` renders `CHANGELOG.md`. So when the dismissible update prompt appears (auto-check defaults ON), the user sees a bare version number with no indication of what changed. Proposal: thread `releaseNotes` through `UpdateStatus` / the `UPDATE_STATUS` IPC and show a short "What's New" panel in the update prompt (and/or a one-time post-install changelog view sourced from `CHANGELOG.md` or the GitHub release body). Improves the upgrade decision and cuts "what did this update actually do?" friction. Related: `src/main/updater.ts`, `src/shared/ipc-channels.ts`, `CHANGELOG.md`.
-
 ### Settings export/import covers localStorage only — main-process `settings.json` (auto-update prefs) does not travel
 
 **Category:** future-idea, portability · **Severity:** low · **Domain:** dnd-app · **Discovered by:** dnd-suggestor · **Added:** 2026-06-22
 
 `SettingsPage.tsx`'s Export Settings (~L1753) iterates `localStorage` and dumps every key into the export JSON; Import writes them back. That captures a11y, theme, keybindings, grid, dice, audio, etc. — but the auto-update preferences (`autoCheckUpdates`, `autoDownloadUpdates`, `autoRestartAfterUpdate`, `autoInstallSilent`) live in the **main process** at `userData/settings.json` (see `updater.ts > loadAutoUpdatePrefs`), so they are silently excluded. A user exporting settings to migrate to a new machine loses those four prefs with no warning. Proposal: add an IPC round-trip so export pulls `settings.json` (merged under a namespaced key) and import writes it back through the main process — or, at minimum, note in the export UI that update prefs are machine-local. Low severity (only 4 prefs, easily re-set), but it makes "Export Settings" quietly incomplete. Related: `src/renderer/src/pages/SettingsPage.tsx`, `src/main/updater.ts`.
-
 

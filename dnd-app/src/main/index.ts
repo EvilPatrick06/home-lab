@@ -2,7 +2,7 @@ import type { Dirent } from 'node:fs'
 import { readdir, unlink } from 'node:fs/promises'
 import { join } from 'node:path'
 import { is, optimizer } from '@electron-toolkit/utils'
-import { app, BrowserWindow, dialog, nativeImage, shell } from 'electron'
+import { app, BrowserWindow, crashReporter, dialog, nativeImage, shell } from 'electron'
 import { disposeAiService, initFromSavedConfig } from './ai/ai-service'
 import { applySyncBindFromSettings, stopSyncReceiver } from './bmo-bridge'
 import { applyBmoApiKeyFromSettings, applyBmoBaseUrlFromSettings } from './bmo-config'
@@ -14,6 +14,17 @@ import { registerPluginProtocol, registerPluginScheme } from './plugins/plugin-p
 import { registerCoreBooks } from './storage/book-storage'
 import { loadSettings } from './storage/settings-storage'
 import { isUpdateInProgress, maybeAutoCheckOnLaunch, registerUpdateHandlers } from './updater'
+
+// ── Native crash capture ──
+// A hard native crash (renderer GPU/Chromium crash, SIGSEGV in a native module,
+// OOM) bypasses the JS logger entirely. Start the crashReporter as early as
+// possible so such crashes drop a LOCAL minidump under userData/Crashpad/.
+// uploadToServer:false keeps it privacy-preserving (no network egress).
+try {
+  crashReporter.start({ submitURL: '', uploadToServer: false, compress: true })
+} catch {
+  // never let crash-capture setup itself break startup
+}
 
 // ── Unhandled Error Handlers ──
 
@@ -248,6 +259,12 @@ function createWindow(): void {
   // just dev) so users can open the console to capture errors for bug reports.
   // Previously this was gated behind `is.dev` and only bound Ctrl+Shift+I, so
   // F12 did nothing in a packaged build.
+  mainWindow.webContents.on('render-process-gone', (_event, details) => {
+    // Renderer died natively (crash/oom/killed) — the JS logger in the renderer
+    // is gone, so record it from main. A minidump is also under userData/Crashpad/.
+    logToFile('ERROR', `render-process-gone: reason=${details.reason}`, details.exitCode?.toString())
+  })
+
   mainWindow.webContents.on('before-input-event', (_event, input) => {
     if (input.type !== 'keyDown') return
     const isDevToolsToggle = input.key === 'F12' || (input.control && input.shift && input.key.toLowerCase() === 'i')
@@ -331,6 +348,10 @@ function isValidRendererUrl(raw: string): boolean {
     return false
   }
 }
+
+app.on('child-process-gone', (_e, details) => {
+  logToFile('ERROR', `child-process-gone: type=${details.type} reason=${details.reason}`, details.exitCode?.toString())
+})
 
 app.on('second-instance', () => {
   const win = BrowserWindow.getAllWindows()[0]

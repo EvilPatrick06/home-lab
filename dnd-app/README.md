@@ -154,7 +154,7 @@ npm run circular               # dpdm circular-deps report
 npm run check:release          # mirror the CI preflight gates before cutting a tag
 ```
 
-Current baseline: **849 test files**, lint + both tsc projects clean.
+Current baseline: **850 test files**, lint + both tsc projects clean.
 
 ## Multiplayer architecture (Phase 29)
 
@@ -217,18 +217,20 @@ dnd-app/
 │   └── __mocks__/                vitest mocks
 │
 ├── scripts/
-│   ├── build/                    chunk-index, prerelease-clean, fetch-ollama
-│   ├── release/                  cut.mjs (single-command tag + push)
-│   ├── extract/                  PDF → JSON extraction pipeline
-│   ├── generate/                 schema + batch generation
-│   ├── submit/                   Anthropic Batch API submission
 │   ├── audit/                    data validation
-│   ├── batch-utils/, fix/, schemas/
+│   ├── build/                    chunk-index, prerelease-clean, fetch-ollama
+│   ├── dev/                      local dev helpers (multi-window test launcher, etc.)
+│   ├── i18n/                     locale + translation-key tooling
+│   ├── lib/                      shared script helpers
+│   ├── lint/                     custom lint / forbidden-pattern checks
+│   ├── maintenance/              repo maintenance scripts
+│   ├── release/                  cut.mjs (single-command tag + push)
+│   ├── schemas/                  schema generation + validation
+│   ├── smoke/                    smoke-test scripts
+│   └── submit/                   Anthropic Batch API submission
 │
-├── tools/                        dev utilities (audit runner, console→logger sweep, knip-summary)
-├── docs/
-│   ├── IPC-SURFACE.md            Electron IPC channel reference
-│   ├── PLUGIN-SYSTEM.md          game-system plugin API
+├── docs/                         IPC-SURFACE, PLUGIN-SYSTEM, RELEASE, DESIGN-CONSTRAINTS, ASSET-OFFLOAD,
+│   │                             DEPENDENCIES, LLAMA-SERVER, SEED-PACKS, UI-LAYERS, WEB-VERSION-PLAN
 │   └── phases/                   open-work plans (see PHASE-INDEX.md)
 ├── resources/                    icons + installer.nsh + chunk-index.json (+ ollama bundle on Windows CI)
 ├── package.json

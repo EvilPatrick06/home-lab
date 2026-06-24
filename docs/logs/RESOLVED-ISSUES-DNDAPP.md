@@ -12,6 +12,70 @@
 
 ---
 
+### [2026-06-24] Web DM: dead client-side `buildDmSystemPrompt` (+ orphaned `DM_TAGGING_DIRECTIVE`/`DM_ROLE`)
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-24
+- **Resolution:** Deleted `buildDmSystemPrompt`, `DM_TAGGING_DIRECTIVE`, `DM_ROLE`, `DmPromptContext` and `capJson` from `src/web/ai-mutations.ts` - all dead (only `parseAiMutations` is imported, by `web-api.ts` + tests). tsc web green; `ai-mutations.test.ts` (5) pass; the knip unused-export finding clears.
+
+---
+### [2026-06-24] Web DM: contradictory comments about whether structured mutations are produced
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-24
+- **Resolution:** Replaced the stale not-produced-by-the-HTTP-agent / parity-gap comment in `web-api.ts` `chatStream` with one accurate statement: the server-owned DM prompt makes the narration carry `[STAT_CHANGES]`/`[DM_ACTIONS]` tags, which `parseAiMutations` harvests and `ai:stream-done` emits non-empty (verified in code).
+
+---
+### [2026-06-24] Unused devDependency `@langchain/langgraph` left in package.json
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-24
+- **Resolution:** `npm uninstall @langchain/langgraph` - removed from `package.json` + ~283 lines of `package-lock.json`. Imported nowhere; node tsc green; the knip unused-devDependency finding clears.
+
+---
+### [2026-06-24] README doc-counts drift; `sync:doc-counts` not gated by CI and has no dry-run mode
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-24
+- **Resolution:** Added a `--check` dry-run mode (non-zero exit on drift) to `sync-doc-counts.mjs`; the daily-varying Current-state date site is marked `dynamic` so it is never gated. Wired `npm run sync:doc-counts -- --check` into `check:full` and ran the writer to clear current drift (dnd-app test files 849 to 850; root/bmo README count strings refreshed as a side effect of the shared script). `--check` now exits 0.
+
+---
+### [2026-06-24] Stale superseded branch `feat/user-accounts-cloud-sync` - already removed from origin
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-24
+- **Resolution:** Verified the branch is ALREADY gone from origin (`git ls-remote origin feat/user-accounts-cloud-sync` returns empty) and PR #30 (`ba088b84`) is on master, so the feature is fully captured. No deletion needed - the entry was stale. (Approved under approve-all; a prior run or the human owner already removed it.)
+
+---
+### [2026-06-24] README Directory layout is stale - references a non-existent tools/ dir and wrong scripts/ subfolders
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-24
+- **Resolution:** Rewrote the `scripts/` block to the real subdirs (audit build dev i18n lib lint maintenance release schemas smoke submit), removed the non-existent `tools/` entry, and generalized the `docs/` block to list the real 10 docs + `phases/` so it stops bit-rotting per-file. (dnd-app/README.md.)
+
+---
+### [2026-06-24] Lone services/__tests__/ directory breaks the otherwise-universal co-located test convention
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-24
+- **Resolution:** `git mv` `codebase-integrity.test.ts` to `src/renderer/src/test/` (clearly-named home for cross-cutting meta tests), fixed its two relative refs (ROOT 5 to 4 ups; ipc-channels import 4 to 3 ups), removed the now-empty `__tests__/` dir, and documented the convention in `docs/DESIGN-CONSTRAINTS.md`. The test (8) passes from the new location.
+
+---
+### [2026-06-24] No opt-in crash capture (crashReporter) - renderer/main crashes leave no diagnostic artifact
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-24
+- **Resolution:** Added `crashReporter.start({ submitURL: empty, uploadToServer: false, compress: true })` early in `src/main/index.ts` (local minidump under `userData/Crashpad/`, no network egress), plus a `render-process-gone` listener on the main webContents and an `app child-process-gone` listener that log reason/exitCode to `app.log`. node tsc green.
+
+---
+### [2026-06-24] Stranded salvage-branch features confirmed shipped on master (5 entries moved here)
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-24
+- **Resolution:** The salvage branch `auto/dnd-resolver-salvage` is now fully contained in `origin/master`, so these five suggestion entries were stale-open and are resolved on master (no code change this run; presence grep-verified): character/campaign export-import (`services/io/character-io.ts` + `campaign-io.ts`); global command palette / Ctrl+K (`CommandPalette.tsx`); first-run onboarding tour (`use-onboarding-store.ts`/`OnboardingTour.tsx`); in-app log open/export (`ipc/log-handlers.ts`, `LOG_OPEN_FOLDER`); update release-notes / What-is-New panel (`updater.ts`/`UpdateSection.tsx`). The sixth salvage feature (settings.json main-process prefs export) is NOT on master and remains open in SUGGESTIONS-LOG-DNDAPP.md.
+
+---
+
 ### [2026-06-23] Object-array roll tables (Weather) roll 1dN by count, ignoring d20Min/d20Max weighting
 
 - **Resolved by:** dnd-resolver (automated)

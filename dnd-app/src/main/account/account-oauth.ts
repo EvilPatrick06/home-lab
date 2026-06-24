@@ -9,6 +9,7 @@
  * allowlist. The captured token is persisted (encrypted) and the profile cached.
  */
 
+import { randomBytes } from 'node:crypto'
 import { createServer } from 'node:http'
 import { shell } from 'electron'
 import type { AccountLoginResult } from '../../shared/account-types'
@@ -27,12 +28,24 @@ const DONE_PAGE =
 export async function startLogin(): Promise<AccountLoginResult> {
   return new Promise<AccountLoginResult>((resolve) => {
     let settled = false
+    // CSRF/login-fixation guard: a high-entropy nonce bound into return_to. The Pi
+    // signs the whole return_to into its OAuth state and reflects it back on the
+    // loopback redirect, so the legit callback carries this exact value; an
+    // unsolicited /cb (local process / malicious page racing the port) cannot.
+    const expectedState = randomBytes(32).toString('hex')
     const server = createServer((req, res) => {
       try {
         const url = new URL(req.url ?? '/', 'http://127.0.0.1')
         if (url.pathname !== '/cb') {
           res.writeHead(404)
           res.end()
+          return
+        }
+        if (url.searchParams.get('state') !== expectedState) {
+          // Wrong/absent state: refuse WITHOUT settling, so a bogus request cannot
+          // pre-empt the real callback -- just reject this one and keep listening.
+          res.writeHead(403, { 'Content-Type': 'text/plain' })
+          res.end('Invalid or missing state.')
           return
         }
         res.writeHead(200, { 'Content-Type': 'text/html' })
@@ -80,7 +93,7 @@ export async function startLogin(): Promise<AccountLoginResult> {
         finish(null, 'no_port')
         return
       }
-      const returnTo = encodeURIComponent(`http://127.0.0.1:${port}/cb`)
+      const returnTo = encodeURIComponent(`http://127.0.0.1:${port}/cb?state=${expectedState}`)
       void shell.openExternal(`${getBmoBaseUrl()}/api/auth/discord/start?return_to=${returnTo}`)
     })
   })
