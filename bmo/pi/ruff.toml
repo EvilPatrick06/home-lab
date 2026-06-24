@@ -1,0 +1,14 @@
+# Ruff config for the bmo/pi Python project.
+#
+# Starts with the critical "real errors only" rule set (syntax errors, invalid
+# literals, undefined names) so the gate is GREEN today and can be wired into CI
+# without a triage backlog. Ratchet additional families in over time — the next
+# rungs are F401 (unused imports), F841 (unused vars), F811 (redefinitions),
+# then E4/E7 — each as a deliberate cleanup commit. See the ruff entry in
+# docs/logs/SUGGESTIONS-LOG.md.
+target-version = "py311"
+line-length = 100
+extend-exclude = ["venv", ".venv", "data", "wake/clips", "config"]
+
+[lint]
+select = ["E9", "F63", "F7", "F82"]

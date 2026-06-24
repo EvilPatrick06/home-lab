@@ -1,4 +1,4 @@
-# Cursor Rules — home-lab Monorepo (dnd-app + bmo)
+# Cursor Rules — home-lab Monorepo (dnd-app + bmo + dungeon-scholar + oracle-worker)
 
 > Primary context file for Cursor AI. Reads on every invocation.
 > For language/tool-specific rules, see also: AGENTS.md, CLAUDE.md
@@ -67,6 +67,10 @@
 │   ├── src/                          App.jsx + components/, hooks/, services/, prompts/, audio/, tutorial.js
 │   ├── docs/                         dungeon-scholar-specific docs (PHASE-24-POLISH.md, supabase-setup.md)
 │   └── {package.json, vite.config.js, README.md}
+│
+├── oracle-worker/                    Cloudflare Worker — Oracle proxy (AI grading/chat) backing dungeon-scholar
+│   ├── src/                          worker.js (request handler)
+│   └── {package.json, wrangler.toml}
 │
 ├── docs/                             monorepo-wide docs
 │   ├── ARCHITECTURE.md               how dnd-app + bmo communicate (dungeon-scholar is independent)

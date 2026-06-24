@@ -59,9 +59,12 @@ async def test_find_dungeon_channel_honors_id_override(dm_bot, monkeypatch):
 async def test_find_dungeon_channel_falls_back_to_name(dm_bot, monkeypatch):
     monkeypatch.setattr(dm, "DUNGEON_CHANNEL_ID", "")
     monkeypatch.setattr(dm, "DUNGEON_CHANNEL_NAME", "Dungeon")
-    match = MagicMock(); match.name = "Dungeon"
-    other = MagicMock(); other.name = "General"
-    guild = MagicMock(); guild.voice_channels = [other, match]
+    match = MagicMock()
+    match.name = "Dungeon"
+    other = MagicMock()
+    other.name = "General"
+    guild = MagicMock()
+    guild.voice_channels = [other, match]
     assert (await dm_bot.find_dungeon_channel(guild)) is match
 
 

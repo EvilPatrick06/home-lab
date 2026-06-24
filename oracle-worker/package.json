@@ -4,7 +4,7 @@
   "engines": {
     "node": ">=22"
   },
-  "description": "",
+  "description": "Cloudflare Worker proxying the dungeon-scholar Oracle (AI grading/chat) to Groq: injects the server-side API key and enforces Durable-Object rate limiting plus per-request cost clamps.",
   "main": "index.js",
   "engines": { "node": ">=22" },
   "scripts": {

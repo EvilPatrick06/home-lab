@@ -239,4 +239,4 @@ Active bugs / debt → [`../docs/logs/BMO-ISSUES-LOG.md`](../docs/logs/BMO-ISSUE
 
 ## License
 
-ISC — inherited from the parent repo.
+ISC. See [`LICENSE`](./LICENSE).

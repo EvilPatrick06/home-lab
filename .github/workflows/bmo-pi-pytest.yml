@@ -56,6 +56,9 @@ jobs:
           python -m pip install -r requirements-ci.txt
           python -m pip install -r requirements-test.txt
 
+      - name: Ruff (lint)
+        run: ruff check .
+
       - name: Pytest
         env:
           BMO_SOCKETIO_ASYNC_MODE: threading
