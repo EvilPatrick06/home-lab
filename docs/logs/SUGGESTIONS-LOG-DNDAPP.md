@@ -36,6 +36,78 @@ New entries go at the TOP of their section (newest first).
 
 ---
 
+### [2026-06-24] README "Directory layout" is stale — references a non-existent `tools/` dir and wrong `scripts/` subfolders
+
+- **Category:** docs
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+The `## Directory layout` block in `dnd-app/README.md` (the canonical onboarding map for the repo) has drifted out of sync with the tree it documents. Concretely:
+
+- It lists a top-level **`tools/`** directory (“dev utilities (audit runner, console→logger sweep, knip-summary)”) that **does not exist** — `ls dnd-app/tools` is a no-such-file. (The `knip.json` at the root and `scripts/audit/` suggest those utilities now live under `scripts/`.)
+- Under `scripts/` it lists **`extract/`, `generate/`, `batch-utils/`, `fix/`** — **none of which exist**.
+- It **omits six** `scripts/` subfolders that **do** exist: `dev/`, `i18n/`, `lib/`, `lint/`, `maintenance/`, `smoke/`.
+- The `docs/` portion lists only 3 files (`IPC-SURFACE.md`, `PLUGIN-SYSTEM.md`, `phases/`) while `dnd-app/docs/` actually holds 10 top-level docs (also `ASSET-OFFLOAD.md`, `DEPENDENCIES.md`, `DESIGN-CONSTRAINTS.md`, `LLAMA-SERVER.md`, `RELEASE.md`, `SEED-PACKS.md`, `UI-LAYERS.md`, `WEB-VERSION-PLAN.md`).
+
+A stale directory map is actively misleading for new contributors and agents — it sends them looking for folders that were renamed/removed and hides the ones in use.
+
+**Proposed fix / improvement:**
+- [ ] Rewrite the `scripts/` portion to match the real subdirs: `audit/ build/ dev/ i18n/ lib/ lint/ maintenance/ release/ schemas/ smoke/ submit/`.
+- [ ] Remove the `tools/` entry (or, if those utilities still exist somewhere, point the entry at their real path).
+- [ ] List the full `docs/` set (or generalize to “see `docs/` — IPC, plugin, release, design-constraints, etc.” so it stops bit-rotting per-file).
+- [ ] Consider a tiny CI check (or a `scripts/` doc-lint) that diffs the documented top-level layout against the actual tree to catch future drift.
+
+**Related files:** `dnd-app/README.md` (§ Directory layout, ~L185–240), `dnd-app/scripts/`, `dnd-app/docs/`
+
+---
+
+### [2026-06-24] Two near-identical `MapSelector.tsx` components (plus several duplicate component basenames) invite import confusion
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+There are **two** components both named `MapSelector.tsx`, both rendering an active-map `<select>` dropdown over the same `GameMap[]` / `activeMapId` data, living one directory apart:
+
+- `src/renderer/src/components/game/dm/MapSelector.tsx` (47 LOC, props `maps/activeMapId/onSelectMap/onAddMap`)
+- `src/renderer/src/components/game/game-layout/MapSelector.tsx` (36 LOC, props `maps/activeMapId/onSelect`; its own doc-comment says it was “Extracted from GameLayout”)
+
+They are not identical (one has an Add-map affordance, different Tailwind classes), but they overlap enough that the identical name is a trap: an import auto-complete or a future refactor can easily grab the wrong one, and a reader grepping `MapSelector` gets two hits with no way to tell which is the DM-toolbar one. This is part of a broader pattern — the scan found same-basename component collisions for `ChatPanel.tsx` (`components/lobby/` vs `components/game/bottom/`) and `NPCManager.tsx` (`components/game/dm/` vs `pages/campaign-detail/`) as well.
+
+**Proposed fix / improvement:**
+- [ ] Decide whether the two `MapSelector`s should be unified into one parameterized component (variant prop for the Add-map button + class set) or kept separate but **renamed** to disambiguate (e.g. `DmMapSelector` / `MapToolbarSelector`).
+- [ ] Apply the same disambiguation judgment to `ChatPanel` (LobbyChatPanel vs GameChatPanel) and `NPCManager` (campaign vs in-game) — rename or consolidate.
+- [ ] No behavior change intended; this is naming/structure clarity (use `git mv` + import updates so history is preserved).
+
+**Related files:** `src/renderer/src/components/game/dm/MapSelector.tsx`, `src/renderer/src/components/game/game-layout/MapSelector.tsx`, `src/renderer/src/components/lobby/ChatPanel.tsx`, `src/renderer/src/components/game/bottom/ChatPanel.tsx`, `src/renderer/src/components/game/dm/NPCManager.tsx`, `src/renderer/src/pages/campaign-detail/NPCManager.tsx`
+
+---
+
+### [2026-06-24] Lone `services/__tests__/` directory breaks the otherwise-universal co-located test convention
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+The suite co-locates tests next to source essentially everywhere — ~849 `*.test.ts(x)` files sit beside the module they cover, and there is exactly **one** `__tests__/` directory in the whole tree: `src/renderer/src/services/__tests__/`, containing a single file `codebase-integrity.test.ts`. A reader (or a test-glob/coverage config) now has to account for two layouts for one outlier. The file itself is plausibly a deliberately cross-cutting test (it asserts something about the codebase as a whole rather than one module), which is a legitimate reason not to co-locate — but if so, the *convention* is undocumented, so the directory just looks like an inconsistency.
+
+**Proposed fix / improvement:**
+- [ ] If `codebase-integrity.test.ts` is a per-module test in disguise, move it next to its subject and delete the empty `__tests__/` dir to make the tree 100% co-located.
+- [ ] If it is genuinely repo-wide, either relocate it to a clearly named home for cross-cutting checks (e.g. `src/renderer/src/test/` or a top-level `meta`/integrity test area) **and** add a one-line note to `dnd-app/docs/DESIGN-CONSTRAINTS.md` documenting that non-co-located tests live there — so the exception is intentional and discoverable rather than a stray `__tests__/`.
+
+**Related files:** `src/renderer/src/services/__tests__/codebase-integrity.test.ts`, `dnd-app/vitest.config.ts`, `dnd-app/docs/DESIGN-CONSTRAINTS.md`
+
+---
+
 ### [2026-06-23] `src/main/ai/` is a flat directory of 57 source modules — group into subfolders
 
 - **Category:** debt
