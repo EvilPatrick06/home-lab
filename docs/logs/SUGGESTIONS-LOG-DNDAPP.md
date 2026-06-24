@@ -105,6 +105,91 @@ The suite co-locates tests next to source essentially everywhere — ~849 `*.tes
 - [ ] If it is genuinely repo-wide, either relocate it to a clearly named home for cross-cutting checks (e.g. `src/renderer/src/test/` or a top-level `meta`/integrity test area) **and** add a one-line note to `dnd-app/docs/DESIGN-CONSTRAINTS.md` documenting that non-co-located tests live there — so the exception is intentional and discoverable rather than a stray `__tests__/`.
 
 **Related files:** `src/renderer/src/services/__tests__/codebase-integrity.test.ts`, `dnd-app/vitest.config.ts`, `dnd-app/docs/DESIGN-CONSTRAINTS.md`
+### [2026-06-24] OS file association `.dndvtt` is declared in the build config but has no open-file / argv handler
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (Electron main-process launch + build-config survey)
+
+**Description:**
+`package.json > build.fileAssociations` registers the `.dndvtt` extension ("D&D VTT Export", role `Editor`) so the OS installer associates that file type with the app — but **nothing in the main process handles being launched with a file path.** The `second-instance` handler in `src/main/index.ts` (~L335) only restores/focuses the existing window and never inspects `argv`; there is **no** `app.on('open-file', …)` handler anywhere (`grep "open-file" src/` → none), and no parsing of `process.argv` for a `.dndvtt` path on first launch. Net effect: a user who double-clicks a `.dndvtt` file (or "Open with → D&D VTT") just lands on the Main Menu with the file silently ignored on every platform — Windows/Linux pass the path as an argv to the first or second instance, macOS delivers it via the `open-file` event, and none of those paths are wired up. This is the OS-handler half of the (currently stranded — see the dnd-resolver integration note above) character/campaign export-import feature: even once export ships, double-click-to-open won't work until a handler is added.
+
+**Proposed fix / improvement:**
+- [ ] Add an `app.on('open-file', (e, path) => …)` handler (macOS) and parse `process.argv` for a trailing `*.dndvtt` path on first launch and inside the existing `second-instance` handler (Windows/Linux).
+- [ ] Forward the resolved path to the renderer via a new IPC (e.g. `FILE_OPEN_REQUEST`) and route it into the import pipeline once character/campaign import lands.
+- [ ] Until import exists, at minimum surface a friendly "Importing from file isn't available yet" toast instead of silently dropping the file — or hold the path and replay it after import ships.
+
+**Related files:** `dnd-app/package.json` (`build.fileAssociations`), `src/main/index.ts` (`second-instance` handler ~L335), `src/shared/ipc-channels.ts`
+
+**Related entries:** [2026-06-22] "No user-facing export/import of a character or campaign to a portable file" (this is the open-side handler for the file that entry's exporter would produce); dnd-resolver integration note at top of this section.
+
+---
+
+### [2026-06-24] No opt-in crash capture (`crashReporter`) — renderer/main crashes leave no diagnostic artifact
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (main-process crash-handling survey)
+
+**Description:**
+The app captures *logical* errors well — `src/main/log.ts` writes a rotating `userData/logs/app.log`, and `handleFatal` in `src/main/index.ts` shows an error box — but there is **no Electron `crashReporter`** initialized anywhere (`grep "crashReporter" src/` → none) and no third-party crash SDK (`sentry`/`@sentry` → none). A hard *native* crash (a renderer GPU/Chromium crash, a `SIGSEGV` in a native module like Pixi/Three/cannon-es, an OOM) bypasses the JS log entirely and produces nothing the user or a maintainer can act on — it just vanishes. `crashReporter.start({ uploadToServer: false })` would at minimum drop a local minidump under `userData/Crashpad/`, and the renderer `'render-process-gone'` / `'child-process-gone'` events could be logged to `app.log`, turning an invisible crash into a retrievable artifact. This complements (does not duplicate) the already-logged "open/export the app log" idea: that one surfaces the *existing* JS log; this one captures the class of crash the JS log structurally can't see.
+
+**Proposed fix / improvement:**
+- [ ] Call `crashReporter.start({ submitURL: '', uploadToServer: false, compress: true })` early in `src/main/index.ts` so native crashes write a local minidump (no network egress — privacy-preserving, opt-in to upload only).
+- [ ] Add `webContents.on('render-process-gone', …)` and `app.on('child-process-gone', …)` listeners that log reason/exitCode to `app.log`.
+- [ ] Surface the Crashpad folder from the same "Open log folder" affordance proposed in the log-access entry, so crash dumps are attachable to a bug report.
+
+**Related files:** `src/main/index.ts` (`handleFatal`, app bootstrap), `src/main/log.ts`
+
+**Related entries:** [2026-06-22] "No in-app way to locate, open, or export the app log for bug reports" (shares the log/diagnostics-folder affordance); see the "Report a bug" entry below.
+
+---
+
+### [2026-06-24] No in-app "Report a bug" / feedback path to the GitHub issue tracker
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (renderer help/feedback-affordance survey)
+
+**Description:**
+The project has a public homepage + issue tracker (`package.json > homepage`/`repository` → `github.com/EvilPatrick06/home-lab`), writes a diagnostic log, and ships an auto-updater — but there is **no in-app affordance to report a bug or send feedback** (`grep -i "report.*bug|feedback|issues"` across `src/renderer` finds only code comments, no UI). A non-technical user who hits a problem has no in-app path to the issue tracker and no guided way to file a useful report. A small "Report a bug" / "Send feedback" entry (Settings → About/Help, or the Help menu) that opens the GitHub new-issue URL via `shell.openExternal` — ideally pre-filling app version, OS/arch, and electron version into the issue template — would convert silent frustration into actionable reports, and pairs naturally with the log-export and crash-capture ideas (attach the log/minidump the report needs).
+
+**Proposed fix / improvement:**
+- [ ] Add a "Report a bug" / "Send feedback" affordance (Settings About/Help section and/or the application Help menu) that `shell.openExternal`s the repo's new-issue URL with a query-string-prefilled template (version, `process.platform`/`arch`, electron version).
+- [ ] Co-locate it with the proposed "Open log folder" / crash-dump affordances so a reporter can grab the artifacts in one place.
+- [ ] Keep it offline-safe: if the user is offline, fall back to copying the prefilled report text + log path to the clipboard.
+
+**Related files:** `dnd-app/package.json` (`homepage`/`repository`), `src/renderer/src/pages/SettingsPage.tsx`, `src/renderer/src/components/settings/*`
+
+**Related entries:** [2026-06-22] "No in-app way to locate, open, or export the app log…"; [2026-06-24] crash-capture entry above.
+
+---
+
+### [2026-06-24] Settings is an ~18-section single-scroll page with no search or section navigation
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (SettingsPage composition survey)
+
+**Description:**
+`SettingsPage.tsx` renders ~18 distinct sections in one long vertical scroll — Profile, Language, Theme, Audio, Accessibility, Grid, Dice, Notifications, AutoSave, Settings Import/Export, Content Packs/Plugins, Registered Game Systems, Updates, Account, Cloud Backup, Ollama AI, Multiplayer Status (and the keybinding editor) — with **no search box, no tab/left-nav, and no section jump list**. Finding a specific toggle (say "reduced motion" or "auto-download updates") means scrolling and visually scanning the whole page. The page was already (healthily) decomposed into per-section components under `components/settings/`, so each section is a clean unit to index — a filter-as-you-type box that hides non-matching sections/rows, or a sticky left-rail of section anchors, would cut the time-to-setting sharply and scales as more sections are added. A settings search also composes with the proposed global command palette (Ctrl/Cmd-K could deep-link to a setting).
+
+**Proposed fix / improvement:**
+- [ ] Add a search/filter input at the top of `SettingsPage` that filters visible sections (and ideally individual labeled controls) by a label/keyword index derived from the section components.
+- [ ] Or add a sticky section-nav rail (the section titles already exist via the `Section`/`title` prop) with scroll-spy highlighting; both can coexist.
+- [ ] Ensure the filter is keyboard-operable and screen-reader friendly (announce result counts), consistent with the existing a11y investment.
+
+**Related files:** `src/renderer/src/pages/SettingsPage.tsx`, `src/renderer/src/components/settings/*` (per-section components + `SettingsSection.tsx`)
+
+**Related entries:** [2026-06-22] "No global command palette / quick-action launcher (Ctrl+K)…" (a settings search and a command palette reinforce each other).
 
 ---
 
