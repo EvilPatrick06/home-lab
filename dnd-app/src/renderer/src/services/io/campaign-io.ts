@@ -11,16 +11,16 @@ const AI_DM_SECRET_FIELDS = ['claudeApiKey', 'openaiApiKey', 'geminiApiKey'] as 
 export function redactCampaignSecrets(campaign: Campaign): Campaign {
   const aiDm = campaign.aiDm
   if (!aiDm) return campaign
-  const strippedAiDm = { ...aiDm } as Record<string, unknown>
+  const strippedAiDm = { ...aiDm }
   let stripped = false
   for (const field of AI_DM_SECRET_FIELDS) {
     if (field in strippedAiDm) {
-      delete strippedAiDm[field]
+      delete (strippedAiDm as Record<string, unknown>)[field]
       stripped = true
     }
   }
   if (!stripped) return campaign
-  return { ...campaign, aiDm: strippedAiDm as Campaign['aiDm'] }
+  return { ...campaign, aiDm: strippedAiDm }
 }
 
 /**
