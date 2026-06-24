@@ -1680,8 +1680,8 @@ function bmo() {
       // Uses the ISO fields (e.start is a display string, NOT a date — comparing it to
       // a YYYY-MM-DD never matched, so Day always showed "free today").
       //   Day (calDays 1): everything for today, including already-ended events.
-      //   Week (7) / Month (31): UPCOMING only — drop events that have already ended —
-      //   bounded by the current Sunday–Saturday week / calendar month.
+      //   Week (7) / Month (31) / Year (365): UPCOMING only — drop events that have
+      //   already ended — bounded by the current week / calendar month / calendar year.
       const now = Date.now();
       const startMs = (e) => new Date(e.start_iso || e.start).getTime();
       const endMs = (e) => new Date(e.end_iso || e.end || e.start_iso || e.start).getTime();
@@ -1691,7 +1691,9 @@ function bmo() {
         return this.calEvents.filter((e) => startMs(e) < hi.getTime() && endMs(e) >= lo.getTime());
       }
       let hi;
-      if (this.calDays === 31) {
+      if (this.calDays === 365) {
+        const d = new Date(); hi = new Date(d.getFullYear() + 1, 0, 1); // start of next year
+      } else if (this.calDays === 31) {
         const d = new Date(); hi = new Date(d.getFullYear(), d.getMonth() + 1, 1); // start of next month
       } else {
         hi = new Date(); hi.setDate(hi.getDate() - hi.getDay() + 7); hi.setHours(0, 0, 0, 0); // next Sunday
@@ -1708,13 +1710,16 @@ function bmo() {
         return;
       }
       try {
-        // One fixed window — start of today, ~40 days (covers this calendar month) —
-        // and getFilteredCalEvents() scopes it per view. Start at today (not now) so
-        // the Day view still shows events that already ended earlier today; Week/Month
-        // drop past events client-side.
+        // Window starts at start-of-today (so the Day view still shows events that
+        // already ended earlier today); getFilteredCalEvents() scopes it per view and
+        // drops past events for Week/Month/Year. The Year view needs a far wider window
+        // + a higher result cap (a month-sized window/cap would truncate the year).
         const winStart = new Date();
         winStart.setHours(0, 0, 0, 0); // start of today
-        const res = await fetch(`/api/calendar/events?days=40&from=${encodeURIComponent(winStart.toISOString())}`);
+        const isYear = this.calDays === 365;
+        const res = await fetch(
+          `/api/calendar/events?days=${isYear ? 370 : 40}&max=${isYear ? 750 : 50}&from=${encodeURIComponent(winStart.toISOString())}`
+        );
         const data = await res.json();
         if (!res.ok) {
           if (!this.calOffline) console.warn('[cal] API error:', res.status, data);

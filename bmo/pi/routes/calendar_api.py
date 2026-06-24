@@ -51,11 +51,13 @@ def _require_calendar_service():
 def api_calendar_events():
     calendar = _calendar()
     days = int(request.args.get("days", 7))
-    # Optional window start (ISO-8601). The dashboard passes start-of-today (Day) or
-    # the week's Sunday (Week) so the view isn't a rolling-from-now window.
+    # Optional window start (ISO-8601). The dashboard passes start-of-today so the view
+    # isn't a rolling-from-now window. `max` is bumped for the Year view (a year of
+    # events easily exceeds the default cap); clamped so a bad value can't hammer the API.
+    max_results = max(1, min(int(request.args.get("max", 20)), 2500))
     time_min = request.args.get("from") or None
     try:
-        events = calendar.get_upcoming_events(days_ahead=days, time_min=time_min)
+        events = calendar.get_upcoming_events(days_ahead=days, max_results=max_results, time_min=time_min)
         return jsonify({"events": events})
     except RuntimeError:
         return jsonify({"offline": True, "events": [], "needs_auth": True})

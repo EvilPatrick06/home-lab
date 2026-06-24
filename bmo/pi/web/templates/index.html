@@ -957,6 +957,8 @@
                   :class="calDays===7 ? 'bg-accent text-surface-dark' : 'bg-surface-light text-text-muted'">Week</button>
           <button @click="calDays=31" class="px-3 py-1 rounded text-sm"
                   :class="calDays===31 ? 'bg-accent text-surface-dark' : 'bg-surface-light text-text-muted'">Month</button>
+          <button @click="calDays=365" class="px-3 py-1 rounded text-sm"
+                  :class="calDays===365 ? 'bg-accent text-surface-dark' : 'bg-surface-light text-text-muted'">Year</button>
           <button @click="showEventForm = !showEventForm" class="px-3 py-1 rounded text-sm bg-accent text-surface-dark">+ Add</button>
         </div>
       </div>
