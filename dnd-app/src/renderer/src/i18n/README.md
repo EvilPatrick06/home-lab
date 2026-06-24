@@ -71,3 +71,14 @@ The English value should read exactly as the on-screen text — text-based tests
   `useT()` renders resolve to English in every test file.
 - Adding a locale: drop a `locales/<lng>.json` with the same key tree and
   register it in `index.ts`'s `resources`.
+
+## Adding a new locale (end-to-end)
+
+1. Copy `locales/en.json` to `locales/<code>.json` (e.g. `fr.json`) and translate
+   the values — keep the key tree and every `{{interpolation}}` placeholder intact.
+2. Add `<code>` to `SUPPORTED_LOCALES` and a label to `LOCALE_LABELS` in `config.ts`.
+3. Register the JSON in `index.ts`'s `resources` map.
+4. Run `npm run test -- locale-parity` — the parity test is data-driven (it loads
+   every `locales/*.json` and checks each non-`en` locale in `SUPPORTED_LOCALES`),
+   so the new locale is key/placeholder-checked automatically with no test edit.
+5. Run `npm run i18n:check-parity` for the runtime gate.

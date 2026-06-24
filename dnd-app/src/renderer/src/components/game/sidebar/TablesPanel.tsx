@@ -5,6 +5,7 @@ import { rollFormula } from '../../../services/dice/dice-engine'
 import { useLobbyStore } from '../../../stores/use-lobby-store'
 import { cryptoRandom, cryptoRollDie } from '../../../utils/crypto-random'
 import { formatTableEntry } from './table-entry-format'
+import { detectRangeTable, pickRangeRow } from './table-roll'
 
 interface RandomTableData {
   [key: string]: unknown
@@ -87,13 +88,23 @@ export default function TablesPanel(): JSX.Element {
       if (arrayData.length === 0) {
         result = t('game.tablesPanel.noEntriesInTable')
       } else {
-        const roll = cryptoRollDie(arrayData.length)
-        // PHASE-47 F3 — entries may be objects (e.g. Weather rows); render the
-        // display field, never "[object Object]". (Secondary: such min/max
-        // range tables are still rolled 1dN by count, not weighted by range —
-        // logged to ISSUES-LOG-DNDAPP.md.)
-        result = formatTableEntry(arrayData[roll - 1], t('game.tablesPanel.unknown'))
-        rollInfo = `1d${arrayData.length} = ${roll}`
+        const range = detectRangeTable(arrayData)
+        if (range) {
+          // Weighted range table (e.g. Weather rows `{ d20Min, d20Max, condition }`).
+          // Roll the IMPLIED die and match the value against each row's [min,max]
+          // span, so a 14-wide range is correctly more likely than a 1-wide one —
+          // rather than 1dN-by-count which made every row equally likely.
+          const roll = cryptoRollDie(range.die)
+          const matched = pickRangeRow(arrayData as Array<Record<string, unknown>>, range, roll)
+          result = formatTableEntry(matched ?? null, t('game.tablesPanel.unknown'))
+          rollInfo = `1d${range.die} = ${roll}`
+        } else {
+          // PHASE-47 F3 — entries may be objects; render the display field, never
+          // "[object Object]". Plain (non-range) array → uniform 1dN by count.
+          const roll = cryptoRollDie(arrayData.length)
+          result = formatTableEntry(arrayData[roll - 1], t('game.tablesPanel.unknown'))
+          rollInfo = `1d${arrayData.length} = ${roll}`
+        }
       }
     } else if (table.type === 'diceTable') {
       const diceTable = table.data as { die: string; entries: Array<{ roll: string; [key: string]: unknown }> }

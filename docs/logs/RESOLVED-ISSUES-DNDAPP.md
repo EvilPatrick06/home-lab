@@ -12,6 +12,46 @@
 
 ---
 
+### [2026-06-23] Object-array roll tables (Weather) roll 1dN by count, ignoring d20Min/d20Max weighting
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Added `table-roll.ts` (`detectRangeTable` + `pickRangeRow`) and wired it into `TablesPanel.tsx`'s `array` branch. A min/max-keyed object array (e.g. Weather `{ d20Min, d20Max, condition }`) is now detected, the implied die is parsed from the `d<N>Min` prefix, rolled, and matched against each row's `[min,max]` span — so wide ranges are correctly weighted (Weather "Normal for the season" = 14/20) instead of 1d5-uniform. Plain (non-range) arrays keep uniform 1dN-by-count and the PHASE-47 F3 `formatTableEntry` display. `table-roll.test.ts` asserts detection, that every die face maps to a row, and the 14/20 weighting (was 5 under the bug). 5 tests pass; biome clean.
+
+---
+
+### [2026-06-23] Biome lint — residual warnings cleared (follow-up to the ~70-warning entry)
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Re-ran `biome check --write src/` and manually cleared the 6 diagnostics current master still emitted: dropped the unused `buildDmSystemPrompt` import in `src/web/web-api.ts`; rewrote 2 `??=` assign-in-expression sites in `src/main/ai/stat-mutations-core.ts` as explicit statements (behavior-preserving — equip mutation tests pass); removed 3 stale `biome-ignore lint/suspicious/noExplicitAny` suppressions in the web-shim tests that biome flagged as `suppressions/unused`. `biome check src/` now reports 0 errors / 0 warnings.
+
+---
+
+### [2026-06-23] `locale-parity` test is hardcoded to `es`; adding a new locale silently escapes key/placeholder checking
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Rewrote `locale-parity.test.ts` to be data-driven — it eagerly loads every `./locales/*.json` via `import.meta.glob` and iterates every non-`en` entry of `SUPPORTED_LOCALES`, asserting key-set + `{{interpolation}}` parity per locale, so a future `fr.json` is covered automatically with no test edit. Added an "Adding a new locale (end-to-end)" section to `src/renderer/src/i18n/README.md`. 3 tests pass.
+
+---
+
+### [2026-06-23] `data-provider.ts` (840 LOC) sits beside a same-named `data-provider/` folder — fold the monolith into the folder
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** `git mv`'d `services/data-provider.ts` -> `services/data-provider/index.ts`; the ~150 bare `services/data-provider` imports resolve to the folder index unchanged (`moduleResolution: bundler`). Rewrote the moved file's relative-import depths (`../X`->`../../X`, `./library`->`../library`, `./data-provider/Y`->`./Y`) including 8 inline `import('../types/…')` type-exprs. `data-provider.test.ts` (10 tests) passes through the new index. Further extraction of cohesive chunks into sibling files left as incremental follow-up.
+
+---
+
+### [2026-06-23] Public web hosting cannot announce to the registry under `BMO_API_KEY` hardening (product/security decision)
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-23
+- **Resolution:** Accepted option (a) — Public web hosting requires an unhardened deployment; the UI already fails gracefully (PHASE-46 F1 surfaces an honest "not listed — <reason>" instead of the null-deref). No code change. Option (b) (a narrowly-scoped registry-mutation exemption / host credential under hardening) is intentionally NOT taken, to keep the `_PUBLIC_UNAUTH_PREFIXES` <-> Cloudflare-Access lockstep (PHASE-44 F1) and the PHASE-43 hardening-triage reachability philosophy intact. Decision taken autonomously under the approve-all instruction; revisit if "Public web hosting under hardening" becomes a product requirement.
+
+---
+
 ### Slim the narration prompt's tag instructions once structured extraction is the default (PHASE-23 follow-up)
 
 - **Resolved by:** dnd-resolver (automated)

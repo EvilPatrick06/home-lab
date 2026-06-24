@@ -15,7 +15,6 @@ vi.mock('./idb', () => ({
 import { createWebApi } from './web-api'
 
 describe('web shim saveEntity — { success } contract (PHASE-47 F1)', () => {
-  // biome-ignore lint/suspicious/noExplicitAny: shim api is intentionally loose
   let api: any
   beforeEach(() => {
     store.clear()

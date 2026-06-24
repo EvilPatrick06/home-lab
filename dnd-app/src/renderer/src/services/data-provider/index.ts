@@ -1,7 +1,7 @@
-import { useConfigStore } from '../stores/use-config-store'
-import { useLibraryStore } from '../stores/use-library-store'
-import { getSystem } from '../systems/registry'
-import type { BuildSlotCategory, DetailField, SelectableOption } from '../types/character-common'
+import { useConfigStore } from '../../stores/use-config-store'
+import { useLibraryStore } from '../../stores/use-library-store'
+import { getSystem } from '../../systems/registry'
+import type { BuildSlotCategory, DetailField, SelectableOption } from '../../types/character-common'
 import type {
   AbilityScoreConfigFile,
   AdventureSeedsFile,
@@ -50,9 +50,9 @@ import type {
   ThemesFile,
   TreasureTablesFile,
   TrinketsFile
-} from '../types/data'
-import type { MountData, MountsFile } from '../types/data/equipment-data-types'
-import { loadRemoteLibrary } from './library/remote-library'
+} from '../../types/data'
+import type { MountData, MountsFile } from '../../types/data/equipment-data-types'
+import { loadRemoteLibrary } from '../library/remote-library'
 
 type _MountData = MountData
 type _MountsFile = MountsFile
@@ -65,20 +65,20 @@ import type {
   SiegeEquipment,
   SupernaturalGift,
   Trap
-} from '../types/dm-toolbox'
-import type { GameSystem } from '../types/game-system'
-import { GAME_SYSTEMS } from '../types/game-system'
-import type { MonsterStatBlock } from '../types/monster'
-import type { MountedCombatState, MountStatBlock, VehicleStatBlock } from '../types/mount'
+} from '../../types/dm-toolbox'
+import type { GameSystem } from '../../types/game-system'
+import { GAME_SYSTEMS } from '../../types/game-system'
+import type { MonsterStatBlock } from '../../types/monster'
+import type { MountedCombatState, MountStatBlock, VehicleStatBlock } from '../../types/mount'
 
 type _MountedCombatState = MountedCombatState
 type _MountStatBlock = MountStatBlock
 type _VehicleStatBlock = VehicleStatBlock
 
-import { logger } from '../utils/logger'
-import { DATA_PATHS } from './data-paths'
-import { DIVINE_ORDER_OPTIONS, DRUIDIC_WARRIOR_OPTION, PRIMAL_ORDER_OPTIONS } from './data-provider/build-slot-options'
-import { COMPANION_FILES, DEITY_FILES, PLANE_FILES } from './data-provider/companion-files'
+import { logger } from '../../utils/logger'
+import { DATA_PATHS } from '../data-paths'
+import { DIVINE_ORDER_OPTIONS, DRUIDIC_WARRIOR_OPTION, PRIMAL_ORDER_OPTIONS } from './build-slot-options'
+import { COMPANION_FILES, DEITY_FILES, PLANE_FILES } from './companion-files'
 import type {
   ConditionEntry,
   LanguageEntry,
@@ -86,7 +86,7 @@ import type {
   SkillEntry,
   VariantItemEntry,
   WeaponMasteryEntry
-} from './data-provider/extracted-data-types'
+} from './extracted-data-types'
 import {
   backgroundToOption,
   classToOption,
@@ -95,7 +95,7 @@ import {
   normalizeSource,
   speciesToOption,
   subclassToOption
-} from './data-provider/transformers'
+} from './transformers'
 
 // Re-export the extracted-data loader types so consumers keep importing them
 // from `./data-provider` unchanged.
@@ -390,9 +390,9 @@ export async function load5eMetamagic(): Promise<MetamagicData[]> {
   return ds().get('metamagic', () => loadJson<MetamagicData[]>(resolvePath('metamagic')))
 }
 
-export async function load5eBastionFacilities(): Promise<import('../types/bastion').BastionFacilitiesData> {
+export async function load5eBastionFacilities(): Promise<import('../../types/bastion').BastionFacilitiesData> {
   return ds().get('bastionFacilities', () =>
-    loadJson<import('../types/bastion').BastionFacilitiesData>(resolvePath('bastionFacilities'))
+    loadJson<import('../../types/bastion').BastionFacilitiesData>(resolvePath('bastionFacilities'))
   )
 }
 
@@ -512,23 +512,23 @@ export async function load5eSiegeEquipment(): Promise<SiegeEquipment[]> {
   return ds().get('siegeEquipment', () => loadJson<SiegeEquipment[]>(resolvePath('siegeEquipment')))
 }
 
-export async function load5eSettlements(): Promise<import('../types/dm-toolbox').Settlement[]> {
+export async function load5eSettlements(): Promise<import('../../types/dm-toolbox').Settlement[]> {
   return ds().get('settlements', async () => {
-    const file = await loadJson<{ sizes: import('../types/dm-toolbox').Settlement[] }>(resolvePath('settlements'))
+    const file = await loadJson<{ sizes: import('../../types/dm-toolbox').Settlement[] }>(resolvePath('settlements'))
     return file.sizes
   })
 }
 
-export async function load5eMounts(): Promise<import('../types/mount').MountStatBlock[]> {
+export async function load5eMounts(): Promise<import('../../types/mount').MountStatBlock[]> {
   return ds().get('mounts', async () => {
-    const file = await loadJson<{ mounts: import('../types/mount').MountStatBlock[] }>(resolvePath('mounts'))
+    const file = await loadJson<{ mounts: import('../../types/mount').MountStatBlock[] }>(resolvePath('mounts'))
     return file.mounts
   })
 }
 
-export async function load5eVehicles(): Promise<import('../types/mount').VehicleStatBlock[]> {
+export async function load5eVehicles(): Promise<import('../../types/mount').VehicleStatBlock[]> {
   return ds().get('vehicles', async () => {
-    const file = await loadJson<{ vehicles: import('../types/mount').VehicleStatBlock[] }>(resolvePath('mounts'))
+    const file = await loadJson<{ vehicles: import('../../types/mount').VehicleStatBlock[] }>(resolvePath('mounts'))
     return file.vehicles
   })
 }

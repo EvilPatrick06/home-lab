@@ -12,7 +12,6 @@ vi.mock('./idb', () => ({
 import { createWebApi } from './web-api'
 
 describe('web shim registry — {ok} contract (PHASE-46 F1)', () => {
-  // biome-ignore lint/suspicious/noExplicitAny: shim api is intentionally loose
   let api: any
   const realFetch = globalThis.fetch
   beforeEach(() => {

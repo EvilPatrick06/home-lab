@@ -13,7 +13,6 @@ vi.mock('./idb', () => ({
 import { createWebApi } from './web-api'
 
 describe('web shim — signaling status (PHASE-45 F5)', () => {
-  // biome-ignore lint/suspicious/noExplicitAny: shim api is intentionally loose
   let api: any
   beforeEach(() => {
     api = createWebApi()
