@@ -23,7 +23,7 @@ fi
 # `npx biome` must NOT be used: it resolves to an unrelated abandoned `biome`
 # package, not the linter, and aborts in non-interactive (hook) contexts.
 if staged | grep -q '^dungeon-scholar/'; then
-  ( cd dungeon-scholar && npx --yes @biomejs/biome@2.4.16 check --staged --no-errors-on-unmatched ) || exit 1
+  ( cd dungeon-scholar && npx --yes @biomejs/biome@2.5.0 check --staged --no-errors-on-unmatched ) || exit 1
 fi
 
 # Secret scan across the staged set (folded in from the old .githooks shim).
@@ -33,7 +33,7 @@ fi
 
 # dungeon-scholar (VTT) pre-flight: when its files are staged, run its vitest
 # suite so a dungeon-scholar-only commit gets a local gate too (the husky hook
-# previously gated dnd-app alone). CI (.github/workflows/subprojects-ci.yml) is
+# previously gated dnd-app alone). CI (.github/workflows/dungeon-scholar-ci.yml) is
 # authoritative; this is a fast local pre-flight. Escape hatch: git commit --no-verify.
 cd "$(git rev-parse --show-toplevel)" || exit 1
 if git diff --cached --name-only --diff-filter=ACMR | grep -q "^dungeon-scholar/"; then
