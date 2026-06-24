@@ -13,6 +13,26 @@
 
 ---
 
+### [2026-06-24] Upgrade the SRS scheduler to full FSRS-5 with per-user parameter optimization
+> **Resolved 2026-06-24 (scholar-resolver):** Replaced the simplified `srs.js` model with canonical FSRS-5: the published 19-weight default vector + the full update equations (initial S0/D0, linear-damped difficulty with mean reversion, recall/forget/short-term stability, power-law retrievability with DECAY=-0.5) behind the unchanged `scheduleCard`/`retrievability`/`isCardDue` API and per-card state shape (old saves keep working). Exposed `FSRS_DEFAULT_WEIGHTS` + `getSchedulerWeights`/`setSchedulerWeights` so the stretch-goal per-user optimizer can feed fitted weights without touching the equations (optimizer itself left as a follow-up). `srs.test.js` updated to FSRS-5 behavior; 31 srs + 16 forgettingCurve tests pass.
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement-scan of the dungeon-scholar tree
+
+**Description:**
+`src/services/srs.js` self-describes as "FSRS-inspired (not literal FSRS-5 with 17+ weights — a simpler model)". That is a reasonable, dependency-free choice, but for long-horizon cert prep the difference is real: full FSRS-5 fits its weight vector to the *individual learner's* review history (via the published optimizer) and consistently beats fixed-parameter heuristics on retention-per-review. Because the app already records per-card review outcomes (`questionStats`/`cardProgress` in tome progress) it has the training data an optimizer needs. A future enhancement: ship the canonical FSRS-5 default weights, and optionally run the optimizer client-side over the user's own log to personalize scheduling. Honest severity: low — the current model works and this is an accuracy refinement, not a fix.
+
+**Hypothesis / root cause:** N/A — deliberate simplification documented in `srs.js`.
+
+**Proposed fix / improvement:**
+- [ ] Adopt FSRS-5 default weights + the full stability/difficulty update equations behind the existing `srs.js` API.
+- [ ] (Stretch) Optional "optimize my schedule" action that fits weights from the user's recorded review history.
+
+**Related files:** `src/services/srs.js`, `src/services/forgettingCurve.js`
+
 ### [2026-06-24] Make the Oracle worker's allowed origin (and model) configurable instead of hardcoded — fork portability
 > **Resolved 2026-06-24 (scholar-resolver):** `oracle-worker/src/worker.js` now reads `ALLOWED_ORIGIN` (-> `DEFAULT_ALLOWED_ORIGIN` fallback) and `ORACLE_MODEL` (-> `DEFAULT_MODEL` fallback) from `env`, threaded through the CORS headers, the Origin/Referer cross-check, and the Groq call. Documented the two optional `[vars]` in `wrangler.toml` + `docs/oracle-setup.md`. `node --check` green.
 

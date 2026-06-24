@@ -43,25 +43,6 @@ Today the only ways to get content into the app are: hand-write/author a tome, p
 
 **Related entries:** distinct from the resolved "PWA Web Share Target to import a tome JSON" (that is a *transport* for the app's own JSON, not a format converter).
 
-### [2026-06-24] Upgrade the SRS scheduler to full FSRS-5 with per-user parameter optimization
-
-- **Category:** future-idea
-- **Severity:** low
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-suggestor
-- **During:** scheduled improvement-scan of the dungeon-scholar tree
-
-**Description:**
-`src/services/srs.js` self-describes as "FSRS-inspired (not literal FSRS-5 with 17+ weights — a simpler model)". That is a reasonable, dependency-free choice, but for long-horizon cert prep the difference is real: full FSRS-5 fits its weight vector to the *individual learner's* review history (via the published optimizer) and consistently beats fixed-parameter heuristics on retention-per-review. Because the app already records per-card review outcomes (`questionStats`/`cardProgress` in tome progress) it has the training data an optimizer needs. A future enhancement: ship the canonical FSRS-5 default weights, and optionally run the optimizer client-side over the user's own log to personalize scheduling. Honest severity: low — the current model works and this is an accuracy refinement, not a fix.
-
-**Hypothesis / root cause:** N/A — deliberate simplification documented in `srs.js`.
-
-**Proposed fix / improvement:**
-- [ ] Adopt FSRS-5 default weights + the full stability/difficulty update equations behind the existing `srs.js` API.
-- [ ] (Stretch) Optional "optimize my schedule" action that fits weights from the user's recorded review history.
-
-**Related files:** `src/services/srs.js`, `src/services/forgettingCurve.js`
-
 ### [2026-06-24] Image-occlusion flashcards for diagram-heavy material
 
 - **Category:** future-idea
