@@ -26,7 +26,19 @@ system_bp = Blueprint("system", __name__)
 
 
 def _app():
+    # app.py runs as __main__ (ExecStart: python app.py) and init_services() sets the
+    # service singletons as __main__ globals. Reaching this module via `import app` gives
+    # a SEPARATE copy whose service globals (audio_service, etc.) stay None, so HTTP routes
+    # would never see the live services. Under `python app.py`, __main__ IS app.py (it has
+    # init_services), so return it; under pytest/import, fall back to the `import app`
+    # copy the tests mount + mock.
+    import sys
+
+    main = sys.modules.get("__main__")
+    if main is not None and hasattr(main, "init_services"):
+        return main
     import app
+
     return app
 
 

@@ -23,8 +23,28 @@ calendar_bp = Blueprint("calendar_api", __name__, url_prefix="/api/calendar")
 
 
 def _calendar():
+    # app.py runs as __main__ (ExecStart: python app.py) and init_services() sets the
+    # service singletons as __main__ globals; the route blueprints reach this module via
+    # `import app` — a SEPARATE module object whose `calendar` stays None. Prefer the live
+    # service from __main__, falling back to app.calendar (which the test suite mocks).
+    import sys
+
+    live = getattr(sys.modules.get("__main__"), "calendar", None)
+    if live is not None:
+        return live
     import app
+
     return app.calendar
+
+
+@calendar_bp.before_request
+def _require_calendar_service():
+    # app.calendar is None when the service init failed (e.g. missing/expired Google
+    # OAuth). Without this guard, routes call a method on None → AttributeError → 500.
+    # Return the same graceful "offline" shape the /events RuntimeError path uses, so
+    # the dashboard shows "calendar unavailable" instead of erroring on a 500 HTML page.
+    if _calendar() is None:
+        return jsonify({"offline": True, "needs_auth": True, "events": []})
 
 
 @calendar_bp.route("/events")

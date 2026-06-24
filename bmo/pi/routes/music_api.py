@@ -18,8 +18,30 @@ music_bp = Blueprint("music", __name__, url_prefix="/api/music")
 
 
 def _music():
+    # app.py runs as __main__ (ExecStart: python app.py) and init_services() sets the
+    # service singletons as __main__ globals. The route blueprints, though, reach this
+    # module via `import app` — a SEPARATE module object whose `music` stays None, so
+    # the HTTP endpoints would always 500. Prefer the live service from __main__,
+    # falling back to app.music (which the test suite mocks; under pytest __main__ has
+    # no `music`).
+    import sys
+
+    live = getattr(sys.modules.get("__main__"), "music", None)
+    if live is not None:
+        return live
     import app
+
     return app.music
+
+
+@music_bp.before_request
+def _require_music_service():
+    # A failed service init leaves app.music = None; without this guard every route
+    # would call a method on None → AttributeError → Flask 500 (the pre-extraction
+    # behavior). Degrade to a clean JSON 503 so the dashboard shows "unavailable"
+    # instead of spamming uncaught 500s.
+    if _music() is None:
+        return jsonify({"available": False, "error": "music service unavailable on this device"}), 503
 
 
 @music_bp.route("/search")
