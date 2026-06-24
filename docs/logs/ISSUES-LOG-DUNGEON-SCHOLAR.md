@@ -35,11 +35,144 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Medium
 
-*(none currently logged)*
+### [2026-06-24] Rules-of-hooks violation in BattleModal (hooks after early returns)
+
+- **Category:** bug
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error scan (biome lint correctness + manual confirmation)
+
+**Description:**
+`BattleModal` in `src/components/dungeon/DungeonExplore.jsx` calls hooks *after* two
+conditional early returns:
+
+```js
+function BattleModal({ ... }) {
+  if (!battle) return null;   // early return
+  if (!q) return null;        // early return
+  const [revealResult, setRevealResult] = useState(null);          // hook AFTER returns
+  ...
+  useEffect(() => { setRevealResult(null); }, [q?.id, battle.type]); // hook AFTER returns
+}
+```
+
+This violates the Rules of Hooks (hooks must run unconditionally, in the same order,
+every render). When `battle`/`q` toggle between null and non-null across renders the
+hook count changes, which React surfaces as "Rendered fewer hooks than expected" and
+can crash the component. It works today only because the modal is currently never
+mounted while `battle`/`q` are null, but the guard makes that fragility implicit.
+
+**Reproduction (if bug):**
+1. Render `BattleModal` once with a non-null `battle` and `q` (hooks run).
+2. Re-render with `battle` (or `q`) null so an early return fires before the hooks.
+3. React throws a hook-order error / the component crashes.
+
+**Expected behavior:** Hooks declared unconditionally at the top of the component;
+the null checks moved below the hook declarations (or the modal not rendered at all by
+the parent when `battle`/`q` are null).
+
+**Hypothesis / root cause:** `useState`/`useEffect` placed below `if (!battle) return null; if (!q) return null;` in `BattleModal`. Confirmed by biome `lint/correctness/useHookAtTopLevel` firing at DungeonExplore.jsx:263 and :290. (A third hit at :2262 is a FALSE POSITIVE — `usePotion(i)` is a regular handler named like a hook, not an actual hook.)
+
+**Proposed fix / improvement:**
+- [ ] Move the `if (!battle) return null; if (!q) return null;` guards below the `useState`/`useEffect` calls, OR have the parent skip rendering `BattleModal` entirely when `battle`/`q` are null.
+- [ ] Keep the effect deps stable.
+
+**Related files:** `dungeon-scholar/src/components/dungeon/DungeonExplore.jsx`
+
+### [2026-06-24] dungeon-scholar lint never runs in CI; 222 biome errors accumulated
+
+- **Category:** config, debt
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error scan (ran `npm run lint`)
+
+**Description:**
+`dungeon-scholar/package.json` defines a `lint` script (`biome check src`) but no CI
+workflow ever invokes it. `.github/workflows/dungeon-scholar-ci.yml` runs only
+`npm ci` -> `npm run test` -> `npm run build`; `deploy.yml` runs test+build; the
+security-audit workflow runs only `npm audit`. With no gate, lint errors have piled up:
+`npm run lint` currently exits 1 with **222 errors, 236 warnings, 14 infos** across 181
+files. Breakdown of the errors includes correctness-class issues, not just style:
+useExhaustiveDependencies x91, organizeImports x101 (assist), useOptionalChain x59,
+noUnusedImports x44, noUnusedVariables x18, useHookAtTopLevel x3 (see the BattleModal
+entry above), useIterableCallbackReturn x7 (mostly false-positive `set.add` arrows),
+noAssignInExpressions x3, noGlobalIsFinite x1, etc.
+
+**Expected behavior:** Either lint is enforced in CI (gate stays green by keeping the
+tree clean), or the script is acknowledged as advisory. Right now it is silently broken.
+
+**Hypothesis / root cause:** `dungeon-scholar-ci.yml` job has no `npm run lint` step; the
+script was added to package.json but never wired into the pipeline, so the error count
+drifted upward unnoticed (CI stays green on test+build alone).
+
+**Proposed fix / improvement:**
+- [ ] Triage: auto-fix the safe classes first (`npm run lint:fix` handles organizeImports / unused imports / useTemplate / useOptionalChain), then hand-fix the correctness items (useExhaustiveDependencies, useHookAtTopLevel).
+- [ ] Add a `npm run lint` step to `dungeon-scholar-ci.yml` once the tree is clean so it cannot regress.
+- [ ] Decide policy on `useExhaustiveDependencies` (fix vs. rule-config) before gating, since it is the bulk of the count.
+
+**Related files:** `dungeon-scholar/package.json`, `.github/workflows/dungeon-scholar-ci.yml`
+
 
 ## Low
 
-*(none currently logged)*
+### [2026-06-24] Duplicate `engines` key in dungeon-scholar package.json
+
+- **Category:** config
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error scan (manifest inspection)
+
+**Description:**
+`dungeon-scholar/package.json` declares the `engines` field twice:
+
+```json
+  "engines": {
+    "node": ">=22"
+  },
+  "type": "module",
+  "engines": { "node": ">=22" },
+```
+
+Both blocks are identical so behavior is unaffected (JSON last-key-wins), but it is
+config drift / a copy-paste artifact. It also sits outside `src/`, so `biome check src`
+will never catch it. Some strict JSON tooling warns on duplicate keys.
+
+**Hypothesis / root cause:** A second `engines` block was appended (next to `type`) without removing the original.
+
+**Proposed fix / improvement:**
+- [ ] Delete one of the two `engines` blocks (keep a single `"engines": { "node": ">=22" }`).
+
+**Related files:** `dungeon-scholar/package.json`
+
+### [2026-06-24] usePlayerState cloud-sync tests wait on real-timer backoff (~52s for one file)
+
+- **Category:** test, performance
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error scan (ran `npm test`; 59 files / 627 tests all PASS)
+
+**Description:**
+The full suite passes but takes ~54s, and `src/hooks/usePlayerState.test.jsx` alone
+accounts for ~52s. Two cases dominate: "retries on push failure with backoff and ends
+in offline" (~22.5s) and "(a) recovers from offline ... after backoff exhausts" (~24s).
+These describe-blocks do NOT call `vi.useFakeTimers()` (unlike the `local-only behavior`
+block which does), so they wait through the *real* retry schedule
+`RETRY_DELAYS_MS = [1000, 4000, 16000]` (~21s wall-clock) with `waitFor` timeouts of
+30000/35000ms. This wall-clock wait is paid on every CI run of the dungeon-scholar test
+gate (deploy.yml + dungeon-scholar-ci.yml).
+
+**Hypothesis / root cause:** Real timers + a real backoff schedule in `usePlayerState` retry logic; the retry/offline tests assert end-state after the full backoff window instead of advancing fake timers.
+
+**Proposed fix / improvement:**
+- [ ] Use `vi.useFakeTimers()` in the retry/offline describe-blocks and `vi.advanceTimersByTimeAsync(...)` to step through 1s/4s/16s instantly.
+- [ ] Or make `RETRY_DELAYS_MS` injectable so tests pass tiny delays.
+
+**Related files:** `dungeon-scholar/src/hooks/usePlayerState.test.jsx`, `dungeon-scholar/src/hooks/usePlayerState.js`
+
 
 ---
 
