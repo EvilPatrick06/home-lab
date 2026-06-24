@@ -13,6 +13,38 @@
 
 ---
 
+### [2026-06-24] `auto/scholar-resolver` won't merge — divergent devotion/auth refactor vs `auto/scholar-phase-executer`
+> **Resolved 2026-06-24 (scholar-resolver):** Rebased `auto/scholar-resolver` onto `origin/master` (now carrying `scholar-phase-executer`’s PHASE-02 work). **Master won on the conflicting devotion/Supabase/auth behavior:** kept `autoRefreshToken: false` with the session-gated explicit refresh in `useAuth.js`, and master’s devotion API (`devotionStatus()` 4-state + `evaluateClaim`/`dayDiff`/`computeNextClaim`, incl. the day-1 “Streak broken” fix) with `CalendarScreen.jsx` + `devotion.test.js` aligned to it. Dropped the branch’s contradictory `autoRefreshToken: true` and its `devotionStatus()` removal entirely. Took master’s `main.jsx` PWA reload wiring; kept `QuestBoard.jsx` Coins `aria-label`/`title` a11y attrs. All **non-conflicting scholar-resolver work preserved** (FSRS-5 scheduler, CSV/TSV/Quizlet import, completion certificate, library bulk actions, image-occlusion cards, the approved log-resolution fixes). Re-ran the branch’s tree-wide biome pass (safe fixes + format only, no behavior change) so the branch’s own new CI lint gate stays green against the rebased base. `npm ci` + `VITE_BASE=/home-lab/ npm run build` pass; targeted vitest (devotion/auth/usePlayerActions/backfill/occlusion/a11y — 78 tests) green; `npm run lint` exits 0. Conflicts resolved (6): `supabase.js`, `useAuth.js`, `devotion.test.js`, `CalendarScreen.jsx`, `main.jsx`, `QuestBoard.jsx` (+ `devotion.js`, `useAuth.test.jsx` force-aligned to master). Pushed for the integrator.
+
+- **Category:** integration / merge-conflict (branch left unmerged by integrator)
+- **Discovered by:** integrator (daily branch integration run)
+- **During:** merging `origin/auto/scholar-resolver` (head `fccc9d17`, 7 ahead / 2 behind) into `master` after `origin/auto/scholar-phase-executer` had already been merged this run.
+
+**Description:**
+`auto/scholar-resolver` does NOT merge cleanly into current `master`. 6 content conflicts, all in dungeon-scholar source that `auto/scholar-phase-executer` (already merged into master this run) also refactored:
+`src/services/supabase.js`, `src/hooks/useAuth.js`, `src/main.jsx`,
+`src/features/progression/CalendarScreen.jsx`, `src/features/quests/QuestBoard.jsx`,
+`src/services/devotion.test.js`.
+
+**Root cause (diagnosed):** the two branches refactored the same devotion/auth subsystem in divergent directions, so this is not a mechanical conflict:
+- `supabase.js` — **contradictory behavioral change**: master sets `autoRefreshToken: false` with a deliberate PHASE-02 rationale ("refresh driven explicitly in useAuth so a signed-out load never starts GoTrue's refresh retry loop"); `scholar-resolver` sets `autoRefreshToken: true`. Picking either side silently changes auth-refresh behavior.
+- `devotion.js` API diverged — master/`CalendarScreen.jsx` + `devotion.test.js` use the new `devotionStatus()` 4-state API; `scholar-resolver` uses the older `gap===1` logic and imports `evaluateClaim / dayDiff / computeNextClaim`. The two test/usage surfaces are incompatible.
+- `main.jsx` — master adds PWA `registerControlledReload` + `guardedReloadOnce`; the branch's `main.jsx` predates that machinery.
+- `useAuth.js` / `QuestBoard.jsx` — smaller (import-order; master also keeps `aria-label`/`title` on the Coins icon the branch dropped).
+
+The integrator did **not** auto-resolve: the `autoRefreshToken` choice and the devotion.js API direction are product/behavioral decisions this branch's owner must make — resolving blind risks shipping broken auth/streak logic even with green tests. Left intact per Rule 3A (genuine blocker / new decision).
+
+**Proposed fix / what's needed (owner: `scholar-resolver` / dungeon-scholar domain):**
+- [ ] Rebase `auto/scholar-resolver` onto current `origin/master` (now contains `scholar-phase-executer`'s devotion `devotionStatus()` API, PWA reload machinery, and the PHASE-02 `autoRefreshToken: false` fix).
+- [ ] Decide the intended `autoRefreshToken` behavior — keep master's `false` (PHASE-02) unless intentionally superseding it, and update the rationale comment if changed.
+- [ ] Reconcile `devotion.js` to a single API (`devotionStatus()` vs `evaluateClaim/dayDiff`) and align `devotion.test.js` + `CalendarScreen.jsx` to it.
+- [ ] Preserve master's `main.jsx` PWA reload wiring and `QuestBoard.jsx` icon a11y attrs.
+- [ ] Push; the next integrator run will merge it once it applies cleanly with green CI.
+
+**Related files:** `dungeon-scholar/src/services/supabase.js`, `dungeon-scholar/src/hooks/useAuth.js`, `dungeon-scholar/src/main.jsx`, `dungeon-scholar/src/features/progression/CalendarScreen.jsx`, `dungeon-scholar/src/features/quests/QuestBoard.jsx`, `dungeon-scholar/src/services/devotion.test.js`, `dungeon-scholar/src/services/devotion.js`
+
+---
+
 ### [2026-06-24] dungeon-scholar lint never runs in CI; 222 biome errors accumulated
 > **Resolved 2026-06-24 (scholar-resolver):** Ran `biome check --write src` to auto-fix the safe classes (organizeImports, unused imports, useOptionalChain, useTemplate, etc.), then hand-fixed the remaining error-level diagnostics: 7 `useIterableCallbackReturn` (forEach callbacks given block bodies), the `useHookAtTopLevel` false positive (renamed `usePotion`->`quaffPotion`, a plain handler not a hook), and a justified `noDangerouslySetInnerHtml` suppression on the trusted KaTeX render. `npm run lint` now exits 0 (errors cleared; `useExhaustiveDependencies` kept as `warn` per the existing biome.json policy, the 'rule-config' option the entry called for). Added a `npm run lint` step to `dungeon-scholar-ci.yml` (right after `npm ci`) so the tree cannot regress. Full vitest suite (667 tests) + production build green.
 
