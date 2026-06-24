@@ -24,7 +24,7 @@
 | # | Plan file | Domain | Depends on | Status |
 |---|---|---|---|---|
 | 01 | [`PHASE-01-backend-route-correctness.md`](./completed/PHASE-01-backend-route-correctness.md) | bmo | — | done |
-| 02 | [`PHASE-02-realtime-reliability.md`](./PHASE-02-realtime-reliability.md) | bmo | 01 (soft) | pending |
+| 02 | [`PHASE-02-realtime-reliability.md`](./completed/PHASE-02-realtime-reliability.md) | bmo | 01 (soft) | done |
 | 03 | [`PHASE-03-dashboard-ux-round.md`](./PHASE-03-dashboard-ux-round.md) | bmo | 01, 02 (soft) | pending |
 
 > **Provenance of this batch:** PHASE-01..03 were consolidated from

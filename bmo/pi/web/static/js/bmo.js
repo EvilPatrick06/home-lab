@@ -107,6 +107,8 @@ function bmo() {
 
     // Status
     status: 'idle', // idle, listening, thinking, speaking
+    _chatWatchdog: null,   // 02A: timer that recovers a stuck 'thinking' state
+    _lastChatText: '',      // 02A: last sent text, re-staged on watchdog fire for retry
     notificationType: 'info',  // Round 4 #21: drives toast color (info/success/error)
     miniPlayerHidden: false,   // Round 4 #9: user can dismiss mini-bar; resets on new song
 
@@ -168,6 +170,7 @@ function bmo() {
     // Music
     musicQuery: '',
     musicResults: [],
+    musicError: '',   // 02D: handled 'search unavailable' state (no uncaught SyntaxError)
     searchMode: 'songs',
     playlistResults: [],
     musicState: {
@@ -410,7 +413,12 @@ function bmo() {
       setInterval(() => this.updateClock(), 1000);
       setInterval(() => this.refreshClientTimezone(false), 60000);
 
-      this.socket = io({ auth: { client_timezone: this.clientTimezone } });
+      this.socket = io({
+        auth: { client_timezone: this.clientTimezone },
+        reconnection: true, reconnectionAttempts: Infinity, reconnectionDelayMax: 10000,
+      });
+      // 02C: surface a failed WS upgrade instead of silently churning on polling.
+      this.socket.io?.engine?.on('upgradeError', (e) => console.warn('[bmo] WS upgrade failed, staying on polling:', e?.message));
       this.setupSocket();
       window.addEventListener('message', async (event) => {
         const payload = event?.data || {};
@@ -648,8 +656,13 @@ function bmo() {
 
     setupSocket() {
       this.socket.on('connect', () => {
+        if (this.connectionState !== 'cf_expired') this.connectionState = 'online';  // 02C
         this.socket.emit('client_timezone', { client_timezone: this.clientTimezone });
         this.fetchTimers();
+      });
+      this.socket.on('disconnect', () => {
+        // 02C: a dropped socket visibly turns the existing connection indicator.
+        if (this.connectionState !== 'cf_expired') this.connectionState = 'offline';
       });
       this.socket.on('weather_update', (data) => {
         this.weather = data;
@@ -706,6 +719,7 @@ function bmo() {
       });
 
       this.socket.on('chat_response', (data) => {
+        this._clearChatWatchdog();
         this.status = data.agent_used === 'code'
           ? (data.incomplete ? 'code_incomplete' : 'code_done')
           : 'yapping';
@@ -741,6 +755,7 @@ function bmo() {
       });
 
       this.socket.on('agent_ack', (data) => {
+        if (this._chatWatchdog) this._armChatWatchdog();  // backend alive — extend the window
         const text = (data.text || '').trim();
         if (text) {
           this.messages.push({ role: 'assistant', text, agent: data.agent || '', isAck: true });
@@ -749,6 +764,7 @@ function bmo() {
       });
 
       this.socket.on('agent_progress', (data) => {
+        if (this._chatWatchdog) this._armChatWatchdog();  // work in progress — extend the window
         const label = data.label || data.tool || 'Working';
         const status = data.status === 'running' ? '...' : data.status === 'done' ? '✓' : data.status === 'failed' ? '✗' : data.status;
         const msg = status === '✓' ? `${label} ✓` : status === '✗' ? `${label} ✗` : `${label} ${status}`;
@@ -1139,7 +1155,29 @@ function bmo() {
       const payload = { message: displayMsg, speaker, client_timezone: this.clientTimezone };
       if (this.selectedAgent && this.selectedAgent !== 'auto') payload.agent = this.selectedAgent;
       if (this.selectedModel && this.selectedModel !== 'auto') payload.model = this.selectedModel;
+      this._lastChatText = msg;
       this.socket.emit('chat_message', payload);
+      this._armChatWatchdog();
+    },
+
+    // 02A: bounded watchdog so a dropped chat_message event can't hang the
+    // composer on 'thinking' forever. Re-armed by liveness signals (ack/progress)
+    // so a slow multi-minute Code Agent turn never trips it; cancelled on response.
+    _armChatWatchdog() {
+      if (this._chatWatchdog) clearTimeout(this._chatWatchdog);
+      this._chatWatchdog = setTimeout(() => {
+        this._chatWatchdog = null;
+        if (this.status !== 'thinking') return;   // a response landed
+        this.status = 'idle';                       // re-enable the composer
+        if (!this.chatInput && this._lastChatText) this.chatInput = this._lastChatText;  // stage for one-tap retry
+        this.messages.push({ role: 'assistant',
+          text: "BMO didn't respond — the connection may be down. Try again.",
+          error: true });
+        this.scrollChat();
+      }, 45000);
+    },
+    _clearChatWatchdog() {
+      if (this._chatWatchdog) { clearTimeout(this._chatWatchdog); this._chatWatchdog = null; }
     },
 
     refreshClientTimezone(force = false) {
@@ -1435,7 +1473,7 @@ function bmo() {
     },
 
     async searchMusic() {
-      if (!this.musicQuery.trim()) return;
+      if (!this.musicQuery.trim()) { this.musicError = ''; return; }  // 02D: clear handled state
       // QA Round 2 #14 (2026-05-17): also clear any pending debounced
       // search so Enter doesn't race with the typing-debounce timer
       // (which can fire after Enter completes and overwrite results).
@@ -1449,13 +1487,35 @@ function bmo() {
         localStorage.setItem('bmo_music_last_query', this.musicQuery);
         localStorage.setItem('bmo_music_last_mode', this.searchMode);
       } catch {}
+      const url = this.searchMode === 'playlists'
+        ? `/api/music/search/playlists?q=${encodeURIComponent(this.musicQuery)}`
+        : `/api/music/search?q=${encodeURIComponent(this.musicQuery)}`;
+      let res;
+      try {
+        res = await fetch(url);
+      } catch {
+        this.musicResults = []; this.playlistResults = [];
+        this.musicError = 'Music search is unavailable right now.';
+        return;
+      }
+      if (!res.ok) {   // 02D: a 5xx/503 is not a results array — handle, never parse-as-JSON
+        this.musicResults = []; this.playlistResults = [];
+        this.musicError = 'Music search is unavailable right now.';
+        return;
+      }
+      let data;
+      try { data = await res.json(); }
+      catch {
+        this.musicResults = []; this.playlistResults = [];
+        this.musicError = 'Music search returned an unexpected response.';
+        return;
+      }
+      this.musicError = '';
       if (this.searchMode === 'playlists') {
-        const res = await fetch(`/api/music/search/playlists?q=${encodeURIComponent(this.musicQuery)}`);
-        this.playlistResults = await res.json();
+        this.playlistResults = Array.isArray(data) ? data : [];
         this.musicResults = [];
       } else {
-        const res = await fetch(`/api/music/search?q=${encodeURIComponent(this.musicQuery)}`);
-        this.musicResults = await res.json();
+        this.musicResults = Array.isArray(data) ? data : [];
         this.playlistResults = [];
       }
     },

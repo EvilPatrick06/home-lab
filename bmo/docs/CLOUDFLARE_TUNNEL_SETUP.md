@@ -82,3 +82,34 @@ export CLOUDFLARE_ACCOUNT_ID=<your-account-id>   # from Zero Trust URL
 export CLOUDFLARE_API_TOKEN=<your-api-token>     # Zero Trust Edit permission
 ./scripts/cloudflare-access-api.sh
 ```
+
+## Realtime / websocket verification (added 2026-06-24 — PHASE-02 02E)
+
+socket.io starts on HTTP long-polling and then **upgrades** to a websocket via a separate request. The dashboard chat and the IDE terminal depend on socket.io *event delivery*; if the upgrade never completes (the client churns on `transport=polling` with rotating session IDs and a stale-session `400`), those features hang silently. The app itself is WS-capable — single-process gevent with `gevent-websocket` pinned (`bmo/pi/requirements.txt`), `SocketIO(app, async_mode="gevent", cors_allowed_origins="*")` (`bmo/pi/app.py`), no transport restriction — so the suspect is the **edge path (Cloudflare Access / tunnel)**, not Flask.
+
+### Step 1 — Decide LAN vs tunnel (the decisive measurement)
+
+1. On the LAN, open `http://bmo.local:5000/bmo` (bypasses Cloudflare entirely).
+2. Open the browser network panel, filter `/socket.io/`.
+3. Watch the transport: a healthy session shows an initial `transport=polling` request **then** a `transport=websocket` (HTTP 101 Switching Protocols) upgrade.
+
+- **Upgrades to `websocket` on the LAN but stays `polling` over `https://bmo.mybmoai.work`** → the defect is the **edge (Access/tunnel)**, not the app. Go to Step 2.
+- **Stays `polling` even on the LAN** → the app/runtime refuses the upgrade (unexpected, given the pinned deps). Re-check that the gevent worker is the one serving (not a fallback), then file an issue; do **not** restrict transports to websocket-only (that removes the working polling fallback).
+
+### Step 2 — Owner action: allow the websocket upgrade through Cloudflare Access
+
+> Live tunnel/Access edits mutate production and are an **owner action** — the phase-executer does not run these (INSTRUCTIONS rule 6). Commands below are the exact steps.
+
+cloudflared proxies websockets by default, so the usual culprit is **Cloudflare Access** sitting in front of `/socket.io/`: the upgrade request may not carry the Access JWT/cookie and gets blocked. Fix is one of:
+
+1. **Scoped bypass / service-token policy for the realtime path.** In Zero Trust → Access → your `bmo.mybmoai.work` application, add a policy (or a dedicated app) covering the path `/socket.io/*` that either bypasses Access or accepts a service token, so the upgrade isn\x27t challenged. Keep the rest of the host behind the normal policy.
+2. **Ensure the upgrade carries the Access cookie** (if you prefer not to bypass): confirm the browser sends `CF_Authorization` on the `/socket.io/` upgrade request (same-origin, so it should) and that no path rule strips it.
+
+Validate the tunnel ingress before/after:
+```bash
+cloudflared tunnel ingress validate            # config syntax OK
+cloudflared tunnel ingress rule https://bmo.mybmoai.work/socket.io/   # which ingress rule matches
+```
+Then re-run **Step 1** against the external URL and confirm the `websocket` (101) upgrade now appears and chat/IDE recover.
+
+See also [`NETWORK_ACCESS.md`](./NETWORK_ACCESS.md) for the Access app overview.
