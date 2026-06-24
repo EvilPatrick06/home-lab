@@ -1718,7 +1718,7 @@ function bmo() {
         winStart.setHours(0, 0, 0, 0); // start of today
         const isYear = this.calDays === 365;
         const res = await fetch(
-          `/api/calendar/events?days=${isYear ? 370 : 40}&max=${isYear ? 750 : 50}&from=${encodeURIComponent(winStart.toISOString())}`
+          `/api/calendar/events?days=${isYear ? 365 : 40}&max=${isYear ? 750 : 50}&from=${encodeURIComponent(winStart.toISOString())}`
         );
         const data = await res.json();
         if (!res.ok) {
