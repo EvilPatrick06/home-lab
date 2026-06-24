@@ -514,7 +514,12 @@ def api_status_summary():
     """Human-readable status summary for TTS and voice queries."""
     health_checker = _app().health_checker
     if not health_checker:
-        return jsonify({"summary": "I can't check my status right now — monitoring isn't running."})
+        err = getattr(_app(), "health_checker_error", None)
+        if err:
+            return jsonify({"summary": "Monitoring failed to start - check the service logs.",
+                            "monitoring": "error", "detail": err})
+        return jsonify({"summary": "Monitoring is not enabled.",
+                        "monitoring": "off"})
 
     status = health_checker.get_status()
     overall = status.get("overall", "unknown")
@@ -587,7 +592,7 @@ def api_status_summary():
         parts.append(f"Info: {', '.join(_label(s) for s in info_services)}.")
 
     summary = " ".join(parts)
-    return jsonify({"summary": summary, "overall": overall, "raw": status})
+    return jsonify({"summary": summary, "overall": overall, "raw": status, "monitoring": "ok"})
 
 
 # ── Volume / audio ──────────────────────────────────────────────────

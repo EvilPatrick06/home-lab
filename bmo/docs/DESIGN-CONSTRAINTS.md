@@ -57,3 +57,9 @@ Related: `bmo/pi/app.py` (`/ide` route), `bmo/pi/routes/ide.py`, `bmo/pi/web/tem
 
 _Relocated from `docs/BMO-SUGGESTIONS-LOG.md` on 2026-06-22._
 
+
+## Test persistence must never touch the live `recent_chat.json` (PHASE-01 01E)
+
+Module-level path constants resolved at import (`chat_history.RECENT_CHAT_FILE`, `DND_LOG_DIR`) are how a test write escapes into production data — this is what leaked ~200 seeded "Hello from BMO!" rows into the live chat buffer. Two-layer guard now in place: an **autouse** `_isolate_chat_history` fixture in `bmo/pi/tests/conftest.py` monkeypatches both constants to `tmp_path` for every test, and `save_recent_message` refuses a real-path write when `PYTEST_CURRENT_TEST` is set. A new chat-history test must still write to a tmp path (never the real constant). **Owner one-time cleanup (live-Pi data mutation, not an executer action):** the already-polluted `recent_chat.json` on the Pi must be cleared once via the dashboard "clear history" control (`POST /api/chat/clear`) or by deleting the file. Added 2026-06-24.
+
+Related: `bmo/pi/services/chat_history.py`, `bmo/pi/tests/conftest.py`.

@@ -76,39 +76,47 @@ class ListService:
         self._save()
         return item
 
+    def _find_item(self, lst: dict, key: str):
+        """Resolve a list item by id first (dashboard addresses items by id),
+        then by exact text, then by substring (voice passes spoken text)."""
+        items = lst["items"]
+        for item in items:
+            if item.get("id") == key:
+                return item
+        k = (key or "").lower().strip()
+        for item in items:
+            if item["text"].lower().strip() == k:
+                return item
+        for item in items:
+            if k and k in item["text"].lower():
+                return item
+        return None
+
     def remove_item(self, list_name: str, text: str) -> bool:
-        """Remove an item by fuzzy text match. Returns True if removed."""
+        """Remove an item by id or fuzzy text match. Returns True if removed."""
         slug = _slug(list_name)
         lst = self._data["lists"].get(slug)
         if not lst:
             return False
-        text_lower = text.lower().strip()
-        for i, item in enumerate(lst["items"]):
-            if item["text"].lower().strip() == text_lower:
-                lst["items"].pop(i)
-                self._save()
-                return True
-        # Fuzzy: substring match
-        for i, item in enumerate(lst["items"]):
-            if text_lower in item["text"].lower():
-                lst["items"].pop(i)
-                self._save()
-                return True
-        return False
+        item = self._find_item(lst, text)
+        if item is None:
+            return False
+        lst["items"].remove(item)
+        self._save()
+        return True
 
     def check_item(self, list_name: str, text: str, done: bool = True) -> bool:
-        """Toggle done status of an item by text match."""
+        """Toggle done status of an item by id or text match."""
         slug = _slug(list_name)
         lst = self._data["lists"].get(slug)
         if not lst:
             return False
-        text_lower = text.lower().strip()
-        for item in lst["items"]:
-            if text_lower in item["text"].lower():
-                item["done"] = done
-                self._save()
-                return True
-        return False
+        item = self._find_item(lst, text)
+        if item is None:
+            return False
+        item["done"] = done
+        self._save()
+        return True
 
     def clear_list(self, list_name: str, done_only: bool = False) -> int:
         """Clear items from a list. Returns count removed."""

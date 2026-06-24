@@ -145,6 +145,18 @@ class CalendarService:
         self._service = build("calendar", "v3", credentials=creds)
         return self._service
 
+    def _with_service_retry(self, call):
+        """Run ``call(service)``; on a transport/API error, drop the cached
+        client, rebuild once, and retry. RuntimeError (missing/invalid creds)
+        propagates unchanged so the route can map it to an offline payload."""
+        try:
+            return call(self._get_service())
+        except RuntimeError:
+            raise
+        except Exception:
+            self._service = None
+            return call(self._get_service())
+
     # ── Read Events ──────────────────────────────────────────────────
 
     def get_upcoming_events(self, days_ahead: int = 7, max_results: int = 20, time_min=None) -> list[dict]:
@@ -156,7 +168,6 @@ class CalendarService:
         so already-started + earlier-this-week events are included instead of only
         events strictly after the current instant.
         """
-        service = self._get_service()
         if isinstance(time_min, str):
             try:
                 time_min = datetime.datetime.fromisoformat(time_min.replace("Z", "+00:00"))
@@ -167,8 +178,8 @@ class CalendarService:
             now = now.replace(tzinfo=datetime.timezone.utc)
         time_max = now + datetime.timedelta(days=days_ahead)
 
-        result = (
-            service.events()
+        result = self._with_service_retry(
+            lambda service: service.events()
             .list(
                 calendarId="primary",
                 timeMin=now.isoformat(),
@@ -203,7 +214,6 @@ class CalendarService:
         location: str = "",
     ) -> dict:
         """Create a new calendar event."""
-        service = self._get_service()
         event = {
             "summary": summary,
             "location": location,
@@ -211,7 +221,9 @@ class CalendarService:
             "start": {"dateTime": start_dt.isoformat(), "timeZone": "America/Denver"},
             "end": {"dateTime": end_dt.isoformat(), "timeZone": "America/Denver"},
         }
-        created = service.events().insert(calendarId="primary", body=event).execute()
+        created = self._with_service_retry(
+            lambda service: service.events().insert(calendarId="primary", body=event).execute()
+        )
         self._refresh_cache()
         return self._format_event(created)
 
@@ -219,21 +231,23 @@ class CalendarService:
 
     def update_event(self, event_id: str, **kwargs) -> dict:
         """Update an existing event. Accepts: summary, start, end, description, location."""
-        service = self._get_service()
-        event = service.events().get(calendarId="primary", eventId=event_id).execute()
+        def _do(service):
+            event = service.events().get(calendarId="primary", eventId=event_id).execute()
 
-        if "summary" in kwargs:
-            event["summary"] = kwargs["summary"]
-        if "description" in kwargs:
-            event["description"] = kwargs["description"]
-        if "location" in kwargs:
-            event["location"] = kwargs["location"]
-        if "start" in kwargs:
-            event["start"] = {"dateTime": kwargs["start"].isoformat(), "timeZone": "America/Denver"}
-        if "end" in kwargs:
-            event["end"] = {"dateTime": kwargs["end"].isoformat(), "timeZone": "America/Denver"}
+            if "summary" in kwargs:
+                event["summary"] = kwargs["summary"]
+            if "description" in kwargs:
+                event["description"] = kwargs["description"]
+            if "location" in kwargs:
+                event["location"] = kwargs["location"]
+            if "start" in kwargs:
+                event["start"] = {"dateTime": kwargs["start"].isoformat(), "timeZone": "America/Denver"}
+            if "end" in kwargs:
+                event["end"] = {"dateTime": kwargs["end"].isoformat(), "timeZone": "America/Denver"}
 
-        updated = service.events().update(calendarId="primary", eventId=event_id, body=event).execute()
+            return service.events().update(calendarId="primary", eventId=event_id, body=event).execute()
+
+        updated = self._with_service_retry(_do)
         self._refresh_cache()
         return self._format_event(updated)
 
@@ -241,8 +255,9 @@ class CalendarService:
 
     def delete_event(self, event_id: str):
         """Delete a calendar event."""
-        service = self._get_service()
-        service.events().delete(calendarId="primary", eventId=event_id).execute()
+        self._with_service_retry(
+            lambda service: service.events().delete(calendarId="primary", eventId=event_id).execute()
+        )
         self._refresh_cache()
 
     # ── Background Polling ───────────────────────────────────────────

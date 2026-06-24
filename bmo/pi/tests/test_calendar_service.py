@@ -240,7 +240,11 @@ class TestGetUpcomingEvents:
         assert events == []
 
     def test_api_error_propagates(self, svc):
-        svc._service.events.return_value.list.return_value.execute.side_effect = Exception("API down")
+        # 01C: a persistent API error surfaces after exactly one rebuild+retry
+        # (the wrapper drops the cached client, rebuilds once, and re-raises).
+        failing = svc._service
+        failing.events.return_value.list.return_value.execute.side_effect = Exception("API down")
+        svc._get_service = lambda: failing
         with pytest.raises(Exception, match="API down"):
             svc.get_upcoming_events()
 
@@ -325,8 +329,10 @@ class TestDeleteEvent:
         )
 
     def test_delete_api_error_propagates(self, svc):
-        HttpError = sys.modules["googleapiclient.errors"].HttpError
-        svc._service.events.return_value.delete.return_value.execute.side_effect = Exception("404")
+        # 01C: persistent delete error still propagates after one rebuild+retry.
+        failing = svc._service
+        failing.events.return_value.delete.return_value.execute.side_effect = Exception("404")
+        svc._get_service = lambda: failing
         with pytest.raises(Exception, match="404"):
             svc.delete_event("nonexistent-id")
 
@@ -464,3 +470,68 @@ class TestReminders:
         cs._check_reminders()
         # Alert should only be sent once per event id
         assert mock_alert.send_alert.call_count == 1
+
+
+# ── PHASE-01 01C — stale cached client: rebuild once + retry ──────────────────
+
+class TestServiceRetry:
+    def test_get_upcoming_events_rebuilds_on_stale_client(self):
+        cs = CalendarService()
+        bad = MagicMock()
+        bad.events.return_value.list.return_value.execute.side_effect = RuntimeError  # noqa: E501
+        # use a transport-style error (NOT the auth RuntimeError) so retry kicks in
+        bad.events.return_value.list.return_value.execute.side_effect = ValueError("stale client")
+        good = _build_service_mock([_make_raw_event()])
+        cs._service = bad
+        calls = {"n": 0}
+
+        def fake_get_service():
+            calls["n"] += 1
+            return bad if calls["n"] == 1 else good
+
+        cs._get_service = fake_get_service
+        events = cs.get_upcoming_events()
+        assert calls["n"] == 2          # rebuilt exactly once
+        assert cs._service is None      # cache was dropped between attempts
+        assert len(events) == 1
+
+    def test_runtime_error_propagates_without_retry(self):
+        cs = CalendarService()
+        calls = {"n": 0}
+
+        def fake_get_service():
+            calls["n"] += 1
+            raise RuntimeError("no creds")
+
+        cs._get_service = fake_get_service
+        with pytest.raises(RuntimeError):
+            cs.get_upcoming_events()
+        assert calls["n"] == 1          # creds error: no rebuild/retry
+
+
+class TestCalendarRoutesOffline:
+    def _client(self, monkeypatch, cal):
+        from flask import Flask
+
+        from routes import calendar_api
+        monkeypatch.setattr(calendar_api, "_calendar", lambda: cal)
+        app = Flask(__name__)
+        app.register_blueprint(calendar_api.calendar_bp)
+        app.config["TESTING"] = True
+        return app.test_client()
+
+    def test_today_returns_offline_payload_not_500(self, monkeypatch):
+        cal = MagicMock()
+        cal.get_today_events.side_effect = ValueError("transport boom")
+        c = self._client(monkeypatch, cal)
+        r = c.get("/api/calendar/today")
+        assert r.status_code == 200
+        assert r.get_json()["offline"] is True
+
+    def test_next_returns_offline_payload_not_500(self, monkeypatch):
+        cal = MagicMock()
+        cal.get_next_event.side_effect = ValueError("transport boom")
+        c = self._client(monkeypatch, cal)
+        r = c.get("/api/calendar/next")
+        assert r.status_code == 200
+        assert r.get_json()["offline"] is True

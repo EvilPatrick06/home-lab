@@ -61,17 +61,32 @@ def api_calendar_events():
         return jsonify({"events": events})
     except RuntimeError:
         return jsonify({"offline": True, "events": [], "needs_auth": True})
+    except Exception:
+        log.exception("[calendar] /events failed")
+        return jsonify({"offline": True, "events": [], "error": "calendar unavailable"})
 
 
 @calendar_bp.route("/today")
 def api_calendar_today():
-    return jsonify(_calendar().get_today_events())
+    try:
+        return jsonify(_calendar().get_today_events())
+    except RuntimeError:
+        return jsonify({"offline": True, "events": [], "needs_auth": True})
+    except Exception:
+        log.exception("[calendar] /today failed")
+        return jsonify({"offline": True, "events": [], "error": "calendar unavailable"})
 
 
 @calendar_bp.route("/next")
 def api_calendar_next():
-    event = _calendar().get_next_event()
-    return jsonify(event or {})
+    try:
+        event = _calendar().get_next_event()
+        return jsonify(event or {})
+    except RuntimeError:
+        return jsonify({"offline": True, "needs_auth": True})
+    except Exception:
+        log.exception("[calendar] /next failed")
+        return jsonify({"offline": True, "error": "calendar unavailable"})
 
 
 @calendar_bp.route("/create", methods=["POST"])
@@ -79,16 +94,21 @@ def api_calendar_create():
     calendar = _calendar()
     data = request.json or {}
     import datetime
-    start = datetime.datetime.fromisoformat(data["start"])
-    end = datetime.datetime.fromisoformat(data["end"])
-    event = calendar.create_event(
-        summary=data.get("summary", ""),
-        start_dt=start,
-        end_dt=end,
-        description=data.get("description", ""),
-        location=data.get("location", ""),
-    )
-    return jsonify(event)
+    try:
+        start = datetime.datetime.fromisoformat(data["start"])
+        end = datetime.datetime.fromisoformat(data["end"])
+        event = calendar.create_event(
+            summary=data.get("summary", ""),
+            start_dt=start,
+            end_dt=end,
+            description=data.get("description", ""),
+            location=data.get("location", ""),
+        )
+        return jsonify(event)
+    except RuntimeError:
+        return jsonify({"error": "calendar not authorized"}), 503
+    except Exception as e:
+        return fail(log, e, 500, "could not create event")
 
 
 @calendar_bp.route("/update/<event_id>", methods=["PUT"])

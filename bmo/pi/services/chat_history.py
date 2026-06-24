@@ -87,6 +87,15 @@ def load_recent_chat() -> list[dict]:
 
 def save_recent_message(msg: dict):
     """Append a message to the recent chat buffer (rolling, all chats)."""
+    # Defense-in-depth (PHASE-01 01E): never write the live store under pytest.
+    # The autouse conftest fixture redirects RECENT_CHAT_FILE to a tmp path; if a
+    # test ever forgot that redirect, refuse the real-path write rather than leak
+    # fixture rows (the "Hello from BMO!" seed) into the production buffer.
+    if os.environ.get("PYTEST_CURRENT_TEST") and RECENT_CHAT_FILE.endswith(
+        "/home-lab/bmo/pi/data/recent_chat.json"
+    ):
+        log.debug("[chat] refusing real-path recent-chat write under pytest")
+        return
     with STATE.chat_lock:
         try:
             messages = load_recent_chat()

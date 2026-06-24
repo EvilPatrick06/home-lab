@@ -117,3 +117,17 @@ def sample_agent_config():
         "tools": [],
         "system_prompt": "You are a test agent.",
     }
+
+
+@pytest.fixture(autouse=True)
+def _isolate_chat_history(tmp_path, monkeypatch):
+    """PHASE-01 01E — redirect chat-history persistence to a tmp path for EVERY
+    test so no fixture can write the live recent_chat.json (the seeded-message
+    leak came from exactly such an unisolated test). Autouse + monkeypatch the
+    module constants so even tests that do not request it are covered."""
+    from services import chat_history
+    monkeypatch.setattr(chat_history, "RECENT_CHAT_FILE",
+                        str(tmp_path / "recent_chat.json"), raising=False)
+    monkeypatch.setattr(chat_history, "DND_LOG_DIR",
+                        str(tmp_path / "dnd_logs"), raising=False)
+    yield
