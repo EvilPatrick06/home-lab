@@ -14,6 +14,104 @@ How to triage: [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md)
 
 > Resolved cross-cutting / `Domain: both` entries moved out of `ISSUES-LOG.md` + `SUGGESTIONS-LOG.md`. Newest first.
 
+### [2026-06-24] Monorepo Node pin incomplete — 4 CI jobs still hardcode `node-version: "22"` instead of `.nvmrc`
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-24
+- **Resolution:** Replaced the 4 remaining literal `node-version: "22"` pins with `node-version-file: .nvmrc` in `.github/workflows/oracle-worker-ci.yml`, `oracle-worker-deploy.yml`, and the `oracle-worker-npm-audit` + `dungeon-scholar-npm-audit` jobs in `security-audit.yml`. Every setup-node step in the repo now reads the root `.nvmrc`, so a future `.nvmrc` bump propagates uniformly. The optional CI grep-guard against re-introducing a literal pin was left as a future enhancement.
+- **Branch:** auto/overall-resolver
+
+- **Category:** config
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-errors
+
+**Original problem:** The 2026-06-22 ".nvmrc consolidation" claimed all 8 pins across 6 workflows were switched to `node-version-file`, but 4 literal `node-version: "22"` pins remained (both `oracle-worker-*` workflows, never enumerated, plus two jobs in `security-audit.yml`). Harmless while `.nvmrc` was `22`, but a future bump would silently strand those jobs on Node 22 — the drift the consolidation aimed to remove.
+
+### [2026-06-24] Orphaned `scripts/check-agent-docs.mjs` — superseded duplicate of the drift guard, wired to nothing
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-24
+- **Resolution:** Deleted `scripts/check-agent-docs.mjs`. Confirmed no live references (no workflow, package.json script, Makefile, or hook). The CI-wired `scripts/check-agent-instructions.sh` — a strict superset that also enforces the `SYNC:agents` block — remains the single drift guard.
+- **Branch:** auto/overall-resolver
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor / overall-cleanup
+
+**Original problem:** Two agent-instruction drift checkers existed (`check-agent-docs.mjs` Node + `check-agent-instructions.sh` bash) doing the same job; the `.sh` superseded the `.mjs` (and is the only one in CI), leaving the `.mjs` as dead, weaker, duplicate code.
+
+### [2026-06-24] Agent-instruction drift guard omits `.cursorrules`, and `.cursorrules` title/tree is stale
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-24
+- **Resolution:** Added `.cursorrules` to the `secondary` array in `scripts/check-agent-instructions.sh` and to both the `push`/`pull_request` `paths:` lists in `.github/workflows/agent-docs-check.yml` (comment "four"→"five"); the guard now covers it and passes (`.cursorrules` references `AGENTS.md` 3×). Also fixed the stale `.cursorrules` header — now names all four subprojects (dnd-app + bmo + dungeon-scholar + oracle-worker) — and added the missing `oracle-worker/` entry to its repo-structure tree.
+- **Branch:** auto/overall-resolver
+
+- **Category:** debt, docs
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-cleanup / overall-suggestor
+
+**Original problem:** `.cursorrules` (a fifth peer AI-instruction file the workflow doc lists alongside AGENTS/CLAUDE/GEMINI/copilot) was absent from the guard's `secondary` list and the workflow `paths:`, so it could silently drop its `AGENTS.md` pointer with CI green; its title (`dnd-app + bmo`) and tree predated dungeon-scholar and oracle-worker.
+
+### [2026-06-23] Biome engine version drift across the JS projects despite the shared base config
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-24
+- **Resolution:** Unified the Biome engine version to 2.5.0 repo-wide: bumped the `$schema` in `biome.base.json`, `dnd-app/biome.json`, and `dungeon-scholar/biome.json` to 2.5.0, and bumped the `npx @biomejs/biome@2.4.16` pins in `dungeon-scholar/package.json` (lint/lint:fix/format) and `.husky/pre-commit` to 2.5.0. `dnd-app` already resolves 2.5.0, so no lockfile change was needed. Converting dungeon-scholar's `npx` call to a local binary and tightening dnd-app's `^2.5.0` to an exact pin are optional follow-ups; the version drift itself is resolved.
+- **Branch:** auto/overall-resolver
+
+- **Category:** debt, config
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+
+**Original problem:** `dnd-app` ran Biome `^2.5.0` (local) while `dungeon-scholar` ran `npx @biomejs/biome@2.4.16`, and `biome.base.json`'s `$schema` was pinned to 2.4.16 — two engine versions linting one shared config, undercutting the "one shared lint config" guarantee.
+
+### [2026-06-23] `ruff` is a declared bmo/pi dependency but unwired — repo-wide `make lint` skips Python
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-24
+- **Resolution:** Added `bmo/pi/ruff.toml` with a deliberately lenient "real errors only" rule set (`select = ["E9","F63","F7","F82"]`, `target-version py311`, `line-length 100`, venv/data excluded) so the gate is green today. Wired `ruff check` into the repo-root `make lint` target (and updated `help` to list bmo/pi) and added a "Ruff (lint)" step to `bmo-pi-pytest.yml` (ruff already ships via `requirements-test.txt`). Fixed one ruff parse error by splitting semicolon-joined statements in `bmo/pi/tests/test_dm_bot_control.py`. `ruff check` passes; the next ratchet rungs (F401/F841/F811, then E4/E7) are documented in the config.
+- **Branch:** auto/overall-resolver
+
+- **Category:** future-idea, debt
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+
+**Original problem:** `bmo/pi/requirements-test.txt` pinned `ruff==0.15.15` but ruff was never invoked (not in CI, `make lint`, husky, or any script) and had no config, so the repo-wide `make lint` gave incomplete confidence by silently omitting the Python project.
+
+### [2026-06-23] Stale `subprojects-ci.yml` reference in `.husky/pre-commit` (that workflow was deleted)
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-24
+- **Resolution:** Updated the `.husky/pre-commit` comment to name `.github/workflows/dungeon-scholar-ci.yml` (the current authoritative gate) instead of the deleted `subprojects-ci.yml`. Confirmed via grep that no other live (non-resolved-log) `subprojects-ci` references remain.
+- **Branch:** auto/overall-resolver
+
+- **Category:** docs, debt
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+
+**Original problem:** `.husky/pre-commit` told contributors the deleted `subprojects-ci.yml` was authoritative for the dungeon-scholar pre-flight — a dangling pointer the `subprojects-ci` deletion should have swept up.
+
+### [2026-06-23] Consider grouping the append-only log files under `docs/logs/`
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-24
+- **Resolution:** Already implemented in `master` — all append-only logs (`ISSUES-LOG*`, `SUGGESTIONS-LOG*`, `RESOLVED-*`, `SECURITY-LOG`, `BMO-*`) now live under `docs/logs/`, and the hardcoded references (README, `LOG-INSTRUCTIONS.md`, `AGENTS.md`/`CLAUDE.md`/`GEMINI.md`, `AUTOMATED-AGENT-GIT-WORKFLOW.md`, and the scheduled-agent task files including this resolver's) were updated to match. The `.gitattributes` union-merge globs are path-agnostic and still cover the moved files. The out-of-repo scheduler-coordination blocker from the 2026-06-23 note has been handled; closing as done.
+- **Branch:** auto/overall-resolver (record only — the move already landed on master)
+
+- **Category:** docs, debt
+- **Severity:** info
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+
+**Original problem:** The 12+ append-only logs sat at the top level of `docs/` alongside conceptual docs; relocating to `docs/logs/` separates machine-appended churn from human guidance. Previously user-approved but deferred pending out-of-repo scheduler-task updates.
+
 ### [2026-06-23] Biome formatting style diverges between dnd-app and dungeon-scholar
 
 - **Resolved by:** overall-resolver (automated)
