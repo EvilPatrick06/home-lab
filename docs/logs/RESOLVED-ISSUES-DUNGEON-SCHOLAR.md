@@ -13,6 +13,131 @@
 
 ---
 
+### [2026-06-24] Make the Oracle worker's allowed origin (and model) configurable instead of hardcoded — fork portability
+> **Resolved 2026-06-24 (scholar-resolver):** `oracle-worker/src/worker.js` now reads `ALLOWED_ORIGIN` (-> `DEFAULT_ALLOWED_ORIGIN` fallback) and `ORACLE_MODEL` (-> `DEFAULT_MODEL` fallback) from `env`, threaded through the CORS headers, the Origin/Referer cross-check, and the Groq call. Documented the two optional `[vars]` in `wrangler.toml` + `docs/oracle-setup.md`. `node --check` green.
+
+- **Category:** portability
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement-scan of the dungeon-scholar tree
+
+**Description:**
+The front end already made its deployment path fork-friendly: `vite.config.js` reads `VITE_BASE` (defaulting to `/dungeon-scholar/`) so a fork doesn't have to edit source. The Oracle proxy did **not** get the same treatment. `oracle-worker/src/worker.js` hardcodes `const ALLOWED_ORIGIN = "https://evilpatrick06.github.io";` (used for both the CORS allow-origin and the Origin/Referer cross-check) and `const MODEL = "llama-3.3-70b-versatile";`. Secrets and the proxy token are already read from `env` (`env.GROQ_API_KEY`, `env.ORACLE_PROXY_TOKEN`), so the pattern exists — origin and model are the lone remaining source-edits a fork must make to stand up its own Oracle. Reading them from `env` (via `wrangler.toml [vars]` / `wrangler secret`) would make the worker deployable to a fork's own Pages origin with zero code changes, matching the front end's portability story.
+
+**Hypothesis / root cause:** Origin/model were inlined as constants when the worker was first written for the canonical deployment; they were simply never promoted to env vars the way the API key and token were.
+
+**Proposed fix / improvement:**
+- [ ] Read `ALLOWED_ORIGIN` from `env.ALLOWED_ORIGIN` (fallback to the current default) so CORS + the Origin/Referer checks track the deploying origin.
+- [ ] Read `MODEL` from `env.ORACLE_MODEL` (fallback to current) so a fork can pick a different Groq model without editing source.
+- [ ] Document the two new `[vars]` in `docs/oracle-setup.md`.
+
+**Related files:** `oracle-worker/src/worker.js`, `oracle-worker/wrangler.toml`, `dungeon-scholar/docs/oracle-setup.md`
+
+### [2026-06-24] Rules-of-hooks violation in BattleModal (hooks after early returns)
+> **Resolved 2026-06-24 (scholar-resolver):** Moved BattleModal's `useState`/`useEffect` above the two early returns; the `if (!battle)` / `if (!q)` guards now sit below the hooks and the effect dep uses `battle?.type`, so the hook order is identical on every render. `dungeon-scholar/src/components/dungeon/DungeonExplore.jsx`.
+
+- **Category:** bug
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error scan (biome lint correctness + manual confirmation)
+
+**Description:**
+`BattleModal` in `src/components/dungeon/DungeonExplore.jsx` calls hooks *after* two
+conditional early returns:
+
+```js
+function BattleModal({ ... }) {
+  if (!battle) return null;   // early return
+  if (!q) return null;        // early return
+  const [revealResult, setRevealResult] = useState(null);          // hook AFTER returns
+  ...
+  useEffect(() => { setRevealResult(null); }, [q?.id, battle.type]); // hook AFTER returns
+}
+```
+
+This violates the Rules of Hooks (hooks must run unconditionally, in the same order,
+every render). When `battle`/`q` toggle between null and non-null across renders the
+hook count changes, which React surfaces as "Rendered fewer hooks than expected" and
+can crash the component. It works today only because the modal is currently never
+mounted while `battle`/`q` are null, but the guard makes that fragility implicit.
+
+**Reproduction (if bug):**
+1. Render `BattleModal` once with a non-null `battle` and `q` (hooks run).
+2. Re-render with `battle` (or `q`) null so an early return fires before the hooks.
+3. React throws a hook-order error / the component crashes.
+
+**Expected behavior:** Hooks declared unconditionally at the top of the component;
+the null checks moved below the hook declarations (or the modal not rendered at all by
+the parent when `battle`/`q` are null).
+
+**Hypothesis / root cause:** `useState`/`useEffect` placed below `if (!battle) return null; if (!q) return null;` in `BattleModal`. Confirmed by biome `lint/correctness/useHookAtTopLevel` firing at DungeonExplore.jsx:263 and :290. (A third hit at :2262 is a FALSE POSITIVE — `usePotion(i)` is a regular handler named like a hook, not an actual hook.)
+
+**Proposed fix / improvement:**
+- [ ] Move the `if (!battle) return null; if (!q) return null;` guards below the `useState`/`useEffect` calls, OR have the parent skip rendering `BattleModal` entirely when `battle`/`q` are null.
+- [ ] Keep the effect deps stable.
+
+**Related files:** `dungeon-scholar/src/components/dungeon/DungeonExplore.jsx`
+
+### [2026-06-24] Duplicate `engines` key in dungeon-scholar package.json
+> **Resolved 2026-06-24 (scholar-resolver):** Removed the duplicate one-line `engines` block from `package.json`; a single `engines: { node: >=22 }` remains (JSON re-validated).
+
+- **Category:** config
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error scan (manifest inspection)
+
+**Description:**
+`dungeon-scholar/package.json` declares the `engines` field twice:
+
+```json
+  "engines": {
+    "node": ">=22"
+  },
+  "type": "module",
+  "engines": { "node": ">=22" },
+```
+
+Both blocks are identical so behavior is unaffected (JSON last-key-wins), but it is
+config drift / a copy-paste artifact. It also sits outside `src/`, so `biome check src`
+will never catch it. Some strict JSON tooling warns on duplicate keys.
+
+**Hypothesis / root cause:** A second `engines` block was appended (next to `type`) without removing the original.
+
+**Proposed fix / improvement:**
+- [ ] Delete one of the two `engines` blocks (keep a single `"engines": { "node": ">=22" }`).
+
+**Related files:** `dungeon-scholar/package.json`
+
+### [2026-06-24] usePlayerState cloud-sync tests wait on real-timer backoff (~52s for one file)
+> **Resolved 2026-06-24 (scholar-resolver):** Converted the retries->offline and offline-recovery tests to `vi.useFakeTimers()` + `advanceTimersByTimeAsync`, stepping the 1s/4s/16s backoff instantly. The file now runs ~6s (was ~52s); all 30 tests pass.
+
+- **Category:** test, performance
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error scan (ran `npm test`; 59 files / 627 tests all PASS)
+
+**Description:**
+The full suite passes but takes ~54s, and `src/hooks/usePlayerState.test.jsx` alone
+accounts for ~52s. Two cases dominate: "retries on push failure with backoff and ends
+in offline" (~22.5s) and "(a) recovers from offline ... after backoff exhausts" (~24s).
+These describe-blocks do NOT call `vi.useFakeTimers()` (unlike the `local-only behavior`
+block which does), so they wait through the *real* retry schedule
+`RETRY_DELAYS_MS = [1000, 4000, 16000]` (~21s wall-clock) with `waitFor` timeouts of
+30000/35000ms. This wall-clock wait is paid on every CI run of the dungeon-scholar test
+gate (deploy.yml + dungeon-scholar-ci.yml).
+
+**Hypothesis / root cause:** Real timers + a real backoff schedule in `usePlayerState` retry logic; the retry/offline tests assert end-state after the full backoff window instead of advancing fake timers.
+
+**Proposed fix / improvement:**
+- [ ] Use `vi.useFakeTimers()` in the retry/offline describe-blocks and `vi.advanceTimersByTimeAsync(...)` to step through 1s/4s/16s instantly.
+- [ ] Or make `RETRY_DELAYS_MS` injectable so tests pass tiny delays.
+
+**Related files:** `dungeon-scholar/src/hooks/usePlayerState.test.jsx`, `dungeon-scholar/src/hooks/usePlayerState.js`
+
 ### [2026-06-23] Local autosave-snapshot ring buffer for crash / accidental-reset recovery
 > **Resolved 2026-06-23 (scholar-resolver):** Implemented per the user's per-entry approval (branch `auto/scholar-resolver`). Added a throttled rotating snapshot ring buffer in `persistence.js` (`writeSnapshot`/`listSnapshots`/`restoreSnapshot`/`pruneSnapshots` — last 5 snapshots + ~1.5 MB cap, quota-aware), wired into the debounced local save in `usePlayerState.js`; a "Restore a recent snapshot" affordance in `AccountPanel.jsx`; and a pre-reset snapshot + Undo toast in `App.jsx` so a reset is undoable once (works signed-out). New unit tests in `persistence.snapshots.test.js`. Targeted vitest + production build (VITE_BASE=/home-lab/) green.
 

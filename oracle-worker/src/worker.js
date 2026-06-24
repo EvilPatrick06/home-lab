@@ -14,9 +14,14 @@
 // Stronger controls (a Groq spend cap/alert) require Groq dashboard config.
 // See docs/logs/SECURITY-LOG.md + dungeon-scholar/docs/oracle-setup.md.
 
-const ALLOWED_ORIGIN = "https://evilpatrick06.github.io";
+// Fork portability: ALLOWED_ORIGIN and MODEL are read from the environment
+// (wrangler.toml [vars] / `wrangler secret`) at request time, falling back to
+// these canonical-deploy defaults when unset — matching how GROQ_API_KEY and
+// ORACLE_PROXY_TOKEN are already env-driven. A fork can point the worker at its
+// own Pages origin / a different Groq model with zero source edits.
+const DEFAULT_ALLOWED_ORIGIN = "https://evilpatrick06.github.io";
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-const MODEL = "llama-3.3-70b-versatile";
+const DEFAULT_MODEL = "llama-3.3-70b-versatile";
 
 // ---------------------------------------------------------------------------
 // Rate-limit configuration.  TUNE THESE if traffic patterns change.
@@ -50,17 +55,17 @@ function isolateBackstop(ip) {
   return true;
 }
 
-function corsHeaders(extra = {}) {
+function corsHeaders(allowedOrigin, extra = {}) {
   return {
-    "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+    "Access-Control-Allow-Origin": allowedOrigin,
     ...extra,
   };
 }
 
-function corsJson(obj, status) {
+function corsJson(allowedOrigin, obj, status) {
   return new Response(JSON.stringify(obj), {
     status,
-    headers: corsHeaders({ "Content-Type": "application/json" }),
+    headers: corsHeaders(allowedOrigin, { "Content-Type": "application/json" }),
   });
 }
 
@@ -167,10 +172,13 @@ async function checkGlobalLimit(env, ip) {
 
 export default {
   async fetch(request, env) {
+    const allowedOrigin = env.ALLOWED_ORIGIN || DEFAULT_ALLOWED_ORIGIN;
+    const model = env.ORACLE_MODEL || DEFAULT_MODEL;
+
     // CORS preflight
     if (request.method === "OPTIONS") {
       return new Response(null, {
-        headers: corsHeaders({
+        headers: corsHeaders(allowedOrigin, {
           "Access-Control-Allow-Methods": "POST, OPTIONS",
           "Access-Control-Allow-Headers": "Content-Type, X-Oracle-Token",
           "Access-Control-Max-Age": "86400",
@@ -184,11 +192,11 @@ export default {
 
     // Origin check (browser-enforced) + Referer cross-check as defense-in-depth.
     const origin = request.headers.get("Origin");
-    if (origin !== ALLOWED_ORIGIN) {
+    if (origin !== allowedOrigin) {
       return new Response("Forbidden", { status: 403 });
     }
     const referer = request.headers.get("Referer");
-    if (referer && !referer.startsWith(ALLOWED_ORIGIN)) {
+    if (referer && !referer.startsWith(allowedOrigin)) {
       return new Response("Forbidden", { status: 403 });
     }
 
@@ -204,13 +212,13 @@ export default {
 
     // 1) Cheap per-isolate backstop.
     if (!isolateBackstop(ip)) {
-      return corsJson({ error: "Rate limit exceeded. Try again later." }, 429);
+      return corsJson(allowedOrigin, { error: "Rate limit exceeded. Try again later." }, 429);
     }
 
     // 2) Authoritative global, persistent rate limit (Durable Object).
     const limit = await checkGlobalLimit(env, ip);
     if (!limit.allowed) {
-      return corsJson({ error: "Rate limit exceeded. Try again later." }, 429);
+      return corsJson(allowedOrigin, { error: "Rate limit exceeded. Try again later." }, 429);
     }
 
     // Parse the incoming request from the frontend (Anthropic-style format)
@@ -228,7 +236,7 @@ export default {
       if (typeof m?.content === "string") totalChars += m.content.length;
     }
     if (rawMessages.length > MAX_MESSAGES || totalChars > MAX_TOTAL_CHARS) {
-      return corsJson({ error: "Request too large." }, 413);
+      return corsJson(allowedOrigin, { error: "Request too large." }, 413);
     }
 
     // Translate Anthropic format -> OpenAI/Groq format
@@ -250,12 +258,17 @@ export default {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${env.GROQ_API_KEY}`,
       },
-      body: JSON.stringify({ model: MODEL, messages, max_tokens: maxTokens }),
+      body: JSON.stringify({ model, messages, max_tokens: maxTokens }),
     });
 
     if (!groqResponse.ok) {
+      // Do NOT echo the raw upstream body to the browser — it can carry request
+      // IDs, org/account identifiers, and provider-specific error schema useful
+      // for fingerprinting. Log it server-side; return a generic message + the
+      // upstream status code only.
       const errText = await groqResponse.text();
-      return corsJson({ error: "Upstream error", detail: errText }, groqResponse.status);
+      console.error("Oracle upstream error", groqResponse.status, errText);
+      return corsJson(allowedOrigin, { error: "Upstream error" }, groqResponse.status);
     }
 
     const groqData = await groqResponse.json();
@@ -263,7 +276,7 @@ export default {
     // Translate Groq response -> Anthropic-shape so the frontend doesn't change
     const text = groqData.choices?.[0]?.message?.content || "";
     return new Response(JSON.stringify({ content: [{ type: "text", text }] }), {
-      headers: corsHeaders({ "Content-Type": "application/json" }),
+      headers: corsHeaders(allowedOrigin, { "Content-Type": "application/json" }),
     });
   },
 };

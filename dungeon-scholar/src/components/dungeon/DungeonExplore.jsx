@@ -243,22 +243,7 @@ function BattleModal({
   bossDisplay,
   firstWrongFreeAvailable,
 }) {
-  if (!battle) return null;
-  const q = battle.currentQuestion;
-  if (!q) return null;
-  const isBoss = battle.type === 'boss';
-  const correctCount = battle.correctCount || 0;
-  const mobMaxHp = battle.maxHp || 1;
-  const mobHpRemaining = Math.max(0, mobMaxHp - correctCount);
-  const tier = isBoss ? 'boss' : (battle.mobTier || 'basic');
-  const tierLabel = isBoss ? 'Boss'
-                  : tier === 'elite' ? 'Elite'
-                  : 'Basic';
-  const tierDmg = isBoss ? 3 : tier === 'elite' ? 2 : 1;
-  // 25d: damage actually applied on the next wrong answer. Cloak / pet
-  // absorbs the first wrong of the run, so the modal should preview 0
-  // damage instead of tierDmg until the prop says otherwise.
-  const dmgIfWrong = firstWrongFreeAvailable ? 0 : tierDmg;
+  const q = battle?.currentQuestion;
 
   const [revealResult, setRevealResult] = useState(null);
 
@@ -287,7 +272,25 @@ function BattleModal({
 
   // Reset reveal animation when the question or battle changes (q.id is the
   // signal — a wrong answer now swaps in a fresh question, no fixed idx).
-  useEffect(() => { setRevealResult(null); }, [q?.id, battle.type]);
+  useEffect(() => { setRevealResult(null); }, [q?.id, battle?.type]);
+
+  // Rules-of-hooks: all hooks run unconditionally above; the null guards and
+  // derived values live below so the hook order is identical on every render.
+  if (!battle) return null;
+  if (!q) return null;
+  const isBoss = battle.type === 'boss';
+  const correctCount = battle.correctCount || 0;
+  const mobMaxHp = battle.maxHp || 1;
+  const mobHpRemaining = Math.max(0, mobMaxHp - correctCount);
+  const tier = isBoss ? 'boss' : (battle.mobTier || 'basic');
+  const tierLabel = isBoss ? 'Boss'
+                  : tier === 'elite' ? 'Elite'
+                  : 'Basic';
+  const tierDmg = isBoss ? 3 : tier === 'elite' ? 2 : 1;
+  // 25d: damage actually applied on the next wrong answer. Cloak / pet
+  // absorbs the first wrong of the run, so the modal should preview 0
+  // damage instead of tierDmg until the prop says otherwise.
+  const dmgIfWrong = firstWrongFreeAvailable ? 0 : tierDmg;
 
   const options = q.type === 'truefalse' ? ['True', 'False'] : (q.options || []);
 

@@ -10,6 +10,9 @@ on:
       - 'dungeon-scholar/**'
       - '.github/workflows/dungeon-scholar-ci.yml'
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest

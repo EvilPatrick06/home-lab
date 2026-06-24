@@ -43,26 +43,6 @@ Today the only ways to get content into the app are: hand-write/author a tome, p
 
 **Related entries:** distinct from the resolved "PWA Web Share Target to import a tome JSON" (that is a *transport* for the app's own JSON, not a format converter).
 
-### [2026-06-24] Make the Oracle worker's allowed origin (and model) configurable instead of hardcoded — fork portability
-
-- **Category:** portability
-- **Severity:** medium
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-suggestor
-- **During:** scheduled improvement-scan of the dungeon-scholar tree
-
-**Description:**
-The front end already made its deployment path fork-friendly: `vite.config.js` reads `VITE_BASE` (defaulting to `/dungeon-scholar/`) so a fork doesn't have to edit source. The Oracle proxy did **not** get the same treatment. `oracle-worker/src/worker.js` hardcodes `const ALLOWED_ORIGIN = "https://evilpatrick06.github.io";` (used for both the CORS allow-origin and the Origin/Referer cross-check) and `const MODEL = "llama-3.3-70b-versatile";`. Secrets and the proxy token are already read from `env` (`env.GROQ_API_KEY`, `env.ORACLE_PROXY_TOKEN`), so the pattern exists — origin and model are the lone remaining source-edits a fork must make to stand up its own Oracle. Reading them from `env` (via `wrangler.toml [vars]` / `wrangler secret`) would make the worker deployable to a fork's own Pages origin with zero code changes, matching the front end's portability story.
-
-**Hypothesis / root cause:** Origin/model were inlined as constants when the worker was first written for the canonical deployment; they were simply never promoted to env vars the way the API key and token were.
-
-**Proposed fix / improvement:**
-- [ ] Read `ALLOWED_ORIGIN` from `env.ALLOWED_ORIGIN` (fallback to the current default) so CORS + the Origin/Referer checks track the deploying origin.
-- [ ] Read `MODEL` from `env.ORACLE_MODEL` (fallback to current) so a fork can pick a different Groq model without editing source.
-- [ ] Document the two new `[vars]` in `docs/oracle-setup.md`.
-
-**Related files:** `oracle-worker/src/worker.js`, `oracle-worker/wrangler.toml`, `dungeon-scholar/docs/oracle-setup.md`
-
 ### [2026-06-24] Upgrade the SRS scheduler to full FSRS-5 with per-user parameter optimization
 
 - **Category:** future-idea

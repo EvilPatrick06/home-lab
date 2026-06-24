@@ -175,19 +175,29 @@ describe('usePlayerState — steady-state cloud writes', () => {
   }, 5000);
 
   it('retries on push failure with backoff and ends in "offline"', async () => {
-    pullSave.mockResolvedValueOnce(null);
-    pushSave.mockRejectedValue(new Error('net'));
+    // Fake timers so the 1s/4s/16s retry backoff is stepped instantly instead of
+    // waited through in real wall-clock time (~21s in the old real-timer form).
+    vi.useFakeTimers();
+    try {
+      pullSave.mockResolvedValueOnce(null);
+      pushSave.mockRejectedValue(new Error('net'));
 
-    const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
-    await waitFor(() => expect(pullSave).toHaveBeenCalled());
+      const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
+      // Flush the mount-time pull + sign-in merge microtasks.
+      await act(async () => { await vi.advanceTimersByTimeAsync(20); });
+      expect(pullSave).toHaveBeenCalled();
 
-    act(() => { result.current[1]({ level: 5, totalXp: 1, library: [] }); });
+      act(() => { result.current[1]({ level: 5, totalXp: 1, library: [] }); });
 
-    // 4 attempts in total: initial + 3 retries with delays 1s/4s/16s.
-    // Generous timeout to cover the full backoff window.
-    await waitFor(() => expect(pushSave.mock.calls.length).toBeGreaterThanOrEqual(4), { timeout: 30000 });
-    await waitFor(() => expect(result.current[2].status).toBe('offline'));
-  }, 35000);
+      // Cloud debounce (1500ms) → initial push, then 3 retries (1s/4s/16s).
+      await act(async () => { await vi.advanceTimersByTimeAsync(1500 + 1000 + 4000 + 16000 + 50); });
+
+      expect(pushSave.mock.calls.length).toBeGreaterThanOrEqual(4);
+      expect(result.current[2].status).toBe('offline');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 
   it('does not re-pull cloud when user is re-projected with same id (token refresh)', async () => {
     pullSave.mockResolvedValue(null);
@@ -597,32 +607,41 @@ describe('usePlayerState — offline recovery (Phase-30 QA gap)', () => {
   });
 
   it('(a) recovers from "offline": after backoff exhausts, a fresh change with a now-resolving push walks saving→idle and clears dirty', async () => {
-    pullSave.mockResolvedValueOnce(null);
-    // First change's push fails on every attempt → ends in 'offline'.
-    pushSave.mockRejectedValue(new Error('net'));
+    // Fake timers so the backoff window is stepped instantly (was ~24s real).
+    vi.useFakeTimers();
+    try {
+      pullSave.mockResolvedValueOnce(null);
+      // First change's push fails on every attempt → ends in 'offline'.
+      pushSave.mockRejectedValue(new Error('net'));
 
-    const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
-    await waitFor(() => expect(pullSave).toHaveBeenCalled());
+      const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
+      await act(async () => { await vi.advanceTimersByTimeAsync(20); });
+      expect(pullSave).toHaveBeenCalled();
 
-    act(() => { result.current[1]({ level: 5, totalXp: 1, library: [] }); });
+      act(() => { result.current[1]({ level: 5, totalXp: 1, library: [] }); });
 
-    // initial + 3 retries (delays 1s/4s/16s) → 'offline'.
-    await waitFor(() => expect(pushSave.mock.calls.length).toBeGreaterThanOrEqual(4), { timeout: 30000 });
-    await waitFor(() => expect(result.current[2].status).toBe('offline'));
+      // Cloud debounce (1500ms) → initial push + 3 retries (1s/4s/16s) → 'offline'.
+      await act(async () => { await vi.advanceTimersByTimeAsync(1500 + 1000 + 4000 + 16000 + 50); });
+      expect(pushSave.mock.calls.length).toBeGreaterThanOrEqual(4);
+      expect(result.current[2].status).toBe('offline');
 
-    // Network comes back: subsequent pushes succeed.
-    pushSave.mockReset();
-    pushSave.mockResolvedValue({ updatedAt: '2026-05-20T00:00:00Z' });
+      // Network comes back: subsequent pushes succeed.
+      pushSave.mockReset();
+      pushSave.mockResolvedValue({ updatedAt: '2026-05-20T00:00:00Z' });
 
-    // A new local change re-arms the cloud debounce → push fires and succeeds.
-    act(() => { result.current[1]({ level: 6, totalXp: 2, library: [] }); });
+      // A new local change re-arms the cloud debounce → push fires and succeeds.
+      act(() => { result.current[1]({ level: 6, totalXp: 2, library: [] }); });
+      await act(async () => { await vi.advanceTimersByTimeAsync(1500 + 50); });
 
-    await waitFor(() => expect(pushSave).toHaveBeenCalled(), { timeout: 2500 });
-    await waitFor(() => expect(result.current[2].status).toBe('idle'));
-    // dirty cleared: writeSyncMeta on success records dirty:false.
-    const meta = JSON.parse(localStorage.getItem('dungeon-scholar:sync:v1'));
-    expect(meta.dirty).toBe(false);
-  }, 40000);
+      expect(pushSave).toHaveBeenCalled();
+      expect(result.current[2].status).toBe('idle');
+      // dirty cleared: writeSyncMeta on success records dirty:false.
+      const meta = JSON.parse(localStorage.getItem('dungeon-scholar:sync:v1'));
+      expect(meta.dirty).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 
   it('(b) a sign-in pull failure puts the status into "offline"', async () => {
     // Seed local data so the sign-in branch actually runs the pull (and isn't

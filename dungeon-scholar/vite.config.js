@@ -21,13 +21,30 @@ const oracleOrigin = (() => {
   try { return new URL(process.env.VITE_ORACLE_ENDPOINT || '').origin } catch { return '' }
 })()
 
+// PHASE-18 follow-up - pin the Supabase origin the same way oracleOrigin is
+// pinned, instead of a bare https://*.supabase.co apex wildcard. The app only
+// ever talks to its own single project (VITE_SUPABASE_URL), so emit that exact
+// origin (https + wss) in connect-src. Fall back to the apex wildcard only when
+// VITE_SUPABASE_URL is unset (dev / zero-config fork), never in a configured
+// production build.
+const supabaseConnect = (() => {
+  try {
+    const { protocol, host } = new URL(process.env.VITE_SUPABASE_URL || '')
+    if (!host) throw new Error('no host')
+    const wsProto = protocol === 'http:' ? 'ws:' : 'wss:'
+    return `${protocol}//${host} ${wsProto}//${host}`
+  } catch {
+    return 'https://*.supabase.co wss://*.supabase.co'
+  }
+})()
+
 const CSP = [
   "default-src 'self'",
   "script-src 'self'",
   "style-src 'self' 'unsafe-inline'", // Tailwind runtime + React style={{}} attributes
   "img-src 'self' data: https://avatars.githubusercontent.com", // GH avatars + data: SVG noise bg
   "font-src 'self' data:", // KaTeX fonts are bundled same-origin
-  `connect-src 'self' https://*.supabase.co wss://*.supabase.co${oracleOrigin ? ` ${oracleOrigin}` : ''}`,
+  `connect-src 'self' ${supabaseConnect}${oracleOrigin ? ` ${oracleOrigin}` : ''}`,
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

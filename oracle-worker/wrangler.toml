@@ -12,3 +12,12 @@ class_name = "RateLimiter"
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["RateLimiter"]
+
+# Fork portability (optional). Both fall back to the canonical-deploy defaults
+# baked into src/worker.js when unset, so the canonical deploy needs neither.
+#   ALLOWED_ORIGIN - the exact Pages origin allowed by CORS + the Origin/Referer
+#                    cross-check (e.g. https://<your-username>.github.io).
+#   ORACLE_MODEL   - the Groq model id to forward to (e.g. llama-3.3-70b-versatile).
+# [vars]
+# ALLOWED_ORIGIN = "https://<your-username>.github.io"
+# ORACLE_MODEL = "llama-3.3-70b-versatile"
