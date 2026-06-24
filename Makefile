@@ -5,7 +5,7 @@
 
 help:
 	@echo "Targets: install lint typecheck test build audit all"
-	@echo "  lint      -> dnd-app + dungeon-scholar (biome); oracle-worker (no-op, no lint surface yet)"
+	@echo "  lint      -> dnd-app + dungeon-scholar (biome); bmo/pi (ruff); oracle-worker (no-op)"
 	@echo "  typecheck -> dnd-app only (dungeon-scholar/oracle-worker have no standalone tsc; vite/wrangler transpile)"
 	@echo "  test      -> dnd-app + dungeon-scholar + oracle-worker (npm) + bmo/pi (pytest)"
 	@echo "  build     -> dnd-app + dungeon-scholar (npm) + oracle-worker (wrangler dry-run)"
@@ -20,6 +20,7 @@ lint:
 	cd dnd-app && npm run lint
 	cd dungeon-scholar && npm run lint
 	cd oracle-worker && npm run lint
+	cd bmo/pi && ruff check .
 
 # typecheck covers dnd-app only: dungeon-scholar has no tsconfig/tsc step (Vite
 # transpiles; no standalone typecheck) and oracle-worker is validated by its
