@@ -6,6 +6,7 @@ import {
   computeNextClaim,
   evaluateClaim,
   CLOCK_SKEW_LIMIT_MS,
+  devotionStatus,
 } from './devotion.js';
 
 describe('DAILY_REWARDS table', () => {
@@ -154,5 +155,23 @@ describe('evaluateClaim (M13 monotone fence)', () => {
     const today = '2026-05-08', last = '2026-05-07', streak = 6;
     const res = evaluateClaim({ now: NOW, today, lastClaimedDate: last, lastClaimedAt: NOW - 86_400_000, loginStreak: streak });
     expect(res.cycleDay).toBe(computeNextClaim(today, last, streak).cycleDay);
+  });
+});
+
+describe('devotionStatus (F5)', () => {
+  it('returns continuing when the last claim was exactly yesterday (gap 1)', () => {
+    expect(devotionStatus({ today: '2026-06-24', lastClaimedDate: '2026-06-23', streak: 3, longest: 5 })).toBe('continuing');
+  });
+  it('returns firstEver when there is no prior claim', () => {
+    expect(devotionStatus({ today: '2026-06-24', lastClaimedDate: null, streak: 0, longest: 0 })).toBe('firstEver');
+  });
+  it('returns firstEver when a stored streak is 0 even with a prior date', () => {
+    expect(devotionStatus({ today: '2026-06-24', lastClaimedDate: '2026-06-20', streak: 0, longest: 0 })).toBe('firstEver');
+  });
+  it('a lapsed first/1-day streak (longest < 2) is lapsedShort, NOT broken', () => {
+    expect(devotionStatus({ today: '2026-06-24', lastClaimedDate: '2026-06-21', streak: 1, longest: 1 })).toBe('lapsedShort');
+  });
+  it('a genuinely lost streak (longest >= 2) lapsing is broken', () => {
+    expect(devotionStatus({ today: '2026-06-24', lastClaimedDate: '2026-06-20', streak: 4, longest: 4 })).toBe('broken');
   });
 });

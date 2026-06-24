@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { todayDateStr, dayDiff, computeNextClaim, DAILY_REWARDS } from '../../services/devotion.js';
+import { todayDateStr, computeNextClaim, devotionStatus, DAILY_REWARDS } from '../../services/devotion.js';
 import { findItem } from '../../game/items.js';
 
 // Phase 20 — Daily Devotion calendar. The scholar earns daily rewards on
@@ -14,8 +14,7 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
   const devotion = playerState.devotion || 0;
   // The day that *would* be claimed if the player presses claim now. Shares
   // computeNextClaim with the actual claim path (17E) so preview ↔ claim never
-  // diverge; gap is kept only for the streak-status message below.
-  const gap = playerState.lastClaimedDate ? dayDiff(playerState.lastClaimedDate, today) : null;
+  // diverge.
   const { cycleDay: cycleDayIdx } = computeNextClaim(today, playerState.lastClaimedDate, streak);
 
   const [feedback, setFeedback] = useState(null);
@@ -94,9 +93,13 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
         ) : (
           <div>
             <div className="text-amber-200 italic mb-2">
-              {gap === 1 ? `Continue thy streak — Day ${cycleDayIdx} of the cycle awaits.` :
-               streak === 0 ? 'Begin thy first devotion.' :
-               `Streak broken — start anew at Day ${cycleDayIdx}.`}
+              {(() => {
+                const status = devotionStatus({ today, lastClaimedDate: playerState.lastClaimedDate, streak, longest });
+                if (status === 'continuing') return `Continue thy streak — Day ${cycleDayIdx} of the cycle awaits.`;
+                if (status === 'firstEver') return 'Begin thy first devotion.';
+                if (status === 'lapsedShort') return `A new dawn — begin Day ${cycleDayIdx} of thy devotion.`;
+                return `Streak broken — start anew at Day ${cycleDayIdx}.`;
+              })()}
             </div>
             <button onClick={tryClaim}
               className="px-6 py-3 rounded-sm text-base italic border-2 font-bold"

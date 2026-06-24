@@ -2,7 +2,7 @@
 
 A D&D-themed exam-prep study app — cybersecurity, IT, and CS certification material wrapped in a dungeon-delve gamification loop. Spaced repetition, timed full-length practice exams, rich-content question rendering (diagrams + code), forgetting-curve memory forecasts, optional cloud sync.
 
-**Live site:** [https://EvilPatrick06.github.io/dungeon-scholar/](https://EvilPatrick06.github.io/dungeon-scholar/) (deployed automatically from `main` via GitHub Actions)
+**Live site:** [https://evilpatrick06.github.io/home-lab/](https://evilpatrick06.github.io/home-lab/) (deployed automatically from `main` via GitHub Actions)
 
 ## What it does
 
@@ -21,7 +21,7 @@ React 19 · Vite ^8 · `@vitejs/plugin-react` ^6 · Tailwind CSS · Vitest · `v
 
 ## Using the app (no install needed)
 
-It's a web app — just visit **[EvilPatrick06.github.io/dungeon-scholar](https://EvilPatrick06.github.io/dungeon-scholar/)** in any modern browser (Chrome, Firefox, Safari, Edge). Works on desktop and mobile. No download, no account required.
+It's a web app — just visit **[evilpatrick06.github.io/home-lab](https://evilpatrick06.github.io/home-lab/)** in any modern browser (Chrome, Firefox, Safari, Edge). Works on desktop and mobile. No download, no account required.
 
 **Your first session:**
 1. Open the site. You'll land on the deck picker — each deck is one certification or topic (Security+, Network+, CompTIA A+, etc.).
@@ -155,6 +155,8 @@ gone for good.
 ## Deploy
 
 Every push to `main` triggers `.github/workflows/deploy.yml`. First-time setup (only once per fork):
+
+> **Note:** this repo (the `home-lab` monorepo) deploys under `/home-lab/` via the `VITE_BASE=/home-lab/` build secret, so the live URL is `https://evilpatrick06.github.io/home-lab/`. A fork renamed to `dungeon-scholar` gets the zero-config `/dungeon-scholar/` base in `vite.config.js` instead — the two are not contradictory.
 
 1. Update the `base` path in `vite.config.js` to match the repo name (currently `/dungeon-scholar/`). Both slashes matter.
 2. **Settings → Pages → Build and deployment → Source = GitHub Actions**.

@@ -48,6 +48,20 @@ export const computeNextClaim = (today, lastClaimedDate, currentStreak) => {
   return { claimedToday: false, willStreak, cycleDay };
 };
 
+// PHASE-02 (F5): status key for the calendar's not-claimed-today banner.
+// Returns 'continuing' | 'firstEver' | 'lapsedShort' | 'broken' so the UI renders
+// flavour copy from a tested decision instead of an inline three-way that called
+// ANY lapse "Streak broken" — even a first/1-day streak. "broken" is reserved for a
+// genuinely lost streak (a real one previously existed: longest >= 2); a lapsed
+// short/first streak gets neutral, encouraging copy.
+export const devotionStatus = ({ today, lastClaimedDate, streak = 0, longest = 0 }) => {
+  if (!lastClaimedDate) return 'firstEver';
+  const gap = dayDiff(lastClaimedDate, today);
+  if (gap === 1) return 'continuing';
+  if (streak === 0) return 'firstEver';
+  return longest >= 2 ? 'broken' : 'lapsedShort';
+};
+
 // M13 (17E): monotone-fence claim decision. `now` is epoch ms; `lastClaimedAt`
 // is the epoch-ms stamp written at the previous claim (null for legacy saves).
 // A backward clock step within 48 h refuses the claim — this is what blocks the
