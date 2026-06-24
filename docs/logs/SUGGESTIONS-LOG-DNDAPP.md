@@ -19,23 +19,20 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
----
-
-### [2026-06-23] Public web hosting cannot announce to the registry under `BMO_API_KEY` hardening (product/security decision)
-
-- **Category:** design-gotcha / product-decision
-- **Severity:** low
-- **Domain:** both (dnd-app renderer + bmo Pi `/api/games*` gate)
-- **During:** PHASE-46 (web registry announce) — F3, surfaced not decided per the plan + INSTRUCTIONS rule 9 case (b).
-
-**Description:**
-`/api/games*` is NOT in the Pi front-door public-unauth exemption set (`_PUBLIC_UNAUTH_PREFIXES` = `/api/library`, `/api/sounds`, `/DungeonTableOnline`; `_PUBLIC_UNAUTH_EXACT` = `/api/dnd/public/dm`) — see `bmo/pi/app.py:228` and PHASE-44 F1. With no `BMO_API_KEY` set the app is open, so an anonymous tunnelled browser host CAN announce (`_registry_authorized()` → `_bmo_bearer_authorized()` → True, `bmo/pi/app.py:2658`). But once `BMO_API_KEY` is set, two layers reject an anonymous web host's `POST /api/games`: the front-door gate 401s it (not exempt) and `_bmo_bearer_authorized()` fails (no Bearer). So a **Public web-hosted game cannot be listed under hardening**. PHASE-46 F1 makes this fail gracefully (honest "not listed — <reason>" instead of the null-deref), which is correct under either choice below — but whether Public web hosting *should* work under hardening is an owner call.
-
-**Proposed fix / improvement (owner decision):**
-- [ ] (a) Accept it — Public web hosting requires an unhardened deployment; the UI now fails gracefully (no further work). OR
-- [ ] (b) If Public web hosting must work under hardening, scope a separate phase adding a narrowly-scoped exemption or a host credential for the registry mutation routes — keep the `_PUBLIC_UNAUTH_PREFIXES` ↔ Cloudflare-Access bypass lockstep (PHASE-44 F1) and the PHASE-43 hardening-triage reachability philosophy in mind (don't blanket-open `/api/games*`).
-
-**Related files:** `bmo/pi/app.py:228` (`_PUBLIC_UNAUTH_PREFIXES`), `bmo/pi/app.py:2658` (`_registry_authorized`), `bmo/pi/app.py:2690` (`POST /api/games`), `dnd-app/src/web/web-api.ts` (registry shim), `dnd-app/src/renderer/src/network/host-announce.ts`.
+> **2026-06-23 (dnd-resolver) — integration note.** Six entries below are ALREADY
+> IMPLEMENTED by a prior `dnd-resolver` run, but that code is stranded on the
+> **local, unpushed** branch `auto/dnd-resolver-salvage` (last commit `6f4d6a9b`,
+> 2026-06-23): it was never pushed to origin, so the integrator never merged it —
+> yet that run's resolution notes DID reach master's `RESOLVED-*.md` (via the
+> union-merge driver). So master's resolved logs are AHEAD of master's code for:
+> command palette (Ctrl+K), first-run onboarding tour, character/campaign
+> export-import, in-app log open/export, update "What's New" release notes, and
+> settings.json (main-process prefs) export. They are kept here as still-open
+> w.r.t. master. **Fix = push + integrate `auto/dnd-resolver-salvage`** (a human /
+> integrator call) — NOT re-implement, which would duplicate and conflict with the
+> stranded branch. The other entries here (src/main/ai reorg, ai-service.ts
+> decompose, helper-suffix, e2e + a11y harness) are genuinely open and untouched
+> by that branch.
 
 ---
 
@@ -86,26 +83,6 @@ Flat dirs this large make it hard to see module boundaries and inflate the cost 
 **Related files:** `dnd-app/src/main/ai/ai-service.ts`, `dnd-app/src/main/ai/ai-service.test.ts`
 
 **Related entries:** [2026-06-22] `SettingsPage.tsx` is a ~1,950-LOC god component; circular-dependency entry in `ISSUES-LOG-DNDAPP.md`
-
----
-
-### [2026-06-23] `data-provider.ts` (840 LOC) sits beside a same-named `data-provider/` folder — fold the monolith into the folder
-
-- **Category:** debt
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-cleanup
-- **During:** automated cleanup/reorg scan of `dnd-app/`
-
-**Description:**
-`src/renderer/src/services/` contains both a 30 KB / ~840-LOC monolith `data-provider.ts` AND a `data-provider/` directory (`build-slot-options.ts`, `companion-files.ts`, `extracted-data-types.ts`, `transformers.ts`). Having a big single file living next to a folder of the same name — where helpers have already started being peeled off into the folder — is a half-finished refactor and a navigation smell (which one is the "real" data provider?). The cleaner end-state is to move `data-provider.ts` into the folder as `data-provider/index.ts` (so existing `services/data-provider` imports keep resolving) and continue splitting it into the sibling modules.
-
-**Proposed fix / improvement:**
-- [ ] `git mv src/renderer/src/services/data-provider.ts src/renderer/src/services/data-provider/index.ts` (imports of `services/data-provider` resolve to the folder index unchanged).
-- [ ] Continue extracting cohesive chunks from `index.ts` into sibling files in the folder.
-- [ ] Re-run `npm run dead-code` / `npm run circular` after the move.
-
-**Related files:** `dnd-app/src/renderer/src/services/data-provider.ts`, `dnd-app/src/renderer/src/services/data-provider/`
 
 ---
 
@@ -169,75 +146,6 @@ The app carries a deliberately broad accessibility investment: `use-accessibilit
 **Related entries:** see "No end-to-end / full-app test harness…" (2026-06-23) — an axe-over-web-build pass would share that harness.
 
 ---
-
-### [2026-06-23] `locale-parity` test is hardcoded to `es`; adding a new locale silently escapes key/placeholder checking
-
-- **Category:** future-idea, docs
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-suggestor
-- **During:** dnd-app tree review (i18n config + parity test survey)
-
-**Description:**
-The i18n infrastructure is strong (synchronous bundled locales, `gen-key-union.mjs`, a `generated-keys` union test, and `locale-parity.test.ts` proving key-set + `{{interpolation}}` parity), but it is wired specifically for the *two* locales that exist: `config.ts` declares `SUPPORTED_LOCALES = [en, es]`, and `locale-parity.test.ts` `import es from ./locales/es.json` with a hardcoded `describe(es locale parity, …)`. So adding a third locale (say `fr.json`) would: (a) require editing `SUPPORTED_LOCALES` + `LOCALE_LABELS` by hand, and (b) **not** be covered by the parity/placeholder test at all unless someone duplicates the test block — exactly the "second locale missing keys passes silently" gap the test author called out, just shifted one locale over. Separately, `i18n/README.md` documents adding a *key* but not adding a *locale*, so the end-to-end "add a language" path is undocumented.
-
-**Hypothesis / root cause:** the parity test + supported-locale list were authored for the en→es pair (Phase 34a) and not generalized, since only one translation exists today.
-
-**Proposed fix / improvement:**
-- [ ] Make `locale-parity.test.ts` data-driven: iterate every non-`en` entry in `SUPPORTED_LOCALES`, loading each `locales/<code>.json` and asserting key-set + placeholder parity, so any future locale is auto-covered.
-- [ ] Add an "Adding a new locale" section to `i18n/README.md` (create `<code>.json`, extend `SUPPORTED_LOCALES` + `LOCALE_LABELS`, run the parity test) to lower the barrier to community translations.
-- [ ] Optional: a tiny scaffold script that copies `en.json` to a new locale stub so translators start from a complete key tree.
-
-**Related files:** `src/renderer/src/i18n/config.ts`, `src/renderer/src/i18n/locale-parity.test.ts`, `src/renderer/src/i18n/README.md`, `src/renderer/src/i18n/locales/{en,es}.json`, `scripts/i18n/gen-key-union.mjs`
-
----
-
-### [2026-06-22] Inconsistent casing in the `dnd-app/docs/phases/` tree (`completed` vs `QA/Completed`, `INSTRUCTIONS.md` vs `QA/instructions.md`)
-
-- **Category:** docs
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-cleanup
-- **During:** automated cleanup/reorg scan of `dnd-app/`
-
-**Description:**
-Parallel concepts in the same phases doc tree are named with different casing, which is a small but real organization smell (and a portability hazard on case-insensitive filesystems if a sibling dir is ever added):
-
-- `dnd-app/docs/phases/completed/` (lowercase `c`) vs `dnd-app/docs/phases/QA/Completed/` (capital `C`) — the two "completed archive" folders disagree.
-- `dnd-app/docs/phases/INSTRUCTIONS.md` (uppercase) vs `dnd-app/docs/phases/QA/instructions.md` (lowercase) — the two instruction files disagree.
-
-Pick one convention and apply it to both. Lowercase-kebab (`completed/`, `instructions.md`) is the more common choice in this repo; whichever is picked, the `INSTRUCTIONS.md` references and `PHASE-INDEX.md` "move to `completed/`" wording should match.
-
-**Proposed fix / improvement:**
-- [ ] Rename `docs/phases/QA/Completed/` -> `docs/phases/QA/completed/` (or rename the top-level one to match — pick one).
-- [ ] Rename `docs/phases/QA/instructions.md` -> `INSTRUCTIONS.md` (or the top-level one to lowercase — pick one) and update any references.
-- [ ] Use `git mv` so history is preserved; grep the phases docs for the old paths afterward.
-
-**Related files:** `dnd-app/docs/phases/completed/`, `dnd-app/docs/phases/QA/Completed/`, `dnd-app/docs/phases/INSTRUCTIONS.md`, `dnd-app/docs/phases/QA/instructions.md`, `dnd-app/docs/phases/PHASE-INDEX.md`
-
----
-
-### [2026-06-22] Duplicate, already-diverging `PLUGIN-SYSTEM.md` — one at repo-root `docs/`, one in `dnd-app/docs/`
-
-- **Category:** docs
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-cleanup
-- **During:** automated cleanup/reorg scan of `dnd-app/`
-
-**Description:**
-There are two `PLUGIN-SYSTEM.md` files, both titled `# Plugin System - dnd-app`, describing the same dnd-app plugin API:
-
-- `docs/PLUGIN-SYSTEM.md` (repo root, ~6.6 KB)
-- `dnd-app/docs/PLUGIN-SYSTEM.md` (~11.2 KB)
-
-They already disagree: the root copy is shorter/older and even points readers at the dnd-app copy for the trust model ("see the trust model in `dnd-app/docs/PLUGIN-SYSTEM.md`"), so the root file is effectively a stale partial mirror of the canonical one. Two copies of a domain-specific doc is exactly the drift pattern the per-domain doc split was meant to avoid. (Note: the dnd-app `README.md` "Plugin system" section links to `./docs/PLUGIN-SYSTEM.md`, i.e. the dnd-app copy — so the root copy has no obvious inbound link from dnd-app.)
-
-**Proposed fix / improvement:**
-- [ ] Treat `dnd-app/docs/PLUGIN-SYSTEM.md` as canonical (it is the fuller, linked one). Replace `docs/PLUGIN-SYSTEM.md` with a one-line pointer to it, or delete the root copy if nothing references it (grep first: `git grep -n "docs/PLUGIN-SYSTEM.md"`).
-- [ ] If the root copy must stay (e.g. monorepo-level index), reduce it to a stub link so the content lives in exactly one place.
-
-**Related files:** `docs/PLUGIN-SYSTEM.md`, `dnd-app/docs/PLUGIN-SYSTEM.md`, `dnd-app/README.md`
 
 ### [2026-06-22] No user-facing export/import of a character or campaign to a portable file
 
@@ -307,119 +215,6 @@ First-run UX is limited to two narrow, single-purpose prompts wired into `App.ts
 
 **Related files:** `src/main/log.ts`, `src/main/index.ts`, `src/renderer/src/pages/SettingsPage.tsx`, `src/shared/ipc-channels.ts`
 
-### [2026-06-22] macOS target is configured but never built or shipped (no `macos-latest` in the release matrix)
-
-- **Category:** portability, future-idea
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-suggestor
-- **During:** dnd-app tree review (release workflow vs package.json build config)
-
-**Description:**
-`package.json` defines a full mac build path (`build:mac`, `release:mac`, and a `build.mac` electron-builder block producing DMG + ZIP) and the README documents macOS as a supported-in-principle target, but `.github/workflows/release.yml`'s build matrix is only `windows-latest` + `ubuntu-latest` — zero `macos`/`dmg` references in the workflow. So the mac config is dormant: it is never exercised in CI and no macOS artifact is ever published. The result is config that can silently rot (electron-builder mac options drift untested) and a documented platform users cannot actually download. electron-builder cannot produce signed/notarized mac artifacts off a non-mac runner, so closing this needs a `macos-latest` matrix leg, not just a flag.
-
-**Proposed fix / improvement:**
-- [ ] Add a `macos-latest` leg to the `build` matrix in `release.yml` (even unsigned, to start) so the mac config is at least built and smoke-tested each release.
-- [ ] Decide on signing/notarization (Developer ID + notarytool) before publishing mac artifacts, or clearly mark mac builds as unsigned in the release notes.
-- [ ] If macOS support is deferred indefinitely, note that explicitly next to the `build.mac` config so contributors know it is intentionally dormant.
-
-**Related files:** `.github/workflows/release.yml`, `dnd-app/package.json`, `dnd-app/README.md`
-
-### [2026-06-22] `SettingsPage.tsx` is a ~1,950-LOC god component — split into per-section panels
-
-- **Category:** debt, future-idea
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-suggestor
-- **During:** dnd-app tree review (largest hand-written source files)
-
-**Description:**
-`src/renderer/src/pages/SettingsPage.tsx` is 1,946 LOC — the single largest hand-authored source file in the app (excluding the generated `i18n/generated-keys.ts`). It bundles every settings domain into one component: accessibility, theme, keybindings, grid, dice, audio, auto-update prefs, and the export/import logic (see the separate export-prefs entry below). A file this size is hard to review, easy to merge-conflict on (every settings tweak touches the same file), and obscures which state each section owns. The app already presents a per-section UI; extracting each section into its own `settings/<Section>Panel.tsx` (driven by a small tab registry) would shrink the parent to a router shell and make each panel independently testable.
-
-**Proposed fix / improvement:**
-- [ ] Extract each settings section into `pages/settings/<Section>Panel.tsx`, leaving `SettingsPage.tsx` as a tab host.
-- [ ] Co-locate each panel's local state/handlers with its panel; share only cross-cutting state via the existing stores.
-- [ ] Add focused unit tests per panel (a 1,946-LOC component is effectively untestable in isolation today).
-
-**Related files:** `src/renderer/src/pages/SettingsPage.tsx`
-
-### [2026-06-22] Pin one Node version for the whole monorepo (.nvmrc / engines) instead of repeating `node-version: 22`
-
-- **Category:** portability
-- **Severity:** low
-- **Domain:** both
-- **Discovered by:** overall-suggestor
-- **During:** cross-cutting repo-wide scan
-
-**Description:**
-`node-version: 22` is hardcoded in 7 places across 5 workflows (`dnd-app-ci`, `security-audit`, `dnd-app-validate-5e`, `release` ×3, `deploy`). There is no root `.nvmrc`, no `engines.node` field in any package.json (`dnd-app` / `dungeon-scholar` / `oracle-worker`), and no Volta pin. Local contributors can build on any Node, and bumping the toolchain means hand-editing every workflow.
-
-**Proposed fix / improvement:**
-- [ ] Add a root `.nvmrc` (e.g. `22`).
-- [ ] Add a matching `engines.node` to each project package.json.
-- [ ] Switch workflows to `node-version-file: .nvmrc` so the version lives in one place.
-
-**Related files:** `.github/workflows/*.yml`, `dnd-app/package.json`, `dungeon-scholar/package.json`, `oracle-worker/package.json`
-
-### [2026-06-22] No PR-time CI gate for dungeon-scholar or oracle-worker
-
-- **Category:** future-idea
-- **Severity:** medium
-- **Domain:** both
-- **Discovered by:** overall-suggestor
-- **During:** cross-cutting repo-wide scan
-
-**Description:**
-`dnd-app` has a dedicated CI gate (lint + forbidden-patterns + tsc + tests + build smoke + circular + audit). `dungeon-scholar` runs `npm run test` ONLY as a precondition of the Pages deploy (`deploy.yml`, push to main) — there is no `pull_request`-triggered test/build gate, so a PR merges green and only fails later at deploy time. `oracle-worker` has a `test` script but zero workflows reference it, so its tests never run in CI.
-
-**Proposed fix / improvement:**
-- [ ] Add `dungeon-scholar-ci.yml` (path-filtered test + build on push + PR).
-- [ ] Add `oracle-worker-ci.yml` (npm ci + test).
-- [ ] Optionally factor the shared setup-node / npm-ci steps into a composite action reused by all JS-project workflows.
-
-**Related files:** `.github/workflows/deploy.yml`, `dungeon-scholar/package.json`, `oracle-worker/package.json`
-
-### [2026-06-22] Local pre-commit hook gates only dnd-app; `.githooks/` dir is now orphaned
-
-- **Category:** future-idea
-- **Severity:** low
-- **Domain:** both
-- **Discovered by:** overall-suggestor
-- **During:** cross-cutting repo-wide scan
-
-**Description:**
-`.husky/pre-commit` does `cd dnd-app` then runs biome + tsc on that project only. Commits touching `dungeon-scholar`, `oracle-worker`, or repo-root tooling get no local lint/typecheck/test pre-flight (dungeon-scholar`s first gate is the deploy workflow; oracle-worker has none). Separately, `.githooks/pre-commit` is now redundant — its gitleaks shim was folded into `.husky/` per that hook`s own comment, yet the old dir remains and can confuse anyone setting `core.hooksPath`.
-
-**Proposed fix / improvement:**
-- [ ] Make the hook detect which project(s) have staged changes and run each one`s lint/typecheck (at minimum add dungeon-scholar test/build).
-- [ ] Delete the orphaned `.githooks/` directory once `.husky` is confirmed authoritative.
-
-**Related entries:** `ISSUES-LOG-DNDAPP.md` [2026-06-16] pre-commit `--staged` no-op (distinct dnd-app-only bug).
-**Related files:** `.husky/pre-commit`, `.githooks/pre-commit`
-
-### [2026-06-22] Four hand-maintained agent-instruction files will drift (AGENTS / CLAUDE / GEMINI / copilot)
-
-- **Category:** future-idea
-- **Severity:** low
-- **Domain:** both
-- **Discovered by:** overall-suggestor
-- **During:** cross-cutting repo-wide scan
-
-**Description:**
-The repo carries four overlapping AI-assistant guides — `AGENTS.md` (12.8K), `CLAUDE.md` (11.3K), `GEMINI.md` (5.2K), `.github/copilot-instructions.md` (4.6K) — each maintained by hand. They cover much of the same ground (repo layout, conventions, logging rules) and will drift out of sync as the repo evolves.
-
-**Proposed fix / improvement:**
-- [ ] Designate one canonical source (e.g. `AGENTS.md`); generate or symlink the others from it, or add a sync check that flags when shared sections diverge.
-- [ ] At minimum, have each file link to the canonical one for shared sections instead of duplicating them.
-
-**Related files:** `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.github/copilot-instructions.md`
-
-> **2026-06-10 — Backlog consolidated.** All previously-open entries (incl. the
-> still-open residuals of the 2026-05-18 phase-plan absorption: Phase 33a backup
-> migration framework, 33c ModalScaffold, 33d bundle-size CI guard — and the
-> Phase 15 library-invariant observation) became the numbered phase plans under [`../dnd-app/docs/phases/`](../dnd-app/docs/phases/) (start at [`PHASE-INDEX.md`](../dnd-app/docs/phases/PHASE-INDEX.md)); the consolidating audit was deleted once the phase set was authored (2026-06-11). Add new
-> dnd-app ideas below as they appear.
-
 ### Surface release notes / "What's New" on update (auto-updater discards `releaseNotes`)
 
 **Category:** future-idea, UX · **Severity:** low · **Domain:** dnd-app · **Discovered by:** dnd-suggestor · **Added:** 2026-06-22
@@ -433,39 +228,3 @@ The repo carries four overlapping AI-assistant guides — `AGENTS.md` (12.8K), `
 `SettingsPage.tsx`'s Export Settings (~L1753) iterates `localStorage` and dumps every key into the export JSON; Import writes them back. That captures a11y, theme, keybindings, grid, dice, audio, etc. — but the auto-update preferences (`autoCheckUpdates`, `autoDownloadUpdates`, `autoRestartAfterUpdate`, `autoInstallSilent`) live in the **main process** at `userData/settings.json` (see `updater.ts > loadAutoUpdatePrefs`), so they are silently excluded. A user exporting settings to migrate to a new machine loses those four prefs with no warning. Proposal: add an IPC round-trip so export pulls `settings.json` (merged under a namespaced key) and import writes it back through the main process — or, at minimum, note in the export UI that update prefs are machine-local. Low severity (only 4 prefs, easily re-set), but it makes "Export Settings" quietly incomplete. Related: `src/renderer/src/pages/SettingsPage.tsx`, `src/main/updater.ts`.
 
 
-### Slim the narration prompt's tag instructions once structured extraction is the default (PHASE-23 follow-up)
-
-**Type:** future-idea · **Domain:** dnd-app · **Added:** 2026-06-16
-
-PHASE-23 added opt-in two-call structured extraction (`aiDm.structuredExtraction`), but
-the narration prompt keeps its `[STAT_CHANGES]`/`[DM_ACTIONS]` instructions in ALL modes
-(forking the system prompt by config + regressing DM board actions, which extraction
-doesn't cover, was not worth it now). Once `structuredExtraction: 'always'` is the
-default AND `getRepairJsonStats().modified` stays at zero across releases, removing the
-tag-emission instructions from `prompt-sections/*` + retiring `repairJson` becomes
-worthwhile (retirement criteria live in `src/main/ai/AI_ACTION_CONTRACT.md`). Depends on
-PHASE-27 extending the extraction verb set to cover board actions first.
-
-*(none active)*
-
----
-
-# Design gotchas (warnings for future agents)
-
-*(Design gotchas + standing observations are now documented in [`dnd-app/docs/DESIGN-CONSTRAINTS.md`](../dnd-app/docs/DESIGN-CONSTRAINTS.md) — per the routing rule in [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md). This section is kept only as a pointer.)*
-
----
-
-# Info / Observations
-
----
-
----
-
----
-
----
-
----
-
-> BMO suggestions: [`BMO-SUGGESTIONS-LOG.md`](./BMO-SUGGESTIONS-LOG.md). dnd-app bugs: [`ISSUES-LOG-DNDAPP.md`](./ISSUES-LOG-DNDAPP.md). Security: [`SECURITY-LOG.md`](./SECURITY-LOG.md) (gitignored). Resolved dnd-app: [`RESOLVED-ISSUES-DNDAPP.md`](./RESOLVED-ISSUES-DNDAPP.md).
