@@ -59,11 +59,12 @@ export function buildCertificateText({ scholarName, tomeTitle, title, masteryPct
 }
 
 export function certificateFilename({ tomeTitle } = {}) {
-  const slug = safeName(tomeTitle, 'tome')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 60) || 'tome';
+  const slug =
+    safeName(tomeTitle, 'tome')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 60) || 'tome';
   return `dungeon-scholar-certificate-${slug}.png`;
 }
 

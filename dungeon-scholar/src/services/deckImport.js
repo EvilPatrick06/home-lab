@@ -95,7 +95,15 @@ function looksLikeHeader(row) {
     .slice(0, 3)
     .map((c) => c.trim().toLowerCase())
     .join('|');
-  return HEADER_PAIRS.has(key) || HEADER_PAIRS.has(row.slice(0, 2).map((c) => c.trim().toLowerCase()).join('|'));
+  return (
+    HEADER_PAIRS.has(key) ||
+    HEADER_PAIRS.has(
+      row
+        .slice(0, 2)
+        .map((c) => c.trim().toLowerCase())
+        .join('|'),
+    )
+  );
 }
 
 /**

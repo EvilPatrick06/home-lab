@@ -14,7 +14,7 @@
 const DAY_MS = 86400000;
 
 function pickFinite(n, fallback) {
-  return (typeof n === 'number' && Number.isFinite(n)) ? n : fallback;
+  return typeof n === 'number' && Number.isFinite(n) ? n : fallback;
 }
 
 function isUsableState(s) {
@@ -29,7 +29,7 @@ function isUsableState(s) {
 export function retrievabilityAt(state, atTime) {
   if (!isUsableState(state)) return null;
   const elapsedDays = Math.max(0, (atTime - state.lastReview) / DAY_MS);
-  return Math.pow(1 + elapsedDays / (9 * state.stability), -1);
+  return (1 + elapsedDays / (9 * state.stability)) ** -1;
 }
 
 export function computeAverageRetrievability(stateList, atTime) {
@@ -70,10 +70,11 @@ const DEFAULT_MILESTONE_OFFSETS = [0, 1, 7, 30];
 
 export function computeMilestones(stateList, options = {}) {
   const now = pickFinite(options.now, Date.now());
-  const offsets = Array.isArray(options.offsets) && options.offsets.length > 0
-    ? options.offsets.map(o => pickFinite(o, 0))
-    : DEFAULT_MILESTONE_OFFSETS;
-  return offsets.map(offsetDays => {
+  const offsets =
+    Array.isArray(options.offsets) && options.offsets.length > 0
+      ? options.offsets.map((o) => pickFinite(o, 0))
+      : DEFAULT_MILESTONE_OFFSETS;
+  return offsets.map((offsetDays) => {
     const t = now + offsetDays * DAY_MS;
     const { mean, sampleSize } = computeAverageRetrievability(stateList, t);
     return {

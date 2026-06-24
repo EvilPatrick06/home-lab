@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, render } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
 import DungeonScholarApp from './App.jsx';
 
 // Smoke test for App's top-level screen router. Added as the safety net for the

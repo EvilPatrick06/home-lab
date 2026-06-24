@@ -1,7 +1,7 @@
+import { AlertTriangle, Lock, Save, ScrollText, Trash2, Unlock, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { ScrollText, X, Lock, Unlock, Save, Trash2, AlertTriangle } from 'lucide-react';
-import { encryptPayload, decryptPayload, clearKeyCache } from '../services/notesCrypto.js';
 import { useDialogA11y } from '../hooks/useDialogA11y.js';
+import { clearKeyCache, decryptPayload, encryptPayload } from '../services/notesCrypto.js';
 
 // Phase 40F: per-tome encrypted private notes modal.
 //
@@ -17,7 +17,8 @@ import { useDialogA11y } from '../hooks/useDialogA11y.js';
 // localStorage and the cloud blob; rides the existing sync untouched).
 
 const MODAL_SHELL_STYLE = {
-  background: 'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.97) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.99) 100%)',
+  background:
+    'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.97) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.99) 100%)',
   border: '3px double rgba(245, 158, 11, 0.6)',
   boxShadow: '0 0 40px rgba(245, 158, 11, 0.3)',
 };
@@ -166,8 +167,7 @@ export default function TomeNotes({ tome, onSave, onClose }) {
           {mode === 'create' && (
             <form onSubmit={handleCreate}>
               <p className="text-sm text-amber-100/85 mb-3 italic">
-                Inscribe private notes for this tome. They are encrypted with a
-                passphrase only you hold.
+                Inscribe private notes for this tome. They are encrypted with a passphrase only you hold.
               </p>
               <p className="text-xs mb-4 flex items-start gap-2 italic" style={{ color: '#fca5a5' }}>
                 <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true" />
@@ -199,7 +199,9 @@ export default function TomeNotes({ tome, onSave, onClose }) {
                 />
               </label>
               {createError && (
-                <p role="alert" className="text-xs mb-3 italic" style={{ color: '#fca5a5' }}>{createError}</p>
+                <p role="alert" className="text-xs mb-3 italic" style={{ color: '#fca5a5' }}>
+                  {createError}
+                </p>
               )}
               <button
                 type="submit"
@@ -234,7 +236,9 @@ export default function TomeNotes({ tome, onSave, onClose }) {
                 />
               </label>
               {unlockError && (
-                <p role="alert" className="text-xs mb-3 italic" style={{ color: '#fca5a5' }}>{unlockError}</p>
+                <p role="alert" className="text-xs mb-3 italic" style={{ color: '#fca5a5' }}>
+                  {unlockError}
+                </p>
               )}
               <button
                 type="submit"

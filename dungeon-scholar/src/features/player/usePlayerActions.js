@@ -1,21 +1,20 @@
 import { useMemo } from 'react';
-
-import { TITLES, xpForLevel } from '../../game/titles.js';
+import { findItem, RECIPES, sanctumAtCap } from '../../game/items.js';
 import {
+  currentWeekStartStr,
   DAILY_QUEST_POOL,
-  WEEKLY_QUEST_POOL,
-  STORY_CHAINS,
   getCounterValue,
   pickDailyQuests,
   pickWeeklyQuests,
-  currentWeekStartStr,
+  STORY_CHAINS,
+  WEEKLY_QUEST_POOL,
 } from '../../game/quests.js';
-import { RECIPES, findItem, sanctumAtCap } from '../../game/items.js';
-import { generateTomeId, normalizeTomeData, blankTomeProgress } from '../../game/tome.js';
+import { TITLES, xpForLevel } from '../../game/titles.js';
+import { blankTomeProgress, generateTomeId, normalizeTomeData } from '../../game/tome.js';
+import { DAILY_REWARDS, evaluateClaim, todayDateStr } from '../../services/devotion.js';
+import { findPet, petLevelFromXp } from '../../services/pets.js';
 import { isSealedTome } from '../../services/sealedTome.js';
-import { petLevelFromXp, findPet } from '../../services/pets.js';
 import { findSpell } from '../../services/spells.js';
-import { DAILY_REWARDS, todayDateStr, evaluateClaim } from '../../services/devotion.js';
 
 // Phase 39F: pure state-mutating player actions extracted verbatim from
 // DungeonScholarApp. These handlers read only playerState/setPlayerState/
@@ -23,18 +22,34 @@ import { DAILY_REWARDS, todayDateStr, evaluateClaim } from '../../services/devot
 // They hold no React refs — toast/UI effects (seen* refs, prevLevelRef,
 // notifTimeoutRef, welcomeShownRef, fileInputRef) stay in App.
 export function usePlayerActions({ playerState, setPlayerState, showNotif, user }) {
-  const totalCardsAcrossLib = useMemo(() => playerState.library.reduce((s, t) => s + (t.progress?.cardsReviewed || 0), 0), [playerState.library]);
+  const totalCardsAcrossLib = useMemo(
+    () => playerState.library.reduce((s, t) => s + (t.progress?.cardsReviewed || 0), 0),
+    [playerState.library],
+  );
   const totalLabsAttemptedAcrossLib = useMemo(
     () => playerState.library.reduce((s, t) => s + (t.progress?.labsAttempted || 0), 0),
-    [playerState.library]
+    [playerState.library],
   );
-  const totalOracleAcrossLib = useMemo(() => playerState.library.reduce((s, t) => s + ((t.progress?.chatHistory || []).filter(m => m.role === 'user').length), 0), [playerState.library]);
-  const totalRunsAcrossLib = useMemo(() => playerState.library.reduce((s, t) => s + (t.progress?.runsCompleted || 0), 0), [playerState.library]);
-  const totalQuizAnsweredAcrossLib = useMemo(() => playerState.library.reduce((s, t) => s + (t.progress?.quizAnswered || 0), 0), [playerState.library]);
+  const totalOracleAcrossLib = useMemo(
+    () =>
+      playerState.library.reduce(
+        (s, t) => s + (t.progress?.chatHistory || []).filter((m) => m.role === 'user').length,
+        0,
+      ),
+    [playerState.library],
+  );
+  const totalRunsAcrossLib = useMemo(
+    () => playerState.library.reduce((s, t) => s + (t.progress?.runsCompleted || 0), 0),
+    [playerState.library],
+  );
+  const totalQuizAnsweredAcrossLib = useMemo(
+    () => playerState.library.reduce((s, t) => s + (t.progress?.quizAnswered || 0), 0),
+    [playerState.library],
+  );
   const totalDungeonRunsAttempted = useMemo(() => totalRunsAcrossLib, [totalRunsAcrossLib]);
 
   const updateProgress = (updates) => {
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       const next = { ...prev, ...updates };
       let leveledUp = false;
       while (next.xp >= xpForLevel(next.level)) {
@@ -43,7 +58,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
         leveledUp = true;
       }
       if (leveledUp) {
-        const newTitle = TITLES.find(t => next.level >= t.min && next.level <= t.max);
+        const newTitle = TITLES.find((t) => next.level >= t.min && next.level <= t.max);
         if (newTitle && !next.unlockedTitles.includes(newTitle.name)) {
           next.unlockedTitles = [...next.unlockedTitles, newTitle.name];
         }
@@ -54,7 +69,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
           { lvl: 50, id: 'level_50' },
           { lvl: 100, id: 'level_100' },
         ];
-        levelMilestones.forEach(m => {
+        levelMilestones.forEach((m) => {
           if (next.level >= m.lvl && !next.achievements.includes(m.id)) {
             next.achievements = [...next.achievements, m.id];
           }
@@ -64,7 +79,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
           { amt: 10000, id: 'xp_10k' },
           { amt: 50000, id: 'xp_50k' },
         ];
-        xpMilestones.forEach(m => {
+        xpMilestones.forEach((m) => {
           if (next.totalXp >= m.amt && !next.achievements.includes(m.id)) {
             next.achievements = [...next.achievements, m.id];
           }
@@ -85,11 +100,11 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   // patch derived from a stale render-time `tomeProgress` prop. The function MUST
   // be pure (no side effects) — it may be replayed under StrictMode/concurrent rendering.
   const updateTomeProgress = (updates) => {
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       if (!prev.activeTomeId) return prev;
       return {
         ...prev,
-        library: prev.library.map(t => {
+        library: prev.library.map((t) => {
           if (t.id !== prev.activeTomeId) return t;
           const patch = typeof updates === 'function' ? updates(t.progress || {}) : updates;
           return { ...t, progress: { ...t.progress, ...patch } };
@@ -103,11 +118,11 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   // tome (the player can only review cards from the active tome).
   const updateCardProgress = (cardId, nextState) => {
     if (!cardId || !nextState) return;
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       if (!prev.activeTomeId) return prev;
       return {
         ...prev,
-        library: (prev.library || []).map(t => {
+        library: (prev.library || []).map((t) => {
           if (t.id !== prev.activeTomeId) return t;
           const map = { ...((t.progress && t.progress.cardProgress) || {}) };
           map[cardId] = nextState;
@@ -122,13 +137,11 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   // analyzing. Pass null/'' to clear.
   const setTomeExamDate = (tomeId, dateString) => {
     if (!tomeId) return;
-    const normalized = (typeof dateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateString)) ? dateString : null;
-    setPlayerState(prev => ({
+    const normalized = typeof dateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateString) ? dateString : null;
+    setPlayerState((prev) => ({
       ...prev,
-      library: (prev.library || []).map(t =>
-        t.id === tomeId
-          ? { ...t, progress: { ...(t.progress || {}), examDate: normalized } }
-          : t
+      library: (prev.library || []).map((t) =>
+        t.id === tomeId ? { ...t, progress: { ...(t.progress || {}), examDate: normalized } } : t,
       ),
     }));
   };
@@ -143,7 +156,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
 
   const awardGold = (amount, reason) => {
     if (!amount || amount <= 0) return;
-    setPlayerState(prev => ({ ...prev, gold: (prev.gold || 0) + amount }));
+    setPlayerState((prev) => ({ ...prev, gold: (prev.gold || 0) + amount }));
     if (reason) showNotif(`+${amount} gold — ${reason}`, 'xp');
   };
 
@@ -155,7 +168,10 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
 
     const owned = (playerState.inventory || {})[itemId] || 0;
     if (item.oneTime && owned > 0) return { ok: false, reason: 'Thou already ownest this.' };
-    if ((item.category === 'sanctum' || item.category === 'devotion' || item.category === 'celestial') && sanctumAtCap(playerState, item)) {
+    if (
+      (item.category === 'sanctum' || item.category === 'devotion' || item.category === 'celestial') &&
+      sanctumAtCap(playerState, item)
+    ) {
       return { ok: false, reason: 'Thou hast reached the cap of this boon.' };
     }
     // Phase 20: devotion-priced items spend playerState.devotion instead of gold.
@@ -174,19 +190,22 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
       return { ok: false, reason: 'Insufficient gold to claim this ware.' };
     }
 
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       const next = {
         ...prev,
-        gold: (usesDevotion || usesTokens) ? (prev.gold || 0) : ((prev.gold || 0) - item.price),
-        devotion: usesDevotion ? ((prev.devotion || 0) - item.devotionPrice) : (prev.devotion || 0),
-        ascensionTokens: usesTokens ? ((prev.ascensionTokens || 0) - item.ascensionPrice) : (prev.ascensionTokens || 0),
+        gold: usesDevotion || usesTokens ? prev.gold || 0 : (prev.gold || 0) - item.price,
+        devotion: usesDevotion ? (prev.devotion || 0) - item.devotionPrice : prev.devotion || 0,
+        ascensionTokens: usesTokens ? (prev.ascensionTokens || 0) - item.ascensionPrice : prev.ascensionTokens || 0,
         inventory: {
           ...(prev.inventory || {}),
           [item.id]: ((prev.inventory || {})[item.id] || 0) + 1,
         },
       };
       // Sanctum + devotion + celestial all stack into permUpgrades counters.
-      if ((item.category === 'sanctum' || item.category === 'devotion' || item.category === 'celestial') && item.permKey) {
+      if (
+        (item.category === 'sanctum' || item.category === 'devotion' || item.category === 'celestial') &&
+        item.permKey
+      ) {
         const step = item.step || 1;
         next.permUpgrades = {
           ...(prev.permUpgrades || {}),
@@ -217,8 +236,8 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
     const costStr = usesDevotion
       ? `${item.devotionPrice} devotion`
       : usesTokens
-      ? `${item.ascensionPrice} ascension token${item.ascensionPrice === 1 ? '' : 's'}`
-      : `${item.price} gold`;
+        ? `${item.ascensionPrice} ascension token${item.ascensionPrice === 1 ? '' : 's'}`
+        : `${item.price} gold`;
     setTimeout(() => showNotif(`Acquired: ${item.name} (-${costStr})`, 'success'), 50);
     return { ok: true };
   };
@@ -229,7 +248,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
     if (!item || !item.slot) return { ok: false, reason: 'This ware cannot be equipped.' };
     if (item.locked) return { ok: false, reason: 'This ware is sealed until a future age.' };
     if (!((playerState.inventory || {})[itemId] || 0)) return { ok: false, reason: 'Thou dost not own this.' };
-    setPlayerState(prev => ({
+    setPlayerState((prev) => ({
       ...prev,
       equipped: { ...(prev.equipped || {}), [item.slot]: itemId },
     }));
@@ -238,7 +257,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   };
 
   const unequipSlot = (slot) => {
-    setPlayerState(prev => ({
+    setPlayerState((prev) => ({
       ...prev,
       equipped: { ...(prev.equipped || {}), [slot]: null },
     }));
@@ -248,10 +267,10 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   const equipPet = (petId) => {
     const pet = findPet(petId);
     if (!pet) return { ok: false, reason: 'Unknown familiar.' };
-    if (!((playerState.pets || {})[petId])) {
+    if (!(playerState.pets || {})[petId]) {
       return { ok: false, reason: 'Thou hast not hatched this familiar yet.' };
     }
-    setPlayerState(prev => ({
+    setPlayerState((prev) => ({
       ...prev,
       equipped: { ...(prev.equipped || {}), pet: petId },
     }));
@@ -261,7 +280,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
 
   // Phase 18: dismiss the active pet without forgetting it.
   const unequipPet = () => {
-    setPlayerState(prev => ({
+    setPlayerState((prev) => ({
       ...prev,
       equipped: { ...(prev.equipped || {}), pet: null },
     }));
@@ -278,7 +297,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
     const curRender = (playerState.pets || {})[petId] || { xp: 0 };
     const beforeLvlRender = petLevelFromXp(curRender.xp || 0);
     const afterLvlRender = petLevelFromXp((curRender.xp || 0) + amount);
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       const cur = (prev.pets || {})[petId] || { hatchedAt: new Date().toISOString(), xp: 0 };
       const nextXp = (cur.xp || 0) + amount;
       return {
@@ -313,7 +332,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
     const reward = DAILY_REWARDS[cycleDay - 1];
     if (!reward) return { ok: false, reason: 'Reward table missing.' };
     const claimedAt = Date.now();
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       const inv = { ...(prev.inventory || {}) };
       (reward.items || []).forEach(({ id, n }) => {
         inv[id] = (inv[id] || 0) + n;
@@ -333,7 +352,14 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
         cycleDay,
       };
     });
-    setTimeout(() => showNotif(`Day ${cycleDay} claimed: +${reward.gold} gold, +${reward.xp} XP, +${reward.devotion} devotion`, 'success'), 50);
+    setTimeout(
+      () =>
+        showNotif(
+          `Day ${cycleDay} claimed: +${reward.gold} gold, +${reward.xp} XP, +${reward.devotion} devotion`,
+          'success',
+        ),
+      50,
+    );
     return { ok: true, reward };
   };
 
@@ -347,7 +373,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
     if (!canAscend) {
       return { ok: false, reason: `Reach level ${ASCENSION_LEVEL_REQ} to transcend the cycle.` };
     }
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       // Inventory: keep ingredient stacks (they're hard to regrind) but
       // wipe consumable potions and one-time gear acquired this cycle.
       const newInv = {};
@@ -367,8 +393,9 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
         // permUpgrades wipe the gold/cycle ones; celestial fonts persist
         // because their permKeys start with "asc". Same for devotion.
         permUpgrades: Object.fromEntries(
-          Object.entries(prev.permUpgrades || {}).filter(([k]) =>
-            k.startsWith('asc') || ['petXpBonus', 'devoGoldPct', 'fullLoreOnFirst'].includes(k))
+          Object.entries(prev.permUpgrades || {}).filter(
+            ([k]) => k.startsWith('asc') || ['petXpBonus', 'devoGoldPct', 'fullLoreOnFirst'].includes(k),
+          ),
         ),
         ascensions: (prev.ascensions || 0) + 1,
         ascensionTokens: (prev.ascensionTokens || 0) + 1,
@@ -384,17 +411,17 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   const equipSpell = (spellId, slotIdx) => {
     const spell = findSpell(spellId);
     if (!spell) return { ok: false, reason: 'Unknown incantation.' };
-    if (!((playerState.spellbook || {})[spellId])) {
+    if (!(playerState.spellbook || {})[spellId]) {
       return { ok: false, reason: 'Thou hast not learned this spell.' };
     }
     let placed = false;
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       const slots = [...(prev.equippedSpells || [null, null, null])];
       if (typeof slotIdx === 'number') {
         slots[slotIdx] = spellId;
         placed = true;
       } else {
-        const empty = slots.findIndex(s => !s);
+        const empty = slots.findIndex((s) => !s);
         if (empty < 0) return prev;
         slots[empty] = spellId;
         placed = true;
@@ -406,7 +433,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   };
 
   const unequipSpell = (slotIdx) => {
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       const slots = [...(prev.equippedSpells || [null, null, null])];
       slots[slotIdx] = null;
       return { ...prev, equippedSpells: slots };
@@ -424,13 +451,13 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
       return { ok: false, reason: 'Thou dost not own this.' };
     }
     let placed = false;
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       const potions = [...(prev.equipped?.potions || [null, null, null])];
       if (typeof slotIdx === 'number') {
         potions[slotIdx] = itemId;
         placed = true;
       } else {
-        const empty = potions.findIndex(p => !p);
+        const empty = potions.findIndex((p) => !p);
         if (empty < 0) return prev;
         potions[empty] = itemId;
         placed = true;
@@ -442,7 +469,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   };
 
   const unequipPotion = (slotIdx) => {
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       const potions = [...(prev.equipped?.potions || [null, null, null])];
       potions[slotIdx] = null;
       return { ...prev, equipped: { ...(prev.equipped || {}), potions } };
@@ -453,7 +480,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   // the first-defeated date so future analytics can show progression.
   const recordBestiary = (kind) => {
     if (!kind) return;
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       const b = { ...(prev.bestiary || {}) };
       const cur = b[kind] || { defeats: 0, firstDefeatedAt: null };
       b[kind] = {
@@ -467,15 +494,15 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   // 25j: bumped from DungeonExplore each time a spell-cast pay() succeeds
   // or harvestHere fires. Drives the post-Phase-16 daily/weekly quests.
   const recordSpellCast = () => {
-    setPlayerState(prev => ({ ...prev, spellsCast: (prev.spellsCast || 0) + 1 }));
+    setPlayerState((prev) => ({ ...prev, spellsCast: (prev.spellsCast || 0) + 1 }));
   };
   const recordHarvest = () => {
-    setPlayerState(prev => ({ ...prev, plantsHarvested: (prev.plantsHarvested || 0) + 1 }));
+    setPlayerState((prev) => ({ ...prev, plantsHarvested: (prev.plantsHarvested || 0) + 1 }));
   };
 
   // Phase 16: spend ingredients to brew a potion. Returns { ok, reason }.
   const craftRecipe = (recipeId) => {
-    const recipe = RECIPES.find(r => r.id === recipeId);
+    const recipe = RECIPES.find((r) => r.id === recipeId);
     if (!recipe) return { ok: false, reason: 'Unknown recipe.' };
     const inv = playerState.inventory || {};
     const missing = Object.entries(recipe.ingredients).filter(([id, n]) => (inv[id] || 0) < n);
@@ -483,7 +510,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
       const first = findItem(missing[0][0]);
       return { ok: false, reason: `Need more ${first?.name || missing[0][0]}.` };
     }
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       const next = { ...prev, inventory: { ...(prev.inventory || {}) } };
       Object.entries(recipe.ingredients).forEach(([id, n]) => {
         const cur = next.inventory[id] || 0;
@@ -504,7 +531,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   const giveItem = (itemId, count = 1) => {
     const item = findItem(itemId);
     if (!item) return;
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       const inv = { ...(prev.inventory || {}) };
       inv[itemId] = (inv[itemId] || 0) + count;
       return { ...prev, inventory: inv };
@@ -516,14 +543,14 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   // and by future apothecary effects. Auto-unequips potion slots that
   // referenced the now-zero item.
   const consumeItem = (itemId) => {
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       const inv = { ...(prev.inventory || {}) };
       const cur = inv[itemId] || 0;
       if (cur <= 0) return prev;
       const next = { ...prev };
       if (cur <= 1) {
         delete inv[itemId];
-        const potions = (prev.equipped?.potions || [null, null, null]).map(p => p === itemId ? null : p);
+        const potions = (prev.equipped?.potions || [null, null, null]).map((p) => (p === itemId ? null : p));
         next.equipped = { ...(prev.equipped || {}), potions };
       } else {
         inv[itemId] = cur - 1;
@@ -535,7 +562,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
 
   const ACHIEVEMENT_GOLD = 50;
   const checkAchievement = (id) => {
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       if (prev.achievements.includes(id)) return prev;
       // Pure updater (PHASE-17 17C): grant the id + gold; the toast derives from
       // the achievements-transition effect below so StrictMode can't double-fire it.
@@ -548,7 +575,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   };
 
   const unlockSpecialTitle = (id) => {
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       if (prev.unlockedTitles.includes(id)) return prev;
       // Pure updater (PHASE-17 17C): the toast derives from the titles-transition effect below.
       return { ...prev, unlockedTitles: [...prev.unlockedTitles, id] };
@@ -567,7 +594,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   //   accumulate distinct vault entries. Dungeon mode passes the full
   //   quiz item — same shape as Quiz.
   const recordAnswer = (correct, item, extra = {}) => {
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       const newAnswered = prev.totalAnswered + 1;
       const newCorrect = prev.totalCorrect + (correct ? 1 : 0);
       // +1 gold per correct answer (Phase 6). Silent — no per-answer notif.
@@ -587,17 +614,15 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
       // bucket ('low'/'med'/'high'), bump the matching tile on the active
       // tome's confidenceStats. Defensive: legacy callers that don't pass
       // extra still work; unknown buckets are ignored.
-      const confidenceBucket = extra && typeof extra.confidence === 'string'
-        ? extra.confidence.toLowerCase()
-        : null;
+      const confidenceBucket = extra && typeof extra.confidence === 'string' ? extra.confidence.toLowerCase() : null;
       if (confidenceBucket && ['low', 'med', 'high'].includes(confidenceBucket) && prev.activeTomeId) {
         next = {
           ...next,
-          library: next.library.map(t => {
+          library: next.library.map((t) => {
             if (t.id !== prev.activeTomeId) return t;
             const base = t.progress?.confidenceStats || {
-              low:  { total: 0, correct: 0 },
-              med:  { total: 0, correct: 0 },
+              low: { total: 0, correct: 0 },
+              med: { total: 0, correct: 0 },
               high: { total: 0, correct: 0 },
             };
             const tile = base[confidenceBucket] || { total: 0, correct: 0 };
@@ -622,7 +647,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
       if (item && item._type === 'lab' && prev.activeTomeId) {
         next = {
           ...next,
-          library: next.library.map(t =>
+          library: next.library.map((t) =>
             t.id === prev.activeTomeId
               ? {
                   ...t,
@@ -631,7 +656,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
                     labsAttempted: (t.progress?.labsAttempted || 0) + 1,
                   },
                 }
-              : t
+              : t,
           ),
         };
       }
@@ -640,10 +665,10 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
       if (!correct && item && prev.activeTomeId) {
         next = {
           ...next,
-          library: next.library.map(t => {
+          library: next.library.map((t) => {
             if (t.id !== prev.activeTomeId) return t;
             if (!item.id) return t; // M3 (17E): malformed tome item without an id — never vault it (id-less entries alias each other, and the vault UI/de-vault flow key on m.id so they could never be redeemed)
-            const existing = (t.progress?.mistakeVault || []).find(m => m.id === item.id);
+            const existing = (t.progress?.mistakeVault || []).find((m) => m.id === item.id);
             if (existing) return t;
             return {
               ...t,
@@ -663,7 +688,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
       if (itemDomain && prev.activeTomeId) {
         next = {
           ...next,
-          library: next.library.map(t => {
+          library: next.library.map((t) => {
             if (t.id !== prev.activeTomeId) return t;
             const ds = { ...(t.progress?.domainStats || {}) };
             const cur = ds[itemDomain] || { total: 0, correct: 0 };
@@ -680,7 +705,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
         { amt: 500, id: 'five_hundred' },
         { amt: 1000, id: 'thousand' },
       ];
-      volumeMilestones.forEach(m => {
+      volumeMilestones.forEach((m) => {
         if (newCorrect >= m.amt && !next.achievements.includes(m.id)) {
           next.achievements = [...next.achievements, m.id]; // toast via the central achievements effect (17C)
         }
@@ -691,7 +716,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
         { count: 100, acc: 0.9, id: 'oracle_blessed' },
         { count: 200, acc: 0.95, id: 'enlightened' },
       ];
-      accChecks.forEach(c => {
+      accChecks.forEach((c) => {
         if (newAnswered >= c.count && accuracy >= c.acc && !next.achievements.includes(c.id)) {
           next.achievements = [...next.achievements, c.id]; // toast via the central achievements effect (17C)
         }
@@ -705,16 +730,19 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
     // item object so the caller can pass the item for the undo toast.
     const id = typeof idOrItem === 'string' ? idOrItem : idOrItem?.id;
     const itemForUndo = typeof idOrItem === 'object' ? idOrItem : null;
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       if (!prev.activeTomeId) return prev;
       const newBanished = (prev.vaultBanished || 0) + 1;
       const next = {
         ...prev,
         vaultBanished: newBanished,
-        library: prev.library.map(t =>
+        library: prev.library.map((t) =>
           t.id === prev.activeTomeId
-            ? { ...t, progress: { ...t.progress, mistakeVault: (t.progress?.mistakeVault || []).filter(m => m.id !== id) } }
-            : t
+            ? {
+                ...t,
+                progress: { ...t.progress, mistakeVault: (t.progress?.mistakeVault || []).filter((m) => m.id !== id) },
+              }
+            : t,
         ),
       };
       if (newBanished >= 25 && !next.achievements.includes('vault_warrior')) {
@@ -726,7 +754,10 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
     // the active tome's vault and rolls back the +5 XP / +1 vaultBanished
     // counter. Only available when caller passed the full item.
     if (itemForUndo) {
-      const stem = (itemForUndo.question || itemForUndo.front || itemForUndo.term || itemForUndo.title || 'item').slice(0, 50);
+      const stem = (itemForUndo.question || itemForUndo.front || itemForUndo.term || itemForUndo.title || 'item').slice(
+        0,
+        50,
+      );
       // Phase 44c: 4s → 8s default. Phase 45d: 8s → 10s + Ctrl+Z global
       // hotkey (see notification effect below). Hover/focus pause stays
       // in the notification render block.
@@ -734,22 +765,22 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
         `Vanquished: ${stem}${stem.length === 50 ? '…' : ''} · Undo (Ctrl+Z)`,
         'success',
         () => {
-          setPlayerState(prev => {
+          setPlayerState((prev) => {
             if (!prev.activeTomeId) return prev;
-            const tomeNow = prev.library.find(t => t.id === prev.activeTomeId);
+            const tomeNow = prev.library.find((t) => t.id === prev.activeTomeId);
             const vaultNow = tomeNow?.progress?.mistakeVault || [];
             // Avoid duplicate restore if user spams undo.
-            if (vaultNow.some(v => v.id === id)) return prev;
+            if (vaultNow.some((v) => v.id === id)) return prev;
             return {
               ...prev,
               vaultBanished: Math.max(0, (prev.vaultBanished || 0) - 1),
               xp: Math.max(0, (prev.xp || 0) - 5),
               totalXp: Math.max(0, (prev.totalXp || 0) - 5),
-              gold: Math.max(0, (prev.gold || 0)),
-              library: prev.library.map(t =>
+              gold: Math.max(0, prev.gold || 0),
+              library: prev.library.map((t) =>
                 t.id === prev.activeTomeId
                   ? { ...t, progress: { ...t.progress, mistakeVault: [...vaultNow, itemForUndo] } }
-                  : t
+                  : t,
               ),
             };
           });
@@ -761,12 +792,12 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   };
 
   const trackDungeonAttempt = () => {
-    setPlayerState(prev => ({ ...prev, dungeonAttempts: (prev.dungeonAttempts || 0) + 1 }));
+    setPlayerState((prev) => ({ ...prev, dungeonAttempts: (prev.dungeonAttempts || 0) + 1 }));
   };
 
   // Track modes used today (resets with daily quest refresh).
   const trackModeUseDaily = (mode) => {
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       if (prev.modesUsedToday?.includes(mode)) return prev;
       return { ...prev, modesUsedToday: [...(prev.modesUsedToday || []), mode] };
     });
@@ -775,34 +806,51 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   // Compute current quest progress.
   const dailyQuestStatus = useMemo(() => {
     if (!playerState.dailyQuests) return [];
-    return playerState.dailyQuests.quests.map(q => {
-      const template = DAILY_QUEST_POOL.find(t => t.id === q.id);
-      if (!template) return null;
-      const current = getCounterValue(playerState, template.counter);
-      // 25j: absolute-mode quests (e.g. "have N spells equipped right
-      // now") check current against target directly; the usual diff
-      // mechanism is for cumulative counters where you only want to
-      // count NEW activity since the quest was issued.
-      const rawProgress = template.absolute ? current : Math.max(0, current - q.baseline);
-      const complete = rawProgress >= template.target;
-      return {
-        ...template,
-        baseline: q.baseline,
-        progress: Math.min(rawProgress, template.target),
-        target: template.target,
-        complete,
-        claimed: q.claimed,
-        claimable: complete && !q.claimed,
-      };
-    }).filter(Boolean);
-  }, [playerState.dailyQuests, playerState.library, playerState.totalCorrect, playerState.longestStreak, playerState.vaultBanished, playerState.modesUsedToday, playerState.maxStreakToday, playerState.totalLogins, playerState.pets, playerState.spellsCast, playerState.plantsHarvested, playerState.equippedSpells, playerState.bestiary, playerState.ascensions]);
+    return playerState.dailyQuests.quests
+      .map((q) => {
+        const template = DAILY_QUEST_POOL.find((t) => t.id === q.id);
+        if (!template) return null;
+        const current = getCounterValue(playerState, template.counter);
+        // 25j: absolute-mode quests (e.g. "have N spells equipped right
+        // now") check current against target directly; the usual diff
+        // mechanism is for cumulative counters where you only want to
+        // count NEW activity since the quest was issued.
+        const rawProgress = template.absolute ? current : Math.max(0, current - q.baseline);
+        const complete = rawProgress >= template.target;
+        return {
+          ...template,
+          baseline: q.baseline,
+          progress: Math.min(rawProgress, template.target),
+          target: template.target,
+          complete,
+          claimed: q.claimed,
+          claimable: complete && !q.claimed,
+        };
+      })
+      .filter(Boolean);
+  }, [
+    playerState.dailyQuests,
+    playerState.library,
+    playerState.totalCorrect,
+    playerState.longestStreak,
+    playerState.vaultBanished,
+    playerState.modesUsedToday,
+    playerState.maxStreakToday,
+    playerState.totalLogins,
+    playerState.pets,
+    playerState.spellsCast,
+    playerState.plantsHarvested,
+    playerState.equippedSpells,
+    playerState.bestiary,
+    playerState.ascensions,
+  ]);
 
   const claimQuest = (questId) => {
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       if (!prev.dailyQuests) return prev;
-      const quest = prev.dailyQuests.quests.find(q => q.id === questId);
+      const quest = prev.dailyQuests.quests.find((q) => q.id === questId);
       if (!quest || quest.claimed) return prev;
-      const template = DAILY_QUEST_POOL.find(t => t.id === questId);
+      const template = DAILY_QUEST_POOL.find((t) => t.id === questId);
       if (!template) return prev;
       const current = getCounterValue(prev, template.counter);
       const progress = template.absolute ? current : current - quest.baseline;
@@ -817,7 +865,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
         gold: (prev.gold || 0) + gold,
         dailyQuests: {
           ...prev.dailyQuests,
-          quests: prev.dailyQuests.quests.map(q => q.id === questId ? { ...q, claimed: true } : q),
+          quests: prev.dailyQuests.quests.map((q) => (q.id === questId ? { ...q, claimed: true } : q)),
         },
       };
     });
@@ -826,35 +874,55 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   };
 
   const claimAllQuests = () => {
-    dailyQuestStatus.filter(q => q.claimable).forEach(q => claimQuest(q.id));
+    dailyQuestStatus
+      .filter((q) => q.claimable)
+      .forEach((q) => {
+        claimQuest(q.id);
+      });
   };
 
   const weeklyQuestStatus = useMemo(() => {
     if (!playerState.weeklyQuests) return [];
-    return playerState.weeklyQuests.quests.map(q => {
-      const template = WEEKLY_QUEST_POOL.find(t => t.id === q.id);
-      if (!template) return null;
-      const current = getCounterValue(playerState, template.counter);
-      const rawProgress = template.absolute ? current : Math.max(0, current - q.baseline);
-      const complete = rawProgress >= template.target;
-      return {
-        ...template,
-        baseline: q.baseline,
-        progress: Math.min(rawProgress, template.target),
-        target: template.target,
-        complete,
-        claimed: q.claimed,
-        claimable: complete && !q.claimed,
-      };
-    }).filter(Boolean);
-  }, [playerState.weeklyQuests, playerState.maxStreakWeek, playerState.library, playerState.totalCorrect, playerState.longestStreak, playerState.vaultBanished, playerState.totalLogins, playerState.pets, playerState.spellsCast, playerState.plantsHarvested, playerState.equippedSpells, playerState.bestiary, playerState.ascensions]);
+    return playerState.weeklyQuests.quests
+      .map((q) => {
+        const template = WEEKLY_QUEST_POOL.find((t) => t.id === q.id);
+        if (!template) return null;
+        const current = getCounterValue(playerState, template.counter);
+        const rawProgress = template.absolute ? current : Math.max(0, current - q.baseline);
+        const complete = rawProgress >= template.target;
+        return {
+          ...template,
+          baseline: q.baseline,
+          progress: Math.min(rawProgress, template.target),
+          target: template.target,
+          complete,
+          claimed: q.claimed,
+          claimable: complete && !q.claimed,
+        };
+      })
+      .filter(Boolean);
+  }, [
+    playerState.weeklyQuests,
+    playerState.maxStreakWeek,
+    playerState.library,
+    playerState.totalCorrect,
+    playerState.longestStreak,
+    playerState.vaultBanished,
+    playerState.totalLogins,
+    playerState.pets,
+    playerState.spellsCast,
+    playerState.plantsHarvested,
+    playerState.equippedSpells,
+    playerState.bestiary,
+    playerState.ascensions,
+  ]);
 
   const claimWeeklyQuest = (questId) => {
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       if (!prev.weeklyQuests) return prev;
-      const quest = prev.weeklyQuests.quests.find(q => q.id === questId);
+      const quest = prev.weeklyQuests.quests.find((q) => q.id === questId);
       if (!quest || quest.claimed) return prev;
-      const template = WEEKLY_QUEST_POOL.find(t => t.id === questId);
+      const template = WEEKLY_QUEST_POOL.find((t) => t.id === questId);
       if (!template) return prev;
       const current = getCounterValue(prev, template.counter);
       const progress = template.absolute ? current : current - quest.baseline;
@@ -869,7 +937,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
         gold: (prev.gold || 0) + gold,
         weeklyQuests: {
           ...prev.weeklyQuests,
-          quests: prev.weeklyQuests.quests.map(q => q.id === questId ? { ...q, claimed: true } : q),
+          quests: prev.weeklyQuests.quests.map((q) => (q.id === questId ? { ...q, claimed: true } : q)),
         },
       };
     });
@@ -877,13 +945,20 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   };
 
   const claimAllWeeklyQuests = () => {
-    weeklyQuestStatus.filter(q => q.claimable).forEach(q => claimWeeklyQuest(q.id));
+    weeklyQuestStatus
+      .filter((q) => q.claimable)
+      .forEach((q) => {
+        claimWeeklyQuest(q.id);
+      });
   };
 
   const storyChainStatus = useMemo(() => {
-    return STORY_CHAINS.map(chain => {
+    return STORY_CHAINS.map((chain) => {
       const sp = playerState.storyProgress?.[chain.id] || {
-        stepIndex: 0, baseline: 0, completed: false, claimedSteps: [],
+        stepIndex: 0,
+        baseline: 0,
+        completed: false,
+        claimedSteps: [],
       };
       const currentStep = sp.stepIndex < chain.steps.length ? chain.steps[sp.stepIndex] : null;
       let progress = 0;
@@ -904,16 +979,19 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
         claimedSteps: sp.claimedSteps || [],
       };
     });
-  }, [playerState.storyProgress, playerState.library, playerState.totalCorrect, playerState.longestStreak, playerState.vaultBanished]);
+  }, [
+    playerState.storyProgress,
+    playerState.library,
+    playerState.totalCorrect,
+    playerState.longestStreak,
+    playerState.vaultBanished,
+  ]);
 
-  const claimableStoryStepCount = useMemo(
-    () => storyChainStatus.filter(s => s.claimable).length,
-    [storyChainStatus]
-  );
+  const claimableStoryStepCount = useMemo(() => storyChainStatus.filter((s) => s.claimable).length, [storyChainStatus]);
 
   const claimStoryStep = (chainId) => {
-    setPlayerState(prev => {
-      const chain = STORY_CHAINS.find(c => c.id === chainId);
+    setPlayerState((prev) => {
+      const chain = STORY_CHAINS.find((c) => c.id === chainId);
       if (!chain) return prev;
       // Defensive init: if storyProgress is missing (cloud-sync race), treat
       // the chain as freshly started with baseline 0 so existing progress
@@ -929,14 +1007,12 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
       if (current - sp.baseline < step.target) return prev;
       const isFinal = sp.stepIndex === chain.steps.length - 1;
       const stepXp = step.xp;
-      const bonusXp = isFinal ? (chain.rewardXp || 0) : 0;
+      const bonusXp = isFinal ? chain.rewardXp || 0 : 0;
       const totalXp = stepXp + bonusXp;
       // Per-step gold tracks XP at 10%. Chain completion grants an explicit
       // chain.rewardGold on top (defaults to 10% of rewardXp if unset).
       const stepGold = Math.max(1, Math.floor(stepXp * 0.1));
-      const chainGold = isFinal
-        ? (chain.rewardGold ?? Math.floor((chain.rewardXp || 0) * 0.1))
-        : 0;
+      const chainGold = isFinal ? (chain.rewardGold ?? Math.floor((chain.rewardXp || 0) * 0.1)) : 0;
       const totalGold = stepGold + chainGold;
       setTimeout(() => showNotif(`+${stepXp} XP, +${stepGold} gold — ${step.title}`, 'xp'), 50);
       if (isFinal && bonusXp > 0) {
@@ -975,15 +1051,15 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   // Sum of claimable items across daily, weekly, and story-chain systems.
   const claimableQuestCount = useMemo(
     () =>
-      dailyQuestStatus.filter(q => q.claimable).length +
-      weeklyQuestStatus.filter(q => q.claimable).length +
+      dailyQuestStatus.filter((q) => q.claimable).length +
+      weeklyQuestStatus.filter((q) => q.claimable).length +
       claimableStoryStepCount,
-    [dailyQuestStatus, weeklyQuestStatus, claimableStoryStepCount]
+    [dailyQuestStatus, weeklyQuestStatus, claimableStoryStepCount],
   );
 
   const trackModeUse = (mode) => {
     trackModeUseDaily(mode);
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       if (prev.modesUsed.includes(mode)) return prev;
       const newModes = [...prev.modesUsed, mode];
       const next = { ...prev, modesUsed: newModes };
@@ -1014,7 +1090,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
         showNotif('This tome has no scrolls, riddles, or labs — cannot inscribe', 'error');
         return false;
       }
-      setPlayerState(prev => {
+      setPlayerState((prev) => {
         const newEntry = {
           id: generateTomeId(),
           data, // sealed envelope stored AS-IS — never normalized/decrypted at rest
@@ -1056,7 +1132,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
       showNotif('This tome has no scrolls, riddles, or labs — cannot inscribe', 'error');
       return false;
     }
-    setPlayerState(prev => {
+    setPlayerState((prev) => {
       const newEntry = {
         id: generateTomeId(),
         data: normalizeTomeData(data),
@@ -1094,8 +1170,8 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   };
 
   const deleteTome = (tomeId) => {
-    setPlayerState(prev => {
-      const newLib = prev.library.filter(t => t.id !== tomeId);
+    setPlayerState((prev) => {
+      const newLib = prev.library.filter((t) => t.id !== tomeId);
       let newActive = prev.activeTomeId;
       if (prev.activeTomeId === tomeId) {
         newActive = newLib.length > 0 ? newLib[0].id : null;
@@ -1105,19 +1181,17 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   };
 
   const renameTome = (tomeId, newTitle) => {
-    setPlayerState(prev => ({
+    setPlayerState((prev) => ({
       ...prev,
-      library: prev.library.map(t =>
-        t.id === tomeId
-          ? { ...t, data: { ...t.data, metadata: { ...t.data.metadata, title: newTitle } } }
-          : t
+      library: prev.library.map((t) =>
+        t.id === tomeId ? { ...t, data: { ...t.data, metadata: { ...t.data.metadata, title: newTitle } } } : t,
       ),
     }));
   };
 
   const duplicateTome = (tomeId) => {
-    setPlayerState(prev => {
-      const source = prev.library.find(t => t.id === tomeId);
+    setPlayerState((prev) => {
+      const source = prev.library.find((t) => t.id === tomeId);
       if (!source) return prev;
       const newEntry = {
         id: generateTomeId(),
@@ -1138,12 +1212,10 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   };
 
   const updateTomeMetadata = (tomeId, metadataUpdates) => {
-    setPlayerState(prev => ({
+    setPlayerState((prev) => ({
       ...prev,
-      library: prev.library.map(t =>
-        t.id === tomeId
-          ? { ...t, data: { ...t.data, metadata: { ...t.data.metadata, ...metadataUpdates } } }
-          : t
+      library: prev.library.map((t) =>
+        t.id === tomeId ? { ...t, data: { ...t.data, metadata: { ...t.data.metadata, ...metadataUpdates } } } : t,
       ),
     }));
   };
@@ -1153,11 +1225,11 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   // encrypted at rest in localStorage AND the cloud blob; it rides the
   // existing sync untouched. Passing null drops the notes key entirely.
   const updateTomeNotes = (tomeId, payloadOrNull) => {
-    setPlayerState(prev => ({
+    setPlayerState((prev) => ({
       ...prev,
-      library: prev.library.map(t => t.id === tomeId
-        ? (payloadOrNull ? { ...t, notes: payloadOrNull } : (({ notes, ...rest }) => rest)(t))
-        : t),
+      library: prev.library.map((t) =>
+        t.id === tomeId ? (payloadOrNull ? { ...t, notes: payloadOrNull } : (({ notes, ...rest }) => rest)(t)) : t,
+      ),
     }));
   };
 

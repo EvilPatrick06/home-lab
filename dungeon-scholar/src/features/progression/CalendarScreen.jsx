@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { todayDateStr, computeNextClaim, devotionStatus, DAILY_REWARDS } from '../../services/devotion.js';
 import { findItem } from '../../game/items.js';
+import { computeNextClaim, DAILY_REWARDS, devotionStatus, todayDateStr } from '../../services/devotion.js';
 
 // Phase 20 — Daily Devotion calendar. The scholar earns daily rewards on
 // a 7-day cycle; missing a day resets the streak. Day 7 is the capstone
@@ -28,11 +28,15 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
 
   return (
     <div className="space-y-6">
-      <div className="p-6 rounded-sm relative" style={{
-        background: 'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.55) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
-        border: '3px double rgba(245, 158, 11, 0.6)',
-        boxShadow: '0 0 30px rgba(245, 158, 11, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
-      }}>
+      <div
+        className="p-6 rounded-sm relative"
+        style={{
+          background:
+            'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.55) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
+          border: '3px double rgba(245, 158, 11, 0.6)',
+          boxShadow: '0 0 30px rgba(245, 158, 11, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
+        }}
+      >
         <div className="absolute top-2 left-2 text-amber-300 text-sm">⚜</div>
         <div className="absolute top-2 right-2 text-amber-300 text-sm">⚜</div>
         <div className="absolute bottom-2 left-2 text-amber-300 text-sm">⚜</div>
@@ -41,7 +45,10 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
           <div className="flex items-center gap-3">
             <div className="text-4xl">🕯️</div>
             <div>
-              <h2 className="text-2xl font-bold text-amber-200 italic" style={{ textShadow: '0 0 12px rgba(245, 158, 11, 0.4)' }}>
+              <h2
+                className="text-2xl font-bold text-amber-200 italic"
+                style={{ textShadow: '0 0 12px rgba(245, 158, 11, 0.4)' }}
+              >
                 The Devotion Calendar
               </h2>
               <div className="text-xs text-amber-400 tracking-[0.2em] italic">⚜ DAILY OFFERINGS · CYCLE OF SEVEN ⚜</div>
@@ -50,9 +57,11 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
               </div>
             </div>
           </div>
-          <button onClick={() => setScreen('home')}
+          <button
+            onClick={() => setScreen('home')}
             className="px-3 py-2 rounded-sm text-xs italic border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30"
-            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.6)' }}>
+            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.6)' }}
+          >
             ← Return to the Hearth
           </button>
         </div>
@@ -60,31 +69,46 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
 
       {/* Stats ribbon */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
-        <div className="p-3 rounded-sm" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+        <div
+          className="p-3 rounded-sm"
+          style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}
+        >
           <div className="text-[10px] uppercase italic text-amber-700">Current Streak</div>
           <div className="text-lg font-bold italic text-amber-200">🔥 {streak}</div>
         </div>
-        <div className="p-3 rounded-sm" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+        <div
+          className="p-3 rounded-sm"
+          style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}
+        >
           <div className="text-[10px] uppercase italic text-amber-700">Longest</div>
           <div className="text-lg font-bold italic text-amber-200">{longest}</div>
         </div>
-        <div className="p-3 rounded-sm" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+        <div
+          className="p-3 rounded-sm"
+          style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}
+        >
           <div className="text-[10px] uppercase italic text-amber-700">Total Logins</div>
           <div className="text-lg font-bold italic text-amber-200">{totalLogins}</div>
         </div>
-        <div className="p-3 rounded-sm" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(168, 85, 247, 0.5)' }}>
+        <div
+          className="p-3 rounded-sm"
+          style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(168, 85, 247, 0.5)' }}
+        >
           <div className="text-[10px] uppercase italic text-purple-300">Devotion</div>
           <div className="text-lg font-bold italic text-purple-200">✦ {devotion}</div>
         </div>
       </div>
 
       {/* Claim button */}
-      <div className="p-4 rounded-sm text-center" style={{
-        background: claimedToday
-          ? 'linear-gradient(135deg, rgba(31, 41, 55, 0.7) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)'
-          : 'linear-gradient(135deg, rgba(var(--surface-amber-strong, 120, 53, 15), 0.6) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
-        border: `2px solid ${claimedToday ? 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)' : '#fbbf24'}`,
-      }}>
+      <div
+        className="p-4 rounded-sm text-center"
+        style={{
+          background: claimedToday
+            ? 'linear-gradient(135deg, rgba(31, 41, 55, 0.7) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)'
+            : 'linear-gradient(135deg, rgba(var(--surface-amber-strong, 120, 53, 15), 0.6) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
+          border: `2px solid ${claimedToday ? 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)' : '#fbbf24'}`,
+        }}
+      >
         {claimedToday ? (
           <div>
             <div className="text-amber-200 italic mb-1">Today's flame is already lit.</div>
@@ -101,7 +125,8 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
                 return `Streak broken — start anew at Day ${cycleDayIdx}.`;
               })()}
             </div>
-            <button onClick={tryClaim}
+            <button
+              onClick={tryClaim}
               className="px-6 py-3 rounded-sm text-base italic border-2 font-bold"
               style={{
                 background: 'linear-gradient(135deg, #b45309 0%, #f59e0b 100%)',
@@ -109,12 +134,11 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
                 color: '#1a0e08',
                 cursor: 'pointer',
                 fontFamily: '"Cinzel", Georgia, serif',
-              }}>
+              }}
+            >
               🕯️ Claim Today's Devotion
             </button>
-            {feedback && (
-              <div className="mt-2 text-xs italic text-red-300">{feedback.text}</div>
-            )}
+            {feedback && <div className="mt-2 text-xs italic text-red-300">{feedback.text}</div>}
           </div>
         )}
       </div>
@@ -132,21 +156,28 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
             const isClaimedToday = reward.day === cycleDayIdx && claimedToday;
             const isPast = streak > 0 && reward.day < cycleDayIdx;
             return (
-              <div key={reward.day} className="p-3 rounded-sm text-center" style={{
-                background: isToday
-                  ? 'linear-gradient(135deg, rgba(var(--surface-amber-strong, 120, 53, 15), 0.6) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)'
-                  : isClaimedToday
-                  ? 'linear-gradient(135deg, rgba(var(--surface-emerald, 6, 78, 59), 0.5) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)'
-                  : 'rgba(0, 0, 0, 0.55)',
-                border: `2px ${reward.capstone ? 'double' : 'solid'} ${
-                  isToday ? '#fbbf24'
-                  : isClaimedToday ? '#10b981'
-                  : reward.capstone ? 'rgba(168, 85, 247, 0.5)'
-                  : 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)'
-                }`,
-                boxShadow: isToday ? '0 0 14px rgba(245, 158, 11, 0.4)' : 'none',
-                opacity: isPast && !isClaimedToday ? 0.55 : 1,
-              }}>
+              <div
+                key={reward.day}
+                className="p-3 rounded-sm text-center"
+                style={{
+                  background: isToday
+                    ? 'linear-gradient(135deg, rgba(var(--surface-amber-strong, 120, 53, 15), 0.6) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)'
+                    : isClaimedToday
+                      ? 'linear-gradient(135deg, rgba(var(--surface-emerald, 6, 78, 59), 0.5) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)'
+                      : 'rgba(0, 0, 0, 0.55)',
+                  border: `2px ${reward.capstone ? 'double' : 'solid'} ${
+                    isToday
+                      ? '#fbbf24'
+                      : isClaimedToday
+                        ? '#10b981'
+                        : reward.capstone
+                          ? 'rgba(168, 85, 247, 0.5)'
+                          : 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)'
+                  }`,
+                  boxShadow: isToday ? '0 0 14px rgba(245, 158, 11, 0.4)' : 'none',
+                  opacity: isPast && !isClaimedToday ? 0.55 : 1,
+                }}
+              >
                 <div className="text-[10px] uppercase italic text-amber-700">Day {reward.day}</div>
                 <div className={`text-xs italic font-bold ${reward.capstone ? 'text-purple-200' : 'text-amber-200'}`}>
                   {reward.label}
@@ -156,12 +187,12 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
                   <div>+{reward.xp} XP</div>
                   <div className="text-purple-300">+{reward.devotion} ✦</div>
                   {reward.items.length > 0 && (
-                    <div className="text-emerald-300">+ {reward.items.map(it => findItem(it.id)?.icon || '?').join(' ')}</div>
+                    <div className="text-emerald-300">
+                      + {reward.items.map((it) => findItem(it.id)?.icon || '?').join(' ')}
+                    </div>
                   )}
                 </div>
-                {isClaimedToday && (
-                  <div className="text-[9px] italic text-emerald-400 mt-1">✓ Claimed</div>
-                )}
+                {isClaimedToday && <div className="text-[9px] italic text-emerald-400 mt-1">✓ Claimed</div>}
               </div>
             );
           })}

@@ -1,16 +1,16 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
+  DESIRED_RETENTION,
+  dueCount,
+  FSRS_DEFAULT_WEIGHTS,
+  filterDue,
+  getSchedulerWeights,
+  isCardDue,
+  retrievability,
   SRS_RATINGS,
   scheduleCard,
-  isCardDue,
-  dueCount,
-  sortByDueness,
-  filterDue,
-  retrievability,
-  FSRS_DEFAULT_WEIGHTS,
-  getSchedulerWeights,
   setSchedulerWeights,
-  DESIRED_RETENTION,
+  sortByDueness,
 } from './srs.js';
 
 const DAY = 86400000;

@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { t, getLocale, setLocale, availableLocales } from './i18n.js';
+import { describe, expect, it } from 'vitest';
+import { availableLocales, getLocale, setLocale, t } from './i18n.js';
 
 describe('i18n (S7)', () => {
   it('returns catalog values for known keys', () => {

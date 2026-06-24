@@ -13,6 +13,41 @@
 
 ---
 
+### [2026-06-24] dungeon-scholar lint never runs in CI; 222 biome errors accumulated
+> **Resolved 2026-06-24 (scholar-resolver):** Ran `biome check --write src` to auto-fix the safe classes (organizeImports, unused imports, useOptionalChain, useTemplate, etc.), then hand-fixed the remaining error-level diagnostics: 7 `useIterableCallbackReturn` (forEach callbacks given block bodies), the `useHookAtTopLevel` false positive (renamed `usePotion`->`quaffPotion`, a plain handler not a hook), and a justified `noDangerouslySetInnerHtml` suppression on the trusted KaTeX render. `npm run lint` now exits 0 (errors cleared; `useExhaustiveDependencies` kept as `warn` per the existing biome.json policy, the 'rule-config' option the entry called for). Added a `npm run lint` step to `dungeon-scholar-ci.yml` (right after `npm ci`) so the tree cannot regress. Full vitest suite (667 tests) + production build green.
+
+- **Category:** config, debt
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error scan (ran `npm run lint`)
+
+**Description:**
+`dungeon-scholar/package.json` defines a `lint` script (`biome check src`) but no CI
+workflow ever invokes it. `.github/workflows/dungeon-scholar-ci.yml` runs only
+`npm ci` -> `npm run test` -> `npm run build`; `deploy.yml` runs test+build; the
+security-audit workflow runs only `npm audit`. With no gate, lint errors have piled up:
+`npm run lint` currently exits 1 with **222 errors, 236 warnings, 14 infos** across 181
+files. Breakdown of the errors includes correctness-class issues, not just style:
+useExhaustiveDependencies x91, organizeImports x101 (assist), useOptionalChain x59,
+noUnusedImports x44, noUnusedVariables x18, useHookAtTopLevel x3 (see the BattleModal
+entry above), useIterableCallbackReturn x7 (mostly false-positive `set.add` arrows),
+noAssignInExpressions x3, noGlobalIsFinite x1, etc.
+
+**Expected behavior:** Either lint is enforced in CI (gate stays green by keeping the
+tree clean), or the script is acknowledged as advisory. Right now it is silently broken.
+
+**Hypothesis / root cause:** `dungeon-scholar-ci.yml` job has no `npm run lint` step; the
+script was added to package.json but never wired into the pipeline, so the error count
+drifted upward unnoticed (CI stays green on test+build alone).
+
+**Proposed fix / improvement:**
+- [ ] Triage: auto-fix the safe classes first (`npm run lint:fix` handles organizeImports / unused imports / useTemplate / useOptionalChain), then hand-fix the correctness items (useExhaustiveDependencies, useHookAtTopLevel).
+- [ ] Add a `npm run lint` step to `dungeon-scholar-ci.yml` once the tree is clean so it cannot regress.
+- [ ] Decide policy on `useExhaustiveDependencies` (fix vs. rule-config) before gating, since it is the bulk of the count.
+
+**Related files:** `dungeon-scholar/package.json`, `.github/workflows/dungeon-scholar-ci.yml`
+
 ### [2026-06-24] Image-occlusion flashcards for diagram-heavy material
 > **Resolved 2026-06-24 (scholar-resolver):** Added an `occlusion` flashcard type (`src/services/occlusion.js`: fractional-coord masks, validation, image-src allowlist, authoring helpers — 9 unit tests). `OcclusionCard` renders masked regions in FlashcardsMode (opaque + '?' unflipped, translucent + answer on flip); occlusion cards ride the existing SRS path unchanged (they carry a card id) and import like any flashcard. A click-to-place `OcclusionAuthor` modal (pick image -> click to drop masks -> label each) inscribes a one-card tome via `addTomeToLibrary`, reachable from a new Home 'Author Occlusion Card' button. Production build green. (Per-region-per-review masking left as a possible refinement; current behavior masks all regions and reveals all on flip.)
 

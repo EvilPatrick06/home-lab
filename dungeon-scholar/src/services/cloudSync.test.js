@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const upsert = vi.fn();
 const select = vi.fn();
@@ -7,30 +7,60 @@ const maybeSingle = vi.fn();
 const del = vi.fn();
 const neq = vi.fn();
 const limit = vi.fn();
-const limitResult = vi.fn();   // 18C: resolves the cross-user RLS probe
-const channelSpy = vi.fn();    // 18E: captures the Realtime channel topic
+const limitResult = vi.fn(); // 18C: resolves the cross-user RLS probe
+const channelSpy = vi.fn(); // 18E: captures the Realtime channel topic
 
 vi.mock('./supabase.js', () => ({
   supabase: {
-    channel: (name) => { channelSpy(name); return { on: () => ({ subscribe: () => ({}) }) }; },
+    channel: (name) => {
+      channelSpy(name);
+      return { on: () => ({ subscribe: () => ({}) }) };
+    },
     removeChannel: vi.fn(),
     from: vi.fn(() => ({
       select: (...a) => {
         select(...a);
         return {
-          eq: (...b) => { eq(...b); return { maybeSingle: () => maybeSingle() }; },
-          neq: (...b) => { neq(...b); return { limit: (...c) => { limit(...c); return limitResult(); } }; },
+          eq: (...b) => {
+            eq(...b);
+            return { maybeSingle: () => maybeSingle() };
+          },
+          neq: (...b) => {
+            neq(...b);
+            return {
+              limit: (...c) => {
+                limit(...c);
+                return limitResult();
+              },
+            };
+          },
         };
       },
-      upsert: (...a) => { upsert(...a); return Promise.resolve({ error: null }); },
-      delete: () => ({ eq: (...a) => { del(...a); return Promise.resolve({ error: null }); } }),
+      upsert: (...a) => {
+        upsert(...a);
+        return Promise.resolve({ error: null });
+      },
+      delete: () => ({
+        eq: (...a) => {
+          del(...a);
+          return Promise.resolve({ error: null });
+        },
+      }),
     })),
     auth: { getUser: vi.fn(async () => ({ data: { user: { id: 'u1' } } })) },
   },
   isSupabaseConfigured: () => true,
 }));
 
-import { pullSave, pushSave, deleteCloudSave, deleteAccount, checkRlsExposure, subscribeSaves, hashChannelTopic } from './cloudSync.js';
+import {
+  checkRlsExposure,
+  deleteAccount,
+  deleteCloudSave,
+  hashChannelTopic,
+  pullSave,
+  pushSave,
+  subscribeSaves,
+} from './cloudSync.js';
 
 describe('cloudSync', () => {
   beforeEach(() => {
@@ -87,7 +117,7 @@ describe('cloudSync', () => {
   it('deleteAccount deletes the saves row AND the profiles row', async () => {
     await deleteAccount('u1');
     expect(del).toHaveBeenCalledWith('user_id', 'u1'); // saves
-    expect(del).toHaveBeenCalledWith('id', 'u1');       // profiles
+    expect(del).toHaveBeenCalledWith('id', 'u1'); // profiles
   });
 
   describe('checkRlsExposure (18C / M11)', () => {

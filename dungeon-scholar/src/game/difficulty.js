@@ -1,4 +1,3 @@
-
 // === Difficulty Tiers (Phase 8) ===
 // Each tier scales waves, lives, available power-ups, and XP/gold multipliers.
 // Apprentice is always unlocked; higher tiers gate on level/runs/achievements
@@ -63,9 +62,7 @@ export const DIFFICULTIES = {
   },
 };
 
-
 export const DIFFICULTY_ORDER = ['apprentice', 'adept', 'master', 'mythic'];
-
 
 // === Boss Variety (Phase 9) ===
 // One archetype is rolled at the start of each dungeon delve. Each carries its
@@ -92,7 +89,7 @@ export const BOSS_TYPES = {
     flavor: 'Three serpentine heads writhe in unison, fangs bared, breathing ruin.',
     mechanic: 'Three riddles posed at once. Answer all three correctly — any miss costs a life and reshapes the heads.',
     victoryText: 'All three heads fall as one. The Hydra collapses with a final shriek.',
-    defeatText: 'Thy lives ran dry under the Hydra\'s unceasing gaze.',
+    defeatText: "Thy lives ran dry under the Hydra's unceasing gaze.",
     achievement: 'first_hydra',
     headCount: 3,
   },
@@ -129,19 +126,16 @@ export const BOSS_TYPES = {
     flavor: 'A mountain of muscle and bone, scarred by ages of battle.',
     mechanic: 'Seven blows to fell — but each missed strike costs TWO lives.',
     victoryText: 'The Behemoth topples like a felled oak. The earth shakes with its passing.',
-    defeatText: 'The Behemoth\'s roar shakes the chamber. Thy strength is spent.',
+    defeatText: "The Behemoth's roar shakes the chamber. Thy strength is spent.",
     achievement: 'first_behemoth',
     hitsToFell: 7,
     lifeCost: 2,
   },
 };
 
-
 export const BOSS_ORDER = ['lich', 'hydra', 'riddler', 'sphinx', 'behemoth'];
 
-
 export const rollBoss = () => BOSS_ORDER[Math.floor(Math.random() * BOSS_ORDER.length)];
-
 
 // Returns true if the player meets the unlock requirement for a difficulty.
 // Apprentice is always unlocked. Higher tiers gate on level / runs / specific

@@ -1,7 +1,14 @@
-import { useState } from 'react';
 import { RotateCcw, Settings } from 'lucide-react';
+import { useState } from 'react';
+import {
+  getAudioSettings,
+  getDefaultAudioSettings,
+  playSfx,
+  setBgmVolume,
+  setMuted,
+  setSfxVolume,
+} from '../../audio/sound.js';
 import { OrnatePanel } from '../../components/ui/OrnatePanel.jsx';
-import { getAudioSettings, setMuted, setBgmVolume, setSfxVolume, playSfx, getDefaultAudioSettings } from '../../audio/sound.js';
 
 // Phase 21: lightweight audio settings panel. Default state is muted so
 // the page is silent on first load; the player opts in here. Volume
@@ -17,8 +24,15 @@ function AudioPanel() {
     setLocalMuted(next);
     if (!next) playSfx('click');
   };
-  const onBgm = (v) => { setBgmVolume(v); setLocalBgm(v); };
-  const onSfx = (v) => { setSfxVolume(v); setLocalSfx(v); if (!muted) playSfx('click'); };
+  const onBgm = (v) => {
+    setBgmVolume(v);
+    setLocalBgm(v);
+  };
+  const onSfx = (v) => {
+    setSfxVolume(v);
+    setLocalSfx(v);
+    if (!muted) playSfx('click');
+  };
   // Phase 46g: one-click recovery for "I slid these to 0 and now I can't
   // hear anything". Restores both volumes; mute is left alone (default
   // mute would silence the user a second time, which is the opposite of
@@ -40,9 +54,11 @@ function AudioPanel() {
       </h3>
       <div className="space-y-3 text-sm">
         <div className="flex items-center gap-3 flex-wrap">
-          <button onClick={toggleMute}
+          <button
+            onClick={toggleMute}
             className={`px-4 py-2 rounded-sm flex items-center gap-2 italic border-2 ${muted ? 'border-stone-600 text-stone-300' : 'border-emerald-600 text-emerald-200'}`}
-            style={{ background: muted ? 'rgba(31, 24, 12, 0.7)' : 'rgba(var(--surface-emerald, 6, 78, 59), 0.4)' }}>
+            style={{ background: muted ? 'rgba(31, 24, 12, 0.7)' : 'rgba(var(--surface-emerald, 6, 78, 59), 0.4)' }}
+          >
             {muted ? '🔇 Sound: Off' : '🔊 Sound: On'}
           </button>
           <span className="text-xs italic text-amber-700">
@@ -52,16 +68,28 @@ function AudioPanel() {
         <div className={muted ? 'opacity-50 pointer-events-none' : ''}>
           <label className="flex items-center gap-3 mb-2">
             <span className="w-24 text-amber-700 italic text-xs">🎼 Music</span>
-            <input type="range" min={0} max={1} step={0.05} value={bgm}
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.05}
+              value={bgm}
               onChange={(e) => onBgm(parseFloat(e.target.value))}
-              className="flex-1" />
+              className="flex-1"
+            />
             <span className="w-10 text-right tabular-nums text-amber-300 text-xs">{Math.round(bgm * 100)}%</span>
           </label>
           <label className="flex items-center gap-3">
             <span className="w-24 text-amber-700 italic text-xs">⚔ Effects</span>
-            <input type="range" min={0} max={1} step={0.05} value={sfx}
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.05}
+              value={sfx}
               onChange={(e) => onSfx(parseFloat(e.target.value))}
-              className="flex-1" />
+              className="flex-1"
+            />
             <span className="w-10 text-right tabular-nums text-amber-300 text-xs">{Math.round(sfx * 100)}%</span>
           </label>
         </div>

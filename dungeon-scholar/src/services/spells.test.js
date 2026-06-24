@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { SPELLS, findSpell } from './spells.js';
+import { describe, expect, it } from 'vitest';
+import { findSpell, SPELLS } from './spells.js';
 
 describe('SPELLS catalog', () => {
   it('has the expected 6 incantations', () => {

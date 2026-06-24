@@ -1,7 +1,7 @@
 // Canvas tile/sprite renderer for the Dungeon Delve (S26 — extracted from
 // the DungeonExplore God-file). Pure 2D-canvas drawing functions + their
 // lookup tables. No React. TILE/BIOMES come from the game-data module.
-import { TILE, BIOMES } from '../../game/dungeonMap.js';
+import { BIOMES, TILE } from '../../game/dungeonMap.js';
 
 export const TILE_PX = 48; // canvas tile size in px (shared with the component)
 
@@ -21,7 +21,7 @@ function drawWall(ctx, p, px, py, seed) {
   ctx.fillRect(px, py + TILE_PX - 6, TILE_PX, 6);
   ctx.fillRect(px, py + 16, TILE_PX, 1);
   ctx.fillRect(px, py + 32, TILE_PX, 1);
-  ctx.fillRect(px + 24, py + 4,  1, 12);
+  ctx.fillRect(px + 24, py + 4, 1, 12);
   ctx.fillRect(px + 12, py + 17, 1, 15);
   ctx.fillRect(px + 24, py + 33, 1, 9);
   // 25i-1: per-tile variation keyed off the wall's seed so re-renders are
@@ -36,7 +36,7 @@ function drawWall(ctx, p, px, py, seed) {
   } else if (seed < 0.36) {
     ctx.fillStyle = p.wallShade;
     const cx = 10 + Math.floor((seed - 0.18) * 90);
-    ctx.fillRect(px + cx,     py + 22, 1, 1);
+    ctx.fillRect(px + cx, py + 22, 1, 1);
     ctx.fillRect(px + cx + 1, py + 23, 1, 1);
     ctx.fillRect(px + cx + 2, py + 24, 1, 1);
   } else if (seed < 0.5) {
@@ -53,7 +53,7 @@ function drawWall(ctx, p, px, py, seed) {
     ctx.fillStyle = p.wallTop;
     const ox = 16 + Math.floor((seed - 0.66) * 80);
     const oy = 26 + Math.floor((seed - 0.66) * 40);
-    ctx.fillRect(px + ox,     py + oy,     1, 1);
+    ctx.fillRect(px + ox, py + oy, 1, 1);
     ctx.fillRect(px + ox + 3, py + oy + 1, 1, 1);
     ctx.fillRect(px + ox + 1, py + oy + 4, 1, 1);
   } else {
@@ -98,10 +98,10 @@ function drawFloor(ctx, p, px, py, decoChance, seed, neighbors) {
   if (neighbors) {
     ctx.globalAlpha = 0.22;
     ctx.fillStyle = p.wallShade;
-    if (neighbors.n === TILE.WALL) ctx.fillRect(px,                py,                TILE_PX, 3);
-    if (neighbors.s === TILE.WALL) ctx.fillRect(px,                py + TILE_PX - 3,  TILE_PX, 3);
-    if (neighbors.w === TILE.WALL) ctx.fillRect(px,                py,                3,       TILE_PX);
-    if (neighbors.e === TILE.WALL) ctx.fillRect(px + TILE_PX - 3,  py,                3,       TILE_PX);
+    if (neighbors.n === TILE.WALL) ctx.fillRect(px, py, TILE_PX, 3);
+    if (neighbors.s === TILE.WALL) ctx.fillRect(px, py + TILE_PX - 3, TILE_PX, 3);
+    if (neighbors.w === TILE.WALL) ctx.fillRect(px, py, 3, TILE_PX);
+    if (neighbors.e === TILE.WALL) ctx.fillRect(px + TILE_PX - 3, py, 3, TILE_PX);
     ctx.globalAlpha = 1;
   }
 }
@@ -166,15 +166,16 @@ export function drawTile(ctx, biome, type, px, py, x, y, map) {
   const seed = tileSeed(x, y);
   if (type === TILE.WALL) drawWall(ctx, p, px, py, seed);
   else if (type === TILE.FLOOR) {
-    const neighbors = map ? {
-      n: map[y - 1]?.[x] ?? TILE.WALL,
-      s: map[y + 1]?.[x] ?? TILE.WALL,
-      e: map[y]?.[x + 1] ?? TILE.WALL,
-      w: map[y]?.[x - 1] ?? TILE.WALL,
-    } : null;
+    const neighbors = map
+      ? {
+          n: map[y - 1]?.[x] ?? TILE.WALL,
+          s: map[y + 1]?.[x] ?? TILE.WALL,
+          e: map[y]?.[x + 1] ?? TILE.WALL,
+          w: map[y]?.[x - 1] ?? TILE.WALL,
+        }
+      : null;
     drawFloor(ctx, p, px, py, biome.decoChance, seed, neighbors);
-  }
-  else if (type === TILE.STAIRS_DOWN || type === TILE.STAIRS_UP) drawStairs(ctx, p, px, py);
+  } else if (type === TILE.STAIRS_DOWN || type === TILE.STAIRS_UP) drawStairs(ctx, p, px, py);
   else if (type === TILE.DOOR) drawDoor(ctx, p, px, py);
   else if (type === TILE.BOSS_DOOR) drawBossDoor(ctx, p, px, py);
   else drawWall(ctx, p, px, py, seed);
@@ -185,7 +186,8 @@ function drawDeadBranch(ctx, px, py, t) {
   // 25i-4: shared plant-sway pattern — small horizontal sin offset keyed
   // off the world px so neighboring plants are naturally out of phase.
   const sway = Math.sin((t || 0) / 700 + px * 0.013) * 0.8;
-  const cx = px + TILE_PX / 2 + sway, cy = py + TILE_PX / 2 + 6;
+  const cx = px + TILE_PX / 2 + sway,
+    cy = py + TILE_PX / 2 + 6;
   ctx.fillStyle = '#1c1614';
   ctx.fillRect(cx - 1, cy - 14, 2, 14);
   ctx.fillRect(cx - 5, cy - 11, 5, 1);
@@ -201,7 +203,8 @@ function drawDeadBranch(ctx, px, py, t) {
   ctx.fillRect(cx + 6, cy - 7, 1, 1);
 }
 function drawMossPatch(ctx, px, py) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 8;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + 8;
   ctx.fillStyle = '#2a2a30';
   ctx.beginPath();
   ctx.ellipse(cx, cy, 13, 5, 0, 0, Math.PI * 2);
@@ -219,7 +222,8 @@ function drawMossPatch(ctx, px, py) {
 }
 function drawNightshade(ctx, px, py, t) {
   const sway = Math.sin((t || 0) / 580 + px * 0.013) * 0.8;
-  const cx = px + TILE_PX / 2 + sway, cy = py + TILE_PX / 2 + 6;
+  const cx = px + TILE_PX / 2 + sway,
+    cy = py + TILE_PX / 2 + 6;
   ctx.fillStyle = '#1c1614';
   ctx.fillRect(cx, cy - 12, 1, 12);
   ctx.fillStyle = '#1f2937';
@@ -252,7 +256,8 @@ function drawAlgae(ctx, px, py) {
 }
 function drawFern(ctx, px, py, t) {
   const sway = Math.sin((t || 0) / 600 + px * 0.013) * 1.0;
-  const cx = px + TILE_PX / 2 + sway, cy = py + TILE_PX / 2 + 10;
+  const cx = px + TILE_PX / 2 + sway,
+    cy = py + TILE_PX / 2 + 10;
   ctx.fillStyle = '#065f46';
   ctx.fillRect(cx, cy - 14, 1, 14);
   ctx.fillStyle = '#10b981';
@@ -267,7 +272,8 @@ function drawFern(ctx, px, py, t) {
 }
 function drawRotFlower(ctx, px, py, t) {
   const sway = Math.sin((t || 0) / 540 + px * 0.013) * 0.8;
-  const cx = px + TILE_PX / 2 + sway, cy = py + TILE_PX / 2 + 6;
+  const cx = px + TILE_PX / 2 + sway,
+    cy = py + TILE_PX / 2 + 6;
   ctx.fillStyle = '#3f1414';
   ctx.fillRect(cx, cy - 14, 1, 14);
   ctx.fillStyle = '#7f1d1d';
@@ -282,7 +288,8 @@ function drawRotFlower(ctx, px, py, t) {
 }
 function drawBonsai(ctx, px, py, t) {
   const sway = Math.sin((t || 0) / 750 + px * 0.013) * 0.7;
-  const cx = px + TILE_PX / 2 + sway, cy = py + TILE_PX / 2 + 10;
+  const cx = px + TILE_PX / 2 + sway,
+    cy = py + TILE_PX / 2 + 10;
   ctx.fillStyle = '#7c2d12';
   ctx.fillRect(cx - 5, cy - 2, 10, 4);
   ctx.fillStyle = '#92400e';
@@ -302,7 +309,8 @@ function drawBonsai(ctx, px, py, t) {
 }
 function drawIvy(ctx, px, py, t) {
   const sway = Math.sin((t || 0) / 640 + px * 0.013) * 0.9;
-  const cx = px + TILE_PX / 2 + sway, cy = py + TILE_PX / 2 + 6;
+  const cx = px + TILE_PX / 2 + sway,
+    cy = py + TILE_PX / 2 + 6;
   ctx.fillStyle = '#065f46';
   ctx.fillRect(cx, cy - 16, 1, 16);
   ctx.fillStyle = '#10b981';
@@ -318,7 +326,8 @@ function drawIvy(ctx, px, py, t) {
   ctx.fillRect(cx + 3, cy - 10, 1, 1);
 }
 function drawCrystal(ctx, px, py) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 4;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + 4;
   ctx.fillStyle = 'rgba(59,130,246,0.35)';
   ctx.beginPath();
   ctx.ellipse(cx, cy + 6, 9, 3, 0, 0, Math.PI * 2);
@@ -339,7 +348,8 @@ function drawCrystal(ctx, px, py) {
 }
 function drawPipeVine(ctx, px, py, t) {
   const sway = Math.sin((t || 0) / 660 + px * 0.013) * 0.6;
-  const cx = px + TILE_PX / 2 + sway, cy = py + TILE_PX / 2 + 6;
+  const cx = px + TILE_PX / 2 + sway,
+    cy = py + TILE_PX / 2 + 6;
   ctx.fillStyle = '#525252';
   ctx.fillRect(cx - 9, cy, 18, 5);
   ctx.fillStyle = '#737373';
@@ -360,7 +370,8 @@ function drawPipeVine(ctx, px, py, t) {
 }
 function drawRustFlower(ctx, px, py, t) {
   const sway = Math.sin((t || 0) / 560 + px * 0.013) * 0.8;
-  const cx = px + TILE_PX / 2 + sway, cy = py + TILE_PX / 2 + 6;
+  const cx = px + TILE_PX / 2 + sway,
+    cy = py + TILE_PX / 2 + 6;
   ctx.fillStyle = '#3a2418';
   ctx.fillRect(cx, cy - 12, 1, 12);
   ctx.fillStyle = '#9a3412';
@@ -374,7 +385,8 @@ function drawRustFlower(ctx, px, py, t) {
   ctx.fillRect(cx - 2, cy - 8, 2, 1);
 }
 function drawSteamFern(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 10;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + 10;
   ctx.fillStyle = '#3a2418';
   ctx.fillRect(cx, cy - 10, 1, 10);
   ctx.fillStyle = '#15803d';
@@ -384,7 +396,7 @@ function drawSteamFern(ctx, px, py, t) {
     ctx.fillRect(cx + 1, ly + 1, 5, 1);
   }
   // animated steam puffs
-  const tt = (t || 0);
+  const tt = t || 0;
   ctx.fillStyle = 'rgba(255,255,255,0.35)';
   const off = (tt / 60) % 12;
   ctx.fillRect(cx - 2, cy - 14 - off, 1, 2);
@@ -392,7 +404,8 @@ function drawSteamFern(ctx, px, py, t) {
   ctx.fillRect(cx, cy - 18 - ((off + 8) % 12), 1, 2);
 }
 function drawTumbleweed(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 4;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + 4;
   const sway = Math.sin((t || 0) / 600) * 1;
   ctx.fillStyle = '#92400e';
   ctx.beginPath();
@@ -411,7 +424,8 @@ function drawTumbleweed(ctx, px, py, t) {
 }
 function drawWildflower(ctx, px, py, t) {
   const sway = Math.sin((t || 0) / 520 + px * 0.013) * 0.8;
-  const cx = px + TILE_PX / 2 + sway, cy = py + TILE_PX / 2 + 6;
+  const cx = px + TILE_PX / 2 + sway,
+    cy = py + TILE_PX / 2 + 6;
   ctx.fillStyle = '#15803d';
   ctx.fillRect(cx, cy - 10, 1, 10);
   ctx.fillStyle = '#22c55e';
@@ -430,7 +444,8 @@ function drawWildflower(ctx, px, py, t) {
 }
 function drawDesertBrush(ctx, px, py, t) {
   const sway = Math.sin((t || 0) / 680 + px * 0.013) * 0.7;
-  const cx = px + TILE_PX / 2 + sway, cy = py + TILE_PX / 2 + 8;
+  const cx = px + TILE_PX / 2 + sway,
+    cy = py + TILE_PX / 2 + 8;
   ctx.fillStyle = '#7c2d12';
   ctx.fillRect(cx - 7, cy - 2, 14, 2);
   ctx.fillStyle = '#92400e';
@@ -447,7 +462,8 @@ function drawDesertBrush(ctx, px, py, t) {
 
 // === Existing decoration sprites ========================================
 function drawBones(ctx, px, py) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2;
   ctx.fillStyle = '#e7e5db';
   ctx.fillRect(cx - 8, cy - 1, 16, 3);
   ctx.fillRect(cx - 9, cy - 4, 3, 4);
@@ -458,7 +474,8 @@ function drawBones(ctx, px, py) {
   ctx.fillRect(cx - 2, cy - 1, 1, 3);
 }
 function drawCandle(ctx, px, py) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 6;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + 6;
   ctx.fillStyle = '#3d2a1c';
   ctx.fillRect(cx - 3, cy, 6, 2);
   ctx.fillStyle = '#fde68a';
@@ -471,7 +488,8 @@ function drawCandle(ctx, px, py) {
   ctx.fillRect(cx, cy - 13, 1, 2);
 }
 function drawMushroom(ctx, px, py) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 4;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + 4;
   ctx.fillStyle = '#fef3c7';
   ctx.fillRect(cx - 2, cy - 3, 4, 8);
   ctx.fillStyle = '#dc2626';
@@ -483,7 +501,8 @@ function drawMushroom(ctx, px, py) {
   ctx.fillRect(cx + 3, cy - 6, 2, 2);
 }
 function drawPuddle(ctx, px, py) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 6;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + 6;
   ctx.fillStyle = '#0f766e';
   ctx.beginPath();
   ctx.ellipse(cx, cy, 12, 5, 0, 0, Math.PI * 2);
@@ -493,7 +512,8 @@ function drawPuddle(ctx, px, py) {
   ctx.fillRect(cx + 2, cy + 1, 5, 1);
 }
 function drawTerminal(ctx, px, py) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 4;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + 4;
   ctx.fillStyle = '#1e293b';
   ctx.fillRect(cx - 8, cy - 12, 16, 14);
   ctx.fillStyle = '#0f172a';
@@ -518,7 +538,8 @@ function drawCable(ctx, px, py) {
   ctx.stroke();
 }
 function drawGear(ctx, px, py) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2;
   ctx.fillStyle = '#a3a3a3';
   ctx.beginPath();
   ctx.arc(cx, cy, 9, 0, Math.PI * 2);
@@ -536,7 +557,8 @@ function drawGear(ctx, px, py) {
   }
 }
 function drawCapacitor(ctx, px, py) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 4;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + 4;
   ctx.fillStyle = '#1c1917';
   ctx.fillRect(cx - 4, cy - 10, 8, 12);
   ctx.fillStyle = '#fbbf24';
@@ -546,7 +568,8 @@ function drawCapacitor(ctx, px, py) {
   ctx.fillRect(cx - 1, cy - 13, 2, 3);
 }
 function drawCactus(ctx, px, py) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 6;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + 6;
   ctx.fillStyle = '#15803d';
   ctx.fillRect(cx - 3, cy - 16, 6, 16);
   ctx.fillRect(cx - 7, cy - 8, 4, 6);
@@ -557,31 +580,50 @@ function drawCactus(ctx, px, py) {
   ctx.fillRect(cx, cy - 17, 1, 1);
 }
 function drawAntenna(ctx, px, py) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 6;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + 6;
   ctx.fillStyle = '#52525b';
   ctx.fillRect(cx, cy - 18, 1, 18);
   ctx.fillRect(cx - 6, cy - 14, 13, 1);
   ctx.fillRect(cx - 4, cy - 10, 9, 1);
-  ctx.fillRect(cx - 2, cy - 6,  5, 1);
+  ctx.fillRect(cx - 2, cy - 6, 5, 1);
   ctx.fillStyle = '#ef4444';
   ctx.fillRect(cx, cy - 20, 1, 2);
 }
 export const DECO_DRAWERS = {
   // existing
-  bones: drawBones, candle: drawCandle, mushroom: drawMushroom, puddle: drawPuddle,
-  terminal: drawTerminal, cable: drawCable, gear: drawGear, capacitor: drawCapacitor,
-  cactus: drawCactus, antenna: drawAntenna,
+  bones: drawBones,
+  candle: drawCandle,
+  mushroom: drawMushroom,
+  puddle: drawPuddle,
+  terminal: drawTerminal,
+  cable: drawCable,
+  gear: drawGear,
+  capacitor: drawCapacitor,
+  cactus: drawCactus,
+  antenna: drawAntenna,
   // plants & extras
-  dead_branch: drawDeadBranch, moss_patch: drawMossPatch, nightshade: drawNightshade,
-  algae: drawAlgae, fern: drawFern, rot_flower: drawRotFlower,
-  bonsai: drawBonsai, ivy: drawIvy, crystal: drawCrystal,
-  pipe_vine: drawPipeVine, rust_flower: drawRustFlower, steam_fern: drawSteamFern,
-  tumbleweed: drawTumbleweed, wildflower: drawWildflower, desert_brush: drawDesertBrush,
+  dead_branch: drawDeadBranch,
+  moss_patch: drawMossPatch,
+  nightshade: drawNightshade,
+  algae: drawAlgae,
+  fern: drawFern,
+  rot_flower: drawRotFlower,
+  bonsai: drawBonsai,
+  ivy: drawIvy,
+  crystal: drawCrystal,
+  pipe_vine: drawPipeVine,
+  rust_flower: drawRustFlower,
+  steam_fern: drawSteamFern,
+  tumbleweed: drawTumbleweed,
+  wildflower: drawWildflower,
+  desert_brush: drawDesertBrush,
 };
 
 // === Mob sprites ========================================================
 function drawWraith(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + Math.sin(t / 400) * 2;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + Math.sin(t / 400) * 2;
   ctx.fillStyle = 'rgba(168,85,247,0.55)';
   ctx.fillRect(cx - 8, cy - 6, 16, 16);
   ctx.fillStyle = 'rgba(168,85,247,0.85)';
@@ -591,7 +633,8 @@ function drawWraith(ctx, px, py, t) {
   ctx.fillRect(cx + 2, cy - 7, 2, 2);
 }
 function drawSlime(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 4;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + 4;
   const wob = Math.sin(t / 250) * 1.5;
   ctx.fillStyle = '#10b981';
   ctx.beginPath();
@@ -604,19 +647,21 @@ function drawSlime(ctx, px, py, t) {
   ctx.fillRect(cx + 1, cy - 1, 2, 2);
 }
 function drawSentry(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + Math.sin(t / 400) * 0.6;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + Math.sin(t / 400) * 0.6;
   ctx.fillStyle = '#1e3a8a';
   ctx.fillRect(cx - 7, cy - 4, 14, 12);
   ctx.fillStyle = '#1e293b';
   ctx.fillRect(cx - 7, cy + 6, 14, 4);
   ctx.fillStyle = '#3b82f6';
   ctx.fillRect(cx - 5, cy - 6, 10, 5);
-  const blink = (Math.floor(t / 120) % 6) === 0;
+  const blink = Math.floor(t / 120) % 6 === 0;
   ctx.fillStyle = blink ? '#fef9c3' : '#ef4444';
   ctx.fillRect(cx - 1, cy - 4, 2, 2);
 }
 function drawSpark(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2;
   const r = 4 + Math.sin(t / 150) * 2;
   ctx.fillStyle = '#fbbf24';
   ctx.beginPath();
@@ -629,7 +674,7 @@ function drawSpark(ctx, px, py, t) {
   ctx.strokeStyle = '#f59e0b';
   ctx.lineWidth = 1;
   for (let i = 0; i < 4; i++) {
-    const a = (t / 200) + (i * Math.PI) / 2;
+    const a = t / 200 + (i * Math.PI) / 2;
     ctx.beginPath();
     ctx.moveTo(cx + Math.cos(a) * 5, cy + Math.sin(a) * 5);
     ctx.lineTo(cx + Math.cos(a) * 9, cy + Math.sin(a) * 9);
@@ -637,7 +682,8 @@ function drawSpark(ctx, px, py, t) {
   }
 }
 function drawScorpion(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 2 + Math.sin(t / 220) * 0.8;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + 2 + Math.sin(t / 220) * 0.8;
   const wig = Math.sin(t / 200) * 1.5;
   ctx.fillStyle = '#92400e';
   ctx.fillRect(cx - 6, cy - 2, 12, 6);
@@ -652,7 +698,8 @@ function drawScorpion(ctx, px, py, t) {
 
 // === Additional mob sprites (Phase 13) ==================================
 function drawSkeleton(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + Math.sin(t / 420) * 0.8;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + Math.sin(t / 420) * 0.8;
   ctx.fillStyle = 'rgba(0,0,0,0.35)';
   ctx.beginPath();
   ctx.ellipse(cx, py + TILE_PX - 5, 9, 3, 0, 0, Math.PI * 2);
@@ -685,7 +732,8 @@ function drawSkeleton(ctx, px, py, t) {
   ctx.fillRect(cx + 5, cy - 3 - sway, 2, 7);
 }
 function drawShade(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + Math.sin(t / 300) * 2;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + Math.sin(t / 300) * 2;
   // elite aura
   ctx.fillStyle = 'rgba(168,85,247,0.4)';
   ctx.beginPath();
@@ -713,7 +761,8 @@ function drawShade(ctx, px, py, t) {
   ctx.fillRect(cx + 6, cy + 12, 2, 2);
 }
 function drawRat(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 4 + Math.sin(t / 200) * 0.8;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + 4 + Math.sin(t / 200) * 0.8;
   ctx.fillStyle = 'rgba(0,0,0,0.3)';
   ctx.beginPath();
   ctx.ellipse(cx, cy + 5, 9, 2, 0, 0, Math.PI * 2);
@@ -741,7 +790,8 @@ function drawRat(ctx, px, py, t) {
   ctx.fillRect(cx + 6, cy + tailWag, 6, 1);
 }
 function drawOoze(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 4 + Math.sin(t / 380) * 1.0;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + 4 + Math.sin(t / 380) * 1.0;
   ctx.fillStyle = 'rgba(34,197,94,0.4)';
   ctx.beginPath();
   ctx.arc(cx, cy - 2, 21, 0, Math.PI * 2);
@@ -765,7 +815,8 @@ function drawOoze(ctx, px, py, t) {
   ctx.fillRect(cx + 4, cy + 8, 1, 2);
 }
 function drawDrone(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + Math.sin(t / 200) * 1;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + Math.sin(t / 200) * 1;
   ctx.fillStyle = 'rgba(0,0,0,0.3)';
   ctx.beginPath();
   ctx.ellipse(cx, py + TILE_PX - 4, 9, 2, 0, 0, Math.PI * 2);
@@ -774,7 +825,7 @@ function drawDrone(ctx, px, py, t) {
   ctx.fillRect(cx - 7, cy - 4, 14, 8);
   ctx.fillStyle = '#0f172a';
   ctx.fillRect(cx - 5, cy - 8, 10, 4);
-  const blink = (Math.floor(t / 100) % 8) === 0;
+  const blink = Math.floor(t / 100) % 8 === 0;
   ctx.fillStyle = blink ? '#fde047' : '#3b82f6';
   ctx.fillRect(cx - 1, cy - 6, 2, 2);
   ctx.fillStyle = '#64748b';
@@ -786,7 +837,8 @@ function drawDrone(ctx, px, py, t) {
   ctx.fillRect(cx + 1, cy + 4, 2, 2);
 }
 function drawFirewall(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + Math.sin(t / 500) * 0.4;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + Math.sin(t / 500) * 0.4;
   ctx.fillStyle = 'rgba(239,68,68,0.4)';
   ctx.beginPath();
   ctx.arc(cx, cy, 21, 0, Math.PI * 2);
@@ -811,7 +863,8 @@ function drawFirewall(ctx, px, py, t) {
   ctx.fillRect(cx - 8, cy - 13 + flame / 2, 1, 1);
 }
 function drawImp(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 2 + Math.sin(t / 200) * 1.2;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + 2 + Math.sin(t / 200) * 1.2;
   ctx.fillStyle = 'rgba(0,0,0,0.3)';
   ctx.beginPath();
   ctx.ellipse(cx, py + TILE_PX - 4, 7, 2, 0, 0, Math.PI * 2);
@@ -825,7 +878,7 @@ function drawImp(ctx, px, py, t) {
   ctx.fillRect(cx - 4, cy - 11, 1, 2);
   ctx.fillRect(cx + 3, cy - 11, 1, 2);
   // eyes
-  const blink = (Math.floor(t / 200) % 5) === 0;
+  const blink = Math.floor(t / 200) % 5 === 0;
   ctx.fillStyle = blink ? '#1a0e08' : '#fbbf24';
   ctx.fillRect(cx - 3, cy - 7, 2, 2);
   ctx.fillRect(cx + 1, cy - 7, 2, 2);
@@ -839,7 +892,8 @@ function drawImp(ctx, px, py, t) {
   ctx.fillRect(cx + 7, cy - 1 - flap, 1, 3);
 }
 function drawSentinel(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + Math.sin(t / 450) * 0.5;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + Math.sin(t / 450) * 0.5;
   ctx.fillStyle = 'rgba(245,158,11,0.4)';
   ctx.beginPath();
   ctx.arc(cx, cy, 21, 0, Math.PI * 2);
@@ -852,7 +906,7 @@ function drawSentinel(ctx, px, py, t) {
   ctx.fillRect(cx - 10, cy - 3, 20, 1);
   ctx.fillRect(cx - 10, cy + 4, 20, 1);
   // pulse eye
-  const pulse = (Math.floor(t / 200) % 2) === 0;
+  const pulse = Math.floor(t / 200) % 2 === 0;
   ctx.fillStyle = pulse ? '#fde047' : '#dc2626';
   ctx.fillRect(cx - 3, cy - 5, 6, 3);
   // arms (square)
@@ -865,7 +919,8 @@ function drawSentinel(ctx, px, py, t) {
   ctx.fillRect(cx + 10, cy + 8, 3, 1);
 }
 function drawSpider(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 2 + Math.sin(t / 240) * 0.8;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + 2 + Math.sin(t / 240) * 0.8;
   ctx.fillStyle = 'rgba(0,0,0,0.3)';
   ctx.beginPath();
   ctx.ellipse(cx, py + TILE_PX - 6, 10, 2, 0, 0, Math.PI * 2);
@@ -892,7 +947,7 @@ function drawSpider(ctx, px, py, t) {
   ctx.strokeStyle = '#1c1917';
   ctx.lineWidth = 1;
   for (let i = 0; i < 4; i++) {
-    const a = (i * Math.PI / 5) + Math.PI / 4;
+    const a = (i * Math.PI) / 5 + Math.PI / 4;
     const len = 8;
     ctx.beginPath();
     ctx.moveTo(cx, cy);
@@ -908,7 +963,8 @@ function drawSpider(ctx, px, py, t) {
   ctx.fillRect(cx - 3, cy - 1, 2, 1);
 }
 function drawElemental(ctx, px, py, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + Math.sin(t / 300) * 1.0;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + Math.sin(t / 300) * 1.0;
   ctx.fillStyle = 'rgba(217,119,6,0.4)';
   ctx.beginPath();
   ctx.arc(cx, cy, 22, 0, Math.PI * 2);
@@ -927,7 +983,7 @@ function drawElemental(ctx, px, py, t) {
   ctx.fillRect(cx + 3, cy - 7, 2, 2);
   // sand particles
   for (let i = 0; i < 7; i++) {
-    const a = (i * Math.PI / 3.5) + (t / 250);
+    const a = (i * Math.PI) / 3.5 + t / 250;
     ctx.fillStyle = '#fbbf24';
     ctx.fillRect(cx + Math.cos(a) * 13, cy + Math.sin(a) * 13, 1, 1);
   }
@@ -937,13 +993,22 @@ function drawElemental(ctx, px, py, t) {
 }
 export const MOB_DRAWERS = {
   // existing
-  wraith: drawWraith, slime: drawSlime, sentry: drawSentry, spark: drawSpark, scorpion: drawScorpion,
+  wraith: drawWraith,
+  slime: drawSlime,
+  sentry: drawSentry,
+  spark: drawSpark,
+  scorpion: drawScorpion,
   // new (Phase 13)
-  skeleton: drawSkeleton, shade: drawShade,
-  rat: drawRat, ooze: drawOoze,
-  drone: drawDrone, firewall: drawFirewall,
-  imp: drawImp, sentinel: drawSentinel,
-  spider: drawSpider, elemental: drawElemental,
+  skeleton: drawSkeleton,
+  shade: drawShade,
+  rat: drawRat,
+  ooze: drawOoze,
+  drone: drawDrone,
+  firewall: drawFirewall,
+  imp: drawImp,
+  sentinel: drawSentinel,
+  spider: drawSpider,
+  elemental: drawElemental,
 };
 
 // === Boss sprites =======================================================
@@ -953,8 +1018,9 @@ function drawLich(ctx, px, py, t) {
   // tempo regardless of which boss they're facing.
   const bob = Math.sin(t / 350) * 1.5;
   const tellPhase = (t % 1800) / 1800;
-  const tell = tellPhase < 0.15 ? Math.sin(tellPhase * Math.PI / 0.15) : 0;
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 - 4 + bob;
+  const tell = tellPhase < 0.15 ? Math.sin((tellPhase * Math.PI) / 0.15) : 0;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 - 4 + bob;
   ctx.fillStyle = 'rgba(168,85,247,0.4)';
   ctx.fillRect(cx - 16, cy + 8, 32, 16);
   ctx.fillStyle = '#a855f7';
@@ -982,14 +1048,15 @@ function drawHydra(ctx, px, py, t) {
   // 25i-2: body bob + middle head lunges forward on the attack-tell pulse.
   const bob = Math.sin(t / 400) * 1.2;
   const tellPhase = (t % 1800) / 1800;
-  const tell = tellPhase < 0.15 ? Math.sin(tellPhase * Math.PI / 0.15) : 0;
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 8 + bob;
+  const tell = tellPhase < 0.15 ? Math.sin((tellPhase * Math.PI) / 0.15) : 0;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + 8 + bob;
   ctx.fillStyle = '#065f46';
   ctx.fillRect(cx - 14, cy - 4, 28, 12);
   for (let i = 0; i < 3; i++) {
     const off = (i - 1) * 8;
     const sway = Math.sin(t / 300 + i) * 3;
-    const lunge = (i === 1) ? tell * 4 : 0;
+    const lunge = i === 1 ? tell * 4 : 0;
     ctx.fillStyle = '#10b981';
     ctx.fillRect(cx - 3 + off + sway, cy - 18 + lunge, 6, 14);
     ctx.fillStyle = '#065f46';
@@ -1003,8 +1070,9 @@ function drawSphinx(ctx, px, py, t) {
   // 25i-2: bob + eye saturates toward a redder halo during the tell pulse.
   const bob = Math.sin(t / 420) * 1.2;
   const tellPhase = (t % 1800) / 1800;
-  const tell = tellPhase < 0.15 ? Math.sin(tellPhase * Math.PI / 0.15) : 0;
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + bob;
+  const tell = tellPhase < 0.15 ? Math.sin((tellPhase * Math.PI) / 0.15) : 0;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + bob;
   ctx.fillStyle = '#1e3a8a';
   ctx.fillRect(cx - 12, cy - 14, 24, 28);
   ctx.fillStyle = '#0f172a';
@@ -1017,8 +1085,8 @@ function drawSphinx(ctx, px, py, t) {
     ctx.fillRect(cx - 4, cy - 11, 8, 7);
     ctx.globalAlpha = 1;
   }
-  const blink = (Math.floor(t / 150) % 4) === 0;
-  ctx.fillStyle = blink ? '#fef9c3' : (tell > 0.5 ? '#fca5a5' : '#ef4444');
+  const blink = Math.floor(t / 150) % 4 === 0;
+  ctx.fillStyle = blink ? '#fef9c3' : tell > 0.5 ? '#fca5a5' : '#ef4444';
   ctx.fillRect(cx - 2, cy - 9, 4, 3);
   ctx.fillStyle = '#60a5fa';
   ctx.fillRect(cx - 11, cy - 4, 22, 2);
@@ -1027,9 +1095,10 @@ function drawBehemoth(ctx, px, py, t) {
   // 25i-2: bob + body "clench" widens slightly during the tell pulse.
   const bob = Math.sin(t / 500) * 1.0;
   const tellPhase = (t % 1800) / 1800;
-  const tell = tellPhase < 0.15 ? Math.sin(tellPhase * Math.PI / 0.15) : 0;
+  const tell = tellPhase < 0.15 ? Math.sin((tellPhase * Math.PI) / 0.15) : 0;
   const widen = tell * 2;
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + bob;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + bob;
   ctx.fillStyle = '#92400e';
   ctx.fillRect(cx - 14 - widen, cy - 12, 28 + widen * 2, 26);
   ctx.fillStyle = '#fbbf24';
@@ -1038,7 +1107,7 @@ function drawBehemoth(ctx, px, py, t) {
   ctx.fillRect(cx - 6, cy - 5, 4, 4);
   ctx.fillRect(cx + 2, cy - 5, 4, 4);
   ctx.fillStyle = tell > 0.5 ? '#fde047' : '#fb923c';
-  const glow = (Math.floor(t / 200) % 2) === 0 ? 1 : 0;
+  const glow = Math.floor(t / 200) % 2 === 0 ? 1 : 0;
   if (glow || tell > 0.3) ctx.fillRect(cx - 5, cy - 4, 2, 2);
   ctx.fillStyle = '#1c1917';
   ctx.fillRect(cx - 8, cy + 4, 16, 4);
@@ -1047,8 +1116,9 @@ function drawRiddler(ctx, px, py, t) {
   // 25i-2: bob + cards flap wider and eyes glow red during the tell pulse.
   const bob = Math.sin(t / 350) * 1.2;
   const tellPhase = (t % 1800) / 1800;
-  const tell = tellPhase < 0.15 ? Math.sin(tellPhase * Math.PI / 0.15) : 0;
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + bob;
+  const tell = tellPhase < 0.15 ? Math.sin((tellPhase * Math.PI) / 0.15) : 0;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + bob;
   const flap = Math.sin(t / 250) * (4 + tell * 4);
   ctx.fillStyle = '#a16207';
   ctx.fillRect(cx - 14 - flap, cy - 4, 12, 6);
@@ -1062,24 +1132,29 @@ function drawRiddler(ctx, px, py, t) {
   ctx.fillRect(cx + 2, cy - 7, 2, 2);
 }
 export const BOSS_DRAWERS = {
-  lich: drawLich, hydra: drawHydra, sphinx: drawSphinx, behemoth: drawBehemoth, riddler: drawRiddler,
+  lich: drawLich,
+  hydra: drawHydra,
+  sphinx: drawSphinx,
+  behemoth: drawBehemoth,
+  riddler: drawRiddler,
 };
 export const BOSS_DISPLAY = {
-  lich:     { name: 'The Lich',     icon: '💀' },
-  hydra:    { name: 'The Hydra',    icon: '🐉' },
-  sphinx:   { name: 'The Sphinx',   icon: '🦁' },
+  lich: { name: 'The Lich', icon: '💀' },
+  hydra: { name: 'The Hydra', icon: '🐉' },
+  sphinx: { name: 'The Sphinx', icon: '🦁' },
   behemoth: { name: 'The Behemoth', icon: '🪨' },
-  riddler:  { name: 'The Riddler',  icon: '🃏' },
+  riddler: { name: 'The Riddler', icon: '🃏' },
 };
 
 // === Chest sprites (Phase 15) ===========================================
 const CHEST_PALETTE = {
   wooden: { body: '#7c2d12', top: '#92400e', band: '#451a03', lock: '#fbbf24', glint: '#fde68a' },
   silver: { body: '#94a3b8', top: '#cbd5e1', band: '#475569', lock: '#fef3c7', glint: '#fef9c3' },
-  gold:   { body: '#a16207', top: '#fbbf24', band: '#7c2d12', lock: '#fef9c3', glint: '#ffffff' },
+  gold: { body: '#a16207', top: '#fbbf24', band: '#7c2d12', lock: '#fef9c3', glint: '#ffffff' },
 };
 export function drawChest(ctx, tier, px, py, opened, t) {
-  const cx = px + TILE_PX / 2, cy = py + TILE_PX / 2 + 4;
+  const cx = px + TILE_PX / 2,
+    cy = py + TILE_PX / 2 + 4;
   const p = CHEST_PALETTE[tier] || CHEST_PALETTE.wooden;
   // shadow
   ctx.fillStyle = 'rgba(0,0,0,0.4)';
@@ -1095,7 +1170,7 @@ export function drawChest(ctx, tier, px, py, opened, t) {
   ctx.fillRect(cx - 10, cy + 1, 20, 1);
   ctx.fillRect(cx - 10, cy + 6, 20, 1);
   ctx.fillRect(cx - 10, cy - 4, 1, 11);
-  ctx.fillRect(cx + 9,  cy - 4, 1, 11);
+  ctx.fillRect(cx + 9, cy - 4, 1, 11);
   if (opened) {
     // lid lifted up + back
     ctx.fillStyle = p.body;
@@ -1145,9 +1220,7 @@ export function drawChest(ctx, tier, px, py, opened, t) {
 // Drawn after the player so it sits on top. Hand position depends on facing.
 export function drawWeapon(ctx, weaponId, cx, py, facing, swingT = 0) {
   if (!weaponId) return;
-  const handX = facing === 'left' ? cx - 12
-              : facing === 'right' ? cx + 10
-              : cx + 9; // up/down — show on the right side
+  const handX = facing === 'left' ? cx - 12 : facing === 'right' ? cx + 10 : cx + 9; // up/down — show on the right side
   const handY = py + 24;
 
   // 25i-3: swing arc — wrap the weapon drawing in a rotation pivoting on
@@ -1331,8 +1404,8 @@ export function drawPlayer(ctx, px, py, facing, walkFrame, equipped = {}, swingT
   // === Legs (animated) ===
   const stepDelta = walkFrame === 1 ? 1 : walkFrame === 3 ? -1 : 0;
   ctx.fillStyle = '#3a2418';
-  ctx.fillRect(cx - 6, legTop + stepDelta,         5, legHeight - 3 - Math.abs(stepDelta));
-  ctx.fillRect(cx + 1, legTop - stepDelta,         5, legHeight - 3 - Math.abs(stepDelta));
+  ctx.fillRect(cx - 6, legTop + stepDelta, 5, legHeight - 3 - Math.abs(stepDelta));
+  ctx.fillRect(cx + 1, legTop - stepDelta, 5, legHeight - 3 - Math.abs(stepDelta));
   // Boots
   ctx.fillStyle = '#0a0604';
   ctx.fillRect(cx - 7, legTop + legHeight - 4 + stepDelta, 6, 3);
@@ -1493,11 +1566,11 @@ function drawPetImp(ctx, px, py, now) {
   ctx.fillRect(cx + 8, baseY - 8 + bob, 2, 2);
 }
 export const PET_DRAWERS = {
-  owl:    drawPetOwl,
+  owl: drawPetOwl,
   dragon: drawPetDragon,
-  mimic:  drawPetMimic,
-  fox:    drawPetFox,
-  imp:    drawPetImp,
+  mimic: drawPetMimic,
+  fox: drawPetFox,
+  imp: drawPetImp,
 };
 
 // === Combat helpers =====================================================

@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { stripForSpeech, ttsSupported, speak } from './tts.js';
+import { describe, expect, it } from 'vitest';
+import { speak, stripForSpeech, ttsSupported } from './tts.js';
 
 describe('tts (S14)', () => {
   it('strips code fences and markdown punctuation', () => {

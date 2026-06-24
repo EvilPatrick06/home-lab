@@ -68,13 +68,9 @@ export function isSealedTome(data) {
  * @returns {Promise<CryptoKey>}
  */
 async function deriveKey(passphrase, saltBytes, iterations) {
-  const material = await crypto.subtle.importKey(
-    'raw',
-    new TextEncoder().encode(passphrase),
-    'PBKDF2',
-    false,
-    ['deriveKey'],
-  );
+  const material = await crypto.subtle.importKey('raw', new TextEncoder().encode(passphrase), 'PBKDF2', false, [
+    'deriveKey',
+  ]);
   return crypto.subtle.deriveKey(
     { name: 'PBKDF2', salt: saltBytes, iterations, hash: 'SHA-256' },
     material,
@@ -100,10 +96,7 @@ export async function sealTome(tomeData, passphrase) {
   if (isSealedTome(tomeData)) throw new Error('already-sealed');
 
   if (!tomeData?.metadata) throw new Error('empty-tome');
-  const contentCount =
-    (tomeData.flashcards?.length || 0) +
-    (tomeData.quiz?.length || 0) +
-    (tomeData.labs?.length || 0);
+  const contentCount = (tomeData.flashcards?.length || 0) + (tomeData.quiz?.length || 0) + (tomeData.labs?.length || 0);
   if (contentCount === 0) throw new Error('empty-tome');
 
   if (typeof passphrase !== 'string' || passphrase.length < 8) {

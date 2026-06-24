@@ -29,10 +29,7 @@ function OcclusionCard({ card, flipped }) {
               borderRadius: 3,
             }}
           >
-            <span
-              className="text-xs font-bold px-1 leading-tight"
-              style={{ color: flipped ? '#bbf7d0' : '#fcd34d' }}
-            >
+            <span className="text-xs font-bold px-1 leading-tight" style={{ color: flipped ? '#bbf7d0' : '#fcd34d' }}>
               {flipped ? m.answer || '✓' : '?'}
             </span>
           </div>

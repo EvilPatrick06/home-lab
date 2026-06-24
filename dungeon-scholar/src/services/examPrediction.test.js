@@ -1,9 +1,9 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   computeExamPrediction,
-  PREDICTION_MIN_SAMPLE,
   PREDICTION_HIGH_COVERAGE,
   PREDICTION_MEDIUM_COVERAGE,
+  PREDICTION_MIN_SAMPLE,
 } from './examPrediction.js';
 
 describe('computeExamPrediction', () => {
@@ -112,7 +112,7 @@ describe('computeExamPrediction', () => {
       { domain: 'A', total: 10, correct: 5, accuracy: 0.5 },
       { /* no domain */ total: 20, correct: 20, accuracy: 1 },
       { domain: 'B', total: 'lots', correct: 5, accuracy: 0.5 }, // bad total
-      { domain: 'C', total: 10, correct: 10, accuracy: NaN },   // bad accuracy → treated as 0
+      { domain: 'C', total: 10, correct: 10, accuracy: NaN }, // bad accuracy → treated as 0
     ];
     const weights = { A: 40, B: 30, C: 30 };
     const out = computeExamPrediction(stats, weights);
@@ -128,6 +128,6 @@ describe('computeExamPrediction', () => {
     const stats = [{ domain: 'B', total: 10, correct: 5, accuracy: 0.5 }];
     const weights = { A: 20, B: 30, C: 50 };
     const out = computeExamPrediction(stats, weights);
-    expect(out.missingDomains.map(m => m.domain)).toEqual(['A', 'C']);
+    expect(out.missingDomains.map((m) => m.domain)).toEqual(['A', 'C']);
   });
 });

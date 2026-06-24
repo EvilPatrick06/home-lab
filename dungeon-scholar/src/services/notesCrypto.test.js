@@ -1,11 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import {
-  KDF_ITERATIONS,
-  deriveKey,
-  encryptPayload,
-  decryptPayload,
-  clearKeyCache,
-} from './notesCrypto.js';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { clearKeyCache, decryptPayload, deriveKey, encryptPayload, KDF_ITERATIONS } from './notesCrypto.js';
 
 // Most tests use a low iteration count to keep the suite fast — the KDF cost is
 // not what's under test (round-trip / tamper / wire-format are). One test below
@@ -82,9 +76,7 @@ describe('notesCrypto', () => {
 
   it('rejects an unknown wire version with unsupported-version', async () => {
     const valid = await encryptPayload('v-test', 'versioned', FAST);
-    await expect(decryptPayload('v-test', { ...valid, v: 2 })).rejects.toThrow(
-      'unsupported-version',
-    );
+    await expect(decryptPayload('v-test', { ...valid, v: 2 })).rejects.toThrow('unsupported-version');
   });
 
   it('decrypts a committed fixture (pins the wire format)', async () => {

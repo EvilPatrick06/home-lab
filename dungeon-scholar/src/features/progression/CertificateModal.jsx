@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
 import { Award, Download, Printer, X } from 'lucide-react';
+import { useMemo } from 'react';
 import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 import {
   buildCertificateText,

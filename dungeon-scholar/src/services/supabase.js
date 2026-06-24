@@ -7,16 +7,17 @@ const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 // In dev/CI without env vars, we still want the bundle to build/import
 // without throwing — the SDK calls just fail at runtime when the user
 // tries to sign in, which is the right blast radius.
-export const supabase = (url && key)
-  ? createClient(url, key, {
-      auth: {
-        flowType: 'pkce',
-        autoRefreshToken: false, // PHASE-02 (F1): refresh driven explicitly in useAuth (only with a live session) so a signed-out load never starts GoTrue's token-refresh retry loop.
-        persistSession: true,
-        detectSessionInUrl: false, // we handle exchange manually in App.jsx
-      },
-    })
-  : null;
+export const supabase =
+  url && key
+    ? createClient(url, key, {
+        auth: {
+          flowType: 'pkce',
+          autoRefreshToken: false, // PHASE-02 (F1): refresh driven explicitly in useAuth (only with a live session) so a signed-out load never starts GoTrue's token-refresh retry loop.
+          persistSession: true,
+          detectSessionInUrl: false, // we handle exchange manually in App.jsx
+        },
+      })
+    : null;
 
 export function isSupabaseConfigured() {
   return supabase !== null;
@@ -70,8 +71,8 @@ export function warnIfBaseMismatch() {
     logWarn(
       'Base path mismatch',
       `${mismatch}. GitHub OAuth sign-in will fail (redirectTo = origin + base). ` +
-      'Fix: set VITE_BASE (deploy.yml / .env.local) or vite.config.js base to "/<repo-name>/", ' +
-      'and list the same URL in Supabase → Authentication → URL Configuration.'
+        'Fix: set VITE_BASE (deploy.yml / .env.local) or vite.config.js base to "/<repo-name>/", ' +
+        'and list the same URL in Supabase → Authentication → URL Configuration.',
     );
   }
 }

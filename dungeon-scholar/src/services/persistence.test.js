@@ -1,16 +1,16 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  exportSaveText,
-  parseImportedSave,
-  loadFromLocalStorage,
-  saveToLocalStorage,
-  hasMeaningfulData,
-  hashState,
-  semanticHashState,
-  isQuotaExceededError,
-  STORAGE_KEY,
   CURRENT_SCHEMA_VER,
+  exportSaveText,
+  hashState,
+  hasMeaningfulData,
+  isQuotaExceededError,
+  loadFromLocalStorage,
   migrateIfNeeded,
+  parseImportedSave,
+  STORAGE_KEY,
+  saveToLocalStorage,
+  semanticHashState,
 } from './persistence.js';
 
 describe('persistence', () => {
@@ -150,24 +150,44 @@ describe('persistence', () => {
       // wall-clock times on different devices). The chooser should NOT
       // fire on this kind of difference.
       const a = {
-        level: 4, totalXp: 944, totalCorrect: 68, gold: 196,
-        library: [{ id: 't1', progress: {
-          cardsReviewed: 12, quizAnswered: 68, runsCompleted: 0,
-          mistakeVault: [
-            { id: 'q1', addedAt: 1700000000000 },
-            { id: 'q2', addedAt: 1700000005000 },
-          ],
-        } }],
+        level: 4,
+        totalXp: 944,
+        totalCorrect: 68,
+        gold: 196,
+        library: [
+          {
+            id: 't1',
+            progress: {
+              cardsReviewed: 12,
+              quizAnswered: 68,
+              runsCompleted: 0,
+              mistakeVault: [
+                { id: 'q1', addedAt: 1700000000000 },
+                { id: 'q2', addedAt: 1700000005000 },
+              ],
+            },
+          },
+        ],
       };
       const b = {
-        level: 4, totalXp: 944, totalCorrect: 68, gold: 196,
-        library: [{ id: 't1', progress: {
-          cardsReviewed: 12, quizAnswered: 68, runsCompleted: 0,
-          mistakeVault: [
-            { id: 'q1', addedAt: 1700009999999 }, // ← different timestamp
-            { id: 'q2', addedAt: 1700009999998 },
-          ],
-        } }],
+        level: 4,
+        totalXp: 944,
+        totalCorrect: 68,
+        gold: 196,
+        library: [
+          {
+            id: 't1',
+            progress: {
+              cardsReviewed: 12,
+              quizAnswered: 68,
+              runsCompleted: 0,
+              mistakeVault: [
+                { id: 'q1', addedAt: 1700009999999 }, // ← different timestamp
+                { id: 'q2', addedAt: 1700009999998 },
+              ],
+            },
+          },
+        ],
       };
       expect(semanticHashState(a)).toBe(semanticHashState(b));
     });
@@ -185,14 +205,20 @@ describe('persistence', () => {
     });
 
     it('ignores library array order (tomes are sorted by id)', () => {
-      const a = { level: 4, library: [
-        { id: 't1', progress: { quizAnswered: 5 } },
-        { id: 't2', progress: { quizAnswered: 3 } },
-      ] };
-      const b = { level: 4, library: [
-        { id: 't2', progress: { quizAnswered: 3 } },
-        { id: 't1', progress: { quizAnswered: 5 } },
-      ] };
+      const a = {
+        level: 4,
+        library: [
+          { id: 't1', progress: { quizAnswered: 5 } },
+          { id: 't2', progress: { quizAnswered: 3 } },
+        ],
+      };
+      const b = {
+        level: 4,
+        library: [
+          { id: 't2', progress: { quizAnswered: 3 } },
+          { id: 't1', progress: { quizAnswered: 5 } },
+        ],
+      };
       expect(semanticHashState(a)).toBe(semanticHashState(b));
     });
 
@@ -245,8 +271,7 @@ describe('persistence', () => {
       const a = { level: 42, totalXp: 99999, gold: 1234, library };
       // Same content, every object's keys reversed (simulating JSONB reorder)
       // and the library array shuffled — semantic hash sorts tomes by id.
-      const reorder = (obj) =>
-        Object.fromEntries(Object.entries(obj).reverse());
+      const reorder = (obj) => Object.fromEntries(Object.entries(obj).reverse());
       const shuffledLib = [...library].reverse().map((t) => ({
         ...reorder(t),
         progress: reorder(t.progress),
@@ -260,7 +285,7 @@ describe('persistence', () => {
       const library = makeLibrary(120);
       const a = { level: 42, library };
       const bumped = library.map((t, i) =>
-        i === 73 ? { ...t, progress: { ...t.progress, cardsReviewed: t.progress.cardsReviewed + 1 } } : t
+        i === 73 ? { ...t, progress: { ...t.progress, cardsReviewed: t.progress.cardsReviewed + 1 } } : t,
       );
       const b = { level: 42, library: bumped };
 
@@ -296,34 +321,36 @@ describe('persistence', () => {
       expect(saveToLocalStorage({ level: 2 })).toEqual({ ok: false, quota: true });
     });
     it('returns { ok: false, quota: false } on a generic throw', () => {
-      vi.spyOn(localStorage, 'setItem').mockImplementation(() => { throw new Error('boom'); });
+      vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
+        throw new Error('boom');
+      });
       expect(saveToLocalStorage({ level: 2 })).toEqual({ ok: false, quota: false });
     });
   });
 });
 
-describe("save export / import (S12)", () => {
-  it("round-trips a save through exportSaveText -> parseImportedSave", () => {
-    const state = { library: [{ id: "t1" }], gold: 42, level: 3 };
+describe('save export / import (S12)', () => {
+  it('round-trips a save through exportSaveText -> parseImportedSave', () => {
+    const state = { library: [{ id: 't1' }], gold: 42, level: 3 };
     const text = exportSaveText(state);
-    expect(text).toContain("dungeon-scholar");
+    expect(text).toContain('dungeon-scholar');
     const res = parseImportedSave(text);
     expect(res.ok).toBe(true);
     expect(res.state.gold).toBe(42);
     expect(res.state.library).toHaveLength(1);
   });
 
-  it("accepts a bare state object (no wrapper)", () => {
+  it('accepts a bare state object (no wrapper)', () => {
     const res = parseImportedSave(JSON.stringify({ library: [], gold: 7 }));
     expect(res.ok).toBe(true);
     expect(res.state.gold).toBe(7);
   });
 
-  it("rejects non-JSON", () => {
-    expect(parseImportedSave("not json").ok).toBe(false);
+  it('rejects non-JSON', () => {
+    expect(parseImportedSave('not json').ok).toBe(false);
   });
 
-  it("rejects JSON that is not a journal (no library array)", () => {
+  it('rejects JSON that is not a journal (no library array)', () => {
     expect(parseImportedSave(JSON.stringify({ foo: 1 })).ok).toBe(false);
   });
 });

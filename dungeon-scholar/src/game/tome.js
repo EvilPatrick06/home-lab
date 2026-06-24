@@ -1,6 +1,4 @@
-
 export const generateTomeId = () => `tome_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
 
 // Compress/decompress utilities for tome share codes.
 // We use a simple base64+JSON approach (no external libs available in artifacts).
@@ -31,7 +29,6 @@ export const decodeTomeShareCode = (code) => {
   }
 };
 
-
 // PHASE-19 19A: the per-modal Escape hook (useEscapeKey) was replaced by
 // useDialogA11y (focus trap + Escape + focus restore) across every overlay.
 
@@ -45,19 +42,17 @@ export const shuffleArray = (arr) => {
   return a;
 };
 
-
 // Some AI-generated tomes use `stages` instead of `steps` for lab steps. Normalize
 // at import time so the rest of the app can rely on the canonical `steps` field.
 // Idempotent — won't touch labs that already have `steps`.
 export const normalizeTomeData = (data) => {
   if (!data || !Array.isArray(data.labs)) return data;
-  const labs = data.labs.map(lab => {
+  const labs = data.labs.map((lab) => {
     if (!lab || lab.steps || !Array.isArray(lab.stages)) return lab;
     return { ...lab, steps: lab.stages };
   });
   return { ...data, labs };
 };
-
 
 export const blankTomeProgress = () => ({
   cardsReviewed: 0,
@@ -72,19 +67,19 @@ export const blankTomeProgress = () => ({
   labProgress: {},
   mistakeVault: [],
   chatHistory: [],
-  runHistory: [],            // Phase 10: per-tome list of completed/failed dungeon runs
+  runHistory: [], // Phase 10: per-tome list of completed/failed dungeon runs
   // Phase 30e QA #10: per-domain answer counts for the Domain Codex. Bumped
   // by recordAnswer for every answered item that carries a `domain` tag —
   // covers Quiz, Riddles, Flashcards, Labs, and Oracle paths, not just
   // dungeon delves (which were previously the Codex's only data source).
-  domainStats: {},           // { [domain]: { total, correct } }
+  domainStats: {}, // { [domain]: { total, correct } }
   // Phase 26a: confidence calibration. Each bucket counts answer events
   // where the user rated their confidence + whether the answer was correct.
   // Used by the Domain Study screen's Calibration section to surface
   // overconfidence / underconfidence patterns.
   confidenceStats: {
-    low:  { total: 0, correct: 0 },
-    med:  { total: 0, correct: 0 },
+    low: { total: 0, correct: 0 },
+    med: { total: 0, correct: 0 },
     high: { total: 0, correct: 0 },
   },
   // Phase 26c: optional YYYY-MM-DD exam date. When set, the Domain Codex
@@ -97,22 +92,23 @@ export const blankTomeProgress = () => ({
   practiceExams: [],
 });
 
-
 // === Run History (Phase 10) ===
 // Aggregates statistics across a tome's runHistory for the personal-records
 // header. All runs included whether won or lost; "fastest win" filters to wins.
 export const summarizeRunHistory = (history) => {
   const runs = Array.isArray(history) ? history : [];
-  const wins = runs.filter(r => r.won);
-  const fastestWin = wins.reduce((best, r) => (best == null || r.durationSec < best.durationSec) ? r : best, null);
-  const highestScore = runs.reduce((best, r) => (best == null || (r.score || 0) > (best.score || 0)) ? r : best, null);
-  const longestStreak = runs.reduce((best, r) => (best == null || (r.maxStreak || 0) > (best.maxStreak || 0)) ? r : best, null);
+  const wins = runs.filter((r) => r.won);
+  const fastestWin = wins.reduce((best, r) => (best == null || r.durationSec < best.durationSec ? r : best), null);
+  const highestScore = runs.reduce((best, r) => (best == null || (r.score || 0) > (best.score || 0) ? r : best), null);
+  const longestStreak = runs.reduce(
+    (best, r) => (best == null || (r.maxStreak || 0) > (best.maxStreak || 0) ? r : best),
+    null,
+  );
   const totalWins = wins.length;
   const totalRuns = runs.length;
-  const winRate = totalRuns > 0 ? (totalWins / totalRuns) : 0;
+  const winRate = totalRuns > 0 ? totalWins / totalRuns : 0;
   return { runs, wins, fastestWin, highestScore, longestStreak, totalWins, totalRuns, winRate };
 };
-
 
 export const formatDuration = (sec) => {
   if (!sec || !isFinite(sec)) return '—';

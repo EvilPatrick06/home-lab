@@ -15,7 +15,9 @@ function ImportCodeModal({ onClose, onSubmit }) {
       title="✦ Import Share Code ✦"
       TitleIcon={Hash}
       SubmitIcon={Hash}
-      intro={'"Paste the sacred share code from a fellow scholar below. The code shall be deciphered and the tome added to thy library."'}
+      intro={
+        '"Paste the sacred share code from a fellow scholar below. The code shall be deciphered and the tome added to thy library."'
+      }
       placeholder="TOME-V1:..."
       emptyError="Paste the share code first"
       failError="Could not decode — make sure the entire code (starting with TOME-V1:) is pasted"

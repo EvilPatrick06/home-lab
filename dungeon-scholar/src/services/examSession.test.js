@@ -1,22 +1,30 @@
-import { describe, it, expect } from 'vitest';
-import {
-  EXAM_PRESETS,
-  pickStratifiedSample,
-  gradeExamItem,
-  summarizeExamResults,
-} from './examSession.js';
+import { describe, expect, it } from 'vitest';
+import { EXAM_PRESETS, gradeExamItem, pickStratifiedSample, summarizeExamResults } from './examSession.js';
 
 const mc = (id, domain, correctIndex = 0) => ({
-  id, domain, type: 'multiplechoice', options: ['a', 'b', 'c', 'd'], correctIndex,
+  id,
+  domain,
+  type: 'multiplechoice',
+  options: ['a', 'b', 'c', 'd'],
+  correctIndex,
   question: `Q ${id}`,
 });
 
 const tf = (id, domain, correctAnswer = true) => ({
-  id, domain, type: 'truefalse', correctAnswer, question: `Q ${id}`,
+  id,
+  domain,
+  type: 'truefalse',
+  correctAnswer,
+  question: `Q ${id}`,
 });
 
 const fib = (id, domain, correctAnswer = 'foo', acceptedAnswers = []) => ({
-  id, domain, type: 'fillblank', correctAnswer, acceptedAnswers, question: `Q ${id}`,
+  id,
+  domain,
+  type: 'fillblank',
+  correctAnswer,
+  acceptedAnswers,
+  question: `Q ${id}`,
 });
 
 const seededRng = (seed = 1) => {
@@ -30,8 +38,8 @@ const seededRng = (seed = 1) => {
 describe('EXAM_PRESETS', () => {
   it('declares three presets covering Short/Standard/Full lengths', () => {
     expect(EXAM_PRESETS).toHaveLength(3);
-    expect(EXAM_PRESETS.map(p => p.id)).toEqual(['short', 'standard', 'full']);
-    expect(EXAM_PRESETS.every(p => p.count > 0 && p.minutes > 0)).toBe(true);
+    expect(EXAM_PRESETS.map((p) => p.id)).toEqual(['short', 'standard', 'full']);
+    expect(EXAM_PRESETS.every((p) => p.count > 0 && p.minutes > 0)).toBe(true);
   });
 });
 
@@ -55,7 +63,10 @@ describe('pickStratifiedSample', () => {
     for (let i = 0; i < 20; i++) items.push(mc(`c${i}`, 'C'));
     const out = pickStratifiedSample(items, { A: 50, B: 30, C: 20 }, 10, seededRng(42));
     expect(out).toHaveLength(10);
-    const byDomain = out.reduce((m, q) => { m[q.domain] = (m[q.domain] || 0) + 1; return m; }, {});
+    const byDomain = out.reduce((m, q) => {
+      m[q.domain] = (m[q.domain] || 0) + 1;
+      return m;
+    }, {});
     expect(byDomain.A).toBe(5);
     expect(byDomain.B).toBe(3);
     expect(byDomain.C).toBe(2);
@@ -77,20 +88,26 @@ describe('pickStratifiedSample', () => {
     for (let i = 0; i < 5; i++) items.push(mc(`b${i}`, 'B'));
     const out = pickStratifiedSample(items, null, 6, seededRng(7));
     expect(out).toHaveLength(6);
-    const byDomain = out.reduce((m, q) => { m[q.domain] = (m[q.domain] || 0) + 1; return m; }, {});
+    const byDomain = out.reduce((m, q) => {
+      m[q.domain] = (m[q.domain] || 0) + 1;
+      return m;
+    }, {});
     expect(byDomain.A).toBe(3);
     expect(byDomain.B).toBe(3);
   });
 
   it('fills from leftovers when a domain pool is too thin to satisfy its quota', () => {
     const items = [
-      ...[1, 2].map(i => mc(`a${i}`, 'A')),         // only 2 in A
-      ...[1, 2, 3, 4, 5, 6, 7, 8].map(i => mc(`b${i}`, 'B')),
+      ...[1, 2].map((i) => mc(`a${i}`, 'A')), // only 2 in A
+      ...[1, 2, 3, 4, 5, 6, 7, 8].map((i) => mc(`b${i}`, 'B')),
     ];
     // 10 requested, weights 50/50 → 5/5; but A only has 2, fill 3 from B
     const out = pickStratifiedSample(items, { A: 50, B: 50 }, 10, seededRng(3));
     expect(out).toHaveLength(10);
-    const byDomain = out.reduce((m, q) => { m[q.domain] = (m[q.domain] || 0) + 1; return m; }, {});
+    const byDomain = out.reduce((m, q) => {
+      m[q.domain] = (m[q.domain] || 0) + 1;
+      return m;
+    }, {});
     expect(byDomain.A).toBe(2);
     expect(byDomain.B).toBe(8);
   });
@@ -103,7 +120,7 @@ describe('pickStratifiedSample', () => {
   it('does not duplicate items', () => {
     const items = Array.from({ length: 10 }, (_, i) => mc(`q${i}`, 'A'));
     const out = pickStratifiedSample(items, { A: 100 }, 10, seededRng(99));
-    const ids = new Set(out.map(q => q.id));
+    const ids = new Set(out.map((q) => q.id));
     expect(ids.size).toBe(10);
   });
 });

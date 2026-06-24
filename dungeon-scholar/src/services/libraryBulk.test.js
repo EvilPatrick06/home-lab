@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { buildTomeBundle, bundleFilename, applyTagToTomes } from './libraryBulk.js';
+import { describe, expect, it } from 'vitest';
+import { applyTagToTomes, buildTomeBundle, bundleFilename } from './libraryBulk.js';
 
 const T = (id, tags) => ({ id, data: { metadata: { title: id, ...(tags ? { tags } : {}) }, flashcards: [] } });
 

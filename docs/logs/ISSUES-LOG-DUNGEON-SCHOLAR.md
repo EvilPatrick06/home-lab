@@ -64,40 +64,7 @@ The integrator did **not** auto-resolve: the `autoRefreshToken` choice and the d
 
 ## Medium
 
-### [2026-06-24] dungeon-scholar lint never runs in CI; 222 biome errors accumulated
-
-- **Category:** config, debt
-- **Severity:** medium
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-errors
-- **During:** automated error scan (ran `npm run lint`)
-
-**Description:**
-`dungeon-scholar/package.json` defines a `lint` script (`biome check src`) but no CI
-workflow ever invokes it. `.github/workflows/dungeon-scholar-ci.yml` runs only
-`npm ci` -> `npm run test` -> `npm run build`; `deploy.yml` runs test+build; the
-security-audit workflow runs only `npm audit`. With no gate, lint errors have piled up:
-`npm run lint` currently exits 1 with **222 errors, 236 warnings, 14 infos** across 181
-files. Breakdown of the errors includes correctness-class issues, not just style:
-useExhaustiveDependencies x91, organizeImports x101 (assist), useOptionalChain x59,
-noUnusedImports x44, noUnusedVariables x18, useHookAtTopLevel x3 (see the BattleModal
-entry above), useIterableCallbackReturn x7 (mostly false-positive `set.add` arrows),
-noAssignInExpressions x3, noGlobalIsFinite x1, etc.
-
-**Expected behavior:** Either lint is enforced in CI (gate stays green by keeping the
-tree clean), or the script is acknowledged as advisory. Right now it is silently broken.
-
-**Hypothesis / root cause:** `dungeon-scholar-ci.yml` job has no `npm run lint` step; the
-script was added to package.json but never wired into the pipeline, so the error count
-drifted upward unnoticed (CI stays green on test+build alone).
-
-**Proposed fix / improvement:**
-- [ ] Triage: auto-fix the safe classes first (`npm run lint:fix` handles organizeImports / unused imports / useTemplate / useOptionalChain), then hand-fix the correctness items (useExhaustiveDependencies, useHookAtTopLevel).
-- [ ] Add a `npm run lint` step to `dungeon-scholar-ci.yml` once the tree is clean so it cannot regress.
-- [ ] Decide policy on `useExhaustiveDependencies` (fix vs. rule-config) before gating, since it is the bulk of the count.
-
-**Related files:** `dungeon-scholar/package.json`, `.github/workflows/dungeon-scholar-ci.yml`
-
+*(none currently logged)*
 
 ## Low
 

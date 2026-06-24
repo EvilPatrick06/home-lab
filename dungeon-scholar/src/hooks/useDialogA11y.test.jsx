@@ -1,13 +1,16 @@
-import { describe, it, expect, vi } from 'vitest';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 import { useDialogA11y } from './useDialogA11y.js';
 
 // Fixture: a trigger button outside the dialog, and a conditional panel with
 // two focusable buttons inside.
 function Fixture({ onClose, active = true }) {
   const [open, setOpen] = useState(false);
-  const close = () => { setOpen(false); onClose?.(); };
+  const close = () => {
+    setOpen(false);
+    onClose?.();
+  };
   const panelRef = useDialogA11y({ onClose: close, active: active && open });
   return (
     <div>

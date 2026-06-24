@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent, within } from '@testing-library/react';
-import LibraryScreen from './LibraryScreen.jsx';
+import { fireEvent, render, screen, within } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 import { blankTomeProgress } from '../../game/tome.js';
+import LibraryScreen from './LibraryScreen.jsx';
 
 // Phase 41G — Phase-30 QA gap: render the Grand Library with a large
 // collection (the QA pass "couldn't test" 100+ tomes) and confirm every row
@@ -57,7 +57,7 @@ describe('LibraryScreen — 120 tomes (Phase-30 QA gap)', () => {
     expect(screen.getByText(/120 tomes in your collection/i)).toBeInTheDocument();
   }, 20000);
 
-  it('clicking a tome\'s Open Tome fires onSwitch with that tome\'s id', () => {
+  it("clicking a tome's Open Tome fires onSwitch with that tome's id", () => {
     const library = makeLibrary(120);
     const { onSwitch } = renderLibrary(library);
 

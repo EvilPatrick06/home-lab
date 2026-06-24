@@ -1,11 +1,5 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import {
-  isSealedTome,
-  PBKDF2_ITERATIONS,
-  SEAL_VERSION,
-  sealTome,
-  unsealTome,
-} from './sealedTome.js';
+import { isSealedTome, PBKDF2_ITERATIONS, SEAL_VERSION, sealTome, unsealTome } from './sealedTome.js';
 
 // Known-secret strings woven into the mini-tome so the secrecy assertion can
 // prove they never leak into the envelope JSON.
@@ -59,9 +53,7 @@ describe('sealedTome', () => {
   });
 
   it('rejects unseal with the wrong passphrase', async () => {
-    await expect(unsealTome(envelope, 'wrong passphrase!!')).rejects.toThrow(
-      'wrong-passphrase',
-    );
+    await expect(unsealTome(envelope, 'wrong passphrase!!')).rejects.toThrow('wrong-passphrase');
   });
 
   it('rejects unseal when the ciphertext is tampered', async () => {
@@ -111,9 +103,7 @@ describe('sealedTome', () => {
       await expect(sealTome(empty, PASSPHRASE)).rejects.toThrow('empty-tome');
     });
     it('rejects a tome with no metadata', async () => {
-      await expect(sealTome({ flashcards: [{ id: 'f' }] }, PASSPHRASE)).rejects.toThrow(
-        'empty-tome',
-      );
+      await expect(sealTome({ flashcards: [{ id: 'f' }] }, PASSPHRASE)).rejects.toThrow('empty-tome');
     });
   });
 

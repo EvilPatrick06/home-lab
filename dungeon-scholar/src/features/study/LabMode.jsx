@@ -1,11 +1,21 @@
-import { useState, useEffect, useRef } from 'react';
-import { ChevronRight, X, Check, ArrowLeft, Loader2, Wand2 } from 'lucide-react';
-import { gradeAnswer } from '../../services/oracleGrader.js';
-import { ConfirmModal } from '../../components/ui/ConfirmModal.jsx';
-import { DifficultyStars, BloomBadge } from '../../components/ui/badges.jsx';
+import { ArrowLeft, Check, ChevronRight, Loader2, Wand2, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import RichContent from '../../components/RichContent.jsx';
+import { BloomBadge, DifficultyStars } from '../../components/ui/badges.jsx';
+import { ConfirmModal } from '../../components/ui/ConfirmModal.jsx';
+import { gradeAnswer } from '../../services/oracleGrader.js';
 
-function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerState, checkAchievement, recordAnswer, onPendingConfirm, onGoToLibrary }) {
+function LabMode({
+  courseSet,
+  tomeProgress,
+  awardXP,
+  updateTomeProgress,
+  playerState,
+  checkAchievement,
+  recordAnswer,
+  onPendingConfirm,
+  onGoToLibrary,
+}) {
   const [selectedLab, setSelectedLab] = useState(null);
   const [step, setStep] = useState(0);
   const [textAnswer, setTextAnswer] = useState('');
@@ -19,7 +29,12 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
   // record a step for a lab they walked away from. Declared above the early
   // return alongside labKeyRef so hook order is stable (see the note below).
   const gradeAbortRef = useRef(null);
-  useEffect(() => () => { gradeAbortRef.current?.abort(); }, [selectedLab]);
+  useEffect(
+    () => () => {
+      gradeAbortRef.current?.abort();
+    },
+    [selectedLab],
+  );
 
   // Phase 44a round-11 P1 CRITICAL FIX: ALL hooks must run on every render
   // regardless of `selectedLab` state. The Phase 43e version put this
@@ -58,9 +73,11 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
           <div className="space-y-3">
             <div className="text-amber-600 italic">No trials in this tome.</div>
             {/* 19E (L17): give the dead-end a path to add content. */}
-            <button onClick={() => onGoToLibrary?.()}
+            <button
+              onClick={() => onGoToLibrary?.()}
               className="w-full py-3 px-4 rounded-sm italic border-2 border-amber-700 text-amber-200"
-              style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>
+              style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
+            >
               📜 Visit the Grand Library — import or forge a tome with trials
             </button>
           </div>
@@ -73,13 +90,22 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
           const isCompleted = progress?.completed;
           const inProgress = !isCompleted && progress && (progress.step ?? 0) > 0;
           return (
-            <button key={i} onClick={() => {
-              const resumeStep = inProgress ? Math.min(progress.step ?? 0, Math.max(0, totalStages - 1)) : 0;
-              setSelectedLab(lab); setStep(resumeStep); setFeedback(null); setTextAnswer('');
-            }} className="w-full text-left p-4 rounded-sm transition relative" style={{
-              background: 'linear-gradient(135deg, rgba(41, 12, 27, 0.85) 0%, rgba(20, 6, 13, 0.95) 100%)',
-              border: '2px solid rgba(190, 24, 93, 0.5)', boxShadow: '0 0 15px rgba(244, 63, 94, 0.15)',
-            }}>
+            <button
+              key={i}
+              onClick={() => {
+                const resumeStep = inProgress ? Math.min(progress.step ?? 0, Math.max(0, totalStages - 1)) : 0;
+                setSelectedLab(lab);
+                setStep(resumeStep);
+                setFeedback(null);
+                setTextAnswer('');
+              }}
+              className="w-full text-left p-4 rounded-sm transition relative"
+              style={{
+                background: 'linear-gradient(135deg, rgba(41, 12, 27, 0.85) 0%, rgba(20, 6, 13, 0.95) 100%)',
+                border: '2px solid rgba(190, 24, 93, 0.5)',
+                boxShadow: '0 0 15px rgba(244, 63, 94, 0.15)',
+              }}
+            >
               <div className="font-bold text-rose-300 text-lg italic flex items-center justify-between gap-2 flex-wrap">
                 <span>{lab.title}</span>
                 {typeof lab.difficulty === 'number' && <DifficultyStars value={lab.difficulty} />}
@@ -88,14 +114,28 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
               <div className="text-xs text-amber-700 mt-2 italic flex items-center gap-2 flex-wrap">
                 <span>⚔ {totalStages} stages ⚔</span>
                 {isCompleted && (
-                  <span className="px-2 py-0.5 rounded-sm text-[10px] uppercase tracking-wider font-bold not-italic" style={{
-                    background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.55)', border: '1px solid rgba(16, 185, 129, 0.6)', color: '#a7f3d0',
-                  }}>Completed</span>
+                  <span
+                    className="px-2 py-0.5 rounded-sm text-[10px] uppercase tracking-wider font-bold not-italic"
+                    style={{
+                      background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.55)',
+                      border: '1px solid rgba(16, 185, 129, 0.6)',
+                      color: '#a7f3d0',
+                    }}
+                  >
+                    Completed
+                  </span>
                 )}
                 {inProgress && (
-                  <span className="px-2 py-0.5 rounded-sm text-[10px] uppercase tracking-wider font-bold not-italic" style={{
-                    background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.55)', border: '1px solid rgba(245, 158, 11, 0.6)', color: '#fde68a',
-                  }}>In progress · stage {(progress.step ?? 0) + 1} of {totalStages}</span>
+                  <span
+                    className="px-2 py-0.5 rounded-sm text-[10px] uppercase tracking-wider font-bold not-italic"
+                    style={{
+                      background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.55)',
+                      border: '1px solid rgba(245, 158, 11, 0.6)',
+                      color: '#fde68a',
+                    }}
+                  >
+                    In progress · stage {(progress.step ?? 0) + 1} of {totalStages}
+                  </span>
                 )}
               </div>
             </button>
@@ -113,7 +153,8 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
   // tome's labProgress object so other entries are preserved.
   const writeLabProgress = (entry) => {
     if (!selectedLab?.id) return;
-    updateTomeProgress((prev) => ({ // 17D functional form
+    updateTomeProgress((prev) => ({
+      // 17D functional form
       labProgress: { ...(prev.labProgress || {}), [selectedLab.id]: entry },
     }));
   };
@@ -137,7 +178,10 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
           const completedAt = Date.now(); // hoisted — Date.now() is impure inside the updater (17D)
           updateTomeProgress((prev) => ({
             labsCompleted: (prev.labsCompleted || 0) + 1,
-            labProgress: { ...(prev.labProgress || {}), [selectedLab.id]: { step: steps.length, completed: true, completedAt } },
+            labProgress: {
+              ...(prev.labProgress || {}),
+              [selectedLab.id]: { step: steps.length, completed: true, completedAt },
+            },
           }));
           checkAchievement('first_lab');
           const totalLabsAcrossLib = playerState.library.reduce((s, t) => s + (t.progress?.labsCompleted || 0), 0) + 1;
@@ -149,7 +193,9 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
           // Phase 43e: record the next step so re-entering the trial
           // resumes here (and the list card shows "in progress · stage N").
           writeLabProgress({ step: step + 1, completed: false });
-          setStep(step + 1); setTextAnswer(''); setFeedback(null);
+          setStep(step + 1);
+          setTextAnswer('');
+          setFeedback(null);
         }
       }, 1500);
     } else if (!extra.awaitContinue) {
@@ -168,7 +214,10 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
         const completedAt = Date.now(); // hoisted — Date.now() is impure inside the updater (17D)
         updateTomeProgress((prev) => ({
           labsCompleted: (prev.labsCompleted || 0) + 1,
-          labProgress: { ...(prev.labProgress || {}), [selectedLab.id]: { step: steps.length, completed: true, completedAt } },
+          labProgress: {
+            ...(prev.labProgress || {}),
+            [selectedLab.id]: { step: steps.length, completed: true, completedAt },
+          },
         }));
         checkAchievement('first_lab');
         const totalLabsAcrossLib = playerState.library.reduce((s, t) => s + (t.progress?.labsCompleted || 0), 0) + 1;
@@ -215,7 +264,7 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
 
   // Override the verdict (user disagrees with the Oracle).
   const overrideVerdict = (newCorrect) => {
-    setFeedback(prev => prev ? { ...prev, correct: newCorrect, overridden: true } : prev);
+    setFeedback((prev) => (prev ? { ...prev, correct: newCorrect, overridden: true } : prev));
   };
 
   const skipStep = () => {
@@ -278,13 +327,20 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
 
   return (
     <div className="space-y-4 max-w-3xl mx-auto">
-      <button onClick={handleBackToTrials} className="flex items-center gap-2 text-amber-600 hover:text-amber-400 italic">
+      <button
+        onClick={handleBackToTrials}
+        className="flex items-center gap-2 text-amber-600 hover:text-amber-400 italic"
+      >
         <ArrowLeft className="w-4 h-4" /> Back to Trials
       </button>
-      <div className="rounded-sm p-6 relative" style={{
-        background: 'linear-gradient(135deg, rgba(41, 12, 27, 0.85) 0%, rgba(20, 6, 13, 0.95) 100%)',
-        border: '3px double rgba(190, 24, 93, 0.6)', boxShadow: '0 0 25px rgba(244, 63, 94, 0.2)',
-      }}>
+      <div
+        className="rounded-sm p-6 relative"
+        style={{
+          background: 'linear-gradient(135deg, rgba(41, 12, 27, 0.85) 0%, rgba(20, 6, 13, 0.95) 100%)',
+          border: '3px double rgba(190, 24, 93, 0.6)',
+          boxShadow: '0 0 25px rgba(244, 63, 94, 0.2)',
+        }}
+      >
         <div className="flex items-start justify-between gap-2 mb-2 flex-wrap">
           <h3 className="text-xl font-bold text-rose-300 italic">{selectedLab.title}</h3>
           {typeof selectedLab.difficulty === 'number' && <DifficultyStars value={selectedLab.difficulty} />}
@@ -293,37 +349,71 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
           <RichContent as="div" text={selectedLab.scenario} className="text-sm text-amber-100/70 mb-4 italic" />
         )}
         <div className="text-xs text-amber-700 mb-3 italic flex items-center gap-2 flex-wrap">
-          <span>⚔ Stage {step + 1} of {steps.length} ⚔</span>
-          {currentStep && typeof currentStep.difficulty === 'number' && <DifficultyStars value={currentStep.difficulty} />}
+          <span>
+            ⚔ Stage {step + 1} of {steps.length} ⚔
+          </span>
+          {currentStep && typeof currentStep.difficulty === 'number' && (
+            <DifficultyStars value={currentStep.difficulty} />
+          )}
           {currentStep && currentStep.bloomLevel && <BloomBadge level={currentStep.bloomLevel} />}
         </div>
         {currentStep && !feedback && (
           <div className="space-y-3">
-            <RichContent as="div" text={currentStep.prompt || currentStep.question}
+            <RichContent
+              as="div"
+              text={currentStep.prompt || currentStep.question}
               className="p-4 rounded-sm text-amber-50 italic"
-              style={{ background: 'rgba(41, 12, 27, 0.7)', border: '1px solid rgba(190, 24, 93, 0.4)' }} />
+              style={{ background: 'rgba(41, 12, 27, 0.7)', border: '1px solid rgba(190, 24, 93, 0.4)' }}
+            />
             {currentStep.options ? (
               <div className="space-y-2">
                 {/* Phase 43e: visible hotkey hint matching the Riddles pattern. */}
                 <div className="text-[11px] italic text-amber-100/60 text-center">
-                  ⌨ Hotkeys: 1–{currentStep.options.length} or A–{String.fromCharCode(64 + currentStep.options.length)} to pick
+                  ⌨ Hotkeys: 1–{currentStep.options.length} or A–{String.fromCharCode(64 + currentStep.options.length)}{' '}
+                  to pick
                 </div>
                 {currentStep.options.map((opt, i) => (
-                  <button key={i} onClick={() => submitStep(i === currentStep.correctIndex)} className="w-full text-left p-3 rounded-sm border-2 text-amber-50" style={{ background: 'rgba(41, 12, 27, 0.6)', borderColor: 'rgba(190, 24, 93, 0.5)' }}>
-                    <span className="text-rose-300 font-bold mr-2">{String.fromCharCode(65 + i)}.</span>{opt}
+                  <button
+                    key={i}
+                    onClick={() => submitStep(i === currentStep.correctIndex)}
+                    className="w-full text-left p-3 rounded-sm border-2 text-amber-50"
+                    style={{ background: 'rgba(41, 12, 27, 0.6)', borderColor: 'rgba(190, 24, 93, 0.5)' }}
+                  >
+                    <span className="text-rose-300 font-bold mr-2">{String.fromCharCode(65 + i)}.</span>
+                    {opt}
                   </button>
                 ))}
               </div>
             ) : (
               <div className="space-y-2">
-                <input type="text" value={textAnswer} onChange={(e) => setTextAnswer(e.target.value)}
-                  placeholder="Inscribe thy answer..." className="w-full p-3 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
+                <input
+                  type="text"
+                  value={textAnswer}
+                  onChange={(e) => setTextAnswer(e.target.value)}
+                  placeholder="Inscribe thy answer..."
+                  className="w-full p-3 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
                   disabled={grading}
-                  onKeyDown={(e) => { if (e.key === 'Enter' && textAnswer.trim() && !grading) submitTextWithOracle(); }}
-                  style={{ background: 'rgba(41, 12, 27, 0.6)', borderColor: 'rgba(190, 24, 93, 0.5)' }} />
-                <button onClick={submitTextWithOracle} disabled={!textAnswer.trim() || grading} className="w-full py-3 font-bold rounded-sm disabled:opacity-50 text-amber-50 border-2 border-rose-400 italic flex items-center justify-center gap-2"
-                  style={{ background: 'linear-gradient(to bottom, #f43f5e 0%, #9f1239 100%)', boxShadow: '0 0 20px rgba(244, 63, 94, 0.4)' }}>
-                  {grading ? (<><Loader2 className="w-4 h-4 animate-spin" /> The Oracle deliberates...</>) : 'Submit Stage'}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && textAnswer.trim() && !grading) submitTextWithOracle();
+                  }}
+                  style={{ background: 'rgba(41, 12, 27, 0.6)', borderColor: 'rgba(190, 24, 93, 0.5)' }}
+                />
+                <button
+                  onClick={submitTextWithOracle}
+                  disabled={!textAnswer.trim() || grading}
+                  className="w-full py-3 font-bold rounded-sm disabled:opacity-50 text-amber-50 border-2 border-rose-400 italic flex items-center justify-center gap-2"
+                  style={{
+                    background: 'linear-gradient(to bottom, #f43f5e 0%, #9f1239 100%)',
+                    boxShadow: '0 0 20px rgba(244, 63, 94, 0.4)',
+                  }}
+                >
+                  {grading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" /> The Oracle deliberates...
+                    </>
+                  ) : (
+                    'Submit Stage'
+                  )}
                 </button>
               </div>
             )}
@@ -340,16 +430,32 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
           </div>
         )}
         {feedback && (
-          <div role="status" className="p-4 rounded-sm border-2 space-y-3" style={{
-            background: feedback.correct ? 'rgba(var(--surface-emerald, 6, 78, 59), 0.5)' : 'rgba(127, 29, 29, 0.5)',
-            borderColor: feedback.correct ? 'rgba(16, 185, 129, 0.7)' : 'rgba(239, 68, 68, 0.7)',
-            borderStyle: feedback.correct ? 'solid' : 'dashed', // 19C: non-color cue
-          }}>
+          <div
+            role="status"
+            className="p-4 rounded-sm border-2 space-y-3"
+            style={{
+              background: feedback.correct ? 'rgba(var(--surface-emerald, 6, 78, 59), 0.5)' : 'rgba(127, 29, 29, 0.5)',
+              borderColor: feedback.correct ? 'rgba(16, 185, 129, 0.7)' : 'rgba(239, 68, 68, 0.7)',
+              borderStyle: feedback.correct ? 'solid' : 'dashed', // 19C: non-color cue
+            }}
+          >
             <div className="font-bold flex items-center gap-2 italic flex-wrap">
-              {feedback.correct ? <Check className="w-5 h-5 text-emerald-400" /> : <X className="w-5 h-5 text-red-400" />}
-              <span>{feedback.correct ? '⚔ Stage Conquered! ⚔' : (feedback.skipped ? '↳ Skipped — Trial Abandoned' : '✗ Try Again, Brave One')}</span>
+              {feedback.correct ? (
+                <Check className="w-5 h-5 text-emerald-400" />
+              ) : (
+                <X className="w-5 h-5 text-red-400" />
+              )}
+              <span>
+                {feedback.correct
+                  ? '⚔ Stage Conquered! ⚔'
+                  : feedback.skipped
+                    ? '↳ Skipped — Trial Abandoned'
+                    : '✗ Try Again, Brave One'}
+              </span>
               {feedback.overridden && (
-                <span className="text-xs px-2 py-0.5 rounded-sm border border-amber-400/60 text-amber-200 italic">overridden</span>
+                <span className="text-xs px-2 py-0.5 rounded-sm border border-amber-400/60 text-amber-200 italic">
+                  overridden
+                </span>
               )}
               {feedback.source === 'oracle' && (
                 <span className="text-xs px-2 py-0.5 rounded-sm border border-purple-400/60 text-purple-200 italic flex items-center gap-1">
@@ -357,7 +463,10 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
                 </span>
               )}
               {feedback.source === 'fallback' && (
-                <span className="text-xs px-2 py-0.5 rounded-sm border border-amber-700/60 text-amber-300 italic" title={feedback.fallbackReason || ''}>
+                <span
+                  className="text-xs px-2 py-0.5 rounded-sm border border-amber-700/60 text-amber-300 italic"
+                  title={feedback.fallbackReason || ''}
+                >
                   Tome match (Oracle silent)
                 </span>
               )}
@@ -375,18 +484,32 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
               <div className="flex items-center justify-between gap-2 pt-2 border-t border-amber-900/40 flex-wrap">
                 <div className="flex gap-2">
                   {!feedback.correct && (
-                    <button onClick={() => overrideVerdict(true)} className="px-3 py-1.5 rounded-sm text-xs italic border-2 border-emerald-500 text-emerald-200 flex items-center gap-1" style={{ background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.4)' }}>
+                    <button
+                      onClick={() => overrideVerdict(true)}
+                      className="px-3 py-1.5 rounded-sm text-xs italic border-2 border-emerald-500 text-emerald-200 flex items-center gap-1"
+                      style={{ background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.4)' }}
+                    >
                       <Check className="w-3 h-3" /> Mark as correct
                     </button>
                   )}
                   {feedback.correct && (
-                    <button onClick={() => overrideVerdict(false)} className="px-3 py-1.5 rounded-sm text-xs italic border-2 border-red-500 text-red-200 flex items-center gap-1" style={{ background: 'rgba(127, 29, 29, 0.4)' }}>
+                    <button
+                      onClick={() => overrideVerdict(false)}
+                      className="px-3 py-1.5 rounded-sm text-xs italic border-2 border-red-500 text-red-200 flex items-center gap-1"
+                      style={{ background: 'rgba(127, 29, 29, 0.4)' }}
+                    >
                       <X className="w-3 h-3" /> Mark as wrong
                     </button>
                   )}
                 </div>
-                <button onClick={continueAfterGrade} className="px-4 py-2 rounded-sm text-sm font-bold italic border-2 border-amber-300 text-amber-950 flex items-center gap-2"
-                  style={{ background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)', boxShadow: '0 0 12px rgba(245, 158, 11, 0.5)' }}>
+                <button
+                  onClick={continueAfterGrade}
+                  className="px-4 py-2 rounded-sm text-sm font-bold italic border-2 border-amber-300 text-amber-950 flex items-center gap-2"
+                  style={{
+                    background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
+                    boxShadow: '0 0 12px rgba(245, 158, 11, 0.5)',
+                  }}
+                >
                   Continue <ChevronRight className="w-4 h-4" />
                 </button>
               </div>

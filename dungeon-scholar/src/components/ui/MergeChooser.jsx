@@ -14,8 +14,10 @@ function summarize(state) {
 function Card({ heading, state, onPick, pickLabel, pickColor, ariaLabel }) {
   const s = summarize(state);
   return (
-    <div className="flex-1 p-4 rounded-sm border-2 border-amber-700"
-         style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>
+    <div
+      className="flex-1 p-4 rounded-sm border-2 border-amber-700"
+      style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
+    >
       <div className="text-xs text-amber-700 tracking-[0.3em] mb-2">{heading}</div>
       <div className="text-amber-200 text-lg font-bold italic">Level {s.level}</div>
       <div className="text-sm text-amber-300 mt-2">📚 {s.tomes} tomes</div>
@@ -40,11 +42,15 @@ export function MergeChooser({ localState, cloudState, onResolve }) {
   // 19A: Escape takes the safe path — cancel sign-in, keep this device unchanged.
   const panelRef = useDialogA11y({ onClose: () => onResolve('cancel') });
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center"
-         style={{ background: 'rgba(0,0,0,0.85)' }}>
-      <div ref={panelRef} role="dialog" aria-modal="true" aria-labelledby="merge-chooser-title"
-           className="max-w-2xl w-[92%] p-6 rounded-sm border-2 border-amber-600"
-           style={{ background: 'rgba(var(--surface-modal, 20, 12, 6), 0.97)' }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.85)' }}>
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="merge-chooser-title"
+        className="max-w-2xl w-[92%] p-6 rounded-sm border-2 border-amber-600"
+        style={{ background: 'rgba(var(--surface-modal, 20, 12, 6), 0.97)' }}
+      >
         <h2 id="merge-chooser-title" className="text-xl font-bold text-amber-300 italic mb-2">
           ⚔ Two Journals Discovered ⚔
         </h2>

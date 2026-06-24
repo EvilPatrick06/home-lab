@@ -1,16 +1,17 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
+  addMask,
   isAllowedOcclusionImage,
+  isOcclusionCard,
   normalizeMask,
   normalizeMasks,
-  isOcclusionCard,
-  validOcclusionCard,
-  addMask,
-  updateMaskAnswer,
   removeMask,
+  updateMaskAnswer,
+  validOcclusionCard,
 } from './occlusion.js';
 
-const PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+const PNG =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
 
 describe('isAllowedOcclusionImage', () => {
   it('accepts data:image base64 and https URLs', () => {

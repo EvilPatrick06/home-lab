@@ -1,7 +1,7 @@
+import { Check, ImagePlus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
-import { ImagePlus, Trash2, X, Check } from 'lucide-react';
-import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 import { generateTomeId } from '../../game/tome.js';
+import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 import { isAllowedOcclusionImage, normalizeMasks, validOcclusionCard } from '../../services/occlusion.js';
 
 const SHELL_STYLE = {
@@ -124,7 +124,12 @@ function OcclusionAuthor({ onClose, onCreate }) {
 
         <label className="inline-flex items-center gap-2 px-3 py-2 rounded-sm border-2 border-amber-700 text-amber-200 italic text-sm cursor-pointer w-fit mb-3">
           <ImagePlus className="w-4 h-4" /> {image ? 'Choose a different image' : 'Choose an image'}
-          <input type="file" accept="image/png,image/jpeg,image/gif,image/webp" onChange={onPickImage} className="hidden" />
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/gif,image/webp"
+            onChange={onPickImage}
+            className="hidden"
+          />
         </label>
 
         {error && <div className="text-sm text-red-300 italic mb-2">{error}</div>}

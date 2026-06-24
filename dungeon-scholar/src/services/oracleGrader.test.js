@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { gradeAnswer, stringMatchAnswer, isOracleConfigured } from './oracleGrader.js';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { gradeAnswer, isOracleConfigured, stringMatchAnswer } from './oracleGrader.js';
 
 const okOracleResponse = (verdict) => ({
   ok: true,
@@ -21,7 +21,9 @@ describe('stringMatchAnswer', () => {
   });
 
   it('matches partial substring against expectedAnswer', () => {
-    expect(stringMatchAnswer({ userAnswer: 'cross-site scripting', expectedAnswer: 'XSS — cross-site scripting' })).toBe(true);
+    expect(
+      stringMatchAnswer({ userAnswer: 'cross-site scripting', expectedAnswer: 'XSS — cross-site scripting' }),
+    ).toBe(true);
   });
 
   it('rejects unrelated answers', () => {
@@ -42,7 +44,10 @@ describe('gradeAnswer', () => {
   it('returns local verdict on empty user answer without calling fetch', async () => {
     const fetchImpl = vi.fn();
     const result = await gradeAnswer({
-      question: 'q', userAnswer: '   ', acceptedAnswers: ['x'], fetchImpl,
+      question: 'q',
+      userAnswer: '   ',
+      acceptedAnswers: ['x'],
+      fetchImpl,
     });
     expect(result.correct).toBe(false);
     expect(result.source).toBe('local');
@@ -50,9 +55,7 @@ describe('gradeAnswer', () => {
   });
 
   it('returns Oracle verdict when API responds with parsable JSON', async () => {
-    const fetchImpl = vi.fn().mockResolvedValue(
-      okOracleResponse({ correct: true, feedback: 'Indeed, scholar.' })
-    );
+    const fetchImpl = vi.fn().mockResolvedValue(okOracleResponse({ correct: true, feedback: 'Indeed, scholar.' }));
     const result = await gradeAnswer({
       question: 'What is XSS?',
       expectedAnswer: 'Cross-site scripting',
@@ -69,11 +72,16 @@ describe('gradeAnswer', () => {
       ok: true,
       status: 200,
       json: async () => ({
-        content: [{ type: 'text', text: 'Here is my judgment: {"correct": false, "feedback": "Nay."} Hope this helps.' }],
+        content: [
+          { type: 'text', text: 'Here is my judgment: {"correct": false, "feedback": "Nay."} Hope this helps.' },
+        ],
       }),
     });
     const result = await gradeAnswer({
-      question: 'q', userAnswer: 'wrong', expectedAnswer: 'right', fetchImpl,
+      question: 'q',
+      userAnswer: 'wrong',
+      expectedAnswer: 'right',
+      fetchImpl,
     });
     expect(result.correct).toBe(false);
     expect(result.source).toBe('oracle');
@@ -112,7 +120,10 @@ describe('gradeAnswer', () => {
       json: async () => ({ content: [{ type: 'text', text: 'I cannot grade this.' }] }),
     });
     const result = await gradeAnswer({
-      question: 'q', acceptedAnswers: ['x'], userAnswer: 'x', fetchImpl,
+      question: 'q',
+      acceptedAnswers: ['x'],
+      userAnswer: 'x',
+      fetchImpl,
     });
     expect(result.source).toBe('fallback');
     expect(result.correct).toBe(true);
@@ -120,9 +131,9 @@ describe('gradeAnswer', () => {
 
   it('Oracle verdict overrides what string match would return', async () => {
     // Oracle says correct, but string match would say wrong
-    const fetchImpl = vi.fn().mockResolvedValue(
-      okOracleResponse({ correct: true, feedback: 'A reasonable paraphrase.' })
-    );
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValue(okOracleResponse({ correct: true, feedback: 'A reasonable paraphrase.' }));
     const result = await gradeAnswer({
       question: 'What is the principle of least privilege?',
       expectedAnswer: 'Give users the minimum permissions necessary',
@@ -147,10 +158,14 @@ describe('gradeAnswer — balanced JSON extraction + abort (PHASE-17 17A)', () =
   afterEach(() => vi.unstubAllEnvs());
 
   it('takes the LAST verdict when a prose example precedes the real one', async () => {
-    const fetchImpl = vi.fn().mockResolvedValue(oracleText(
-      'For example a pass looks like {"correct": true, "feedback": "example only"}. ' +
-      'My actual verdict: {"correct": false, "feedback": "Nay, scholar."}'
-    ));
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValue(
+        oracleText(
+          'For example a pass looks like {"correct": true, "feedback": "example only"}. ' +
+            'My actual verdict: {"correct": false, "feedback": "Nay, scholar."}',
+        ),
+      );
     const result = await gradeAnswer({ question: 'q', expectedAnswer: 'right', userAnswer: 'wrong', fetchImpl });
     expect(result.source).toBe('oracle');
     expect(result.correct).toBe(false); // the SECOND (real) verdict, not the example
@@ -158,9 +173,9 @@ describe('gradeAnswer — balanced JSON extraction + abort (PHASE-17 17A)', () =
   });
 
   it('parses a verdict whose feedback string contains { and }', async () => {
-    const fetchImpl = vi.fn().mockResolvedValue(oracleText(
-      '{"correct": true, "feedback": "Use the {placeholder} braces correctly."}'
-    ));
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValue(oracleText('{"correct": true, "feedback": "Use the {placeholder} braces correctly."}'));
     const result = await gradeAnswer({ question: 'q', expectedAnswer: 'x', userAnswer: 'x', fetchImpl });
     expect(result.source).toBe('oracle');
     expect(result.correct).toBe(true);
@@ -168,9 +183,9 @@ describe('gradeAnswer — balanced JSON extraction + abort (PHASE-17 17A)', () =
   });
 
   it('parses a verdict inside a fenced ```json block', async () => {
-    const fetchImpl = vi.fn().mockResolvedValue(oracleText(
-      '```json\n{"correct": true, "feedback": "Aye, well reasoned."}\n```'
-    ));
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValue(oracleText('```json\n{"correct": true, "feedback": "Aye, well reasoned."}\n```'));
     const result = await gradeAnswer({ question: 'q', expectedAnswer: 'x', userAnswer: 'x', fetchImpl });
     expect(result.source).toBe('oracle');
     expect(result.correct).toBe(true);
@@ -188,13 +203,18 @@ describe('gradeAnswer — balanced JSON extraction + abort (PHASE-17 17A)', () =
     controller.abort();
     const fetchImpl = vi.fn().mockRejectedValue(new DOMException('Aborted', 'AbortError'));
     await expect(
-      gradeAnswer({ question: 'q', acceptedAnswers: ['x'], userAnswer: 'x', signal: controller.signal, fetchImpl })
+      gradeAnswer({ question: 'q', acceptedAnswers: ['x'], userAnswer: 'x', signal: controller.signal, fetchImpl }),
     ).rejects.toThrow();
   });
 
   it('still resolves to a fallback on a non-abort network rejection (regression pin)', async () => {
     const fetchImpl = vi.fn().mockRejectedValue(new Error('boom'));
-    const result = await gradeAnswer({ question: 'q', acceptedAnswers: ['phishing'], userAnswer: 'phishing', fetchImpl });
+    const result = await gradeAnswer({
+      question: 'q',
+      acceptedAnswers: ['phishing'],
+      userAnswer: 'phishing',
+      fetchImpl,
+    });
     expect(result.source).toBe('fallback');
     expect(result.fallbackReason).toBe('boom');
   });
@@ -206,7 +226,12 @@ describe('Oracle endpoint config (PHASE-18 18B / M9)', () => {
   it('falls back without a network call when the endpoint is unset', async () => {
     vi.stubEnv('VITE_ORACLE_ENDPOINT', '');
     const fetchImpl = vi.fn();
-    const result = await gradeAnswer({ question: 'q', acceptedAnswers: ['phishing'], userAnswer: 'phishing', fetchImpl });
+    const result = await gradeAnswer({
+      question: 'q',
+      acceptedAnswers: ['phishing'],
+      userAnswer: 'phishing',
+      fetchImpl,
+    });
     expect(result.source).toBe('fallback');
     expect(result.fallbackReason).toBe('Oracle not configured');
     expect(fetchImpl).not.toHaveBeenCalled();
@@ -215,7 +240,8 @@ describe('Oracle endpoint config (PHASE-18 18B / M9)', () => {
   it('POSTs to the configured endpoint with the current model id', async () => {
     vi.stubEnv('VITE_ORACLE_ENDPOINT', 'https://my-worker.example.dev');
     const fetchImpl = vi.fn().mockResolvedValue({
-      ok: true, status: 200,
+      ok: true,
+      status: 200,
       json: async () => ({ content: [{ type: 'text', text: '{"correct": true, "feedback": "ok"}' }] }),
     });
     await gradeAnswer({ question: 'q', expectedAnswer: 'x', userAnswer: 'x', fetchImpl });
@@ -226,9 +252,13 @@ describe('Oracle endpoint config (PHASE-18 18B / M9)', () => {
   });
 
   it('isOracleConfigured: false for empty/whitespace/garbage, true for an http(s) URL', () => {
-    vi.stubEnv('VITE_ORACLE_ENDPOINT', '');           expect(isOracleConfigured()).toBe(false);
-    vi.stubEnv('VITE_ORACLE_ENDPOINT', '   ');         expect(isOracleConfigured()).toBe(false);
-    vi.stubEnv('VITE_ORACLE_ENDPOINT', 'not a url');   expect(isOracleConfigured()).toBe(false);
-    vi.stubEnv('VITE_ORACLE_ENDPOINT', 'https://x.dev'); expect(isOracleConfigured()).toBe(true);
+    vi.stubEnv('VITE_ORACLE_ENDPOINT', '');
+    expect(isOracleConfigured()).toBe(false);
+    vi.stubEnv('VITE_ORACLE_ENDPOINT', '   ');
+    expect(isOracleConfigured()).toBe(false);
+    vi.stubEnv('VITE_ORACLE_ENDPOINT', 'not a url');
+    expect(isOracleConfigured()).toBe(false);
+    vi.stubEnv('VITE_ORACLE_ENDPOINT', 'https://x.dev');
+    expect(isOracleConfigured()).toBe(true);
   });
 });

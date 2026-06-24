@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
-import { logError, logWarn, errorMessageOf } from './logger.js';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { errorMessageOf, logError, logWarn } from './logger.js';
 
 afterEach(() => {
   vi.unstubAllEnvs();

@@ -5,19 +5,34 @@
 
 export const DAILY_REWARDS = [
   // Day 1
-  { day: 1, gold: 30,  xp: 10,  devotion: 1, items: [],                                   label: 'A Modest Tribute' },
+  { day: 1, gold: 30, xp: 10, devotion: 1, items: [], label: 'A Modest Tribute' },
   // Day 2
-  { day: 2, gold: 50,  xp: 20,  devotion: 1, items: [{ id: 'minor_heal_tonic', n: 1 }],   label: "A Healer's Gift" },
+  { day: 2, gold: 50, xp: 20, devotion: 1, items: [{ id: 'minor_heal_tonic', n: 1 }], label: "A Healer's Gift" },
   // Day 3
-  { day: 3, gold: 70,  xp: 30,  devotion: 2, items: [{ id: 'shield_draught', n: 1 }],     label: "A Warden's Bond" },
+  { day: 3, gold: 70, xp: 30, devotion: 2, items: [{ id: 'shield_draught', n: 1 }], label: "A Warden's Bond" },
   // Day 4
-  { day: 4, gold: 100, xp: 50,  devotion: 2, items: [{ id: 'scholars_brew', n: 1 }],      label: "The Scholar's Cup" },
+  { day: 4, gold: 100, xp: 50, devotion: 2, items: [{ id: 'scholars_brew', n: 1 }], label: "The Scholar's Cup" },
   // Day 5
-  { day: 5, gold: 150, xp: 75,  devotion: 3, items: [{ id: 'foresight_scroll', n: 1 }],   label: 'Eyes Beyond' },
+  { day: 5, gold: 150, xp: 75, devotion: 3, items: [{ id: 'foresight_scroll', n: 1 }], label: 'Eyes Beyond' },
   // Day 6
-  { day: 6, gold: 200, xp: 100, devotion: 3, items: [{ id: 'greater_heal_tonic', n: 1 }], label: 'The Greater Draught' },
+  {
+    day: 6,
+    gold: 200,
+    xp: 100,
+    devotion: 3,
+    items: [{ id: 'greater_heal_tonic', n: 1 }],
+    label: 'The Greater Draught',
+  },
   // Day 7 — capstone
-  { day: 7, gold: 350, xp: 200, devotion: 5, items: [{ id: 'phoenix_ember', n: 1 }],      label: 'The Phoenix Day', capstone: true },
+  {
+    day: 7,
+    gold: 350,
+    xp: 200,
+    devotion: 5,
+    items: [{ id: 'phoenix_ember', n: 1 }],
+    label: 'The Phoenix Day',
+    capstone: true,
+  },
 ];
 
 // Local YYYY-MM-DD (avoid UTC drift). Canonical impl lives in utils/date (S22);
@@ -72,9 +87,7 @@ export const evaluateClaim = ({ now, today, lastClaimedDate, lastClaimedAt, logi
   if (lastClaimedDate === today) {
     return { ok: false, reason: "Thou hast already claimed today's devotion." };
   }
-  if (typeof lastClaimedAt === 'number'
-      && now < lastClaimedAt
-      && (lastClaimedAt - now) < CLOCK_SKEW_LIMIT_MS) {
+  if (typeof lastClaimedAt === 'number' && now < lastClaimedAt && lastClaimedAt - now < CLOCK_SKEW_LIMIT_MS) {
     return { ok: false, reason: 'The hourglass runs backward — devotion must wait for time to catch up.' };
   }
   const { willStreak, cycleDay } = computeNextClaim(today, lastClaimedDate, loginStreak || 0);

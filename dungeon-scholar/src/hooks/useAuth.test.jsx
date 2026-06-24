@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 let authChangeCb = null;
 const mockGetSession = vi.fn();
@@ -85,7 +85,9 @@ describe('useAuth', () => {
     renderHook(() => useAuth());
     await waitFor(() => expect(mockGetSession).toHaveBeenCalled());
     // Give the resolved-session branch a tick to run.
-    await act(async () => { await Promise.resolve(); });
+    await act(async () => {
+      await Promise.resolve();
+    });
 
     expect(mockStartAutoRefresh).not.toHaveBeenCalled();
     expect(mockStopAutoRefresh).toHaveBeenCalled();

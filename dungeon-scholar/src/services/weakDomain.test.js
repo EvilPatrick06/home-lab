@@ -1,9 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import {
-  pickWeakestDomain,
-  WEAK_DOMAIN_MIN_SAMPLE,
-  WEAK_DOMAIN_ACCURACY_THRESHOLD,
-} from './weakDomain.js';
+import { describe, expect, it } from 'vitest';
+import { pickWeakestDomain, WEAK_DOMAIN_ACCURACY_THRESHOLD, WEAK_DOMAIN_MIN_SAMPLE } from './weakDomain.js';
 
 describe('pickWeakestDomain', () => {
   it('exports the threshold constants the UI footnote relies on', () => {
@@ -59,9 +55,7 @@ describe('pickWeakestDomain', () => {
   });
 
   it('returns null when no qualifying domain appears in the candidate set', () => {
-    const stats = [
-      { domain: 'A', total: 10, correct: 3, accuracy: 0.3 },
-    ];
+    const stats = [{ domain: 'A', total: 10, correct: 3, accuracy: 0.3 }];
     expect(pickWeakestDomain(stats, new Set(['B']), null)).toBeNull();
   });
 

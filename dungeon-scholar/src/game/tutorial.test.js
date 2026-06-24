@@ -1,5 +1,11 @@
-import { describe, it, expect } from 'vitest';
-import { TUTORIAL_STEPS, snapshotBaselines, migrateTutorialIndex, OLD_TUTORIAL_ORDER, tutorialAutoConditionMet } from './tutorial';
+import { describe, expect, it } from 'vitest';
+import {
+  migrateTutorialIndex,
+  OLD_TUTORIAL_ORDER,
+  snapshotBaselines,
+  TUTORIAL_STEPS,
+  tutorialAutoConditionMet,
+} from './tutorial';
 
 describe('tutorial module sanity', () => {
   it('arithmetic still works', () => {
@@ -10,7 +16,7 @@ describe('tutorial module sanity', () => {
 describe('TUTORIAL_STEPS (21-step shape)', () => {
   it('has 21 steps in the new order', () => {
     expect(TUTORIAL_STEPS).toHaveLength(21);
-    expect(TUTORIAL_STEPS.map(s => s.id)).toEqual([
+    expect(TUTORIAL_STEPS.map((s) => s.id)).toEqual([
       'welcome',
       'forge_tome',
       'inscribe_tome',
@@ -81,7 +87,7 @@ describe('migrateTutorialIndex', () => {
     // future rename of a legacy id can't silently desync test from prod.
     for (let oldIdx = 0; oldIdx < OLD_TUTORIAL_ORDER.length; oldIdx++) {
       const id = OLD_TUTORIAL_ORDER[oldIdx];
-      const newIdx = TUTORIAL_STEPS.findIndex(s => s.id === id);
+      const newIdx = TUTORIAL_STEPS.findIndex((s) => s.id === id);
       expect(migrateTutorialIndex(oldIdx)).toBe(newIdx);
     }
   });
@@ -97,7 +103,7 @@ describe('migrateTutorialIndex', () => {
   it('passes through indices already in the new range', () => {
     // If the saved index is 8+ (impossible from old data), assume it's already on the new flow.
     // Returning the same index means it stays put. Valid range is [0, TUTORIAL_STEPS.length - 1].
-    expect(migrateTutorialIndex(8)).toBe(8);   // first index beyond old range
+    expect(migrateTutorialIndex(8)).toBe(8); // first index beyond old range
     expect(migrateTutorialIndex(10)).toBe(10); // mid-range
     expect(migrateTutorialIndex(13)).toBe(13); // bestiary_intro (post-25g)
     expect(migrateTutorialIndex(20)).toBe(20); // last valid index (manage_saga)
@@ -119,10 +125,7 @@ describe('snapshotBaselines', () => {
 
   it('sums cardsReviewed across all tomes', () => {
     const state = {
-      library: [
-        { progress: { cardsReviewed: 3 } },
-        { progress: { cardsReviewed: 5 } },
-      ],
+      library: [{ progress: { cardsReviewed: 3 } }, { progress: { cardsReviewed: 5 } }],
     };
     expect(snapshotBaselines(state).cardsReviewed).toBe(8);
   });
@@ -165,11 +168,20 @@ describe('tutorialAutoConditionMet', () => {
 
   it('dungeon_completed reflects dungeonAttempts', () => {
     expect(tutorialAutoConditionMet('dungeon_completed', base)).toBe(false);
-    expect(tutorialAutoConditionMet('dungeon_completed', { playerState: { library: [], tutorialVisits: {}, dungeonAttempts: 2 } })).toBe(true);
+    expect(
+      tutorialAutoConditionMet('dungeon_completed', {
+        playerState: { library: [], tutorialVisits: {}, dungeonAttempts: 2 },
+      }),
+    ).toBe(true);
   });
 
   it('visit conditions read tutorialVisits flags (incl. ascension alias)', () => {
-    const visited = { playerState: { library: [], tutorialVisits: { library: true, vault: true, ascension: true, domain_study_visited: true } } };
+    const visited = {
+      playerState: {
+        library: [],
+        tutorialVisits: { library: true, vault: true, ascension: true, domain_study_visited: true },
+      },
+    };
     expect(tutorialAutoConditionMet('library_visited', visited)).toBe(true);
     expect(tutorialAutoConditionMet('vault_visited', visited)).toBe(true);
     expect(tutorialAutoConditionMet('ascension_screen_visited', visited)).toBe(true);

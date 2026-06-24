@@ -1,10 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import {
-  saveSession,
-  loadSession,
-  clearSession,
-  SESSION_KIND,
-} from './sessionResume.js';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { clearSession, loadSession, SESSION_KIND, saveSession } from './sessionResume.js';
 
 describe('sessionResume', () => {
   beforeEach(() => localStorage.clear());
@@ -48,7 +43,6 @@ describe('sessionResume', () => {
     expect(loadSession(SESSION_KIND.QUIZ)).toBeNull();
     expect(loadSession(SESSION_KIND.FLASHCARDS)).toMatchObject({ y: 2 });
   });
-
 
   it('survives malformed JSON in storage by returning null', () => {
     localStorage.setItem('ds:session:quiz', 'not json');

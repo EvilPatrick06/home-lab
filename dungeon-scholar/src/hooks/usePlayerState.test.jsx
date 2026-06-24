@@ -1,9 +1,7 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
-import { waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { hasMeaningfulData, loadFromLocalStorage, STORAGE_KEY } from '../services/persistence.js';
 import { usePlayerState } from './usePlayerState.js';
-import { STORAGE_KEY, loadFromLocalStorage } from '../services/persistence.js';
-import { hasMeaningfulData } from '../services/persistence.js';
 
 vi.mock('../services/cloudSync.js', () => ({
   pullSave: vi.fn(),
@@ -12,7 +10,7 @@ vi.mock('../services/cloudSync.js', () => ({
   subscribeSaves: vi.fn(() => () => {}),
 }));
 
-import { pullSave, pushSave, upsertProfile, subscribeSaves } from '../services/cloudSync.js';
+import { pullSave, pushSave, subscribeSaves, upsertProfile } from '../services/cloudSync.js';
 
 const USER = { id: 'u1', githubLogin: 'pat', avatarUrl: 'a.png' };
 
@@ -99,7 +97,8 @@ describe('usePlayerState — sign-in branches (silent)', () => {
   it('cloud has data + empty local → cloud overwrites local silently', async () => {
     pullSave.mockResolvedValueOnce({
       data: { level: 5, totalXp: 100, library: [{ id: 'a' }] },
-      updatedAt: '2026-04-29T00:00:00Z', schemaVer: 1,
+      updatedAt: '2026-04-29T00:00:00Z',
+      schemaVer: 1,
     });
     const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
     await waitFor(() => expect(result.current[0].level).toBe(5));
@@ -108,8 +107,7 @@ describe('usePlayerState — sign-in branches (silent)', () => {
   });
 
   it('empty cloud + local has data → local pushed to cloud silently', async () => {
-    localStorage.setItem('dungeon-scholar:save:v1',
-      JSON.stringify({ level: 3, totalXp: 50, library: [] }));
+    localStorage.setItem('dungeon-scholar:save:v1', JSON.stringify({ level: 3, totalXp: 50, library: [] }));
     pullSave.mockResolvedValueOnce(null);
 
     const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
@@ -121,11 +119,11 @@ describe('usePlayerState — sign-in branches (silent)', () => {
   });
 
   it('cloud has data + local has data → mergeRequired flag goes true', async () => {
-    localStorage.setItem('dungeon-scholar:save:v1',
-      JSON.stringify({ level: 3, totalXp: 50, library: [{ id: 'b' }] }));
+    localStorage.setItem('dungeon-scholar:save:v1', JSON.stringify({ level: 3, totalXp: 50, library: [{ id: 'b' }] }));
     pullSave.mockResolvedValueOnce({
       data: { level: 7, totalXp: 200, library: [{ id: 'a' }] },
-      updatedAt: '2026-04-29T00:00:00Z', schemaVer: 1,
+      updatedAt: '2026-04-29T00:00:00Z',
+      schemaVer: 1,
     });
 
     const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
@@ -169,7 +167,9 @@ describe('usePlayerState — steady-state cloud writes', () => {
     const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
     await waitFor(() => expect(pullSave).toHaveBeenCalled());
 
-    act(() => { result.current[1]({ level: 5, totalXp: 1, library: [] }); });
+    act(() => {
+      result.current[1]({ level: 5, totalXp: 1, library: [] });
+    });
     await waitFor(() => expect(pushSave).toHaveBeenCalled(), { timeout: 2000 });
     await waitFor(() => expect(result.current[2].status).toBe('idle'));
   }, 5000);
@@ -184,13 +184,19 @@ describe('usePlayerState — steady-state cloud writes', () => {
 
       const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
       // Flush the mount-time pull + sign-in merge microtasks.
-      await act(async () => { await vi.advanceTimersByTimeAsync(20); });
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(20);
+      });
       expect(pullSave).toHaveBeenCalled();
 
-      act(() => { result.current[1]({ level: 5, totalXp: 1, library: [] }); });
+      act(() => {
+        result.current[1]({ level: 5, totalXp: 1, library: [] });
+      });
 
       // Cloud debounce (1500ms) → initial push, then 3 retries (1s/4s/16s).
-      await act(async () => { await vi.advanceTimersByTimeAsync(1500 + 1000 + 4000 + 16000 + 50); });
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1500 + 1000 + 4000 + 16000 + 50);
+      });
 
       expect(pushSave.mock.calls.length).toBeGreaterThanOrEqual(4);
       expect(result.current[2].status).toBe('offline');
@@ -202,10 +208,7 @@ describe('usePlayerState — steady-state cloud writes', () => {
   it('does not re-pull cloud when user is re-projected with same id (token refresh)', async () => {
     pullSave.mockResolvedValue(null);
 
-    const { rerender } = renderHook(
-      ({ user }) => usePlayerState(DEFAULT, user),
-      { initialProps: { user: USER } }
-    );
+    const { rerender } = renderHook(({ user }) => usePlayerState(DEFAULT, user), { initialProps: { user: USER } });
 
     await waitFor(() => expect(pullSave).toHaveBeenCalledTimes(1));
 
@@ -227,11 +230,12 @@ describe('usePlayerState — smart sign-in merge using sync meta', () => {
 
   it('cloud changed + local not dirty → silently takes cloud (no chooser)', async () => {
     // Local has stale data from a previous sync.
-    localStorage.setItem('dungeon-scholar:save:v1',
-      JSON.stringify({ level: 5, totalXp: 100, library: [{ id: 'a' }] }));
+    localStorage.setItem('dungeon-scholar:save:v1', JSON.stringify({ level: 5, totalXp: 100, library: [{ id: 'a' }] }));
     // Last sync recorded T0; not dirty.
-    localStorage.setItem('dungeon-scholar:sync:v1',
-      JSON.stringify({ lastSyncedAt: '2026-04-29T10:00:00Z', dirty: false }));
+    localStorage.setItem(
+      'dungeon-scholar:sync:v1',
+      JSON.stringify({ lastSyncedAt: '2026-04-29T10:00:00Z', dirty: false }),
+    );
 
     pullSave.mockResolvedValueOnce({
       data: { level: 9, totalXp: 500, library: [{ id: 'a' }, { id: 'b' }] },
@@ -247,10 +251,11 @@ describe('usePlayerState — smart sign-in merge using sync meta', () => {
   });
 
   it('cloud changed + local dirty → fires merge chooser (real conflict)', async () => {
-    localStorage.setItem('dungeon-scholar:save:v1',
-      JSON.stringify({ level: 5, totalXp: 100, library: [{ id: 'a' }] }));
-    localStorage.setItem('dungeon-scholar:sync:v1',
-      JSON.stringify({ lastSyncedAt: '2026-04-29T10:00:00Z', dirty: true }));
+    localStorage.setItem('dungeon-scholar:save:v1', JSON.stringify({ level: 5, totalXp: 100, library: [{ id: 'a' }] }));
+    localStorage.setItem(
+      'dungeon-scholar:sync:v1',
+      JSON.stringify({ lastSyncedAt: '2026-04-29T10:00:00Z', dirty: true }),
+    );
 
     pullSave.mockResolvedValueOnce({
       data: { level: 9, totalXp: 500, library: [{ id: 'a' }, { id: 'b' }] },
@@ -264,10 +269,11 @@ describe('usePlayerState — smart sign-in merge using sync meta', () => {
   });
 
   it('cloud unchanged + local dirty → pushes (no chooser)', async () => {
-    localStorage.setItem('dungeon-scholar:save:v1',
-      JSON.stringify({ level: 5, totalXp: 100, library: [{ id: 'a' }] }));
-    localStorage.setItem('dungeon-scholar:sync:v1',
-      JSON.stringify({ lastSyncedAt: '2026-04-29T10:00:00Z', dirty: true }));
+    localStorage.setItem('dungeon-scholar:save:v1', JSON.stringify({ level: 5, totalXp: 100, library: [{ id: 'a' }] }));
+    localStorage.setItem(
+      'dungeon-scholar:sync:v1',
+      JSON.stringify({ lastSyncedAt: '2026-04-29T10:00:00Z', dirty: true }),
+    );
 
     pullSave.mockResolvedValueOnce({
       data: { level: 5, totalXp: 100, library: [{ id: 'a' }] },
@@ -282,10 +288,11 @@ describe('usePlayerState — smart sign-in merge using sync meta', () => {
   });
 
   it('cloud unchanged + local not dirty → no-op (no push, no chooser)', async () => {
-    localStorage.setItem('dungeon-scholar:save:v1',
-      JSON.stringify({ level: 5, totalXp: 100, library: [{ id: 'a' }] }));
-    localStorage.setItem('dungeon-scholar:sync:v1',
-      JSON.stringify({ lastSyncedAt: '2026-04-29T10:00:00Z', dirty: false }));
+    localStorage.setItem('dungeon-scholar:save:v1', JSON.stringify({ level: 5, totalXp: 100, library: [{ id: 'a' }] }));
+    localStorage.setItem(
+      'dungeon-scholar:sync:v1',
+      JSON.stringify({ lastSyncedAt: '2026-04-29T10:00:00Z', dirty: false }),
+    );
 
     pullSave.mockResolvedValueOnce({
       data: { level: 5, totalXp: 100, library: [{ id: 'a' }] },
@@ -327,8 +334,10 @@ describe('usePlayerState — smart sign-in merge using sync meta', () => {
     // but the new cloud state is identical to local. No real conflict.
     const shared = { level: 4, totalXp: 923, library: [{ id: 't1' }], totalCorrect: 66 };
     localStorage.setItem('dungeon-scholar:save:v1', JSON.stringify(shared));
-    localStorage.setItem('dungeon-scholar:sync:v1',
-      JSON.stringify({ lastSyncedAt: '2026-04-29T10:00:00Z', dirty: true }));
+    localStorage.setItem(
+      'dungeon-scholar:sync:v1',
+      JSON.stringify({ lastSyncedAt: '2026-04-29T10:00:00Z', dirty: true }),
+    );
 
     pullSave.mockResolvedValueOnce({
       data: shared,
@@ -374,7 +383,9 @@ describe('usePlayerState — Realtime echo dedup', () => {
     await waitFor(() => expect(pullSave).toHaveBeenCalled());
 
     // Local change → debounced pushSave fires → resolves with T1.
-    act(() => { result.current[1]({ level: 6, totalXp: 60, library: [] }); });
+    act(() => {
+      result.current[1]({ level: 6, totalXp: 60, library: [] });
+    });
     await waitFor(() => expect(pushSave).toHaveBeenCalled(), { timeout: 2500 });
     await waitFor(() => expect(result.current[2].status).toBe('idle'));
 
@@ -462,10 +473,16 @@ describe('usePlayerState — BroadcastChannel dedup', () => {
       this.closed = false;
       MockBC.instances.push(this);
     }
-    postMessage() { /* no-op: we never want a self-delivery loop in tests */ }
-    close() { this.closed = true; }
+    postMessage() {
+      /* no-op: we never want a self-delivery loop in tests */
+    }
+    close() {
+      this.closed = true;
+    }
     // Test helper: deliver a message to this channel's onmessage handler.
-    emit(msg) { if (this.onmessage) this.onmessage({ data: msg }); }
+    emit(msg) {
+      if (this.onmessage) this.onmessage({ data: msg });
+    }
   }
 
   beforeEach(() => {
@@ -491,7 +508,9 @@ describe('usePlayerState — BroadcastChannel dedup', () => {
     // Make a local change — this records the state hash in recentLocalHashes
     // (and would have been broadcast in a real channel).
     const local = { level: 2, totalXp: 20, library: [] };
-    act(() => { result.current[1](local); });
+    act(() => {
+      result.current[1](local);
+    });
     const before = result.current[0];
 
     // A BroadcastChannel echo carrying that same state → deduped, not applied.
@@ -538,10 +557,14 @@ describe('usePlayerState — resolveMerge branches', () => {
 
   async function renderConflict() {
     localStorage.setItem('dungeon-scholar:save:v1', JSON.stringify(LOCAL));
-    localStorage.setItem('dungeon-scholar:sync:v1',
-      JSON.stringify({ lastSyncedAt: '2026-04-29T10:00:00Z', dirty: true }));
+    localStorage.setItem(
+      'dungeon-scholar:sync:v1',
+      JSON.stringify({ lastSyncedAt: '2026-04-29T10:00:00Z', dirty: true }),
+    );
     pullSave.mockResolvedValueOnce({
-      data: CLOUD, updatedAt: '2026-04-29T11:00:00Z', schemaVer: 1,
+      data: CLOUD,
+      updatedAt: '2026-04-29T11:00:00Z',
+      schemaVer: 1,
     });
     pushSave.mockResolvedValue({ updatedAt: '2026-04-29T12:00:00Z' });
 
@@ -554,7 +577,9 @@ describe('usePlayerState — resolveMerge branches', () => {
     const { result } = await renderConflict();
     expect(pushSave).not.toHaveBeenCalled();
 
-    await act(async () => { await result.current[2].resolveMerge('local'); });
+    await act(async () => {
+      await result.current[2].resolveMerge('local');
+    });
 
     expect(pushSave).toHaveBeenCalledTimes(1);
     const [, pushedBlob] = pushSave.mock.calls[0];
@@ -569,11 +594,15 @@ describe('usePlayerState — resolveMerge branches', () => {
     // The sign-in pull already consumed the queued mock; provide the fresh
     // re-pull resolveMerge('cloud') issues to sync lastKnownCloudUpdatedAt.
     pullSave.mockResolvedValueOnce({
-      data: CLOUD, updatedAt: '2026-04-29T11:00:00Z', schemaVer: 1,
+      data: CLOUD,
+      updatedAt: '2026-04-29T11:00:00Z',
+      schemaVer: 1,
     });
     const pullsBefore = pullSave.mock.calls.length;
 
-    await act(async () => { await result.current[2].resolveMerge('cloud'); });
+    await act(async () => {
+      await result.current[2].resolveMerge('cloud');
+    });
 
     // cloudPreview was run through applyBackfills at sign-in (tagged backfillVer).
     expect(result.current[0]).toEqual({ ...CLOUD, backfillVer: 1 });
@@ -586,7 +615,9 @@ describe('usePlayerState — resolveMerge branches', () => {
     const { result } = await renderConflict();
     const before = result.current[0];
 
-    await act(async () => { await result.current[2].resolveMerge('cancel'); });
+    await act(async () => {
+      await result.current[2].resolveMerge('cancel');
+    });
 
     expect(result.current[2].mergeRequired).toBe(false);
     expect(result.current[2].localPreview).toBeNull();
@@ -615,13 +646,19 @@ describe('usePlayerState — offline recovery (Phase-30 QA gap)', () => {
       pushSave.mockRejectedValue(new Error('net'));
 
       const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
-      await act(async () => { await vi.advanceTimersByTimeAsync(20); });
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(20);
+      });
       expect(pullSave).toHaveBeenCalled();
 
-      act(() => { result.current[1]({ level: 5, totalXp: 1, library: [] }); });
+      act(() => {
+        result.current[1]({ level: 5, totalXp: 1, library: [] });
+      });
 
       // Cloud debounce (1500ms) → initial push + 3 retries (1s/4s/16s) → 'offline'.
-      await act(async () => { await vi.advanceTimersByTimeAsync(1500 + 1000 + 4000 + 16000 + 50); });
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1500 + 1000 + 4000 + 16000 + 50);
+      });
       expect(pushSave.mock.calls.length).toBeGreaterThanOrEqual(4);
       expect(result.current[2].status).toBe('offline');
 
@@ -630,8 +667,12 @@ describe('usePlayerState — offline recovery (Phase-30 QA gap)', () => {
       pushSave.mockResolvedValue({ updatedAt: '2026-05-20T00:00:00Z' });
 
       // A new local change re-arms the cloud debounce → push fires and succeeds.
-      act(() => { result.current[1]({ level: 6, totalXp: 2, library: [] }); });
-      await act(async () => { await vi.advanceTimersByTimeAsync(1500 + 50); });
+      act(() => {
+        result.current[1]({ level: 6, totalXp: 2, library: [] });
+      });
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1500 + 50);
+      });
 
       expect(pushSave).toHaveBeenCalled();
       expect(result.current[2].status).toBe('idle');
@@ -646,8 +687,7 @@ describe('usePlayerState — offline recovery (Phase-30 QA gap)', () => {
   it('(b) a sign-in pull failure puts the status into "offline"', async () => {
     // Seed local data so the sign-in branch actually runs the pull (and isn't
     // short-circuited) — though the rejection is caught regardless.
-    localStorage.setItem('dungeon-scholar:save:v1',
-      JSON.stringify({ level: 3, totalXp: 50, library: [{ id: 'a' }] }));
+    localStorage.setItem('dungeon-scholar:save:v1', JSON.stringify({ level: 3, totalXp: 50, library: [{ id: 'a' }] }));
     pullSave.mockRejectedValueOnce(new Error('pull failed'));
 
     const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
@@ -674,14 +714,18 @@ describe('usePlayerState — blur listener cleanup (step-1 regression)', () => {
     const { result, unmount } = renderHook(() => usePlayerState(DEFAULT));
 
     // Make a local change so the handler, if leaked, has stale state to flush.
-    act(() => { result.current[1]({ level: 12, totalXp: 120, library: [] }); });
+    act(() => {
+      result.current[1]({ level: 12, totalXp: 120, library: [] });
+    });
 
     unmount();
     localStorage.clear();
 
     // Pre-fix the cleanup removed 'blur-sm' (a no-op), leaving the real 'blur'
     // handler attached; this event would re-flush the stale latestRef.
-    act(() => { window.dispatchEvent(new Event('blur')); });
+    act(() => {
+      window.dispatchEvent(new Event('blur'));
+    });
 
     expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
   });

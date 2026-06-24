@@ -19,7 +19,6 @@ export const TITLES = [
   { min: 100, max: 9999, name: 'Mythic Demigod', theme: 'Transcendent — beyond mortal rank' },
 ];
 
-
 export const SPECIAL_TITLES = {
   flawless: { name: 'The Flawless', desc: 'Conquer a dungeon without a single mistake' },
   speedrunner: { name: 'The Swift', desc: 'Average under 5 seconds per riddle in a run' },
@@ -27,21 +26,19 @@ export const SPECIAL_TITLES = {
   bossslayer: { name: 'Dragonslayer', desc: 'Defeat a dungeon lord without losing a life' },
   centurion: { name: 'The Centurion', desc: 'Answer 100 riddles correctly' },
   streaker: { name: 'The Devoted', desc: 'Maintain a 7-day study streak' },
-  initiated: { name: 'The Initiated', desc: 'Complete the Scholar\'s Awakening tutorial' },
-  pathwalker: { name: 'Pathwalker', desc: 'Complete The Apprentice\'s Path story chain' },
+  initiated: { name: 'The Initiated', desc: "Complete the Scholar's Awakening tutorial" },
+  pathwalker: { name: 'Pathwalker', desc: "Complete The Apprentice's Path story chain" },
   adeptVeteran: { name: 'Adept Veteran', desc: 'Complete a dungeon delve on Adept difficulty' },
   masterSlayer: { name: 'Master Slayer', desc: 'Complete a dungeon delve on Master difficulty' },
   mythicSage: { name: 'Mythic Sage', desc: 'Complete a dungeon delve on Mythic difficulty' },
 };
 
-
-export const xpForLevel = (lvl) => Math.floor(100 * Math.pow(lvl, 1.5));
-
+export const xpForLevel = (lvl) => Math.floor(100 * lvl ** 1.5);
 
 export const getTitle = (level, selectedSpecial, unlockedSpecials) => {
   if (selectedSpecial && unlockedSpecials.includes(selectedSpecial)) {
     return SPECIAL_TITLES[selectedSpecial].name;
   }
-  const t = TITLES.find(t => level >= t.min && level <= t.max);
+  const t = TITLES.find((t) => level >= t.min && level <= t.max);
   return t ? t.name : 'Apprentice';
 };

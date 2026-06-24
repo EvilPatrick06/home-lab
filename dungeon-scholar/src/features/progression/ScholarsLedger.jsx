@@ -1,12 +1,12 @@
-import { useState } from 'react';
 import { ArrowLeft, Award } from 'lucide-react';
+import { useState } from 'react';
 import { OrnatePanel } from '../../components/ui/OrnatePanel.jsx';
 import { RecordTile } from '../../components/ui/RecordTile.jsx';
+import { getTitle } from '../../game/titles.js';
 import { barColor, tierLabel } from '../../services/accuracyPalette.js';
+import { isTomeMastered, tomeMasteryPct } from '../../services/certificate.js';
 import { isSealedTome } from '../../services/sealedTome.js';
 import { dueCount } from '../../services/srs.js';
-import { getTitle } from '../../game/titles.js';
-import { isTomeMastered, tomeMasteryPct } from '../../services/certificate.js';
 import CertificateModal from './CertificateModal.jsx';
 
 // S2: Scholar's Ledger — a learner-facing analytics view aggregating the
@@ -28,7 +28,11 @@ function ScholarsLedger({ playerState, setScreen, scholarName }) {
   const earnedTitle = getTitle(playerState.level || 1, playerState.selectedTitle, playerState.unlockedTitles);
   const diplomas = lib
     .filter((t) => unsealed(t) && isTomeMastered(t.progress, t.data))
-    .map((t) => ({ id: t.id, title: t.data?.metadata?.title || 'Untitled Tome', pct: tomeMasteryPct(t.progress, t.data) }));
+    .map((t) => ({
+      id: t.id,
+      title: t.data?.metadata?.title || 'Untitled Tome',
+      pct: tomeMasteryPct(t.progress, t.data),
+    }));
 
   const domains = {};
   for (const t of lib) {

@@ -1,10 +1,10 @@
 export const BLOOM_PALETTE = {
-  remember:   { bg: 'rgba(82, 82, 91, 0.35)',   border: '#a1a1aa', text: '#e4e4e7' },
-  understand: { bg: 'rgba(29, 78, 216, 0.32)',  border: '#60a5fa', text: '#dbeafe' },
-  apply:      { bg: 'rgba(16, 185, 129, 0.32)', border: '#10b981', text: '#a7f3d0' },
-  analyze:    { bg: 'rgba(245, 158, 11, 0.32)', border: '#fbbf24', text: '#fde68a' },
-  evaluate:   { bg: 'rgba(244, 63, 94, 0.32)',  border: '#fb7185', text: '#fecdd3' },
-  create:     { bg: 'rgba(168, 85, 247, 0.32)', border: '#c084fc', text: '#e9d5ff' },
+  remember: { bg: 'rgba(82, 82, 91, 0.35)', border: '#a1a1aa', text: '#e4e4e7' },
+  understand: { bg: 'rgba(29, 78, 216, 0.32)', border: '#60a5fa', text: '#dbeafe' },
+  apply: { bg: 'rgba(16, 185, 129, 0.32)', border: '#10b981', text: '#a7f3d0' },
+  analyze: { bg: 'rgba(245, 158, 11, 0.32)', border: '#fbbf24', text: '#fde68a' },
+  evaluate: { bg: 'rgba(244, 63, 94, 0.32)', border: '#fb7185', text: '#fecdd3' },
+  create: { bg: 'rgba(168, 85, 247, 0.32)', border: '#c084fc', text: '#e9d5ff' },
 };
 
 export function DifficultyStars({ value }) {
@@ -22,9 +22,11 @@ export function BloomBadge({ level }) {
   if (!level || typeof level !== 'string') return null;
   const palette = BLOOM_PALETTE[level.toLowerCase()] || BLOOM_PALETTE.remember;
   return (
-    <span className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded-sm font-bold"
+    <span
+      className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded-sm font-bold"
       style={{ background: palette.bg, border: `1px solid ${palette.border}`, color: palette.text }}
-      title={`Bloom's level: ${level}`}>
+      title={`Bloom's level: ${level}`}
+    >
       {level}
     </span>
   );

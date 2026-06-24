@@ -1,9 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import {
-  CURRENT_BACKFILL_VER,
-  backfillDungeonAnswers,
-  applyBackfills,
-} from './backfill.js';
+import { describe, expect, it } from 'vitest';
+import { applyBackfills, backfillDungeonAnswers, CURRENT_BACKFILL_VER } from './backfill.js';
 
 const buildState = ({ totalCorrect = 0, library = [], backfillVer } = {}) => {
   const state = { totalCorrect, library };
@@ -72,13 +68,15 @@ describe('backfillDungeonAnswers', () => {
     const log = [{ id: 'q2', correct: false, prompt: 'Q2' }];
     const state = buildState({
       totalCorrect: 10,
-      library: [{
-        id: 'tome1',
-        progress: {
-          runHistory: [buildRun(log)],
-          mistakeVault: [{ id: 'q2', addedAt: 1000 }],
+      library: [
+        {
+          id: 'tome1',
+          progress: {
+            runHistory: [buildRun(log)],
+            mistakeVault: [{ id: 'q2', addedAt: 1000 }],
+          },
         },
-      }],
+      ],
     });
     const out = backfillDungeonAnswers(state);
     expect(out.library[0].progress.mistakeVault).toHaveLength(1);
@@ -88,10 +86,12 @@ describe('backfillDungeonAnswers', () => {
     const log = [{ id: 'q1', correct: false, prompt: 'Q1' }];
     const state = buildState({
       totalCorrect: 5,
-      library: [{
-        id: 'tome1',
-        progress: { runHistory: [buildRun(log)], runsCompleted: 7, somethingElse: 'x' },
-      }],
+      library: [
+        {
+          id: 'tome1',
+          progress: { runHistory: [buildRun(log)], runsCompleted: 7, somethingElse: 'x' },
+        },
+      ],
     });
     const out = backfillDungeonAnswers(state);
     expect(out.library[0].progress.runsCompleted).toBe(7);
@@ -109,8 +109,8 @@ describe('backfillDungeonAnswers', () => {
       ],
     });
     const out = backfillDungeonAnswers(state);
-    expect(out.library[0].progress.mistakeVault.map(m => m.id)).toEqual(['q1']);
-    expect(out.library[1].progress.mistakeVault.map(m => m.id)).toEqual(['q2']);
+    expect(out.library[0].progress.mistakeVault.map((m) => m.id)).toEqual(['q1']);
+    expect(out.library[1].progress.mistakeVault.map((m) => m.id)).toEqual(['q2']);
   });
 });
 

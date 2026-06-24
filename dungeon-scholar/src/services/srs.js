@@ -37,8 +37,8 @@ export const DESIRED_RETENTION = 0.9;
 
 // Canonical FSRS-5 default weights (w0..w18).
 export const FSRS_DEFAULT_WEIGHTS = [
-  0.40255, 1.18385, 3.173, 15.69105, 7.1949, 0.5345, 1.4604, 0.0046, 1.54575,
-  0.1192, 1.01925, 1.9395, 0.11, 0.29605, 2.2698, 0.2315, 2.9898, 0.51655, 0.6621,
+  0.40255, 1.18385, 3.173, 15.69105, 7.1949, 0.5345, 1.4604, 0.0046, 1.54575, 0.1192, 1.01925, 1.9395, 0.11, 0.29605,
+  2.2698, 0.2315, 2.9898, 0.51655, 0.6621,
 ];
 
 // Active weight vector. Defaults to FSRS-5; setSchedulerWeights() lets a future
@@ -102,20 +102,12 @@ function nextDifficulty(D, rating) {
 function stabilityAfterRecall(D, S, R, rating) {
   const hardPenalty = rating === 2 ? W[15] : 1;
   const easyBonus = rating === 4 ? W[16] : 1;
-  const inc =
-    Math.exp(W[8]) *
-      (11 - D) *
-      S ** -W[9] *
-      (Math.exp(W[10] * (1 - R)) - 1) *
-      hardPenalty *
-      easyBonus +
-    1;
+  const inc = Math.exp(W[8]) * (11 - D) * S ** -W[9] * (Math.exp(W[10] * (1 - R)) - 1) * hardPenalty * easyBonus + 1;
   return clamp(S * inc, S_MIN, S_MAX);
 }
 
 function stabilityAfterForget(D, S, R) {
-  const sForget =
-    W[11] * D ** -W[12] * ((S + 1) ** W[13] - 1) * Math.exp(W[14] * (1 - R));
+  const sForget = W[11] * D ** -W[12] * ((S + 1) ** W[13] - 1) * Math.exp(W[14] * (1 - R));
   // Post-lapse stability never exceeds the pre-lapse stability.
   return clamp(Math.min(sForget, S), S_MIN, S_MAX);
 }
@@ -212,7 +204,5 @@ export function sortByDueness(cards, cardProgressMap, now = Date.now()) {
 
 export function filterDue(cards, cardProgressMap, now = Date.now()) {
   const map = cardProgressMap && typeof cardProgressMap === 'object' ? cardProgressMap : {};
-  return (Array.isArray(cards) ? cards : []).filter(
-    (c) => c && typeof c.id === 'string' && isCardDue(map[c.id], now),
-  );
+  return (Array.isArray(cards) ? cards : []).filter((c) => c && typeof c.id === 'string' && isCardDue(map[c.id], now));
 }

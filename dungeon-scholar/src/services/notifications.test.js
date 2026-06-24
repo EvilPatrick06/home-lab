@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { buildReminderText, notificationsSupported, showStudyReminder } from './notifications.js';
 
 describe('notifications (S1)', () => {

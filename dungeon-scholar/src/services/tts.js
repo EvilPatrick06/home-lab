@@ -33,6 +33,10 @@ export function speak(text, { rate = 1 } = {}) {
 
 export function stopSpeaking() {
   if (ttsSupported()) {
-    try { window.speechSynthesis.cancel(); } catch { /* noop */ }
+    try {
+      window.speechSynthesis.cancel();
+    } catch {
+      /* noop */
+    }
   }
 }

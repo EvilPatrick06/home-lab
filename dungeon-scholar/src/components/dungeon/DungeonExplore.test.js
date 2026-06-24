@@ -1,19 +1,19 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import { DIFFICULTY_ORDER, isDifficultyUnlocked } from '../../game/difficulty.js';
 import {
-  generateMap,
-  pickBiomeForSubject,
-  BIOMES,
   BIOME_BOSS_POOL,
-  TILE,
-  ROOMS_BY_DIFFICULTY,
-  SIZE_BY_DIFFICULTY,
-  makeSeededRng,
+  BIOMES,
   buildQuestionLogEntry,
+  generateMap,
+  makeSeededRng,
   POTION_EFFECTS,
-  takeForesightPreview,
+  pickBiomeForSubject,
+  ROOMS_BY_DIFFICULTY,
   revealDecoration,
+  SIZE_BY_DIFFICULTY,
+  TILE,
+  takeForesightPreview,
 } from '../../game/dungeonMap.js';
-import { isDifficultyUnlocked, DIFFICULTY_ORDER } from '../../game/difficulty.js';
 
 // Seedable RNG so map-gen assertions are deterministic per test.
 const seedRng = (seed) => {
@@ -89,18 +89,26 @@ describe('generateMap', () => {
     const cx = (r) => r.x + Math.floor(r.w / 2);
     const cy = (r) => r.y + Math.floor(r.h / 2);
     const spawn = out.rooms[0];
-    const sx = cx(spawn), sy = cy(spawn);
-    let farIdx = 1, maxDist = -1;
+    const sx = cx(spawn),
+      sy = cy(spawn);
+    let farIdx = 1,
+      maxDist = -1;
     for (let i = 1; i < out.rooms.length; i++) {
       const r = out.rooms[i];
       const d = Math.abs(cx(r) - sx) + Math.abs(cy(r) - sy);
-      if (d > maxDist) { maxDist = d; farIdx = i; }
+      if (d > maxDist) {
+        maxDist = d;
+        farIdx = i;
+      }
     }
     const far = out.rooms[farIdx];
     let foundStairs = false;
     for (let y = far.y; y < far.y + far.h && !foundStairs; y++) {
       for (let x = far.x; x < far.x + far.w; x++) {
-        if (out.map[y][x] === TILE.STAIRS_DOWN) { foundStairs = true; break; }
+        if (out.map[y][x] === TILE.STAIRS_DOWN) {
+          foundStairs = true;
+          break;
+        }
       }
     }
     expect(foundStairs).toBe(true);
@@ -134,7 +142,6 @@ describe('generateMap', () => {
   });
 });
 
-
 describe('BIOME_BOSS_POOL (25b — random boss per delve)', () => {
   it('every biome has at least 2 candidate bosses', () => {
     Object.entries(BIOME_BOSS_POOL).forEach(([biome, pool]) => {
@@ -149,7 +156,9 @@ describe('BIOME_BOSS_POOL (25b — random boss per delve)', () => {
   it('every boss appears in at least 2 biome pools', () => {
     const counts = {};
     Object.values(BIOME_BOSS_POOL).forEach((pool) => {
-      pool.forEach((boss) => { counts[boss] = (counts[boss] || 0) + 1; });
+      pool.forEach((boss) => {
+        counts[boss] = (counts[boss] || 0) + 1;
+      });
     });
     Object.entries(counts).forEach(([boss, n]) => {
       expect(n, `${boss} should appear in >=2 biome pools`).toBeGreaterThanOrEqual(2);
@@ -168,7 +177,9 @@ describe('BIOME_BOSS_POOL (25b — random boss per delve)', () => {
     }
     // Every entry in the pool should turn up in 40 rolls; fuzz tolerated
     // is "subset of pool, but not just one kind".
-    seen.forEach((kind) => expect(expected.has(kind)).toBe(true));
+    seen.forEach((kind) => {
+      expect(expected.has(kind)).toBe(true);
+    });
     expect(seen.size).toBeGreaterThanOrEqual(2);
   });
 });
@@ -267,8 +278,9 @@ describe('BIOMES', () => {
       expect(b.id).toBeTruthy();
       expect(b.name).toBeTruthy();
       expect(b.palette).toBeTruthy();
-      ['wallBase', 'wallTop', 'wallShade', 'floorBase', 'floorAlt', 'floorDetail', 'floorAccent']
-        .forEach((k) => expect(typeof b.palette[k]).toBe('string'));
+      ['wallBase', 'wallTop', 'wallShade', 'floorBase', 'floorAlt', 'floorDetail', 'floorAccent'].forEach((k) => {
+        expect(typeof b.palette[k]).toBe('string');
+      });
     });
   });
 });
@@ -288,7 +300,7 @@ describe('POTION_EFFECTS (17G — no consuming no-ops)', () => {
     }
   });
 
-  it('re-specs Foresight Scroll and Tinker\'s Oil to real effects', () => {
+  it("re-specs Foresight Scroll and Tinker's Oil to real effects", () => {
     expect(POTION_EFFECTS.foresight_scroll.kind).toBe('foresight');
     expect(POTION_EFFECTS.tinkers_oil).toMatchObject({ kind: 'mana', amount: 2 });
   });
@@ -346,7 +358,11 @@ describe('delve setup difficulty gating (Phase-30 QA gap)', () => {
     expect(isDifficultyUnlocked({ ...LEVEL1, level: 10 }, 'adept')).toBe(true);
     expect(isDifficultyUnlocked({ ...LEVEL1, level: 9 }, 'adept')).toBe(false);
     // 5 runs summed across the library also unlocks it.
-    const fiveRuns = { level: 1, achievements: [], library: [{ progress: { runsCompleted: 3 } }, { progress: { runsCompleted: 2 } }] };
+    const fiveRuns = {
+      level: 1,
+      achievements: [],
+      library: [{ progress: { runsCompleted: 3 } }, { progress: { runsCompleted: 2 } }],
+    };
     expect(isDifficultyUnlocked(fiveRuns, 'adept')).toBe(true);
     const fourRuns = { level: 1, achievements: [], library: [{ progress: { runsCompleted: 4 } }] };
     expect(isDifficultyUnlocked(fourRuns, 'adept')).toBe(false);

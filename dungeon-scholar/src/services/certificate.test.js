@@ -1,11 +1,11 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  MASTERY_THRESHOLD,
-  tomeMasteryPct,
-  isTomeMastered,
   buildCertificateText,
   certificateFilename,
+  isTomeMastered,
+  MASTERY_THRESHOLD,
   renderCertificatePng,
+  tomeMasteryPct,
 } from './certificate.js';
 
 const mastered = { reps: 3, stability: 30 };

@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { detectDelimiter, parseDelimited, deckTextToTome } from './deckImport.js';
+import { describe, expect, it } from 'vitest';
+import { deckTextToTome, detectDelimiter, parseDelimited } from './deckImport.js';
 
 describe('detectDelimiter', () => {
   it('picks tab when tabs are present (Quizlet export)', () => {
