@@ -26,6 +26,9 @@
 | 01 | [`PHASE-01-backend-route-correctness.md`](./completed/PHASE-01-backend-route-correctness.md) | bmo | — | done |
 | 02 | [`PHASE-02-realtime-reliability.md`](./completed/PHASE-02-realtime-reliability.md) | bmo | 01 (soft) | done |
 | 03 | [`PHASE-03-dashboard-ux-round.md`](./completed/PHASE-03-dashboard-ux-round.md) | bmo | 01, 02 (soft) | done |
+| 04 | [`PHASE-04-realtime-cloudflare-auth.md`](./PHASE-04-realtime-cloudflare-auth.md) | bmo | — | pending |
+| 05 | [`PHASE-05-calendar-token-and-health-truth.md`](./PHASE-05-calendar-token-and-health-truth.md) | bmo | — | pending |
+| 06 | [`PHASE-06-dashboard-ux-platform-hygiene.md`](./PHASE-06-dashboard-ux-platform-hygiene.md) | bmo | — | pending |
 
 > **Provenance of this batch:** PHASE-01..03 were consolidated from
 > `QA/QA-report-2026-06-24.md` (now in `QA/completed/`) by the bmo phase-maker on
@@ -38,3 +41,21 @@
 > order, but 01→02→03 is the recommended order (fix structure before polish). The
 > bmo-phase-executer updates the Status column (`pending` → `in progress` → `done`)
 > as it ships each plan.
+
+
+> **Provenance of this batch (04–06):** PHASE-04..06 were consolidated from
+> `QA/QA-report-2026-06-24-2.md` (the second 2026-06-24 pass, against
+> `origin/master@12c655a8`) by the bmo phase-maker on 2026-06-25, verified against
+> `origin/master@53163f4b`. Same layer split as 01–03: **04** = realtime auth over
+> Cloudflare (the socket.io handshake is rejected for CF-Access browsers — chat +
+> IDE terminal; supersedes PHASE-02's transport hypothesis); **05** = calendar token
+> persistence + health-signal truth (refreshed token not persisted → monitor false
+> "down" while reads work; birthday-event 400 guard); **06** = dashboard UX & platform
+> hygiene (list-row error/touch affordances, geolocation Permissions-Policy guard,
+> Places loader residual, voice-canary unit path). Dependencies are **soft** — the
+> three touch disjoint files and can land in any order; 04→05→06 (high→high/med→med/low)
+> is the recommended order. **Note:** the second QA pass tested a commit
+> (`12c655a8`) that predated the PHASE-01..03 merges, so its list-404, music-500-storm,
+> and music-double-poll findings were already fixed at HEAD and are NOT re-planned here
+> (see PHASE-06 "Already-fixed findings"). The bmo-phase-executer updates the Status
+> column (`pending` → `in progress` → `done`) as it ships each plan.
