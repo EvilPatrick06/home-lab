@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
 // lucide-react v1 removed brand icons (Github); use the generic sign-in icon
 // (button text retains the GitHub context).
 import { LogIn } from 'lucide-react';
-import { signInWithGitHub, isSupabaseConfigured } from '../services/supabase.js';
+import React, { useState } from 'react';
 import { logError } from '../services/logger.js';
+import { isSupabaseConfigured, signInWithGitHub } from '../services/supabase.js';
 
 export function SignInButton() {
   const [busy, setBusy] = useState(false);

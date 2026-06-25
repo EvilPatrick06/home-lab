@@ -1,13 +1,17 @@
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Award } from 'lucide-react';
+import { useState } from 'react';
 import { OrnatePanel } from '../../components/ui/OrnatePanel.jsx';
 import { RecordTile } from '../../components/ui/RecordTile.jsx';
+import { getTitle } from '../../game/titles.js';
 import { barColor, tierLabel } from '../../services/accuracyPalette.js';
+import { isTomeMastered, tomeMasteryPct } from '../../services/certificate.js';
 import { isSealedTome } from '../../services/sealedTome.js';
 import { dueCount } from '../../services/srs.js';
+import CertificateModal from './CertificateModal.jsx';
 
 // S2: Scholar's Ledger — a learner-facing analytics view aggregating the
 // study signals that were previously scattered across the RPG screens.
-function ScholarsLedger({ playerState, setScreen }) {
+function ScholarsLedger({ playerState, setScreen, scholarName }) {
   const lib = playerState.library || [];
   const unsealed = (t) => !isSealedTome(t.data);
   const cardsReviewed = lib.reduce((s, t) => s + (t.progress?.cardsReviewed || 0), 0);
@@ -20,6 +24,15 @@ function ScholarsLedger({ playerState, setScreen }) {
   const totalCorrect = playerState.totalCorrect || 0;
   const accuracy = totalAnswered ? Math.round((100 * totalCorrect) / totalAnswered) : 0;
   const cvd = !!playerState.colorblind; // CVD: colorblind-safe accuracy palette
+  const [certTome, setCertTome] = useState(null);
+  const earnedTitle = getTitle(playerState.level || 1, playerState.selectedTitle, playerState.unlockedTitles);
+  const diplomas = lib
+    .filter((t) => unsealed(t) && isTomeMastered(t.progress, t.data))
+    .map((t) => ({
+      id: t.id,
+      title: t.data?.metadata?.title || 'Untitled Tome',
+      pct: tomeMasteryPct(t.progress, t.data),
+    }));
 
   const domains = {};
   for (const t of lib) {
@@ -102,6 +115,43 @@ function ScholarsLedger({ playerState, setScreen }) {
           </div>
         )}
       </OrnatePanel>
+
+      <OrnatePanel color="amber">
+        <h3 className="text-base font-bold text-amber-200 italic mb-3 flex items-center gap-2">
+          <Award className="w-4 h-4" /> Diplomas
+        </h3>
+        {diplomas.length === 0 ? (
+          <div className="text-sm text-amber-100/60 italic">
+            Master a tome (most cards reviewed and in long-term rotation) to earn a downloadable certificate.
+          </div>
+        ) : (
+          <div className="space-y-1">
+            {diplomas.map((d) => (
+              <div key={d.id} className="flex items-center gap-2 text-sm">
+                <div className="flex-1 italic text-amber-100 truncate">{d.title}</div>
+                <div className="text-amber-200/70 tabular-nums">{d.pct}%</div>
+                <button
+                  onClick={() => setCertTome(d)}
+                  className="px-3 py-1 rounded-sm border-2 border-amber-300 text-amber-950 font-bold italic text-xs flex items-center gap-1"
+                  style={{ background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 50%, #b45309 100%)' }}
+                >
+                  <Award className="w-3 h-3" /> Certificate
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </OrnatePanel>
+
+      {certTome && (
+        <CertificateModal
+          scholarName={scholarName}
+          tomeTitle={certTome.title}
+          title={earnedTitle}
+          masteryPct={certTome.pct}
+          onClose={() => setCertTome(null)}
+        />
+      )}
     </div>
   );
 }

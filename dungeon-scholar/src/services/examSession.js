@@ -13,9 +13,9 @@
 // the global pool so the player still gets a full exam.
 
 export const EXAM_PRESETS = [
-  { id: 'short',    label: 'Short Mock',      count: 30, minutes: 30 },
-  { id: 'standard', label: 'Standard Mock',   count: 60, minutes: 60 },
-  { id: 'full',     label: 'Full-Length Exam', count: 90, minutes: 90 },
+  { id: 'short', label: 'Short Mock', count: 30, minutes: 30 },
+  { id: 'standard', label: 'Standard Mock', count: 60, minutes: 60 },
+  { id: 'full', label: 'Full-Length Exam', count: 90, minutes: 90 },
 ];
 
 const UNCATEGORIZED_KEY = '__uncategorized__';
@@ -29,22 +29,23 @@ function shuffleInPlace(arr, rng) {
 }
 
 export function pickStratifiedSample(quiz, weights, totalCount, rng = Math.random) {
-  const items = (Array.isArray(quiz) ? quiz : []).filter(q => q && typeof q.id === 'string');
+  const items = (Array.isArray(quiz) ? quiz : []).filter((q) => q && typeof q.id === 'string');
   const count = Math.max(0, Math.floor(Number(totalCount) || 0));
   if (items.length === 0 || count === 0) return [];
 
   const byDomain = new Map();
-  items.forEach(q => {
-    const d = (typeof q.domain === 'string' && q.domain) ? q.domain : UNCATEGORIZED_KEY;
+  items.forEach((q) => {
+    const d = typeof q.domain === 'string' && q.domain ? q.domain : UNCATEGORIZED_KEY;
     if (!byDomain.has(d)) byDomain.set(d, []);
     byDomain.get(d).push(q);
   });
 
-  const weightEntries = weights && typeof weights === 'object'
-    ? Object.entries(weights)
-      .map(([k, v]) => [k, Number(v)])
-      .filter(([, v]) => Number.isFinite(v) && v > 0)
-    : [];
+  const weightEntries =
+    weights && typeof weights === 'object'
+      ? Object.entries(weights)
+          .map(([k, v]) => [k, Number(v)])
+          .filter(([, v]) => Number.isFinite(v) && v > 0)
+      : [];
 
   const targets = new Map();
   if (weightEntries.length > 0) {
@@ -56,7 +57,9 @@ export function pickStratifiedSample(quiz, weights, totalCount, rng = Math.rando
     const domains = Array.from(byDomain.keys());
     if (domains.length === 0) return [];
     const per = count / domains.length;
-    domains.forEach(d => targets.set(d, per));
+    domains.forEach((d) => {
+      targets.set(d, per);
+    });
   }
 
   const rows = Array.from(targets.entries()).map(([domain, fractional]) => ({
@@ -74,7 +77,7 @@ export function pickStratifiedSample(quiz, weights, totalCount, rng = Math.rando
 
   const picked = [];
   const pickedIds = new Set();
-  rows.forEach(r => {
+  rows.forEach((r) => {
     const pool = byDomain.get(r.domain);
     if (!pool || pool.length === 0) return;
     const copy = pool.slice();
@@ -87,7 +90,7 @@ export function pickStratifiedSample(quiz, weights, totalCount, rng = Math.rando
   });
 
   if (picked.length < count) {
-    const leftovers = items.filter(q => !pickedIds.has(q.id));
+    const leftovers = items.filter((q) => !pickedIds.has(q.id));
     shuffleInPlace(leftovers, rng);
     const need = Math.min(count - picked.length, leftovers.length);
     for (let i = 0; i < need; i++) picked.push(leftovers[i]);
@@ -132,7 +135,7 @@ export function summarizeExamResults(questions, answers) {
   let answered = 0;
   items.forEach((q, i) => {
     const a = ans[i];
-    const isAnswered = (a !== null && a !== undefined && a !== '');
+    const isAnswered = a !== null && a !== undefined && a !== '';
     if (isAnswered) answered += 1;
     const isCorrect = isAnswered && gradeExamItem(q, a);
     if (isCorrect) correct += 1;

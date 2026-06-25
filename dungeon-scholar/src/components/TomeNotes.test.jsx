@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+import { decryptPayload, encryptPayload } from '../services/notesCrypto.js';
 import TomeNotes from './TomeNotes.jsx';
-import { encryptPayload, decryptPayload } from '../services/notesCrypto.js';
 
 // Real WebCrypto (jsdom + node provide SubtleCrypto). To keep the locked-tome
 // fixtures fast we build their `notes` blob with a low iteration count.

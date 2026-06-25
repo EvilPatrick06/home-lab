@@ -2,22 +2,49 @@
 // Player walks the world; bumping into mobs opens a battle modal that asks
 // a question from the active tome. Correct = mob defeated. Wrong = -1 HP.
 // Reach the boss room and survive its 5-question gauntlet to win the run.
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+
 import { ArrowLeft } from 'lucide-react';
-import { startBgm, stopBgm, playSfx } from '../../audio/sound.js';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { playSfx, startBgm, stopBgm } from '../../audio/sound.js';
+import {
+  BIOME_BOSS_POOL,
+  BIOMES,
+  buildQuestionLogEntry,
+  DIFF_CONFIG,
+  generateMap,
+  MOB_AGGRO_RANGE,
+  makeSeededRng,
+  POTION_EFFECTS,
+  pickBiomeForSubject,
+  ROOMS_BY_DIFFICULTY,
+  revealDecoration,
+  SIZE_BY_DIFFICULTY,
+  TILE,
+  takeForesightPreview,
+} from '../../game/dungeonMap.js';
 import { petLevelFromXp } from '../../services/pets.js';
-import { POTION_EFFECTS, takeForesightPreview, TILE, BIOMES, pickBiomeForSubject, ROOMS_BY_DIFFICULTY, SIZE_BY_DIFFICULTY, DIFF_CONFIG, BIOME_BOSS_POOL, makeSeededRng, generateMap, revealDecoration, buildQuestionLogEntry, MOB_AGGRO_RANGE } from '../../game/dungeonMap.js';
-import { TILE_PX, drawTile, drawChest, drawPlayer, drawWeapon, DECO_DRAWERS, MOB_DRAWERS, BOSS_DRAWERS, BOSS_DISPLAY, PET_DRAWERS } from './tileRenderer.js';
+import {
+  BOSS_DISPLAY,
+  BOSS_DRAWERS,
+  DECO_DRAWERS,
+  drawChest,
+  drawPlayer,
+  drawTile,
+  drawWeapon,
+  MOB_DRAWERS,
+  PET_DRAWERS,
+  TILE_PX,
+} from './tileRenderer.js';
 
 // === Equipment effects ==================================================
 // In-dungeon stat bonuses for equipped items. Items live in App.jsx ITEMS;
 // these effects apply only inside the delve.
 const EQUIP_EFFECTS = {
-  iron_circlet:    { maxHpBonus: 1 },
-  silver_circlet:  { maxHpBonus: 1, shieldBonus: 1 },
+  iron_circlet: { maxHpBonus: 1 },
+  silver_circlet: { maxHpBonus: 1, shieldBonus: 1 },
   starbound_cloak: { firstWrongFree: true },
-  oaken_blade:     { mobScoreBonus: 1 },
-  gilded_sabre:    { goldMul: 1.5 },
+  oaken_blade: { mobScoreBonus: 1 },
+  gilded_sabre: { goldMul: 1.5 },
   arcane_grimoire: { xpMul: 1.25 },
 };
 
@@ -25,10 +52,10 @@ const EQUIP_EFFECTS = {
 // Quick-slotted potion behaviors when used inside the dungeon. Exported for tests (17G).
 const SPELL_INFO = {
   glyph_of_mending: { icon: '✨', name: 'Glyph of Mending', cost: 2 },
-  lance_of_lumens:  { icon: '⚡', name: 'Lance of Lumens',  cost: 3 },
-  ward_of_aegis:    { icon: '🛡️', name: 'Ward of Aegis',    cost: 2 },
-  bolt_of_truth:    { icon: '📖', name: 'Bolt of Truth',    cost: 3 },
-  riftstep:         { icon: '🌀', name: 'Riftstep',         cost: 2 },
+  lance_of_lumens: { icon: '⚡', name: 'Lance of Lumens', cost: 3 },
+  ward_of_aegis: { icon: '🛡️', name: 'Ward of Aegis', cost: 2 },
+  bolt_of_truth: { icon: '📖', name: 'Bolt of Truth', cost: 3 },
+  riftstep: { icon: '🌀', name: 'Riftstep', cost: 2 },
   sigil_of_clarity: { icon: '👁️', name: 'Sigil of Clarity', cost: 1 },
 };
 
@@ -37,12 +64,12 @@ const SPELL_INFO = {
 // like "+1 HP · +1 shield". Returns the item's description as a fallback
 // when the item has no measurable effect (cosmetic / lore-only).
 const EQUIP_STAT_LABEL = {
-  maxHpBonus:     (n) => `+${n} HP`,
-  shieldBonus:    (n) => `+${n} shield`,
-  xpMul:          (m) => m > 1 ? `+${Math.round((m - 1) * 100)}% XP` : '',
-  goldMul:        (m) => m > 1 ? `+${Math.round((m - 1) * 100)}% gold` : '',
-  mobScoreBonus:  (n) => `+${n} score per foe`,
-  firstWrongFree: (b) => b ? 'absorbs first wrong' : '',
+  maxHpBonus: (n) => `+${n} HP`,
+  shieldBonus: (n) => `+${n} shield`,
+  xpMul: (m) => (m > 1 ? `+${Math.round((m - 1) * 100)}% XP` : ''),
+  goldMul: (m) => (m > 1 ? `+${Math.round((m - 1) * 100)}% gold` : ''),
+  mobScoreBonus: (n) => `+${n} score per foe`,
+  firstWrongFree: (b) => (b ? 'absorbs first wrong' : ''),
 };
 const summarizeEquipItem = (itemId) => {
   const eff = EQUIP_EFFECTS[itemId];
@@ -56,13 +83,20 @@ const summarizePetPassive = (def, level) => {
   if (!def) return '';
   const value = (def.base || 0) + (def.perLevel || 0) * (level - 1);
   switch (def.passive) {
-    case 'xp_pct':           return `+${value}% XP`;
-    case 'gold_pct':          return `+${value}% gold`;
-    case 'shield_bonus':      return `+${value} shield`;
-    case 'plant_double_pct':  return `${value}% plant double`;
-    case 'first_wrong_free':  return 'absorbs first wrong';
-    case 'mob_score':         return `+${value} score per foe`;
-    default:                  return '';
+    case 'xp_pct':
+      return `+${value}% XP`;
+    case 'gold_pct':
+      return `+${value}% gold`;
+    case 'shield_bonus':
+      return `+${value} shield`;
+    case 'plant_double_pct':
+      return `${value}% plant double`;
+    case 'first_wrong_free':
+      return 'absorbs first wrong';
+    case 'mob_score':
+      return `+${value} score per foe`;
+    default:
+      return '';
   }
 };
 
@@ -74,12 +108,16 @@ const summarizePetPassive = (def, level) => {
 function LoadoutSelect({ label, icon, currentId, items, onChange, emptyLabel, summary, disabled }) {
   const has = !!currentId;
   return (
-    <div className="p-2 rounded-sm" style={{
-      background: 'rgba(0,0,0,0.35)',
-      border: `1px solid ${has ? 'rgba(245,158,11,0.55)' : 'rgba(var(--surface-amber-strong, 120, 53, 15),0.3)'}`,
-    }}>
+    <div
+      className="p-2 rounded-sm"
+      style={{
+        background: 'rgba(0,0,0,0.35)',
+        border: `1px solid ${has ? 'rgba(245,158,11,0.55)' : 'rgba(var(--surface-amber-strong, 120, 53, 15),0.3)'}`,
+      }}
+    >
       <div className="text-[10px] uppercase italic text-amber-700 flex items-center gap-1">
-        <span>{icon}</span><span>{label}</span>
+        <span>{icon}</span>
+        <span>{label}</span>
       </div>
       <select
         value={currentId || ''}
@@ -96,28 +134,26 @@ function LoadoutSelect({ label, icon, currentId, items, onChange, emptyLabel, su
         <option value="">{emptyLabel}</option>
         {items.map((it) => (
           <option key={it.id} value={it.id}>
-            {it.icon ? `${it.icon} ` : ''}{it.label}
+            {it.icon ? `${it.icon} ` : ''}
+            {it.label}
           </option>
         ))}
       </select>
-      {summary && (
-        <div className="text-[10px] italic text-amber-100/70 mt-1 truncate">{summary}</div>
-      )}
+      {summary && <div className="text-[10px] italic text-amber-100/70 mt-1 truncate">{summary}</div>}
     </div>
   );
 }
 
 // Display info for the in-dungeon potion HUD (icons mirror App.jsx ITEMS).
 const POTION_INFO = {
-  minor_heal_tonic:   { icon: '🧪', name: 'Healing Tonic' },
+  minor_heal_tonic: { icon: '🧪', name: 'Healing Tonic' },
   greater_heal_tonic: { icon: '⚗️', name: 'Greater Draught' },
-  shield_draught:     { icon: '🛡️', name: 'Shield Draught' },
-  phoenix_ember:      { icon: '🔥', name: 'Phoenix Ember' },
-  scholars_brew:      { icon: '☕', name: "Scholar's Brew" },
-  foresight_scroll:   { icon: '📜', name: 'Foresight Scroll' },
-  tinkers_oil:        { icon: '🪔', name: "Tinker's Oil" },
+  shield_draught: { icon: '🛡️', name: 'Shield Draught' },
+  phoenix_ember: { icon: '🔥', name: 'Phoenix Ember' },
+  scholars_brew: { icon: '☕', name: "Scholar's Brew" },
+  foresight_scroll: { icon: '📜', name: 'Foresight Scroll' },
+  tinkers_oil: { icon: '🪔', name: "Tinker's Oil" },
 };
-
 
 const VIEW_W = 25;
 const VIEW_H = 17;
@@ -153,38 +189,61 @@ const CHEST_TIERS = {
     icon: '🪙',
     goldRange: [10, 25], // tightened to keep the curve smooth after wooden cut
     itemChance: 0.85,
-    itemPool: ['greater_heal_tonic', 'shield_draught', 'scholars_brew', 'minor_heal_tonic', 'sigil_dust', 'iron_filings', 'crystal_shard'],
+    itemPool: [
+      'greater_heal_tonic',
+      'shield_draught',
+      'scholars_brew',
+      'minor_heal_tonic',
+      'sigil_dust',
+      'iron_filings',
+      'crystal_shard',
+    ],
   },
   gold: {
     label: 'Gold Chest',
     icon: '👑',
     goldRange: [50, 100], // tightened proportionally
     itemChance: 1.0,
-    itemPool: ['phoenix_ember', 'iron_circlet', 'starbound_cloak', 'oaken_blade', 'gilded_sabre', 'crystal_shard', 'sigil_dust'],
+    itemPool: [
+      'phoenix_ember',
+      'iron_circlet',
+      'starbound_cloak',
+      'oaken_blade',
+      'gilded_sabre',
+      'crystal_shard',
+      'sigil_dust',
+    ],
   },
 };
 // How many of each chest tier spawn per run, by difficulty.
 const LOOTABLE_DECOS = {
-  mushroom:    { goldRange: [1, 5], itemChance: 0.55, itemPool: ['glow_root', 'glow_root', 'moonleaf', 'minor_heal_tonic'] },
-  wildflower:  { goldRange: [1, 3], itemChance: 0.55, itemPool: ['ember_ash', 'moonleaf', 'sigil_dust'] },
-  moss_patch:  { goldRange: [1, 2], itemChance: 0.65, itemPool: ['moonleaf', 'moonleaf', 'glow_root'] },
-  fern:        { goldRange: [1, 4], itemChance: 0.55, itemPool: ['glow_root', 'glow_root', 'foresight_scroll'] },
-  cactus:      { goldRange: [1, 4], itemChance: 0.55, itemPool: ['cactus_pulp', 'cactus_pulp', 'ember_ash'] },
-  nightshade:  { goldRange: [2, 5], itemChance: 0.55, itemPool: ['sigil_dust', 'sigil_dust', 'scholars_brew'] },
-  rot_flower:  { goldRange: [2, 4], itemChance: 0.55, itemPool: ['iron_filings', 'iron_filings', 'shield_draught'] },
-  algae:       { goldRange: [1, 3], itemChance: 0.55, itemPool: ['glow_root', 'crystal_shard', 'minor_heal_tonic'] },
+  mushroom: {
+    goldRange: [1, 5],
+    itemChance: 0.55,
+    itemPool: ['glow_root', 'glow_root', 'moonleaf', 'minor_heal_tonic'],
+  },
+  wildflower: { goldRange: [1, 3], itemChance: 0.55, itemPool: ['ember_ash', 'moonleaf', 'sigil_dust'] },
+  moss_patch: { goldRange: [1, 2], itemChance: 0.65, itemPool: ['moonleaf', 'moonleaf', 'glow_root'] },
+  fern: { goldRange: [1, 4], itemChance: 0.55, itemPool: ['glow_root', 'glow_root', 'foresight_scroll'] },
+  cactus: { goldRange: [1, 4], itemChance: 0.55, itemPool: ['cactus_pulp', 'cactus_pulp', 'ember_ash'] },
+  nightshade: { goldRange: [2, 5], itemChance: 0.55, itemPool: ['sigil_dust', 'sigil_dust', 'scholars_brew'] },
+  rot_flower: { goldRange: [2, 4], itemChance: 0.55, itemPool: ['iron_filings', 'iron_filings', 'shield_draught'] },
+  algae: { goldRange: [1, 3], itemChance: 0.55, itemPool: ['glow_root', 'crystal_shard', 'minor_heal_tonic'] },
 };
 // 25b: each biome rolls a boss from a small pool per delve so the same
 // difficulty/biome combo doesn't always pit you against the same trial.
 // Every boss appears in ≥2 pools so its sprite stays familiar across
 // the game.
-const norm = (s) => String(s ?? '').trim().toLowerCase();
+const norm = (s) =>
+  String(s ?? '')
+    .trim()
+    .toLowerCase();
 
 // Pull random questions from the active tome's quiz pool, excluding any
 // already-used questions in this run. Includes flashcards as fallback.
 function pickQuestions(courseSet, count, excludeIds = new Set()) {
-  const quizPool = (courseSet?.quiz || []).filter((q) =>
-    !excludeIds.has(q.id) && (q.type === 'multiplechoice' || q.type === 'truefalse'),
+  const quizPool = (courseSet?.quiz || []).filter(
+    (q) => !excludeIds.has(q.id) && (q.type === 'multiplechoice' || q.type === 'truefalse'),
   );
   // Shuffle and take.
   const arr = quizPool.slice();
@@ -243,22 +302,7 @@ function BattleModal({
   bossDisplay,
   firstWrongFreeAvailable,
 }) {
-  if (!battle) return null;
-  const q = battle.currentQuestion;
-  if (!q) return null;
-  const isBoss = battle.type === 'boss';
-  const correctCount = battle.correctCount || 0;
-  const mobMaxHp = battle.maxHp || 1;
-  const mobHpRemaining = Math.max(0, mobMaxHp - correctCount);
-  const tier = isBoss ? 'boss' : (battle.mobTier || 'basic');
-  const tierLabel = isBoss ? 'Boss'
-                  : tier === 'elite' ? 'Elite'
-                  : 'Basic';
-  const tierDmg = isBoss ? 3 : tier === 'elite' ? 2 : 1;
-  // 25d: damage actually applied on the next wrong answer. Cloak / pet
-  // absorbs the first wrong of the run, so the modal should preview 0
-  // damage instead of tierDmg until the prop says otherwise.
-  const dmgIfWrong = firstWrongFreeAvailable ? 0 : tierDmg;
+  const q = battle?.currentQuestion;
 
   const [revealResult, setRevealResult] = useState(null);
 
@@ -287,21 +331,43 @@ function BattleModal({
 
   // Reset reveal animation when the question or battle changes (q.id is the
   // signal — a wrong answer now swaps in a fresh question, no fixed idx).
-  useEffect(() => { setRevealResult(null); }, [q?.id, battle.type]);
+  useEffect(() => {
+    setRevealResult(null);
+  }, [q?.id, battle?.type]);
 
-  const options = q.type === 'truefalse' ? ['True', 'False'] : (q.options || []);
+  // Rules-of-hooks: all hooks run unconditionally above; the null guards and
+  // derived values live below so the hook order is identical on every render.
+  if (!battle) return null;
+  if (!q) return null;
+  const isBoss = battle.type === 'boss';
+  const correctCount = battle.correctCount || 0;
+  const mobMaxHp = battle.maxHp || 1;
+  const mobHpRemaining = Math.max(0, mobMaxHp - correctCount);
+  const tier = isBoss ? 'boss' : battle.mobTier || 'basic';
+  const tierLabel = isBoss ? 'Boss' : tier === 'elite' ? 'Elite' : 'Basic';
+  const tierDmg = isBoss ? 3 : tier === 'elite' ? 2 : 1;
+  // 25d: damage actually applied on the next wrong answer. Cloak / pet
+  // absorbs the first wrong of the run, so the modal should preview 0
+  // damage instead of tierDmg until the prop says otherwise.
+  const dmgIfWrong = firstWrongFreeAvailable ? 0 : tierDmg;
+
+  const options = q.type === 'truefalse' ? ['True', 'False'] : q.options || [];
 
   // HP-bar block helpers — small color-blocked rectangles per HP point.
   const renderHpRow = (current, max, color, dimColor) => (
     <div className="flex gap-1">
       {Array.from({ length: max }).map((_, i) => (
-        <div key={i} style={{
-          width: 10, height: 16,
-          background: i < current ? color : dimColor,
-          border: '1px solid rgba(0,0,0,0.55)',
-          borderRadius: 2,
-          boxShadow: i < current ? `inset 0 0 4px ${color}` : 'none',
-        }} />
+        <div
+          key={i}
+          style={{
+            width: 10,
+            height: 16,
+            background: i < current ? color : dimColor,
+            border: '1px solid rgba(0,0,0,0.55)',
+            borderRadius: 2,
+            boxShadow: i < current ? `inset 0 0 4px ${color}` : 'none',
+          }}
+        />
       ))}
     </div>
   );
@@ -314,12 +380,8 @@ function BattleModal({
   // in background." Right-answer mob/boss bars get the same treatment
   // since the parent doesn't commit `correctCount` until the 900 ms
   // reveal timer fires.
-  const displayHp = (revealResult && !revealResult.correct)
-    ? Math.max(0, hp - dmgIfWrong)
-    : hp;
-  const displayMobHp = (revealResult && revealResult.correct)
-    ? Math.max(0, mobHpRemaining - 1)
-    : mobHpRemaining;
+  const displayHp = revealResult && !revealResult.correct ? Math.max(0, hp - dmgIfWrong) : hp;
+  const displayMobHp = revealResult && revealResult.correct ? Math.max(0, mobHpRemaining - 1) : mobHpRemaining;
 
   return (
     <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.78)' }}>
@@ -334,9 +396,7 @@ function BattleModal({
       >
         <div className="flex items-center justify-between mb-3">
           <div className="text-xs uppercase tracking-wider italic" style={{ color: biome.accentSolid }}>
-            {isBoss
-              ? '⚔ Boss Trial'
-              : (mobMaxHp > 1 ? '⚔ Elite Encounter' : '⚔ Encounter')}
+            {isBoss ? '⚔ Boss Trial' : mobMaxHp > 1 ? '⚔ Elite Encounter' : '⚔ Encounter'}
           </div>
           <div className="text-[10px] italic text-amber-700">
             Wrong = -{dmgIfWrong} HP
@@ -348,20 +408,31 @@ function BattleModal({
             post-answer state during the reveal flash; once the parent
             commits the real change, displayHp/displayMobHp coalesce
             with the prop values seamlessly. */}
-        <div className="flex items-center justify-between gap-3 mb-3 px-2 py-2 rounded-sm"
-             style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15),0.4)' }}>
+        <div
+          className="flex items-center justify-between gap-3 mb-3 px-2 py-2 rounded-sm"
+          style={{
+            background: 'rgba(0,0,0,0.4)',
+            border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15),0.4)',
+          }}
+        >
           <div>
-            <div className="text-[10px] italic text-amber-700">Thee · {displayHp}/{maxHp}</div>
+            <div className="text-[10px] italic text-amber-700">
+              Thee · {displayHp}/{maxHp}
+            </div>
             {renderHpRow(displayHp, Math.max(maxHp, hp), '#dc2626', '#3a1414')}
           </div>
           <div className="text-amber-700 italic text-base">⚔</div>
           <div className="text-right">
             <div className="text-[10px] italic text-amber-700">
-              {tierLabel}{isBoss && bossDisplay ? ` · ${bossDisplay.name}` : ''} · {displayMobHp}/{mobMaxHp}
+              {tierLabel}
+              {isBoss && bossDisplay ? ` · ${bossDisplay.name}` : ''} · {displayMobHp}/{mobMaxHp}
             </div>
-            {renderHpRow(displayMobHp, mobMaxHp,
+            {renderHpRow(
+              displayMobHp,
+              mobMaxHp,
               isBoss ? '#a855f7' : tier === 'elite' ? '#f97316' : '#dc2626',
-              '#1e293b')}
+              '#1e293b',
+            )}
           </div>
         </div>
         {battle.previewDomain && (
@@ -377,9 +448,13 @@ function BattleModal({
             let border = 'rgba(var(--surface-amber-strong, 120, 53, 15),0.5)';
             let color = '#fde68a';
             if (isPickedRight || (revealResult && isAnsRight)) {
-              bg = 'rgba(16,185,129,0.25)'; border = '#10b981'; color = '#a7f3d0';
+              bg = 'rgba(16,185,129,0.25)';
+              border = '#10b981';
+              color = '#a7f3d0';
             } else if (isPickedWrong) {
-              bg = 'rgba(220,38,38,0.25)'; border = '#dc2626'; color = '#fecaca';
+              bg = 'rgba(220,38,38,0.25)';
+              border = '#dc2626';
+              color = '#fecaca';
             }
             // 19C: glyph + border-style carry the verdict without color.
             const { glyph, borderStyle } = revealDecoration(revealResult, i, q.correctIndex);
@@ -392,19 +467,16 @@ function BattleModal({
                 className="text-left px-3 py-2 rounded-sm italic"
                 style={{ background: bg, border: borderCss, color, cursor: revealResult ? 'default' : 'pointer' }}
               >
-                {glyph}{opt}
+                {glyph}
+                {opt}
               </button>
             );
           })}
         </div>
         {revealResult && (
           <div role="status" className="mt-3 text-xs italic text-amber-300">
-            {revealResult.correct
-              ? '✦ Thy answer rings true.'
-              : '✦ Nay — read the lore, then press onward.'}
-            {q.explanation && (
-              <div className="mt-1 text-amber-200/80">{q.explanation}</div>
-            )}
+            {revealResult.correct ? '✦ Thy answer rings true.' : '✦ Nay — read the lore, then press onward.'}
+            {q.explanation && <div className="mt-1 text-amber-200/80">{q.explanation}</div>}
           </div>
         )}
         {/* 25a-6: on wrong answers, the modal pauses on reveal so the
@@ -425,7 +497,9 @@ function BattleModal({
         )}
         {!isBoss && canFlee && (
           <button
-            onClick={() => { if (!revealResult) onFlee(); }}
+            onClick={() => {
+              if (!revealResult) onFlee();
+            }}
             disabled={!!revealResult}
             className="mt-3 px-3 py-2 rounded-sm italic w-full text-sm"
             style={{
@@ -444,9 +518,7 @@ function BattleModal({
           </div>
         )}
         {isBoss && (
-          <div className="mt-3 text-xs italic text-amber-700/80 text-center">
-            ⚜ No flight from a dungeon lord. ⚜
-          </div>
+          <div className="mt-3 text-xs italic text-amber-700/80 text-center">⚜ No flight from a dungeon lord. ⚜</div>
         )}
       </div>
     </div>
@@ -485,7 +557,9 @@ function EndRunOverlay({ runState, biome, summary, onExit, onNewDelve }) {
           </div>
           <div className="p-2 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)' }}>
             <div className="text-amber-700">HP remaining</div>
-            <div className="text-amber-200">{summary.hp} / {summary.maxHp}</div>
+            <div className="text-amber-200">
+              {summary.hp} / {summary.maxHp}
+            </div>
           </div>
           <div className="p-2 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)' }}>
             <div className="text-amber-700">Mistakes</div>
@@ -544,9 +618,9 @@ const FACING_LABELS = { up: 'up', down: 'down', left: 'left', right: 'right' };
 
 const DIFFICULTY_LABELS = {
   apprentice: { label: 'Apprentice', icon: '🛡️' },
-  adept:      { label: 'Adept',      icon: '⚔️' },
-  master:     { label: 'Master',     icon: '👑' },
-  mythic:     { label: 'Mythic',     icon: '🌟' },
+  adept: { label: 'Adept', icon: '⚔️' },
+  master: { label: 'Master', icon: '👑' },
+  mythic: { label: 'Mythic', icon: '🌟' },
 };
 
 // === Component ==========================================================
@@ -596,7 +670,7 @@ export default function DungeonExplore({
     const totalRuns = (playerState.library || []).reduce((s, t) => s + (t.progress?.runsCompleted || 0), 0);
     const ach = playerState.achievements || [];
     const lvl = playerState.level || 1;
-    if (id === 'adept')  return lvl >= 10 || totalRuns >= 5;
+    if (id === 'adept') return lvl >= 10 || totalRuns >= 5;
     if (id === 'master') return lvl >= 25 || (ach.includes('flawless') && ach.includes('first_boss'));
     if (id === 'mythic') return lvl >= 50 || ach.includes('master_complete');
     return false;
@@ -617,22 +691,30 @@ export default function DungeonExplore({
   const activePet = useMemo(() => {
     const id = equipped.pet;
     if (!id) return null;
-    const def = petCatalog?.find?.(p => p.id === id) || null;
+    const def = petCatalog?.find?.((p) => p.id === id) || null;
     if (!def) return null;
-    const xp = (ownedPets[id]?.xp) || 0;
+    const xp = ownedPets[id]?.xp || 0;
     const level = petLevelFromXp(xp);
     return { def, level, xp };
   }, [equipped.pet, ownedPets, petCatalog]);
   const equipBonuses = useMemo(() => {
     const slots = [equipped.weapon, equipped.head, equipped.cloak].filter(Boolean);
-    const acc = { maxHpBonus: 0, shieldBonus: 0, xpMul: 1, goldMul: 1, mobScoreBonus: 0, firstWrongFree: false, plantDoublePct: 0 };
+    const acc = {
+      maxHpBonus: 0,
+      shieldBonus: 0,
+      xpMul: 1,
+      goldMul: 1,
+      mobScoreBonus: 0,
+      firstWrongFree: false,
+      plantDoublePct: 0,
+    };
     slots.forEach((id) => {
       const eff = EQUIP_EFFECTS[id];
       if (!eff) return;
-      if (eff.maxHpBonus)    acc.maxHpBonus += eff.maxHpBonus;
-      if (eff.shieldBonus)   acc.shieldBonus += eff.shieldBonus;
-      if (eff.xpMul)         acc.xpMul *= eff.xpMul;
-      if (eff.goldMul)       acc.goldMul *= eff.goldMul;
+      if (eff.maxHpBonus) acc.maxHpBonus += eff.maxHpBonus;
+      if (eff.shieldBonus) acc.shieldBonus += eff.shieldBonus;
+      if (eff.xpMul) acc.xpMul *= eff.xpMul;
+      if (eff.goldMul) acc.goldMul *= eff.goldMul;
       if (eff.mobScoreBonus) acc.mobScoreBonus += eff.mobScoreBonus;
       if (eff.firstWrongFree) acc.firstWrongFree = true;
     });
@@ -640,12 +722,23 @@ export default function DungeonExplore({
       const { def, level } = activePet;
       const value = (def.base || 0) + (def.perLevel || 0) * (level - 1);
       switch (def.passive) {
-        case 'xp_pct':            acc.xpMul *= 1 + value / 100; break;
-        case 'gold_pct':          acc.goldMul *= 1 + value / 100; break;
-        case 'shield_bonus':      acc.shieldBonus += value; break;
-        case 'first_wrong_free':  acc.firstWrongFree = true; break;
-        case 'plant_double_pct':  acc.plantDoublePct += value; break;
-        default: break;
+        case 'xp_pct':
+          acc.xpMul *= 1 + value / 100;
+          break;
+        case 'gold_pct':
+          acc.goldMul *= 1 + value / 100;
+          break;
+        case 'shield_bonus':
+          acc.shieldBonus += value;
+          break;
+        case 'first_wrong_free':
+          acc.firstWrongFree = true;
+          break;
+        case 'plant_double_pct':
+          acc.plantDoublePct += value;
+          break;
+        default:
+          break;
       }
       if (def.secondary === 'mob_score') {
         acc.mobScoreBonus += (def.secondaryBase || 0) + (def.secondaryPerLevel || 0) * (level - 1);
@@ -655,7 +748,7 @@ export default function DungeonExplore({
   }, [equipped.weapon, equipped.head, equipped.cloak, activePet]);
 
   const permUp = playerState?.permUpgrades || {};
-  const effectiveMaxHp     = diffConfig.hp + equipBonuses.maxHpBonus + (permUp.maxHp || 0);
+  const effectiveMaxHp = diffConfig.hp + equipBonuses.maxHpBonus + (permUp.maxHp || 0);
   const effectiveMaxShield = Math.max(0, diffConfig.shields + equipBonuses.shieldBonus);
 
   const biomeId = useMemo(() => pickBiomeForSubject(subject), [subject]);
@@ -708,9 +801,18 @@ export default function DungeonExplore({
   const [liveMsg, setLiveMsg] = useState('');
   useEffect(() => {
     if (phase !== 'world') return;
-    if (runState === 'victory') { setLiveMsg('Victory! The delve is won.'); return; }
-    if (runState === 'death') { setLiveMsg('Defeat. The delve has ended.'); return; }
-    if (battle) { setLiveMsg('A foe blocks the path — a battle begins. Answer the riddle to fight.'); return; }
+    if (runState === 'victory') {
+      setLiveMsg('Victory! The delve is won.');
+      return;
+    }
+    if (runState === 'death') {
+      setLiveMsg('Defeat. The delve has ended.');
+      return;
+    }
+    if (battle) {
+      setLiveMsg('A foe blocks the path — a battle begins. Answer the riddle to fight.');
+      return;
+    }
     setLiveMsg('');
   }, [phase, battle, runState]);
   const [endSummary, setEndSummary] = useState(null);
@@ -744,9 +846,23 @@ export default function DungeonExplore({
   const stateRef = useRef({});
   useLayoutEffect(() => {
     stateRef.current = {
-      phase, pos, facing, biome, initial, hp, maxHp: effectiveMaxHp,
-      shields, maxShields: effectiveMaxShield, battle, runState, score, equipped,
-      reviveAvailable, xpBuffRemaining, activePet, bossKeyFound,
+      phase,
+      pos,
+      facing,
+      biome,
+      initial,
+      hp,
+      maxHp: effectiveMaxHp,
+      shields,
+      maxShields: effectiveMaxShield,
+      battle,
+      runState,
+      score,
+      equipped,
+      reviveAvailable,
+      xpBuffRemaining,
+      activePet,
+      bossKeyFound,
     };
   });
 
@@ -785,7 +901,11 @@ export default function DungeonExplore({
       setNotice(null);
       if (!trackedAttemptRef.current && trackDungeonAttempt) {
         trackedAttemptRef.current = true;
-        try { trackDungeonAttempt(); } catch { /* best-effort */ }
+        try {
+          trackDungeonAttempt();
+        } catch {
+          /* best-effort */
+        }
       }
       setPhase('world');
     } else {
@@ -812,7 +932,9 @@ export default function DungeonExplore({
   useEffect(() => {
     if (phase !== 'world') return undefined;
     startBgm(biomeId);
-    return () => { stopBgm(); };
+    return () => {
+      stopBgm();
+    };
   }, [phase, biomeId]);
 
   // === Spell casting (Phase 19) ========================================
@@ -823,7 +945,7 @@ export default function DungeonExplore({
   // refunds its cost.
   const castSpell = (slotIdx) => {
     if (phase !== 'world' || runState !== 'alive') return;
-    const spellId = ((playerState?.equippedSpells) || [null, null, null])[slotIdx];
+    const spellId = (playerState?.equippedSpells || [null, null, null])[slotIdx];
     const hk = ['Z', 'X', 'C'][slotIdx] || '?';
     // Visible feedback when the player presses a hotkey for an empty
     // slot. Without this the keypress was silent and felt broken.
@@ -831,14 +953,17 @@ export default function DungeonExplore({
       setNotice({ tone: 'info', text: `Spell slot ${hk} is empty. Slot one in the Spellbook.` });
       return;
     }
-    const def = spellCatalog?.find?.(s => s.id === spellId)
-      || (SPELL_INFO[spellId] ? { id: spellId, ...SPELL_INFO[spellId] } : null);
+    const def =
+      spellCatalog?.find?.((s) => s.id === spellId) ||
+      (SPELL_INFO[spellId] ? { id: spellId, ...SPELL_INFO[spellId] } : null);
     if (!def) return;
     if (mana < (def.cost || 0)) {
       setNotice({ tone: 'info', text: `${def.name}: not enough mana.` });
       return;
     }
-    const refund = () => { /* no mana spent */ };
+    const refund = () => {
+      /* no mana spent */
+    };
     const pay = () => {
       setMana((m) => Math.max(0, m - (def.cost || 0)));
       playSfx('cast');
@@ -847,7 +972,10 @@ export default function DungeonExplore({
 
     switch (def.effect) {
       case 'heal': {
-        if (battle) { setNotice({ tone: 'info', text: 'Cannot mend mid-trial.' }); return; }
+        if (battle) {
+          setNotice({ tone: 'info', text: 'Cannot mend mid-trial.' });
+          return;
+        }
         if (hp >= effectiveMaxHp) {
           setNotice({ tone: 'info', text: `${def.name}: already at full lives.` });
           return refund();
@@ -858,7 +986,10 @@ export default function DungeonExplore({
         return;
       }
       case 'shield': {
-        if (battle) { setNotice({ tone: 'info', text: 'Cannot ward mid-trial.' }); return; }
+        if (battle) {
+          setNotice({ tone: 'info', text: 'Cannot ward mid-trial.' });
+          return;
+        }
         if (effectiveMaxShield === 0) {
           setNotice({ tone: 'info', text: 'No shield bond is permitted on this difficulty.' });
           return refund();
@@ -873,16 +1004,23 @@ export default function DungeonExplore({
         return;
       }
       case 'smite_nearest_mob': {
-        if (battle) { setNotice({ tone: 'info', text: 'Cannot smite — already in trial.' }); return; }
+        if (battle) {
+          setNotice({ tone: 'info', text: 'Cannot smite — already in trial.' });
+          return;
+        }
         const mobs = mobsRef.current;
         if (mobs.length === 0) {
           setNotice({ tone: 'info', text: 'No foe walks within reach.' });
           return refund();
         }
-        let bestIdx = -1, bestDist = Infinity;
+        let bestIdx = -1,
+          bestDist = Infinity;
         for (let i = 0; i < mobs.length; i++) {
           const d = Math.abs(mobs[i].x - pos.x) + Math.abs(mobs[i].y - pos.y);
-          if (d < bestDist) { bestDist = d; bestIdx = i; }
+          if (d < bestDist) {
+            bestDist = d;
+            bestIdx = i;
+          }
         }
         if (bestIdx < 0) return refund();
         const slain = mobs[bestIdx];
@@ -894,14 +1032,20 @@ export default function DungeonExplore({
         return;
       }
       case 'teleport_spawn': {
-        if (battle) { setNotice({ tone: 'info', text: 'Cannot riftstep mid-trial.' }); return; }
+        if (battle) {
+          setNotice({ tone: 'info', text: 'Cannot riftstep mid-trial.' });
+          return;
+        }
         setPos({ ...initial.spawn });
         pay();
         setNotice({ tone: 'good', text: `${def.name}: thou art back at the threshold.` });
         return;
       }
       case 'auto_correct': {
-        if (!battle) { setNotice({ tone: 'info', text: `${def.name} requires a foe to face.` }); return; }
+        if (!battle) {
+          setNotice({ tone: 'info', text: `${def.name} requires a foe to face.` });
+          return;
+        }
         const q = battle.currentQuestion; // F10 (17G): battle has no questions[]/questionIdx — that threw mid-battle
         if (!q) return refund();
         pay();
@@ -911,7 +1055,10 @@ export default function DungeonExplore({
         return;
       }
       case 'reveal_answer': {
-        if (!battle) { setNotice({ tone: 'info', text: `${def.name} requires a foe to face.` }); return; }
+        if (!battle) {
+          setNotice({ tone: 'info', text: `${def.name} requires a foe to face.` });
+          return;
+        }
         const q = battle.currentQuestion; // F10 (17G): battle has no questions[]/questionIdx — that threw mid-battle
         if (!q) return refund();
         let answerLabel = '';
@@ -941,9 +1088,9 @@ export default function DungeonExplore({
   // === Potion use =======================================================
   // Triggered by hotkeys 1/2/3 or the on-screen quick-slot buttons. Only
   // active during the world phase while alive and not in a battle.
-  const usePotion = (slotIdx) => {
+  const quaffPotion = (slotIdx) => {
     if (phase !== 'world' || runState !== 'alive' || battle) return;
-    const itemId = ((playerState?.equipped?.potions) || [null, null, null])[slotIdx];
+    const itemId = (playerState?.equipped?.potions || [null, null, null])[slotIdx];
     const hk = String(slotIdx + 1);
     // Visible feedback when the player presses a hotkey for an empty
     // slot or a potion that's been used up. Without this the keypress
@@ -960,7 +1107,7 @@ export default function DungeonExplore({
     }
     const eff = POTION_EFFECTS[itemId];
     if (!eff) return;
-    let usedLabel = POTION_INFO[itemId]?.name || 'Potion';
+    const usedLabel = POTION_INFO[itemId]?.name || 'Potion';
     let acted = false;
     let actedNotice = null; // 17G: per-effect success notice (defaults to "Drained: …")
     switch (eff.kind) {
@@ -1003,7 +1150,7 @@ export default function DungeonExplore({
       case 'foresight': {
         // 17G: bank a charge — the next posed riddle previews its domain.
         foresightChargesRef.current += 1;
-        actedNotice = { tone: 'good', text: 'Eyes Beyond: the next riddle\'s nature shall be revealed.' };
+        actedNotice = { tone: 'good', text: "Eyes Beyond: the next riddle's nature shall be revealed." };
         acted = true;
         break;
       }
@@ -1047,7 +1194,8 @@ export default function DungeonExplore({
     // a sealed door just blocks the move with a contextual notice; the
     // player must press the Interact key (E) or click the on-screen
     // unlock button when adjacent. See unlockBossDoorHere() below.
-    const nx0 = pos.x + dx, ny0 = pos.y + dy;
+    const nx0 = pos.x + dx,
+      ny0 = pos.y + dy;
     if (ny0 >= 0 && ny0 < initial.map.length && nx0 >= 0 && nx0 < initial.map[0].length) {
       if (initial.map[ny0][nx0] === TILE.BOSS_DOOR) {
         setNotice({
@@ -1078,8 +1226,14 @@ export default function DungeonExplore({
   // consume the key. Bound to the E key + an on-screen button.
   const isBossDoorAdjacent = () => {
     const map = initial.map;
-    for (const [dx2, dy2] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-      const nx = pos.x + dx2, ny = pos.y + dy2;
+    for (const [dx2, dy2] of [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+    ]) {
+      const nx = pos.x + dx2,
+        ny = pos.y + dy2;
       if (map[ny]?.[nx] === TILE.BOSS_DOOR) return true;
     }
     return false;
@@ -1115,11 +1269,24 @@ export default function DungeonExplore({
   const bumpAtRef = useRef(0);
   const dirOfKey = (key) => {
     switch (key) {
-      case 'ArrowUp': case 'w': case 'W':    return 'up';
-      case 'ArrowDown': case 's': case 'S':  return 'down';
-      case 'ArrowLeft': case 'a': case 'A':  return 'left';
-      case 'ArrowRight': case 'd': case 'D': return 'right';
-      default: return null;
+      case 'ArrowUp':
+      case 'w':
+      case 'W':
+        return 'up';
+      case 'ArrowDown':
+      case 's':
+      case 'S':
+        return 'down';
+      case 'ArrowLeft':
+      case 'a':
+      case 'A':
+        return 'left';
+      case 'ArrowRight':
+      case 'd':
+      case 'D':
+        return 'right';
+      default:
+        return null;
     }
   };
 
@@ -1130,9 +1297,7 @@ export default function DungeonExplore({
     decorationsRef.current.some((d) => d.x === pos.x && d.y === pos.y && LOOTABLE_DECOS[d.kind]);
   const harvestHere = () => {
     if (phase !== 'world' || battle || runState !== 'alive') return;
-    const decoIdx = decorationsRef.current.findIndex(
-      (d) => d.x === pos.x && d.y === pos.y && LOOTABLE_DECOS[d.kind],
-    );
+    const decoIdx = decorationsRef.current.findIndex((d) => d.x === pos.x && d.y === pos.y && LOOTABLE_DECOS[d.kind]);
     if (decoIdx < 0) return;
     const deco = decorationsRef.current[decoIdx];
     const cfg = LOOTABLE_DECOS[deco.kind];
@@ -1144,8 +1309,7 @@ export default function DungeonExplore({
     if (Math.random() < (cfg.itemChance || 0) && cfg.itemPool.length > 0 && giveItem) {
       const itemId = cfg.itemPool[Math.floor(Math.random() * cfg.itemPool.length)];
       // Phase 18: Glade Fox can double the harvest.
-      const doubled = (equipBonuses.plantDoublePct || 0) > 0
-        && Math.random() * 100 < equipBonuses.plantDoublePct;
+      const doubled = (equipBonuses.plantDoublePct || 0) > 0 && Math.random() * 100 < equipBonuses.plantDoublePct;
       const count = doubled ? 2 : 1;
       giveItem(itemId, count);
       const info = POTION_INFO[itemId];
@@ -1172,14 +1336,20 @@ export default function DungeonExplore({
     }
   };
 
-  // Latest usePotion / tryMove / interact via refs so the keydown handler
+  // Latest quaffPotion / tryMove / interact via refs so the keydown handler
   // can reach them without restarting on every render.
-  const usePotionRef = useRef(usePotion);
-  useLayoutEffect(() => { usePotionRef.current = usePotion; });
+  const quaffPotionRef = useRef(quaffPotion);
+  useLayoutEffect(() => {
+    quaffPotionRef.current = quaffPotion;
+  });
   const castSpellRef = useRef(castSpell);
-  useLayoutEffect(() => { castSpellRef.current = castSpell; });
+  useLayoutEffect(() => {
+    castSpellRef.current = castSpell;
+  });
   const interactRef = useRef(interactWithWorld);
-  useLayoutEffect(() => { interactRef.current = interactWithWorld; });
+  useLayoutEffect(() => {
+    interactRef.current = interactWithWorld;
+  });
 
   useEffect(() => {
     if (phase !== 'world') return undefined;
@@ -1200,7 +1370,10 @@ export default function DungeonExplore({
         if (e.key === 'Escape' && onExit) onExit();
         return;
       }
-      if (e.key === 'Escape') { if (onExit) onExit(); return; }
+      if (e.key === 'Escape') {
+        if (onExit) onExit();
+        return;
+      }
       // 25b: E interacts with the world — unlocks the Boss Door when
       // adjacent (with key in hand) or harvests a plant when standing
       // on a lootable tile. Silent no-op otherwise.
@@ -1211,7 +1384,7 @@ export default function DungeonExplore({
       }
       // Potion hotkeys 1/2/3.
       if (e.key === '1' || e.key === '2' || e.key === '3') {
-        usePotionRef.current && usePotionRef.current(parseInt(e.key, 10) - 1);
+        quaffPotionRef.current && quaffPotionRef.current(parseInt(e.key, 10) - 1);
         e.preventDefault();
         return;
       }
@@ -1259,7 +1432,13 @@ export default function DungeonExplore({
       }
       usedQuestionIdsRef.current.add(first.id);
       bumpAtRef.current = performance.now();
-      setBattle({ type: 'boss', currentQuestion: first, correctCount: 0, maxHp: 5, previewDomain: takeForesightPreview(foresightChargesRef, first) }); // 17G
+      setBattle({
+        type: 'boss',
+        currentQuestion: first,
+        correctCount: 0,
+        maxHp: 5,
+        previewDomain: takeForesightPreview(foresightChargesRef, first),
+      }); // 17G
       return;
     }
     // Mob collision — basic = 1 HP (one correct = dead), elite = 3 HP.
@@ -1275,7 +1454,15 @@ export default function DungeonExplore({
       }
       usedQuestionIdsRef.current.add(first.id);
       bumpAtRef.current = performance.now();
-      setBattle({ type: 'mob', mobIdx, mobTier: mob.tier, currentQuestion: first, correctCount: 0, maxHp: mobHp, previewDomain: takeForesightPreview(foresightChargesRef, first) }); // 17G
+      setBattle({
+        type: 'mob',
+        mobIdx,
+        mobTier: mob.tier,
+        currentQuestion: first,
+        correctCount: 0,
+        maxHp: mobHp,
+        previewDomain: takeForesightPreview(foresightChargesRef, first),
+      }); // 17G
       return;
     }
     // Chest collision — pay out gold + maybe an item, mark as opened.
@@ -1319,15 +1506,18 @@ export default function DungeonExplore({
     // mob-vs-boss badges. Older entries (pre-25e) omit `source` and
     // gracefully render without a badge — see RunHistoryScreen.
     runQuestionLogRef.current.push(
-      buildQuestionLogEntry(q, correct, battle, initial.boss?.kind, runQuestionLogRef.current.length)
+      buildQuestionLogEntry(q, correct, battle, initial.boss?.kind, runQuestionLogRef.current.length),
     );
     if (recordAnswer) {
       // recordAnswer signature is (correct, item). Pass the full question
       // so the parent's mistakeVault dedup keys off q.id (matching Quiz/Lab
       // mode behavior); the prior single-arg call silently inflated
       // totalCorrect (object always truthy) and skipped vault dedup.
-      try { recordAnswer(!!correct, q); }
-      catch { /* journal write — best effort */ }
+      try {
+        recordAnswer(!!correct, q);
+      } catch {
+        /* journal write — best effort */
+      }
     }
     // Decrement xp buff after every question (correct or wrong) so it ticks
     // down naturally over the next 3 trials.
@@ -1367,9 +1557,12 @@ export default function DungeonExplore({
         playSfx('cast');
       } else {
         // Damage scales with whoever just hit you back.
-        const dmg = battle?.type === 'boss'
-          ? DMG_BY_TIER.boss
-          : (battle?.mobTier === 'elite' ? DMG_BY_TIER.elite : DMG_BY_TIER.basic);
+        const dmg =
+          battle?.type === 'boss'
+            ? DMG_BY_TIER.boss
+            : battle?.mobTier === 'elite'
+              ? DMG_BY_TIER.elite
+              : DMG_BY_TIER.basic;
         setHp((h) => h - dmg);
         playSfx('hurt');
       }
@@ -1403,7 +1596,12 @@ export default function DungeonExplore({
       // Foe still standing — pull a fresh question and continue.
       const next = pickOneQuestion(courseSet, usedQuestionIdsRef.current);
       if (next) usedQuestionIdsRef.current.add(next.id);
-      setBattle({ ...battle, currentQuestion: next || battle.currentQuestion, correctCount: nextCorrect, previewDomain: takeForesightPreview(foresightChargesRef, next) }); // 17G
+      setBattle({
+        ...battle,
+        currentQuestion: next || battle.currentQuestion,
+        correctCount: nextCorrect,
+        previewDomain: takeForesightPreview(foresightChargesRef, next),
+      }); // 17G
       return;
     }
 
@@ -1417,7 +1615,12 @@ export default function DungeonExplore({
       }
       const next = pickOneQuestion(courseSet, usedQuestionIdsRef.current);
       if (next) usedQuestionIdsRef.current.add(next.id);
-      setBattle({ ...battle, currentQuestion: next || battle.currentQuestion, correctCount: nextCorrect, previewDomain: takeForesightPreview(foresightChargesRef, next) }); // 17G
+      setBattle({
+        ...battle,
+        currentQuestion: next || battle.currentQuestion,
+        correctCount: nextCorrect,
+        previewDomain: takeForesightPreview(foresightChargesRef, next),
+      }); // 17G
     }
   };
 
@@ -1482,7 +1685,10 @@ export default function DungeonExplore({
       }
       if (diffConfig.rewardTitleId && unlockSpecialTitle) unlockSpecialTitle(diffConfig.rewardTitleId);
       if (updateTomeProgress) {
-        updateTomeProgress((prev) => ({ runsCompleted: (prev.runsCompleted || 0) + 1, bossesDefeated: (prev.bossesDefeated || 0) + 1 })); // 17D functional form
+        updateTomeProgress((prev) => ({
+          runsCompleted: (prev.runsCompleted || 0) + 1,
+          bossesDefeated: (prev.bossesDefeated || 0) + 1,
+        })); // 17D functional form
       }
       if (updateProgress && playerState) {
         updateProgress({ longestStreak: Math.max(playerState.longestStreak || 0, maxStreak) });
@@ -1564,7 +1770,9 @@ export default function DungeonExplore({
   useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return undefined;
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const apply = () => { reducedMotionRef.current = mq.matches; };
+    const apply = () => {
+      reducedMotionRef.current = mq.matches;
+    };
     apply();
     mq.addEventListener?.('change', apply);
     return () => mq.removeEventListener?.('change', apply);
@@ -1584,7 +1792,10 @@ export default function DungeonExplore({
       // S5: honor prefers-reduced-motion — cap the loop to ~15fps and freeze
       // ambient sprite cycling. Gameplay stays correct (it is time-based on now).
       const reduce = reducedMotionRef.current;
-      if (reduce && now - lastFrame < REDUCED_FRAME_MS) { raf = requestAnimationFrame(tick); return; }
+      if (reduce && now - lastFrame < REDUCED_FRAME_MS) {
+        raf = requestAnimationFrame(tick);
+        return;
+      }
       lastFrame = now;
       const s = stateRef.current;
       const target = s.pos;
@@ -1618,7 +1829,7 @@ export default function DungeonExplore({
       }
 
       const moving = t < 1;
-      const walkFrame = (moving && !reduce) ? Math.floor(now / WALK_FRAME_MS) % 4 : 0;
+      const walkFrame = moving && !reduce ? Math.floor(now / WALK_FRAME_MS) % 4 : 0;
 
       // Mob AI — but pause while a battle is open or run is over. Each mob
       // ticks at its own cadence based on `nextMoveAt`. Behavior depends on
@@ -1636,8 +1847,8 @@ export default function DungeonExplore({
           const tryStep = (dx, dy) => {
             const nx = m.x + dx;
             const ny = m.y + dy;
-            const inBounds = nx >= m.bounds.x && nx < m.bounds.x + m.bounds.w &&
-                             ny >= m.bounds.y && ny < m.bounds.y + m.bounds.h;
+            const inBounds =
+              nx >= m.bounds.x && nx < m.bounds.x + m.bounds.w && ny >= m.bounds.y && ny < m.bounds.y + m.bounds.h;
             if (!inBounds) return false;
             if (s.initial.map[ny]?.[nx] !== TILE.FLOOR) return false;
             if (nx === s.pos.x && ny === s.pos.y) return false;
@@ -1677,7 +1888,12 @@ export default function DungeonExplore({
           }
 
           // Default wander (basic non-patrol mobs without aggression nearby).
-          const dirs = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+          const dirs = [
+            [0, -1],
+            [0, 1],
+            [-1, 0],
+            [1, 0],
+          ];
           const [dx, dy] = dirs[Math.floor(Math.random() * dirs.length)];
           tryStep(dx, dy);
           m.nextMoveAt = now + MOB_MOVE_MIN_MS + Math.random() * (MOB_MOVE_MAX_MS - MOB_MOVE_MIN_MS);
@@ -1691,9 +1907,9 @@ export default function DungeonExplore({
       ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
       const startCol = Math.max(0, Math.floor(cameraX / TILE_PX) - 1);
-      const endCol   = Math.min(s.initial.width,  startCol + VIEW_W + 3);
+      const endCol = Math.min(s.initial.width, startCol + VIEW_W + 3);
       const startRow = Math.max(0, Math.floor(cameraY / TILE_PX) - 1);
-      const endRow   = Math.min(s.initial.height, startRow + VIEW_H + 3);
+      const endRow = Math.min(s.initial.height, startRow + VIEW_H + 3);
 
       for (let y = startRow; y < endRow; y++) {
         for (let x = startCol; x < endCol; x++) {
@@ -1759,10 +1975,11 @@ export default function DungeonExplore({
       if (s.activePet) {
         const drawer = PET_DRAWERS[s.activePet.def.spriteKey];
         if (drawer) {
-          let petTileDx = 0, petTileDy = 0;
-          if (s.facing === 'up')    petTileDy = 1;
-          if (s.facing === 'down')  petTileDy = -1;
-          if (s.facing === 'left')  petTileDx = 1;
+          let petTileDx = 0,
+            petTileDy = 0;
+          if (s.facing === 'up') petTileDy = 1;
+          if (s.facing === 'down') petTileDy = -1;
+          if (s.facing === 'left') petTileDx = 1;
           if (s.facing === 'right') petTileDx = -1;
           // If trailing tile is a wall, drift sideways instead so the pet
           // never sits inside scenery.
@@ -1785,8 +2002,12 @@ export default function DungeonExplore({
       drawPlayer(ctx, ppx, ppy, s.facing, walkFrame, s.equipped, swingT);
 
       const grad = ctx.createRadialGradient(
-        CANVAS_W / 2, CANVAS_H / 2, CANVAS_H * 0.4,
-        CANVAS_W / 2, CANVAS_H / 2, CANVAS_W * 0.7,
+        CANVAS_W / 2,
+        CANVAS_H / 2,
+        CANVAS_H * 0.4,
+        CANVAS_W / 2,
+        CANVAS_H / 2,
+        CANVAS_W * 0.7,
       );
       grad.addColorStop(0, 'rgba(0,0,0,0)');
       grad.addColorStop(1, 'rgba(0,0,0,0.4)');
@@ -1812,13 +2033,13 @@ export default function DungeonExplore({
         const hy = 14;
         ctx.fillStyle = i < s.hp ? '#ef4444' : '#3a1414';
         ctx.beginPath();
-        ctx.arc(hx + 5,  hy + 5, 5, 0, Math.PI * 2);
+        ctx.arc(hx + 5, hy + 5, 5, 0, Math.PI * 2);
         ctx.arc(hx + 11, hy + 5, 5, 0, Math.PI * 2);
         ctx.fill();
         ctx.beginPath();
-        ctx.moveTo(hx,      hy + 6);
+        ctx.moveTo(hx, hy + 6);
         ctx.lineTo(hx + 16, hy + 6);
-        ctx.lineTo(hx + 8,  hy + 16);
+        ctx.lineTo(hx + 8, hy + 16);
         ctx.closePath();
         ctx.fill();
         // Highlight on full heart for crispness
@@ -1848,14 +2069,14 @@ export default function DungeonExplore({
         ctx.fillRect(shX, 8, hudShW, 28);
         for (let i = 0; i < shieldCount; i++) {
           const sx = shX + 9 + i * 18; // was shX + 6 → now centered (9 = 6 box pad + 3 slot pad)
-          const sy = 15;               // was 12 → centers vertically against the 28-tall box
+          const sy = 15; // was 12 → centers vertically against the 28-tall box
           ctx.fillStyle = i < s.shields ? '#3b82f6' : '#1e3a5f';
           ctx.beginPath();
-          ctx.moveTo(sx,      sy);
+          ctx.moveTo(sx, sy);
           ctx.lineTo(sx + 12, sy);
           ctx.lineTo(sx + 12, sy + 8);
-          ctx.lineTo(sx + 6,  sy + 14);
-          ctx.lineTo(sx,      sy + 8);
+          ctx.lineTo(sx + 6, sy + 14);
+          ctx.lineTo(sx, sy + 8);
           ctx.closePath();
           ctx.fill();
           if (i < s.shields) {
@@ -1895,7 +2116,7 @@ export default function DungeonExplore({
       // Score + difficulty (bottom-right). 25a-6c: removed the boss-key
       // prefix here — the key now has its own slot in the top-right HUD.
       ctx.font = "12px 'Cinzel', Georgia, serif";
-      const scoreText = `Foes: ${s.score} · ${(DIFFICULTY_LABELS[difficulty]?.label || difficulty)}`;
+      const scoreText = `Foes: ${s.score} · ${DIFFICULTY_LABELS[difficulty]?.label || difficulty}`;
       ctx.fillStyle = 'rgba(0,0,0,0.55)';
       ctx.fillRect(CANVAS_W - 220, CANVAS_H - 28, 212, 22);
       ctx.fillStyle = '#fde047';
@@ -1921,10 +2142,8 @@ export default function DungeonExplore({
     const equippedSpells = playerState?.equippedSpells || [null, null, null];
     const inventory = playerState?.inventory || {};
     const itemsList = itemCatalog || [];
-    const ownedInSlot = (slotId) =>
-      itemsList.filter((it) => it.slot === slotId && (inventory[it.id] || 0) > 0);
-    const ownedApothecary =
-      itemsList.filter((it) => it.category === 'apothecary' && (inventory[it.id] || 0) > 0);
+    const ownedInSlot = (slotId) => itemsList.filter((it) => it.slot === slotId && (inventory[it.id] || 0) > 0);
+    const ownedApothecary = itemsList.filter((it) => it.category === 'apothecary' && (inventory[it.id] || 0) > 0);
     const hatchedPets = Object.keys(playerState?.pets || {})
       .map((id) => (petCatalog || []).find((p) => p.id === id))
       .filter(Boolean);
@@ -1943,15 +2162,21 @@ export default function DungeonExplore({
           </div>
         </div>
 
-        <div className="rounded-sm p-5 relative" style={{
-          background: `linear-gradient(135deg, rgba(20,10,4,0.9) 0%, rgba(var(--surface-deep, 10, 6, 4),0.97) 100%)`,
-          border: `3px double ${biome.accent}`,
-          boxShadow: `0 0 30px ${biome.accent}, inset 0 0 30px rgba(0,0,0,0.6)`,
-          fontFamily: '"Cinzel", Georgia, serif',
-        }}>
+        <div
+          className="rounded-sm p-5 relative"
+          style={{
+            background: `linear-gradient(135deg, rgba(20,10,4,0.9) 0%, rgba(var(--surface-deep, 10, 6, 4),0.97) 100%)`,
+            border: `3px double ${biome.accent}`,
+            boxShadow: `0 0 30px ${biome.accent}, inset 0 0 30px rgba(0,0,0,0.6)`,
+            fontFamily: '"Cinzel", Georgia, serif',
+          }}
+        >
           <div className="text-center mb-4">
             <div className="text-3xl mb-1">{biome.icon}</div>
-            <h2 className="text-2xl font-bold italic" style={{ color: biome.accentSolid, textShadow: `0 0 12px ${biome.accent}` }}>
+            <h2
+              className="text-2xl font-bold italic"
+              style={{ color: biome.accentSolid, textShadow: `0 0 12px ${biome.accent}` }}
+            >
               {biome.name}
             </h2>
             <div className="text-xs italic text-amber-700/80 mt-1 max-w-md mx-auto">{biome.flavor}</div>
@@ -1965,9 +2190,9 @@ export default function DungeonExplore({
               const unlocked = isUnlocked(id);
               const selected = difficulty === id;
               const unlockHint = (() => {
-                if (id === 'adept')  return 'Unlock at level 10 — or complete 5 dungeon delves.';
+                if (id === 'adept') return 'Unlock at level 10 — or complete 5 dungeon delves.';
                 if (id === 'master') return "Unlock at level 25 — or earn 'Flawless' + 'First Boss' achievements.";
-                if (id === 'mythic') return "Unlock at level 50 — or complete the Master tier.";
+                if (id === 'mythic') return 'Unlock at level 50 — or complete the Master tier.';
                 return 'Locked';
               })();
               return (
@@ -1979,11 +2204,15 @@ export default function DungeonExplore({
                   style={{
                     background: selected ? 'rgba(var(--surface-amber-strong, 120, 53, 15),0.7)' : 'rgba(31,24,12,0.5)',
                     border: `1px solid ${selected ? 'rgba(245,158,11,0.8)' : 'rgba(var(--surface-amber-strong, 120, 53, 15),0.4)'}`,
-                    color: selected ? '#fde047' : (unlocked ? '#a8a29e' : '#52443a'),
+                    color: selected ? '#fde047' : unlocked ? '#a8a29e' : '#52443a',
                     opacity: unlocked ? 1 : 0.5,
                     cursor: unlocked ? 'pointer' : 'not-allowed',
                   }}
-                  title={unlocked ? `${ROOMS_BY_DIFFICULTY[id]} chambers · ${DIFF_CONFIG[id].hp} HP · ${DIFF_CONFIG[id].shields} 🛡️` : unlockHint}
+                  title={
+                    unlocked
+                      ? `${ROOMS_BY_DIFFICULTY[id]} chambers · ${DIFF_CONFIG[id].hp} HP · ${DIFF_CONFIG[id].shields} 🛡️`
+                      : unlockHint
+                  }
                 >
                   {info.icon} {info.label}
                 </button>
@@ -1993,35 +2222,56 @@ export default function DungeonExplore({
 
           {/* Stats grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-center mb-4">
-            <div className="p-2 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(239,68,68,0.4)' }}>
+            <div
+              className="p-2 rounded-sm"
+              style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(239,68,68,0.4)' }}
+            >
               <div className="text-[10px] uppercase italic text-amber-700">Lives</div>
               <div className="text-xl text-red-400 italic">❤ {effectiveMaxHp}</div>
             </div>
-            <div className="p-2 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(59,130,246,0.4)' }}>
+            <div
+              className="p-2 rounded-sm"
+              style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(59,130,246,0.4)' }}
+            >
               <div className="text-[10px] uppercase italic text-amber-700">Shields</div>
               <div className="text-xl text-blue-400 italic">🛡 {effectiveMaxShield}</div>
             </div>
-            <div className="p-2 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(245,158,11,0.4)' }}>
+            <div
+              className="p-2 rounded-sm"
+              style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(245,158,11,0.4)' }}
+            >
               <div className="text-[10px] uppercase italic text-amber-700">XP Mul</div>
               <div className="text-xl text-amber-300 italic">×{(diffConfig.xpMul * equipBonuses.xpMul).toFixed(2)}</div>
             </div>
-            <div className="p-2 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(245,158,11,0.4)' }}>
+            <div
+              className="p-2 rounded-sm"
+              style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(245,158,11,0.4)' }}
+            >
               <div className="text-[10px] uppercase italic text-amber-700">Gold Mul</div>
-              <div className="text-xl text-yellow-300 italic">×{(diffConfig.goldMul * equipBonuses.goldMul).toFixed(2)}</div>
+              <div className="text-xl text-yellow-300 italic">
+                ×{(diffConfig.goldMul * equipBonuses.goldMul).toFixed(2)}
+              </div>
             </div>
           </div>
 
           {/* Boss preview */}
           {bossDisp && (
-            <div className="p-3 rounded-sm mb-4 flex items-center gap-3" style={{
-              background: 'rgba(0,0,0,0.4)',
-              border: `1px solid ${biome.accent}`,
-            }}>
+            <div
+              className="p-3 rounded-sm mb-4 flex items-center gap-3"
+              style={{
+                background: 'rgba(0,0,0,0.4)',
+                border: `1px solid ${biome.accent}`,
+              }}
+            >
               <div className="text-4xl">{bossDisp.icon}</div>
               <div className="flex-1">
                 <div className="text-[10px] uppercase italic text-amber-700">Final foe</div>
-                <div className="text-lg italic" style={{ color: biome.accentSolid }}>{bossDisp.name}</div>
-                <div className="text-[11px] italic text-amber-100/70">5-question gauntlet · no flight from a dungeon lord</div>
+                <div className="text-lg italic" style={{ color: biome.accentSolid }}>
+                  {bossDisp.name}
+                </div>
+                <div className="text-[11px] italic text-amber-100/70">
+                  5-question gauntlet · no flight from a dungeon lord
+                </div>
               </div>
             </div>
           )}
@@ -2043,8 +2293,8 @@ export default function DungeonExplore({
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs italic">
               {[
                 { slotId: 'weapon', label: 'Weapon', icon: '⚔️' },
-                { slotId: 'head',   label: 'Head',   icon: '👑' },
-                { slotId: 'cloak',  label: 'Cloak',  icon: '🌌' },
+                { slotId: 'head', label: 'Head', icon: '👑' },
+                { slotId: 'cloak', label: 'Cloak', icon: '🌌' },
               ].map(({ slotId, label, icon }) => {
                 const owned = ownedInSlot(slotId);
                 const cur = equipped[slotId] || null;
@@ -2074,7 +2324,9 @@ export default function DungeonExplore({
                 currentId={equipped.pet || null}
                 items={hatchedPets.map((p) => ({ id: p.id, label: p.name, icon: p.icon }))}
                 emptyLabel="— Dismiss —"
-                summary={activePet ? `L${activePet.level} · ${summarizePetPassive(activePet.def, activePet.level)}` : ''}
+                summary={
+                  activePet ? `L${activePet.level} · ${summarizePetPassive(activePet.def, activePet.level)}` : ''
+                }
                 disabled={!equipPet || !unequipPet}
                 onChange={(v) => {
                   if (!equipPet || !unequipPet) return;
@@ -2096,7 +2348,7 @@ export default function DungeonExplore({
                 {[0, 1, 2].map((i) => {
                   const pid = equippedPotions[i];
                   const info = pid ? POTION_INFO[pid] : null;
-                  const count = pid ? (inventory[pid] || 0) : 0;
+                  const count = pid ? inventory[pid] || 0 : 0;
                   return (
                     <LoadoutSelect
                       key={`pot${i}`}
@@ -2185,7 +2437,10 @@ export default function DungeonExplore({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <button onClick={() => setPhase('setup')} className="flex items-center gap-2 text-amber-600 hover:text-amber-400 italic">
+        <button
+          onClick={() => setPhase('setup')}
+          className="flex items-center gap-2 text-amber-600 hover:text-amber-400 italic"
+        >
           <ArrowLeft className="w-4 h-4" /> Abandon (back to setup)
         </button>
         <div className="text-xs italic" style={{ color: biome.accentSolid }}>
@@ -2194,7 +2449,9 @@ export default function DungeonExplore({
       </div>
 
       {/* S3: live region — announces encounters/outcomes for screen readers. */}
-      <div className="sr-only" role="status" aria-live="assertive">{liveMsg}</div>
+      <div className="sr-only" role="status" aria-live="assertive">
+        {liveMsg}
+      </div>
       <div
         ref={containerRef}
         tabIndex={0}
@@ -2245,7 +2502,18 @@ export default function DungeonExplore({
         <EndRunOverlay
           runState={runState}
           biome={biome}
-          summary={endSummary || { score, hp, maxHp: effectiveMaxHp, mistakes, maxStreak, xpAwarded: 0, goldAwarded: 0, bossId: initial.boss?.kind }}
+          summary={
+            endSummary || {
+              score,
+              hp,
+              maxHp: effectiveMaxHp,
+              mistakes,
+              maxStreak,
+              xpAwarded: 0,
+              goldAwarded: 0,
+              bossId: initial.boss?.kind,
+            }
+          }
           onExit={() => onExit && onExit()}
           onNewDelve={newDelve}
         />
@@ -2253,21 +2521,21 @@ export default function DungeonExplore({
         {/* Potion HUD — three quick-slot buttons centered at the bottom of the
             canvas. Hotkeys 1/2/3 also fire these. Hidden during battle. */}
         {!battle && runState === 'alive' && (
-          <div className="absolute left-1/2 -translate-x-1/2 flex gap-2"
-               style={{ bottom: 8, pointerEvents: 'auto' }}>
+          <div className="absolute left-1/2 -translate-x-1/2 flex gap-2" style={{ bottom: 8, pointerEvents: 'auto' }}>
             {[0, 1, 2].map((i) => {
               const pid = (equipped.potions || [null, null, null])[i];
               const info = pid ? POTION_INFO[pid] : null;
-              const count = pid ? ((playerState?.inventory || {})[pid] || 0) : 0;
+              const count = pid ? (playerState?.inventory || {})[pid] || 0 : 0;
               const usable = !!info && count > 0;
               return (
                 <button
                   key={i}
-                  onClick={() => usePotion(i)}
+                  onClick={() => quaffPotion(i)}
                   disabled={!usable}
                   className="rounded-sm text-center"
                   style={{
-                    width: 60, height: 44,
+                    width: 60,
+                    height: 44,
                     background: usable ? 'rgba(0,0,0,0.65)' : 'rgba(0,0,0,0.4)',
                     border: `1px solid ${usable ? '#10b981' : 'rgba(var(--surface-amber-strong, 120, 53, 15),0.4)'}`,
                     color: usable ? '#fde047' : '#52443a',
@@ -2290,26 +2558,34 @@ export default function DungeonExplore({
             orbs to the left. Hotkeys Z/X/C. Visible during battle too so
             auto_correct / reveal_answer can be cast at the question. */}
         {runState === 'alive' && (playerState?.equippedSpells || []).some(Boolean) && (
-          <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2"
-               style={{ bottom: 60, pointerEvents: 'auto' }}>
-            <div className="flex items-center gap-1 px-2 py-1 rounded-sm"
-                 style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(96, 165, 250, 0.45)' }}
-                 title={`Mana: ${mana}/${maxMana}`}>
+          <div
+            className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2"
+            style={{ bottom: 60, pointerEvents: 'auto' }}
+          >
+            <div
+              className="flex items-center gap-1 px-2 py-1 rounded-sm"
+              style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(96, 165, 250, 0.45)' }}
+              title={`Mana: ${mana}/${maxMana}`}
+            >
               {Array.from({ length: maxMana }).map((_, i) => (
-                <div key={i} style={{
-                  width: 10, height: 10, borderRadius: '50%',
-                  background: i < mana
-                    ? 'radial-gradient(circle at 30% 30%, #93c5fd, #3b82f6 70%)'
-                    : 'rgba(30, 41, 59, 0.7)',
-                  boxShadow: i < mana ? '0 0 4px rgba(96, 165, 250, 0.7)' : 'none',
-                  border: '1px solid rgba(96, 165, 250, 0.3)',
-                }} />
+                <div
+                  key={i}
+                  style={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: '50%',
+                    background:
+                      i < mana ? 'radial-gradient(circle at 30% 30%, #93c5fd, #3b82f6 70%)' : 'rgba(30, 41, 59, 0.7)',
+                    boxShadow: i < mana ? '0 0 4px rgba(96, 165, 250, 0.7)' : 'none',
+                    border: '1px solid rgba(96, 165, 250, 0.3)',
+                  }}
+                />
               ))}
             </div>
             <div className="flex gap-2">
               {[0, 1, 2].map((i) => {
                 const sid = (playerState?.equippedSpells || [null, null, null])[i];
-                const info = sid ? (spellCatalog?.find?.(s => s.id === sid) || SPELL_INFO[sid]) : null;
+                const info = sid ? spellCatalog?.find?.((s) => s.id === sid) || SPELL_INFO[sid] : null;
                 const cost = info?.cost || 0;
                 const canCast = !!info && mana >= cost;
                 const hk = ['Z', 'X', 'C'][i];
@@ -2320,7 +2596,8 @@ export default function DungeonExplore({
                     disabled={!info}
                     className="rounded-sm text-center"
                     style={{
-                      width: 60, height: 44,
+                      width: 60,
+                      height: 44,
                       background: info && canCast ? 'rgba(0,0,0,0.65)' : 'rgba(0,0,0,0.4)',
                       border: `1px solid ${info && canCast ? '#60a5fa' : 'rgba(96, 165, 250, 0.25)'}`,
                       color: info ? (canCast ? '#bae6fd' : '#64748b') : '#52443a',
@@ -2329,7 +2606,9 @@ export default function DungeonExplore({
                     }}
                     title={info ? `[${hk}] ${info.name} · ${cost} mana` : `Empty spell-slot ${hk}`}
                   >
-                    <div className="text-[10px] italic">[{hk}] {info ? `${cost}m` : ''}</div>
+                    <div className="text-[10px] italic">
+                      [{hk}] {info ? `${cost}m` : ''}
+                    </div>
                     <div className="text-base leading-none">{info ? info.icon : '—'}</div>
                   </button>
                 );
@@ -2340,15 +2619,17 @@ export default function DungeonExplore({
 
         {/* Reveal hint — shown briefly above the battle modal after Sigil of Clarity. */}
         {revealedAnswer && battle && (
-          <div className="absolute left-1/2 -translate-x-1/2 px-3 py-2 rounded-sm text-xs italic"
-               style={{
-                 top: 110,
-                 background: 'rgba(0,0,0,0.85)',
-                 border: '1px solid #f472b6',
-                 color: '#fbcfe8',
-                 pointerEvents: 'none',
-                 maxWidth: '80%',
-               }}>
+          <div
+            className="absolute left-1/2 -translate-x-1/2 px-3 py-2 rounded-sm text-xs italic"
+            style={{
+              top: 110,
+              background: 'rgba(0,0,0,0.85)',
+              border: '1px solid #f472b6',
+              color: '#fbcfe8',
+              pointerEvents: 'none',
+              maxWidth: '80%',
+            }}
+          >
             👁️ The truth: {revealedAnswer}
           </div>
         )}
@@ -2356,16 +2637,16 @@ export default function DungeonExplore({
         {/* 25b: harvest prompt. Renders only when standing on a lootable
             plant with no door taking priority. Pure indicator — the
             actual harvest fires through interactWithWorld(). */}
-        {!battle && runState === 'alive' && phase === 'world'
-          && !isBossDoorAdjacent() && isOnHarvestablePlant() && (
-          <div className="absolute left-1/2 -translate-x-1/2"
-               style={{ bottom: 110, pointerEvents: 'none' }}>
-            <div className="px-3 py-2 rounded-sm text-xs italic"
-                 style={{
-                   background: 'rgba(0,0,0,0.7)',
-                   border: '1px solid rgba(34, 197, 94, 0.6)',
-                   color: '#a7f3d0',
-                 }}>
+        {!battle && runState === 'alive' && phase === 'world' && !isBossDoorAdjacent() && isOnHarvestablePlant() && (
+          <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: 110, pointerEvents: 'none' }}>
+            <div
+              className="px-3 py-2 rounded-sm text-xs italic"
+              style={{
+                background: 'rgba(0,0,0,0.7)',
+                border: '1px solid rgba(34, 197, 94, 0.6)',
+                color: '#a7f3d0',
+              }}
+            >
               🌿 Press E to harvest
             </div>
           </div>
@@ -2376,10 +2657,10 @@ export default function DungeonExplore({
             With the key, shows a clickable Unlock button (E hotkey).
             Without, shows the locked-state hint. */}
         {!battle && runState === 'alive' && phase === 'world' && isBossDoorAdjacent() && (
-          <div className="absolute left-1/2 -translate-x-1/2"
-               style={{ bottom: 110, pointerEvents: 'auto' }}>
+          <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: 110, pointerEvents: 'auto' }}>
             {bossKeyFound ? (
-              <button onClick={unlockBossDoorHere}
+              <button
+                onClick={unlockBossDoorHere}
                 className="px-4 py-2 rounded-sm text-sm italic font-bold"
                 style={{
                   background: 'linear-gradient(to bottom, #fde047 0%, #b45309 100%)',
@@ -2387,17 +2668,20 @@ export default function DungeonExplore({
                   color: '#1a0e08',
                   boxShadow: '0 0 12px rgba(245, 158, 11, 0.55)',
                   cursor: 'pointer',
-                }}>
+                }}
+              >
                 ⚷ [E] Unlock Chamber
               </button>
             ) : (
-              <div className="px-3 py-2 rounded-sm text-xs italic"
-                   style={{
-                     background: 'rgba(0,0,0,0.7)',
-                     border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15), 0.6)',
-                     color: '#a8a29e',
-                     pointerEvents: 'none',
-                   }}>
+              <div
+                className="px-3 py-2 rounded-sm text-xs italic"
+                style={{
+                  background: 'rgba(0,0,0,0.7)',
+                  border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15), 0.6)',
+                  color: '#a8a29e',
+                  pointerEvents: 'none',
+                }}
+              >
                 🔒 Locked. Find a Boss Key.
               </div>
             )}
@@ -2406,17 +2690,20 @@ export default function DungeonExplore({
 
         {/* Buff indicators top-center */}
         {(reviveAvailable || xpBuffRemaining > 0) && (
-          <div className="absolute left-1/2 -translate-x-1/2 flex gap-2"
-               style={{ top: 42, pointerEvents: 'none' }}>
+          <div className="absolute left-1/2 -translate-x-1/2 flex gap-2" style={{ top: 42, pointerEvents: 'none' }}>
             {reviveAvailable && (
-              <div className="px-2 py-1 rounded-sm text-[11px] italic"
-                   style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid #f97316', color: '#fdba74' }}>
+              <div
+                className="px-2 py-1 rounded-sm text-[11px] italic"
+                style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid #f97316', color: '#fdba74' }}
+              >
                 🔥 Phoenix Ember active
               </div>
             )}
             {xpBuffRemaining > 0 && (
-              <div className="px-2 py-1 rounded-sm text-[11px] italic"
-                   style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid #fbbf24', color: '#fde047' }}>
+              <div
+                className="px-2 py-1 rounded-sm text-[11px] italic"
+                style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid #fbbf24', color: '#fde047' }}
+              >
                 ☕ +25% XP · {xpBuffRemaining} left
               </div>
             )}
@@ -2425,15 +2712,16 @@ export default function DungeonExplore({
 
         {/* Transient notice banner */}
         {notice && (
-          <div className="absolute left-1/2 -translate-x-1/2 px-3 py-2 rounded-sm text-xs italic"
-               style={{
-                 top: 80,
-                 background: 'rgba(0,0,0,0.78)',
-                 border: `1px solid ${notice.tone === 'good' ? '#10b981' : '#a8a29e'}`,
-                 color: notice.tone === 'good' ? '#a7f3d0' : '#fde68a',
-                 pointerEvents: 'none',
-                 maxWidth: '80%',
-               }}
+          <div
+            className="absolute left-1/2 -translate-x-1/2 px-3 py-2 rounded-sm text-xs italic"
+            style={{
+              top: 80,
+              background: 'rgba(0,0,0,0.78)',
+              border: `1px solid ${notice.tone === 'good' ? '#10b981' : '#a8a29e'}`,
+              color: notice.tone === 'good' ? '#a7f3d0' : '#fde68a',
+              pointerEvents: 'none',
+              maxWidth: '80%',
+            }}
           >
             {notice.text}
           </div>
@@ -2476,18 +2764,63 @@ export default function DungeonExplore({
       <div className="flex justify-center select-none">
         <div className="grid grid-cols-3 gap-1" style={{ width: 180 }}>
           <div />
-          <button onClick={() => tryMove(0, -1, 'up')} className="rounded-sm text-amber-300"
-            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15),0.5)', height: 44 }}>▲</button>
+          <button
+            onClick={() => tryMove(0, -1, 'up')}
+            className="rounded-sm text-amber-300"
+            style={{
+              background: 'rgba(31,24,12,0.7)',
+              border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15),0.5)',
+              height: 44,
+            }}
+          >
+            ▲
+          </button>
           <div />
-          <button onClick={() => tryMove(-1, 0, 'left')} className="rounded-sm text-amber-300"
-            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15),0.5)', height: 44 }}>◀</button>
-          <button onClick={() => onExit && onExit()} className="rounded-sm text-amber-700 text-xs italic"
-            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15),0.5)', height: 44 }}>Esc</button>
-          <button onClick={() => tryMove(1, 0, 'right')} className="rounded-sm text-amber-300"
-            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15),0.5)', height: 44 }}>▶</button>
+          <button
+            onClick={() => tryMove(-1, 0, 'left')}
+            className="rounded-sm text-amber-300"
+            style={{
+              background: 'rgba(31,24,12,0.7)',
+              border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15),0.5)',
+              height: 44,
+            }}
+          >
+            ◀
+          </button>
+          <button
+            onClick={() => onExit && onExit()}
+            className="rounded-sm text-amber-700 text-xs italic"
+            style={{
+              background: 'rgba(31,24,12,0.7)',
+              border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15),0.5)',
+              height: 44,
+            }}
+          >
+            Esc
+          </button>
+          <button
+            onClick={() => tryMove(1, 0, 'right')}
+            className="rounded-sm text-amber-300"
+            style={{
+              background: 'rgba(31,24,12,0.7)',
+              border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15),0.5)',
+              height: 44,
+            }}
+          >
+            ▶
+          </button>
           <div />
-          <button onClick={() => tryMove(0, 1, 'down')} className="rounded-sm text-amber-300"
-            style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15),0.5)', height: 44 }}>▼</button>
+          <button
+            onClick={() => tryMove(0, 1, 'down')}
+            className="rounded-sm text-amber-300"
+            style={{
+              background: 'rgba(31,24,12,0.7)',
+              border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15),0.5)',
+              height: 44,
+            }}
+          >
+            ▼
+          </button>
           <div />
         </div>
       </div>
@@ -2498,7 +2831,10 @@ export default function DungeonExplore({
           Walk into a foe to engage · Reach the dungeon lord to win the run · Esc to leave
         </div>
         {onViewHistory && (
-          <button onClick={onViewHistory} className="mt-2 text-amber-600 hover:text-amber-400 italic underline text-[11px]">
+          <button
+            onClick={onViewHistory}
+            className="mt-2 text-amber-600 hover:text-amber-400 italic underline text-[11px]"
+          >
             ⚜ View Chronicle of Delves ⚜
           </button>
         )}

@@ -130,8 +130,12 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
   // practiced from this screen, so don't surface it.
   const studyCandidateSet = useMemo(() => {
     const set = new Set();
-    quizDomainSet.forEach((d) => set.add(d));
-    flashcardDomainSet.forEach((d) => set.add(d));
+    quizDomainSet.forEach((d) => {
+      set.add(d);
+    });
+    flashcardDomainSet.forEach((d) => {
+      set.add(d);
+    });
     return set;
   }, [quizDomainSet, flashcardDomainSet]);
   const weakestDomain = useMemo(

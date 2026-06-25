@@ -14,7 +14,7 @@ export const WEAK_DOMAIN_ACCURACY_THRESHOLD = ACCURACY_THRESHOLD;
 
 export function pickWeakestDomain(stats, candidateDomains, weights) {
   if (!Array.isArray(stats) || stats.length === 0) return null;
-  const filterSet = (candidateDomains instanceof Set) ? candidateDomains : null;
+  const filterSet = candidateDomains instanceof Set ? candidateDomains : null;
   const candidates = stats.filter((s) => {
     if (!s || typeof s.domain !== 'string') return false;
     if (s.domain === 'Uncategorized') return false;

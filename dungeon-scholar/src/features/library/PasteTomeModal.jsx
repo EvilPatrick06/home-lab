@@ -14,7 +14,9 @@ function PasteTomeModal({ onClose, onSubmit }) {
       title="✦ Paste Tome Text ✦"
       TitleIcon={Copy}
       SubmitIcon={Scroll}
-      intro={'"Paste the tome\'s sacred text below. Code-block fences (```json) shall be stripped automatically. Only valid tome JSON shall be accepted."'}
+      intro={
+        '"Paste the tome\'s sacred text below. Code-block fences (```json) shall be stripped automatically. Only valid tome JSON shall be accepted."'
+      }
       placeholder={'{"metadata": {"title": "..."}, "flashcards": [...], ...}'}
       emptyError="Paste the tome text first"
       failError="Could not parse — make sure you pasted the entire JSON object"

@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { X } from 'lucide-react';
+import { useState } from 'react';
 import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 
 // Shared paste/submit dialog (S19) — extracted from the near-identical
@@ -76,7 +76,14 @@ function PasteSubmitModal({
 
   return (
     <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div ref={panelRef} role="dialog" aria-modal="true" aria-label={ariaLabel} className={`rounded-sm ${maxW} w-full max-h-[90vh] overflow-hidden flex flex-col relative`} style={{ background: a.bg, border: a.boxBorder, boxShadow: a.boxShadow }}>
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={ariaLabel}
+        className={`rounded-sm ${maxW} w-full max-h-[90vh] overflow-hidden flex flex-col relative`}
+        style={{ background: a.bg, border: a.boxBorder, boxShadow: a.boxShadow }}
+      >
         <div className={`absolute top-2 left-2 ${a.ornament} text-sm`}>⚜</div>
         <div className={`absolute top-2 right-2 ${a.ornament} text-sm`}>⚜</div>
         <div className={`absolute bottom-2 left-2 ${a.ornament} text-sm`}>⚜</div>
@@ -94,21 +101,47 @@ function PasteSubmitModal({
           <p className="text-sm text-amber-100/80 italic">{intro}</p>
           <textarea
             value={text}
-            onChange={(e) => { setText(e.target.value); setError(''); }}
+            onChange={(e) => {
+              setText(e.target.value);
+              setError('');
+            }}
             placeholder={placeholder}
             className={`flex-1 ${minH} p-3 rounded-sm border-2 focus:outline-hidden text-amber-50 font-mono text-xs`}
-            style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)', borderColor: a.taBorder, fontFamily: 'monospace', ...(monoBreakAll ? { wordBreak: 'break-all' } : {}) }}
+            style={{
+              background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)',
+              borderColor: a.taBorder,
+              fontFamily: 'monospace',
+              ...(monoBreakAll ? { wordBreak: 'break-all' } : {}),
+            }}
             autoFocus
           />
           {error && (
-            <div className="p-3 rounded-sm text-sm italic" style={{ background: 'rgba(127, 29, 29, 0.5)', border: '1px solid rgba(239, 68, 68, 0.7)', color: '#fecaca' }}>
+            <div
+              className="p-3 rounded-sm text-sm italic"
+              style={{
+                background: 'rgba(127, 29, 29, 0.5)',
+                border: '1px solid rgba(239, 68, 68, 0.7)',
+                color: '#fecaca',
+              }}
+            >
               ✗ {error}
             </div>
           )}
         </div>
         <div className={`p-4 border-t ${a.headerBorder} flex gap-2`}>
-          <button onClick={onClose} className="px-6 py-3 rounded-sm border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>Cancel</button>
-          <button onClick={handleSubmit} disabled={!text.trim()} className={`flex-1 py-3 font-bold rounded-sm flex items-center justify-center gap-2 ${a.btnText} border-2 ${a.btnBorder} italic disabled:opacity-50 disabled:cursor-not-allowed`} style={{ background: a.btnBg, boxShadow: a.btnShadow }}>
+          <button
+            onClick={onClose}
+            className="px-6 py-3 rounded-sm border-2 border-amber-700 text-amber-200 italic"
+            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={!text.trim()}
+            className={`flex-1 py-3 font-bold rounded-sm flex items-center justify-center gap-2 ${a.btnText} border-2 ${a.btnBorder} italic disabled:opacity-50 disabled:cursor-not-allowed`}
+            style={{ background: a.btnBg, boxShadow: a.btnShadow }}
+          >
             {SubmitIcon ? <SubmitIcon className="w-4 h-4" /> : null} {label}
           </button>
         </div>

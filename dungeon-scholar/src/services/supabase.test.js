@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const exchangeCodeForSession = vi.fn();
 
@@ -45,17 +45,29 @@ describe('consumeOAuthCallback', () => {
 
 describe('detectBaseMismatch (PHASE-18 18D / L13)', () => {
   it('github.io: matching first segment ⇒ null', () => {
-    expect(detectBaseMismatch({ hostname: 'user.github.io', pathname: '/dungeon-scholar/', baseUrl: '/dungeon-scholar/' })).toBeNull();
+    expect(
+      detectBaseMismatch({ hostname: 'user.github.io', pathname: '/dungeon-scholar/', baseUrl: '/dungeon-scholar/' }),
+    ).toBeNull();
   });
 
   it('github.io: mismatched first segment ⇒ message naming both', () => {
-    const msg = detectBaseMismatch({ hostname: 'user.github.io', pathname: '/home-lab/', baseUrl: '/dungeon-scholar/' });
+    const msg = detectBaseMismatch({
+      hostname: 'user.github.io',
+      pathname: '/home-lab/',
+      baseUrl: '/dungeon-scholar/',
+    });
     expect(msg).toContain('/home-lab/');
     expect(msg).toContain('/dungeon-scholar/');
   });
 
   it('github.io: deep path under the base ⇒ null', () => {
-    expect(detectBaseMismatch({ hostname: 'user.github.io', pathname: '/dungeon-scholar/some/route', baseUrl: '/dungeon-scholar/' })).toBeNull();
+    expect(
+      detectBaseMismatch({
+        hostname: 'user.github.io',
+        pathname: '/dungeon-scholar/some/route',
+        baseUrl: '/dungeon-scholar/',
+      }),
+    ).toBeNull();
   });
 
   it('non-github host: served path under the base ⇒ null', () => {

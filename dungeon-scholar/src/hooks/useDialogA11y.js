@@ -23,25 +23,37 @@ export function useDialogA11y({ onClose, active = true } = {}) {
     // Initial focus: first [data-autofocus], else first focusable, else the panel.
     const preferred = panel.querySelector('[data-autofocus]') || focusables()[0];
     if (preferred) preferred.focus();
-    else { panel.setAttribute('tabindex', '-1'); panel.focus(); }
+    else {
+      panel.setAttribute('tabindex', '-1');
+      panel.focus();
+    }
     // Capture phase so the trap wins over app-wide hotkey listeners and any
     // legacy useEscapeKey still mounted mid-conversion (Escape stopPropagation
     // also prevents a double-close).
     const onKeyDown = (e) => {
       if (e.key === 'Escape') {
-        if (typeof onClose === 'function') { e.stopPropagation(); e.preventDefault(); onClose(); }
+        if (typeof onClose === 'function') {
+          e.stopPropagation();
+          e.preventDefault();
+          onClose();
+        }
         return;
       }
       if (e.key !== 'Tab') return;
       const items = focusables();
-      if (items.length === 0) { e.preventDefault(); return; }
+      if (items.length === 0) {
+        e.preventDefault();
+        return;
+      }
       const first = items[0];
       const last = items[items.length - 1];
       const current = document.activeElement;
       if (e.shiftKey && (current === first || !panel.contains(current))) {
-        e.preventDefault(); last.focus();
+        e.preventDefault();
+        last.focus();
       } else if (!e.shiftKey && (current === last || !panel.contains(current))) {
-        e.preventDefault(); first.focus();
+        e.preventDefault();
+        first.focus();
       }
     };
     document.addEventListener('keydown', onKeyDown, true);

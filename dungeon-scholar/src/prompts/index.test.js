@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { ORG_PROMPTS } from './index.js';
 
 describe('ORG_PROMPTS', () => {
@@ -20,7 +20,7 @@ describe('ORG_PROMPTS', () => {
   });
 
   it('every id is unique', () => {
-    const ids = ORG_PROMPTS.map(p => p.id);
+    const ids = ORG_PROMPTS.map((p) => p.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
 
@@ -58,14 +58,14 @@ describe('ORG_PROMPTS', () => {
 
 describe('CompTIA prompt', () => {
   it('is registered in ORG_PROMPTS', () => {
-    const c = ORG_PROMPTS.find(p => p.id === 'comptia');
+    const c = ORG_PROMPTS.find((p) => p.id === 'comptia');
     expect(c).toBeDefined();
     expect(c.name).toBe('CompTIA');
     expect(c.commonExams).toContain('Security+ SY0-701');
   });
 
   it('CompTIA prompt mentions PBQ and BEST/MOST qualifiers', () => {
-    const c = ORG_PROMPTS.find(p => p.id === 'comptia');
+    const c = ORG_PROMPTS.find((p) => p.id === 'comptia');
     expect(c.prompt).toMatch(/PBQ|performance-based/i);
     expect(c.prompt).toMatch(/BEST|MOST|FIRST/);
   });
@@ -73,13 +73,13 @@ describe('CompTIA prompt', () => {
 
 describe('AWS prompt', () => {
   it('is registered with id="aws" and lists Security Specialty', () => {
-    const a = ORG_PROMPTS.find(p => p.id === 'aws');
+    const a = ORG_PROMPTS.find((p) => p.id === 'aws');
     expect(a).toBeDefined();
-    expect(a.commonExams.some(e => e.includes('SCS'))).toBe(true);
+    expect(a.commonExams.some((e) => e.includes('SCS'))).toBe(true);
   });
 
   it('mentions IAM, KMS, and Well-Architected', () => {
-    const a = ORG_PROMPTS.find(p => p.id === 'aws');
+    const a = ORG_PROMPTS.find((p) => p.id === 'aws');
     expect(a.prompt).toMatch(/IAM/);
     expect(a.prompt).toMatch(/KMS/);
     expect(a.prompt).toMatch(/Well-Architected/i);
@@ -88,13 +88,13 @@ describe('AWS prompt', () => {
 
 describe('Cisco prompt', () => {
   it('is registered with id="cisco" and lists CCNA', () => {
-    const c = ORG_PROMPTS.find(p => p.id === 'cisco');
+    const c = ORG_PROMPTS.find((p) => p.id === 'cisco');
     expect(c).toBeDefined();
-    expect(c.commonExams.some(e => e.includes('CCNA'))).toBe(true);
+    expect(c.commonExams.some((e) => e.includes('CCNA'))).toBe(true);
   });
 
   it('mentions IOS and CLI commands', () => {
-    const c = ORG_PROMPTS.find(p => p.id === 'cisco');
+    const c = ORG_PROMPTS.find((p) => p.id === 'cisco');
     expect(c.prompt).toMatch(/IOS/);
     expect(c.prompt).toMatch(/show |configure terminal|CLI/);
   });
@@ -102,13 +102,13 @@ describe('Cisco prompt', () => {
 
 describe('CMMC prompt', () => {
   it('is registered with id="cmmc" and references NIST 800-171', () => {
-    const c = ORG_PROMPTS.find(p => p.id === 'cmmc');
+    const c = ORG_PROMPTS.find((p) => p.id === 'cmmc');
     expect(c).toBeDefined();
     expect(c.prompt).toMatch(/800-171/);
   });
 
   it('mentions Levels 1-3 and control assessment', () => {
-    const c = ORG_PROMPTS.find(p => p.id === 'cmmc');
+    const c = ORG_PROMPTS.find((p) => p.id === 'cmmc');
     expect(c.prompt).toMatch(/Level [123]/);
     expect(c.prompt).toMatch(/practice|control/i);
   });
@@ -116,12 +116,12 @@ describe('CMMC prompt', () => {
 
 describe('EC-Council prompt', () => {
   it('is registered with id="eccouncil" and lists CEH', () => {
-    const e = ORG_PROMPTS.find(p => p.id === 'eccouncil');
+    const e = ORG_PROMPTS.find((p) => p.id === 'eccouncil');
     expect(e).toBeDefined();
-    expect(e.commonExams.some(x => x.includes('CEH'))).toBe(true);
+    expect(e.commonExams.some((x) => x.includes('CEH'))).toBe(true);
   });
   it('mentions kill chain and tools like nmap or Metasploit', () => {
-    const e = ORG_PROMPTS.find(p => p.id === 'eccouncil');
+    const e = ORG_PROMPTS.find((p) => p.id === 'eccouncil');
     expect(e.prompt).toMatch(/kill[- ]chain|cyber kill chain/i);
     expect(e.prompt).toMatch(/nmap|Metasploit/i);
   });
@@ -129,13 +129,13 @@ describe('EC-Council prompt', () => {
 
 describe('GIAC prompt', () => {
   it('is registered with id="giac" and lists GSEC + GCIH', () => {
-    const g = ORG_PROMPTS.find(p => p.id === 'giac');
+    const g = ORG_PROMPTS.find((p) => p.id === 'giac');
     expect(g).toBeDefined();
     expect(g.commonExams).toContain('GSEC');
     expect(g.commonExams).toContain('GCIH');
   });
   it('mentions open-book and tool output', () => {
-    const g = ORG_PROMPTS.find(p => p.id === 'giac');
+    const g = ORG_PROMPTS.find((p) => p.id === 'giac');
     expect(g.prompt).toMatch(/open[- ]book/i);
     expect(g.prompt).toMatch(/Wireshark|Volatility|Sysmon/);
   });
@@ -143,12 +143,12 @@ describe('GIAC prompt', () => {
 
 describe('Google prompt', () => {
   it('is registered with id="google" and lists Cloud Security Engineer', () => {
-    const g = ORG_PROMPTS.find(p => p.id === 'google');
+    const g = ORG_PROMPTS.find((p) => p.id === 'google');
     expect(g).toBeDefined();
-    expect(g.commonExams.some(e => e.includes('Cloud Security'))).toBe(true);
+    expect(g.commonExams.some((e) => e.includes('Cloud Security'))).toBe(true);
   });
   it('mentions GCP services like IAM, VPC SC, KMS', () => {
-    const g = ORG_PROMPTS.find(p => p.id === 'google');
+    const g = ORG_PROMPTS.find((p) => p.id === 'google');
     expect(g.prompt).toMatch(/VPC SC|VPC Service Controls/);
     expect(g.prompt).toMatch(/Cloud KMS|Cloud IAM/);
   });
@@ -156,13 +156,13 @@ describe('Google prompt', () => {
 
 describe('ISACA prompt', () => {
   it('is registered with id="isaca" and lists CISA + CISM', () => {
-    const i = ORG_PROMPTS.find(p => p.id === 'isaca');
+    const i = ORG_PROMPTS.find((p) => p.id === 'isaca');
     expect(i).toBeDefined();
     expect(i.commonExams).toContain('CISA');
     expect(i.commonExams).toContain('CISM');
   });
   it('mentions audit and risk', () => {
-    const i = ORG_PROMPTS.find(p => p.id === 'isaca');
+    const i = ORG_PROMPTS.find((p) => p.id === 'isaca');
     expect(i.prompt).toMatch(/audit/i);
     expect(i.prompt).toMatch(/risk/i);
   });
@@ -170,12 +170,12 @@ describe('ISACA prompt', () => {
 
 describe('(ISC)² prompt', () => {
   it('is registered with id="isc2" and lists CISSP', () => {
-    const i = ORG_PROMPTS.find(p => p.id === 'isc2');
+    const i = ORG_PROMPTS.find((p) => p.id === 'isc2');
     expect(i).toBeDefined();
     expect(i.commonExams).toContain('CISSP');
   });
   it('mentions manager mindset and 8 domains', () => {
-    const i = ORG_PROMPTS.find(p => p.id === 'isc2');
+    const i = ORG_PROMPTS.find((p) => p.id === 'isc2');
     expect(i.prompt).toMatch(/manager.{0,30}mindset|think like a manager/i);
     expect(i.prompt).toMatch(/8 domains|eight domains/i);
   });
@@ -183,13 +183,13 @@ describe('(ISC)² prompt', () => {
 
 describe('Microsoft prompt', () => {
   it('is registered with id="microsoft" and lists SC-200 + AZ-500', () => {
-    const m = ORG_PROMPTS.find(p => p.id === 'microsoft');
+    const m = ORG_PROMPTS.find((p) => p.id === 'microsoft');
     expect(m).toBeDefined();
     expect(m.commonExams).toContain('SC-200');
     expect(m.commonExams).toContain('AZ-500');
   });
   it('mentions KQL and Conditional Access', () => {
-    const m = ORG_PROMPTS.find(p => p.id === 'microsoft');
+    const m = ORG_PROMPTS.find((p) => p.id === 'microsoft');
     expect(m.prompt).toMatch(/KQL|Kusto/);
     expect(m.prompt).toMatch(/Conditional Access/);
   });
@@ -197,12 +197,12 @@ describe('Microsoft prompt', () => {
 
 describe('Generic prompt', () => {
   it('is registered with id="generic" and lists no specific exams', () => {
-    const g = ORG_PROMPTS.find(p => p.id === 'generic');
+    const g = ORG_PROMPTS.find((p) => p.id === 'generic');
     expect(g).toBeDefined();
     expect(g.commonExams).toEqual([]);
   });
   it('mentions inferring style from EXAM TARGET or materials', () => {
-    const g = ORG_PROMPTS.find(p => p.id === 'generic');
+    const g = ORG_PROMPTS.find((p) => p.id === 'generic');
     expect(g.prompt).toMatch(/infer/i);
   });
 });

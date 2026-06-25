@@ -31,118 +31,11 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## High
 
-### [2026-06-24] `auto/scholar-resolver` won't merge — divergent devotion/auth refactor vs `auto/scholar-phase-executer`
-
-- **Category:** integration / merge-conflict (branch left unmerged by integrator)
-- **Discovered by:** integrator (daily branch integration run)
-- **During:** merging `origin/auto/scholar-resolver` (head `fccc9d17`, 7 ahead / 2 behind) into `master` after `origin/auto/scholar-phase-executer` had already been merged this run.
-
-**Description:**
-`auto/scholar-resolver` does NOT merge cleanly into current `master`. 6 content conflicts, all in dungeon-scholar source that `auto/scholar-phase-executer` (already merged into master this run) also refactored:
-`src/services/supabase.js`, `src/hooks/useAuth.js`, `src/main.jsx`,
-`src/features/progression/CalendarScreen.jsx`, `src/features/quests/QuestBoard.jsx`,
-`src/services/devotion.test.js`.
-
-**Root cause (diagnosed):** the two branches refactored the same devotion/auth subsystem in divergent directions, so this is not a mechanical conflict:
-- `supabase.js` — **contradictory behavioral change**: master sets `autoRefreshToken: false` with a deliberate PHASE-02 rationale ("refresh driven explicitly in useAuth so a signed-out load never starts GoTrue's refresh retry loop"); `scholar-resolver` sets `autoRefreshToken: true`. Picking either side silently changes auth-refresh behavior.
-- `devotion.js` API diverged — master/`CalendarScreen.jsx` + `devotion.test.js` use the new `devotionStatus()` 4-state API; `scholar-resolver` uses the older `gap===1` logic and imports `evaluateClaim / dayDiff / computeNextClaim`. The two test/usage surfaces are incompatible.
-- `main.jsx` — master adds PWA `registerControlledReload` + `guardedReloadOnce`; the branch's `main.jsx` predates that machinery.
-- `useAuth.js` / `QuestBoard.jsx` — smaller (import-order; master also keeps `aria-label`/`title` on the Coins icon the branch dropped).
-
-The integrator did **not** auto-resolve: the `autoRefreshToken` choice and the devotion.js API direction are product/behavioral decisions this branch's owner must make — resolving blind risks shipping broken auth/streak logic even with green tests. Left intact per Rule 3A (genuine blocker / new decision).
-
-**Proposed fix / what's needed (owner: `scholar-resolver` / dungeon-scholar domain):**
-- [ ] Rebase `auto/scholar-resolver` onto current `origin/master` (now contains `scholar-phase-executer`'s devotion `devotionStatus()` API, PWA reload machinery, and the PHASE-02 `autoRefreshToken: false` fix).
-- [ ] Decide the intended `autoRefreshToken` behavior — keep master's `false` (PHASE-02) unless intentionally superseding it, and update the rationale comment if changed.
-- [ ] Reconcile `devotion.js` to a single API (`devotionStatus()` vs `evaluateClaim/dayDiff`) and align `devotion.test.js` + `CalendarScreen.jsx` to it.
-- [ ] Preserve master's `main.jsx` PWA reload wiring and `QuestBoard.jsx` icon a11y attrs.
-- [ ] Push; the next integrator run will merge it once it applies cleanly with green CI.
-
-**Related files:** `dungeon-scholar/src/services/supabase.js`, `dungeon-scholar/src/hooks/useAuth.js`, `dungeon-scholar/src/main.jsx`, `dungeon-scholar/src/features/progression/CalendarScreen.jsx`, `dungeon-scholar/src/features/quests/QuestBoard.jsx`, `dungeon-scholar/src/services/devotion.test.js`, `dungeon-scholar/src/services/devotion.js`
-
----
+*(none currently logged)*
 
 ## Medium
 
-### [2026-06-24] Rules-of-hooks violation in BattleModal (hooks after early returns)
-
-- **Category:** bug
-- **Severity:** medium
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-errors
-- **During:** automated error scan (biome lint correctness + manual confirmation)
-
-**Description:**
-`BattleModal` in `src/components/dungeon/DungeonExplore.jsx` calls hooks *after* two
-conditional early returns:
-
-```js
-function BattleModal({ ... }) {
-  if (!battle) return null;   // early return
-  if (!q) return null;        // early return
-  const [revealResult, setRevealResult] = useState(null);          // hook AFTER returns
-  ...
-  useEffect(() => { setRevealResult(null); }, [q?.id, battle.type]); // hook AFTER returns
-}
-```
-
-This violates the Rules of Hooks (hooks must run unconditionally, in the same order,
-every render). When `battle`/`q` toggle between null and non-null across renders the
-hook count changes, which React surfaces as "Rendered fewer hooks than expected" and
-can crash the component. It works today only because the modal is currently never
-mounted while `battle`/`q` are null, but the guard makes that fragility implicit.
-
-**Reproduction (if bug):**
-1. Render `BattleModal` once with a non-null `battle` and `q` (hooks run).
-2. Re-render with `battle` (or `q`) null so an early return fires before the hooks.
-3. React throws a hook-order error / the component crashes.
-
-**Expected behavior:** Hooks declared unconditionally at the top of the component;
-the null checks moved below the hook declarations (or the modal not rendered at all by
-the parent when `battle`/`q` are null).
-
-**Hypothesis / root cause:** `useState`/`useEffect` placed below `if (!battle) return null; if (!q) return null;` in `BattleModal`. Confirmed by biome `lint/correctness/useHookAtTopLevel` firing at DungeonExplore.jsx:263 and :290. (A third hit at :2262 is a FALSE POSITIVE — `usePotion(i)` is a regular handler named like a hook, not an actual hook.)
-
-**Proposed fix / improvement:**
-- [ ] Move the `if (!battle) return null; if (!q) return null;` guards below the `useState`/`useEffect` calls, OR have the parent skip rendering `BattleModal` entirely when `battle`/`q` are null.
-- [ ] Keep the effect deps stable.
-
-**Related files:** `dungeon-scholar/src/components/dungeon/DungeonExplore.jsx`
-
-### [2026-06-24] dungeon-scholar lint never runs in CI; 222 biome errors accumulated
-
-- **Category:** config, debt
-- **Severity:** medium
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-errors
-- **During:** automated error scan (ran `npm run lint`)
-
-**Description:**
-`dungeon-scholar/package.json` defines a `lint` script (`biome check src`) but no CI
-workflow ever invokes it. `.github/workflows/dungeon-scholar-ci.yml` runs only
-`npm ci` -> `npm run test` -> `npm run build`; `deploy.yml` runs test+build; the
-security-audit workflow runs only `npm audit`. With no gate, lint errors have piled up:
-`npm run lint` currently exits 1 with **222 errors, 236 warnings, 14 infos** across 181
-files. Breakdown of the errors includes correctness-class issues, not just style:
-useExhaustiveDependencies x91, organizeImports x101 (assist), useOptionalChain x59,
-noUnusedImports x44, noUnusedVariables x18, useHookAtTopLevel x3 (see the BattleModal
-entry above), useIterableCallbackReturn x7 (mostly false-positive `set.add` arrows),
-noAssignInExpressions x3, noGlobalIsFinite x1, etc.
-
-**Expected behavior:** Either lint is enforced in CI (gate stays green by keeping the
-tree clean), or the script is acknowledged as advisory. Right now it is silently broken.
-
-**Hypothesis / root cause:** `dungeon-scholar-ci.yml` job has no `npm run lint` step; the
-script was added to package.json but never wired into the pipeline, so the error count
-drifted upward unnoticed (CI stays green on test+build alone).
-
-**Proposed fix / improvement:**
-- [ ] Triage: auto-fix the safe classes first (`npm run lint:fix` handles organizeImports / unused imports / useTemplate / useOptionalChain), then hand-fix the correctness items (useExhaustiveDependencies, useHookAtTopLevel).
-- [ ] Add a `npm run lint` step to `dungeon-scholar-ci.yml` once the tree is clean so it cannot regress.
-- [ ] Decide policy on `useExhaustiveDependencies` (fix vs. rule-config) before gating, since it is the bulk of the count.
-
-**Related files:** `dungeon-scholar/package.json`, `.github/workflows/dungeon-scholar-ci.yml`
-
+*(none currently logged)*
 
 ## Low
 
@@ -236,6 +129,7 @@ gate (deploy.yml + dungeon-scholar-ci.yml).
 
 **Related files:** `dungeon-scholar/src/hooks/usePlayerState.test.jsx`, `dungeon-scholar/src/hooks/usePlayerState.js`
 
+*(none currently logged)*
 
 ---
 

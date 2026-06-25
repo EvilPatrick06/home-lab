@@ -1,7 +1,7 @@
-import { useState, useMemo } from 'react';
-import { Wand2, X, Check, ArrowLeft } from 'lucide-react';
-import { ORG_PROMPTS } from '../../prompts/index.js';
+import { ArrowLeft, Check, Wand2, X } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { useDialogA11y } from '../../hooks/useDialogA11y.js';
+import { ORG_PROMPTS } from '../../prompts/index.js';
 
 const EXAM_TARGET_LEAVE_BLANK = '<leave blank to let me infer from materials>';
 const EXAM_TARGET_LINE_REGEX = /EXAM TARGET: <[^>]+>/;
@@ -32,13 +32,17 @@ function copyToClipboard(text) {
     success = false;
   }
   if (!success && navigator.clipboard) {
-    return navigator.clipboard.writeText(text).then(() => true).catch(() => false);
+    return navigator.clipboard
+      .writeText(text)
+      .then(() => true)
+      .catch(() => false);
   }
   return Promise.resolve(success);
 }
 
 const MODAL_SHELL_STYLE = {
-  background: 'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.97) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.99) 100%)',
+  background:
+    'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.97) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.99) 100%)',
   border: '3px double rgba(245, 158, 11, 0.6)',
   boxShadow: '0 0 40px rgba(245, 158, 11, 0.3)',
 };
@@ -81,10 +85,12 @@ function OrgPicker({ orgs, onPick, onClose }) {
             a prompt the user pastes into their AI of choice — the app does
             not call an LLM directly. */}
         <p className="text-xs text-amber-300/90 mb-2 italic">
-          ⓘ This generates a prompt to paste into your AI (Claude, ChatGPT, Gemini, etc.). Dungeon Scholar does not call an LLM directly.
+          ⓘ This generates a prompt to paste into your AI (Claude, ChatGPT, Gemini, etc.). Dungeon Scholar does not call
+          an LLM directly.
         </p>
         <p className="text-sm text-amber-100/85 mb-4 italic">
-          &ldquo;Choose the order whose exams thou wouldst conquer. Each holds a tome-forging spell tuned to its trials.&rdquo;
+          &ldquo;Choose the order whose exams thou wouldst conquer. Each holds a tome-forging spell tuned to its
+          trials.&rdquo;
         </p>
         <div className="space-y-2">
           {orgs.map((org) => (
@@ -106,17 +112,24 @@ function OrgPicker({ orgs, onPick, onClose }) {
         {/* Phase 38h round-3 suggestion: "View schema" disclosure for power
             users who want to author tomes from scratch without round-tripping
             through an LLM. Collapsed by default. */}
-        <details className="mt-4 p-3 rounded-sm border border-amber-700/40" style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.4)' }}>
+        <details
+          className="mt-4 p-3 rounded-sm border border-amber-700/40"
+          style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.4)' }}
+        >
           <summary className="cursor-pointer text-xs italic text-amber-300 hover:text-amber-200">
             ⓘ View tome JSON schema (for hand-authoring)
           </summary>
-          <pre className="mt-3 text-[10px] overflow-x-auto whitespace-pre rounded-sm p-3" style={{
-            background: 'rgba(0,0,0,0.45)',
-            border: '1px solid rgba(180, 83, 9, 0.4)',
-            color: '#fde68a',
-            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-          }}>
-{`{
+          <pre
+            className="mt-3 text-[10px] overflow-x-auto whitespace-pre rounded-sm p-3"
+            style={{
+              background: 'rgba(0,0,0,0.45)',
+              border: '1px solid rgba(180, 83, 9, 0.4)',
+              color: '#fde68a',
+              fontFamily:
+                'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+            }}
+          >
+            {`{
   "metadata": {
     "title": "string (max 200)",
     "description": "string (optional, max 600 — supports markdown)",
@@ -154,7 +167,9 @@ function OrgPicker({ orgs, onPick, onClose }) {
 }`}
           </pre>
           <p className="mt-2 text-[10px] italic text-amber-100/60">
-            Only <code className="text-amber-300">metadata.title</code> + at least one of <code className="text-amber-300">flashcards / quiz / labs</code> is required. The other fields are surfaced where present and gracefully skipped where missing.
+            Only <code className="text-amber-300">metadata.title</code> + at least one of{' '}
+            <code className="text-amber-300">flashcards / quiz / labs</code> is required. The other fields are surfaced
+            where present and gracefully skipped where missing.
           </p>
         </details>
       </div>
@@ -174,8 +189,7 @@ function PromptViewer({ org, examTarget, setExamTarget, finalPrompt, copied, onC
           <ArrowLeft className="w-5 h-5" aria-hidden="true" />
         </button>
         <h3 className="text-xl font-bold text-amber-300 flex items-center gap-2 italic">
-          <span className="text-2xl">{org.emoji}</span>
-          ✦ {org.name} Tome Spell ✦
+          <span className="text-2xl">{org.emoji}</span>✦ {org.name} Tome Spell ✦
         </h3>
         <button
           onClick={onClose}
@@ -197,11 +211,15 @@ function PromptViewer({ org, examTarget, setExamTarget, finalPrompt, copied, onC
             placeholder={org.examTargetPlaceholder}
             maxLength={250}
             className="w-full p-2 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
-            style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)', borderColor: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.7)' }}
+            style={{
+              background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)',
+              borderColor: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.7)',
+            }}
           />
         </label>
         <p className="text-xs text-amber-100/70 mb-2 italic">
-          &ldquo;Speak this incantation to any AI familiar (Claude, ChatGPT, Gemini), then offer them your study materials.&rdquo;
+          &ldquo;Speak this incantation to any AI familiar (Claude, ChatGPT, Gemini), then offer them your study
+          materials.&rdquo;
         </p>
         <pre
           data-testid="prompt-preview"

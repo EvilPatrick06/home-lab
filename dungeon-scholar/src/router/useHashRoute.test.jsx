@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
-import { SCREENS, parseHash, formatHash, useHashRoute } from './useHashRoute.js';
+import { act, renderHook } from '@testing-library/react';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { formatHash, parseHash, SCREENS, useHashRoute } from './useHashRoute.js';
 
 function setHash(h) {
   window.location.hash = h;

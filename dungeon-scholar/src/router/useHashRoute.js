@@ -8,6 +8,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 // Screen list now lives in the shared registry; re-exported here so existing
 // importers (and useHashRoute.test.jsx) keep their `from './useHashRoute.js'` path.
 import { SCREENS } from './screens.js';
+
 export { SCREENS };
 
 const SCREEN_SET = new Set(SCREENS);
@@ -59,7 +60,9 @@ export function useHashRoute(computeInitialScreen) {
   // Mirror the current screen in a ref so setScreen/clearPendingTome read it
   // without a stale closure (and without re-creating their callbacks).
   const screenRef = useRef(screen);
-  useEffect(() => { screenRef.current = screen; }, [screen]);
+  useEffect(() => {
+    screenRef.current = screen;
+  }, [screen]);
 
   // Canonicalize the URL once on mount when there's no tome to consume. With a
   // pending tome the URL is canonicalized later by clearPendingTome (after the

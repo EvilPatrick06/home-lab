@@ -13,6 +13,304 @@
 
 ---
 
+### [2026-06-24] `auto/scholar-resolver` won't merge — divergent devotion/auth refactor vs `auto/scholar-phase-executer`
+> **Resolved 2026-06-24 (scholar-resolver):** Rebased `auto/scholar-resolver` onto `origin/master` (now carrying `scholar-phase-executer`’s PHASE-02 work). **Master won on the conflicting devotion/Supabase/auth behavior:** kept `autoRefreshToken: false` with the session-gated explicit refresh in `useAuth.js`, and master’s devotion API (`devotionStatus()` 4-state + `evaluateClaim`/`dayDiff`/`computeNextClaim`, incl. the day-1 “Streak broken” fix) with `CalendarScreen.jsx` + `devotion.test.js` aligned to it. Dropped the branch’s contradictory `autoRefreshToken: true` and its `devotionStatus()` removal entirely. Took master’s `main.jsx` PWA reload wiring; kept `QuestBoard.jsx` Coins `aria-label`/`title` a11y attrs. All **non-conflicting scholar-resolver work preserved** (FSRS-5 scheduler, CSV/TSV/Quizlet import, completion certificate, library bulk actions, image-occlusion cards, the approved log-resolution fixes). Re-ran the branch’s tree-wide biome pass (safe fixes + format only, no behavior change) so the branch’s own new CI lint gate stays green against the rebased base. `npm ci` + `VITE_BASE=/home-lab/ npm run build` pass; targeted vitest (devotion/auth/usePlayerActions/backfill/occlusion/a11y — 78 tests) green; `npm run lint` exits 0. Conflicts resolved (6): `supabase.js`, `useAuth.js`, `devotion.test.js`, `CalendarScreen.jsx`, `main.jsx`, `QuestBoard.jsx` (+ `devotion.js`, `useAuth.test.jsx` force-aligned to master). Pushed for the integrator.
+
+- **Category:** integration / merge-conflict (branch left unmerged by integrator)
+- **Discovered by:** integrator (daily branch integration run)
+- **During:** merging `origin/auto/scholar-resolver` (head `fccc9d17`, 7 ahead / 2 behind) into `master` after `origin/auto/scholar-phase-executer` had already been merged this run.
+
+**Description:**
+`auto/scholar-resolver` does NOT merge cleanly into current `master`. 6 content conflicts, all in dungeon-scholar source that `auto/scholar-phase-executer` (already merged into master this run) also refactored:
+`src/services/supabase.js`, `src/hooks/useAuth.js`, `src/main.jsx`,
+`src/features/progression/CalendarScreen.jsx`, `src/features/quests/QuestBoard.jsx`,
+`src/services/devotion.test.js`.
+
+**Root cause (diagnosed):** the two branches refactored the same devotion/auth subsystem in divergent directions, so this is not a mechanical conflict:
+- `supabase.js` — **contradictory behavioral change**: master sets `autoRefreshToken: false` with a deliberate PHASE-02 rationale ("refresh driven explicitly in useAuth so a signed-out load never starts GoTrue's refresh retry loop"); `scholar-resolver` sets `autoRefreshToken: true`. Picking either side silently changes auth-refresh behavior.
+- `devotion.js` API diverged — master/`CalendarScreen.jsx` + `devotion.test.js` use the new `devotionStatus()` 4-state API; `scholar-resolver` uses the older `gap===1` logic and imports `evaluateClaim / dayDiff / computeNextClaim`. The two test/usage surfaces are incompatible.
+- `main.jsx` — master adds PWA `registerControlledReload` + `guardedReloadOnce`; the branch's `main.jsx` predates that machinery.
+- `useAuth.js` / `QuestBoard.jsx` — smaller (import-order; master also keeps `aria-label`/`title` on the Coins icon the branch dropped).
+
+The integrator did **not** auto-resolve: the `autoRefreshToken` choice and the devotion.js API direction are product/behavioral decisions this branch's owner must make — resolving blind risks shipping broken auth/streak logic even with green tests. Left intact per Rule 3A (genuine blocker / new decision).
+
+**Proposed fix / what's needed (owner: `scholar-resolver` / dungeon-scholar domain):**
+- [ ] Rebase `auto/scholar-resolver` onto current `origin/master` (now contains `scholar-phase-executer`'s devotion `devotionStatus()` API, PWA reload machinery, and the PHASE-02 `autoRefreshToken: false` fix).
+- [ ] Decide the intended `autoRefreshToken` behavior — keep master's `false` (PHASE-02) unless intentionally superseding it, and update the rationale comment if changed.
+- [ ] Reconcile `devotion.js` to a single API (`devotionStatus()` vs `evaluateClaim/dayDiff`) and align `devotion.test.js` + `CalendarScreen.jsx` to it.
+- [ ] Preserve master's `main.jsx` PWA reload wiring and `QuestBoard.jsx` icon a11y attrs.
+- [ ] Push; the next integrator run will merge it once it applies cleanly with green CI.
+
+**Related files:** `dungeon-scholar/src/services/supabase.js`, `dungeon-scholar/src/hooks/useAuth.js`, `dungeon-scholar/src/main.jsx`, `dungeon-scholar/src/features/progression/CalendarScreen.jsx`, `dungeon-scholar/src/features/quests/QuestBoard.jsx`, `dungeon-scholar/src/services/devotion.test.js`, `dungeon-scholar/src/services/devotion.js`
+
+---
+
+### [2026-06-24] dungeon-scholar lint never runs in CI; 222 biome errors accumulated
+> **Resolved 2026-06-24 (scholar-resolver):** Ran `biome check --write src` to auto-fix the safe classes (organizeImports, unused imports, useOptionalChain, useTemplate, etc.), then hand-fixed the remaining error-level diagnostics: 7 `useIterableCallbackReturn` (forEach callbacks given block bodies), the `useHookAtTopLevel` false positive (renamed `usePotion`->`quaffPotion`, a plain handler not a hook), and a justified `noDangerouslySetInnerHtml` suppression on the trusted KaTeX render. `npm run lint` now exits 0 (errors cleared; `useExhaustiveDependencies` kept as `warn` per the existing biome.json policy, the 'rule-config' option the entry called for). Added a `npm run lint` step to `dungeon-scholar-ci.yml` (right after `npm ci`) so the tree cannot regress. Full vitest suite (667 tests) + production build green.
+
+- **Category:** config, debt
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error scan (ran `npm run lint`)
+
+**Description:**
+`dungeon-scholar/package.json` defines a `lint` script (`biome check src`) but no CI
+workflow ever invokes it. `.github/workflows/dungeon-scholar-ci.yml` runs only
+`npm ci` -> `npm run test` -> `npm run build`; `deploy.yml` runs test+build; the
+security-audit workflow runs only `npm audit`. With no gate, lint errors have piled up:
+`npm run lint` currently exits 1 with **222 errors, 236 warnings, 14 infos** across 181
+files. Breakdown of the errors includes correctness-class issues, not just style:
+useExhaustiveDependencies x91, organizeImports x101 (assist), useOptionalChain x59,
+noUnusedImports x44, noUnusedVariables x18, useHookAtTopLevel x3 (see the BattleModal
+entry above), useIterableCallbackReturn x7 (mostly false-positive `set.add` arrows),
+noAssignInExpressions x3, noGlobalIsFinite x1, etc.
+
+**Expected behavior:** Either lint is enforced in CI (gate stays green by keeping the
+tree clean), or the script is acknowledged as advisory. Right now it is silently broken.
+
+**Hypothesis / root cause:** `dungeon-scholar-ci.yml` job has no `npm run lint` step; the
+script was added to package.json but never wired into the pipeline, so the error count
+drifted upward unnoticed (CI stays green on test+build alone).
+
+**Proposed fix / improvement:**
+- [ ] Triage: auto-fix the safe classes first (`npm run lint:fix` handles organizeImports / unused imports / useTemplate / useOptionalChain), then hand-fix the correctness items (useExhaustiveDependencies, useHookAtTopLevel).
+- [ ] Add a `npm run lint` step to `dungeon-scholar-ci.yml` once the tree is clean so it cannot regress.
+- [ ] Decide policy on `useExhaustiveDependencies` (fix vs. rule-config) before gating, since it is the bulk of the count.
+
+**Related files:** `dungeon-scholar/package.json`, `.github/workflows/dungeon-scholar-ci.yml`
+
+### [2026-06-24] Image-occlusion flashcards for diagram-heavy material
+> **Resolved 2026-06-24 (scholar-resolver):** Added an `occlusion` flashcard type (`src/services/occlusion.js`: fractional-coord masks, validation, image-src allowlist, authoring helpers — 9 unit tests). `OcclusionCard` renders masked regions in FlashcardsMode (opaque + '?' unflipped, translucent + answer on flip); occlusion cards ride the existing SRS path unchanged (they carry a card id) and import like any flashcard. A click-to-place `OcclusionAuthor` modal (pick image -> click to drop masks -> label each) inscribes a one-card tome via `addTomeToLibrary`, reachable from a new Home 'Author Occlusion Card' button. Production build green. (Per-region-per-review masking left as a possible refinement; current behavior masks all regions and reveals all on flip.)
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement-scan of the dungeon-scholar tree
+
+**Description:**
+`src/components/RichContent.jsx` already renders inline images (the `n.type === 'image'` branch) alongside Mermaid diagrams and code blocks, so cards can *show* a network topology, an OSI stack, an AWS architecture, etc. What's missing is the single most effective way to *study* such images: image occlusion — masking one or more labeled regions and asking the learner to recall what's hidden. This is a staple of medical/IT exam prep (Anki's Image Occlusion add-on is one of its most popular). Given that diagram-heavy cert content (subnetting layouts, port maps, trust boundaries) is squarely in this app's wheelhouse, an occlusion card type would be a high-value, on-brand learning enhancement. Honest severity: low — net-new study mode, not a gap in existing function.
+
+**Hypothesis / root cause:** N/A — additive feature.
+
+**Proposed fix / improvement:**
+- [ ] Define an `occlusion` card type: image + array of rectangular mask regions (each with the answer text).
+- [ ] Author UI to draw/place masks over an uploaded image; render one masked region per review with reveal-on-flip.
+- [ ] Route through the existing SRS/quiz scoring so occlusion cards earn progress like any other.
+
+**Related files:** `src/components/RichContent.jsx`, `src/features/study/FlashcardsMode.jsx`, `src/services/richContent.js`
+
+### [2026-06-24] Library bulk / multi-select actions (export, delete, tag many tomes at once)
+> **Resolved 2026-06-24 (scholar-resolver):** Added a Select mode to the Library: a per-row checkbox + a bulk action bar (Select-all-shown, Clear, Export, Tag, Banish). Export bundles the selected tomes' data into a downloadable JSON; Tag applies a shared tag to every selected tome; Banish reuses the existing per-tome delete. New pure helpers in `src/services/libraryBulk.js` (`buildTomeBundle`/`bundleFilename`/`applyTagToTomes`/`downloadTextFile`) with 6 unit tests; LibraryScreen tests + production build green.
+
+- **Category:** UX
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement-scan of the dungeon-scholar tree
+
+**Description:**
+`LibraryScreen.jsx` now has search and virtualization (per resolved entries), so a large library scales for *finding* one tome. It still has no way to act on *several* tomes at once — every operation (export, delete, edit metadata) is one tome at a time. A user curating a sizeable shelf (the virtualization work was driven by a 120-tome QA scenario) has no "select all matching → export" or "select 5 → delete" affordance. A lightweight multi-select mode (checkbox per row + a bulk action bar: export-as-bundle, delete, add a shared tag/category) would meaningfully cut the click cost of housekeeping. Honest severity: low — pure quality-of-life; everything is already achievable one-by-one.
+
+**Hypothesis / root cause:** N/A — the library was built around single-tome interactions; bulk selection was never added.
+
+**Proposed fix / improvement:**
+- [ ] Add a "Select" toggle that shows a checkbox per library row.
+- [ ] Surface a bulk-action bar (export selected, delete selected, tag selected) when ≥1 is checked.
+- [ ] Reuse the existing export/delete/metadata paths per selected id.
+
+**Related files:** `src/features/library/LibraryScreen.jsx`, `src/features/library/MetadataEditModal.jsx`
+
+### [2026-06-24] Exportable / shareable tome-completion certificate ("diploma")
+> **Resolved 2026-06-24 (scholar-resolver):** Added `src/services/certificate.js`: a per-tome mastery milestone (`tomeMasteryPct`/`isTomeMastered` — >=80% of cards reviewed >=2x and past a 1-week stability horizon) + a canvas-rendered illuminated certificate (`renderCertificatePng`) naming the scholar, earned title, tome, date and mastery%, with PNG download + print-to-PDF. New `CertificateModal`; the Scholar's Ledger now shows a Diplomas section listing mastered tomes each with a Certificate button (scholar name from the signed-in profile, title from `getTitle`). 9 unit tests + production build green.
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement-scan of the dungeon-scholar tree
+
+**Description:**
+The app has a rich progression/identity layer — titles (`game/titles.js`), achievements (`game/achievements.js`), the Scholar's Ledger, the Ascension screen — but all of it stays *inside* the app. There is no artifact a learner can take *out* to mark finishing a tome or hitting mastery. An on-theme, generated "Certificate of Completion / diploma" (canvas → PNG, or print-to-PDF via the browser) when a tome reaches a mastery threshold would give a satisfying capstone and a shareable proof-of-study, leaning into the existing D&D framing (an illuminated scroll naming the scholar, the tome, the date, and the title earned). Honest severity: low — celebratory/motivational, not functional.
+
+**Hypothesis / root cause:** N/A — additive feature.
+
+**Proposed fix / improvement:**
+- [ ] Detect a per-tome "mastery" milestone (e.g. all cards past an SRS interval / exam passed).
+- [ ] Render a styled certificate (scholar name from profile, tome title, date, earned title) to canvas → downloadable PNG + print stylesheet for PDF.
+- [ ] Offer it from the tome screen / achievements modal when the milestone is reached.
+
+**Related files:** `src/game/titles.js`, `src/game/achievements.js`, `src/features/progression/ScholarsLedger.jsx`, `src/features/progression/AscensionScreen.jsx`
+
+### [2026-06-24] Import external study-deck formats (Anki .apkg / Quizlet / CSV) into tomes
+> **Resolved 2026-06-24 (scholar-resolver):** Added `src/services/deckImport.js` (quote-aware CSV + TSV/Quizlet tab-export parser, header-row detection, optional 3rd column -> card domain) that builds a tome via `normalizeTomeData` and routes through the existing `addTomeToLibrary` path. New `ImportDeckModal` + a Home-screen 'Import Deck (CSV/Quizlet)' button (modal key `importDeck`). 11 unit tests + production build green. `.apkg` (zipped SQLite, needs a sql.js/WASM reader + bundle-size decision) left as a documented follow-up, matching the entry's own stretch-goal framing.
+
+- **Category:** future-idea
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement-scan of the dungeon-scholar tree
+
+**Description:**
+Today the only ways to get content into the app are: hand-write/author a tome, paste/file-pick a `TOME-V1:` share code, or import the bundled starter decks (`src/data/starterDecks.js`). All inbound paths assume the app's own JSON schema (`encodeTomeShareCode`/`decodeTomeShareCode` + `normalizeTomeData` in `src/game/tome.js`). The huge existing corpus of study content already lives in Anki `.apkg`, Quizlet exports, and plain CSV/TSV — none of which can be brought in without manual retyping. A small client-side converter (file-pick → parse → map fields to flashcards/quiz, then route through the existing import path) would dramatically lower the content barrier and complement the resolved "bundle more starter tomes" + "in-app authoring" work rather than duplicate it (those create content; this *imports* existing content). CSV is trivial (header→field mapping); Quizlet's tab/newline export is nearly as easy; `.apkg` is a zipped SQLite DB so it needs sql.js or a lightweight reader and is the stretch goal.
+
+**Hypothesis / root cause:** N/A — additive feature, not a defect.
+
+**Proposed fix / improvement:**
+- [ ] Add a "Import from CSV/Quizlet" modal alongside `ImportCodeModal`/`PasteTomeModal` with a column→field mapping step.
+- [ ] Parse CSV/TSV + Quizlet tab-export into `{flashcards, quiz}` and feed through `normalizeTomeData` → existing import flow.
+- [ ] (Stretch) `.apkg` reader via sql.js to extract notes/fields; map basic note types to flashcards.
+
+**Related files:** `src/game/tome.js`, `src/features/library/ImportCodeModal.jsx`, `src/features/library/PasteTomeModal.jsx`, `src/data/starterDecks.js`
+
+**Related entries:** distinct from the resolved "PWA Web Share Target to import a tome JSON" (that is a *transport* for the app's own JSON, not a format converter).
+
+### [2026-06-24] Upgrade the SRS scheduler to full FSRS-5 with per-user parameter optimization
+> **Resolved 2026-06-24 (scholar-resolver):** Replaced the simplified `srs.js` model with canonical FSRS-5: the published 19-weight default vector + the full update equations (initial S0/D0, linear-damped difficulty with mean reversion, recall/forget/short-term stability, power-law retrievability with DECAY=-0.5) behind the unchanged `scheduleCard`/`retrievability`/`isCardDue` API and per-card state shape (old saves keep working). Exposed `FSRS_DEFAULT_WEIGHTS` + `getSchedulerWeights`/`setSchedulerWeights` so the stretch-goal per-user optimizer can feed fitted weights without touching the equations (optimizer itself left as a follow-up). `srs.test.js` updated to FSRS-5 behavior; 31 srs + 16 forgettingCurve tests pass.
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement-scan of the dungeon-scholar tree
+
+**Description:**
+`src/services/srs.js` self-describes as "FSRS-inspired (not literal FSRS-5 with 17+ weights — a simpler model)". That is a reasonable, dependency-free choice, but for long-horizon cert prep the difference is real: full FSRS-5 fits its weight vector to the *individual learner's* review history (via the published optimizer) and consistently beats fixed-parameter heuristics on retention-per-review. Because the app already records per-card review outcomes (`questionStats`/`cardProgress` in tome progress) it has the training data an optimizer needs. A future enhancement: ship the canonical FSRS-5 default weights, and optionally run the optimizer client-side over the user's own log to personalize scheduling. Honest severity: low — the current model works and this is an accuracy refinement, not a fix.
+
+**Hypothesis / root cause:** N/A — deliberate simplification documented in `srs.js`.
+
+**Proposed fix / improvement:**
+- [ ] Adopt FSRS-5 default weights + the full stability/difficulty update equations behind the existing `srs.js` API.
+- [ ] (Stretch) Optional "optimize my schedule" action that fits weights from the user's recorded review history.
+
+**Related files:** `src/services/srs.js`, `src/services/forgettingCurve.js`
+
+### [2026-06-24] Make the Oracle worker's allowed origin (and model) configurable instead of hardcoded — fork portability
+> **Resolved 2026-06-24 (scholar-resolver):** `oracle-worker/src/worker.js` now reads `ALLOWED_ORIGIN` (-> `DEFAULT_ALLOWED_ORIGIN` fallback) and `ORACLE_MODEL` (-> `DEFAULT_MODEL` fallback) from `env`, threaded through the CORS headers, the Origin/Referer cross-check, and the Groq call. Documented the two optional `[vars]` in `wrangler.toml` + `docs/oracle-setup.md`. `node --check` green.
+
+- **Category:** portability
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement-scan of the dungeon-scholar tree
+
+**Description:**
+The front end already made its deployment path fork-friendly: `vite.config.js` reads `VITE_BASE` (defaulting to `/dungeon-scholar/`) so a fork doesn't have to edit source. The Oracle proxy did **not** get the same treatment. `oracle-worker/src/worker.js` hardcodes `const ALLOWED_ORIGIN = "https://evilpatrick06.github.io";` (used for both the CORS allow-origin and the Origin/Referer cross-check) and `const MODEL = "llama-3.3-70b-versatile";`. Secrets and the proxy token are already read from `env` (`env.GROQ_API_KEY`, `env.ORACLE_PROXY_TOKEN`), so the pattern exists — origin and model are the lone remaining source-edits a fork must make to stand up its own Oracle. Reading them from `env` (via `wrangler.toml [vars]` / `wrangler secret`) would make the worker deployable to a fork's own Pages origin with zero code changes, matching the front end's portability story.
+
+**Hypothesis / root cause:** Origin/model were inlined as constants when the worker was first written for the canonical deployment; they were simply never promoted to env vars the way the API key and token were.
+
+**Proposed fix / improvement:**
+- [ ] Read `ALLOWED_ORIGIN` from `env.ALLOWED_ORIGIN` (fallback to the current default) so CORS + the Origin/Referer checks track the deploying origin.
+- [ ] Read `MODEL` from `env.ORACLE_MODEL` (fallback to current) so a fork can pick a different Groq model without editing source.
+- [ ] Document the two new `[vars]` in `docs/oracle-setup.md`.
+
+**Related files:** `oracle-worker/src/worker.js`, `oracle-worker/wrangler.toml`, `dungeon-scholar/docs/oracle-setup.md`
+
+### [2026-06-24] Rules-of-hooks violation in BattleModal (hooks after early returns)
+> **Resolved 2026-06-24 (scholar-resolver):** Moved BattleModal's `useState`/`useEffect` above the two early returns; the `if (!battle)` / `if (!q)` guards now sit below the hooks and the effect dep uses `battle?.type`, so the hook order is identical on every render. `dungeon-scholar/src/components/dungeon/DungeonExplore.jsx`.
+
+- **Category:** bug
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error scan (biome lint correctness + manual confirmation)
+
+**Description:**
+`BattleModal` in `src/components/dungeon/DungeonExplore.jsx` calls hooks *after* two
+conditional early returns:
+
+```js
+function BattleModal({ ... }) {
+  if (!battle) return null;   // early return
+  if (!q) return null;        // early return
+  const [revealResult, setRevealResult] = useState(null);          // hook AFTER returns
+  ...
+  useEffect(() => { setRevealResult(null); }, [q?.id, battle.type]); // hook AFTER returns
+}
+```
+
+This violates the Rules of Hooks (hooks must run unconditionally, in the same order,
+every render). When `battle`/`q` toggle between null and non-null across renders the
+hook count changes, which React surfaces as "Rendered fewer hooks than expected" and
+can crash the component. It works today only because the modal is currently never
+mounted while `battle`/`q` are null, but the guard makes that fragility implicit.
+
+**Reproduction (if bug):**
+1. Render `BattleModal` once with a non-null `battle` and `q` (hooks run).
+2. Re-render with `battle` (or `q`) null so an early return fires before the hooks.
+3. React throws a hook-order error / the component crashes.
+
+**Expected behavior:** Hooks declared unconditionally at the top of the component;
+the null checks moved below the hook declarations (or the modal not rendered at all by
+the parent when `battle`/`q` are null).
+
+**Hypothesis / root cause:** `useState`/`useEffect` placed below `if (!battle) return null; if (!q) return null;` in `BattleModal`. Confirmed by biome `lint/correctness/useHookAtTopLevel` firing at DungeonExplore.jsx:263 and :290. (A third hit at :2262 is a FALSE POSITIVE — `usePotion(i)` is a regular handler named like a hook, not an actual hook.)
+
+**Proposed fix / improvement:**
+- [ ] Move the `if (!battle) return null; if (!q) return null;` guards below the `useState`/`useEffect` calls, OR have the parent skip rendering `BattleModal` entirely when `battle`/`q` are null.
+- [ ] Keep the effect deps stable.
+
+**Related files:** `dungeon-scholar/src/components/dungeon/DungeonExplore.jsx`
+
+### [2026-06-24] Duplicate `engines` key in dungeon-scholar package.json
+> **Resolved 2026-06-24 (scholar-resolver):** Removed the duplicate one-line `engines` block from `package.json`; a single `engines: { node: >=22 }` remains (JSON re-validated).
+
+- **Category:** config
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error scan (manifest inspection)
+
+**Description:**
+`dungeon-scholar/package.json` declares the `engines` field twice:
+
+```json
+  "engines": {
+    "node": ">=22"
+  },
+  "type": "module",
+  "engines": { "node": ">=22" },
+```
+
+Both blocks are identical so behavior is unaffected (JSON last-key-wins), but it is
+config drift / a copy-paste artifact. It also sits outside `src/`, so `biome check src`
+will never catch it. Some strict JSON tooling warns on duplicate keys.
+
+**Hypothesis / root cause:** A second `engines` block was appended (next to `type`) without removing the original.
+
+**Proposed fix / improvement:**
+- [ ] Delete one of the two `engines` blocks (keep a single `"engines": { "node": ">=22" }`).
+
+**Related files:** `dungeon-scholar/package.json`
+
+### [2026-06-24] usePlayerState cloud-sync tests wait on real-timer backoff (~52s for one file)
+> **Resolved 2026-06-24 (scholar-resolver):** Converted the retries->offline and offline-recovery tests to `vi.useFakeTimers()` + `advanceTimersByTimeAsync`, stepping the 1s/4s/16s backoff instantly. The file now runs ~6s (was ~52s); all 30 tests pass.
+
+- **Category:** test, performance
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error scan (ran `npm test`; 59 files / 627 tests all PASS)
+
+**Description:**
+The full suite passes but takes ~54s, and `src/hooks/usePlayerState.test.jsx` alone
+accounts for ~52s. Two cases dominate: "retries on push failure with backoff and ends
+in offline" (~22.5s) and "(a) recovers from offline ... after backoff exhausts" (~24s).
+These describe-blocks do NOT call `vi.useFakeTimers()` (unlike the `local-only behavior`
+block which does), so they wait through the *real* retry schedule
+`RETRY_DELAYS_MS = [1000, 4000, 16000]` (~21s wall-clock) with `waitFor` timeouts of
+30000/35000ms. This wall-clock wait is paid on every CI run of the dungeon-scholar test
+gate (deploy.yml + dungeon-scholar-ci.yml).
+
+**Hypothesis / root cause:** Real timers + a real backoff schedule in `usePlayerState` retry logic; the retry/offline tests assert end-state after the full backoff window instead of advancing fake timers.
+
+**Proposed fix / improvement:**
+- [ ] Use `vi.useFakeTimers()` in the retry/offline describe-blocks and `vi.advanceTimersByTimeAsync(...)` to step through 1s/4s/16s instantly.
+- [ ] Or make `RETRY_DELAYS_MS` injectable so tests pass tiny delays.
+
+**Related files:** `dungeon-scholar/src/hooks/usePlayerState.test.jsx`, `dungeon-scholar/src/hooks/usePlayerState.js`
+
 ### [2026-06-23] Local autosave-snapshot ring buffer for crash / accidental-reset recovery
 > **Resolved 2026-06-23 (scholar-resolver):** Implemented per the user's per-entry approval (branch `auto/scholar-resolver`). Added a throttled rotating snapshot ring buffer in `persistence.js` (`writeSnapshot`/`listSnapshots`/`restoreSnapshot`/`pruneSnapshots` — last 5 snapshots + ~1.5 MB cap, quota-aware), wired into the debounced local save in `usePlayerState.js`; a "Restore a recent snapshot" affordance in `AccountPanel.jsx`; and a pre-reset snapshot + Undo toast in `App.jsx` so a reset is undoable once (works signed-out). New unit tests in `persistence.snapshots.test.js`. Targeted vitest + production build (VITE_BASE=/home-lab/) green.
 

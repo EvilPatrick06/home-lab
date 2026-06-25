@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest';
-import { readFileSync, readdirSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { readdirSync, readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { describe, expect, it } from 'vitest';
 
 // Phase 41 (QA16): node-side guard for the full light theme. No DOM — we read
 // src/index.css and statically scan the JSX for Tailwind color utilities, then
@@ -15,15 +15,14 @@ const css = readFileSync(join(here, 'index.css'), 'utf8');
 
 // The 14 color families + 11 ramp steps the build script mirrors. Kept in sync
 // with the generator in the PHASE-41 plan / index.css comment header.
-const FAMILIES =
-  'amber|purple|emerald|red|sky|indigo|rose|stone|orange|yellow|zinc|cyan|blue|slate';
+const FAMILIES = 'amber|purple|emerald|red|sky|indigo|rose|stone|orange|yellow|zinc|cyan|blue|slate';
 const STEPS = '50|100|200|300|400|500|600|700|800|900|950';
 // Trailing (?![0-9]) so the "50" alternative does not match inside "500" etc.
 // (regex alternation is leftmost-first, so "50" would otherwise capture the
 // first two digits of "border-red-500" and mis-classify it as red-50).
 const UTIL_RE = new RegExp(
   `(?:text|bg|border|from|to|via|ring|outline|fill|stroke|shadow)-(${FAMILIES})-(${STEPS})(?![0-9])`,
-  'g'
+  'g',
 );
 
 const SURFACES = [

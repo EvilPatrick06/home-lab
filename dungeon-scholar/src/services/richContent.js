@@ -31,7 +31,8 @@ const FENCE_RE = /```([a-z0-9_-]*)\n?([\s\S]*?)```/gi;
 // link so the leading `!` isn't gobbled by link; math last so naked
 // "$5 cost" doesn't get gobbled (matcher requires non-space at both
 // inner edges).
-const INLINE_TOKEN_RE = /(`[^`\n]+`)|(\*\*[^*\n]+\*\*)|(\*[^*\n]+\*)|(!\[[^\]\n]*\]\([^)\s]+\))|(\[[^\]\n]+\]\([^)\s]+\))|(\$[^\s$][^$\n]*?[^\s$]\$|\$[^\s$]\$)/g;
+const INLINE_TOKEN_RE =
+  /(`[^`\n]+`)|(\*\*[^*\n]+\*\*)|(\*[^*\n]+\*)|(!\[[^\]\n]*\]\([^)\s]+\))|(\[[^\]\n]+\]\([^)\s]+\))|(\$[^\s$][^$\n]*?[^\s$]\$|\$[^\s$]\$)/g;
 
 // Phase 38e: allowlist for image href schemes/hosts. data:image/* is
 // always safe (inline base64, no network call). Remote URLs are limited
@@ -54,7 +55,9 @@ function isSafeImageUrl(url) {
   try {
     const u = new URL(url);
     return u.protocol === 'https:' && TRUSTED_IMAGE_HOSTS.has(u.hostname);
-  } catch { return false; }
+  } catch {
+    return false;
+  }
 }
 
 // SEC: link hrefs are untrusted (tomes are importable/shareable). Allow only
@@ -68,7 +71,9 @@ function isSafeLinkUrl(url) {
     // keep their own protocol and are rejected.
     const u = new URL(url, 'https://dungeon-scholar.invalid/');
     return u.protocol === 'http:' || u.protocol === 'https:' || u.protocol === 'mailto:';
-  } catch { return false; }
+  } catch {
+    return false;
+  }
 }
 
 export function parseRichContent(text) {

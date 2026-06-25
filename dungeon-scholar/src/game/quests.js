@@ -2,7 +2,6 @@ import { petLevelFromXp } from '../services/pets.js';
 import { formatYmd } from '../utils/date.js';
 import { BESTIARY_ENTRIES } from './bestiary.js';
 
-
 // === Daily Quest System ===
 // Each quest template specifies a target count and a counter source. The counter
 // source is a function (state) -> number that returns a monotonically increasing
@@ -20,7 +19,7 @@ export const DAILY_QUEST_POOL = [
   },
   {
     id: 'solve_riddles',
-    title: 'Solve the Sphinx\'s Riddles',
+    title: "Solve the Sphinx's Riddles",
     description: 'Answer {target} quiz riddles',
     icon: '🔮',
     target: 10,
@@ -74,7 +73,7 @@ export const DAILY_QUEST_POOL = [
   },
   {
     id: 'consult_oracle',
-    title: 'Seek the Oracle\'s Wisdom',
+    title: "Seek the Oracle's Wisdom",
     description: 'Send {target} messages to the Oracle or Tome Search',
     icon: '🪄',
     target: 3,
@@ -115,7 +114,7 @@ export const DAILY_QUEST_POOL = [
   },
   {
     id: 'card_marathon',
-    title: 'Scholar\'s Marathon',
+    title: "Scholar's Marathon",
     description: 'Review {target} scrolls',
     icon: '📚',
     target: 25,
@@ -126,7 +125,7 @@ export const DAILY_QUEST_POOL = [
   {
     id: 'claim_devotion',
     title: 'Kindle the Daily Flame',
-    description: 'Claim today\'s devotion offering',
+    description: "Claim today's devotion offering",
     icon: '🕯️',
     target: 1,
     xp: 50,
@@ -152,7 +151,6 @@ export const DAILY_QUEST_POOL = [
   },
 ];
 
-
 // Get the counter value from current player state for a given counter id.
 export const getCounterValue = (state, counterId) => {
   switch (counterId) {
@@ -167,7 +165,10 @@ export const getCounterValue = (state, counterId) => {
     case 'bossesDefeated':
       return (state.library || []).reduce((s, t) => s + (t.progress?.bossesDefeated || 0), 0);
     case 'oracleMessages':
-      return (state.library || []).reduce((s, t) => s + ((t.progress?.chatHistory || []).filter(m => m.role === 'user').length), 0);
+      return (state.library || []).reduce(
+        (s, t) => s + (t.progress?.chatHistory || []).filter((m) => m.role === 'user').length,
+        0,
+      );
     case 'totalCorrect':
       return state.totalCorrect || 0;
     case 'vaultBanished':
@@ -209,7 +210,6 @@ export const getCounterValue = (state, counterId) => {
   }
 };
 
-
 // Pick N unique quests from the pool using a date-based deterministic shuffle.
 export const pickDailyQuests = (dateStr, n = 3) => {
   // Simple seeded shuffle so a given date always returns the same set.
@@ -221,7 +221,6 @@ export const pickDailyQuests = (dateStr, n = 3) => {
   }
   return arr.slice(0, n);
 };
-
 
 // === Weekly Quest Pool ===
 export const WEEKLY_QUEST_POOL = [
@@ -305,7 +304,7 @@ export const WEEKLY_QUEST_POOL = [
   },
   {
     id: 'weekly_harvest',
-    title: 'The Herbalist\'s Sweep',
+    title: "The Herbalist's Sweep",
     description: 'Harvest {target} plants in the dungeon',
     icon: '🌿',
     target: 10,
@@ -324,7 +323,6 @@ export const WEEKLY_QUEST_POOL = [
   },
 ];
 
-
 // Pick weekly quests deterministically from week-start date.
 export const pickWeeklyQuests = (weekStartStr, n = 3) => {
   const seed = weekStartStr.split('').reduce((acc, c) => acc + c.charCodeAt(0), 7);
@@ -336,7 +334,6 @@ export const pickWeeklyQuests = (weekStartStr, n = 3) => {
   return arr.slice(0, n);
 };
 
-
 // Get the start of the current week (Monday) as a date string.
 export const currentWeekStartStr = () => {
   const d = new Date();
@@ -345,7 +342,6 @@ export const currentWeekStartStr = () => {
   d.setDate(d.getDate() + diff);
   return formatYmd(d);
 };
-
 
 // === Story Quest Chains ===
 // Each chain is a sequence of steps. Steps unlock in order. Each step has
@@ -363,7 +359,8 @@ export const STORY_CHAINS = [
       {
         id: 'ap_step1',
         title: 'The First Page',
-        narrative: '"Every great scholar begins with a single page turned. Read your first scroll, and the journey shall begin."',
+        narrative:
+          '"Every great scholar begins with a single page turned. Read your first scroll, and the journey shall begin."',
         target: 1,
         counter: 'cardsReviewed',
         xp: 50,
@@ -379,7 +376,8 @@ export const STORY_CHAINS = [
       {
         id: 'ap_step3',
         title: 'The Trial Begun',
-        narrative: '"Knowledge alone is not enough. Endure the trials and learn what hands-on mastery feels like — complete a single trial."',
+        narrative:
+          '"Knowledge alone is not enough. Endure the trials and learn what hands-on mastery feels like — complete a single trial."',
         target: 1,
         counter: 'labsCompleted',
         xp: 100,
@@ -387,14 +385,15 @@ export const STORY_CHAINS = [
       {
         id: 'ap_step4',
         title: 'Into the Dungeon',
-        narrative: '"Now thou must prove thy courage. Brave the dungeon and emerge victorious — survive a single delve."',
+        narrative:
+          '"Now thou must prove thy courage. Brave the dungeon and emerge victorious — survive a single delve."',
         target: 1,
         counter: 'runsCompleted',
         xp: 150,
       },
       {
         id: 'ap_step5',
-        title: 'The Dragon\'s Fall',
+        title: "The Dragon's Fall",
         narrative: '"The dungeon lords are the true test. Defeat one and earn thy first laurels of glory."',
         target: 1,
         counter: 'bossesDefeated',
@@ -403,14 +402,15 @@ export const STORY_CHAINS = [
       {
         id: 'ap_step6',
         title: 'Wisdom Through Repetition',
-        narrative: '"True mastery comes from devotion. Study fifty scrolls, and the bond between thee and thy tome shall deepen."',
+        narrative:
+          '"True mastery comes from devotion. Study fifty scrolls, and the bond between thee and thy tome shall deepen."',
         target: 50,
         counter: 'cardsReviewed',
         xp: 200,
       },
       {
         id: 'ap_step7',
-        title: 'The Sphinx\'s Champion',
+        title: "The Sphinx's Champion",
         narrative: '"Answer fifty riddles correctly, and the Sphinx herself shall name thee a worthy adversary."',
         target: 50,
         counter: 'totalCorrect',
@@ -419,7 +419,8 @@ export const STORY_CHAINS = [
       {
         id: 'ap_step8',
         title: 'The Walker of the Path',
-        narrative: '"Five dungeons cleared. Three trials endured. Thy apprenticeship draws to a close — and a greater journey awaits beyond."',
+        narrative:
+          '"Five dungeons cleared. Three trials endured. Thy apprenticeship draws to a close — and a greater journey awaits beyond."',
         target: 5,
         counter: 'runsCompleted',
         xp: 300,
@@ -429,21 +430,19 @@ export const STORY_CHAINS = [
   },
 ];
 
-
 // Maps a story-step counter id to a player-facing action description, used by
 // StoryStepCard to tell the user what to actually DO for the current step.
 export const COUNTER_ACTIONS = {
-  cardsReviewed:  { icon: '📜', verb: 'Study',    noun: 'sacred scroll' },
-  totalCorrect:   { icon: '✨', verb: 'Get',      noun: 'correct answer' },
-  quizAnswered:   { icon: '🔮', verb: 'Answer',   noun: 'riddle' },
-  labsCompleted:  { icon: '⚗️', verb: 'Complete', noun: 'trial of skill' },
-  runsCompleted:  { icon: '⚔️', verb: 'Complete', noun: 'dungeon delve' },
-  bossesDefeated: { icon: '🐉', verb: 'Defeat',   noun: 'dungeon lord' },
-  oracleMessages: { icon: '🪄', verb: 'Consult',  noun: 'Oracle whisper' },
-  vaultBanished:  { icon: '🗡️', verb: 'Banish',   noun: 'vault foe' },
-  currentStreak:  { icon: '⭐', verb: 'Build',    noun: 'answer streak' },
+  cardsReviewed: { icon: '📜', verb: 'Study', noun: 'sacred scroll' },
+  totalCorrect: { icon: '✨', verb: 'Get', noun: 'correct answer' },
+  quizAnswered: { icon: '🔮', verb: 'Answer', noun: 'riddle' },
+  labsCompleted: { icon: '⚗️', verb: 'Complete', noun: 'trial of skill' },
+  runsCompleted: { icon: '⚔️', verb: 'Complete', noun: 'dungeon delve' },
+  bossesDefeated: { icon: '🐉', verb: 'Defeat', noun: 'dungeon lord' },
+  oracleMessages: { icon: '🪄', verb: 'Consult', noun: 'Oracle whisper' },
+  vaultBanished: { icon: '🗡️', verb: 'Banish', noun: 'vault foe' },
+  currentStreak: { icon: '⭐', verb: 'Build', noun: 'answer streak' },
 };
-
 
 export const formatStoryAction = (counter, target) => {
   const a = COUNTER_ACTIONS[counter];

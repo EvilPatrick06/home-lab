@@ -1,13 +1,27 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
-import { Flame, ChevronRight, X, Check, ArrowLeft, Loader2, Wand2 } from 'lucide-react';
-import { gradeAnswer } from '../../services/oracleGrader.js';
-import { saveSession, loadSession, SESSION_KIND } from '../../services/sessionResume.js';
-import { FilteredModeBanner } from '../../components/ui/FilteredModeBanner.jsx';
-import { DifficultyStars, BloomBadge } from '../../components/ui/badges.jsx';
+import { ArrowLeft, Check, ChevronRight, Flame, Loader2, Wand2, X } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import RichContent from '../../components/RichContent.jsx';
+import { BloomBadge, DifficultyStars } from '../../components/ui/badges.jsx';
+import { FilteredModeBanner } from '../../components/ui/FilteredModeBanner.jsx';
+import { gradeAnswer } from '../../services/oracleGrader.js';
+import { loadSession, SESSION_KIND, saveSession } from '../../services/sessionResume.js';
 import { speak, ttsSupported } from '../../services/tts.js';
 
-function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, awardXP, recordAnswer, checkAchievement, playerState, updateTomeProgress, domainFilter, onExitFilter, onResumeNotify, onGoToLibrary }) {
+function QuizMode({
+  courseSet,
+  tomeId,
+  questions: questionsProp,
+  tomeProgress,
+  awardXP,
+  recordAnswer,
+  checkAchievement,
+  playerState,
+  updateTomeProgress,
+  domainFilter,
+  onExitFilter,
+  onResumeNotify,
+  onGoToLibrary,
+}) {
   const [index, setIndex] = useState(0);
   // Phase 35d QA P3: user-facing session progress counter, decoupled from
   // deck position. Increments only on `next()` so a refresh-resume (which
@@ -32,7 +46,12 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
   // PHASE-17 17B (M2): abort an in-flight Oracle grade on unmount / resubmit so
   // a verdict that lands after leaving the mode can't record progress.
   const gradeAbortRef = useRef(null);
-  useEffect(() => () => { gradeAbortRef.current?.abort(); }, []);
+  useEffect(
+    () => () => {
+      gradeAbortRef.current?.abort();
+    },
+    [],
+  );
   // 26a: confidence calibration. User rates 'low' / 'med' / 'high' before
   // they see the answer choices; the rating is passed through to
   // recordAnswer so the per-tome confidenceStats can track calibration.
@@ -44,8 +63,8 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
   // shuffle so the saved index points to the right riddle.
   // PHASE-40 40B (L15): defensive copy with a stable identity (see FlashcardsMode).
   const baseDeck = useMemo(
-    () => ((questionsProp && questionsProp.length) ? questionsProp : (courseSet.quiz || [])).slice(),
-    [questionsProp, courseSet]
+    () => (questionsProp && questionsProp.length ? questionsProp : courseSet.quiz || []).slice(),
+    [questionsProp, courseSet],
   );
   // 25e2: Domain Study can launch this mode with a single-domain filter.
   const questions = useMemo(() => {
@@ -77,10 +96,19 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
   useEffect(() => {
     if (restored) return;
     if (!questions || questions.length === 0) return;
-    if (domainFilter) { setRestored(true); return; }
+    if (domainFilter) {
+      setRestored(true);
+      return;
+    }
     const saved = loadSession(SESSION_KIND.QUIZ);
-    if (!saved) { setRestored(true); return; }
-    if (saved.tomeId && tomeId && saved.tomeId !== tomeId) { setRestored(true); return; }
+    if (!saved) {
+      setRestored(true);
+      return;
+    }
+    if (saved.tomeId && tomeId && saved.tomeId !== tomeId) {
+      setRestored(true);
+      return;
+    }
     // Always-applies state first — these were missed by the prior version
     // because the questionId branch early-returned.
     if (saved.confidence) setConfidence(saved.confidence);
@@ -105,22 +133,28 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
       const seen = new Set();
       for (const id of saved.deckIds) {
         const item = byId.get(id);
-        if (item && !seen.has(id)) { ordered.push(item); seen.add(id); }
+        if (item && !seen.has(id)) {
+          ordered.push(item);
+          seen.add(id);
+        }
       }
       for (const item of baseDeck) {
-        if (item?.id && !seen.has(item.id)) { ordered.push(item); seen.add(item.id); }
+        if (item?.id && !seen.has(item.id)) {
+          ordered.push(item);
+          seen.add(item.id);
+        }
       }
       if (ordered.length > 0) {
         setSessionDeck(ordered);
-        const wantedIdx = typeof saved.index === 'number' && saved.index >= 0 && saved.index < ordered.length
-          ? saved.index : 0;
+        const wantedIdx =
+          typeof saved.index === 'number' && saved.index >= 0 && saved.index < ordered.length ? saved.index : 0;
         setIndex(wantedIdx);
         restoredQuestion = ordered[wantedIdx];
         positioned = true;
       }
     }
     if (!positioned && saved.questionId) {
-      const pos = questions.findIndex(q => q?.id === saved.questionId);
+      const pos = questions.findIndex((q) => q?.id === saved.questionId);
       if (pos >= 0) {
         setIndex(pos);
         restoredQuestion = questions[pos];
@@ -140,7 +174,13 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
     if (positioned) {
       const restoredProgress = typeof saved.progressCount === 'number' ? saved.progressCount : 0;
       const restoredStreak = typeof saved.streak === 'number' ? saved.streak : 0;
-      onResumeNotify?.({ kind: 'quiz', progressCount: restoredProgress, streak: restoredStreak, total: questions.length, riddleId: restoredQuestion?.id || null });
+      onResumeNotify?.({
+        kind: 'quiz',
+        progressCount: restoredProgress,
+        streak: restoredStreak,
+        total: questions.length,
+        riddleId: restoredQuestion?.id || null,
+      });
       setResumedRecently(true);
       setTimeout(() => setResumedRecently(false), 3000);
     }
@@ -160,7 +200,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
       tomeId: tomeId ?? null,
       index,
       questionId: questions[index]?.id ?? null,
-      deckIds: questions.map(qq => qq?.id || null),
+      deckIds: questions.map((qq) => qq?.id || null),
       confidence,
       progressCount,
       streak,
@@ -191,9 +231,21 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
         return;
       }
       if (!s.confidence) {
-        if (e.key === '1') { e.preventDefault(); s.setConfidence('low'); return; }
-        if (e.key === '2') { e.preventDefault(); s.setConfidence('med'); return; }
-        if (e.key === '3') { e.preventDefault(); s.setConfidence('high'); return; }
+        if (e.key === '1') {
+          e.preventDefault();
+          s.setConfidence('low');
+          return;
+        }
+        if (e.key === '2') {
+          e.preventDefault();
+          s.setConfidence('med');
+          return;
+        }
+        if (e.key === '3') {
+          e.preventDefault();
+          s.setConfidence('high');
+          return;
+        }
         return;
       }
       const key = e.key.toLowerCase();
@@ -206,8 +258,13 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
           s.handleAnswer?.(idx === s.q.correctIndex);
         }
       } else if (s.isTF) {
-        if (key === 't') { e.preventDefault(); s.handleAnswer?.(s.q.correctAnswer === true); }
-        else if (key === 'f') { e.preventDefault(); s.handleAnswer?.(s.q.correctAnswer === false); }
+        if (key === 't') {
+          e.preventDefault();
+          s.handleAnswer?.(s.q.correctAnswer === true);
+        } else if (key === 'f') {
+          e.preventDefault();
+          s.handleAnswer?.(s.q.correctAnswer === false);
+        }
       }
     };
     window.addEventListener('keydown', onKey);
@@ -279,7 +336,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
       // correct → wrong: zero streak.
       setStreak(0);
     }
-    setAnswered(prev => (prev ? { ...prev, correct: newCorrect, overridden: true } : prev));
+    setAnswered((prev) => (prev ? { ...prev, correct: newCorrect, overridden: true } : prev));
   };
 
   const handleSkip = () => {
@@ -299,7 +356,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
     // Phase 35d QA P3: bump the user-facing counter only on explicit
     // advance, never on index restoration. This is what keeps "Riddle X of N"
     // stable across a refresh-resume.
-    setProgressCount(p => p + 1);
+    setProgressCount((p) => p + 1);
   };
 
   // Phase 30g / 43d: keep keyRef in sync with the latest closure values so
@@ -315,34 +372,35 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
     setConfidence,
   };
 
-  if (!q) return (
-    <div className="space-y-4 max-w-3xl mx-auto">
-      {domainFilter && (
-        <FilteredModeBanner domainFilter={domainFilter} onExitFilter={onExitFilter} accent="purple" />
-      )}
-      <div className="text-center py-12 text-amber-600 italic">
-        {domainFilter
-          ? `No riddles tagged "${domainFilter}" in this tome.`
-          : 'No riddles in this tome.'}
+  if (!q)
+    return (
+      <div className="space-y-4 max-w-3xl mx-auto">
+        {domainFilter && <FilteredModeBanner domainFilter={domainFilter} onExitFilter={onExitFilter} accent="purple" />}
+        <div className="text-center py-12 text-amber-600 italic">
+          {domainFilter ? `No riddles tagged "${domainFilter}" in this tome.` : 'No riddles in this tome.'}
+        </div>
+        {/* Phase 30d QA #7: explicit "back" affordance instead of just the header Hearth. */}
+        {domainFilter && (
+          <button
+            onClick={() => onExitFilter?.()}
+            className="w-full py-3 px-4 rounded-sm italic border-2 border-amber-700 text-amber-200"
+            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
+          >
+            <ArrowLeft className="w-4 h-4 inline mr-2" /> Clear Filter
+          </button>
+        )}
+        {/* 19E (L17): unfiltered dead-end gets a path to add content. */}
+        {!domainFilter && (
+          <button
+            onClick={() => onGoToLibrary?.()}
+            className="w-full py-3 px-4 rounded-sm italic border-2 border-amber-700 text-amber-200"
+            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
+          >
+            📜 Visit the Grand Library — import or forge a tome with riddles
+          </button>
+        )}
       </div>
-      {/* Phase 30d QA #7: explicit "back" affordance instead of just the header Hearth. */}
-      {domainFilter && (
-        <button onClick={() => onExitFilter?.()}
-          className="w-full py-3 px-4 rounded-sm italic border-2 border-amber-700 text-amber-200"
-          style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>
-          <ArrowLeft className="w-4 h-4 inline mr-2" /> Clear Filter
-        </button>
-      )}
-      {/* 19E (L17): unfiltered dead-end gets a path to add content. */}
-      {!domainFilter && (
-        <button onClick={() => onGoToLibrary?.()}
-          className="w-full py-3 px-4 rounded-sm italic border-2 border-amber-700 text-amber-200"
-          style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>
-          📜 Visit the Grand Library — import or forge a tome with riddles
-        </button>
-      )}
-    </div>
-  );
+    );
 
   const isMC = q.options && Array.isArray(q.options);
   const isTF = q.type === 'truefalse';
@@ -350,16 +408,22 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
 
   return (
     <div className="space-y-4 max-w-3xl mx-auto">
-      {domainFilter && (
-        <FilteredModeBanner domainFilter={domainFilter} onExitFilter={onExitFilter} accent="purple" />
-      )}
+      {domainFilter && <FilteredModeBanner domainFilter={domainFilter} onExitFilter={onExitFilter} accent="purple" />}
       <div className="flex justify-between items-center text-sm text-amber-600 italic flex-wrap gap-2">
         <span className="flex items-center gap-2 flex-wrap">
           🔮 Riddle {Math.min(progressCount + 1, questions.length)} of {questions.length}
           {resumedRecently && (
-            <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded-sm not-italic ml-1" style={{
-              background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.45)', border: '1px solid rgba(16, 185, 129, 0.6)', color: '#a7f3d0',
-            }} aria-live="polite">· resumed</span>
+            <span
+              className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded-sm not-italic ml-1"
+              style={{
+                background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.45)',
+                border: '1px solid rgba(16, 185, 129, 0.6)',
+                color: '#a7f3d0',
+              }}
+              aria-live="polite"
+            >
+              · resumed
+            </span>
           )}
           {/* Phase 35c QA P4: per-riddle difficulty only. The tome-avg
               fallback (Phase 32e) was visually identical across every riddle
@@ -370,7 +434,9 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
           {typeof q.difficulty === 'number' && <DifficultyStars value={q.difficulty} />}
           {q.bloomLevel && <BloomBadge level={q.bloomLevel} />}
         </span>
-        <span className="flex items-center gap-1"><Flame className="w-4 h-4 text-orange-400" /> Streak: {streak}</span>
+        <span className="flex items-center gap-1">
+          <Flame className="w-4 h-4 text-orange-400" /> Streak: {streak}
+        </span>
       </div>
       {/* Phase 30g QA #12: keyboard hotkey legend. Hidden once the riddle
           is answered to reduce noise. */}
@@ -378,17 +444,26 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
         <div className="text-[11px] italic text-amber-100/60 text-center">
           {!confidence
             ? '⌨ Hotkeys: 1 Uncertain · 2 Likely · 3 Confident'
-            : (q.options && Array.isArray(q.options))
-              ? '⌨ Hotkeys: 1–' + q.options.length + ' or A–' + String.fromCharCode(64 + q.options.length) + ' to pick an answer'
+            : q.options && Array.isArray(q.options)
+              ? '⌨ Hotkeys: 1–' +
+                q.options.length +
+                ' or A–' +
+                String.fromCharCode(64 + q.options.length) +
+                ' to pick an answer'
               : q.type === 'truefalse'
                 ? '⌨ Hotkeys: T for True · F for False'
                 : ''}
         </div>
       )}
-      <div className="rounded-sm p-6 relative" style={{
-        background: 'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.85) 0%, rgba(15, 6, 20, 0.95) 100%)',
-        border: '3px double rgba(126, 34, 206, 0.6)', boxShadow: '0 0 30px rgba(168, 85, 247, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',
-      }}>
+      <div
+        className="rounded-sm p-6 relative"
+        style={{
+          background:
+            'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.85) 0%, rgba(15, 6, 20, 0.95) 100%)',
+          border: '3px double rgba(126, 34, 206, 0.6)',
+          boxShadow: '0 0 30px rgba(168, 85, 247, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',
+        }}
+      >
         {/* Phase 33f / 35c / 36b / 40c QA P6, P4, P2, round-8: render the
             chip row. 40c hides the difficulty + Bloom placeholders entirely
             when BOTH are absent (was: always showing greyed-out placeholders
@@ -403,37 +478,86 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
           return (
             <div className="flex items-center gap-2 flex-wrap mb-4 pb-3 border-b border-purple-700/40">
               {q.domain ? (
-                <span className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded-sm font-bold" style={{
-                  background: 'rgba(126, 34, 206, 0.35)', border: '1px solid rgba(168, 85, 247, 0.6)', color: '#e9d5ff',
-                }}>{q.domain}</span>
+                <span
+                  className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded-sm font-bold"
+                  style={{
+                    background: 'rgba(126, 34, 206, 0.35)',
+                    border: '1px solid rgba(168, 85, 247, 0.6)',
+                    color: '#e9d5ff',
+                  }}
+                >
+                  {q.domain}
+                </span>
               ) : (
-                <span className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded-sm" style={{
-                  background: 'rgba(63, 63, 70, 0.25)', border: '1px dashed rgba(120, 113, 108, 0.45)', color: 'rgba(214, 211, 209, 0.7)',
-                }} title="No domain tagged on this riddle">domain —</span>
+                <span
+                  className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded-sm"
+                  style={{
+                    background: 'rgba(63, 63, 70, 0.25)',
+                    border: '1px dashed rgba(120, 113, 108, 0.45)',
+                    color: 'rgba(214, 211, 209, 0.7)',
+                  }}
+                  title="No domain tagged on this riddle"
+                >
+                  domain —
+                </span>
               )}
               {hasDifficulty ? (
-                <span className="flex items-center gap-1 px-2 py-0.5 rounded-sm" style={{ background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.35)', border: '1px solid rgba(245, 158, 11, 0.5)' }}>
+                <span
+                  className="flex items-center gap-1 px-2 py-0.5 rounded-sm"
+                  style={{
+                    background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.35)',
+                    border: '1px solid rgba(245, 158, 11, 0.5)',
+                  }}
+                >
                   <DifficultyStars value={q.difficulty} />
                 </span>
-              ) : (!hideOptionalChips && (
-                <span className="flex items-center gap-1 px-2 py-0.5 rounded-sm" style={{ background: 'rgba(63, 63, 70, 0.2)', border: '1px dashed rgba(120, 113, 108, 0.4)', color: 'rgba(214, 211, 209, 0.7)' }} title="Per-riddle difficulty not rated by the tome author">
-                  <span className="text-xs tabular-nums">▱▱▱▱▱</span>
-                  <span className="text-[9px] italic">not rated</span>
-                </span>
-              ))}
+              ) : (
+                !hideOptionalChips && (
+                  <span
+                    className="flex items-center gap-1 px-2 py-0.5 rounded-sm"
+                    style={{
+                      background: 'rgba(63, 63, 70, 0.2)',
+                      border: '1px dashed rgba(120, 113, 108, 0.4)',
+                      color: 'rgba(214, 211, 209, 0.7)',
+                    }}
+                    title="Per-riddle difficulty not rated by the tome author"
+                  >
+                    <span className="text-xs tabular-nums">▱▱▱▱▱</span>
+                    <span className="text-[9px] italic">not rated</span>
+                  </span>
+                )
+              )}
               {hasBloom ? (
                 <BloomBadge level={q.bloomLevel} />
-              ) : (!hideOptionalChips && (
-                <span className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded-sm" style={{
-                  background: 'rgba(63, 63, 70, 0.2)', border: '1px dashed rgba(120, 113, 108, 0.4)', color: 'rgba(214, 211, 209, 0.7)',
-                }} title="Bloom's-level not tagged on this riddle">bloom —</span>
-              ))}
+              ) : (
+                !hideOptionalChips && (
+                  <span
+                    className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded-sm"
+                    style={{
+                      background: 'rgba(63, 63, 70, 0.2)',
+                      border: '1px dashed rgba(120, 113, 108, 0.4)',
+                      color: 'rgba(214, 211, 209, 0.7)',
+                    }}
+                    title="Bloom's-level not tagged on this riddle"
+                  >
+                    bloom —
+                  </span>
+                )
+              )}
             </div>
           );
         })()}
         <RichContent as="div" text={q.question} className="text-lg text-amber-50 mb-6 italic" />
         {ttsSupported() && (
-          <button type="button" onClick={() => speak(q.question)} aria-label="Read the riddle aloud" title="Read aloud" className="text-amber-500 hover:text-amber-300 text-sm mb-4">🔊 Read aloud</button>
+          <button
+            type="button"
+            onClick={() => speak(q.question)}
+            aria-label="Read the riddle aloud"
+            title="Read aloud"
+            className="text-amber-500 hover:text-amber-300 text-sm mb-4"
+          >
+            🔊 Read aloud
+          </button>
         )}
         {/* 26a: confidence calibration. Gate the answer choices behind a
             confidence rating so we can compare "how sure I was" vs "did I
@@ -447,19 +571,25 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
               Before answering, how sure art thou?
             </div>
             <div className="grid grid-cols-3 gap-2">
-              <button onClick={() => setConfidence('low')}
+              <button
+                onClick={() => setConfidence('low')}
                 className="p-3 rounded-sm font-bold border-2 border-zinc-400 text-zinc-200 italic"
-                style={{ background: 'rgba(63, 63, 70, 0.45)' }}>
+                style={{ background: 'rgba(63, 63, 70, 0.45)' }}
+              >
                 ✦ Uncertain
               </button>
-              <button onClick={() => setConfidence('med')}
+              <button
+                onClick={() => setConfidence('med')}
                 className="p-3 rounded-sm font-bold border-2 border-amber-400 text-amber-200 italic"
-                style={{ background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.45)' }}>
+                style={{ background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.45)' }}
+              >
                 ✦ Likely
               </button>
-              <button onClick={() => setConfidence('high')}
+              <button
+                onClick={() => setConfidence('high')}
                 className="p-3 rounded-sm font-bold border-2 border-emerald-400 text-emerald-200 italic"
-                style={{ background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.45)' }}>
+                style={{ background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.45)' }}
+              >
                 ✦ Confident
               </button>
             </div>
@@ -468,11 +598,24 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
         {!answered && confidence && (
           <div className="mb-3 flex items-center gap-2 text-[11px] italic">
             <span className="text-amber-700">Thy confidence:</span>
-            <span className="px-2 py-0.5 rounded-sm border italic font-bold" style={
-              confidence === 'high' ? { borderColor: '#10b981', color: '#a7f3d0', background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.35)' }
-              : confidence === 'med' ? { borderColor: '#fbbf24', color: '#fde68a', background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.35)' }
-              :                        { borderColor: '#a1a1aa', color: '#e4e4e7', background: 'rgba(63, 63, 70, 0.35)' }
-            }>
+            <span
+              className="px-2 py-0.5 rounded-sm border italic font-bold"
+              style={
+                confidence === 'high'
+                  ? {
+                      borderColor: '#10b981',
+                      color: '#a7f3d0',
+                      background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.35)',
+                    }
+                  : confidence === 'med'
+                    ? {
+                        borderColor: '#fbbf24',
+                        color: '#fde68a',
+                        background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.35)',
+                      }
+                    : { borderColor: '#a1a1aa', color: '#e4e4e7', background: 'rgba(63, 63, 70, 0.35)' }
+              }
+            >
               {confidence === 'high' ? 'Confident' : confidence === 'med' ? 'Likely' : 'Uncertain'}
             </span>
           </div>
@@ -480,45 +623,106 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
         {!answered && confidence && isMC && (
           <div className="space-y-2">
             {q.options.map((opt, i) => (
-              <button key={i} onClick={() => handleAnswer(i === q.correctIndex)} className="w-full text-left p-3 rounded-sm border-2 transition text-amber-50"
-                style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.6)', borderColor: 'rgba(126, 34, 206, 0.5)' }}>
-                <span className="text-purple-400 font-bold mr-2">{String.fromCharCode(65 + i)}.</span>{opt}
+              <button
+                key={i}
+                onClick={() => handleAnswer(i === q.correctIndex)}
+                className="w-full text-left p-3 rounded-sm border-2 transition text-amber-50"
+                style={{
+                  background: 'rgba(var(--surface-purple, 31, 12, 41), 0.6)',
+                  borderColor: 'rgba(126, 34, 206, 0.5)',
+                }}
+              >
+                <span className="text-purple-400 font-bold mr-2">{String.fromCharCode(65 + i)}.</span>
+                {opt}
               </button>
             ))}
           </div>
         )}
         {!answered && confidence && isTF && (
           <div className="grid grid-cols-2 gap-3">
-            <button onClick={() => handleAnswer(q.correctAnswer === true)} className="p-4 rounded-sm font-bold border-2 border-emerald-400 text-emerald-200 italic" style={{ background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.4)' }}>⚖ Verily True ⚖</button>
-            <button onClick={() => handleAnswer(q.correctAnswer === false)} className="p-4 rounded-sm font-bold border-2 border-red-400 text-red-200 italic" style={{ background: 'rgba(127, 29, 29, 0.4)' }}>⚖ A Falsehood ⚖</button>
+            <button
+              onClick={() => handleAnswer(q.correctAnswer === true)}
+              className="p-4 rounded-sm font-bold border-2 border-emerald-400 text-emerald-200 italic"
+              style={{ background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.4)' }}
+            >
+              ⚖ Verily True ⚖
+            </button>
+            <button
+              onClick={() => handleAnswer(q.correctAnswer === false)}
+              className="p-4 rounded-sm font-bold border-2 border-red-400 text-red-200 italic"
+              style={{ background: 'rgba(127, 29, 29, 0.4)' }}
+            >
+              ⚖ A Falsehood ⚖
+            </button>
           </div>
         )}
         {!answered && confidence && isFIB && (
           <div className="space-y-3">
-            <input type="text" value={textAnswer} onChange={(e) => setTextAnswer(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter' && textAnswer.trim() && !grading) submitFillBlankWithOracle(); }}
+            <input
+              type="text"
+              value={textAnswer}
+              onChange={(e) => setTextAnswer(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && textAnswer.trim() && !grading) submitFillBlankWithOracle();
+              }}
               disabled={grading}
-              placeholder="Inscribe thy answer..." className="w-full p-3 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
-              style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.6)', borderColor: 'rgba(126, 34, 206, 0.5)' }} autoFocus />
-            <button onClick={submitFillBlankWithOracle}
-              disabled={!textAnswer.trim() || grading} className="w-full py-3 font-bold rounded-sm disabled:opacity-50 text-amber-50 border-2 border-purple-400 italic flex items-center justify-center gap-2"
-              style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)', boxShadow: '0 0 20px rgba(168, 85, 247, 0.4)' }}>
-              {grading ? (<><Loader2 className="w-4 h-4 animate-spin" /> The Oracle deliberates...</>) : 'Submit Thy Answer'}
+              placeholder="Inscribe thy answer..."
+              className="w-full p-3 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
+              style={{
+                background: 'rgba(var(--surface-purple, 31, 12, 41), 0.6)',
+                borderColor: 'rgba(126, 34, 206, 0.5)',
+              }}
+              autoFocus
+            />
+            <button
+              onClick={submitFillBlankWithOracle}
+              disabled={!textAnswer.trim() || grading}
+              className="w-full py-3 font-bold rounded-sm disabled:opacity-50 text-amber-50 border-2 border-purple-400 italic flex items-center justify-center gap-2"
+              style={{
+                background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)',
+                boxShadow: '0 0 20px rgba(168, 85, 247, 0.4)',
+              }}
+            >
+              {grading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" /> The Oracle deliberates...
+                </>
+              ) : (
+                'Submit Thy Answer'
+              )}
             </button>
           </div>
         )}
         {answered && (
           <div className="space-y-3">
-            <div role="status" className="p-4 rounded-sm border-2 space-y-2" style={{
-              background: answered.correct ? 'rgba(var(--surface-emerald, 6, 78, 59), 0.5)' : 'rgba(127, 29, 29, 0.5)',
-              borderColor: answered.correct ? 'rgba(16, 185, 129, 0.7)' : 'rgba(239, 68, 68, 0.7)',
-              borderStyle: answered.correct ? 'solid' : 'dashed', // 19C: non-color cue
-            }}>
+            <div
+              role="status"
+              className="p-4 rounded-sm border-2 space-y-2"
+              style={{
+                background: answered.correct
+                  ? 'rgba(var(--surface-emerald, 6, 78, 59), 0.5)'
+                  : 'rgba(127, 29, 29, 0.5)',
+                borderColor: answered.correct ? 'rgba(16, 185, 129, 0.7)' : 'rgba(239, 68, 68, 0.7)',
+                borderStyle: answered.correct ? 'solid' : 'dashed', // 19C: non-color cue
+              }}
+            >
               <div className="font-bold flex items-center gap-2 italic flex-wrap">
-                {answered.correct ? <Check className="w-5 h-5 text-emerald-400" /> : <X className="w-5 h-5 text-red-400" />}
-                <span>{answered.correct ? '⚔ Strike True! ⚔' : (answered.skipped ? '↳ Skipped — Added to Tome of Failures' : '✗ The Blow Falters')}</span>
+                {answered.correct ? (
+                  <Check className="w-5 h-5 text-emerald-400" />
+                ) : (
+                  <X className="w-5 h-5 text-red-400" />
+                )}
+                <span>
+                  {answered.correct
+                    ? '⚔ Strike True! ⚔'
+                    : answered.skipped
+                      ? '↳ Skipped — Added to Tome of Failures'
+                      : '✗ The Blow Falters'}
+                </span>
                 {answered.overridden && (
-                  <span className="text-xs px-2 py-0.5 rounded-sm border border-amber-400/60 text-amber-200 italic">overridden</span>
+                  <span className="text-xs px-2 py-0.5 rounded-sm border border-amber-400/60 text-amber-200 italic">
+                    overridden
+                  </span>
                 )}
                 {answered.source === 'oracle' && (
                   <span className="text-xs px-2 py-0.5 rounded-sm border border-purple-400/60 text-purple-200 italic flex items-center gap-1">
@@ -526,63 +730,110 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
                   </span>
                 )}
                 {answered.source === 'fallback' && (
-                  <span className="text-xs px-2 py-0.5 rounded-sm border border-amber-700/60 text-amber-300 italic" title={answered.fallbackReason || ''}>
+                  <span
+                    className="text-xs px-2 py-0.5 rounded-sm border border-amber-700/60 text-amber-300 italic"
+                    title={answered.fallbackReason || ''}
+                  >
                     Tome match (Oracle silent)
                   </span>
                 )}
-                {answered.confidence && (() => {
-                  // 26a: show the calibration result inline — whether the
-                  // confidence rating matched the outcome. Surfaces over-
-                  // and under-confidence in real time.
-                  const calibrationOk = (answered.confidence === 'high' && answered.correct)
-                    || (answered.confidence === 'low' && !answered.correct);
-                  const mismatch = (answered.confidence === 'high' && !answered.correct)
-                    || (answered.confidence === 'low' && answered.correct);
-                  const label = answered.confidence === 'high' ? 'Confident' : answered.confidence === 'med' ? 'Likely' : 'Uncertain';
-                  const tag = mismatch
-                    ? (answered.confidence === 'high' ? '· overconfident' : '· underconfident')
-                    : calibrationOk
-                      ? '· calibrated'
-                      : '';
-                  return (
-                    <span className="text-xs px-2 py-0.5 rounded-sm border italic flex items-center gap-1" style={
-                      answered.confidence === 'high' ? { borderColor: '#10b981', color: '#a7f3d0', background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.35)' }
-                      : answered.confidence === 'med' ? { borderColor: '#fbbf24', color: '#fde68a', background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.35)' }
-                      :                                  { borderColor: '#a1a1aa', color: '#e4e4e7', background: 'rgba(63, 63, 70, 0.35)' }
-                    }>
-                      ✦ {label} {tag}
-                    </span>
-                  );
-                })()}
+                {answered.confidence &&
+                  (() => {
+                    // 26a: show the calibration result inline — whether the
+                    // confidence rating matched the outcome. Surfaces over-
+                    // and under-confidence in real time.
+                    const calibrationOk =
+                      (answered.confidence === 'high' && answered.correct) ||
+                      (answered.confidence === 'low' && !answered.correct);
+                    const mismatch =
+                      (answered.confidence === 'high' && !answered.correct) ||
+                      (answered.confidence === 'low' && answered.correct);
+                    const label =
+                      answered.confidence === 'high'
+                        ? 'Confident'
+                        : answered.confidence === 'med'
+                          ? 'Likely'
+                          : 'Uncertain';
+                    const tag = mismatch
+                      ? answered.confidence === 'high'
+                        ? '· overconfident'
+                        : '· underconfident'
+                      : calibrationOk
+                        ? '· calibrated'
+                        : '';
+                    return (
+                      <span
+                        className="text-xs px-2 py-0.5 rounded-sm border italic flex items-center gap-1"
+                        style={
+                          answered.confidence === 'high'
+                            ? {
+                                borderColor: '#10b981',
+                                color: '#a7f3d0',
+                                background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.35)',
+                              }
+                            : answered.confidence === 'med'
+                              ? {
+                                  borderColor: '#fbbf24',
+                                  color: '#fde68a',
+                                  background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.35)',
+                                }
+                              : { borderColor: '#a1a1aa', color: '#e4e4e7', background: 'rgba(63, 63, 70, 0.35)' }
+                        }
+                      >
+                        ✦ {label} {tag}
+                      </span>
+                    );
+                  })()}
               </div>
               {answered.oracleFeedback && (
                 <p className="text-sm text-amber-100/90 italic leading-relaxed">{answered.oracleFeedback}</p>
               )}
               {q.explanation && (
                 <div className="text-sm text-amber-100/70 italic">
-                  <span className="text-purple-300">From the tome:</span>{' '}
-                  <RichContent as={null} text={q.explanation} />
+                  <span className="text-purple-300">From the tome:</span> <RichContent as={null} text={q.explanation} />
                 </div>
               )}
               {!answered.correct && q.correctAnswer !== undefined && (
-                <p className="text-sm text-amber-100/70 italic">The truth was: <span className="text-emerald-300">{isMC ? q.options[q.correctIndex] : isTF ? String(q.correctAnswer) : q.correctAnswer}</span></p>
+                <p className="text-sm text-amber-100/70 italic">
+                  The truth was:{' '}
+                  <span className="text-emerald-300">
+                    {isMC ? q.options[q.correctIndex] : isTF ? String(q.correctAnswer) : q.correctAnswer}
+                  </span>
+                </p>
               )}
             </div>
             {isFIB && (answered.source === 'oracle' || answered.source === 'fallback') && (
               <div className="flex gap-2 flex-wrap">
                 {!answered.correct && (
-                  <button onClick={() => overrideVerdict(true)} className="flex-1 py-2 rounded-sm text-xs italic border-2 border-emerald-500 text-emerald-200 flex items-center justify-center gap-1" style={{ background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.4)' }}>
+                  <button
+                    onClick={() => overrideVerdict(true)}
+                    className="flex-1 py-2 rounded-sm text-xs italic border-2 border-emerald-500 text-emerald-200 flex items-center justify-center gap-1"
+                    style={{ background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.4)' }}
+                  >
                     <Check className="w-3 h-3" /> Mark as correct
                   </button>
                 )}
                 {answered.correct && (
-                  <button onClick={() => overrideVerdict(false)} className="flex-1 py-2 rounded-sm text-xs italic border-2 border-red-500 text-red-200 flex items-center justify-center gap-1" style={{ background: 'rgba(127, 29, 29, 0.4)' }}>
+                  <button
+                    onClick={() => overrideVerdict(false)}
+                    className="flex-1 py-2 rounded-sm text-xs italic border-2 border-red-500 text-red-200 flex items-center justify-center gap-1"
+                    style={{ background: 'rgba(127, 29, 29, 0.4)' }}
+                  >
                     <X className="w-3 h-3" /> Mark as wrong
                   </button>
                 )}
               </div>
             )}
-            <button onClick={next} className="w-full py-3 font-bold rounded-sm text-amber-50 border-2 border-purple-400 italic" style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)', boxShadow: '0 0 20px rgba(168, 85, 247, 0.4)' }}>Next Riddle →</button>
+            <button
+              onClick={next}
+              className="w-full py-3 font-bold rounded-sm text-amber-50 border-2 border-purple-400 italic"
+              style={{
+                background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)',
+                boxShadow: '0 0 20px rgba(168, 85, 247, 0.4)',
+              }}
+            >
+              Next Riddle →
+            </button>
           </div>
         )}
         {!answered && (

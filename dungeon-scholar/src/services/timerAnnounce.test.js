@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { timerAnnouncement } from './timerAnnounce.js';
 
 describe('timerAnnouncement (PHASE-19 19D)', () => {

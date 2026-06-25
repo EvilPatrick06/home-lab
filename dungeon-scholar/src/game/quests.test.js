@@ -1,5 +1,12 @@
-import { describe, it, expect } from 'vitest';
-import { DAILY_QUEST_POOL, WEEKLY_QUEST_POOL, pickDailyQuests, pickWeeklyQuests, currentWeekStartStr, getCounterValue } from './quests.js';
+import { describe, expect, it } from 'vitest';
+import {
+  currentWeekStartStr,
+  DAILY_QUEST_POOL,
+  getCounterValue,
+  pickDailyQuests,
+  pickWeeklyQuests,
+  WEEKLY_QUEST_POOL,
+} from './quests.js';
 
 describe('pickDailyQuests (PHASE-39 39A)', () => {
   it('is deterministic for a fixed date', () => {
@@ -19,7 +26,9 @@ describe('pickDailyQuests (PHASE-39 39A)', () => {
 
   it('different dates can yield different sets', () => {
     const days = ['2026-06-17', '2026-06-18', '2026-06-19', '2026-06-20'].map((d) =>
-      pickDailyQuests(d).map((q) => q.id).join(',')
+      pickDailyQuests(d)
+        .map((q) => q.id)
+        .join(','),
     );
     expect(new Set(days).size).toBeGreaterThan(1);
   });

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // PHASE-40 40C (L8) — AudioContext lifecycle. Each test loads a fresh module copy
 // (module-level ctx/settings) with a mock AudioContext installed first.
@@ -7,15 +7,28 @@ class MockAudioContext {
     this.state = 'running';
     this.currentTime = 0;
     this.destination = {};
-    this.suspend = vi.fn(async () => { this.state = 'suspended'; });
-    this.resume = vi.fn(async () => { this.state = 'running'; });
-    this.close = vi.fn(async () => { this.state = 'closed'; });
+    this.suspend = vi.fn(async () => {
+      this.state = 'suspended';
+    });
+    this.resume = vi.fn(async () => {
+      this.state = 'running';
+    });
+    this.close = vi.fn(async () => {
+      this.state = 'closed';
+    });
   }
   createGain() {
     return { gain: { value: 0, setValueAtTime() {}, linearRampToValueAtTime() {} }, connect() {}, disconnect() {} };
   }
   createOscillator() {
-    return { type: '', frequency: { setValueAtTime() {}, linearRampToValueAtTime() {} }, connect() {}, disconnect() {}, start() {}, stop() {} };
+    return {
+      type: '',
+      frequency: { setValueAtTime() {}, linearRampToValueAtTime() {} },
+      connect() {},
+      disconnect() {},
+      start() {},
+      stop() {},
+    };
   }
 }
 

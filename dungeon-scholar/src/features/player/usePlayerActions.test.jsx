@@ -1,10 +1,10 @@
-import { describe, it, expect, vi } from 'vitest';
+import { act, renderHook } from '@testing-library/react';
 import { useState } from 'react';
-import { renderHook, act } from '@testing-library/react';
-import { usePlayerActions } from './usePlayerActions.js';
+import { describe, expect, it, vi } from 'vitest';
 import { DEFAULT_STATE } from '../../game/defaultState.js';
-import { DAILY_REWARDS, todayDateStr } from '../../services/devotion.js';
 import { findItem } from '../../game/items.js';
+import { DAILY_REWARDS, todayDateStr } from '../../services/devotion.js';
+import { usePlayerActions } from './usePlayerActions.js';
 
 // Harness: own a useState(DEFAULT_STATE) wired into the hook as
 // { playerState, setPlayerState }, plus a vi.fn() showNotif. `seed` lets a
@@ -138,12 +138,19 @@ describe('usePlayerActions — devotion claim (Phase-30 QA gap)', () => {
     // No prior claim → willStreak 1, cycleDay 1 → DAILY_REWARDS[0].
     const reward = DAILY_REWARDS[0];
     const { result } = makeHook({
-      gold: 0, xp: 0, totalXp: 0, devotion: 0, loginStreak: 0,
-      lastClaimedDate: null, lastClaimedAt: null,
+      gold: 0,
+      xp: 0,
+      totalXp: 0,
+      devotion: 0,
+      loginStreak: 0,
+      lastClaimedDate: null,
+      lastClaimedAt: null,
     });
 
     let res;
-    act(() => { res = result.current.actions.claimDailyReward(); });
+    act(() => {
+      res = result.current.actions.claimDailyReward();
+    });
 
     expect(res.ok).toBe(true);
     expect(res.reward).toBe(reward);
@@ -166,12 +173,16 @@ describe('usePlayerActions — devotion claim (Phase-30 QA gap)', () => {
     const reward = DAILY_REWARDS[1];
     expect(reward.items.length).toBeGreaterThan(0);
     const { result } = makeHook({
-      gold: 0, loginStreak: 1,
-      lastClaimedDate: daysAgoStr(1), lastClaimedAt: Date.now() - 86_400_000,
+      gold: 0,
+      loginStreak: 1,
+      lastClaimedDate: daysAgoStr(1),
+      lastClaimedAt: Date.now() - 86_400_000,
     });
 
     let res;
-    act(() => { res = result.current.actions.claimDailyReward(); });
+    act(() => {
+      res = result.current.actions.claimDailyReward();
+    });
 
     expect(res.ok).toBe(true);
     const s = result.current.playerState;
@@ -190,7 +201,9 @@ describe('usePlayerActions — devotion claim (Phase-30 QA gap)', () => {
     });
 
     let res;
-    act(() => { res = result.current.actions.claimDailyReward(); });
+    act(() => {
+      res = result.current.actions.claimDailyReward();
+    });
 
     expect(res.ok).toBe(true);
     expect(result.current.playerState.loginStreak).toBe(1);
@@ -203,7 +216,9 @@ describe('usePlayerActions — ascension + celestial spend (Phase-30 QA gap)', (
     const { result } = makeHook({ level: 49, gold: 500, ascensions: 0, ascensionTokens: 0 });
 
     let res;
-    act(() => { res = result.current.actions.ascend(); });
+    act(() => {
+      res = result.current.actions.ascend();
+    });
 
     expect(res.ok).toBe(false);
     const s = result.current.playerState;
@@ -215,10 +230,13 @@ describe('usePlayerActions — ascension + celestial spend (Phase-30 QA gap)', (
 
   it('ascend() at level >= 50 grants a token, resets level/xp/gold, keeps ingredients + identity', () => {
     const { result } = makeHook({
-      level: 50, xp: 40, gold: 999,
+      level: 50,
+      xp: 40,
+      gold: 999,
       // ember_ash is an ingredient (kept); minor_heal_tonic is apothecary (wiped).
       inventory: { ember_ash: 3, minor_heal_tonic: 2 },
-      ascensions: 1, ascensionTokens: 0,
+      ascensions: 1,
+      ascensionTokens: 0,
       achievements: ['first_tome'],
       unlockedTitles: ['Novice'],
       bestiary: { skeleton: { defeats: 2, firstDefeatedAt: 'x' } },
@@ -227,7 +245,9 @@ describe('usePlayerActions — ascension + celestial spend (Phase-30 QA gap)', (
     });
 
     let res;
-    act(() => { res = result.current.actions.ascend(); });
+    act(() => {
+      res = result.current.actions.ascend();
+    });
 
     expect(res.ok).toBe(true);
     const s = result.current.playerState;
@@ -250,7 +270,9 @@ describe('usePlayerActions — ascension + celestial spend (Phase-30 QA gap)', (
     const { result } = makeHook({ ascensionTokens: 0, gold: 9999 });
 
     let res;
-    act(() => { res = result.current.actions.purchaseItem('celestial_xp_font'); });
+    act(() => {
+      res = result.current.actions.purchaseItem('celestial_xp_font');
+    });
 
     expect(res.ok).toBe(false);
     expect(result.current.playerState.ascensionTokens).toBe(0);
@@ -262,12 +284,14 @@ describe('usePlayerActions — ascension + celestial spend (Phase-30 QA gap)', (
     const { result } = makeHook({ ascensionTokens: 1, gold: 777, permUpgrades: {} });
 
     let res;
-    act(() => { res = result.current.actions.purchaseItem('celestial_xp_font'); });
+    act(() => {
+      res = result.current.actions.purchaseItem('celestial_xp_font');
+    });
 
     expect(res.ok).toBe(true);
     const s = result.current.playerState;
-    expect(s.ascensionTokens).toBe(0);  // 1 - 1
-    expect(s.gold).toBe(777);           // gold is NOT spent on celestial wares
+    expect(s.ascensionTokens).toBe(0); // 1 - 1
+    expect(s.gold).toBe(777); // gold is NOT spent on celestial wares
     expect(s.permUpgrades[item.permKey]).toBe(item.step || 1); // +25
     expect(s.inventory.celestial_xp_font).toBe(1);
   });
@@ -283,7 +307,9 @@ describe('usePlayerActions — ascension + celestial spend (Phase-30 QA gap)', (
     });
 
     let res;
-    act(() => { res = result.current.actions.purchaseItem('celestial_revive'); });
+    act(() => {
+      res = result.current.actions.purchaseItem('celestial_revive');
+    });
 
     // Cap enforced: purchase rejected, no token spent, counter unchanged.
     expect(res.ok).toBe(false);
@@ -298,7 +324,9 @@ describe('usePlayerActions — stable + bestiary (Phase-30 QA gap)', () => {
     const { result } = makeHook({ gold: 400, pets: {}, inventory: {} });
 
     let res;
-    act(() => { res = result.current.actions.purchaseItem('wise_owl_egg'); });
+    act(() => {
+      res = result.current.actions.purchaseItem('wise_owl_egg');
+    });
 
     expect(res.ok).toBe(true);
     const s = result.current.playerState;
@@ -310,10 +338,16 @@ describe('usePlayerActions — stable + bestiary (Phase-30 QA gap)', () => {
   });
 
   it('a second egg purchase is rejected (oneTime)', () => {
-    const { result } = makeHook({ gold: 1000, inventory: { wise_owl_egg: 1 }, pets: { wise_owl: { xp: 0, hatchedAt: 'h' } } });
+    const { result } = makeHook({
+      gold: 1000,
+      inventory: { wise_owl_egg: 1 },
+      pets: { wise_owl: { xp: 0, hatchedAt: 'h' } },
+    });
 
     let res;
-    act(() => { res = result.current.actions.purchaseItem('wise_owl_egg'); });
+    act(() => {
+      res = result.current.actions.purchaseItem('wise_owl_egg');
+    });
 
     expect(res.ok).toBe(false);
     expect(result.current.playerState.inventory.wise_owl_egg).toBe(1); // unchanged
@@ -322,23 +356,31 @@ describe('usePlayerActions — stable + bestiary (Phase-30 QA gap)', () => {
   it('equipPet / unequipPet toggle equipped.pet', () => {
     const { result } = makeHook({ pets: { wise_owl: { xp: 0, hatchedAt: 'h' } } });
 
-    act(() => { result.current.actions.equipPet('wise_owl'); });
+    act(() => {
+      result.current.actions.equipPet('wise_owl');
+    });
     expect(result.current.playerState.equipped.pet).toBe('wise_owl');
 
-    act(() => { result.current.actions.unequipPet(); });
+    act(() => {
+      result.current.actions.unequipPet();
+    });
     expect(result.current.playerState.equipped.pet).toBeNull();
   });
 
   it('recordBestiary increments defeats and fixes firstDefeatedAt on the first defeat', () => {
     const { result } = makeHook();
 
-    act(() => { result.current.actions.recordBestiary('skeleton'); });
+    act(() => {
+      result.current.actions.recordBestiary('skeleton');
+    });
     const first = result.current.playerState.bestiary.skeleton;
     expect(first.defeats).toBe(1);
     expect(typeof first.firstDefeatedAt).toBe('string');
     const firstStamp = first.firstDefeatedAt;
 
-    act(() => { result.current.actions.recordBestiary('skeleton'); });
+    act(() => {
+      result.current.actions.recordBestiary('skeleton');
+    });
     const second = result.current.playerState.bestiary.skeleton;
     expect(second.defeats).toBe(2);
     expect(second.firstDefeatedAt).toBe(firstStamp); // unchanged on repeat
@@ -355,20 +397,24 @@ describe('usePlayerActions — tome deletion (Phase-30 QA gap)', () => {
   it('deleting a non-active tome leaves activeTomeId untouched', () => {
     const { result } = makeHook({ library: lib3(), activeTomeId: 't1' });
 
-    act(() => { result.current.actions.deleteTome('t2'); });
+    act(() => {
+      result.current.actions.deleteTome('t2');
+    });
 
     const s = result.current.playerState;
-    expect(s.library.map(t => t.id)).toEqual(['t1', 't3']);
+    expect(s.library.map((t) => t.id)).toEqual(['t1', 't3']);
     expect(s.activeTomeId).toBe('t1');
   });
 
   it('deleting the active tome re-points to the first remaining id', () => {
     const { result } = makeHook({ library: lib3(), activeTomeId: 't1' });
 
-    act(() => { result.current.actions.deleteTome('t1'); });
+    act(() => {
+      result.current.actions.deleteTome('t1');
+    });
 
     const s = result.current.playerState;
-    expect(s.library.map(t => t.id)).toEqual(['t2', 't3']);
+    expect(s.library.map((t) => t.id)).toEqual(['t2', 't3']);
     expect(s.activeTomeId).toBe('t2'); // first remaining
   });
 
@@ -378,7 +424,9 @@ describe('usePlayerActions — tome deletion (Phase-30 QA gap)', () => {
       activeTomeId: 't1',
     });
 
-    act(() => { result.current.actions.deleteTome('t1'); });
+    act(() => {
+      result.current.actions.deleteTome('t1');
+    });
 
     const s = result.current.playerState;
     expect(s.library).toHaveLength(0);
@@ -389,12 +437,18 @@ describe('usePlayerActions — tome deletion (Phase-30 QA gap)', () => {
 describe('usePlayerActions — streak tracking (I2)', () => {
   it('recordAnswer builds currentStreak on correct and resets on wrong', () => {
     const { result } = makeHook();
-    act(() => { result.current.actions.recordAnswer(true, { id: 'q1' }); });
-    act(() => { result.current.actions.recordAnswer(true, { id: 'q2' }); });
+    act(() => {
+      result.current.actions.recordAnswer(true, { id: 'q1' });
+    });
+    act(() => {
+      result.current.actions.recordAnswer(true, { id: 'q2' });
+    });
     expect(result.current.playerState.currentStreak).toBe(2);
     expect(result.current.playerState.maxStreakToday).toBe(2);
     expect(result.current.playerState.maxStreakWeek).toBe(2);
-    act(() => { result.current.actions.recordAnswer(false, { id: 'q3' }); });
+    act(() => {
+      result.current.actions.recordAnswer(false, { id: 'q3' });
+    });
     expect(result.current.playerState.currentStreak).toBe(0);
     // window maxima retain the best reached
     expect(result.current.playerState.maxStreakToday).toBe(2);

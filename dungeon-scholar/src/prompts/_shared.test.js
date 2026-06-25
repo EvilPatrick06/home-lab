@@ -1,10 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import {
-  SHARED_HEADER,
-  SHARED_SCHEMA,
-  SHARED_STYLE_RULES,
-  SHARED_FOOTER,
-} from './_shared.js';
+import { describe, expect, it } from 'vitest';
+import { SHARED_FOOTER, SHARED_HEADER, SHARED_SCHEMA, SHARED_STYLE_RULES } from './_shared.js';
 
 describe('shared prompt sections', () => {
   it('SHARED_HEADER is a non-empty string and contains app name', () => {
@@ -73,7 +68,7 @@ describe('shared prompt sections', () => {
     expect(SHARED_SCHEMA).toMatch(/Expert judgment/i);
   });
 
-  it("SHARED_SCHEMA defines item-level bloomLevel with all six tiers", () => {
+  it('SHARED_SCHEMA defines item-level bloomLevel with all six tiers', () => {
     // Prompt overhaul: every flashcard/quiz/lab step carries a Bloom's level.
     expect(SHARED_SCHEMA).toMatch(/BLOOM'S LEVEL/i);
     expect(SHARED_SCHEMA).toMatch(/"remember"/);

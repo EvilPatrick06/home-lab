@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { supabase, isSupabaseConfigured } from '../services/supabase.js';
 import { logWarn } from '../services/logger.js';
+import { isSupabaseConfigured, supabase } from '../services/supabase.js';
 
 function projectUser(rawUser) {
   if (!rawUser) return null;
@@ -19,10 +19,18 @@ function projectUser(rawUser) {
 // stop it on sign-out / no session. Guarded so a mock client without these
 // methods (or an unconfigured client) is a no-op.
 function startRefresh() {
-  try { supabase?.auth?.startAutoRefresh?.(); } catch { /* best effort */ }
+  try {
+    supabase?.auth?.startAutoRefresh?.();
+  } catch {
+    /* best effort */
+  }
 }
 function stopRefresh() {
-  try { supabase?.auth?.stopAutoRefresh?.(); } catch { /* best effort */ }
+  try {
+    supabase?.auth?.stopAutoRefresh?.();
+  } catch {
+    /* best effort */
+  }
 }
 
 export function useAuth() {
@@ -37,7 +45,8 @@ export function useAuth() {
 
     let active = true;
 
-    supabase.auth.getSession()
+    supabase.auth
+      .getSession()
       .then(({ data }) => {
         if (!active) return;
         const session = data?.session ?? null;
@@ -58,7 +67,9 @@ export function useAuth() {
         stopRefresh();
       });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(projectUser(session?.user));
       if (session) startRefresh();
       else stopRefresh();

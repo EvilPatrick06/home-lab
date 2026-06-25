@@ -1,12 +1,12 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  DAILY_REWARDS,
-  todayDateStr,
-  dayDiff,
-  computeNextClaim,
-  evaluateClaim,
   CLOCK_SKEW_LIMIT_MS,
+  computeNextClaim,
+  DAILY_REWARDS,
+  dayDiff,
   devotionStatus,
+  evaluateClaim,
+  todayDateStr,
 } from './devotion.js';
 
 describe('DAILY_REWARDS table', () => {
@@ -83,31 +83,41 @@ describe('dayDiff', () => {
 describe('computeNextClaim', () => {
   it('first-ever claim → cycleDay 1, willStreak 1', () => {
     expect(computeNextClaim('2026-05-05', null, 0)).toEqual({
-      claimedToday: false, willStreak: 1, cycleDay: 1,
+      claimedToday: false,
+      willStreak: 1,
+      cycleDay: 1,
     });
   });
 
   it('continuing a streak (gap = 1 day) → streak + 1', () => {
     expect(computeNextClaim('2026-05-06', '2026-05-05', 3)).toEqual({
-      claimedToday: false, willStreak: 4, cycleDay: 4,
+      claimedToday: false,
+      willStreak: 4,
+      cycleDay: 4,
     });
   });
 
   it('broken streak (gap > 1) → reset to streak 1', () => {
     expect(computeNextClaim('2026-05-08', '2026-05-05', 3)).toEqual({
-      claimedToday: false, willStreak: 1, cycleDay: 1,
+      claimedToday: false,
+      willStreak: 1,
+      cycleDay: 1,
     });
   });
 
   it('cycles back to day 1 after day 7', () => {
     expect(computeNextClaim('2026-05-08', '2026-05-07', 7)).toEqual({
-      claimedToday: false, willStreak: 8, cycleDay: 1,
+      claimedToday: false,
+      willStreak: 8,
+      cycleDay: 1,
     });
   });
 
   it('already claimed today → reflects current cycleDay, willStreak unchanged', () => {
     expect(computeNextClaim('2026-05-05', '2026-05-05', 5)).toEqual({
-      claimedToday: true, willStreak: 5, cycleDay: 5,
+      claimedToday: true,
+      willStreak: 5,
+      cycleDay: 5,
     });
   });
 });
@@ -116,62 +126,114 @@ describe('evaluateClaim (M13 monotone fence)', () => {
   const NOW = 1_700_000_000_000; // arbitrary fixed epoch ms
 
   it('refuses a same-day double claim', () => {
-    const res = evaluateClaim({ now: NOW, today: '2026-05-07', lastClaimedDate: '2026-05-07', lastClaimedAt: NOW - 1000, loginStreak: 3 });
+    const res = evaluateClaim({
+      now: NOW,
+      today: '2026-05-07',
+      lastClaimedDate: '2026-05-07',
+      lastClaimedAt: NOW - 1000,
+      loginStreak: 3,
+    });
     expect(res.ok).toBe(false);
     expect(res.reason).toMatch(/already claimed/i);
   });
 
   it('allows a normal next-day claim (streak +1)', () => {
-    const res = evaluateClaim({ now: NOW, today: '2026-05-08', lastClaimedDate: '2026-05-07', lastClaimedAt: NOW - 86_400_000, loginStreak: 3 });
+    const res = evaluateClaim({
+      now: NOW,
+      today: '2026-05-08',
+      lastClaimedDate: '2026-05-07',
+      lastClaimedAt: NOW - 86_400_000,
+      loginStreak: 3,
+    });
     expect(res).toEqual({ ok: true, newStreak: 4, cycleDay: 4 });
   });
 
   it('resets the streak to 1 on a gap greater than one day', () => {
-    const res = evaluateClaim({ now: NOW, today: '2026-05-10', lastClaimedDate: '2026-05-07', lastClaimedAt: NOW - 3 * 86_400_000, loginStreak: 5 });
+    const res = evaluateClaim({
+      now: NOW,
+      today: '2026-05-10',
+      lastClaimedDate: '2026-05-07',
+      lastClaimedAt: NOW - 3 * 86_400_000,
+      loginStreak: 5,
+    });
     expect(res).toEqual({ ok: true, newStreak: 1, cycleDay: 1 });
   });
 
   it('refuses a clock rollback within 48h (the cross-midnight double-claim)', () => {
     // Claimed on 05-07 at NOW; user rolls the clock back to 05-06, one hour earlier.
-    const res = evaluateClaim({ now: NOW - 3_600_000, today: '2026-05-06', lastClaimedDate: '2026-05-07', lastClaimedAt: NOW, loginStreak: 4 });
+    const res = evaluateClaim({
+      now: NOW - 3_600_000,
+      today: '2026-05-06',
+      lastClaimedDate: '2026-05-07',
+      lastClaimedAt: NOW,
+      loginStreak: 4,
+    });
     expect(res.ok).toBe(false);
     expect(res.reason).toMatch(/backward|hourglass/i);
   });
 
   it('self-heals a corrupt future fence (≥48h ahead) instead of locking', () => {
     // lastClaimedAt is 72h in the future (bad import); fence does not trigger.
-    const res = evaluateClaim({ now: NOW, today: '2026-05-08', lastClaimedDate: '2026-05-06', lastClaimedAt: NOW + 72 * 3_600_000, loginStreak: 9 });
+    const res = evaluateClaim({
+      now: NOW,
+      today: '2026-05-08',
+      lastClaimedDate: '2026-05-06',
+      lastClaimedAt: NOW + 72 * 3_600_000,
+      loginStreak: 9,
+    });
     expect(res.ok).toBe(true);
     expect(res.newStreak).toBe(1); // gap 2 → reset
     expect(72 * 3_600_000).toBeGreaterThanOrEqual(CLOCK_SKEW_LIMIT_MS);
   });
 
   it('claims normally for a legacy save with no lastClaimedAt fence', () => {
-    const res = evaluateClaim({ now: NOW, today: '2026-05-08', lastClaimedDate: '2026-05-07', lastClaimedAt: undefined, loginStreak: 2 });
+    const res = evaluateClaim({
+      now: NOW,
+      today: '2026-05-08',
+      lastClaimedDate: '2026-05-07',
+      lastClaimedAt: undefined,
+      loginStreak: 2,
+    });
     expect(res).toEqual({ ok: true, newStreak: 3, cycleDay: 3 });
   });
 
   it('produces the same cycleDay as the calendar preview (computeNextClaim parity)', () => {
-    const today = '2026-05-08', last = '2026-05-07', streak = 6;
-    const res = evaluateClaim({ now: NOW, today, lastClaimedDate: last, lastClaimedAt: NOW - 86_400_000, loginStreak: streak });
+    const today = '2026-05-08',
+      last = '2026-05-07',
+      streak = 6;
+    const res = evaluateClaim({
+      now: NOW,
+      today,
+      lastClaimedDate: last,
+      lastClaimedAt: NOW - 86_400_000,
+      loginStreak: streak,
+    });
     expect(res.cycleDay).toBe(computeNextClaim(today, last, streak).cycleDay);
   });
 });
 
 describe('devotionStatus (F5)', () => {
   it('returns continuing when the last claim was exactly yesterday (gap 1)', () => {
-    expect(devotionStatus({ today: '2026-06-24', lastClaimedDate: '2026-06-23', streak: 3, longest: 5 })).toBe('continuing');
+    expect(devotionStatus({ today: '2026-06-24', lastClaimedDate: '2026-06-23', streak: 3, longest: 5 })).toBe(
+      'continuing',
+    );
   });
   it('returns firstEver when there is no prior claim', () => {
     expect(devotionStatus({ today: '2026-06-24', lastClaimedDate: null, streak: 0, longest: 0 })).toBe('firstEver');
   });
   it('returns firstEver when a stored streak is 0 even with a prior date', () => {
-    expect(devotionStatus({ today: '2026-06-24', lastClaimedDate: '2026-06-20', streak: 0, longest: 0 })).toBe('firstEver');
+    expect(devotionStatus({ today: '2026-06-24', lastClaimedDate: '2026-06-20', streak: 0, longest: 0 })).toBe(
+      'firstEver',
+    );
   });
   it('a lapsed first/1-day streak (longest < 2) is lapsedShort, NOT broken', () => {
-    expect(devotionStatus({ today: '2026-06-24', lastClaimedDate: '2026-06-21', streak: 1, longest: 1 })).toBe('lapsedShort');
+    expect(devotionStatus({ today: '2026-06-24', lastClaimedDate: '2026-06-21', streak: 1, longest: 1 })).toBe(
+      'lapsedShort',
+    );
   });
   it('a genuinely lost streak (longest >= 2) lapsing is broken', () => {
-    expect(devotionStatus({ today: '2026-06-24', lastClaimedDate: '2026-06-20', streak: 4, longest: 4 })).toBe('broken');
+    expect(devotionStatus({ today: '2026-06-24', lastClaimedDate: '2026-06-20', streak: 4, longest: 4 })).toBe(
+      'broken',
+    );
   });
 });

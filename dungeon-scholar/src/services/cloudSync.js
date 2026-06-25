@@ -1,5 +1,5 @@
-import { supabase } from './supabase.js';
 import { CURRENT_SCHEMA_VER } from './persistence.js';
+import { supabase } from './supabase.js';
 
 /**
  * Pull the current cloud save for a user.
@@ -26,11 +26,7 @@ export async function pullSave(userId) {
 export async function checkRlsExposure(userId) {
   if (!supabase || !userId) return { checked: false, exposed: false };
   try {
-    const { data, error } = await supabase
-      .from('saves')
-      .select('user_id')
-      .neq('user_id', userId)
-      .limit(1);
+    const { data, error } = await supabase.from('saves').select('user_id').neq('user_id', userId).limit(1);
     if (error) return { checked: false, exposed: false };
     return { checked: true, exposed: Array.isArray(data) && data.length > 0 };
   } catch {
@@ -99,11 +95,15 @@ export function subscribeSaves(userId, onUpdate) {
           updatedAt: row.updated_at,
           schemaVer: row.schema_ver,
         });
-      }
+      },
     )
     .subscribe();
   return () => {
-    try { supabase.removeChannel(channel); } catch { /* ignore */ }
+    try {
+      supabase.removeChannel(channel);
+    } catch {
+      /* ignore */
+    }
   };
 }
 

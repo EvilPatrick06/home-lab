@@ -12,7 +12,7 @@
 const STORAGE_KEY = 'dungeon-scholar-audio-settings';
 
 const DEFAULT_SETTINGS = {
-  muted: true,        // Default mute so the page is silent until the player opts in.
+  muted: true, // Default mute so the page is silent until the player opts in.
   bgmVolume: 0.4,
   sfxVolume: 0.6,
 };
@@ -26,8 +26,8 @@ let ctx = null;
 let masterGain = null;
 let bgmGain = null;
 let sfxGain = null;
-let bgmNodes = [];     // Active oscillators / gains for the BGM loop.
-let bgmTimer = null;   // setTimeout id used to schedule the next phrase.
+let bgmNodes = []; // Active oscillators / gains for the BGM loop.
+let bgmTimer = null; // setTimeout id used to schedule the next phrase.
 let currentBgmId = null;
 let settings = { ...DEFAULT_SETTINGS };
 
@@ -38,7 +38,9 @@ const loadSettings = () => {
     if (!raw) return;
     const parsed = JSON.parse(raw);
     settings = { ...DEFAULT_SETTINGS, ...parsed };
-  } catch { /* corrupted blob — keep defaults */ }
+  } catch {
+    /* corrupted blob — keep defaults */
+  }
 };
 
 // M10 (17F): module-level error hook so audio-settings persistence failures
@@ -46,13 +48,19 @@ const loadSettings = () => {
 // most once per session (sticky `persistErrorFired`).
 let persistErrorHandler = null;
 let persistErrorFired = false;
-export const setAudioPersistErrorHandler = (fn) => { persistErrorHandler = fn; };
+export const setAudioPersistErrorHandler = (fn) => {
+  persistErrorHandler = fn;
+};
 
 const saveSettings = () => {
   if (typeof localStorage === 'undefined') return;
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(settings)); }
-  catch {
-    if (!persistErrorFired && persistErrorHandler) { persistErrorFired = true; persistErrorHandler(); }
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+  } catch {
+    if (!persistErrorFired && persistErrorHandler) {
+      persistErrorFired = true;
+      persistErrorHandler();
+    }
   }
 };
 
@@ -88,7 +96,11 @@ const ensureContextRunning = async () => {
   const c = ensureContext();
   if (!c) return null;
   if (c.state !== 'running') {
-    try { await c.resume(); } catch { /* user-gesture race; best-effort */ }
+    try {
+      await c.resume();
+    } catch {
+      /* user-gesture race; best-effort */
+    }
   }
   return c;
 };
@@ -131,33 +143,15 @@ const NOTE = (n, durSec) => ({ n, d: durSec });
 
 // MIDI 60 = C4. We're working in low octaves for ambience.
 const BGM_PHRASES = {
-  crypt: [
-    NOTE(43, 1.6), NOTE(46, 1.6), NOTE(48, 1.6), NOTE(50, 2.4),
-    NOTE(48, 1.6), NOTE(46, 1.6), NOTE(43, 2.4),
-  ],
-  sewers: [
-    NOTE(40, 1.4), NOTE(45, 1.4), NOTE(43, 1.4), NOTE(48, 1.4),
-    NOTE(45, 1.4), NOTE(43, 2.0),
-  ],
-  tower: [
-    NOTE(50, 1.2), NOTE(52, 1.2), NOTE(55, 1.2), NOTE(57, 1.6),
-    NOTE(55, 1.2), NOTE(52, 1.2), NOTE(50, 2.0),
-  ],
-  halls: [
-    NOTE(38, 1.8), NOTE(43, 1.8), NOTE(45, 1.8), NOTE(48, 2.0),
-    NOTE(45, 1.8), NOTE(43, 1.8),
-  ],
-  wastes: [
-    NOTE(45, 1.5), NOTE(48, 1.5), NOTE(50, 1.5), NOTE(52, 2.0),
-    NOTE(50, 1.5), NOTE(48, 1.5), NOTE(45, 2.0),
-  ],
-  hearth: [
-    NOTE(48, 2.0), NOTE(52, 2.0), NOTE(55, 2.0), NOTE(57, 2.0),
-    NOTE(55, 2.0), NOTE(52, 2.0),
-  ],
+  crypt: [NOTE(43, 1.6), NOTE(46, 1.6), NOTE(48, 1.6), NOTE(50, 2.4), NOTE(48, 1.6), NOTE(46, 1.6), NOTE(43, 2.4)],
+  sewers: [NOTE(40, 1.4), NOTE(45, 1.4), NOTE(43, 1.4), NOTE(48, 1.4), NOTE(45, 1.4), NOTE(43, 2.0)],
+  tower: [NOTE(50, 1.2), NOTE(52, 1.2), NOTE(55, 1.2), NOTE(57, 1.6), NOTE(55, 1.2), NOTE(52, 1.2), NOTE(50, 2.0)],
+  halls: [NOTE(38, 1.8), NOTE(43, 1.8), NOTE(45, 1.8), NOTE(48, 2.0), NOTE(45, 1.8), NOTE(43, 1.8)],
+  wastes: [NOTE(45, 1.5), NOTE(48, 1.5), NOTE(50, 1.5), NOTE(52, 2.0), NOTE(50, 1.5), NOTE(48, 1.5), NOTE(45, 2.0)],
+  hearth: [NOTE(48, 2.0), NOTE(52, 2.0), NOTE(55, 2.0), NOTE(57, 2.0), NOTE(55, 2.0), NOTE(52, 2.0)],
 };
 
-const midiToHz = (n) => 440 * Math.pow(2, (n - 69) / 12);
+const midiToHz = (n) => 440 * 2 ** ((n - 69) / 12);
 
 const playPhrase = (phrase, biomeId) => {
   if (!ctx || !bgmGain) return 0;
@@ -198,7 +192,11 @@ const playPhrase = (phrase, biomeId) => {
 
 const cleanupBgmNodes = () => {
   bgmNodes.forEach((node) => {
-    try { node.disconnect(); } catch { /* already disconnected */ }
+    try {
+      node.disconnect();
+    } catch {
+      /* already disconnected */
+    }
   });
   bgmNodes = [];
 };
@@ -226,7 +224,10 @@ export const startBgm = async (biomeId) => {
 
 export const stopBgm = () => {
   currentBgmId = null;
-  if (bgmTimer) { clearTimeout(bgmTimer); bgmTimer = null; }
+  if (bgmTimer) {
+    clearTimeout(bgmTimer);
+    bgmTimer = null;
+  }
   cleanupBgmNodes();
 };
 
@@ -256,35 +257,35 @@ const sfxPlayTone = ({ freq, freqEnd, durMs, type = 'sine', gainPeak = 0.3 }) =>
 // SFX presets keyed by name. Each is a small array of tones played in
 // sequence so the call site stays a one-liner.
 const SFX_PRESETS = {
-  click:        [{ freq: 660, freqEnd: 880, durMs: 70,  type: 'square',   gainPeak: 0.25 }],
-  step:         [{ freq: 220, freqEnd: 180, durMs: 60,  type: 'sine',     gainPeak: 0.1  }],
+  click: [{ freq: 660, freqEnd: 880, durMs: 70, type: 'square', gainPeak: 0.25 }],
+  step: [{ freq: 220, freqEnd: 180, durMs: 60, type: 'sine', gainPeak: 0.1 }],
   // hit = sword slash on a correct answer. Bright, airy, fast — a "shink"
   // followed by a crisp tick. Distinct from hurt (low thud).
-  hit:          [
-    { freq: 1400, freqEnd: 500, durMs: 90,  type: 'triangle', gainPeak: 0.30 },
-    { freq: 1900, freqEnd: 700, durMs: 60,  type: 'sawtooth', gainPeak: 0.18 },
+  hit: [
+    { freq: 1400, freqEnd: 500, durMs: 90, type: 'triangle', gainPeak: 0.3 },
+    { freq: 1900, freqEnd: 700, durMs: 60, type: 'sawtooth', gainPeak: 0.18 },
   ],
   // hurt = player took damage. Heavy, dull, low — a thud, no high frequencies.
-  hurt:         [{ freq: 220, freqEnd: 80,  durMs: 260, type: 'square',   gainPeak: 0.34 }],
-  victory:      [
+  hurt: [{ freq: 220, freqEnd: 80, durMs: 260, type: 'square', gainPeak: 0.34 }],
+  victory: [
     { freq: 523, freqEnd: 659, durMs: 180, type: 'triangle', gainPeak: 0.32 },
     { freq: 784, freqEnd: 988, durMs: 220, type: 'triangle', gainPeak: 0.32 },
   ],
-  defeat:       [
+  defeat: [
     { freq: 220, freqEnd: 110, durMs: 320, type: 'sawtooth', gainPeak: 0.32 },
-    { freq: 165, freqEnd: 82,  durMs: 420, type: 'sawtooth', gainPeak: 0.28 },
+    { freq: 165, freqEnd: 82, durMs: 420, type: 'sawtooth', gainPeak: 0.28 },
   ],
-  pickup:       [{ freq: 988, freqEnd: 1318, durMs: 120, type: 'triangle', gainPeak: 0.3 }],
-  cast:         [
+  pickup: [{ freq: 988, freqEnd: 1318, durMs: 120, type: 'triangle', gainPeak: 0.3 }],
+  cast: [
     { freq: 880, freqEnd: 1320, durMs: 100, type: 'sine', gainPeak: 0.28 },
     { freq: 660, freqEnd: 1100, durMs: 120, type: 'sine', gainPeak: 0.22 },
   ],
-  levelup:      [
+  levelup: [
     { freq: 523, freqEnd: 784, durMs: 160, type: 'triangle', gainPeak: 0.32 },
     { freq: 659, freqEnd: 988, durMs: 160, type: 'triangle', gainPeak: 0.32 },
     { freq: 784, freqEnd: 1175, durMs: 220, type: 'triangle', gainPeak: 0.32 },
   ],
-  chest:        [
+  chest: [
     { freq: 440, freqEnd: 660, durMs: 100, type: 'square', gainPeak: 0.28 },
     { freq: 660, freqEnd: 880, durMs: 140, type: 'square', gainPeak: 0.28 },
   ],
@@ -331,12 +332,12 @@ export const armAutoSuspend = () => {
   visibilityHandler = () => {
     if (document.visibilityState === 'hidden') {
       resumeBiomeId = currentBgmId;
-      stopBgm();                       // clears bgmTimer + disconnects nodes
+      stopBgm(); // clears bgmTimer + disconnects nodes
       if (ctx && ctx.state === 'running') ctx.suspend().catch(() => {});
     } else if (resumeBiomeId && !settings.muted) {
       const biome = resumeBiomeId;
       resumeBiomeId = null;
-      startBgm(biome);                 // ensureContextRunning() resumes ctx
+      startBgm(biome); // ensureContextRunning() resumes ctx
     }
   };
   document.addEventListener('visibilitychange', visibilityHandler);
@@ -348,4 +349,3 @@ export const disarmAutoSuspend = () => {
     visibilityHandler = null;
   }
 };
-

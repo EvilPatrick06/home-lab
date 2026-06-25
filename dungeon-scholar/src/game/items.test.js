@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { sanctumCount, sanctumAtCap, findItem, pickShopStock } from './items.js';
+import { describe, expect, it } from 'vitest';
+import { findItem, pickShopStock, sanctumAtCap, sanctumCount } from './items.js';
 
 describe('sanctumCount / sanctumAtCap', () => {
   it('counts step-aware stacks for sanctum items', () => {

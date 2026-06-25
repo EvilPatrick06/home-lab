@@ -1,8 +1,8 @@
-import { useState, useRef, useMemo } from 'react';
-import { Share2, X, Download, Check, Copy, Lock, Loader2 } from 'lucide-react';
-import { useDialogA11y } from '../../hooks/useDialogA11y.js';
+import { Check, Copy, Download, Loader2, Lock, Share2, X } from 'lucide-react';
+import { useMemo, useRef, useState } from 'react';
 import { encodeTomeShareCode } from '../../game/tome.js';
-import { sealTome, isSealedTome } from '../../services/sealedTome.js';
+import { useDialogA11y } from '../../hooks/useDialogA11y.js';
+import { isSealedTome, sealTome } from '../../services/sealedTome.js';
 
 // Phase 30i QA #19: tomes whose share code exceeds this threshold default to
 // the "Download JSON" path. The raw code is still available behind a
@@ -29,14 +29,16 @@ export function downloadTomeJson(tome, { suffix = '' } = {}) {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 function ShareTomeModal({ tome, onClose }) {
   const panelRef = useDialogA11y({ onClose }); // 19A
   const [copied, setCopied] = useState(false);
   const textareaRef = useRef(null);
-  const code = useMemo(() => tome ? encodeTomeShareCode(tome.data) : null, [tome]);
+  const code = useMemo(() => (tome ? encodeTomeShareCode(tome.data) : null), [tome]);
   const isLarge = (code?.length || 0) > SHARE_LARGE_THRESHOLD;
   const [showRawCode, setShowRawCode] = useState(false);
 
@@ -51,8 +53,14 @@ function ShareTomeModal({ tome, onClose }) {
 
   const handleSeal = async () => {
     if (sealBusy) return;
-    if (sealPass.length < 8) { setSealError('Passphrase must be at least 8 characters.'); return; }
-    if (sealPass !== sealConfirm) { setSealError('Passphrases do not match.'); return; }
+    if (sealPass.length < 8) {
+      setSealError('Passphrase must be at least 8 characters.');
+      return;
+    }
+    if (sealPass !== sealConfirm) {
+      setSealError('Passphrases do not match.');
+      return;
+    }
     setSealBusy(true);
     setSealError('');
     try {
@@ -79,10 +87,26 @@ function ShareTomeModal({ tome, onClose }) {
     let success = false;
     try {
       const ta = textareaRef.current;
-      if (ta) { ta.focus(); ta.select(); try { success = document.execCommand('copy'); } catch { success = false; } }
-    } catch { success = false; }
+      if (ta) {
+        ta.focus();
+        ta.select();
+        try {
+          success = document.execCommand('copy');
+        } catch {
+          success = false;
+        }
+      }
+    } catch {
+      success = false;
+    }
     if (!success && navigator.clipboard) {
-      navigator.clipboard.writeText(code).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); }).catch(() => {});
+      navigator.clipboard
+        .writeText(code)
+        .then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        })
+        .catch(() => {});
       return;
     }
     setCopied(success);
@@ -93,11 +117,19 @@ function ShareTomeModal({ tome, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div ref={panelRef} role="dialog" aria-modal="true" aria-label="Share tome" className="rounded-sm max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
-        background: 'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.97) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.99) 100%)',
-        border: '3px double rgba(168, 85, 247, 0.6)',
-        boxShadow: '0 0 40px rgba(168, 85, 247, 0.3)',
-      }}>
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Share tome"
+        className="rounded-sm max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col relative"
+        style={{
+          background:
+            'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.97) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.99) 100%)',
+          border: '3px double rgba(168, 85, 247, 0.6)',
+          boxShadow: '0 0 40px rgba(168, 85, 247, 0.3)',
+        }}
+      >
         <div className="absolute top-2 left-2 text-purple-400 text-sm">⚜</div>
         <div className="absolute top-2 right-2 text-purple-400 text-sm">⚜</div>
         <div className="absolute bottom-2 left-2 text-purple-400 text-sm">⚜</div>
@@ -107,13 +139,18 @@ function ShareTomeModal({ tome, onClose }) {
           <h3 className="text-xl font-bold text-purple-300 flex items-center gap-2 italic">
             <Share2 className="w-5 h-5" /> ✦ Share Thy Tome ✦
           </h3>
-          <button onClick={onClose} className="p-2 hover:bg-purple-900/30 rounded-sm text-purple-300" aria-label="Close share dialog">
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-purple-900/30 rounded-sm text-purple-300"
+            aria-label="Close share dialog"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
         <div className="p-4 overflow-y-auto overscroll-contain flex-1 flex flex-col gap-3">
           <p className="text-sm text-amber-100/85 italic">
-            &ldquo;Share <span className="text-amber-300 font-bold">{tome.data.metadata.title}</span> with fellow scholars. They may import it via the Hash sigil (Share Code) or by loading the downloaded JSON file.&rdquo;
+            &ldquo;Share <span className="text-amber-300 font-bold">{tome.data.metadata.title}</span> with fellow
+            scholars. They may import it via the Hash sigil (Share Code) or by loading the downloaded JSON file.&rdquo;
           </p>
           <div className="text-xs text-purple-400 italic">
             Code length: {code?.length || 0} characters ({Math.round((code?.length || 0) / 1024)} KB)
@@ -123,17 +160,24 @@ function ShareTomeModal({ tome, onClose }) {
             // share code is still reachable behind a disclosure for users who
             // need it (e.g., pasting into a chat that strips attachments).
             <>
-              <div className="p-3 rounded-sm text-sm italic" style={{
-                background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.35)',
-                border: '1px solid rgba(245, 158, 11, 0.5)',
-                color: '#fde68a',
-              }}>
-                ⚠ This tome is large ({Math.round((code?.length || 0) / 1024)} KB). Sharing as a JSON file is more reliable than pasting the raw code — many chat apps truncate or mangle long strings.
+              <div
+                className="p-3 rounded-sm text-sm italic"
+                style={{
+                  background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.35)',
+                  border: '1px solid rgba(245, 158, 11, 0.5)',
+                  color: '#fde68a',
+                }}
+              >
+                ⚠ This tome is large ({Math.round((code?.length || 0) / 1024)} KB). Sharing as a JSON file is more
+                reliable than pasting the raw code — many chat apps truncate or mangle long strings.
               </div>
               <button
                 onClick={() => downloadTomeJson(tome)}
                 className="py-3 font-bold rounded-sm flex items-center justify-center gap-2 text-amber-50 border-2 border-emerald-300 italic"
-                style={{ background: 'linear-gradient(to bottom, #10b981 0%, #047857 100%)', boxShadow: '0 0 20px rgba(16, 185, 129, 0.5)' }}
+                style={{
+                  background: 'linear-gradient(to bottom, #10b981 0%, #047857 100%)',
+                  boxShadow: '0 0 20px rgba(16, 185, 129, 0.5)',
+                }}
               >
                 <Download className="w-4 h-4" /> Download Tome JSON
               </button>
@@ -150,7 +194,12 @@ function ShareTomeModal({ tome, onClose }) {
                     value={code || ''}
                     readOnly
                     className="w-full min-h-[120px] p-3 rounded-sm border-2 focus:outline-hidden text-amber-50 font-mono text-xs"
-                    style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)', borderColor: 'rgba(126, 34, 206, 0.5)', fontFamily: 'monospace', wordBreak: 'break-all' }}
+                    style={{
+                      background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)',
+                      borderColor: 'rgba(126, 34, 206, 0.5)',
+                      fontFamily: 'monospace',
+                      wordBreak: 'break-all',
+                    }}
                     onFocus={(e) => e.target.select()}
                   />
                   <button
@@ -158,7 +207,15 @@ function ShareTomeModal({ tome, onClose }) {
                     className="w-full py-2 rounded-sm flex items-center justify-center gap-2 text-amber-50 border-2 border-purple-300 italic text-sm"
                     style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)' }}
                   >
-                    {copied ? <><Check className="w-4 h-4" /> Inscribed!</> : <><Copy className="w-4 h-4" /> Copy Share Code</>}
+                    {copied ? (
+                      <>
+                        <Check className="w-4 h-4" /> Inscribed!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4" /> Copy Share Code
+                      </>
+                    )}
                   </button>
                 </div>
               </details>
@@ -170,7 +227,12 @@ function ShareTomeModal({ tome, onClose }) {
                 value={code || ''}
                 readOnly
                 className="flex-1 min-h-[200px] p-3 rounded-sm border-2 focus:outline-hidden text-amber-50 font-mono text-xs"
-                style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)', borderColor: 'rgba(126, 34, 206, 0.5)', fontFamily: 'monospace', wordBreak: 'break-all' }}
+                style={{
+                  background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)',
+                  borderColor: 'rgba(126, 34, 206, 0.5)',
+                  fontFamily: 'monospace',
+                  wordBreak: 'break-all',
+                }}
                 onFocus={(e) => e.target.select()}
               />
               <p className="text-xs text-amber-700/85 italic">
@@ -195,21 +257,26 @@ function ShareTomeModal({ tome, onClose }) {
             ) : (
               <>
                 <p className="text-xs italic text-amber-100/70">
-                  Encrypt this tome&rsquo;s content under a passphrase so its answers stay
-                  hidden in the file, share code, and view-source. Students unseal it with
-                  the passphrase when they import it.
+                  Encrypt this tome&rsquo;s content under a passphrase so its answers stay hidden in the file, share
+                  code, and view-source. Students unseal it with the passphrase when they import it.
                 </p>
                 <label className="block w-full text-left">
                   <span className="text-xs text-amber-300 italic block mb-1">Proctor passphrase</span>
                   <input
                     type="password"
                     value={sealPass}
-                    onChange={(e) => { setSealPass(e.target.value); setSealError(''); }}
+                    onChange={(e) => {
+                      setSealPass(e.target.value);
+                      setSealError('');
+                    }}
                     autoComplete="off"
                     aria-label="Proctor passphrase"
                     disabled={sealBusy}
                     className="w-full p-2 rounded-sm border-2 focus:outline-hidden italic text-amber-50 disabled:opacity-50"
-                    style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)', borderColor: 'rgba(126, 34, 206, 0.6)' }}
+                    style={{
+                      background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)',
+                      borderColor: 'rgba(126, 34, 206, 0.6)',
+                    }}
                   />
                 </label>
                 <label className="block w-full text-left">
@@ -217,12 +284,18 @@ function ShareTomeModal({ tome, onClose }) {
                   <input
                     type="password"
                     value={sealConfirm}
-                    onChange={(e) => { setSealConfirm(e.target.value); setSealError(''); }}
+                    onChange={(e) => {
+                      setSealConfirm(e.target.value);
+                      setSealError('');
+                    }}
                     autoComplete="off"
                     aria-label="Confirm passphrase"
                     disabled={sealBusy}
                     className="w-full p-2 rounded-sm border-2 focus:outline-hidden italic text-amber-50 disabled:opacity-50"
-                    style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)', borderColor: 'rgba(126, 34, 206, 0.6)' }}
+                    style={{
+                      background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)',
+                      borderColor: 'rgba(126, 34, 206, 0.6)',
+                    }}
                   />
                 </label>
                 <p className="text-xs italic text-amber-700/85">
@@ -232,7 +305,11 @@ function ShareTomeModal({ tome, onClose }) {
                   <div
                     role="alert"
                     className="w-full p-2 rounded-sm text-xs italic"
-                    style={{ background: 'rgba(127, 29, 29, 0.5)', border: '1px solid rgba(239, 68, 68, 0.7)', color: '#fecaca' }}
+                    style={{
+                      background: 'rgba(127, 29, 29, 0.5)',
+                      border: '1px solid rgba(239, 68, 68, 0.7)',
+                      color: '#fecaca',
+                    }}
                   >
                     ✗ {sealError}
                   </div>
@@ -241,20 +318,51 @@ function ShareTomeModal({ tome, onClose }) {
                   onClick={handleSeal}
                   disabled={sealBusy || sealPass.length < 8 || sealPass !== sealConfirm}
                   className="py-2 font-bold rounded-sm flex items-center justify-center gap-2 text-amber-50 border-2 border-purple-300 italic disabled:opacity-40 disabled:cursor-not-allowed text-sm"
-                  style={{ background: 'linear-gradient(to bottom, #9333ea 0%, #6b21a8 100%)', boxShadow: '0 0 18px rgba(168, 85, 247, 0.5)' }}
+                  style={{
+                    background: 'linear-gradient(to bottom, #9333ea 0%, #6b21a8 100%)',
+                    boxShadow: '0 0 18px rgba(168, 85, 247, 0.5)',
+                  }}
                 >
-                  {sealBusy ? <><Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> Sealing…</> : <><Lock className="w-4 h-4" aria-hidden="true" /> Seal &amp; download</>}
+                  {sealBusy ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> Sealing…
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="w-4 h-4" aria-hidden="true" /> Seal &amp; download
+                    </>
+                  )}
                 </button>
               </>
             )}
           </div>
         </div>
         <div className="p-4 border-t border-purple-700/50 flex gap-2">
-          <button onClick={onClose} className="px-6 py-3 rounded-sm border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>Close</button>
+          <button
+            onClick={onClose}
+            className="px-6 py-3 rounded-sm border-2 border-amber-700 text-amber-200 italic"
+            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
+          >
+            Close
+          </button>
           {!isLarge && (
-            <button onClick={copy} className="flex-1 py-3 font-bold rounded-sm flex items-center justify-center gap-2 text-amber-50 border-2 border-purple-300 italic"
-              style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)', boxShadow: '0 0 20px rgba(168, 85, 247, 0.5)' }}>
-              {copied ? <><Check className="w-4 h-4" /> Inscribed!</> : <><Copy className="w-4 h-4" /> Copy Share Code</>}
+            <button
+              onClick={copy}
+              className="flex-1 py-3 font-bold rounded-sm flex items-center justify-center gap-2 text-amber-50 border-2 border-purple-300 italic"
+              style={{
+                background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)',
+                boxShadow: '0 0 20px rgba(168, 85, 247, 0.5)',
+              }}
+            >
+              {copied ? (
+                <>
+                  <Check className="w-4 h-4" /> Inscribed!
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4" /> Copy Share Code
+                </>
+              )}
             </button>
           )}
         </div>

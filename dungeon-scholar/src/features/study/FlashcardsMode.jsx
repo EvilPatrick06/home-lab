@@ -1,12 +1,29 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Home, ArrowLeft } from 'lucide-react';
-import { SRS_RATINGS, scheduleCard, sortByDueness, filterDue } from '../../services/srs.js';
-import { saveSession, loadSession, SESSION_KIND } from '../../services/sessionResume.js';
+import { ArrowLeft, Home } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import OcclusionCard from '../../components/OcclusionCard.jsx';
+import { BloomBadge, DifficultyStars } from '../../components/ui/badges.jsx';
 import { FilteredModeBanner } from '../../components/ui/FilteredModeBanner.jsx';
-import { DifficultyStars, BloomBadge } from '../../components/ui/badges.jsx';
+import { isOcclusionCard } from '../../services/occlusion.js';
+import { loadSession, SESSION_KIND, saveSession } from '../../services/sessionResume.js';
+import { filterDue, SRS_RATINGS, scheduleCard, sortByDueness } from '../../services/srs.js';
 import { speak, ttsSupported } from '../../services/tts.js';
 
-function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awardXP, updateTomeProgress, updateCardProgress, playerState, checkAchievement, domainFilter, onExitFilter, reviewMode, onExitReviewMode, onResumeNotify }) {
+function FlashcardsMode({
+  courseSet,
+  tomeId,
+  cards: cardsProp,
+  tomeProgress,
+  awardXP,
+  updateTomeProgress,
+  updateCardProgress,
+  playerState,
+  checkAchievement,
+  domainFilter,
+  onExitFilter,
+  reviewMode,
+  onExitReviewMode,
+  onResumeNotify,
+}) {
   // Phase 33b/39a QA P2: defer resume until `cards` is populated. 39a
   // adds deck-order persistence so the resumed index points to the saved
   // card even when ids are missing or duplicated.
@@ -24,8 +41,8 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
   // branch must not hand the raw courseSet array to component state, and an
   // unstable identity would re-fire the cards memo + session effects every render.
   const baseDeck = useMemo(
-    () => ((cardsProp && cardsProp.length) ? cardsProp : (courseSet.flashcards || [])).slice(),
-    [cardsProp, courseSet]
+    () => (cardsProp && cardsProp.length ? cardsProp : courseSet.flashcards || []).slice(),
+    [cardsProp, courseSet],
   );
 
   useEffect(() => {
@@ -59,12 +76,24 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
   const [restored, setRestored] = useState(false);
   useEffect(() => {
     if (restored) return;
-    if (reviewMode) { setRestored(true); return; }
+    if (reviewMode) {
+      setRestored(true);
+      return;
+    }
     if (!cards || cards.length === 0) return;
-    if (domainFilter) { setRestored(true); return; }
+    if (domainFilter) {
+      setRestored(true);
+      return;
+    }
     const saved = loadSession(SESSION_KIND.FLASHCARDS);
-    if (!saved) { setRestored(true); return; }
-    if (saved.tomeId && tomeId && saved.tomeId !== tomeId) { setRestored(true); return; }
+    if (!saved) {
+      setRestored(true);
+      return;
+    }
+    if (saved.tomeId && tomeId && saved.tomeId !== tomeId) {
+      setRestored(true);
+      return;
+    }
     let positioned = false;
     let restoredIndex = 0;
     // Phase 39a: prefer saved.deckIds — reconstructs exact deck order.
@@ -77,23 +106,33 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
       const seen = new Set();
       for (const id of saved.deckIds) {
         const item = byId.get(id);
-        if (item && !seen.has(id)) { ordered.push(item); seen.add(id); }
+        if (item && !seen.has(id)) {
+          ordered.push(item);
+          seen.add(id);
+        }
       }
       for (const item of baseDeck) {
-        if (item?.id && !seen.has(item.id)) { ordered.push(item); seen.add(item.id); }
+        if (item?.id && !seen.has(item.id)) {
+          ordered.push(item);
+          seen.add(item.id);
+        }
       }
       if (ordered.length > 0) {
         setSessionDeck(ordered);
-        const wantedIdx = typeof saved.index === 'number' && saved.index >= 0 && saved.index < ordered.length
-          ? saved.index : 0;
+        const wantedIdx =
+          typeof saved.index === 'number' && saved.index >= 0 && saved.index < ordered.length ? saved.index : 0;
         setIndex(wantedIdx);
         restoredIndex = wantedIdx;
         positioned = true;
       }
     }
     if (!positioned && saved.cardId) {
-      const pos = cards.findIndex(c => c?.id === saved.cardId);
-      if (pos >= 0) { setIndex(pos); restoredIndex = pos; positioned = true; }
+      const pos = cards.findIndex((c) => c?.id === saved.cardId);
+      if (pos >= 0) {
+        setIndex(pos);
+        restoredIndex = pos;
+        positioned = true;
+      }
     }
     if (!positioned && typeof saved.index === 'number' && saved.index >= 0 && saved.index < cards.length) {
       setIndex(saved.index);
@@ -117,7 +156,7 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
       tomeId: tomeId ?? null,
       index,
       cardId: cards[index]?.id ?? null,
-      deckIds: cards.map(c => c?.id || null),
+      deckIds: cards.map((c) => c?.id || null),
     });
   }, [restored, index, tomeId, reviewMode, domainFilter, cards]);
 
@@ -125,9 +164,10 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
   // mode the index runs off the end of the (frozen) deck and we render
   // the "reviews complete" celebration; in browse mode we cycle.
   const rate = (rating) => {
-    const xp = rating === SRS_RATINGS.again ? 12 : rating === SRS_RATINGS.hard ? 10 : rating === SRS_RATINGS.good ? 8 : 5;
+    const xp =
+      rating === SRS_RATINGS.again ? 12 : rating === SRS_RATINGS.hard ? 10 : rating === SRS_RATINGS.good ? 8 : 5;
     awardXP(xp);
-    setReviewed(r => r + 1);
+    setReviewed((r) => r + 1);
     updateTomeProgress((prev) => ({ cardsReviewed: (prev.cardsReviewed || 0) + 1 })); // 17D functional form
     if (card && updateCardProgress) {
       const prev = (tomeProgress?.cardProgress || {})[card.id];
@@ -138,7 +178,7 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
     if (totalCardsAcrossLib >= 200) checkAchievement('card_master');
     setFlipped(false);
     if (reviewMode) {
-      setIndex(i => i + 1);
+      setIndex((i) => i + 1);
     } else {
       setIndex((index + 1) % cards.length);
     }
@@ -159,8 +199,15 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
         e.preventDefault();
         rate(Number(e.key));
       } else if (!flipped && !reviewMode && cards.length > 0) {
-        if (e.key === 'ArrowLeft') { e.preventDefault(); setIndex((index - 1 + cards.length) % cards.length); setFlipped(false); }
-        else if (e.key === 'ArrowRight') { e.preventDefault(); setIndex((index + 1) % cards.length); setFlipped(false); }
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          setIndex((index - 1 + cards.length) % cards.length);
+          setFlipped(false);
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          setIndex((index + 1) % cards.length);
+          setFlipped(false);
+        }
       }
     };
     window.addEventListener('keydown', onKey);
@@ -171,68 +218,87 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
   if (reviewMode && reviewDeck.length > 0 && index >= reviewDeck.length) {
     return (
       <div className="space-y-4 max-w-2xl mx-auto">
-        <div className="p-6 rounded-sm text-center" style={{
-          background: 'linear-gradient(135deg, rgba(var(--surface-emerald, 6, 78, 59), 0.5) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
-          border: '3px double rgba(16, 185, 129, 0.6)',
-          boxShadow: '0 0 30px rgba(16, 185, 129, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',
-        }}>
+        <div
+          className="p-6 rounded-sm text-center"
+          style={{
+            background:
+              'linear-gradient(135deg, rgba(var(--surface-emerald, 6, 78, 59), 0.5) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
+            border: '3px double rgba(16, 185, 129, 0.6)',
+            boxShadow: '0 0 30px rgba(16, 185, 129, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',
+          }}
+        >
           <div className="text-xs italic tracking-[0.25em] uppercase text-emerald-400 mb-2">⚜ Reviews Complete ⚜</div>
-          <div className="text-3xl font-bold italic text-amber-100" style={{ textShadow: '0 0 14px rgba(16, 185, 129, 0.5)' }}>
+          <div
+            className="text-3xl font-bold italic text-amber-100"
+            style={{ textShadow: '0 0 14px rgba(16, 185, 129, 0.5)' }}
+          >
             {reviewed} scroll{reviewed === 1 ? '' : 's'} reviewed
           </div>
           <div className="text-sm italic text-emerald-200 mt-2">
             The oracle hath rescheduled each. Return on the morrow.
           </div>
         </div>
-        <button onClick={() => onExitReviewMode?.()}
+        <button
+          onClick={() => onExitReviewMode?.()}
           className="w-full py-3 px-4 rounded-sm font-bold italic border-2 border-amber-400 text-amber-100"
-          style={{ background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.7)' }}>
+          style={{ background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.7)' }}
+        >
           <Home className="w-4 h-4 inline mr-2" /> Return Home
         </button>
       </div>
     );
   }
 
-  if (!card) return (
-    <div className="space-y-4 max-w-2xl mx-auto">
-      {domainFilter && (
-        <FilteredModeBanner domainFilter={domainFilter} onExitFilter={onExitFilter} accent="sapphire" />
-      )}
-      <div className="text-center py-12 text-amber-600 italic">
-        {reviewMode
-          ? 'No scrolls due for review — return on the morrow.'
-          : domainFilter
-            ? `No scrolls tagged "${domainFilter}" in this tome. Regenerate the tome with the updated prompt to populate flashcard domains.`
-            : 'No scrolls in this tome.'}
-      </div>
-      {reviewMode ? (
-        <button onClick={() => onExitReviewMode?.()}
-          className="w-full py-3 px-4 rounded-sm font-bold italic border-2 border-amber-400 text-amber-100"
-          style={{ background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.7)' }}>
-          <Home className="w-4 h-4 inline mr-2" /> Return Home
-        </button>
-      ) : (
-        // Phase 30d QA #7: give the user a way out of an empty study screen
-        // beyond the header Hearth (which the QA report noted as easy to miss).
-        <div className="grid grid-cols-2 gap-3">
-          <button onClick={() => onExitFilter?.()} disabled={!onExitFilter}
-            className="py-3 px-4 rounded-sm italic border-2 border-amber-700 text-amber-200 disabled:opacity-30 disabled:cursor-not-allowed"
-            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>
-            <ArrowLeft className="w-4 h-4 inline mr-2" /> {domainFilter ? 'Clear Filter' : 'Back'}
-          </button>
+  if (!card)
+    return (
+      <div className="space-y-4 max-w-2xl mx-auto">
+        {domainFilter && (
+          <FilteredModeBanner domainFilter={domainFilter} onExitFilter={onExitFilter} accent="sapphire" />
+        )}
+        <div className="text-center py-12 text-amber-600 italic">
+          {reviewMode
+            ? 'No scrolls due for review — return on the morrow.'
+            : domainFilter
+              ? `No scrolls tagged "${domainFilter}" in this tome. Regenerate the tome with the updated prompt to populate flashcard domains.`
+              : 'No scrolls in this tome.'}
         </div>
-      )}
-    </div>
-  );
+        {reviewMode ? (
+          <button
+            onClick={() => onExitReviewMode?.()}
+            className="w-full py-3 px-4 rounded-sm font-bold italic border-2 border-amber-400 text-amber-100"
+            style={{ background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.7)' }}
+          >
+            <Home className="w-4 h-4 inline mr-2" /> Return Home
+          </button>
+        ) : (
+          // Phase 30d QA #7: give the user a way out of an empty study screen
+          // beyond the header Hearth (which the QA report noted as easy to miss).
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => onExitFilter?.()}
+              disabled={!onExitFilter}
+              className="py-3 px-4 rounded-sm italic border-2 border-amber-700 text-amber-200 disabled:opacity-30 disabled:cursor-not-allowed"
+              style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
+            >
+              <ArrowLeft className="w-4 h-4 inline mr-2" /> {domainFilter ? 'Clear Filter' : 'Back'}
+            </button>
+          </div>
+        )}
+      </div>
+    );
 
   return (
     <div className="space-y-4 max-w-2xl mx-auto">
-      {domainFilter && (
-        <FilteredModeBanner domainFilter={domainFilter} onExitFilter={onExitFilter} accent="sapphire" />
-      )}
+      {domainFilter && <FilteredModeBanner domainFilter={domainFilter} onExitFilter={onExitFilter} accent="sapphire" />}
       {reviewMode && (
-        <div className="p-2 rounded-sm text-center text-xs italic"
-          style={{ background: 'rgba(29, 78, 216, 0.35)', border: '1.5px solid rgba(59, 130, 246, 0.55)', color: '#bfdbfe' }}>
+        <div
+          className="p-2 rounded-sm text-center text-xs italic"
+          style={{
+            background: 'rgba(29, 78, 216, 0.35)',
+            border: '1.5px solid rgba(59, 130, 246, 0.55)',
+            color: '#bfdbfe',
+          }}
+        >
           ✦ Review mode — {reviewDeck.length} scroll{reviewDeck.length === 1 ? '' : 's'} scheduled for today
         </div>
       )}
@@ -254,7 +320,7 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
           {ttsSupported() && (
             <button
               type="button"
-              onClick={() => speak(flipped ? (card.back || card.definition) : (card.front || card.term))}
+              onClick={() => speak(flipped ? card.back || card.definition : card.front || card.term)}
               aria-label="Read this scroll aloud"
               title="Read aloud"
               className="text-amber-500 hover:text-amber-300"
@@ -265,41 +331,65 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
           Studied this session: {reviewed}
         </span>
       </div>
-      <div onClick={() => setFlipped(!flipped)} role="button" tabIndex={0} aria-label={flipped ? 'Flashcard answer — Space flips, 1-4 to rate' : 'Flashcard question — Space flips'} className="rounded-sm p-8 min-h-[300px] flex items-center justify-center cursor-pointer transition relative" style={{
-        background: 'linear-gradient(135deg, rgba(12, 24, 41, 0.85) 0%, rgba(6, 12, 20, 0.95) 100%)',
-        border: '3px double rgba(29, 78, 216, 0.6)', boxShadow: '0 0 30px rgba(59, 130, 246, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',
-      }}>
-        <div className="text-center">
-          <div className="text-xs text-sky-400 tracking-[0.3em] mb-3 italic">{flipped ? '✦ THE ANSWER ✦' : '✦ THE QUESTION ✦'}</div>
-          <div className="text-xl text-amber-50 italic leading-relaxed">{flipped ? (card.back || card.definition) : (card.front || card.term)}</div>
-          {!flipped && <div className="text-xs text-amber-700 mt-4 italic">~ Touch the scroll to reveal ~</div>}
-        </div>
+      <div
+        onClick={() => setFlipped(!flipped)}
+        role="button"
+        tabIndex={0}
+        aria-label={flipped ? 'Flashcard answer — Space flips, 1-4 to rate' : 'Flashcard question — Space flips'}
+        className="rounded-sm p-8 min-h-[300px] flex items-center justify-center cursor-pointer transition relative"
+        style={{
+          background: 'linear-gradient(135deg, rgba(12, 24, 41, 0.85) 0%, rgba(6, 12, 20, 0.95) 100%)',
+          border: '3px double rgba(29, 78, 216, 0.6)',
+          boxShadow: '0 0 30px rgba(59, 130, 246, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',
+        }}
+      >
+        {isOcclusionCard(card) ? (
+          <OcclusionCard card={card} flipped={flipped} />
+        ) : (
+          <div className="text-center">
+            <div className="text-xs text-sky-400 tracking-[0.3em] mb-3 italic">
+              {flipped ? '✦ THE ANSWER ✦' : '✦ THE QUESTION ✦'}
+            </div>
+            <div className="text-xl text-amber-50 italic leading-relaxed">
+              {flipped ? card.back || card.definition : card.front || card.term}
+            </div>
+            {!flipped && <div className="text-xs text-amber-700 mt-4 italic">~ Touch the scroll to reveal ~</div>}
+          </div>
+        )}
       </div>
       {flipped && (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            <button onClick={() => rate(SRS_RATINGS.again)}
+            <button
+              onClick={() => rate(SRS_RATINGS.again)}
               className="py-3 rounded-sm font-bold border-2 border-red-400 text-red-200 italic"
               style={{ background: 'rgba(127, 29, 29, 0.55)' }}
-              title="I forgot completely — show this scroll again soon">
+              title="I forgot completely — show this scroll again soon"
+            >
               ⚔ Again
             </button>
-            <button onClick={() => rate(SRS_RATINGS.hard)}
+            <button
+              onClick={() => rate(SRS_RATINGS.hard)}
               className="py-3 rounded-sm font-bold border-2 border-amber-500 text-amber-200 italic"
               style={{ background: 'rgba(146, 64, 14, 0.55)' }}
-              title="Recalled with struggle — short interval">
+              title="Recalled with struggle — short interval"
+            >
               ⚔ Hard
             </button>
-            <button onClick={() => rate(SRS_RATINGS.good)}
+            <button
+              onClick={() => rate(SRS_RATINGS.good)}
               className="py-3 rounded-sm font-bold border-2 border-emerald-400 text-emerald-200 italic"
               style={{ background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.55)' }}
-              title="Recalled with effort — standard interval">
+              title="Recalled with effort — standard interval"
+            >
               ⚔ Good
             </button>
-            <button onClick={() => rate(SRS_RATINGS.easy)}
+            <button
+              onClick={() => rate(SRS_RATINGS.easy)}
               className="py-3 rounded-sm font-bold border-2 border-yellow-300 text-yellow-100 italic"
               style={{ background: 'rgba(120, 90, 8, 0.6)' }}
-              title="Instant recall — long interval">
+              title="Instant recall — long interval"
+            >
               ⚔ Easy
             </button>
           </div>
@@ -310,8 +400,26 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
       )}
       {!flipped && !reviewMode && (
         <div className="flex gap-2">
-          <button onClick={() => { setIndex((index - 1 + cards.length) % cards.length); setFlipped(false); }} className="flex-1 py-2 rounded-sm border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>← Prior</button>
-          <button onClick={() => { setIndex((index + 1) % cards.length); setFlipped(false); }} className="flex-1 py-2 rounded-sm border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>Skip →</button>
+          <button
+            onClick={() => {
+              setIndex((index - 1 + cards.length) % cards.length);
+              setFlipped(false);
+            }}
+            className="flex-1 py-2 rounded-sm border-2 border-amber-700 text-amber-200 italic"
+            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
+          >
+            ← Prior
+          </button>
+          <button
+            onClick={() => {
+              setIndex((index + 1) % cards.length);
+              setFlipped(false);
+            }}
+            className="flex-1 py-2 rounded-sm border-2 border-amber-700 text-amber-200 italic"
+            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
+          >
+            Skip →
+          </button>
         </div>
       )}
       {!flipped && reviewMode && (

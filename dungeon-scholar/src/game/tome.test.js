@@ -1,11 +1,11 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  encodeTomeShareCode,
+  blankTomeProgress,
   decodeTomeShareCode,
-  normalizeTomeData,
+  encodeTomeShareCode,
   formatDuration,
   generateTomeId,
-  blankTomeProgress,
+  normalizeTomeData,
 } from './tome.js';
 
 describe('tome share codes (PHASE-39 39A)', () => {
@@ -29,7 +29,12 @@ describe('tome share codes (PHASE-39 39A)', () => {
 
 describe('normalizeTomeData (PHASE-39 39A)', () => {
   it('maps lab.stages → steps without touching labs that already have steps', () => {
-    const out = normalizeTomeData({ labs: [{ id: 1, stages: ['s1'] }, { id: 2, steps: ['keep'] }] });
+    const out = normalizeTomeData({
+      labs: [
+        { id: 1, stages: ['s1'] },
+        { id: 2, steps: ['keep'] },
+      ],
+    });
     expect(out.labs[0].steps).toEqual(['s1']);
     expect(out.labs[1].steps).toEqual(['keep']);
   });

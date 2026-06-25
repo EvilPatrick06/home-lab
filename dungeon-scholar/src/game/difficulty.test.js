@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
-import { isDifficultyUnlocked, rollBoss, BOSS_ORDER } from './difficulty.js';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { BOSS_ORDER, isDifficultyUnlocked, rollBoss } from './difficulty.js';
 
 const lib = (runs) => ({ library: [{ progress: { runsCompleted: runs } }] });
 

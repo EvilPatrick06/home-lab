@@ -6,8 +6,8 @@
 // border when the language is diagram-family (ascii, diagram, topology,
 // flow). Inline `backticks` render as a styled <code> span.
 
-import React, { useState, useEffect } from 'react';
-import { parseRichContent, isDiagramLanguage } from '../services/richContent.js';
+import React, { useEffect, useState } from 'react';
+import { isDiagramLanguage, parseRichContent } from '../services/richContent.js';
 
 // Phase 38f / 43c: lazy-load KaTeX on first math node. Module-level
 // promise caches the import so the second math node renders instantly.
@@ -22,14 +22,13 @@ import { parseRichContent, isDiagramLanguage } from '../services/richContent.js'
 let katexPromise = null;
 function loadKatex() {
   if (!katexPromise) {
-    katexPromise = Promise.all([
-      import('katex'),
-      import('katex/dist/katex.min.css'),
-    ]).then(([mod]) => {
+    katexPromise = Promise.all([import('katex'), import('katex/dist/katex.min.css')]).then(([mod]) => {
       const katex = mod.default || mod;
       try {
         if (typeof window !== 'undefined') window.katex = katex;
-      } catch { /* sandbox */ }
+      } catch {
+        /* sandbox */
+      }
       return katex;
     });
   }
@@ -43,22 +42,35 @@ function MathRender({ expr, fallbackStyle }) {
   const [html, setHtml] = useState(null);
   useEffect(() => {
     let mounted = true;
-    loadKatex().then((katex) => {
-      if (!mounted) return;
-      try {
-        const rendered = katex.renderToString(expr, { throwOnError: false, displayMode: false });
-        setHtml(rendered);
-      } catch { /* keep fallback */ }
-    }).catch(() => { /* offline — keep fallback */ });
-    return () => { mounted = false; };
+    loadKatex()
+      .then((katex) => {
+        if (!mounted) return;
+        try {
+          const rendered = katex.renderToString(expr, { throwOnError: false, displayMode: false });
+          setHtml(rendered);
+        } catch {
+          /* keep fallback */
+        }
+      })
+      .catch(() => {
+        /* offline — keep fallback */
+      });
+    return () => {
+      mounted = false;
+    };
   }, [expr]);
   if (html) {
     // katex.renderToString returns trusted HTML (auto-escapes user input,
     // includes no <script>). dangerouslySetInnerHTML is the documented
     // KaTeX API for inline use.
+    // biome-ignore lint/security/noDangerouslySetInnerHtml: KaTeX renderToString output is trusted and auto-escaped (no <script>); this is the documented KaTeX inline API.
     return <span title="Math expression" dangerouslySetInnerHTML={{ __html: html }} />;
   }
-  return <span title="Math expression (loading…)" style={fallbackStyle}>{expr}</span>;
+  return (
+    <span title="Math expression (loading…)" style={fallbackStyle}>
+      {expr}
+    </span>
+  );
 }
 
 const PRE_BASE_STYLE = {
@@ -129,7 +141,9 @@ export default function RichContent({ text, className, style, as: BlockTag = 'di
   const flushRun = () => {
     if (runBuffer.length === 0) return;
     children.push(
-      <span key={`run${key++}`} style={{ whiteSpace: 'pre-line' }}>{runBuffer}</span>,
+      <span key={`run${key++}`} style={{ whiteSpace: 'pre-line' }}>
+        {runBuffer}
+      </span>,
     );
     runBuffer = [];
   };
@@ -139,25 +153,36 @@ export default function RichContent({ text, className, style, as: BlockTag = 'di
       if (n.content) runBuffer.push(<React.Fragment key={`t${i}`}>{n.content}</React.Fragment>);
     } else if (n.type === 'inline-code') {
       runBuffer.push(
-        <code key={`ic${i}`} style={INLINE_CODE_STYLE}>{n.content}</code>,
+        <code key={`ic${i}`} style={INLINE_CODE_STYLE}>
+          {n.content}
+        </code>,
       );
     } else if (n.type === 'bold') {
       // Phase 35e QA P5: **bold** renders as <strong> with theme color.
       runBuffer.push(
-        <strong key={`b${i}`} style={{ fontWeight: 700, color: '#fde68a' }}>{n.content}</strong>,
+        <strong key={`b${i}`} style={{ fontWeight: 700, color: '#fde68a' }}>
+          {n.content}
+        </strong>,
       );
     } else if (n.type === 'italic') {
       // Phase 35e: *italic* renders as <em>. Most prose is already italic
       // (the dungeon font), so emphasize by switching to NORMAL style so
       // the italics-on-italics inversion stands out.
       runBuffer.push(
-        <em key={`em${i}`} style={{ fontStyle: 'normal', fontWeight: 600, color: '#fef3c7' }}>{n.content}</em>,
+        <em key={`em${i}`} style={{ fontStyle: 'normal', fontWeight: 600, color: '#fef3c7' }}>
+          {n.content}
+        </em>,
       );
     } else if (n.type === 'link') {
       // Phase 35e: [text](url) renders as an <a> opening in a new tab.
       runBuffer.push(
-        <a key={`a${i}`} href={n.href} target="_blank" rel="noopener noreferrer"
-          style={{ color: '#7dd3fc', textDecoration: 'underline', fontStyle: 'normal' }}>
+        <a
+          key={`a${i}`}
+          href={n.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: '#7dd3fc', textDecoration: 'underline', fontStyle: 'normal' }}
+        >
           {n.label}
         </a>,
       );
@@ -195,7 +220,8 @@ export default function RichContent({ text, className, style, as: BlockTag = 'di
           key={`m${i}`}
           expr={n.content}
           fallbackStyle={{
-            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+            fontFamily:
+              'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
             fontStyle: 'italic',
             fontSize: '0.95em',
             background: 'rgba(126, 34, 206, 0.15)',
@@ -211,10 +237,16 @@ export default function RichContent({ text, className, style, as: BlockTag = 'di
       const diagram = isDiagramLanguage(n.language);
       children.push(
         <pre key={`c${i}`} style={styleForFence(n.language)}>
-          {n.language && (
-            <span style={LANG_TAG_STYLE}>{diagram ? 'diagram' : n.language}</span>
-          )}
-          <code style={{ background: 'transparent', padding: 0, color: 'inherit', fontFamily: 'inherit', fontStyle: 'normal' }}>
+          {n.language && <span style={LANG_TAG_STYLE}>{diagram ? 'diagram' : n.language}</span>}
+          <code
+            style={{
+              background: 'transparent',
+              padding: 0,
+              color: 'inherit',
+              fontFamily: 'inherit',
+              fontStyle: 'normal',
+            }}
+          >
             {n.content}
           </code>
         </pre>,

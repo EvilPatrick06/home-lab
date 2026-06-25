@@ -16,7 +16,9 @@ function isKnownKind(kind) {
   return Object.values(SESSION_KIND).includes(kind);
 }
 
-function key(kind) { return `${PREFIX}${kind}`; }
+function key(kind) {
+  return `${PREFIX}${kind}`;
+}
 
 export function saveSession(kind, snapshot) {
   if (!isKnownKind(kind)) return;
@@ -43,6 +45,9 @@ export function loadSession(kind) {
 
 export function clearSession(kind) {
   if (!isKnownKind(kind)) return;
-  try { localStorage.removeItem(key(kind)); } catch { /* ignore */ }
+  try {
+    localStorage.removeItem(key(kind));
+  } catch {
+    /* ignore */
+  }
 }
-

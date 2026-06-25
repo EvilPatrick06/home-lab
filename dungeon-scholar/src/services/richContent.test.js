@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { parseRichContent, isDiagramLanguage } from './richContent.js';
+import { describe, expect, it } from 'vitest';
+import { isDiagramLanguage, parseRichContent } from './richContent.js';
 
 describe('parseRichContent', () => {
   it('returns [] for empty or non-string input', () => {
@@ -10,9 +10,7 @@ describe('parseRichContent', () => {
   });
 
   it('returns a single text node for plain prose', () => {
-    expect(parseRichContent('hello world')).toEqual([
-      { type: 'text', content: 'hello world' },
-    ]);
+    expect(parseRichContent('hello world')).toEqual([{ type: 'text', content: 'hello world' }]);
   });
 
   it('extracts a fenced code block with language', () => {
@@ -26,9 +24,7 @@ describe('parseRichContent', () => {
 
   it('accepts fenced blocks without a language', () => {
     const out = parseRichContent('```\nplain code\n```');
-    expect(out).toEqual([
-      { type: 'code', language: '', content: 'plain code\n' },
-    ]);
+    expect(out).toEqual([{ type: 'code', language: '', content: 'plain code\n' }]);
   });
 
   it('lowercases the language tag', () => {
@@ -38,7 +34,7 @@ describe('parseRichContent', () => {
 
   it('captures multiple fenced blocks in order', () => {
     const out = parseRichContent('A\n```a\none\n```B\n```b\ntwo\n```C');
-    expect(out.map(n => n.type)).toEqual(['text', 'code', 'text', 'code', 'text']);
+    expect(out.map((n) => n.type)).toEqual(['text', 'code', 'text', 'code', 'text']);
     expect(out[1]).toEqual({ type: 'code', language: 'a', content: 'one\n' });
     expect(out[3]).toEqual({ type: 'code', language: 'b', content: 'two\n' });
   });
@@ -60,7 +56,7 @@ describe('parseRichContent', () => {
 
   it('handles consecutive inline-code spans', () => {
     const out = parseRichContent('`a``b`');
-    expect(out.map(n => n.type)).toEqual(['inline-code', 'inline-code']);
+    expect(out.map((n) => n.type)).toEqual(['inline-code', 'inline-code']);
     expect(out[0].content).toBe('a');
     expect(out[1].content).toBe('b');
   });
@@ -73,7 +69,7 @@ describe('parseRichContent', () => {
 
   it('mixes fenced blocks and inline code correctly', () => {
     const out = parseRichContent('Type `ls` to list:\n```bash\nls -la\n```\nDone.');
-    expect(out.map(n => n.type)).toEqual(['text', 'inline-code', 'text', 'code', 'text']);
+    expect(out.map((n) => n.type)).toEqual(['text', 'inline-code', 'text', 'code', 'text']);
   });
 
   it('preserves whitespace and newlines inside text nodes verbatim', () => {
@@ -131,9 +127,7 @@ describe('parseRichContent', () => {
 
     it('mixes bold, italic, inline-code, and link in one line', () => {
       const out = parseRichContent('**B** *I* `C` [L](u)');
-      expect(out.map(n => n.type)).toEqual([
-        'bold', 'text', 'italic', 'text', 'inline-code', 'text', 'link',
-      ]);
+      expect(out.map((n) => n.type)).toEqual(['bold', 'text', 'italic', 'text', 'inline-code', 'text', 'link']);
     });
 
     it('does not match bold spanning a newline', () => {
@@ -182,7 +176,7 @@ describe('parseRichContent', () => {
     it('preserves dollar-signs inside inline code', () => {
       const out = parseRichContent('var x = `$5.00`');
       // Inline-code takes priority over math.
-      expect(out.map(n => n.type)).toEqual(['text', 'inline-code']);
+      expect(out.map((n) => n.type)).toEqual(['text', 'inline-code']);
       expect(out[1].content).toBe('$5.00');
     });
 
@@ -212,53 +206,43 @@ describe('parseRichContent', () => {
 
     it('falls back to text for an untrusted host', () => {
       const out = parseRichContent('![evil](https://random-host.example/x.png)');
-      expect(out).toEqual([
-        { type: 'text', content: '![evil](https://random-host.example/x.png)' },
-      ]);
+      expect(out).toEqual([{ type: 'text', content: '![evil](https://random-host.example/x.png)' }]);
     });
 
     it('falls back to text for http://', () => {
       const out = parseRichContent('![insecure](http://user-images.githubusercontent.com/x.png)');
-      expect(out).toEqual([
-        { type: 'text', content: '![insecure](http://user-images.githubusercontent.com/x.png)' },
-      ]);
+      expect(out).toEqual([{ type: 'text', content: '![insecure](http://user-images.githubusercontent.com/x.png)' }]);
     });
 
     it('falls back to text for non-image data: URLs', () => {
       const out = parseRichContent('![sneaky](data:text/html;base64,PHNjcmlwdD4=)');
-      expect(out).toEqual([
-        { type: 'text', content: '![sneaky](data:text/html;base64,PHNjcmlwdD4=)' },
-      ]);
+      expect(out).toEqual([{ type: 'text', content: '![sneaky](data:text/html;base64,PHNjcmlwdD4=)' }]);
     });
 
     it('rejects data:image/svg+xml (SVG can contain <script>)', () => {
       const out = parseRichContent('![sneaky-svg](data:image/svg+xml;base64,PHN2Zy8+)');
-      expect(out).toEqual([
-        { type: 'text', content: '![sneaky-svg](data:image/svg+xml;base64,PHN2Zy8+)' },
-      ]);
+      expect(out).toEqual([{ type: 'text', content: '![sneaky-svg](data:image/svg+xml;base64,PHN2Zy8+)' }]);
     });
 
     it('allows an empty alt text', () => {
       const out = parseRichContent('![](data:image/png;base64,iVBORw0KGgo=)');
-      expect(out).toEqual([
-        { type: 'image', alt: '', src: 'data:image/png;base64,iVBORw0KGgo=' },
-      ]);
+      expect(out).toEqual([{ type: 'image', alt: '', src: 'data:image/png;base64,iVBORw0KGgo=' }]);
     });
 
     it('still parses a non-image [link](url) the same way as before', () => {
       const out = parseRichContent('see [docs](https://example.com)');
-      expect(out.map(n => n.type)).toEqual(['text', 'link']);
+      expect(out.map((n) => n.type)).toEqual(['text', 'link']);
     });
 
     it('rejects a javascript: link href, emitting literal text', () => {
       const out = parseRichContent('[click](javascript:stealCookies)');
-      expect(out.map(n => n.type)).toEqual(['text']);
+      expect(out.map((n) => n.type)).toEqual(['text']);
       expect(out[0].content).toBe('[click](javascript:stealCookies)');
     });
 
     it('rejects a data: link href, emitting literal text', () => {
       const out = parseRichContent('[y](data:text/html,hi)');
-      expect(out.every(n => n.type === 'text')).toBe(true);
+      expect(out.every((n) => n.type === 'text')).toBe(true);
     });
   });
 });

@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { MAX_TOME_IMPORT_BYTES, checkImportSize } from './importLimits.js';
+import { describe, expect, it } from 'vitest';
+import { checkImportSize, MAX_TOME_IMPORT_BYTES } from './importLimits.js';
 
 describe('checkImportSize (PHASE-40 40A / L14)', () => {
   it('accepts a payload exactly at the limit', () => {

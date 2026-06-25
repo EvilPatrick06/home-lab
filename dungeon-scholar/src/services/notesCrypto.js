@@ -53,13 +53,9 @@ export async function deriveKey(passphrase, saltBytes, iterations = KDF_ITERATIO
   const cached = keyCache.get(cacheKey);
   if (cached) return cached;
 
-  const material = await crypto.subtle.importKey(
-    'raw',
-    new TextEncoder().encode(passphrase),
-    'PBKDF2',
-    false,
-    ['deriveKey'],
-  );
+  const material = await crypto.subtle.importKey('raw', new TextEncoder().encode(passphrase), 'PBKDF2', false, [
+    'deriveKey',
+  ]);
   const key = await crypto.subtle.deriveKey(
     { name: 'PBKDF2', salt: saltBytes, iterations, hash: 'SHA-256' },
     material,
@@ -86,11 +82,7 @@ export async function encryptPayload(passphrase, plaintext, { salt, iterations }
   const iv = crypto.getRandomValues(new Uint8Array(12));
 
   const key = await deriveKey(passphrase, saltBytes, iter);
-  const ctBuf = await crypto.subtle.encrypt(
-    { name: 'AES-GCM', iv },
-    key,
-    new TextEncoder().encode(plaintext),
-  );
+  const ctBuf = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(plaintext));
 
   return {
     v: PAYLOAD_VERSION,
@@ -119,11 +111,7 @@ export async function decryptPayload(passphrase, payload) {
   const key = await deriveKey(passphrase, saltBytes, payload.iter);
 
   try {
-    const ptBuf = await crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv: fromB64(payload.iv) },
-      key,
-      fromB64(payload.ct),
-    );
+    const ptBuf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: fromB64(payload.iv) }, key, fromB64(payload.ct));
     return new TextDecoder().decode(ptBuf);
   } catch {
     throw new Error('decrypt-failed');

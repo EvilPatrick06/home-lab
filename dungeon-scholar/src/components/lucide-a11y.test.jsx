@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
 import { X } from 'lucide-react';
+import { describe, expect, it } from 'vitest';
 
 // PHASE-19 19H / L3 regression lock. The audit's "aria-hidden sweep" is
 // unnecessary because lucide-react (1.17.0) applies aria-hidden="true" by

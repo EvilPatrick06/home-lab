@@ -5,9 +5,11 @@ import {
   Clock,
   Compass,
   Copy,
+  FileUp,
   FlaskConical,
   Hash,
   Heart,
+  ImagePlus,
   Library,
   MessageSquare,
   Package,
@@ -48,6 +50,8 @@ function HomeScreen({
   onImport,
   onPaste,
   onImportCode,
+  onImportDeck,
+  onAuthorOcclusion,
   onShowPrompt,
   playerState,
   signedIn,
@@ -136,6 +140,26 @@ function HomeScreen({
               }}
             >
               <Hash className="w-5 h-5" /> Import Share Code
+            </button>
+            <button
+              onClick={onImportDeck}
+              className="px-6 py-3 font-bold rounded-sm flex items-center gap-2 transition text-emerald-200 border-2 border-emerald-700 italic"
+              style={{
+                background:
+                  'linear-gradient(to bottom, rgba(6, 78, 59, 0.6) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.9) 100%)',
+              }}
+            >
+              <FileUp className="w-5 h-5" /> Import Deck (CSV/Quizlet)
+            </button>
+            <button
+              onClick={onAuthorOcclusion}
+              className="px-6 py-3 font-bold rounded-sm flex items-center gap-2 transition text-emerald-200 border-2 border-emerald-700 italic"
+              style={{
+                background:
+                  'linear-gradient(to bottom, rgba(6, 78, 59, 0.6) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.9) 100%)',
+              }}
+            >
+              <ImagePlus className="w-5 h-5" /> Author Occlusion Card
             </button>
             <button
               onClick={onShowPrompt}

@@ -1,9 +1,9 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  retrievabilityAt,
   computeAverageRetrievability,
-  computeRetentionCurve,
   computeMilestones,
+  computeRetentionCurve,
+  retrievabilityAt,
 } from './forgettingCurve.js';
 
 const DAY = 86400000;
@@ -69,8 +69,8 @@ describe('computeAverageRetrievability', () => {
 
   it('averages retrievability across rated cards', () => {
     const now = 1_000_000_000_000;
-    const fresh = card(10, 0, now);            // R ≈ 1
-    const stale = card(5, 10, now);            // elapsed > stability, R ≈ 0.69
+    const fresh = card(10, 0, now); // R ≈ 1
+    const stale = card(5, 10, now); // elapsed > stability, R ≈ 0.69
     const out = computeAverageRetrievability([fresh, stale], now);
     expect(out.sampleSize).toBe(2);
     expect(out.mean).toBeGreaterThan(0.7);
@@ -108,8 +108,8 @@ describe('computeRetentionCurve', () => {
 
   it('returns null pct entries when no cards have state', () => {
     const out = computeRetentionCurve([], { now: 0, maxDays: 10, samples: 3 });
-    expect(out.every(p => p.pct === null)).toBe(true);
-    expect(out.every(p => p.sampleSize === 0)).toBe(true);
+    expect(out.every((p) => p.pct === null)).toBe(true);
+    expect(out.every((p) => p.sampleSize === 0)).toBe(true);
   });
 
   it('starts near 100% when all cards are freshly reviewed', () => {
@@ -130,17 +130,17 @@ describe('computeMilestones', () => {
     const now = 1_000_000_000_000;
     const out = computeMilestones([card(5, 0, now)], { now });
     expect(out).toHaveLength(4);
-    expect(out.map(m => m.offsetDays)).toEqual([0, 1, 7, 30]);
+    expect(out.map((m) => m.offsetDays)).toEqual([0, 1, 7, 30]);
   });
 
   it('respects a custom offsets list', () => {
     const now = 1_000_000_000_000;
     const out = computeMilestones([card(5, 0, now)], { now, offsets: [0, 14] });
-    expect(out.map(m => m.offsetDays)).toEqual([0, 14]);
+    expect(out.map((m) => m.offsetDays)).toEqual([0, 14]);
   });
 
   it('returns null pct when no state is available', () => {
     const out = computeMilestones([], { now: 0 });
-    expect(out.every(m => m.pct === null)).toBe(true);
+    expect(out.every((m) => m.pct === null)).toBe(true);
   });
 });

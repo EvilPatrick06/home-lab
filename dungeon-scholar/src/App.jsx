@@ -173,11 +173,15 @@ const LibraryScreen = lazyWithReload(() => import('./features/library/LibraryScr
 import TomeNotes from './components/TomeNotes.jsx';
 import { STARTER_DECKS } from './data/starterDecks.js';
 import ImportCodeModal from './features/library/ImportCodeModal.jsx';
+import ImportDeckModal from './features/library/ImportDeckModal.jsx';
 import MetadataEditModal from './features/library/MetadataEditModal.jsx';
+import OcclusionAuthor from './features/library/OcclusionAuthor.jsx';
 import PasteTomeModal from './features/library/PasteTomeModal.jsx';
 import SealedTomeGate from './features/library/SealedTomeGate.jsx';
 import ShareTomeModal from './features/library/ShareTomeModal.jsx';
 import TomeEditor from './features/library/TomeEditor.jsx';
+import { deckTextToTome } from './services/deckImport.js';
+import { applyTagToTomes } from './services/libraryBulk.js';
 
 const RunHistoryScreen = lazyWithReload(() => import('./features/progression/RunHistoryScreen.jsx'));
 const ShopScreen = lazyWithReload(() => import('./features/progression/ShopScreen.jsx'));
@@ -928,6 +932,31 @@ export default function DungeonScholarApp() {
     }
   };
 
+  // Item: import a deck from CSV / TSV / Quizlet export text. Converts to a
+  // tome and routes through the same addTomeToLibrary path as every import.
+  const handleDeckImport = (text) => {
+    const sizeCheck = checkImportSize(text.length);
+    if (!sizeCheck.ok) {
+      showNotif(sizeCheck.message, 'error');
+      return false;
+    }
+    const res = deckTextToTome(text);
+    if (!res.ok) {
+      showNotif(res.error, 'error');
+      return false;
+    }
+    if (!addTomeToLibrary(res.tome)) return false;
+    showNotif(`Imported ${res.count} card${res.count === 1 ? '' : 's'} into a new tome`, 'success');
+    return true;
+  };
+
+  // Item: create a tome from an authored image-occlusion card.
+  const handleOcclusionCreate = (tome) => {
+    if (!addTomeToLibrary(tome)) return false;
+    showNotif(`Occlusion tome inscribed: ${tome.metadata.title}`, 'success');
+    return true;
+  };
+
   // I3 (Web Share Target): when the OS share sheet sends a tome to the
   // installed PWA, the service worker stashes the payload and redirects here
   // with ?share-target=1. Pull it from the cache and run it through the same
@@ -1065,6 +1094,8 @@ export default function DungeonScholarApp() {
         onImport={() => fileInputRef.current?.click()}
         onPaste={() => openModal('paste')}
         onImportCode={() => openModal('importCode')}
+        onImportDeck={() => openModal('importDeck')}
+        onAuthorOcclusion={() => openModal('occlusionAuthor')}
         onShowPrompt={() => openModal('prompt')}
         playerState={playerState}
         signedIn={!!user}
@@ -1136,6 +1167,9 @@ export default function DungeonScholarApp() {
         onShare={(id) => setShareTomeId(id)}
         onEditMetadata={(id) => setEditMetadataTomeId(id)}
         onEditContent={(id) => setEditContentTomeId(id)}
+        onBulkTag={(ids, tag) =>
+          setPlayerState((prev) => ({ ...prev, library: applyTagToTomes(prev.library, ids, tag) }))
+        }
         starterDecks={STARTER_DECKS}
         onAddStarter={(data) => {
           addTomeToLibrary(data);
@@ -1153,6 +1187,8 @@ export default function DungeonScholarApp() {
         onImport={() => fileInputRef.current?.click()}
         onPaste={() => openModal('paste')}
         onImportCode={() => openModal('importCode')}
+        onImportDeck={() => openModal('importDeck')}
+        onAuthorOcclusion={() => openModal('occlusionAuthor')}
         onShowPrompt={() => openModal('prompt')}
         setScreen={setScreen}
         claimableQuestCount={claimableQuestCount}
@@ -1201,7 +1237,9 @@ export default function DungeonScholarApp() {
     calendar: () => <CalendarScreen playerState={playerState} setScreen={setScreen} onClaim={claimDailyReward} />,
     ascension: () => <AscensionScreen playerState={playerState} setScreen={setScreen} onAscend={ascend} />,
     history: () => <RunHistoryScreen playerState={playerState} setScreen={setScreen} />,
-    ledger: () => <ScholarsLedger playerState={playerState} setScreen={setScreen} />,
+    ledger: () => (
+      <ScholarsLedger playerState={playerState} setScreen={setScreen} scholarName={user?.githubLogin || 'Scholar'} />
+    ),
     domainStudy: () =>
       !sealedLocked && (
         <DomainStudyScreen
@@ -1924,6 +1962,12 @@ export default function DungeonScholarApp() {
 
             {modalOpen.prompt && <PromptModal onClose={() => closeModal('prompt')} />}
             {modalOpen.paste && <PasteTomeModal onClose={() => closeModal('paste')} onSubmit={handlePasteImport} />}
+            {modalOpen.importDeck && (
+              <ImportDeckModal onClose={() => closeModal('importDeck')} onSubmit={handleDeckImport} />
+            )}
+            {modalOpen.occlusionAuthor && (
+              <OcclusionAuthor onClose={() => closeModal('occlusionAuthor')} onCreate={handleOcclusionCreate} />
+            )}
             {modalOpen.importCode && (
               <ImportCodeModal onClose={() => closeModal('importCode')} onSubmit={handleShareCodeImport} />
             )}

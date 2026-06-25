@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import ShareTomeModal from './ShareTomeModal.jsx';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { isSealedTome } from '../../services/sealedTome.js';
+import ShareTomeModal from './ShareTomeModal.jsx';
 
 // PHASE-41 41C: the seal-for-proctored-use export. We assert the download by
 // capturing the JSON written to the Blob that the component hands to

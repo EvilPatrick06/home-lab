@@ -1,4 +1,4 @@
-import { SHARED_HEADER, SHARED_SCHEMA, SHARED_STYLE_RULES, SHARED_FOOTER } from './_shared.js';
+import { SHARED_FOOTER, SHARED_HEADER, SHARED_SCHEMA, SHARED_STYLE_RULES } from './_shared.js';
 
 export const ISACA_PROMPT_META = {
   id: 'isaca',

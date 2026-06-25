@@ -1,4 +1,4 @@
-import { Compass, ChevronUp, ChevronDown } from 'lucide-react';
+import { ChevronDown, ChevronUp, Compass } from 'lucide-react';
 import { TUTORIAL_STEPS } from '../../game/tutorial.js';
 
 function TutorialPanel({ stepIndex, collapsed, onToggle, onAdvance, onSkip, onAction }) {
@@ -8,40 +8,57 @@ function TutorialPanel({ stepIndex, collapsed, onToggle, onAdvance, onSkip, onAc
 
   return (
     <div className="fixed bottom-4 right-4 z-40 max-w-sm w-full md:w-96" style={{ pointerEvents: 'auto' }}>
-      <div className="rounded-sm relative" style={{
-        background: 'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.97) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.99) 100%)',
-        border: '3px double rgba(168, 85, 247, 0.7)',
-        boxShadow: '0 0 30px rgba(168, 85, 247, 0.4), inset 0 0 20px rgba(0,0,0,0.5)',
-      }}>
+      <div
+        className="rounded-sm relative"
+        style={{
+          background:
+            'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.97) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.99) 100%)',
+          border: '3px double rgba(168, 85, 247, 0.7)',
+          boxShadow: '0 0 30px rgba(168, 85, 247, 0.4), inset 0 0 20px rgba(0,0,0,0.5)',
+        }}
+      >
         <div className="absolute top-1 left-1 text-purple-400/60 text-xs">⚜</div>
         <div className="absolute top-1 right-1 text-purple-400/60 text-xs">⚜</div>
         <div className="absolute bottom-1 left-1 text-purple-400/60 text-xs">⚜</div>
         <div className="absolute bottom-1 right-1 text-purple-400/60 text-xs">⚜</div>
 
-        <button
-          onClick={onToggle}
-          className="w-full flex items-center justify-between p-3 hover:bg-purple-900/20"
-        >
+        <button onClick={onToggle} className="w-full flex items-center justify-between p-3 hover:bg-purple-900/20">
           <div className="flex items-center gap-2">
-            <Compass className="w-4 h-4 text-purple-400" style={{ filter: 'drop-shadow(0 0 6px rgba(168, 85, 247, 0.6))' }} />
+            <Compass
+              className="w-4 h-4 text-purple-400"
+              style={{ filter: 'drop-shadow(0 0 6px rgba(168, 85, 247, 0.6))' }}
+            />
             <span className="text-xs text-purple-300 italic tracking-widest">
               ⚜ THE AWAKENING — {stepIndex + 1}/{TUTORIAL_STEPS.length}
             </span>
           </div>
-          {collapsed ? <ChevronUp className="w-4 h-4 text-purple-400" /> : <ChevronDown className="w-4 h-4 text-purple-400" />}
+          {collapsed ? (
+            <ChevronUp className="w-4 h-4 text-purple-400" />
+          ) : (
+            <ChevronDown className="w-4 h-4 text-purple-400" />
+          )}
         </button>
 
         {!collapsed && (
           <div className="px-4 pb-4 space-y-3">
-            <div className="h-1.5 rounded-full overflow-hidden border border-purple-800" style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)' }}>
-              <div className="h-full transition-all" style={{
-                width: `${progress}%`,
-                background: 'linear-gradient(to right, #a855f7, #d8b4fe)',
-                boxShadow: '0 0 8px rgba(168, 85, 247, 0.6)',
-              }} />
+            <div
+              className="h-1.5 rounded-full overflow-hidden border border-purple-800"
+              style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)' }}
+            >
+              <div
+                className="h-full transition-all"
+                style={{
+                  width: `${progress}%`,
+                  background: 'linear-gradient(to right, #a855f7, #d8b4fe)',
+                  boxShadow: '0 0 8px rgba(168, 85, 247, 0.6)',
+                }}
+              />
             </div>
 
-            <h4 className="font-bold text-purple-200 italic text-sm" style={{ textShadow: '0 0 8px rgba(168, 85, 247, 0.4)' }}>
+            <h4
+              className="font-bold text-purple-200 italic text-sm"
+              style={{ textShadow: '0 0 8px rgba(168, 85, 247, 0.4)' }}
+            >
               {step.title}
             </h4>
             <p className="text-xs text-amber-100/80 italic leading-relaxed">{step.description}</p>
@@ -58,14 +75,21 @@ function TutorialPanel({ stepIndex, collapsed, onToggle, onAdvance, onSkip, onAc
                   <button
                     onClick={() => onAction(step.id)}
                     className="flex-1 py-2 rounded-sm text-sm font-bold text-amber-50 border-2 border-purple-300 italic"
-                    style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)', boxShadow: '0 0 12px rgba(168, 85, 247, 0.4)' }}
+                    style={{
+                      background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)',
+                      boxShadow: '0 0 12px rgba(168, 85, 247, 0.4)',
+                    }}
                   >
                     {step.actionLabel}
                   </button>
                 ) : (
-                  <div className="flex-1 py-2 px-3 rounded-sm text-xs italic text-purple-300 text-center" style={{
-                    background: 'rgba(var(--surface-purple, 31, 12, 41), 0.6)', border: '1px dashed rgba(168, 85, 247, 0.5)',
-                  }}>
+                  <div
+                    className="flex-1 py-2 px-3 rounded-sm text-xs italic text-purple-300 text-center"
+                    style={{
+                      background: 'rgba(var(--surface-purple, 31, 12, 41), 0.6)',
+                      border: '1px dashed rgba(168, 85, 247, 0.5)',
+                    }}
+                  >
                     {step.completionLabel}
                   </div>
                 )
@@ -76,7 +100,10 @@ function TutorialPanel({ stepIndex, collapsed, onToggle, onAdvance, onSkip, onAc
                     onAdvance(step.id);
                   }}
                   className="flex-1 py-2 rounded-sm text-sm font-bold text-amber-50 border-2 border-purple-300 italic"
-                  style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)', boxShadow: '0 0 12px rgba(168, 85, 247, 0.4)' }}
+                  style={{
+                    background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)',
+                    boxShadow: '0 0 12px rgba(168, 85, 247, 0.4)',
+                  }}
                 >
                   {step.completionLabel}
                 </button>

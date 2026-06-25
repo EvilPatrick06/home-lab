@@ -12,36 +12,31 @@
 // those reflect ongoing dungeon-and-quiz study, not mock test taking.
 // The results live on tome.progress.practiceExams as a capped history.
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Clock, ArrowLeft, ArrowRight, Award, AlertTriangle } from 'lucide-react';
-import {
-  EXAM_PRESETS,
-  pickStratifiedSample,
-  gradeExamItem,
-  summarizeExamResults,
-} from '../../services/examSession.js';
-import {
-  saveSession,
-  loadSession,
-  clearSession,
-  SESSION_KIND,
-} from '../../services/sessionResume.js';
+import { AlertTriangle, ArrowLeft, ArrowRight, Award, Clock } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import RichContent from '../../components/RichContent.jsx';
-import { speak, ttsSupported } from '../../services/tts.js';
-import { timerAnnouncement } from '../../services/timerAnnounce.js';
 import { useDialogA11y } from '../../hooks/useDialogA11y.js';
+import { EXAM_PRESETS, gradeExamItem, pickStratifiedSample, summarizeExamResults } from '../../services/examSession.js';
+import { clearSession, loadSession, SESSION_KIND, saveSession } from '../../services/sessionResume.js';
+import { timerAnnouncement } from '../../services/timerAnnounce.js';
+import { speak, ttsSupported } from '../../services/tts.js';
 
 function formatClock(sec) {
   const s = Math.max(0, sec | 0);
   return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 }
 
-export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomeProgress, awardXP, onExit, onResumeNotify }) {
+export default function ExamMode({
+  courseSet,
+  tomeId,
+  tomeProgress,
+  updateTomeProgress,
+  awardXP,
+  onExit,
+  onResumeNotify,
+}) {
   const weights = courseSet?.metadata?.domainWeights || null;
-  const quizPool = useMemo(
-    () => (courseSet?.quiz || []).filter(q => q && typeof q.id === 'string'),
-    [courseSet],
-  );
+  const quizPool = useMemo(() => (courseSet?.quiz || []).filter((q) => q && typeof q.id === 'string'), [courseSet]);
 
   const [phase, setPhase] = useState('setup');
   const [sample, setSample] = useState([]);
@@ -121,7 +116,9 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
     };
     // 17D functional form: append to the LIVE practiceExams, not the stale
     // render-time copy — a Realtime update during the exam isn't clobbered on submit.
-    updateTomeProgress?.((prev) => ({ practiceExams: [...(Array.isArray(prev.practiceExams) ? prev.practiceExams : []), record].slice(-20) }));
+    updateTomeProgress?.((prev) => ({
+      practiceExams: [...(Array.isArray(prev.practiceExams) ? prev.practiceExams : []), record].slice(-20),
+    }));
     awardXP?.(10 + summary.correct, `Mock exam: ${summary.scorePct}%`);
     setResultsSummary({ ...summary, durationSec: elapsedSec, status: reason });
     setShowSubmitConfirm(false);
@@ -204,8 +201,13 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
           s.setAnswerAt?.(s.currentIdx, idx);
         }
       } else if (q.type === 'truefalse') {
-        if (key === 't') { e.preventDefault(); s.setAnswerAt?.(s.currentIdx, true); }
-        else if (key === 'f') { e.preventDefault(); s.setAnswerAt?.(s.currentIdx, false); }
+        if (key === 't') {
+          e.preventDefault();
+          s.setAnswerAt?.(s.currentIdx, true);
+        } else if (key === 'f') {
+          e.preventDefault();
+          s.setAnswerAt?.(s.currentIdx, false);
+        }
       }
     };
     window.addEventListener('keydown', onKey);
@@ -245,7 +247,12 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
     // mid-page-load doesn't look mysterious.
     const mins = Math.floor(remainingSec / 60);
     const secs = remainingSec % 60;
-    onResumeNotify?.({ kind: 'exam', remainingLabel: `${mins}:${String(secs).padStart(2, '0')}`, total: saved.sample.length, currentIdx: typeof saved.currentIdx === 'number' ? saved.currentIdx : 0 });
+    onResumeNotify?.({
+      kind: 'exam',
+      remainingLabel: `${mins}:${String(secs).padStart(2, '0')}`,
+      total: saved.sample.length,
+      currentIdx: typeof saved.currentIdx === 'number' ? saved.currentIdx : 0,
+    });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const setAnswerAt = (idx, val) => {
@@ -274,62 +281,89 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
     const a = answers[i];
     setTextInput(typeof a === 'string' ? a : '');
   };
-  const toggleFlag = (i) => setFlagged((f) => {
-    const n = (f.length === sample.length ? [...f] : new Array(sample.length).fill(false));
-    n[i] = !n[i];
-    return n;
-  });
+  const toggleFlag = (i) =>
+    setFlagged((f) => {
+      const n = f.length === sample.length ? [...f] : new Array(sample.length).fill(false);
+      n[i] = !n[i];
+      return n;
+    });
 
   if (phase === 'setup') {
     const past = Array.isArray(tomeProgress?.practiceExams) ? tomeProgress.practiceExams : [];
     return (
       <div className="space-y-4 max-w-3xl mx-auto">
-        <div className="flex items-center gap-3 p-5 rounded-sm relative" style={{
-          background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.5) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
-          border: '3px double rgba(129, 140, 248, 0.6)',
-          boxShadow: '0 0 24px rgba(129, 140, 248, 0.2), inset 0 0 24px rgba(0,0,0,0.5)',
-        }}>
-          <Clock className="w-10 h-10 text-indigo-300" style={{ filter: 'drop-shadow(0 0 10px rgba(129, 140, 248, 0.6))' }} />
+        <div
+          className="flex items-center gap-3 p-5 rounded-sm relative"
+          style={{
+            background:
+              'linear-gradient(135deg, rgba(67, 56, 202, 0.5) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
+            border: '3px double rgba(129, 140, 248, 0.6)',
+            boxShadow: '0 0 24px rgba(129, 140, 248, 0.2), inset 0 0 24px rgba(0,0,0,0.5)',
+          }}
+        >
+          <Clock
+            className="w-10 h-10 text-indigo-300"
+            style={{ filter: 'drop-shadow(0 0 10px rgba(129, 140, 248, 0.6))' }}
+          />
           <div className="flex-1">
-            <h2 className="text-2xl font-bold text-indigo-200 italic" style={{ textShadow: '0 0 12px rgba(129, 140, 248, 0.4)' }}>The Trial of Hours</h2>
+            <h2
+              className="text-2xl font-bold text-indigo-200 italic"
+              style={{ textShadow: '0 0 12px rgba(129, 140, 248, 0.4)' }}
+            >
+              The Trial of Hours
+            </h2>
             <div className="text-xs italic text-indigo-400 tracking-[0.2em]">⏳ Timed practice exam ⏳</div>
           </div>
-          <button onClick={onExit} className="px-3 py-2 rounded-sm border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>
+          <button
+            onClick={onExit}
+            className="px-3 py-2 rounded-sm border-2 border-amber-700 text-amber-200 italic"
+            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
+          >
             <ArrowLeft className="w-4 h-4 inline mr-1" /> Home
           </button>
         </div>
 
         {quizPool.length < 5 ? (
-          <div className="p-4 rounded-sm text-amber-200 italic flex items-start gap-2" style={{ background: 'rgba(127, 29, 29, 0.4)', border: '2px solid #ef4444' }}>
+          <div
+            className="p-4 rounded-sm text-amber-200 italic flex items-start gap-2"
+            style={{ background: 'rgba(127, 29, 29, 0.4)', border: '2px solid #ef4444' }}
+          >
             <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0 text-red-300" />
-            <div>This tome has only {quizPool.length} riddle{quizPool.length === 1 ? '' : 's'} — too few for a practice exam. Regenerate the tome with the updated prompt to populate the deck.</div>
+            <div>
+              This tome has only {quizPool.length} riddle{quizPool.length === 1 ? '' : 's'} — too few for a practice
+              exam. Regenerate the tome with the updated prompt to populate the deck.
+            </div>
           </div>
         ) : (
           <>
             <div className="text-sm italic text-amber-200">
-              ⚖ Choose a length. Riddles will be drawn in proportion to the tome's blueprint{weights ? '' : ' (evenly across domains, since this tome has no published weights)'}. Once the trial begins, the timer cannot be paused.
+              ⚖ Choose a length. Riddles will be drawn in proportion to the tome's blueprint
+              {weights ? '' : ' (evenly across domains, since this tome has no published weights)'}. Once the trial
+              begins, the timer cannot be paused.
             </div>
             <div className="grid md:grid-cols-3 gap-3">
-              {EXAM_PRESETS.map(preset => {
+              {EXAM_PRESETS.map((preset) => {
                 const effective = Math.min(preset.count, quizPool.length);
                 const disabled = effective < 5;
                 return (
-                  <button key={preset.id}
+                  <button
+                    key={preset.id}
                     onClick={() => !disabled && startExam({ ...preset, count: effective })}
                     disabled={disabled}
                     className="p-4 rounded-sm text-left disabled:opacity-40 disabled:cursor-not-allowed transition hover:brightness-110"
                     style={{
-                      background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.4) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
+                      background:
+                        'linear-gradient(135deg, rgba(67, 56, 202, 0.4) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
                       border: '2px solid rgba(129, 140, 248, 0.5)',
-                    }}>
+                    }}
+                  >
                     <div className="text-base font-bold italic text-indigo-200">{preset.label}</div>
                     <div className="text-xs italic text-amber-100 mt-1">
-                      {effective} riddle{effective === 1 ? '' : 's'} · {preset.minutes} minute{preset.minutes === 1 ? '' : 's'}
+                      {effective} riddle{effective === 1 ? '' : 's'} · {preset.minutes} minute
+                      {preset.minutes === 1 ? '' : 's'}
                     </div>
                     {effective < preset.count && (
-                      <div className="text-[10px] italic text-amber-700 mt-1">
-                        ✦ Capped at {effective} (tome size)
-                      </div>
+                      <div className="text-[10px] italic text-amber-700 mt-1">✦ Capped at {effective} (tome size)</div>
                     )}
                   </button>
                 );
@@ -337,75 +371,97 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
             </div>
 
             {past.length > 0 && (
-              <div className="p-4 rounded-sm" style={{
-                background: 'linear-gradient(135deg, rgba(var(--surface-amber-strong, 120, 53, 15), 0.35) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.9) 100%)',
-                border: '2px solid rgba(245, 158, 11, 0.4)',
-              }}>
+              <div
+                className="p-4 rounded-sm"
+                style={{
+                  background:
+                    'linear-gradient(135deg, rgba(var(--surface-amber-strong, 120, 53, 15), 0.35) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.9) 100%)',
+                  border: '2px solid rgba(245, 158, 11, 0.4)',
+                }}
+              >
                 <div className="flex items-center gap-2 mb-3">
                   <Award className="w-4 h-4 text-amber-300" />
                   <h3 className="text-sm italic font-bold text-amber-200 tracking-wider">Past Trials</h3>
                   <div className="flex-1 h-px bg-linear-to-r from-amber-700/40 to-transparent" />
-                  <span className="text-[10px] italic text-amber-700">last {Math.min(5, past.length)} of {past.length}</span>
+                  <span className="text-[10px] italic text-amber-700">
+                    last {Math.min(5, past.length)} of {past.length}
+                  </span>
                 </div>
                 <div className="space-y-1 text-xs italic">
-                  {past.slice(-5).reverse().map((rec, i) => {
-                    const color = rec.scorePct >= 75 ? '#a7f3d0' : rec.scorePct >= 60 ? '#fde68a' : '#fecaca';
-                    // Phase 39e / 42b / 43b round-7→9→10: abandoned trials
-                    // get a muted row. 43b drops the prior `status !==
-                    // 'submitted'` guard — a 30-riddle exam with 0 answers,
-                    // 0% score, and <120s duration is almost certainly an
-                    // abandon regardless of how the user closed it. Even
-                    // an explicit Submit-with-zero-answers click after only
-                    // 59s is a give-up, not a legitimate attempt — tag it.
-                    const isExplicitAbandoned = rec.status === 'abandoned';
-                    const looksAbandoned = (
-                      (rec.answered ?? 0) === 0 &&
-                      (rec.scorePct ?? 0) === 0 &&
-                      (rec.durationSec ?? 0) < 120 &&
-                      (rec.totalCount ?? 0) >= 5
-                    );
-                    const isAbandoned = isExplicitAbandoned || looksAbandoned;
-                    // Phase 46c: rows are buttons so the drill-in modal can
-                    // surface the per-domain breakdown. Abandoned rows are
-                    // still clickable — the user can confirm the breakdown
-                    // contains no real answers.
-                    return (
-                      <button
-                        key={i}
-                        type="button"
-                        onClick={() => setSelectedTrial({ ...rec, isAbandoned })}
-                        title="Click for breakdown"
-                        className={`w-full text-left flex items-center gap-3 text-amber-100 rounded-sm px-1.5 py-1 hover:bg-amber-900/30 focus:bg-amber-900/40 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-400 ${isAbandoned ? 'opacity-60 italic' : ''}`}
-                      >
-                        <span className="text-amber-700 tabular-nums">{rec.startedAt ? new Date(rec.startedAt).toLocaleDateString() : '—'}</span>
-                        <span>{rec.totalCount} riddles · {Math.floor((rec.durationSec || 0) / 60)}m {(rec.durationSec || 0) % 60}s</span>
-                        <span
-                          className="ml-auto font-bold tabular-nums"
-                          style={{ color: isAbandoned ? 'rgba(214, 211, 209, 0.6)' : color }}
+                  {past
+                    .slice(-5)
+                    .reverse()
+                    .map((rec, i) => {
+                      const color = rec.scorePct >= 75 ? '#a7f3d0' : rec.scorePct >= 60 ? '#fde68a' : '#fecaca';
+                      // Phase 39e / 42b / 43b round-7→9→10: abandoned trials
+                      // get a muted row. 43b drops the prior `status !==
+                      // 'submitted'` guard — a 30-riddle exam with 0 answers,
+                      // 0% score, and <120s duration is almost certainly an
+                      // abandon regardless of how the user closed it. Even
+                      // an explicit Submit-with-zero-answers click after only
+                      // 59s is a give-up, not a legitimate attempt — tag it.
+                      const isExplicitAbandoned = rec.status === 'abandoned';
+                      const looksAbandoned =
+                        (rec.answered ?? 0) === 0 &&
+                        (rec.scorePct ?? 0) === 0 &&
+                        (rec.durationSec ?? 0) < 120 &&
+                        (rec.totalCount ?? 0) >= 5;
+                      const isAbandoned = isExplicitAbandoned || looksAbandoned;
+                      // Phase 46c: rows are buttons so the drill-in modal can
+                      // surface the per-domain breakdown. Abandoned rows are
+                      // still clickable — the user can confirm the breakdown
+                      // contains no real answers.
+                      return (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setSelectedTrial({ ...rec, isAbandoned })}
+                          title="Click for breakdown"
+                          className={`w-full text-left flex items-center gap-3 text-amber-100 rounded-sm px-1.5 py-1 hover:bg-amber-900/30 focus:bg-amber-900/40 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-400 ${isAbandoned ? 'opacity-60 italic' : ''}`}
                         >
-                          {/* Phase 44b round-11: abandoned rows render "—"
+                          <span className="text-amber-700 tabular-nums">
+                            {rec.startedAt ? new Date(rec.startedAt).toLocaleDateString() : '—'}
+                          </span>
+                          <span>
+                            {rec.totalCount} riddles · {Math.floor((rec.durationSec || 0) / 60)}m{' '}
+                            {(rec.durationSec || 0) % 60}s
+                          </span>
+                          <span
+                            className="ml-auto font-bold tabular-nums"
+                            style={{ color: isAbandoned ? 'rgba(214, 211, 209, 0.6)' : color }}
+                          >
+                            {/* Phase 44b round-11: abandoned rows render "—"
                               instead of "0%" so the score column doesn't
                               pollute averages or imply a real attempt. */}
-                          {isAbandoned ? '—' : `${rec.scorePct}%`}
-                        </span>
-                        {rec.status === 'timeout' && <span className="text-[10px] text-red-300 italic">timed out</span>}
-                        {isAbandoned && (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded-sm not-italic" style={{
-                            background: 'rgba(63, 63, 70, 0.4)', border: '1px solid rgba(120, 113, 108, 0.55)', color: 'rgba(214, 211, 209, 0.85)',
-                          }}>abandoned</span>
-                        )}
-                        <span className="text-[10px] text-amber-700 not-italic" aria-hidden>›</span>
-                      </button>
-                    );
-                  })}
+                            {isAbandoned ? '—' : `${rec.scorePct}%`}
+                          </span>
+                          {rec.status === 'timeout' && (
+                            <span className="text-[10px] text-red-300 italic">timed out</span>
+                          )}
+                          {isAbandoned && (
+                            <span
+                              className="text-[10px] px-1.5 py-0.5 rounded-sm not-italic"
+                              style={{
+                                background: 'rgba(63, 63, 70, 0.4)',
+                                border: '1px solid rgba(120, 113, 108, 0.55)',
+                                color: 'rgba(214, 211, 209, 0.85)',
+                              }}
+                            >
+                              abandoned
+                            </span>
+                          )}
+                          <span className="text-[10px] text-amber-700 not-italic" aria-hidden>
+                            ›
+                          </span>
+                        </button>
+                      );
+                    })}
                 </div>
               </div>
             )}
           </>
         )}
-        {selectedTrial && (
-          <TrialDetailModal rec={selectedTrial} onClose={() => setSelectedTrial(null)} />
-        )}
+        {selectedTrial && <TrialDetailModal rec={selectedTrial} onClose={() => setSelectedTrial(null)} />}
       </div>
     );
   }
@@ -417,47 +473,68 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
     const isMC = Array.isArray(q.options);
     const isTF = q.type === 'truefalse';
     const isFIB = q.type === 'fillblank' || q.type === 'fill_in_blank';
-    const answeredCount = answers.filter(x => x !== null && x !== undefined && x !== '').length;
+    const answeredCount = answers.filter((x) => x !== null && x !== undefined && x !== '').length;
     const flaggedCount = flagged.filter(Boolean).length;
     const lowTime = secondsLeft < 5 * 60;
 
     return (
       <div className="space-y-3 max-w-3xl mx-auto">
-        <div className="p-3 rounded-sm sticky top-0 z-20 backdrop-blur-sm" style={{
-          background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.65) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.97) 100%)',
-          border: '2px solid rgba(129, 140, 248, 0.55)',
-        }}>
+        <div
+          className="p-3 rounded-sm sticky top-0 z-20 backdrop-blur-sm"
+          style={{
+            background:
+              'linear-gradient(135deg, rgba(67, 56, 202, 0.65) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.97) 100%)',
+            border: '2px solid rgba(129, 140, 248, 0.55)',
+          }}
+        >
           <div className="flex items-center gap-3 flex-wrap">
             <Clock className={`w-5 h-5 ${lowTime ? 'text-red-300' : 'text-indigo-300'}`} />
             {/* 19D (L5): role="timer" (implicit aria-live="off" — no per-second chatter);
                 milestone warnings flow through the sr-only assertive region below. */}
-            <span role="timer" aria-atomic="true" aria-label={`Time remaining ${formatClock(secondsLeft)}`}
-              className={`font-bold tabular-nums text-lg italic ${lowTime ? 'text-red-200 animate-pulse' : 'text-indigo-100'}`} style={{ textShadow: lowTime ? '0 0 10px rgba(239, 68, 68, 0.6)' : 'none' }}>
+            <span
+              role="timer"
+              aria-atomic="true"
+              aria-label={`Time remaining ${formatClock(secondsLeft)}`}
+              className={`font-bold tabular-nums text-lg italic ${lowTime ? 'text-red-200 animate-pulse' : 'text-indigo-100'}`}
+              style={{ textShadow: lowTime ? '0 0 10px rgba(239, 68, 68, 0.6)' : 'none' }}
+            >
               {formatClock(secondsLeft)}
             </span>
-            <span className="sr-only" role="status" aria-live="assertive">{timerAnnounce}</span>
+            <span className="sr-only" role="status" aria-live="assertive">
+              {timerAnnounce}
+            </span>
             <div className="flex-1 text-xs italic text-amber-200">
-              Riddle <span className="font-bold tabular-nums">{currentIdx + 1}</span> of <span className="font-bold tabular-nums">{sample.length}</span> · {answeredCount} answered
+              Riddle <span className="font-bold tabular-nums">{currentIdx + 1}</span> of{' '}
+              <span className="font-bold tabular-nums">{sample.length}</span> · {answeredCount} answered
             </div>
-            <button onClick={() => setShowSubmitConfirm(true)}
+            <button
+              onClick={() => setShowSubmitConfirm(true)}
               className="px-3 py-1.5 rounded-sm text-xs font-bold italic border-2 border-amber-400 text-amber-100"
-              style={{ background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.6)' }}>
+              style={{ background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.6)' }}
+            >
               Submit Exam
             </button>
           </div>
           <div className="h-1.5 rounded-sm overflow-hidden mt-2" style={{ background: 'rgba(0,0,0,0.45)' }}>
-            <div className="h-full transition-all" style={{
-              width: `${(answeredCount / sample.length) * 100}%`,
-              background: 'linear-gradient(to right, #6366f1, #a855f7)',
-            }} />
+            <div
+              className="h-full transition-all"
+              style={{
+                width: `${(answeredCount / sample.length) * 100}%`,
+                background: 'linear-gradient(to right, #6366f1, #a855f7)',
+              }}
+            />
           </div>
         </div>
 
-        <div className="p-5 rounded-sm" style={{
-          background: 'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.85) 0%, rgba(15, 6, 20, 0.95) 100%)',
-          border: '3px double rgba(126, 34, 206, 0.6)',
-          boxShadow: '0 0 24px rgba(168, 85, 247, 0.18), inset 0 0 24px rgba(0,0,0,0.5)',
-        }}>
+        <div
+          className="p-5 rounded-sm"
+          style={{
+            background:
+              'linear-gradient(135deg, rgba(var(--surface-purple, 31, 12, 41), 0.85) 0%, rgba(15, 6, 20, 0.95) 100%)',
+            border: '3px double rgba(126, 34, 206, 0.6)',
+            boxShadow: '0 0 24px rgba(168, 85, 247, 0.18), inset 0 0 24px rgba(0,0,0,0.5)',
+          }}
+        >
           {/* Phase 33f / 35c / 36b / 40c QA P6, P4, P2, round-8: render the
               chip row but hide difficulty + Bloom placeholders when BOTH are
               absent (round-8 QA called the always-on greyed pills visual
@@ -470,42 +547,105 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
             return (
               <div className="flex items-center gap-2 flex-wrap mb-3 pb-2 border-b border-purple-700/30">
                 {q.domain ? (
-                  <span className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded-sm font-bold" style={{
-                    background: 'rgba(67, 56, 202, 0.35)', border: '1px solid rgba(129, 140, 248, 0.55)', color: '#c7d2fe',
-                  }}>{q.domain}</span>
+                  <span
+                    className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded-sm font-bold"
+                    style={{
+                      background: 'rgba(67, 56, 202, 0.35)',
+                      border: '1px solid rgba(129, 140, 248, 0.55)',
+                      color: '#c7d2fe',
+                    }}
+                  >
+                    {q.domain}
+                  </span>
                 ) : (
-                  <span className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded-sm" style={{
-                    background: 'rgba(63, 63, 70, 0.25)', border: '1px dashed rgba(120, 113, 108, 0.45)', color: 'rgba(214, 211, 209, 0.7)',
-                  }} title="No domain tagged on this riddle">domain —</span>
+                  <span
+                    className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded-sm"
+                    style={{
+                      background: 'rgba(63, 63, 70, 0.25)',
+                      border: '1px dashed rgba(120, 113, 108, 0.45)',
+                      color: 'rgba(214, 211, 209, 0.7)',
+                    }}
+                    title="No domain tagged on this riddle"
+                  >
+                    domain —
+                  </span>
                 )}
                 {hasDifficulty ? (
-                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-sm" style={{ background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.35)', border: '1px solid rgba(245, 158, 11, 0.5)' }}>
-                    <span className="text-xs italic tabular-nums" title={`Difficulty ${Math.min(5, Math.max(1, Math.round(q.difficulty)))}/5`}>
-                      <span style={{ color: '#fbbf24' }}>{'▰'.repeat(Math.min(5, Math.max(1, Math.round(q.difficulty))))}</span>
-                      <span style={{ color: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.7)' }}>{'▱'.repeat(5 - Math.min(5, Math.max(1, Math.round(q.difficulty))))}</span>
+                  <span
+                    className="flex items-center gap-1 px-2 py-0.5 rounded-sm"
+                    style={{
+                      background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.35)',
+                      border: '1px solid rgba(245, 158, 11, 0.5)',
+                    }}
+                  >
+                    <span
+                      className="text-xs italic tabular-nums"
+                      title={`Difficulty ${Math.min(5, Math.max(1, Math.round(q.difficulty)))}/5`}
+                    >
+                      <span style={{ color: '#fbbf24' }}>
+                        {'▰'.repeat(Math.min(5, Math.max(1, Math.round(q.difficulty))))}
+                      </span>
+                      <span style={{ color: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.7)' }}>
+                        {'▱'.repeat(5 - Math.min(5, Math.max(1, Math.round(q.difficulty))))}
+                      </span>
                     </span>
                   </span>
-                ) : (!hideOptionalChips && (
-                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-sm" style={{ background: 'rgba(63, 63, 70, 0.2)', border: '1px dashed rgba(120, 113, 108, 0.4)', color: 'rgba(214, 211, 209, 0.7)' }} title="Per-riddle difficulty not rated by the tome author">
-                    <span className="text-xs tabular-nums">▱▱▱▱▱</span>
-                    <span className="text-[9px] italic">not rated</span>
-                  </span>
-                ))}
+                ) : (
+                  !hideOptionalChips && (
+                    <span
+                      className="flex items-center gap-1 px-2 py-0.5 rounded-sm"
+                      style={{
+                        background: 'rgba(63, 63, 70, 0.2)',
+                        border: '1px dashed rgba(120, 113, 108, 0.4)',
+                        color: 'rgba(214, 211, 209, 0.7)',
+                      }}
+                      title="Per-riddle difficulty not rated by the tome author"
+                    >
+                      <span className="text-xs tabular-nums">▱▱▱▱▱</span>
+                      <span className="text-[9px] italic">not rated</span>
+                    </span>
+                  )
+                )}
                 {hasBloom ? (
-                  <span className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded-sm font-bold" style={{
-                    background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.35)', border: '1px solid rgba(16, 185, 129, 0.5)', color: '#a7f3d0',
-                  }}>{q.bloomLevel}</span>
-                ) : (!hideOptionalChips && (
-                  <span className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded-sm" style={{
-                    background: 'rgba(63, 63, 70, 0.2)', border: '1px dashed rgba(120, 113, 108, 0.4)', color: 'rgba(214, 211, 209, 0.7)',
-                  }} title="Bloom's-level not tagged on this riddle">bloom —</span>
-                ))}
+                  <span
+                    className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded-sm font-bold"
+                    style={{
+                      background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.35)',
+                      border: '1px solid rgba(16, 185, 129, 0.5)',
+                      color: '#a7f3d0',
+                    }}
+                  >
+                    {q.bloomLevel}
+                  </span>
+                ) : (
+                  !hideOptionalChips && (
+                    <span
+                      className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded-sm"
+                      style={{
+                        background: 'rgba(63, 63, 70, 0.2)',
+                        border: '1px dashed rgba(120, 113, 108, 0.4)',
+                        color: 'rgba(214, 211, 209, 0.7)',
+                      }}
+                      title="Bloom's-level not tagged on this riddle"
+                    >
+                      bloom —
+                    </span>
+                  )
+                )}
               </div>
             );
           })()}
           <RichContent as="div" text={q.question} className="text-lg text-amber-50 italic mb-4 leading-relaxed" />
           {ttsSupported() && (
-            <button type="button" onClick={() => speak(q.question)} aria-label="Read the question aloud" title="Read aloud" className="text-amber-500 hover:text-amber-300 text-sm mb-3">🔊 Read aloud</button>
+            <button
+              type="button"
+              onClick={() => speak(q.question)}
+              aria-label="Read the question aloud"
+              title="Read aloud"
+              className="text-amber-500 hover:text-amber-300 text-sm mb-3"
+            >
+              🔊 Read aloud
+            </button>
           )}
           {/* Phase 30g QA #12: keyboard hotkey hint for the in-progress exam. */}
           <div className="text-[11px] italic text-amber-700/70 mb-3">
@@ -521,14 +661,18 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
               {q.options.map((opt, i) => {
                 const picked = a === i;
                 return (
-                  <button key={i} onClick={() => setAnswerAt(currentIdx, i)}
+                  <button
+                    key={i}
+                    onClick={() => setAnswerAt(currentIdx, i)}
                     className="w-full text-left p-3 rounded-sm border-2 italic text-amber-50 transition"
                     style={{
                       background: picked ? 'rgba(126, 34, 206, 0.55)' : 'rgba(var(--surface-purple, 31, 12, 41), 0.6)',
                       borderColor: picked ? 'rgba(168, 85, 247, 0.9)' : 'rgba(126, 34, 206, 0.5)',
                       boxShadow: picked ? '0 0 10px rgba(168, 85, 247, 0.4)' : 'none',
-                    }}>
-                    <span className="text-purple-300 font-bold mr-2">{String.fromCharCode(65 + i)}.</span>{opt}
+                    }}
+                  >
+                    <span className="text-purple-300 font-bold mr-2">{String.fromCharCode(65 + i)}.</span>
+                    {opt}
                   </button>
                 );
               })}
@@ -537,28 +681,40 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
 
           {isTF && (
             <div className="grid grid-cols-2 gap-3">
-              <button onClick={() => setAnswerAt(currentIdx, true)}
+              <button
+                onClick={() => setAnswerAt(currentIdx, true)}
                 className="p-4 rounded-sm font-bold border-2 italic"
                 style={{
                   borderColor: a === true ? '#10b981' : 'rgba(16, 185, 129, 0.5)',
-                  background: a === true ? 'rgba(var(--surface-emerald, 6, 78, 59), 0.7)' : 'rgba(var(--surface-emerald, 6, 78, 59), 0.3)',
+                  background:
+                    a === true
+                      ? 'rgba(var(--surface-emerald, 6, 78, 59), 0.7)'
+                      : 'rgba(var(--surface-emerald, 6, 78, 59), 0.3)',
                   color: a === true ? '#a7f3d0' : '#d1fae5',
                   boxShadow: a === true ? '0 0 12px rgba(16, 185, 129, 0.5)' : 'none',
-                }}>⚖ Verily True ⚖</button>
-              <button onClick={() => setAnswerAt(currentIdx, false)}
+                }}
+              >
+                ⚖ Verily True ⚖
+              </button>
+              <button
+                onClick={() => setAnswerAt(currentIdx, false)}
                 className="p-4 rounded-sm font-bold border-2 italic"
                 style={{
                   borderColor: a === false ? '#ef4444' : 'rgba(239, 68, 68, 0.5)',
                   background: a === false ? 'rgba(127, 29, 29, 0.7)' : 'rgba(127, 29, 29, 0.3)',
                   color: a === false ? '#fecaca' : '#fee2e2',
                   boxShadow: a === false ? '0 0 12px rgba(239, 68, 68, 0.5)' : 'none',
-                }}>⚖ A Falsehood ⚖</button>
+                }}
+              >
+                ⚖ A Falsehood ⚖
+              </button>
             </div>
           )}
 
           {isFIB && (
             <div>
-              <input type="text"
+              <input
+                type="text"
                 value={textInput}
                 onChange={(e) => {
                   setTextInput(e.target.value);
@@ -566,34 +722,51 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
                 }}
                 placeholder="Inscribe thy answer..."
                 className="w-full p-3 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
-                style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.6)', borderColor: 'rgba(126, 34, 206, 0.5)' }}
+                style={{
+                  background: 'rgba(var(--surface-purple, 31, 12, 41), 0.6)',
+                  borderColor: 'rgba(126, 34, 206, 0.5)',
+                }}
                 autoFocus
               />
               <div className="text-[10px] italic text-amber-700 mt-2">
-                ✦ Practice exams grade locally — case-insensitive, accepts the tome's listed alternatives. The Oracle is silent here.
+                ✦ Practice exams grade locally — case-insensitive, accepts the tome's listed alternatives. The Oracle is
+                silent here.
               </div>
             </div>
           )}
         </div>
 
         <div className="flex items-center gap-2">
-          <button onClick={() => goTo(-1)} disabled={currentIdx === 0}
+          <button
+            onClick={() => goTo(-1)}
+            disabled={currentIdx === 0}
             className="px-3 py-2 rounded-sm text-sm font-bold italic border-2 border-amber-700 text-amber-200 disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>
+            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
+          >
             <ArrowLeft className="w-4 h-4 inline mr-1" /> Prior
           </button>
-          <button onClick={() => toggleFlag(currentIdx)} aria-pressed={!!flagged[currentIdx]}
+          <button
+            onClick={() => toggleFlag(currentIdx)}
+            aria-pressed={!!flagged[currentIdx]}
             className="px-3 py-2 rounded-sm text-sm font-bold italic border-2"
-            style={{ borderColor: flagged[currentIdx] ? '#f59e0b' : 'rgba(180,83,9,0.5)', color: flagged[currentIdx] ? '#fcd34d' : '#d6b88a', background: 'rgba(var(--surface-amber, 41, 24, 12), 0.5)' }}
-            title="Flag this riddle for review">
+            style={{
+              borderColor: flagged[currentIdx] ? '#f59e0b' : 'rgba(180,83,9,0.5)',
+              color: flagged[currentIdx] ? '#fcd34d' : '#d6b88a',
+              background: 'rgba(var(--surface-amber, 41, 24, 12), 0.5)',
+            }}
+            title="Flag this riddle for review"
+          >
             {flagged[currentIdx] ? '⚑ Flagged' : '⚐ Flag'}
           </button>
           <div className="flex-1 text-center text-[10px] italic text-amber-700">
             ✦ Tap an option to lock thine answer — advance with Next. Thou may revisit prior riddles.
           </div>
-          <button onClick={() => goTo(1)} disabled={currentIdx >= sample.length - 1}
+          <button
+            onClick={() => goTo(1)}
+            disabled={currentIdx >= sample.length - 1}
             className="px-3 py-2 rounded-sm text-sm font-bold italic border-2 border-indigo-400 text-indigo-100 disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ background: 'rgba(67, 56, 202, 0.55)' }}>
+            style={{ background: 'rgba(67, 56, 202, 0.55)' }}
+          >
             Next <ArrowRight className="w-4 h-4 inline ml-1" />
           </button>
         </div>
@@ -605,17 +778,20 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
               const fl = flagged[i];
               const cur = i === currentIdx;
               return (
-                <button key={i} onClick={() => goToIndex(i)}
+                <button
+                  key={i}
+                  onClick={() => goToIndex(i)}
                   aria-label={`Go to riddle ${i + 1}${ans ? ', answered' : ', unanswered'}${fl ? ', flagged' : ''}`}
                   title={`Riddle ${i + 1}${fl ? ' (flagged)' : ''}`}
                   className="w-7 h-7 text-[11px] rounded-sm border tabular-nums italic flex items-center justify-center"
                   style={{
                     background: ans ? 'rgba(6,78,59,0.6)' : 'rgba(63,63,70,0.35)',
-                    borderColor: cur ? '#fde047' : (fl ? '#f59e0b' : 'rgba(120,113,108,0.5)'),
+                    borderColor: cur ? '#fde047' : fl ? '#f59e0b' : 'rgba(120,113,108,0.5)',
                     color: ans ? '#a7f3d0' : '#d6d3d1',
-                    boxShadow: cur ? '0 0 8px rgba(253,224,71,0.6)' : (fl ? '0 0 6px rgba(245,158,11,0.5)' : 'none'),
-                  }}>
-                  {fl ? '⚑' : (i + 1)}
+                    boxShadow: cur ? '0 0 8px rgba(253,224,71,0.6)' : fl ? '0 0 6px rgba(245,158,11,0.5)' : 'none',
+                  }}
+                >
+                  {fl ? '⚑' : i + 1}
                 </button>
               );
             })}
@@ -624,34 +800,59 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
 
         {showSubmitConfirm && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4">
-            <div ref={submitConfirmRef} role="dialog" aria-modal="true" aria-label="Submit exam confirmation" className="max-w-md rounded-sm p-5" style={{
-              background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.75) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.97) 100%)',
-              border: '3px solid rgba(129, 140, 248, 0.7)',
-              boxShadow: '0 0 30px rgba(129, 140, 248, 0.3)',
-            }}>
+            <div
+              ref={submitConfirmRef}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Submit exam confirmation"
+              className="max-w-md rounded-sm p-5"
+              style={{
+                background:
+                  'linear-gradient(135deg, rgba(67, 56, 202, 0.75) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.97) 100%)',
+                border: '3px solid rgba(129, 140, 248, 0.7)',
+                boxShadow: '0 0 30px rgba(129, 140, 248, 0.3)',
+              }}
+            >
               <h3 className="text-base font-bold italic text-indigo-200 mb-2">⚖ Submit thy answers? ⚖</h3>
               <p className="text-sm italic text-amber-100 mb-3">
-                Thou hast answered <span className="font-bold tabular-nums">{answeredCount}</span> of <span className="font-bold tabular-nums">{sample.length}</span>. Unanswered riddles count as wrong.
+                Thou hast answered <span className="font-bold tabular-nums">{answeredCount}</span> of{' '}
+                <span className="font-bold tabular-nums">{sample.length}</span>. Unanswered riddles count as wrong.
               </p>
               {flaggedCount > 0 && (
                 <p className="text-sm italic text-amber-200 mb-3">
-                  <span className="font-bold tabular-nums">{flaggedCount}</span> riddle{flaggedCount === 1 ? '' : 's'} flagged for review.
-                  <button onClick={() => { const i = flagged.findIndex(Boolean); if (i >= 0) { goToIndex(i); setShowSubmitConfirm(false); } }}
-                    className="ml-2 underline text-amber-300">Jump to first flagged</button>
+                  <span className="font-bold tabular-nums">{flaggedCount}</span> riddle{flaggedCount === 1 ? '' : 's'}{' '}
+                  flagged for review.
+                  <button
+                    onClick={() => {
+                      const i = flagged.findIndex(Boolean);
+                      if (i >= 0) {
+                        goToIndex(i);
+                        setShowSubmitConfirm(false);
+                      }
+                    }}
+                    className="ml-2 underline text-amber-300"
+                  >
+                    Jump to first flagged
+                  </button>
                 </p>
               )}
               <p className="text-xs italic text-amber-700 mb-4">
-                Time remaining: <span className="tabular-nums">{formatClock(secondsLeft)}</span>. Once submitted, thy verdict is final.
+                Time remaining: <span className="tabular-nums">{formatClock(secondsLeft)}</span>. Once submitted, thy
+                verdict is final.
               </p>
               <div className="flex gap-2">
-                <button onClick={() => setShowSubmitConfirm(false)}
+                <button
+                  onClick={() => setShowSubmitConfirm(false)}
                   className="flex-1 px-3 py-2 rounded-sm text-sm font-bold italic border-2 border-amber-700 text-amber-200"
-                  style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>
+                  style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
+                >
                   Keep going
                 </button>
-                <button onClick={() => doSubmit('submitted')}
+                <button
+                  onClick={() => doSubmit('submitted')}
                   className="flex-1 px-3 py-2 rounded-sm text-sm font-bold italic border-2 border-emerald-400 text-emerald-100"
-                  style={{ background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.7)' }}>
+                  style={{ background: 'rgba(var(--surface-emerald, 6, 78, 59), 0.7)' }}
+                >
                   Submit
                 </button>
               </div>
@@ -665,49 +866,73 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
   if (phase === 'results' && resultsSummary) {
     const r = resultsSummary;
     const ramp = r.scorePct >= 85 ? '#fbbf24' : r.scorePct >= 70 ? '#10b981' : r.scorePct >= 55 ? '#f59e0b' : '#ef4444';
-    const domainRows = Object.entries(r.byDomain).map(([d, b]) => ({
-      domain: d,
-      total: b.total,
-      correct: b.correct,
-      answered: b.answered,
-      pct: b.total > 0 ? Math.round((b.correct / b.total) * 100) : 0,
-    })).sort((a, b) => b.total - a.total);
+    const domainRows = Object.entries(r.byDomain)
+      .map(([d, b]) => ({
+        domain: d,
+        total: b.total,
+        correct: b.correct,
+        answered: b.answered,
+        pct: b.total > 0 ? Math.round((b.correct / b.total) * 100) : 0,
+      }))
+      .sort((a, b) => b.total - a.total);
 
-    const wrongs = sample.map((q, i) => ({ q, a: answers[i], i })).filter(x => !gradeExamItem(x.q, x.a));
+    const wrongs = sample.map((q, i) => ({ q, a: answers[i], i })).filter((x) => !gradeExamItem(x.q, x.a));
 
     return (
       <div className="space-y-4 max-w-3xl mx-auto">
-        <div className="p-5 rounded-sm text-center" style={{
-          background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.55) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.96) 100%)',
-          border: '3px double rgba(129, 140, 248, 0.65)',
-          boxShadow: '0 0 30px rgba(129, 140, 248, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',
-        }}>
+        <div
+          className="p-5 rounded-sm text-center"
+          style={{
+            background:
+              'linear-gradient(135deg, rgba(67, 56, 202, 0.55) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.96) 100%)',
+            border: '3px double rgba(129, 140, 248, 0.65)',
+            boxShadow: '0 0 30px rgba(129, 140, 248, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',
+          }}
+        >
           <div className="text-xs italic tracking-[0.25em] text-amber-700 uppercase mb-2">
             {r.status === 'timeout' ? '⏳ The Sands Ran Out ⏳' : '⚖ Verdict Rendered ⚖'}
           </div>
-          <div className="text-6xl font-bold tabular-nums italic" style={{ color: ramp, textShadow: `0 0 20px ${ramp}80` }}>
+          <div
+            className="text-6xl font-bold tabular-nums italic"
+            style={{ color: ramp, textShadow: `0 0 20px ${ramp}80` }}
+          >
             {r.scorePct}%
           </div>
           <div className="text-sm italic text-amber-100 mt-2">
-            {r.correct}/{r.total} correct · {r.answered} answered · {Math.floor(r.durationSec / 60)}m {r.durationSec % 60}s elapsed
+            {r.correct}/{r.total} correct · {r.answered} answered · {Math.floor(r.durationSec / 60)}m{' '}
+            {r.durationSec % 60}s elapsed
           </div>
         </div>
 
-        <div className="p-4 rounded-sm" style={{
-          background: 'linear-gradient(135deg, rgba(var(--surface-emerald, 6, 78, 59), 0.45) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
-          border: '2px solid rgba(16, 185, 129, 0.45)',
-        }}>
+        <div
+          className="p-4 rounded-sm"
+          style={{
+            background:
+              'linear-gradient(135deg, rgba(var(--surface-emerald, 6, 78, 59), 0.45) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
+            border: '2px solid rgba(16, 185, 129, 0.45)',
+          }}
+        >
           <h3 className="text-sm font-bold italic text-emerald-200 tracking-wider mb-3">By Domain</h3>
           <div className="space-y-2">
-            {domainRows.map(row => {
-              const c = row.pct >= 85 ? { bg: 'rgba(245, 158, 11, 0.25)', border: '#fbbf24', text: '#fde68a' }
-                : row.pct >= 70 ? { bg: 'rgba(16, 185, 129, 0.25)', border: '#10b981', text: '#a7f3d0' }
-                : row.pct >= 55 ? { bg: 'rgba(245, 158, 11, 0.18)', border: 'rgba(245, 158, 11, 0.55)', text: '#fde68a' }
-                : { bg: 'rgba(239, 68, 68, 0.22)', border: '#ef4444', text: '#fecaca' };
+            {domainRows.map((row) => {
+              const c =
+                row.pct >= 85
+                  ? { bg: 'rgba(245, 158, 11, 0.25)', border: '#fbbf24', text: '#fde68a' }
+                  : row.pct >= 70
+                    ? { bg: 'rgba(16, 185, 129, 0.25)', border: '#10b981', text: '#a7f3d0' }
+                    : row.pct >= 55
+                      ? { bg: 'rgba(245, 158, 11, 0.18)', border: 'rgba(245, 158, 11, 0.55)', text: '#fde68a' }
+                      : { bg: 'rgba(239, 68, 68, 0.22)', border: '#ef4444', text: '#fecaca' };
               return (
-                <div key={row.domain} className="p-2 rounded-sm" style={{ background: c.bg, border: `1.5px solid ${c.border}` }}>
+                <div
+                  key={row.domain}
+                  className="p-2 rounded-sm"
+                  style={{ background: c.bg, border: `1.5px solid ${c.border}` }}
+                >
                   <div className="flex items-baseline justify-between gap-2">
-                    <div className="text-xs italic font-bold truncate" style={{ color: c.text }}>{row.domain}</div>
+                    <div className="text-xs italic font-bold truncate" style={{ color: c.text }}>
+                      {row.domain}
+                    </div>
                     <div className="text-xs italic tabular-nums font-bold" style={{ color: c.text }}>
                       {row.correct}/{row.total} · {row.pct}%
                     </div>
@@ -722,15 +947,18 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
         </div>
 
         {wrongs.length > 0 && (
-          <details className="p-3 rounded-sm" style={{
-            background: 'rgba(127, 29, 29, 0.35)',
-            border: '2px solid rgba(239, 68, 68, 0.5)',
-          }}>
+          <details
+            className="p-3 rounded-sm"
+            style={{
+              background: 'rgba(127, 29, 29, 0.35)',
+              border: '2px solid rgba(239, 68, 68, 0.5)',
+            }}
+          >
             <summary className="text-sm italic font-bold text-red-200 cursor-pointer">
               ⚔ {wrongs.length} riddle{wrongs.length === 1 ? '' : 's'} missed — review the explanations
             </summary>
             <div className="mt-3 space-y-2 text-xs italic">
-              {wrongs.map(w => {
+              {wrongs.map((w) => {
                 const q = w.q;
                 let correctLabel = '';
                 if (Array.isArray(q.options)) {
@@ -741,15 +969,20 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
                   correctLabel = q.correctAnswer || (q.acceptedAnswers || [])[0] || '';
                 }
                 return (
-                  <div key={w.i} className="p-2 rounded-sm" style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.5)', border: '1px solid rgba(239, 68, 68, 0.35)' }}>
+                  <div
+                    key={w.i}
+                    className="p-2 rounded-sm"
+                    style={{
+                      background: 'rgba(var(--surface-deep, 10, 6, 4), 0.5)',
+                      border: '1px solid rgba(239, 68, 68, 0.35)',
+                    }}
+                  >
                     <div className="text-amber-100 mb-1">
                       <span className="text-amber-700 mr-1">Q{w.i + 1}.</span>
                       <RichContent as={null} text={q.question} />
                     </div>
                     <div className="text-emerald-200">✓ {correctLabel}</div>
-                    {q.explanation && (
-                      <RichContent as="div" text={q.explanation} className="text-amber-300 mt-1" />
-                    )}
+                    {q.explanation && <RichContent as="div" text={q.explanation} className="text-amber-300 mt-1" />}
                   </div>
                 );
               })}
@@ -758,19 +991,24 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
         )}
 
         <div className="flex gap-2">
-          <button onClick={() => {
-            setResultsSummary(null);
-            setSample([]);
-            setAnswers([]);
-            setCurrentIdx(0);
-            setPhase('setup');
-          }} className="flex-1 px-4 py-3 rounded-sm text-sm font-bold italic border-2 border-indigo-400 text-indigo-100"
-            style={{ background: 'rgba(67, 56, 202, 0.55)' }}>
+          <button
+            onClick={() => {
+              setResultsSummary(null);
+              setSample([]);
+              setAnswers([]);
+              setCurrentIdx(0);
+              setPhase('setup');
+            }}
+            className="flex-1 px-4 py-3 rounded-sm text-sm font-bold italic border-2 border-indigo-400 text-indigo-100"
+            style={{ background: 'rgba(67, 56, 202, 0.55)' }}
+          >
             <Clock className="w-4 h-4 inline mr-1" /> Another Trial
           </button>
-          <button onClick={onExit}
+          <button
+            onClick={onExit}
             className="flex-1 px-4 py-3 rounded-sm text-sm font-bold italic border-2 border-amber-700 text-amber-200"
-            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}>
+            style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
+          >
             <ArrowLeft className="w-4 h-4 inline mr-1" /> Home
           </button>
         </div>
@@ -792,11 +1030,17 @@ function TrialDetailModal({ rec, onClose }) {
   const byDomain = rec?.byDomain || {};
   const domains = Object.keys(byDomain).sort((a, b) => (byDomain[b]?.total || 0) - (byDomain[a]?.total || 0));
   const date = rec?.startedAt ? new Date(rec.startedAt) : null;
-  const dateLabel = date ? `${date.toLocaleDateString()} · ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : '—';
+  const dateLabel = date
+    ? `${date.toLocaleDateString()} · ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+    : '—';
   const durM = Math.floor((rec?.durationSec || 0) / 60);
   const durS = (rec?.durationSec || 0) % 60;
   const statusLabel = rec?.isAbandoned ? 'Abandoned' : rec?.status === 'timeout' ? 'Timed out' : 'Submitted';
-  const statusColor = rec?.isAbandoned ? 'rgba(214, 211, 209, 0.85)' : rec?.status === 'timeout' ? '#fecaca' : '#a7f3d0';
+  const statusColor = rec?.isAbandoned
+    ? 'rgba(214, 211, 209, 0.85)'
+    : rec?.status === 'timeout'
+      ? '#fecaca'
+      : '#a7f3d0';
 
   return (
     <div
@@ -812,7 +1056,8 @@ function TrialDetailModal({ rec, onClose }) {
         onClick={(e) => e.stopPropagation()}
         className="max-w-2xl w-full rounded-sm p-5 overflow-y-auto"
         style={{
-          background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.65) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.97) 100%)',
+          background:
+            'linear-gradient(135deg, rgba(67, 56, 202, 0.65) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.97) 100%)',
           border: '3px double rgba(129, 140, 248, 0.6)',
           boxShadow: '0 0 32px rgba(129, 140, 248, 0.3), inset 0 0 24px rgba(0,0,0,0.5)',
           maxHeight: 'min(82vh, 720px)',
@@ -836,27 +1081,46 @@ function TrialDetailModal({ rec, onClose }) {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 text-xs italic">
-          <div className="p-2 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.4)' }}>
+          <div
+            className="p-2 rounded-sm"
+            style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.4)' }}
+          >
             <div className="text-[10px] uppercase tracking-wider text-indigo-400">Score</div>
             <div className="text-lg font-bold tabular-nums" style={{ color: statusColor }}>
               {rec?.isAbandoned ? '—' : `${rec?.scorePct ?? 0}%`}
             </div>
           </div>
-          <div className="p-2 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.4)' }}>
+          <div
+            className="p-2 rounded-sm"
+            style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.4)' }}
+          >
             <div className="text-[10px] uppercase tracking-wider text-indigo-400">Answered</div>
-            <div className="text-lg font-bold tabular-nums text-amber-100">{rec?.answered ?? 0}/{rec?.totalCount ?? 0}</div>
+            <div className="text-lg font-bold tabular-nums text-amber-100">
+              {rec?.answered ?? 0}/{rec?.totalCount ?? 0}
+            </div>
           </div>
-          <div className="p-2 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.4)' }}>
+          <div
+            className="p-2 rounded-sm"
+            style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.4)' }}
+          >
             <div className="text-[10px] uppercase tracking-wider text-indigo-400">Correct</div>
             <div className="text-lg font-bold tabular-nums text-amber-100">{rec?.correct ?? 0}</div>
           </div>
-          <div className="p-2 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.4)' }}>
+          <div
+            className="p-2 rounded-sm"
+            style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.4)' }}
+          >
             <div className="text-[10px] uppercase tracking-wider text-indigo-400">Duration</div>
-            <div className="text-lg font-bold tabular-nums text-amber-100">{durM}m {durS}s</div>
+            <div className="text-lg font-bold tabular-nums text-amber-100">
+              {durM}m {durS}s
+            </div>
           </div>
         </div>
 
-        <div className="text-[11px] italic mb-3 px-2 py-1 rounded-sm inline-block" style={{ background: 'rgba(0,0,0,0.4)', color: statusColor, border: `1px solid ${statusColor}` }}>
+        <div
+          className="text-[11px] italic mb-3 px-2 py-1 rounded-sm inline-block"
+          style={{ background: 'rgba(0,0,0,0.4)', color: statusColor, border: `1px solid ${statusColor}` }}
+        >
           Status: {statusLabel}
         </div>
 
@@ -864,7 +1128,8 @@ function TrialDetailModal({ rec, onClose }) {
           <div className="text-xs italic font-bold text-amber-200 mb-2 tracking-wider">Per-domain</div>
           {domains.length === 0 ? (
             <div className="text-xs italic text-amber-700">
-              ✦ No per-domain breakdown saved on this record. Older trials (or abandoned ones) did not capture domain-level data.
+              ✦ No per-domain breakdown saved on this record. Older trials (or abandoned ones) did not capture
+              domain-level data.
             </div>
           ) : (
             <div className="space-y-1.5">
@@ -876,7 +1141,11 @@ function TrialDetailModal({ rec, onClose }) {
                 const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
                 const color = pct >= 75 ? '#a7f3d0' : pct >= 60 ? '#fde68a' : '#fecaca';
                 return (
-                  <div key={d} className="p-2 rounded-sm text-xs italic" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.3)' }}>
+                  <div
+                    key={d}
+                    className="p-2 rounded-sm text-xs italic"
+                    style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.3)' }}
+                  >
                     <div className="flex items-baseline justify-between gap-2 mb-1">
                       <span className="text-amber-100 truncate">{d}</span>
                       <span className="tabular-nums font-bold" style={{ color }}>
@@ -887,9 +1156,7 @@ function TrialDetailModal({ rec, onClose }) {
                       <div className="h-full" style={{ width: `${pct}%`, background: color }} />
                     </div>
                     {answered < total && (
-                      <div className="text-[10px] text-amber-700 mt-1">
-                        ✦ {total - answered} unanswered
-                      </div>
+                      <div className="text-[10px] text-amber-700 mt-1">✦ {total - answered} unanswered</div>
                     )}
                   </div>
                 );
@@ -899,7 +1166,8 @@ function TrialDetailModal({ rec, onClose }) {
         </div>
 
         <div className="text-[10px] italic text-amber-700 mt-4">
-          ✦ Trials don't archive individual riddle answers, so per-question detail isn't available here. Score, status, timing, and per-domain accuracy are preserved.
+          ✦ Trials don't archive individual riddle answers, so per-question detail isn't available here. Score, status,
+          timing, and per-domain accuracy are preserved.
         </div>
       </div>
     </div>

@@ -64,3 +64,20 @@ export default {
   build automatically whitelists the exact origin parsed from
   `VITE_ORACLE_ENDPOINT` in the production CSP `connect-src` — no manual CSP edit
   needed.
+
+## Bundled worker env vars (`oracle-worker/`)
+
+The repo ships a ready-made Groq-backed proxy under `oracle-worker/`. Beyond the
+secrets (`GROQ_API_KEY`, optional `ORACLE_PROXY_TOKEN`), two optional `[vars]`
+let a fork stand it up without editing source — both fall back to the
+canonical-deploy defaults in `src/worker.js` when unset:
+
+- **`ALLOWED_ORIGIN`** — the exact Pages origin allowed by CORS and the
+  Origin/Referer cross-check (e.g. `https://<your-username>.github.io`). Defaults
+  to the canonical origin.
+- **`ORACLE_MODEL`** — the Groq model id to forward to (e.g.
+  `llama-3.3-70b-versatile`). Defaults to the canonical model.
+
+Set them in `oracle-worker/wrangler.toml` under `[vars]` (uncomment the block) or
+via `wrangler deploy --var ALLOWED_ORIGIN:... --var ORACLE_MODEL:...`. This
+mirrors the front end`s `VITE_BASE` portability — a fork edits config, not code.

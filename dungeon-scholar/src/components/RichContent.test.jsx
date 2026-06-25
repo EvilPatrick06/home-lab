@@ -1,7 +1,7 @@
-import React from 'react';
-import { describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import katex from 'katex';
+import React from 'react';
+import { describe, expect, it, vi } from 'vitest';
 import RichContent from './RichContent.jsx';
 
 describe('RichContent — math rendering (Phase 38f / 41a)', () => {
@@ -17,10 +17,13 @@ describe('RichContent — math rendering (Phase 38f / 41a)', () => {
     // Initially the fallback span renders the raw expression.
     expect(screen.getByText('E=mc^2')).toBeInTheDocument();
     // After the lazy import resolves, KaTeX-rendered markup should appear.
-    await waitFor(() => {
-      const katexSpans = document.querySelectorAll('.katex');
-      expect(katexSpans.length).toBeGreaterThan(0);
-    }, { timeout: 5000 });
+    await waitFor(
+      () => {
+        const katexSpans = document.querySelectorAll('.katex');
+        expect(katexSpans.length).toBeGreaterThan(0);
+      },
+      { timeout: 5000 },
+    );
   }, 8000);
 
   it('falls back to styled span when the expression is malformed (throwOnError: false)', async () => {

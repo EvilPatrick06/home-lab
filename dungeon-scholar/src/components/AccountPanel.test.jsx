@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Phase 41G — Phase-30 QA gap: the AccountPanel destructive flows
 // (delete-cloud, delete-account, and the rejected-delete-account "panel stays
@@ -16,9 +16,9 @@ vi.mock('../services/supabase.js', () => ({
 // stays clean (the component swallows the rejection and logs it).
 vi.mock('../services/logger.js', () => ({ logError: vi.fn() }));
 
-import { AccountPanel } from './AccountPanel.jsx';
-import { deleteCloudSave, deleteAccount } from '../services/cloudSync.js';
+import { deleteAccount, deleteCloudSave } from '../services/cloudSync.js';
 import { signOut } from '../services/supabase.js';
+import { AccountPanel } from './AccountPanel.jsx';
 
 const USER = { id: 'u1', githubLogin: 'pat', avatarUrl: 'a.png' };
 
@@ -37,7 +37,7 @@ function renderPanel(overrides = {}) {
       onClose={spies.onClose}
       onAfterDeleteCloud={spies.onAfterDeleteCloud}
       onAfterDeleteAccount={spies.onAfterDeleteAccount}
-    />
+    />,
   );
   return spies;
 }

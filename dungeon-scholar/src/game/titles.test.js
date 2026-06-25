@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { TITLES, SPECIAL_TITLES, xpForLevel, getTitle } from './titles.js';
+import { describe, expect, it } from 'vitest';
+import { getTitle, SPECIAL_TITLES, TITLES, xpForLevel } from './titles.js';
 
 describe('xpForLevel (PHASE-39 39A)', () => {
   it('is strictly monotonic in level', () => {

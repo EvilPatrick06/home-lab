@@ -10,6 +10,9 @@ on:
       - 'dungeon-scholar/**'
       - '.github/workflows/dungeon-scholar-ci.yml'
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -24,6 +27,7 @@ jobs:
           cache: npm
           cache-dependency-path: dungeon-scholar/package-lock.json
       - run: npm ci
+      - run: npm run lint
       - run: npm run test
       - run: npm run build
         env:

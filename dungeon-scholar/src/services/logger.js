@@ -9,7 +9,11 @@ export function errorMessageOf(err) {
   if (err == null) return 'unknown error';
   if (typeof err === 'string') return err;
   if (typeof err.message === 'string' && err.message) return err.message;
-  try { return String(err); } catch { return 'unknown error'; }
+  try {
+    return String(err);
+  } catch {
+    return 'unknown error';
+  }
 }
 
 export function logError(context, err) {

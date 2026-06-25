@@ -62,11 +62,7 @@ export function computeExamPrediction(stats, weights) {
   }
 
   const predictedPct = Math.round((weightedAccSum / sampledWeight) * 100);
-  const confidence = coveragePct >= HIGH_COVERAGE
-    ? 'high'
-    : coveragePct >= MEDIUM_COVERAGE
-      ? 'medium'
-      : 'low';
+  const confidence = coveragePct >= HIGH_COVERAGE ? 'high' : coveragePct >= MEDIUM_COVERAGE ? 'medium' : 'low';
 
   return {
     predictedPct,

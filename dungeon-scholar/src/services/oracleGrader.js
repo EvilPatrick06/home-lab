@@ -17,7 +17,10 @@ export function isOracleConfigured() {
   return getOracleEndpoint() !== '';
 }
 
-const norm = (s) => String(s || '').trim().toLowerCase();
+const norm = (s) =>
+  String(s || '')
+    .trim()
+    .toLowerCase();
 
 // Tolerant string match used as the local fallback. True if the user's answer
 // matches (or substring-matches) any canonical answer.
@@ -45,10 +48,8 @@ Respond with EXACTLY one JSON object on a single line, nothing else:
 {"correct": true|false, "feedback": "one or two sentences in the second person, light D&D fantasy flavor permitted"}`;
 
 const buildUserMessage = ({ question, expectedAnswer, acceptedAnswers, userAnswer }) => {
-  const expected = expectedAnswer
-    || (Array.isArray(acceptedAnswers) && acceptedAnswers.length
-      ? acceptedAnswers.join(' / ')
-      : '');
+  const expected =
+    expectedAnswer || (Array.isArray(acceptedAnswers) && acceptedAnswers.length ? acceptedAnswers.join(' / ') : '');
   return `Question:
 ${question || '(no question text)'}
 
@@ -75,11 +76,19 @@ const collectBalancedJsonBlocks = (text) => {
       else if (ch === '"') inString = false;
       continue;
     }
-    if (ch === '"' && depth > 0) { inString = true; continue; }
-    if (ch === '{') { if (depth === 0) start = i; depth++; }
-    else if (ch === '}' && depth > 0) {
+    if (ch === '"' && depth > 0) {
+      inString = true;
+      continue;
+    }
+    if (ch === '{') {
+      if (depth === 0) start = i;
+      depth++;
+    } else if (ch === '}' && depth > 0) {
       depth--;
-      if (depth === 0 && start >= 0) { blocks.push(text.slice(start, i + 1)); start = -1; }
+      if (depth === 0 && start >= 0) {
+        blocks.push(text.slice(start, i + 1));
+        start = -1;
+      }
     }
   }
   return blocks;
@@ -100,7 +109,9 @@ const extractJsonVerdict = (text) => {
   try {
     const v = asVerdict(JSON.parse(text.trim()));
     if (v) return v;
-  } catch { /* fall through to balanced-block extraction */ }
+  } catch {
+    /* fall through to balanced-block extraction */
+  }
   // Models sometimes wrap a prose example object before the real verdict, or
   // fence the JSON. Scan every balanced {...} block and take the LAST valid
   // verdict — the model appends its real answer after any worked example.
@@ -109,7 +120,9 @@ const extractJsonVerdict = (text) => {
     try {
       const v = asVerdict(JSON.parse(block));
       if (v) last = v;
-    } catch { /* skip non-JSON candidate */ }
+    } catch {
+      /* skip non-JSON candidate */
+    }
   }
   return last;
 };
@@ -119,8 +132,8 @@ const fallbackResult = ({ userAnswer, expectedAnswer, acceptedAnswers, reason })
   return {
     correct,
     feedback: correct
-      ? 'A close match — accepted by the tome\'s own measure.'
-      : 'Thy answer did not match the tome\'s canonical reckoning.',
+      ? "A close match — accepted by the tome's own measure."
+      : "Thy answer did not match the tome's canonical reckoning.",
     source: 'fallback',
     fallbackReason: reason || 'Oracle unreachable',
   };

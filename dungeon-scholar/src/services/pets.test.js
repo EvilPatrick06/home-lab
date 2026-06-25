@@ -1,17 +1,9 @@
-import { describe, it, expect } from 'vitest';
-import {
-  PETS,
-  PET_LEVEL_XP,
-  PET_MAX_LEVEL,
-  petLevelFromXp,
-  findPet,
-} from './pets.js';
+import { describe, expect, it } from 'vitest';
+import { findPet, PET_LEVEL_XP, PET_MAX_LEVEL, PETS, petLevelFromXp } from './pets.js';
 
 describe('PETS catalog', () => {
   it('has the expected 5 familiars', () => {
-    expect(Object.keys(PETS).sort()).toEqual([
-      'ember_dragon', 'glade_fox', 'mimic_pup', 'sewer_imp', 'wise_owl',
-    ]);
+    expect(Object.keys(PETS).sort()).toEqual(['ember_dragon', 'glade_fox', 'mimic_pup', 'sewer_imp', 'wise_owl']);
   });
 
   it('every pet declares id, name, icon, biome, fromEgg, passive, base, perLevel', () => {

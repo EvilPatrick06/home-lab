@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Phase 41G — Phase-30 QA gap: deleteAccount was never covered by an
 // automated test (the existing cloudSync.test.js mock-builder resolves every
