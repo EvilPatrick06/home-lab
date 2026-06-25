@@ -106,6 +106,10 @@ bmo/pi/data/play_counts.json
 bmo/pi/data/playback_state.json
 bmo/pi/data/recent_chat.json
 bmo/pi/data/settings.json
+bmo/pi/data/dm_session_state.json
+bmo/pi/data/recent_chat.seeded-backup-*.json
+bmo/pi/data/voice_canary_status.json
+bmo/pi/data/vtt_sync_outbox.jsonl
 bmo/pi/data/dnd_sessions/
 # Per-user cloud-account sync store: blobs + manifest.db under data/sync/<discord_id>/
 # (data/*.db above already covers data/accounts.db). Runtime USER data — never commit.
