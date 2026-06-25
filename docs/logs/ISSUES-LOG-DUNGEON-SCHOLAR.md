@@ -146,6 +146,40 @@ drifted upward unnoticed (CI stays green on test+build alone).
 
 ## Low
 
+### [2026-06-24] Vite 8 build warns: `inlineDynamicImports` deprecated (PWA service-worker build)
+
+- **Category:** config, debt
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error scan (ran `npx vite build`)
+
+**Description:**
+Every `vite build` of dungeon-scholar prints, during the PWA service-worker
+sub-build, a Rolldown/Vite 8 deprecation warning:
+
+```
+PWA v1.3.0
+Building src/sw.js service worker ("es" format)...
+ WARN  inlineDynamicImports option is deprecated, please use codeSplitting: false instead.
+```
+
+The client build itself is clean (1926 modules, vendor-react / vendor-icons
+chunks emitted, built in ~1.8s); the warning is emitted only by the second,
+`injectManifest` SW build that bundles `src/sw.js` into a single file. It is
+non-fatal today (build exits 0, tests 61 files / 647 pass, `npm audit` clean)
+but it is noise on every CI/deploy build log and will become a hard error once
+Rolldown removes the deprecated alias.
+
+**Hypothesis / root cause (diagnosed):** not app config — `grep -rn inlineDynamicImports src vite.config.js` finds nothing. The option is set inside the pinned dependency: `node_modules/vite-plugin-pwa/dist/vite-build-BGK4YAIU.js:109` does `inlineDynamicImports: true` to force the SW into one file. Under Vite 8 (Rolldown) that rollup output option is deprecated in favour of `output.codeSplitting: false`. `vite-plugin-pwa@1.3.0` (current pin) predates the rename, so the warning fires on the SW build of every Vite-8 project using it.
+
+**Proposed fix / improvement:**
+- [ ] Bump `vite-plugin-pwa` once a release that uses `codeSplitting: false` (Vite-8/Rolldown-aware) is published; re-run `vite build` and confirm the warning is gone.
+- [ ] Until then, accept it as a known upstream deprecation (nothing to change in app code — do NOT add `inlineDynamicImports`/`codeSplitting` to `vite.config.js`, as the SW is a separate plugin-owned build, not the app rollupOptions).
+- [ ] Optional: if the warning ever masks a real one in CI, filter the single known line rather than silencing all build warnings.
+
+**Related files:** `dungeon-scholar/vite.config.js` (VitePWA injectManifest block), `dungeon-scholar/package.json` (`vite-plugin-pwa` pin), `dungeon-scholar/src/sw.js`
+
 ### [2026-06-24] Duplicate `engines` key in dungeon-scholar package.json
 
 - **Category:** config
