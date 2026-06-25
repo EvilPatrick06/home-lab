@@ -2,6 +2,7 @@
 export {
   connectToHost,
   disconnect,
+  emitClientMessage,
   isConnected,
   onDisconnected,
   onMessage as onClientMessage,
@@ -18,6 +19,7 @@ export {
   broadcastExcluding,
   broadcastMessage,
   chatMutePeer,
+  emitHostMessage,
   getConnectedPeers,
   getInviteCode,
   getPeerInfo,

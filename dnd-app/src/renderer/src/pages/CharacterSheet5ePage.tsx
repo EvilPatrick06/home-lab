@@ -28,6 +28,7 @@ const PrintSheet = lazy(() => import('../components/sheet/shared/PrintSheet'))
 
 import { shouldLevelUp } from '../data/xp-thresholds'
 import { getEffectiveKnownSpells } from '../services/character/effective-character-5e'
+import { persistCharacterIfOwned } from '../services/character/persist-character'
 import { applyLongRest } from '../services/character/rest-service-5e'
 import { localHasPermission } from '../services/permissions/local-permission'
 import { useNetworkStore } from '../stores/network-store'
@@ -139,7 +140,8 @@ export default function CharacterSheet5ePage(): JSX.Element {
     if (!is5eCharacter(latest)) return
 
     const result = applyLongRest(latest)
-    useCharacterStore.getState().saveCharacter(result.character)
+    // CH-2b — don't persist a player's PC into the DM's own library.
+    persistCharacterIfOwned(result.character)
     broadcastIfDM(result.character)
 
     setShowLongRestConfirm(false)

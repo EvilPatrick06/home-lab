@@ -514,6 +514,27 @@ export function onMessage(callback: MessageCallback): () => void {
   }
 }
 
+/**
+ * Phase 32 (TR-1) — re-emit an inbound frame to the host's `onMessage`
+ * subscribers (the lobby/in-game UI bridges: chat, character-select, moderation,
+ * chat-timeout). Over P2P these bridges are fed because `GameAuthority` runs on a
+ * transport that wraps `host-manager.onMessage`, so the same `messageCallbacks`
+ * set carries both the store dispatcher and the bridges. The cloud relay path
+ * dispatches inbound through `GameAuthority` over the WebSocket transport, which
+ * bypasses this set — leaving every bridge dead in a cloud game. The cloud host
+ * calls this AFTER `handleHostMessage` so the bridges fire exactly as they do
+ * over P2P (the host dispatcher is NOT in this set in cloud mode, so there is no
+ * double-dispatch). */
+export function emitHostMessage(message: NetworkMessage, fromPeerId: string): void {
+  for (const cb of messageCallbacks) {
+    try {
+      cb(message, fromPeerId)
+    } catch (e) {
+      logger.error('[HostManager] Error in re-emitted message callback:', e)
+    }
+  }
+}
+
 /** Check if currently hosting. */
 export function isHosting(): boolean {
   return hosting

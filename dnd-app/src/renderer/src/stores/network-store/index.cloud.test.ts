@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { NetworkMessage } from '../../network'
-import { getPeerId } from '../../network'
+import { getPeerId, onClientMessage, onHostMessage } from '../../network'
+import { applyDelta, structuralDiff } from '../../network/sync/diff'
+import { registerShard } from '../../network/sync/registry'
+import type { Shard } from '../../network/sync/shard'
 import type { RelaySocket } from '../../network/transport/websocket-transport'
 import { __setCloudSocketFactoryForTests } from './cloud-session'
 import { useNetworkStore } from './index'
@@ -151,5 +154,114 @@ describe('network store — cloud client', () => {
     expect(st.role).toBe('client')
     expect(st.peers.map((p) => p.peerId)).not.toContain('p2')
     expect(st.peers.map((p) => p.peerId)).toContain('host1')
+  })
+})
+
+// TR-1 — the cloud relay dispatches inbound through the store handler / GameAuthority
+// directly, which bypasses the host-manager / client-manager `onMessage` buses that
+// every UI bridge (chat, character-select/update, moderation, chat-timeout) subscribes
+// to. The cloud paths now RE-EMIT each inbound frame onto those buses so the bridges
+// fire exactly as they do over P2P. These tests pin that re-emit.
+describe('network store — cloud TR-1 bridge re-emit', () => {
+  function chatFrame(senderId: string): NetworkMessage {
+    return {
+      type: 'chat:message',
+      payload: { message: 'hello', isSystem: false },
+      senderId,
+      senderName: senderId,
+      timestamp: Date.now(),
+      sequence: 1
+    }
+  }
+
+  it('cloud CLIENT re-emits inbound frames onto the onClientMessage bus', async () => {
+    const received: NetworkMessage[] = []
+    const unsub = onClientMessage((m) => received.push(m))
+    try {
+      await useNetworkStore.getState().joinGame('ROOM42', 'Alice', 'cloud')
+      socket.fire('message', { from_peer_id: 'host1', message: chatFrame('host1') })
+      expect(received.some((m) => m.type === 'chat:message')).toBe(true)
+    } finally {
+      unsub()
+    }
+  })
+
+  it('cloud HOST re-emits inbound peer frames onto the onHostMessage bus', async () => {
+    const received: Array<{ type: string; from: string }> = []
+    const unsub = onHostMessage((m, from) => received.push({ type: m.type, from }))
+    try {
+      await useNetworkStore.getState().hostGame('DM', 'ROOM42', 'cloud')
+      socket.fire('peer-joined', { peer_id: 'p1', client_id: 'c1', role: 'player', display_name: 'Alice' })
+      socket.fire('message', { from_peer_id: 'p1', message: chatFrame('p1') })
+      expect(received.some((r) => r.type === 'chat:message' && r.from === 'p1')).toBe(true)
+    } finally {
+      unsub()
+    }
+  })
+})
+
+// SS-1 — a cloud DM must ship permission-FILTERED shard deltas to a joined cloud
+// player (the per-recipient filter keys on the peer's clientId from the live peer
+// list). This pins the cloud `getRecipients` → broadcaster → relay path end-to-end.
+describe('network store — cloud SS-1 filtered shard delivery', () => {
+  function makeFilteredBoxShard(name: string) {
+    let value: { hp: number; secret?: string } = { hp: 10, secret: 'top' }
+    const subs = new Set<(v: typeof value) => void>()
+    const shard: Shard<typeof value> = {
+      name,
+      read: () => value,
+      onChange: (cb) => {
+        subs.add(cb)
+        return () => {
+          subs.delete(cb)
+        }
+      },
+      diff: (prev, next) => structuralDiff(prev, next),
+      applyDelta: (delta) => {
+        value = applyDelta(value, delta)
+      },
+      // Only a recipient whose clientId is 'priv' sees the secret; everyone else
+      // (a normal cloud player) gets the stripped player view.
+      permissionFilter: (v, clientId) => (clientId === 'priv' ? v : { hp: v.hp })
+    }
+    return {
+      shard,
+      set: (next: typeof value) => {
+        value = next
+        for (const cb of subs) cb(next)
+      }
+    }
+  }
+
+  it('relays a per-recipient stripped sync:delta to a joined cloud player', async () => {
+    const { shard, set } = makeFilteredBoxShard('ss1-cloud')
+    registerShard(shard)
+
+    await useNetworkStore.getState().hostGame('DM', 'ROOM42', 'cloud')
+    socket.fire('peer-joined', { peer_id: 'p1', client_id: 'c1', role: 'player', display_name: 'Alice' })
+
+    vi.useFakeTimers()
+    try {
+      socket.emits.length = 0
+      set({ hp: 9, secret: 'newtop' })
+      // The cloud broadcaster coalesces with a 50ms window.
+      vi.advanceTimersByTime(50)
+    } finally {
+      vi.useRealTimers()
+    }
+
+    const delta = socket.emits
+      .filter((e) => e.event === 'relay')
+      .map((e) => e.payload as { message: NetworkMessage; target_peer_id?: string })
+      .find((p) => p.message.type === 'sync:delta' && (p.message.payload as { shard?: string }).shard === 'ss1-cloud')
+
+    expect(delta).toBeDefined()
+    // Delivered point-to-point to the joined player…
+    expect(delta?.target_peer_id).toBe('p1')
+    // …and the player NEVER receives the DM-only `secret`.
+    const payload = delta?.message.payload as { delta: { kind: string; payload: { hp: number; secret?: string } } }
+    expect(payload.delta.kind).toBe('replace')
+    expect(payload.delta.payload).toEqual({ hp: 9 })
+    expect(payload.delta.payload).not.toHaveProperty('secret')
   })
 })

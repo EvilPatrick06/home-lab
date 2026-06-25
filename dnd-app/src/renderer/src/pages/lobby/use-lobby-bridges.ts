@@ -101,7 +101,11 @@ function useCharacterSelectBridge(role: string, localPeerId: string | null): voi
 
       const payload = msg.payload as CharacterSelectPayload
       if (payload.characterId && payload.characterData) {
-        useLobbyStore.getState().setRemoteCharacter(payload.characterId, payload.characterData as Character)
+        // CH-1 / CH-2 — stamp `playerId` to the sending peer so the DM's
+        // edit/broadcast/persist guards treat this as a foreign PC (the player
+        // owns persistence; the DM must not save it into its own library).
+        const stamped = { ...(payload.characterData as Character), playerId: msg.senderId }
+        useLobbyStore.getState().setRemoteCharacter(payload.characterId, stamped)
       }
     }
 

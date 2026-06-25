@@ -179,6 +179,26 @@ export function onMessage(callback: MessageCallback): () => void {
 }
 
 /**
+ * Phase 32 (TR-1) — re-emit an inbound frame to the client's `onMessage`
+ * subscribers (the lobby/in-game UI bridges: chat, character-update, moderation,
+ * chat-timeout + the game-start / return-to-lobby navigators). Over P2P these
+ * subscribe the same `messageCallbacks` set that `handleClientMessage` does. The
+ * cloud relay path dispatches inbound through `handleClientMessage` directly off
+ * the WebSocket transport, bypassing this set — leaving every bridge dead in a
+ * cloud game. The cloud client calls this AFTER `handleClientMessage` so the
+ * bridges fire exactly as they do over P2P (the store dispatcher is NOT in this
+ * set in cloud mode, so there is no double-dispatch). */
+export function emitClientMessage(message: NetworkMessage): void {
+  for (const cb of messageCallbacks) {
+    try {
+      cb(message)
+    } catch (e) {
+      logger.error('[ClientManager] Error in re-emitted message callback:', e)
+    }
+  }
+}
+
+/**
  * Register a callback for when the connection is lost.
  * Returns an unsubscribe function.
  */

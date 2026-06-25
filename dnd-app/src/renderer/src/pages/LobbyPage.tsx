@@ -334,6 +334,20 @@ export default function LobbyPage(): JSX.Element {
     }
   }, [campaignId, localPeerId, displayName, isHost, setCampaignId, setIsHost, addPlayer])
 
+  // RL-1 — keep the lobby's host flag pinned to the authoritative network role.
+  // The cloud relay is known-flaky on connect/reconnect; a transient
+  // connectionState blip can fire `resetLobby()` (which clears `isHost` back to
+  // false) mid-session, silently stripping the DM's host-only UI — no Start Game
+  // button, no DM chat controls, and promote/demote stops reflecting. Re-assert
+  // `isHost` whenever we still hold the host role so a recoverable blip can never
+  // demote the DM's lobby UI. `connectionState` is an intentional dependency:
+  // re-running on a reconnect transition is the whole point (it re-asserts
+  // isHost after a blip that may have cleared it via resetLobby).
+  // biome-ignore lint/correctness/useExhaustiveDependencies: connectionState re-run is intentional (re-assert isHost after a reconnect blip)
+  useEffect(() => {
+    if (role === 'host') setIsHost(true)
+  }, [role, connectionState, setIsHost])
+
   // Bridge network messages to lobby store (peer sync, chat, character updates, moderation)
   useLobbyBridges(role, localPeerId)
 

@@ -30,6 +30,7 @@ import {
   updatePeerInfo
 } from '../../network'
 import { hasPermission } from '../../services/permissions/has-permission'
+import type { Character } from '../../types/character'
 import type { Character5e } from '../../types/character-5e'
 import type { Permission } from '../../types/permissions'
 import { useCampaignStore } from '../use-campaign-store'
@@ -144,11 +145,25 @@ export function handleHostMessage(
     }
 
     case 'player:character-select': {
-      const payload = message.payload as { characterId: string | null; characterName: string | null }
+      const payload = message.payload as {
+        characterId: string | null
+        characterName: string | null
+        characterData?: unknown
+      }
       get().updatePeer(fromPeerId, {
         characterId: payload.characterId,
         characterName: payload.characterName
       })
+      // CH-1 — store the player's character host-side so the DM can open it
+      // ("no character found" otherwise). Stamp `playerId` to the owning peer so
+      // the DM's edit/broadcast guards (`playerId !== 'local'`) treat it as a
+      // foreign PC: the edit reaches the player and is NOT persisted into the
+      // DM's own library (CH-2). Belt-and-suspenders to `useCharacterSelectBridge`,
+      // which only runs while the lobby/in-game view is mounted.
+      if (payload.characterId && payload.characterData && typeof payload.characterData === 'object') {
+        const stamped = { ...(payload.characterData as Character), playerId: fromPeerId }
+        useLobbyStore.getState().setRemoteCharacter(payload.characterId, stamped)
+      }
       broadcastExcluding(message, fromPeerId)
       break
     }

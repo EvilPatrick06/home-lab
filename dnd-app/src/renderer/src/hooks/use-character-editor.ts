@@ -1,3 +1,4 @@
+import { persistCharacterIfOwned } from '../services/character/persist-character'
 import { useNetworkStore } from '../stores/network-store'
 import { useCharacterStore } from '../stores/use-character-store'
 import { useLobbyStore } from '../stores/use-lobby-store'
@@ -29,7 +30,10 @@ export function useCharacterEditor(characterId: string) {
   }
 
   const saveAndBroadcast = (updated: Character): void => {
-    useCharacterStore.getState().saveCharacter(updated)
+    // CH-2b — only persist locally when this client owns the PC; a DM editing a
+    // player's PC must not save it into the DM's own library (the owning player
+    // persists it on receipt of the broadcast below).
+    persistCharacterIfOwned(updated)
     broadcastIfDM(updated)
   }
 

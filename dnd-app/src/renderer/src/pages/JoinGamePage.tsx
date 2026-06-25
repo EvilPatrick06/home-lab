@@ -266,6 +266,24 @@ export default function JoinGamePage(): JSX.Element {
         await joinGame(normalized, name.trim(), mode)
         setWaitingForCampaign(true)
       } catch (err) {
+        // TR-2 — automatic relay fallback. A P2P join that resolved the host but
+        // couldn't open a WebRTC data channel (restrictive NAT / AP isolation /
+        // host-side firewall / no reachable TURN) is recoverable over the Pi
+        // cloud relay, which works behind any NAT. Retry once on the relay before
+        // surfacing the error so players aren't dead-ended at the lobby.
+        const msg = err instanceof Error ? err.message : String(err)
+        const isDataChannelFailure = /data channel/i.test(msg)
+        if (mode === 'p2p' && isDataChannelFailure) {
+          logger.warn('[JoinGame] P2P data channel failed; falling back to the cloud relay…')
+          try {
+            await joinGame(normalized, name.trim(), 'cloud')
+            setWaitingForCampaign(true)
+            return
+          } catch (relayErr) {
+            logger.error('[JoinGame] cloud relay fallback also failed:', relayErr)
+            return
+          }
+        }
         logger.error('[JoinGame] join failed:', err)
       }
     },

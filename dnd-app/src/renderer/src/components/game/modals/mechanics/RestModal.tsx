@@ -13,6 +13,7 @@ type _LongRestPreview = LongRestPreview
 type _LongRestResult = LongRestResult
 type _ShortRestResult = ShortRestResult
 
+import { persistCharacterIfOwned } from '../../../../services/character/persist-character'
 import { useNetworkStore } from '../../../../stores/network-store'
 import { useCharacterStore } from '../../../../stores/use-character-store'
 import { useGameStore } from '../../../../stores/use-game-store'
@@ -31,11 +32,10 @@ interface RestModalProps {
 
 /** Shared preamble used by both rest handlers: resolves stores and the active map. */
 function getRestContext() {
-  const { saveCharacter } = useCharacterStore.getState()
   const { role, sendMessage } = useNetworkStore.getState()
   const { setRemoteCharacter } = useLobbyStore.getState()
   const activeMap = useGameStore.getState().maps.find((m) => m.id === useGameStore.getState().activeMapId)
-  return { saveCharacter, role, sendMessage, setRemoteCharacter, activeMap }
+  return { role, sendMessage, setRemoteCharacter, activeMap }
 }
 
 /** After applying a rest result, syncs the token HP and broadcasts to remote players if needed. */
@@ -96,7 +96,8 @@ export default function RestModal({ mode, campaignCharacterIds, onClose, onApply
       if (!is5eCharacter(latest)) continue
 
       const result = applyShortRest(latest, state.rolls, state.arcaneRecoverySlots)
-      context.saveCharacter(result.character)
+      // CH-2b — don't persist a player's PC into the DM's own library.
+      persistCharacterIfOwned(result.character)
       restoredIds.push(pc.id)
       syncRestResult(result, { currentHP: result.character.hitPoints.current }, context)
     }
@@ -116,7 +117,8 @@ export default function RestModal({ mode, campaignCharacterIds, onClose, onApply
       if (!is5eCharacter(latest)) continue
 
       const result = applyLongRest(latest)
-      context.saveCharacter(result.character)
+      // CH-2b — don't persist a player's PC into the DM's own library.
+      persistCharacterIfOwned(result.character)
       restoredIds.push(pc.id)
       syncRestResult(
         result,

@@ -6,6 +6,8 @@ import {
   disconnect as clientDisconnect,
   configureForP2P,
   connectToHost,
+  emitClientMessage,
+  emitHostMessage,
   generateInviteCode,
   getConnectedPeers,
   getPeerId,
@@ -117,7 +119,16 @@ function attachCloudHostMachinery(
   })
 
   const hostAuthority = new GameAuthority(transport)
-  hostAuthority.registerDefault((message, ctx) => handleHostMessage(message, ctx.peerId, get, set))
+  hostAuthority.registerDefault((message, ctx) => {
+    handleHostMessage(message, ctx.peerId, get, set)
+    // TR-1 — the relay dispatches inbound through GameAuthority directly, which
+    // bypasses the host-manager `onMessage` bus the UI bridges subscribe to
+    // (chat / character-select / moderation / chat-timeout). Re-emit each frame
+    // onto that bus so the cloud host's bridges fire exactly as they do over P2P
+    // (the dispatcher above is NOT a bus subscriber in cloud mode, so this never
+    // double-dispatches the store handler).
+    emitHostMessage(message, ctx.peerId)
+  })
   hostAuthority.start()
 
   const shardBroadcaster = createShardBroadcaster(transport, {
@@ -472,6 +483,14 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
         listenerCleanups.push(
           transport.onMessage((_fromPeerId: string, message: NetworkMessage) => {
             handleClientMessage(message, get, set)
+            // TR-1 — the relay delivers inbound straight to `handleClientMessage`,
+            // bypassing the client-manager `onMessage` bus the UI bridges subscribe
+            // to (chat / character-update / moderation / chat-timeout + the
+            // game-start / return-to-lobby navigators). Re-emit each frame onto
+            // that bus so the cloud client's bridges fire exactly as they do over
+            // P2P (the dispatcher above is NOT a bus subscriber in cloud mode, so
+            // this never double-dispatches the store handler).
+            emitClientMessage(message)
           }),
           transport.onPeerJoin((peer: PeerInfo) => get().addPeer(peer)),
           transport.onPeerLeave((peerId: string) => {
