@@ -29,6 +29,8 @@
 | 04 | [`PHASE-04-realtime-cloudflare-auth.md`](./PHASE-04-realtime-cloudflare-auth.md) | bmo | — | pending |
 | 05 | [`PHASE-05-calendar-token-and-health-truth.md`](./PHASE-05-calendar-token-and-health-truth.md) | bmo | — | pending |
 | 06 | [`PHASE-06-dashboard-ux-platform-hygiene.md`](./PHASE-06-dashboard-ux-platform-hygiene.md) | bmo | — | pending |
+| 07 | [`PHASE-07-list-endpoint-request-robustness.md`](./PHASE-07-list-endpoint-request-robustness.md) | bmo | — | pending |
+| 08 | [`PHASE-08-deploy-runtime-version-truth.md`](./PHASE-08-deploy-runtime-version-truth.md) | bmo | — | pending |
 
 > **Provenance of this batch:** PHASE-01..03 were consolidated from
 > `QA/QA-report-2026-06-24.md` (now in `QA/completed/`) by the bmo phase-maker on
@@ -59,3 +61,21 @@
 > and music-double-poll findings were already fixed at HEAD and are NOT re-planned here
 > (see PHASE-06 "Already-fixed findings"). The bmo-phase-executer updates the Status
 > column (`pending` → `in progress` → `done`) as it ships each plan.
+
+
+> **Provenance of this batch (07–08):** PHASE-07..08 were consolidated from the
+> third and fourth 2026-06-24 QA passes (`QA/QA-report-2026-06-24-3.md` @ `8c6811d5`
+> and `QA/QA-report-2026-06-24-4.md` @ `53163f4b`, now in `QA/completed/`) by the bmo
+> phase-maker on 2026-06-24, verified against `origin/master@3c89d787`. **07** = list-endpoint
+> request-parsing robustness (the report-4 `415` on bodyless `…/check` + `…/clear`, plus the
+> sibling add-item path); **08** = deploy/runtime version truth on `/api/v1/health` (the
+> report-3 deploy↔restart skew made self-diagnosing by surfacing the boot-captured running SHA +
+> asset build stamp + uptime, and — per report-4 §6 — the calendar token TTL on `/health/full`).
+> Dependencies are **soft** — disjoint files, any order. **Not re-planned as code phases:** report-3/4's
+> dominant **High** ("browser-rendered QA blocked" — `BMO_API_KEY` gate + off-Pi automation browsers)
+> is an automation/infra coverage gap (attach a Pi-local browser), not bmo app code, so it is an
+> owner/QA-infra item, not a phase; report-3's deploy-restart structural ask is already in
+> `docs/logs/BMO-ISSUES-LOG.md` (08 adds only the code-side *observability*); and report-3's low
+> "no `GET /api/alarms`" observation was investigated and found **already satisfied** (alarms persist to
+> `data/alarms.json` and rehydrate via the combined `GET /api/timers` on dashboard load). The
+> bmo-phase-executer updates the Status column (`pending` → `in progress` → `done`) as it ships each plan.
