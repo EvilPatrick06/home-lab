@@ -20,6 +20,48 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-06-24] Voice barge-in / "stop talking" is unreachable — `VoicePipeline.interrupt()` has a unit test but zero production callers, so BMO cannot be cut off mid-speech
+
+- **Category:** future-idea (UX)
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of the Pi voice pipeline (`services/voice/voice_pipeline.py`)
+
+**Description:**
+The voice pipeline already contains all the machinery for barge-in: `_tts_interrupted = threading.Event()` (init ~line 185), an `interrupt()` method (~line 993) that sets the event, clears the TTS queue and aborts current playback, and `_tts_worker` / `_stream_and_speak` / playback loops that all check `self._tts_interrupted.is_set()` between chunks (~lines 937, 989, 1037, 1065). There is even a unit test for it (`tests/test_voice_pipeline.py::test_interrupt_clears_speaking_state`). But a repo-wide grep shows **`interrupt()` has no production caller** — nothing in `app.py`, `routes/` (incl. the `realtime_ws.py` / `game_relay_ws.py` socketio handlers), the wake-word loop, or the agents ever invokes it. The Discord side has its own separate `interrupt` plumbing (`bots/discord_dm_bot.py`, `bots/dm_bot_control.py`) but that does not touch the Pi voice pipeline. Net effect: once BMO starts a long spoken answer, the user has no voice or UI way to stop it — `_follow_up_loop` only begins listening *after* TTS finishes, and the wake word is not monitored during playback. The user must wait out the whole utterance (or kill the service). The capability exists and is tested; it is simply not wired to any trigger.
+
+**Hypothesis / root cause:** `interrupt()` was built as half-duplex barge-in infrastructure but the triggering side (wake-word/VAD monitoring during playback, plus a UI/REST "stop" control) was never connected. AEC notes in `_check_aec` suggest full-duplex listening-while-speaking was anticipated but left unfinished.
+
+**Proposed fix / improvement:**
+- [ ] Run a lightweight wake-word (or VAD energy) listener on the mic *during* TTS playback; on a hit, call `self.interrupt()` and drop straight into `_process_one_turn` so the user can talk over BMO. Leverage the existing PipeWire echo-cancel source so playback is not self-detected.
+- [ ] Expose an explicit "stop talking" control: a `@socketio.on("voice_interrupt")` handler (and/or a small `POST /api/voice/interrupt`) that calls `pipeline.interrupt()` — wires the kiosk/dashboard Stop button to the already-implemented method.
+- [ ] Treat the spoken closing word "stop" (already in the `is_closing` set) as an interrupt while speaking, not just between turns.
+- [ ] Emit a `conversation_mode`/`status` event on interrupt so the UI reflects the cut-off (mirrors the existing "(interrupted)" pill used on the chat side).
+
+---
+
+### [2026-06-24] BMO root path `~/home-lab/bmo/pi` is hardcoded across ~40 Python files — no central path/config root, hurting portability (Docker / other user / CI)
+
+- **Category:** future-idea (portability, DX)
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only portability review of the bmo/ Python tree
+
+**Description:**
+The absolute path prefix `~/home-lab/bmo/pi/...` (and a few `/home/patrick/home-lab` literals) is repeated as `os.path.expanduser(...)` in ~40 source files, with no single module that owns the project root. Examples: `app.py:2140` (`notes.json`), `agent.py:21,325,344`, `agents/memory.py:15`, `agents/learning_agent.py:13`, `agents/settings.py:23,99`, `routes/ide.py:64,149,1333`, `routes/chat_api.py:558`, `bots/social/bot.py:70,902`, `bots/discord_dm_bot.py:753`, `hardware/camera_service.py:18`, `mcp_servers/dnd_data_server.py:22,27,32`, `wake/enroll_voice.py:25,89`. There is no `BMO_HOME` / `BMO_ROOT` env var or shared `paths.py`; `config_preflight.py` and `settings_store.py` exist but do not centralize the filesystem root. This couples the entire assistant to a specific home directory layout (`patrick` user, repo cloned at exactly `~/home-lab`). It makes the existing `docker/` image, any non-`patrick` user, a relocated checkout, and CI more brittle than necessary — and any future relocation of the data dir means editing dozens of files. (Distinct from the already-resolved "owner identity (Gavin) hardcoded" entry, which was about *who* the user is, not *where the tree lives*.)
+
+**Hypothesis / root cause:** organic growth — each module reached for `os.path.expanduser("~/home-lab/bmo/pi/...")` independently rather than importing a shared root, because no path module was established early.
+
+**Proposed fix / improvement:**
+- [ ] Add a tiny `services/paths.py` (or extend `config_preflight`) exporting `BMO_ROOT` / `DATA_DIR` / `MODELS_DIR`, resolved from a `BMO_HOME` env var with the current `~/home-lab/bmo/pi` as the default. Never raises; importable from hot paths.
+- [ ] Mechanically migrate the ~40 call sites to `from services.paths import DATA_DIR` etc. (small, low-risk, mostly find/replace; do it incrementally per package to keep diffs reviewable).
+- [ ] Add a lint/CI check (similar to `scripts/check-no-new-prints.sh`) that fails on new `expanduser("~/home-lab` literals outside `paths.py`, to stop the pattern from regrowing.
+- [ ] Wire `BMO_HOME` through the Docker image and systemd unit `Environment=` so the container/relocated installs work without code edits.
+
+---
+
 ### [2026-06-24] DM bot loses all live session state on restart — only `campaign_memory` (NPCs/locations/threads) is persisted, not the active `DMSession`
 
 - **Category:** future-idea (reliability + UX)
