@@ -14,4 +14,48 @@ How to triage: [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md)
 
 > Whole-repo structural + convention items (`Domain: both`). Per-project items live in the domain-split logs.
 
-_No open cross-cutting suggestions._
+### [2026-06-24] No `.python-version` analog to `.nvmrc`; Python is pinned inline in CI and the two pins disagree (3.11 vs 3.12)
+
+- **Category:** config, portability
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** Cross-cutting scan of shared CI/toolchain version pinning (compared Node `.nvmrc` wiring against Python pinning).
+
+**Description:**
+Node is pinned repo-wide by a single source of truth: `.nvmrc` (`22`), and **every** Node workflow reads it via `actions/setup-node` `node-version-file: .nvmrc` (dnd-app-ci, dungeon-scholar-ci, oracle-worker-ci/-deploy, security-audit, release, deploy, dnd-web-deploy, dnd-app-validate-5e). Python has no equivalent. The Python version is hardcoded inline in each workflow, and the two pins **disagree**: `bmo-pi-pytest.yml` sets `python-version: '3.11'` while `security-audit.yml` sets `python-version: "3.12"`. There is no `.python-version` (root, `bmo/`, or `bmo/pi/`) and no `pyproject.toml`/`requires-python` to anchor the version, so the local dev Python, the pytest CI Python, and the security-audit Python can all drift independently. bmo/pi is therefore unit-tested on 3.11 but dependency-audited on 3.12, and nothing enforces that either matches what a contributor runs locally.
+
+**Hypothesis / root cause:** Node pinning was centralized onto `.nvmrc` but the equivalent step for Python was never taken; the two workflows that need Python each grew their own literal, and they were edited at different times to different values.
+
+**Proposed fix / improvement:**
+- [ ] Add a single source of truth for the Python version (`.python-version` at `bmo/pi/`, or `requires-python` in a `bmo/pi/pyproject.toml`).
+- [ ] Point both `bmo-pi-pytest.yml` and `security-audit.yml` at it via `setup-python`'s `python-version-file:` so they can't disagree.
+- [ ] Decide the one canonical version (3.11 vs 3.12) and reconcile — confirm `bmo/pi` actually runs on it (a prior note in `BMO-RESOLVED-ISSUES.md` states the tracked sources compile cleanly under 3.11).
+
+**Related files:** `.github/workflows/bmo-pi-pytest.yml`, `.github/workflows/security-audit.yml`, `.nvmrc` (the pattern to mirror), `bmo/pi/` (no `pyproject.toml`/`.python-version` today)
+
+---
+
+### [2026-06-24] Repo-wide pre-commit hook (incl. the gitleaks secret scan) is only bootstrapped by installing `dnd-app/` deps — contributors who only touch bmo / dungeon-scholar / oracle-worker get no hook at all
+
+- **Category:** portability, UX
+- **Severity:** medium
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** Cross-cutting scan of the shared `.husky/pre-commit` hook and how it gets installed across the four projects.
+
+**Description:**
+The single repo-root `.husky/pre-commit` hook is shared infrastructure — besides the dnd-app/dungeon-scholar Biome+test steps it also runs a repo-wide **gitleaks secret scan** over the whole staged set. But the only thing that installs the hook is `dnd-app/package.json`'s `"prepare": "cd .. && husky .husky"`; `dungeon-scholar`, `oracle-worker`, and `bmo` have no `prepare`/husky wiring. `docs/CONTRIBUTING.md` confirms this by design ("Running `npm install` in `dnd-app/` wires a Husky pre-commit hook"). Consequence: a contributor who clones the repo and only ever installs/works in **bmo** (Python), **dungeon-scholar**, or **oracle-worker** — never running `npm install` inside `dnd-app/` — gets **no pre-commit hook installed at all**, including the repo-wide secret scan. The secret-scan gap is security-adjacent (a resolver may want to route that aspect to the security log). Secondary, smaller gap: even when the hook *is* installed, its body only gates `dnd-app/` and `dungeon-scholar/` staged paths — a bmo-only (ruff/pytest) or oracle-worker-only staged commit gets only the global gitleaks step, no project lint/test pre-flight.
+
+**Hypothesis / root cause:** Husky bootstrapping was added when dnd-app was the primary/only JS project, so the `prepare` script naturally lived there; as bmo, dungeon-scholar, and oracle-worker were added, the hook body was extended but the *install trigger* was never made project-independent.
+
+**Proposed fix / improvement:**
+- [ ] Make hook installation independent of which project you install — e.g. a `make install`/`make hooks` step (or a tiny root-level `prepare`) that runs `husky .husky` / sets `core.hooksPath .husky` regardless of which subproject a contributor bootstraps, and document it in `CONTRIBUTING.md` / `SETUP.md`.
+- [ ] Optionally extend the hook body to also pre-flight `bmo/pi` (ruff) and `oracle-worker` staged changes for parity with the dnd-app/dungeon-scholar blocks.
+- [ ] Consider whether the gitleaks secret scan deserves a guaranteed install path (security-adjacent) rather than riding on a dnd-app `npm install`.
+
+**Related files:** `.husky/pre-commit`, `dnd-app/package.json` (`prepare` script), `dungeon-scholar/package.json` + `oracle-worker/package.json` (no `prepare`), `docs/CONTRIBUTING.md`, `Makefile`
+
+---
+
+_No open cross-cutting suggestions other than those listed above._
