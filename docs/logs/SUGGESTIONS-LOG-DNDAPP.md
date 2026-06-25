@@ -45,6 +45,72 @@ New entries go at the TOP of their section (newest first).
 
 ---
 
+### [2026-06-25] dnd-app CI omits the doc/i18n drift guards that `check:full` defines, and `gen:ipc-surface` has no `--check` mode
+
+- **Category:** debt, docs
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** scheduled cleanup/structure scan of dnd-app/ (CI vs npm-script coverage cross-check)
+
+**Description:**
+`package.json` defines a `check:full` aggregate that includes three generated-artifact / i18n drift guards — `sync:doc-counts -- --check`, `i18n:check-parity`, and (implicitly) keeping `docs/IPC-SURFACE.md` in sync — but `dnd-app-ci.yml` runs its gate as individual steps and does **not** invoke any of them. The CI steps are: lint, lint:forbidden, tsc (web+node), validate:content, test, electron-vite build, web build, check:bundle-size, test:coverage, audit:ci, circular, no-skipped-tests, dead-code, check:electron-eol. Missing: locale-parity (`i18n:check-parity`), doc-count drift (`sync:doc-counts --check`), and IPC-surface drift. Separately, `gen:ipc-surface` has **no `--check` mode at all** (the generator only writes the file; grep finds no check/diff/argv handling), so even a contributor who wanted to gate it cannot. `agent-docs-check.yml` only covers the five AI-assistant guide files, not these. Net effect: `docs/IPC-SURFACE.md`, the synced doc counts, and `src/renderer/src/i18n` locale parity can silently drift on `master` between the rare manual `check:full` runs.
+
+**Hypothesis / root cause:** CI was assembled as a hand-maintained list of explicit steps rather than calling `npm run check:full`, so guards added to `check:full` later (doc-counts/i18n) never propagated into the workflow; `gen:ipc-surface` predates the `--check` convention used by `sync-doc-counts.mjs`.
+
+**Proposed fix / improvement:**
+- [ ] Add `i18n:check-parity` and `sync:doc-counts -- --check` steps to `dnd-app-ci.yml`.
+- [ ] Add a `--check` flag to `scripts/build/gen-ipc-surface.mjs` (write to a temp/string, diff against committed `docs/IPC-SURFACE.md`, exit 1 on drift) and add `gen:ipc-surface -- --check` as a CI step.
+- [ ] Optionally fold all guards into `check:full` and have CI call that single script so the list cannot drift again.
+
+**Related files:** `/.github/workflows/dnd-app-ci.yml`, `dnd-app/package.json` (`check:full`, `gen:ipc-surface`, `sync:doc-counts`, `i18n:check-parity`), `dnd-app/scripts/build/gen-ipc-surface.mjs`, `dnd-app/scripts/build/sync-doc-counts.mjs`, `dnd-app/scripts/i18n/check-locale-parity.mjs`, `dnd-app/docs/IPC-SURFACE.md`
+
+---
+
+### [2026-06-25] Renderer god-components `GameLayout.tsx` and `PdfViewer.tsx` stay monolithic despite established sibling extraction dirs
+
+- **Category:** debt
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** scheduled cleanup/structure scan of dnd-app/ (largest-file sweep)
+
+**Description:**
+Two renderer components are by far the largest non-generated source files in the tree and remain single-file monoliths even though each already has a sibling directory proving the team's decomposition pattern:
+- `src/renderer/src/components/game/GameLayout.tsx` — 1,331 LOC / ~57 KB, sitting next to `components/game/game-layout/` (which already holds `MapSelector`, `GamePromptsLayer`, `InspectModalRenderer`, `ViewAsSelector`, `WeatherBanner`, `DrawingToolPicker`, `use-view-mode`, `types`). The bulk of layout logic still lives in the monolith; it imports a handful of pieces from `./game-layout` but most was never extracted.
+- `src/renderer/src/components/library/PdfViewer.tsx` — 1,378 LOC / ~52 KB, sitting next to `components/library/pdf-viewer/` (`pdf-helpers`, `toc-data`, `toc-utils`, `types`) — same shape: helpers carved out, the giant component body left behind.
+
+This is distinct from the existing `ai-service.ts` decompose entry (that's a main-process service). Large components like these slow review, hurt testability, and make merge conflicts likelier on the busiest UI files.
+
+**Hypothesis / root cause:** Incremental extraction stalled after the easy, leaf-level pieces (selectors, helpers, types) were pulled into the sibling dirs; the stateful core was never split because it carries most of the cross-cutting wiring.
+
+**Proposed fix / improvement:**
+- [ ] Continue extracting `GameLayout.tsx` into `game-layout/` — pull out cohesive sub-regions (e.g. overlay orchestration, sidebar/bottom wiring, modal-group mounting) as their own components/hooks behind the existing `index.ts` barrel.
+- [ ] Continue extracting `PdfViewer.tsx` into `pdf-viewer/` — separate render/canvas, TOC/navigation, and search/state into focused units; keep `PdfViewer.tsx` as a thin shell.
+- [ ] Add the per-file size to the bundle/size or a lint budget so the monoliths shrink rather than grow.
+
+**Related files:** `dnd-app/src/renderer/src/components/game/GameLayout.tsx`, `dnd-app/src/renderer/src/components/game/game-layout/`, `dnd-app/src/renderer/src/components/library/PdfViewer.tsx`, `dnd-app/src/renderer/src/components/library/pdf-viewer/`
+
+**Related entries:** [2026-06-23] `ai-service.ts` is a ~1,740-LOC god file; [2026-06-24] Two near-identical `MapSelector.tsx` components
+
+---
+
+### [2026-06-25] DO NOT "dedupe" the `shared/types/*` <-> `renderer/src/types/*` re-export shims — the duplicate basenames are an intentional process-boundary split
+
+- **Category:** design-gotcha
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** scheduled cleanup/structure scan of dnd-app/ (duplicate-basename sweep)
+
+**Why it is tempting:** A duplicate-basename scan flags pairs like `src/shared/types/character-5e.ts` <-> `src/renderer/src/types/character-5e.ts` (also `character-common.ts`, `companion.ts`, `library.ts`) and reads them as copy-paste duplication a cleanup pass should collapse into one file.
+
+**Why it is wrong:** This is a deliberate Phase-28d split, documented in the file headers. The canonical type tree lives in `src/shared/**` precisely because the Electron **main** process can only import from `src/shared/**` (not `renderer/`), so it must type its character pipeline off the real shape there. The `renderer/src/types/*` file is a thin **re-export shim** (`export type { ... } from '...shared/types/...'`) that also keeps renderer-only runtime helpers (e.g. `totalHitDiceRemaining` / `totalHitDiceMaximum`). Collapsing them would either break main-process imports (if you delete the shared copy) or break the hundreds of existing `from '.../types/character-5e'` renderer imports (if you delete the shim).
+
+**What to do instead:** Leave both files. Treat `src/shared/types/*` as canonical (type-only, no runtime) and `src/renderer/src/types/*` as the renderer-facing re-export + runtime-helper layer. Add new shared types in `shared/`, re-export from the renderer shim, and keep renderer-only helpers in the shim. (Recording here so future cleanup/scanner runs — including this one — do not re-propose the merge.)
+
+**Related files:** `dnd-app/src/shared/types/character-5e.ts`, `dnd-app/src/renderer/src/types/character-5e.ts`, `dnd-app/src/shared/types/character-common.ts`, `dnd-app/src/shared/types/companion.ts`, `dnd-app/src/shared/types/library.ts`
+
 ### [2026-06-24] Two near-identical `MapSelector.tsx` components (plus several duplicate component basenames) invite import confusion
 
 - **Category:** debt
