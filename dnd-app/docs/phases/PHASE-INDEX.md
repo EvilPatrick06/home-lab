@@ -64,6 +64,11 @@
 | 46 | PHASE-46-web-registry-announce.md | cross | — | pending |
 | 47 | PHASE-47-web-reactivity-correctness.md | dnd-app | — | pending |
 | 48 | PHASE-48-web-ux-round.md | dnd-app | — | pending |
+| 49 | PHASE-49-mp-cloud-dispatch-bus.md | dnd-app | — | pending |
+| 50 | PHASE-50-mp-character-sharing.md | dnd-app | 49 | pending |
+| 51 | PHASE-51-mp-cloud-state-sync.md | dnd-app | 49 | pending |
+| 52 | PHASE-52-mp-lobby-host-resilience.md | dnd-app | — | pending |
+| 53 | PHASE-53-local-host-turn-fallback.md | cross | — | pending |
 
 ## Scope allocation (what each phase absorbed from the 2026-06-10 audit)
 
@@ -120,3 +125,14 @@ Phases 44-48 were authored by phase-maker from the first WEB-build QA report (Du
 - **46** web public-registry announce null-deref ("Cannot read properties of null (reading 'ok')"): web shim `registry.*` returns bare `null` on failure → `host-announce.ts` `if(result.ok)` throws; make the shim honor the `{ok}` contract + guard the renderer; document that `/api/games` isn't in the public-unauth exemption so hardened anonymous web hosts can't announce (owner decision).
 - **47** web reactivity & data-correctness: Bastion (and all `saveEntity`-backed stores) don't re-render until reload (web `saveEntity` returns the entity, not `{success:true}`, so the store's `!result.success` guard bails before `set()`); saved AC 6 vs builder AC 16 (two divergent AC paths + starting armor likely unequipped); Weather roll table `[object Object]` (array branch stringifies an object entry instead of reading its display field; + a d20-range-weighting bug).
 - **48** web UX round: no unsaved-changes guard on builder exit (draft silently discarded; existing `draftPrompt` is the unrelated resume prompt), builder Spells tab ~30s freeze at level 10 (non-virtualized list), keybinding conflict on rebind (conflict+swap system EXISTS — verify/close the gap; + a duplicate `c` default), Create Bastion empty-state CTA when no characters exist.
+
+
+### Multiplayer QA addendum (2026-06-24, from QA-report-2026-06-24-multiplayer)
+
+Phases 49-53 were authored by phase-maker from the first MULTIPLAYER QA report (dnd-vtt v2.6.2, Cloud Relay + Local/Direct P2P) — the two-window MP matrix that prior single-player/web passes left untested. Findings cluster by subsystem (transport/dispatch, character-sharing, state-sync, roles, local-host NAT). The transport + shard layers themselves are sound (report SS-2); the breakage is client-app wiring. **Two drift corrections were folded in during authoring (verify-don't-rebuild, per the PHASE-17/48 precedent):** the report's `sync/*` paths are actually `network/sync/*`, and `dm:character-update` is ALREADY dispatcher-wired (Phase 23c dual-write), so symptom 6's player-apply is likely already fixed — confirm, don't rebuild.
+
+- **49** MP cloud dispatch-bus adapter (TR-1, **Critical**, keystone — unblocks the most symptoms): the cloud relay feeds only the store dispatcher, never the legacy P2P UI bridges (`useChatBridge`/`useCharacterSelectBridge`/etc. subscribe `onHostMessage`/`onClientMessage` = the P2P emitters), so `chat:message`/`chat:file` (symptom 3) and `player:character-select` characterData (symptom 5) die in any cloud game. Adapter re-feeds the bridge-only types over the relay (idempotent for the already-dispatcher-handled `dm:character-update`/`dm:chat-timeout`). PHASE-50/51 depend on this.
+- **50** MP character sharing & persistence (CH-1, CH-2): cloud DM clicking a player's PC gets "no character found" (`remoteCharacters` never populated — downstream of 49 + a missing host-side `setRemoteCharacter`); and editing a player's sheet leaks the PC into the DM's own library (`saveAndBroadcast` persists unconditionally — an ownership guard). CH-2a (player-apply) is verified already-fixed by the 23c dual-write.
+- **51** MP cloud state-sync roster/permission (SS-1, SS-2): cloud DM↔player canvas divergence (tokens/drawings differ) — the shard plane is relay-wired, but the per-recipient `permissionFilter` (`network/sync/broadcaster.ts:81-89`) denies state to a cloud joiner whose `clientId` isn't enrolled in the campaign roster. Enroll the relay peer; add a filtered-shard regression test. Records SS-2 (relay carries state, not just presence).
+- **52** MP cloud lobby host-state resilience (RL-1): cloud DM has no Start Game / DM chat controls (symptoms 1, 2) and promote/demote doesn't propagate (symptom 4) — the gates + setter are individually correct, so the failure is a runtime reset of `isHost` on a recoverable relay reconnect (`LobbyPage` `resetLobby()`). Needs a live two-window repro; fix = don't drop `isHost` on a recoverable blip while `role === 'host'`.
+- **53** Local-host TURN / relay fallback (TR-2, independent of the cloud cluster): local/direct host can't open a WebRTC data channel (symptom 9) — default self-host ICE is STUN-only with no TURN and no auto relay fallback. App-logic fix = auto-fallback to the cloud relay on data-channel timeout (lowest-dependency); infra fix = coturn on the Pi in the default ICE set.
