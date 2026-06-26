@@ -137,7 +137,7 @@ jobs:
 
       # Per-OS key — never share Win↔Linux electron-builder caches.
       - name: Cache Electron / electron-builder downloads
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/.cache/electron
