@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('./broadcast-helpers', () => ({ broadcastTokenSync: vi.fn() }))
+vi.mock('./broadcast-utils', () => ({ broadcastTokenSync: vi.fn() }))
 vi.mock('./name-resolver', () => ({
   resolveTokenByLabel: vi.fn((tokens: Array<{ label: string }>, label: string) =>
     tokens.find((t) => t.label.toLowerCase() === label.toLowerCase())

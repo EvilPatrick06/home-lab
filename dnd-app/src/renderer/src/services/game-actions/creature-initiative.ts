@@ -5,7 +5,7 @@
 
 import type { InitiativeEntry } from '../../types/game-state'
 import type { MapToken } from '../../types/map'
-import { broadcastInitiativeSync } from './broadcast-helpers'
+import { broadcastInitiativeSync } from './broadcast-utils'
 import { rollDiceFormula } from './dice-helpers'
 import { enrichInitiativeEntry } from './initiative-enrichment'
 import { resolveTokenByLabel } from './name-resolver'

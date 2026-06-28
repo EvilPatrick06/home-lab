@@ -4,7 +4,7 @@ vi.mock('../sound-manager', () => ({
   play: vi.fn()
 }))
 
-vi.mock('./broadcast-helpers', () => ({
+vi.mock('./broadcast-utils', () => ({
   broadcastInitiativeSync: vi.fn(),
   broadcastTokenSync: vi.fn(),
   broadcastConditionSync: vi.fn()
@@ -28,7 +28,7 @@ vi.mock('./name-resolver', () => ({
 }))
 
 import { play as playSound } from '../sound-manager'
-import { broadcastConditionSync } from './broadcast-helpers'
+import { broadcastConditionSync } from './broadcast-utils'
 import {
   executeAwardTreasure,
   executeAwardXp,

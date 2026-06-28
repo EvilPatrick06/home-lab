@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { broadcastConditionSync, broadcastInitiativeSync, broadcastTokenSync } from './broadcast-helpers'
+import { broadcastConditionSync, broadcastInitiativeSync, broadcastTokenSync } from './broadcast-utils'
 import type { StoreAccessors } from './types'
 
 function makeStores(overrides?: {

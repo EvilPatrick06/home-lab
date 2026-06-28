@@ -18,7 +18,7 @@ vi.mock('../../stores/use-campaign-store', () => ({
 }))
 vi.mock('../active-campaign-ref', () => ({ getActiveCampaignId: () => 'c1' }))
 vi.mock('../map/battlemap/apply-spec', () => ({ applyBattlemapSpec }))
-vi.mock('./broadcast-helpers', () => ({ postDmMessage }))
+vi.mock('./broadcast-utils', () => ({ postDmMessage }))
 
 import { executeGenerateBattlemap } from './battlemap-actions'
 

@@ -9,7 +9,7 @@ vi.mock('../plugin-system/event-bus', () => ({
 }))
 
 // Mock broadcast helpers
-vi.mock('./broadcast-helpers', () => ({
+vi.mock('./broadcast-utils', () => ({
   broadcastTokenSync: vi.fn(),
   broadcastConditionSync: vi.fn(),
   postDmMessage: vi.fn()

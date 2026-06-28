@@ -13,7 +13,7 @@
 import { useCampaignStore } from '../../stores/use-campaign-store'
 import type { DowntimeProgressEntry } from '../../types/campaign'
 import { addDowntimeProgress, advanceTrackedDowntime } from '../downtime-service'
-import { postDmMessage } from './broadcast-helpers'
+import { postDmMessage } from './broadcast-utils'
 import { resolveCharacterIdByName } from './name-resolver'
 import type { ActiveMap, DmAction, GameStoreSnapshot, StoreAccessors } from './types'
 

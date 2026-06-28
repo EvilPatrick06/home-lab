@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock broadcast helpers (postDmMessage captures the chat feedback)
-vi.mock('./broadcast-helpers', () => ({
+vi.mock('./broadcast-utils', () => ({
   broadcastTokenSync: vi.fn(),
   broadcastConditionSync: vi.fn(),
   postDmMessage: vi.fn()
@@ -90,7 +90,7 @@ describe('spell-effect-actions', () => {
         { id: 't1', label: 'Goblin 1' } as never,
         { id: 't2', label: 'Goblin 2' } as never
       ])
-      const { postDmMessage } = await import('./broadcast-helpers')
+      const { postDmMessage } = await import('./broadcast-utils')
       const { executeQueryAoe } = await import('./spell-effect-actions')
       const gs = makeGameStore()
       const map = makeActiveMap()
@@ -116,7 +116,7 @@ describe('spell-effect-actions', () => {
         { id: 't1', label: 'Wizard' } as never,
         { id: 't2', label: 'Goblin' } as never
       ])
-      const { postDmMessage } = await import('./broadcast-helpers')
+      const { postDmMessage } = await import('./broadcast-utils')
       const { executeQueryAoe } = await import('./spell-effect-actions')
       const action: DmAction = {
         action: 'query_aoe',
@@ -138,7 +138,7 @@ describe('spell-effect-actions', () => {
         { id: 't1', label: 'Wizard' } as never,
         { id: 't2', label: 'Goblin' } as never
       ])
-      const { postDmMessage } = await import('./broadcast-helpers')
+      const { postDmMessage } = await import('./broadcast-utils')
       const { executeQueryAoe } = await import('./spell-effect-actions')
       const action: DmAction = {
         action: 'query_aoe',
@@ -257,7 +257,7 @@ describe('spell-effect-actions', () => {
   describe('executeEndSpell', () => {
     it('removes a spell effect by name + caster and posts a clear end-spell message', async () => {
       const { executeEndSpell } = await import('./spell-effect-actions')
-      const { postDmMessage } = await import('./broadcast-helpers')
+      const { postDmMessage } = await import('./broadcast-utils')
       const gs = makeGameStore({
         activeSpellEffects: [{ id: 'sx', name: 'Entangle', caster: 'Druid', startedRound: 1 }]
       })

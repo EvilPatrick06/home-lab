@@ -43,7 +43,7 @@ vi.mock('../../types/character-common', async () => {
 })
 
 import type { Character5e } from '../../types/character-5e'
-import { commands } from './commands-player-utility'
+import { commands } from './commands-player-utils'
 import { getLatestCharacter } from './helpers'
 import type { CommandContext } from './types'
 
@@ -77,7 +77,7 @@ function makeCtx(overrides: Partial<CommandContext> = {}): CommandContext {
   }
 }
 
-describe('commands-player-utility', () => {
+describe('commands-player-utils', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(getLatestCharacter).mockReturnValue(makeChar())

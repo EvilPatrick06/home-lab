@@ -7,7 +7,7 @@
 import { pushDmAlert } from '../../components/game/overlays/DmAlertTray'
 import { i18n } from '../../i18n'
 import { play as playSound } from '../sound-manager'
-import { broadcastConditionSync, broadcastTokenSync } from './broadcast-helpers'
+import { broadcastConditionSync, broadcastTokenSync } from './broadcast-utils'
 import { resolveTokenByLabel } from './name-resolver'
 import type { ActiveMap, DmAction, GameStoreSnapshot, StoreAccessors } from './types'
 

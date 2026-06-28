@@ -7,7 +7,7 @@ import type { MonsterStatBlock } from '../../types/monster'
 import { getSizeTokenDimensions } from '../../types/monster'
 import { getTokenStats } from '../game/token-stats'
 import { pluginEventBus } from '../plugin-system/event-bus'
-import { broadcastTokenSync } from './broadcast-helpers'
+import { broadcastTokenSync } from './broadcast-utils'
 import { resolveTokenByLabel } from './name-resolver'
 import type { ActiveMap, DmAction, GameStoreSnapshot, StoreAccessors } from './types'
 

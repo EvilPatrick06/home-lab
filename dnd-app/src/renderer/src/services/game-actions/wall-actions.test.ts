@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('./broadcast-helpers', () => ({ broadcastTokenSync: vi.fn() }))
+vi.mock('./broadcast-utils', () => ({ broadcastTokenSync: vi.fn() }))
 vi.stubGlobal('crypto', { randomUUID: () => 'wall-uuid-1234' })
 
 import type { ActiveMap, DmAction, GameStoreSnapshot, StoreAccessors } from './types'

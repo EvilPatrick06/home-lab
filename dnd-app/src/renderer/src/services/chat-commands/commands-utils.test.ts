@@ -97,7 +97,7 @@ vi.stubGlobal(
   }
 )
 
-import { commands } from './commands-utility'
+import { commands } from './commands-utils'
 import type { CommandContext } from './types'
 
 function makeCtx(overrides: Partial<CommandContext> = {}): CommandContext {
@@ -114,7 +114,7 @@ function makeCtx(overrides: Partial<CommandContext> = {}): CommandContext {
   }
 }
 
-describe('commands-utility', () => {
+describe('commands-utils', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })

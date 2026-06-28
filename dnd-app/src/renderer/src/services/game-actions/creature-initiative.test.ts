@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock broadcast helpers
-vi.mock('./broadcast-helpers', () => ({
+vi.mock('./broadcast-utils', () => ({
   broadcastInitiativeSync: vi.fn()
 }))
 

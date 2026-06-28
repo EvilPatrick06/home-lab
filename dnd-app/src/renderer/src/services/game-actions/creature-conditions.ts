@@ -1,6 +1,6 @@
 import { getCreatureSaveMod } from '../game/token-stats'
 import { pluginEventBus } from '../plugin-system/event-bus'
-import { broadcastConditionSync, broadcastTokenSync, postDmMessage } from './broadcast-helpers'
+import { broadcastConditionSync, broadcastTokenSync, postDmMessage } from './broadcast-utils'
 import { findTokensInArea, rollDiceFormula } from './dice-helpers'
 import { resolveTokenByLabel } from './name-resolver'
 import type { ActiveMap, DmAction, GameStoreSnapshot, StoreAccessors } from './types'

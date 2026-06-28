@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('./broadcast-helpers', () => ({ postDmMessage: vi.fn() }))
+vi.mock('./broadcast-utils', () => ({ postDmMessage: vi.fn() }))
 vi.mock('../../types/character', () => ({ is5eCharacter: () => true }))
 
 // getEffectiveMagicItems is overridden per-test; default returns nothing.
