@@ -36,8 +36,8 @@ export default function SelectionModal(): JSX.Element | null {
       />
 
       {/* Split pane: list + detail */}
-      <div className="flex flex-1 min-h-0">
-        <div className="w-72 border-r border-border flex flex-col">
+      <div className="flex flex-col md:flex-row flex-1 min-h-0">
+        <div className="w-full md:w-72 border-b md:border-b-0 md:border-r border-border flex flex-col shrink-0 max-h-[45vh] md:max-h-none">
           <SelectionOptionList
             options={modal.filteredOptions}
             previewOptionId={modal.previewOptionId}
