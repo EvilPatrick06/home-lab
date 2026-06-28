@@ -10,8 +10,15 @@ import type { ExpoConfig } from 'expo/config'
  */
 const config: ExpoConfig = {
   name: 'Dungeon Table Online',
-  slug: 'dungeon-table-online',
+  slug: 'dungeontableonline',
+  owner: 'evilpatrick06s-team',
   version: '2.6.3',
+  updates: {
+    url: 'https://u.expo.dev/e9d0028b-391b-47c0-bc16-a1eb22a10541'
+  },
+  runtimeVersion: {
+    policy: 'appVersion'
+  },
   orientation: 'default',
   icon: './assets/icon.png',
   scheme: 'dndvtt',
@@ -38,7 +45,7 @@ const config: ExpoConfig = {
   },
   extra: {
     // EAS project id is injected by `eas init`.
-    eas: { projectId: null },
+    eas: { projectId: 'e9d0028b-391b-47c0-bc16-a1eb22a10541' },
     // false = offline embed.zip (default after build:embed); true = hosted URL only.
     embedRemote: false,
     privacyPolicyUrl: 'https://bmo.mybmoai.work/DungeonTableOnline/privacy.html'
