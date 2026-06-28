@@ -68,9 +68,12 @@ export default function SettingsScreen(_props: ScreenProps<'Settings'>): ReactEl
       </Pressable>
 
       <Text className="text-gray-600 text-xs text-center mt-6 leading-5">
-        Dungeon Table Online is a fan-made tool and is not affiliated with or endorsed by Wizards of the Coast. Game
-        rules content is used under the System Reference Document (CC-BY-4.0). Updates, local AI (Ollama), and LAN
-        discovery are desktop-only and hidden on mobile.
+        Dungeon Table Online is unofficial Fan Content and is not affiliated with, endorsed, or sponsored by
+        Wizards of the Coast. Dungeons &amp; Dragons and D&amp;D are trademarks of Wizards of the Coast LLC. This work
+        includes material from the System Reference Document 5.2 (SRD 5.2) by Wizards of the Coast LLC, licensed under
+        the Creative Commons Attribution 4.0 International License, available at
+        https://creativecommons.org/licenses/by/4.0/legalcode . Updates, local AI (Ollama), and LAN discovery are
+        desktop-only and hidden on mobile.
       </Text>
     </ScrollView>
   )
