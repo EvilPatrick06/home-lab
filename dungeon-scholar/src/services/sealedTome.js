@@ -7,6 +7,25 @@
 export const SEAL_VERSION = 1;
 export const PBKDF2_ITERATIONS = 600_000;
 
+// Accepted PBKDF2 iteration band for IMPORTED envelopes. A sealed tome is
+// shareable/importable (share codes / paste), so `kdf.iterations` is
+// attacker-controlled; an unbounded value (e.g. 1e12) would make deriveKey run
+// PBKDF2 effectively forever and freeze the main thread (DoS). An imported
+// envelope must declare an integer count within [MIN, MAX]; the legitimate
+// production value (PBKDF2_ITERATIONS = 600_000) sits inside it. The floor also
+// blocks a hostile envelope from downgrading KDF strength.
+export const MIN_PBKDF2_ITERATIONS = 100_000;
+export const MAX_PBKDF2_ITERATIONS = 2_000_000;
+
+/**
+ * Is `n` an accepted PBKDF2 iteration count (integer within the import band)?
+ * @param {unknown} n
+ * @returns {boolean}
+ */
+export function isValidIterations(n) {
+  return Number.isInteger(n) && n >= MIN_PBKDF2_ITERATIONS && n <= MAX_PBKDF2_ITERATIONS;
+}
+
 // Random-byte counts for the per-tome salt + AES-GCM IV.
 const SALT_BYTES = 16;
 const IV_BYTES = 12;
@@ -54,7 +73,8 @@ export function isSealedTome(data) {
     data.cipher &&
     typeof data.cipher.ciphertext === 'string' &&
     data.kdf &&
-    typeof data.kdf.salt === 'string'
+    typeof data.kdf.salt === 'string' &&
+    Number.isInteger(data.kdf.iterations)
   );
 }
 
@@ -139,10 +159,17 @@ export async function sealTome(tomeData, passphrase) {
  * @param {object} envelope - a sealed envelope (see isSealedTome).
  * @param {string} passphrase
  * @returns {Promise<object>} the original tome data.
- * @throws {Error} `not-sealed` | `wrong-passphrase`
+ * @throws {Error} `not-sealed` | `bad-iterations` | `wrong-passphrase`
  */
 export async function unsealTome(envelope, passphrase) {
   if (!isSealedTome(envelope)) throw new Error('not-sealed');
+
+  // The envelope is attacker-controlled (sealed tomes are importable/shareable),
+  // so its KDF iteration count is untrusted. Hard-reject anything outside the
+  // accepted band BEFORE deriveKey, so a hostile envelope can't dictate an
+  // unbounded PBKDF2 run that freezes the main thread (DoS) — defense-in-depth
+  // alongside the isSealedTome integer check.
+  if (!isValidIterations(envelope.kdf.iterations)) throw new Error('bad-iterations');
 
   const saltBytes = unb64(envelope.kdf.salt);
   const key = await deriveKey(passphrase, saltBytes, envelope.kdf.iterations);
