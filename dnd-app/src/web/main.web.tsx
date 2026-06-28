@@ -6,3 +6,4 @@
  */
 import './install-web-api'
 import '../renderer/src/main'
+import './register-sw'
