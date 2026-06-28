@@ -79,6 +79,12 @@ grep -rn "registry-client\|relay\|cloud" network/registry-client.ts | head   # o
 
 ## Completed
 
-_(none yet — execution log appended here per sub-phase per INSTRUCTIONS.md)_
+### Completed — 2026-06-28 (dnd-phase-executer)
+
+- **53A (app-side relay auto-fallback) — DONE & SHIPPED** in `abab8b89` / **v2.6.3**. `JoinGamePage` catches a P2P data-channel failure (`/data channel/i`) and auto-retries the join over the cloud relay before surfacing the error (`pages/JoinGamePage.tsx:269-286`). A NAT-blocked local-host join degrades to the relay instead of dead-ending. `forceRelay` stays `false` (gather direct+STUN+TURN, let ICE pick) — already correct.
+- **53B step 1 (verify the STUN listener) — DONE.** coturn runs on bmo (`bmo-coturn` container, realm `dndvtt`, port 3478 + relay 49152–49200). A live STUN Binding probe to `10.10.20.242:3478` returns `0x0101` (binding-success), so the default `stun:${customHost}:3478` advertisement (`network/peer-manager.ts:25`) is backed by a real listener.
+- **53B step 2 (TURN relay in the DEFAULT ICE set) — BLOCKED on a security decision (rule 9(b)); NOT auto-implemented.** coturn uses the **static long-term credential `dndvtt:dndvtt-relay`** (`--lt-cred-mech --user=dndvtt:dndvtt-relay --realm=dndvtt`) — the *exact* repo-visible credential Phase 20c deliberately REMOVED from the app (“repo-visible … a relay anyone could abuse”, `network/peer-manager.ts:17-22`). Re-bundling it into the default ICE set reverses that deliberate security removal and re-exposes an abusable relay. The safe alternative — reconfigure coturn to ephemeral REST creds (`use-auth-secret` + a time-limited HMAC minting endpoint on the Pi relay) and wire the app to fetch them — is a cross-cutting infra+app change needing a credential-model decision. Both are a security/infra trade-off the approval did not cover → flagged via `notify.sh warn`; logged in `docs/logs/SUGGESTIONS-LOG-DNDAPP.md`.
+
+53A (the user-facing symptom-9 fix) is resolved & released. Per rule 9(b) this plan stays at top-level (NOT moved to `completed/`) until the TURN-default credential-model decision lands; steps 1, 3, and 53A are complete.
 
 _Authored 2026-06-24 from QA-report-2026-06-24-multiplayer.md (TR-2)._

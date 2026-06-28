@@ -64,11 +64,11 @@
 | 46 | PHASE-46-web-registry-announce.md | cross | — | pending |
 | 47 | PHASE-47-web-reactivity-correctness.md | dnd-app | — | pending |
 | 48 | PHASE-48-web-ux-round.md | dnd-app | — | pending |
-| 49 | PHASE-49-mp-cloud-dispatch-bus.md | dnd-app | — | pending |
-| 50 | PHASE-50-mp-character-sharing.md | dnd-app | 49 | pending |
-| 51 | PHASE-51-mp-cloud-state-sync.md | dnd-app | 49 | pending |
-| 52 | PHASE-52-mp-lobby-host-resilience.md | dnd-app | — | pending |
-| 53 | PHASE-53-local-host-turn-fallback.md | cross | — | pending |
+| 49 | PHASE-49-mp-cloud-dispatch-bus.md | dnd-app | — | shipped v2.6.3 |
+| 50 | PHASE-50-mp-character-sharing.md | dnd-app | 49 | shipped v2.6.3 |
+| 51 | PHASE-51-mp-cloud-state-sync.md | dnd-app | 49 | shipped v2.6.3 |
+| 52 | PHASE-52-mp-lobby-host-resilience.md | dnd-app | — | shipped v2.6.3 |
+| 53 | PHASE-53-local-host-turn-fallback.md | cross | — | 53A shipped v2.6.3; 53B blocked (rule 9b — TURN-cred decision) |
 
 ## Scope allocation (what each phase absorbed from the 2026-06-10 audit)
 
