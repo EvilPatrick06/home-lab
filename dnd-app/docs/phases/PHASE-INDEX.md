@@ -68,7 +68,7 @@
 | 50 | PHASE-50-mp-character-sharing.md | dnd-app | 49 | shipped v2.6.3 |
 | 51 | PHASE-51-mp-cloud-state-sync.md | dnd-app | 49 | shipped v2.6.3 |
 | 52 | PHASE-52-mp-lobby-host-resilience.md | dnd-app | — | shipped v2.6.3 |
-| 53 | PHASE-53-local-host-turn-fallback.md | cross | — | 53A shipped v2.6.3; 53B blocked (rule 9b — TURN-cred decision) |
+| 53 | PHASE-53-local-host-turn-fallback.md | cross | — | 53A shipped v2.6.3; 53B implemented (ephemeral TURN) — pending merge+release |
 
 ## Scope allocation (what each phase absorbed from the 2026-06-10 audit)
 

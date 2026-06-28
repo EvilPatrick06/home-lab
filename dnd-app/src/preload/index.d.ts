@@ -1177,6 +1177,12 @@ type RegistryPushEvent =
   | { type: 'removed'; inviteCode: string }
   | { type: 'error'; error: string }
 
+interface TurnAPI {
+  getCredentials(
+    baseOverride?: string
+  ): Promise<{ username: string; credential: string; ttl: number; urls: string[]; realm?: string } | null>
+}
+
 interface RegistryAPI {
   announce: (payload: Record<string, unknown>, baseOverride?: string) => Promise<{ ok: boolean; error?: string }>
   update: (
@@ -1236,6 +1242,7 @@ declare global {
         registry: RegistryAPI
         library: LibraryAPI
         sounds: SoundsAPI
+        turn: TurnAPI
         getVersion: () => Promise<string>
         log: {
           openFolder: () => Promise<{ ok: boolean; path: string }>

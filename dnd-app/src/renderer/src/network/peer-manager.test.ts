@@ -1,13 +1,13 @@
 import { existsSync, readFileSync } from 'fs'
 import { resolve } from 'path'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // PeerJS touches browser/WebRTC globals at construction; stub it so the module
 // (and its pure ICE-config helpers) import cleanly in the node test env.
 vi.mock('peerjs', () => ({ default: class MockPeer {} }))
 
 import { CLOUD_ICE_SERVERS } from '../constants'
-import { configureForP2P, getIceConfig, resetToDefaults } from './peer-manager'
+import { configureForP2P, ensureEphemeralTurn, getIceConfig, resetToDefaults, setIceConfig } from './peer-manager'
 
 describe('peer-manager (source surface)', () => {
   const srcPath = resolve(__dirname, './peer-manager.ts')
@@ -80,5 +80,48 @@ describe('peer-manager ICE config — LAN self-host drops unresolvable public ST
   it('no Pi configured falls back to the public cloud STUN set', () => {
     configureForP2P(null)
     expect(getIceConfig()).toEqual(CLOUD_ICE_SERVERS)
+  })
+})
+
+describe('peer-manager ICE config — ephemeral TURN (PHASE-53B)', () => {
+  beforeEach(() => resetToDefaults())
+  afterEach(() => {
+    delete (globalThis as { window?: unknown }).window
+  })
+
+  it('layers an ephemeral TURN relay onto a self-host ICE set', async () => {
+    ;(globalThis as { window?: unknown }).window = {
+      api: { turn: { getCredentials: async () => ({ username: 'u123', credential: 'c456', ttl: 3600, urls: [] }) } }
+    }
+    configureForP2P('http://10.0.0.5:5000')
+    await ensureEphemeralTurn()
+    const ice = getIceConfig()
+    const turn = ice.find((s) => (Array.isArray(s.urls) ? s.urls : [s.urls]).some((u) => u.startsWith('turn:')))
+    expect(turn).toBeDefined()
+    expect(turn?.username).toBe('u123')
+    expect(turn?.credential).toBe('c456')
+    expect(Array.isArray(turn?.urls) ? turn?.urls : [turn?.urls]).toContain('turn:10.0.0.5:3478')
+    // STUN entry is preserved alongside TURN
+    expect(allUrls(ice).some((u) => u.startsWith('stun:10.0.0.5'))).toBe(true)
+  })
+
+  it('does not layer TURN when the user supplied a custom ICE config', async () => {
+    ;(globalThis as { window?: unknown }).window = {
+      api: { turn: { getCredentials: async () => ({ username: 'u', credential: 'c', ttl: 3600, urls: [] }) } }
+    }
+    configureForP2P('http://10.0.0.5:5000')
+    setIceConfig([{ urls: 'turn:user-supplied:3478', username: 'mine', credential: 'pw' }])
+    await ensureEphemeralTurn()
+    expect(getIceConfig()).toEqual([{ urls: 'turn:user-supplied:3478', username: 'mine', credential: 'pw' }])
+  })
+
+  it('stays STUN-only when no mint is available', async () => {
+    ;(globalThis as { window?: unknown }).window = { api: {} }
+    const origFetch = (globalThis as { fetch?: unknown }).fetch
+    ;(globalThis as { fetch?: unknown }).fetch = undefined
+    configureForP2P('http://10.0.0.5:5000')
+    await ensureEphemeralTurn()
+    expect(allUrls(getIceConfig()).some((u) => u.startsWith('turn:'))).toBe(false)
+    ;(globalThis as { fetch?: unknown }).fetch = origFetch
   })
 })
