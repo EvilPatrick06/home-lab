@@ -3,10 +3,36 @@
 # deploy.sh — idempotent, lockable, health-gated, rollback-capable BMO deploy.
 #
 # Takes the Pi from "origin/master has new bmo code" → "services restarted and
-# healthy".  Fast-forwards the live checkout to a validated target SHA, runs a
-# syntax sweep + a hardware-free canary boot (42A: BMO_CANARY=1), selectively
-# restarts only the affected systemd units, and gates on /health.  On any post-
-# merge failure it hard-resets to the previous SHA and restarts the same units.
+# healthy".  Deploys from a DEDICATED, deploy-owned checkout that is fully
+# decoupled from the shared /home/patrick/home-lab dev/integrator tree: it
+# `git fetch`es origin and `git reset --hard`s that checkout to a validated
+# target SHA, runs a syntax sweep + a hardware-free canary boot (42A:
+# BMO_CANARY=1), selectively restarts only the affected systemd units, and gates
+# on /health.  On any post-reset failure it hard-resets to the previous SHA and
+# restarts the same units.
+#
+# WHY A SEPARATE CHECKOUT (deploy isolation)
+# ------------------------------------------
+# The bmo services run out of $REPO_ROOT/bmo/pi (systemd WorkingDirectory + venv
+# + EnvironmentFile).  Historically $REPO_ROOT WAS /home/patrick/home-lab — the
+# SAME tree humans edit, agents merge into, and the daily integrator merges on.
+# That shared mutable tree got transiently/persistently dirty (in-progress edits,
+# a half-finished integrator merge killed mid-flight, agent activity), and the
+# old dirty-tree gate then refused to deploy.  The permanent fix is to stop the
+# deploy reading the shared tree at all: $REPO_ROOT now points at a dedicated
+# deploy checkout (default /home/patrick/home-lab-deploy) that NOTHING edits by
+# hand, so `git reset --hard <target>` is always safe and the deploy can never be
+# blocked or polluted by dev edits, agent worktrees, or an interrupted merge in
+# the main checkout.  Runtime state (venv, .env, config/, and the untracked files
+# under data/ — DBs, logs, memory) lives in this checkout exactly as it did in the
+# old tree; `git reset --hard` only touches TRACKED files, so that state is
+# preserved across deploys.  See docs/BMO-DEPLOY.md for the one-time owner
+# migration (creating the checkout + repointing systemd).
+#
+# NOTE: this script file itself is invoked from the DEV tree copy
+# (/home/patrick/home-lab/bmo/pi/scripts/deploy.sh, per .github/workflows/
+# bmo-deploy.yml) so it is never reset out from under itself — it only ever
+# git-operates on the SEPARATE $REPO_ROOT deploy checkout, never on its own tree.
 #
 # Usage:
 #   deploy.sh [TARGET_SHA] [--dry-run] [--services-only] [--no-canary]
@@ -14,30 +40,37 @@
 #   TARGET_SHA        Optional 7-40 hex commit to deploy; must be an ancestor of
 #                     origin/master.  Defaults to origin/master.
 #   --dry-run         Echo every mutating command as "[dry-run] <cmd>" and make
-#                     NO side effects: no merge, no pip, no canary launch, no
+#                     NO side effects: no reset, no pip, no canary launch, no
 #                     systemctl, no curl.  Read-only git queries still execute.
-#   --services-only   Skip merge/deps/syntax/canary; restart affected units only
-#                     based on the diff between HEAD and the target.
-#   --no-canary       Skip the canary boot gate (still does merge + restart +
+#   --services-only   Skip reset/deps/syntax/canary; restart affected units only
+#                     based on the diff between the deployed SHA and the target.
+#   --no-canary       Skip the canary boot gate (still does reset + restart +
 #                     /health gate).
 #
 # Env overrides (defaults):
-#   BMO_DEPLOY_REPO_ROOT             /home/patrick/home-lab
+#   BMO_DEPLOY_REPO_ROOT             /home/patrick/home-lab-deploy
+#                                    The DEDICATED deploy checkout (NOT the dev
+#                                    tree).  The hermetic test harness overrides
+#                                    this to a throwaway clone.
 #   BMO_DEPLOY_CANARY_PORT           5002
 #   BMO_DEPLOY_CANARY_TIMEOUT        120   (seconds to wait for canary /health)
 #   BMO_DEPLOY_HEALTH_TIMEOUT        90    (seconds to wait for live /health)
 #   BMO_DEPLOY_ALLOW_NONSTANDARD_ROOT  unset; set to 1 to allow a non-standard
-#                                      repo root + skip the master-branch check
-#                                      (used by the hermetic test harness).
+#                                      repo root (used by the hermetic test
+#                                      harness, which clones to a temp dir).
 #
 # Every MUTATING command runs through run().  Under --dry-run, run() only echoes
 # "[dry-run] <cmd>" and returns 0, so dry-run is fully side-effect-free — this
-# guards the canary launch, pip install, systemctl restarts, and git mutations.
+# guards the reset, canary launch, pip install, systemctl restarts, and the
+# marker write.
 #
 set -euo pipefail
 
 # ── Config / env ──────────────────────────────────────────────────────────────
-REPO_ROOT="${BMO_DEPLOY_REPO_ROOT:-/home/patrick/home-lab}"
+# REPO_ROOT is the dedicated deploy checkout (see header).  Default is the
+# decoupled /home/patrick/home-lab-deploy; the old default (/home/patrick/
+# home-lab, the dev tree) is intentionally NOT used any more.
+REPO_ROOT="${BMO_DEPLOY_REPO_ROOT:-/home/patrick/home-lab-deploy}"
 CANARY_PORT="${BMO_DEPLOY_CANARY_PORT:-5002}"
 CANARY_TIMEOUT="${BMO_DEPLOY_CANARY_TIMEOUT:-120}"
 HEALTH_TIMEOUT="${BMO_DEPLOY_HEALTH_TIMEOUT:-90}"
@@ -117,7 +150,8 @@ poll_health() {
 }
 
 # rollback — restore the previous SHA + units, re-poll /health, then exit 1.
-# Uses the globals OLD_SHA / TARGET / RESTART_UNITS / REQS_CHANGED.
+# Uses the globals OLD_SHA / TARGET / RESTART_UNITS / REQS_CHANGED.  Resets the
+# SAME deploy checkout ($REPO_ROOT) — safe because nothing else writes it.
 rollback() {
   log "rolling back to ${OLD_SHA:0:8}"
   cleanup_canary
@@ -146,45 +180,21 @@ rollback() {
 exec 9>/tmp/bmo-deploy.lock
 flock -n 9 || { echo "[deploy] FAIL: another deploy is running"; exit 1; }
 
-# ── Gate 2: Root check (refuse to deploy a worktree) ────────────────────────--
+# ── Gate 2: Deploy checkout exists & is the expected root ───────────────────--
+# $REPO_ROOT must be the dedicated deploy checkout.  If it does not exist yet,
+# the one-time migration has not been run — fail loudly rather than silently
+# falling back to any other tree.
 RESOLVED_ROOT="$(git -C "$REPO_ROOT" rev-parse --show-toplevel 2>/dev/null)" \
-  || fail "not a git repository: $REPO_ROOT"
+  || fail "deploy checkout not found at '$REPO_ROOT' (run the one-time migration in docs/BMO-DEPLOY.md, or set BMO_DEPLOY_REPO_ROOT)"
 if [ "$ALLOW_NONSTANDARD_ROOT" != "1" ] && [ "$RESOLVED_ROOT" != "$REPO_ROOT" ]; then
-  fail "repo root mismatch (resolved '$RESOLVED_ROOT' != '$REPO_ROOT'); refusing to deploy a worktree"
+  fail "repo root mismatch (resolved '$RESOLVED_ROOT' != '$REPO_ROOT'); deploy checkout misconfigured"
 fi
 
-# ── Gate 3: Tree clean (NEVER stash/clobber — the Pi checkout is also a dev tree)
-if [ -n "$(git -C "$REPO_ROOT" status --porcelain)" ]; then
-  # The live target doubles as the shared dev tree, so concurrent automation can
-  # leave it *transiently* dirty (mid-commit log migration, half-staged edits).
-  # In production, re-poll for a short settle window before failing so a passing
-  # in-flight edit no longer turns the deploy red; a tree still dirty past the
-  # window is a hard fail (we never stash/clobber). The hermetic test harness
-  # (ALLOW_NONSTANDARD_ROOT=1) has no concurrent writers — fail immediately.
-  if [ "$ALLOW_NONSTANDARD_ROOT" = "1" ]; then
-    fail "working tree is dirty; commit/clean before deploying (never auto-stashed)"
-  fi
-  _settle_tries="${BMO_DEPLOY_DIRTY_RETRIES:-12}"
-  _settle_interval="${BMO_DEPLOY_DIRTY_INTERVAL:-5}"
-  _settle_i=0
-  while [ -n "$(git -C "$REPO_ROOT" status --porcelain)" ]; do
-    if [ "$_settle_i" -ge "$_settle_tries" ]; then
-      fail "working tree still dirty after $((_settle_tries * _settle_interval))s of settle polling; commit/clean before deploying (never auto-stashed)"
-    fi
-    _settle_i=$((_settle_i + 1))
-    log "working tree dirty (settle attempt $_settle_i/$_settle_tries) - transient dev-tree write? re-polling in ${_settle_interval}s"
-    sleep "$_settle_interval"
-  done
-  log "working tree settled clean after $_settle_i settle poll(s); continuing deploy"
-fi
-
-# ── Gate 4: Branch must be master ───────────────────────────────────────────--
-if [ "$ALLOW_NONSTANDARD_ROOT" != "1" ]; then
-  CUR_BRANCH="$(git -C "$REPO_ROOT" rev-parse --abbrev-ref HEAD)"
-  [ "$CUR_BRANCH" = "master" ] || fail "current branch is '$CUR_BRANCH', expected 'master'"
-fi
-
-# ── Gate 5: Resolve target ──────────────────────────────────────────────────--
+# ── Gate 3: Resolve & validate target ───────────────────────────────────────--
+# (The old "tree must be clean" gate is gone: this checkout is reset --hard to the
+# target below, and a POST-reset integrity check guarantees a clean tracked tree.
+# Because nothing hand-edits this checkout, a transiently dirty DEV tree can no
+# longer block or pollute the deploy.)
 run git -C "$REPO_ROOT" fetch origin master
 if [ -n "$TARGET_ARG" ]; then
   [[ "$TARGET_ARG" =~ ^[0-9a-f]{7,40}$ ]] || fail "invalid TARGET_SHA: '$TARGET_ARG'"
@@ -201,12 +211,20 @@ git -C "$REPO_ROOT" merge-base --is-ancestor "$TARGET" origin/master \
 
 OLD_SHA="$(git -C "$REPO_ROOT" rev-parse HEAD)"
 
+# Diagnose (don't block on) any unexpected TRACKED dirt in the deploy checkout.
+# Untracked runtime files (DBs, logs, .env, config) are EXPECTED and ignored. A
+# tracked diff here is anomalous (nothing should hand-edit this checkout) — log it
+# for visibility; the reset below discards it and the integrity check re-verifies.
+if [ -n "$(git -C "$REPO_ROOT" status --porcelain --untracked-files=no)" ]; then
+  log "WARNING: deploy checkout had unexpected tracked modifications — discarding via reset (nothing should edit $REPO_ROOT by hand):"
+  git -C "$REPO_ROOT" status --porcelain --untracked-files=no | sed 's/^/[deploy]   /'
+fi
+
 # The SHA the RUNNING services were last (re)started on, recorded by this script
 # after each successful restart. We base "already deployed" and the changed-file
 # diff on THIS — not the working-tree HEAD — so a tree that was advanced WITHOUT a
-# restart (e.g. a direct commit on the Pi checkout, or a prior deploy that updated
-# the tree but skipped the restart) still triggers the restart it needs. Falls
-# back to the tree HEAD when no marker exists yet (first run after this change).
+# restart still triggers the restart it needs. Falls back to the tree HEAD when no
+# marker exists yet (first run after this change).
 DEPLOYED_MARKER="$(dirname "$REPO_ROOT")/.bmo-deployed-sha"
 DEPLOYED_SHA="$(cat "$DEPLOYED_MARKER" 2>/dev/null || true)"
 if ! git -C "$REPO_ROOT" rev-parse --verify --quiet "${DEPLOYED_SHA}^{commit}" >/dev/null 2>&1; then
@@ -219,7 +237,7 @@ if [ "$TARGET" = "$OLD_SHA" ] && [ "$TARGET" = "$DEPLOYED_SHA" ] && [ "$SERVICES
   exit 0
 fi
 
-# ── Gate 6: Compute diff + fast-forward ─────────────────────────────────────--
+# ── Gate 4: Compute diff + reset to target ──────────────────────────────────--
 # Diff against the running SHA (see DEPLOYED_SHA above) so the correct units
 # restart even when the tree was already at TARGET but services were not.
 CHANGED="$(git -C "$REPO_ROOT" diff --name-only "$DEPLOYED_SHA" "$TARGET")"
@@ -227,16 +245,35 @@ REQS_CHANGED=0
 RESTART_UNITS=""
 
 if [ "$SERVICES_ONLY" -eq 0 ]; then
-  run git -C "$REPO_ROOT" merge --ff-only "$TARGET"
+  # Deploy = hard-reset the dedicated checkout to the validated target SHA.
+  # This REPLACES the old `git merge --ff-only`: the checkout is deploy-owned and
+  # never has local commits, so reset --hard is both safe and able to move in
+  # either direction (e.g. a deliberate roll-back to an earlier validated SHA).
+  # reset --hard only rewrites TRACKED files, leaving untracked runtime state
+  # (DBs, logs, .env, config) in place.
+  log "resetting deploy checkout ${OLD_SHA:0:8} → ${TARGET:0:8} (clean-checkout deploy; dev tree untouched)"
+  run git -C "$REPO_ROOT" reset --hard "$TARGET"
 
-  # ── Gate 7: Deps ──────────────────────────────────────────────────────────--
+  # ── Gate 4b: Clean-checkout integrity check (replaces the dirty-tree gate) ──
+  # After the reset the tracked tree MUST equal TARGET exactly. A mismatch means
+  # the checkout is corrupt/contended — never deploy a polluted tree; roll back.
+  if [ "$DRY_RUN" -eq 0 ]; then
+    _head_now="$(git -C "$REPO_ROOT" rev-parse HEAD)"
+    [ "$_head_now" = "$TARGET" ] \
+      || { log "integrity: HEAD ${_head_now:0:8} != target ${TARGET:0:8} after reset"; rollback; }
+    git -C "$REPO_ROOT" diff --quiet HEAD -- \
+      || { log "integrity: tracked files still differ from ${TARGET:0:8} after reset"; rollback; }
+    log "clean-checkout integrity OK (${TARGET:0:8})"
+  fi
+
+  # ── Gate 5: Deps ──────────────────────────────────────────────────────────--
   if echo "$CHANGED" | grep -qx "bmo/pi/requirements.txt"; then
     log "requirements.txt changed — installing deps"
     run "$VENV_PIP" install -r "$REPO_ROOT/bmo/pi/requirements.txt"
     REQS_CHANGED=1
   fi
 
-  # ── Gate 8: Syntax sweep ──────────────────────────────────────────────────--
+  # ── Gate 6: Syntax sweep ──────────────────────────────────────────────────--
   # Compile only OUR source — exclude the virtualenv (third-party site-packages
   # ship files like torch's py312_intrinsics.py that don't byte-compile on 3.11)
   # and bytecode caches. Without -x, a single un-compilable vendored file aborts
@@ -245,7 +282,7 @@ if [ "$SERVICES_ONLY" -eq 0 ]; then
   run "$VENV_PY" -m compileall -q -x '(/venv/|/__pycache__/|/node_modules/)' "$REPO_ROOT/bmo/pi" \
     || { log "compileall failed"; rollback; }
 
-  # ── Gate 9: Canary ────────────────────────────────────────────────────────--
+  # ── Gate 7: Canary ────────────────────────────────────────────────────────--
   if [ "$NO_CANARY" -eq 0 ]; then
     log "launching canary on port $CANARY_PORT"
     # The canary launch is a mutating action: gate it behind run() so --dry-run
@@ -272,7 +309,7 @@ if [ "$SERVICES_ONLY" -eq 0 ]; then
   fi
 fi
 
-# ── Gate 10: Selective restart ──────────────────────────────────────────────--
+# ── Gate 8: Selective restart ───────────────────────────────────────────────--
 restart_bots=0
 restart_fan=0
 restart_main=0
@@ -313,7 +350,7 @@ run sudo systemctl restart $RESTART_UNITS
 # against what is actually running (not just the tree HEAD).
 [ "$DRY_RUN" -eq 0 ] && printf '%s\n' "$TARGET" > "$DEPLOYED_MARKER"
 
-# ── Gate 11: Health gate ────────────────────────────────────────────────────--
+# ── Gate 9: Health gate ─────────────────────────────────────────────────────--
 if [ "$DRY_RUN" -eq 0 ]; then
   if [ "$restart_main" -eq 1 ]; then
     if ! poll_health "http://localhost:5000/health" "$HEALTH_TIMEOUT"; then
@@ -335,5 +372,5 @@ else
   done
 fi
 
-# ── Gate 12/13: Success ─────────────────────────────────────────────────────--
+# ── Gate 10: Success ────────────────────────────────────────────────────────--
 log "OK: ${OLD_SHA:0:8} → ${TARGET:0:8}; restarted: $RESTART_UNITS; canary+health green."

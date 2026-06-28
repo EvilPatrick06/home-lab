@@ -37,6 +37,8 @@ SETUP_BMO_SH = os.path.join(_BMOSEUP_DIR, "bmo", "setup-bmo.sh")
 DEPLOY_SH = os.path.join(_BMOSEUP_DIR, "bmo", "docker", "deploy.sh")
 # Phase 42B: health-gated Pi deploy script (distinct from docker/deploy.sh).
 PI_DEPLOY_SH = os.path.join(_SCRIPTS_DIR, "deploy.sh")
+# Deploy isolation: one-time owner migration to the dedicated deploy checkout.
+MIGRATE_DEPLOY_SH = os.path.join(_SCRIPTS_DIR, "migrate-bmo-deploy-checkout.sh")
 
 DIAGNOSE_CF_SH = os.path.join(_SCRIPTS_DIR, "diagnose-cloudflare.sh")
 SETUP_CF_SH = os.path.join(_SCRIPTS_DIR, "setup-cloudflare-tunnel.sh")
@@ -54,6 +56,7 @@ ALL_SH_FILES = [
     CLOUDFLARE_ACCESS_SH,
     APPLY_ACCESS_SH,
     PI_DEPLOY_SH,
+    MIGRATE_DEPLOY_SH,
 ] + ([DEPLOY_SH] if os.path.isfile(DEPLOY_SH) else [])
 
 # ── Helpers ───────────────────────────────────────────────────────────────────

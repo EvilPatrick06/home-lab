@@ -6,7 +6,7 @@
 # (`*/5 * * * * .../health-check.sh >> .../logs/health.log 2>&1`) and otherwise
 # grows unbounded. Application logging already self-rotates via
 # services/bmo_logging.py (RotatingFileHandler, 10M x 5) and is NOT covered here.
-/home/patrick/home-lab/bmo/pi/logs/health.log {
+/home/patrick/home-lab-deploy/bmo/pi/logs/health.log {
     weekly
     rotate 4
     compress
