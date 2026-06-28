@@ -2,7 +2,7 @@
   "name": "dnd-vtt-mobile",
   "version": "2.6.3",
   "private": true,
-  "description": "Dungeon Table Online \u2014 React Native (Expo) Android client. Embeds the in-game renderer (PixiJS map + Three.js dice) in a WebView and reuses the desktop/web TypeScript logic over a typed window.api bridge.",
+  "description": "Dungeon Table Online — React Native (Expo) Android client. Embeds the in-game renderer (PixiJS map + Three.js dice) in a WebView and reuses the desktop/web TypeScript logic over a typed window.api bridge.",
   "main": "index.ts",
   "scripts": {
     "prestart": "node scripts/ensure-embed.mjs",
@@ -46,7 +46,7 @@
     "@biomejs/biome": "^2.5.0",
     "@types/react": "~19.2.14",
     "babel-plugin-module-resolver": "^5.0.3",
-    "eas-cli": "^16.3.3",
+    "eas-cli": "^20.4.0",
     "typescript": "~6.0.3"
   }
 }
