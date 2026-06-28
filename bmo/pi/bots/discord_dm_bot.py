@@ -22,6 +22,7 @@ import json
 import os
 import random
 import threading
+import time
 import traceback
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -340,6 +341,36 @@ class NarrationJob:
     interrupt: bool = False
 
 
+# PHASE-22 reliability: persist recoverable DMSession state so a mid-session
+# restart (deploy / OOM / Pi reboot) does not wipe the live encounter.
+_DM_STATE_PATH = os.path.expanduser("~/home-lab/bmo/pi/data/dm_session_state.json")
+_DM_STATE_TTL = 3 * 3600  # ignore state older than this on restore
+
+
+def _load_persisted_session_state():
+    try:
+        if not os.path.exists(_DM_STATE_PATH):
+            return None
+        with open(_DM_STATE_PATH, encoding="utf-8") as f:
+            data = json.load(f)
+        saved = data.get("saved_at")
+        if saved:
+            age = (datetime.now(timezone.utc) - datetime.fromisoformat(saved)).total_seconds()
+            if age > _DM_STATE_TTL:
+                return None
+        return data
+    except (OSError, ValueError):
+        return None
+
+
+def _clear_persisted_session_state():
+    try:
+        if os.path.exists(_DM_STATE_PATH):
+            os.remove(_DM_STATE_PATH)
+    except OSError:
+        pass
+
+
 class DMSession:
     """Tracks the active DM session state."""
 
@@ -371,6 +402,61 @@ class DMSession:
         # chunks; `synth_task` is the in-flight synthesis task cancel() targets.
         self.narration_cancel: asyncio.Event = asyncio.Event()
         self.synth_task: Optional[asyncio.Task] = None
+        self._last_persist: float = 0.0
+
+    def to_dict(self) -> dict:
+        """Serializable snapshot (excludes live handles: voice_client, the
+        narration queue/cancel event, synth_task — those are rebuilt on resume)."""
+        return {
+            "saved_at": datetime.now(timezone.utc).isoformat(),
+            "active": self.active,
+            "voice_channel_id": self.voice_channel_id,
+            "text_channel_id": self.text_channel_id,
+            "start_time": self.start_time.isoformat() if self.start_time else None,
+            "players": sorted(self.players),
+            "messages": self.messages,
+            "initiative_order": self.initiative_order,
+            "initiative_round": self.initiative_round,
+            "initiative_collecting": self.initiative_collecting,
+            "combat_log": self.combat_log,
+            "last_narration_status": self.last_narration_status,
+        }
+
+    def persist(self, force: bool = False) -> None:
+        """Write recoverable state to disk (debounced ~2s). Best-effort."""
+        if not self.active and not force:
+            return
+        now = time.monotonic()
+        if not force and (now - self._last_persist) < 2.0:
+            return
+        self._last_persist = now
+        try:
+            os.makedirs(os.path.dirname(_DM_STATE_PATH), exist_ok=True)
+            tmp = _DM_STATE_PATH + ".tmp"
+            with open(tmp, "w", encoding="utf-8") as f:
+                json.dump(self.to_dict(), f, ensure_ascii=False)
+            os.replace(tmp, _DM_STATE_PATH)
+        except OSError as e:
+            _log("DM session persist failed: %s", e)
+
+    def restore_from(self, data: dict) -> None:
+        """Load persisted data into this (freshly constructed) session. Live
+        handles stay as built in __init__ and reconnect lazily."""
+        self.active = bool(data.get("active"))
+        self.voice_channel_id = data.get("voice_channel_id")
+        self.text_channel_id = data.get("text_channel_id")
+        st = data.get("start_time")
+        try:
+            self.start_time = datetime.fromisoformat(st) if st else None
+        except (TypeError, ValueError):
+            self.start_time = None
+        self.players = set(data.get("players") or [])
+        self.messages = list(data.get("messages") or [])
+        self.initiative_order = list(data.get("initiative_order") or [])
+        self.initiative_round = int(data.get("initiative_round") or 0)
+        self.initiative_collecting = bool(data.get("initiative_collecting"))
+        self.combat_log = list(data.get("combat_log") or [])
+        self.last_narration_status = data.get("last_narration_status")
 
     def reset(self) -> None:
         self.active = False
@@ -396,12 +482,14 @@ class DMSession:
         if self.synth_task and not self.synth_task.done():
             self.synth_task.cancel()
         self.synth_task = None
+        _clear_persisted_session_state()
 
     def add_message(self, role: str, content: str) -> None:
         """Append a message and compress context if needed."""
         self.messages.append({"role": role, "content": content})
         if len(self.messages) > CONTEXT_MAX_MESSAGES:
             self._compress_context()
+        self.persist()
 
     def _compress_context(self) -> None:
         """Summarize old messages to keep context manageable."""
@@ -774,6 +862,33 @@ class DMBot(commands.Bot):
         self._treasure_tables = _load_json("treasure-tables.json")
         self._random_tables = _load_json("random-tables.json")
         self._encounter_presets = _load_json("encounter-presets.json")
+
+        # Recover a session interrupted by a restart so the DM does not forget the
+        # in-progress encounter. Best-effort; never blocks startup.
+        try:
+            await self._restore_session_if_any()
+        except Exception as e:
+            _log("DM session restore failed: %s", e)
+
+    async def _restore_session_if_any(self) -> None:
+        data = _load_persisted_session_state()
+        if not data or not data.get("active"):
+            return
+        self.session.restore_from(data)
+        _log("Recovered DM session: %d msgs, round %d, %d in initiative",
+             len(self.session.messages), self.session.initiative_round, len(self.session.initiative_order))
+        ch_id = self.session.text_channel_id
+        if ch_id:
+            try:
+                channel = self.get_channel(ch_id) or await self.fetch_channel(ch_id)
+                if channel:
+                    await channel.send(
+                        "\U0001f504 Recovered the in-progress session after a restart \u2014 "
+                        f"round {self.session.initiative_round}, {len(self.session.players)} player(s). "
+                        "Voice reconnects when you rejoin; use `/dm status` to check."
+                    )
+            except Exception as e:
+                _log("DM session restore notice failed: %s", e)
 
     async def on_voice_state_update(
         self,
