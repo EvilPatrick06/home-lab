@@ -210,3 +210,37 @@ describe('getBmoAccessHeaders (Cloudflare Access service token)', () => {
     expect(mod.getBmoAccessHeaders()).toEqual({})
   })
 })
+
+
+describe('isBmoBaseSecretTrusted / getBmoSecretBaseUrl (LAN Pi-impersonation guard)', () => {
+  it('trusts the https tunnel default and routes credentialed calls to it', async () => {
+    const mod = await loadFresh()
+    expect(mod.isBmoBaseSecretTrusted()).toBe(true)
+    expect(mod.getBmoSecretBaseUrl()).toBe(mod.BMO_PI_URL_DEFAULT)
+  })
+
+  it('does NOT trust an auto-discovered http LAN host with secrets', async () => {
+    const mod = await loadFresh()
+    mod.setDiscoveredBmoUrl('http://discovered.local:5000')
+    // public/base URL still uses the discovered LAN host...
+    expect(mod.getBmoBaseUrl()).toBe('http://discovered.local:5000')
+    // ...but credentialed ops are NOT trusted to it and fall back to https.
+    expect(mod.isBmoBaseSecretTrusted()).toBe(false)
+    expect(mod.getBmoSecretBaseUrl()).toBe(mod.BMO_PI_URL_DEFAULT)
+  })
+
+  it('falls back to an explicit https env URL for credentialed ops over a discovered http host', async () => {
+    process.env.BMO_PI_URL = 'https://env.example.test'
+    const mod = await loadFresh()
+    mod.setDiscoveredBmoUrl('http://discovered.local:5000')
+    expect(mod.isBmoBaseSecretTrusted()).toBe(false)
+    expect(mod.getBmoSecretBaseUrl()).toBe('https://env.example.test')
+  })
+
+  it('trusts a user-typed URL even when it is http (explicit user intent)', async () => {
+    const mod = await loadFresh()
+    mod.applyBmoBaseUrlFromSettings({ bmoPiBaseUrl: 'http://my-pi.lan:5000' })
+    expect(mod.isBmoBaseSecretTrusted()).toBe(true)
+    expect(mod.getBmoSecretBaseUrl()).toBe('http://my-pi.lan:5000')
+  })
+})

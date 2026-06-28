@@ -22,7 +22,7 @@ import { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 import { app } from 'electron'
 import { create as tarCreate, extract as tarExtract } from 'tar'
-import { getBmoAccessHeaders, getBmoApiKey, getBmoBaseUrl } from './bmo-config'
+import { getBmoAccessHeaders, getBmoApiKey, getBmoSecretBaseUrl } from './bmo-config'
 
 // Defense-in-depth (SECURITY-LOG 2026-06-22): send the BMO_API_KEY bearer on the
 // sensitive /api/rclone/* routes IN ADDITION to the CF Access service-token
@@ -91,7 +91,7 @@ export async function checkRemoteStatus(): Promise<RcloneStatus> {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), STATUS_TIMEOUT_MS)
   try {
-    const res = await fetch(`${getBmoBaseUrl()}/api/rclone/status`, {
+    const res = await fetch(`${getBmoSecretBaseUrl()}/api/rclone/status`, {
       method: 'GET',
       signal: controller.signal,
       headers: rcloneHeaders({ 'Content-Type': 'application/json' })
@@ -172,7 +172,7 @@ export async function syncCampaignToDrive(campaignId: string, campaignName: stri
       // A Blob from the buffer — fetch sets the multipart boundary itself, so we
       // deliberately do NOT set Content-Type here.
       form.append('archive', new Blob([buf], { type: 'application/gzip' }), 'campaign.tar.gz')
-      const res = await fetch(`${getBmoBaseUrl()}/api/rclone/backup`, {
+      const res = await fetch(`${getBmoSecretBaseUrl()}/api/rclone/backup`, {
         method: 'POST',
         signal: controller.signal,
         headers: rcloneHeaders(),
@@ -221,7 +221,7 @@ export async function restoreCampaignFromDrive(campaignId: string): Promise<Clou
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), TRANSFER_TIMEOUT_MS)
     try {
-      const res = await fetch(`${getBmoBaseUrl()}/api/rclone/restore?campaignId=${encodeURIComponent(campaignId)}`, {
+      const res = await fetch(`${getBmoSecretBaseUrl()}/api/rclone/restore?campaignId=${encodeURIComponent(campaignId)}`, {
         method: 'GET',
         signal: controller.signal,
         headers: rcloneHeaders()
@@ -269,7 +269,7 @@ async function fetchRemoteList(): Promise<Array<{ id: string; size: number; modi
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), LIST_TIMEOUT_MS)
   try {
-    const res = await fetch(`${getBmoBaseUrl()}/api/rclone/list`, {
+    const res = await fetch(`${getBmoSecretBaseUrl()}/api/rclone/list`, {
       method: 'GET',
       signal: controller.signal,
       headers: rcloneHeaders()

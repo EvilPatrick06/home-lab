@@ -37,7 +37,10 @@
     "src/main/ai/context-builder.ts",
     "src/web/main.web.tsx"
   ],
-  "ignore": ["src/renderer/public/pdf.worker.min.mjs", "**/*.d.ts"],
+  "ignore": [
+    "src/renderer/public/pdf.worker.min.mjs",
+    "**/*.d.ts"
+  ],
   "ignoreDependencies": [
     "dpdm",
     "jscpd",
@@ -46,5 +49,11 @@
     "npm-check-updates",
     "oxlint",
     "type-coverage"
+  ],
+  "ignoreBinaries": [
+    "which",
+    "nvidia-smi",
+    "taskkill",
+    "pkill"
   ]
 }

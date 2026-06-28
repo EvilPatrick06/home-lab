@@ -30,7 +30,7 @@ import { dirname, isAbsolute, join, normalize, sep } from 'node:path'
 import { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 import { app } from 'electron'
-import { getBmoAccessHeaders, getBmoBaseUrl } from './bmo-config'
+import { getBmoAccessHeaders, getBmoBaseUrl, isBmoBaseSecretTrusted } from './bmo-config'
 import { logToFile } from './log'
 
 interface SoundsManifest {
@@ -59,7 +59,9 @@ const PREWARM_CONCURRENCY = 4
 const deps: SoundCacheDeps = {
   fetchFn: (input, init) => fetch(input, init),
   getBaseUrl: getBmoBaseUrl,
-  getHeaders: getBmoAccessHeaders,
+  // Only attach the Cloudflare-Access service token when the base is the https
+  // tunnel (secret-trusted); never leak it to an auto-discovered http LAN host.
+  getHeaders: () => (isBmoBaseSecretTrusted() ? getBmoAccessHeaders() : {}),
   cacheDir: () => join(app.getPath('userData'), 'sound-cache')
 }
 

@@ -297,9 +297,11 @@ async function probeDefaultBmoLocal(): Promise<void> {
     }
   }
 
-  // 3) Last-ditch LAN sweep. Walk the local /24 looking for an HTTP
-  //    server at :5000/health that smells like BMO. Only the gateway
-  //    + a handful of common Pi-default-ish IPs to keep this fast.
+  // 3) Last-ditch LAN sweep. Walk a handful of likely IPs in the local /24
+  //    for an HTTP server whose /health returns the BMO contract
+  //    (`{status:"ok"}`, enforced by probeUrl). Only the gateway + a few
+  //    common Pi-default-ish IPs, to keep this fast. Adoption here is for
+  //    reachability only and never grants secret-trust (isBmoBaseSecretTrusted).
   const lanCandidates = buildLanCandidates()
   for (const ipCandidate of lanCandidates) {
     const url = `http://${ipCandidate}:5000`
@@ -331,7 +333,21 @@ async function probeUrl(url: string): Promise<boolean> {
     const t = setTimeout(() => controller.abort(), 1_500)
     const resp = await fetch(`${url}/health`, { signal: controller.signal })
     clearTimeout(t)
-    return resp.ok
+    if (!resp.ok) return false
+    // Identity check (NOT just liveness): a real BMO Pi answers /health with
+    // JSON `{ status: "ok", ... }` (bmo/pi/routes/system_api.py). Requiring the
+    // BMO contract — not merely any 200 — stops the mDNS/LAN-sweep adoption path
+    // from latching onto an unrelated host that happens to return 200 on
+    // /health. This is the "smells like BMO" check the old comment claimed but
+    // never implemented. NOTE: passing this probe does NOT grant secret-trust —
+    // credentialed requests gate separately via isBmoBaseSecretTrusted() so an
+    // http LAN host is never sent the BMO_API_KEY / CF-Access token / backups.
+    try {
+      const body = (await resp.json()) as { status?: unknown }
+      return body?.status === "ok"
+    } catch {
+      return false
+    }
   } catch {
     return false
   }
