@@ -28,6 +28,23 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## High
 
+### [2026-06-28] dnd-app CI red on `auto/play-store-prep` — biome `useTemplate` on protocol.ts (stale branch, 24 behind master)
+
+- **Reported by:** ci-failure-triage (automated)
+- **Category:** ci / lint
+- **Severity:** high (branch CI persistently red; blocks play-store-prep merge)
+- **Failing runs:** 28333588596 (latest 2026-06-28T19:34Z) — also prior 28331757659 / 28331635552 / 28331551197 / 28331393711
+- **Branch / commit:** `auto/play-store-prep` @ 5380b527 (1 ahead / 24 BEHIND origin/master)
+
+**Root cause:**
+Job `check` step `Lint (biome)` (`npm run lint` -> `biome check src/`) fails with two `lint/style/useTemplate` errors in `dnd-app/src/shared/bridge/protocol.ts`:
+- `protocol.ts:61` — `out += B64_CHARS[(n >> 18) & 63] + B64_CHARS[(n >> 12) & 63] + ==` (string concatenation; biome wants a template literal)
+- `protocol.ts:64` — `out += B64_CHARS[(n >> 18) & 63] + B64_CHARS[(n >> 12) & 63] + B64_CHARS[(n >> 6) & 63] + =`
+Both are FIXABLE. The branch is 24 commits behind origin/master and the equivalent fixes already landed on master (master dnd-app CI is green), so this is a stale-branch lint, not a new regression.
+
+**Fix needed:**
+Merge `origin/master` into `auto/play-store-prep` (brings in the existing fix and the other 24 commits), OR apply the two-line biome `useTemplate` fix on `protocol.ts:61,64` (wrap the concatenations in template literals, e.g. `` `${B64_CHARS[(n>>18)&63] + B64_CHARS[(n>>12)&63]}==` ``) and re-run `npm run lint`. Owner: play-store-prep agent / dnd-app domain.
+
 *(none currently logged)*
 
 ## Medium
