@@ -12,7 +12,7 @@
 import { execFileSync } from 'node:child_process'
 
 const BASELINE = [
-  ['src/main/ai/ai-service.ts', 'src/main/ai/campaign-context.ts', 'src/main/storage/campaign-storage.ts'],
+  ['src/main/ai/ai-service.ts', 'src/main/ai/context/campaign-context.ts', 'src/main/storage/campaign-storage.ts'],
   [
     'src/renderer/src/stores/use-ai-dm-store.ts',
     'src/renderer/src/services/game-action-executor.ts',

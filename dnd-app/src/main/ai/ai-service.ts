@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { app, BrowserWindow } from 'electron'
 import { DEFAULT_AI_MODEL } from '../../shared/ai-defaults'
-import { SCENE_PREP_PROMPT, WEB_SEARCH_APPROVAL_TIMEOUT_MS } from '../../shared/constants'
+import { SCENE_PREP_PROMPT } from '../../shared/constants'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import { BmoNarrationStatusSchema } from '../../shared/ipc-schemas'
 import { cancelNarration, isBargeInEnabled, isNarrationEnabled, sendNarration } from '../bmo-bridge'
@@ -24,6 +24,13 @@ import { loadCampaignById } from './context/campaign-context'
 import { extractSafetyInput, scanForLineHits } from './prompt-sections/safety-constraints'
 import { buildSessionStartRecapPrompt, recapInputsEmpty, type SessionStartRecapInputs } from './context/recap-context'
 import { buildScenePrepMessage } from './scene-prep-message'
+import {
+  clearPendingWebSearchApproval,
+  sendWebSearchStatus,
+  waitForWebSearchApproval
+} from './ai-web-search-approval'
+
+export { approveWebSearch } from './ai-web-search-approval'
 
 // PHASE-20 20F: broadcast a narrate-failure status to every renderer window so
 // the DM tab can surface it (the renderer dedups). Validated before send.
@@ -47,12 +54,6 @@ function broadcastNarrationStatus(res: {
 
 // PHASE-08 08D — these were the only live consumers of the now-deleted dead stream-handler
 // module, which carried a duplicate of the stream-completion pipeline. Defined locally.
-interface PendingWebSearchApproval {
-  resolve: (approved: boolean) => void
-  timeout: ReturnType<typeof setTimeout>
-  onAbort: () => void
-  signal: AbortSignal
-}
 interface StreamHandlerDeps {
   activeStreams: Map<string, AbortController>
   model: string
@@ -248,7 +249,6 @@ const staleStreamSweep = setInterval(() => {
   }
 }, 60_000)
 
-const pendingWebSearchApprovals = new Map<string, PendingWebSearchApproval>()
 const WEB_SEARCH_DENIED_MESSAGE =
   '[WEB SEARCH DENIED]\nThe requested web search was not approved. Continue responding using existing campaign and rulebook context only.\n[/WEB SEARCH DENIED]'
 
@@ -789,61 +789,6 @@ export interface StreamResult {
     dmActions: DmActionData[]
     ruleCitations: RuleCitation[]
   }>
-}
-
-function clearPendingWebSearchApproval(streamId: string, approved = false): boolean {
-  const pending = pendingWebSearchApprovals.get(streamId)
-  if (!pending) return false
-
-  pendingWebSearchApprovals.delete(streamId)
-  clearTimeout(pending.timeout)
-  pending.signal.removeEventListener('abort', pending.onAbort)
-  pending.resolve(approved)
-  return true
-}
-
-function waitForWebSearchApproval(streamId: string, abortSignal: AbortSignal): Promise<boolean> {
-  // Defensive cleanup if a stale pending request exists for this stream.
-  clearPendingWebSearchApproval(streamId, false)
-
-  return new Promise((resolve) => {
-    const onAbort = () => {
-      clearPendingWebSearchApproval(streamId, false)
-    }
-    const timeout = setTimeout(() => {
-      clearPendingWebSearchApproval(streamId, false)
-    }, WEB_SEARCH_APPROVAL_TIMEOUT_MS)
-
-    pendingWebSearchApprovals.set(streamId, {
-      resolve,
-      timeout,
-      onAbort,
-      signal: abortSignal
-    })
-    abortSignal.addEventListener('abort', onAbort, { once: true })
-  })
-}
-
-export function approveWebSearch(streamId: string, approved: boolean): { success: boolean; error?: string } {
-  const found = clearPendingWebSearchApproval(streamId, approved)
-  if (!found) {
-    return { success: false, error: 'No pending web search request for this stream.' }
-  }
-  return { success: true }
-}
-
-function sendWebSearchStatus(
-  streamId: string,
-  query: string,
-  status: 'pending_approval' | 'searching' | 'rejected'
-): void {
-  const win = BrowserWindow.getAllWindows()[0]
-  if (!win) return
-  win.webContents.send(IPC_CHANNELS.AI_STREAM_WEB_SEARCH, {
-    streamId,
-    query,
-    status
-  })
 }
 
 /** Informational stream status — purely advisory, never clears the renderer's
