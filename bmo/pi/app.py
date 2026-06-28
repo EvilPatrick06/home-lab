@@ -354,6 +354,8 @@ def _cf_access_authenticated() -> bool:
     except Exception:
         return False
     if CF_ACCESS_ALLOWED_EMAILS and (claims.get("email") or "").lower() not in CF_ACCESS_ALLOWED_EMAILS:
+        log.warning("[bmo] CF Access: rejected verified but non-allowlisted email on gated surface: %s",
+                    _s(claims.get("email") or "<none>"))
         return False
     return True
 
