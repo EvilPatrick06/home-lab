@@ -71,6 +71,7 @@
 | 53 | PHASE-53-local-host-turn-fallback.md | cross | — | 53A shipped v2.6.3; 53B implemented (ephemeral TURN) — pending merge+release |
 | 54 | PHASE-54-mp-cloud-peer-enrollment.md | cross | 49 | implemented auto/dnd-phase-executer — pending merge+release |
 | 55 | PHASE-55-web-asset-base-path.md | dnd-app | — | implemented auto/dnd-phase-executer — pending merge+release |
+| 56 | PHASE-56-web-i18n-branding-storage.md | dnd-app | — | implemented auto/dnd-phase-executer — pending merge+release |
 
 ## Scope allocation (what each phase absorbed from the 2026-06-10 audit)
 

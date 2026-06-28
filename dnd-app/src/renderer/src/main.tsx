@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, MemoryRouter } from 'react-router'
+import './utils/bootstrap-storage'
 import './stores/register-stores'
 import App from './App'
 import ErrorBoundary from './components/ui/ErrorBoundary'

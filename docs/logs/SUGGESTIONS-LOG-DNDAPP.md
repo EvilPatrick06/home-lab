@@ -177,3 +177,38 @@ The i18n stack (`src/renderer/src/i18n/`) ships two locales, `en` and `es`, both
 **Related files:** `dnd-app/src/renderer/src/i18n/index.ts` (`setLocale`), `dnd-app/src/renderer/src/i18n/config.ts` (`SUPPORTED_LOCALES`/`LOCALE_LABELS`), `dnd-app/src/renderer/src/i18n/locales/`, `dnd-app/src/renderer/src/main.tsx` (init path)
 
 ---
+
+### [2026-06-28] Remaining un-prefixed VTT localStorage keys — broaden the Phase-56D namespacing sweep
+
+- **Category:** tech-debt, portability
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-phase-executer
+- **During:** PHASE-56 (56D storage namespacing)
+
+**Description:**
+PHASE-56D namespaced the QA-flagged keys (`library-recent`, `lobby-chat-*`, `lobby-dice-colors`) under `dnd-vtt-` with a tested one-time migration (`utils/storage-migrations.ts`). Scope was bounded to the flagged set because other un-prefixed keys are scattered across hardcoded call sites (not all routed through `SETTINGS_KEYS`), and one shares a name with a library content-type id (`encounter-presets`), so a blanket rename needs per-key care. **Root cause (file:line):** un-prefixed entries remain in `constants/settings-keys.ts` (`LIBRARY_FAVORITES`, `DICE_TRAY_POSITION`, `NARRATION_TTS`, `ENCOUNTER_PRESETS`, `NOTIFICATION_CONFIG`, `AUTOSAVE_CONFIG`, `dynamicKeys.macroStorage/builderDraft/autosave*`) plus hardcoded duplicates: `EncounterBuilderModal.tsx:352,357`, `services/io/builder-auto-save.ts:8`, and `DiceTray.tsx:7` uses a different prefixed key than `SETTINGS_KEYS.DICE_TRAY_POSITION` (existing inconsistency).
+
+**Proposed fix / improvement:**
+- [ ] Namespace the remaining static + macro/builder dynamic keys via the same `migrateLegacyStorageKeys` helper (extend STATIC_RENAMES / PREFIX_RENAMES + tests).
+- [ ] Reconcile the `DiceTray.tsx` vs `SETTINGS_KEYS.DICE_TRAY_POSITION` mismatch.
+- [ ] Decide the `autosave:*` colon-namespace policy.
+
+**Related files:** `dnd-app/src/renderer/src/constants/settings-keys.ts`, `utils/storage-migrations.ts`, `EncounterBuilderModal.tsx`, `services/io/builder-auto-save.ts`, `components/game/dice3d/DiceTray.tsx`
+
+---
+
+### [2026-06-28] PHASE-56E Spanish menu / character-card i18n walk needs the deployed web build to verify
+
+- **Category:** future-idea, i18n
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-phase-executer
+- **During:** PHASE-56 (56E, verification-gated)
+
+**Description:**
+Sub-phase 56E is verification-gated: re-walk the menu + character cards in Espanol and fix carried i18n leaks IF they reproduce. It could not be exercised — the automated executor has no running/deployed web build, and the plan forbids guesswork. No code change for 56E. The next WEB-QA pass should drive the Espanol main-menu hero + character-card walk on `https://bmo.mybmoai.work/DungeonTableOnline/` and fix only if leaks reproduce.
+
+**Related files:** `dnd-app/src/renderer/src/i18n/locales/{en,es}.json`, main-menu hero + character-card components (TBD)
+
+---

@@ -12,18 +12,19 @@ export const SETTINGS_KEYS = {
   SIDEBAR_WIDTH: 'dnd-vtt-sidebar-width',
   NOTIFICATION_CONFIG: 'notification-config',
   AUTOSAVE_CONFIG: 'autosave:config',
-  LIBRARY_RECENT: 'library-recent',
+  LIBRARY_RECENT: 'dnd-vtt-library-recent',
   LIBRARY_FAVORITES: 'library-favorites',
   DICE_TRAY_POSITION: 'dice-tray-position',
   NARRATION_TTS: 'narration-tts-enabled',
   ENCOUNTER_PRESETS: 'encounter-presets',
   AUDIO: 'dnd-vtt-audio',
-  SCENE_MODE_PREFS: 'dnd-vtt-scene-mode-prefs'
+  SCENE_MODE_PREFS: 'dnd-vtt-scene-mode-prefs',
+  LOBBY_DICE_COLORS: 'dnd-vtt-lobby-dice-colors'
 } as const
 
 // Dynamic keys (campaign/character-specific)
 export const dynamicKeys = {
-  lobbyChat: (campaignId: string) => `lobby-chat-${campaignId}`,
+  lobbyChat: (campaignId: string) => `dnd-vtt-lobby-chat-${campaignId}`,
   autosaveVersions: (campaignId: string) => `autosave:${campaignId}:versions`,
   autosaveVersion: (campaignId: string, versionId: string) => `autosave:${campaignId}:${versionId}`,
   macroStorage: (characterId: string) => `macro-storage-${characterId}`,
