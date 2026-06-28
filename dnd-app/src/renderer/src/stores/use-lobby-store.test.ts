@@ -229,4 +229,43 @@ describe('useLobbyStore', () => {
       expect(useLobbyStore.getState().redactLastAiChatMessage('[gone]')).toBe(false)
     })
   })
+
+  describe('reconnect readiness resilience (Phase 54C / MP-EN-3)', () => {
+    const mkPlayer = (over: Partial<LobbyPlayer> = {}): LobbyPlayer => ({
+      peerId: 'cloud-old',
+      clientId: 'stable-1',
+      role: 'player',
+      displayName: 'Alice',
+      characterId: null,
+      characterName: null,
+      isReady: false,
+      isHost: false,
+      ...over
+    })
+
+    it('an already-ready peer reconnecting under a new peerId stays ready (Start gate holds)', () => {
+      const store = useLobbyStore.getState()
+      store.addPlayer(mkPlayer({ isReady: true, colorConfirmed: true, color: '#f00' }))
+      expect(useLobbyStore.getState().allPlayersReady()).toBe(true)
+      // Reconnect: new ephemeral peerId, SAME clientId; payload re-mints not-ready.
+      store.addPlayer(mkPlayer({ peerId: 'cloud-new', isReady: false, colorConfirmed: false }))
+      const players = useLobbyStore.getState().players
+      expect(players).toHaveLength(1) // reconciled by clientId, not duplicated
+      expect(players[0].peerId).toBe('cloud-new')
+      expect(players[0].isReady).toBe(true) // readiness preserved across the blip
+      expect(players[0].colorConfirmed).toBe(true)
+      expect(useLobbyStore.getState().allPlayersReady()).toBe(true)
+    })
+
+    it('a deliberate leave then rejoin starts the peer not-ready', () => {
+      const store = useLobbyStore.getState()
+      store.addPlayer(mkPlayer({ isReady: true, colorConfirmed: true }))
+      store.removePlayer('cloud-old')
+      expect(useLobbyStore.getState().players).toHaveLength(0)
+      store.addPlayer(mkPlayer({ peerId: 'cloud-new', isReady: false }))
+      const players = useLobbyStore.getState().players
+      expect(players).toHaveLength(1)
+      expect(players[0].isReady).toBe(false) // a true rejoin is not ready
+    })
+  })
 })

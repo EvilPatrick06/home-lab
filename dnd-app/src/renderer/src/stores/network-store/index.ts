@@ -781,11 +781,21 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
 
   addPeer: (peer: PeerInfo) => {
     set((state) => {
-      // Avoid duplicates
-      const exists = state.peers.some((p) => p.peerId === peer.peerId)
+      // MP-EN-1 — reconcile on the STABLE clientId, not the ephemeral peerId.
+      // A reconnecting cloud peer arrives under a fresh `cloud-<uuid>` peerId
+      // but carries its persisted dndapp clientId, so keying dedupe on peerId
+      // left the roster accumulating a stale duplicate (or losing the peer when
+      // the old peer-left raced the new peer-joined). Match on clientId when
+      // both sides have one (cloud), falling back to peerId for P2P/legacy
+      // peers without a clientId. One live entry per clientId keeps the
+      // per-recipient permission filter + chat re-broadcast resolving to the
+      // live connection.
+      const sameMember = (p: PeerInfo): boolean =>
+        peer.clientId && p.clientId ? p.clientId === peer.clientId : p.peerId === peer.peerId
+      const exists = state.peers.some(sameMember)
       if (exists) {
         return {
-          peers: state.peers.map((p) => (p.peerId === peer.peerId ? peer : p))
+          peers: state.peers.map((p) => (sameMember(p) ? peer : p))
         }
       }
       return { peers: [...state.peers, peer] }

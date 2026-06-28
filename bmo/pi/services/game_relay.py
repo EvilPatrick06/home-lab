@@ -84,12 +84,44 @@ class GameRelay:
             if room is None:
                 room = Room()
                 self._rooms[code] = room
+            # -- Stable client-id reconciliation (MP-EN-1) --
+            # A genuine reconnect arrives on a NEW sid (and usually a fresh
+            # ephemeral cloud-<uuid> peer_id). Without reconciliation it mints a
+            # brand-new room member, leaving the host roster with a stale
+            # duplicate (or losing the peer entirely if the old peer-left lands
+            # before the new peer-joined). Reconcile by the stable dndapp
+            # client-id: when the joining client_id already holds a DIFFERENT
+            # sid in this room, supersede that entry in place -- carry its
+            # joined_seq / is_co_dm / role / host slot forward onto the new sid
+            # and drop the stale one (its now-dead socket's later disconnect
+            # no-ops, since we already removed it from _sid_room).
+            superseded_peer_id: str | None = None
+            cid = ref.get("client_id") or ""
+            if cid:
+                stale_sid = self._sid_for_client(room, cid, exclude_sid=sid)
+                if stale_sid is not None:
+                    stale = room.peers.pop(stale_sid, None) or {}
+                    self._sid_room.pop(stale_sid, None)
+                    if "joined_seq" in stale:
+                        ref["joined_seq"] = stale["joined_seq"]
+                    if stale.get("is_co_dm"):
+                        ref["is_co_dm"] = True
+                    if stale.get("role") == "host":
+                        ref["role"] = "host"
+                    if room.host_sid == stale_sid:
+                        room.host_sid = sid
+                    old_pid = str(stale.get("peer_id") or "")
+                    if old_pid and old_pid != ref.get("peer_id"):
+                        superseded_peer_id = old_pid
             existing = [dict(p) for s, p in room.peers.items() if s != sid]
             # Preserve a peer's original join order across a same-sid re-join so a
             # reconnecting co-DM keeps its seniority; only mint a fresh seq for a
-            # genuinely new sid.
+            # genuinely new sid. Client-id reconciliation above may already have
+            # carried a seq forward.
             prior = room.peers.get(sid)
-            if prior is not None and "joined_seq" in prior:
+            if "joined_seq" in ref:
+                pass  # seq carried forward by client-id reconciliation
+            elif prior is not None and "joined_seq" in prior:
                 ref["joined_seq"] = prior["joined_seq"]
             else:
                 self._join_seq += 1
@@ -110,6 +142,11 @@ class GameRelay:
                 # The joiner's normalized ref, so the glue can announce it to
                 # the rest of the room without re-deriving the shape.
                 "joiner": dict(ref),
+                # The peer_id this join superseded via client-id reconciliation
+                # (a reconnect under a new peer_id), or None. The glue emits a
+                # paired peer-left for it so even clients without client-id
+                # dedupe drop the stale roster entry.
+                "superseded_peer_id": superseded_peer_id,
             }
 
     def leave(self, sid: str) -> dict[str, Any] | None:
@@ -301,6 +338,20 @@ class GameRelay:
     def _sid_for_peer(room: Room, peer_id: str) -> str | None:
         for sid, ref in room.peers.items():
             if ref.get("peer_id") == peer_id:
+                return sid
+        return None
+
+    @staticmethod
+    def _sid_for_client(
+        room: Room, client_id: str, *, exclude_sid: str | None = None
+    ) -> str | None:
+        """The sid in `room` whose ref carries `client_id` (the stable dndapp
+        client-id), skipping `exclude_sid`. Used by `join` to reconcile a
+        reconnecting client to its existing room entry."""
+        for sid, ref in room.peers.items():
+            if sid == exclude_sid:
+                continue
+            if ref.get("client_id") == client_id:
                 return sid
         return None
 
