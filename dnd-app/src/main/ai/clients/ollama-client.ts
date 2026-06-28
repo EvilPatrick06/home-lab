@@ -1,7 +1,7 @@
-import { type LLMProvider, OLLAMA_INACTIVITY_TIMEOUT_MS, OLLAMA_PREFILL_TIMEOUT_MS } from './llm-provider'
-import { OLLAMA_BASE_URL } from '../ollama-constants'
 import { OLLAMA_KEEP_ALIVE, resolveNumCtx } from '../context/ollama-context'
+import { OLLAMA_BASE_URL } from '../ollama-constants'
 import type { ChatMessage, StreamCallbacks } from '../types'
+import { type LLMProvider, OLLAMA_INACTIVITY_TIMEOUT_MS, OLLAMA_PREFILL_TIMEOUT_MS } from './llm-provider'
 
 let ollamaBaseUrl = OLLAMA_BASE_URL
 

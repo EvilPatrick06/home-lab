@@ -443,7 +443,11 @@ export const DOMAINS: SyncDomain[] = [
           return url ? fetchBytes(url) : null
         })
         if (!bytes) continue
-        out.push({ id, entity: { id, name: meta.name ?? id, extension, bytes }, changeKey: `${meta.savedAt ?? ''}:${extension}` })
+        out.push({
+          id,
+          entity: { id, name: meta.name ?? id, extension, bytes },
+          changeKey: `${meta.savedAt ?? ''}:${extension}`
+        })
       }
       return out
     },

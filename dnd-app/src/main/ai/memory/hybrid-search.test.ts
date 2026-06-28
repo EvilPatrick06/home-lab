@@ -9,8 +9,8 @@ vi.mock('./embedding-index', () => ({ getActiveVectorStore, searchVectors }))
 vi.mock('../clients/embedding-client', () => ({ embedQuery }))
 vi.mock('../../log', () => ({ logToFile: vi.fn() }))
 
-import { HYBRID_TOP_K, searchRules } from './hybrid-search'
 import type { ScoredChunk } from '../types'
+import { HYBRID_TOP_K, searchRules } from './hybrid-search'
 
 function mkChunk(id: string): ScoredChunk {
   return { id, source: 'PHB', headingPath: [], heading: id, content: id, tokenEstimate: 1, keywords: [], score: 0 }

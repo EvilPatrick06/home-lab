@@ -1,5 +1,5 @@
-import { extractKeywords, tokenize } from './keyword-extractor'
 import type { Chunk, ChunkIndex, ScoredChunk } from '../types'
+import { extractKeywords, tokenize } from './keyword-extractor'
 
 interface TermFrequency {
   [term: string]: number

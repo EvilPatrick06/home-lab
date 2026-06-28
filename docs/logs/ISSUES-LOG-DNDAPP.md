@@ -32,17 +32,4 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Medium
 
-### [2026-06-23] Cloud-sync residual: book config/PDFs not synced; binary re-hashed each reconcile
-
-> **2026-06-28 (dnd-resolver) — approved, not done this run.** Syncing book config + custom PDFs and a manifest-diff to skip unchanged re-hashing is feature-sized work on the sync engine (new domain serialization + change-keys); left for a focused run rather than shipping it unverified onto the shared branch.
-
-> _dnd-resolver 2026-06-24: approved but deferred this run - the manifest-diff + book-file sync is feature-sized work left for a focused effort (see SUGGESTIONS-LOG note)._
-
-- **Category:** debt
-- **Severity:** low
-- **During:** user-accounts / cloud-sync feature
-
-**Description:**
-The sync engine now covers ALL user-data domains (`src/renderer/src/services/sync/domains.ts`): characters, campaigns, bastions, custom-creatures, homebrew, shop-templates, map-library, **settings** (device-local/secret stripped; theme+accessibility applied on pull), **game-state**, **ai-conversations**, **bans**, **book-data**, and the binary **image-library** + **audio** (packed container, byte-cached). Two residual gaps: (1) book CONFIG + custom PDF files aren't synced — only per-book bookmarks/annotations are, so custom-book notes re-attach only if the same PDF is re-imported with the same id (core books are fine). (2) Each reconcile re-serializes + re-hashes every entity; binary bytes are cached (no re-read) but still re-hashed every cycle — a manifest-diff that skips unchanged entities via a cheap metadata change-key would cut reconcile cost for large libraries.
-
 ## Low

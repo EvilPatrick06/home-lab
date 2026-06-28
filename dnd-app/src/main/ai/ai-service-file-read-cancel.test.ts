@@ -108,7 +108,9 @@ vi.mock('./web-search', async () => {
 })
 
 vi.mock('../storage/ai-conversation-storage', () => ({ saveConversation: vi.fn(async () => {}) }))
-vi.mock('./memory/memory-manager', () => ({ getMemoryManager: vi.fn(() => ({ appendSessionLog: vi.fn(async () => {}) })) }))
+vi.mock('./memory/memory-manager', () => ({
+  getMemoryManager: vi.fn(() => ({ appendSessionLog: vi.fn(async () => {}) }))
+}))
 
 import { approveWebSearch, cancelChat, getActiveStreamCount, startChat } from './ai-service'
 

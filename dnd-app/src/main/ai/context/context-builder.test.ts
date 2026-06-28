@@ -56,8 +56,8 @@ vi.mock('../memory/memory-manager', () => ({
   }))
 }))
 
-import { loadCampaignById } from './campaign-context'
 import { searchCampaignDocs } from '../campaign-docs'
+import { loadCampaignById } from './campaign-context'
 import { loadCharacterById } from './character-context'
 import {
   buildContext,

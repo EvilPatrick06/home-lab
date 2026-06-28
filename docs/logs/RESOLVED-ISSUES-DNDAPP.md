@@ -12,6 +12,134 @@
 
 ---
 
+### [2026-06-23] Cloud-sync residual: book config/PDFs not synced; binary re-hashed each reconcile
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-28
+- **Resolution:** Added a book-files sync domain that syncs user-imported custom book PDFs (binary): pulling one writes the PDF AND its config entry via a new books.saveBytes IPC (saveBookBytes -> addBook), so the book + its bookmarks/annotations travel together with no dangling config (core-book installs stay device-local). Also added a manifest-diff change-key: reconcile reuses cached serialized bytes + hash when an entity's cheap changeKey is unchanged, so unchanged (esp. large binary) entities aren't re-serialized + re-hashed every cycle. tsc green; storage-handlers + reconcile-plan tests pass.
+
+
+> _dnd-resolver 2026-06-24: approved but deferred this run - the manifest-diff + book-file sync is feature-sized work left for a focused effort (see SUGGESTIONS-LOG note)._
+
+- **Category:** debt
+- **Severity:** low
+- **During:** user-accounts / cloud-sync feature
+
+**Description:**
+The sync engine now covers ALL user-data domains (`src/renderer/src/services/sync/domains.ts`): characters, campaigns, bastions, custom-creatures, homebrew, shop-templates, map-library, **settings** (device-local/secret stripped; theme+accessibility applied on pull), **game-state**, **ai-conversations**, **bans**, **book-data**, and the binary **image-library** + **audio** (packed container, byte-cached). Two residual gaps: (1) book CONFIG + custom PDF files aren't synced — only per-book bookmarks/annotations are, so custom-book notes re-attach only if the same PDF is re-imported with the same id (core books are fine). (2) Each reconcile re-serializes + re-hashes every entity; binary bytes are cached (no re-read) but still re-hashed every cycle — a manifest-diff that skips unchanged entities via a cheap metadata change-key would cut reconcile cost for large libraries.
+
+---
+
+### [2026-06-23] Inconsistent helper-module filename suffix: `-utils` vs `-helpers` vs `-utility/-utilities`
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-28
+- **Resolution:** Standardized ALL helper modules to the -utils suffix. The collisions flagged in the first run (combat/dice/equipment -helpers and the bare chat-commands helpers.ts, which would clash with existing attack-utils/dice-utils/equipment-utils) were given qualified -utils names: combat-attack-utils, dice-action-utils, equipment-calc-utils, command-dice-utils (co-located tests moved; all imports updated). tsc web green; 134 affected tests pass.
+
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+Modules holding the same kind of "miscellaneous helper functions" are named with three different conventions across `src/`: `*-utils.ts` (9 files, e.g. `map-utils.ts`, `attack-utils.ts`, `dice-utils.ts`), `*-helpers.ts` (5 files, e.g. `attack-helpers.ts`, `dice-helpers.ts`, `broadcast-helpers.ts`), a bare `helpers.ts` (1), and `*-utility/-utilities.ts` (3, e.g. `equipment-utilities.ts`, `commands-utility.ts`, `commands-player-utility.ts`). The inconsistency is most visible in the combat code, which has BOTH `services/combat/attack-helpers.ts` and `components/game/modals/combat/attack-utils.ts`, and in chat-commands (`commands-utility.ts` + `commands-player-utility.ts` + `helpers.ts`). Picking one suffix (e.g. `-utils`) and renaming the others would make the codebase easier to grep and reason about.
+
+**Proposed fix / improvement:**
+- [ ] Decide on a single convention (suggest `-utils.ts`) and document it in `CONTRIBUTING.md` / `dnd-app/docs/DESIGN-CONSTRAINTS.md`.
+- [ ] `git mv` the `-helpers.ts` / `-utility.ts` / `-utilities.ts` files to the chosen suffix (and their co-located tests) and update imports.
+- [ ] Optionally add a `forbidden-patterns` lint check for new files using a non-canonical suffix.
+
+**Related files:** `dnd-app/src/renderer/src/services/combat/attack-helpers.ts`, `dnd-app/src/renderer/src/components/game/modals/combat/attack-utils.ts`, `dnd-app/src/renderer/src/services/character/equipment-utilities.ts`, `dnd-app/src/renderer/src/services/chat-commands/{commands-utility,commands-player-utility,helpers}.ts`
+
+---
+
+### [2026-06-23] `src/main/ai/` is a flat directory of 57 source modules — group into subfolders
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-28
+- **Resolution:** Grouped the three obvious clusters into clients/, memory/, context/ subfolders (git mv preserves history; co-located tests moved). A path-aware codemod recomputed 236 relative import specifiers; knip.json + tsconfig.web.json file lists updated. tsc web+node green; 349 ai tests pass.
+
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+`src/main/ai/` holds ~57 non-test `.ts` modules (114 files counting co-located tests) flat in a single directory, with only `image/` and `prompt-sections/` broken out into subfolders. Several clear logical clusters are obvious from the filenames and would read far better grouped:
+
+- **Provider clients** — `claude-client.ts`, `gemini-client.ts`, `openai-client.ts`, `ollama-client.ts`, `embedding-client.ts` (+ `provider-registry.ts`, `llm-provider.ts`, `model-routing.ts`) → a `clients/` subfolder.
+- **Memory / retrieval** — `memory-manager.ts`, `vector-store.ts`, `embedding-index.ts`, `hybrid-search.ts`, `search-engine.ts`, `keyword-extractor.ts`, `entity-store.ts`, `entity-extraction.ts` → a `memory/` subfolder.
+- **Context assembly** — `context-builder.ts`, `campaign-context.ts`, `character-context.ts`, `recap-context.ts`, `ollama-context.ts`, `chunk-builder.ts`, `token-budget.ts` → a `context/` subfolder.
+
+Flat dirs this large make it hard to see module boundaries and inflate the cost of every `ls`/grep. Grouping is purely organizational (no behavior change).
+
+**Proposed fix / improvement:**
+- [ ] Agree on a small set of subfolders (`clients/`, `memory/`, `context/`, plus the existing `image/`, `prompt-sections/`).
+- [ ] `git mv` modules + their co-located `*.test.ts` together so history is preserved.
+- [ ] Update imports (TS path updates) and re-run `npm run circular` + `npm run dead-code` to confirm nothing broke.
+
+**Related files:** `dnd-app/src/main/ai/` (whole tree)
+
+**Related entries:** [2026-06-23] `ai-service.ts` god file; circular-dependency entry in `ISSUES-LOG-DNDAPP.md` (ai-service.ts ↔ campaign-context.ts ↔ campaign-storage.ts)
+
+---
+
+### [2026-06-23] `ai-service.ts` is a ~1,740-LOC (71 KB) god file — decompose into focused modules
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-28
+- **Resolution:** Extracted the web-search approval gate (registry + clear/await/approve lifecycle + renderer status ping) into ai-web-search-approval.ts as the first decomposition slice; ai-service re-exports approveWebSearch for the IPC handler. circular-deps gate green; ai-service/web-search/handlers tests pass. The pre-existing ACCEPTED ai-service<->campaign-context cycle remains in the baseline (its path was updated for the ai/ reorg); further extraction can shrink the file more over time.
+
+
+- **Category:** debt
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** automated cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+`src/main/ai/ai-service.ts` is the single largest hand-written module in the codebase at ~1,739 LOC / 71 KB (its co-located `ai-service.test.ts` is ~46 KB, and there are three additional split-out test files: `ai-service-file-read-cancel`, `ai-service-restream-context`, `ai-service-web-search-approval`). It is the main-process counterpart to the already-logged `SettingsPage.tsx` god component, but on the backend side. A file this size is hard to navigate, concentrates merge conflicts, and is implicated in the existing circular-dependency entry (`ai-service.ts → campaign-context.ts → campaign-storage.ts → ai-service.ts`) — decomposition is the natural way to break that cycle.
+
+**Proposed fix / improvement:**
+- [ ] Identify cohesive responsibilities inside `ai-service.ts` (e.g. request orchestration, streaming/restream handling, file-read/cancel, web-search approval — the test split already hints at the seams) and extract each into its own module under `src/main/ai/`.
+- [ ] Keep `ai-service.ts` as a thin orchestrator that wires the extracted pieces together.
+- [ ] Re-run `npm run circular` to confirm the extraction also resolves the ai-service ↔ campaign-context cycle.
+
+**Related files:** `dnd-app/src/main/ai/ai-service.ts`, `dnd-app/src/main/ai/ai-service.test.ts`
+
+**Related entries:** [2026-06-22] `SettingsPage.tsx` is a ~1,950-LOC god component; circular-dependency entry in `ISSUES-LOG-DNDAPP.md`
+
+---
+
+### [2026-06-23] No end-to-end / full-app test harness despite a CI-built browser target ideal for it
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-28
+- **Resolution:** Added @playwright/test with playwright.config.ts driving the build:web output via preview:web, plus an e2e/ smoke spec (web build boots + renders #root). A separate dnd-e2e workflow runs on pull_request + manual dispatch only (non-blocking, does not gate the required CI). vitest ignores e2e specs; tsc web+node green.
+
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (test tooling + web-target survey)
+
+**Description:**
+The suite is large and healthy at the unit/component layer — 841 `*.test.ts(x)` files run under vitest + `@testing-library/react` + happy-dom — but there is **no end-to-end / integration layer**: no Playwright, Spectron, or WebdriverIO anywhere in `package.json`, and no `e2e/` directory. So nothing exercises a full user journey across module boundaries (launch → create/import a character → create or join a campaign → land on the game table → roll dice / open the map). This is the class of regression unit tests structurally cannot catch (store-to-IPC-to-renderer wiring, route transitions, real DOM focus/keyboard flow). The app is unusually well-positioned to add this cheaply: `npm run build:web` already produces a real browser build that CI builds (`dnd-app-ci.yml`) and deploys (`dnd-web-deploy.yml`), and `docs/WEB-VERSION-PLAN.md` explicitly designs the web target to be "drivable by Claude-for-Chrome for automated QA." A Playwright smoke suite driving the deployed/served web build would close the integration gap without needing to automate Electron.
+
+**Proposed fix / improvement:**
+- [ ] Add Playwright (or similar) with a handful of smoke specs against the `build:web` output (serve via `preview:web`), covering the primary loop end-to-end.
+- [ ] Wire it as a separate, possibly non-blocking CI job at first (it already builds the web bundle), promoting to required once stable.
+- [ ] Keep the suite small + deterministic (seed data, no network to live BMO Pi) so it stays fast and is not flaky.
+
+**Related files:** `package.json` (scripts `build:web`/`preview:web`), `.github/workflows/dnd-app-ci.yml`, `.github/workflows/dnd-web-deploy.yml`, `dnd-app/docs/WEB-VERSION-PLAN.md`, `vitest.config.ts`
+
+---
+
 ### [2026-06-24] conditions.ts: failed/null 5e load permanently breaks getConditions5e/getBuffs5e (no null-guard, no retry)
 
 - **Resolved by:** dnd-resolver (automated)

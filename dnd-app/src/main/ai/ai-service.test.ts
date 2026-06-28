@@ -325,11 +325,11 @@ import {
   wasContextTruncated,
   xCardRewind
 } from './ai-service'
+import { fetchOllamaModels, getOllamaUrl, listOllamaModels, setOllamaUrl } from './clients/ollama-client'
+import { getActiveProviderType } from './clients/provider-registry'
 import { loadChunkIndex } from './context/chunk-builder'
 import { buildContext } from './context/context-builder'
 import { parseDmActionsDetailed } from './dm-actions'
-import { fetchOllamaModels, getOllamaUrl, listOllamaModels, setOllamaUrl } from './clients/ollama-client'
-import { getActiveProviderType } from './clients/provider-registry'
 
 describe('ai-service', () => {
   beforeEach(() => {

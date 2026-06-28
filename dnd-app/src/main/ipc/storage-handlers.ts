@@ -21,7 +21,9 @@ import {
   loadBookData,
   readBookFile,
   removeBook,
-  saveBookData, saveBookBytes } from '../storage/book-storage'
+  saveBookBytes,
+  saveBookData
+} from '../storage/book-storage'
 import { deleteCampaign, loadCampaign, loadCampaigns, saveCampaign } from '../storage/campaign-storage'
 import {
   type CharacterVersion,
@@ -440,9 +442,12 @@ export function registerStorageHandlers(): void {
     return loadBookData(bookId)
   })
 
-  handle(IPC_CHANNELS.BOOK_SAVE_BYTES, async (_event, bookId: string, title: string, ext: string, bytes: ArrayBuffer) => {
-    return saveBookBytes(bookId, title, ext, bytes)
-  })
+  handle(
+    IPC_CHANNELS.BOOK_SAVE_BYTES,
+    async (_event, bookId: string, title: string, ext: string, bytes: ArrayBuffer) => {
+      return saveBookBytes(bookId, title, ext, bytes)
+    }
+  )
 
   handle(IPC_CHANNELS.BOOK_SAVE_DATA, async (_event, bookId: string, data: BookData) => {
     return saveBookData(bookId, data)

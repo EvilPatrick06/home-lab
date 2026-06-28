@@ -1,4 +1,5 @@
 import OpenAI from 'openai'
+import type { ChatMessage, StreamCallbacks } from '../types'
 import {
   CLOUD_INACTIVITY_TIMEOUT_MS,
   classifyProviderError,
@@ -7,7 +8,6 @@ import {
   type StreamInactivityGuard,
   withRequestTimeout
 } from './llm-provider'
-import type { ChatMessage, StreamCallbacks } from '../types'
 
 let apiKey: string | undefined
 

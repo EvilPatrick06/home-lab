@@ -37,8 +37,8 @@ vi.mock('./command-dice-utils', () => ({
 
 import { useGameStore } from '../../stores/use-game-store'
 import { findWeapon } from '../combat/attack-resolver'
-import { commands } from './commands-player-combat'
 import { findTokenByName } from './command-dice-utils'
+import { commands } from './commands-player-combat'
 import type { CommandContext } from './types'
 
 function makeCtx(overrides?: Partial<CommandContext>): CommandContext {

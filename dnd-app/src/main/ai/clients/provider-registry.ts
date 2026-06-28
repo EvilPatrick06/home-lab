@@ -1,9 +1,9 @@
+import type { AiConfig } from '../types'
 import { claudeProvider, setClaudeApiKey } from './claude-client'
 import { geminiProvider, setGeminiApiKey } from './gemini-client'
 import type { AiProviderType, LLMProvider } from './llm-provider'
 import { ollamaProvider } from './ollama-client'
 import { openaiProvider, setOpenAIApiKey } from './openai-client'
-import type { AiConfig } from '../types'
 
 const providers = new Map<AiProviderType, LLMProvider>([
   ['ollama', ollamaProvider],

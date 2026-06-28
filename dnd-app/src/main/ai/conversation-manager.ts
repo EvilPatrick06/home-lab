@@ -1,7 +1,4 @@
 import { logToFile } from '../log'
-import { DM_TOOLBOX_CONTEXT, PLANAR_RULES_CONTEXT } from './dm-system-prompt'
-import { assembleSystemPrompt } from './prompt-assembler'
-import { COMBAT_TACTICS_PROMPT } from './prompt-sections/combat-tactics'
 import {
   estimateTokens,
   getActiveContextWindow,
@@ -9,6 +6,9 @@ import {
   OUTPUT_RESERVE,
   trimToTokenBudget
 } from './context/token-budget'
+import { DM_TOOLBOX_CONTEXT, PLANAR_RULES_CONTEXT } from './dm-system-prompt'
+import { assembleSystemPrompt } from './prompt-assembler'
+import { COMBAT_TACTICS_PROMPT } from './prompt-sections/combat-tactics'
 import type { ChatMessage, ConversationData, ConversationMessage, ConversationSummary } from './types'
 
 const MAX_RECENT_MESSAGES = 10

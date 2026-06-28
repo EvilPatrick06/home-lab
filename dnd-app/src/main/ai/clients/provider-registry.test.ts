@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { AiProviderType, LLMProvider } from './llm-provider'
 import type { AiConfig } from '../types'
+import type { AiProviderType, LLMProvider } from './llm-provider'
 
 // Phase 28i — registry unit tests. The four concrete provider clients are mocked
 // so the registry stays a pure resolution/configuration unit: no SDK construction,

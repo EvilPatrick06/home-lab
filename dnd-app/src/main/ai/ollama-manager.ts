@@ -3,8 +3,8 @@ import { createWriteStream, existsSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
 import { app } from 'electron'
 import { getOllamaUrl, listOllamaModels } from './clients/ollama-client'
-import { OLLAMA_BASE_URL } from './ollama-constants'
 import { getOllamaKvCacheType } from './context/ollama-context'
+import { OLLAMA_BASE_URL } from './ollama-constants'
 
 // CURATED_MODELS + CuratedModel moved to ./ollama-context (leaf) in PHASE-01 so
 // the num_ctx resolver can read them without an import cycle. Re-exported here so

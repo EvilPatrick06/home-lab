@@ -8,9 +8,9 @@
 import { loadConversation } from '../storage/ai-conversation-storage'
 import { aiChatOnce, getConversationManager } from './ai-service'
 import { formatCampaignForContext, loadCampaignById } from './context/campaign-context'
+import { trimToTokenBudget } from './context/token-budget'
 import { getEntityStore } from './memory/entity-store'
 import { getMemoryManager } from './memory/memory-manager'
-import { trimToTokenBudget } from './context/token-budget'
 
 const BLOCK_BUDGET = 1500 // estimated tokens per labeled block
 /** The EXACT sentence the archivist must return when the records don't contain the answer. */

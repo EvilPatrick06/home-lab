@@ -30,6 +30,7 @@ vi.mock('fs', () => ({ promises: mockFs }))
 
 import { EntityUpsertPayloadSchema } from '../../../shared/ipc-schemas'
 import { validateDmAction } from '../ai-schemas'
+import { buildLoreBlock, selectLore } from '../lore-injection'
 import {
   _resetEntityStoreCaches,
   type EntityRecord,
@@ -42,7 +43,6 @@ import {
   pickEntities,
   slugifyId
 } from './entity-store'
-import { buildLoreBlock, selectLore } from '../lore-injection'
 import { npcMemoryFromAttitude } from './memory-manager'
 
 const ENTITIES_PATH = '/tmp/test/campaigns/c1/ai-context/entities.json'

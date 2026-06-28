@@ -11,9 +11,9 @@
 
 import { z } from 'zod'
 import { logToFile } from '../../log'
-import { getEntityStore } from './entity-store'
 import type { LLMProvider } from '../clients/llm-provider'
 import type { ChatMessage } from '../types'
+import { getEntityStore } from './entity-store'
 
 const MAX_ENTITIES_PER_TURN = 6
 

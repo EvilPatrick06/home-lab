@@ -16,8 +16,8 @@ vi.mock('./entity-store', () => ({
   }))
 }))
 
-import { buildExtractionPrompt, EXTRACTION_SCHEMA, extractEntities, runEntityExtraction } from './entity-extraction'
 import type { LLMProvider } from '../clients/llm-provider'
+import { buildExtractionPrompt, EXTRACTION_SCHEMA, extractEntities, runEntityExtraction } from './entity-extraction'
 
 function makeProvider(opts: { structured?: string; chat?: string; withStructured?: boolean }): LLMProvider {
   const p: any = {

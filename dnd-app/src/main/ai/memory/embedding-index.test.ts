@@ -10,11 +10,14 @@ const vs = vi.hoisted(() => ({
 }))
 vi.mock('./vector-store', () => vs)
 const { embedTexts } = vi.hoisted(() => ({ embedTexts: vi.fn() }))
-vi.mock('../clients/embedding-client', () => ({ embedTexts, prefixesFor: () => ({ document: 'search_document: ', query: '' }) }))
+vi.mock('../clients/embedding-client', () => ({
+  embedTexts,
+  prefixesFor: () => ({ document: 'search_document: ', query: '' })
+}))
 vi.mock('../../log', () => ({ logToFile: vi.fn() }))
 
-import { clearEmbeddingIndex, ensureEmbeddingIndex, getActiveVectorStore, getEmbedIndexStatus } from './embedding-index'
 import type { ChunkIndex } from '../types'
+import { clearEmbeddingIndex, ensureEmbeddingIndex, getActiveVectorStore, getEmbedIndexStatus } from './embedding-index'
 
 function mkIndex(n: number): ChunkIndex {
   return {

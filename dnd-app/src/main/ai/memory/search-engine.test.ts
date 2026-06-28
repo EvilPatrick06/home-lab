@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { SearchEngine } from './search-engine'
 import type { ChunkIndex } from '../types'
+import { SearchEngine } from './search-engine'
 
 function makeIndex(chunks: Array<{ id: string; heading: string; content: string }>): ChunkIndex {
   return {

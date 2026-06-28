@@ -6,9 +6,9 @@
 
 import { logToFile } from '../../log'
 import { embedQuery } from '../clients/embedding-client'
+import type { ScoredChunk } from '../types'
 import { getActiveVectorStore, searchVectors } from './embedding-index'
 import type { SearchEngine } from './search-engine'
-import type { ScoredChunk } from '../types'
 
 export const RRF_K = 60
 export const HYBRID_TOP_K = 8

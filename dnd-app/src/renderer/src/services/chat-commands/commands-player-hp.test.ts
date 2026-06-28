@@ -36,8 +36,8 @@ vi.mock('../../types/character', () => ({
 }))
 
 import type { Character5e } from '../../types/character-5e'
-import { commands } from './commands-player-hp'
 import { getLatestCharacter } from './command-dice-utils'
+import { commands } from './commands-player-hp'
 
 function makeChar(overrides: Partial<Character5e> = {}): Character5e {
   return createMockCharacter(overrides)

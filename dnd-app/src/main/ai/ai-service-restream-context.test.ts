@@ -100,7 +100,9 @@ vi.mock('./file-reader', async () => {
 })
 
 vi.mock('../storage/ai-conversation-storage', () => ({ saveConversation: vi.fn(async () => {}) }))
-vi.mock('./memory/memory-manager', () => ({ getMemoryManager: vi.fn(() => ({ appendSessionLog: vi.fn(async () => {}) })) }))
+vi.mock('./memory/memory-manager', () => ({
+  getMemoryManager: vi.fn(() => ({ appendSessionLog: vi.fn(async () => {}) }))
+}))
 
 import { startChat } from './ai-service'
 

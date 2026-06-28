@@ -43,8 +43,8 @@ vi.mock('../../types/character-common', async () => {
 })
 
 import type { Character5e } from '../../types/character-5e'
-import { commands } from './commands-player-utils'
 import { getLatestCharacter } from './command-dice-utils'
+import { commands } from './commands-player-utils'
 import type { CommandContext } from './types'
 
 function makeChar(overrides: Partial<Character5e> = {}): Character5e {

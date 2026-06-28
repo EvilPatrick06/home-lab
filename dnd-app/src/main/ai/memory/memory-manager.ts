@@ -3,7 +3,13 @@ import { promises as fs } from 'fs'
 import path from 'path'
 import { logSecurityEvent } from '../../security-log'
 import { type DirectorState, emptyDirectorState, renderDirectorBlock } from '../director-state'
-import { emptyOracleState, type FateCheckResult, type OracleEntry, type OracleState, renderOracleBlock } from '../oracle'
+import {
+  emptyOracleState,
+  type FateCheckResult,
+  type OracleEntry,
+  type OracleState,
+  renderOracleBlock
+} from '../oracle'
 import {
   applyQuestOperation,
   emptyQuestLog,
