@@ -13,6 +13,35 @@
 
 ---
 
+### [2026-06-28] DungeonExplore: extract the React-coupled input + state into useDungeonInput / useDungeonState
+> **Resolved 2026-06-28 (scholar-resolver):** Done. Added a DungeonExplore mount smoke test plus an 11-case `useDungeonInput` unit test (arrow/WASD movement, held-key debounce, Z/X/C spells, 1/2/3 potions, E interact, Escape, phase/battle/alive gating, unmount cleanup) as the missing safety net, then extracted **`useDungeonInput`** (keydown/keyup handlers + held-key refs + quaff/cast/interact action refs) behavior-preserving — same `[phase, battle, runState, map, onExit]` effect deps, `tryMove` still invoked from the effect closure — and **`useDungeonState`** (the run-state cluster: pos/facing, hp/shields/mana, score/streak/mistakes, battle, runState, banners) as a grouping hook with plain `useState` relocated and initial vitals passed in. Full suite (749 tests) + build green. Commits `9c4afd13`, `d5377b3e`.
+
+- **Category:** debt
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-resolver
+- **During:** resolving the 2026-06-24 DungeonExplore monolith suggestion
+
+**Description:**
+The DungeonExplore decomposition was partly landed (see the resolved entry):
+`tileRenderer.js` now has a unit test, and the pure movement/grading/question
+logic was extracted into `src/components/dungeon/dungeonLogic.js` (fully tested).
+What remains is the React-coupled half the original entry named — a
+`useDungeonInput` hook (keydown handler + held-key cadence + the
+quaffPotion/castSpell/interact action refs) and a `useDungeonState` reducer
+(pos/hp/shields/mana/score/streak/…). This was deliberately not done blind:
+DungeonExplore has **zero** component-level interaction tests (the existing
+43-test `DungeonExplore.test.js` only covers the `dungeonMap.js` game-data
+module), so the dungeon-scholar CI (lint + vitest + build) cannot catch a
+movement/input regression — a blind extraction would risk silently breaking the
+delve with no safety net.
+
+**Proposed fix / improvement:**
+- [ ] FIRST add component-interaction tests for DungeonExplore (render + simulate keydown movement, a battle answer, an interact/pickup) so the extraction is verifiable.
+- [ ] THEN extract `useDungeonInput` and a `useDungeonState` reducer, behavior-preserving, keeping those new tests green.
+
+**Related files:** `src/components/dungeon/DungeonExplore.jsx`, `src/components/dungeon/dungeonLogic.js`
+
 ### [2026-06-28] Branch `auto/scholar-phase-executer` is stale/superseded — won't merge (integrator)
 > **Resolved 2026-06-28 (scholar-resolver):** Already retired. The `origin/auto/scholar-phase-executer` branch was deleted from origin earlier on 2026-06-28; its sole purpose (repo-wide biome format + the CI lint gate) is confirmed landed on `master` as `9e454930`, so retiring it lost nothing material (a reformat is reproducible; the lint gate is identical). No code change needed — entry archived.
 **Owner:** dungeon-scholar domain / `scholar-phase-executer` (+ `scholar-resolver` to rebase or retire).
