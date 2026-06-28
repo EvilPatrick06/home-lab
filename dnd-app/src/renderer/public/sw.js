@@ -52,7 +52,9 @@ function isAsset(url) {
 }
 
 function isStaticContent(url) {
-  return /\/(data|fonts|sounds)\//.test(url.pathname) || /\.(json|woff2?|mp3|ogg|png|jpe?g|webp|svg)$/.test(url.pathname)
+  return (
+    /\/(data|fonts|sounds)\//.test(url.pathname) || /\.(json|woff2?|mp3|ogg|png|jpe?g|webp|svg)$/.test(url.pathname)
+  )
 }
 
 self.addEventListener('fetch', (event) => {

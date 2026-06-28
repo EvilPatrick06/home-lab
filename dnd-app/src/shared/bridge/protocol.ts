@@ -58,10 +58,10 @@ function bytesToBase64(bytes: Uint8Array): string {
   const rem = bytes.length - i
   if (rem === 1) {
     const n = bytes[i]! << 16
-    out += B64_CHARS[(n >> 18) & 63] + B64_CHARS[(n >> 12) & 63] + '=='
+    out += `${B64_CHARS[(n >> 18) & 63] + B64_CHARS[(n >> 12) & 63]}==`
   } else if (rem === 2) {
     const n = (bytes[i]! << 16) | (bytes[i + 1]! << 8)
-    out += B64_CHARS[(n >> 18) & 63] + B64_CHARS[(n >> 12) & 63] + B64_CHARS[(n >> 6) & 63] + '='
+    out += `${B64_CHARS[(n >> 18) & 63] + B64_CHARS[(n >> 12) & 63] + B64_CHARS[(n >> 6) & 63]}=`
   }
   return out
 }
