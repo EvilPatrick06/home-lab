@@ -4,6 +4,11 @@ from __future__ import annotations
 
 from services.bmo_logging import get_logger
 log = get_logger("router")
+from services import metrics_counters
+
+# Tier-3 (LLM) runs only for these non-voice channels (latency-tolerant); the
+# voice path must never pay the 10-20s LLM cost.
+_TIER3_CHANNELS = frozenset({"text", "discord", "ide", "chat"})
 
 
 # ── Tier 1: Explicit prefix overrides ───────────────────────────────
@@ -286,24 +291,34 @@ class AgentRouter:
         if "prefix" not in disabled_tiers:
             agent = self._check_explicit_prefix(message)
             if agent:
+                metrics_counters.incr("bmo_router_tier_prefix_total")
                 return agent
 
         # Tier 2: Keyword matching
         if "keyword" not in disabled_tiers:
             agent = self._check_keywords(message)
             if agent:
+                metrics_counters.incr("bmo_router_tier_keyword_total")
                 return agent
 
-        # Tier 3: LLM classification — DISABLED for voice pipeline speed
-        # LLM classification adds 10-20s latency for marginal routing benefit.
-        # Keywords already cover all specialized agents; unmatched messages
-        # are overwhelmingly conversational.
-        # To re-enable: remove "llm" from router.disable_tiers in settings.
-        # if "llm" not in disabled_tiers:
-        #     agent = self._llm_classify(message)
-        #     if agent:
-        #         return agent
+        # Tier 3: LLM classification — OPT-IN (off by default to protect the
+        # latency-critical voice path). Runs only when (a) not disabled via
+        # router.disable_tiers, (b) an llm_func is wired, and (c) the caller is a
+        # non-voice channel (context {"channel": ...} in _TIER3_CHANNELS). Callers
+        # that pass no context (the voice pipeline) never trigger it, so the
+        # documented re-enable path now works without regressing voice latency.
+        channel = (context or {}).get("channel")
+        if (
+            "llm" not in disabled_tiers
+            and self._llm_func is not None
+            and channel in _TIER3_CHANNELS
+        ):
+            agent = self._llm_classify(message)
+            if agent:
+                metrics_counters.incr("bmo_router_tier_llm_total")
+                return agent
 
+        metrics_counters.incr("bmo_router_tier_default_total")
         return default_agent
 
     def _check_explicit_prefix(self, message: str) -> str | None:
