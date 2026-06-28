@@ -37,6 +37,7 @@ import {
   TILE_PX,
 } from './tileRenderer.js';
 import { useDungeonInput } from './useDungeonInput.js';
+import { useDungeonState } from './useDungeonState.js';
 
 // === Equipment effects ==================================================
 // In-dungeon stat bonuses for equipped items. Items live in App.jsx ITEMS;
@@ -721,37 +722,64 @@ export default function DungeonExplore({
 
   // Run state
   const [phase, setPhase] = useState('setup'); // setup | world
-  const [pos, setPos] = useState(initial.spawn);
-  const [facing, setFacing] = useState('down');
-  const [hp, setHp] = useState(effectiveMaxHp);
-  const [shields, setShields] = useState(effectiveMaxShield);
-  const [firstWrongUsed, setFirstWrongUsed] = useState(false);
   // 25a-5: boss room is locked at delve start. The key is hidden in one
   // random chest in the dungeon (tagged hasKey at map-gen) OR can drop
   // from a felled mob (5% basic, 25% elite). Once held, the boss
   // collision starts the trial; without it the player gets a notice.
-  const [bossKeyFound, setBossKeyFound] = useState(false);
   // Phase 19: mana for active spells. Resets each delve to maxMana, refills
   // +1 per correct answer. Cap = playerState.maxMana.
   const maxMana = playerState?.maxMana ?? 3;
-  const [mana, setMana] = useState(maxMana);
+  // Run-state cluster (position, vitals, mana, score/streak, battle, outcome,
+  // and the transient SR/banner/pickup UI) — extracted to useDungeonState.
+  const {
+    pos,
+    setPos,
+    facing,
+    setFacing,
+    hp,
+    setHp,
+    shields,
+    setShields,
+    firstWrongUsed,
+    setFirstWrongUsed,
+    bossKeyFound,
+    setBossKeyFound,
+    mana,
+    setMana,
+    revealedAnswer,
+    setRevealedAnswer,
+    reviveAvailable,
+    setReviveAvailable,
+    xpBuffRemaining,
+    setXpBuffRemaining,
+    score,
+    setScore,
+    streak,
+    setStreak,
+    maxStreak,
+    setMaxStreak,
+    mistakes,
+    setMistakes,
+    runState,
+    setRunState,
+    battle,
+    setBattle,
+    liveMsg,
+    setLiveMsg,
+    endSummary,
+    setEndSummary,
+    notice,
+    setNotice,
+    floatingPickups,
+    setFloatingPickups,
+  } = useDungeonState({ spawn: initial.spawn, maxHp: effectiveMaxHp, maxShields: effectiveMaxShield, maxMana });
   // 17G: banked Foresight Scroll charges — each reveals the domain of the next
   // posed riddle. A ref (not state) so consuming a charge at battle creation
   // doesn't need a re-render cycle.
   const foresightChargesRef = useRef(0);
   // Brief hint shown above the battle question when a Sigil of Clarity is
   // cast — clears on the next question cycle.
-  const [revealedAnswer, setRevealedAnswer] = useState(null);
-  const [reviveAvailable, setReviveAvailable] = useState(false);
-  const [xpBuffRemaining, setXpBuffRemaining] = useState(0);
-  const [score, setScore] = useState(0);
-  const [streak, setStreak] = useState(0);
-  const [maxStreak, setMaxStreak] = useState(0);
-  const [mistakes, setMistakes] = useState(0);
-  const [runState, setRunState] = useState('alive'); // alive | victory | death
-  const [battle, setBattle] = useState(null);
   // S3: off-canvas screen-reader announcements for the (otherwise opaque) delve.
-  const [liveMsg, setLiveMsg] = useState('');
   useEffect(() => {
     if (phase !== 'world') return;
     if (runState === 'victory') {
@@ -768,11 +796,8 @@ export default function DungeonExplore({
     }
     setLiveMsg('');
   }, [phase, battle, runState]);
-  const [endSummary, setEndSummary] = useState(null);
   // Brief notification banner for potion/revive/buff feedback.
-  const [notice, setNotice] = useState(null);
   // Phase 15: floating "+gold" / "Acquired: X" labels — short-lived UI.
-  const [floatingPickups, setFloatingPickups] = useState([]);
   const showPickup = (text, color = '#fde047') => {
     const id = `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
     setFloatingPickups((prev) => [...prev, { id, text, color }]);
