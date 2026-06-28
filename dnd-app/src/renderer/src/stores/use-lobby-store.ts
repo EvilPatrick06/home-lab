@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import type { DiceColors } from '../components/game/dice3d'
 import { DEFAULT_DICE_COLORS } from '../components/game/dice3d'
 import { MAX_CHAT_LENGTH } from '../constants'
+import { dynamicKeys, SETTINGS_KEYS } from '../constants/settings-keys'
 import { DEFAULT_BLOCKED_WORDS, filterMessage } from '../data/moderation'
 import { subscribeToSystemChat } from '../events/system-chat-bridge'
 import { getCustomBlockedWords, isModerationEnabled } from '../network/host-manager'
@@ -33,8 +34,7 @@ function getNetworkStateSafe(): ReturnType<typeof getNetworkStoreState> | null {
 
 // --- Persistence helpers ---
 
-const DICE_COLORS_KEY = 'lobby-dice-colors'
-const CHAT_HISTORY_KEY_PREFIX = 'lobby-chat-'
+const DICE_COLORS_KEY = SETTINGS_KEYS.LOBBY_DICE_COLORS
 const MAX_PERSISTED_MESSAGES = 100
 const MAX_WHISPER_HISTORY = 50
 
@@ -83,7 +83,7 @@ function persistDiceColors(colors: DiceColors): void {
 
 function loadPersistedChatHistory(campaignId: string): ChatMessage[] {
   try {
-    const raw = safeStorageGet(`${CHAT_HISTORY_KEY_PREFIX}${campaignId}`)
+    const raw = safeStorageGet(dynamicKeys.lobbyChat(campaignId))
     if (!raw || raw.trim() === '') return []
 
     const parsed = JSON.parse(raw) as unknown
@@ -100,7 +100,7 @@ function persistChatHistory(campaignId: string, messages: ChatMessage[]): void {
     const toSave = messages
       .filter((m) => !m.isFile) // Don't persist file messages (large base64 data)
       .slice(-MAX_PERSISTED_MESSAGES)
-    safeStorageSet(`${CHAT_HISTORY_KEY_PREFIX}${campaignId}`, JSON.stringify(toSave))
+    safeStorageSet(dynamicKeys.lobbyChat(campaignId), JSON.stringify(toSave))
   } catch {
     // Keep runtime resilient if input data is malformed
   }
@@ -570,7 +570,7 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
     set({ chatMessages: [] })
     if (campaignId) {
       try {
-        localStorage.removeItem(`${CHAT_HISTORY_KEY_PREFIX}${campaignId}`)
+        localStorage.removeItem(dynamicKeys.lobbyChat(campaignId))
       } catch {
         // Ignore
       }

@@ -158,6 +158,7 @@ export default function AboutPage(): JSX.Element {
           <div className="text-6xl mb-3">&#9876;</div>
           <h1 className="text-3xl font-bold text-accent mb-1">{t('pages.aboutPage.appTitle')}</h1>
           <p className="text-gray-500 text-sm mb-3">{t('pages.aboutPage.version', { appVersion })}</p>
+          {isWebBuild() && <p className="text-gray-500 text-xs mb-3 -mt-2">{t('pages.aboutPage.webEditionNote')}</p>}
           {!isWebBuild() && (
             <div className="flex flex-col items-center gap-2">
               <button

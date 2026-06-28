@@ -1,4 +1,5 @@
 import { resolveBmoBaseUrl } from '../../network/registry-client'
+import { resolveAssetUrl } from '../../utils/asset-url'
 
 /**
  * Sound URL resolver (renderer side).
@@ -198,7 +199,8 @@ export function resolveSoundUrl(bundledPath: string): string {
     return `${baseUrl}/api/sounds/file?path=${encodeURIComponent(rel)}`
   }
   // Cold manifest / not served — fall back to the bundled file. It ships in the
-  // package (the `!out/renderer/sounds/**` exclusion was removed), so the
-  // `./sounds/<rel>` path resolves against the renderer base and plays.
-  return bundledPath
+  // package (the `!out/renderer/sounds/**` exclusion was removed). WEB-AP-1:
+  // route it through resolveAssetUrl so the `./sounds/<rel>` path resolves
+  // against the Vite base on the web build too (no-op on desktop).
+  return resolveAssetUrl(bundledPath)
 }

@@ -89,7 +89,7 @@ export function AudioSection(): JSX.Element {
             value={masterVolume}
             onChange={(e) => handleMasterVolumeChange(Number(e.target.value))}
             disabled={!audioEnabled || audioMuted}
-            className="flex-1 h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer disabled:opacity-50"
+            className="flex-1 h-1.5 bg-gray-700 rounded-lg appearance-none accent-amber-500 cursor-pointer disabled:opacity-50"
           />
           <span className="text-xs text-muted w-8 text-right">{Math.round(masterVolume)}%</span>
         </div>
@@ -104,7 +104,7 @@ export function AudioSection(): JSX.Element {
             value={ambientVolume}
             onChange={(e) => handleAmbientVolumeChange(Number(e.target.value))}
             disabled={!audioEnabled || audioMuted}
-            className="flex-1 h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer disabled:opacity-50"
+            className="flex-1 h-1.5 bg-gray-700 rounded-lg appearance-none accent-amber-500 cursor-pointer disabled:opacity-50"
           />
           <span className="text-xs text-muted w-8 text-right">{Math.round(ambientVolume)}%</span>
         </div>

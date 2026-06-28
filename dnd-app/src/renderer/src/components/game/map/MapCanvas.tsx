@@ -4,7 +4,6 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } fro
 import { LIGHT_SOURCES } from '../../../data/light-sources'
 import { useT } from '../../../i18n'
 import { calculateZoomToFit, getActivePings, getGridLabel, getPingAnimation } from '../../../services/map/map-utils'
-
 import {
   buildVisionSet,
   getLightingAtPoint,
@@ -14,6 +13,7 @@ import {
   type Segment,
   type VisibilityPolygon
 } from '../../../services/map/vision-computation'
+import { resolveAssetUrl } from '../../../utils/asset-url'
 
 type _PartyVisionResult = PartyVisionResult
 type _Point = Point
@@ -173,6 +173,14 @@ export default function MapCanvas({
   const [_retryCount, setRetryCount] = useState(0)
   const [bgLoadError, setBgLoadError] = useState<string | null>(null)
 
+  // WEB-AP-2 — auto-dismiss the map-load error toast after a few seconds so a
+  // transient asset error doesn't pin a non-dismissable banner over the canvas.
+  useEffect(() => {
+    if (!bgLoadError) return
+    const id = setTimeout(() => setBgLoadError(null), 6000)
+    return () => clearTimeout(id)
+  }, [bgLoadError])
+
   const currentFloor = useGameStore((s) => s.currentFloor)
   const setCurrentFloor = useGameStore((s) => s.setCurrentFloor)
 
@@ -329,7 +337,7 @@ export default function MapCanvas({
   useEffect(() => {
     if (!isHost || !map) return
     for (const path of collectPreloadImagePaths(map, allMaps)) {
-      void Assets.load(path).catch(() => {})
+      void Assets.load(resolveAssetUrl(path)).catch(() => {})
     }
   }, [isHost, map, allMaps])
 
@@ -914,8 +922,16 @@ export default function MapCanvas({
         </div>
       )}
       {bgLoadError && !initError && (
-        <div className="absolute top-2 left-2 z-20 bg-yellow-900/90 border border-yellow-600 rounded px-3 py-2 text-yellow-200 text-xs max-w-xs">
-          {bgLoadError}
+        <div className="absolute top-2 left-2 z-20 flex items-start gap-2 bg-yellow-900/90 border border-yellow-600 rounded px-3 py-2 text-yellow-200 text-xs max-w-xs">
+          <span className="flex-1">{bgLoadError}</span>
+          <button
+            type="button"
+            onClick={() => setBgLoadError(null)}
+            aria-label={t('game.mapCanvas.dismissMapError')}
+            className="shrink-0 -mr-1 text-yellow-300 hover:text-yellow-100 leading-none"
+          >
+            ×
+          </button>
         </div>
       )}
       {!map && !initError && (

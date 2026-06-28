@@ -1,6 +1,7 @@
 import { Assets, Container, Graphics, Sprite, Text, TextStyle, type Texture } from 'pixi.js'
 import { getTokenStats } from '../../../services/game/token-stats'
 import type { MapToken } from '../../../types/map'
+import { resolveAssetUrl } from '../../../utils/asset-url'
 import { drawTokenStatusRing } from './combat-animations'
 
 // Module-level cache for loaded token image textures
@@ -180,7 +181,7 @@ export function createTokenSprite(
 
       if (hasValidImage && !tokenTextureCache.has(token.imagePath!)) {
         tokenTextureCache.set(token.imagePath!, null)
-        Assets.load(token.imagePath!)
+        Assets.load(resolveAssetUrl(token.imagePath!))
           .then((texture: Texture) => {
             tokenTextureCache.set(token.imagePath!, texture)
           })

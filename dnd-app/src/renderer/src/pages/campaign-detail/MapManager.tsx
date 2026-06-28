@@ -327,7 +327,7 @@ export default function MapManager({ campaign, saveCampaign }: MapManagerProps):
               min={0}
               max={1}
               step={0.05}
-              className="w-full"
+              className="w-full accent-amber-500"
             />
             <span className="text-xs text-gray-500">{Math.round(mapEditForm.gridOpacity * 100)}%</span>
           </div>

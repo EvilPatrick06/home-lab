@@ -179,7 +179,7 @@ describe('useLobbyStore', () => {
 
     useLobbyStore.getState().setDiceColors('peer-local', localColors)
     expect(setItemSpy).toHaveBeenCalledTimes(1)
-    expect(setItemSpy).toHaveBeenCalledWith('lobby-dice-colors', JSON.stringify(localColors))
+    expect(setItemSpy).toHaveBeenCalledWith('dnd-vtt-lobby-dice-colors', JSON.stringify(localColors))
   })
 
   it('loads chat history safely when storage is malformed or mixed', () => {
@@ -193,11 +193,11 @@ describe('useLobbyStore', () => {
       isSystem: false
     }
 
-    localStorage.setItem(`lobby-chat-${campaignId}`, JSON.stringify([validMessage, 42, null, { bad: true }]))
+    localStorage.setItem(`dnd-vtt-lobby-chat-${campaignId}`, JSON.stringify([validMessage, 42, null, { bad: true }]))
     useLobbyStore.getState().loadChatHistory(campaignId)
     expect(useLobbyStore.getState().chatMessages).toEqual([validMessage])
 
-    localStorage.setItem(`lobby-chat-${campaignId}`, '{not-json')
+    localStorage.setItem(`dnd-vtt-lobby-chat-${campaignId}`, '{not-json')
     expect(() => useLobbyStore.getState().loadChatHistory(campaignId)).not.toThrow()
   })
 

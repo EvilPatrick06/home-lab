@@ -2,6 +2,29 @@ import { i18n, type SupportedLocale } from './config'
 import en from './locales/en.json'
 import es from './locales/es.json'
 
+// WEB-I18N-1 — keep <html lang>/<dir> in lockstep with the active locale. The
+// entry HTML files hardcode lang="en" as a sensible default; without this the
+// attribute never updated on a language switch, so screen readers + translation
+// tooling treated Spanish content as English. `dir` is `ltr` for en/es today;
+// wiring `dirFor` now makes adding an RTL locale a one-line change.
+const RTL_LOCALES = new Set<string>([])
+
+function dirFor(locale: string): 'ltr' | 'rtl' {
+  return RTL_LOCALES.has(locale.split('-')[0]) ? 'rtl' : 'ltr'
+}
+
+/** Set the document's lang + dir from a locale. No-op outside a DOM (node tests). */
+export function applyDocumentLocale(locale: string): void {
+  if (typeof document === 'undefined' || !document.documentElement) return
+  document.documentElement.lang = locale
+  document.documentElement.dir = dirFor(locale)
+}
+
+// Registered at module load (not inside initI18n) so it stays active even when
+// initI18n early-returns on an already-initialized singleton, and fires for
+// every change path including the App's post-settings-load locale switch.
+i18n.on('languageChanged', applyDocumentLocale)
+
 /**
  * Phase 34a — initialize i18next once. Idempotent; resolves after English loads.
  * Call from main.tsx before rendering.
@@ -24,6 +47,8 @@ export async function initI18n(): Promise<void> {
     interpolation: { escapeValue: false },
     returnNull: false
   })
+  // First paint: reflect the initialized locale immediately.
+  applyDocumentLocale(i18n.language)
 }
 
 /**

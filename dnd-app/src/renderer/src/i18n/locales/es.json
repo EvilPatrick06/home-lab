@@ -1627,7 +1627,8 @@
       "retry": "Reintentar",
       "noMapLoaded": "Ningún mapa cargado",
       "useMapSelector": "Usa el Selector de mapas para añadir un mapa",
-      "waitingForDm": "Esperando a que el DM cargue un mapa"
+      "waitingForDm": "Esperando a que el DM cargue un mapa",
+      "dismissMapError": "Descartar error del mapa"
     },
     "gameLayout": {
       "calendarChanged": "Calendario cambiado a {{preset}}.",
@@ -5724,7 +5725,8 @@
       "gameContentNotice": "Contenido de juego usado bajo la Licencia Creative Commons Attribution 4.0 International.",
       "importConfirmTitle": "¿Importar datos desde la copia de seguridad?",
       "importConfirmMessage": "Al importar se restaurarán personajes, campañas, bastiones y preferencias desde el archivo de copia de seguridad. Los datos existentes con los mismos ID se sobrescribirán.",
-      "importConfirmLabel": "Importar"
+      "importConfirmLabel": "Importar",
+      "webEditionNote": "Dungeon Table Online es la edición web de Mesa virtual de D&D."
     },
     "bastionPage": {
       "loadingBastions": "Cargando bastiones...",
