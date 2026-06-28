@@ -66,6 +66,8 @@ cryptography==48.0.1
     #   androidtvremote2
     #   google-auth
     #   pyjwt
+davey==0.1.6
+    # via -r requirements-ci.in
 decorator==5.3.1
     # via librosa
 deprecated==1.3.1

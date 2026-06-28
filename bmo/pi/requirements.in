@@ -87,6 +87,10 @@ python-dotenv
 discord.py>=2.6,<3.0
 # PyNaCl — voice encryption + security pin (CVE-2025-69277 fixed in 1.6.2+)
 PyNaCl>=1.6.2
+# davey — REQUIRED for voice in discord.py>=2.7 (DAVE E2EE voice protocol).
+# Without it: "davey is not installed, voice will NOT be supported" and
+# voice joins raise RuntimeError. Prebuilt aarch64 wheel on PyPI; no deps.
+davey>=0.1.6
 edge-tts
 scipy
 # pysbd — rule-based sentence-boundary chunking for the DM bot's streaming TTS
