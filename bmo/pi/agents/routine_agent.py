@@ -33,11 +33,25 @@ class RoutineAgent(BaseAgent):
 
         lower = message.lower()
 
+        # Seed disabled example routines (starter templates)
+        if any(p in lower for p in ["example routine", "create examples", "set up examples", "seed routine", "starter routine"]):
+            count = routine_svc.seed_examples()
+            if count:
+                return AgentResult(
+                    text=f"Created {count} example routines (disabled). Say 'enable <name> routine' to turn one on, or 'list routines' to see them.",
+                    agent_name=self.config.name,
+                )
+            return AgentResult(text="You already have routines, so I didn't add examples. Say 'list routines' to see them.", agent_name=self.config.name)
+
         # List routines
         if any(p in lower for p in ["list routine", "my routine", "all routine", "show routine", "what routine"]):
             routines = routine_svc.get_all()
             if not routines:
-                return AgentResult(text="You don't have any routines yet.", agent_name=self.config.name)
+                return AgentResult(
+                    text=("You don't have any routines yet. Want me to set up a few examples "
+                          "(morning briefing, good night, leaving home)? Say 'create example routines'."),
+                    agent_name=self.config.name,
+                )
             lines = [f"You have {len(routines)} routine{'s' if len(routines) != 1 else ''}:"]
             for r in routines:
                 status = "enabled" if r.get("enabled", True) else "disabled"

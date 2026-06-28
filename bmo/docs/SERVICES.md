@@ -330,3 +330,7 @@ journalctl -u bmo -f
 # Then in another terminal: send a request that exercises that service
 curl http://localhost:5000/api/<service>/state
 ```
+
+## Example routines
+
+The routine engine ships no routines on a fresh install. Say "create example routines" (or call `RoutineService.seed_examples()`) to add three **disabled** starter templates — Morning Briefing (calendar + weather on a weekday 07:30 cron / voice), Good Night (bedtime scene + music stop), and Leaving Home (away scene + music stop). Enable one with "enable <name> routine".
