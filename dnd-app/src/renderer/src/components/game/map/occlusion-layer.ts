@@ -7,6 +7,7 @@
  */
 
 import { Assets, type Container, Sprite, type Texture } from 'pixi.js'
+import { resolveAssetUrl } from '../../../utils/asset-url'
 import type { MapToken, OcclusionTile } from '../../../types/map'
 import { logger } from '../../../utils/logger'
 
@@ -75,7 +76,7 @@ async function loadOcclusionSprite(
   key: string
 ): Promise<void> {
   try {
-    const texture: Texture = await Assets.load(tile.imagePath)
+    const texture: Texture = await Assets.load(resolveAssetUrl(tile.imagePath))
     const sprite = new Sprite(texture)
     sprite.label = `occlusion-${tile.id}`
     sprite.x = tile.x

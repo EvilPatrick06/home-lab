@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import type { GameMap } from '../../../../types/map'
 import { logger } from '../../../../utils/logger'
 import { LAYER_Z } from '../map-pixi-setup'
+import { resolveAssetUrl } from '../../../../utils/asset-url'
 
 /**
  * Load and display the map background sprite, extracted from MapCanvas.tsx.
@@ -42,11 +43,18 @@ export function useMapBackground(args: {
         bgSpriteRef.current.destroy({ children: true })
         bgSpriteRef.current = null
       }
+      // WEB-AP-2 — clear any prior load error on a map change so a stale toast
+      // doesn't linger after switching maps (previously only cleared on a
+      // successful load below).
+      setBgLoadError(null)
       if (!map?.imagePath) return
       try {
-        const resolvedUrl = new URL(map.imagePath, window.location.href).href
+        // WEB-AP-1 — resolve against the Vite base so built-in map
+        // backgrounds (./data/5e/maps/*.png) load on the web build, not
+        // just desktop. No-op on desktop (BASE_URL is '/').
+        const resolvedUrl = resolveAssetUrl(map.imagePath)
         logger.debug('[MapCanvas] Loading background image:', resolvedUrl)
-        const texture = await Assets.load(map.imagePath)
+        const texture = await Assets.load(resolvedUrl)
         if (texture.source) texture.source.scaleMode = 'nearest'
         const sprite = new Sprite(texture)
         sprite.label = 'bg'

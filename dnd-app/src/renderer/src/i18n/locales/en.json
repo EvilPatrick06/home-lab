@@ -1627,7 +1627,8 @@
       "retry": "Retry",
       "noMapLoaded": "No map loaded",
       "useMapSelector": "Use the Map Selector to add a map",
-      "waitingForDm": "Waiting for the DM to load a map"
+      "waitingForDm": "Waiting for the DM to load a map",
+      "dismissMapError": "Dismiss map error"
     },
     "gameLayout": {
       "calendarChanged": "Calendar changed to {{preset}}.",

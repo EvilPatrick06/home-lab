@@ -1627,7 +1627,8 @@
       "retry": "Reintentar",
       "noMapLoaded": "Ningún mapa cargado",
       "useMapSelector": "Usa el Selector de mapas para añadir un mapa",
-      "waitingForDm": "Esperando a que el DM cargue un mapa"
+      "waitingForDm": "Esperando a que el DM cargue un mapa",
+      "dismissMapError": "Descartar error del mapa"
     },
     "gameLayout": {
       "calendarChanged": "Calendario cambiado a {{preset}}.",
