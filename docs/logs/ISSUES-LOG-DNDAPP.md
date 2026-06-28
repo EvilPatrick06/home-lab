@@ -28,6 +28,44 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## High
 
+### [2026-06-28] dnd-app CI red on `auto/dnd-phase-executer` — asset-url refactor strips leading `./`, breaks remote-sounds tests
+
+- **Category:** bug / ci / test
+- **Severity:** high (branch CI red; blocks phase-executer integration)
+- **Domain:** dnd-app
+- **Discovered by:** ci-failure-triage (automated)
+- **During:** hourly CI failure triage
+- **Failing run:** 28337449659 (2026-06-28T22:02Z) — job `check`, step `Tests` (`npm test` -> `vitest run`)
+- **Branch / commit:** `auto/dnd-phase-executer` @ ffadb1bb ("style(web): biome import-sort autofix for phase 55 asset-url consumers")
+
+**Description / root cause:**
+The phase-55 asset-url consumer refactor routes sound paths through the new asset-url resolver, which normalizes a leading `./` to `/`. `resolveSoundUrl()` now returns `/sounds/...` where the contract (and tests) expect a non-manifest / bundled path to pass through **unchanged**. 3 failures in `dnd-app/src/renderer/src/services/library/remote-sounds.test.ts`:
+- "returns the bundled path unchanged before prewarm" (line 57): expected `./sounds/ambient/tavern.mp3`, received `/sounds/ambient/tavern.mp3`
+- "returns the path unchanged for clips NOT in the manifest" (line 85): expected `./sounds/dice/d20-1.mp3`, received `/sounds/dice/d20-1.mp3`
+- "falls back to the path unchanged when the manifest fetch fails (unreachable Pi)"
+
+**Fix needed (domain decision):**
+Either (a) make `resolveSoundUrl`/`resolveAssetUrl` preserve a leading `./` for passthrough/bundled clips (only rewrite manifest-matched clips to the cached `file://` or live Pi URL), or (b) if the `./`->`/` normalization is intended, update `remote-sounds.test.ts` expectations. Prefer (a) — the tests encode the intended "unchanged passthrough" contract for non-manifest/bundled clips. Owner: dnd-phase-executer / dnd-app domain.
+
+### [2026-06-28] dnd-app CI red on `auto/dnd-phase-executer` — biome lint (unused imports + organizeImports) on phase-56 commit
+
+- **Category:** ci / lint
+- **Severity:** high (branch CI red; blocks phase-executer integration)
+- **Domain:** dnd-app
+- **Discovered by:** ci-failure-triage (automated)
+- **During:** hourly CI failure triage
+- **Failing run:** 28337378722 (2026-06-28T21:59Z) — job `check`, step `Lint (biome)` (`npm run lint` -> `biome check src/`), exit code 1
+- **Branch / commit:** `auto/dnd-phase-executer` @ 848d893a ("feat(web): phase 56 — html lang/dir tracking, slider theming, branding")
+
+**Description / root cause:**
+`biome check src/` fails on three FIXABLE findings:
+- `src/renderer/src/utils/storage-migrations.test.ts:1` — `lint/correctness/noUnusedImports` (unused `beforeEach` and others imported from `vitest`)
+- `src/renderer/src/components/game/map/MapCanvas.tsx:2` — `assist/source/organizeImports` (new `resolveAssetUrl` import not sorted)
+- `src/renderer/src/components/game/map/map-canvas/use-map-background.ts:1` — `assist/source/organizeImports`
+
+**Fix needed:**
+Run `biome check --write src/` (a.k.a. `npm run lint -- --write`) in `dnd-app/` to apply the safe organizeImports fixes, and remove the unused `vitest` imports in `storage-migrations.test.ts`; commit on `auto/dnd-phase-executer` and re-run CI. Owner: dnd-phase-executer / dnd-app domain.
+
 ### [2026-06-28] dnd-app CI red on `auto/play-store-prep` — biome `useTemplate` on protocol.ts (stale branch, 24 behind master)
 
 - **Reported by:** ci-failure-triage (automated)
