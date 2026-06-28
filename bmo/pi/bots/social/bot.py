@@ -67,7 +67,7 @@ from services.cloud_providers import cloud_chat, fish_audio_tts, groq_stt
 
 # ── Data Directory + SQLite ──────────────────────────────────────────
 
-DATA_DIR = pathlib.Path(os.path.expanduser("~/home-lab/bmo/pi/data"))
+DATA_DIR = pathlib.Path(__file__).resolve().parents[2] / "data"
 PLAYLISTS_DIR = DATA_DIR / "playlists"
 SFX_DIR = DATA_DIR / "sfx"
 DB_PATH = DATA_DIR / "bmo_social.db"
@@ -908,7 +908,7 @@ class SocialBot(commands.Bot):
             import glob as _glob
             _search_engine = SearchEngine()
             loaded = []
-            rag_dir = os.path.expanduser("~/home-lab/bmo/pi/data/rag_data")
+            rag_dir = str(DATA_DIR / "rag_data")
             for idx_path in sorted(_glob.glob(os.path.join(rag_dir, "chunk-index-*.json"))):
                 fname = os.path.basename(idx_path)
                 domain = fname.replace("chunk-index-", "").replace(".json", "")
