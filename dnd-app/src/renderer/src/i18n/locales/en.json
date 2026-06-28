@@ -6736,6 +6736,7 @@
       "toastSettingsExported": "Settings exported",
       "toastSettingsExportFailed": "Settings export failed",
       "openLogFolder": "Open log folder",
+      "reportBug": "Report a bug",
       "toastLogRevealed": "Revealed app.log in your file manager",
       "toastLogRevealFailed": "Couldn't open the log folder",
       "logUnavailableWeb": "Logs aren't available in the browser build",

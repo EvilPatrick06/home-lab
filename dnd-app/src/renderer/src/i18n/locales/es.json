@@ -6736,6 +6736,7 @@
       "toastSettingsExported": "Ajustes exportados",
       "toastSettingsExportFailed": "La exportación de ajustes falló",
       "openLogFolder": "Abrir carpeta de registros",
+      "reportBug": "Reportar un error",
       "toastLogRevealed": "Se mostró app.log en el explorador de archivos",
       "toastLogRevealFailed": "No se pudo abrir la carpeta de registros",
       "logUnavailableWeb": "Los registros no están disponibles en la versión web",

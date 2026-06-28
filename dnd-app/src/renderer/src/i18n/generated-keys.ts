@@ -3,7 +3,7 @@
  * Run `npm run i18n:gen-keys` (scripts/i18n/gen-key-union.mjs) to regenerate
  * after changing en.json. Source: src/renderer/src/i18n/locales/en.json.
  *
- * A literal union of every dotted leaf key in en.json (6570 keys),
+ * A literal union of every dotted leaf key in en.json (6571 keys),
  * so `t()` calls are checked at compile time instead of silently rendering a
  * raw key string when a key is typo'd or missing.
  */
@@ -5703,6 +5703,7 @@ export type TranslationKey =
   | 'pages.settingsPage.reducedMotionDesc'
   | 'pages.settingsPage.registeredGameSystems'
   | 'pages.settingsPage.remove'
+  | 'pages.settingsPage.reportBug'
   | 'pages.settingsPage.reset'
   | 'pages.settingsPage.resetAccessibilityDefaults'
   | 'pages.settingsPage.resetAllData'
