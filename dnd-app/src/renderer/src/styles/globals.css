@@ -108,6 +108,7 @@ body {
      older engines. Safe-area padding keeps content clear of notches / the home
      indicator when the PWA is installed (display: standalone). */
   height: 100vh;
+  /* biome-ignore lint/suspicious/noDuplicateProperties: intentional dvh fallback over vh for older engines */
   height: 100dvh;
   width: 100vw;
   width: 100dvw;
