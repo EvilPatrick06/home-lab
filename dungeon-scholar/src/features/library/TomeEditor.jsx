@@ -1,5 +1,6 @@
-import { BookOpen, Check, HelpCircle, Plus, Trash2, X } from 'lucide-react';
+import { BookOpen, Check, Eye, EyeOff, HelpCircle, Plus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
+import RichContent from '../../components/RichContent.jsx';
 import { normalizeTomeData } from '../../game/tome.js';
 import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 
@@ -19,9 +20,24 @@ function TomeEditor({ tome, onSave, onClose }) {
     })),
   );
   const [err, setErr] = useState('');
+  const [preview, setPreview] = useState(false);
 
   const setCard = (i, patch) => setCards((cs) => cs.map((c, j) => (j === i ? { ...c, ...patch } : c)));
   const setQ = (i, patch) => setQuiz((qs) => qs.map((q, j) => (j === i ? { ...q, ...patch } : q)));
+
+  // Live preview: pipe an editor field through the SAME RichContent renderer the
+  // study modes use, so Markdown / Mermaid / code / KaTeX render exactly as they
+  // will at study time. Closes the author feedback loop (no save-and-reopen).
+  const renderPreview = (text) =>
+    preview && (text || '').trim() ? (
+      <div
+        className="rounded-sm p-2 mt-1"
+        style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(126, 34, 206, 0.35)' }}
+      >
+        <div className="text-[10px] uppercase tracking-[0.2em] text-purple-300/70 italic mb-1">Preview</div>
+        <RichContent as="div" text={text} className="text-sm text-amber-50" />
+      </div>
+    ) : null;
 
   const save = () => {
     const flashcards = cards
@@ -95,9 +111,19 @@ function TomeEditor({ tome, onSave, onClose }) {
             <X className="w-5 h-5" />
           </button>
         </div>
-        <div className="px-4 pt-3 flex gap-2">
+        <div className="px-4 pt-3 flex gap-2 items-center">
           {tabBtn('flashcards', `Flashcards (${cards.length})`, BookOpen)}
           {tabBtn('quiz', `Quiz (${quiz.length})`, HelpCircle)}
+          <button
+            type="button"
+            onClick={() => setPreview((v) => !v)}
+            aria-pressed={preview}
+            title="Toggle a live rendered preview of Markdown / Mermaid / code / math"
+            className="ml-auto px-3 py-2 rounded-sm border-2 border-purple-700 text-purple-200 italic flex items-center gap-1 text-sm hover:bg-purple-900/30"
+            style={{ background: preview ? 'rgba(126, 34, 206, 0.35)' : 'transparent' }}
+          >
+            {preview ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />} Preview
+          </button>
         </div>
         <div className="p-4 overflow-y-auto overscroll-contain flex-1 flex flex-col gap-3">
           {tab === 'flashcards' && (
@@ -125,6 +151,7 @@ function TomeEditor({ tome, onSave, onClose }) {
                     className={ta}
                     style={taStyle}
                   />
+                  {renderPreview(c.front)}
                   <textarea
                     value={c.back || ''}
                     onChange={(e) => setCard(i, { back: e.target.value })}
@@ -133,6 +160,7 @@ function TomeEditor({ tome, onSave, onClose }) {
                     className={ta}
                     style={taStyle}
                   />
+                  {renderPreview(c.back)}
                   <input
                     value={c.domain || ''}
                     onChange={(e) => setCard(i, { domain: e.target.value })}
@@ -148,6 +176,7 @@ function TomeEditor({ tome, onSave, onClose }) {
                     className={ta}
                     style={taStyle}
                   />
+                  {renderPreview(c.hint)}
                 </div>
               ))}
               <button
@@ -184,6 +213,7 @@ function TomeEditor({ tome, onSave, onClose }) {
                     className={ta}
                     style={taStyle}
                   />
+                  {renderPreview(q.question)}
                   <textarea
                     value={q._optsText}
                     onChange={(e) => setQ(i, { _optsText: e.target.value })}
@@ -211,6 +241,7 @@ function TomeEditor({ tome, onSave, onClose }) {
                     className={ta}
                     style={taStyle}
                   />
+                  {renderPreview(q.explanation)}
                   <textarea
                     value={q.hint || ''}
                     onChange={(e) => setQ(i, { hint: e.target.value })}
@@ -219,6 +250,7 @@ function TomeEditor({ tome, onSave, onClose }) {
                     className={ta}
                     style={taStyle}
                   />
+                  {renderPreview(q.hint)}
                 </div>
               ))}
               <button
