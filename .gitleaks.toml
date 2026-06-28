@@ -1,0 +1,26 @@
+# Gitleaks config for home-lab.
+#
+# Extends the bundled default ruleset and adds a NARROW allowlist for known
+# false positives, so the secret-scan CI gate (.github/workflows/secret-scan.yml)
+# stays green on the current tree while still catching real secrets. The path
+# allowlist applies to both the push/PR working-tree scan (--no-git) and the
+# weekly full-history scan.
+#
+# Add new false positives here (preferred) or, for a one-off, by fingerprint in
+# .gitleaksignore. Keep the allowlist as tight as possible - never allowlist a
+# real source dir that could hold credentials.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "home-lab false-positive allowlist"
+paths = [
+  # Vendored, already-minified third-party bundles - scanning them is pure noise.
+  # e.g. xterm@5.5.0 (bmo/pi/web/static/js/xterm.min.js): the generic-api-key
+  # rule false-matched the minified identifier "FourKeyMap".
+  '''.*\.min\.js$''',
+  # Natural-language LLM prompt text (not a secret store): the generic-api-key
+  # rule false-matched the prose "Cloud KMS key management".
+  '''dungeon-scholar/src/prompts/google\.js$''',
+]
