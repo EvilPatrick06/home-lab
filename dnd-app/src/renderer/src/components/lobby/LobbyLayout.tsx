@@ -35,9 +35,9 @@ export default function LobbyLayout(): JSX.Element {
   }
 
   return (
-    <div className="flex gap-4 h-[calc(100vh-8rem)]">
+    <div className="flex flex-col md:flex-row gap-4 md:h-[calc(100vh-8rem)]">
       {/* Left panel: Player list */}
-      <div className="w-64 flex-shrink-0 bg-surface/50 border border-gray-800 rounded-lg overflow-hidden">
+      <div className="w-full md:w-64 flex-shrink-0 bg-surface/50 border border-gray-800 rounded-lg overflow-hidden">
         <PlayerList />
       </div>
 
@@ -47,7 +47,7 @@ export default function LobbyLayout(): JSX.Element {
       </div>
 
       {/* Right panel: Character selector + ready */}
-      <div className="w-72 flex-shrink-0 flex flex-col gap-4">
+      <div className="w-full md:w-72 flex-shrink-0 flex flex-col gap-4">
         {/* Character selector */}
         <div className="flex-1 bg-surface/50 border border-gray-800 rounded-lg p-4 overflow-y-auto">
           <CharacterSelector onSelect={handleCharacterSelect} />

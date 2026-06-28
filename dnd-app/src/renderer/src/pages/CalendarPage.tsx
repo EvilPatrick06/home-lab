@@ -148,7 +148,7 @@ export default function CalendarPage(): JSX.Element {
 
       <h1 className="text-3xl font-bold mb-6">{t('pages.calendarPage.title')}</h1>
 
-      <div className="flex gap-8 max-w-4xl">
+      <div className="flex flex-col md:flex-row gap-8 max-w-4xl">
         {/* Calendar grid */}
         <div className="flex-1">
           {/* Month navigation */}
@@ -233,7 +233,7 @@ export default function CalendarPage(): JSX.Element {
         </div>
 
         {/* Detail panel */}
-        <div className="w-72">
+        <div className="w-full md:w-72">
           {selectedDay ? (
             <div className="bg-surface/50 border border-gray-800 rounded-lg p-5">
               <h3 className="text-lg font-semibold mb-3 text-fg">

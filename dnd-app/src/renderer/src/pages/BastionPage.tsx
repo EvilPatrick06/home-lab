@@ -112,7 +112,7 @@ export default function BastionPage(): JSX.Element {
   return (
     <div className="h-screen flex flex-col bg-base">
       {/* Toolbar — pr-12 reserves space for the global settings gear icon overlay (top-right of app). */}
-      <div className="flex items-center justify-between px-4 py-2 pr-12 bg-surface border-b border-gray-800 shrink-0">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2 pr-12 bg-surface border-b border-gray-800 shrink-0">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate('/')}
@@ -179,9 +179,9 @@ export default function BastionPage(): JSX.Element {
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Sidebar */}
-        <div className="w-64 border-r border-gray-800 overflow-y-auto bg-surface/50">
+        <div className="w-full md:w-64 border-b md:border-b-0 md:border-r border-gray-800 overflow-y-auto bg-surface/50 max-h-[35vh] md:max-h-none shrink-0">
           {bastions.length === 0 ? (
             <div className="p-4 text-center text-gray-500 text-sm">{t('pages.bastionPage.noBastionsYet')}</div>
           ) : (
