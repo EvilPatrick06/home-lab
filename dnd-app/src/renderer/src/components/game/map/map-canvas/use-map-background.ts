@@ -1,9 +1,9 @@
 import { Assets, type Container, Sprite } from 'pixi.js'
 import { useEffect } from 'react'
 import type { GameMap } from '../../../../types/map'
+import { resolveAssetUrl } from '../../../../utils/asset-url'
 import { logger } from '../../../../utils/logger'
 import { LAYER_Z } from '../map-pixi-setup'
-import { resolveAssetUrl } from '../../../../utils/asset-url'
 
 /**
  * Load and display the map background sprite, extracted from MapCanvas.tsx.

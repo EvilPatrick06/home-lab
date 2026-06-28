@@ -7,8 +7,8 @@
  */
 
 import { Assets, type Container, Sprite, type Texture } from 'pixi.js'
-import { resolveAssetUrl } from '../../../utils/asset-url'
 import type { MapToken, OcclusionTile } from '../../../types/map'
+import { resolveAssetUrl } from '../../../utils/asset-url'
 import { logger } from '../../../utils/logger'
 
 /** Cache of loaded sprites keyed by occlusion tile id */

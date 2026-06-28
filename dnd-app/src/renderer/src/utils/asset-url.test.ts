@@ -7,9 +7,7 @@ const BASE = import.meta.env.BASE_URL
 
 describe('resolveAssetUrl (Phase 55A / WEB-AP-1)', () => {
   it('prefixes the Vite base for a ./data path', () => {
-    expect(resolveAssetUrl('./data/5e/maps/wizards-tower.png')).toBe(
-      `${BASE}data/5e/maps/wizards-tower.png`
-    )
+    expect(resolveAssetUrl('./data/5e/maps/wizards-tower.png')).toBe(`${BASE}data/5e/maps/wizards-tower.png`)
   })
   it('prefixes the Vite base for a leading-slash /data path', () => {
     expect(resolveAssetUrl('/data/5e/maps/x.png')).toBe(`${BASE}data/5e/maps/x.png`)

@@ -1,11 +1,9 @@
 import 'pixi.js/unsafe-eval' // CSP-compatible PixiJS shaders (must be before any pixi usage)
-import { resolveAssetUrl } from '../../../utils/asset-url'
 import { Application, Assets, type Container, type Graphics, type Sprite } from 'pixi.js'
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { LIGHT_SOURCES } from '../../../data/light-sources'
 import { useT } from '../../../i18n'
 import { calculateZoomToFit, getActivePings, getGridLabel, getPingAnimation } from '../../../services/map/map-utils'
-
 import {
   buildVisionSet,
   getLightingAtPoint,
@@ -15,6 +13,7 @@ import {
   type Segment,
   type VisibilityPolygon
 } from '../../../services/map/vision-computation'
+import { resolveAssetUrl } from '../../../utils/asset-url'
 
 type _PartyVisionResult = PartyVisionResult
 type _Point = Point

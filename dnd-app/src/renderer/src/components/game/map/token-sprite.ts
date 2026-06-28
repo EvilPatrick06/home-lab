@@ -1,7 +1,7 @@
 import { Assets, Container, Graphics, Sprite, Text, TextStyle, type Texture } from 'pixi.js'
-import { resolveAssetUrl } from '../../../utils/asset-url'
 import { getTokenStats } from '../../../services/game/token-stats'
 import type { MapToken } from '../../../types/map'
+import { resolveAssetUrl } from '../../../utils/asset-url'
 import { drawTokenStatusRing } from './combat-animations'
 
 // Module-level cache for loaded token image textures
