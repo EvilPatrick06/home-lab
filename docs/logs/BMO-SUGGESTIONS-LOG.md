@@ -20,6 +20,80 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-06-24] ~860 KB of orphaned vendored frontend assets in `web/static/` — Tailwind Play-CDN runtime + a duplicate xterm/marked/hljs vendor set the IDE no longer loads locally
+
+- **Category:** debt (cleanup / dead artifacts)
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** read-only scan of `bmo/pi/web/static` vs the templates that reference it
+
+**Description:**
+Several large vendored frontend blobs ship in the repo but are referenced by **nothing** — they are dead weight from earlier asset strategies that were since changed:
+- `web/static/js/tailwind.js` (**412 KB**, the Tailwind *Play CDN* runtime) — `index.html` loads the **compiled** stylesheet `/static/css/tailwind.css`, which `setup-bmo.sh:122` builds with the Tailwind CLI (`tailwindcss -i static/css/tailwind-input.css -o static/css/tailwind.css --minify`). The JIT-in-browser runtime is unused; it has not been touched since the April monorepo reorg (`f96bad8f`).
+- `web/static/js/xterm.min.js` (**290 KB**), `web/static/js/addon-fit.min.js`, `web/static/css/xterm.min.css`, `web/static/vendor/marked.min.js` (**35 KB**), `web/static/vendor/hljs/highlight.min.js` (**122 KB**) + `github-dark.css` — `ide.html` now pulls xterm, addon-fit, xterm.css and marked from **jsdelivr CDN**, and hljs is referenced nowhere at all. A repo-wide grep for these local paths across `*.html`/`*.js`/`*.py`/`*.css` returns zero hits, and `web/static/ide/sw.js` does not precache them.
+
+Net: ~860 KB of tracked binaries that no served page loads. They bloat the repo, the Docker image, and every `rsync`/deploy, and they mislead future contributors into thinking the app self-hosts these libs (it half does — `alpine.min.js`, `socket.io.min.js`, `bmo.js` ARE loaded locally by `index.html`, while the IDE went CDN). This is also a latent **inconsistency/supply-chain** smell: `index.html` vendors its JS locally for offline/Cloudflare-independence, but `ide.html` depends on three external CDNs — a deliberate-looking split that is probably accidental drift.
+
+**Hypothesis / root cause:** asset strategy changed twice (Tailwind browser-runtime → CLI-compiled CSS; IDE local-vendor → jsdelivr CDN) and the now-unreferenced files were never deleted.
+
+**Proposed fix / improvement:**
+- [ ] Delete the confirmed-orphan files: `web/static/js/tailwind.js`, `web/static/js/xterm.min.js`, `web/static/js/addon-fit.min.js`, `web/static/css/xterm.min.css`, `web/static/vendor/marked.min.js`, `web/static/vendor/hljs/` (verify with a final `grep -r` for each basename before removing).
+- [ ] Decide the IDE vendoring policy deliberately: either re-vendor xterm/addon-fit/marked locally (matches `index.html`, survives a CDN/Cloudflare outage on the kiosk) **or** document that `ide.html` intentionally uses CDNs — and note it in `bmo/docs/DESIGN-CONSTRAINTS.md` so it is not "fixed" back and forth.
+- [ ] Add a tiny CI check (or extend `check-no-new-prints.sh`-style guard) that greps templates for every file under `web/static/{js,vendor}` and flags any that nothing references, to stop orphans re-accumulating.
+
+**Related files:** `bmo/pi/web/static/js/tailwind.js`, `bmo/pi/web/static/js/xterm.min.js`, `bmo/pi/web/static/js/addon-fit.min.js`, `bmo/pi/web/static/css/xterm.min.css`, `bmo/pi/web/static/vendor/marked.min.js`, `bmo/pi/web/static/vendor/hljs/{highlight.min.js,github-dark.css}`, `bmo/pi/web/templates/index.html`, `bmo/pi/web/templates/ide.html`, `bmo/setup-bmo.sh:119-122`, `bmo/pi/tailwind.config.js`.
+
+---
+
+### [2026-06-24] `bots/` package layout is inconsistent — social-only helpers + the social entrypoint shim live at `bots/` top level beside the `bots/social/` package, while the DM bot has no package at all
+
+- **Category:** future-idea (structure / DX consistency)
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** read-only scan of the `bmo/pi/bots/` tree
+
+**Description:**
+The social-bot decomposition created a `bots/social/` package (`__init__.py`, `bot.py`, `games_logic.py`), but two modules that are **exclusively social-bot code** still sit at the `bots/` top level next to it: `bots/social_bot_utils.py` and `bots/social_youtube.py`. Their own docstrings say they were "Extracted from discord_social_bot.py … decompose the social-bot monolith into sibling modules," and the only importers are `bots/social/bot.py` and each other (`social_youtube` imports `social_bot_utils`). So the package boundary is half-drawn: some social pieces are inside `bots/social/`, two are outside it. Meanwhile the **DM** bot is the mirror-image inconsistency — `bots/discord_dm_bot.py` (83 KB) + `bots/dm_bot_control.py` + `bots/pbp.py` are a comparably large subsystem with **no** package, sitting flat in `bots/` alongside the social files. The result is a directory where naming (`social_*` flat files vs a `social/` dir vs un-namespaced `discord_dm_bot.py`) does not communicate the actual module ownership, making the tree harder to navigate and to reason about which file belongs to which bot.
+
+This is distinct from the existing god-module entry (which is about extracting the View/Modal classes *out of* `bots/social/bot.py`); this item is purely about **where the already-extracted modules live** and the asymmetry between the two bots' layouts.
+
+**Hypothesis / root cause:** the package was introduced mid-decomposition; the earliest-extracted helpers predate the `bots/social/` dir and were never moved in, and the DM bot was never given the same treatment.
+
+**Proposed fix / improvement:**
+- [ ] `git mv bots/social_bot_utils.py bots/social/utils.py` and `git mv bots/social_youtube.py bots/social/youtube.py` (update the two import sites in `bots/social/bot.py`/`social_youtube.py`); keep `bots/discord_social_bot.py` as the unchanged `python -m` entry shim.
+- [ ] Consider a parallel `bots/dm/` package (`bot.py`, `control.py`, `pbp.py`) with `bots/discord_dm_bot.py` kept as the entrypoint shim, so the two bots have symmetric, self-describing layouts.
+- [ ] Behavior-identical reorg; `tests/test_social_bot_import.py` (50+ commands register) guards the social move.
+
+**Related files:** `bmo/pi/bots/social_bot_utils.py`, `bmo/pi/bots/social_youtube.py`, `bmo/pi/bots/social/bot.py:37,445`, `bmo/pi/bots/discord_dm_bot.py`, `bmo/pi/bots/dm_bot_control.py`, `bmo/pi/bots/pbp.py`, `bmo/pi/bots/discord_social_bot.py`.
+
+**Related entries:** Future-ideas 2026-06-23 (social-bot god-module decomposition incomplete) — complementary: that one moves classes out of `bot.py`; this one fixes where the sibling modules sit.
+
+---
+
+### [2026-06-24] Calendar OAuth/service code is four flat files at `services/` top level — would read better as a `services/calendar/` subpackage, mirroring the existing `services/voice/`
+
+- **Category:** future-idea (structure / DX)
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** read-only scan of the `bmo/pi/services/` directory
+
+**Description:**
+The Google Calendar integration is spread across four sibling files at the `services/` top level — `calendar_service.py` (the API client, 15.7 KB), `calendar_oauth_config.py` (explicitly "Shared Google Calendar OAuth config — single source of truth for paths + scopes"), `authorize_calendar.py` (browser OAuth flow), and `reauth_calendar.py` (headless re-auth). They form one obvious cluster (`calendar_oauth_config` exists solely to be shared by `authorize_calendar` and `reauth_calendar`), yet they are interleaved alphabetically among ~40 unrelated service modules, so the relationship is invisible from the listing. The codebase already established the grouping pattern with `services/voice/` (10 voice modules in their own subpackage); the calendar cluster is the next-most-obvious candidate and currently the largest un-grouped one.
+
+**Hypothesis / root cause:** `services/` grew flat; only the voice subsystem was ever pulled into a subpackage, so later clusters (calendar, and arguably the calendar-adjacent `accounts.py`/`identity.py`/`jwt_util.py`/`auth_guard.py` auth set) never got the same treatment.
+
+**Proposed fix / improvement:**
+- [ ] Introduce `services/calendar/` (`__init__.py` re-exporting the public surface) and move the four files in as `service.py`, `oauth_config.py`, `authorize.py`, `reauth.py`; update the ~6 intra-repo import sites.
+- [ ] Keep a thin compatibility shim or update imports atomically so `app.py`'s calendar wiring and the QA/phase docs referencing these paths don't break.
+- [ ] Optionally document the "cluster ≥3 related service modules into a subpackage" convention in `bmo/docs/ARCHITECTURE.md` so `services/` stays navigable as it grows.
+
+**Related files:** `bmo/pi/services/calendar_service.py`, `bmo/pi/services/calendar_oauth_config.py`, `bmo/pi/services/authorize_calendar.py`, `bmo/pi/services/reauth_calendar.py`, `bmo/pi/services/voice/` (precedent), `bmo/pi/app.py` (calendar wiring), `bmo/docs/ARCHITECTURE.md`.
+
+---
+
 ### [2026-06-24] DM bot loses all live session state on restart — only `campaign_memory` (NPCs/locations/threads) is persisted, not the active `DMSession`
 
 - **Category:** future-idea (reliability + UX)
