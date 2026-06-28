@@ -30,6 +30,36 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## High
 
+### [2026-06-28] status_board.py adds 8 production print() (CLI/dry-run block) — trips bmo print() ratchet on auto/alert-board
+
+- **Reported by:** ci-failure-triage (automated)
+- **Category:** ci / lint (print ratchet)
+- **Severity:** high (branch CI red; blocks alert-board integration)
+- **Domain:** bmo
+- **Failing run:** 28338723045 (2026-06-28T22:51Z) — job `bmo print() ratchet`, step `bash bmo/pi/scripts/check-no-new-prints.sh`, exit 1 (production print() count=171 baseline=163 → 8 new)
+- **Branch / commit:** `auto/alert-board` @ 21873be7 ("feat(bmo): scaffold self-healing status board (design-first, not wired)")
+
+**Root cause:**
+The new file `bmo/pi/services/status_board.py` (the only code file added vs origin/master besides the design doc) introduces 8 `print()` calls in its CLI/dry-run `__main__` demo block (the `=== TOPIC ===` / `=== EMBED (dry-run) ===` banners, the per-field and per-incident dumps, and `print("could not read monitor_state.json:", e)`). The ratchet counts these as production prints, pushing the count 163 → 171. Note: the script's "New/added print() lines" listing shows the sorted tail (social/bot.py, discord_dm_bot.py, ide_app.py), which are NOT the culprits — `git diff origin/master 21873be7` confirms all 8 added prints live in status_board.py.
+
+**Fix needed:**
+Route the dry-run/demo output through `services.bmo_logging.get_logger` (or a small emit helper / `click.echo` the ratchet excludes), OR move the demo to a tests/ or scripts/ path the ratchet excludes. If the CLI prints are intentional and acceptable, raise `bmo/pi/.print-baseline` to 171 with a one-line note. Re-run the ratchet after. Owner: alert-board agent / bmo domain.
+
+### [2026-06-28] ide_app.py startup-banner print() trips bmo print() ratchet on auto/bmo-resolver
+
+- **Reported by:** ci-failure-triage (automated)
+- **Category:** ci / lint (print ratchet)
+- **Severity:** high (branch CI red; blocks bmo-resolver integration)
+- **Domain:** bmo
+- **Failing run:** 28338228795 (2026-06-28T22:32Z) — job `bmo print() ratchet`, step `bash bmo/pi/scripts/check-no-new-prints.sh`, exit 1 (production print() count=164 baseline=163 → 1 new). Paired `dnd-app CI` run 28338228779 on the same push was a benign concurrency-cancel (ignored).
+- **Branch / commit:** `auto/bmo-resolver` @ 363c8cef ("docs(logs): archive social-bot god-module split (#12) — now resolved")
+
+**Root cause:**
+The commit adds one `print()` at `bmo/pi/ide_app/ide_app.py:798`: a startup banner `print(f'... BMO IDE Test App starting on {_host}:{_port} ...')` (confirmed via `git diff origin/master 363c8cef -- *ide_app.py`). Count 163 → 164.
+
+**Fix needed:**
+Replace the startup-banner `print()` with `services.bmo_logging.get_logger(__name__).info(...)`, then re-run the ratchet. Owner: bmo-resolver / bmo domain.
+
 ### [2026-06-28] discord_dm_bot.py hardcodes read-only dev-tree data paths (same trap that broke the social bot deploy)
 
 - **Reported by:** ci-failure-triage (automated)
