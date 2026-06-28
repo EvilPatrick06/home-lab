@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { migrateLegacyStorageKeys } from './storage-migrations'
 
 function makeStore(seed: Record<string, string> = {}): Storage {
