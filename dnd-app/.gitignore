@@ -24,7 +24,6 @@ dist-web/
 dist-embed/
 # Mobile (Expo/RN) app — deps and generated output
 mobile/node_modules/
-mobile/assets/embed.zip
 mobile/assets/embed/
 mobile/.expo/
 mobile/android/
