@@ -41,7 +41,7 @@ const config: ExpoConfig = {
     eas: { projectId: null },
     // false = offline embed.zip (default after build:embed); true = hosted URL only.
     embedRemote: false,
-    privacyPolicyUrl: 'https://github.com/EvilPatrick06/home-lab/blob/master/dnd-app/mobile/docs/play-store/PRIVACY-POLICY.md'
+    privacyPolicyUrl: 'https://bmo.mybmoai.work/DungeonTableOnline/privacy.html'
   }
 }
 

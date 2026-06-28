@@ -6,16 +6,25 @@ blocking checklist — do not publish until each item is resolved.**
 
 ## 1. Rules content licensing
 
-- [ ] Confirm every bundled rules file derives from openly licensed material
+> **Resolved by maintainer decision (2026-06-28, Gavin).** The maintainer is
+> overwriting the bundled rules dataset with SRD-only content (SRD 5.1 / SRD 5.2
+> under CC-BY-4.0), removing/replacing the non-SRD and Product-Identity material
+> identified in [SRD-AUDIT-2026-06-25.md](./SRD-AUDIT-2026-06-25.md). Re-run the
+> audit script in that doc after the overwrite to confirm source.book is SRD-only
+> and the PI scan is empty.
+
+- [x] Confirm every bundled rules file derives from openly licensed material
       (e.g. the **SRD 5.1 under CC-BY-4.0** / SRD 5.2 under CC-BY-4.0), not from
-      copyrighted sourcebooks.
-- [ ] Provide the required **CC-BY attribution** for SRD content (in-app About
+      copyrighted sourcebooks. *(Maintainer overwriting dataset to SRD-only.)*
+- [x] Provide the required **CC-BY attribution** for SRD content (in-app About
       screen + store listing). Include the exact attribution string the license
-      requires.
-- [ ] Remove or replace any Product Identity / trademarked names, monsters, or
-      settings that are not covered by the open license.
-- [ ] Audit `src/renderer/public/data/**` for non-SRD homebrew/imported content
-      that may not be redistributable.
+      requires. *(Done — desktop About + mobile Settings + store listing; see
+      [ATTRIBUTION.md](../../../ATTRIBUTION.md).)*
+- [x] Remove or replace any Product Identity / trademarked names, monsters, or
+      settings that are not covered by the open license. *(Maintainer handling in
+      the overwrite.)*
+- [x] Audit `src/renderer/public/data/**` for non-SRD homebrew/imported content
+      that may not be redistributable. *(Audit complete — see SRD-AUDIT-2026-06-25.md.)*
 
 ## 2. Trademark & "not affiliated" posture
 
@@ -46,3 +55,11 @@ blocking checklist — do not publish until each item is resolved.**
 
 Record the outcome (links to license texts, attribution strings used, any files
 removed) here before flipping the production track from draft to live.
+
+- **2026-06-28 — Gavin (maintainer):** Section 1 marked resolved per maintainer
+  decision. Maintainer is overwriting the bundled dataset with SRD-only content
+  (the non-SRD/PI items flagged in SRD-AUDIT-2026-06-25.md are being removed/
+  replaced in that overwrite). CC-BY-4.0 attribution completed across desktop,
+  mobile, and store listing (ATTRIBUTION.md). Privacy policy live at
+  https://bmo.mybmoai.work/DungeonTableOnline/privacy.html . Confirm the
+  post-overwrite audit is clean before flipping the production track to live.

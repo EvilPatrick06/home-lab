@@ -1,6 +1,6 @@
 # Privacy Policy — Dungeon Table Online (Mobile)
 
-_Last updated: (set on publish). Host this at a public URL and link it in the
+_Last updated: 2026-06-28. Live at https://bmo.mybmoai.work/DungeonTableOnline/privacy.html Host this at a public URL and link it in the
 Play Console listing and the in-app Settings._
 
 ## Summary
@@ -46,4 +46,4 @@ in multiplayer chat.
 
 ## Contact
 
-(Set a support email before publishing.)
+datdude365d@gmail.com
