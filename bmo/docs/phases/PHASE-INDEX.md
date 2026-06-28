@@ -28,7 +28,7 @@
 | 03 | [`PHASE-03-dashboard-ux-round.md`](./completed/PHASE-03-dashboard-ux-round.md) | bmo | 01, 02 (soft) | done |
 | 04 | [`PHASE-04-realtime-cloudflare-auth.md`](./completed/PHASE-04-realtime-cloudflare-auth.md) | bmo | — | done |
 | 05 | [`PHASE-05-calendar-token-and-health-truth.md`](./completed/PHASE-05-calendar-token-and-health-truth.md) | bmo | — | done |
-| 06 | [`PHASE-06-dashboard-ux-platform-hygiene.md`](./PHASE-06-dashboard-ux-platform-hygiene.md) | bmo | — | pending |
+| 06 | [`PHASE-06-dashboard-ux-platform-hygiene.md`](./completed/PHASE-06-dashboard-ux-platform-hygiene.md) | bmo | — | done |
 | 07 | [`PHASE-07-list-endpoint-request-robustness.md`](./PHASE-07-list-endpoint-request-robustness.md) | bmo | — | pending |
 | 08 | [`PHASE-08-deploy-runtime-version-truth.md`](./PHASE-08-deploy-runtime-version-truth.md) | bmo | — | pending |
 

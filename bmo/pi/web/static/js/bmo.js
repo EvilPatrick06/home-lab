@@ -57,6 +57,8 @@ function initPlacesAutocomplete(inputId, onSelect) {
   const el = document.getElementById(inputId);
   if (!el) return;
   if (_autocompleteInstances[inputId]) return;
+  // 06D: lazy-load the Places script on first real use (not on page init).
+  if (window._bmoMapsKey) loadPlacesAPI(window._bmoMapsKey);
 
   function attach() {
     if (!window.google?.maps?.places) return;
@@ -544,7 +546,10 @@ function bmo() {
 
       // Load Google Places API
       fetch('/api/config').then(r => r.json()).then(c => {
-        if (c.maps_api_key) loadPlacesAPI(c.maps_api_key);
+        // 06D: defer the Maps/Places script until a consumer (the event-form
+        // autocomplete) actually opens, instead of loading — and 503-ing — on
+        // every page init. The key is stashed for initPlacesAutocomplete.
+        if (c.maps_api_key) window._bmoMapsKey = c.maps_api_key;
         if (c.location) {
           this.timezone = c.location.timezone || '';
           this.locationLabel = c.location.location_label || '';
@@ -552,10 +557,19 @@ function bmo() {
         }
       }).catch(() => {});
 
-      this.pushDeviceLocation();
-      setTimeout(() => this.pushDeviceLocation(), 15000);
-      setInterval(() => this.pushDeviceLocation(), 900000);
-      this.startGeoWatch();
+      // 06C: skip geolocation entirely where Permissions-Policy blocks it
+      // (this CF/kiosk deployment) so we don't spam the js-error log with
+      // rejections that can never succeed. Weather falls back to the
+      // configured location.
+      if (this._geolocationAllowed()) {
+        this.pushDeviceLocation();
+        setTimeout(() => this.pushDeviceLocation(), 15000);
+        this._geoInterval = setInterval(() => this.pushDeviceLocation(), 900000);
+        this.startGeoWatch();
+      } else {
+        this._geoBlocked = true;
+        console.info('[bmo] Geolocation disabled by Permissions-Policy — skipping device-location updates.');
+      }
 
       // IDE: stubbed out — new IDE on port 5001
 
@@ -2551,6 +2565,35 @@ function bmo() {
       return this.weather && this.weather.temperature !== null && this.weather.icon;
     },
 
+    _geolocationAllowed() {
+      if (!navigator.geolocation) return false;
+      try {
+        const fp = document.featurePolicy;
+        if (fp && typeof fp.allowsFeature === 'function' && fp.allowsFeature('geolocation') === false) return false;
+      } catch { /* featurePolicy unsupported — fall through and try */ }
+      return true;
+    },
+
+    _onGeoError(context, err) {
+      // 06C: a Permissions-Policy / permission-denied rejection (code 1) is
+      // expected here — record once, stop retrying, and do NOT POST to the
+      // js-error endpoint. Genuine errors (timeout/unavailable) keep the
+      // existing throttled report.
+      if (err && err.code === 1) {
+        if (!this._geoBlocked) {
+          this._geoBlocked = true;
+          console.info('[bmo] Geolocation blocked (permission/policy) — disabling device-location updates.');
+        }
+        if (this._geoInterval) { clearInterval(this._geoInterval); this._geoInterval = null; }
+        if (this._geoWatchId !== null && this._geoWatchId !== undefined && navigator.geolocation?.clearWatch) {
+          try { navigator.geolocation.clearWatch(this._geoWatchId); } catch { /* ignore */ }
+          this._geoWatchId = null;
+        }
+        return;
+      }
+      this._logGeolocationIssue(`${context} (${err?.code ?? 'n/a'}): ${err?.message ?? 'unknown'}`);
+    },
+
     _logGeolocationIssue(message) {
       const now = Date.now();
       if (now - this._lastGeoErrorAt < 60000) return;
@@ -2598,11 +2641,11 @@ function bmo() {
     },
 
     startGeoWatch() {
-      if (!navigator.geolocation || this._geoWatchId !== null) return;
+      if (this._geoBlocked || !navigator.geolocation || this._geoWatchId !== null) return;
       try {
         this._geoWatchId = navigator.geolocation.watchPosition(
           (pos) => this._postDeviceLocation(pos),
-          (err) => this._logGeolocationIssue(`watchPosition failed (${err?.code ?? 'n/a'}): ${err?.message ?? 'unknown'}`),
+          (err) => this._onGeoError('watchPosition failed', err),
           { enableHighAccuracy: true, timeout: 20000, maximumAge: 60000 },
         );
       } catch (err) {
@@ -2611,6 +2654,7 @@ function bmo() {
     },
 
     async pushDeviceLocation() {
+      if (this._geoBlocked) return;
       if (!navigator.geolocation) {
         this._logGeolocationIssue('navigator.geolocation unavailable');
         return;
@@ -2618,7 +2662,7 @@ function bmo() {
       try {
         navigator.geolocation.getCurrentPosition(
           (pos) => this._postDeviceLocation(pos),
-          (err) => this._logGeolocationIssue(`getCurrentPosition failed (${err?.code ?? 'n/a'}): ${err?.message ?? 'unknown'}`),
+          (err) => this._onGeoError('getCurrentPosition failed', err),
           { enableHighAccuracy: true, timeout: 15000, maximumAge: 600000 },
         );
       } catch (err) {
@@ -4529,23 +4573,33 @@ function bmo() {
 
     async removeListItem(listName, itemId) {
       try {
-        await fetch(`/api/lists/${encodeURIComponent(listName)}/items/${itemId}`, { method: 'DELETE' });
+        const res = await fetch(`/api/lists/${encodeURIComponent(listName)}/items/${itemId}`, { method: 'DELETE' });
+        if (!res.ok) {
+          this.showNotification("Couldn't update the list — try again.", 'error');
+          return;
+        }
         await this.fetchLists();
       } catch (e) {
         console.warn('[bmo] Failed to remove list item:', e);
+        this.showNotification("Couldn't update the list — try again.", 'error');
       }
     },
 
     async checkListItem(listName, itemId, done) {
       try {
-        await fetch(`/api/lists/${encodeURIComponent(listName)}/items/${itemId}/check`, {
+        const res = await fetch(`/api/lists/${encodeURIComponent(listName)}/items/${itemId}/check`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ done }),
         });
+        if (!res.ok) {
+          this.showNotification("Couldn't update the list — try again.", 'error');
+          return;
+        }
         await this.fetchLists();
       } catch (e) {
         console.warn('[bmo] Failed to check list item:', e);
+        this.showNotification("Couldn't update the list — try again.", 'error');
       }
     },
 

@@ -19,7 +19,7 @@ Optional:
 | `bmo-ide.service` | `bmo/pi/systemd/bmo-ide.service` | Embedded web IDE on port 5001 |
 | `bmo-backup.service` + `.timer` | `bmo/pi/systemd/bmo-backup.service` (+ `.timer`) | Daily (03:00) off-tree backup of gitignored `data/` + calendar token (`scripts/backup-state.sh`) |
 | `bmo-backup-verify.service` + `.timer` | `bmo/pi/systemd/bmo-backup-verify.service` (+ `.timer`) | Monthly (01st 04:30) backup-integrity check of the newest off-tree backup (`scripts/verify-backup.sh`) |
-| `bmo-voice-canary.service` + `.timer` | `bmo/pi/systemd/bmo-voice-canary.service` (+ `.timer`) | Synthetic STT/voice-path regression canary, twice daily (06:30 / 18:30) (`-m services.voice_canary`) |
+| `bmo-voice-canary.service` + `.timer` | `bmo/pi/systemd/bmo-voice-canary.service` (+ `.timer`) | Synthetic STT/voice-path regression canary, twice daily (06:30 / 18:30) (`-m services.voice.voice_canary`) |
 
 ## Hardening (main + Discord bots)
 
