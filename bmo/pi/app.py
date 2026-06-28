@@ -2910,6 +2910,16 @@ def api_games_update(code: str):
     data = request.get_json(silent=True) or {}
     if not isinstance(data, dict):
         return jsonify({"error": "request body must be a JSON object"}), 400
+    # Validate any numeric fields present (the registry allowlist + sanitizer
+    # handle the rest: unknown/identity keys dropped, free-text cleaned).
+    for _f in ("current_players", "max_players", "current_spectators", "max_spectators"):
+        if _f in data:
+            try:
+                _iv = int(data[_f])
+            except (TypeError, ValueError):
+                return jsonify({"error": f"{_f} must be an integer"}), 400
+            if _iv < 0 or _iv > MAX_GAMES_MAX_PLAYERS:
+                return jsonify({"error": f"{_f} out of range"}), 400
     updated = _games_registry().update(code, data)
     if updated is None:
         return jsonify({"error": "not found"}), 404
