@@ -770,3 +770,72 @@ class TestPrometheusMetrics:
             assert "banner" in data["config"]
         finally:
             bmo_app_module.health_checker = original
+
+
+# ── PHASE-07: list endpoints tolerate bodyless / non-JSON POSTs ──────────────
+
+
+class TestListEndpointRequestRobustness:
+    def _mock_list_service(self):
+        ms = MagicMock()
+        ms.check_item.return_value = True
+        ms.clear_list.return_value = None
+        ms.add_item.return_value = {"id": "i1", "text": "milk", "done": False}
+        return ms
+
+    def _swap(self, ms):
+        import app as bmo_app_module
+        original = bmo_app_module.list_service
+        bmo_app_module.list_service = ms
+        return bmo_app_module, original
+
+    def test_check_item_no_body_defaults_done_true(self, client):
+        ms = self._mock_list_service()
+        mod, original = self._swap(ms)
+        try:
+            r = client.post("/api/lists/groceries/items/i1/check")  # no Content-Type/body
+            assert r.status_code == 200
+            ms.check_item.assert_called_once_with("groceries", "i1", True)
+        finally:
+            mod.list_service = original
+
+    def test_check_item_json_false_still_works(self, client):
+        ms = self._mock_list_service()
+        mod, original = self._swap(ms)
+        try:
+            r = client.post("/api/lists/groceries/items/i1/check", json={"done": False})
+            assert r.status_code == 200
+            ms.check_item.assert_called_once_with("groceries", "i1", False)
+        finally:
+            mod.list_service = original
+
+    def test_clear_no_body_defaults_done_only_false(self, client):
+        ms = self._mock_list_service()
+        mod, original = self._swap(ms)
+        try:
+            r = client.post("/api/lists/groceries/clear")  # no body
+            assert r.status_code == 200
+            ms.clear_list.assert_called_once_with("groceries", done_only=False)
+        finally:
+            mod.list_service = original
+
+    def test_add_item_no_body_returns_clean_400_not_415(self, client):
+        ms = self._mock_list_service()
+        mod, original = self._swap(ms)
+        try:
+            r = client.post("/api/lists/groceries/items")  # no body / no JSON header
+            assert r.status_code == 400
+            assert r.get_json()["error"] == "Item text required"
+            ms.add_item.assert_not_called()
+        finally:
+            mod.list_service = original
+
+    def test_add_item_valid_json_creates(self, client):
+        ms = self._mock_list_service()
+        mod, original = self._swap(ms)
+        try:
+            r = client.post("/api/lists/groceries/items", json={"text": "milk"})
+            assert r.status_code == 200
+            ms.add_item.assert_called_once_with("groceries", "milk")
+        finally:
+            mod.list_service = original

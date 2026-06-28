@@ -201,4 +201,11 @@ class TestCanaryHealthRoute:
 
         resp = client.get("/health")
         assert resp.status_code == 200
-        assert resp.get_json() == {"status": "ok", "api_version": "v1"}
+        body = resp.get_json()
+        # The unversioned probe contract is the verbatim status/api_version keys;
+        # PHASE-08 08A additively surfaces running-code identity (commit/asset_build/
+        # started_at/uptime_s), so assert the contract keys rather than exact equality.
+        assert body["status"] == "ok"
+        assert body["api_version"] == "v1"
+        for k in ("commit", "asset_build", "started_at", "uptime_s"):
+            assert k in body

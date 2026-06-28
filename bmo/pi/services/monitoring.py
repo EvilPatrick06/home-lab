@@ -1488,6 +1488,43 @@ class HealthChecker:
 
     # ── Google Calendar Token Check ───────────────────────────────────
 
+    def _resolve_calendar_service(self):
+        """Locate the live CalendarService the app wired up, if any.
+
+        Mirrors routes/calendar_api._calendar(): app.py runs as __main__ and sets
+        the service singletons there; fall back to app.calendar (mocked in tests).
+        Returns None when no service is available to probe."""
+        import sys
+        main_mod = sys.modules.get("__main__")
+        cal = getattr(main_mod, "calendar", None)
+        if cal is not None:
+            return cal
+        try:
+            import app
+            return getattr(app, "calendar", None)
+        except Exception:
+            return None
+
+    def _calendar_live_probe(self):
+        """05C: reconcile the disk-token heuristic with reality.
+
+        Returns True when a live calendar read succeeds (token is fine, the
+        on-disk expiry is just lagging), False when it fails with an auth error
+        (the refresh token is genuinely dead), or None when no live service is
+        available / the failure is transient (caller falls back to the disk signal)."""
+        cal = self._resolve_calendar_service()
+        if cal is None:
+            return None
+        try:
+            cal.get_next_event()
+            return True
+        except RuntimeError:
+            # missing/invalid creds surfaced by the service — genuinely not authorized
+            return False
+        except Exception:
+            # transient/transport error — don't claim dead; let the disk signal stand
+            return None
+
     def _check_calendar_token(self):
         """Check if Google Calendar OAuth token is present and valid.
 
@@ -1588,6 +1625,25 @@ class HealthChecker:
                         # status=down also feeds the circuit breaker (finally
                         # below) which stops the per-cycle alert spam.
                         if expired_for > 600:  # 10 min grace for auto-refresh
+                            # 05C: before crying "down" from a stale on-disk
+                            # expiry, reconcile with the live read path. A
+                            # refreshed access token may simply not be persisted
+                            # yet while the in-memory client keeps serving. Only
+                            # escalate to the actionable reauth CRITICAL when a
+                            # live read ALSO fails (refresh token genuinely dead).
+                            probe = self._calendar_live_probe()
+                            if probe is True:
+                                self._service_status["google_calendar"] = {
+                                    "status": "degraded", "last_check": now,
+                                    "message": (
+                                        "On-disk token expired but live calendar "
+                                        "reads succeed (token persistence lagging)"
+                                    ),
+                                    "response_time": None,
+                                }
+                                self._calendar_expired_since = None
+                                self._circuit_record_success("google_calendar")
+                                return
                             mins = expired_for / 60
                             self._service_status["google_calendar"] = {
                                 "status": "down", "last_check": now,

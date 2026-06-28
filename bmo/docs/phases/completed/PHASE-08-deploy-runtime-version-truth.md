@@ -110,4 +110,8 @@ sed -n '40,75p' bmo/pi/services/config_preflight.py   # run_preflight returns ca
 
 ## Completed
 
-*(Filled during execution per INSTRUCTIONS.md rule 17 — one entry per sub-phase as it lands.)*
+- **08A** (2026-06-28) — Capture the running-code identity once at import in `bmo/pi/app.py` (`_PROCESS_STARTED_AT` + `_RUNNING_COMMIT` via `dev.dev_tools.git_command_args(['rev-parse','HEAD'])`, degrading to `None` in a non-git env), and surface it on `health()` (`bmo/pi/routes/system_api.py`): the existing `status`/`api_version` are kept verbatim plus additive `commit`, `asset_build` (`_static_mtime('js/bmo.js')`), `started_at` (ISO), and `uptime_s`. Each field degrades to `null` and the route never 500s. Tests: `test_health_reports_running_identity` (types + values via monkeypatched boot SHA / asset mtime) and `test_health_degrades_to_null_on_git_and_mtime_failure` (forced failure → 200 with nulls).
+- **08B** (2026-06-28) — `run_preflight` (`bmo/pi/services/config_preflight.py`) now also returns `calendar_token_expiry` (ISO) and `calendar_token_ttl_s` (int seconds, negative if expired, `null` if no/garbled token) from a cheap file read of `token.json`'s `expiry` — no Google client, no refresh, the token value is never read into the payload. `/api/health/full` folds these through `payload['config']` automatically (no route change). Tests: future-expiry → positive TTL; past → negative; missing → both `null` with `calendar_token: false`.
+
+_Purely additive + read-only; no deploy/restart mechanics changed (the "restart on deploy" structural fix stays the owner's ops action per the issues log). Cheap checks: `pytest tests/test_system_api.py` 13 passed; `ruff check` clean on app.py / system_api.py / config_preflight.py._
+

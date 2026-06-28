@@ -12,6 +12,51 @@
 
 ---
 
+### [2026-06-28] bmo-phase-executer — PHASE-06 06E: `bmo-voice-canary.service` ExecStart stale module path, user-approved
+
+- **Category:** bug, config
+- **Severity:** medium
+- **Domain:** bmo (Pi infra/tooling)
+- **Resolved by:** bmo-phase-executer
+- **Branch:** `auto/bmo-phase-executer` (awaiting integrator merge)
+- **During:** scheduled bmo-phase-executer run; PHASE-06 user-approved 2026-06-28
+
+**Resolution:** Updated the tracked unit `bmo/pi/systemd/bmo-voice-canary.service:10` ExecStart from `-m services.voice_canary` to `-m services.voice.voice_canary` (the post-`7ff69808` subpackage path), and fixed the matching stale reference in `bmo/docs/SYSTEMD.md`. `grep -rn "services.voice_canary" bmo/` now returns no hits outside this archived entry. This removes the installed-vs-repo drift the 2026-06-24 update flagged: the repo unit now agrees with the hand-patched live box, so a redeploy/reinstall no longer re-breaks the STT canary. **Owner action (not executed, rule 6):** `systemctl --user daemon-reload` (or the system equivalent) after merge+deploy so the corrected unit takes effect; the executer never reloads/restarts the live Pi.
+
+<details><summary>Original entry (verbatim, moved from BMO-ISSUES-LOG.md)</summary>
+
+### [2026-06-24] `bmo-voice-canary.service` ExecStart points at stale module path `services.voice_canary` — unit fails every run since the `services/voice/` refactor
+
+- **Category:** bug, config
+- **Severity:** medium
+- **Domain:** bmo (Pi infra/tooling)
+- **Discovered by:** bmo-errors
+- **During:** scheduled error scan — `systemctl --failed` showed `bmo-voice-canary.service` failed
+
+**Description:**
+`bmo-voice-canary.service` is in a **failed** state and has failed on every scheduled run (timer cadence 06:30 / 18:30; last failure 2026-06-24 06:34:27 MDT). The synthetic STT/voice-path regression canary therefore never runs, so the safety net it provides — detecting a real voice-path regression while `/health` stays green — is effectively dead and the failure is silent (only visible via `systemctl --failed`).
+
+**Reproduction:**
+1. `systemctl status bmo-voice-canary.service`
+2. Observed: `python: No module named services.voice_canary` → `status=1/FAILURE`.
+
+**Expected behavior:** The oneshot runs `services.voice.voice_canary` successfully and writes its pass/fail status file for `services/monitoring.py`.
+
+**Hypothesis / root cause (confirmed):** Commit `7ff69808` ("refactor(bmo): group 9 voice/audio modules into services/voice/ subpackage") moved `voice_canary.py` from `services/` to `services/voice/`, so the importable module is now `services.voice.voice_canary`. The unit's `ExecStart` was not updated and still runs `-m services.voice_canary`. The repo unit file (`bmo/pi/systemd/bmo-voice-canary.service:10`) and the installed `/etc/systemd/system/bmo-voice-canary.service` are byte-identical (no drift) — both carry the stale path, so this is a real bug in the tracked unit, not installed-vs-repo drift. `bmo/docs/SYSTEMD.md:22` documents the same stale `-m services.voice_canary`.
+
+**Proposed fix / improvement:**
+- [ ] Update `ExecStart` in `bmo/pi/systemd/bmo-voice-canary.service` to `... -m services.voice.voice_canary`.
+- [ ] Update the matching reference in `bmo/docs/SYSTEMD.md` (and `bmo/pi/README.md` if it carries the same string).
+- [ ] Reinstall/`daemon-reload` the unit on the Pi after the doc/unit fix lands (deploy step).
+
+**Related files:** `bmo/pi/systemd/bmo-voice-canary.service`, `bmo/pi/services/voice/voice_canary.py`, `bmo/docs/SYSTEMD.md`, `bmo/pi/README.md`.
+
+**Update [2026-06-24] (bmo-errors):** This entry’s “byte-identical (no drift)” claim is now STALE — the live box was hand-patched but the repo was not. The **installed** `/etc/systemd/system/bmo-voice-canary.service` now reads `ExecStart=... -m services.voice.voice_canary` (correct — unit no longer in `systemctl --failed`, now `inactive dead` waiting on its timer), while the **repo** `bmo/pi/systemd/bmo-voice-canary.service:10` still carries the stale `-m services.voice_canary`. So there is now real **installed-vs-repo config drift**: the repo unit is still broken and a redeploy/reinstall (which treats the repo as source of truth) would re-break the canary. The repo fix in the checklist above is still required to make the box and source agree.
+
+</details>
+
+---
+
 ### [2026-06-23] bmo-resolver — `bmo / deploy` dirty-tree race (High) + SYSTEMD.md service count (low), user-approved
 
 - **Category:** infra / CI (deploy reliability) + docs

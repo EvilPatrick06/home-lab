@@ -16,6 +16,7 @@ import time
 from flask import Blueprint, Response, jsonify, request
 
 from services.bmo_logging import _s, fail
+from services.calendar_service import CalendarReadOnlyEventError
 
 log = logging.getLogger("bmo")
 
@@ -127,14 +128,28 @@ def api_calendar_update(event_id):
         kwargs["start"] = _dt.datetime.fromisoformat(data["start"])
     if "end" in data:
         kwargs["end"] = _dt.datetime.fromisoformat(data["end"])
-    updated = calendar.update_event(event_id, **kwargs)
-    return jsonify(updated)
+    try:
+        updated = calendar.update_event(event_id, **kwargs)
+        return jsonify(updated)
+    except CalendarReadOnlyEventError:
+        return jsonify({"error": "This event type can't be edited (e.g. a Google birthday event)."}), 422
+    except RuntimeError:
+        return jsonify({"error": "calendar not authorized"}), 503
+    except Exception as e:
+        return fail(log, e, 500, "could not update event")
 
 
 @calendar_bp.route("/delete/<event_id>", methods=["DELETE"])
 def api_calendar_delete(event_id):
-    _calendar().delete_event(event_id)
-    return jsonify({"ok": True})
+    try:
+        _calendar().delete_event(event_id)
+        return jsonify({"ok": True})
+    except CalendarReadOnlyEventError:
+        return jsonify({"error": "This event type can't be deleted (e.g. a Google birthday event)."}), 422
+    except RuntimeError:
+        return jsonify({"error": "calendar not authorized"}), 503
+    except Exception as e:
+        return fail(log, e, 500, "could not delete event")
 
 
 def _calendar_config_dir() -> str:

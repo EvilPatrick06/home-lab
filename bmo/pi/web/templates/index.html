@@ -244,7 +244,7 @@
                     <span x-show="item.done">&#10003;</span>
                   </button>
                   <span class="flex-1 text-sm truncate" :class="item.done ? 'line-through text-text-dim' : ''" x-text="item.text"></span>
-                  <button @click="removeListItem(activeList, item.id)" class="text-xs text-red-400 opacity-0 group-hover:opacity-100 px-1">&times;</button>
+                  <button @click="removeListItem(activeList, item.id)" class="shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center text-red-400 hover:text-red-300" title="Remove item" aria-label="Remove item">&times;</button>
                 </div>
               </template>
             </div>
@@ -269,7 +269,7 @@
                 <span x-show="note.done">&#10003;</span>
               </button>
               <span class="flex-1 text-sm truncate" :class="note.done ? 'line-through text-text-dim' : ''" x-text="note.text"></span>
-              <button @click="deleteNote(note.id)" class="text-xs text-red-400 opacity-0 group-hover:opacity-100 px-1">&times;</button>
+              <button @click="deleteNote(note.id)" class="shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center text-red-400 hover:text-red-300" title="Delete note" aria-label="Delete note">&times;</button>
             </div>
           </template>
         </div>

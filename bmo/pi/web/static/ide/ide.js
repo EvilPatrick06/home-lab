@@ -78,6 +78,7 @@
   // ── Socket.IO ───────────────────────────────────────────────
 
   let wasDisconnected = false;  // 02B: only announce 'reconnected' after a real drop
+  let wasErrored = false;       // 04C: only announce 'unreachable' once per connect_error burst
 
   function initSocket() {
     // 02B: bounded auto-reconnect so a transient WS/polling drop self-heals.
@@ -87,6 +88,7 @@
       $('#connection-status').className = 'status-dot online';
       const txt = document.getElementById('connection-text');
       if (txt) txt.textContent = 'Connected';
+      wasErrored = false;  // 04C: clear the unreachable latch on a real connect
       if (wasDisconnected) {
         wasDisconnected = false;
         // 02B: re-establish each PTY (server keys sessions by socket sid, which
@@ -110,6 +112,23 @@
       for (const t of state.terminals) {
         if (t.term) t.term.writeln('\r\n[terminal offline — reconnecting…]');
       }
+    });
+
+    socket.on('connect_error', (e) => {
+      // 04C: a persistently-refused handshake surfaces as connect_error (not
+      // disconnect). Show offline and, once per error burst, write a single
+      // 'unreachable' line into each open terminal instead of spinning behind a
+      // blank pane. The connect handler clears wasErrored so recovery re-announces.
+      $('#connection-status').className = 'status-dot offline';
+      const txt = document.getElementById('connection-text');
+      if (txt) txt.textContent = 'Offline';
+      if (!wasErrored) {
+        wasErrored = true;
+        for (const t of state.terminals) {
+          if (t.term) t.term.writeln('\r\n[terminal unreachable — check connection]');
+        }
+      }
+      console.warn('[ide] socket connect_error:', e && e.message);
     });
     
     socket.on('terminal_output', (data) => {

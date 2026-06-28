@@ -37,7 +37,7 @@ def _app():
 
 
 def _bmo_websocket_authorized(auth: object | None) -> bool:
-    """HTTP Bearer and/or Socket.IO `auth: { bmo_api_key: ... }` for non-local clients."""
+    """HTTP Bearer, Cloudflare Access JWT, and/or Socket.IO `auth: { bmo_api_key: ... }` for non-local clients."""
     a = _app()
     if not a.BMO_API_KEY:
         return True
@@ -46,6 +46,11 @@ def _bmo_websocket_authorized(auth: object | None) -> bool:
     if (request.headers.get("Authorization", "") or "").strip() == f"Bearer {a.BMO_API_KEY}":
         return True
     if isinstance(auth, dict) and auth.get("bmo_api_key") == a.BMO_API_KEY:
+        return True
+    # Owner authenticated at the Cloudflare Access edge (verified JWT in the
+    # Cf-Access-Jwt-Assertion header or CF_Authorization cookie carried on the
+    # socket.io handshake) -- same trust the REST front door grants (app.py:382).
+    if a._cf_access_authenticated():
         return True
     return False
 

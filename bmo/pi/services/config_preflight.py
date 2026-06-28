@@ -85,6 +85,28 @@ def run_preflight(logger=None) -> dict:
             "note": "calendar reads unavailable until OAuth token is restored",
         })
 
+    # PHASE-08 08B: surface the token's TTL (cheap file read, no Google client,
+    # no refresh — never reads the token value itself). Lets a session/monitor
+    # judge expiry from a number without forcing a (live-mutating) refresh.
+    calendar_token_expiry = None
+    calendar_token_ttl_s = None
+    if calendar_token:
+        try:
+            import json
+            from datetime import datetime, timezone
+            with open(_TOKEN_FILE, encoding="utf-8") as _tf:
+                _td = json.load(_tf)
+            _exp = _td.get("expiry") if isinstance(_td, dict) else None
+            if _exp:
+                _dt = datetime.fromisoformat(str(_exp).replace("Z", "+00:00"))
+                if _dt.tzinfo is None:
+                    _dt = _dt.replace(tzinfo=timezone.utc)
+                calendar_token_expiry = _dt.isoformat()
+                calendar_token_ttl_s = int((_dt - datetime.now(timezone.utc)).total_seconds())
+        except Exception:
+            calendar_token_expiry = None
+            calendar_token_ttl_s = None
+
     providers_ok = required_ok + optional_ok
     providers_total = required_total + optional_total
     parts = [f"{providers_ok}/{providers_total} providers configured"]
@@ -118,6 +140,8 @@ def run_preflight(logger=None) -> dict:
         "required_total": required_total, "required_ok": required_ok,
         "optional_total": optional_total, "optional_ok": optional_ok,
         "calendar_token": calendar_token,
+        "calendar_token_expiry": calendar_token_expiry,
+        "calendar_token_ttl_s": calendar_token_ttl_s,
         "banner": banner,
         "ok": ok,
     }

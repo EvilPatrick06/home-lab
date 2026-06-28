@@ -106,4 +106,8 @@ sed -n '2266,2276p' bmo/pi/app.py      # add-item: data = request.json or {}; 40
 
 ## Completed
 
-*(Filled during execution per INSTRUCTIONS.md rule 17 — one entry per sub-phase as it lands.)*
+- **07A** (2026-06-28) — `api_list_check_item` and `api_list_clear` (`bmo/pi/app.py`) switched `request.json or {}` → `request.get_json(silent=True) or {}`, so a bodyless / non-JSON POST falls back to the documented defaults (`done=True`, `done_only=False`) instead of raising 415. Existing JSON callers unchanged.
+- **07B** (2026-06-28) — `api_list_add_item` got the same parse fix, so a bodyless / non-JSON POST now reaches the handler's existing `400 {"error":"Item text required"}` rather than an opaque 415; a valid `{text}` JSON still creates the item. Logged the broader ~55-site `request.json or {}` pattern as a follow-up sweep in `docs/logs/BMO-SUGGESTIONS-LOG.md` (rule 12) rather than expanding scope. _Note:_ the parametrized edit initially matched `api_notes_create` (identical two-line shape) first; caught via diff review, reverted that out-of-scope change, and re-targeted the add-item handler by its unique 400 message.
+
+_Cheap checks: `pytest tests/test_app_endpoints.py` 68 passed (5 new in `TestListEndpointRequestRobustness`); `ruff check app.py` clean. Diff verified to touch only the three list handlers._
+

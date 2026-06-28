@@ -93,3 +93,82 @@ def test_status_summary_monitoring_ok(client):
     assert r.status_code == 200
     assert r.get_json()["monitoring"] == "ok"
     bmo.health_checker = None  # reset
+
+
+# ── PHASE-08 08A: running-code identity on /api/v1/health ─────────────────────
+
+
+def test_health_reports_running_identity(client, monkeypatch):
+    import app as bmo
+    monkeypatch.setattr(bmo, "_RUNNING_COMMIT", "abc123def456", raising=False)
+    monkeypatch.setattr(bmo, "_static_mtime", lambda rel: 1782339164)
+    r = client.get("/api/v1/health")
+    assert r.status_code == 200
+    b = r.get_json()
+    assert b["status"] == "ok" and b["api_version"] == "v1"
+    assert b["commit"] == "abc123def456"
+    assert b["asset_build"] == 1782339164
+    assert isinstance(b["started_at"], str)
+    assert isinstance(b["uptime_s"], int) and b["uptime_s"] >= 0
+
+
+def test_health_degrades_to_null_on_git_and_mtime_failure(client, monkeypatch):
+    import app as bmo
+    monkeypatch.setattr(bmo, "_RUNNING_COMMIT", None, raising=False)
+
+    def _boom(rel):
+        raise OSError("no such file")
+
+    monkeypatch.setattr(bmo, "_static_mtime", _boom)
+    r = client.get("/health")
+    assert r.status_code == 200
+    b = r.get_json()
+    assert b["status"] == "ok"
+    assert b["commit"] is None
+    assert b["asset_build"] is None
+
+
+# ── PHASE-08 08B: calendar token TTL on /api/health/full ─────────────────────
+
+
+def _write_token(tmp_path, expiry_iso):
+    import json
+    tok = tmp_path / "token.json"
+    tok.write_text(json.dumps({"token": "x", "refresh_token": "r", "expiry": expiry_iso}))
+    return tok
+
+
+def test_health_full_calendar_token_ttl_future(client, monkeypatch, tmp_path):
+    from datetime import datetime, timezone, timedelta
+    from services import config_preflight
+    import app as bmo
+    bmo.health_checker = None
+    future = (datetime.now(timezone.utc) + timedelta(hours=1)).isoformat()
+    monkeypatch.setattr(config_preflight, "_TOKEN_FILE", _write_token(tmp_path, future))
+    cfg = client.get("/api/health/full").get_json()["config"]
+    assert cfg["calendar_token"] is True
+    assert isinstance(cfg["calendar_token_expiry"], str)
+    assert cfg["calendar_token_ttl_s"] > 0
+
+
+def test_health_full_calendar_token_ttl_past(client, monkeypatch, tmp_path):
+    from datetime import datetime, timezone, timedelta
+    from services import config_preflight
+    import app as bmo
+    bmo.health_checker = None
+    past = (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat()
+    monkeypatch.setattr(config_preflight, "_TOKEN_FILE", _write_token(tmp_path, past))
+    cfg = client.get("/api/health/full").get_json()["config"]
+    assert cfg["calendar_token"] is True
+    assert cfg["calendar_token_ttl_s"] < 0
+
+
+def test_health_full_calendar_token_missing(client, monkeypatch, tmp_path):
+    from services import config_preflight
+    import app as bmo
+    bmo.health_checker = None
+    monkeypatch.setattr(config_preflight, "_TOKEN_FILE", tmp_path / "nope.json")
+    cfg = client.get("/api/health/full").get_json()["config"]
+    assert cfg["calendar_token"] is False
+    assert cfg["calendar_token_expiry"] is None
+    assert cfg["calendar_token_ttl_s"] is None
