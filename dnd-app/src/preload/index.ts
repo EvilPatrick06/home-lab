@@ -393,6 +393,17 @@ const api = {
     }
   },
 
+  // OS file association (.dndvtt)
+  files: {
+    consumePending: () =>
+      ipcRenderer.invoke(IPC_CHANNELS.FILE_CONSUME_PENDING) as Promise<{ path: string | null }>,
+    onOpenRequest: (cb: (data: { path: string }) => void) => {
+      const listener = (_e: IpcRendererEvent, data: { path: string }) => cb(data)
+      ipcRenderer.on(IPC_CHANNELS.FILE_OPEN_REQUEST, listener)
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.FILE_OPEN_REQUEST, listener)
+    }
+  },
+
   // Auto-update
 
   // LAN discovery (mDNS / Bonjour) — Phase 29g

@@ -50,6 +50,24 @@ function App(): JSX.Element {
   const colorblindMode = useAccessibilityStore((s) => s.colorblindMode)
   const fontStyle = useAccessibilityStore((s) => s.fontStyle)
 
+  // OS file association (.dndvtt): the open-file/argv path is wired in the main
+  // process, but the character/campaign import pipeline isn't built yet — so
+  // surface a friendly notice instead of silently dropping the file. Covers both
+  // launch (consumePending) and while-running (onOpenRequest) deliveries.
+  useEffect(() => {
+    const files = window.api?.files
+    if (!files) return
+    const notify = (): void => addToast('Importing from a file isn’t available yet', 'info')
+    void files
+      .consumePending?.()
+      .then((r) => {
+        if (r?.path) notify()
+      })
+      .catch(() => {})
+    const off = files.onOpenRequest?.(() => notify())
+    return () => off?.()
+  }, [])
+
   // Initialize game system registry and notification service
   useEffect(() => {
     initGameSystems()

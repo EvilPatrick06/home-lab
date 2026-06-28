@@ -2,7 +2,8 @@ import type { Dirent } from 'node:fs'
 import { readdir, unlink } from 'node:fs/promises'
 import { join } from 'node:path'
 import { is, optimizer } from '@electron-toolkit/utils'
-import { app, BrowserWindow, crashReporter, dialog, nativeImage, shell } from 'electron'
+import { app, BrowserWindow, crashReporter, dialog, ipcMain, nativeImage, shell } from 'electron'
+import { IPC_CHANNELS } from '../shared/ipc-channels'
 import { disposeAiService, initFromSavedConfig } from './ai/ai-service'
 import { applySyncBindFromSettings, stopSyncReceiver } from './bmo-bridge'
 import { applyBmoApiKeyFromSettings, applyBmoBaseUrlFromSettings } from './bmo-config'
@@ -123,6 +124,54 @@ if (!gotTheLock) {
   // instance never gets that far.
   app.exit(0)
 }
+
+// ── .dndvtt OS file association ─────────────────────────────────────────
+// package.json build.fileAssociations registers `.dndvtt`, but nothing handled
+// being launched with / asked to open such a file, so double-click / "Open with"
+// silently dropped it. Capture the path from the OS (macOS `open-file` event;
+// Windows/Linux argv on first launch and on `second-instance`) and hand it to
+// the renderer. The character/campaign import pipeline isn't built yet, so the
+// renderer surfaces a friendly "not available yet" notice rather than dropping
+// the file silently — swap in the real import once it lands.
+let pendingOpenFilePath: string | null = null
+
+function extractDndvttPath(argv: readonly string[]): string | null {
+  for (const arg of argv) {
+    if (typeof arg === 'string' && arg.toLowerCase().endsWith('.dndvtt')) return arg
+  }
+  return null
+}
+
+function forwardOpenFile(filePath: string): void {
+  const win = BrowserWindow.getAllWindows()[0]
+  if (win && !win.isDestroyed()) {
+    if (win.isMinimized()) win.restore()
+    win.focus()
+    win.webContents.send(IPC_CHANNELS.FILE_OPEN_REQUEST, { path: filePath })
+  } else {
+    // No window/renderer yet (cold start) — replay via consumePending on mount.
+    pendingOpenFilePath = filePath
+  }
+}
+
+// macOS delivers file-opens through this event, often BEFORE `whenReady`, so it
+// must be registered at module load.
+app.on('open-file', (event, filePath) => {
+  event.preventDefault()
+  if (typeof filePath === 'string' && filePath.toLowerCase().endsWith('.dndvtt')) {
+    forwardOpenFile(filePath)
+  }
+})
+
+// Windows/Linux first launch: the path arrives in our own argv.
+const initialDndvttArg = extractDndvttPath(process.argv)
+if (initialDndvttArg) pendingOpenFilePath = initialDndvttArg
+
+ipcMain.handle(IPC_CHANNELS.FILE_CONSUME_PENDING, () => {
+  const p = pendingOpenFilePath
+  pendingOpenFilePath = null
+  return { path: p }
+})
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -353,12 +402,14 @@ app.on('child-process-gone', (_e, details) => {
   logToFile('ERROR', `child-process-gone: type=${details.type} reason=${details.reason}`, details.exitCode?.toString())
 })
 
-app.on('second-instance', () => {
+app.on('second-instance', (_event, argv) => {
   const win = BrowserWindow.getAllWindows()[0]
   if (win) {
     if (win.isMinimized()) win.restore()
     win.focus()
   }
+  const p = extractDndvttPath(argv)
+  if (p) forwardOpenFile(p)
 })
 
 async function cleanupTmpFiles(dir: string): Promise<void> {

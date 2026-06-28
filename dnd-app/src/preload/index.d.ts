@@ -1236,6 +1236,10 @@ declare global {
         registry: RegistryAPI
         library: LibraryAPI
         sounds: SoundsAPI
+        files: {
+          consumePending: () => Promise<{ path: string | null }>
+          onOpenRequest: (cb: (data: { path: string }) => void) => () => void
+        }
         getVersion: () => Promise<string>
         log: {
           openFolder: () => Promise<{ ok: boolean; path: string }>
