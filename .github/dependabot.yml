@@ -21,6 +21,19 @@ updates:
       npm-deps:
         patterns: ["*"]
 
+  # The mobile (React Native / Expo) project is a separate npm lockfile under
+  # /dnd-app/mobile; without its own entry Dependabot opened no version-update
+  # PRs for it, so its Expo/EAS build-toolchain deps accumulated security alerts
+  # unremediated. Grouped like the others so the integrator review job (3B) sees
+  # one PR per run.
+  - package-ecosystem: npm
+    directory: /dnd-app/mobile
+    schedule:
+      interval: weekly
+    groups:
+      npm-deps:
+        patterns: ["*"]
+
   - package-ecosystem: npm
     directory: /dungeon-scholar
     schedule:
