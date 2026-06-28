@@ -11,7 +11,7 @@ import { exportCharacterToFile, importCharacterFromFile } from '../io/character-
 // actions (terrain/fog/token pushes); the player Ctrl+Z stays a no-op until more push()
 // sites exist (factories: createTokenMoveAction, createFogAction).
 import * as UndoManager from '../undo-manager'
-import { getLatestCharacter } from './helpers'
+import { getLatestCharacter } from './command-dice-utils'
 import type { ChatCommand } from './types'
 
 const undoCommand: ChatCommand = {

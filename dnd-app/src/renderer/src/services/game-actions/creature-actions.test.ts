@@ -10,7 +10,7 @@ vi.mock('./broadcast-utils', () => ({
   broadcastConditionSync: vi.fn()
 }))
 
-vi.mock('./dice-helpers', () => ({
+vi.mock('./dice-action-utils', () => ({
   rollDiceFormula: vi.fn((formula: string) => {
     if (formula === '1d6') return { rolls: [4], total: 4 }
     if (formula === '1d20') return { rolls: [15], total: 15 }

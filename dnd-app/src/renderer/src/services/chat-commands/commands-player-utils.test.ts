@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock helpers
-vi.mock('./helpers', () => ({
+vi.mock('./command-dice-utils', () => ({
   getLatestCharacter: vi.fn(),
   broadcastDiceResult: vi.fn()
 }))
@@ -44,7 +44,7 @@ vi.mock('../../types/character-common', async () => {
 
 import type { Character5e } from '../../types/character-5e'
 import { commands } from './commands-player-utils'
-import { getLatestCharacter } from './helpers'
+import { getLatestCharacter } from './command-dice-utils'
 import type { CommandContext } from './types'
 
 function makeChar(overrides: Partial<Character5e> = {}): Character5e {

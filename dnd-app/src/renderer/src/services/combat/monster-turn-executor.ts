@@ -15,7 +15,7 @@ import { getCreatureSaveMod, getTokenStats, lookupTokenStatBlock } from '../game
 import { broadcastInitiativeSync, broadcastTokenSync, postDmMessage } from '../game-actions/broadcast-utils'
 import { executeApplyAreaEffect } from '../game-actions/creature-conditions'
 import { executeNextTurn } from '../game-actions/creature-initiative'
-import { rollDiceFormula } from '../game-actions/dice-helpers'
+import { rollDiceFormula } from '../game-actions/dice-action-utils'
 import { resolveTokenByLabel } from '../game-actions/name-resolver'
 import type { ActiveMap, DmAction, GameStoreSnapshot, StoreAccessors } from '../game-actions/types'
 import { pluginEventBus } from '../plugin-system/event-bus'

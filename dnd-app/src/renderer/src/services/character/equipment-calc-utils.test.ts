@@ -7,7 +7,7 @@ import {
   LIFESTYLE_COSTS,
   sumEquipmentWeight,
   TOOL_SKILL_INTERACTIONS
-} from './equipment-utilities'
+} from './equipment-calc-utils'
 
 describe('calculateEncumbrance', () => {
   describe('standard rules (PHB 2024)', () => {

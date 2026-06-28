@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.stubGlobal('crypto', { randomUUID: () => 'test-uuid-econ' })
 
-vi.mock('./dice-helpers', () => ({ rollDiceFormula: vi.fn() }))
+vi.mock('./dice-action-utils', () => ({ rollDiceFormula: vi.fn() }))
 vi.mock('../game/token-stats', () => ({
   getTokenStats: vi.fn(() => ({ ac: 13 })),
   getCreatureSaveMod: vi.fn(() => 1)
@@ -22,7 +22,7 @@ import {
   executeSpendMovement,
   executeSpendReaction
 } from './combat-economy-actions'
-import { rollDiceFormula } from './dice-helpers'
+import { rollDiceFormula } from './dice-action-utils'
 import type { ActiveMap, DmAction, GameStoreSnapshot, StoreAccessors } from './types'
 
 const mockRoll = vi.mocked(rollDiceFormula)

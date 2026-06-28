@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createCommandContext, createMockCharacter } from '../../test-helpers'
 
 // Mock helpers
-vi.mock('./helpers', () => ({
+vi.mock('./command-dice-utils', () => ({
   getLatestCharacter: vi.fn(),
   saveAndBroadcastCharacter: vi.fn()
 }))
@@ -37,7 +37,7 @@ vi.mock('../../types/character', () => ({
 
 import type { Character5e } from '../../types/character-5e'
 import { commands } from './commands-player-hp'
-import { getLatestCharacter } from './helpers'
+import { getLatestCharacter } from './command-dice-utils'
 
 function makeChar(overrides: Partial<Character5e> = {}): Character5e {
   return createMockCharacter(overrides)

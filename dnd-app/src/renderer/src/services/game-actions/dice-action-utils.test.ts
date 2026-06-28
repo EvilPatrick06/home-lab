@@ -8,7 +8,7 @@ vi.mock('../dice/dice-service', () => ({
 }))
 
 import type { MapToken } from '../../types/map'
-import { findTokensInArea, rollDiceFormula } from './dice-helpers'
+import { findTokensInArea, rollDiceFormula } from './dice-action-utils'
 
 describe('rollDiceFormula', () => {
   it('parses and rolls NdS+M formula', () => {

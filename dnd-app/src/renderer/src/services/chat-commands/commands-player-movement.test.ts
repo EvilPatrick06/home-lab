@@ -17,7 +17,7 @@ vi.mock('../../stores/use-game-store', () => ({
 vi.mock('../../types/character', () => ({
   is5eCharacter: vi.fn(() => true)
 }))
-vi.mock('./helpers', () => ({
+vi.mock('./command-dice-utils', () => ({
   getLatestCharacter: vi.fn()
 }))
 

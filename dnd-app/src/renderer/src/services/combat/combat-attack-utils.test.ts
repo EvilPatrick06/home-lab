@@ -49,7 +49,7 @@ vi.mock('../dice/dice-service', () => ({
 
 import { useGameStore } from '../../stores/use-game-store'
 import type { ConditionEffectResult } from './attack-condition-effects'
-import { applyDamageToToken, buildAttackSummary, doubleDiceInFormula, rollDamage } from './attack-helpers'
+import { applyDamageToToken, buildAttackSummary, doubleDiceInFormula, rollDamage } from './combat-attack-utils'
 
 describe('doubleDiceInFormula', () => {
   it('doubles 1d8 to 2d8', () => {

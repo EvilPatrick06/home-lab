@@ -6,7 +6,7 @@
 import type { InitiativeEntry } from '../../types/game-state'
 import type { MapToken } from '../../types/map'
 import { broadcastInitiativeSync } from './broadcast-utils'
-import { rollDiceFormula } from './dice-helpers'
+import { rollDiceFormula } from './dice-action-utils'
 import { enrichInitiativeEntry } from './initiative-enrichment'
 import { resolveTokenByLabel } from './name-resolver'
 import type { ActiveMap, DmAction, GameStoreSnapshot, StoreAccessors } from './types'

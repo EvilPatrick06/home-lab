@@ -1,7 +1,7 @@
 import { useGameStore } from '../../stores/use-game-store'
 import { evalDiceExpression, isDiceExpressionError } from '../dice/dice-engine'
 import { revealRoll, rollForDm } from '../dice/dice-service'
-import { broadcastDiceResult, getLastRoll, rollSingle, setLastRoll } from './helpers'
+import { broadcastDiceResult, getLastRoll, rollSingle, setLastRoll } from './command-dice-utils'
 import type { ChatCommand, CommandContext } from './types'
 
 function executeHiddenRoll(args: string, ctx: CommandContext) {

@@ -4,7 +4,7 @@ import { useCharacterStore } from '../../stores/use-character-store'
 import { useGameStore } from '../../stores/use-game-store'
 import type { MapToken } from '../../types/map'
 import { rollSingle } from '../dice/dice-service'
-import { getLatestCharacter } from './helpers'
+import { getLatestCharacter } from './command-dice-utils'
 import type { ChatCommand } from './types'
 
 export const commands: ChatCommand[] = [

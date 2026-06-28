@@ -1,5 +1,5 @@
 import { useCampaignStore } from '../../stores/use-campaign-store'
-import { rollDiceFormula } from './dice-helpers'
+import { rollDiceFormula } from './dice-action-utils'
 import { findBastionByOwnerName, resolveMapByName, resolvePlayerByName } from './name-resolver'
 import type { ActiveMap, DmAction, GameStoreSnapshot, StoreAccessors } from './types'
 

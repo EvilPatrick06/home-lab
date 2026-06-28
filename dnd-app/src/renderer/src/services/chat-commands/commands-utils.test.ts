@@ -53,7 +53,7 @@ vi.mock('../io/campaign-io', () => ({
   exportCampaignToFile: ioMocks.exportCampaignToFile,
   importCampaignFromFile: ioMocks.importCampaignFromFile
 }))
-vi.mock('./helpers', () => ({ getLatestCharacter: ioMocks.getLatestCharacter }))
+vi.mock('./command-dice-utils', () => ({ getLatestCharacter: ioMocks.getLatestCharacter }))
 const campaignStoreState = {
   activeCampaignId: 'camp-1',
   campaigns: [{ id: 'camp-1', name: 'Lost Mine' }],

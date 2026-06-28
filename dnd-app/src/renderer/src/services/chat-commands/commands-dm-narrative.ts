@@ -2,7 +2,7 @@ import { load5eNpcNames, load5eRandomTables } from '../../services/data-provider
 import { useLobbyStore } from '../../stores/use-lobby-store'
 import type { Character5e, CustomFeature } from '../../types/character-5e'
 import { cryptoRandom } from '../../utils/crypto-random'
-import { getLatestCharacter, saveAndBroadcastCharacter } from './helpers'
+import { getLatestCharacter, saveAndBroadcastCharacter } from './command-dice-utils'
 import type { ChatCommand } from './types'
 
 const npcCommand: ChatCommand = {

@@ -8,7 +8,7 @@ vi.mock('./broadcast-utils', () => ({
 }))
 
 // Mock dice helpers — deterministic rolls + controllable area membership
-vi.mock('./dice-helpers', () => ({
+vi.mock('./dice-action-utils', () => ({
   rollDiceFormula: vi.fn(() => ({ rolls: [10], total: 10 })),
   findTokensInArea: vi.fn(() => [])
 }))
@@ -85,7 +85,7 @@ describe('spell-effect-actions', () => {
 
   describe('executeQueryAoe', () => {
     it('posts a DM-only preview listing affected token labels (no mutation)', async () => {
-      const { findTokensInArea } = await import('./dice-helpers')
+      const { findTokensInArea } = await import('./dice-action-utils')
       vi.mocked(findTokensInArea).mockReturnValue([
         { id: 't1', label: 'Goblin 1' } as never,
         { id: 't2', label: 'Goblin 2' } as never
@@ -111,7 +111,7 @@ describe('spell-effect-actions', () => {
     })
 
     it('excludes the caster via excludeLabel', async () => {
-      const { findTokensInArea } = await import('./dice-helpers')
+      const { findTokensInArea } = await import('./dice-action-utils')
       vi.mocked(findTokensInArea).mockReturnValue([
         { id: 't1', label: 'Wizard' } as never,
         { id: 't2', label: 'Goblin' } as never
@@ -133,7 +133,7 @@ describe('spell-effect-actions', () => {
     })
 
     it('excludes the caster case-insensitively (08I — excludeLabel "wizard" vs token "Wizard")', async () => {
-      const { findTokensInArea } = await import('./dice-helpers')
+      const { findTokensInArea } = await import('./dice-action-utils')
       vi.mocked(findTokensInArea).mockReturnValue([
         { id: 't1', label: 'Wizard' } as never,
         { id: 't2', label: 'Goblin' } as never
@@ -200,7 +200,7 @@ describe('spell-effect-actions', () => {
     })
 
     it('applies immediate area damage when shape + target + damageFormula given', async () => {
-      const { findTokensInArea, rollDiceFormula } = await import('./dice-helpers')
+      const { findTokensInArea, rollDiceFormula } = await import('./dice-action-utils')
       vi.mocked(findTokensInArea).mockReturnValue([
         { id: 'g1', entityId: 'ge1', label: 'Goblin', currentHP: 12 } as never
       ])

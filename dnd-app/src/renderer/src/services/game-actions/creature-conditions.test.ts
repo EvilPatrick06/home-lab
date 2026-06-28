@@ -16,7 +16,7 @@ vi.mock('./broadcast-utils', () => ({
 }))
 
 // Mock dice helpers
-vi.mock('./dice-helpers', () => ({
+vi.mock('./dice-action-utils', () => ({
   rollDiceFormula: vi.fn(() => ({ rolls: [15], total: 15 })),
   findTokensInArea: vi.fn(() => [])
 }))
@@ -225,7 +225,7 @@ describe('creature-conditions', () => {
     })
 
     it('returns true when no tokens are in the area', async () => {
-      const { findTokensInArea } = await import('./dice-helpers')
+      const { findTokensInArea } = await import('./dice-action-utils')
       vi.mocked(findTokensInArea).mockReturnValue([])
 
       const { executeApplyAreaEffect } = await import('./creature-conditions')
@@ -243,8 +243,8 @@ describe('creature-conditions', () => {
     })
 
     it('applies damage and condition to tokens in area', async () => {
-      const { findTokensInArea } = await import('./dice-helpers')
-      const { rollDiceFormula } = await import('./dice-helpers')
+      const { findTokensInArea } = await import('./dice-action-utils')
+      const { rollDiceFormula } = await import('./dice-action-utils')
       vi.mocked(findTokensInArea).mockReturnValue([
         { id: 't1', entityId: 'e1', label: 'Goblin', gridX: 5, gridY: 5, currentHP: 20 } as never
       ])
@@ -272,7 +272,7 @@ describe('creature-conditions', () => {
     })
 
     it('halves damage on successful save with halfOnSave', async () => {
-      const { findTokensInArea, rollDiceFormula } = await import('./dice-helpers')
+      const { findTokensInArea, rollDiceFormula } = await import('./dice-action-utils')
       vi.mocked(findTokensInArea).mockReturnValue([
         { id: 't1', entityId: 'e1', label: 'Fighter', gridX: 0, gridY: 0, currentHP: 30 } as never
       ])

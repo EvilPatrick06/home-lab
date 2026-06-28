@@ -41,7 +41,7 @@ vi.mock('../../stores/use-game-store', () => ({
   }
 }))
 
-vi.mock('./helpers', () => ({
+vi.mock('./command-dice-utils', () => ({
   findTokenByName: vi.fn((name: string) => {
     if (name.toLowerCase() === 'goblin') return { id: 'tok-1', label: 'Goblin' }
     return null

@@ -7,7 +7,7 @@ import type { AttackOptions, AttackResult } from '../combat/attack-resolver'
 import { findWeapon, formatAttackResult, resolveAttack } from '../combat/attack-resolver'
 import type { DeathSaveResult, DeathSaveState, GrappleResult, ShoveResult } from '../combat/combat-resolver'
 import { rollMultiple } from '../dice/dice-service'
-import { findTokenByName, rollD20WithTag } from './helpers'
+import { findTokenByName, rollD20WithTag } from './command-dice-utils'
 import type { ChatCommand } from './types'
 
 // Re-export combat types for consumers that access them through the chat-commands barrel

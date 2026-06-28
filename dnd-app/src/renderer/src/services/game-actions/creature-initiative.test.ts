@@ -6,7 +6,7 @@ vi.mock('./broadcast-utils', () => ({
 }))
 
 // Mock dice helpers
-vi.mock('./dice-helpers', () => ({
+vi.mock('./dice-action-utils', () => ({
   rollDiceFormula: vi.fn(() => ({ rolls: [4], total: 4 }))
 }))
 
@@ -201,7 +201,7 @@ describe('creature-initiative', () => {
     })
 
     it('auto-rolls recharge abilities for enemy creatures', async () => {
-      const { rollDiceFormula } = await import('./dice-helpers')
+      const { rollDiceFormula } = await import('./dice-action-utils')
       vi.mocked(rollDiceFormula).mockReturnValue({ rolls: [6], total: 6 })
 
       const { executeNextTurn } = await import('./creature-initiative')
@@ -361,7 +361,7 @@ describe('creature-initiative', () => {
 
   describe('executeRechargeRoll', () => {
     it('rolls to recharge an ability', async () => {
-      const { rollDiceFormula } = await import('./dice-helpers')
+      const { rollDiceFormula } = await import('./dice-action-utils')
       vi.mocked(rollDiceFormula).mockReturnValue({ rolls: [5], total: 5 })
 
       const { executeRechargeRoll } = await import('./creature-initiative')
@@ -408,7 +408,7 @@ describe('creature-initiative', () => {
     })
 
     it('adds a new ability entry if one does not exist', async () => {
-      const { rollDiceFormula } = await import('./dice-helpers')
+      const { rollDiceFormula } = await import('./dice-action-utils')
       vi.mocked(rollDiceFormula).mockReturnValue({ rolls: [3], total: 3 })
 
       const { executeRechargeRoll } = await import('./creature-initiative')

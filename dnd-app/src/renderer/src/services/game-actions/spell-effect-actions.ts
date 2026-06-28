@@ -18,7 +18,7 @@
 import type { ActiveSpellEffect } from '../../types/dm-toolbox'
 import { getCreatureSaveMod } from '../game/token-stats'
 import { broadcastConditionSync, broadcastTokenSync, postDmMessage } from './broadcast-utils'
-import { findTokensInArea, rollDiceFormula } from './dice-helpers'
+import { findTokensInArea, rollDiceFormula } from './dice-action-utils'
 import { resolveTokenByLabel } from './name-resolver'
 import type { ActiveMap, DmAction, GameStoreSnapshot, StoreAccessors } from './types'
 

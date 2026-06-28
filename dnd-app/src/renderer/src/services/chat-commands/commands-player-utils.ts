@@ -4,7 +4,7 @@ import { useLobbyStore } from '../../stores/use-lobby-store'
 import type { AbilityName } from '../../types/character-common'
 import { ABILITY_NAMES, abilityModifier, formatMod } from '../../types/character-common'
 import { rollSingle } from '../dice/dice-service'
-import { broadcastDiceResult, getLatestCharacter } from './helpers'
+import { broadcastDiceResult, getLatestCharacter } from './command-dice-utils'
 import type { ChatCommand } from './types'
 
 function rollD20(): number {

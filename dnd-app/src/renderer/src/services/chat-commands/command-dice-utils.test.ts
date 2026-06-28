@@ -84,7 +84,7 @@ import {
   rollSingle,
   saveAndBroadcastCharacter,
   setLastRoll
-} from './helpers'
+} from './command-dice-utils'
 
 beforeEach(() => {
   vi.clearAllMocks()

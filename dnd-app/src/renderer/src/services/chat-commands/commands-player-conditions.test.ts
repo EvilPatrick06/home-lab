@@ -30,7 +30,7 @@ vi.mock('../../stores/use-game-store', () => ({
 vi.mock('../dice/dice-service', () => ({
   rollSingle: vi.fn(() => 10)
 }))
-vi.mock('./helpers', () => ({
+vi.mock('./command-dice-utils', () => ({
   getLatestCharacter: vi.fn()
 }))
 
