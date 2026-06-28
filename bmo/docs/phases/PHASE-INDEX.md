@@ -31,6 +31,9 @@
 | 06 | [`PHASE-06-dashboard-ux-platform-hygiene.md`](./completed/PHASE-06-dashboard-ux-platform-hygiene.md) | bmo | — | done |
 | 07 | [`PHASE-07-list-endpoint-request-robustness.md`](./completed/PHASE-07-list-endpoint-request-robustness.md) | bmo | — | done |
 | 08 | [`PHASE-08-deploy-runtime-version-truth.md`](./completed/PHASE-08-deploy-runtime-version-truth.md) | bmo | — | done |
+| 09 | [`PHASE-09-chat-agent-module-init.md`](./PHASE-09-chat-agent-module-init.md) | bmo | — | pending |
+| 10 | [`PHASE-10-service-health-truth.md`](./PHASE-10-service-health-truth.md) | bmo | — | pending |
+| 11 | [`PHASE-11-dashboard-ux-round.md`](./PHASE-11-dashboard-ux-round.md) | bmo | — | pending |
 
 > **Provenance of this batch:** PHASE-01..03 were consolidated from
 > `QA/QA-report-2026-06-24.md` (now in `QA/completed/`) by the bmo phase-maker on
@@ -75,7 +78,4 @@
 > dominant **High** ("browser-rendered QA blocked" — `BMO_API_KEY` gate + off-Pi automation browsers)
 > is an automation/infra coverage gap (attach a Pi-local browser), not bmo app code, so it is an
 > owner/QA-infra item, not a phase; report-3's deploy-restart structural ask is already in
-> `docs/logs/BMO-ISSUES-LOG.md` (08 adds only the code-side *observability*); and report-3's low
-> "no `GET /api/alarms`" observation was investigated and found **already satisfied** (alarms persist to
-> `data/alarms.json` and rehydrate via the combined `GET /api/timers` on dashboard load). The
-> bmo-phase-executer updates the Status column (`pending` → `in progress` → `done`) as it ships each plan.
+> `docs/logs/BMO-ISSUES-LOG.md` (08 adds only the code-side *observability*); and report-3's lo
