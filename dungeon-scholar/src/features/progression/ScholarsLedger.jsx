@@ -211,7 +211,7 @@ function ScholarsLedger({ playerState, setScreen, scholarName, onSuspendCard, on
             {leeches.slice(0, 12).map((l) => (
               <div key={`${l.tomeId}:${l.id}`} className="flex items-center gap-2 text-sm">
                 <div className="flex-1 min-w-0">
-                  <div className={`italic truncate ${l.suspended ? 'text-stone-400 line-through' : 'text-amber-100'}`}>
+                  <div className={`italic truncate ${l.suspended ? 'text-stone-300 line-through' : 'text-amber-100'}`}>
                     {l.front || l.id}
                   </div>
                   <div className="text-xs text-amber-200/50 italic truncate">
@@ -224,7 +224,7 @@ function ScholarsLedger({ playerState, setScreen, scholarName, onSuspendCard, on
                   <button
                     type="button"
                     onClick={() => onSuspendCard(l.tomeId, l.id, !l.suspended)}
-                    className="px-2 py-1 rounded-sm border border-stone-600 text-stone-200 italic text-xs hover:bg-stone-800/40"
+                    className="px-2 py-1 rounded-sm border border-stone-600 text-stone-300 italic text-xs hover:bg-stone-800/40"
                   >
                     {l.suspended ? 'Resume' : 'Suspend'}
                   </button>
