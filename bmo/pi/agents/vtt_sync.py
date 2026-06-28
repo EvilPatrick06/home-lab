@@ -11,6 +11,7 @@ Push payload keys match the VTT's zod contract (dnd-app/src/shared/ipc-schemas.t
 Requires: requests.
 """
 
+import json
 import logging
 import os
 import threading
@@ -42,6 +43,17 @@ RETRY_DELAYS = (0.5, 1.5, 3.0)
 # control server's /control/status (no blocking health probe needed — 22B).
 _disabled_logged = False
 last_push: Dict[str, Any] = {"ok": None, "at": None, "url": None, "status": None}
+
+# Durable outbox (PHASE-22 reliability): when a push exhausts its bounded retry
+# (VTT down longer than the few-second window), append the event here instead of
+# dropping it, then replay in order once /api/sync/health is healthy again. The
+# stable eventId makes replay safe (VTT dedups). Stale events expire so an old
+# roll never replays into a later session.
+_OUTBOX_PATH = os.path.expanduser("~/home-lab/bmo/pi/data/vtt_sync_outbox.jsonl")
+_OUTBOX_LOCK = threading.Lock()
+_OUTBOX_TTL = 6 * 3600
+_DRAIN_INTERVAL = 30
+_drainer_started = False
 
 
 def sync_enabled() -> bool:
@@ -151,9 +163,108 @@ def _send_with_retry(url: str, payload: Dict[str, Any]) -> bool:
             logger.warning("VTT sync %s error (attempt %d/%d): %s", _s(url), attempt + 1, attempts, _s(e))
         if attempt < len(RETRY_DELAYS):
             time.sleep(RETRY_DELAYS[attempt])
-    logger.warning("VTT sync %s dropped after %d attempts (eventId=%s)", _s(url), attempts, _s(payload.get("eventId")))
+    logger.warning("VTT sync %s dropped after %d attempts (eventId=%s) — buffering to outbox", _s(url), attempts, _s(payload.get("eventId")))
+    _outbox_append(url, payload)
     last_push.update({"ok": False, "at": time.time(), "url": url, "status": final_status})
     return False
+
+
+def _outbox_append(url: str, payload: Dict[str, Any]) -> None:
+    """Append a dropped event to the durable outbox and ensure the drainer runs."""
+    rec = {"url": url, "payload": payload, "queued_at": time.time()}
+    try:
+        with _OUTBOX_LOCK:
+            os.makedirs(os.path.dirname(_OUTBOX_PATH), exist_ok=True)
+            with open(_OUTBOX_PATH, "a", encoding="utf-8") as f:
+                f.write(json.dumps(rec) + "\n")
+        _ensure_drainer()
+    except OSError as e:
+        logger.warning("VTT sync outbox append failed: %s", _s(e))
+
+
+def outbox_depth() -> int:
+    """Number of buffered events awaiting replay (for a degraded-state indicator)."""
+    try:
+        with _OUTBOX_LOCK:
+            if not os.path.exists(_OUTBOX_PATH):
+                return 0
+            with open(_OUTBOX_PATH, encoding="utf-8") as f:
+                return sum(1 for line in f if line.strip())
+    except OSError:
+        return 0
+
+
+def _send_once(url: str, payload: Dict[str, Any]) -> bool:
+    try:
+        resp = requests.post(url, json=payload, timeout=SYNC_TIMEOUT, headers=_auth_headers())
+        return resp.status_code == 200
+    except requests.RequestException:
+        return False
+
+
+def _vtt_healthy() -> bool:
+    try:
+        resp = requests.get(f"{VTT_SYNC_URL}/api/sync/health", timeout=SYNC_TIMEOUT, headers=_auth_headers())
+        return resp.status_code == 200
+    except requests.RequestException:
+        return False
+
+
+def _drain_outbox() -> None:
+    """Replay buffered events in order; expire stale ones; stop on first failure
+    (VTT went away again) and keep the remainder for the next drain pass."""
+    with _OUTBOX_LOCK:
+        if not os.path.exists(_OUTBOX_PATH):
+            return
+        try:
+            with open(_OUTBOX_PATH, encoding="utf-8") as f:
+                lines = [line for line in f if line.strip()]
+        except OSError:
+            return
+    now = time.time()
+    remaining: list[str] = []
+    stop = False
+    for line in lines:
+        if stop:
+            remaining.append(line)
+            continue
+        try:
+            rec = json.loads(line)
+        except ValueError:
+            continue  # drop corrupt line
+        if now - rec.get("queued_at", 0) > _OUTBOX_TTL:
+            continue  # expire stale event
+        if _send_once(rec.get("url", ""), rec.get("payload", {})):
+            continue
+        remaining.append(line)
+        stop = True
+    with _OUTBOX_LOCK:
+        try:
+            if remaining:
+                with open(_OUTBOX_PATH, "w", encoding="utf-8") as f:
+                    f.writelines(ln if ln.endswith("\n") else ln + "\n" for ln in remaining)
+            elif os.path.exists(_OUTBOX_PATH):
+                os.remove(_OUTBOX_PATH)
+        except OSError:
+            pass
+
+
+def _ensure_drainer() -> None:
+    global _drainer_started
+    if _drainer_started or not sync_enabled():
+        return
+    _drainer_started = True
+
+    def _loop():
+        while True:
+            time.sleep(_DRAIN_INTERVAL)
+            try:
+                if outbox_depth() > 0 and _vtt_healthy():
+                    _drain_outbox()
+            except Exception:
+                pass
+
+    threading.Thread(target=_loop, daemon=True, name="vtt-outbox-drainer").start()
 
 
 def _post_to_vtt(path: str, data: Dict[str, Any]) -> bool:
