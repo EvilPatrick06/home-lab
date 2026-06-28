@@ -1,0 +1,27 @@
+name: dnd-app e2e (smoke)
+
+# Non-blocking: runs on PRs touching dnd-app and on manual dispatch only — NOT on
+# every push — so it never gates the required dnd-app-ci on auto/* branches while
+# the Playwright suite is still being grown. Promote to push/required once stable.
+on:
+  pull_request:
+    paths:
+      - 'dnd-app/**'
+      - '.github/workflows/dnd-e2e.yml'
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dnd-app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build:web
+      - run: npx playwright test
