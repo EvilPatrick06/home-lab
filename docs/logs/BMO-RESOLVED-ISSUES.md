@@ -12,6 +12,301 @@
 
 ---
 
+### [2026-06-28] bmo-resolver — bmo backlog batch (6 issues + 5 suggestions), user-approved
+
+- **Resolved by:** bmo-resolver  **Branch:** `auto/bmo-resolver` (rebased onto current origin/master; integrator merges; bmo auto-deploys on merge)
+- **During:** scheduled bmo-resolver run; all open bmo entries approved by the user 2026-06-28. (origin/master advanced ~22 commits mid-run; branch rebased and redundant fixes dropped — see notes.)
+
+**Issue resolutions:**
+1. `/api/music/*` + `/api/calendar/*` 500-storm — proximate None-deref guards were already on master (integrator `32fc08c4`); added the deeper layers: `/api/health/full` surfaces per-service init status (degraded), bounded `ensure_music()`/`ensure_calendar()` self-heal a transient-boot-race service left `None`, and `ide._resolve_agent` resolves `__main__`-first + raises a clean error instead of derefing `None`. (`b8781746`)
+2. `bmo / deploy` dirty-tree race — already resolved on master (`3f7222d1`, settle-poll re-polls a transient dirty live tree before Gate 3 aborts). No further code needed; archived as already-resolved.
+3. Calendar token never re-persisted — resolved on master by **phase 05** (`e08d6c1c`: `_persist_token_if_changed` persists the token after an in-memory refresh). Verified present on the rebased base; my duplicate implementation was **dropped during rebase** to avoid a conflicting double-fix. Archived as resolved (by phase 05).
+5. `init_tv_remote` blocking ERROR each boot — `adb connect` moved to a daemon thread; expected TV-unreachable timeout downgraded `log.exception`→`log.info`. (`2898b58e`)
+6. Pi soft thermal limit — fan curve already reaches full 255 by 75 °C on master (integrator `2ebb90e1`); only the physical heatsink/airflow check remains (hardware, not code). Archived as already-resolved.
+7. aiohttp `NotAppKeyWarning` — `dm_bot_control` uses a typed `web.AppKey` (`BOT_KEY`). (`2898b58e`)
+
+*(Issue #4 — `bmo-voice-canary.service` stale module path — was already fixed AND archived by phase 06 before this run; the redundant unit edit was dropped during rebase.)*
+
+**Suggestion resolutions:**
+8. DMSession lost on restart — serialize/persist/restore + `on_ready` recovery to `data/dm_session_state.json`. (`ae16ee52`)
+9. Discord-bot zombie liveness — `bots/sd_watchdog.py` + `Type=notify`/`WatchdogSec=120` on both bot units; pings only while gateway-ready. (`9077d9cd`)
+10. VTT sync drops events — durable outbox (`vtt_sync_outbox.jsonl`) + drain-on-reconnect (eventId dedup, TTL expiry). (`7e07c1e7`)
+11. Router telemetry / dead Tier-3 — per-tier `metrics_counters`; Tier-3 restored as opt-in (non-voice channel + `disable_tiers`); voice path unaffected. (`38d5b5e8`)
+13. Routine engine empty — `seed_examples()` ships 3 disabled starter routines + routine_agent nudge + `SERVICES.md` doc. (`f0a12a91`)
+
+**Verification:** py_compile + targeted pytest per file on the rebased tree (system_api 13, music_api 8, monitoring_health 11, game_registry 21, dm_bot_control 50, dm_bot_voice 33, social_bot_import 4, bmo_auth 16, auth 12, sync 10 — all green). Live Pi actions (not via branch): 4 data DBs chmod 0600 + bmo-peerjs container recreated with loopback bind (see security archive). Code deploys via the integrator merge.
+
+**NOT done:** suggestion #12 (social-bot god-module split) — left active in `BMO-SUGGESTIONS-LOG.md` with a note + `warn`.
+
+<details><summary>Original entries (verbatim, moved from BMO-ISSUES-LOG.md + BMO-SUGGESTIONS-LOG.md)</summary>
+
+### [2026-06-24] `/api/music/*` + `/api/calendar/events` 500-storm — lazy service accessors deref `None` after a swallowed init failure (no guard, no retry)
+
+- **Category:** bug
+- **Severity:** high
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** scheduled error scan of bmo.service runtime logs (journal)
+
+**Description:**
+On the current `bmo.service` boot (start 2026-06-23 16:07:06 MDT, `NRestarts=0`), both the music and calendar services failed to initialize and were left as `None`, and the read endpoints that depend on them now raise an unhandled `AttributeError` on **every** poll. In the last 24h the journal shows ~**9,305** `Exception on /api/music/state [GET]` plus a handful on `/api/music/devices`, `/api/music/most-played`, `/api/music/history`, and **65** `Exception on /api/calendar/events [GET]`. The kiosk/web UI polls `/api/music/state` roughly every 2s, so this is a continuous 500-storm that floods the journal (hastening rotation — the original init-time exception has already rotated away) and leaves the music + calendar panels broken for the whole uptime.
+
+**Reproduction:**
+1. Cause (or simulate) a `MusicService` / calendar init failure at app startup (`app.py` swallows it: `except Exception: log.exception("Music: SKIPPED")`, leaving module-global `music = None`; calendar analogous).
+2. Hit `GET /api/music/state` (or let the kiosk poll it).
+3. Observed: `AttributeError: 'NoneType' object has no attribute 'get_state'` at `routes/music_api.py:135` → Flask 500. Same shape at `routes/calendar_api.py:35` (`'NoneType' object has no attribute 'get_upcoming_events'`).
+
+**Expected behavior:** A read endpoint for an unavailable service should degrade gracefully — e.g. return `{"available": false, ...}` (HTTP 200) or a clean `503`, not an unhandled 500 on every poll. Init failure should be surfaced (e.g. on `/health`) rather than only visible as endpoint 500s.
+
+**Hypothesis / root cause (two layers):**
+- **Proximate:** `_music()` (`routes/music_api.py:20-22`, `return app.music`) and `_calendar()` (`routes/calendar_api.py:26-27`, `return app.calendar`) return `None` when the service failed to init, and the handlers deref the result with no None-guard (`routes/music_api.py:135` `_music().get_state()`; `routes/calendar_api.py:35`). The `music_api.py` module docstring even calls this out as deliberate "pre-extraction behavior" — but a 500 on a hot poll loop is a defect, not a feature.
+- **Contributing:** `app.py:664-670` (and the calendar equivalent) catch *all* init exceptions and continue with the service set to `None`, with **no retry and no health-surfaced degradation**. A transient boot-ordering race (audio sink / network / OAuth not ready when `MusicService.__init__` runs `vlc.Instance(...)` / `YTMusic()`, or an expired Google token for calendar) therefore **permanently** disables the feature until a manual restart. Verified the deps themselves are healthy *now*: live venv has `python-vlc 3.0.21203` + `ytmusicapi 1.12.0`, `import vlc` / `YTMusic()` ctor both succeed, `vlc`/`cvlc` binaries present — so this was an init-time/transient failure, not a missing dependency. (Exact boot exception unrecoverable: the 500-storm flooded the journal past rotation. NOT canary mode — confirmed no `BMO_CANARY` in the unit env or `.env`.)
+
+**Proposed fix / improvement:**
+- [ ] Guard the lazy accessors / handlers: when `app.music` / `app.calendar` is `None`, return a degraded JSON payload (`available:false`) or `503`, never deref `None`. Apply across all `/api/music/*` and `/api/calendar/*` read handlers (and any other `routes/*.py` that does `return app.<svc>` then derefs — `routes/ide.py:56` `return app.agent` is the same shape).
+- [ ] Surface failed service init on `/health` (degraded), so monitoring/alerts fire instead of the failure being visible only as endpoint 500s.
+- [ ] Add a bounded re-init/retry (or lazy re-construct on first use) so a transient boot-race self-heals instead of staying dead for the whole uptime.
+
+**Related files:** `bmo/pi/routes/music_api.py` (`_music`, `:135`), `bmo/pi/routes/calendar_api.py` (`_calendar`, `:35`), `bmo/pi/app.py` (`:660-670` music init swallow; calendar init), `bmo/pi/routes/ide.py:56` (same accessor pattern), `bmo/pi/services/music_service.py`.
+
+### [2026-06-23] `bmo / deploy` red on master — health-gated deploy aborts on dirty live checkout (Gate 3) due to concurrent dev-tree writes
+
+- **Category:** infra / CI (deploy reliability)
+- **Severity:** high
+- **Domain:** bmo (Pi infra/tooling)
+- **Discovered by:** ci-failure-triage (2026-06-23 ~08:30Z run)
+- **Failed runs:** `28012173813` (target `a349ea7b`, 08:14Z) and `28012662356` (target `dfdc76e2`, 08:23Z) — both `bmo / deploy` on master.
+
+**Root cause:**
+`bmo/pi/scripts/deploy.sh` Gate 3 (`git status --porcelain` non-empty → `fail "working tree is dirty; commit/clean before deploying (never auto-stashed)"`, line 157) aborted before any mutation. The Pi's deploy target `/home/patrick/home-lab` is also the shared **dev tree** (deploy.sh explicitly never stashes/clobbers it). At deploy time the tree was dirty from in-flight automation: the `docs/logs/` migration (commit `dfdc76e2`) was still mid-flight — staged deletions of the old-path bridge files `docs/*-LOG.md` / `docs/RESOLVED-*.md` plus unstaged edits to `.gitattributes`, `.gitignore`, and `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`. Confirmed live during triage: the tree flipped clean→dirty within minutes, so it is an **ongoing race**, not a one-off. Not a code defect in deploy.sh — a contention problem between the health-gated deploy and concurrent agents editing the live checkout. Last successful deploy was `88c5f7e5` (07:58Z); master HEAD `717f07a6` is currently **undeployed**.
+
+**Proposed fix:**
+- [x] **Immediate (DONE 2026-06-23 ~08:40Z, ci-failure-triage):** migration committed (master HEAD `9dc2e615`, tree clean, no in-flight agents), re-dispatched `bmo / deploy` via `workflow_dispatch` on `9dc2e615` → run `28013620616` **succeeded**; master deploy is green and `9dc2e615` is now deployed (prev last-good was `88c5f7e5`). Original note: once the in-flight `docs/logs` migration is committed and `git status --porcelain` on the Pi is empty, re-dispatch `bmo / deploy` (`gh workflow run "bmo / deploy"`, default target = `origin/master` HEAD) so master lands green and `717f07a6` actually deploys. (Not done by triage: committing/cleaning the tree would have clobbered another agent's half-staged migration.)
+- [ ] **Structural:** make deploy independent of the shared dev tree — deploy from a clean ephemeral checkout (dedicated `git worktree` / fresh clone to a deploy-only path), OR have the deploy gate retry/back-off on a *transient* dirty tree (re-poll `status --porcelain` for N seconds before failing) so concurrent agent edits can no longer turn the deploy red.
+- [ ] Optionally serialize live-tree-mutating agents against deploys via the existing `home-lab-locks/` lock convention.
+
+**Note (benign, no action):** cancelled run `28012396581` (dnd-app CI, `91096a31`) was a concurrency supersede — the next master push `dfdc76e2` ran dnd-app CI green (`28012454736`).
+*(none currently logged)*
+
+### [2026-06-24] Calendar token never re-persisted after in-memory refresh — monitoring fires a perpetual false CRITICAL “auto-refresh is not happening” while the calendar is actually working
+
+- **Category:** bug
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** scheduled error scan — journal showed 8× CRITICAL `google_calendar: Calendar token expired and auto-refresh is not happening — run reauth_calendar.py` on the current `bmo.service` uptime
+
+**Description:**
+On every `bmo.service` uptime, ~1h after boot the calendar monitor escalates to a CRITICAL alert telling the user to re-authorize the calendar — but the calendar is fully functional. Verified live: `GET /api/calendar/events` returns real upcoming events (200), yet `config/token.json` still has its boot-time `expiry` (`2026-06-24T23:06:22Z`) and an mtime frozen at process start (`16:06:23`), i.e. it has not been rewritten in the >2.5h since the access token expired. So the on-disk token looks permanently expired even though the live client keeps refreshing in memory. The result is an actionable-looking CRITICAL that is a false positive, plus on-disk token drift.
+
+**Reproduction:**
+1. Start `bmo.service` with a valid `token.json` (valid `refresh_token`, ~1h access-token lifetime).
+2. Wait past the access-token `expiry` (+10 min monitor grace).
+3. Observed: `services/monitoring.py::_check_calendar_token` emits `Severity.CRITICAL google_calendar: “auto-refresh is not happening — run reauth_calendar.py”`, while `/api/calendar/events` still returns events and `token.json` mtime/expiry never advance.
+
+**Expected behavior:** When the live client successfully auto-refreshes, the new access token + expiry should be persisted to `token.json` so the file-based monitor sees a fresh token; the CRITICAL should only fire when refresh genuinely fails (revoked / `invalid_grant` / missing `refresh_token`).
+
+**Hypothesis / root cause (confirmed):** Two decoupled layers.
+- `services/calendar_service.py::_get_service()` caches the built client in `self._service` (`:98-99`) and only runs the refresh-and-persist block (`creds.refresh(Request())` → `_write_token_json(creds.to_json())`, `:121-125`) on the **cold-build** path when `self._service is None`. After the first successful build, every later call returns the cached client. The underlying `google` `Credentials` object auto-refreshes **in memory** on API calls (so the feature keeps working), but that refreshed token is never written back to `token.json` — `_write_token_json` is not called again for the life of the process.
+- `services/monitoring.py::_check_calendar_token` (`:1562-1615`) decides health purely from the on-disk `token.json` `expiry`. Because of the above, the on-disk expiry is permanently stale, so after the 10-min grace (`expired_for > 600`) it always escalates to CRITICAL even though refresh is happening (just not persisted). The monitor and the live client are looking at two different sources of truth.
+
+**Proposed fix / improvement:**
+- [ ] Persist the refreshed credentials after a successful in-memory refresh — e.g. register a refresh callback / re-`_write_token_json(creds.to_json())` after API calls, or have `_with_service_retry` write the token when `creds.expiry` advances, so `token.json` tracks the live token.
+- [ ] Have the monitor consult the live credential state (or a status the calendar service publishes after a successful refresh) rather than the file `expiry` alone, so a working auto-refresh does not read as CRITICAL.
+- [ ] (Optional) Suppress/downgrade the CRITICAL when a recent successful calendar API call is observed, to stop alert fatigue.
+
+**Related files:** `bmo/pi/services/calendar_service.py` (`_get_service` `:98-146`, `_write_token_json` `:79`, `_with_service_retry` `:148-160`), `bmo/pi/services/monitoring.py` (`_check_calendar_token` `:1491-1655`), `bmo/pi/config/token.json` (runtime, gitignored).
+
+**Related entries:** see the [2026-06-24] `/api/music/*` + `/api/calendar/events` 500-storm entry above — that covers None-deref 500s on init failure; this is a distinct defect where the service inits fine but refresh persistence + the monitor disagree.
+
+### [2026-06-24] `init_tv_remote` blocks startup ~5s and logs an ERROR traceback every boot when the TV is unreachable (`adb connect` timeout)
+
+- **Category:** bug, performance
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** scheduled error scan — journal shows `[ERROR] [bmo] [tv] ADB connect failed` + a `subprocess.TimeoutExpired` traceback on every `bmo.service` boot
+
+**Description:**
+At startup `init_tv_remote()` runs `subprocess.run(["adb", "connect", f"{TV_IP}:5555"], timeout=5)` synchronously on the app init path. When the TV is off/unreachable (the normal case much of the day) this blocks for the full 5s and then raises `subprocess.TimeoutExpired`, which is caught but logged via `log.exception` — so a full traceback at ERROR level lands in the journal on every boot. Observed alongside the boot-time `monitoring: Expected ports not listening: BMO Flask (:5000)` warning, i.e. the 5s adb timeout delays the Flask bind. Functionally harmless (it is caught, and a 60s background reconnect thread exists), but it is recurring log noise rated ERROR for an expected condition, plus avoidable startup latency.
+
+**Reproduction:**
+1. Power off / disconnect the TV at `TV_IP`.
+2. Restart `bmo.service`.
+3. Observed: ~5s stall, then `[tv] ADB connect failed` ERROR + `TimeoutExpired: Command [adb, connect, 10.10.20.194:5555] timed out after 5 seconds` traceback at `routes/tv_api.py:133`.
+
+**Expected behavior:** A TV that is simply off should not produce an ERROR-level traceback or block startup. Log it at INFO/DEBUG (“TV not reachable, will retry in background”) and/or move the initial `adb connect` off the synchronous startup path into the existing `_tv_bg_reconnect` thread.
+
+**Hypothesis / root cause:** `routes/tv_api.py::init_tv_remote` (`:128-146`) does the blocking `adb connect` inline and uses `log.exception("[tv] ADB connect failed")` in its `except`, which always emits a traceback at ERROR even for the benign “TV is off” timeout.
+
+**Proposed fix / improvement:**
+- [ ] Downgrade the caught-timeout log from `log.exception` (ERROR+traceback) to `log.info`/`log.debug` for the expected unreachable case.
+- [ ] Move the initial `adb connect` into the background reconnect thread so startup (and Flask bind) is not delayed by an unreachable TV.
+
+**Related files:** `bmo/pi/routes/tv_api.py` (`init_tv_remote` `:128-146`, `_tv_bg_reconnect` `:160+`).
+
+### [2026-06-24] Pi hit the soft thermal limit (`get_throttled=0x80000`) — CPU peaked 82°C under load and the fan duty curve caps below max
+
+- **Category:** performance
+- **Severity:** low
+- **Domain:** bmo (Pi infra/tooling)
+- **Discovered by:** bmo-errors
+- **During:** scheduled error scan — `bmo.service` journal logged 2× `[CRITICAL] pi_cpu_temp: CPU temperature critical` (82.0°C, 81.5°C) in 24h
+
+**Description:**
+`vcgencmd get_throttled` returns `0x80000` (bit 19 = “soft temperature limit has occurred”), and the monitor recorded CPU spikes to 82.0°C / 81.5°C (CRITICAL) plus several 73–79°C elevated readings over 24h. At scan time the Pi was idle/cool (49°C) and not actively throttling (no bits 0–3 set), so this is intermittent under load (e.g. local LLM inference — `gemma3:4b` is warmed in-process). The fan controller (`bmo-fan.service`) is running and responding, but its duty observed capping around `227/255` even at ~75°C rather than ramping to full 255, so peak load can still cross the soft limit before the fan saturates.
+
+**Reproduction:**
+1. Drive sustained CPU load (e.g. Ollama inference) on the Pi.
+2. Observe `journalctl -u bmo.service | grep "temperature critical"` and `vcgencmd get_throttled` (`0x80000`).
+
+**Expected behavior:** Under sustained load the fan should reach full duty early enough to keep the SoC below the soft thermal limit, and ideally the system should avoid recurring CRITICAL temp events.
+
+**Hypothesis / root cause (speculative):** The fan duty curve in `hardware/fan_control.py` tops out below 255 (or ramps too gently) relative to the thermal load of in-process LLM inference, so worst-case load briefly outruns cooling. Could also be a heatsink/airflow limitation. Needs measurement before tuning.
+
+**Proposed fix / improvement:**
+- [ ] Review the duty curve in `bmo/pi/hardware/fan_control.py` — allow full 255 duty (and an earlier/steeper ramp) above ~75°C.
+- [ ] Consider capping/queuing concurrent LLM inference, or verify heatsink/airflow, if the soft limit keeps recurring.
+
+**Related files:** `bmo/pi/hardware/fan_control.py`, `bmo/pi/services/monitoring.py` (`pi_cpu_temp` check).
+
+### [2026-06-24] aiohttp `NotAppKeyWarning` in `dm_bot_control.py` — string `app["bot"]` keys instead of `web.AppKey` (24 warnings in the test run)
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** scheduled error scan — full `pytest` run (1281 passed, 6 skipped) emitted 24× `NotAppKeyWarning` from `bmo/pi/bots/dm_bot_control.py`
+
+**Description:**
+The DM bot control plane stores and reads its bot handle on the aiohttp app via the string key `app["bot"]` (set at `dm_bot_control.py:365`; read at `:59,119,160,180,190,200,213,247,287,303,…`). aiohttp now recommends typed `web.AppKey` instances and emits `NotAppKeyWarning` for plain-string keys; string keys are slated for eventual deprecation. No functional impact today — just forward-compat debt and test-output noise.
+
+**Proposed fix / improvement:**
+- [ ] Define a module-level `BOT_KEY = web.AppKey("bot", commands.Bot)` (or appropriate type) and switch the set/read sites to it.
+
+**Related files:** `bmo/pi/bots/dm_bot_control.py` (`:365` set; reads at `:59,119,160,180,190,200,213,247,287,303`).
+
+
+---
+
+> dnd-app issues: `[ISSUES-LOG-DNDAPP.md](./ISSUES-LOG-DNDAPP.md)`. BMO future ideas / design gotchas / observations: `[BMO-SUGGESTIONS-LOG.md](./BMO-SUGGESTIONS-LOG.md)`. Security (any domain): `[SECURITY-LOG.md](./SECURITY-LOG.md)` (gitignored). Resolved BMO issues: `[BMO-RESOLVED-ISSUES.md](./BMO-RESOLVED-ISSUES.md)`.
+
+### [2026-06-24] DM bot loses all live session state on restart — only `campaign_memory` (NPCs/locations/threads) is persisted, not the active `DMSession`
+
+- **Category:** future-idea (reliability + UX)
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of the Discord DM bot + DM engine
+
+**Description:**
+`DMSession` in `bots/discord_dm_bot.py` (class at ~line 343) holds the entire live state of a running D&D session purely in memory: the AI conversation history (`self.messages`, with `_compress_context` summarization), the initiative tracker (`initiative_order`, `initiative_round`, `initiative_collecting`), the `combat_log`, the active `players` set, and the voice-channel binding. None of it is serialized — `__init__` builds empty structures and `reset()` clears them. The only durable store is `services/campaign_memory.py` (sqlite: sessions, NPCs, locations, plot threads, notes) and the separate play-by-post `pbp_store.py`. So if `bmo-dm-bot.service` restarts mid-session — a deploy, an OOM kill, a crash, or a Pi reboot — the DM "forgets" everything about the in-progress encounter: whose turn it is, the round number, the combat log, and the running narration context. Players have to re-establish initiative and re-explain what just happened. This is not hypothetical on this host: BMO-RESOLVED documents a real boot-time clock-skew crash loop that took both bots down (2026-06-20), exactly the kind of mid-session restart that would wipe a live `DMSession`. The `Restart=on-failure` hardening that was added protects the *process*, but a restarted process comes back with a blank session.
+
+**Hypothesis / root cause:** `DMSession` was designed as ephemeral runtime state; persistence work stopped at `campaign_memory` (long-term campaign facts) and `pbp_store` (async turn queue) and never extended to the live synchronous session.
+
+**Proposed fix / improvement:**
+- [ ] Serialize the recoverable parts of `DMSession` (messages/compressed-context, initiative_order + round, combat_log, players, text/voice channel IDs) to a small JSON or sqlite blob on each mutation (or on a short debounce), keyed by guild/channel.
+- [ ] On `on_ready`/`setup_hook`, if a persisted session exists for the channel and is recent (e.g. < a few hours old), offer to resume it (a slash command like `/resume` or an auto-restore with a "recovered your session" notice) rather than starting blank.
+- [ ] Exclude non-serializable live handles (`voice_client`, `synth_task`, the `asyncio.Queue`) — rebuild those on resume; persist only data.
+- [ ] Reuse the existing eventId/dedup discipline from `agents/vtt_sync.py` so a resumed session does not double-push state to the VTT.
+
+**Related files:** `bmo/pi/bots/discord_dm_bot.py:343` (`DMSession`), `bmo/pi/bots/discord_dm_bot.py` (`add_message`/`_compress_context`/`reset`), `bmo/pi/services/campaign_memory.py`, `bmo/pi/services/pbp_store.py`.
+
+**Related entries:** BMO-RESOLVED 2026-06-20 (boot-time clock-skew crash loop took both Discord bots down) — the failure mode that makes this gap bite.
+
+---
+
+### [2026-06-24] Discord-bot health is process-level only (`systemctl is-active`) — no gateway-connection heartbeat, so a "zombie" bot (process up, gateway dropped / event loop stalled) is invisible and never restarted
+
+- **Category:** future-idea (observability + reliability)
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of `services/monitoring.py` + the Discord bots + systemd units
+
+**Description:**
+`monitoring.py` watches the Discord bots via `_check_systemd_services()` over `_MONITORED_SERVICES = ["bmo", "docker", "bmo-dm-bot", "bmo-social-bot", "bmo-kiosk", "bmo-fan"]`, but the only signal it reads is `systemctl is-active`. That proves the *process* exists; it says nothing about whether the bot is actually connected to Discord's gateway. discord.py auto-reconnects from most gateway drops, but it does not cover a *stalled event loop* (a blocking call, a deadlocked synth/relay task) or a silent half-open connection — in those cases the process stays `active`, `Restart=on-failure` never fires (the process didn't exit), and monitoring reports green while the bot is functionally dead. There is no `WatchdogSec=`/`sd_notify` on any unit (`systemd/*.service` only set `Restart=`/`RestartSec=`), and neither bot surfaces `bot.latency` / `is_ready()` / `is_closed()` to the monitor or to the `dm_bot_control` plane. The recently-fixed swallow-and-exit-0 startup bug (BMO-RESOLVED 2026-06-20) closed the *crash* path; this is the complementary *liveness* path that crash-restart cannot catch.
+
+**Hypothesis / root cause:** health monitoring was built around HTTP services and systemd unit state; the Discord bots have no HTTP surface, so they got the weakest available check (`is-active`) and no gateway-level liveness probe.
+
+**Proposed fix / improvement:**
+- [ ] Drive a systemd watchdog from each bot's event loop: set `WatchdogSec=` + `Type=notify` on `bmo-dm-bot.service` / `bmo-social-bot.service` and have a periodic asyncio task call `sd_notify("WATCHDOG=1")` only while `not bot.is_closed()` and `bot.is_ready()`. A stalled loop then misses the ping and systemd restarts the unit.
+- [ ] Expose gateway health (`bot.latency` in ms, `is_ready`, last-heartbeat-ack age) over the existing `dm_bot_control` control plane (and an equivalent for the social bot), and have `monitoring.py` read it instead of relying solely on `is-active`.
+- [ ] Optionally extend the voice-canary pattern (`bmo-voice-canary.timer`) to a lightweight Discord-relay canary that confirms an end-to-end round trip, not just process liveness.
+
+**Related files:** `bmo/pi/services/monitoring.py:1139` (`_MONITORED_SERVICES`), `bmo/pi/services/monitoring.py` (`_check_systemd_services`), `bmo/pi/systemd/bmo-dm-bot.service`, `bmo/pi/systemd/bmo-social-bot.service`, `bmo/pi/bots/dm_bot_control.py`, `bmo/pi/bots/discord_dm_bot.py`, `bmo/pi/bots/social/bot.py`.
+
+**Related entries:** BMO-RESOLVED 2026-06-20 (Discord bots swallowed startup exception + exited 0, defeating `Restart=on-failure`) — that closed the crash path; this covers the process-alive-but-disconnected path.
+
+---
+
+### [2026-06-24] VTT sync drops session events (rolls/messages/joins) when the VTT is offline longer than the bounded retry window — no persistent outbox / replay-on-reconnect
+
+- **Category:** future-idea (reliability + UX)
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of `agents/vtt_sync.py` (DM bot → VTT relay)
+
+**Description:**
+`agents/vtt_sync.py` pushes Discord-side session events to the VTT (`push_discord_message`, `push_discord_roll`, `push_player_join`, `push_player_leave`) via `_send_with_retry`, which does a bounded retry with backoff (3 retries → 4 attempts) on a daemon thread, with a stable `eventId` so the VTT can dedup. That is well-built for transient blips, but the retry budget is short (a few seconds total). If the VTT is down or unreachable for longer than that window — VTT app restart, host switching Wi-Fi, the laptop sleeping — the event is dropped silently and there is no persistent outbox to replay it once `/api/sync/health` reports the VTT back. For a live D&D relay, a dropped `push_discord_roll` means a player's `/roll d20` simply never lands in the VTT chat panel, with no indication to either side. The dedup/eventId machinery needed to make replay safe already exists; only the durable buffer + drain-on-reconnect is missing.
+
+**Hypothesis / root cause:** the relay was designed as best-effort fire-and-forget with short retry; durability across a multi-minute VTT outage was out of scope at the time.
+
+**Proposed fix / improvement:**
+- [ ] On final retry exhaustion, append the event (with its existing `eventId`) to a small append-only outbox (JSON lines or sqlite) instead of dropping it.
+- [ ] Add a periodic drainer that, when `GET /api/sync/health` is healthy again, replays queued events in order and relies on the VTT's existing eventId dedup; trim/expire entries older than a session-relevant TTL so stale rolls don't replay into a later session.
+- [ ] Surface a lightweight "N events buffered, VTT offline" indicator (Discord status / control plane) so the table knows the relay is degraded rather than silently lossy.
+
+**Related files:** `bmo/pi/agents/vtt_sync.py:131` (`_send_with_retry`), `bmo/pi/agents/vtt_sync.py` (`push_discord_message`/`push_discord_roll`/`push_player_join`/`push_player_leave`, `/api/sync/health` probe), `bmo/pi/bots/discord_dm_bot.py`.
+
+---
+
+### [2026-06-23] Router has no per-tier decision telemetry, and Tier-3 LLM classification is hard-commented-out rather than gated by `router.disable_tiers`
+
+- **Category:** future-idea (observability + UX)
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+
+**Description:**
+`agents/router.py` resolves every message through Tier 1 (explicit `!prefix`) → Tier 2 (substring keyword scoring) → default `conversation`, but emits **no telemetry about which tier resolved a route or how often messages fall through to the catch-all**. The prior voice-latency metrics work (BMO-RESOLVED 2026-06-22, `/metrics` + `voice_metrics`) instruments stage *durations* including agent-routing *time*, but not routing *outcomes* — so a misroute (a smart-home or timer request that misses every keyword and silently lands in `conversation`) is invisible. There is already a process-lifetime counter facility (`services/metrics_counters.py`) feeding the hand-rolled Prometheus exposition in `routes/system_api.py:_prometheus_text`, so adding routing counters is cheap and fits the existing pattern. Two concrete gaps: (1) no counter like `bmo_router_tier_total{tier="prefix|keyword|default"}` to see the fall-through rate; (2) the Tier-3 LLM classifier is **commented out** at `agents/router.py:302-306`, yet the comment says "To re-enable: remove llm from `router.disable_tiers` in settings" — that setting does nothing because the call site is dead code, so the documented re-enable path is a no-op (config/code drift).
+
+**Proposed fix / improvement:**
+- [ ] Increment a `metrics_counters` counter in `route()` tagged by the tier that resolved (prefix / keyword / default), and export it via the existing `/metrics` endpoint; this surfaces the keyword-miss rate that would justify (or not) re-enabling Tier 3.
+- [ ] Make Tier 3 actually honor `router.disable_tiers` — restore the gated call site so `disable_tiers` controls it, and consider enabling it **only for non-voice channels** (Discord text, IDE chat) where the 10-20 s LLM latency is acceptable but routing accuracy matters, keeping it off on the latency-critical voice path.
+- [ ] Optionally log the chosen agent + tier at DEBUG for offline misroute analysis.
+
+**Related files:** `bmo/pi/agents/router.py:269` (`route`), `bmo/pi/agents/router.py:297-306` (disabled Tier 3 + stale re-enable comment), `bmo/pi/services/metrics_counters.py`, `bmo/pi/routes/system_api.py:798` (`_prometheus_text`), `bmo/pi/services/voice/voice_metrics.py`.
+
+---
+
+### [2026-06-23] Routine automation engine ships with no starter/example routines — a powerful feature most users never discover
+
+- **Category:** future-idea (UX / quality-of-life)
+- **Severity:** low
+- **Domain:** bmo
+
+**Discovered by:** bmo-suggestor
+
+**Description:**
+`services/routine_service.py` is a capable automation engine — it chains actions (commands, speech, delays) off voice-phrase, cron-schedule, or system-event triggers, persisted to `data/routines.json` — and `agents/routine_agent.py` exposes create/list/trigger/enable/disable/delete via voice and chat. But the feature is **entirely empty on a fresh install**: `data/routines.json` starts blank, nothing is shipped, and BMO never volunteers that the capability exists, so a user has to already know to say "create a routine" and then hand-author triggers/actions by voice with no template to copy. High-value, obviously-useful automations the existing primitives already support — a spoken **morning briefing** (calendar + weather + last session recap on a weekday cron), a **"good night"** routine (lights off, music stop, alarms armed), a **"leaving home"** routine (TV/Chromecast off, lights off) — are all buildable today but invisible. This is a discoverability/QoL gap, not a missing capability.
+
+**Proposed fix / improvement:**
+- [ ] Ship a small library of disabled-by-default **example routines** (e.g. `data/routines.example.json` or seeded on first boot) covering morning-briefing / good-night / leaving-home, so users have working templates to enable or clone.
+- [ ] Have `routine_agent` surface a "you have no routines yet — want me to set up a morning briefing?" nudge on first list, and document the example set in `docs/SERVICES.md`.
+- [ ] Optional: a compose-a-briefing helper that wires `calendar_agent` + `weather_agent` + `session_recap_agent` into one spoken routine action, demonstrating cross-agent chaining.
+
+**Related files:** `bmo/pi/services/routine_service.py`, `bmo/pi/agents/routine_agent.py`, `bmo/pi/data/routines.json`, `bmo/pi/docs/SERVICES.md` (`../docs/SERVICES.md`), `bmo/pi/agents/{calendar_agent,weather_agent,session_recap_agent}.py`.
+
+---
+
+---
+
+</details>
+
+---
+
 ### [2026-06-28] bmo-phase-executer — PHASE-06 06E: `bmo-voice-canary.service` ExecStart stale module path, user-approved
 
 - **Category:** bug, config
