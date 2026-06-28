@@ -38,12 +38,32 @@ def _calendar():
     return app.calendar
 
 
+def _maybe_reinit_calendar():
+    """Trigger app.ensure_calendar() (bounded self-heal) when the service is None."""
+    import sys
+    main = sys.modules.get("__main__")
+    fn = getattr(main, "ensure_calendar", None) if main is not None else None
+    if fn is None:
+        try:
+            import app
+            fn = getattr(app, "ensure_calendar", None)
+        except Exception:
+            fn = None
+    if fn:
+        try:
+            fn()
+        except Exception:
+            pass
+
+
 @calendar_bp.before_request
 def _require_calendar_service():
     # app.calendar is None when the service init failed (e.g. missing/expired Google
     # OAuth). Without this guard, routes call a method on None → AttributeError → 500.
     # Return the same graceful "offline" shape the /events RuntimeError path uses, so
     # the dashboard shows "calendar unavailable" instead of erroring on a 500 HTML page.
+    if _calendar() is None:
+        _maybe_reinit_calendar()
     if _calendar() is None:
         return jsonify({"offline": True, "needs_auth": True, "events": []})
 

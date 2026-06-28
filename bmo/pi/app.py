@@ -436,6 +436,56 @@ camera = None
 calendar = None
 music = None
 music_init_error = None
+service_init_status = {}   # name -> {ok: bool, error: str|None, reinit: bool} (surfaced on /api/health/full)
+_service_reinit_last = {}  # name -> epoch of last bounded re-init attempt
+
+
+def _reinit_allowed(name, cooldown=60):
+    now = time.time()
+    if now - _service_reinit_last.get(name, 0.0) < cooldown:
+        return False
+    _service_reinit_last[name] = now
+    return True
+
+
+def ensure_calendar():
+    """Bounded lazy re-init: if the calendar service failed to init (left None),
+    reconstruct it at most once per cooldown so a transient boot-race self-heals
+    instead of staying dead for the whole uptime. Returns the service or None."""
+    global calendar
+    if calendar is not None:
+        return calendar
+    if not _reinit_allowed("calendar"):
+        return None
+    try:
+        from services.calendar_service import CalendarService
+        calendar = CalendarService(socketio=socketio)
+        service_init_status["calendar"] = {"ok": True, "reinit": True}
+        log.info("[bmo]   Calendar: re-init OK")
+    except Exception as e:
+        service_init_status["calendar"] = {"ok": False, "error": repr(e), "reinit": True}
+        log.warning("[bmo]   Calendar: re-init failed: %s", e)
+    return calendar
+
+
+def ensure_music():
+    """Bounded lazy re-init for the music service (see ensure_calendar)."""
+    global music, music_init_error
+    if music is not None:
+        return music
+    if not _reinit_allowed("music"):
+        return None
+    try:
+        from services.music_service import MusicService
+        music = MusicService(smart_home=smart_home, socketio=socketio, audio_service=audio_service)
+        music_init_error = None
+        service_init_status["music"] = {"ok": True, "reinit": True}
+        log.info("[bmo]   Music: re-init OK")
+    except Exception as e:
+        music_init_error = repr(e)
+        service_init_status["music"] = {"ok": False, "error": music_init_error, "reinit": True}
+        log.warning("[bmo]   Music: re-init failed: %s", e)
+    return music
 smart_home = None
 weather = None
 timers = None
@@ -629,8 +679,10 @@ def init_services():
             from services.calendar_service import CalendarService
             calendar = CalendarService(socketio=socketio)
             service_map["calendar"] = calendar
+            service_init_status["calendar"] = {"ok": True}
             log.info("[bmo]   Calendar: OK")
-        except Exception:
+        except Exception as e:
+            service_init_status["calendar"] = {"ok": False, "error": repr(e)}
             log.exception("[bmo]   Calendar: SKIPPED")
 
     # Dynamic location/timezone
@@ -690,9 +742,11 @@ def init_services():
             from services.music_service import MusicService
             music = MusicService(smart_home=smart_home, socketio=socketio, audio_service=audio_service)
             service_map["music"] = music
+            service_init_status["music"] = {"ok": True}
             log.info("[bmo]   Music: OK")
         except Exception as e:
             music_init_error = repr(e)
+            service_init_status["music"] = {"ok": False, "error": music_init_error}
             log.exception("[bmo]   Music: SKIPPED")
 
     # Timers
