@@ -535,3 +535,109 @@ class TestCalendarRoutesOffline:
         r = c.get("/api/calendar/next")
         assert r.status_code == 200
         assert r.get_json()["offline"] is True
+
+
+# ── PHASE-05 05A: persist the access token whenever it refreshes ──────────────
+
+
+class TestTokenPersistenceOnRefresh:
+    def test_persists_when_token_changes(self):
+        cs = CalendarService()
+        cs._service = MagicMock()
+        creds = MagicMock()
+        creds.token = "old"
+        creds.expired = False  # don't trigger the cached opportunistic refresh
+        creds.to_json.return_value = '{"token":"new"}'
+        cs._creds = creds
+
+        def call(service):
+            creds.token = "new"  # simulate googleapiclient's in-memory refresh
+            return {"ok": True}
+
+        with patch.object(CalendarService, "_write_token_json") as mock_write:
+            result = cs._with_service_retry(call)
+        assert result == {"ok": True}
+        mock_write.assert_called_once_with('{"token":"new"}')
+
+    def test_no_write_when_token_unchanged(self):
+        cs = CalendarService()
+        cs._service = MagicMock()
+        creds = MagicMock()
+        creds.token = "same"
+        creds.expired = False  # don't trigger the cached opportunistic refresh
+        cs._creds = creds
+        with patch.object(CalendarService, "_write_token_json") as mock_write:
+            cs._with_service_retry(lambda service: "data")
+        mock_write.assert_not_called()
+
+    def test_cached_expired_refreshes_and_persists(self):
+        cs = CalendarService()
+        cs._service = MagicMock()  # cached client present
+        creds = MagicMock()
+        creds.expired = True
+        creds.refresh_token = "rt"
+        creds.to_json.return_value = '{"token":"refreshed"}'
+        cs._creds = creds
+        with patch.object(CalendarService, "_write_token_json") as mock_write:
+            svc = cs._get_service()
+        assert svc is cs._service
+        creds.refresh.assert_called_once()
+        mock_write.assert_called_once_with('{"token":"refreshed"}')
+
+    def test_cached_valid_does_not_refresh(self):
+        cs = CalendarService()
+        cs._service = MagicMock()
+        creds = MagicMock()
+        creds.expired = False
+        creds.refresh_token = "rt"
+        cs._creds = creds
+        with patch.object(CalendarService, "_write_token_json") as mock_write:
+            cs._get_service()
+        creds.refresh.assert_not_called()
+        mock_write.assert_not_called()
+
+
+# ── PHASE-05 05B: guard Google read-only / auto-generated event types ─────────
+
+
+class TestReadOnlyEventGuard:
+    def test_update_birthday_raises_typed_error_and_skips_update(self):
+        from services.calendar_service import CalendarReadOnlyEventError
+        cs = CalendarService()
+        service = MagicMock()
+        service.events.return_value.get.return_value.execute.return_value = {
+            "id": "b1", "eventType": "birthday",
+        }
+        cs._service = service
+        cs._refresh_cache = lambda: None
+        with pytest.raises(CalendarReadOnlyEventError):
+            cs.update_event("b1", summary="x")
+        service.events.return_value.update.assert_not_called()
+
+    def test_update_default_event_succeeds(self):
+        cs = CalendarService()
+        service = MagicMock()
+        raw = _make_raw_event(id="e1")
+        raw["eventType"] = "default"
+        service.events.return_value.get.return_value.execute.return_value = raw
+        service.events.return_value.update.return_value.execute.return_value = raw
+        cs._service = service
+        cs._refresh_cache = lambda: None
+        result = cs.update_event("e1", summary="New")
+        service.events.return_value.update.assert_called_once()
+        assert result["id"] == "e1"
+
+    def test_update_catches_event_type_restriction_400(self):
+        from services.calendar_service import CalendarReadOnlyEventError
+        cs = CalendarService()
+        service = MagicMock()
+        service.events.return_value.get.return_value.execute.return_value = {
+            "id": "x", "eventType": "default",
+        }
+        service.events.return_value.update.return_value.execute.side_effect = Exception(
+            "HttpError 400 eventTypeRestriction: cannot modify"
+        )
+        cs._service = service
+        cs._refresh_cache = lambda: None
+        with pytest.raises(CalendarReadOnlyEventError):
+            cs.update_event("x", summary="y")
