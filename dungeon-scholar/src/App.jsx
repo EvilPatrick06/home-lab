@@ -171,7 +171,6 @@ import { pickWeakestDomain, WEAK_DOMAIN_ACCURACY_THRESHOLD, WEAK_DOMAIN_MIN_SAMP
 const LibraryScreen = lazyWithReload(() => import('./features/library/LibraryScreen.jsx'));
 
 import TomeNotes from './components/TomeNotes.jsx';
-import { STARTER_DECKS } from './data/starterDecks.js';
 import ImportCodeModal from './features/library/ImportCodeModal.jsx';
 import ImportDeckModal from './features/library/ImportDeckModal.jsx';
 import MetadataEditModal from './features/library/MetadataEditModal.jsx';
@@ -180,6 +179,7 @@ import PasteTomeModal from './features/library/PasteTomeModal.jsx';
 import SealedTomeGate from './features/library/SealedTomeGate.jsx';
 import ShareTomeModal from './features/library/ShareTomeModal.jsx';
 import TomeEditor from './features/library/TomeEditor.jsx';
+import { STARTER_DECKS } from './game/starterDecks.js';
 import { deckTextToTome } from './services/deckImport.js';
 import { applyTagToTomes } from './services/libraryBulk.js';
 
