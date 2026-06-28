@@ -57,7 +57,7 @@ export default function LibrarySidebar({
   }
 
   return (
-    <aside className="w-56 flex-shrink-0 border-r border-gray-800 overflow-y-auto h-full">
+    <aside className="w-full md:w-56 flex-shrink-0 border-b md:border-b-0 md:border-r border-gray-800 overflow-y-auto max-h-[35vh] md:max-h-none md:h-full">
       <button
         onClick={() => onSelectCategory(null)}
         className={`w-full text-left px-4 py-3 text-sm font-semibold transition-colors cursor-pointer

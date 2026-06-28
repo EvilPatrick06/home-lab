@@ -576,7 +576,7 @@ export default function LibraryPage(): JSX.Element {
   }
 
   return (
-    <div className="p-8 h-screen flex flex-col">
+    <div className="p-4 md:p-8 h-screen flex flex-col">
       <BackButton to={returnTo} />
 
       {/* Header */}
@@ -625,7 +625,7 @@ export default function LibraryPage(): JSX.Element {
       </div>
 
       {/* Content */}
-      <div className="flex gap-0 flex-1 min-h-0 border border-gray-800 rounded-lg overflow-hidden">
+      <div className="flex flex-col md:flex-row gap-0 flex-1 min-h-0 border border-gray-800 rounded-lg overflow-hidden">
         {/* Sidebar */}
         <LibrarySidebar
           selectedCategory={selectedCategory}
