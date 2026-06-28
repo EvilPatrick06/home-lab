@@ -5726,7 +5726,9 @@
       "importConfirmTitle": "Import Data from Backup?",
       "importConfirmMessage": "Importing will restore characters, campaigns, bastions, and preferences from the backup file. Existing data with the same IDs will be overwritten.",
       "importConfirmLabel": "Import",
-      "webEditionNote": "Dungeon Table Online is the web edition of D&D Virtual Tabletop."
+      "webEditionNote": "Dungeon Table Online is the web edition of D&D Virtual Tabletop.",
+      "techWebRuntime": "Web runtime",
+      "featureMultiplayerWeb": "Online multiplayer via cloud relay"
     },
     "bastionPage": {
       "loadingBastions": "Loading bastions...",
