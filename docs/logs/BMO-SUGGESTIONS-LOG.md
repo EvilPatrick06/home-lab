@@ -20,6 +20,21 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-06-28] `request.json or {}` used 58× in `app.py` — the same 415-before-fallback brittleness PHASE-07 fixed on the list surface applies repo-wide
+
+- **Category:** debt (robustness / consistency)
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-phase-executer
+- **During:** PHASE-07 implementation (list-endpoint request-parsing robustness)
+
+**Description:**
+`data = request.json or {}` appears **58×** in `bmo/pi/app.py`. Flask's `request.json` is the *non-silent* accessor: it raises `UnsupportedMediaType` (415) before the `or {}` fallback can run whenever the request mimetype isn't `application/json`, so every such site 415s on a bodyless / non-JSON POST instead of falling back to an empty dict. PHASE-07 hardened the three list-item handlers (`api_list_add_item`, `api_list_check_item`, `api_list_clear`) to `request.get_json(silent=True) or {}`; the remaining ~55 sites still carry the brittle pattern. No user impact today (the dashboard callers always send the JSON header), but any future caller (curl probe, bodyless toggle, third-party script) gets a confusing 415.
+
+**Proposed fix / improvement:** A scoped repo-wide sweep replacing `request.json or {}` with `request.get_json(silent=True) or {}` (auditing each site for whether default-on-empty or a clean 400 is the right semantics, as PHASE-07 did per-handler). Out of PHASE-07's scope (which intentionally fixed only the QA-flagged list surface + its sibling, per INSTRUCTIONS.md rule 12).
+
+**Related files:** `bmo/pi/app.py` (~55 remaining `request.json or {}` sites).
+
 ### [2026-06-24] ~860 KB of orphaned vendored frontend assets in `web/static/` — Tailwind Play-CDN runtime + a duplicate xterm/marked/hljs vendor set the IDE no longer loads locally
 
 - **Category:** debt (cleanup / dead artifacts)

@@ -2268,7 +2268,7 @@ def api_list_add_item(name):
     """Add item to a list. Body: {text: str}."""
     if not list_service:
         return jsonify({"error": "List service not available"}), 503
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     text = data.get("text", "").strip()
     if not text:
         return jsonify({"error": "Item text required"}), 400
@@ -2291,7 +2291,7 @@ def api_list_check_item(name, item_id):
     """Toggle item done status. Body: {done: bool}."""
     if not list_service:
         return jsonify({"error": "List service not available"}), 503
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     done = data.get("done", True)
     if list_service.check_item(name, item_id, done):
         return jsonify({"ok": True})
@@ -2303,7 +2303,7 @@ def api_list_clear(name):
     """Clear a list. Body: {done_only: bool}."""
     if not list_service:
         return jsonify({"error": "List service not available"}), 503
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     done_only = data.get("done_only", False)
     list_service.clear_list(name, done_only=done_only)
     return jsonify({"ok": True})
