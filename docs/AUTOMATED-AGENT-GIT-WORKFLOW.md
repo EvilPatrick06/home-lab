@@ -256,7 +256,7 @@ worktree model above so you do not collide with the scheduled agents.
     to `auto/<agent-id>` runs the dnd-app lint → forbidden-patterns → typecheck
     (web+node) → schema-validate → full vitest → build → verify → guards gate.
   - The other gates (`bmo-pi-pytest.yml`, `security-audit.yml`, `codeql.yml`,
-    `dnd-app-validate-5e.yml`, `bmo-docker-build.yml`, `deploy.yml`) trigger
+    `dnd-app-validate-5e.yml`, `bmo-docker-build.yml`, `dungeon-scholar-deploy.yml`) trigger
     push only on `master`/`main`, **plus** on `pull_request`. So to get the full
     gate on an `auto/*` branch before integration, open a PR for it; otherwise
     the master-scoped gates run when the integrator pushes the merge to

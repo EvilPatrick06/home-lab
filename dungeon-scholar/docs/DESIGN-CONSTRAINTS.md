@@ -14,7 +14,7 @@ coordinated by one `ds:chunk-reload` sessionStorage one-shot guard.
 
 If a "stale chunk after deploy" / failed-dynamic-import bug ever recurs, check
 the **browser HTTP cache on `index.html`** and the **published `assets/` tree**
-(did `deploy.yml` actually republish? is `index.html` being served from a stale
+(did `dungeon-scholar-deploy.yml` actually republish? is `index.html` being served from a stale
 HTTP cache?) **before** assuming an app bug. Do not add runtime caching for the
 cross-origin Supabase/Oracle requests to "fix" it — those are deliberately
 network-only (`vite.config.js`).

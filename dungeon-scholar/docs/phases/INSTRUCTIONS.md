@@ -25,9 +25,9 @@
 
 **CI (authoritative gate):**
 - `.github/workflows/dungeon-scholar-ci.yml` — triggers on **every push** (and PR) touching `dungeon-scholar/**`. Runs `npm ci → npm run test → npm run build` (`VITE_BASE=/home-lab/`). This is the gate your `auto/ds-phase-executer` push runs through.
-- `.github/workflows/deploy.yml` — **"Deploy Dungeon Scholar to GitHub Pages."** Triggers on push to `main`/`master` touching `dungeon-scholar/**`: builds with the production secrets + `VITE_BASE=/home-lab/` and publishes to GitHub Pages.
+- `.github/workflows/dungeon-scholar-deploy.yml` — **"Deploy Dungeon Scholar to GitHub Pages."** Triggers on push to `main`/`master` touching `dungeon-scholar/**`: builds with the production secrets + `VITE_BASE=/home-lab/` and publishes to GitHub Pages.
 
-**Release mechanics — there is no version-tag/installer release for dungeon-scholar.** Unlike dnd-app (electron `cut.mjs` / `vX.Y.Z` tags / 6 assets / `release.yml`), dungeon-scholar **"releases" by deploying**: when the daily **integrator** merges a clean, CI-green `auto/ds-phase-executer` into `master`, `deploy.yml` rebuilds and republishes the live GitHub-Pages site automatically. So the executer's job ends at **commit + push of the agent branch**; there is **no `cut.mjs`, no tag, no manual release step, and no "after the last phase, cut a release" action.** Live URL: `https://evilpatrick06.github.io/home-lab/#/home`.
+**Release mechanics — there is no version-tag/installer release for dungeon-scholar.** Unlike dnd-app (electron `cut.mjs` / `vX.Y.Z` tags / 6 assets / `release.yml`), dungeon-scholar **"releases" by deploying**: when the daily **integrator** merges a clean, CI-green `auto/ds-phase-executer` into `master`, `dungeon-scholar-deploy.yml` rebuilds and republishes the live GitHub-Pages site automatically. So the executer's job ends at **commit + push of the agent branch**; there is **no `cut.mjs`, no tag, no manual release step, and no "after the last phase, cut a release" action.** Live URL: `https://evilpatrick06.github.io/home-lab/#/home`.
 
 **Logs (per `docs/LOG-INSTRUCTIONS.md`):** out-of-scope findings go to `docs/logs/ISSUES-LOG-DUNGEON-SCHOLAR.md` (bug/debt/config/perf) or `docs/logs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` (future-idea/observation); resolved entries move to `docs/logs/RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`. Durable design gotchas → `dungeon-scholar/docs/DESIGN-CONSTRAINTS.md` (not the suggestions log).
 
@@ -59,7 +59,7 @@ Work the sub-phases in order. Follow the Steps exactly, touch only the listed Fi
 4. `git push -u origin auto/ds-phase-executer` (your agent branch — **NEVER `master`**) + launch the CI watcher + start the next phase.
 
 ### 6. Release = the integrator's merge → Pages auto-deploy (no manual step)
-There is **no** per-phase release and **no** end-of-run `cut.mjs`/tag for dungeon-scholar. The executer never cuts a release. When the integrator merges your green branch to `master`, `deploy.yml` redeploys the live site. If you ever need to confirm a deploy, watch `gh run list --workflow=deploy.yml` — but that is the integrator's/owner's concern, not a step the executer performs.
+There is **no** per-phase release and **no** end-of-run `cut.mjs`/tag for dungeon-scholar. The executer never cuts a release. When the integrator merges your green branch to `master`, `dungeon-scholar-deploy.yml` redeploys the live site. If you ever need to confirm a deploy, watch `gh run list --workflow=dungeon-scholar-deploy.yml` — but that is the integrator's/owner's concern, not a step the executer performs.
 
 ### 7. Repeat on the next phase
 After the phase commit is pushed and the plan moved to `completed/` (rule 8), return to rule 1 and pick the next earliest plan.
@@ -138,7 +138,7 @@ while PHASE-NN-*.md plans remain at top level of dungeon-scholar/docs/phases/:
   git commit -m "feat(ds): phase N — <theme>"     # no Claude/AI in the message
   git push -u origin auto/ds-phase-executer        # NEVER master (rule 11)
   watch CI (dungeon-scholar-ci.yml); red -> fix-forward new commit (rule 5/28); keep going
-  # NO release step — integrator's merge to master auto-deploys via deploy.yml (rule 6)
+  # NO release step — integrator's merge to master auto-deploys via dungeon-scholar-deploy.yml (rule 6)
 folder empty -> end-of-run summary (rule 14)
 ```
 

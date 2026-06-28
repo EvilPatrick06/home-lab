@@ -10,7 +10,7 @@
 > is the authoritative gate on push; ONE commit + ONE push per phase end on
 > `auto/ds-phase-executer`; finished plans move to `completed/`. **No manual
 > release** — the daily integrator's merge to `master` auto-deploys the live
-> GitHub-Pages site via `deploy.yml` (INSTRUCTIONS.md rule 6).
+> GitHub-Pages site via `dungeon-scholar-deploy.yml` (INSTRUCTIONS.md rule 6).
 >
 > **Provenance:** dungeon-scholar's earlier phase plans (PHASE-17/18/19 bug/security/a11y
 > rounds; PHASE-39 architecture; PHASE-40 PWA/cloud; PHASE-41 sealed-tomes/theme) were
