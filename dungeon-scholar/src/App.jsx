@@ -502,6 +502,7 @@ export default function DungeonScholarApp() {
     updateProgress,
     updateTomeProgress,
     updateCardProgress,
+    setCardSuspended,
     setTomeExamDate,
     awardXP,
     awardGold,
@@ -1238,7 +1239,13 @@ export default function DungeonScholarApp() {
     ascension: () => <AscensionScreen playerState={playerState} setScreen={setScreen} onAscend={ascend} />,
     history: () => <RunHistoryScreen playerState={playerState} setScreen={setScreen} />,
     ledger: () => (
-      <ScholarsLedger playerState={playerState} setScreen={setScreen} scholarName={user?.githubLogin || 'Scholar'} />
+      <ScholarsLedger
+        playerState={playerState}
+        setScreen={setScreen}
+        scholarName={user?.githubLogin || 'Scholar'}
+        onSuspendCard={setCardSuspended}
+        onEditTome={(id) => setEditContentTomeId(id)}
+      />
     ),
     domainStudy: () =>
       !sealedLocked && (

@@ -116,6 +116,23 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   // 26g: per-card spaced-repetition state lives at
   // `tome.progress.cardProgress[cardId]`. Updates target the active
   // tome (the player can only review cards from the active tome).
+  // Leech control: suspend / unsuspend a specific card so it leaves the FSRS
+  // due queue (services/leech.js + srs.isCardDue). Tome-targeted (not just the
+  // active tome) because the Scholar's Ledger leech panel spans the library.
+  const setCardSuspended = (tomeId, cardId, suspended) => {
+    if (!tomeId || !cardId) return;
+    setPlayerState((prev) => ({
+      ...prev,
+      library: (prev.library || []).map((t) => {
+        if (t.id !== tomeId) return t;
+        const map = { ...((t.progress && t.progress.cardProgress) || {}) };
+        const cur = map[cardId] || {};
+        map[cardId] = { ...cur, suspended: !!suspended };
+        return { ...t, progress: { ...(t.progress || {}), cardProgress: map } };
+      }),
+    }));
+  };
+
   const updateCardProgress = (cardId, nextState) => {
     if (!cardId || !nextState) return;
     setPlayerState((prev) => {
@@ -1243,6 +1260,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
     updateProgress,
     updateTomeProgress,
     updateCardProgress,
+    setCardSuspended,
     setTomeExamDate,
     awardXP,
     awardGold,
