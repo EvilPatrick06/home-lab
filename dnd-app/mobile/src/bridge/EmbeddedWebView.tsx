@@ -1,6 +1,6 @@
 import { useEffect, useImperativeHandle, useRef, useState, forwardRef, type ReactElement } from 'react'
-import { ActivityIndicator, View } from 'react-native'
-import { WebView, type WebViewMessageEvent } from 'react-native-webview'
+import { ActivityIndicator, BackHandler, View } from 'react-native'
+import { WebView, type WebViewMessageEvent, type WebViewNavigation } from 'react-native-webview'
 import type { BridgeEndpoint } from '@shared/bridge'
 import { resolveEmbedEntry } from '@app/embed/embed-loader'
 import { createNativeBridge } from './native-bridge'
@@ -31,6 +31,7 @@ export const EmbeddedWebView = forwardRef<EmbeddedWebViewHandle, Props>(function
 ): ReactElement {
   const webRef = useRef<WebView>(null)
   const bridgeRef = useRef<ReturnType<typeof createNativeBridge> | null>(null)
+  const canGoBackRef = useRef(false)
   const [uri, setUri] = useState<string | null>(null)
 
   useImperativeHandle(ref, () => ({ endpoint: bridgeRef.current?.endpoint ?? null }), [])
@@ -54,6 +55,20 @@ export const EmbeddedWebView = forwardRef<EmbeddedWebViewHandle, Props>(function
     return () => bridge.dispose()
   }, [onBridgeReady])
 
+  // Android hardware back maps to the web app's history so the whole SPA
+  // navigates like desktop; it only falls through (exits the app) when the
+  // WebView has nowhere left to go back to.
+  useEffect(() => {
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (canGoBackRef.current) {
+        webRef.current?.goBack()
+        return true
+      }
+      return false
+    })
+    return () => sub.remove()
+  }, [])
+
   const onMessage = (e: WebViewMessageEvent): void => {
     bridgeRef.current?.receive(e.nativeEvent.data)
   }
@@ -72,6 +87,9 @@ export const EmbeddedWebView = forwardRef<EmbeddedWebViewHandle, Props>(function
       source={{ uri }}
       originWhitelist={['*']}
       onMessage={onMessage}
+      onNavigationStateChange={(nav: WebViewNavigation) => {
+        canGoBackRef.current = nav.canGoBack
+      }}
       injectedJavaScriptBeforeContentLoaded={BOOTSTRAP}
       javaScriptEnabled
       domStorageEnabled
