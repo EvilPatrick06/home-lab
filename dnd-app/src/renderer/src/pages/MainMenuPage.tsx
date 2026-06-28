@@ -88,7 +88,7 @@ export default function MainMenuPage(): JSX.Element {
   const clearDisconnectReason = useNetworkStore((s) => s.clearDisconnectReason)
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen gap-8 px-4">
+    <div className="flex flex-col items-center justify-center min-h-screen gap-6 sm:gap-8 px-4 py-8">
       {/* Kick/Ban notification banner */}
       {disconnectReason && (
         <div
@@ -128,18 +128,23 @@ export default function MainMenuPage(): JSX.Element {
       )}
 
       <div className="text-center">
-        <h1 className="text-5xl font-bold tracking-wider text-accent mb-2">{t('pages.mainMenuPage.appTitle')}</h1>
-        <p className="text-muted text-lg">{t('pages.mainMenuPage.tagline')}</p>
+        <h1 className="text-4xl sm:text-5xl font-bold tracking-wider text-accent mb-2">
+          {t('pages.mainMenuPage.appTitle')}
+        </h1>
+        <p className="text-muted text-base sm:text-lg">{t('pages.mainMenuPage.tagline')}</p>
       </div>
 
-      <nav aria-label={t('pages.mainMenuPage.mainNavigation')} className="flex flex-col gap-4 w-full max-w-md mt-8">
+      <nav
+        aria-label={t('pages.mainMenuPage.mainNavigation')}
+        className="flex flex-col gap-3 sm:gap-4 w-full max-w-md mt-4 sm:mt-8"
+      >
         {menuItems.map((item) => (
           <button
             key={item.path}
             onClick={() => navigate(item.path)}
-            className="group flex items-center gap-4 p-5 rounded-lg border border-gray-800
-                       bg-surface/50 hover:bg-surface-2/80 hover:border-amber-600/50
-                       transition-all duration-200 text-left cursor-pointer"
+            className="group flex items-center gap-4 p-4 sm:p-5 min-h-[56px] rounded-lg border border-gray-800
+                       bg-surface/50 hover:bg-surface-2/80 hover:border-amber-600/50 active:bg-surface-2
+                       transition-all duration-200 text-left cursor-pointer touch-manipulation"
           >
             <span className="text-gray-500 group-hover:text-accent-strong transition-colors">{item.icon}</span>
             <div>

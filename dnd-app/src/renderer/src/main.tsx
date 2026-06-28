@@ -7,7 +7,7 @@ import ErrorBoundary from './components/ui/ErrorBoundary'
 import { initI18n } from './i18n'
 import { initPluginSystem } from './services/plugin-system'
 import { logger } from './utils/logger'
-import { isWebBuild } from './utils/platform'
+import { isEmbedBuild, isWebBuild } from './utils/platform'
 import './styles/globals.css'
 
 // Log unhandled errors to console (ErrorBoundary catches render errors,
@@ -24,20 +24,29 @@ window.addEventListener('unhandledrejection', (e) => {
 initI18n()
   .catch((e) => logger.warn('[Init] i18n init failed', e))
   .finally(() => {
-    // Web build: real URLs via BrowserRouter (basename = the Vite base,
-    // /DungeonTableOnline) so deep links + refresh land on the right page instead
-    // of resetting to the menu, and each route code-splits. Desktop runs from
-    // file://, where only the in-memory router works.
-    const isWeb = isWebBuild()
-    const Router = isWeb ? BrowserRouter : MemoryRouter
+    // Routing target:
+    //  - EMBED (RN WebView): MemoryRouter seeded from the URL hash the native
+    //    shell sets (e.g. `#/game/abc`), since it's loaded from a file/opaque
+    //    origin where BrowserRouter deep links don't work.
+    //  - WEB: BrowserRouter (basename = the Vite base, /DungeonTableOnline) so
+    //    deep links + refresh land on the right page and routes code-split.
+    //  - DESKTOP: MemoryRouter (runs from file://).
+    const isEmbed = isEmbedBuild()
+    const isWeb = isWebBuild() && !isEmbed
     const basename = isWeb ? import.meta.env.BASE_URL.replace(/\/+$/, '') || undefined : undefined
+    const initialEntry = isEmbed ? decodeURIComponent(window.location.hash.replace(/^#/, '')) || '/' : '/'
+    const router = isWeb ? (
+      <BrowserRouter basename={basename}>
+        <App />
+      </BrowserRouter>
+    ) : (
+      <MemoryRouter initialEntries={[initialEntry]}>
+        <App />
+      </MemoryRouter>
+    )
     ReactDOM.createRoot(document.getElementById('root')!).render(
       <React.StrictMode>
-        <ErrorBoundary>
-          <Router basename={basename}>
-            <App />
-          </Router>
-        </ErrorBoundary>
+        <ErrorBoundary>{router}</ErrorBoundary>
       </React.StrictMode>
     )
   })
