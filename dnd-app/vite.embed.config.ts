@@ -33,6 +33,7 @@ export default defineConfig({
     emptyOutDir: true,
     sourcemap: false,
     reportCompressedSize: false,
+    chunkSizeWarningLimit: 1500,
     rollupOptions: {
       input: resolve(__dirname, "index.embed.html")
     }

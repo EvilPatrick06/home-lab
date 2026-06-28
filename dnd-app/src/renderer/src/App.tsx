@@ -17,6 +17,7 @@ import { setIceConfig } from './network'
 import MainMenuPage from './pages/MainMenuPage'
 import { backupStaleness } from './services/backup/backup-staleness'
 import { preloadAllData } from './services/data-provider'
+import { loadSpeciesSpellData } from './services/character/auto-populate-5e'
 import { loadShortcutDefinitions } from './services/keyboard-shortcuts'
 import * as NotificationService from './services/notification-service'
 import { loadTemplates as loadNotificationTemplates } from './services/notification-service'
@@ -151,9 +152,7 @@ function App(): JSX.Element {
     loadNotificationTemplates()
 
     // Dynamic imports for component/store-level cache loaders
-    import('./services/character/auto-populate-5e')
-      .then((m) => m.loadSpeciesSpellData())
-      .catch((e) => logger.warn('preload auto-populate-5e failed', e))
+    loadSpeciesSpellData().catch((e) => logger.warn('preload auto-populate-5e failed', e))
     import('./components/builder/5e/gear-tab-types')
       .then((m) => m.loadCurrencyConfigData())
       .catch((e) => logger.warn('preload gear-tab-types failed', e))
