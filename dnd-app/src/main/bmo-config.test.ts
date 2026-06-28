@@ -211,7 +211,6 @@ describe('getBmoAccessHeaders (Cloudflare Access service token)', () => {
   })
 })
 
-
 describe('isBmoBaseSecretTrusted / getBmoSecretBaseUrl (LAN Pi-impersonation guard)', () => {
   it('trusts the https tunnel default and routes credentialed calls to it', async () => {
     const mod = await loadFresh()

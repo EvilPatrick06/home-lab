@@ -221,11 +221,14 @@ export async function restoreCampaignFromDrive(campaignId: string): Promise<Clou
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), TRANSFER_TIMEOUT_MS)
     try {
-      const res = await fetch(`${getBmoSecretBaseUrl()}/api/rclone/restore?campaignId=${encodeURIComponent(campaignId)}`, {
-        method: 'GET',
-        signal: controller.signal,
-        headers: rcloneHeaders()
-      })
+      const res = await fetch(
+        `${getBmoSecretBaseUrl()}/api/rclone/restore?campaignId=${encodeURIComponent(campaignId)}`,
+        {
+          method: 'GET',
+          signal: controller.signal,
+          headers: rcloneHeaders()
+        }
+      )
       if (res.status === 404) {
         return { success: false, error: 'No backup found for this campaign on Google Drive.' }
       }

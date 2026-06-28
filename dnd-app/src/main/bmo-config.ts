@@ -92,7 +92,7 @@ export function getDiscoveredBmoUrl(): string | null {
 export function isBmoBaseSecretTrusted(): boolean {
   if (userOverrideUrl) return true
   try {
-    return new URL(resolvedBmoBaseUrl).protocol === "https:"
+    return new URL(resolvedBmoBaseUrl).protocol === 'https:'
   } catch {
     return false
   }
@@ -110,7 +110,7 @@ export function getBmoSecretBaseUrl(): string {
   const envUrl = process.env.BMO_PI_URL
   if (envUrl) {
     try {
-      if (new URL(envUrl).protocol === "https:") return envUrl
+      if (new URL(envUrl).protocol === 'https:') return envUrl
     } catch {
       // malformed env URL — ignore and use the tunnel default
     }

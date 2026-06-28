@@ -344,7 +344,7 @@ async function probeUrl(url: string): Promise<boolean> {
     // http LAN host is never sent the BMO_API_KEY / CF-Access token / backups.
     try {
       const body = (await resp.json()) as { status?: unknown }
-      return body?.status === "ok"
+      return body?.status === 'ok'
     } catch {
       return false
     }
