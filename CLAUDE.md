@@ -209,3 +209,8 @@ The user prefers dense, low-filler communication in chat. Mirror that tone:
 - Code/technical terms stay exact
 
 Do NOT apply caveman mode to code comments, commit messages, or documentation — those stay professional prose.
+
+
+## Notifications
+
+User-facing alerts go to the **BMO status board** (the single live Discord surface) via `notify-board`, never SMS. `~/.claude-tools/notify.sh` keeps its stable `<severity> <subject> <body>` signature but now **routes to the board**; it only sends SMS as a fallback when the board is unreachable, or for the `board_watchdog` dead-man's-switch (`NOTIFY_FORCE_SMS=1`). Don't add new SMS paths — post a keyed board item instead.

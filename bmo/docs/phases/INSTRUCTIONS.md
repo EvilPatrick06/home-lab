@@ -79,7 +79,7 @@ After push + `git mv` to `completed/`, return to rule 1.
 - **(a) Genuinely blocked / impossible** — flat plan contradiction, undeterminable pre-state, uncreatable dependency, unresolvable test failure, an irreversible/destructive action the plan didn't authorize (e.g. **anything that would mutate the live Pi / restart a service** — that's never in an executer's scope; surface it).
 - **(b) Needs a NEW human decision** — a real product/judgment call (two valid behaviors, unrequested scope expansion, a security/privacy trade-off, a breaking dependency major-bump).
 
-**NOT triggers — handle and keep going:** size, risk, breadth, low confidence; a resolvable ambiguity (pick the reasonable reading, note in `## Completed`); correctable plan drift; a fixable red gate (fix forward); a separate out-of-scope finding (log per rule 12). When (a)/(b) holds: fire `~/.claude-tools/notify.sh "<warn|error>" "<subject>" "<body>"` (rule 23) citing plan line + code line + blocker/decision, then wait.
+**NOT triggers — handle and keep going:** size, risk, breadth, low confidence; a resolvable ambiguity (pick the reasonable reading, note in `## Completed`); correctable plan drift; a fixable red gate (fix forward); a separate out-of-scope finding (log per rule 12). When (a)/(b) holds: fire `~/.claude-tools/notify.sh "<warn|error>" "<subject>" "<body>"` (rule 23; this now posts to the BMO status board, not SMS) citing plan line + code line + blocker/decision, then wait.
 
 ### 10. Don't stop unless rule 9 fires or the user says stop
 Keep going; no mid-run status prose; the **last thing in any response is a tool call** unless ending via rule 9 or rule 14. Auto-continue nudges get zero acknowledgment. "DEFERRED / too risky / needs a live Pi / out of scope for this pass" is banned — implement every item (rule 27); write the Python + tests even for hardware/service code you can't run live, kept green by pytest, ship opt-in/off-by-default if genuinely risky.
@@ -112,7 +112,7 @@ Add a `file:line` citation + one-line summary per sub-phase (working tree only; 
 `date -u +%Y-%m-%d` for every date written. Never hardcode/carry a stale date.
 
 ### 19. `gh` auth, notify, heartbeat
-`gh auth status` before relying on `gh` (unauth → rule-9 STOP). Fire `~/.claude-tools/notify.sh` on every STOP-and-ask; maintain `~/.claude-tools/session-active` + `heartbeat` for the watchdog. Missing scripts → warn + proceed.
+`gh auth status` before relying on `gh` (unauth → rule-9 STOP). Fire `~/.claude-tools/notify.sh` on every STOP-and-ask (it routes to the BMO status board; SMS only as failsafe); maintain `~/.claude-tools/session-active` + `heartbeat` for the watchdog. Missing scripts → warn + proceed.
 
 ### 20. Never amend/force-push shared state
 Fix forward with new commits; never force-push a branch the integrator may have picked up.
