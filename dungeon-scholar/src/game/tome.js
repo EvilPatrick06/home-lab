@@ -1,3 +1,8 @@
+// Optional per-item content fields (back-compatible; absent = feature off):
+//   flashcard: { id, front, back, domain?, hint? }
+//   quiz:      { id, question, options[], correctIndex, explanation?, hint? }
+// `hint` is a learner-facing nudge revealed on demand before the answer
+// (FlashcardsMode / QuizMode "Show hint"); authored in TomeEditor.
 export const generateTomeId = () => `tome_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
 // Compress/decompress utilities for tome share codes.

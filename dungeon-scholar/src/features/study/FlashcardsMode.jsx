@@ -30,6 +30,7 @@ function FlashcardsMode({
   const [index, setIndex] = useState(0);
   const [sessionDeck, setSessionDeck] = useState(null);
   const [flipped, setFlipped] = useState(false);
+  const [showHint, setShowHint] = useState(false);
   const [reviewed, setReviewed] = useState(0);
   // 26g: review-mode deck is frozen at entry — recomputing on every
   // rating would shrink the deck (cards just rated have a future dueAt)
@@ -56,6 +57,11 @@ function FlashcardsMode({
     // Don't reset on switching away from reviewMode — App-level state
     // clears reviewMode on screen change.
   }, [reviewMode]);
+
+  // Optional per-card hint resets each time the card changes (index advance).
+  useEffect(() => {
+    setShowHint(false);
+  }, [index]);
 
   // 25e2: Domain Study can launch this mode with a single-domain filter.
   // The filter applies on top of the App-level shuffle; if no card carries
@@ -354,6 +360,27 @@ function FlashcardsMode({
               {flipped ? card.back || card.definition : card.front || card.term}
             </div>
             {!flipped && <div className="text-xs text-amber-700 mt-4 italic">~ Touch the scroll to reveal ~</div>}
+            {!flipped && card.hint && (
+              <div className="mt-4">
+                {showHint ? (
+                  <div className="text-sm text-amber-200/80 italic">
+                    <span className="text-amber-400 not-italic">Hint: </span>
+                    {card.hint}
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowHint(true);
+                    }}
+                    className="px-3 py-1 rounded-sm border border-amber-700 text-amber-200 italic text-xs hover:bg-amber-900/30"
+                  >
+                    Show hint
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

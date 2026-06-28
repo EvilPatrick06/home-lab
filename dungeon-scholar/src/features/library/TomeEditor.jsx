@@ -25,7 +25,13 @@ function TomeEditor({ tome, onSave, onClose }) {
 
   const save = () => {
     const flashcards = cards
-      .map((c) => ({ ...c, id: c.id || nid('card'), front: (c.front || '').trim(), back: (c.back || '').trim() }))
+      .map((c) => ({
+        ...c,
+        id: c.id || nid('card'),
+        front: (c.front || '').trim(),
+        back: (c.back || '').trim(),
+        hint: (c.hint || '').trim() || undefined,
+      }))
       .filter((c) => c.front && c.back);
     const outQuiz = quiz
       .map((q) => {
@@ -36,7 +42,14 @@ function TomeEditor({ tome, onSave, onClose }) {
         let ci = Number.isInteger(q.correctIndex) ? q.correctIndex : 0;
         if (ci < 0 || ci >= options.length) ci = 0;
         const { _optsText, ...rest } = q;
-        return { ...rest, id: q.id || nid('q'), question: (q.question || '').trim(), options, correctIndex: ci };
+        return {
+          ...rest,
+          id: q.id || nid('q'),
+          question: (q.question || '').trim(),
+          options,
+          correctIndex: ci,
+          hint: (q.hint || '').trim() || undefined,
+        };
       })
       .filter((q) => q.question && q.options.length >= 2);
     if (flashcards.length === 0 && outQuiz.length === 0) {
@@ -127,6 +140,14 @@ function TomeEditor({ tome, onSave, onClose }) {
                     className={ta}
                     style={taStyle}
                   />
+                  <textarea
+                    value={c.hint || ''}
+                    onChange={(e) => setCard(i, { hint: e.target.value })}
+                    placeholder="Hint (optional — revealed on demand before the answer)"
+                    rows={2}
+                    className={ta}
+                    style={taStyle}
+                  />
                 </div>
               ))}
               <button
@@ -186,6 +207,14 @@ function TomeEditor({ tome, onSave, onClose }) {
                     value={q.explanation || ''}
                     onChange={(e) => setQ(i, { explanation: e.target.value })}
                     placeholder="Explanation (optional)"
+                    rows={2}
+                    className={ta}
+                    style={taStyle}
+                  />
+                  <textarea
+                    value={q.hint || ''}
+                    onChange={(e) => setQ(i, { hint: e.target.value })}
+                    placeholder="Hint (optional — revealed on demand before answering)"
                     rows={2}
                     className={ta}
                     style={taStyle}
