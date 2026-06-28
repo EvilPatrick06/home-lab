@@ -1,5 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { clearKeyCache, decryptPayload, deriveKey, encryptPayload, KDF_ITERATIONS } from './notesCrypto.js';
+import {
+  clearKeyCache,
+  decryptPayload,
+  deriveKey,
+  encryptPayload,
+  KDF_ITERATIONS,
+  MAX_KDF_ITERATIONS,
+} from './notesCrypto.js';
 
 // Most tests use a low iteration count to keep the suite fast — the KDF cost is
 // not what's under test (round-trip / tamper / wire-format are). One test below
@@ -103,6 +110,27 @@ describe('notesCrypto', () => {
     const salt = crypto.getRandomValues(new Uint8Array(16));
     const key = await deriveKey('derive-test', salt, 1000);
     expect(key).toBeInstanceOf(CryptoKey);
+  });
+
+  // Security (SECURITY-LOG 2026-06-24): encrypted notes ride inside
+  // importable/shareable tomes, so payload.iter is attacker-controlled. An
+  // out-of-ceiling or non-integer count must be rejected before deriveKey so a
+  // hostile payload can't freeze the main thread with an unbounded PBKDF2 run.
+  it('rejects an above-ceiling iteration count with bad-iterations (no deriveKey/DoS)', async () => {
+    const payload = await encryptPayload('pw', 'secret', FAST);
+    const hostile = { ...payload, iter: 1e12 };
+    await expect(decryptPayload('pw', hostile)).rejects.toThrow('bad-iterations');
+    expect(MAX_KDF_ITERATIONS).toBe(2_000_000);
+  });
+
+  it('rejects a non-integer iteration count with bad-iterations', async () => {
+    const payload = await encryptPayload('pw', 'secret', FAST);
+    await expect(decryptPayload('pw', { ...payload, iter: 'lots' })).rejects.toThrow('bad-iterations');
+  });
+
+  it('still round-trips a small but valid integer iteration count (no floor enforced here)', async () => {
+    const payload = await encryptPayload('pw', 'within ceiling', FAST);
+    expect(await decryptPayload('pw', payload)).toBe('within ceiling');
   });
 
   it('exports a clearKeyCache that does not throw', () => {

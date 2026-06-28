@@ -13,6 +13,103 @@
 
 ---
 
+### [2026-06-24] Vite 8 build warns: `inlineDynamicImports` deprecated (PWA service-worker build)
+> **Resolved 2026-06-28 (scholar-resolver):** Accepted as a known upstream deprecation — no app-code change is correct. Re-checked npm: `vite-plugin-pwa` latest published is still `1.3.0` (our current pin), so no Vite-8/Rolldown-aware release that swaps the deprecated `inlineDynamicImports` for `codeSplitting: false` exists yet. The warning originates inside the plugin's own service-worker sub-build (`vite-plugin-pwa/dist/...`), not our `vite.config.js`/rollupOptions; confirmed nothing in `src`/`vite.config.js` sets `inlineDynamicImports`. Action: leave app config untouched (do NOT add the option), let Dependabot carry the plugin bump when a Vite-8-aware release lands; the single known line can be log-filtered later if it ever masks a real warning. Non-fatal (build exits 0). Archived per user approval.
+
+- **Category:** config, debt
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error scan (ran `npx vite build`)
+
+**Description:**
+Every `vite build` of dungeon-scholar prints, during the PWA service-worker
+sub-build, a Rolldown/Vite 8 deprecation warning:
+
+```
+PWA v1.3.0
+Building src/sw.js service worker ("es" format)...
+ WARN  inlineDynamicImports option is deprecated, please use codeSplitting: false instead.
+```
+
+The client build itself is clean (1926 modules, vendor-react / vendor-icons
+chunks emitted, built in ~1.8s); the warning is emitted only by the second,
+`injectManifest` SW build that bundles `src/sw.js` into a single file. It is
+non-fatal today (build exits 0, tests 61 files / 647 pass, `npm audit` clean)
+but it is noise on every CI/deploy build log and will become a hard error once
+Rolldown removes the deprecated alias.
+
+**Hypothesis / root cause (diagnosed):** not app config — `grep -rn inlineDynamicImports src vite.config.js` finds nothing. The option is set inside the pinned dependency: `node_modules/vite-plugin-pwa/dist/vite-build-BGK4YAIU.js:109` does `inlineDynamicImports: true` to force the SW into one file. Under Vite 8 (Rolldown) that rollup output option is deprecated in favour of `output.codeSplitting: false`. `vite-plugin-pwa@1.3.0` (current pin) predates the rename, so the warning fires on the SW build of every Vite-8 project using it.
+
+**Proposed fix / improvement:**
+- [ ] Bump `vite-plugin-pwa` once a release that uses `codeSplitting: false` (Vite-8/Rolldown-aware) is published; re-run `vite build` and confirm the warning is gone.
+- [ ] Until then, accept it as a known upstream deprecation (nothing to change in app code — do NOT add `inlineDynamicImports`/`codeSplitting` to `vite.config.js`, as the SW is a separate plugin-owned build, not the app rollupOptions).
+- [ ] Optional: if the warning ever masks a real one in CI, filter the single known line rather than silencing all build warnings.
+
+**Related files:** `dungeon-scholar/vite.config.js` (VitePWA injectManifest block), `dungeon-scholar/package.json` (`vite-plugin-pwa` pin), `dungeon-scholar/src/sw.js`
+
+---
+### [2026-06-24] Duplicate `engines` key in dungeon-scholar package.json
+> **Resolved 2026-06-28 (scholar-resolver):** Already fixed in current `master` — `dungeon-scholar/package.json` now declares a single `"engines": { "node": ">=22" }` block (verified: only one `engines` key present), so the duplicate copy-paste artifact is gone. Landed in commit `eb846863` ("resolve approved log entries … test speed"); the log entry was simply never archived. No further change needed this run; verified against the tree. Archived per user approval.
+
+- **Category:** config
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error scan (manifest inspection)
+
+**Description:**
+`dungeon-scholar/package.json` declares the `engines` field twice:
+
+```json
+  "engines": {
+    "node": ">=22"
+  },
+  "type": "module",
+  "engines": { "node": ">=22" },
+```
+
+Both blocks are identical so behavior is unaffected (JSON last-key-wins), but it is
+config drift / a copy-paste artifact. It also sits outside `src/`, so `biome check src`
+will never catch it. Some strict JSON tooling warns on duplicate keys.
+
+**Hypothesis / root cause:** A second `engines` block was appended (next to `type`) without removing the original.
+
+**Proposed fix / improvement:**
+- [ ] Delete one of the two `engines` blocks (keep a single `"engines": { "node": ">=22" }`).
+
+**Related files:** `dungeon-scholar/package.json`
+
+---
+### [2026-06-24] usePlayerState cloud-sync tests wait on real-timer backoff (~52s for one file)
+> **Resolved 2026-06-28 (scholar-resolver):** Already fixed in current `master` — both slow describe-blocks in `usePlayerState.test.jsx` ("retries on push failure with backoff…" and "(a) recovers from offline…") now call `vi.useFakeTimers()` and step the `[1000, 4000, 16000]` backoff with `vi.advanceTimersByTimeAsync(...)` instead of waiting real wall-clock. Re-ran the file: 30 tests pass in ~5.4s (was ~52s). Landed in commit `eb846863`; the entry was just never archived. No further change needed; verified by timing the file. Archived per user approval.
+
+- **Category:** test, performance
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error scan (ran `npm test`; 59 files / 627 tests all PASS)
+
+**Description:**
+The full suite passes but takes ~54s, and `src/hooks/usePlayerState.test.jsx` alone
+accounts for ~52s. Two cases dominate: "retries on push failure with backoff and ends
+in offline" (~22.5s) and "(a) recovers from offline ... after backoff exhausts" (~24s).
+These describe-blocks do NOT call `vi.useFakeTimers()` (unlike the `local-only behavior`
+block which does), so they wait through the *real* retry schedule
+`RETRY_DELAYS_MS = [1000, 4000, 16000]` (~21s wall-clock) with `waitFor` timeouts of
+30000/35000ms. This wall-clock wait is paid on every CI run of the dungeon-scholar test
+gate (deploy.yml + dungeon-scholar-ci.yml).
+
+**Hypothesis / root cause:** Real timers + a real backoff schedule in `usePlayerState` retry logic; the retry/offline tests assert end-state after the full backoff window instead of advancing fake timers.
+
+**Proposed fix / improvement:**
+- [ ] Use `vi.useFakeTimers()` in the retry/offline describe-blocks and `vi.advanceTimersByTimeAsync(...)` to step through 1s/4s/16s instantly.
+- [ ] Or make `RETRY_DELAYS_MS` injectable so tests pass tiny delays.
+
+**Related files:** `dungeon-scholar/src/hooks/usePlayerState.test.jsx`, `dungeon-scholar/src/hooks/usePlayerState.js`
+
+---
+
 ### [2026-06-24] `auto/scholar-resolver` won't merge — divergent devotion/auth refactor vs `auto/scholar-phase-executer`
 > **Resolved 2026-06-24 (scholar-resolver):** Rebased `auto/scholar-resolver` onto `origin/master` (now carrying `scholar-phase-executer`’s PHASE-02 work). **Master won on the conflicting devotion/Supabase/auth behavior:** kept `autoRefreshToken: false` with the session-gated explicit refresh in `useAuth.js`, and master’s devotion API (`devotionStatus()` 4-state + `evaluateClaim`/`dayDiff`/`computeNextClaim`, incl. the day-1 “Streak broken” fix) with `CalendarScreen.jsx` + `devotion.test.js` aligned to it. Dropped the branch’s contradictory `autoRefreshToken: true` and its `devotionStatus()` removal entirely. Took master’s `main.jsx` PWA reload wiring; kept `QuestBoard.jsx` Coins `aria-label`/`title` a11y attrs. All **non-conflicting scholar-resolver work preserved** (FSRS-5 scheduler, CSV/TSV/Quizlet import, completion certificate, library bulk actions, image-occlusion cards, the approved log-resolution fixes). Re-ran the branch’s tree-wide biome pass (safe fixes + format only, no behavior change) so the branch’s own new CI lint gate stays green against the rebased base. `npm ci` + `VITE_BASE=/home-lab/ npm run build` pass; targeted vitest (devotion/auth/usePlayerActions/backfill/occlusion/a11y — 78 tests) green; `npm run lint` exits 0. Conflicts resolved (6): `supabase.js`, `useAuth.js`, `devotion.test.js`, `CalendarScreen.jsx`, `main.jsx`, `QuestBoard.jsx` (+ `devotion.js`, `useAuth.test.jsx` force-aligned to master). Pushed for the integrator.
 
