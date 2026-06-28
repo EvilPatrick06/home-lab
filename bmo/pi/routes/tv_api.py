@@ -128,15 +128,20 @@ def _tv_cmd(action, **kwargs):
 def init_tv_remote():
     """Try to connect to TV using existing certs (persistent worker)."""
     global _tv_remote
-    # Connect ADB for media title queries
-    try:
-        subprocess.run(
-            ["adb", "connect", f"{TV_IP}:5555"],
-            capture_output=True, timeout=5,
-        )
-        log.info(f"[tv] ADB connected to {TV_IP}:5555")
-    except Exception:
-        log.exception("[tv] ADB connect failed")
+    # ADB (media-title queries) is best-effort and the TV is off much of the day.
+    # A synchronous `adb connect` blocked startup ~5s and logged an ERROR traceback
+    # every boot for the expected "TV unreachable" case (delaying the Flask bind).
+    # Run it off the startup path in a daemon thread; log the timeout at INFO.
+    def _adb_connect():
+        try:
+            subprocess.run(
+                ["adb", "connect", f"{TV_IP}:5555"],
+                capture_output=True, timeout=5,
+            )
+            log.info(f"[tv] ADB connected to {TV_IP}:5555")
+        except Exception as e:
+            log.info("[tv] ADB connect skipped — TV unreachable (%s)", e.__class__.__name__)
+    threading.Thread(target=_adb_connect, daemon=True).start()
 
     if not os.path.exists(_TV_CERTFILE) or not os.path.exists(_TV_KEYFILE):
         log.info("[tv] No cert files found — pair via the TV tab first")

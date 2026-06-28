@@ -15,6 +15,10 @@ import os
 from datetime import datetime, timezone
 
 from aiohttp import web
+from discord.ext import commands
+
+# Typed aiohttp app key (replaces the plain-string bot key; silences NotAppKeyWarning).
+BOT_KEY = web.AppKey("bot", commands.Bot)
 
 from agents import vtt_sync
 from agents.vtt_sync import request_vtt_state, validate_sync_config, vtt_state
@@ -56,7 +60,7 @@ async def _json(request: web.Request) -> dict:
 
 
 async def _handle_start(request: web.Request) -> web.Response:
-    bot = request.app["bot"]
+    bot = request.app[BOT_KEY]
     if bot.session.active:
         return web.json_response({"error": "session_active"}, status=409)
     body = await _json(request)
@@ -116,7 +120,7 @@ async def _handle_start(request: web.Request) -> web.Response:
 
 
 async def _handle_stop(request: web.Request) -> web.Response:
-    bot = request.app["bot"]
+    bot = request.app[BOT_KEY]
     if bot._stopping:
         return web.json_response({"ok": True, "already_stopping": True})
     if not bot.session.active:
@@ -157,7 +161,7 @@ async def _handle_stop(request: web.Request) -> web.Response:
 
 
 async def _handle_narrate(request: web.Request) -> web.Response:
-    bot = request.app["bot"]
+    bot = request.app[BOT_KEY]
     body = await _json(request)
     text = body.get("text")
     if not text:
@@ -177,7 +181,7 @@ async def _handle_narrate(request: web.Request) -> web.Response:
 
 async def _handle_narrate_cancel(request: web.Request) -> web.Response:
     """PHASE-21 21B (F7): flush the queue + stop current playback. Idempotent."""
-    bot = request.app["bot"]
+    bot = request.app[BOT_KEY]
     result = await bot.cancel_narration(flush=True)
     return web.json_response({"ok": True, **result})
 
@@ -187,7 +191,7 @@ async def _handle_narrate_cancel(request: web.Request) -> web.Response:
 
 async def _handle_sync_initiative(request: web.Request) -> web.Response:
     """Cache the VTT's initiative + (if a live session) edit the Discord embed."""
-    bot = request.app["bot"]
+    bot = request.app[BOT_KEY]
     body = await _json(request)
     vtt_state.update_initiative(body)
     if bot.session.active and bot.session.text_channel_id:
@@ -197,7 +201,7 @@ async def _handle_sync_initiative(request: web.Request) -> web.Response:
 
 async def _handle_sync_state(request: web.Request) -> web.Response:
     """Cache the VTT's condensed game state (consumed in the DM prompt, 22B)."""
-    bot = request.app["bot"]
+    bot = request.app[BOT_KEY]
     body = await _json(request)
     vtt_state.update_game_state(body)
     return web.json_response({"ok": True})
@@ -210,7 +214,7 @@ def _state_age_s() -> float | None:
 
 
 async def _handle_status(request: web.Request) -> web.Response:
-    bot = request.app["bot"]
+    bot = request.app[BOT_KEY]
     s = bot.session
     vc = s.voice_client
     return web.json_response({
@@ -244,7 +248,7 @@ async def _handle_recap(request: web.Request) -> web.Response:
     """PHASE-31 31E — recap of the ACTIVE session WITHOUT ending it, or the most recent
     stored summary (``?mode=last``). Live mode is a billable LLM call, so the coroutine is
     cancelled on timeout (never left running — F6) and the client must not retry."""
-    bot = request.app["bot"]
+    bot = request.app[BOT_KEY]
     mode = request.query.get("mode", "live")
 
     if mode == "last":
@@ -284,7 +288,7 @@ async def _handle_recap(request: web.Request) -> web.Response:
 
 # ── PHASE-36 36C: play-by-post control routes ────────────────────
 async def _handle_pbp_start(request: web.Request) -> web.Response:
-    bot = request.app["bot"]
+    bot = request.app[BOT_KEY]
     body = await _json(request)
     if not body.get("campaign_id") or not body.get("scene") or not body.get("participants"):
         return web.json_response({"error": "missing_fields"}, status=400)
@@ -300,7 +304,7 @@ async def _handle_pbp_start(request: web.Request) -> web.Response:
 
 
 async def _handle_pbp_advance(request: web.Request) -> web.Response:
-    bot = request.app["bot"]
+    bot = request.app[BOT_KEY]
     body = await _json(request)
     if not body.get("campaign_id") or not body.get("event_id"):
         return web.json_response({"error": "missing_fields"}, status=400)
@@ -316,7 +320,7 @@ async def _handle_pbp_advance(request: web.Request) -> web.Response:
 
 
 async def _handle_pbp_skip(request: web.Request) -> web.Response:
-    bot = request.app["bot"]
+    bot = request.app[BOT_KEY]
     body = await _json(request)
     if not body.get("campaign_id") or not body.get("event_id"):
         return web.json_response({"error": "missing_fields"}, status=400)
@@ -330,7 +334,7 @@ async def _handle_pbp_skip(request: web.Request) -> web.Response:
 
 
 async def _handle_pbp_scene(request: web.Request) -> web.Response:
-    bot = request.app["bot"]
+    bot = request.app[BOT_KEY]
     body = await _json(request)
     if not body.get("campaign_id") or not body.get("scene"):
         return web.json_response({"error": "missing_fields"}, status=400)
@@ -343,7 +347,7 @@ async def _handle_pbp_scene(request: web.Request) -> web.Response:
 
 
 async def _handle_pbp_stop(request: web.Request) -> web.Response:
-    bot = request.app["bot"]
+    bot = request.app[BOT_KEY]
     body = await _json(request)
     if not body.get("campaign_id"):
         return web.json_response({"error": "missing_fields"}, status=400)
@@ -352,7 +356,7 @@ async def _handle_pbp_stop(request: web.Request) -> web.Response:
 
 
 async def _handle_pbp_status(request: web.Request) -> web.Response:
-    bot = request.app["bot"]
+    bot = request.app[BOT_KEY]
     campaign_id = request.query.get("campaign_id")
     if not campaign_id:
         return web.json_response({"error": "missing_fields"}, status=400)
@@ -362,7 +366,7 @@ async def _handle_pbp_status(request: web.Request) -> web.Response:
 def build_control_app(bot) -> web.Application:
     """Build the control aiohttp app for `bot` (no port binding — testable)."""
     app = web.Application()
-    app["bot"] = bot
+    app[BOT_KEY] = bot
     app.router.add_post("/control/start", _handle_start)
     app.router.add_post("/control/stop", _handle_stop)
     app.router.add_post("/control/narrate", _handle_narrate)
