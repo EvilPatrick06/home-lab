@@ -16,7 +16,7 @@ import type { MonsterStatBlock } from '../types/monster'
 import { logger } from '../utils/logger'
 import AdventureManager from './campaign-detail/AdventureManager'
 import LoreManager from './campaign-detail/LoreManager'
-import NPCManager from './campaign-detail/NPCManager'
+import NPCManager from './campaign-detail/CampaignNpcManager'
 import RuleManager from './campaign-detail/RuleManager'
 
 const PermissionsEditor = lazy(() => import('../components/campaign/PermissionsEditor'))

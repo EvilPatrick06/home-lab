@@ -1,7 +1,7 @@
 export { default as DrawingToolPicker } from './DrawingToolPicker'
 export { default as GamePromptsLayer } from './GamePromptsLayer'
 export { InspectModalRenderer } from './InspectModalRenderer'
-export { default as MapSelector } from './MapSelector'
+export { default as MapSelector } from './MapToolbarSelector'
 export type { MapTool } from './types'
 export type { ViewAsTarget, ViewModeState } from './use-view-mode'
 export { useViewMode } from './use-view-mode'

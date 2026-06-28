@@ -1,6 +1,6 @@
 export { default as CharacterSelector } from './CharacterSelector'
 export { default as ChatInput } from './ChatInput'
-export { default as ChatPanel } from './ChatPanel'
+export { default as ChatPanel } from './LobbyChatPanel'
 export { default as ColorConfirmButton } from './ColorConfirmButton'
 export { default as GameCard } from './GameCard'
 export { default as GameList } from './GameList'

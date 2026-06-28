@@ -18,11 +18,11 @@ vi.mock('../../../hooks/use-ai-readiness', () => ({
 }))
 
 import { useAiDmStore } from '../../../stores/use-ai-dm-store'
-import ChatPanel from './ChatPanel'
+import ChatPanel from './GameChatPanel'
 
 describe('ChatPanel', () => {
   it('can be imported', async () => {
-    const mod = await import('./ChatPanel')
+    const mod = await import('./GameChatPanel')
     expect(mod).toBeDefined()
   })
 })

@@ -5,7 +5,7 @@ import { useNetworkStore } from '../../../stores/network-store'
 import { useMacroStore } from '../../../stores/use-macro-store'
 import type { Campaign } from '../../../types/campaign'
 import ResizeHandle from '../ResizeHandle'
-import ChatPanel from './ChatPanel'
+import ChatPanel from './GameChatPanel'
 import DMTabPanel from './DMTabPanel'
 
 interface DMBottomBarProps {
