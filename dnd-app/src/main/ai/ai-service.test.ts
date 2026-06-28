@@ -42,12 +42,12 @@ vi.mock('node:fs/promises', () => ({
   unlink: vi.fn(async () => undefined)
 }))
 
-vi.mock('./chunk-builder', () => ({
+vi.mock('./context/chunk-builder', () => ({
   buildChunkIndex: vi.fn(() => ({ chunks: [{ id: '1' }, { id: '2' }] })),
   loadChunkIndex: vi.fn(() => null)
 }))
 
-vi.mock('./context-builder', () => ({
+vi.mock('./context/context-builder', () => ({
   buildContext: vi.fn(async () => ({
     text: '',
     breakdown: {
@@ -141,7 +141,7 @@ vi.mock('./conversation-manager', () => ({
   }
 }))
 
-vi.mock('./ollama-client', () => ({
+vi.mock('./clients/ollama-client', () => ({
   getOllamaUrl: vi.fn(() => 'http://localhost:11434'),
   isOllamaRunning: vi.fn(async () => true),
   listOllamaModels: vi.fn(async () => ['llama3.1', 'mistral']),
@@ -163,7 +163,7 @@ vi.mock('./ollama-manager', () => ({
   OLLAMA_BASE_URL: 'http://localhost:11434'
 }))
 
-vi.mock('./provider-registry', () => ({
+vi.mock('./clients/provider-registry', () => ({
   configureProviders: vi.fn(),
   getActiveProvider: vi.fn(() => ({
     type: 'ollama',
@@ -177,7 +177,7 @@ vi.mock('./provider-registry', () => ({
   checkAllProviders: vi.fn(async () => ({ ollama: true, claude: false, openai: false, gemini: false }))
 }))
 
-vi.mock('./search-engine', () => ({
+vi.mock('./memory/search-engine', () => ({
   SearchEngine: class {
     private count = 0
     load(index: { chunks: unknown[] }): void {
@@ -198,7 +198,7 @@ vi.mock('../storage/ai-conversation-storage', () => ({
   saveConversation: vi.fn(async () => {})
 }))
 
-vi.mock('./memory-manager', () => ({
+vi.mock('./memory/memory-manager', () => ({
   getMemoryManager: vi.fn(() => ({
     appendSessionLog: vi.fn(async () => {}),
     // PHASE-28 — finalize/post-pass surface (consumeOraclePending is called every finalize).
@@ -262,7 +262,7 @@ vi.mock('./structured-extraction', () => ({ runStructuredExtraction: runExtracti
 // PHASE-25 25C: stub the fire-and-forget entity extraction so stream-done tests stay
 // isolated (the real orchestrator bails when disabled, but mocking keeps it call-free).
 const { runEntityExtract } = vi.hoisted(() => ({ runEntityExtract: vi.fn(async () => {}) }))
-vi.mock('./entity-extraction', () => ({ runEntityExtraction: runEntityExtract }))
+vi.mock('./memory/entity-extraction', () => ({ runEntityExtraction: runEntityExtract }))
 vi.mock('./game-state-validation', () => ({
   buildGameStateSnapshot: buildSnapshot,
   validateAgainstGameState: validateGS,
@@ -325,11 +325,11 @@ import {
   wasContextTruncated,
   xCardRewind
 } from './ai-service'
-import { loadChunkIndex } from './chunk-builder'
-import { buildContext } from './context-builder'
+import { loadChunkIndex } from './context/chunk-builder'
+import { buildContext } from './context/context-builder'
 import { parseDmActionsDetailed } from './dm-actions'
-import { fetchOllamaModels, getOllamaUrl, listOllamaModels, setOllamaUrl } from './ollama-client'
-import { getActiveProviderType } from './provider-registry'
+import { fetchOllamaModels, getOllamaUrl, listOllamaModels, setOllamaUrl } from './clients/ollama-client'
+import { getActiveProviderType } from './clients/provider-registry'
 
 describe('ai-service', () => {
   beforeEach(() => {

@@ -1,5 +1,5 @@
 import { logToFile } from '../log'
-import { getActiveProvider, getActiveProviderType } from './provider-registry'
+import { getActiveProvider, getActiveProviderType } from './clients/provider-registry'
 
 // PHASE-11 11H — map analysis is deliberately TEXT-ONLY. The structured token-position
 // description below carries exact grid/HP/AC/condition data no screenshot can; real image

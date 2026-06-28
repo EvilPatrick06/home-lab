@@ -20,9 +20,9 @@ import {
   stripRulings,
   stripVoiceTags
 } from './ai-response-parser'
-import { loadCampaignById } from './campaign-context'
+import { loadCampaignById } from './context/campaign-context'
 import { extractSafetyInput, scanForLineHits } from './prompt-sections/safety-constraints'
-import { buildSessionStartRecapPrompt, recapInputsEmpty, type SessionStartRecapInputs } from './recap-context'
+import { buildSessionStartRecapPrompt, recapInputsEmpty, type SessionStartRecapInputs } from './context/recap-context'
 import { buildScenePrepMessage } from './scene-prep-message'
 
 // PHASE-20 20F: broadcast a narrate-failure status to every renderer window so
@@ -70,21 +70,21 @@ interface StreamHandlerDeps {
   ) => Promise<void>
 }
 
-import { buildChunkIndex, loadChunkIndex } from './chunk-builder'
+import { buildChunkIndex, loadChunkIndex } from './context/chunk-builder'
 import {
   buildContext,
   clearTokenBreakdown,
   recordTokenBreakdown,
   setRetrievalOptsProvider,
   setSearchEngine
-} from './context-builder'
+} from './context/context-builder'
 import { ConversationManager } from './conversation-manager'
 import { runDirectorPass } from './director'
 import { directorShouldRun } from './director-state'
 import { hasOrphanDmActionsTag, parseDmActionsDetailed, stripDmActions } from './dm-actions'
-import { DEFAULT_EMBEDDING_MODEL } from './embedding-client'
-import { clearEmbeddingIndex, ensureEmbeddingIndex, getEmbedIndexStatus } from './embedding-index'
-import { runEntityExtraction } from './entity-extraction'
+import { DEFAULT_EMBEDDING_MODEL } from './clients/embedding-client'
+import { clearEmbeddingIndex, ensureEmbeddingIndex, getEmbedIndexStatus } from './memory/embedding-index'
+import { runEntityExtraction } from './memory/entity-extraction'
 import {
   FILE_READ_MAX_DEPTH,
   type FileReadRequest,
@@ -95,10 +95,10 @@ import {
   stripFileRead
 } from './file-reader'
 import { buildGameStateSnapshot, dedupeStatChanges, validateAgainstGameState } from './game-state-validation'
-import type { AiProviderType, LLMProvider } from './llm-provider'
+import type { AiProviderType, LLMProvider } from './clients/llm-provider'
 import { buildScanText } from './lore-injection'
-import { getMemoryManager, npcMemoryFromAttitude } from './memory-manager'
-import { type AiRoutingConfig, type AiTaskClass, resolveModelForTask } from './model-routing'
+import { getMemoryManager, npcMemoryFromAttitude } from './memory/memory-manager'
+import { type AiRoutingConfig, type AiTaskClass, resolveModelForTask } from './clients/model-routing'
 import {
   fetchOllamaModels,
   getOllamaUrl,
@@ -106,8 +106,8 @@ import {
   listOllamaModels,
   setLocalEndpointFlavor,
   setOllamaUrl
-} from './ollama-client'
-import { resolveNumCtx, setConfiguredContextLength, setOllamaKvCacheType } from './ollama-context'
+} from './clients/ollama-client'
+import { resolveNumCtx, setConfiguredContextLength, setOllamaKvCacheType } from './context/ollama-context'
 import { OLLAMA_BASE_URL } from './ollama-manager'
 import {
   checkAllProviders,
@@ -115,10 +115,10 @@ import {
   getActiveProvider,
   getActiveProviderType,
   getProviderContextBlurb
-} from './provider-registry'
+} from './clients/provider-registry'
 import { runQuestCheck } from './quest-checker'
 import { clearSceneMemoryCache, getSceneMemorySettings } from './scene-memory'
-import { SearchEngine } from './search-engine'
+import { SearchEngine } from './memory/search-engine'
 import {
   applyLongRestMutations,
   applyMutations,
@@ -130,7 +130,7 @@ import {
   stripStatChanges
 } from './stat-mutations'
 import { runStructuredExtraction } from './structured-extraction'
-import { CLOUD_CONTEXT_WINDOW, setActiveContextWindow } from './token-budget'
+import { CLOUD_CONTEXT_WINDOW, setActiveContextWindow } from './context/token-budget'
 import { cleanNarrativeText, hasViolations } from './tone-validator'
 import type {
   AiChatRequest,

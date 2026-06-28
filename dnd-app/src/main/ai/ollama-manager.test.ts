@@ -32,7 +32,7 @@ vi.mock('node:fs', () => ({
   }))
 }))
 
-vi.mock('./ollama-client', () => ({
+vi.mock('./clients/ollama-client', () => ({
   listOllamaModels: vi.fn(async () => ['llama3.1']),
   getOllamaUrl: vi.fn(() => 'http://remote-gpu:11434')
 }))

@@ -2,15 +2,15 @@ import { execFile, execSync, spawn } from 'node:child_process'
 import { createWriteStream, existsSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
 import { app } from 'electron'
-import { getOllamaUrl, listOllamaModels } from './ollama-client'
+import { getOllamaUrl, listOllamaModels } from './clients/ollama-client'
 import { OLLAMA_BASE_URL } from './ollama-constants'
-import { getOllamaKvCacheType } from './ollama-context'
+import { getOllamaKvCacheType } from './context/ollama-context'
 
 // CURATED_MODELS + CuratedModel moved to ./ollama-context (leaf) in PHASE-01 so
 // the num_ctx resolver can read them without an import cycle. Re-exported here so
 // existing `import { CURATED_MODELS, type CuratedModel } from './ollama-manager'`
 // call sites (ai-handlers) keep working.
-export { CURATED_MODELS, type CuratedModel } from './ollama-context'
+export { CURATED_MODELS, type CuratedModel } from './context/ollama-context'
 // Re-exported from the leaf so existing `import { OLLAMA_BASE_URL } from './ollama-manager'`
 // call sites (ai-service) keep working without re-introducing the ollama-client cycle.
 export { OLLAMA_BASE_URL }

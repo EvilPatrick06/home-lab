@@ -34,7 +34,7 @@
     "src/renderer/src/services/combat/combat-resolver.ts",
     "src/renderer/src/services/io/combat-log-export.ts",
     "src/renderer/src/components/game/map/map-overlay-effects.ts",
-    "src/main/ai/context-builder.ts",
+    "src/main/ai/context/context-builder.ts",
     "src/web/main.web.tsx"
   ],
   "ignore": [

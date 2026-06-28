@@ -43,7 +43,7 @@
     "src/main/ai/stat-mutations-core.ts",
     "src/main/ai/character-conditions.ts",
     "src/main/ai/types.ts",
-    "src/main/ai/llm-provider.ts",
-    "src/main/ai/model-routing.ts"
+    "src/main/ai/clients/llm-provider.ts",
+    "src/main/ai/clients/model-routing.ts"
   ]
 }

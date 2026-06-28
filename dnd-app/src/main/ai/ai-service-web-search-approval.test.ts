@@ -19,7 +19,7 @@ vi.mock('electron', () => ({
   }
 }))
 
-vi.mock('./context-builder', () => ({
+vi.mock('./context/context-builder', () => ({
   buildContext: vi.fn(async () => ({
     text: '',
     breakdown: {
@@ -91,7 +91,7 @@ vi.mock('./conversation-manager', () => ({
   }
 }))
 
-vi.mock('./ollama-client', () => ({
+vi.mock('./clients/ollama-client', () => ({
   getOllamaUrl: vi.fn(() => 'http://localhost:11434'),
   isOllamaRunning: vi.fn(async () => true),
   listOllamaModels: vi.fn(async () => ['llama3.1']),
@@ -120,7 +120,7 @@ vi.mock('../storage/ai-conversation-storage', () => ({
   saveConversation: vi.fn(async () => {})
 }))
 
-vi.mock('./memory-manager', () => ({
+vi.mock('./memory/memory-manager', () => ({
   getMemoryManager: vi.fn(() => ({
     appendSessionLog: vi.fn(async () => {})
   }))

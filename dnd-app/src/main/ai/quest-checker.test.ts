@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('./memory-manager', () => ({ getMemoryManager: vi.fn() }))
+vi.mock('./memory/memory-manager', () => ({ getMemoryManager: vi.fn() }))
 
-import { getMemoryManager } from './memory-manager'
+import { getMemoryManager } from './memory/memory-manager'
 import { runQuestCheck } from './quest-checker'
 import { applyQuestOperation, emptyQuestLog, type QuestLogFile, type QuestOperation } from './quest-log'
 

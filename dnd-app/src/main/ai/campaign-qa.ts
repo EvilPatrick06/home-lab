@@ -7,10 +7,10 @@
 
 import { loadConversation } from '../storage/ai-conversation-storage'
 import { aiChatOnce, getConversationManager } from './ai-service'
-import { formatCampaignForContext, loadCampaignById } from './campaign-context'
-import { getEntityStore } from './entity-store'
-import { getMemoryManager } from './memory-manager'
-import { trimToTokenBudget } from './token-budget'
+import { formatCampaignForContext, loadCampaignById } from './context/campaign-context'
+import { getEntityStore } from './memory/entity-store'
+import { getMemoryManager } from './memory/memory-manager'
+import { trimToTokenBudget } from './context/token-budget'
 
 const BLOCK_BUDGET = 1500 // estimated tokens per labeled block
 /** The EXACT sentence the archivist must return when the records don't contain the answer. */

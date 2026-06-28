@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('./memory-manager', () => ({ getMemoryManager: vi.fn() }))
+vi.mock('./memory/memory-manager', () => ({ getMemoryManager: vi.fn() }))
 
 import { runDirectorPass } from './director'
 import {
@@ -10,7 +10,7 @@ import {
   emptyDirectorState,
   renderDirectorBlock
 } from './director-state'
-import { getMemoryManager } from './memory-manager'
+import { getMemoryManager } from './memory/memory-manager'
 import { emptyQuestLog } from './quest-log'
 
 function makeMemMgr() {

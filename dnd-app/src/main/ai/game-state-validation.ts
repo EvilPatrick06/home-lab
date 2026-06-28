@@ -7,7 +7,7 @@
  * never reaches the approval UI. Imports only ./types + ./character-context.
  */
 
-import { loadCharacterById } from './character-context'
+import { loadCharacterById } from './context/character-context'
 import type { AiChatRequest, StatChange } from './types'
 
 export interface GameStateSnapshot {

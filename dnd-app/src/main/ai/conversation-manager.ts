@@ -8,7 +8,7 @@ import {
   getEffectiveBudgets,
   OUTPUT_RESERVE,
   trimToTokenBudget
-} from './token-budget'
+} from './context/token-budget'
 import type { ChatMessage, ConversationData, ConversationMessage, ConversationSummary } from './types'
 
 const MAX_RECENT_MESSAGES = 10
