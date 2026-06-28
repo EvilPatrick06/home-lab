@@ -562,3 +562,104 @@ def test_ws_connect_requires_api_key_when_set() -> None:
     good = sio.test_client(app, namespace=GAME_NS, auth={"api_key": "secret"})
     assert good.is_connected(GAME_NS)
     reset_relay_for_tests()
+
+
+# ── Client-id reconciliation (Phase 54A / MP-EN-1) ─────────────────────
+
+
+def test_reconnect_same_client_new_sid_replaces_not_duplicates(relay: GameRelay) -> None:
+    _join_host(relay)
+    relay.join("ABC123", "sid-p1", _peer("cloud-old", client_id="stable-1"))
+    assert len(relay.peers_for("ABC123")) == 2
+    # Reconnect: new sid + new ephemeral peer_id, SAME stable client_id.
+    result = relay.join("ABC123", "sid-p1b", _peer("cloud-new", client_id="stable-1"))
+    peers = relay.peers_for("ABC123")
+    assert len(peers) == 2  # replaced in place, not accumulated
+    pids = {p["peer_id"] for p in peers}
+    assert "cloud-new" in pids and "cloud-old" not in pids
+    assert result["superseded_peer_id"] == "cloud-old"
+
+
+def test_reconnect_preserves_joined_seq(relay: GameRelay) -> None:
+    _join_host(relay)
+    relay.join("ABC123", "sid-p1", _peer("cloud-old", client_id="stable-1"))
+    before = next(
+        p for p in relay.peers_for("ABC123") if p["peer_id"] == "cloud-old"
+    )["joined_seq"]
+    relay.join("ABC123", "sid-p1b", _peer("cloud-new", client_id="stable-1"))
+    after = next(
+        p for p in relay.peers_for("ABC123") if p["peer_id"] == "cloud-new"
+    )["joined_seq"]
+    assert after == before
+
+
+def test_reconnect_preserves_co_dm_flag(relay: GameRelay) -> None:
+    _join_host(relay)
+    relay.join("ABC123", "sid-p1", _peer("cloud-old", client_id="stable-1", is_co_dm=True))
+    # Reconnect arrives without the co-DM flag (renderer re-mints not-co-DM).
+    relay.join("ABC123", "sid-p1b", _peer("cloud-new", client_id="stable-1", is_co_dm=False))
+    new = next(p for p in relay.peers_for("ABC123") if p["peer_id"] == "cloud-new")
+    assert new["is_co_dm"] is True  # carried forward from the superseded entry
+
+
+def test_host_reconnect_preserves_host_slot(relay: GameRelay) -> None:
+    h = relay.join("ABC123", "sid-host", _peer("host-old", role="host", client_id="host-stable"))
+    assert h["is_host"] is True
+    # Host reconnects on a new sid + new peer_id; role may re-mint as default.
+    r = relay.join("ABC123", "sid-host-b", _peer("host-new", role="player", client_id="host-stable"))
+    assert r["is_host"] is True
+    assert relay.host_sid_for("ABC123") == "sid-host-b"
+    assert len(relay.peers_for("ABC123")) == 1
+    new = relay.peers_for("ABC123")[0]
+    assert new["role"] == "host" and new["peer_id"] == "host-new"
+
+
+def test_new_client_id_still_increments(relay: GameRelay) -> None:
+    _join_host(relay)
+    relay.join("ABC123", "sid-p1", _peer("p1", client_id="stable-1"))
+    # A genuinely different client_id is a new member, not a reconnect.
+    result = relay.join("ABC123", "sid-p2", _peer("p2", client_id="stable-2"))
+    assert result["superseded_peer_id"] is None
+    assert len(relay.peers_for("ABC123")) == 3
+
+
+def test_reconnect_stale_sid_unmapped_disconnect_noops(relay: GameRelay) -> None:
+    _join_host(relay)
+    relay.join("ABC123", "sid-p1", _peer("cloud-old", client_id="stable-1"))
+    relay.join("ABC123", "sid-p1b", _peer("cloud-new", client_id="stable-1"))
+    # The dead old socket's later disconnect must not emit a spurious leave.
+    assert relay.leave("sid-p1") is None
+    assert len(relay.peers_for("ABC123")) == 2
+
+
+def _join_cid(client, code: str, peer_id: str, client_id: str, role: str = "player") -> None:
+    client.emit(
+        "join",
+        {
+            "code": code,
+            "peer_id": peer_id,
+            "client_id": client_id,
+            "role": role,
+            "display_name": peer_id.title(),
+            "is_co_dm": False,
+        },
+        namespace=GAME_NS,
+    )
+
+
+def test_ws_reconnect_emits_superseding_peer_left_then_joined(ws_app) -> None:
+    app, sio = ws_app
+    host = sio.test_client(app, namespace=GAME_NS)
+    _join(host, "ROOM", "host", role="host")
+    host.get_received(GAME_NS)  # drain
+    player = sio.test_client(app, namespace=GAME_NS)
+    _join_cid(player, "ROOM", "cloud-old", "stable-1")
+    host.get_received(GAME_NS)  # drain peer-joined(cloud-old)
+    # Reconnect under a NEW peer_id, SAME client_id.
+    player2 = sio.test_client(app, namespace=GAME_NS)
+    _join_cid(player2, "ROOM", "cloud-new", "stable-1")
+    host_rcv = host.get_received(GAME_NS)
+    names = _names(host_rcv)
+    assert "peer-left" in names and "peer-joined" in names
+    assert _first(host_rcv, "peer-left")["peer_id"] == "cloud-old"
+    assert _first(host_rcv, "peer-joined")["peer_id"] == "cloud-new"

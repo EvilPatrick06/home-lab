@@ -85,6 +85,19 @@ def register_game_relay(socketio_obj, *, api_key: str = "") -> None:
             "peers",
             {"peers": result["existing_peers"], "host_peer_id": result["host_peer_id"]},
         )
+        # If this join reconciled a reconnect to an existing client-id under a
+        # NEW peer_id, announce the superseded peer_id as left FIRST so the rest
+        # of the room drops the stale roster entry before learning the new one
+        # (belt-and-suspenders alongside the client-side client-id dedupe).
+        superseded = result.get("superseded_peer_id")
+        if superseded:
+            emit(
+                "peer-left",
+                {"peer_id": superseded, "was_host": False},
+                room=code,
+                skip_sid=sid,
+                namespace=GAME_NS,
+            )
         # Everyone else learns about the joiner.
         emit(
             "peer-joined",

@@ -88,6 +88,34 @@ describe('network store — cloud host', () => {
     expect(useNetworkStore.getState().peers.map((p) => p.peerId)).not.toContain('p1')
   })
 
+  it('reconnect under a new peerId but same clientId replaces the roster entry + snapshots the live peer (MP-EN-1)', async () => {
+    await useNetworkStore.getState().hostGame('DM', 'ROOM42', 'cloud')
+    socket.fire('peer-joined', {
+      peer_id: 'cloud-old',
+      client_id: 'stable-1',
+      role: 'player',
+      display_name: 'Alice'
+    })
+    expect(useNetworkStore.getState().peers.map((p) => p.peerId)).toEqual(['cloud-old'])
+    socket.emits.length = 0
+    // The Phase-54A relay emits a paired peer-left(old)+peer-joined(new) on a
+    // reconnect, but even on the raw peer-joined the clientId dedupe must
+    // collapse the stale entry — this is the case the live v2.6.3 build failed.
+    socket.fire('peer-joined', {
+      peer_id: 'cloud-new',
+      client_id: 'stable-1',
+      role: 'player',
+      display_name: 'Alice'
+    })
+    const peers = useNetworkStore.getState().peers
+    expect(peers.map((p) => p.peerId)).toEqual(['cloud-new']) // replaced, not duplicated
+    expect(peers.filter((p) => p.clientId === 'stable-1')).toHaveLength(1)
+    // The fresh state snapshot routed to the LIVE (new) peer connection, so the
+    // per-recipient permission-filtered shards reach it.
+    const relay = socket.lastEmit('relay')
+    expect(relay?.payload).toMatchObject({ target_peer_id: 'cloud-new' })
+  })
+
   it('stopHosting clears the relay overrides + resets to p2p', async () => {
     await useNetworkStore.getState().hostGame('DM', 'ROOM42', 'cloud')
     useNetworkStore.getState().stopHosting()

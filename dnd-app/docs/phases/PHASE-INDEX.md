@@ -69,6 +69,7 @@
 | 51 | PHASE-51-mp-cloud-state-sync.md | dnd-app | 49 | shipped v2.6.3 |
 | 52 | PHASE-52-mp-lobby-host-resilience.md | dnd-app | — | shipped v2.6.3 |
 | 53 | PHASE-53-local-host-turn-fallback.md | cross | — | 53A shipped v2.6.3; 53B implemented (ephemeral TURN) — pending merge+release |
+| 54 | PHASE-54-mp-cloud-peer-enrollment.md | cross | 49 | implemented auto/dnd-phase-executer — pending merge+release |
 
 ## Scope allocation (what each phase absorbed from the 2026-06-10 audit)
 
@@ -142,6 +143,7 @@ Phases 49-53 were authored by phase-maker from the first MULTIPLAYER QA report (
 Phase 54 was authored by phase-maker from the live two-window **MULTIPLAYER REPRO** pass (the cloud-relay confirmation the first MP triage deferred as "needs a live repro"). It drove a real DM window + a distinct player window over the Pi relay and **materially corrected two phases that were closed on static reading** (verify-don't-rebuild): it **re-opens PHASE-51 SS-1** (the enrollment fix 51A punted on is still reproducing in v2.6.3) and **refutes PHASE-52's `isHost`-reset hypothesis** (`isHost` was never cleared; symptoms #2/#4 did not reproduce). The unifying root cause is **cloud peer enrollment / roster churn**: a cloud joiner is keyed on an ephemeral `cloud-<uuid>`/`sid` and never reconciled to its stable `dndapp:client-id`, so it shows relay-connected yet absent from the host roster, and reconnect churn split-brains both sides.
 
 - **54** MP cloud peer enrollment & readiness resilience: key cloud peers on the stable `dndapp:client-id` end-to-end — reconcile a re-joining client on the Pi relay (`game_relay.py`, sid-keyed today) and dedupe `addPeer`/`getRecipients` by `clientId` (renderer), so the permission-filtered broadcasts (tokens/map/drawings + chat) reach the live peer (**MP-EN-2, re-opens PHASE-51 SS-1**) and the Start readiness gate clears instead of pinning "Waiting for Players…" (**MP-EN-3, re-scopes PHASE-52 RL-1 from `isHost` to readiness+enrollment**). Builds on PHASE-49 (still required, not sufficient alone). Carries forward PHASE-50 (#5 untested — player had no character) and PHASE-53 (local TURN not exercised) for the next MP pass. Cross-domain (renderer + Pi).
+  - **Carry-forward (Phase 54D, recorded 2026-06-28):** PHASE-50 symptom #5 (DM clicking a player PC -> "no character found") still needs a live repro with a player character actually selected; PHASE-53 local/direct-host TURN/relay fallback was not exercised this run. The next multiplayer QA pass should create a player character and drive the local/direct host path. No code change in 54D.
 
 ### Web-build QA addendum (2026-06-28, from WEB-QA-report-2026-06-28.md)
 

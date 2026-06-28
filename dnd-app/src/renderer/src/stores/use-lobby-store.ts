@@ -254,7 +254,18 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
                   ...player,
                   color: existing.color || player.color,
                   characterId: player.characterId ?? existing.characterId,
-                  characterName: player.characterName ?? existing.characterName
+                  characterName: player.characterName ?? existing.characterName,
+                  // MP-EN-3 (Phase 54C) — a recoverable reconnect re-enrolls the
+                  // SAME member (matched by clientId/peerId above), but the
+                  // incoming payload re-mints isReady:false / colorConfirmed
+                  // undefined. Preserve the established readiness + color
+                  // confirmation so reconnect churn does not silently regress
+                  // the Start gate to "Waiting for Players…". A deliberate
+                  // un-ready flows through setPlayerReady, not addPlayer; a
+                  // deliberate leave (removePlayer) drops the entry entirely so
+                  // a true rejoin starts not-ready.
+                  isReady: existing.isReady || player.isReady,
+                  colorConfirmed: existing.colorConfirmed || player.colorConfirmed
                 }
               : p
           )
