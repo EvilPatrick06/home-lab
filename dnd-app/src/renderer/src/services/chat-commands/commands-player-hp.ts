@@ -4,7 +4,7 @@ import { useGameStore } from '../../stores/use-game-store'
 import { is5eCharacter } from '../../types/character'
 import type { Character5e } from '../../types/character-5e'
 import type { MapToken } from '../../types/map'
-import { getLatestCharacter, saveAndBroadcastCharacter } from './helpers'
+import { getLatestCharacter, saveAndBroadcastCharacter } from './command-dice-utils'
 import type { ChatCommand, CommandContext } from './types'
 
 function resolveTarget(

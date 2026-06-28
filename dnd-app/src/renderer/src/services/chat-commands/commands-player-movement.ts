@@ -1,6 +1,6 @@
 import { useGameStore } from '../../stores/use-game-store'
 import { is5eCharacter } from '../../types/character'
-import { getLatestCharacter } from './helpers'
+import { getLatestCharacter } from './command-dice-utils'
 import type { ChatCommand, CommandContext, CommandResult } from './types'
 
 // /move - Declare movement in feet

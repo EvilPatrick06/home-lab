@@ -26,7 +26,7 @@ const mocked = vi.hoisted(() => ({
   }))
 }))
 
-vi.mock('../ai/memory-manager', () => ({
+vi.mock('../ai/memory/memory-manager', () => ({
   getMemoryManager: mocked.getMemoryManagerMock
 }))
 
@@ -105,7 +105,7 @@ vi.mock('../ai/ai-service', () => ({
   generateSessionStartRecap: mocked.generateSessionStartRecapMock
 }))
 
-vi.mock('../ai/context-builder', () => ({
+vi.mock('../ai/context/context-builder', () => ({
   buildContext: vi.fn(async () => ''),
   getLastTokenBreakdown: vi.fn(() => null)
 }))

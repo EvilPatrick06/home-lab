@@ -14,14 +14,14 @@ const { aiChatOnceMock, addMessageSpy, convMock } = vi.hoisted(() => {
 })
 
 vi.mock('./ai-service', () => ({ aiChatOnce: aiChatOnceMock, getConversationManager: () => convMock }))
-vi.mock('./campaign-context', () => ({
+vi.mock('./context/campaign-context', () => ({
   loadCampaignById: vi.fn(async () => ({ journal: { entries: [{ title: 'S1', content: 'The party met the duke' }] } })),
   formatCampaignForContext: () => '[CAMPAIGN DATA]\nThe Duke of Neverwinter\n[/CAMPAIGN DATA]'
 }))
-vi.mock('./memory-manager', () => ({
+vi.mock('./memory/memory-manager', () => ({
   getMemoryManager: () => ({ assembleContext: vi.fn(async () => '[NPCS]\nDuke') })
 }))
-vi.mock('./entity-store', () => ({
+vi.mock('./memory/entity-store', () => ({
   getEntityStore: () => ({ buildEntityContextBlock: vi.fn(async () => '[ENTITY RECORDS]\nDuke') })
 }))
 vi.mock('../storage/ai-conversation-storage', () => ({

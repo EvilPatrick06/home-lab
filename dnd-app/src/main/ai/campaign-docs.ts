@@ -7,8 +7,8 @@
  * indexed; private player notes are not.
  */
 
-import { chunksFromText, stableChunkId } from './chunk-builder'
-import { SearchEngine } from './search-engine'
+import { chunksFromText, stableChunkId } from './context/chunk-builder'
+import { SearchEngine } from './memory/search-engine'
 import type { Chunk, ScoredChunk } from './types'
 
 export type CampaignDocType = 'lore' | 'journal' | 'handout' | 'shared-journal'

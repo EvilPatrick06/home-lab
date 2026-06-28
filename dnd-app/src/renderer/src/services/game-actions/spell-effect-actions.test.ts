@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock broadcast helpers (postDmMessage captures the chat feedback)
-vi.mock('./broadcast-helpers', () => ({
+vi.mock('./broadcast-utils', () => ({
   broadcastTokenSync: vi.fn(),
   broadcastConditionSync: vi.fn(),
   postDmMessage: vi.fn()
 }))
 
 // Mock dice helpers — deterministic rolls + controllable area membership
-vi.mock('./dice-helpers', () => ({
+vi.mock('./dice-action-utils', () => ({
   rollDiceFormula: vi.fn(() => ({ rolls: [10], total: 10 })),
   findTokensInArea: vi.fn(() => [])
 }))
@@ -85,12 +85,12 @@ describe('spell-effect-actions', () => {
 
   describe('executeQueryAoe', () => {
     it('posts a DM-only preview listing affected token labels (no mutation)', async () => {
-      const { findTokensInArea } = await import('./dice-helpers')
+      const { findTokensInArea } = await import('./dice-action-utils')
       vi.mocked(findTokensInArea).mockReturnValue([
         { id: 't1', label: 'Goblin 1' } as never,
         { id: 't2', label: 'Goblin 2' } as never
       ])
-      const { postDmMessage } = await import('./broadcast-helpers')
+      const { postDmMessage } = await import('./broadcast-utils')
       const { executeQueryAoe } = await import('./spell-effect-actions')
       const gs = makeGameStore()
       const map = makeActiveMap()
@@ -111,12 +111,12 @@ describe('spell-effect-actions', () => {
     })
 
     it('excludes the caster via excludeLabel', async () => {
-      const { findTokensInArea } = await import('./dice-helpers')
+      const { findTokensInArea } = await import('./dice-action-utils')
       vi.mocked(findTokensInArea).mockReturnValue([
         { id: 't1', label: 'Wizard' } as never,
         { id: 't2', label: 'Goblin' } as never
       ])
-      const { postDmMessage } = await import('./broadcast-helpers')
+      const { postDmMessage } = await import('./broadcast-utils')
       const { executeQueryAoe } = await import('./spell-effect-actions')
       const action: DmAction = {
         action: 'query_aoe',
@@ -133,12 +133,12 @@ describe('spell-effect-actions', () => {
     })
 
     it('excludes the caster case-insensitively (08I — excludeLabel "wizard" vs token "Wizard")', async () => {
-      const { findTokensInArea } = await import('./dice-helpers')
+      const { findTokensInArea } = await import('./dice-action-utils')
       vi.mocked(findTokensInArea).mockReturnValue([
         { id: 't1', label: 'Wizard' } as never,
         { id: 't2', label: 'Goblin' } as never
       ])
-      const { postDmMessage } = await import('./broadcast-helpers')
+      const { postDmMessage } = await import('./broadcast-utils')
       const { executeQueryAoe } = await import('./spell-effect-actions')
       const action: DmAction = {
         action: 'query_aoe',
@@ -200,7 +200,7 @@ describe('spell-effect-actions', () => {
     })
 
     it('applies immediate area damage when shape + target + damageFormula given', async () => {
-      const { findTokensInArea, rollDiceFormula } = await import('./dice-helpers')
+      const { findTokensInArea, rollDiceFormula } = await import('./dice-action-utils')
       vi.mocked(findTokensInArea).mockReturnValue([
         { id: 'g1', entityId: 'ge1', label: 'Goblin', currentHP: 12 } as never
       ])
@@ -257,7 +257,7 @@ describe('spell-effect-actions', () => {
   describe('executeEndSpell', () => {
     it('removes a spell effect by name + caster and posts a clear end-spell message', async () => {
       const { executeEndSpell } = await import('./spell-effect-actions')
-      const { postDmMessage } = await import('./broadcast-helpers')
+      const { postDmMessage } = await import('./broadcast-utils')
       const gs = makeGameStore({
         activeSpellEffects: [{ id: 'sx', name: 'Entangle', caster: 'Druid', startedRound: 1 }]
       })

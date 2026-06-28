@@ -14,7 +14,7 @@ import {
 import type { BattlemapGenerationRequest } from '../../shared/ipc-schemas'
 import { repairJson } from './ai-schemas'
 import { chatOncePrimary, getPrimaryProviderInfo } from './ai-service'
-import { ollamaStructuredOnce } from './ollama-client'
+import { ollamaStructuredOnce } from './clients/ollama-client'
 
 export type BattlemapGenerationResult =
   | { success: true; spec: BattlemapSpec; warnings: string[] }

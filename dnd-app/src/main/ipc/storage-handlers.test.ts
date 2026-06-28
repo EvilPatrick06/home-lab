@@ -160,8 +160,8 @@ describe('storage-handlers', () => {
 
   it('should register exactly 50 handlers', () => {
     registerStorageHandlers()
-    // 50 = 49 prior handlers + IMAGE_LIBRARY_READ_DATA (PHASE-35 scene art).
-    expect(mockHandle).toHaveBeenCalledTimes(50)
+    // 51 = 50 prior handlers + BOOK_SAVE_BYTES (custom-book PDF sync).
+    expect(mockHandle).toHaveBeenCalledTimes(51)
   })
 
   describe('SAVE_CHARACTER handler', () => {

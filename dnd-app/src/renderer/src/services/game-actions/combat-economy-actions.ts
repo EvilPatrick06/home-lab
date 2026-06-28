@@ -11,7 +11,7 @@
 
 import { checkConcentrationOnDamage } from '../combat/concentration-manager'
 import { getCreatureSaveMod, getTokenStats } from '../game/token-stats'
-import { rollDiceFormula } from './dice-helpers'
+import { rollDiceFormula } from './dice-action-utils'
 import { resolveTokenByLabel } from './name-resolver'
 import type { ActiveMap, DmAction, GameStoreSnapshot, StoreAccessors } from './types'
 

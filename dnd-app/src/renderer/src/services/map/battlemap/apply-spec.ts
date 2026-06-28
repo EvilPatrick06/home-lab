@@ -7,7 +7,7 @@
 
 import type { BattlemapSpec } from '../../../../../shared/battlemap-spec'
 import type { GameMap } from '../../../types/map'
-import { postDmMessage } from '../../game-actions/broadcast-helpers'
+import { postDmMessage } from '../../game-actions/broadcast-utils'
 import type { StoreAccessors } from '../../game-actions/types'
 import { compileSpec } from './compile-spec'
 import { renderBattlemap } from './tile-renderer'

@@ -40,7 +40,7 @@ import { computeBuilderFeats5e } from './build-character-5e/feats'
 import { computeBuilderProficiencies5e } from './build-character-5e/proficiencies'
 import { buildWearableEquipment5e, type GearDataItem } from './build-character-5e/wearable-equipment'
 import { buildArmorFromEquipment5e, buildWeaponsFromEquipment5e } from './build-from-equipment-5e'
-import { getSpeciesResistances, getSpeciesSenses } from './character-species-helpers'
+import { getSpeciesResistances, getSpeciesSenses } from './character-species-utils'
 
 type GetState = () => BuilderState
 

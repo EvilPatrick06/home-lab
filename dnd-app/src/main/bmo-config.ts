@@ -79,6 +79,45 @@ export function getDiscoveredBmoUrl(): string | null {
   return discoveredBmoUrl
 }
 
+/**
+ * Whether the currently-resolved base URL is trusted to receive credentials
+ * (BMO_API_KEY Bearer, Cloudflare-Access service token) and user data (campaign
+ * backup archives). Trusted only when the user explicitly typed the URL
+ * (userOverrideUrl) OR it is an https endpoint (the Cloudflare-fronted tunnel /
+ * an explicit https Pi). An AUTO-DISCOVERED http LAN host (mDNS advert or LAN
+ * sweep) is NOT secret-trusted: it passed only a liveness/identity probe, which
+ * cannot prove it is the real Pi, so it must never be sent secrets or backups.
+ * See SECURITY-LOG "dnd-app adopts ANY LAN host answering /health".
+ */
+export function isBmoBaseSecretTrusted(): boolean {
+  if (userOverrideUrl) return true
+  try {
+    return new URL(resolvedBmoBaseUrl).protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Base URL for CREDENTIALED / data-bearing requests (rclone backup & restore).
+ * Never returns an auto-discovered http LAN host: when the resolved base is not
+ * secret-trusted, fall back to an explicit https env URL if set, else the https
+ * tunnel default. Public, unauthenticated requests (game-registry listing,
+ * sound files) may keep using getBmoBaseUrl().
+ */
+export function getBmoSecretBaseUrl(): string {
+  if (isBmoBaseSecretTrusted()) return resolvedBmoBaseUrl
+  const envUrl = process.env.BMO_PI_URL
+  if (envUrl) {
+    try {
+      if (new URL(envUrl).protocol === 'https:') return envUrl
+    } catch {
+      // malformed env URL — ignore and use the tunnel default
+    }
+  }
+  return BMO_PI_URL_DEFAULT
+}
+
 // ── BMO sync-receiver shared secret (Phase 28a.4) ────────────────
 // Precedence: process.env.BMO_API_KEY → user-set settings value → undefined.
 // When undefined, the sync receiver logs a one-time warning and accepts

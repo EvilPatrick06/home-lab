@@ -6,7 +6,7 @@ import {
   removeConditionByPrefix,
   removeConditionBySubstring,
   requireLatestCharacter
-} from './helpers'
+} from './command-dice-utils'
 import type { ChatCommand } from './types'
 
 export const commands: ChatCommand[] = [

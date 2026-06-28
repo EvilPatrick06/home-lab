@@ -42,7 +42,16 @@ export const AppSettingsSchema = z
     bmoApiKey: z.string().optional(),
     /** PHASE-22 22D: opt-in LAN bind for the sync receiver (default loopback).
      * Only takes effect when bmoApiKey is also set (keyed exposure). */
-    bmoSyncLanEnabled: z.boolean().optional()
+    bmoSyncLanEnabled: z.boolean().optional(),
+    /** Auto-update preferences (read by main/updater.ts from this same
+     * settings.json). Declared explicitly — rather than relying on
+     * .passthrough() — so Settings Export/Import (SettingsImportExportSection),
+     * which serializes the loadSettings() result, deliberately and durably
+     * carries them to a new machine. */
+    autoCheckUpdates: z.boolean().optional(),
+    autoDownloadUpdates: z.boolean().optional(),
+    autoRestartAfterUpdate: z.boolean().optional(),
+    autoInstallSilent: z.boolean().optional()
   })
   .passthrough()
 

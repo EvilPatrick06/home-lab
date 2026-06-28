@@ -10,9 +10,9 @@
  */
 
 import { z } from 'zod'
+import type { LLMProvider } from './clients/llm-provider'
 import type { DirectorNotes } from './director-state'
-import type { LLMProvider } from './llm-provider'
-import { getMemoryManager } from './memory-manager'
+import { getMemoryManager } from './memory/memory-manager'
 import { sceneTest } from './oracle'
 import { renderQuestLogBlock } from './quest-log'
 import type { ChatMessage } from './types'

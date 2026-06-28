@@ -15,7 +15,7 @@ import { is5eCharacter } from '../../../types/character'
 import { getCharacterSheetPath } from '../../../utils/character-routes'
 import { trigger3dDice } from '../dice3d'
 import MacroBar from '../player/MacroBar'
-import ChatPanel from './ChatPanel'
+import ChatPanel from './GameChatPanel'
 
 interface PlayerBottomBarProps {
   character: Character | null

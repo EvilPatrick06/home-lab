@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock helpers
-vi.mock('./helpers', () => ({
+vi.mock('./command-dice-utils', () => ({
   getLatestCharacter: vi.fn(),
   saveAndBroadcastCharacter: vi.fn(),
   requireLatestCharacter: vi.fn(),
@@ -30,8 +30,8 @@ vi.mock('../../types/character', () => ({
 vi.stubGlobal('crypto', { randomUUID: () => 'test-uuid-1234' })
 
 import type { Character5e } from '../../types/character-5e'
+import { getLatestCharacter, requireLatestCharacter } from './command-dice-utils'
 import { commands } from './commands-player-resources'
-import { getLatestCharacter, requireLatestCharacter } from './helpers'
 import type { CommandContext } from './types'
 
 function makeChar(overrides: Partial<Character5e> = {}): Character5e {

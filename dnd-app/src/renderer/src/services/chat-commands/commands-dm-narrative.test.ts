@@ -7,7 +7,7 @@ vi.mock('../../services/data-provider', () => ({
 vi.mock('../../stores/use-lobby-store', () => ({
   useLobbyStore: { getState: vi.fn(() => ({ players: [], addChatMessage: vi.fn() })) }
 }))
-vi.mock('./helpers', () => ({
+vi.mock('./command-dice-utils', () => ({
   getLatestCharacter: vi.fn(),
   saveAndBroadcastCharacter: vi.fn()
 }))

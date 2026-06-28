@@ -6,7 +6,7 @@ import {
   removeConditionByPrefix,
   requireLatestCharacter,
   saveAndBroadcastCharacter
-} from './helpers'
+} from './command-dice-utils'
 import type { ChatCommand, CommandContext, CommandResult } from './types'
 
 // /spell - Expend or restore spell slot

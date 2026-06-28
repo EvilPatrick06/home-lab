@@ -16,7 +16,7 @@ vi.mock('../../types/character', () => ({
   is5eCharacter: vi.fn(() => true)
 }))
 
-vi.mock('./helpers', () => ({
+vi.mock('./command-dice-utils', () => ({
   getLatestCharacter: vi.fn((id: string) => {
     if (id === 'char-1')
       return {

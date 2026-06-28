@@ -393,6 +393,16 @@ const api = {
     }
   },
 
+  // OS file association (.dndvtt)
+  files: {
+    consumePending: () => ipcRenderer.invoke(IPC_CHANNELS.FILE_CONSUME_PENDING) as Promise<{ path: string | null }>,
+    onOpenRequest: (cb: (data: { path: string }) => void) => {
+      const listener = (_e: IpcRendererEvent, data: { path: string }) => cb(data)
+      ipcRenderer.on(IPC_CHANNELS.FILE_OPEN_REQUEST, listener)
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.FILE_OPEN_REQUEST, listener)
+    }
+  },
+
   // Auto-update
 
   // LAN discovery (mDNS / Bonjour) — Phase 29g
@@ -637,7 +647,9 @@ const api = {
     readFile: (filePath: string) => ipcRenderer.invoke(IPC_CHANNELS.BOOK_READ_FILE, filePath),
     loadData: (bookId: string) => ipcRenderer.invoke(IPC_CHANNELS.BOOK_LOAD_DATA, bookId),
     saveData: (bookId: string, data: { bookmarks: unknown[]; annotations: unknown[] }) =>
-      ipcRenderer.invoke(IPC_CHANNELS.BOOK_SAVE_DATA, bookId, data)
+      ipcRenderer.invoke(IPC_CHANNELS.BOOK_SAVE_DATA, bookId, data),
+    saveBytes: (bookId: string, title: string, ext: string, bytes: ArrayBuffer) =>
+      ipcRenderer.invoke(IPC_CHANNELS.BOOK_SAVE_BYTES, bookId, title, ext, bytes)
   },
 
   // Plugins

@@ -14,8 +14,8 @@
 
 import { z } from 'zod'
 import { validateStatChanges } from './ai-schemas'
+import type { LLMProvider } from './clients/llm-provider'
 import type { GameStateSnapshot } from './game-state-validation'
-import type { LLMProvider } from './llm-provider'
 import type { ChatMessage, StatChange } from './types'
 
 // High-frequency character/creature mechanics. Exported so PHASE-27 can extend the

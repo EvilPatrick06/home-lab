@@ -11,7 +11,7 @@
  */
 
 import type { WallSegment } from '../../types/map'
-import { broadcastTokenSync } from './broadcast-helpers'
+import { broadcastTokenSync } from './broadcast-utils'
 import type { ActiveMap, DmAction, GameStoreSnapshot, StoreAccessors } from './types'
 
 export function executeAddWallSegment(

@@ -114,6 +114,37 @@ export async function removeBook(bookId: string): Promise<{ success: boolean; er
   }
 }
 
+/**
+ * Write a custom book's PDF bytes (synced from another device) into the books
+ * dir and register/refresh its config entry, so the book + its notes travel
+ * together (no dangling config). Mirrors importBook but takes bytes, not a path.
+ */
+export async function saveBookBytes(
+  bookId: string,
+  title: string,
+  ext: string,
+  bytes: ArrayBuffer
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const cleanExt = ext.startsWith('.') ? ext.toLowerCase() : `.${(ext || 'pdf').toLowerCase()}`
+    if (cleanExt !== '.pdf') return { success: false, error: 'Only PDF files are supported' }
+    const booksDir = getBooksDir()
+    await mkdir(booksDir, { recursive: true })
+    const destPath = join(booksDir, `${bookId}${cleanExt}`)
+    await atomicWriteFile(destPath, Buffer.from(bytes))
+    const existing = (await loadBookConfig()).find((c) => c.id === bookId)
+    return await addBook({
+      id: bookId,
+      title,
+      path: destPath,
+      type: 'custom',
+      addedAt: existing?.addedAt ?? new Date().toISOString()
+    })
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to save book bytes' }
+  }
+}
+
 export async function importBook(
   sourcePath: string,
   _title: string,

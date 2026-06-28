@@ -27,22 +27,33 @@ function mapEntry(e: ConditionEntry): ConditionDef {
 async function ensureLoaded(): Promise<void> {
   if (_conditions) return
   if (!_initPromise) {
-    _initPromise = load5eConditions().then((all) => {
-      _conditions = all.filter((c) => c.type === 'condition').map(mapEntry)
-      _buffs = all.filter((c) => c.type === 'buff').map(mapEntry)
-    })
+    _initPromise = load5eConditions()
+      .then((all) => {
+        // loadJson() (services/data-provider) deliberately resolves null on a
+        // remote miss/error or when the IPC bridge is unavailable; degrade to
+        // empty arrays (like skills.ts) instead of throwing on all.filter.
+        const list = all ?? []
+        _conditions = list.filter((c) => c.type === 'condition').map(mapEntry)
+        _buffs = list.filter((c) => c.type === 'buff').map(mapEntry)
+      })
+      .catch((err) => {
+        // Reset so a later getConditions5e/getBuffs5e retries instead of
+        // re-awaiting a permanently-rejected promise for the whole session.
+        _initPromise = null
+        throw err
+      })
   }
   await _initPromise
 }
 
 export async function getConditions5e(): Promise<ConditionDef[]> {
   await ensureLoaded()
-  return _conditions!
+  return _conditions ?? []
 }
 
 export async function getBuffs5e(): Promise<ConditionDef[]> {
   await ensureLoaded()
-  return _buffs!
+  return _buffs ?? []
 }
 
 // Legacy synchronous exports - populated after first async load
@@ -54,9 +65,9 @@ export const BUFFS_5E: ConditionDef[] = []
 ensureLoaded()
   .then(() => {
     CONDITIONS_5E.length = 0
-    CONDITIONS_5E.push(..._conditions!)
+    CONDITIONS_5E.push(...(_conditions ?? []))
     BUFFS_5E.length = 0
-    BUFFS_5E.push(..._buffs!)
+    BUFFS_5E.push(...(_buffs ?? []))
   })
   .catch((err) => {
     logger.error('Failed to load conditions data', err)

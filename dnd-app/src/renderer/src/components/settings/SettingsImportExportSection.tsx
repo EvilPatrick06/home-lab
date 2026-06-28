@@ -95,6 +95,24 @@ export function SettingsImportExportSection(): JSX.Element {
         </button>
         <button
           type="button"
+          onClick={() => {
+            // Open the repo's new-issue page, prefilled with environment details
+            // so a non-technical reporter can file a useful bug without setup.
+            const env =
+              typeof navigator !== 'undefined'
+                ? `- App version: ${__APP_VERSION__}\n- Platform: ${navigator.platform}\n- User agent: ${navigator.userAgent}\n`
+                : `- App version: ${__APP_VERSION__}\n`
+            const body = `## Describe the bug\n\n\n## Steps to reproduce\n\n\n## Environment\n${env}`
+            const url = `https://github.com/EvilPatrick06/home-lab/issues/new?title=${encodeURIComponent('[bug] ')}&body=${encodeURIComponent(body)}`
+            // Routed to the OS browser via main's setWindowOpenHandler (shell.openExternal).
+            window.open(url, '_blank')
+          }}
+          className="px-4 py-1.5 text-sm rounded-lg border bg-surface-2 border-border text-gray-300 hover:border-amber-600 hover:text-accent transition-colors cursor-pointer"
+        >
+          {t('pages.settingsPage.reportBug')}
+        </button>
+        <button
+          type="button"
           onClick={() => useOnboardingStore.getState().open()}
           className="px-4 py-1.5 text-sm rounded-lg border bg-surface-2 border-border text-gray-300 hover:border-amber-600 hover:text-accent transition-colors cursor-pointer"
         >

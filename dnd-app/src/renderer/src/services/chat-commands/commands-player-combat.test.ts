@@ -30,15 +30,15 @@ vi.mock('../dice/dice-service', () => ({
   rollSingle: vi.fn(() => 10),
   rollMultiple: vi.fn((count: number) => Array(count).fill(5))
 }))
-vi.mock('./helpers', () => ({
+vi.mock('./command-dice-utils', () => ({
   findTokenByName: vi.fn(),
   rollD20WithTag: vi.fn(() => ({ roll: 15, tag: '' }))
 }))
 
 import { useGameStore } from '../../stores/use-game-store'
 import { findWeapon } from '../combat/attack-resolver'
+import { findTokenByName } from './command-dice-utils'
 import { commands } from './commands-player-combat'
-import { findTokenByName } from './helpers'
 import type { CommandContext } from './types'
 
 function makeCtx(overrides?: Partial<CommandContext>): CommandContext {

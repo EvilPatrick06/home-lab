@@ -11,7 +11,7 @@
  */
 
 import type { ActiveCurse, ActiveDisease, ActiveEnvironmentalEffect, PlacedTrap } from '../../types/dm-toolbox'
-import { postDmMessage } from './broadcast-helpers'
+import { postDmMessage } from './broadcast-utils'
 import { resolveTokenByLabel } from './name-resolver'
 import type { ActiveMap, DmAction, GameStoreSnapshot, StoreAccessors } from './types'
 

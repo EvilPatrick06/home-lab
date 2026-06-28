@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { app, BrowserWindow } from 'electron'
 import { DEFAULT_AI_MODEL } from '../../shared/ai-defaults'
-import { SCENE_PREP_PROMPT, WEB_SEARCH_APPROVAL_TIMEOUT_MS } from '../../shared/constants'
+import { SCENE_PREP_PROMPT } from '../../shared/constants'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import { BmoNarrationStatusSchema } from '../../shared/ipc-schemas'
 import { cancelNarration, isBargeInEnabled, isNarrationEnabled, sendNarration } from '../bmo-bridge'
@@ -20,10 +20,13 @@ import {
   stripRulings,
   stripVoiceTags
 } from './ai-response-parser'
-import { loadCampaignById } from './campaign-context'
+import { clearPendingWebSearchApproval, sendWebSearchStatus, waitForWebSearchApproval } from './ai-web-search-approval'
+import { loadCampaignById } from './context/campaign-context'
+import { buildSessionStartRecapPrompt, recapInputsEmpty, type SessionStartRecapInputs } from './context/recap-context'
 import { extractSafetyInput, scanForLineHits } from './prompt-sections/safety-constraints'
-import { buildSessionStartRecapPrompt, recapInputsEmpty, type SessionStartRecapInputs } from './recap-context'
 import { buildScenePrepMessage } from './scene-prep-message'
+
+export { approveWebSearch } from './ai-web-search-approval'
 
 // PHASE-20 20F: broadcast a narrate-failure status to every renderer window so
 // the DM tab can surface it (the renderer dedups). Validated before send.
@@ -47,12 +50,6 @@ function broadcastNarrationStatus(res: {
 
 // PHASE-08 08D — these were the only live consumers of the now-deleted dead stream-handler
 // module, which carried a duplicate of the stream-completion pipeline. Defined locally.
-interface PendingWebSearchApproval {
-  resolve: (approved: boolean) => void
-  timeout: ReturnType<typeof setTimeout>
-  onAbort: () => void
-  signal: AbortSignal
-}
 interface StreamHandlerDeps {
   activeStreams: Map<string, AbortController>
   model: string
@@ -70,21 +67,38 @@ interface StreamHandlerDeps {
   ) => Promise<void>
 }
 
-import { buildChunkIndex, loadChunkIndex } from './chunk-builder'
+import { DEFAULT_EMBEDDING_MODEL } from './clients/embedding-client'
+import type { AiProviderType, LLMProvider } from './clients/llm-provider'
+import { type AiRoutingConfig, type AiTaskClass, resolveModelForTask } from './clients/model-routing'
+import {
+  fetchOllamaModels,
+  getOllamaUrl,
+  isOllamaRunning,
+  listOllamaModels,
+  setLocalEndpointFlavor,
+  setOllamaUrl
+} from './clients/ollama-client'
+import {
+  checkAllProviders,
+  configureProviders,
+  getActiveProvider,
+  getActiveProviderType,
+  getProviderContextBlurb
+} from './clients/provider-registry'
+import { buildChunkIndex, loadChunkIndex } from './context/chunk-builder'
 import {
   buildContext,
   clearTokenBreakdown,
   recordTokenBreakdown,
   setRetrievalOptsProvider,
   setSearchEngine
-} from './context-builder'
+} from './context/context-builder'
+import { resolveNumCtx, setConfiguredContextLength, setOllamaKvCacheType } from './context/ollama-context'
+import { CLOUD_CONTEXT_WINDOW, setActiveContextWindow } from './context/token-budget'
 import { ConversationManager } from './conversation-manager'
 import { runDirectorPass } from './director'
 import { directorShouldRun } from './director-state'
 import { hasOrphanDmActionsTag, parseDmActionsDetailed, stripDmActions } from './dm-actions'
-import { DEFAULT_EMBEDDING_MODEL } from './embedding-client'
-import { clearEmbeddingIndex, ensureEmbeddingIndex, getEmbedIndexStatus } from './embedding-index'
-import { runEntityExtraction } from './entity-extraction'
 import {
   FILE_READ_MAX_DEPTH,
   type FileReadRequest,
@@ -95,30 +109,14 @@ import {
   stripFileRead
 } from './file-reader'
 import { buildGameStateSnapshot, dedupeStatChanges, validateAgainstGameState } from './game-state-validation'
-import type { AiProviderType, LLMProvider } from './llm-provider'
 import { buildScanText } from './lore-injection'
-import { getMemoryManager, npcMemoryFromAttitude } from './memory-manager'
-import { type AiRoutingConfig, type AiTaskClass, resolveModelForTask } from './model-routing'
-import {
-  fetchOllamaModels,
-  getOllamaUrl,
-  isOllamaRunning,
-  listOllamaModels,
-  setLocalEndpointFlavor,
-  setOllamaUrl
-} from './ollama-client'
-import { resolveNumCtx, setConfiguredContextLength, setOllamaKvCacheType } from './ollama-context'
+import { clearEmbeddingIndex, ensureEmbeddingIndex, getEmbedIndexStatus } from './memory/embedding-index'
+import { runEntityExtraction } from './memory/entity-extraction'
+import { getMemoryManager, npcMemoryFromAttitude } from './memory/memory-manager'
+import { SearchEngine } from './memory/search-engine'
 import { OLLAMA_BASE_URL } from './ollama-manager'
-import {
-  checkAllProviders,
-  configureProviders,
-  getActiveProvider,
-  getActiveProviderType,
-  getProviderContextBlurb
-} from './provider-registry'
 import { runQuestCheck } from './quest-checker'
 import { clearSceneMemoryCache, getSceneMemorySettings } from './scene-memory'
-import { SearchEngine } from './search-engine'
 import {
   applyLongRestMutations,
   applyMutations,
@@ -130,7 +128,6 @@ import {
   stripStatChanges
 } from './stat-mutations'
 import { runStructuredExtraction } from './structured-extraction'
-import { CLOUD_CONTEXT_WINDOW, setActiveContextWindow } from './token-budget'
 import { cleanNarrativeText, hasViolations } from './tone-validator'
 import type {
   AiChatRequest,
@@ -248,7 +245,6 @@ const staleStreamSweep = setInterval(() => {
   }
 }, 60_000)
 
-const pendingWebSearchApprovals = new Map<string, PendingWebSearchApproval>()
 const WEB_SEARCH_DENIED_MESSAGE =
   '[WEB SEARCH DENIED]\nThe requested web search was not approved. Continue responding using existing campaign and rulebook context only.\n[/WEB SEARCH DENIED]'
 
@@ -789,61 +785,6 @@ export interface StreamResult {
     dmActions: DmActionData[]
     ruleCitations: RuleCitation[]
   }>
-}
-
-function clearPendingWebSearchApproval(streamId: string, approved = false): boolean {
-  const pending = pendingWebSearchApprovals.get(streamId)
-  if (!pending) return false
-
-  pendingWebSearchApprovals.delete(streamId)
-  clearTimeout(pending.timeout)
-  pending.signal.removeEventListener('abort', pending.onAbort)
-  pending.resolve(approved)
-  return true
-}
-
-function waitForWebSearchApproval(streamId: string, abortSignal: AbortSignal): Promise<boolean> {
-  // Defensive cleanup if a stale pending request exists for this stream.
-  clearPendingWebSearchApproval(streamId, false)
-
-  return new Promise((resolve) => {
-    const onAbort = () => {
-      clearPendingWebSearchApproval(streamId, false)
-    }
-    const timeout = setTimeout(() => {
-      clearPendingWebSearchApproval(streamId, false)
-    }, WEB_SEARCH_APPROVAL_TIMEOUT_MS)
-
-    pendingWebSearchApprovals.set(streamId, {
-      resolve,
-      timeout,
-      onAbort,
-      signal: abortSignal
-    })
-    abortSignal.addEventListener('abort', onAbort, { once: true })
-  })
-}
-
-export function approveWebSearch(streamId: string, approved: boolean): { success: boolean; error?: string } {
-  const found = clearPendingWebSearchApproval(streamId, approved)
-  if (!found) {
-    return { success: false, error: 'No pending web search request for this stream.' }
-  }
-  return { success: true }
-}
-
-function sendWebSearchStatus(
-  streamId: string,
-  query: string,
-  status: 'pending_approval' | 'searching' | 'rejected'
-): void {
-  const win = BrowserWindow.getAllWindows()[0]
-  if (!win) return
-  win.webContents.send(IPC_CHANNELS.AI_STREAM_WEB_SEARCH, {
-    streamId,
-    query,
-    status
-  })
 }
 
 /** Informational stream status — purely advisory, never clears the renderer's

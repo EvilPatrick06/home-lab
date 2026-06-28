@@ -5,7 +5,7 @@
  * when a trigger word whole-word-matches the recent transcript + game-state snapshot.
  */
 
-import { matchesKey } from './entity-store'
+import { matchesKey } from './memory/entity-store'
 
 export const LORE_SCAN_DEPTH = 4 // recent messages scanned for trigger keywords
 

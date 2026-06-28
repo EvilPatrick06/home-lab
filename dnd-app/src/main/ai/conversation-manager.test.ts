@@ -13,7 +13,7 @@ vi.mock('./prompt-sections/narrative-rules', () => ({
 }))
 
 let mockWindow = 100_000
-vi.mock('./token-budget', () => ({
+vi.mock('./context/token-budget', () => ({
   estimateTokens: vi.fn((text: string) => Math.ceil(text.length / 4)),
   trimToTokenBudget: vi.fn((text: string) => text),
   OUTPUT_RESERVE: 2000,

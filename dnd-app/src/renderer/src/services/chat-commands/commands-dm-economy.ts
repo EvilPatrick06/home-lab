@@ -2,7 +2,7 @@ import { useLobbyStore } from '../../stores/use-lobby-store'
 import { is5eCharacter } from '../../types/character'
 import type { Character5e } from '../../types/character-5e'
 import { getEffectiveMagicItems } from '../character/effective-character-5e'
-import { getLatestCharacter, saveAndBroadcastCharacter } from './helpers'
+import { getLatestCharacter, saveAndBroadcastCharacter } from './command-dice-utils'
 import type { ChatCommand } from './types'
 
 const dmgoldCommand: ChatCommand = {

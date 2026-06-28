@@ -1,6 +1,6 @@
 import { useGameStore } from '../../stores/use-game-store'
 import { cryptoRandom } from '../../utils/crypto-random'
-import { findTokenByName } from './helpers'
+import { findTokenByName } from './command-dice-utils'
 import type { ChatCommand } from './types'
 
 const initiativeCommand: ChatCommand = {

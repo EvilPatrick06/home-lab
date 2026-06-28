@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 vi.mock('../../types/character-common', () => ({
   abilityModifier: vi.fn((score: number) => Math.floor((score - 10) / 2))
 }))
-vi.mock('./helpers', () => ({
+vi.mock('./command-dice-utils', () => ({
   getLatestCharacter: vi.fn(),
   saveAndBroadcastCharacter: vi.fn()
 }))

@@ -17,7 +17,7 @@
 import { useCharacterStore } from '../../stores/use-character-store'
 import { is5eCharacter } from '../../types/character'
 import { getEffectiveMagicItems } from '../character/effective-character-5e'
-import { postDmMessage } from './broadcast-helpers'
+import { postDmMessage } from './broadcast-utils'
 import type { ActiveMap, DmAction, GameStoreSnapshot, StoreAccessors } from './types'
 
 function resolveCharacterAndItem(characterName: string, itemName: string) {

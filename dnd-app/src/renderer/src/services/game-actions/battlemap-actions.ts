@@ -8,7 +8,7 @@
 import { useCampaignStore } from '../../stores/use-campaign-store'
 import { getActiveCampaignId } from '../active-campaign-ref'
 import { applyBattlemapSpec } from '../map/battlemap/apply-spec'
-import { postDmMessage } from './broadcast-helpers'
+import { postDmMessage } from './broadcast-utils'
 import type { ActiveMap, DmAction, GameStoreSnapshot, StoreAccessors } from './types'
 
 let inFlight = false

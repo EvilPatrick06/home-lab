@@ -26,7 +26,7 @@ vi.mock('../stores/store-accessors', () => ({
   getNetworkStore: () => ({ getState: () => ({ sendMessage: vi.fn() }) }),
   getAiDmStore: () => ({ getState: () => ({ dmApprovalRequired: false }) })
 }))
-vi.mock('./game-actions/broadcast-helpers', () => ({
+vi.mock('./game-actions/broadcast-utils', () => ({
   broadcastTokenSync: vi.fn(),
   broadcastInitiativeSync: vi.fn(),
   postDmMessage: vi.fn()

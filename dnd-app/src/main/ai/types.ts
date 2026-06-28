@@ -1,5 +1,5 @@
-import type { AiProviderType } from './llm-provider'
-import type { AiRoutingConfig } from './model-routing'
+import type { AiProviderType } from './clients/llm-provider'
+import type { AiRoutingConfig } from './clients/model-routing'
 
 // ── AI DM Types (Main Process) ──
 

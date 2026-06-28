@@ -1,5 +1,5 @@
 import { abilityModifier } from '../../types/character-common'
-import { getLatestCharacter, saveAndBroadcastCharacter } from './helpers'
+import { getLatestCharacter, saveAndBroadcastCharacter } from './command-dice-utils'
 import type { ChatCommand } from './types'
 
 export const commands: ChatCommand[] = [

@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { AccessibilitySection } from '../components/settings/AccessibilitySection'
 import { AccountSection } from '../components/settings/AccountSection'
@@ -160,6 +161,21 @@ export async function restoreDefaultSettings(): Promise<void> {
 export default function SettingsPage(): JSX.Element {
   const { t } = useT()
   const navigate = useNavigate()
+  // Settings search: filter the ~18 panels by title. Every panel renders
+  // through the shared Section wrapper ([data-settings-section] + an h3),
+  // so we can hide non-matching panels with one DOM pass instead of
+  // threading a query through every section component.
+  const [settingsQuery, setSettingsQuery] = useState('')
+  const contentRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const root = contentRef.current
+    if (!root) return
+    const q = settingsQuery.trim().toLowerCase()
+    root.querySelectorAll<HTMLElement>('[data-settings-section]').forEach((el) => {
+      const title = el.querySelector('h3')?.textContent?.toLowerCase() ?? ''
+      el.hidden = q !== '' && !title.includes(q)
+    })
+  }, [settingsQuery])
 
   // Notification settings
 
@@ -214,7 +230,15 @@ export default function SettingsPage(): JSX.Element {
       </div>
 
       {/* Content */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+      <div ref={contentRef} className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+        <input
+          type="search"
+          value={settingsQuery}
+          onChange={(e) => setSettingsQuery(e.target.value)}
+          placeholder={t('pages.settingsPage.searchPlaceholder')}
+          aria-label={t('pages.settingsPage.searchPlaceholder')}
+          className="w-full px-3 py-2 text-sm rounded-lg bg-surface-2 border border-border text-fg placeholder:text-muted focus:border-amber-600 focus:outline-none"
+        />
         {/* Profile */}
         <ProfileSection />
 

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 const { loadCharacterById } = vi.hoisted(() => ({ loadCharacterById: vi.fn() }))
-vi.mock('./character-context', () => ({ loadCharacterById }))
+vi.mock('./context/character-context', () => ({ loadCharacterById }))
 
 import { buildGameStateSnapshot, dedupeStatChanges, validateAgainstGameState } from './game-state-validation'
 import type { AiChatRequest, StatChange } from './types'

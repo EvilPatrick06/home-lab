@@ -45,13 +45,16 @@ import {
 import { analyzeMapState, type MapStateForVisionAnalysis } from '../ai/ai-vision'
 import { generateBattlemapSpec } from '../ai/battlemap-generator'
 import { askCampaignQuestion } from '../ai/campaign-qa'
-import { setClaudeApiKey } from '../ai/claude-client'
-import { buildContext, getLastTokenBreakdown } from '../ai/context-builder'
+import { setClaudeApiKey } from '../ai/clients/claude-client'
+import { setGeminiApiKey } from '../ai/clients/gemini-client'
+import type { AiProviderType } from '../ai/clients/llm-provider'
+import { setOpenAIApiKey } from '../ai/clients/openai-client'
+import { getProvider } from '../ai/clients/provider-registry'
+import { buildContext, getLastTokenBreakdown } from '../ai/context/context-builder'
+import { getActiveContextWindow, getEffectiveBudgets } from '../ai/context/token-budget'
 import type { DmAction } from '../ai/dm-actions'
-import { getEntityStore } from '../ai/entity-store'
-import { setGeminiApiKey } from '../ai/gemini-client'
-import type { AiProviderType } from '../ai/llm-provider'
-import { type CombatState, getMemoryManager, type WorldState } from '../ai/memory-manager'
+import { getEntityStore } from '../ai/memory/entity-store'
+import { type CombatState, getMemoryManager, type WorldState } from '../ai/memory/memory-manager'
 import {
   CURATED_MODELS,
   type CuratedModel,
@@ -73,11 +76,8 @@ import {
   updateOllama,
   type VramInfo
 } from '../ai/ollama-manager'
-import { setOpenAIApiKey } from '../ai/openai-client'
 import { fateCheck } from '../ai/oracle'
-import { getProvider } from '../ai/provider-registry'
 import { getSceneMemorySettings, setSceneMemoryEnabled } from '../ai/scene-memory'
-import { getActiveContextWindow, getEffectiveBudgets } from '../ai/token-budget'
 import type {
   AiChatRequest,
   AiConfig,

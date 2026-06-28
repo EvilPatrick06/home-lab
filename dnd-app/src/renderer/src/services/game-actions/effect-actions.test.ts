@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-// Mock dice-helpers
-vi.mock('./dice-helpers', () => ({
+// Mock dice-action-utils
+vi.mock('./dice-action-utils', () => ({
   rollDiceFormula: vi.fn(() => ({ rolls: [5, 3], total: 8 }))
 }))
 
@@ -838,7 +838,7 @@ describe('effect-actions', () => {
     })
 
     it('returns false + posts an error when the roll yields no dice (invalid formula)', async () => {
-      const { rollDiceFormula } = await import('./dice-helpers')
+      const { rollDiceFormula } = await import('./dice-action-utils')
       vi.mocked(rollDiceFormula).mockReturnValueOnce({ rolls: [], total: 0 })
       const { executeRollDice } = await import('./effect-actions')
       const ok = executeRollDice(

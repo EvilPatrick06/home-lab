@@ -4,13 +4,13 @@ vi.mock('../sound-manager', () => ({
   play: vi.fn()
 }))
 
-vi.mock('./broadcast-helpers', () => ({
+vi.mock('./broadcast-utils', () => ({
   broadcastInitiativeSync: vi.fn(),
   broadcastTokenSync: vi.fn(),
   broadcastConditionSync: vi.fn()
 }))
 
-vi.mock('./dice-helpers', () => ({
+vi.mock('./dice-action-utils', () => ({
   rollDiceFormula: vi.fn((formula: string) => {
     if (formula === '1d6') return { rolls: [4], total: 4 }
     if (formula === '1d20') return { rolls: [15], total: 15 }
@@ -28,7 +28,7 @@ vi.mock('./name-resolver', () => ({
 }))
 
 import { play as playSound } from '../sound-manager'
-import { broadcastConditionSync } from './broadcast-helpers'
+import { broadcastConditionSync } from './broadcast-utils'
 import {
   executeAwardTreasure,
   executeAwardXp,

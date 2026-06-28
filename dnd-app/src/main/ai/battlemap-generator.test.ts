@@ -6,7 +6,7 @@ const { providerInfo, ollamaStructuredOnce, chatOncePrimary } = vi.hoisted(() =>
   chatOncePrimary: vi.fn()
 }))
 vi.mock('./ai-service', () => ({ getPrimaryProviderInfo: () => providerInfo, chatOncePrimary }))
-vi.mock('./ollama-client', () => ({ ollamaStructuredOnce }))
+vi.mock('./clients/ollama-client', () => ({ ollamaStructuredOnce }))
 
 import { buildBattlemapSystemPrompt, generateBattlemapSpec } from './battlemap-generator'
 

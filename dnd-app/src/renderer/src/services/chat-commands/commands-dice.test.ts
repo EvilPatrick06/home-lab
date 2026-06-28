@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock helpers used by commands-dice
-vi.mock('./helpers', () => ({
+vi.mock('./command-dice-utils', () => ({
   parseDiceFormula: vi.fn((formula: string) => {
     const match = formula.match(/^(\d+)d(\d+)([+-]\d+)?$/)
     if (!match) return null
@@ -170,7 +170,7 @@ describe('commands-dice', () => {
     })
 
     it('returns error when there is no last roll', async () => {
-      const { getLastRoll } = await import('./helpers')
+      const { getLastRoll } = await import('./command-dice-utils')
       vi.mocked(getLastRoll).mockReturnValueOnce(null)
       const result = rerollCmd.execute('', makeCtx())
       expect(result).toHaveProperty('error')

@@ -2,7 +2,7 @@ import type { AbilityName, AbilityScoreSet } from '../../types/character-common'
 import { abilityModifier } from '../../types/character-common'
 import type { ResolvedEffects } from '../combat/effect-resolver-5e'
 import { calculateArmorClass5e } from './armor-class-calculator'
-import type { EncumbranceResult, LifestyleLevel, ToolSkillInteraction } from './equipment-utilities'
+import type { EncumbranceResult, LifestyleLevel, ToolSkillInteraction } from './equipment-calc-utils'
 import {
   calculateEncumbrance,
   calculateLifestyleCost,
@@ -11,12 +11,12 @@ import {
   LIFESTYLE_COSTS,
   sumEquipmentWeight,
   TOOL_SKILL_INTERACTIONS
-} from './equipment-utilities'
+} from './equipment-calc-utils'
 import { applyAbilityBonuses, collectHomebrewFeatEffects, type HomebrewFeatEffect } from './homebrew-effects'
 
 export type { EncumbranceResult, LifestyleLevel, ToolSkillInteraction }
 // Re-export armor-class-calculator exports so existing consumers can import from this module
-// Re-export equipment-utilities exports so existing consumers can import from this module
+// Re-export equipment-calc-utils exports so existing consumers can import from this module
 export {
   calculateArmorClass5e,
   calculateEncumbrance,
