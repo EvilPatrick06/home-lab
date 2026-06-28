@@ -26,6 +26,7 @@ import secrets
 import subprocess
 import threading
 import time
+from datetime import datetime, timezone
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from flask import Flask, Response, jsonify, redirect, render_template, request, send_from_directory, stream_with_context
@@ -44,6 +45,28 @@ BMO_PORT = int(os.environ.get("BMO_PORT", "5000"))
 BMO_CANARY = os.environ.get("BMO_CANARY", "").lower() in ("1", "true", "yes")
 # BMO_SIMULATE=1: use stub hardware adapters (LED/OLED/camera) for off-Pi dev.
 BMO_SIMULATE = os.environ.get("BMO_SIMULATE", "").lower() in ("1", "true", "yes")
+
+# PHASE-08 08A: capture the running code's identity ONCE at import, so the
+# health endpoint reports the SHA + start time the process actually booted with.
+# Capturing at import (not per-request) is what makes deploy<->restart skew
+# visible: after the tree advances on disk, /health still reports the older
+# running SHA. Degrades to None in a non-git environment (Docker/CI) — never raises.
+_PROCESS_STARTED_AT = datetime.now(timezone.utc)
+
+
+def _capture_running_commit():
+    try:
+        from dev.dev_tools import git_command_args
+        repo_root = os.path.dirname(os.path.abspath(__file__))
+        result = git_command_args(["rev-parse", "HEAD"], repo_root)
+        if isinstance(result, dict) and result.get("exit_code") == 0:
+            return ((result.get("output") or "").strip()[:12]) or None
+    except Exception:
+        pass
+    return None
+
+
+_RUNNING_COMMIT = _capture_running_commit()
 
 # ── App Setup ────────────────────────────────────────────────────────
 

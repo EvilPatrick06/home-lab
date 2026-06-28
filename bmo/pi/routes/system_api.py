@@ -53,7 +53,31 @@ _tts_browser_queue: list[str] = []
 def health():
     # `api_version` advertises the versioned-endpoint contract; the bare `status` key is kept
     # verbatim so existing unversioned probes (dnd-app lan-discovery.ts) are unaffected.
-    return jsonify({"status": "ok", "api_version": "v1"})
+    # PHASE-08 08A: additive running-code identity so deploy<->restart skew is visible in one
+    # GET. Each added field degrades to null on error — the health route must never 500.
+    a = _app()
+    commit = getattr(a, "_RUNNING_COMMIT", None)
+    started = getattr(a, "_PROCESS_STARTED_AT", None)
+    try:
+        asset_build = a._static_mtime("js/bmo.js")
+    except Exception:
+        asset_build = None
+    started_at = started.isoformat() if started is not None else None
+    uptime_s = None
+    if started is not None:
+        try:
+            from datetime import datetime, timezone
+            uptime_s = int((datetime.now(timezone.utc) - started).total_seconds())
+        except Exception:
+            uptime_s = None
+    return jsonify({
+        "status": "ok",
+        "api_version": "v1",
+        "commit": commit,
+        "asset_build": asset_build,
+        "started_at": started_at,
+        "uptime_s": uptime_s,
+    })
 
 
 _HEALTH_SCHEMA_VERSION = 1
