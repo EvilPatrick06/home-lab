@@ -7,5 +7,5 @@ Type=oneshot
 User=patrick
 WorkingDirectory=/home/patrick/home-lab/bmo/pi
 EnvironmentFile=/home/patrick/home-lab/bmo/pi/.env
-ExecStart=/home/patrick/home-lab/bmo/pi/venv/bin/python -m services.voice_canary
+ExecStart=/home/patrick/home-lab/bmo/pi/venv/bin/python -m services.voice.voice_canary
 Nice=15

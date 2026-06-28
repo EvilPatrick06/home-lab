@@ -795,6 +795,12 @@ const api = {
     }
   },
 
+  // PHASE-53B — ephemeral coturn credentials minted by the Pi relay; the main
+  // process performs the fetch so the renderer keeps zero direct http to the Pi.
+  turn: {
+    getCredentials: (baseOverride?: string) => ipcRenderer.invoke(IPC_CHANNELS.TURN_CREDENTIALS, baseOverride)
+  },
+
   // Pi 5e library — manifest + file fetches run in the main process; the
   // renderer keeps the content-hash cache + bundled fallback.
   library: {

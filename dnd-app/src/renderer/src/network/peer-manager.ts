@@ -59,6 +59,7 @@ export function setSignalingServer(host: string, port?: number, path?: string, s
   customSignalingPort = port ?? (secure !== false ? 443 : 80)
   customSignalingPath = path ?? '/'
   customSignalingSecure = secure !== false
+  userIceOverride = false
   // Update ICE servers to match the new host
   iceServers = getDefaultIceServers()
 }
@@ -67,6 +68,7 @@ export function setSignalingServer(host: string, port?: number, path?: string, s
  * Reset signaling server configuration.
  */
 export function resetSignalingServer(): void {
+  userIceOverride = false
   customHost = null
   customSignalingPort = 9000
   customSignalingPath = '/myapp'
@@ -83,11 +85,17 @@ export function resetSignalingServer(): void {
 // when needed (see configureForCloud).
 let forceRelay = false
 
+// PHASE-53B — true once the user supplies their own ICE/TURN config via
+// setIceConfig; suppresses the auto-layered ephemeral TURN so we never
+// clobber a user's explicit relay choice.
+let userIceOverride = false
+
 /**
  * Override ICE server configuration (e.g. with user-configured TURN servers).
  * Call before createPeer() to take effect.
  */
 export function setIceConfig(servers: RTCIceServer[]): void {
+  userIceOverride = servers.length > 0
   iceServers = servers.length > 0 ? servers : getDefaultIceServers()
 }
 
@@ -102,6 +110,7 @@ export function getIceConfig(): RTCIceServer[] {
  * Reset ICE servers to defaults.
  */
 export function resetIceConfig(): void {
+  userIceOverride = false
   iceServers = getDefaultIceServers()
 }
 
@@ -126,6 +135,7 @@ export function getForceRelay(): boolean {
  * Used as fallback when custom signaling server is unreachable.
  */
 export function configureForCloud(): void {
+  userIceOverride = false
   customHost = null
   customSignalingPort = null
   customSignalingPath = '/'
@@ -175,7 +185,67 @@ export function resetToDefaults(): void {
  * as the peer ID (used by the host with the invite code). Otherwise PeerJS
  * assigns a random ID.
  */
+
+/**
+ * PHASE-53B — fetch a short-lived coturn credential. In Electron the MAIN
+ * process performs the fetch (no direct renderer->Pi http); in the web build
+ * (no `window.api`) we fetch the same-origin Pi endpoint directly.
+ */
+async function fetchEphemeralTurn(): Promise<{ username: string; credential: string } | null> {
+  try {
+    const w =
+      typeof window !== 'undefined'
+        ? (window as unknown as {
+            api?: { turn?: { getCredentials?: () => Promise<{ username?: string; credential?: string } | null> } }
+          })
+        : undefined
+    if (w?.api?.turn?.getCredentials) {
+      const c = await w.api.turn.getCredentials()
+      return c?.username && c.credential ? { username: c.username, credential: c.credential } : null
+    }
+    if (typeof fetch === 'function') {
+      const resp = await fetch('/api/turn-credentials')
+      if (!resp.ok) return null
+      const d = (await resp.json()) as { username?: string; credential?: string }
+      return d.username && d.credential ? { username: d.username, credential: d.credential } : null
+    }
+  } catch (e) {
+    logger.debug('[PeerManager] ephemeral TURN fetch failed (STUN-only):', e)
+  }
+  return null
+}
+
+/**
+ * PHASE-53B — for a self-host session, layer a TURN relay candidate onto the
+ * default STUN-only ICE set using an ephemeral coturn credential, so a client
+ * behind restrictive NAT can still form a candidate pair. No-op when no custom
+ * host is configured (cloud mode), when the user supplied their own ICE config,
+ * or when the mint is unavailable (stays STUN-only; the PHASE-53A relay fallback
+ * still covers a dead-end). `forceRelay` stays false — TURN is a fallback
+ * candidate; ICE picks the best pair.
+ */
+export async function ensureEphemeralTurn(): Promise<void> {
+  if (!customHost || userIceOverride) return
+  const creds = await fetchEphemeralTurn()
+  if (!creds) return
+  const turnServer: RTCIceServer = {
+    urls: [`turn:${customHost}:3478`, `turn:${customHost}:3478?transport=tcp`],
+    username: creds.username,
+    credential: creds.credential
+  }
+  const base = getDefaultIceServers().filter(
+    (s) => !(Array.isArray(s.urls) ? s.urls : [s.urls]).some((u) => u.startsWith('turn:'))
+  )
+  iceServers = [...base, turnServer]
+}
+
 export function createPeer(customId?: string): Promise<Peer> {
+  // PHASE-53B — ensure a self-host ICE set carries an ephemeral TURN relay
+  // candidate before building the peer (no-op for cloud / user-override / no mint).
+  return ensureEphemeralTurn().then(() => createPeerInner(customId))
+}
+
+function createPeerInner(customId?: string): Promise<Peer> {
   return new Promise((resolve, reject) => {
     // Clean up any existing peer
     if (peer) {

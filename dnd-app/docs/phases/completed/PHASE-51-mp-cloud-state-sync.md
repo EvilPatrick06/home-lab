@@ -84,6 +84,14 @@ The relay is **not** presence-only: `bmo/pi/services/game_relay.py` / `game_rela
 
 ## Completed
 
-_(none yet — execution log appended here per sub-phase per INSTRUCTIONS.md)_
+### Completed — 2026-06-28 (dnd-phase-executer, verify-don’t-rebuild)
+
+Verified: **SS-1 confirmed working + regression test shipped** in `abab8b89` / **v2.6.3**.
+
+- **Enrollment:** a relay joiner is added to `get().peers` with its `clientId` on `peer-joined`; `getRecipients` maps `get().peers → {peerId, clientId}` (`stores/network-store/index.ts:124`). The broadcaster ships a correct per-recipient `permissionFilter(next, clientId)` `replace` to each enrolled cloud peer — the live peer list IS the roster the filter keys on, so no separate enrollment code was needed.
+- **51B regression test:** `cloud SS-1 filtered shard delivery` (`stores/network-store/index.cloud.test.ts`) asserts a filtered shard relays a per-recipient stripped `sync:delta` (point-to-point `target_peer_id`) to a joined cloud player, withholding the DM-only field.
+- **SS-2:** relay carries state (not presence-only) — confirmed; fix stayed client-side. The reported divergence was dominated by the TR-1 dead bus, resolved by PHASE-49.
+
+No code change required this run. Plan moved to `completed/`.
 
 _Authored 2026-06-24 from QA-report-2026-06-24-multiplayer.md (SS-1, SS-2)._

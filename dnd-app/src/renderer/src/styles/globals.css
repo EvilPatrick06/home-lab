@@ -84,6 +84,13 @@
   outline-offset: 2px;
 }
 
+html {
+  /* Keep iOS Safari / Android WebView from auto-inflating font sizes in
+     landscape, which breaks our fixed layouts on phones. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -91,12 +98,27 @@ body {
   background-color: var(--color-gray-950, #030712);
   color: var(--color-gray-100, #f3f4f6);
   overflow: hidden;
+  /* Suppress the grey tap flash on touch devices; we draw our own focus rings. */
+  -webkit-tap-highlight-color: transparent;
 }
 
 #root {
+  /* `dvh`/`dvw` track the *dynamic* viewport so the layout fills the screen
+     under a mobile browser's collapsing URL bar; `vh`/`vw` is the fallback for
+     older engines. Safe-area padding keeps content clear of notches / the home
+     indicator when the PWA is installed (display: standalone). */
   height: 100vh;
+  /* biome-ignore lint/suspicious/noDuplicateProperties: intentional dvh fallback over vh for older engines */
+  height: 100dvh;
   width: 100vw;
+  width: 100dvw;
   overflow-y: auto;
+  /* Stop the whole page rubber-banding on iOS when an inner area is scrolled. */
+  overscroll-behavior: none;
+  padding-top: env(safe-area-inset-top, 0);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  padding-left: env(safe-area-inset-left, 0);
+  padding-right: env(safe-area-inset-right, 0);
 }
 
 /* Scrollbar styling for dark theme */

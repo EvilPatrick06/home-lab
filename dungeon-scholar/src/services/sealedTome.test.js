@@ -1,5 +1,14 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { isSealedTome, PBKDF2_ITERATIONS, SEAL_VERSION, sealTome, unsealTome } from './sealedTome.js';
+import {
+  isSealedTome,
+  isValidIterations,
+  MAX_PBKDF2_ITERATIONS,
+  MIN_PBKDF2_ITERATIONS,
+  PBKDF2_ITERATIONS,
+  SEAL_VERSION,
+  sealTome,
+  unsealTome,
+} from './sealedTome.js';
 
 // Known-secret strings woven into the mini-tome so the secrecy assertion can
 // prove they never leak into the envelope JSON.
@@ -138,5 +147,46 @@ describe('sealedTome', () => {
     expect(persisted).not.toContain(SECRET_KB);
     // sanity: the public title is still present in the persisted row.
     expect(persisted).toContain('Cryptography Primer');
+  });
+});
+
+// Security (SECURITY-LOG 2026-06-24): a sealed tome is importable/shareable, so
+// its kdf.iterations is attacker-controlled. An out-of-band (e.g. unbounded)
+// count must be rejected BEFORE deriveKey so a hostile envelope can't freeze the
+// main thread with an unbounded PBKDF2 run (DoS).
+describe('sealedTome — iteration-count hardening', () => {
+  // A structurally-valid envelope skeleton (passes the other isSealedTome
+  // checks) whose iteration count we vary. No real crypto runs: every assertion
+  // here rejects before deriveKey.
+  const envWith = (iterations) => ({
+    sealVersion: SEAL_VERSION,
+    cipher: { name: 'AES-GCM', iv: 'AAAA', ciphertext: 'AAAA' },
+    kdf: { name: 'PBKDF2', hash: 'SHA-256', iterations, salt: 'AAAA' },
+  });
+
+  it('isValidIterations accepts the band and the production value, rejects outside it', () => {
+    expect(isValidIterations(PBKDF2_ITERATIONS)).toBe(true);
+    expect(isValidIterations(MIN_PBKDF2_ITERATIONS)).toBe(true);
+    expect(isValidIterations(MAX_PBKDF2_ITERATIONS)).toBe(true);
+    expect(isValidIterations(MAX_PBKDF2_ITERATIONS + 1)).toBe(false);
+    expect(isValidIterations(MIN_PBKDF2_ITERATIONS - 1)).toBe(false);
+    expect(isValidIterations(1e12)).toBe(false);
+    expect(isValidIterations(1.5)).toBe(false);
+    expect(isValidIterations('600000')).toBe(false);
+    expect(isValidIterations(undefined)).toBe(false);
+  });
+
+  it('isSealedTome is false when iterations is missing or not an integer', () => {
+    expect(isSealedTome(envWith('lots'))).toBe(false);
+    expect(isSealedTome(envWith(1.5))).toBe(false);
+    expect(isSealedTome({ sealVersion: SEAL_VERSION, cipher: { ciphertext: 'x' }, kdf: { salt: 'y' } })).toBe(false);
+  });
+
+  it('unsealTome rejects an unbounded integer iteration count with bad-iterations (no deriveKey/DoS)', async () => {
+    await expect(unsealTome(envWith(1e12), 'any passphrase')).rejects.toThrow('bad-iterations');
+  });
+
+  it('unsealTome rejects a below-floor iteration count with bad-iterations', async () => {
+    await expect(unsealTome(envWith(1), 'any passphrase')).rejects.toThrow('bad-iterations');
   });
 });

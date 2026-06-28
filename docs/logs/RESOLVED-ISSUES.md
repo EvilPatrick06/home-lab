@@ -14,6 +14,48 @@ How to triage: [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md)
 
 > Resolved cross-cutting / `Domain: both` entries moved out of `ISSUES-LOG.md` + `SUGGESTIONS-LOG.md`. Newest first.
 
+### [2026-06-28] Per-domain `DESIGN-CONSTRAINTS.md` files lack the `merge=union` driver despite being designated automated-agent append targets
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-28
+- **Resolution:** Added a `**/docs/DESIGN-CONSTRAINTS.md   merge=union` glob to `/.gitattributes` (in the "Append-only log docs" union-merge block, with a comment pointing at AUTOMATED-AGENT-GIT-WORKFLOW.md Rule 2). Verified `git check-attr merge` now returns `union` for all three (`bmo/docs/`, `dnd-app/docs/`, `dungeon-scholar/docs/`) `DESIGN-CONSTRAINTS.md` files; the existing `docs/logs/*` log globs are unchanged and still `union`. Concurrent appends to the constraints docs from parallel `auto/*` branches now auto-merge instead of conflicting at integration.
+- **Branch:** auto/overall-resolver
+
+- **Category:** config, debt
+- **Severity:** medium
+- **Domain:** both
+- **Discovered by:** overall-errors
+
+**Original problem:** `.gitattributes` applied `merge=union` only to `docs/logs/*`, while the three per-domain `DESIGN-CONSTRAINTS.md` files — designated automated-agent append targets by `LOG-INSTRUCTIONS.md` — were `merge: unspecified`, so concurrent appends would produce real merge conflicts at integration.
+
+### [2026-06-28] Shared husky pre-commit hook gates only 2 of 4 projects (no local pre-flight for `bmo/pi` or `oracle-worker`)
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-28
+- **Resolution:** Added two pre-flight blocks to `.husky/pre-commit`. **bmo/pi:** when `bmo/pi/**/*.py` is staged, runs `ruff check` on the staged Python files (loud warning if `ruff` is absent rather than a silent skip) plus the `bmo/pi/scripts/check-no-new-prints.sh` ratchet when present. **oracle-worker:** when `oracle-worker/**` is staged, runs its `npm test`. CI (`bmo-pi-pytest.yml` / `oracle-worker-ci.yml`) remains authoritative; these are fast local floors matching the dnd-app + dungeon-scholar blocks. Verified `sh -n` and `shellcheck -S error` clean.
+- **Branch:** auto/overall-resolver
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-errors
+
+**Original problem:** The hook ran local gates for `dnd-app/` and `dungeon-scholar/` but no pre-flight for `bmo/pi/` (ruff/print-ratchet/pytest) or `oracle-worker/`, an asymmetric local-tooling floor across the four projects.
+
+### [2026-06-28] Inconsistent `push` branch filters across workflows (`[master, main]` vs `[main, master]` vs `[master]`) — latent default-branch-rename gotcha
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-28
+- **Resolution:** Standardised every workflow's `push.branches` to `[master]` (the repo's actual default branch). Changed `[master, main]` (`bmo-docker-build.yml`, `bmo-pi-pytest.yml`, `dnd-app-validate-5e.yml`, `security-audit.yml`) and `[main, master]` (`deploy.yml`) to `[master]`; `codeql.yml` and `dnd-web-deploy.yml` were already `[master]`. All push triggers now share one convention, removing the latent partial-CI-outage risk if the default branch were ever renamed.
+- **Branch:** auto/overall-resolver
+
+- **Category:** config
+- **Severity:** info
+- **Domain:** both
+- **Discovered by:** overall-errors
+
+**Original problem:** The `push.branches` filter was written three different ways across workflows; the `main` entries were dead config today but masked a latent gotcha where a future rename to `main` would silently stop the `[master]`-only workflows (CodeQL, dnd-web deploy) from triggering.
+
 ### [2026-06-24] Monorepo subproject metadata inconsistent — oracle-worker README/description + per-subproject LICENSE
 
 - **Resolved by:** overall-resolver (automated)

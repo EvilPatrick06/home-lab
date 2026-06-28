@@ -92,6 +92,14 @@ sed -n '162,178p' stores/network-store/client-handlers/game-action-handlers.ts  
 
 ## Completed
 
-_(none yet — execution log appended here per sub-phase per INSTRUCTIONS.md)_
+### Completed — 2026-06-28 (dnd-phase-executer, verify-don’t-rebuild)
+
+Verified against the live tree (`auto/dnd-phase-executer` off `origin/master`): **TR-1 is fully implemented and shipped** in commit `abab8b89` (`fix(mp): resolve multiplayer QA findings`), released in **v2.6.3**.
+
+- **49A:** cloud HOST re-emits each inbound frame onto the host-manager bus via `emitHostMessage(message, ctx.peerId)` (`stores/network-store/index.ts:130`, after `handleHostMessage`); cloud CLIENT re-emits via `emitClientMessage(message)` (`:493`, after `handleClientMessage`). New emitters `network/host-manager.ts:emitHostMessage` + `network/client-manager.ts:emitClientMessage`, re-exported from `network/index.ts`.
+- **No double-apply:** in cloud mode the store dispatcher runs DIRECTLY (not as a bus subscriber), so the re-emit drives ONLY the UI bridges — identical net effect to P2P (one bus drives both there). Pinned by the new `cloud TR-1 bridge re-emit` host+client tests in `stores/network-store/index.cloud.test.ts`.
+- **49B:** bridge-only types (`chat:message`, `chat:file`, `player:character-select` data) reach the bridges in cloud games.
+
+No code change required this run — pre-existing, CI-green, released. Plan moved to `completed/`.
 
 _Authored 2026-06-24 from QA-report-2026-06-24-multiplayer.md (TR-1)._

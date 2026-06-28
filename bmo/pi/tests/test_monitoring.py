@@ -480,3 +480,78 @@ class TestCircuitBreaker:
         checker._circuit_record_success("google_calendar")
         assert "google_calendar" not in checker._subsystem_backoff
         assert not checker._circuit_open("google_calendar", now)
+
+
+# ── PHASE-05 05C: reconcile calendar health with the live read path ───────────
+
+
+class TestCalendarHealthReconcile:
+    def _write_stale_token(self, tmp_path):
+        import datetime
+        import json
+        creds = tmp_path / "credentials.json"
+        creds.write_text("{}")
+        token = tmp_path / "token.json"
+        past = (
+            datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=2)
+        ).isoformat()
+        token.write_text(json.dumps({"token": "at", "refresh_token": "rt", "expiry": past}))
+        return str(creds), str(token)
+
+    def _patched_paths(self, tmp_path, creds, token):
+        return patch.multiple(
+            mon_module,
+            CALENDAR_CREDENTIALS_PATH=creds,
+            CALENDAR_TOKEN_PATH=token,
+            LEGACY_CALENDAR_CREDENTIALS_PATH=str(tmp_path / "lc.json"),
+            LEGACY_CALENDAR_TOKEN_PATH=str(tmp_path / "lt.json"),
+        )
+
+    def test_stale_token_but_live_read_ok_is_not_down(self, tmp_path):
+        checker = _make_checker(tmp_path)
+        creds, token = self._write_stale_token(tmp_path)
+        alerts = []
+        checker._emit_alert = lambda level, svc, msg: alerts.append((level, svc, msg))
+        checker._calendar_live_probe = lambda: True
+        checker._calendar_expired_since = time.time() - 700  # past the 10-min grace
+        # pretend a prior cycle latched a failure; success must clear it
+        checker._subsystem_backoff["google_calendar"] = (3, time.time() - 1)
+        with self._patched_paths(tmp_path, creds, token):
+            checker._check_calendar_token()
+        assert checker._service_status["google_calendar"]["status"] == "degraded"
+        assert not [a for a in alerts if a[0] == mon_module.Severity.CRITICAL]
+        assert "google_calendar" not in checker._subsystem_backoff  # circuit cleared
+
+    def test_stale_token_and_dead_read_escalates_to_reauth(self, tmp_path):
+        checker = _make_checker(tmp_path)
+        creds, token = self._write_stale_token(tmp_path)
+        alerts = []
+        checker._emit_alert = lambda level, svc, msg: alerts.append((level, svc, msg))
+        checker._calendar_live_probe = lambda: False
+        checker._calendar_expired_since = time.time() - 700
+        with self._patched_paths(tmp_path, creds, token):
+            checker._check_calendar_token()
+        assert checker._service_status["google_calendar"]["status"] == "down"
+        criticals = [a for a in alerts if a[0] == mon_module.Severity.CRITICAL]
+        assert any("reauth" in a[2].lower() for a in criticals)
+
+    def test_live_probe_classifies_service_outcomes(self, tmp_path):
+        checker = _make_checker(tmp_path)
+        # no live service available -> None (caller falls back to the disk signal)
+        checker._resolve_calendar_service = lambda: None
+        assert checker._calendar_live_probe() is None
+        # a successful live read -> True
+        ok = MagicMock()
+        ok.get_next_event = MagicMock(return_value=None)
+        checker._resolve_calendar_service = lambda: ok
+        assert checker._calendar_live_probe() is True
+        # an auth RuntimeError (genuinely not authorized) -> False
+        dead = MagicMock()
+        dead.get_next_event = MagicMock(side_effect=RuntimeError("not authorized"))
+        checker._resolve_calendar_service = lambda: dead
+        assert checker._calendar_live_probe() is False
+        # a transient/transport error -> None (don't claim dead)
+        flaky = MagicMock()
+        flaky.get_next_event = MagicMock(side_effect=Exception("timeout"))
+        checker._resolve_calendar_service = lambda: flaky
+        assert checker._calendar_live_probe() is None

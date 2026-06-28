@@ -11,6 +11,18 @@
  */
 export const KDF_ITERATIONS = 600_000;
 
+/**
+ * Hard ceiling on an IMPORTED payload's PBKDF2 iteration count. Encrypted notes
+ * travel inside importable/shareable tomes, so `payload.iter` is untrusted; an
+ * unbounded value would make decryptPayload run PBKDF2 effectively forever and
+ * freeze the main thread (DoS). decryptPayload rejects any payload above this.
+ * The legitimate production value (KDF_ITERATIONS = 600_000) sits well under it.
+ * No floor is enforced here: this is a generic leaf service whose callers choose
+ * the iteration count (and may legitimately use small counts in tests), so the
+ * production floor is owned by those callers, not this primitive.
+ */
+export const MAX_KDF_ITERATIONS = 2_000_000;
+
 // Bumped only on incompatible wire-format changes. decryptPayload rejects any
 // other version with `unsupported-version`.
 const PAYLOAD_VERSION = 1;
@@ -97,8 +109,10 @@ export async function encryptPayload(passphrase, plaintext, { salt, iterations }
 
 /**
  * Decrypt a payload produced by encryptPayload. Throws `unsupported-version`
- * for an unknown wire version, or `decrypt-failed` on any decryption failure
- * (wrong passphrase, tampered ciphertext, malformed input).
+ * for an unknown wire version, `bad-iterations` if the declared PBKDF2 count is
+ * not a positive integer within the accepted ceiling (so an untrusted imported
+ * payload can't dictate unbounded KDF work), or `decrypt-failed` on any
+ * decryption failure (wrong passphrase, tampered ciphertext, malformed input).
  *
  * @param {string} passphrase
  * @param {{ v: number, iter: number, salt: string, iv: string, ct: string }} payload
@@ -106,6 +120,13 @@ export async function encryptPayload(passphrase, plaintext, { salt, iterations }
  */
 export async function decryptPayload(passphrase, payload) {
   if (payload.v !== PAYLOAD_VERSION) throw new Error('unsupported-version');
+
+  // payload.iter is attacker-controlled for imported notes; reject a
+  // non-integer or above-ceiling count before deriveKey so a hostile payload
+  // can't pin the main thread on an unbounded PBKDF2 run (DoS).
+  if (!Number.isInteger(payload.iter) || payload.iter < 1 || payload.iter > MAX_KDF_ITERATIONS) {
+    throw new Error('bad-iterations');
+  }
 
   const saltBytes = fromB64(payload.salt);
   const key = await deriveKey(passphrase, saltBytes, payload.iter);

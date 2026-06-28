@@ -52,3 +52,9 @@ docs/logs/BMO-SUGGESTIONS-LOG*  merge=union
 docs/logs/SECURITY-LOG*         merge=union
 docs/logs/RESOLVED-*            merge=union
 docs/logs/BMO-RESOLVED-*        merge=union
+
+# Automated-agent durable-knowledge docs (design-gotcha/info targets per
+# docs/LOG-INSTRUCTIONS.md) are append-only like the logs: union-merge their
+# concurrent appends from parallel auto/<agent-id> branches. See
+# docs/AUTOMATED-AGENT-GIT-WORKFLOW.md Rule 2.
+**/docs/DESIGN-CONSTRAINTS.md   merge=union

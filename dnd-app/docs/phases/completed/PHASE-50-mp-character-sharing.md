@@ -99,6 +99,14 @@ sed -n '130,165p' pages/CharacterSheet5ePage.tsx
 
 ## Completed
 
-_(none yet — execution log appended here per sub-phase per INSTRUCTIONS.md)_
+### Completed — 2026-06-28 (dnd-phase-executer, verify-don’t-rebuild)
+
+Verified: **CH-1 + CH-2b implemented and shipped** in `abab8b89` / **v2.6.3**.
+
+- **CH-1:** `handleHostMessage` `player:character-select` now stores the PC into `useLobbyStore.remoteCharacters`, stamped with the owning peer id, when `characterData` is present (`stores/network-store/host-handlers.ts:158-168`); `useCharacterSelectBridge` stamps `playerId` too (`pages/lobby/use-lobby-bridges.ts:104-108`). DM can open a joined player’s sheet.
+- **CH-2a:** confirmed ALREADY-FIXED via Phase 23c dual-write (`handleClientMessage` → `handleCharacterUpdate`) — recorded, no change.
+- **CH-2b:** new `services/character/persist-character.ts:persistCharacterIfOwned` gates local `saveCharacter` on `!(role==='host' && playerId!=='local')`, wired at both call sites (`hooks/use-character-editor.ts:33`, `pages/CharacterSheet5ePage.tsx:143`). Editing a non-owned PC no longer pollutes the DM library. Covered by `services/character/persist-character.test.ts`.
+
+No code change required this run. Plan moved to `completed/`.
 
 _Authored 2026-06-24 from QA-report-2026-06-24-multiplayer.md (CH-1, CH-2)._

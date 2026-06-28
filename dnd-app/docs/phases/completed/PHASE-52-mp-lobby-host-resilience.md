@@ -81,6 +81,13 @@ grep -n "isHost\|reset:\|setIsHost" stores/use-lobby-store.ts
 
 ## Completed
 
-_(none yet — execution log appended here per sub-phase per INSTRUCTIONS.md)_
+### Completed — 2026-06-28 (dnd-phase-executer, verify-don’t-rebuild)
+
+Verified: **RL-1 implemented and shipped** in `abab8b89` / **v2.6.3**.
+
+- **52A:** cloud `isHost` loss traced to `resetLobby()` clearing `isHost` on a transient `connectionState` blip.
+- **52B:** `LobbyPage` adds a `useEffect` re-asserting `setIsHost(true)` whenever `role === 'host'`, re-running on `connectionState` transitions (`pages/LobbyPage.tsx:337-350`). A recoverable cloud reconnect can no longer strip the DM’s Start-Game / DM-chat-controls / promote gates; a deliberate leave still resets.
+
+No code change required this run. Plan moved to `completed/`.
 
 _Authored 2026-06-24 from QA-report-2026-06-24-multiplayer.md (RL-1)._

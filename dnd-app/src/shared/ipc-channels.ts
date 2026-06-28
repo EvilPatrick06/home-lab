@@ -391,6 +391,9 @@ export const IPC_CHANNELS = {
   // / error) for an active subscription.
   REGISTRY_EVENT: 'registry:event',
 
+  // === Ephemeral TURN credentials (PHASE-53B, main-process proxy) ===
+  TURN_CREDENTIALS: 'turn:credentials',
+
   // === Pi 5e Library (main-process proxy) ===
   // The Pi `/api/library/manifest` + `/api/library/file` fetches now run in the
   // MAIN process (library-bridge.ts). The renderer still owns the content-hash

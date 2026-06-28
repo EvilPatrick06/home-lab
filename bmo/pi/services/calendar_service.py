@@ -2,6 +2,7 @@
 
 import datetime
 import json
+import logging
 import os
 import shutil
 import threading
@@ -22,6 +23,30 @@ SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
 POLL_INTERVAL = 300  # 5 minutes
 
+log = logging.getLogger("bmo")
+
+# Google auto-generates several event types that its API refuses to modify
+# (HttpError 400 eventTypeRestriction). Guard edits/deletes against them.
+NON_EDITABLE_EVENT_TYPES = frozenset(
+    {"birthday", "fromGmail", "workingLocation", "outOfOffice", "focusTime"}
+)
+
+
+class CalendarReadOnlyEventError(Exception):
+    """Raised when modifying a Google read-only / auto-generated event type."""
+
+    def __init__(self, event_type: str | None = None):
+        self.event_type = event_type or "read-only"
+        super().__init__(
+            f"Event type '{self.event_type}' cannot be edited (Google read-only event)"
+        )
+
+
+def _is_event_type_restriction(exc: Exception) -> bool:
+    """Best-effort detection of Google's eventTypeRestriction 400 from any error shape."""
+    text = str(exc).lower()
+    return "eventtyperestriction" in text or "modify birthday event" in text
+
 
 class CalendarService:
     """Google Calendar API wrapper with background polling and event cache."""
@@ -30,6 +55,7 @@ class CalendarService:
         self.socketio = socketio
         self.alert_service = alert_service
         self._service = None
+        self._creds = None
         self._cache = []
         self._cache_lock = threading.Lock()
         self._poll_thread = None
@@ -96,6 +122,17 @@ class CalendarService:
 
     def _get_service(self):
         if self._service is not None:
+            # 05A (belt): opportunistically refresh+persist a cached client whose
+            # token has expired, so on-disk token.json never drifts stale while the
+            # live client keeps serving.
+            creds = self._creds
+            if creds is not None and getattr(creds, "expired", False) and getattr(creds, "refresh_token", None):
+                try:
+                    from google.auth.transport.requests import Request
+                    creds.refresh(Request())
+                    self._write_token_json(creds.to_json())
+                except Exception as e:
+                    log.warning("[calendar] cached-token refresh failed: %s", e)
             return self._service
 
         from google.auth.exceptions import RefreshError
@@ -142,20 +179,43 @@ class CalendarService:
                     "then ensure token exists in ~/home-lab/bmo/pi/config/ or bmo/pi/config/"
                 )
 
+        self._creds = creds
         self._service = build("calendar", "v3", credentials=creds)
         return self._service
+
+    def _persist_token_if_changed(self, before_token):
+        """05A: write token.json whenever the live access token changed (the
+        googleapiclient client auto-refreshes in memory; persistence is ours)."""
+        creds = self._creds
+        if creds is None:
+            return
+        after = getattr(creds, "token", None)
+        if after and after != before_token:
+            try:
+                self._write_token_json(creds.to_json())
+            except Exception as e:
+                log.warning("[calendar] token persist failed: %s", e)
 
     def _with_service_retry(self, call):
         """Run ``call(service)``; on a transport/API error, drop the cached
         client, rebuild once, and retry. RuntimeError (missing/invalid creds)
-        propagates unchanged so the route can map it to an offline payload."""
+        and CalendarReadOnlyEventError propagate unchanged so the route can map
+        them. After a successful call, persist the token if it refreshed (05A)."""
         try:
-            return call(self._get_service())
-        except RuntimeError:
+            service = self._get_service()
+            before = getattr(self._creds, "token", None)
+            result = call(service)
+            self._persist_token_if_changed(before)
+            return result
+        except (RuntimeError, CalendarReadOnlyEventError):
             raise
         except Exception:
             self._service = None
-            return call(self._get_service())
+            service = self._get_service()
+            before = getattr(self._creds, "token", None)
+            result = call(service)
+            self._persist_token_if_changed(before)
+            return result
 
     # ── Read Events ──────────────────────────────────────────────────
 
@@ -234,6 +294,11 @@ class CalendarService:
         def _do(service):
             event = service.events().get(calendarId="primary", eventId=event_id).execute()
 
+            # 05B: Google refuses edits to auto-generated event types. Convert the
+            # would-be HttpError 400 into an intentional, catchable signal.
+            if event.get("eventType") in NON_EDITABLE_EVENT_TYPES:
+                raise CalendarReadOnlyEventError(event.get("eventType"))
+
             if "summary" in kwargs:
                 event["summary"] = kwargs["summary"]
             if "description" in kwargs:
@@ -245,7 +310,12 @@ class CalendarService:
             if "end" in kwargs:
                 event["end"] = {"dateTime": kwargs["end"].isoformat(), "timeZone": "America/Denver"}
 
-            return service.events().update(calendarId="primary", eventId=event_id, body=event).execute()
+            try:
+                return service.events().update(calendarId="primary", eventId=event_id, body=event).execute()
+            except Exception as e:
+                if _is_event_type_restriction(e):
+                    raise CalendarReadOnlyEventError(event.get("eventType")) from e
+                raise
 
         updated = self._with_service_retry(_do)
         self._refresh_cache()
@@ -255,9 +325,16 @@ class CalendarService:
 
     def delete_event(self, event_id: str):
         """Delete a calendar event."""
-        self._with_service_retry(
-            lambda service: service.events().delete(calendarId="primary", eventId=event_id).execute()
-        )
+        def _do(service):
+            try:
+                return service.events().delete(calendarId="primary", eventId=event_id).execute()
+            except Exception as e:
+                # 05B: some read-only event types reject deletes the same way.
+                if _is_event_type_restriction(e):
+                    raise CalendarReadOnlyEventError() from e
+                raise
+
+        self._with_service_retry(_do)
         self._refresh_cache()
 
     # ── Background Polling ───────────────────────────────────────────

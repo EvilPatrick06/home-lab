@@ -50,6 +50,7 @@ import {
   type MapLayers,
   waitForContainerDimensions
 } from './map-pixi-setup'
+import { setupTouchHandlers } from './map-touch-handlers'
 import { clearMeasurement } from './measurement-tool'
 import { renderPins } from './pin-layer'
 import { safeDestroy } from './pixi-safe-destroy'
@@ -613,6 +614,15 @@ export default function MapCanvas({
     return createWheelHandler({ zoom: zoomRef, pan: panRef }, applyTransform)(el)
   }, [applyTransform])
 
+  // Touch: pinch-zoom + two-finger pan handled directly; single-finger touches
+  // are translated into synthetic mouse events so the existing drag/select/draw
+  // pipeline works unchanged on phones and tablets.
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    return setupTouchHandlers(el, { zoom: zoomRef, pan: panRef }, applyTransform)
+  }, [applyTransform])
+
   // Phase 16g — hover grid-coordinate HUD (extracted to useGridHudHover).
   useGridHudHover({ containerRef, panRef, zoomRef }, showGridHud, map, setHoverCoord)
 
@@ -809,7 +819,10 @@ export default function MapCanvas({
       role="img"
       aria-label={t('game.mapCanvas.canvasLabel')}
     >
-      <div ref={containerRef} className="w-full h-full" />
+      {/* touch-none: the browser must not claim pinch/pan gestures over the map;
+          our touch handler drives zoom/pan/drag instead. select-none stops
+          long-press text selection on mobile. */}
+      <div ref={containerRef} className="w-full h-full touch-none select-none" />
       {/* Phase 16f — map-switch fade overlay (always transitions; opacity flips on map change). */}
       <div
         className="absolute inset-0 z-30 bg-black pointer-events-none transition-opacity duration-300"
