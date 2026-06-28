@@ -27,8 +27,15 @@ if staged | grep -q '^dungeon-scholar/'; then
 fi
 
 # Secret scan across the staged set (folded in from the old .githooks shim).
+# If gitleaks is absent we WARN loudly rather than skip silently, and rely on
+# the server-side secret-scan workflow (.github/workflows/secret-scan.yml) as
+# the authoritative backstop that --no-verify / a missing local binary cannot bypass.
 if command -v gitleaks >/dev/null 2>&1; then
   gitleaks protect --staged --redact || exit 1
+else
+  echo "[pre-commit] WARNING: gitleaks not installed - local secret scan SKIPPED." >&2
+  echo "[pre-commit]   Install it (https://github.com/gitleaks/gitleaks) for local pre-commit scanning." >&2
+  echo "[pre-commit]   The secret-scan CI workflow still runs on push/PR as the backstop." >&2
 fi
 
 # dungeon-scholar (VTT) pre-flight: when its files are staged, run its vitest
@@ -39,4 +46,29 @@ cd "$(git rev-parse --show-toplevel)" || exit 1
 if git diff --cached --name-only --diff-filter=ACMR | grep -q "^dungeon-scholar/"; then
   echo "[pre-commit] dungeon-scholar changes staged - running its tests..."
   ( cd dungeon-scholar && npm test --silent ) || exit 1
+fi
+
+# bmo/pi (Python) pre-flight: when pi files are staged, run ruff on the staged
+# Python files + the no-new-print ratchet, giving bmo/pi the same fast local floor
+# the JS projects get. CI (.github/workflows/bmo-pi-pytest.yml) runs the full
+# ruff+pytest gate on push and stays authoritative. Escape hatch: git commit --no-verify.
+if git diff --cached --name-only --diff-filter=ACMR | grep -q '^bmo/pi/.*\.py$'; then
+  PY_STAGED=$(git diff --cached --name-only --diff-filter=ACMR | grep '^bmo/pi/.*\.py$')
+  if command -v ruff >/dev/null 2>&1; then
+    echo "[pre-commit] bmo/pi Python staged - running ruff check..."
+    ( cd bmo/pi && ruff check $(echo "$PY_STAGED" | sed 's#^bmo/pi/##') ) || exit 1
+  else
+    echo "[pre-commit] WARNING: ruff not installed - bmo/pi lint SKIPPED (CI still gates)." >&2
+  fi
+  if [ -x bmo/pi/scripts/check-no-new-prints.sh ]; then
+    ( cd bmo/pi && ./scripts/check-no-new-prints.sh ) || exit 1
+  fi
+fi
+
+# oracle-worker pre-flight: when its files are staged, run its npm test (fast),
+# matching the local-floor parity the other projects have. CI
+# (.github/workflows/oracle-worker-ci.yml) stays authoritative.
+if git diff --cached --name-only --diff-filter=ACMR | grep -q '^oracle-worker/'; then
+  echo "[pre-commit] oracle-worker changes staged - running its tests..."
+  ( cd oracle-worker && npm test --silent ) || exit 1
 fi
