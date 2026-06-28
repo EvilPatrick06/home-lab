@@ -9,7 +9,8 @@
  * secret fields stripped; theme + accessibility applied on pull), per-campaign
  * game-state / AI conversations / bans, per-book bookmarks+annotations, and the
  * binary image + audio libraries (packed container; bytes cached across cycles).
- * NOT synced: book CONFIG / custom PDFs (large device-local files) and the
+ * Also synced: custom book PDFs (the `book-files` domain) + their config.
+ * NOT synced: core-book installs (device-local) and the
  * secret/device-local settings fields (turnServers, bmoApiKey, bmoPiBaseUrl, …).
  */
 
@@ -24,7 +25,10 @@ import { getTheme, setTheme, type ThemeName } from '../theme-manager'
 
 export interface SyncDomain {
   name: string
-  listEntities(): Promise<Array<{ id: string; entity: unknown }>>
+  // Optional cheap change-key (cfrom list metadata): when provided and
+  // unchanged since the last reconcile, the engine reuses the cached hash
+  // and skips re-serialize + re-hash (manifest-diff). See sync-engine.
+  listEntities(): Promise<Array<{ id: string; entity: unknown; changeKey?: string }>>
   putEntity(id: string, entity: unknown): Promise<void>
   removeEntity(id: string): Promise<void>
   serialize(entity: unknown): ArrayBuffer
@@ -150,7 +154,7 @@ function jsonDomain(
     name,
     async listEntities() {
       const list = (await load()) as unknown[] | null
-      const out: Array<{ id: string; entity: unknown }> = []
+      const out: Array<{ id: string; entity: unknown; changeKey?: string }> = []
       for (const e of list ?? []) {
         const id = idOf(e)
         if (id) out.push({ id, entity: e })
@@ -197,7 +201,7 @@ export const DOMAINS: SyncDomain[] = [
     // list() returns summaries (no inventory) on desktop, so fetch full per id.
     name: 'shop-templates',
     async listEntities() {
-      const out: Array<{ id: string; entity: unknown }> = []
+      const out: Array<{ id: string; entity: unknown; changeKey?: string }> = []
       for (const s of asArray(await window.api.shopTemplates.list())) {
         const id = idOf(s)
         if (!id) continue
@@ -220,7 +224,7 @@ export const DOMAINS: SyncDomain[] = [
     // (Desktop wraps as {success,data}; the web shim is plainer — normalized above.)
     name: 'map-library',
     async listEntities() {
-      const out: Array<{ id: string; entity: unknown }> = []
+      const out: Array<{ id: string; entity: unknown; changeKey?: string }> = []
       for (const m of asArray(await window.api.mapLibrary.list())) {
         const id = idOf(m)
         if (!id) continue
@@ -244,7 +248,7 @@ export const DOMAINS: SyncDomain[] = [
     name: 'homebrew',
     async listEntities() {
       const all = (await window.api.loadAllHomebrew()) as Array<{ id?: string; category?: string }> | null
-      const out: Array<{ id: string; entity: unknown }> = []
+      const out: Array<{ id: string; entity: unknown; changeKey?: string }> = []
       for (const e of all ?? []) {
         if (!e?.id) continue
         out.push({ id: `${e.category ?? 'misc'}/${e.id}`, entity: e })
@@ -338,7 +342,7 @@ export const DOMAINS: SyncDomain[] = [
   {
     name: 'game-state',
     async listEntities() {
-      const out: Array<{ id: string; entity: unknown }> = []
+      const out: Array<{ id: string; entity: unknown; changeKey?: string }> = []
       for (const cid of await campaignIds()) {
         const gs = asEntity(await window.api.loadGameState(cid))
         if (gs) out.push({ id: cid, entity: gs })
@@ -358,7 +362,7 @@ export const DOMAINS: SyncDomain[] = [
     // AI DM conversation history (desktop wraps {success,data}; web persistence is a no-op).
     name: 'ai-conversations',
     async listEntities() {
-      const out: Array<{ id: string; entity: unknown }> = []
+      const out: Array<{ id: string; entity: unknown; changeKey?: string }> = []
       for (const cid of await campaignIds()) {
         const conv = asEntity(await window.api.ai.loadConversation(cid))
         if (conv) out.push({ id: cid, entity: conv })
@@ -378,7 +382,7 @@ export const DOMAINS: SyncDomain[] = [
     // Per-campaign ban lists (no delete API → tombstone clears them).
     name: 'bans',
     async listEntities() {
-      const out: Array<{ id: string; entity: unknown }> = []
+      const out: Array<{ id: string; entity: unknown; changeKey?: string }> = []
       for (const cid of await campaignIds()) {
         const bans = (await window.api.loadBans(cid)) as { peerIds?: string[]; names?: string[]; clients?: unknown[] }
         if (bans && (bans.peerIds?.length || bans.names?.length || bans.clients?.length)) {
@@ -403,7 +407,7 @@ export const DOMAINS: SyncDomain[] = [
     async listEntities() {
       const cfg: unknown = await window.api.books.loadConfig()
       const books = (Array.isArray(cfg) ? cfg : ((cfg as { books?: unknown[] })?.books ?? [])) as Array<{ id?: string }>
-      const out: Array<{ id: string; entity: unknown }> = []
+      const out: Array<{ id: string; entity: unknown; changeKey?: string }> = []
       for (const bk of books) {
         if (!bk?.id) continue
         const data = (await window.api.books.loadData(bk.id)) as { bookmarks?: unknown[]; annotations?: unknown[] }
@@ -427,7 +431,7 @@ export const DOMAINS: SyncDomain[] = [
     name: 'image-library',
     async listEntities() {
       const metas = asArray(await window.api.imageLibrary.list())
-      const out: Array<{ id: string; entity: unknown }> = []
+      const out: Array<{ id: string; entity: unknown; changeKey?: string }> = []
       for (const m of metas) {
         const meta = m as { id?: string; name?: string; fileName?: string; extension?: string; savedAt?: string }
         if (!meta.id) continue
@@ -439,7 +443,7 @@ export const DOMAINS: SyncDomain[] = [
           return url ? fetchBytes(url) : null
         })
         if (!bytes) continue
-        out.push({ id, entity: { id, name: meta.name ?? id, extension, bytes } })
+        out.push({ id, entity: { id, name: meta.name ?? id, extension, bytes }, changeKey: `${meta.savedAt ?? ''}:${extension}` })
       }
       return out
     },
@@ -457,7 +461,7 @@ export const DOMAINS: SyncDomain[] = [
     // Per-campaign custom audio (binary). Keyed `<campaignId>/<fileName>`.
     name: 'audio',
     async listEntities() {
-      const out: Array<{ id: string; entity: unknown }> = []
+      const out: Array<{ id: string; entity: unknown; changeKey?: string }> = []
       for (const cid of await campaignIds()) {
         for (const item of asArray(await window.api.audioListCustom(cid))) {
           const fileName = typeof item === 'string' ? item : (item as { fileName?: string })?.fileName
@@ -478,7 +482,8 @@ export const DOMAINS: SyncDomain[] = [
               displayName: meta.displayName ?? fileName,
               category: meta.category ?? 'custom',
               bytes
-            }
+            },
+            changeKey: fileName
           })
         }
       }
@@ -498,6 +503,39 @@ export const DOMAINS: SyncDomain[] = [
       const i = id.indexOf('/')
       if (i < 0) return
       await window.api.audioDeleteCustom(id.slice(0, i), id.slice(i + 1))
+    },
+    serialize: binarySerialize,
+    deserialize: binaryDeserialize
+  },
+  {
+    // Custom book PDFs (binary). Core books are device-local installs; only
+    // user-imported `custom` books travel. Pulling one writes the PDF AND its
+    // config entry (saveBytes -> addBook), so book + notes arrive together.
+    name: 'book-files',
+    async listEntities() {
+      const cfg: unknown = await window.api.books.loadConfig()
+      const books = (Array.isArray(cfg) ? cfg : ((cfg as { books?: unknown[] })?.books ?? [])) as Array<{
+        id?: string
+        title?: string
+        path?: string
+        type?: string
+      }>
+      const out: Array<{ id: string; entity: unknown; changeKey?: string }> = []
+      for (const bk of books) {
+        if (!bk?.id || bk.type !== 'custom' || !bk.path) continue
+        // PDF is immutable per id once imported -> changeKey = id (read+hash once).
+        const bytes = await cachedBytes(`book:${bk.id}`, bk.id, () => fetchBytes(bk.path as string))
+        if (!bytes) continue
+        out.push({ id: bk.id, entity: { id: bk.id, title: bk.title ?? bk.id, ext: '.pdf', bytes }, changeKey: bk.id })
+      }
+      return out
+    },
+    async putEntity(_id, entity) {
+      const e = entity as { id: string; title: string; ext: string; bytes: ArrayBuffer }
+      await window.api.books.saveBytes(e.id, e.title, e.ext, e.bytes)
+    },
+    async removeEntity(id) {
+      await window.api.books.remove(id)
     },
     serialize: binarySerialize,
     deserialize: binaryDeserialize

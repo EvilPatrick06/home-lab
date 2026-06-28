@@ -39,25 +39,51 @@ async function applyPull(
   return true
 }
 
+// Manifest cache: reuse a prior reconcile's serialized bytes + hash for an
+// entity whose domain-supplied changeKey is unchanged, so unchanged (esp.
+// large binary) entities aren't re-serialized + re-hashed every cycle.
+const _manifestCache = new Map<string, { changeKey: string; bytes: ArrayBuffer; hash: string }>()
+
 export async function reconcile(): Promise<ReconcileResult> {
-  // 1. Local manifest: serialize + hash every synced entity.
+  // 1. Local manifest: serialize + hash every synced entity (skipping ones
+  //    whose changeKey is unchanged since last reconcile).
   const local = new Map<string, { domain: string; id: string; bytes: ArrayBuffer; hash: string }>()
+  const seen = new Set<string>()
   for (const d of DOMAINS) {
-    let entities: Array<{ id: string; entity: unknown }>
+    let entities: Array<{ id: string; entity: unknown; changeKey?: string }>
     try {
       entities = await d.listEntities()
     } catch {
       continue
     }
-    for (const { id, entity } of entities) {
+    for (const { id, entity, changeKey } of entities) {
       try {
-        const bytes = d.serialize(entity)
-        local.set(makeKey(d.name, id), { domain: d.name, id, bytes, hash: hashBytes(bytes) })
+        const key = makeKey(d.name, id)
+        seen.add(key)
+        let bytes: ArrayBuffer
+        let hash: string
+        if (changeKey !== undefined) {
+          const hit = _manifestCache.get(key)
+          if (hit && hit.changeKey === changeKey) {
+            bytes = hit.bytes
+            hash = hit.hash
+          } else {
+            bytes = d.serialize(entity)
+            hash = hashBytes(bytes)
+            _manifestCache.set(key, { changeKey, bytes, hash })
+          }
+        } else {
+          bytes = d.serialize(entity)
+          hash = hashBytes(bytes)
+        }
+        local.set(key, { domain: d.name, id, bytes, hash })
       } catch {
         /* skip an unserializable entity */
       }
     }
   }
+  // Evict manifest-cache entries for entities that no longer exist locally.
+  for (const k of _manifestCache.keys()) if (!seen.has(k)) _manifestCache.delete(k)
 
   // 2. Remote manifest.
   const remoteRes = await window.api.sync.manifest()

@@ -318,6 +318,7 @@ export const IPC_CHANNELS = {
   BOOK_READ_FILE: 'book:read-file',
   BOOK_LOAD_DATA: 'book:load-data',
   BOOK_SAVE_DATA: 'book:save-data',
+  BOOK_SAVE_BYTES: 'book:save-bytes',
 
   // === Discord Integration ===
   DISCORD_GET_CONFIG: 'discord:get-config',

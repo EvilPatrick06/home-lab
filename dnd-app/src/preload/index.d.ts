@@ -998,6 +998,12 @@ interface BooksAPI {
   readFile: (filePath: string) => Promise<{ success: boolean; data?: ArrayBuffer; error?: string }>
   loadData: (bookId: string) => Promise<BookDataEntry>
   saveData: (bookId: string, data: BookDataEntry) => Promise<{ success: boolean; error?: string }>
+  saveBytes: (
+    bookId: string,
+    title: string,
+    ext: string,
+    bytes: ArrayBuffer
+  ) => Promise<{ success: boolean; error?: string }>
 }
 
 interface CloudSyncStatusResult {

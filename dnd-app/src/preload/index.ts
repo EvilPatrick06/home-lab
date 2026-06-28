@@ -647,7 +647,9 @@ const api = {
     readFile: (filePath: string) => ipcRenderer.invoke(IPC_CHANNELS.BOOK_READ_FILE, filePath),
     loadData: (bookId: string) => ipcRenderer.invoke(IPC_CHANNELS.BOOK_LOAD_DATA, bookId),
     saveData: (bookId: string, data: { bookmarks: unknown[]; annotations: unknown[] }) =>
-      ipcRenderer.invoke(IPC_CHANNELS.BOOK_SAVE_DATA, bookId, data)
+      ipcRenderer.invoke(IPC_CHANNELS.BOOK_SAVE_DATA, bookId, data),
+    saveBytes: (bookId: string, title: string, ext: string, bytes: ArrayBuffer) =>
+      ipcRenderer.invoke(IPC_CHANNELS.BOOK_SAVE_BYTES, bookId, title, ext, bytes)
   },
 
   // Plugins
