@@ -8,9 +8,9 @@ StartLimitBurst=5
 [Service]
 Type=simple
 User=patrick
-WorkingDirectory=/home/patrick/home-lab/bmo/pi
-EnvironmentFile=/home/patrick/home-lab/bmo/pi/.env
-ExecStart=/home/patrick/home-lab/bmo/pi/venv/bin/python -m bots.discord_social_bot
+WorkingDirectory=/home/patrick/home-lab-deploy/bmo/pi
+EnvironmentFile=/home/patrick/home-lab-deploy/bmo/pi/.env
+ExecStart=/home/patrick/home-lab-deploy/bmo/pi/venv/bin/python -m bots.discord_social_bot
 Restart=on-failure
 RestartSec=10
 
@@ -23,7 +23,7 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=read-only
-ReadWritePaths=/home/patrick/home-lab/bmo/pi/data
+ReadWritePaths=/home/patrick/home-lab-deploy/bmo/pi/data
 ProtectKernelTunables=true
 ProtectKernelModules=true
 ProtectControlGroups=true

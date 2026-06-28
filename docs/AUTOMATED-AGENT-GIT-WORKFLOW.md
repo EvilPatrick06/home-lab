@@ -209,6 +209,16 @@ notification convention in `dnd-app/docs/phases/INSTRUCTIONS.md`).
 
 ---
 
+> **Deploys are decoupled from this tree.** The bmo Pi deploy
+> (`bmo/pi/scripts/deploy.sh`) no longer reads `/home/patrick/home-lab`. It
+> deploys from a dedicated, deploy-owned checkout
+> (`/home/patrick/home-lab-deploy`) that nothing edits by hand, so a dirty
+> master working tree — including an **interrupted integrator merge**, staged
+> human edits, or agent churn — can no longer block or pollute a deploy. The
+> integrator merging on `master` in the main checkout has zero effect on the
+> live services until the merge is pushed and a deploy fetch+resets the
+> separate checkout to it. See [`BMO-DEPLOY.md`](BMO-DEPLOY.md).
+
 ## Rule 4 — Auto-diagnose, don't just report symptoms
 
 **Whenever you hit a non-clean, failing, unexpected, or anomalous state — a red/failed CI run, a failing or flaky check, an unexpected diff or dirty tree, a surprising scan/QA finding, a service that's down, anything that "isn't clean" — you MUST automatically investigate the root cause before reporting:** trace it to the specific file / commit / config / step responsible, state the cause, and recommend (or, if in scope per the fix-forward + don't-defer rules, apply) the fix. Never surface a bare symptom ("X failed", "this isn't clean") and stop to wait for someone to tell you to look into it. Proactive root-cause diagnosis is the default for every agent.

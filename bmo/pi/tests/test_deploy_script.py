@@ -1,19 +1,25 @@
-"""Hermetic tests for bmo/pi/scripts/deploy.sh (Phase 42B).
+"""Hermetic tests for bmo/pi/scripts/deploy.sh (Phase 42B; deploy isolation).
 
 The deploy script is health-gated, lockable, idempotent, and rollback-capable.
 These tests exercise its CONTROL FLOW only — every run is `--dry-run`, so the
 run() wrapper merely echoes mutating commands ("[dry-run] <cmd>") and makes NO
-side effects: no real `git merge`, `pip install`, `app.py` canary launch,
+side effects: no real `git reset`, `pip install`, `app.py` canary launch,
 `systemctl`, or `curl`.  This keeps the tests safe to run anywhere.
+
+deploy.sh deploys from a DEDICATED, deploy-owned checkout (default
+/home/patrick/home-lab-deploy) that it fetch+`reset --hard`s to the target SHA —
+it is fully decoupled from the shared dev tree, so a dirty/mid-merge dev tree can
+no longer block or pollute a deploy. The hermetic harness points
+BMO_DEPLOY_REPO_ROOT at a throwaway clone standing in for that deploy checkout.
 
 A fixture builds a throwaway git setup:
   - a bare `origin` repo
   - a clone with bmo/pi/requirements.txt and >=2 commits on a `master` branch
   - `origin/master` tracking the clone's history
 
-The clone's path is NOT the standard repo root, so every invocation passes
-BMO_DEPLOY_ALLOW_NONSTANDARD_ROOT=1 (which also relaxes the master-branch gate;
-we still create a real `master` branch anyway).
+The clone's path is NOT the standard deploy-checkout root, so every invocation
+passes BMO_DEPLOY_ALLOW_NONSTANDARD_ROOT=1 (which relaxes the resolved-root
+equality check for the temp dir).
 
 Tests skip automatically when `bash` or `git` is unavailable.
 """
@@ -106,7 +112,7 @@ def repos(tmp_path):
     _git(work, "remote", "add", "origin", origin)
     _git(work, "push", "-u", "origin", "master")
 
-    # Clone it (this is the "Pi checkout" under test).
+    # Clone it (this is the "deploy checkout" under test).
     subprocess.run(["git", "clone", origin, clone], check=True, capture_output=True)
     _git(clone, "config", "user.email", "test@example.com")
     _git(clone, "config", "user.name", "Test")
@@ -133,24 +139,22 @@ class TestScriptPresence:
 
 
 class TestDryRunFlow:
-    def test_dry_run_merge_when_origin_ahead(self, repos):
-        """origin/master ahead of HEAD → dry-run shows a ff-only merge, exit 0."""
+    def test_dry_run_reset_when_origin_ahead(self, repos):
+        """origin/master ahead of HEAD → dry-run shows a hard reset, exit 0."""
         clone, head, prev = repos
         # Move the clone's HEAD back one commit so origin/master is ahead.
         _git(clone, "reset", "--hard", prev)
         result = _run_deploy(clone, ["--dry-run"])
         assert result.returncode == 0, f"stdout={result.stdout}\nstderr={result.stderr}"
         assert "[dry-run] git" in result.stdout
-        assert "merge --ff-only" in result.stdout
+        # Clean-checkout deploy = reset --hard to the target (replaces ff-merge).
+        assert "reset --hard" in result.stdout
 
     def test_dry_run_pip_install_when_requirements_changed(self, repos):
         """A pending commit that touches requirements.txt → dry-run pip install."""
         clone, head, prev = repos
-        # Reset to prev; the diff prev->head includes app.py only, so add a fresh
-        # requirements change to origin and reset the clone behind it.
-        # Easiest: make a new commit on origin touching requirements, then reset
-        # the clone behind it and fetch.
-        # Build a new commit directly in the clone, push it, then rewind.
+        # Build a new commit touching requirements on origin, then rewind the
+        # clone behind it so the pending diff includes requirements.txt.
         with open(os.path.join(clone, "bmo", "pi", "requirements.txt"), "a") as f:
             f.write("requests==2.32.0\n")
         _git(clone, "add", "-A")
@@ -171,32 +175,45 @@ class TestDryRunFlow:
         result = _run_deploy(clone, [head, "--dry-run"])
         assert result.returncode == 0, f"stdout={result.stdout}\nstderr={result.stderr}"
         assert "already deployed" in result.stdout
-        # No merge should be attempted.
-        assert "merge --ff-only" not in result.stdout
+        # No reset should be attempted.
+        assert "reset --hard" not in result.stdout
 
-    def test_services_only_emits_no_merge(self, repos):
-        """--services-only restarts affected units only; never merges."""
+    def test_services_only_emits_no_reset(self, repos):
+        """--services-only restarts affected units only; never resets the tree."""
         clone, head, prev = repos
         # Rewind so the diff HEAD->origin/master touches bmo/pi/app.py.
         _git(clone, "reset", "--hard", prev)
         result = _run_deploy(clone, ["--services-only", "--dry-run"])
         assert result.returncode == 0, f"stdout={result.stdout}\nstderr={result.stderr}"
-        assert "merge --ff-only" not in result.stdout
+        assert "reset --hard" not in result.stdout
         assert "pip" not in result.stdout
         # app.py is under bmo/pi/ → main service restart.
         assert "systemctl restart" in result.stdout
 
 
 class TestGuardRails:
-    def test_dirty_tree_aborts(self, repos):
-        """A dirty working tree aborts non-zero with FAIL."""
+    def test_dirty_tree_is_discarded_not_blocking(self, repos):
+        """A dirty deploy checkout NO LONGER blocks the deploy.
+
+        The deploy checkout is deploy-owned and is hard-reset to the target, so an
+        unexpected tracked modification is logged as a WARNING and discarded by the
+        reset — it must NOT abort the deploy the way the old shared-tree gate did.
+        """
         clone, head, prev = repos
-        with open(os.path.join(clone, "bmo", "pi", "app.py"), "a") as f:
-            f.write("# dirty\n")
+        # Rewind so a real deploy (reset) would occur, then dirty a file that is
+        # TRACKED at `prev` (README.md exists from the initial commit; app.py is
+        # only added in the second commit, so it would be untracked at `prev`).
+        _git(clone, "reset", "--hard", prev)
+        with open(os.path.join(clone, "README.md"), "a") as f:
+            f.write("dirty\n")
         result = _run_deploy(clone, ["--dry-run"])
-        assert result.returncode != 0
-        assert "FAIL" in (result.stdout + result.stderr)
-        assert "dirty" in (result.stdout + result.stderr)
+        combined = result.stdout + result.stderr
+        # Not blocked: exit 0, proceeds to the reset.
+        assert result.returncode == 0, f"stdout={result.stdout}\nstderr={result.stderr}"
+        assert "reset --hard" in result.stdout
+        # The anomaly is surfaced (diagnosis), but it is NOT a hard FAIL.
+        assert "WARNING" in combined
+        assert "FAIL" not in combined
 
     def test_non_ancestor_sha_aborts(self, repos):
         """A SHA that is not an ancestor of origin/master is refused."""
@@ -227,10 +244,17 @@ class TestGuardRails:
         assert result.returncode != 0
         assert "FAIL" in (result.stdout + result.stderr)
 
+    def test_missing_checkout_aborts(self, tmp_path):
+        """A non-existent deploy checkout fails loudly (migration not run)."""
+        missing = str(tmp_path / "no-such-checkout")
+        result = _run_deploy(missing, ["--dry-run"])
+        assert result.returncode != 0
+        assert "FAIL" in (result.stdout + result.stderr)
+
 
 class TestNoSideEffects:
     def test_dry_run_does_not_move_head(self, repos):
-        """A dry-run must not actually fast-forward the checkout."""
+        """A dry-run must not actually reset the checkout."""
         clone, head, prev = repos
         _git(clone, "reset", "--hard", prev)
         before = _git(clone, "rev-parse", "HEAD")

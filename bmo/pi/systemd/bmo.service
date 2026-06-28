@@ -9,12 +9,12 @@ StartLimitBurst=10
 Type=simple
 User=patrick
 Group=patrick
-WorkingDirectory=/home/patrick/home-lab/bmo/pi
-Environment=PATH=/home/patrick/home-lab/bmo/pi/venv/bin:/usr/local/bin:/usr/bin:/bin
+WorkingDirectory=/home/patrick/home-lab-deploy/bmo/pi
+Environment=PATH=/home/patrick/home-lab-deploy/bmo/pi/venv/bin:/usr/local/bin:/usr/bin:/bin
 Environment=PYTHONUNBUFFERED=1
 Environment=XDG_RUNTIME_DIR=/run/user/1000
-EnvironmentFile=/home/patrick/home-lab/bmo/pi/.env
-ExecStart=/home/patrick/home-lab/bmo/pi/venv/bin/python app.py
+EnvironmentFile=/home/patrick/home-lab-deploy/bmo/pi/.env
+ExecStart=/home/patrick/home-lab-deploy/bmo/pi/venv/bin/python app.py
 Restart=on-failure
 RestartSec=5
 KillMode=process
@@ -29,7 +29,7 @@ SupplementaryGroups=video audio i2c gpio spi input
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
-ReadWritePaths=/home/patrick/home-lab/bmo/pi/data /home/patrick/home-lab/bmo/pi/config /home/patrick/.cache /home/patrick/.bmo_secret_key
+ReadWritePaths=/home/patrick/home-lab-deploy/bmo/pi/data /home/patrick/home-lab-deploy/bmo/pi/config /home/patrick/.cache /home/patrick/.bmo_secret_key
 ProtectKernelTunables=true
 ProtectControlGroups=true
 RestrictRealtime=true
