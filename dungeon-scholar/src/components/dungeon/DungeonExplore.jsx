@@ -23,6 +23,7 @@ import {
   takeForesightPreview,
 } from '../../game/dungeonMap.js';
 import { petLevelFromXp } from '../../services/pets.js';
+import { checkAnswerCorrect, DIR_DELTAS, isWalkable, pickOneQuestion, pickQuestions } from './dungeonLogic.js';
 import {
   BOSS_DISPLAY,
   BOSS_DRAWERS,
@@ -166,10 +167,6 @@ const HOLD_REPEAT_MS = 130;
 const MOB_MOVE_MIN_MS = 1400;
 const MOB_MOVE_MAX_MS = 2800;
 
-const isWalkable = (t) => t === TILE.FLOOR || t === TILE.DOOR || t === TILE.STAIRS_UP || t === TILE.STAIRS_DOWN;
-
-const DIR_DELTAS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
-
 // === Biomes ============================================================
 const ELITE_QUESTION_COUNT = 3;
 // Damage a wrong answer costs depending on what hit you back.
@@ -234,37 +231,6 @@ const LOOTABLE_DECOS = {
 // difficulty/biome combo doesn't always pit you against the same trial.
 // Every boss appears in ≥2 pools so its sprite stays familiar across
 // the game.
-const norm = (s) =>
-  String(s ?? '')
-    .trim()
-    .toLowerCase();
-
-// Pull random questions from the active tome's quiz pool, excluding any
-// already-used questions in this run. Includes flashcards as fallback.
-function pickQuestions(courseSet, count, excludeIds = new Set()) {
-  const quizPool = (courseSet?.quiz || []).filter(
-    (q) => !excludeIds.has(q.id) && (q.type === 'multiplechoice' || q.type === 'truefalse'),
-  );
-  // Shuffle and take.
-  const arr = quizPool.slice();
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr.slice(0, count);
-}
-
-// Pick a single question, preferring un-used ones but falling back to the
-// full pool if the run has burned through every question. Used by the
-// open-ended gauntlet — each wrong answer pulls a fresh prompt instead
-// of advancing toward a fixed end-of-trial.
-function pickOneQuestion(courseSet, excludeIds = new Set()) {
-  const filtered = pickQuestions(courseSet, 1, excludeIds);
-  if (filtered.length > 0) return filtered[0];
-  const anyOf = pickQuestions(courseSet, 1, new Set());
-  return anyOf[0] || null;
-}
-
 // 25e: build a single per-question entry for the run's questionLog.
 // Pure, exported for unit tests. Captures the source (`mob` / `boss`),
 // `mobTier` for mobs, and `bossKind` for bosses so the Chronicle can
@@ -275,20 +241,6 @@ function pickOneQuestion(courseSet, excludeIds = new Set()) {
 // PHASE-19 19C: non-color reveal decoration (WCAG 1.4.1). The correct option
 // gets a check glyph + solid border, the picked-wrong option a cross glyph +
 // dashed border, so the outcome reads without color perception.
-function checkAnswerCorrect(question, choice) {
-  if (!question) return false;
-  if (question.type === 'multiplechoice') {
-    return choice === question.correctIndex;
-  }
-  if (question.type === 'truefalse') {
-    if (typeof question.correctIndex === 'number') return choice === question.correctIndex;
-    if (typeof question.correctAnswer === 'string') {
-      return norm(question.correctAnswer) === norm(choice === 0 ? 'true' : 'false');
-    }
-  }
-  return false;
-}
-
 // === BattleModal ========================================================
 function BattleModal({
   battle,
