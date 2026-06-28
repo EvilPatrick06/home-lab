@@ -61,6 +61,35 @@ function ScholarsLedger({ playerState, setScreen, scholarName, onSuspendCard, on
   }
   leeches.sort((a, b) => b.lapses - a.lapses);
   const activeLeeches = leeches.filter((l) => !l.suspended).length;
+  const hardest = [];
+  for (const t of lib) {
+    if (!unsealed(t)) continue;
+    const qs = t.progress?.questionStats || {};
+    const data = t.data || {};
+    const labelFor = (id) => {
+      const fc = (data.flashcards || []).find((c) => c && c.id === id);
+      if (fc) return fc.front || fc.back || id;
+      const q = (data.quiz || []).find((c) => c && c.id === id);
+      if (q) return q.question || id;
+      return id;
+    };
+    for (const [id, st] of Object.entries(qs)) {
+      const attempts = st?.attempts || 0;
+      if (attempts < 2) continue;
+      const correct = st?.correct || 0;
+      hardest.push({
+        key: `${t.id}:${id}`,
+        tomeId: t.id,
+        tomeTitle: data.metadata?.title || 'Untitled Tome',
+        label: labelFor(id),
+        attempts,
+        correct,
+        acc: attempts ? Math.round((100 * correct) / attempts) : 0,
+        highConfWrong: st?.highConfWrong || 0,
+      });
+    }
+  }
+  hardest.sort((a, b) => a.acc - b.acc || b.attempts - a.attempts);
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -120,6 +149,44 @@ function ScholarsLedger({ playerState, setScreen, scholarName, onSuspendCard, on
                 </div>
                 <div className="w-28 text-right tabular-nums text-amber-200 italic">
                   {r.acc}% · {tierLabel(r.acc)} <span className="text-amber-200/60">({r.total})</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </OrnatePanel>
+
+      <OrnatePanel color="sapphire">
+        <h3 className="text-base font-bold text-sky-200 italic mb-1">Hardest questions</h3>
+        <div className="text-xs text-amber-100/60 italic mb-3">
+          Your lowest-accuracy items (answered at least twice). A ⚠ marks dangerous overconfidence — answered with high
+          confidence but still wrong.
+        </div>
+        {hardest.length === 0 ? (
+          <div className="text-sm text-amber-100/60 italic">
+            Answer some questions more than once to surface which ones trip you up.
+          </div>
+        ) : (
+          <div className="space-y-1">
+            {hardest.slice(0, 10).map((h) => (
+              <div key={h.key} className="flex items-center gap-2 text-sm">
+                <div className="flex-1 min-w-0">
+                  <div className="italic text-amber-100 truncate">{h.label}</div>
+                  <div className="text-xs text-amber-200/50 italic truncate">{h.tomeTitle}</div>
+                </div>
+                {h.highConfWrong > 0 && (
+                  <span
+                    className="text-xs text-rose-300 italic whitespace-nowrap"
+                    title={`${h.highConfWrong} high-confidence wrong answer(s)`}
+                  >
+                    ⚠ overconfident
+                  </span>
+                )}
+                <div className="w-24 text-right tabular-nums text-amber-200 italic whitespace-nowrap">
+                  {h.acc}%{' '}
+                  <span className="text-amber-200/60">
+                    ({h.correct}/{h.attempts})
+                  </span>
                 </div>
               </div>
             ))}
