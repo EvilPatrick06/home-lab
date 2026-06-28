@@ -30,6 +30,24 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## High
 
+### [2026-06-28] discord_dm_bot.py hardcodes read-only dev-tree data paths (same trap that broke the social bot deploy)
+
+- **Reported by:** ci-failure-triage (automated)
+- **Category:** bug / latent
+- **Severity:** high (will fail at runtime under the deploy-isolation sandbox)
+- **Domain:** bmo
+- **Context:** found while fix-forwarding bmo/deploy run 28334130910 (social bot crash)
+
+**Description:**
+The deploy-isolation hardening runs the bots from `~/home-lab-deploy` with `ProtectHome=read-only` and only `ReadWritePaths=~/home-lab-deploy/bmo/pi/data` writable. `bmo/pi/bots/social/bot.py` was fixed this cycle (commit 655a930f) to resolve its data dir relative to the module. But `bmo/pi/bots/discord_dm_bot.py` still hardcodes the dev-tree path in two spots:
+- line 346: `_DM_STATE_PATH = os.path.expanduser("~/home-lab/bmo/pi/data/dm_session_state.json")`
+- line 847: `rag_dir = os.path.expanduser("~/home-lab/bmo/pi/data/rag_data")`
+(line 133 `DATA_DIR = Path.home() / "bmo" / "data" / "5e"` also points outside the deploy checkout.)
+These are not executed at import time, so the service starts and deploy passes — but the first write to `_DM_STATE_PATH` (or a RAG read expecting the deploy tree) hits `OSError: Read-only file system` / wrong path at runtime.
+
+**Fix needed:**
+Resolve these paths relative to the module (mirror the social-bot fix: `Path(__file__).resolve().parents[2] / "data"`) or to the writable deploy data dir, so DM session state + RAG live under `~/home-lab-deploy/bmo/pi/data`. Verify against the systemd `ReadWritePaths` for bmo-dm-bot. Owner: bmo-resolver.
+
 *(none currently logged)*
 
 ## Medium
