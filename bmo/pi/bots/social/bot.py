@@ -78,6 +78,10 @@ for _d in (DATA_DIR, PLAYLISTS_DIR, SFX_DIR):
 
 def _get_db() -> sqlite3.Connection:
     conn = sqlite3.connect(str(DB_PATH))
+    try:
+        os.chmod(str(DB_PATH), 0o600)  # never world-readable (0644)
+    except OSError:
+        pass
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("""CREATE TABLE IF NOT EXISTS play_history (

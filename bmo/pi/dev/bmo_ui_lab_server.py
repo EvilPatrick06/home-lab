@@ -2155,4 +2155,9 @@ if __name__ == "__main__":
     print("  Tip: Resize browser to 800x480")
     print()
 
-    socketio.run(app, host="0.0.0.0", port=5000, debug=True, use_reloader=False, allow_unsafe_werkzeug=True)
+    # SECURITY: default to loopback + debug off. debug=True + host 0.0.0.0 +
+    # allow_unsafe_werkzeug=True exposed the Werkzeug interactive debugger (RCE)
+    # to the whole LAN/tailnet. Opt back in for local dev with BMO_LAB_DEBUG=1.
+    _lab_host = os.environ.get("BMO_LAB_HOST", "127.0.0.1").strip() or "127.0.0.1"
+    _lab_debug = os.environ.get("BMO_LAB_DEBUG", "0") == "1"
+    socketio.run(app, host=_lab_host, port=5000, debug=_lab_debug, use_reloader=False, allow_unsafe_werkzeug=_lab_debug)
