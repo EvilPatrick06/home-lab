@@ -26,7 +26,7 @@
 | 01 | [`PHASE-01-backend-route-correctness.md`](./completed/PHASE-01-backend-route-correctness.md) | bmo | — | done |
 | 02 | [`PHASE-02-realtime-reliability.md`](./completed/PHASE-02-realtime-reliability.md) | bmo | 01 (soft) | done |
 | 03 | [`PHASE-03-dashboard-ux-round.md`](./completed/PHASE-03-dashboard-ux-round.md) | bmo | 01, 02 (soft) | done |
-| 04 | [`PHASE-04-realtime-cloudflare-auth.md`](./PHASE-04-realtime-cloudflare-auth.md) | bmo | — | pending |
+| 04 | [`PHASE-04-realtime-cloudflare-auth.md`](./completed/PHASE-04-realtime-cloudflare-auth.md) | bmo | — | done |
 | 05 | [`PHASE-05-calendar-token-and-health-truth.md`](./PHASE-05-calendar-token-and-health-truth.md) | bmo | — | pending |
 | 06 | [`PHASE-06-dashboard-ux-platform-hygiene.md`](./PHASE-06-dashboard-ux-platform-hygiene.md) | bmo | — | pending |
 | 07 | [`PHASE-07-list-endpoint-request-robustness.md`](./PHASE-07-list-endpoint-request-robustness.md) | bmo | — | pending |

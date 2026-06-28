@@ -85,3 +85,62 @@ def test_plan_approve_routes_yes_without_user_turn(realtime_client):
     assert kwargs.get("speaker") == "system"
     saved = chat_history.load_recent_chat()
     assert not any(m.get("role") == "user" for m in saved)
+
+
+# --- PHASE-04 04A: WS auth gate accepts the Cloudflare Access identity ---
+
+
+def _ws_authorized(auth):
+    from routes import realtime_ws
+    return realtime_ws._bmo_websocket_authorized(auth)
+
+
+def test_ws_gate_unset_key_allows(bmo_app, monkeypatch):
+    """No BMO_API_KEY set -> open gate (LAN/dev), regardless of credentials."""
+    import app as bmo_module
+    monkeypatch.setattr(bmo_module, "BMO_API_KEY", "")
+    with bmo_module.app.test_request_context("/socket.io/"):
+        assert _ws_authorized({}) is True
+
+
+def test_ws_gate_grants_verified_cf_access(bmo_app, monkeypatch):
+    """A Cloudflare-Access-authenticated browser (no Bearer/auth) is accepted,
+    mirroring the REST front door (app.py:382)."""
+    import app as bmo_module
+    monkeypatch.setattr(bmo_module, "BMO_API_KEY", "supersecret")
+    monkeypatch.setattr(bmo_module, "_bmo_client_is_trusted_localhost", lambda: False)
+    monkeypatch.setattr(bmo_module, "_cf_access_authenticated", lambda: True)
+    with bmo_module.app.test_request_context("/socket.io/"):
+        assert _ws_authorized({}) is True
+
+
+def test_ws_gate_rejects_unauthenticated_non_local(bmo_app, monkeypatch):
+    """No localhost, no Bearer, no auth dict, CF Access invalid -> rejected."""
+    import app as bmo_module
+    monkeypatch.setattr(bmo_module, "BMO_API_KEY", "supersecret")
+    monkeypatch.setattr(bmo_module, "_bmo_client_is_trusted_localhost", lambda: False)
+    monkeypatch.setattr(bmo_module, "_cf_access_authenticated", lambda: False)
+    with bmo_module.app.test_request_context("/socket.io/"):
+        assert _ws_authorized({}) is False
+
+
+def test_ws_gate_bearer_header_still_accepted(bmo_app, monkeypatch):
+    """Regression: the HTTP Bearer path is unchanged."""
+    import app as bmo_module
+    monkeypatch.setattr(bmo_module, "BMO_API_KEY", "supersecret")
+    monkeypatch.setattr(bmo_module, "_bmo_client_is_trusted_localhost", lambda: False)
+    monkeypatch.setattr(bmo_module, "_cf_access_authenticated", lambda: False)
+    with bmo_module.app.test_request_context(
+        "/socket.io/", headers={"Authorization": "Bearer supersecret"}
+    ):
+        assert _ws_authorized({}) is True
+
+
+def test_ws_gate_socketio_auth_key_still_accepted(bmo_app, monkeypatch):
+    """Regression: the socket.io auth.bmo_api_key path is unchanged."""
+    import app as bmo_module
+    monkeypatch.setattr(bmo_module, "BMO_API_KEY", "supersecret")
+    monkeypatch.setattr(bmo_module, "_bmo_client_is_trusted_localhost", lambda: False)
+    monkeypatch.setattr(bmo_module, "_cf_access_authenticated", lambda: False)
+    with bmo_module.app.test_request_context("/socket.io/"):
+        assert _ws_authorized({"bmo_api_key": "supersecret"}) is True

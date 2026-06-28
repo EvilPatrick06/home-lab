@@ -175,4 +175,7 @@ sed -n '84,107p' bmo/pi/web/static/ide/ide.js         # io() + connect/disconnec
 
 ## Completed
 
-*(Filled during execution per INSTRUCTIONS.md rule 17 — one entry per sub-phase as it lands.)*
+- **04A** (2026-06-28) — WS auth gate now mirrors the REST front door: added a Cloudflare-Access branch reusing `app._cf_access_authenticated()` in `_bmo_websocket_authorized` (`bmo/pi/routes/realtime_ws.py:53`), so a verified CF-Access browser completes the socket.io handshake; localhost/Bearer/`auth.bmo_api_key` paths unchanged. Added 5 gate unit tests (`bmo/pi/tests/test_realtime_ws.py:106` CF-grant, `:117` reject; plus unset-key/Bearer/auth-dict regressions) — `pytest tests/test_realtime_ws.py` 8 passed, `ruff` clean.
+- **04B** (2026-06-28) — Chat: added a `connect_error` handler in `setupSocket()` (`bmo/pi/web/static/js/bmo.js:695`) that flips the connection indicator to offline and, when a send is waiting on a response, cancels the 45s watchdog, returns the composer to idle, and pushes an actionable error message — instant recovery for a refused socket; the watchdog remains the dropped-event backstop. `node --check` clean.
+- **04C** (2026-06-28) — IDE terminal: added a `wasErrored` latch (`bmo/pi/web/static/ide/ide.js:81`) and a `connect_error` handler (`:117`) that shows the Offline dot and writes a single `[terminal unreachable — check connection]` line per error burst into each open xterm; the `connect` handler clears the latch (`:91`) so recovery re-announces and re-subscribes. `node --check` clean.
+

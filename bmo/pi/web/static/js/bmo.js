@@ -692,6 +692,21 @@ function bmo() {
         // 02C: a dropped socket visibly turns the existing connection indicator.
         if (this.connectionState !== 'cf_expired') this.connectionState = 'offline';
       });
+      this.socket.on('connect_error', (e) => {
+        // 04B: a server-refused handshake surfaces as connect_error (not
+        // disconnect). Reflect it on the indicator and recover a stuck chat send
+        // immediately instead of waiting out the 45s watchdog.
+        if (this.connectionState !== 'cf_expired') this.connectionState = 'offline';
+        if (this.status === 'thinking') {
+          this._clearChatWatchdog();
+          this.status = 'idle';
+          this.messages.push({ role: 'assistant',
+            text: "Can't reach BMO right now \u2014 the realtime connection was refused. Try again in a moment.",
+            error: true });
+          this.scrollChat();
+        }
+        console.warn('[bmo] socket connect_error:', e?.message);
+      });
       this.socket.on('weather_update', (data) => {
         this.weather = data;
         this._weatherFetchedAt = Date.now() / 1000;
