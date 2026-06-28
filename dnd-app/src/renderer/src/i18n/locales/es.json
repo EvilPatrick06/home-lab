@@ -6732,6 +6732,7 @@
       "enableAutoSaveDesc": "Guardar periódicamente el estado de la partida durante las sesiones",
       "intervalMinutes": "Intervalo (minutos)",
       "settingsImportExport": "Importar / exportar ajustes",
+      "searchPlaceholder": "Buscar ajustes…",
       "settingsImportExportDesc": "Exporta las preferencias de tu aplicación a un archivo, o importa ajustes desde otro dispositivo.",
       "toastSettingsExported": "Ajustes exportados",
       "toastSettingsExportFailed": "La exportación de ajustes falló",

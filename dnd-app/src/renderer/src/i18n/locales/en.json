@@ -6732,6 +6732,7 @@
       "enableAutoSaveDesc": "Periodically save game state during sessions",
       "intervalMinutes": "Interval (minutes)",
       "settingsImportExport": "Settings Import / Export",
+      "searchPlaceholder": "Search settings…",
       "settingsImportExportDesc": "Export your app preferences to a file, or import settings from another device.",
       "toastSettingsExported": "Settings exported",
       "toastSettingsExportFailed": "Settings export failed",
