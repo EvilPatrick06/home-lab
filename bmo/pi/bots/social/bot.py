@@ -78,6 +78,10 @@ for _d in (DATA_DIR, PLAYLISTS_DIR, SFX_DIR):
 
 def _get_db() -> sqlite3.Connection:
     conn = sqlite3.connect(str(DB_PATH))
+    try:
+        os.chmod(str(DB_PATH), 0o600)  # never world-readable (0644)
+    except OSError:
+        pass
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("""CREATE TABLE IF NOT EXISTS play_history (
@@ -874,6 +878,11 @@ class SocialBot(commands.Bot):
         else:
             await self.tree.sync()
         logger.info("Slash commands synced to guild %s", self._guild_id)
+
+        # systemd Type=notify watchdog (liveness): no-op off systemd.
+        from bots import sd_watchdog
+        sd_watchdog.notify_ready()
+        asyncio.create_task(sd_watchdog.run_watchdog(lambda: self.is_ready() and not self.is_closed()))
 
         @self.tree.error
         async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError) -> None:

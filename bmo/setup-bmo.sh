@@ -207,10 +207,14 @@ sudo docker run -d \
     --log-file=stdout
 
 # PeerJS (signaling server for VTT WebRTC)
+# SECURITY: bind to loopback only — cloudflared reaches it at localhost:9000,
+# so the public /myapp tunnel keeps working while LAN + tailnet exposure of the
+# no-auth (default-key) PeerServer is removed. (A real --key / per-session token
+# additionally requires a coordinated dnd-app client change — tracked separately.)
 sudo docker run -d \
     --name bmo-peerjs \
     --restart always \
-    -p 9000:9000 \
+    -p 127.0.0.1:9000:9000 \
     -v bmo_peerjs-modules:/app/node_modules \
     node:22-slim \
     sh -c "npm install -g peer && peerjs --port 9000 --path /myapp"

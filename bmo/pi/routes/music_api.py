@@ -34,12 +34,33 @@ def _music():
     return app.music
 
 
+def _maybe_reinit_music():
+    """Trigger app.ensure_music() (bounded self-heal) when the service is None,
+    reaching the live __main__ module the same way _music() does."""
+    import sys
+    main = sys.modules.get("__main__")
+    fn = getattr(main, "ensure_music", None) if main is not None else None
+    if fn is None:
+        try:
+            import app
+            fn = getattr(app, "ensure_music", None)
+        except Exception:
+            fn = None
+    if fn:
+        try:
+            fn()
+        except Exception:
+            pass
+
+
 @music_bp.before_request
 def _require_music_service():
     # A failed service init leaves app.music = None; without this guard every route
     # would call a method on None → AttributeError → Flask 500 (the pre-extraction
     # behavior). Degrade to a clean JSON 503 so the dashboard shows "unavailable"
     # instead of spamming uncaught 500s.
+    if _music() is None:
+        _maybe_reinit_music()
     if _music() is None:
         return jsonify({"available": False, "error": "music service unavailable on this device"}), 503
 

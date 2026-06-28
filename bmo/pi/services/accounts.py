@@ -71,6 +71,10 @@ def _connect() -> sqlite3.Connection:
     p = _path()
     os.makedirs(os.path.dirname(p), exist_ok=True)
     conn = sqlite3.connect(p)
+    try:
+        os.chmod(p, 0o600)  # PII/session data — never world-readable (0644)
+    except OSError:
+        pass
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
     return conn

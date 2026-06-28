@@ -84,12 +84,13 @@ class RoutineService:
     # ── CRUD ──────────────────────────────────────────────────────────
 
     def create_routine(self, name: str, triggers: list[dict],
-                       actions: list[dict], conditions: dict | None = None) -> dict:
+                       actions: list[dict], conditions: dict | None = None,
+                       enabled: bool = True) -> dict:
         """Create a new routine."""
         routine = {
             "id": f"r_{uuid.uuid4().hex[:8]}",
             "name": name,
-            "enabled": True,
+            "enabled": enabled,
             "triggers": triggers,
             "actions": actions,
             "conditions": conditions or {},
@@ -348,6 +349,52 @@ class RoutineService:
         )
 
         print("[routine] Seeded 3 default routines")
+
+    def seed_examples(self) -> int:
+        """Create disabled-by-default example routines (morning briefing, good
+        night, leaving home) when the user has none — working templates to enable
+        or clone. Disabled so nothing fires until the user opts in. Returns count."""
+        if self._routines:
+            return 0
+        examples = [
+            {
+                "name": "Morning Briefing",
+                "triggers": [
+                    {"type": "voice", "phrases": ["good morning bmo", "morning briefing"]},
+                    {"type": "schedule", "cron": "30 7 * * 1-5"},
+                ],
+                "actions": [
+                    {"type": "command", "action": "calendar_today", "params": {}, "delay_sec": 0},
+                    {"type": "command", "action": "weather", "params": {}, "delay_sec": 2},
+                    {"type": "speak", "text": "That's your morning briefing.", "delay_sec": 1},
+                ],
+                "conditions": {"cooldown_sec": 3600},
+            },
+            {
+                "name": "Good Night",
+                "triggers": [{"type": "voice", "phrases": ["good night bmo", "goodnight bmo", "lights out"]}],
+                "actions": [
+                    {"type": "command", "action": "smart_home", "params": {"action": "scene", "scene": "bedtime"}, "delay_sec": 0},
+                    {"type": "command", "action": "music_stop", "params": {}, "delay_sec": 0},
+                    {"type": "speak", "text": "Good night!", "delay_sec": 1},
+                ],
+                "conditions": {"cooldown_sec": 600},
+            },
+            {
+                "name": "Leaving Home",
+                "triggers": [{"type": "voice", "phrases": ["i'm leaving", "heading out", "leaving home"]}],
+                "actions": [
+                    {"type": "command", "action": "music_stop", "params": {}, "delay_sec": 0},
+                    {"type": "command", "action": "smart_home", "params": {"action": "scene", "scene": "away"}, "delay_sec": 0},
+                    {"type": "speak", "text": "See you later!", "delay_sec": 0},
+                ],
+                "conditions": {"cooldown_sec": 600},
+            },
+        ]
+        for ex in examples:
+            self.create_routine(ex["name"], ex["triggers"], ex["actions"], ex.get("conditions"), enabled=False)
+        print(f"[routine] Seeded {len(examples)} disabled example routines")
+        return len(examples)
 
     # ── Persistence ───────────────────────────────────────────────────
 

@@ -52,8 +52,18 @@ def _resolve_agent():
     `app.agent` is assigned). Resolving lazily lets us decorate routes at
     import time while still picking up the live agent at request time.
     """
-    import app  # local import to avoid circular at module load
-    return app.agent
+    import sys
+    main = sys.modules.get("__main__")
+    ag = getattr(main, "agent", None) if main is not None else None
+    if ag is None:
+        import app  # local import to avoid circular at module load
+        ag = getattr(app, "agent", None)
+    if ag is None:
+        # Same None-deref class as the music/calendar accessors: never call a
+        # method on None. Raise a clean error the job worker surfaces gracefully
+        # instead of an uncaught AttributeError 500.
+        raise RuntimeError("agent unavailable — service init failed (see /api/health/full)")
+    return ag
 
 # Path-jail for IDE filesystem endpoints. Realpath of the request path must
 # resolve under one of these roots, otherwise the handler returns 403.

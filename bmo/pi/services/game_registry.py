@@ -30,6 +30,37 @@ DEFAULT_GC_TICK_SECONDS = 30.0
 SSE_HEARTBEAT_SECONDS = 15.0
 
 
+# Fields a PATCH may mutate. Identity fields (invite_code, host_client_id,
+# peer_id, hosting_mode, host_display_name-as-identity) are intentionally NOT
+# patchable — a public PATCH must not be able to squat peer_id / host identity.
+_PATCHABLE_FIELDS = frozenset({
+    "current_players", "current_spectators", "max_players", "max_spectators",
+    "name", "host_display_name", "is_private", "banned_client_ids",
+})
+_INT_FIELDS = frozenset({"current_players", "current_spectators", "max_players", "max_spectators"})
+_MAX_TEXT_LEN = 80
+_MAX_INT = 1000
+
+
+def _clean_text(value, max_len=_MAX_TEXT_LEN):
+    """Coerce to str, strip control chars, collapse whitespace, cap length —
+    so attacker-controlled free-text can never inject markup/control bytes or
+    an oversized blob into the broadcast entry."""
+    if value is None:
+        return ""
+    text = str(value)
+    text = "".join(ch for ch in text if ch == " " or (ch.isprintable() and ch not in "\t\r\n"))
+    return text.strip()[:max_len]
+
+
+def _clean_int(value, default=0):
+    try:
+        iv = int(value)
+    except (TypeError, ValueError):
+        return None
+    return max(0, min(iv, _MAX_INT))
+
+
 class GameRegistry:
     """Thread-safe in-memory directory of active multiplayer games.
 
@@ -105,13 +136,21 @@ class GameRegistry:
             if not entry:
                 return None
             for key, value in patch.items():
-                if key == "invite_code":
-                    # Never let a PATCH renominate the canonical key.
+                # Allowlist only: drop unknown keys + identity fields (peer_id,
+                # host_client_id, invite_code) so a public PATCH cannot inject
+                # arbitrary keys, squat identity, or break type invariants.
+                if key not in _PATCHABLE_FIELDS:
                     continue
                 if key == "banned_client_ids":
                     entry[key] = set(value or ())
-                else:
-                    entry[key] = value
+                elif key in _INT_FIELDS:
+                    iv = _clean_int(value)
+                    if iv is not None:
+                        entry[key] = iv
+                elif key == "is_private":
+                    entry[key] = bool(value)
+                elif key in ("name", "host_display_name"):
+                    entry[key] = _clean_text(value)
             entry["last_heartbeat"] = self._clock()
             self._publish("games:updated", entry)
             return entry
@@ -238,17 +277,17 @@ class GameRegistry:
     def _normalize(self, entry: dict[str, Any]) -> dict[str, Any]:
         return {
             "invite_code": self._require(entry, "invite_code"),
-            "name": self._require(entry, "name"),
-            "host_display_name": self._require(entry, "host_display_name"),
+            "name": _clean_text(self._require(entry, "name")),
+            "host_display_name": _clean_text(self._require(entry, "host_display_name")),
             "host_client_id": self._require(entry, "host_client_id"),
             "current_players": int(entry.get("current_players", 1)),
             "max_players": int(self._require(entry, "max_players")),
             "current_spectators": int(entry.get("current_spectators", 0)),
             "max_spectators": int(self._require(entry, "max_spectators")),
-            "game_system": entry.get("game_system", "dnd5e"),
+            "game_system": _clean_text(entry.get("game_system", "dnd5e"), 40) or "dnd5e",
             "is_private": bool(entry.get("is_private", False)),
             "hosting_mode": entry.get("hosting_mode") or "p2p",
-            "peer_id": self._require(entry, "peer_id"),
+            "peer_id": _clean_text(self._require(entry, "peer_id"), 128),
             "created_at": float(entry.get("created_at", self._clock())),
             "last_heartbeat": self._clock(),
             "banned_client_ids": set(entry.get("banned_client_ids") or ()),

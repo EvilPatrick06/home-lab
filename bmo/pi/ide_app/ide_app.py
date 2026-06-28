@@ -795,7 +795,7 @@ def agent_set_model():
 if __name__ == '__main__':
     _host = os.environ.get("BMO_IDE_HOST", "127.0.0.1")
     _port = int(os.environ.get("BMO_IDE_PORT", "5001"))
-    print(f'🔧 BMO IDE Test App starting on {_host}:{_port} (debug=False, bind local only by default)...')
+    log.info('🔧 BMO IDE Test App starting on %s:%s (debug=False, bind local only by default)...', _host, _port)
     _discover_agents()
     # debug=True + 0.0.0.0 was a critical RCE/debug exposure — keep off; use BMO_IDE_HOST to override bind.
     socketio.run(app, host=_host, port=_port, debug=False, allow_unsafe_werkzeug=False)

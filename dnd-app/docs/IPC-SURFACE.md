@@ -27,7 +27,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 
 ## Defined channels
 
-*Total: **237** channel strings (from `IPC_CHANNELS`).*
+*Total: **238** channel strings (from `IPC_CHANNELS`).*
 
 ### Storage: Characters
 
@@ -533,6 +533,12 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 | `REGISTRY_SUBSCRIBE` | `registry:subscribe` |
 | `REGISTRY_UNSUBSCRIBE` | `registry:unsubscribe` |
 | `REGISTRY_EVENT` | `registry:event` |
+
+### Ephemeral TURN credentials (PHASE-53B, main-process proxy)
+
+| Constant | Channel string |
+|---|---|
+| `TURN_CREDENTIALS` | `turn:credentials` |
 
 ### Pi 5e Library (main-process proxy)
 

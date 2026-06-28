@@ -109,6 +109,16 @@ def api_health_full():
         payload["config"] = run_preflight()
     except Exception:
         payload["config"] = {}
+    # Per-service init status (surfaces a swallowed init failure as degraded
+    # rather than only as endpoint 500s).
+    try:
+        payload["service_init"] = getattr(_app(), "service_init_status", {}) or {}
+    except Exception:
+        payload["service_init"] = {}
+    failed = [k for k, v in payload["service_init"].items() if isinstance(v, dict) and v.get("ok") is False]
+    if failed and payload["overall"] in ("ok", "unknown"):
+        payload["overall"] = "degraded"
+    payload["degraded_init_services"] = failed
     # Pass through any additional keys the checker emits (forward-compat)
     # but document the canonical set above.
     for k, v in raw.items():

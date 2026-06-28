@@ -105,6 +105,10 @@ class CampaignMemory:
     def _connect(self) -> sqlite3.Connection:
         """Open a connection with row-factory support."""
         conn = sqlite3.connect(self.db_path)
+        try:
+            os.chmod(self.db_path, 0o600)  # campaign data — never world-readable (0644)
+        except OSError:
+            pass
         conn.row_factory = sqlite3.Row
         return conn
 
