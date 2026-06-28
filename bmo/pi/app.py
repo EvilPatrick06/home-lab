@@ -99,6 +99,15 @@ def _cache_policy(response):
     # Phase 36: the dnd-app fetches the read-only 5e library (/api/library*) from
     # a file:// origin too. Same LAN-public rationale as the registry — non-sensitive
     # content, GET-only, `*` is correct.
+    # PHASE-53B: ephemeral TURN credential minting. The dnd-app MAIN process
+    # (Node) normally fetches this, but the web build (browser) may too; the
+    # minted cred is short-lived, so `*` is the correct stance (same LAN-public
+    # rationale as /api/games).
+    if (request.path or "").startswith("/api/turn"):
+        response.headers.setdefault("Access-Control-Allow-Origin", "*")
+        response.headers.setdefault("Access-Control-Allow-Methods", "GET, OPTIONS")
+        response.headers.setdefault("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        response.headers.setdefault("Access-Control-Max-Age", "600")
     if (request.path or "").startswith("/api/library"):
         response.headers.setdefault("Access-Control-Allow-Origin", "*")
         response.headers.setdefault("Access-Control-Allow-Methods", "GET, OPTIONS")
@@ -2907,6 +2916,7 @@ from routes.realtime_ws import register_realtime  # noqa: E402
 from routes.webapp_api import register_webapp  # noqa: E402
 from routes.auth_api import register_auth  # noqa: E402
 from routes.sync_api import register_sync  # noqa: E402
+from routes.turn_api import register_turn  # noqa: E402
 
 register_system(app)    # /health, /api/wifi, /api/volume, /api/audio, /api/tts, /api/settings, …
 register_music(app)     # /api/music/*
@@ -2917,6 +2927,7 @@ register_realtime(socketio)  # SocketIO connect/chat_message/plan_*/scratchpad_*
 register_webapp(app)    # /DungeonTableOnline/* — dnd-app web build (SPA)
 register_auth(app)      # /api/auth/* (Discord OAuth login) + /api/account/* (cloud accounts)
 register_sync(app)      # /api/sync/* — per-user cloud sync (Pi hot hub + rclone mirror to Drive)
+register_turn(app)      # /api/turn-credentials — ephemeral coturn creds (PHASE-53B)
 
 # ── Main ─────────────────────────────────────────────────────────────
 

@@ -20,9 +20,13 @@ import {
   unsubscribeFromRegistry,
   updateGame
 } from '../registry-bridge'
+import { fetchTurnCredentials } from '../turn-bridge'
 import { handle } from './_safe'
 
 export function registerRegistryHandlers(): void {
+  // PHASE-53B — mint an ephemeral coturn credential (main-process fetch).
+  handle(IPC_CHANNELS.TURN_CREDENTIALS, async (_event, baseOverride?: string) => fetchTurnCredentials(baseOverride))
+
   handle(
     IPC_CHANNELS.REGISTRY_ANNOUNCE,
     async (_event, payload: RegistryAnnouncePayload, baseOverride?: string): Promise<{ ok: boolean; error?: string }> =>

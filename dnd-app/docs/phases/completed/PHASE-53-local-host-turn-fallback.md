@@ -88,3 +88,16 @@ grep -rn "registry-client\|relay\|cloud" network/registry-client.ts | head   # o
 53A (the user-facing symptom-9 fix) is resolved & released. Per rule 9(b) this plan stays at top-level (NOT moved to `completed/`) until the TURN-default credential-model decision lands; steps 1, 3, and 53A are complete.
 
 _Authored 2026-06-24 from QA-report-2026-06-24-multiplayer.md (TR-2)._
+
+
+### 53B step 2 — IMPLEMENTED 2026-06-28 (dnd-phase-executer; user chose option (b): ephemeral REST credentials)
+
+The earlier "BLOCKED on a security decision" note above is now RESOLVED. The user selected the secure path — ephemeral coturn credentials — so NO repo-visible credential is reintroduced (the Phase-20c removal stands). Implemented end-to-end:
+
+- **coturn (bmo infra):** switched from `--lt-cred-mech --user=dndvtt:dndvtt-relay` to `--use-auth-secret`. The shared secret lives ONLY on the host at `/home/patrick/.secrets/turn_shared_secret` (chmod 600, never in the repo); a reproducible launcher `/home/patrick/bmo-coturn-run.sh` recreates the container reading that file. Realm/ports/fingerprint unchanged.
+- **Pi relay (`bmo/pi/`):** new `routes/turn_api.py` blueprint exposing `GET /api/turn-credentials?ttl=&id=`, minting the RFC-5389 long-term form coturn's REST scheme expects — `username="<unix-expiry>:<id>"`, `credential=base64(HMAC-SHA1(secret, username))` — with ttl clamp (60–86400), id sanitisation (prevents `:` injection), and a 503 when no secret is configured (app stays STUN-only). Registered in `app.py` + `/api/turn` CORS (LAN-public, same stance as `/api/games`). Secret resolved from `TURN_SHARED_SECRET` env or `TURN_SHARED_SECRET_FILE` (default the host file). Tests: `tests/test_turn_api.py` (5, green).
+- **App (dnd-app):** main-process `src/main/turn-bridge.ts` fetches the cred (renderer keeps zero direct Pi http, mirroring registry-bridge); IPC channel `TURN_CREDENTIALS` + handler in `registry-handlers.ts`; `window.api.turn.getCredentials` (preload + d.ts). `network/peer-manager.ts:ensureEphemeralTurn()` layers `turn:<host>:3478` (+ `?transport=tcp`) onto the self-host STUN set with the minted cred before `createPeer`; no-op for cloud / when the user supplied their own ICE (`userIceOverride`) / when the mint is unavailable. `forceRelay` stays **false** (TURN is a fallback candidate; ICE picks). Web build falls back to a same-origin fetch. Tests: `peer-manager.test.ts` (+3, green).
+
+**Verification:** STUN binding probe to coturn returns `0x0101`; a freshly-minted ephemeral credential drives a TURN **Allocate success (`0x0103`)** against the live coturn — proving the app↔relay↔coturn credential math agrees. `tsc -p tsconfig.web.json` + `tsconfig.node.json` clean; vitest + pytest green; biome formatted.
+
+**Deployment (post-merge, normal flow):** the relay runs from the `master` checkout, so `/api/turn-credentials` goes live only after the integrator merges this branch and `bmo/pi/app.py` is restarted; the app-side wiring ships in the next dnd-app release. coturn is already live in `use-auth-secret` mode (safe: the shipped v2.6.3 app is STUN-only, and coturn still serves STUN in this mode). Suggested release: **v2.6.4**.
