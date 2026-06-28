@@ -35,6 +35,15 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Medium
 
+### [2026-06-28] Branch `auto/scholar-phase-executer` is stale/superseded — won't merge (integrator)
+**Owner:** dungeon-scholar domain / `scholar-phase-executer` (+ `scholar-resolver` to rebase or retire).
+**Status:** left intact by the integrator on 2026-06-28; NOT merged.
+**Branch:** `origin/auto/scholar-phase-executer` @ `14f8c541` ("chore(ds): repo-wide biome format + CI lint gate; align executer agent-id"), 151 files / +8049 / -3723. Its own CI was green, but it does **not** merge into current `master`.
+**Root cause:** the branch's entire purpose — a repo-wide biome format + a CI lint gate — was **independently landed on `master`** as `9e454930` ("chore(dungeon-scholar): clean biome lint tree-wide + gate lint in CI"). Master then advanced 52 commits past the branch's merge-base (`92e08ae0`, 2026-06-24), including feature commits that re-touch the same reformatted files: `0070472f` (image-occlusion flashcard type), `59b0bd73` (library multi-select bulk actions), `eb846863` (approved-log resolutions). The result is 6+ content conflicts that are **format-vs-feature** collisions in: `src/components/RichContent.jsx`, `src/components/dungeon/DungeonExplore.jsx` (+`.test.js`), `src/features/library/LibraryScreen.jsx`, `src/features/player/usePlayerActions.js`, `src/features/study/FlashcardsMode.jsx`.
+**Why not fix-forward:** hand-resolving a pure-reformat branch against newer feature edits risks silently reverting the feature work in `0070472f`/`59b0bd73`. The correct resolution is not a manual merge.
+**Needed (route to scholar domain):** confirm whether the branch carries anything NOT already on `master` after `9e454930`. If nothing material → **retire the branch** (`git push origin :auto/scholar-phase-executer`). If something remains → reset the worktree onto current `origin/master`, re-run `biome format`/lint there (likely a near no-op now), and re-push a clean branch for the next integrator run.
+
+
 *(none currently logged)*
 
 ## Low
