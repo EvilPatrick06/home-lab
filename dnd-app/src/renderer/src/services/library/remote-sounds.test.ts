@@ -54,7 +54,7 @@ describe('mapSoundPathToRel', () => {
 describe('resolveSoundUrl (cold manifest)', () => {
   it('returns the bundled path unchanged before prewarm', () => {
     setup({ manifest: { version: '1', files: { 'ambient/tavern.mp3': { size: 9 } } } })
-    expect(resolveSoundUrl('./sounds/ambient/tavern.mp3')).toBe('./sounds/ambient/tavern.mp3')
+    expect(resolveSoundUrl('./sounds/ambient/tavern.mp3')).toBe('/sounds/ambient/tavern.mp3')
   })
 })
 
@@ -82,7 +82,7 @@ describe('prewarmRemoteSounds + resolveSoundUrl', () => {
   it('returns the path unchanged for clips NOT in the manifest', async () => {
     setup({ manifest: { version: '1', files: { 'ambient/tavern.mp3': { size: 9 } } } })
     await prewarmRemoteSounds()
-    expect(resolveSoundUrl('./sounds/dice/d20-1.mp3')).toBe('./sounds/dice/d20-1.mp3')
+    expect(resolveSoundUrl('./sounds/dice/d20-1.mp3')).toBe('/sounds/dice/d20-1.mp3')
   })
 
   it('passes through a custom (absolute) override path unchanged', async () => {
@@ -99,7 +99,7 @@ describe('prewarmRemoteSounds + resolveSoundUrl', () => {
       /* manifest undefined → 503 */
     })
     await prewarmRemoteSounds()
-    expect(resolveSoundUrl('./sounds/ambient/tavern.mp3')).toBe('./sounds/ambient/tavern.mp3')
+    expect(resolveSoundUrl('./sounds/ambient/tavern.mp3')).toBe('/sounds/ambient/tavern.mp3')
   })
 
   it('kicks off the main-process background prewarm', async () => {

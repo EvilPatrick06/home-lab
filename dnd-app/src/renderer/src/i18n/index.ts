@@ -15,7 +15,7 @@ function dirFor(locale: string): 'ltr' | 'rtl' {
 
 /** Set the document's lang + dir from a locale. No-op outside a DOM (node tests). */
 export function applyDocumentLocale(locale: string): void {
-  if (typeof document === 'undefined') return
+  if (typeof document === 'undefined' || !document.documentElement) return
   document.documentElement.lang = locale
   document.documentElement.dir = dirFor(locale)
 }
