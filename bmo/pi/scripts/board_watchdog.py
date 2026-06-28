@@ -44,7 +44,8 @@ def _bot_down():
 
 def _sms(sev, subj, body):
     if os.path.exists(NOTIFY):
-        subprocess.run([NOTIFY, sev, subj, body], timeout=60)
+        env = dict(os.environ, NOTIFY_FORCE_SMS="1")
+        subprocess.run([NOTIFY, sev, subj, body], timeout=60, env=env)
 
 
 def main():
