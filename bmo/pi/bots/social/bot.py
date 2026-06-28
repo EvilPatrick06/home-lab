@@ -879,6 +879,11 @@ class SocialBot(commands.Bot):
             await self.tree.sync()
         logger.info("Slash commands synced to guild %s", self._guild_id)
 
+        # systemd Type=notify watchdog (liveness): no-op off systemd.
+        from bots import sd_watchdog
+        sd_watchdog.notify_ready()
+        asyncio.create_task(sd_watchdog.run_watchdog(lambda: self.is_ready() and not self.is_closed()))
+
         @self.tree.error
         async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError) -> None:
             logger.error("Command /%s failed: %s", interaction.command.name if interaction.command else "?", error, exc_info=error)

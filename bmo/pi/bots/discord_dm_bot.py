@@ -785,6 +785,12 @@ class DMBot(commands.Bot):
 
         validate_sync_config()  # PHASE-22 22B: log the resolved VTT→Pi sync target once
 
+        # systemd Type=notify watchdog: signal readiness + start liveness pings so a
+        # process-alive-but-gateway-dead bot gets restarted (no-op off systemd).
+        from bots import sd_watchdog
+        sd_watchdog.notify_ready()
+        asyncio.create_task(sd_watchdog.run_watchdog(lambda: self.is_ready() and not self.is_closed()))
+
         @self.tree.error
         async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError) -> None:
             _log("Command /%s failed: %s", interaction.command.name if interaction.command else "?", error, exc_info=error)

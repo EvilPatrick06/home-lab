@@ -6,7 +6,13 @@ StartLimitIntervalSec=300
 StartLimitBurst=5
 
 [Service]
-Type=simple
+Type=notify
+NotifyAccess=main
+# Liveness watchdog: the bot pings WATCHDOG=1 only while its Discord gateway
+# is connected (bot.is_ready()); a stalled event loop misses the ping and
+# systemd restarts the unit. TimeoutStartSec covers initial gateway connect.
+WatchdogSec=120
+TimeoutStartSec=120
 User=patrick
 WorkingDirectory=/home/patrick/home-lab/bmo/pi
 EnvironmentFile=/home/patrick/home-lab/bmo/pi/.env
