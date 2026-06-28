@@ -42,3 +42,19 @@ def test_chat_history_returns_list(client, tmp_path, monkeypatch):
     r = client.get("/api/chat/history")
     assert r.status_code == 200
     assert isinstance(r.get_json(), list)
+
+
+# ── PHASE-09 09B — REST chat degrades gracefully when the agent is None ──
+
+
+def test_chat_503_when_agent_unavailable(client, monkeypatch):
+    """09B: POST /api/chat returns a handled 503 (not a raw 500) when the agent
+    is unavailable, and does not persist an orphan user turn."""
+    import app as bmo_module
+    from services import chat_history
+
+    monkeypatch.setattr(bmo_module, "agent", None)
+    r = client.post("/api/chat", json={"message": "are you there?"})
+    assert r.status_code == 503
+    saved = chat_history.load_recent_chat()
+    assert not any(m.get("text") == "are you there?" for m in saved)

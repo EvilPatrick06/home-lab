@@ -88,3 +88,51 @@ def test_guard_refuses_real_path_write_under_pytest(monkeypatch):
         and _os.path.getmtime(chat_history.RECENT_CHAT_FILE)
     )
     assert before == after  # untouched (guard returned early)
+
+
+# ── PHASE-09 09C — orphan-stub hygiene ───────────────────────────────
+
+
+def test_display_loader_drops_orphan_stub_keeps_real(tmp_path, monkeypatch):
+    monkeypatch.setattr(chat_history, "RECENT_CHAT_FILE", str(tmp_path / "recent.json"))
+    chat_history.set_agent_resolver(lambda: None)
+    chat_history.save_chat_message({"role": "user", "text": "hi"})
+    chat_history.save_pending_assistant_stub("pid-x")  # never finalized → orphan
+    chat_history.save_chat_message({"role": "assistant", "text": "real reply"})
+
+    shown = chat_history.load_recent_chat_for_display()
+    pairs = [(m["role"], m.get("text")) for m in shown]
+    assert ("user", "hi") in pairs
+    assert ("assistant", "real reply") in pairs
+    assert not any(m["role"] == "assistant" and m.get("incomplete") for m in shown)
+    # the RAW loader is unchanged — the stub is still on disk for finalize to find
+    assert any(m.get("incomplete") for m in chat_history.load_recent_chat())
+
+
+def test_sweep_orphan_stubs_removes_and_preserves(tmp_path, monkeypatch):
+    monkeypatch.setattr(chat_history, "RECENT_CHAT_FILE", str(tmp_path / "recent.json"))
+    chat_history.set_agent_resolver(lambda: None)
+    chat_history.save_chat_message({"role": "user", "text": "keep me"})
+    chat_history.save_pending_assistant_stub("pid-1")
+    chat_history.save_chat_message({"role": "assistant", "text": "done"})
+
+    removed = chat_history.sweep_orphan_stubs()
+    assert removed == 1
+    saved = json.loads((tmp_path / "recent.json").read_text())
+    assert any(m["role"] == "user" and m["text"] == "keep me" for m in saved)
+    assert any(m["role"] == "assistant" and m.get("text") == "done" for m in saved)
+    assert not any(m.get("incomplete") for m in saved)
+
+
+def test_finalize_path_unaffected_by_09c(tmp_path, monkeypatch):
+    """The raw load path that finalize_pending_assistant depends on must still
+    see the stub so completion replaces (not duplicates) it."""
+    monkeypatch.setattr(chat_history, "RECENT_CHAT_FILE", str(tmp_path / "recent.json"))
+    chat_history.set_agent_resolver(lambda: None)
+    chat_history.save_pending_assistant_stub("pid-2")
+    assert chat_history.finalize_pending_assistant(
+        "pid-2", {"role": "assistant", "text": "final"}
+    ) is True
+    shown = chat_history.load_recent_chat_for_display()
+    assert any(m.get("text") == "final" for m in shown)
+    assert not any(m.get("incomplete") for m in shown)

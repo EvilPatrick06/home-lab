@@ -144,3 +144,64 @@ def test_ws_gate_socketio_auth_key_still_accepted(bmo_app, monkeypatch):
     monkeypatch.setattr(bmo_module, "_cf_access_authenticated", lambda: False)
     with bmo_module.app.test_request_context("/socket.io/"):
         assert _ws_authorized({"bmo_api_key": "supersecret"}) is True
+
+
+# ── PHASE-09 — chat agent module-init correctness ────────────────────
+
+
+def test_app_resolver_prefers_initialised_main(bmo_app, monkeypatch):
+    """09A regression: when the app runs as __main__ (production `python app.py`),
+    _app() must resolve to the initialised __main__ module (whose `agent` is live),
+    NOT a second uninitialised `import app`. Pre-fix `_app()` did `import app` and
+    returned the None-agent copy."""
+    import sys
+    from routes import chat_api, realtime_ws
+
+    real_main = sys.modules["__main__"]
+    sentinel = object()
+    monkeypatch.setattr(real_main, "agent", sentinel, raising=False)
+    assert chat_api._app() is real_main
+    assert realtime_ws._app() is real_main
+
+
+def test_app_resolver_falls_back_to_app_module(bmo_app, monkeypatch):
+    """09A: when __main__ is not the initialised app (the pytest path), _app()
+    falls back to the `import app` module, preserving the test/import path."""
+    import sys
+    from routes import chat_api
+    import app as app_module
+
+    real_main = sys.modules["__main__"]
+    if hasattr(real_main, "agent"):
+        monkeypatch.delattr(real_main, "agent", raising=False)
+    assert chat_api._app() is app_module
+
+
+def test_chat_message_none_agent_degrades_gracefully(realtime_client, monkeypatch):
+    """09B: a None agent emits a clean unavailable chat_response and does NOT
+    raise the AttributeError ('brain got fuzzy' 500)."""
+    client, _ = realtime_client
+    import app as bmo_module
+
+    monkeypatch.setattr(bmo_module, "agent", None)
+    client.get_received()  # drain
+    client.emit("chat_message", {"message": "hello", "speaker": "text"})
+    received = client.get_received()
+    responses = [e for e in received if e["name"] == "chat_response"]
+    assert responses, f"expected a chat_response, got {[e['name'] for e in received]}"
+    assert "unavailable" in responses[0]["args"][0]["text"].lower()
+
+
+def test_chat_message_none_agent_does_not_persist_orphan(realtime_client, monkeypatch):
+    """09B/09C: a None-agent turn must not leave an orphan user turn or pending
+    stub in the history."""
+    client, _ = realtime_client
+    import app as bmo_module
+    from services import chat_history
+
+    monkeypatch.setattr(bmo_module, "agent", None)
+    client.emit("chat_message", {"message": "ghost", "speaker": "text"})
+    client.get_received()
+    saved = chat_history.load_recent_chat()
+    assert not any(m.get("text") == "ghost" for m in saved)
+    assert not any(m.get("incomplete") for m in saved)
