@@ -73,3 +73,22 @@ describe('LibraryScreen — 120 tomes (Phase-30 QA gap)', () => {
     expect(onSwitch).toHaveBeenCalledWith('tome_73');
   }, 20000);
 });
+
+describe('LibraryScreen — import entry points reachable with an active tome (PHASE-04 04C)', () => {
+  it('exposes Import Deck + Author Occlusion and fires their handlers', () => {
+    const onImportDeck = vi.fn();
+    const onAuthorOcclusion = vi.fn();
+    const library = makeLibrary(2);
+    renderLibrary(library, {
+      playerState: { library, activeTomeId: library[0].id },
+      onImportDeck,
+      onAuthorOcclusion,
+    });
+    const importBtn = screen.getByRole('button', { name: /Import Deck \(CSV \/ Quizlet\)/i });
+    const occlusionBtn = screen.getByRole('button', { name: /Author Occlusion Card/i });
+    fireEvent.click(importBtn);
+    fireEvent.click(occlusionBtn);
+    expect(onImportDeck).toHaveBeenCalledTimes(1);
+    expect(onAuthorOcclusion).toHaveBeenCalledTimes(1);
+  });
+});

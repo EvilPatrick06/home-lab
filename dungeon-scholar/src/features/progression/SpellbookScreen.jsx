@@ -91,8 +91,8 @@ export function SpellbookContent({ playerState, onEquipSpell, onUnequipSpell }) 
               className="p-4 rounded-sm"
               style={{
                 background: isKnown
-                  ? 'linear-gradient(135deg, rgba(31, 17, 8, 0.9) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.97) 100%)'
-                  : 'linear-gradient(135deg, rgba(15, 12, 18, 0.85) 0%, rgba(6, 4, 8, 0.95) 100%)',
+                  ? 'linear-gradient(135deg, rgba(var(--surface-known, 31, 17, 8), 0.9) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.97) 100%)'
+                  : 'linear-gradient(135deg, rgba(var(--surface-locked, 15, 12, 18), 0.85) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
                 border: `2px solid ${isEquipped ? '#60a5fa' : isKnown ? 'rgba(245, 158, 11, 0.5)' : 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.3)'}`,
                 opacity: isKnown ? 1 : 0.65,
                 boxShadow: isEquipped ? `0 0 14px ${def.accent}33` : 'none',

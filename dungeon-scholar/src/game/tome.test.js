@@ -6,6 +6,7 @@ import {
   formatDuration,
   generateTomeId,
   normalizeTomeData,
+  quizImportReport,
 } from './tome.js';
 
 describe('tome share codes (PHASE-39 39A)', () => {
@@ -66,5 +67,50 @@ describe('generateTomeId / blankTomeProgress (PHASE-39 39A)', () => {
     expect(Array.isArray(p.mistakeVault)).toBe(true);
     // fresh object each call (no shared mutable reference)
     expect(blankTomeProgress()).not.toBe(p);
+  });
+});
+
+describe('normalizeTomeData quiz answer-key normalization (PHASE-04 04A)', () => {
+  it('normalizes a numeric `answer` synonym to correctIndex', () => {
+    const out = normalizeTomeData({ quiz: [{ question: 'q', options: ['a', 'b', 'c', 'd'], answer: 1 }] });
+    expect(out.quiz[0].correctIndex).toBe(1);
+  });
+  it('resolves a text answer matching an option to its index', () => {
+    const out = normalizeTomeData({ quiz: [{ question: 'q', options: ['Red', 'Green', 'Blue'], answer: 'Green' }] });
+    expect(out.quiz[0].correctIndex).toBe(1);
+  });
+  it('resolves a 1-based numeric answer when 0-based is out of range', () => {
+    const out = normalizeTomeData({ quiz: [{ question: 'q', options: ['a', 'b'], answer: 2 }] });
+    expect(out.quiz[0].correctIndex).toBe(1);
+  });
+  it('drops an MCQ item with no resolvable answer key', () => {
+    const out = normalizeTomeData({
+      quiz: [
+        { question: 'good', options: ['a', 'b'], correctIndex: 0 },
+        { question: 'bad', options: ['a', 'b'], answer: 'nope' },
+      ],
+    });
+    expect(out.quiz).toHaveLength(1);
+    expect(out.quiz[0].question).toBe('good');
+  });
+  it('normalizes true/false synonyms to a boolean correctAnswer', () => {
+    const out = normalizeTomeData({ quiz: [{ question: 'q', type: 'truefalse', answer: 'true' }] });
+    expect(out.quiz[0].correctAnswer).toBe(true);
+  });
+  it('is idempotent on canonical items and a no-op on quiz-less tomes', () => {
+    const canon = { quiz: [{ question: 'q', options: ['a', 'b'], correctIndex: 1 }] };
+    expect(normalizeTomeData(canon).quiz[0].correctIndex).toBe(1);
+    const noQuiz = { metadata: { title: 'x' }, flashcards: [{ front: 'a', back: 'b' }] };
+    expect(normalizeTomeData(noQuiz)).toEqual(noQuiz);
+  });
+  it('quizImportReport counts unresolvable items without mutating', () => {
+    const data = {
+      quiz: [
+        { question: 'ok', options: ['a', 'b'], answer: 0 },
+        { question: 'bad', options: ['a', 'b'], answer: 'zzz' },
+      ],
+    };
+    expect(quizImportReport(data)).toEqual({ dropped: 1, total: 2 });
+    expect(data.quiz).toHaveLength(2);
   });
 });

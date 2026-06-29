@@ -33,6 +33,21 @@ export default class ErrorBoundary extends React.Component {
     // eslint-disable-next-line no-console
     if (!import.meta.env.PROD) console.error(info?.componentStack);
   }
+  componentDidMount() {
+    // PHASE-05 05A: clear a latched NON-chunk error on hash route change so
+    // navigation always recovers (the boundary otherwise stays tripped across
+    // every route until a hard reload). A chunk-load error is left intact — its
+    // Reload affordance (01B) is the recovery there, not a reset-loop.
+    if (typeof window !== 'undefined') window.addEventListener('hashchange', this.handleRouteChange);
+  }
+  componentWillUnmount() {
+    if (typeof window !== 'undefined') window.removeEventListener('hashchange', this.handleRouteChange);
+  }
+  handleRouteChange = () => {
+    if (this.state.hasError && !isChunkLoadError(this.state.error)) {
+      this.setState({ hasError: false, error: null });
+    }
+  };
   resetError = () => {
     this.setState({ hasError: false, error: null });
     if (typeof this.props.onReset === 'function') {
@@ -52,7 +67,8 @@ export default class ErrorBoundary extends React.Component {
         <div
           className="max-w-2xl mx-auto my-12 p-6 rounded-sm relative"
           style={{
-            background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.92) 0%, rgba(10, 6, 4, 0.97) 100%)',
+            background:
+              'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.92) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.97) 100%)',
             border: '3px double rgba(245, 158, 11, 0.7)',
             boxShadow: '0 0 40px rgba(245, 158, 11, 0.25)',
           }}
@@ -87,7 +103,8 @@ export default class ErrorBoundary extends React.Component {
       <div
         className="max-w-2xl mx-auto my-12 p-6 rounded-sm relative"
         style={{
-          background: 'linear-gradient(135deg, rgba(80, 20, 20, 0.92) 0%, rgba(20, 6, 6, 0.97) 100%)',
+          background:
+            'linear-gradient(135deg, rgba(var(--surface-danger, 80, 20, 20), 0.92) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.97) 100%)',
           border: '3px double rgba(220, 38, 38, 0.7)',
           boxShadow: '0 0 40px rgba(220, 38, 38, 0.3)',
         }}

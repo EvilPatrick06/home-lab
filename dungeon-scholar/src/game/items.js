@@ -17,7 +17,7 @@ export const ITEM_CATEGORIES = {
     label: 'Stable',
     icon: '🐾',
     color: 'emerald',
-    blurb: 'Familiars to walk the dungeon at thy side. (Awaiting Phase 18.)',
+    blurb: 'Familiars to walk the dungeon at thy side.',
   },
   armory: {
     label: 'Armory',
@@ -93,7 +93,7 @@ export const ITEMS = [
   {
     id: 'shield_draught',
     name: 'Shield Draught',
-    description: 'Replenish a single dungeon shield (used in Phase 14 combat).',
+    description: 'Restores one shield for your next dungeon delve.',
     icon: '🛡️',
     category: 'apothecary',
     effect: 'refill_shield',

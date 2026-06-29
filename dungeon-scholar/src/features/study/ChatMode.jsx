@@ -272,16 +272,10 @@ function ChatMode({ courseSet, tomeProgress, updateTomeProgress, checkAchievemen
       relevantSources.length > 0
         ? `\n\n=== RELEVANT TOME EXCERPTS (use these as your primary source of truth) ===\n${relevantSources.map((s, i) => `[${i + 1}] (${s.typeLabel}) ${s.text}`).join('\n\n')}\n=== END OF TOME EXCERPTS ===`
         : '';
-    const fullKb = courseSet.knowledgeBase || courseSet.knowledge_base || '';
-
     return `You are the Oracle, a wise and ancient sage who guides scholars through the tome titled "${tomeTitle}". Speak with the warmth of a beloved mentor and the gravitas of one who has studied these mysteries for an age. You may use light fantasy flourishes ("brave scholar", "young one") but stay rigorous and clear above all.
 
 PRIMARY DIRECTIVE: Use the tome as your source of truth. The relevant excerpts below have been retrieved for this question — base your answer on them whenever possible. When you cite information from the tome, reference it like [1] or [2] matching the excerpt numbers below. If the tome does not cover the question, you may draw on broader knowledge but say so explicitly (e.g., "This goes beyond the current tome, but...").
-${sourceText}
-
-=== FULL KNOWLEDGE BASE (background context) ===
-${fullKb}
-=== END KNOWLEDGE BASE ===`;
+${sourceText}`;
   };
 
   const send = async () => {
@@ -326,7 +320,9 @@ ${fullKb}
 
     // Oracle mode: search tome, send to AI, fall back to search on failure
     setLoading(true);
-    const relevantSources = searchTome(query, 5);
+    // PHASE-05 05C: top-K excerpts only — the full KB is no longer inlined, so
+    // raise K modestly now that the body is bounded.
+    const relevantSources = searchTome(query, 8);
 
     let fallbackReason = null;
     try {
@@ -337,7 +333,8 @@ ${fullKb}
           model: ORACLE_MODEL,
           max_tokens: 1000,
           system: buildSystemPrompt(relevantSources),
-          messages: newMessages.filter((m) => m.role === 'user' || m.role === 'assistant'),
+          // PHASE-05 05C: bound history to the last turns so long chats don't re-bloat the body.
+          messages: newMessages.filter((m) => m.role === 'user' || m.role === 'assistant').slice(-12),
         }),
       });
       if (!response.ok) {
@@ -345,6 +342,8 @@ ${fullKb}
           fallbackReason = "The Oracle's voice is silent — too many petitions today. Falling back to Tome Search.";
         else if (response.status === 401 || response.status === 403)
           fallbackReason = 'The Oracle cannot be reached at present. Falling back to Tome Search.';
+        else if (response.status === 413)
+          fallbackReason = 'The Oracle cannot hold so great a tome at once — showing local matches.';
         else fallbackReason = 'The Oracle stumbles. Falling back to Tome Search.';
 
         try {
@@ -525,7 +524,7 @@ ${fullKb}
                   style={{
                     background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)',
                     border: '1px solid rgba(245, 158, 11, 0.5)',
-                    color: '#fde047',
+                    color: 'var(--color-amber-300)',
                   }}
                 >
                   ⚠ {m.content}
@@ -542,7 +541,7 @@ ${fullKb}
                     background:
                       'linear-gradient(to bottom, rgba(var(--surface-amber-strong, 120, 53, 15), 0.6), rgba(var(--surface-amber, 41, 24, 12), 0.8))',
                     border: '1px solid rgba(245, 158, 11, 0.5)',
-                    color: '#fef3c7',
+                    color: 'var(--color-amber-100)',
                   }}
                 >
                   <div className="whitespace-pre-wrap italic">{m.content}</div>
@@ -560,7 +559,7 @@ ${fullKb}
                   style={{
                     background: isSearch ? 'rgba(12, 24, 41, 0.7)' : 'rgba(var(--surface-amber, 41, 24, 12), 0.7)',
                     border: `1px solid ${isSearch ? 'rgba(59, 130, 246, 0.4)' : 'rgba(245, 158, 11, 0.3)'}`,
-                    color: '#fef3c7',
+                    color: isSearch ? '#fef3c7' : 'var(--color-amber-100)',
                   }}
                 >
                   <div
@@ -681,7 +680,8 @@ ${fullKb}
             aria-label="Clear chat confirmation"
             className="rounded-sm max-w-md w-full overflow-hidden flex flex-col relative"
             style={{
-              background: 'linear-gradient(135deg, rgba(80, 20, 20, 0.95) 0%, rgba(20, 6, 6, 0.99) 100%)',
+              background:
+                'linear-gradient(135deg, rgba(var(--surface-danger, 80, 20, 20), 0.95) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.99) 100%)',
               border: '3px double rgba(220, 38, 38, 0.7)',
               boxShadow: '0 0 40px rgba(220, 38, 38, 0.4)',
             }}
