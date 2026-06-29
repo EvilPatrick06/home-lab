@@ -175,42 +175,6 @@ New entries go at the TOP of their section (newest first).
 
 ---
 
-### [2026-06-25] Renderer god-components `GameLayout.tsx` and `PdfViewer.tsx` stay monolithic despite established sibling extraction dirs
-
-- **Category:** debt
-- **Severity:** medium
-- **Domain:** dnd-app
-- **Discovered by:** dnd-cleanup
-- **During:** scheduled cleanup/structure scan of dnd-app/ (largest-file sweep)
-
-**Description:**
-Two renderer components are by far the largest non-generated source files in the tree and remain single-file monoliths even though each already has a sibling directory proving the team's decomposition pattern:
-- `src/renderer/src/components/game/GameLayout.tsx` — 1,331 LOC / ~57 KB, sitting next to `components/game/game-layout/` (which already holds `MapSelector`, `GamePromptsLayer`, `InspectModalRenderer`, `ViewAsSelector`, `WeatherBanner`, `DrawingToolPicker`, `use-view-mode`, `types`). The bulk of layout logic still lives in the monolith; it imports a handful of pieces from `./game-layout` but most was never extracted.
-- `src/renderer/src/components/library/PdfViewer.tsx` — 1,378 LOC / ~52 KB, sitting next to `components/library/pdf-viewer/` (`pdf-helpers`, `toc-data`, `toc-utils`, `types`) — same shape: helpers carved out, the giant component body left behind.
-
-This is distinct from the existing `ai-service.ts` decompose entry (that's a main-process service). Large components like these slow review, hurt testability, and make merge conflicts likelier on the busiest UI files.
-
-**Hypothesis / root cause:** Incremental extraction stalled after the easy, leaf-level pieces (selectors, helpers, types) were pulled into the sibling dirs; the stateful core was never split because it carries most of the cross-cutting wiring.
-
-**Proposed fix / improvement:**
-- [ ] Continue extracting `GameLayout.tsx` into `game-layout/` — pull out cohesive sub-regions (e.g. overlay orchestration, sidebar/bottom wiring, modal-group mounting) as their own components/hooks behind the existing `index.ts` barrel.
-- [ ] Continue extracting `PdfViewer.tsx` into `pdf-viewer/` — separate render/canvas, TOC/navigation, and search/state into focused units; keep `PdfViewer.tsx` as a thin shell.
-- [ ] Add the per-file size to the bundle/size or a lint budget so the monoliths shrink rather than grow.
-
-**Related files:** `dnd-app/src/renderer/src/components/game/GameLayout.tsx`, `dnd-app/src/renderer/src/components/game/game-layout/`, `dnd-app/src/renderer/src/components/library/PdfViewer.tsx`, `dnd-app/src/renderer/src/components/library/pdf-viewer/`
-
-**Related entries:** [2026-06-23] `ai-service.ts` is a ~1,740-LOC god file; [2026-06-24] Two near-identical `MapSelector.tsx` components
-
-> **2026-06-29 (dnd-resolver) — APPROVED; left for a focused refactor (not done this run).** Decomposing the 1,331-LOC `GameLayout.tsx` / 1,378-LOC `PdfViewer.tsx` stateful cores is a judgment-heavy refactor whose correctness the cheap local CI gate cannot confirm (tsc/biome/unit tests will not catch a broken render), and it would be a large diff on the busiest UI files that risks blocking the integrator's merge of this run's verified fixes. Left diagnosed under the workflow (b) exception (needs visual/runtime verification + seam judgment), not abandoned.
-
-> **2026-06-29 (dnd-resolver, deferred follow-up) — FIRST EXTRACTION SHIPPED.** Extracted GameLayout's panel-resize concern (bottom-bar + sidebar collapse state, persisted sizes, drag/double-click handlers) into `game-layout/use-panel-resize.ts` (GameLayout -52 lines; tsc + GameLayout test green). This is the first increment of the 'continue extracting' work — `PdfViewer.tsx` and further `GameLayout` sub-regions remain monolithic and are the next slices.
-
-> **2026-06-29 (dnd-resolver, deferred follow-up #2) — THREE extractions now shipped across BOTH god-files.** GameLayout: `usePanelResize` (panel collapse/size + drag handlers) and `useFullscreen` (fullscreen state + toggle). PdfViewer: `usePdfSearch` (full-text search state, per-page highlight computation, result navigation — `pdfDoc`/`scale`/`goToPage` injected). Each is behavior-preserving (verbatim logic), tsc + biome + GameLayout test green. The files are smaller but still large (~1.3k LOC each) — decomposition is incremental; further cohesive regions (TOC, bookmarks/annotations, drawing for PdfViewer; modal-group/overlay wiring for GameLayout) and the per-file size lint-budget remain.
-
-> **2026-06-29 (dnd-resolver, deferred follow-up #3) — PdfViewer further decomposed (5 hooks total now).** Added `usePdfDrawing` (tool/color/size + per-page strokes + undo/redo stacks + handlers) and `usePdfAnnotations` (bookmarks, page annotations, panel/input UI state + add/remove handlers, `bookId`/`currentPage` injected). PdfViewer is now 1,378 → 1,236 LOC with its search/drawing/annotation concerns in `pdf-viewer/use-pdf-*.ts`; GameLayout has `usePanelResize` + `useFullscreen`. All behavior-preserving (verbatim logic), tsc + biome + LibraryPage/GameLayout tests green. Still remaining: the PdfViewer page-render/TOC logic (entangled in the main load effect), GameLayout's modal-group/overlay wiring, and the per-file size-budget lint — the next slices.
-
----
-
 ### [2026-06-25] DO NOT "dedupe" the `shared/types/*` <-> `renderer/src/types/*` re-export shims — the duplicate basenames are an intentional process-boundary split
 
 - **Category:** design-gotcha
