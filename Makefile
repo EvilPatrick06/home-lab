@@ -1,17 +1,25 @@
 # Repo-root task runner. No npm workspace exists (each project installs
 # independently); this is just a uniform entry point that fans out to each
 # project's own commands. Usage: make lint | typecheck | test | build | audit | all
-.PHONY: help install lint typecheck test build audit all
+.PHONY: help install hooks lint typecheck test build audit all
 
 help:
-	@echo "Targets: install lint typecheck test build audit all"
+	@echo "Targets: install hooks lint typecheck test build audit all"
 	@echo "  lint      -> dnd-app + dungeon-scholar (biome); bmo/pi (ruff); oracle-worker (no-op)"
 	@echo "  typecheck -> dnd-app only (dungeon-scholar/oracle-worker have no standalone tsc; vite/wrangler transpile)"
 	@echo "  test      -> dnd-app + dungeon-scholar + oracle-worker (npm) + bmo/pi (pytest)"
 	@echo "  build     -> dnd-app + dungeon-scholar (npm) + oracle-worker (wrangler dry-run)"
 	@echo "  audit     -> each project: npm run audit:ci"
 
-install:
+# hooks: wire the repo-root Husky pre-commit hook for ALL projects, independent
+# of which subproject you bootstrap. Pure-git (no npm/husky needed): points
+# core.hooksPath at .husky so .husky/pre-commit runs (Husky v9 style). `make
+# install` runs this too, so any project's setup wires the repo-wide gitleaks
+# secret scan + per-project pre-flight, not just `npm install` inside dnd-app/.
+hooks:
+	@git config core.hooksPath .husky && echo "core.hooksPath -> .husky (pre-commit active for all projects)"
+
+install: hooks
 	cd dnd-app && npm ci
 	cd dungeon-scholar && npm ci
 	cd oracle-worker && npm ci

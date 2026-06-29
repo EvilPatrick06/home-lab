@@ -59,7 +59,7 @@ export default {
   on your origin) can't burn your Anthropic quota.
 - **Wire the URL in two places:** `.env.local` (`VITE_ORACLE_ENDPOINT=https://your-worker.workers.dev`)
   for local dev, and a repo **Actions secret** named `VITE_ORACLE_ENDPOINT` for
-  the GitHub Pages deploy (see `.github/workflows/deploy.yml`).
+  the GitHub Pages deploy (see `.github/workflows/dungeon-scholar-deploy.yml`).
 - **CSP.** If you host the Worker off `*.workers.dev` (a custom domain), the
   build automatically whitelists the exact origin parsed from
   `VITE_ORACLE_ENDPOINT` in the production CSP `connect-src` — no manual CSP edit

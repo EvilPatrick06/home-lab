@@ -5,7 +5,7 @@ on:
     branches: [master]
     paths:
       - 'dungeon-scholar/**'
-      - '.github/workflows/deploy.yml'
+      - '.github/workflows/dungeon-scholar-deploy.yml'
   workflow_dispatch:
 
 permissions:

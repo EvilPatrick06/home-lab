@@ -32,11 +32,17 @@ See [`./SETUP.md`](./SETUP.md).
 
 ## Pre-commit hook (Husky)
 
-Running `npm install` in `dnd-app/` wires a [Husky](https://typicode.github.io/husky/) pre-commit hook automatically (via the `prepare` script, which initializes `.husky/` at the repo root and points `core.hooksPath` there). The hook (`.husky/pre-commit`):
+The repo-root [Husky](https://typicode.github.io/husky/) pre-commit hook lives at `.husky/pre-commit` and is shared by every project (besides the per-project lint/test steps it runs a repo-wide `gitleaks` secret scan over the whole staged set). Wire it up with a **project-independent** step so it works no matter which subproject you bootstrap:
 
-1. runs Biome on **staged** files (`npm run lint -- --staged`),
-2. typechecks the renderer (`tsc --noEmit -p tsconfig.web.json`),
-3. runs `gitleaks protect --staged --redact` if [gitleaks](https://github.com/gitleaks/gitleaks) is on your `PATH` (skips gracefully otherwise).
+```sh
+make hooks      # points core.hooksPath at .husky (pure git, no npm/husky needed)
+```
+
+`make install` runs `make hooks` first, so installing any project wires the hook too. Running `npm install` in `dnd-app/` also wires it (via that project's `prepare` script) — but if you only ever work in `bmo/`, `dungeon-scholar/`, or `oracle-worker/` and never run `npm install` inside `dnd-app/`, run `make hooks` so you still get the hook (including the repo-wide secret scan). The hook (`.husky/pre-commit`):
+
+1. runs Biome on **staged** files for `dnd-app/` and `dungeon-scholar/`, plus the dnd-app renderer typecheck (`tsc --noEmit -p tsconfig.web.json`),
+2. pre-flights staged `bmo/pi/` Python (ruff + the no-new-print ratchet) and `oracle-worker/` (npm test), and runs the dungeon-scholar vitest suite when its files are staged,
+3. runs `gitleaks protect --staged --redact` if [gitleaks](https://github.com/gitleaks/gitleaks) is on your `PATH` (warns loudly otherwise; the `secret-scan` CI workflow is the authoritative backstop).
 
 Escape hatch: `git commit --no-verify`. CI (`.github/workflows/ci.yml`) is the authoritative gate; the hook is just a fast local pre-flight.
 
@@ -256,3 +262,28 @@ independently):
 - `make all` — lint + typecheck + test + build
 
 CI remains the authoritative gate; `make` is a local convenience mirror.
+
+## CI workflow naming convention
+
+Per-project GitHub Actions workflows are named `<project>-<purpose>.yml` so the
+workflow list reads as a map of which gate covers which project:
+
+- `dnd-app-ci.yml`, `dnd-app-validate-5e.yml`, `dnd-web-deploy.yml`
+- `dungeon-scholar-ci.yml`, `dungeon-scholar-deploy.yml`
+- `bmo-pi-pytest.yml`, `bmo-docker-build.yml`, `bmo-deploy.yml`
+- `oracle-worker-ci.yml`, `oracle-worker-deploy.yml`
+
+Repo-wide workflows that are not scoped to a single project keep a plain,
+purpose-only name (`release.yml`, `security-audit.yml`, `codeql.yml`,
+`secret-scan.yml`, `agent-docs-check.yml`).
+
+Two intentional spellings worth calling out so they are not "fixed" by drift:
+
+- **`dungeon-scholar-deploy.yml`** is dungeon-scholar's GitHub Pages deploy. It
+  was renamed from the GitHub starter filename `deploy.yml` (which falsely
+  implied a repo-wide deploy); when adding a Pages deploy elsewhere, do not
+  reintroduce a bare `deploy.yml`.
+- **`dnd-web-deploy.yml`** keeps the `dnd-web` prefix (not `dnd-app`) on purpose:
+  it deploys the dnd-app **web** build specifically, distinct from the Electron
+  desktop release cut by `release.yml`. The project directory and its CI
+  workflow use the `dnd-app` prefix; this one deliberately does not.

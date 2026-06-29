@@ -14,6 +14,48 @@ How to triage: [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md)
 
 > Resolved cross-cutting / `Domain: both` entries moved out of `ISSUES-LOG.md` + `SUGGESTIONS-LOG.md`. Newest first.
 
+### [2026-06-24] Deploy-workflow filenames don't follow the `<project>-deploy.yml` convention (`deploy.yml` is dungeon-scholar's Pages deploy)
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-28
+- **Resolution:** `git mv .github/workflows/deploy.yml .github/workflows/dungeon-scholar-deploy.yml` and updated the workflow's own `paths:` self-reference. Updated every active doc/comment naming the file (`docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`, `dungeon-scholar/README.md`, `dungeon-scholar/docs/oracle-setup.md`, `dungeon-scholar/docs/phases/INSTRUCTIONS.md`, `dungeon-scholar/docs/phases/QA/INSTRUCTIONS.md`, `dungeon-scholar/docs/phases/PHASE-INDEX.md`, `dungeon-scholar/docs/DESIGN-CONSTRAINTS.md`); historical records (completed phase plans, RESOLVED archives, `_archive/`) left untouched. The workflow `name:` ("Deploy Dungeon Scholar to GitHub Pages") is unchanged, so required-check names are unaffected. **Decision:** `dnd-web-deploy.yml` kept as-is (it deploys the dnd-app *web* build specifically) and documented as intentional; added a "CI workflow naming convention" section to `docs/CONTRIBUTING.md`. Verified no active reference to a bare `deploy.yml` remains.
+- **Branch:** auto/overall-resolver
+
+- **Category:** debt, docs
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+
+**Original problem:** Three of four deploy workflows followed `<project>-deploy.yml` (`bmo-deploy.yml`, `dnd-web-deploy.yml`, `oracle-worker-deploy.yml`) but dungeon-scholar's Pages deploy was the unprefixed `deploy.yml` — falsely implying a repo-wide deploy, and the only per-project workflow not sharing its project prefix.
+
+### [2026-06-24] No `.python-version` analog to `.nvmrc`; Python is pinned inline in CI and the two pins disagree (3.11 vs 3.12)
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-28
+- **Resolution:** Added `bmo/pi/.python-version` (`3.11`) as the single source of truth and pointed both Python workflows at it via `setup-python`'s `python-version-file:` — `bmo-pi-pytest.yml` (was `'3.11'`) and `security-audit.yml`'s bandit/pip-audit job (was `"3.12"`). Canonical version chosen as **3.11** to match the pytest gate that actually validates the code (prior `BMO-RESOLVED-ISSUES.md` note: tracked sources compile cleanly under 3.11). The two pins can no longer drift. Verified the file is tracked (not gitignored) and both workflows resolve to it.
+- **Branch:** auto/overall-resolver
+
+- **Category:** config, portability
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+
+**Original problem:** Node was pinned repo-wide via `.nvmrc` + `node-version-file:`, but Python had no equivalent: `bmo-pi-pytest.yml` pinned `3.11` while `security-audit.yml` pinned `3.12`, so the pytest Python and the audit Python could drift independently with nothing anchoring either to local dev.
+
+### [2026-06-24] Repo-wide pre-commit hook (incl. the gitleaks secret scan) is only bootstrapped by installing `dnd-app/` deps — contributors who only touch bmo / dungeon-scholar / oracle-worker get no hook at all
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-28
+- **Resolution:** Added a project-independent `hooks` target to the root `Makefile` (`git config core.hooksPath .husky` — pure git, no npm/husky needed) and made `make install` depend on it, so bootstrapping any subproject wires the repo-root hook and its repo-wide gitleaks secret scan — not just `npm install` inside `dnd-app/`. Documented `make hooks` as the project-independent install path in `docs/CONTRIBUTING.md` and refreshed the hook's step list. The hook body already pre-flights `bmo/pi` (ruff) and `oracle-worker` (the secondary gap the entry noted), so only the install trigger needed fixing. Verified `make -n hooks` / `make -n install` and that `.husky/pre-commit` is executable.
+- **Branch:** auto/overall-resolver
+
+- **Category:** portability, UX
+- **Severity:** medium
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+
+**Original problem:** The shared repo-root `.husky/pre-commit` (which includes a repo-wide gitleaks secret scan) was installed only by `dnd-app/package.json`'s `prepare` script, so a contributor who only worked in bmo / dungeon-scholar / oracle-worker and never ran `npm install` in `dnd-app/` got no hook at all — including no local secret scan.
+
 ### [2026-06-28] Per-domain `DESIGN-CONSTRAINTS.md` files lack the `merge=union` driver despite being designated automated-agent append targets
 
 - **Resolved by:** overall-resolver (automated)

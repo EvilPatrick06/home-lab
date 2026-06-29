@@ -15,7 +15,7 @@ A D&D-themed exam-prep study app — cybersecurity, IT, and CS certification mat
 
 ## Stack
 
-React 19 · Vite ^8 · `@vitejs/plugin-react` ^6 · Tailwind CSS · Vitest · `vite-plugin-pwa` (installable offline PWA) · Supabase (optional). Deployed to GitHub Pages via the `deploy.yml` workflow.
+React 19 · Vite ^8 · `@vitejs/plugin-react` ^6 · Tailwind CSS · Vitest · `vite-plugin-pwa` (installable offline PWA) · Supabase (optional). Deployed to GitHub Pages via the `dungeon-scholar-deploy.yml` workflow.
 
 ---
 
@@ -154,7 +154,7 @@ gone for good.
 
 ## Deploy
 
-Every push to `main` triggers `.github/workflows/deploy.yml`. First-time setup (only once per fork):
+Every push to `main` triggers `.github/workflows/dungeon-scholar-deploy.yml`. First-time setup (only once per fork):
 
 > **Note:** this repo (the `home-lab` monorepo) deploys under `/home-lab/` via the `VITE_BASE=/home-lab/` build secret, so the live URL is `https://evilpatrick06.github.io/home-lab/`. A fork renamed to `dungeon-scholar` gets the zero-config `/dungeon-scholar/` base in `vite.config.js` instead — the two are not contradictory.
 
@@ -167,7 +167,7 @@ The build takes ~60–90 seconds. When it goes green, the site is live at `https
 
 ```
 dungeon-scholar/
-├── .github/workflows/deploy.yml   Pages deploy (runs test + build) on push to main
+├── .github/workflows/dungeon-scholar-deploy.yml   Pages deploy (runs test + build) on push to main
 ├── src/
 │   ├── App.jsx                    Orchestration shell (state, effects, render switch)
 │   ├── game/                      Game data + pure helpers — titles, quests, items,
