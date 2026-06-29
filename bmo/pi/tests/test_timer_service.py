@@ -24,6 +24,7 @@ from services.timer_service import (  # noqa: E402
     Alarm,
     TimerService,
     _normalize_timezone,
+    DEFAULT_EXISTING_ALARMS_TZ,
     UTC,
 )
 
@@ -764,3 +765,23 @@ class TestClientTimezone:
 
     def test_clear_unknown_client_no_crash(self, svc):
         svc.clear_client("ghost-sid")  # should not raise
+
+
+# ── PHASE-16 16C — create_alarm timezone fallback can't crash ──
+
+
+class TestCreateAlarmTimezoneFallback:
+    @pytest.mark.parametrize("tz", [None, "", "Not/AZone"])
+    def test_unresolvable_tz_falls_back_without_attributeerror(self, svc, tz):
+        # Pre-fix this raised AttributeError ('datetime.timezone' has no '.key')
+        # on the fallback path before the dead `if not tz_name:` guard could run.
+        with patch.object(svc, "_save_alarms"), patch.object(svc, "_ensure_running"):
+            result = svc.create_alarm(7, 0, timezone_name=tz)
+        assert result["type"] == "alarm"
+        assert result["id"] in svc._alarms
+        assert svc._alarms[result["id"]].anchor_timezone == DEFAULT_EXISTING_ALARMS_TZ
+
+    def test_valid_tz_still_anchors_there(self, svc):
+        with patch.object(svc, "_save_alarms"), patch.object(svc, "_ensure_running"):
+            result = svc.create_alarm(7, 0, timezone_name="America/Chicago")
+        assert svc._alarms[result["id"]].anchor_timezone == "America/Chicago"

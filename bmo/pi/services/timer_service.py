@@ -280,9 +280,13 @@ class TimerService:
                      timezone_name: str | None = None,
                      enabled: bool = True) -> dict:
         """Create a new alarm. Supports specific date, repeat patterns, and tags."""
-        tz_name = _normalize_timezone(timezone_name) or datetime.datetime.now().astimezone().tzinfo.key
-        if not tz_name:
-            tz_name = DEFAULT_EXISTING_ALARMS_TZ
+        # PHASE-16 16C: mirror the Timer ctor's safe fallback (see __init__ above).
+        # The old `... or datetime.now().astimezone().tzinfo.key` dereferenced `.key`
+        # on a fixed-offset datetime.timezone (which has no `.key`), raising
+        # AttributeError before the `if not tz_name:` guard could run -- so any
+        # caller with an empty/unresolvable timezone crashed. A plain constant
+        # fallback is reachable and crash-free.
+        tz_name = _normalize_timezone(timezone_name) or DEFAULT_EXISTING_ALARMS_TZ
         anchor_tz = ZoneInfo(tz_name)
         now_local = datetime.datetime.now(UTC).astimezone(anchor_tz)
         target_local = self._next_local_occurrence(

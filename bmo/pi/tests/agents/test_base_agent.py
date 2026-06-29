@@ -425,3 +425,101 @@ class TestBmoAgentCompact:
         assert isinstance(result, str)
         # History should now be shorter than 20
         assert len(bmo_agent.conversation_history) < 20
+
+
+# ── PHASE-16 16A/16B — control-command action-execution truth ──
+
+
+class _StubLed:
+    """Minimal stand-in for the live LED controller (the object app.py registers
+    under service_map["led_controller"])."""
+
+    def __init__(self, color_ok=True, mode_ok=True):
+        self.color_ok = color_ok
+        self.mode_ok = mode_ok
+        self.calls = []
+
+    def set_color_by_name(self, name):
+        self.calls.append(("color", name))
+        return self.color_ok
+
+    def set_color(self, r, g, b):
+        self.calls.append(("rgb", r, g, b))
+
+    def set_mode(self, mode):
+        self.calls.append(("mode", mode))
+        return self.mode_ok
+
+    def set_brightness(self, level):
+        self.calls.append(("brightness", level))
+
+    def get_full_state(self):
+        return {"on": True}
+
+
+def test_led_handler_resolves_registered_controller(bmo_agent):
+    # 16A: with the controller registered under "led_controller" (as app.py now
+    # does), the chat LED handler reaches it instead of returning "not available".
+    stub = _StubLed()
+    bmo_agent.services = {"led_controller": stub}
+    assert bmo_agent._handle_led_set_color({"color": "blue"}) == "Set LED color to blue"
+    assert ("color", "blue") in stub.calls
+
+
+def test_led_handler_raises_command_error_when_controller_missing(bmo_agent):
+    import agent as agent_mod
+    bmo_agent.services = {}
+    with pytest.raises(agent_mod.CommandError):
+        bmo_agent._handle_led_set_color({"color": "blue"})
+
+
+def test_execute_command_missing_controller_is_failure_not_false_success(bmo_agent):
+    # 16B core: a failed control command must be success:False with the error,
+    # never success:True with the error string masquerading in `result`.
+    bmo_agent.services = {}
+    r = bmo_agent._execute_command({"action": "led_set_color", "params": {"color": "blue"}})
+    assert r["success"] is False
+    assert "LED controller not available" in r["error"]
+    assert "result" not in r
+
+
+def test_execute_command_success_for_resolved_controller(bmo_agent):
+    bmo_agent.services = {"led_controller": _StubLed()}
+    r = bmo_agent._execute_command({"action": "led_set_color", "params": {"color": "blue"}})
+    assert r["success"] is True
+    assert r["result"] == "Set LED color to blue"
+
+
+def test_execute_command_unknown_color_is_failure(bmo_agent):
+    bmo_agent.services = {"led_controller": _StubLed(color_ok=False)}
+    r = bmo_agent._execute_command({"action": "led_set_color", "params": {"color": "plaid"}})
+    assert r["success"] is False
+    assert "Unknown color" in r["error"]
+
+
+def test_failed_control_surfaces_honest_failure_line_in_reply(bmo_agent):
+    # 16B step 3: the user must not be left with only the LLM's optimistic
+    # confirmation when the real-world action failed.
+    bmo_agent.services = {}
+    bmo_agent.orchestrator.handle.return_value = {
+        "text": ('Done -- your lights are blue!\n'
+                 '```command\n{"action": "led_set_color", "params": {"color": "blue"}}\n```'),
+        "agent_used": "smart_home",
+        "pending_confirmations": [],
+    }
+    result = bmo_agent.chat("make the lights blue")
+    leds = [c for c in result["commands_executed"] if c.get("action") == "led_set_color"]
+    assert leds and leds[0]["success"] is False
+    assert "couldn't actually do that" in result["text"].lower()
+
+
+def test_successful_control_has_no_failure_line(bmo_agent):
+    bmo_agent.services = {"led_controller": _StubLed()}
+    bmo_agent.orchestrator.handle.return_value = {
+        "text": ('Done!\n'
+                 '```command\n{"action": "led_set_color", "params": {"color": "blue"}}\n```'),
+        "agent_used": "smart_home",
+        "pending_confirmations": [],
+    }
+    result = bmo_agent.chat("make the lights blue")
+    assert "couldn't actually do that" not in result["text"].lower()
