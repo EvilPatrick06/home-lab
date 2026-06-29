@@ -51,6 +51,54 @@ New entries go at the TOP of their section (newest first).
 
 ---
 
+### [2026-06-29] Two different `usePanelResize` hooks coexist — `hooks/use-panel-resize.ts` is a stale, non-persisting duplicate left behind by the GameLayout decomposition
+
+- **Category:** debt
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** dnd-cleanup scheduled cleanup/reorg scan of `dnd-app/` (duplicate-basename sweep)
+
+**Description:**
+There are two hooks both named `usePanelResize`, with the same exported interface and the same default sizing constants, living in two places:
+- `src/renderer/src/components/game/game-layout/use-panel-resize.ts` (91 LOC) — the **canonical** one, created 2026-06-29 by the GameLayout god-file decomposition (commit "extract GameLayout panel-resize state+handlers into usePanelResize hook"). It **persists** bottom-bar height / sidebar width to `localStorage` via `SETTINGS_KEYS` (5 `localStorage` refs) and is consumed by `GameLayout.tsx` (re-exported from `game-layout/index.ts`).
+- `src/renderer/src/hooks/use-panel-resize.ts` (74 LOC) — the **older** pre-extraction copy, last touched 2026-04-23 in the monorepo reorg. It has **no persistence** (0 `localStorage` refs) and is imported by exactly one consumer, `components/game/bottom/DMBottomBar.tsx`.
+
+The decomposition added a second same-named hook instead of consolidating onto it, so the old copy is now dead-weight duplication. The sibling extraction `useFullscreen` exists in only one place (`game-layout/use-fullscreen.ts`), confirming the panel-resize duplicate is an oversight, not a deliberate split. There is also a real behavioral inconsistency: because `DMBottomBar` uses the non-persisting copy, the DM bottom bar's panel sizes do **not** survive a reload, while `GameLayout`'s identical-looking panels **do** — same UI affordance, two different persistence behaviors depending on which subtree renders it. Note the old copy carries its own test (`hooks/use-panel-resize.test.ts`) while the canonical persisted one has none, so the test suite is guarding the version that should be retired.
+
+**Hypothesis / root cause:** The GameLayout decomposition (rule-27 god-file extraction) created `game-layout/use-panel-resize.ts` as a fresh module and rewired `GameLayout`, but `DMBottomBar`'s pre-existing import of the old `hooks/use-panel-resize.ts` was never migrated, so the original file was left in place instead of deleted.
+
+**Proposed fix / improvement:**
+- [ ] Point `DMBottomBar.tsx` at the canonical `game-layout` hook (via `game-layout/index.ts`), confirming its prop/return usage matches (interfaces are equivalent).
+- [ ] Delete `src/renderer/src/hooks/use-panel-resize.ts` and move/retarget its test onto the canonical hook (the canonical persisted version currently has no test — net win for coverage).
+- [ ] Decide whether `DMBottomBar` *should* persist its panel sizes; if the old non-persisting behavior was intentional for that surface, keep one hook and parameterize persistence rather than forking the module.
+
+**Related files:** `src/renderer/src/hooks/use-panel-resize.ts`, `src/renderer/src/hooks/use-panel-resize.test.ts`, `src/renderer/src/components/game/game-layout/use-panel-resize.ts`, `src/renderer/src/components/game/bottom/DMBottomBar.tsx`, `src/renderer/src/components/game/GameLayout.tsx`, `src/renderer/src/components/game/game-layout/index.ts`
+
+**Related entries:** see RESOLVED-ISSUES-DNDAPP.md "GameLayout / PdfViewer god-file decomposition" (the extraction that created the canonical hook); [2026-06-25] "DO NOT dedupe the `shared/types/*` re-export shims" (the *opposite* case — that duplication is intentional; this one is not).
+
+### [2026-06-29] `dnd-app/docs/` has 10 reference docs but no `docs/README.md` index mapping each file to its topic
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** dnd-cleanup scheduled cleanup/reorg scan of `dnd-app/` (docs-tree structure review)
+
+**Description:**
+`dnd-app/docs/` holds ten top-level reference docs — `ASSET-OFFLOAD.md`, `DEPENDENCIES.md`, `DESIGN-CONSTRAINTS.md`, `IPC-SURFACE.md`, `LLAMA-SERVER.md`, `PLUGIN-SYSTEM.md`, `RELEASE.md`, `SEED-PACKS.md`, `UI-LAYERS.md`, `WEB-VERSION-PLAN.md` — plus the `phases/` subtree (which *does* have its own `PHASE-INDEX.md`). The flat reference docs have **no `docs/README.md` index**: nothing tells a new contributor or scanning agent which doc covers what, which are living specs vs one-off plans (e.g. `WEB-VERSION-PLAN.md` reads as a plan that may be partly delivered), or how they relate. The top-level `README.md` only gestures at the directory with a single tree comment ("docs/ IPC-SURFACE, PLUGIN-SYSTEM, RELEASE, DESIGN-CONSTRAINTS, ASSET-OFFLOAD, …") and doesn't list all ten. This is the same gap already logged for `scripts/` ([2026-06-28] "`scripts/` has ~40 scripts … but no `scripts/README.md`") — a directory that grew per-phase without an index pass.
+
+**Hypothesis / root cause:** The docs accreted one reference file per phase/topic; the `phases/` subtree got an index (`PHASE-INDEX.md`) but the flat reference docs never did.
+
+**Proposed fix / improvement:**
+- [ ] Add `dnd-app/docs/README.md`: one line per doc (purpose + living-spec vs historical-plan status), so the directory is self-describing and stale/one-off plans (e.g. `WEB-VERSION-PLAN.md`) are visibly flagged.
+- [ ] While writing it, reconcile the top-level `README.md` tree comment so it doesn't enumerate a partial subset of the docs.
+- [ ] Consider doing the same one-line-index treatment uniformly across `scripts/`, `docs/`, and any other accreted directory (pairs with the `scripts/README.md` entry).
+
+**Related files:** `dnd-app/docs/` (the ten reference docs), `dnd-app/docs/phases/PHASE-INDEX.md` (existing index pattern to mirror), `dnd-app/README.md`
+
+**Related entries:** [2026-06-28] "`scripts/` has ~40 scripts across 11 sub-areas but no `scripts/README.md`" (same missing-index pattern, sibling directory).
+
 ### [2026-06-28] Stale one-off `scripts/submit/*-batch.ts` content-gen scripts no longer wired up, and they ignore the documented per-system submit layout
 
 - **Category:** debt
@@ -172,40 +220,6 @@ New entries go at the TOP of their section (newest first).
 **Related files:** `dnd-app/mobile/scripts/sync-shared.mjs`, `dnd-app/mobile/src/_shared/` (committed generated copy), `dnd-app/src/shared/` (canonical source), `dnd-app/scripts/build/sync-doc-counts.mjs` (existing `--check` pattern to mirror)
 
 **Related entries:** [2026-06-28] "Mobile (Expo/React Native) target has no CI gate…"; [2026-06-25] "dnd-app CI omits the doc/i18n drift guards … and `gen:ipc-surface` has no `--check` mode".
-
----
-
-### [2026-06-25] Renderer god-components `GameLayout.tsx` and `PdfViewer.tsx` stay monolithic despite established sibling extraction dirs
-
-- **Category:** debt
-- **Severity:** medium
-- **Domain:** dnd-app
-- **Discovered by:** dnd-cleanup
-- **During:** scheduled cleanup/structure scan of dnd-app/ (largest-file sweep)
-
-**Description:**
-Two renderer components are by far the largest non-generated source files in the tree and remain single-file monoliths even though each already has a sibling directory proving the team's decomposition pattern:
-- `src/renderer/src/components/game/GameLayout.tsx` — 1,331 LOC / ~57 KB, sitting next to `components/game/game-layout/` (which already holds `MapSelector`, `GamePromptsLayer`, `InspectModalRenderer`, `ViewAsSelector`, `WeatherBanner`, `DrawingToolPicker`, `use-view-mode`, `types`). The bulk of layout logic still lives in the monolith; it imports a handful of pieces from `./game-layout` but most was never extracted.
-- `src/renderer/src/components/library/PdfViewer.tsx` — 1,378 LOC / ~52 KB, sitting next to `components/library/pdf-viewer/` (`pdf-helpers`, `toc-data`, `toc-utils`, `types`) — same shape: helpers carved out, the giant component body left behind.
-
-This is distinct from the existing `ai-service.ts` decompose entry (that's a main-process service). Large components like these slow review, hurt testability, and make merge conflicts likelier on the busiest UI files.
-
-**Hypothesis / root cause:** Incremental extraction stalled after the easy, leaf-level pieces (selectors, helpers, types) were pulled into the sibling dirs; the stateful core was never split because it carries most of the cross-cutting wiring.
-
-**Proposed fix / improvement:**
-- [ ] Continue extracting `GameLayout.tsx` into `game-layout/` — pull out cohesive sub-regions (e.g. overlay orchestration, sidebar/bottom wiring, modal-group mounting) as their own components/hooks behind the existing `index.ts` barrel.
-- [ ] Continue extracting `PdfViewer.tsx` into `pdf-viewer/` — separate render/canvas, TOC/navigation, and search/state into focused units; keep `PdfViewer.tsx` as a thin shell.
-- [ ] Add the per-file size to the bundle/size or a lint budget so the monoliths shrink rather than grow.
-
-**Related files:** `dnd-app/src/renderer/src/components/game/GameLayout.tsx`, `dnd-app/src/renderer/src/components/game/game-layout/`, `dnd-app/src/renderer/src/components/library/PdfViewer.tsx`, `dnd-app/src/renderer/src/components/library/pdf-viewer/`
-
-**Related entries:** [2026-06-23] `ai-service.ts` is a ~1,740-LOC god file; [2026-06-24] Two near-identical `MapSelector.tsx` components
-
-> **2026-06-29 (dnd-resolver) — APPROVED; left for a focused refactor (not done this run).** Decomposing the 1,331-LOC `GameLayout.tsx` / 1,378-LOC `PdfViewer.tsx` stateful cores is a judgment-heavy refactor whose correctness the cheap local CI gate cannot confirm (tsc/biome/unit tests will not catch a broken render), and it would be a large diff on the busiest UI files that risks blocking the integrator's merge of this run's verified fixes. Left diagnosed under the workflow (b) exception (needs visual/runtime verification + seam judgment), not abandoned.
-
-> **2026-06-29 (dnd-resolver, deferred follow-up) — FIRST EXTRACTION SHIPPED.** Extracted GameLayout's panel-resize concern (bottom-bar + sidebar collapse state, persisted sizes, drag/double-click handlers) into `game-layout/use-panel-resize.ts` (GameLayout -52 lines; tsc + GameLayout test green). This is the first increment of the 'continue extracting' work — `PdfViewer.tsx` and further `GameLayout` sub-regions remain monolithic and are the next slices.
-
-> **2026-06-29 (dnd-resolver, deferred follow-up #2) — THREE extractions now shipped across BOTH god-files.** GameLayout: `usePanelResize` (panel collapse/size + drag handlers) and `useFullscreen` (fullscreen state + toggle). PdfViewer: `usePdfSearch` (full-text search state, per-page highlight computation, result navigation — `pdfDoc`/`scale`/`goToPage` injected). Each is behavior-preserving (verbatim logic), tsc + biome + GameLayout test green. The files are smaller but still large (~1.3k LOC each) — decomposition is incremental; further cohesive regions (TOC, bookmarks/annotations, drawing for PdfViewer; modal-group/overlay wiring for GameLayout) and the per-file size lint-budget remain.
 
 ---
 

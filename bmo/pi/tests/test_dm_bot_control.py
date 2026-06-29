@@ -325,6 +325,14 @@ async def test_voice_health_tick_rejoins_on_drop(monkeypatch):
     dropped.disconnect = AsyncMock()
     bot.session.voice_client = dropped
 
+    # Humans present in the Dungeon channel → rejoin path (not orphaned-session
+    # teardown). The fe663d3d "stop rejoining empty Dungeon channel" fix only
+    # rejoins when non-bot members are actually there to hear narration.
+    human = MagicMock(); human.bot = False
+    channel = MagicMock(); channel.members = [human]
+    monkeypatch.setattr(dm, "_candidate_guilds", lambda b: [MagicMock()])
+    monkeypatch.setattr(bot, "find_dungeon_channel", AsyncMock(return_value=channel))
+
     async def fake_listen():
         good = MagicMock(); good.is_connected = MagicMock(return_value=True)
         bot.session.voice_client = good
@@ -333,6 +341,25 @@ async def test_voice_health_tick_rejoins_on_drop(monkeypatch):
     assert await bot._voice_health_tick() is True
     bot.start_voice_listen.assert_awaited_once()
     dropped.disconnect.assert_awaited_once()
+
+
+async def test_voice_health_tick_ends_orphaned_session_when_no_humans(monkeypatch):
+    # Voice dropped but the Dungeon channel has no human members → end the
+    # orphaned session instead of looping a rejoin (regression guard for fe663d3d).
+    bot = DMBot(); bot.session.active = True
+    dropped = MagicMock(); dropped.is_connected = MagicMock(return_value=False)
+    dropped.disconnect = AsyncMock()
+    bot.session.voice_client = dropped
+
+    channel = MagicMock(); channel.members = []          # no humans
+    monkeypatch.setattr(dm, "_candidate_guilds", lambda b: [MagicMock()])
+    monkeypatch.setattr(bot, "find_dungeon_channel", AsyncMock(return_value=channel))
+    monkeypatch.setattr(bot, "start_voice_listen", AsyncMock())
+
+    assert await bot._voice_health_tick() is True
+    bot.start_voice_listen.assert_not_awaited()          # never rejoins
+    dropped.disconnect.assert_awaited_once()             # stale client cleaned
+    assert bot.session.active is False                   # orphaned session ended
 
 
 async def test_voice_health_tick_noop_when_no_session(monkeypatch):
@@ -751,3 +778,58 @@ async def test_pbp_status_route(tmp_path):
         assert r2.status == 400
     finally:
         await client.close()
+
+
+# ── PHASE-22 restore guard: ignore orphaned active sessions (companion to 20D) ──
+# DM-SESSION-RESTORE-GUARD-TESTS
+async def test_restore_ignores_orphaned_active_session(monkeypatch):
+    """active=true but no voice channel + no players is an orphan: do not restore
+    it (which would re-arm the voice-health rejoin loop), and clear the stale
+    on-disk state so it does not come back on the next boot."""
+    bot = DMBot()
+    orphan = {
+        "active": True,
+        "voice_channel_id": None,
+        "text_channel_id": None,
+        "players": [],
+        "messages": [{"role": "user", "content": "bob rolled 1d20: 13 [13]"}],
+    }
+    monkeypatch.setattr(dm, "_load_persisted_session_state", lambda: orphan)
+    cleared = MagicMock()
+    monkeypatch.setattr(dm, "_clear_persisted_session_state", cleared)
+    monkeypatch.setattr(bot, "fetch_channel", AsyncMock())
+
+    await bot._restore_session_if_any()
+
+    assert bot.session.active is False          # orphan refused, not restored
+    assert bot.session.messages == []           # nothing loaded into memory
+    cleared.assert_called_once()                # stale state wiped from disk
+    bot.fetch_channel.assert_not_awaited()      # no "recovered" notice sent
+
+
+async def test_restore_recovers_real_session(monkeypatch):
+    """A session with a real voice channel + players is genuinely recoverable and
+    must still be restored (the guard only targets the all-null orphan)."""
+    bot = DMBot()
+    data = {
+        "active": True,
+        "voice_channel_id": 555,
+        "text_channel_id": 42,
+        "players": ["alice"],
+        "messages": [{"role": "user", "content": "we open the door"}],
+        "initiative_round": 2,
+        "initiative_order": [],
+    }
+    monkeypatch.setattr(dm, "_load_persisted_session_state", lambda: data)
+    cleared = MagicMock()
+    monkeypatch.setattr(dm, "_clear_persisted_session_state", cleared)
+    channel = MagicMock(); channel.send = AsyncMock()
+    monkeypatch.setattr(bot, "fetch_channel", AsyncMock(return_value=channel))
+
+    await bot._restore_session_if_any()
+
+    assert bot.session.active is True
+    assert bot.session.voice_channel_id == 555
+    assert bot.session.players == {"alice"}
+    cleared.assert_not_called()                 # real session is NOT wiped
+    channel.send.assert_awaited_once()          # recovery notice posted

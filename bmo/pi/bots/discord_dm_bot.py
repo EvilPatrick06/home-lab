@@ -880,6 +880,18 @@ class DMBot(commands.Bot):
         data = _load_persisted_session_state()
         if not data or not data.get("active"):
             return
+        # Defense-in-depth companion to the _voice_health_tick orphan guard:
+        # refuse to restore an *orphaned* active session - active=true but with
+        # no voice channel and no players. That is the signature of a session
+        # that was never cleanly ended (e.g. a bridge-started or crashed session
+        # persisted active with null channels). Restoring it re-arms the voice-
+        # health loop against an empty Dungeon channel on every boot; clear the
+        # stale state instead so it is not restored again.
+        if data.get("voice_channel_id") is None and not data.get("players"):
+            _log("DM session restore: ignoring orphaned active session "
+                 "(no voice channel, no players) - clearing stale state")
+            _clear_persisted_session_state()
+            return
         self.session.restore_from(data)
         _log("Recovered DM session: %d msgs, round %d, %d in initiative",
              len(self.session.messages), self.session.initiative_round, len(self.session.initiative_order))

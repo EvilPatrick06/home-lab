@@ -1,6 +1,6 @@
 # PHASE-07 — Import post-toast consistency + provenance-aware "too few riddles" copy
 
-> Authored from the 2026-06-28 dungeon-scholar QA report — [`QA-report-2026-06-28.md`](./QA/completed/QA-report-2026-06-28.md) — tested @ deployed `index-Dy2bw_1f.js` / last dungeon-scholar src commit `8a8891fb` · cross-checked `origin/master` `43e4be93`. Order/dependencies: [`PHASE-INDEX.md`](./PHASE-INDEX.md). Execute per [`INSTRUCTIONS.md`](./INSTRUCTIONS.md). PLANNING ONLY — this phase authors the plan; no app changes here.
+> Authored from the 2026-06-28 dungeon-scholar QA report — [`QA-report-2026-06-28.md`](./QA/completed/QA-report-2026-06-28.md) — tested @ deployed `index-Dy2bw_1f.js` / last dungeon-scholar src commit `8a8891fb` · cross-checked `origin/master` `43e4be93`. Order/dependencies: [`PHASE-INDEX.md`](./PHASE-INDEX.md). Execute per [`INSTRUCTIONS.md`](./INSTRUCTIONS.md). PLANNING ONLY — this phase authors the plan; no app changes here. **Amended 2026-06-29** ([`QA-report-2026-06-29.md`](./QA/completed/QA-report-2026-06-29.md), deployed `index-C2MmghGQ.js`): added **F3 / sub-phase 07C** - the same misleading "Regenerate ... with the updated prompt" copy that F2 fixes in Practice Exam also appears in the **Domain Codex** empty-weights state and the **Flashcards** domain-filter empty state, so the copy fix is a small cross-screen sweep, not a one-string change.
 
 ## Goal
 
@@ -80,6 +80,29 @@ grep -n "subject: 'Imported'\|author: 'Imported deck'" dungeon-scholar/src/servi
 
 **Suggested action:** make the message provenance-aware, or use creation-agnostic wording. Simplest: a generic line such as "This tome needs more riddles for a practice exam — add more riddles or import a larger deck." Only mention regenerating for AI-forged tomes, and only if provenance is determinable (imported decks set `metadata.subject = 'Imported'` / `metadata.author = 'Imported deck'` in `services/deckImport.js`).
 
+### F3 (low, UX/copy) - the same "regenerate with the updated prompt" copy also appears in the Domain Codex and the Flashcards domain-filter empty state
+
+**Status: confirmed in source.**
+
+The 2026-06-28 finding (F2) was Practice-Exam-only; the 2026-06-29 pass (report 1, section 3) found the **identical** AI-only "regenerate ... prompt" wording on the **Domain Codex**, and a read-only sweep located a **third** instance in the Flashcards domain-filter empty state. All three assume the AI "Forge with Magic" path is the only way a tome gets content - meaningless for a CSV-imported, pasted, or starter deck.
+
+The three occurrences (a `grep -rn "updated prompt" dungeon-scholar/src` returns exactly these, all non-test):
+
+- **Practice Exam** - `src/features/study/ExamMode.jsx:334`: "...too few for a practice exam. **Regenerate the tome with the updated prompt to populate the deck.**" (this is F2 / 07B).
+- **Domain Codex** - `src/features/study/DomainStudyScreen.jsx:260-261`: "This tome has no `metadata.domainWeights` - the "% of exam" tag is hidden. **Regenerate with the updated prompt to populate it.**" (single-tome view, `!isCombined && !weights`, `:258`).
+- **Flashcards domain filter** - `src/features/study/FlashcardsMode.jsx:268`: "No scrolls tagged "<domain>" in this tome. **Regenerate the tome with the updated prompt to populate flashcard domains.**" (the `domainFilter` empty branch).
+
+Verification commands (read-only):
+
+```bash
+grep -rn "updated prompt" dungeon-scholar/src --include=*.jsx --include=*.js | grep -iv test   # exactly the three above
+sed -n '257,263p' dungeon-scholar/src/features/study/DomainStudyScreen.jsx   # the !weights codex notice (:260-261)
+sed -n '264,270p' dungeon-scholar/src/features/study/FlashcardsMode.jsx      # the domainFilter empty branch (:268)
+```
+
+**Suggested action:** apply the same creation-agnostic wording as 07B across all three. Domain Codex: e.g. "This tome has no domain weights, so the "% of exam" tags are hidden." Flashcards: e.g. "No scrolls tagged "<domain>" in this tome." Mention "Forge with Magic / regenerate" only for AI-forged tomes, and only if provenance is determinable (imported decks carry `metadata.subject = 'Imported'` / `metadata.author = 'Imported deck'`).
+
+
 ## Sub-phases
 
 > dungeon-scholar checks (run from `dungeon-scholar/`): single test `npx vitest run src/.../that.test.jsx` during sub-phase work; CI (`dungeon-scholar-ci.yml`) runs the full `npm run test` + `npm run build` (`VITE_BASE=/home-lab/`) gate on push. These are copy/feedback changes with no behaviour change to the activation logic — the build + a careful read are the main gates; add a small string/assertion test where tractable.
@@ -116,6 +139,21 @@ grep -n "subject: 'Imported'\|author: 'Imported deck'" dungeon-scholar/src/servi
 
 **Acceptance:** the "too few riddles" gate no longer references regenerating with a prompt for non-AI decks; the starter "Getting Started" 2-riddle deck shows actionable, creation-appropriate guidance; `npm run build` clean.
 
+### 07C - Provenance-aware (or generic) copy for the Domain Codex + Flashcards domain-filter empty states (F3)
+
+**Objective:** the Domain Codex empty-weights notice and the Flashcards domain-filter empty state never tell a non-AI deck to "regenerate with the updated prompt"; their copy matches how the tome was created, consistent with 07B.
+
+**Files:** `dungeon-scholar/src/features/study/DomainStudyScreen.jsx:260-261`, `dungeon-scholar/src/features/study/FlashcardsMode.jsx:268`.
+
+**Steps:**
+
+1. Replace the AI-only "Regenerate ... with the updated prompt ..." wording in both files with creation-agnostic copy (mirroring 07B). Domain Codex: state that the tome has no domain weights so the "% of exam" tags are hidden, without prescribing regeneration. Flashcards: just state there are no scrolls tagged with the active domain in this tome.
+2. (Optional, only if cheap) Apply the same provenance branch as 07B step 2 - mention regenerate/Forge-with-Magic **only** for AI-forged tomes - reusing whatever provenance check 07B settles on, so all three messages share one rule. If provenance is not cleanly determinable, ship the generic wording.
+3. Do **not** change the empty-state *conditions* (the `!weights` gate at `DomainStudyScreen.jsx:258`, the `domainFilter` branch in `FlashcardsMode.jsx`) - only the copy.
+
+**Acceptance:** none of the three "updated prompt" strings remain for non-AI decks (`grep -rn "updated prompt" src` returns only AI-gated wording, or nothing); the Domain Codex and Flashcards domain-filter empty states show actionable, creation-appropriate guidance; `npm run build` clean.
+
+
 ## Research notes
 
 - The activation behaviour is intentionally "activate only when no tome is active" (Phase 30c QA #6: a surprise activation would eject the user from an in-progress tome). The 2026-06-28 finding is **not** a request to change that — it is that the *copy* around it is inconsistent and, in the active-tome case, self-contradictory. The corrected root cause (both paths share one activation rule) is important so the executer fixes the messaging rather than "aligning" two activation paths that are already aligned.
@@ -133,6 +171,7 @@ grep -n "subject: 'Imported'\|author: 'Imported deck'" dungeon-scholar/src/servi
 - All import entry points (CSV/Quizlet, JSON paste, occlusion author) emit **one** consistent post-import toast that correctly states whether the new tome became active; no contradictory success+info pair (F1).
 - The activation rule (`shouldActivate = !prev.activeTomeId`) is unchanged.
 - The Practice-Exam "too few riddles" gate uses creation-appropriate wording and never tells a non-AI deck to "regenerate with the updated prompt" (F2).
+- The Domain Codex empty-weights notice and the Flashcards domain-filter empty state likewise use creation-appropriate wording; no "regenerate with the updated prompt" copy remains for non-AI decks on any of the three screens (F3).
 - `dungeon-scholar-ci.yml` green (full `npm run test` + `npm run build`).
 
 ## Out of scope
