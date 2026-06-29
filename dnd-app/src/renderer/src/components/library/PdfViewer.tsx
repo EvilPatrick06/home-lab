@@ -4,10 +4,11 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useT } from '../../i18n'
 import type { PageDrawings } from './PdfDrawingOverlay'
 import PdfDrawingOverlay, { DrawingToolbar } from './PdfDrawingOverlay'
-import { generateId, initPdfWorker } from './pdf-viewer/pdf-utils'
+import { initPdfWorker } from './pdf-viewer/pdf-utils'
 import { CROSS_BOOK_REFS, FALLBACK_TOC, SUPPLEMENTAL_TOC } from './pdf-viewer/toc-data'
 import { sortByPage } from './pdf-viewer/toc-utils'
 import type { AnnotationEntry, BookmarkEntry, PdfViewerProps, SearchHighlight, TocEntry } from './pdf-viewer/types'
+import { usePdfAnnotations } from './pdf-viewer/use-pdf-annotations'
 import { usePdfDrawing } from './pdf-viewer/use-pdf-drawing'
 import { usePdfSearch } from './pdf-viewer/use-pdf-search'
 
@@ -46,11 +47,23 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
   const [pageDimensions, setPageDimensions] = useState<Map<number, { width: number; height: number }>>(new Map())
 
   // Bookmarks & annotations
-  const [bookmarks, setBookmarks] = useState<BookmarkEntry[]>([])
-  const [annotations, setAnnotations] = useState<AnnotationEntry[]>([])
-  const [showBookmarks, setShowBookmarks] = useState(false)
-  const [annotationText, setAnnotationText] = useState('')
-  const [showAnnotationInput, setShowAnnotationInput] = useState(false)
+  const {
+    bookmarks,
+    setBookmarks,
+    annotations,
+    setAnnotations,
+    showBookmarks,
+    setShowBookmarks,
+    annotationText,
+    setAnnotationText,
+    showAnnotationInput,
+    setShowAnnotationInput,
+    addBookmark,
+    removeBookmark,
+    addAnnotation,
+    removeAnnotation,
+    isPageBookmarked
+  } = usePdfAnnotations({ bookId, currentPage })
 
   // Drawing tools
   const {
@@ -472,7 +485,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
         setPendingGoToPage(data.lastPage as number)
       }
     })
-  }, [bookId, setPageDrawings])
+  }, [bookId, setBookmarks, setAnnotations, setPageDrawings])
 
   // Helper to build save payload using ref for lastPage (never overwrites with 1)
   const doSave = useCallback(() => {
@@ -642,44 +655,6 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
     window.addEventListener('pdf-go-to-page', handleGoToPage)
     return () => window.removeEventListener('pdf-go-to-page', handleGoToPage)
   }, [goToPage])
-
-  // Bookmark management
-  // biome-ignore lint/correctness/useExhaustiveDependencies: addBookmark useCallback uses t only for the bookmark label string. Listing fresh-each-render t recreates the callback every render.
-  const addBookmark = useCallback(() => {
-    const bookmark: BookmarkEntry = {
-      id: generateId(),
-      bookId,
-      page: currentPage,
-      label: t('library.pdfViewer.pageLabel', { page: currentPage }),
-      createdAt: new Date().toISOString()
-    }
-    setBookmarks((prev) => [...prev, bookmark])
-  }, [bookId, currentPage])
-
-  const removeBookmark = useCallback((id: string) => {
-    setBookmarks((prev) => prev.filter((b) => b.id !== id))
-  }, [])
-
-  const isPageBookmarked = bookmarks.some((b) => b.page === currentPage)
-
-  // Annotation management
-  const addAnnotation = useCallback(() => {
-    if (!annotationText.trim()) return
-    const annotation: AnnotationEntry = {
-      id: generateId(),
-      bookId,
-      page: currentPage,
-      text: annotationText.trim(),
-      createdAt: new Date().toISOString()
-    }
-    setAnnotations((prev) => [...prev, annotation])
-    setAnnotationText('')
-    setShowAnnotationInput(false)
-  }, [bookId, currentPage, annotationText])
-
-  const removeAnnotation = useCallback((id: string) => {
-    setAnnotations((prev) => prev.filter((a) => a.id !== id))
-  }, [])
 
   const _pageAnnotations = annotations.filter((a) => a.page === currentPage)
 
