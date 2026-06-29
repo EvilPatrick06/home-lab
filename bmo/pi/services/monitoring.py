@@ -305,6 +305,10 @@ class HealthChecker:
         # service_name -> last alert fingerprint
         self._alert_state_file = os.path.join(_DATA_DIR, "monitor_alert_state.json")
         self._discord_last_fingerprint: dict[str, str] = self._load_discord_alert_state()
+        # PHASE-10 10C: optional sink into the dashboard notification feed,
+        # with its own state-change de-dupe (separate from the Discord one).
+        self._notification_sink = None
+        self._notify_last_fingerprint: dict[str, str] = {}
 
         # QA #6 (2026-05-17): per-subsystem circuit-breaker. When a check
         # fails repeatedly (e.g. google_calendar with broken OAuth client),
@@ -618,15 +622,25 @@ class HealthChecker:
     }
 
     # Services that should drive overall=critical when they are down.
+    # PHASE-10 10B: google_calendar removed — an expired third-party OAuth
+    # convenience integration does not mean the DEVICE is broken; it drives
+    # overall=degraded via _DEGRADED_NOT_CRITICAL below (still loud + flagged,
+    # but not a device-level critical). On-device failures stay critical.
     _REQUIRED_FOR_OVERALL = {
         "svc_bmo",
         "svc_docker",
         "internet",
         "net_wlan0",
-        "google_calendar",
         "pihole",
         "pihole_dns",
         "cloudflared",
+    }
+    # Third-party/cloud convenience integrations: when down they make the
+    # whole-device rollup `degraded` (not `critical`) — the device itself is
+    # healthy, the integration just needs re-auth/attention. The per-service
+    # status + actionable message stay intact; only the rollup tier changes.
+    _DEGRADED_NOT_CRITICAL = {
+        "google_calendar",
     }
     # bmo-kiosk is deliberately disabled on headless/mic-less hosts; treat a
     # disabled unit as info (not a per-cycle "restart me" WARNING). An
@@ -1604,7 +1618,7 @@ class HealthChecker:
                         if not refresh_token:
                             self._service_status["google_calendar"] = {
                                 "status": "down", "last_check": now,
-                                "message": "Token expired and refresh token is missing",
+                                "message": "Access token expired and refresh token is missing",
                                 "response_time": None,
                             }
                             self._emit_alert(
@@ -1648,8 +1662,8 @@ class HealthChecker:
                             self._service_status["google_calendar"] = {
                                 "status": "down", "last_check": now,
                                 "message": (
-                                    f"Token expired {mins:.0f}m with no successful "
-                                    "auto-refresh — run reauth_calendar.py"
+                                    f"Access token expired {mins:.0f}m ago with no "
+                                    "successful auto-refresh — run reauth_calendar.py"
                                 ),
                                 "response_time": None,
                             }
@@ -1661,7 +1675,7 @@ class HealthChecker:
                             return
                         self._service_status["google_calendar"] = {
                             "status": "degraded", "last_check": now,
-                            "message": "Token expired — waiting for auto-refresh",
+                            "message": "Access token expired — waiting for auto-refresh",
                             "response_time": None,
                         }
                         self._emit_alert(
@@ -1797,10 +1811,16 @@ class HealthChecker:
                     f"📡 {mdns_host} is not resolving via mDNS",
                 )
         except FileNotFoundError:
+            # PHASE-10 10A: a definitive, honest skip — not a bare `unknown`
+            # that reads like a probe failure. avahi-utils genuinely is not
+            # installed on this host (owner/ops to add it); say so clearly.
             self._service_status["mdns"] = {
-                "status": "unknown",
+                "status": "skipped",
                 "last_check": now,
-                "message": "avahi-resolve-host-name not installed",
+                "message": (
+                    "mDNS check skipped — avahi-utils not installed; "
+                    f"{mdns_host} will not resolve on the LAN until it is"
+                ),
                 "response_time": None,
             }
         except Exception as e:
@@ -1905,6 +1925,19 @@ class HealthChecker:
                     self._discord_last_fingerprint.pop(name, None)
                     self._save_discord_alert_state()
 
+                # PHASE-10 10C: clear the feed de-dupe + post a recovery notice.
+                self._notify_last_fingerprint.pop(name, None)
+                if self._notification_sink is not None:
+                    try:
+                        self._notification_sink(
+                            key=f"health:{name}",
+                            title=label,
+                            body=recovery_msg,
+                            severity="info",
+                        )
+                    except Exception:
+                        log.exception("[monitor] recovery notification mirror failed")
+
                 if self.socketio:
                     self.socketio.emit("alert", {
                         "level": "info",
@@ -1987,6 +2020,13 @@ class HealthChecker:
         if level in (Severity.CRITICAL, Severity.WARNING):
             self._send_discord_if_allowed(level, service, message)
 
+        # PHASE-10 10C: mirror critical/warning alerts into the in-dashboard
+        # notification center so the bell is not empty during a multi-day
+        # critical/degraded condition (previously the alert only reached
+        # Discord + the passive header badge). Same state-change de-dupe.
+        if level in (Severity.CRITICAL, Severity.WARNING):
+            self._notify_feed_if_allowed(level, service, message)
+
     def _send_discord_if_allowed(self, level: Severity, service: str, message: str):
         """Send Discord webhook only on state-change/new fingerprint."""
         status = self._service_status.get(service, {}).get("status", "unknown")
@@ -1996,6 +2036,32 @@ class HealthChecker:
         if _send_discord_webhook(level, service, message):
             self._discord_last_fingerprint[service] = fingerprint
             self._save_discord_alert_state()
+
+    def set_notification_sink(self, fn):
+        """Wire a callback (notifier.add_system_notification) so health alerts
+        also surface in the dashboard notification center (PHASE-10 10C)."""
+        self._notification_sink = fn
+
+    def _notify_feed_if_allowed(self, level: Severity, service: str, message: str):
+        """Mirror a service alert into the dashboard notification feed once per
+        state-change (reuses the alert fingerprint so a sustained condition is a
+        single notification, not a per-poll storm). No-op until a sink is wired."""
+        if self._notification_sink is None:
+            return
+        status = self._service_status.get(service, {}).get("status", "unknown")
+        fingerprint = self._alert_fingerprint(level, service, status, message)
+        if self._notify_last_fingerprint.get(service) == fingerprint:
+            return
+        try:
+            self._notification_sink(
+                key=f"health:{service}",
+                title=self._service_label(service),
+                body=message,
+                severity=level.value,
+            )
+            self._notify_last_fingerprint[service] = fingerprint
+        except Exception:
+            log.exception("[monitor] notification-feed mirror failed")
 
     # ── Status Summary ───────────────────────────────────────────────
 
@@ -2081,6 +2147,7 @@ class HealthChecker:
         down_services = []
         down_required_services = []
         down_noncritical_services = []
+        down_degraded_tier_services = []  # PHASE-10 10B: down => overall degraded
         degraded_services = []
         info_services = []
         for name, info in self._service_status.items():
@@ -2089,6 +2156,8 @@ class HealthChecker:
                 down_services.append(name)
                 if name in self._REQUIRED_FOR_OVERALL:
                     down_required_services.append(name)
+                elif name in self._DEGRADED_NOT_CRITICAL:
+                    down_degraded_tier_services.append(name)
                 else:
                     down_noncritical_services.append(name)
             elif status == "degraded":
@@ -2096,8 +2165,14 @@ class HealthChecker:
             elif status == "info":
                 info_services.append(name)
 
+        # PHASE-10 10B: precedence critical > degraded > warning. A down
+        # third-party convenience integration (e.g. google_calendar) yields
+        # `degraded` — loud, still flagged with its reauth message, but NOT a
+        # device-level critical. On-device required failures stay critical.
         if down_required_services:
             overall = "critical"
+        elif down_degraded_tier_services:
+            overall = "degraded"
         elif down_noncritical_services or degraded_services:
             overall = "warning"
 
@@ -2113,6 +2188,7 @@ class HealthChecker:
             "overall": overall,
             "down_services": down_services,
             "down_required_services": down_required_services,
+            "down_degraded_tier_services": down_degraded_tier_services,
             "down_noncritical_services": down_noncritical_services,
             "degraded_services": degraded_services,
             "info_services": info_services,

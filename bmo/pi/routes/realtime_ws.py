@@ -32,6 +32,14 @@ socketio = None
 
 
 def _app():
+    # PHASE-09 09A belt: prefer the initialised module. In production the app
+    # runs as __main__ (`python app.py`); if that copy is the one
+    # init_services() populated, use it directly. Falls back to `import app`
+    # for the pytest path (app imported as `app`) and any alternate entrypoint.
+    import sys
+    main = sys.modules.get("__main__")
+    if getattr(main, "agent", None) is not None:
+        return main
     import app
     return app
 
@@ -183,6 +191,16 @@ def register_realtime(socketio_obj):
         a = _app()
         agent = a.agent
         voice = a.voice
+        # PHASE-09 09B: mirror the sibling handlers (plan_approve/reject) and
+        # degrade gracefully when the agent is unavailable instead of throwing a
+        # raw AttributeError on agent.model_override (the "brain got fuzzy" 500).
+        if not agent:
+            emit("chat_response", {
+                "text": "BMO’s assistant is unavailable right now — please try again in a moment.",
+                "speaker": "system",
+                "commands_executed": [],
+            })
+            return
         message = data.get("message", "")
         # QA #1/#2: drop voice-attribution claims that didn't come from the voice
         # pipeline (the typed-chat UI used to default to speaker:"gavin"),

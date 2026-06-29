@@ -614,6 +614,40 @@ class NotificationService:
         with self._lock:
             self._history.clear()
 
+    def add_system_notification(self, *, key: str, title: str, body: str,
+                                severity: str = "info") -> bool:
+        """PHASE-10 10C: inject a BMO-internal (non-KDE-Connect) notification
+        into the feed the dashboard bell reads. De-duped by `key`: an existing
+        entry with the same key is refreshed in place (marked unread) rather
+        than stacked, so a sustained condition (e.g. a multi-day service-down)
+        shows ONE notification, not a per-poll storm. Returns True."""
+        now = time.time()
+        with self._lock:
+            existing = next((n for n in self._history if n.get("key") == key), None)
+            if existing is not None:
+                existing.update({
+                    "title": title, "body": body, "severity": severity,
+                    "timestamp": now, "read": False,
+                })
+            else:
+                self._history.insert(0, {
+                    "id": f"sys-{key}",
+                    "key": key,
+                    "app": "BMO System",
+                    "title": title,
+                    "body": body,
+                    "severity": severity,
+                    "device": "bmo",
+                    "device_id": "",
+                    "timestamp": now,
+                    "read": False,
+                    "system": True,
+                })
+                if len(self._history) > MAX_HISTORY:
+                    self._history = self._history[:MAX_HISTORY]
+        log.info("[notify] system notification: %s — %s", _s(key), _s(title))
+        return True
+
     def get_settings(self) -> dict:
         return {
             "enabled": self._enabled,

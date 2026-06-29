@@ -23,6 +23,14 @@ chat_bp = Blueprint("chat", __name__)
 
 
 def _app():
+    # PHASE-09 09A belt: prefer the initialised module. In production the app
+    # runs as __main__ (`python app.py`); if that copy is the one
+    # init_services() populated, use it directly. Falls back to `import app`
+    # for the pytest path (app imported as `app`) and any alternate entrypoint.
+    import sys
+    main = sys.modules.get("__main__")
+    if getattr(main, "agent", None) is not None:
+        return main
     import app
     return app
 
@@ -51,6 +59,13 @@ def api_chat():
     # (QA #2: typed messages were being tagged with voice profile "gavin"),
     # then enforces the speaker enum.
     speaker = chat_history.normalize_chat_speaker(raw_speaker, source_voice=source_voice)
+
+    # PHASE-09 09B: degrade gracefully when the agent is unavailable -- a
+    # handled 503 rather than letting `.chat` raise AttributeError -> 500
+    # (mirrors the WS on_chat_message guard). Checked before persisting so a
+    # dead agent does not leave an orphan user turn with no reply.
+    if _app().agent is None:
+        return jsonify({"error": "agent unavailable"}), 503
 
     # Save user message immediately
     chat_history.save_chat_message({"role": "user", "text": message, "speaker": speaker, "ts": time.time()})
@@ -692,7 +707,7 @@ def api_dnd_players():
 @chat_bp.route("/api/chat/history")
 def api_chat_history():
     """Return recent chat messages for the frontend to restore on refresh."""
-    messages = chat_history.load_recent_chat()
+    messages = chat_history.load_recent_chat_for_display()
     return jsonify(messages)
 
 

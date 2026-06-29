@@ -154,7 +154,10 @@
           <span class="text-3xl font-mono text-accent-light" x-text="clock"></span>
           <span class="text-sm text-text-muted" x-text="fullDateStr"></span>
         </div>
-        <span class="text-sm pr-16" :class="statusTextColor" x-text="statusText"></span>
+        <span class="text-sm pr-16 cursor-pointer" :class="statusTextColor" x-text="statusText"
+              role="button" tabindex="0" title="Open System Status"
+              @click="showStatusDetail = true; fetchDetailedStatus()"
+              @keydown.enter="showStatusDetail = true; fetchDetailedStatus()"></span>
       </div>
       <!-- Weather card (QA #15: gate on ready + show freshness pill) -->
       <div x-show="weatherCardReady()" class="bg-surface-light rounded-xl px-3 py-2">
@@ -1135,8 +1138,13 @@
             <div x-show="event.location" class="text-sm text-text-dim mt-0.5" x-text="event.location"></div>
           </div>
         </template>
-        <div x-show="getFilteredCalEvents().length === 0 && calDays === 1" class="text-center text-text-muted py-8">It looks like you are free today 🎉</div>
-        <div x-show="getFilteredCalEvents().length === 0 && calDays !== 1" class="text-center text-text-muted py-8">No events</div>
+        <!-- PHASE-11 11B: distinct "not connected" state vs a genuinely empty calendar -->
+        <div x-show="getFilteredCalEvents().length === 0 && (calNeedsAuth || calOffline)" class="text-center py-8 space-y-2">
+          <div class="text-text-muted">Calendar not connected</div>
+          <button @click="startCalendarAuth()" class="px-3 py-1.5 bg-accent/80 hover:bg-accent text-black rounded text-sm font-semibold">Authorize Calendar</button>
+        </div>
+        <div x-show="getFilteredCalEvents().length === 0 && !calNeedsAuth && !calOffline && calDays === 1" class="text-center text-text-muted py-8">It looks like you are free today 🎉</div>
+        <div x-show="getFilteredCalEvents().length === 0 && !calNeedsAuth && !calOffline && calDays !== 1" class="text-center text-text-muted py-8">No events</div>
       </div>
     </div>
 
@@ -1225,6 +1233,8 @@
             <button @click="tvStartPairing()" class="bg-accent hover:bg-accent-light text-surface-dark px-8 py-3 rounded-lg text-base font-medium">
               Pair with TV
             </button>
+            <!-- PHASE-11 11D: shown when the TV is unreachable (powered off / off-network) -->
+            <div x-show="tvPairHint" x-text="tvPairHint" class="mt-3 text-sm text-amber-300"></div>
           </div>
         </template>
         <template x-if="tvPairing">

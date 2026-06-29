@@ -31,9 +31,9 @@
 | 06 | [`PHASE-06-dashboard-ux-platform-hygiene.md`](./completed/PHASE-06-dashboard-ux-platform-hygiene.md) | bmo | — | done |
 | 07 | [`PHASE-07-list-endpoint-request-robustness.md`](./completed/PHASE-07-list-endpoint-request-robustness.md) | bmo | — | done |
 | 08 | [`PHASE-08-deploy-runtime-version-truth.md`](./completed/PHASE-08-deploy-runtime-version-truth.md) | bmo | — | done |
-| 09 | [`PHASE-09-chat-agent-module-init.md`](./PHASE-09-chat-agent-module-init.md) | bmo | — | pending |
-| 10 | [`PHASE-10-service-health-truth.md`](./PHASE-10-service-health-truth.md) | bmo | — | pending |
-| 11 | [`PHASE-11-dashboard-ux-round.md`](./PHASE-11-dashboard-ux-round.md) | bmo | — | pending |
+| 09 | [`PHASE-09-chat-agent-module-init.md`](./completed/PHASE-09-chat-agent-module-init.md) | bmo | — | done |
+| 10 | [`PHASE-10-service-health-truth.md`](./completed/PHASE-10-service-health-truth.md) | bmo | — | done |
+| 11 | [`PHASE-11-dashboard-ux-round.md`](./completed/PHASE-11-dashboard-ux-round.md) | bmo | — | done |
 
 > **Provenance of this batch:** PHASE-01..03 were consolidated from
 > `QA/QA-report-2026-06-24.md` (now in `QA/completed/`) by the bmo phase-maker on

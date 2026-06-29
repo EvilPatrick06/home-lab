@@ -930,6 +930,15 @@ def init_services():
     # Load notes from disk
     _load_notes()
 
+    # PHASE-09 09C: drop never-completed assistant stubs (crash/refresh
+    # casualties) before restoring, so orphan placeholders do not pollute
+    # the transcript or the agent memory.
+    try:
+        _swept = chat_history.sweep_orphan_stubs()
+        if _swept:
+            log.info(f"[chat] Swept {_swept} orphan assistant stub(s) at startup")
+    except Exception:
+        log.exception("[chat] orphan-stub sweep failed")
     # Restore chat history into agent memory
     _restore_agent_history()
 
@@ -976,6 +985,14 @@ def init_services():
         notifier = NotificationService(voice_pipeline=voice, socketio=socketio)
         notifier.start()
         service_map["notifier"] = notifier
+        # PHASE-10 10C: let the health checker mirror critical/degraded
+        # service-down alerts into the notification feed the dashboard bell
+        # reads (both services now exist).
+        if health_checker is not None:
+            try:
+                health_checker.set_notification_sink(notifier.add_system_notification)
+            except Exception:
+                log.exception("[bmo]   Health->notification wiring: SKIPPED")
         log.info("[bmo]   Notifications: OK")
     except Exception:
         log.exception("[bmo]   Notifications: SKIPPED")
@@ -2205,7 +2222,7 @@ def _auto_resume_after_restart():
 
 def _restore_agent_history():
     """On startup, restore the agent's conversation history from the recent chat buffer."""
-    messages = _load_recent_chat()
+    messages = chat_history.load_recent_chat_for_display()
     if not messages or not agent:
         return
     for msg in messages:
@@ -3021,6 +3038,15 @@ register_turn(app)      # /api/turn-credentials — ephemeral coturn creds (PHAS
 # ── Main ─────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
+    # PHASE-09 09A: production runs `python app.py`, so this module is __main__.
+    # Alias it under its import name BEFORE init_services() so any later
+    # `import app` in a blueprint handler (chat_api/realtime_ws late-bind via
+    # `import app`) resolves to THIS initialised module instead of re-executing
+    # app.py as a second, uninitialised `app` module whose services (agent,
+    # voice, ...) are None. Inert under pytest (which imports app as `app`,
+    # never as `__main__`).
+    import sys as _sys
+    _sys.modules["app"] = _sys.modules["__main__"]
     init_services()
     # Wire the IDE blueprint + SocketIO handlers now that `agent` is live.
     register_ide(app, socketio, agent)

@@ -142,6 +142,10 @@ def run_preflight(logger=None) -> dict:
         "calendar_token": calendar_token,
         "calendar_token_expiry": calendar_token_expiry,
         "calendar_token_ttl_s": calendar_token_ttl_s,
+        # PHASE-10 10A: name the clock so /health/full consumers don't read
+        # this on-disk credential-file figure as the same thing as the
+        # monitor's live access-token (last-refresh) delta.
+        "calendar_token_ttl_basis": "on-disk credential file (config/token.json) expiry field",
         "banner": banner,
         "ok": ok,
     }

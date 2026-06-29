@@ -555,3 +555,93 @@ class TestCalendarHealthReconcile:
         flaky.get_next_event = MagicMock(side_effect=Exception("timeout"))
         checker._resolve_calendar_service = lambda: flaky
         assert checker._calendar_live_probe() is None
+
+
+# ── PHASE-10 — service-health truth & critical-alert surfacing ───────
+
+
+class TestPhase10HealthTruth:
+    # --- 10B: re-tier expired calendar OAuth ---
+    def test_calendar_down_yields_overall_degraded_not_critical(self, tmp_path):
+        checker = _make_checker(tmp_path)
+        checker._service_status = {
+            "google_calendar": {
+                "status": "down",
+                "message": "Access token expired 43m ago — run reauth_calendar.py",
+            },
+            "svc_bmo": {"status": "up"},
+        }
+        result = checker.get_status()
+        assert result["overall"] == "degraded"
+        assert "google_calendar" in result["down_degraded_tier_services"]
+        assert "google_calendar" not in result["down_required_services"]
+        # per-service status + actionable message stay intact
+        assert checker._service_status["google_calendar"]["status"] == "down"
+        assert "reauth" in checker._service_status["google_calendar"]["message"].lower()
+
+    def test_on_device_failure_still_critical(self, tmp_path):
+        checker = _make_checker(tmp_path)
+        checker._service_status = {
+            "svc_bmo": {"status": "down"},
+            "google_calendar": {"status": "up"},
+        }
+        result = checker.get_status()
+        assert result["overall"] == "critical"
+        assert "svc_bmo" in result["down_required_services"]
+
+    def test_calendar_and_device_down_is_critical(self, tmp_path):
+        checker = _make_checker(tmp_path)
+        checker._service_status = {
+            "svc_docker": {"status": "down"},
+            "google_calendar": {"status": "down"},
+        }
+        assert checker.get_status()["overall"] == "critical"
+
+    # --- 10A: honest mdns skip + distinct expiry labels ---
+    def test_mdns_missing_tool_reports_skipped_not_unknown(self, tmp_path):
+        checker = _make_checker(tmp_path)
+        with patch("subprocess.run", side_effect=FileNotFoundError()):
+            checker._check_remote_access()
+        mdns = checker._service_status["mdns"]
+        assert mdns["status"] == "skipped"
+        assert "avahi-utils not installed" in mdns["message"]
+
+    def test_calendar_expiry_message_names_access_token(self, tmp_path):
+        # The relabeled monitor messages must say "Access token" so they read as
+        # the live access-token / last-refresh delta — distinct from config-
+        # preflight's on-disk credential-file expiry figure.
+        src = open("services/monitoring.py", encoding="utf-8").read()
+        assert "Access token expired" in src
+        assert '"Token expired and refresh token is missing"' not in src
+
+    # --- 10C: mirror critical/persistent alerts into the notification feed ---
+    def test_critical_alert_mirrored_to_feed_once(self, tmp_path):
+        checker = _make_checker(tmp_path)
+        checker._notify_last_fingerprint = {}
+        checker._service_status["google_calendar"] = {"status": "down"}
+        calls = []
+        checker.set_notification_sink(lambda **kw: calls.append(kw) or True)
+        for _ in range(3):  # repeated poll cycles
+            checker._emit_alert(
+                mon_module.Severity.CRITICAL, "google_calendar",
+                "Calendar token expired — re-authorize required",
+            )
+        assert len(calls) == 1  # de-duped to one notification
+        assert calls[0]["key"] == "health:google_calendar"
+        assert "re-auth" in calls[0]["body"].lower()
+
+    def test_emit_alert_without_sink_does_not_raise(self, tmp_path):
+        checker = _make_checker(tmp_path)
+        checker._service_status["svc_bmo"] = {"status": "down"}
+        checker._emit_alert(mon_module.Severity.CRITICAL, "svc_bmo", "down")  # no sink wired
+
+    def test_recovery_clears_dedupe_and_posts_recovered_notice(self, tmp_path):
+        checker = _make_checker(tmp_path)
+        calls = []
+        checker.set_notification_sink(lambda **kw: calls.append(kw) or True)
+        checker._service_status = {"svc_bmo": {"status": "up"}}
+        checker._prev_status = {"svc_bmo": "down"}
+        checker._notify_last_fingerprint = {"svc_bmo": "stale-fp"}
+        checker._process_state_transitions()
+        assert "svc_bmo" not in checker._notify_last_fingerprint
+        assert any("recovered" in c["body"].lower() for c in calls)

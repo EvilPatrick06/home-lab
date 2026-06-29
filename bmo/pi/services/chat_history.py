@@ -168,3 +168,53 @@ def finalize_pending_assistant(pending_id: str, final_msg: dict) -> bool:
         except Exception:
             log.exception("[chat] finalize_pending_assistant failed")
     return False
+
+
+# ── PHASE-09 09C: orphan-stub hygiene ────────────────────────────────
+# A pending assistant stub (save_pending_assistant_stub) that is never
+# reconciled by finalize_pending_assistant is a turn that died mid-flight
+# (server crash / user refresh). It must not render as a real/canned reply or
+# pollute the agent memory. The RAW load_recent_chat above is deliberately
+# unchanged (the write + finalize path depends on seeing the stub); the display
+# loader and the startup sweep below are the only consumers that drop them.
+
+
+def _is_orphan_stub(msg: Any) -> bool:
+    """True for a never-completed assistant placeholder."""
+    return (
+        isinstance(msg, dict)
+        and msg.get("role") == "assistant"
+        and msg.get("incomplete") is True
+    )
+
+
+def load_recent_chat_for_display() -> list[dict]:
+    """Like load_recent_chat but drops never-completed assistant stubs so the
+    rendered transcript is not polluted by orphan "(interrupted)" / empty pills.
+    Used by the /api/chat/history endpoint and the startup agent-memory restore."""
+    return [m for m in load_recent_chat() if not _is_orphan_stub(m)]
+
+
+def sweep_orphan_stubs() -> int:
+    """One-time startup repair: permanently drop orphan assistant stubs from the
+    recent-chat file. Safe at startup because nothing is in flight -- any
+    incomplete assistant turn is a casualty of a prior crash/refresh. Returns the
+    count removed; user turns and completed replies are preserved."""
+    with STATE.chat_lock:
+        try:
+            messages = load_recent_chat()
+            kept = [m for m in messages if not _is_orphan_stub(m)]
+            removed = len(messages) - len(kept)
+            if removed:
+                # Never write the live store under pytest (mirrors save_recent_message).
+                if os.environ.get("PYTEST_CURRENT_TEST") and RECENT_CHAT_FILE.endswith(
+                    "/home-lab/bmo/pi/data/recent_chat.json"
+                ):
+                    return removed
+                os.makedirs(os.path.dirname(RECENT_CHAT_FILE), exist_ok=True)
+                with open(RECENT_CHAT_FILE, "w", encoding="utf-8") as f:
+                    json.dump(kept, f, ensure_ascii=False)
+            return removed
+        except Exception:
+            log.exception("[chat] sweep_orphan_stubs failed")
+            return 0

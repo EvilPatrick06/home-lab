@@ -11,15 +11,30 @@ class MonitoringHealthTests(unittest.TestCase):
         self.checker._service_status = {}
 
     def test_overall_critical_when_required_service_down(self):
+        # PHASE-10 10B: an on-device required service (svc_bmo) down is critical.
         self.checker._service_status = {
-            "google_calendar": {"status": "down", "message": "missing token"},
+            "svc_bmo": {"status": "down", "message": "service inactive"},
             "rclone": {"status": "up", "message": "ok"},
         }
 
         status = self.checker.get_status()
 
         self.assertEqual(status["overall"], "critical")
-        self.assertIn("google_calendar", status["down_required_services"])
+        self.assertIn("svc_bmo", status["down_required_services"])
+
+    def test_overall_degraded_when_only_calendar_oauth_down(self):
+        # PHASE-10 10B: a third-party OAuth integration (google_calendar) down
+        # is degraded, not whole-device critical — the device is still healthy.
+        self.checker._service_status = {
+            "google_calendar": {"status": "down", "message": "token expired — re-authorize"},
+            "rclone": {"status": "up", "message": "ok"},
+        }
+
+        status = self.checker.get_status()
+
+        self.assertEqual(status["overall"], "degraded")
+        self.assertIn("google_calendar", status["down_degraded_tier_services"])
+        self.assertEqual(status["down_required_services"], [])
 
     def test_overall_warning_when_only_noncritical_service_down(self):
         self.checker._service_status = {
