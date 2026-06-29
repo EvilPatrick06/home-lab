@@ -1,5 +1,6 @@
 import { dynamicKeys, SETTINGS_KEYS } from '../../constants'
 import { addToast } from '../../hooks/use-toast'
+import { idbAvailable, idbDeleteSnapshot, idbGetSnapshot, idbPutSnapshot } from './autosave-snapshot-store'
 // ---------------------------------------------------------------------------
 // Auto-Save Service
 // ---------------------------------------------------------------------------
@@ -114,6 +115,21 @@ function buildLabel(timestamp: number, data: unknown): string {
   return roundSuffix ? `Auto-save${roundSuffix} (${time})` : `Auto-save ${time}`
 }
 
+/** Remove a snapshot body from both backends (IndexedDB best-effort + localStorage). */
+function removeSnapshot(campaignId: string, versionId: string): void {
+  const key = versionDataKey(campaignId, versionId)
+  if (idbAvailable()) {
+    idbDeleteSnapshot(key).catch(() => {
+      // best-effort
+    })
+  }
+  try {
+    localStorage.removeItem(key)
+  } catch {
+    // Ignore removal errors
+  }
+}
+
 function trimVersions(campaignId: string, versions: SaveVersion[]): SaveVersion[] {
   // Sort newest first
   const sorted = [...versions].sort((a, b) => b.timestamp - a.timestamp)
@@ -121,11 +137,7 @@ function trimVersions(campaignId: string, versions: SaveVersion[]): SaveVersion[
   // Remove excess versions from storage
   const excess = sorted.slice(config.maxVersions)
   for (const v of excess) {
-    try {
-      localStorage.removeItem(versionDataKey(campaignId, v.id))
-    } catch {
-      // Ignore removal errors
-    }
+    removeSnapshot(campaignId, v.id)
   }
 
   return sorted.slice(0, config.maxVersions)
@@ -206,7 +218,25 @@ async function performSave(campaignId: string, data: unknown, label?: string): P
   // Persist the data payload, evicting old versions on quota pressure. If it
   // still cannot be written, FAIL LOUD (toast) instead of silently dropping the
   // save — the user should know their work is no longer being backed up.
-  if (!persistSnapshotWithEviction(campaignId, versionId, serialized)) {
+  // Prefer IndexedDB for the (potentially large) snapshot body: async, a far
+  // bigger quota, and no synchronous main-thread localStorage write. Fall back
+  // to localStorage (with quota-eviction) when IndexedDB is unavailable or fails.
+  let stored = false
+  if (idbAvailable()) {
+    try {
+      await idbPutSnapshot(versionDataKey(campaignId, versionId), serialized)
+      // Drop any stale localStorage copy now that IndexedDB owns this body.
+      try {
+        localStorage.removeItem(versionDataKey(campaignId, versionId))
+      } catch {
+        // ignore
+      }
+      stored = true
+    } catch {
+      // fall back to localStorage below
+    }
+  }
+  if (!stored && !persistSnapshotWithEviction(campaignId, versionId, serialized)) {
     addToast(
       'Auto-save failed: device storage is full. Free up space or lower the number of saved versions in Settings.',
       'error'
@@ -272,8 +302,18 @@ export function getSaveVersions(campaignId: string): SaveVersion[] {
  * Returns `null` if the version is not found.
  */
 export async function restoreVersion(campaignId: string, versionId: string): Promise<unknown | null> {
+  const key = versionDataKey(campaignId, versionId)
+  // IndexedDB owns bodies on the web target; older saves may still be in localStorage.
+  if (idbAvailable()) {
+    try {
+      const raw = await idbGetSnapshot(key)
+      if (raw !== null) return JSON.parse(raw) as unknown
+    } catch {
+      // fall through to localStorage
+    }
+  }
   try {
-    const raw = localStorage.getItem(versionDataKey(campaignId, versionId))
+    const raw = localStorage.getItem(key)
     if (raw) {
       return JSON.parse(raw) as unknown
     }
@@ -287,11 +327,7 @@ export async function restoreVersion(campaignId: string, versionId: string): Pro
  * Delete a single save version and its data payload.
  */
 export function deleteVersion(campaignId: string, versionId: string): void {
-  try {
-    localStorage.removeItem(versionDataKey(campaignId, versionId))
-  } catch {
-    // Ignore removal errors
-  }
+  removeSnapshot(campaignId, versionId)
 
   const versions = loadVersionList(campaignId)
   const filtered = versions.filter((v) => v.id !== versionId)
