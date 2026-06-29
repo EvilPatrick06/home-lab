@@ -55,6 +55,12 @@ jobs:
         run: npx tsc --noEmit -p tsconfig.node.json
       - name: Validate content schemas (33h)
         run: npm run validate:content
+      - name: Locale parity (i18n)
+        run: npm run i18n:check-parity
+      - name: Doc-count drift guard
+        run: npm run sync:doc-counts -- --check
+      - name: IPC-surface drift guard
+        run: npm run gen:ipc-surface -- --check
       - name: Tests
         run: npm test
       # Build smoke (folded in from the former ci.yml) — catches Vite config /

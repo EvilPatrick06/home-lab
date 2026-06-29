@@ -242,6 +242,26 @@ describe('sync receiver hardening (Phase 28a.2/.3/.4)', () => {
     expect(body).toMatchObject({ ok: true, version: '1.0.0', apiVersion: 'v1' })
   })
 
+  it('GET /api/sync/state returns 401 when a key is configured and Authorization is missing', async () => {
+    getBmoApiKey.mockReturnValue('secret-token')
+    const res = await fetch(`${BASE}/api/sync/state`)
+    expect(res.status).toBe(401)
+  })
+
+  it('GET /api/sync/state accepts a matching Bearer token (200)', async () => {
+    getBmoApiKey.mockReturnValue('secret-token')
+    const res = await fetch(`${BASE}/api/sync/state`, {
+      headers: { Authorization: 'Bearer secret-token' }
+    })
+    expect(res.status).toBe(200)
+  })
+
+  it('GET /api/sync/state stays open when no key is configured (200)', async () => {
+    getBmoApiKey.mockReturnValue(undefined)
+    const res = await fetch(`${BASE}/api/sync/state`)
+    expect(res.status).toBe(200)
+  })
+
   it('returns 415 on non-JSON Content-Type', async () => {
     const res = await fetch(`${BASE}/api/sync`, {
       method: 'POST',

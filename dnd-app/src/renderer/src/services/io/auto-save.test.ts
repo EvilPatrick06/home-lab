@@ -11,6 +11,9 @@ vi.stubGlobal('localStorage', {
 // Provide crypto.randomUUID
 vi.stubGlobal('crypto', { randomUUID: () => 'auto-save-uuid' })
 
+// Mock the toast module so we can assert the loud failure path.
+vi.mock('../../hooks/use-toast', () => ({ addToast: vi.fn() }))
+
 describe('auto-save', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -124,5 +127,37 @@ describe('auto-save', () => {
     // Re-enable for other tests
     setConfig({ enabled: true })
     stopAutoSave()
+  })
+
+  it('evicts the oldest version and retries on quota pressure (no error toast)', async () => {
+    const { saveNow, getSaveVersions } = await import('./auto-save')
+    const { addToast } = await import('../../hooks/use-toast')
+    ;(addToast as ReturnType<typeof vi.fn>).mockClear()
+    await saveNow('camp-evict', { round: 1 }) // seed one version normally
+    vi.advanceTimersByTime(1000)
+    // Throw QuotaExceededError exactly once: eviction frees room, retry succeeds.
+    ;(localStorage.setItem as ReturnType<typeof vi.fn>).mockImplementationOnce(() => {
+      throw new DOMException('full', 'QuotaExceededError')
+    })
+    await saveNow('camp-evict', { round: 2 })
+    expect(addToast).not.toHaveBeenCalled()
+    expect(getSaveVersions('camp-evict').length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('surfaces a loud error toast when a snapshot cannot be persisted', async () => {
+    const { saveNow } = await import('./auto-save')
+    const { addToast } = await import('../../hooks/use-toast')
+    ;(addToast as ReturnType<typeof vi.fn>).mockClear()
+    // Persistent quota failure with no history to evict -> fail loud.
+    ;(localStorage.setItem as ReturnType<typeof vi.fn>).mockImplementation(() => {
+      throw new DOMException('full', 'QuotaExceededError')
+    })
+    await saveNow('camp-quota-dead', { round: 1 })
+    expect(addToast).toHaveBeenCalled()
+    expect((addToast as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1]).toBe('error')
+    // Restore the map-backed implementation for any later tests.
+    ;(localStorage.setItem as ReturnType<typeof vi.fn>).mockImplementation((k: string, v: string) =>
+      storageMap.set(k, v)
+    )
   })
 })

@@ -24,7 +24,14 @@ import {
   saveBookBytes,
   saveBookData
 } from '../storage/book-storage'
-import { deleteCampaign, loadCampaign, loadCampaigns, saveCampaign } from '../storage/campaign-storage'
+import {
+  deleteCampaign,
+  listCampaignVersions,
+  loadCampaign,
+  loadCampaigns,
+  restoreCampaignVersion,
+  saveCampaign
+} from '../storage/campaign-storage'
 import {
   type CharacterVersion,
   deleteCharacter,
@@ -132,6 +139,30 @@ export function registerStorageHandlers(): void {
       throw new Error('Invalid version file name')
     }
     return restoreCharacterVersion(id, fileName)
+  })
+
+  handle(IPC_CHANNELS.CAMPAIGN_VERSIONS, async (_event, id: string) => {
+    return listCampaignVersions(id)
+  })
+
+  handle(IPC_CHANNELS.CAMPAIGN_RESTORE_VERSION, async (_event, id: string, fileName: string) => {
+    // fileName flows into a version-file path; reject separators / traversal and
+    // require the expected extension before delegating (mirrors CHARACTER_RESTORE_VERSION).
+    if (
+      typeof fileName !== 'string' ||
+      fileName.includes('/') ||
+      fileName.includes('\\') ||
+      fileName.includes('..') ||
+      fileName.includes('\0') ||
+      !/\.json$/i.test(fileName)
+    ) {
+      logSecurityEvent('ipc.path_traversal.denied', {
+        channel: 'CAMPAIGN_RESTORE_VERSION',
+        fileName: String(fileName)
+      })
+      throw new Error('Invalid version file name')
+    }
+    return restoreCampaignVersion(id, fileName)
   })
 
   // --- Campaign storage ---

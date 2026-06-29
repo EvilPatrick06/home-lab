@@ -1,4 +1,5 @@
 import { dynamicKeys, SETTINGS_KEYS } from '../../constants'
+import { addToast } from '../../hooks/use-toast'
 // ---------------------------------------------------------------------------
 // Auto-Save Service
 // ---------------------------------------------------------------------------
@@ -130,6 +131,56 @@ function trimVersions(campaignId: string, versions: SaveVersion[]): SaveVersion[
   return sorted.slice(0, config.maxVersions)
 }
 
+/**
+ * QuotaExceededError detection across browsers (Chromium name/code 22, Firefox
+ * NS_ERROR_DOM_QUOTA_REACHED / code 1014). A non-quota write failure (e.g. a
+ * serialization error) is deliberately NOT treated as a quota problem, so we
+ * never evict save history for an unrelated error.
+ */
+function isQuotaExceeded(err: unknown): boolean {
+  if (!(err instanceof DOMException)) return false
+  return (
+    err.name === 'QuotaExceededError' ||
+    err.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
+    err.code === 22 ||
+    err.code === 1014
+  )
+}
+
+/**
+ * Persist one snapshot payload, evicting the oldest stored versions one at a
+ * time and retrying until the write fits or no history remains. Returns true on
+ * success. Unlike the previous single-shot retry this drains as many old
+ * versions as needed, so a large snapshot can still save on a near-full store.
+ */
+function persistSnapshotWithEviction(campaignId: string, versionId: string, serialized: string): boolean {
+  try {
+    localStorage.setItem(versionDataKey(campaignId, versionId), serialized)
+    return true
+  } catch (err) {
+    if (!isQuotaExceeded(err)) return false
+  }
+  let versions = loadVersionList(campaignId)
+  while (versions.length > 0) {
+    const oldest = [...versions].sort((a, b) => a.timestamp - b.timestamp)[0]
+    try {
+      localStorage.removeItem(versionDataKey(campaignId, oldest.id))
+    } catch {
+      // ignore removal errors
+    }
+    versions = versions.filter((v) => v.id !== oldest.id)
+    persistVersionList(campaignId, versions)
+    try {
+      localStorage.setItem(versionDataKey(campaignId, versionId), serialized)
+      return true
+    } catch (err) {
+      if (!isQuotaExceeded(err)) return false
+      // still over quota — keep evicting
+    }
+  }
+  return false
+}
+
 // ---- core save logic -------------------------------------------------------
 
 async function performSave(campaignId: string, data: unknown, label?: string): Promise<void> {
@@ -143,27 +194,24 @@ async function performSave(campaignId: string, data: unknown, label?: string): P
     label: saveLabel
   }
 
-  // Persist the data payload
+  // Serialize first; a serialization failure (e.g. a cyclic snapshot) is not a
+  // storage problem, so we give up quietly rather than show a scary toast.
+  let serialized: string
   try {
-    localStorage.setItem(versionDataKey(campaignId, versionId), JSON.stringify(data))
+    serialized = JSON.stringify(data)
   } catch {
-    // localStorage full – try to make room by removing the oldest version
-    const versions = loadVersionList(campaignId)
-    if (versions.length > 0) {
-      const oldest = [...versions].sort((a, b) => a.timestamp - b.timestamp)[0]
-      localStorage.removeItem(versionDataKey(campaignId, oldest.id))
-      const trimmed = versions.filter((v) => v.id !== oldest.id)
-      persistVersionList(campaignId, trimmed)
-      // Retry
-      try {
-        localStorage.setItem(versionDataKey(campaignId, versionId), JSON.stringify(data))
-      } catch {
-        // Still failing – give up silently
-        return
-      }
-    } else {
-      return
-    }
+    return
+  }
+
+  // Persist the data payload, evicting old versions on quota pressure. If it
+  // still cannot be written, FAIL LOUD (toast) instead of silently dropping the
+  // save — the user should know their work is no longer being backed up.
+  if (!persistSnapshotWithEviction(campaignId, versionId, serialized)) {
+    addToast(
+      'Auto-save failed: device storage is full. Free up space or lower the number of saved versions in Settings.',
+      'error'
+    )
+    return
   }
 
   // Update the version manifest

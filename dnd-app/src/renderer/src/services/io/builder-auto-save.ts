@@ -5,7 +5,7 @@
 // can recover unsaved work after accidental page navigation or app crash.
 // ---------------------------------------------------------------------------
 
-const DRAFT_KEY_PREFIX = 'builder-draft-'
+const DRAFT_KEY_PREFIX = 'dnd-vtt-builder-draft-'
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
 const DEBOUNCE_MS = 2_000

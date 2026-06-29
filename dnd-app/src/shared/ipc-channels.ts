@@ -236,6 +236,8 @@ export const IPC_CHANNELS = {
   // === Storage: Character Versions ===
   CHARACTER_VERSIONS: 'storage:character-versions',
   CHARACTER_RESTORE_VERSION: 'storage:character-restore-version',
+  CAMPAIGN_VERSIONS: 'storage:campaign-versions',
+  CAMPAIGN_RESTORE_VERSION: 'storage:campaign-restore-version',
 
   // === App Info ===
   APP_VERSION: 'app:version',

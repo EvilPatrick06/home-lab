@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { SETTINGS_KEYS } from '../../../../constants/settings-keys'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { addToast } from '../../../../hooks/use-toast'
 import { i18n, useT } from '../../../../i18n'
@@ -349,12 +350,12 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
     }
     let saved: unknown[] = []
     try {
-      saved = JSON.parse(localStorage.getItem('encounter-presets') ?? '[]')
+      saved = JSON.parse(localStorage.getItem(SETTINGS_KEYS.ENCOUNTER_PRESETS) ?? '[]')
     } catch {
       /* corrupted data, reset */
     }
     saved.push(preset)
-    localStorage.setItem('encounter-presets', JSON.stringify(saved))
+    localStorage.setItem(SETTINGS_KEYS.ENCOUNTER_PRESETS, JSON.stringify(saved))
     setPresetName('')
     setShowSavePreset(false)
   }

@@ -550,9 +550,26 @@ export function startSyncReceiver(port = SYNC_RECEIVER_PORT): void {
         return
       }
 
-      // State request — Pi is asking for current VTT state. Still GET, keep open
-      // so an unauthenticated probe can also trigger a state push if desired.
+      // State request — Pi is asking for current VTT state. Triggers the renderer
+      // to serialize + push full game state, so it carries the SAME rate-limit +
+      // (key-present) Bearer gate as the POST surface; otherwise any unauthenticated
+      // LAN host could repeatedly force a state push (auth inconsistency + DoS).
       if (req.method === 'GET' && req.url === '/api/sync/state') {
+        // 1) Rate limit per source IP (same bucket as POST).
+        const ip = clientIp(req)
+        if (!rateLimitOk(ip)) {
+          sendJson(res, 429, { error: 'rate limit exceeded' }, { 'Retry-After': '60' })
+          return
+        }
+        // 2) Bearer auth when a key is configured (Pi already sends it on POSTs).
+        const expected = getBmoApiKey()
+        if (expected) {
+          const token = getBearerToken(req)
+          if (!token || !timingSafeEqualStr(token, expected)) {
+            sendJson(res, 401, { error: 'unauthorized' })
+            return
+          }
+        }
         forwardToRenderer(IPC_CHANNELS.BMO_SYNC_EVENT, {
           type: 'state_request',
           payload: {},

@@ -1,4 +1,4 @@
-import { access, copyFile, mkdir, readdir, readFile, rm, unlink } from 'node:fs/promises'
+import { access, copyFile, mkdir, readdir, readFile, rm, stat, unlink } from 'node:fs/promises'
 import { join } from 'node:path'
 import { app } from 'electron'
 import { isValidUUID } from '../../shared/utils/uuid'
@@ -153,5 +153,76 @@ export async function deleteCampaign(id: string): Promise<StorageResult<boolean>
     return { success: true, data: true }
   } catch (err) {
     return { success: false, error: `Failed to delete campaign: ${(err as Error).message}` }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Version history (mirrors the character version API). The on-disk `.versions/`
+// backups written by saveCampaign were previously write-only — no way to list
+// or roll back to them. These expose them with the same path-traversal guard
+// the character restore handler applies.
+// ---------------------------------------------------------------------------
+
+export interface CampaignVersion {
+  fileName: string
+  timestamp: string
+  sizeBytes: number
+}
+
+export async function listCampaignVersions(id: string): Promise<StorageResult<CampaignVersion[]>> {
+  if (!isValidUUID(id)) {
+    return { success: false, error: 'Invalid campaign ID' }
+  }
+  try {
+    const dir = await getCampaignsDir()
+    const versionsDir = join(dir, '.versions', id)
+    if (!(await fileExists(versionsDir))) {
+      return { success: true, data: [] }
+    }
+    const files = (await readdir(versionsDir))
+      .filter((f) => f.endsWith('.json'))
+      .sort()
+      .reverse()
+    const versions: CampaignVersion[] = []
+    for (const f of files) {
+      const fileStat = await stat(join(versionsDir, f))
+      // Filename timestamp is UTC but the capture drops the trailing `Z`; re-append
+      // it so the renderer parses as UTC (mirrors the character-storage CHR-2 fix).
+      const tsMatch = f.match(/_(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2})/)
+      const timestamp = tsMatch
+        ? `${tsMatch[1].replace(/-/g, (m, offset: number) => (offset > 9 ? ':' : m))}Z`
+        : fileStat.mtime.toISOString()
+      versions.push({ fileName: f, timestamp, sizeBytes: fileStat.size })
+    }
+    return { success: true, data: versions }
+  } catch (err) {
+    return { success: false, error: `Failed to list versions: ${(err as Error).message}` }
+  }
+}
+
+export async function restoreCampaignVersion(
+  id: string,
+  fileName: string
+): Promise<StorageResult<Record<string, unknown>>> {
+  if (!isValidUUID(id)) {
+    return { success: false, error: 'Invalid campaign ID' }
+  }
+  if (!fileName.endsWith('.json') || fileName.includes('..') || fileName.includes('/') || fileName.includes('\\')) {
+    return { success: false, error: 'Invalid version file name' }
+  }
+  try {
+    const dir = await getCampaignsDir()
+    const versionPath = join(dir, '.versions', id, fileName)
+    if (!(await fileExists(versionPath))) {
+      return { success: false, error: 'Version file not found' }
+    }
+    const data = await readFile(versionPath, 'utf-8')
+    const parsed = migrateData(JSON.parse(data)) as Record<string, unknown>
+    // Re-save as the current campaign (which creates its own backup of the state
+    // being overwritten, so a restore is itself reversible).
+    await saveCampaign(parsed)
+    return { success: true, data: parsed }
+  } catch (err) {
+    return { success: false, error: `Failed to restore version: ${(err as Error).message}` }
   }
 }

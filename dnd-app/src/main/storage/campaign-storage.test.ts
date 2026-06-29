@@ -10,6 +10,8 @@ vi.mock('node:fs/promises', () => ({
   writeFile: vi.fn(),
   mkdir: vi.fn(),
   readdir: vi.fn(() => []),
+  stat: vi.fn(),
+  copyFile: vi.fn(),
   unlink: vi.fn(),
   access: vi.fn(),
   rm: vi.fn().mockResolvedValue(undefined)
@@ -28,8 +30,15 @@ vi.mock('./migrations', () => ({
   migrateData: vi.fn((data: unknown) => data)
 }))
 
-import { access, mkdir, readdir, readFile, unlink, writeFile } from 'node:fs/promises'
-import { deleteCampaign, loadCampaign, loadCampaigns, saveCampaign } from './campaign-storage'
+import { access, mkdir, readdir, readFile, stat, unlink, writeFile } from 'node:fs/promises'
+import {
+  deleteCampaign,
+  listCampaignVersions,
+  loadCampaign,
+  loadCampaigns,
+  restoreCampaignVersion,
+  saveCampaign
+} from './campaign-storage'
 
 const VALID_UUID = '12345678-1234-1234-1234-123456789abc'
 const INVALID_UUID = 'not-a-uuid'
@@ -150,6 +159,58 @@ describe('campaign-storage', () => {
       const result = await deleteCampaign(VALID_UUID)
       expect(result).toEqual({ success: true, data: true })
       expect(unlink).toHaveBeenCalled()
+    })
+  })
+
+  describe('listCampaignVersions', () => {
+    it('should return error for invalid UUID', async () => {
+      const result = await listCampaignVersions(INVALID_UUID)
+      expect(result).toEqual({ success: false, error: 'Invalid campaign ID' })
+    })
+
+    it('should return empty array if versions directory does not exist', async () => {
+      vi.mocked(access).mockRejectedValue(new Error('ENOENT'))
+      const result = await listCampaignVersions(VALID_UUID)
+      expect(result).toEqual({ success: true, data: [] })
+    })
+
+    it('should return version entries sorted newest first', async () => {
+      vi.mocked(access).mockResolvedValue(undefined)
+      vi.mocked(readdir).mockResolvedValue([
+        `${VALID_UUID}_2024-01-01T10-00-00.json`,
+        `${VALID_UUID}_2024-01-02T10-00-00.json`
+      ] as never)
+      vi.mocked(stat).mockResolvedValue({ size: 2048, mtime: new Date('2024-01-01') } as never)
+
+      const result = await listCampaignVersions(VALID_UUID)
+      expect(result.success).toBe(true)
+      expect(result.data).toHaveLength(2)
+      expect(result.data![0].sizeBytes).toBe(2048)
+      // newest-first: the 2024-01-02 file sorts ahead of 2024-01-01
+      expect(result.data![0].fileName).toContain('2024-01-02')
+    })
+  })
+
+  describe('restoreCampaignVersion', () => {
+    it('should return error for invalid UUID', async () => {
+      const result = await restoreCampaignVersion(INVALID_UUID, 'file.json')
+      expect(result).toEqual({ success: false, error: 'Invalid campaign ID' })
+    })
+
+    it('should reject filenames with path traversal', async () => {
+      const result = await restoreCampaignVersion(VALID_UUID, '../evil.json')
+      expect(result).toEqual({ success: false, error: 'Invalid version file name' })
+    })
+
+    it('should reject non-json filenames', async () => {
+      const result = await restoreCampaignVersion(VALID_UUID, 'file.txt')
+      expect(result).toEqual({ success: false, error: 'Invalid version file name' })
+    })
+
+    it('should return error if version file not found', async () => {
+      vi.mocked(access).mockRejectedValue(new Error('ENOENT'))
+      const result = await restoreCampaignVersion(VALID_UUID, 'backup.json')
+      expect(result).toEqual({ success: false, error: 'Version file not found' })
     })
   })
 })

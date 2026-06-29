@@ -2,9 +2,11 @@
  * Regenerates docs/IPC-SURFACE.md — the channel catalog section is derived from
  * src/shared/ipc-channels.ts (single source of truth).
  *
- * Usage: node scripts/build/gen-ipc-surface.mjs
+ * Usage:
+ *   node scripts/build/gen-ipc-surface.mjs            # write docs/IPC-SURFACE.md
+ *   node scripts/build/gen-ipc-surface.mjs --check    # verify committed file is in sync (exit 1 on drift)
  */
-import { readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -126,5 +128,20 @@ for (const [section, rows] of bySection) {
 }
 
 parts.push(staticPostamble)
-writeFileSync(outPath, parts.join(''), 'utf8')
-console.log(`Wrote ${outPath} (${entries.length} channels)`)
+const output = parts.join('')
+
+const isCheck = process.argv.includes('--check')
+if (isCheck) {
+  const current = existsSync(outPath) ? readFileSync(outPath, 'utf8') : ''
+  if (current !== output) {
+    console.error(
+      `gen:ipc-surface --check: docs/IPC-SURFACE.md is out of sync with src/shared/ipc-channels.ts ` +
+        `(${entries.length} channels). Run \`npm run gen:ipc-surface\` and commit the result.`,
+    )
+    process.exit(1)
+  }
+  console.log(`gen:ipc-surface --check: docs/IPC-SURFACE.md up to date (${entries.length} channels)`)
+} else {
+  writeFileSync(outPath, output, 'utf8')
+  console.log(`Wrote ${outPath} (${entries.length} channels)`)
+}
