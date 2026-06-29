@@ -257,8 +257,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
           )}
           {!isCombined && !weights && (
             <div className="text-[10px] italic text-emerald-700 mt-1">
-              This tome has no <code>metadata.domainWeights</code> — the "% of exam" tag is hidden. Regenerate with the
-              updated prompt to populate it.
+              This tome has no <code>metadata.domainWeights</code> — the "% of exam" tags are hidden.
             </div>
           )}
         </div>

@@ -265,7 +265,7 @@ function FlashcardsMode({
           {reviewMode
             ? 'No scrolls due for review — return on the morrow.'
             : domainFilter
-              ? `No scrolls tagged "${domainFilter}" in this tome. Regenerate the tome with the updated prompt to populate flashcard domains.`
+              ? `No scrolls tagged "${domainFilter}" in this tome.`
               : 'No scrolls in this tome.'}
         </div>
         {reviewMode ? (

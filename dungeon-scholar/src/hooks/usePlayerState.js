@@ -164,7 +164,20 @@ export function usePlayerState(defaultState, user = null) {
       clearTimeout(localTimeoutRef.current);
       localTimeoutRef.current = null;
     }
-    noteSaveResult(saveToLocalStorage(latestRef.current));
+    // PHASE-08 08C: the fingerprint + cross-tab broadcast now ride the local-save
+    // debounce (see setState), so a flush that pre-empts that timer must still
+    // record the settled hash (keep the self-echo dedup correct) and emit the
+    // broadcast it would have sent.
+    const settled = latestRef.current;
+    trackLocalHash(settled);
+    noteSaveResult(saveToLocalStorage(settled));
+    if (broadcastChannelRef.current) {
+      try {
+        broadcastChannelRef.current.postMessage({ type: 'state', state: settled });
+      } catch {
+        /* channel may be closed */
+      }
+    }
   }, []);
 
   const flushCloud = useCallback(() => {
@@ -180,38 +193,50 @@ export function usePlayerState(defaultState, user = null) {
       setStateInternal((prev) => {
         const resolved = typeof next === 'function' ? next(prev) : next;
         latestRef.current = resolved;
-        trackLocalHash(resolved);
+
+        // PHASE-08 08C: the full-blob fingerprint (trackLocalHash → JSON.stringify
+        // over the whole state) and the cross-tab broadcast (a structured clone of
+        // the whole ~90 KB blob via postMessage) used to run SYNCHRONOUSLY on every
+        // setState. An answer event fires ~4 setStates in a burst, so that was ~4
+        // stringifies + ~4 structured clones per click on the main thread. Move both
+        // onto the trailing edge of the existing local-save debounce so they run
+        // ONCE per settle. The self-echo dedup contract is preserved: only settled
+        // states are ever broadcast or pushed, and trackLocalHash now records
+        // exactly those — intermediate, never-emitted states are simply skipped.
+        const broadcast = !applyingRemoteRef.current;
 
         if (localTimeoutRef.current) clearTimeout(localTimeoutRef.current);
         localTimeoutRef.current = setTimeout(() => {
-          noteSaveResult(saveToLocalStorage(latestRef.current));
+          const settled = latestRef.current;
+          trackLocalHash(settled);
+          noteSaveResult(saveToLocalStorage(settled));
           // I1: keep a throttled rotating snapshot for local crash/reset recovery.
-          writeSnapshot(latestRef.current);
-          localTimeoutRef.current = null;
-        }, LOCAL_DEBOUNCE_MS);
-
-        // Don't broadcast/push back if we're applying a remote update.
-        if (!applyingRemoteRef.current) {
+          writeSnapshot(settled);
           // Broadcast to other tabs in the same browser (signed-in or not — local
-          // sync helps even guest users with multiple tabs open).
-          if (broadcastChannelRef.current) {
+          // sync helps even guest users with multiple tabs open). Skipped while
+          // applying a remote update so we never echo it back out.
+          if (broadcast && broadcastChannelRef.current) {
             try {
-              broadcastChannelRef.current.postMessage({ type: 'state', state: resolved });
+              broadcastChannelRef.current.postMessage({ type: 'state', state: settled });
             } catch {
               /* channel may be closed */
             }
           }
+          localTimeoutRef.current = null;
+        }, LOCAL_DEBOUNCE_MS);
 
-          if (userRef.current) {
-            const meta = loadSyncMeta();
-            if (!meta.dirty) saveSyncMeta({ ...meta, dirty: true });
+        // Cloud dirty-marking + debounced push stay per-setState — they touch only
+        // the tiny sync-meta object, not the full blob. Skip when applying a remote
+        // update (don't push back what we just received).
+        if (!applyingRemoteRef.current && userRef.current) {
+          const meta = loadSyncMeta();
+          if (!meta.dirty) saveSyncMeta({ ...meta, dirty: true });
 
-            if (cloudTimeoutRef.current) clearTimeout(cloudTimeoutRef.current);
-            cloudTimeoutRef.current = setTimeout(() => {
-              cloudTimeoutRef.current = null;
-              pushNow();
-            }, CLOUD_DEBOUNCE_MS);
-          }
+          if (cloudTimeoutRef.current) clearTimeout(cloudTimeoutRef.current);
+          cloudTimeoutRef.current = setTimeout(() => {
+            cloudTimeoutRef.current = null;
+            pushNow();
+          }, CLOUD_DEBOUNCE_MS);
         }
 
         return resolved;

@@ -730,6 +730,12 @@ export default function DungeonScholarApp() {
         library: prev.library.map((t) => (t.id === pendingTomeId ? { ...t, lastOpened: Date.now() } : t)),
       }));
     } else {
+      // PHASE-08 08A: a `#/tome/<bad-id>/<screen>` deep link parses to that
+      // <screen> with an unresolved tomeId. Without resetting the screen here,
+      // the gated-screen guard below still sees the *previous* tome's courseSet
+      // (non-null) and renders <screen> against the stale tome. Reset to home so
+      // the screen form falls through to the same redirect as `#/tome/<bad-id>`.
+      setScreen('home');
       showNotif('That tome is not in thy library.', 'error');
     }
     clearPendingTome(); // also canonicalizes the URL to #/<screen> via replaceState
@@ -771,9 +777,7 @@ export default function DungeonScholarApp() {
         }
         // Phase 30c QA #6: addTomeToLibrary now returns false on empty
         // content — only celebrate when it actually inscribed.
-        if (addTomeToLibrary(data)) {
-          showNotif(`Tome inscribed: ${data.metadata.title}`, 'success');
-        }
+        addTomeToLibrary(data); // 07A: single toast owned by addTomeToLibrary
       } catch (_err) {
         showNotif('Failed to decipher the tome', 'error');
       }
@@ -802,14 +806,13 @@ export default function DungeonScholarApp() {
         return false;
       }
       const quizReport = quizImportReport(data);
-      if (!addTomeToLibrary(data)) return false;
       const quizWarn =
         quizReport.dropped > 0
           ? ` — ${quizReport.dropped} quiz item${quizReport.dropped === 1 ? '' : 's'} had no answer key and ${
               quizReport.dropped === 1 ? 'was' : 'were'
             } skipped`
           : '';
-      showNotif(`Tome inscribed: ${data.metadata.title}${quizWarn}`, 'success');
+      if (!addTomeToLibrary(data, { detail: quizWarn })) return false;
       return true;
     } catch (_err) {
       showNotif('Could not parse the pasted text as JSON', 'error');
@@ -830,18 +833,17 @@ export default function DungeonScholarApp() {
       showNotif(/** @type {{error:string}} */ (res).error, 'error');
       return false;
     }
-    if (!addTomeToLibrary(res.tome)) return false;
     const skipped = /** @type {{skipped?:number}} */ (res).skipped || 0;
     const skipMsg =
-      skipped > 0 ? ` (${skipped} row${skipped === 1 ? '' : 's'} skipped — check the delimiter/format)` : '';
-    showNotif(`Imported ${res.count} card${res.count === 1 ? '' : 's'} into a new tome${skipMsg}`, 'success');
+      skipped > 0 ? `, ${skipped} row${skipped === 1 ? '' : 's'} skipped — check the delimiter/format` : '';
+    const detail = ` (${res.count} card${res.count === 1 ? '' : 's'}${skipMsg})`;
+    if (!addTomeToLibrary(res.tome, { detail })) return false;
     return true;
   };
 
   // Item: create a tome from an authored image-occlusion card.
   const handleOcclusionCreate = (tome) => {
-    if (!addTomeToLibrary(tome)) return false;
-    showNotif(`Occlusion tome inscribed: ${tome.metadata.title}`, 'success');
+    if (!addTomeToLibrary(tome)) return false; // 07A: single toast owned by addTomeToLibrary
     return true;
   };
 
@@ -896,8 +898,7 @@ export default function DungeonScholarApp() {
       showNotif('Share code decoded but tome is malformed', 'error');
       return false;
     }
-    if (!addTomeToLibrary(data)) return false;
-    showNotif(`Tome received: ${data.metadata.title}`, 'success');
+    if (!addTomeToLibrary(data)) return false; // 07A: single toast owned by addTomeToLibrary
     return true;
   };
 
@@ -1708,74 +1709,79 @@ export default function DungeonScholarApp() {
 
         <main id="main-content" tabIndex={-1}>
           <ErrorBoundary onReset={() => setScreen('home')}>
-            <div
-              className="mb-6 p-4 rounded-sm relative"
-              style={{
-                background:
-                  'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.9) 0%, rgba(var(--surface-modal, 20, 12, 6), 0.9) 100%)',
-                border: '2px solid rgba(180, 83, 9, 0.5)',
-                boxShadow: '0 0 30px rgba(180, 83, 9, 0.15), inset 0 0 20px rgba(0,0,0,0.5)',
-              }}
-            >
-              <div className="absolute top-1 left-1 text-amber-700 text-xs">⚜</div>
-              <div className="absolute top-1 right-1 text-amber-700 text-xs">⚜</div>
-              <div className="absolute bottom-1 left-1 text-amber-700 text-xs">⚜</div>
-              <div className="absolute bottom-1 right-1 text-amber-700 text-xs">⚜</div>
+            {/* PHASE-08 08B: the full player hero renders on home only. Every other
+            screen gets a slim strip (the : branch below) so the screen's own
+            content sits near the top instead of beneath the full level/XP/stat
+            chrome. Presentation-only — no state change. */}
+            {screen === 'home' ? (
+              <div
+                className="mb-6 p-4 rounded-sm relative"
+                style={{
+                  background:
+                    'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.9) 0%, rgba(var(--surface-modal, 20, 12, 6), 0.9) 100%)',
+                  border: '2px solid rgba(180, 83, 9, 0.5)',
+                  boxShadow: '0 0 30px rgba(180, 83, 9, 0.15), inset 0 0 20px rgba(0,0,0,0.5)',
+                }}
+              >
+                <div className="absolute top-1 left-1 text-amber-700 text-xs">⚜</div>
+                <div className="absolute top-1 right-1 text-amber-700 text-xs">⚜</div>
+                <div className="absolute bottom-1 left-1 text-amber-700 text-xs">⚜</div>
+                <div className="absolute bottom-1 right-1 text-amber-700 text-xs">⚜</div>
 
-              <div className="flex items-center justify-between flex-wrap gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="relative">
-                    <div
-                      className="w-16 h-16 flex items-center justify-center text-3xl font-bold border-2 border-amber-500 text-amber-200"
-                      style={{
-                        background:
-                          'radial-gradient(circle, rgba(var(--surface-amber-strong, 120, 53, 15), 0.8) 0%, rgba(var(--surface-amber, 41, 24, 12), 0.9) 100%)',
-                        clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                        boxShadow: '0 0 15px rgba(245, 158, 11, 0.4)',
-                        textShadow: '0 0 10px rgba(245, 158, 11, 0.8)',
-                      }}
-                    >
-                      {playerState.level}
+                <div className="flex items-center justify-between flex-wrap gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="relative">
+                      <div
+                        className="w-16 h-16 flex items-center justify-center text-3xl font-bold border-2 border-amber-500 text-amber-200"
+                        style={{
+                          background:
+                            'radial-gradient(circle, rgba(var(--surface-amber-strong, 120, 53, 15), 0.8) 0%, rgba(var(--surface-amber, 41, 24, 12), 0.9) 100%)',
+                          clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                          boxShadow: '0 0 15px rgba(245, 158, 11, 0.4)',
+                          textShadow: '0 0 10px rgba(245, 158, 11, 0.8)',
+                        }}
+                      >
+                        {playerState.level}
+                      </div>
+                    </div>
+                    <div>
+                      <button
+                        onClick={() => openModal('titles')}
+                        className="text-xl font-bold text-amber-300 hover:text-amber-200 transition flex items-center gap-1 italic"
+                        style={{ textShadow: '0 0 10px rgba(245, 158, 11, 0.4)' }}
+                      >
+                        {currentTitle} <ChevronRight className="w-4 h-4" />
+                      </button>
+                      <div className="text-xs text-amber-700 tracking-wider">
+                        ⚔ Level {playerState.level} • {playerState.totalXp.toLocaleString()} Total XP ⚔
+                      </div>
                     </div>
                   </div>
-                  <div>
-                    <button
-                      onClick={() => openModal('titles')}
-                      className="text-xl font-bold text-amber-300 hover:text-amber-200 transition flex items-center gap-1 italic"
-                      style={{ textShadow: '0 0 10px rgba(245, 158, 11, 0.4)' }}
+                  <div className="flex-1 min-w-[200px] max-w-md">
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-amber-700 tracking-widest">EXPERIENCE</span>
+                      <span className="text-amber-400">
+                        {playerState.xp} / {xpNeeded}
+                      </span>
+                    </div>
+                    <div
+                      className="h-4 rounded-full overflow-hidden border-2 border-amber-800"
+                      style={{
+                        background: 'linear-gradient(to bottom, #1c1917 0%, #0c0a09 100%)',
+                        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.6)',
+                      }}
                     >
-                      {currentTitle} <ChevronRight className="w-4 h-4" />
-                    </button>
-                    <div className="text-xs text-amber-700 tracking-wider">
-                      ⚔ Level {playerState.level} • {playerState.totalXp.toLocaleString()} Total XP ⚔
+                      <div
+                        className="h-full transition-all duration-500"
+                        style={{
+                          width: `${xpPercent}%`,
+                          background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 50%, #b45309 100%)',
+                          boxShadow: '0 0 10px rgba(245, 158, 11, 0.6)',
+                        }}
+                      />
                     </div>
                   </div>
-                </div>
-                <div className="flex-1 min-w-[200px] max-w-md">
-                  <div className="flex justify-between text-xs mb-1">
-                    <span className="text-amber-700 tracking-widest">EXPERIENCE</span>
-                    <span className="text-amber-400">
-                      {playerState.xp} / {xpNeeded}
-                    </span>
-                  </div>
-                  <div
-                    className="h-4 rounded-full overflow-hidden border-2 border-amber-800"
-                    style={{
-                      background: 'linear-gradient(to bottom, #1c1917 0%, #0c0a09 100%)',
-                      boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.6)',
-                    }}
-                  >
-                    <div
-                      className="h-full transition-all duration-500"
-                      style={{
-                        width: `${xpPercent}%`,
-                        background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 50%, #b45309 100%)',
-                        boxShadow: '0 0 10px rgba(245, 158, 11, 0.6)',
-                      }}
-                    />
-                  </div>
-                </div>
-                {/* Phase 40a QA P1: each counter now has an aria-label + title
+                  {/* Phase 40a QA P1: each counter now has an aria-label + title
                 that names what it actually tracks. The visible label stays
                 short for the dungeon aesthetic, but hover / screen reader
                 gets the precise definition so users don't expect the
@@ -1783,50 +1789,89 @@ export default function DungeonScholarApp() {
                 Dungeon-Delve label is renamed "DELVES" — clearer mapping
                 to the in-product Dungeon Delve concept, and avoids the
                 quest-board collision that triggered the QA report. */}
-                <div className="flex gap-4 text-sm">
-                  <div
-                    className="text-center"
-                    title={`Riddles answered correctly (lifetime): ${playerState.totalCorrect}`}
-                    aria-label={`Victories — ${playerState.totalCorrect} correct riddles answered, lifetime`}
-                  >
+                  <div className="flex gap-4 text-sm">
                     <div
-                      className="text-emerald-400 font-bold text-lg"
-                      style={{ textShadow: '0 0 8px rgba(16, 185, 129, 0.5)' }}
+                      className="text-center"
+                      title={`Riddles answered correctly (lifetime): ${playerState.totalCorrect}`}
+                      aria-label={`Victories — ${playerState.totalCorrect} correct riddles answered, lifetime`}
                     >
-                      {playerState.totalCorrect}
+                      <div
+                        className="text-emerald-400 font-bold text-lg"
+                        style={{ textShadow: '0 0 8px rgba(16, 185, 129, 0.5)' }}
+                      >
+                        {playerState.totalCorrect}
+                      </div>
+                      <div className="text-xs text-amber-700 tracking-wider">VICTORIES</div>
                     </div>
-                    <div className="text-xs text-amber-700 tracking-wider">VICTORIES</div>
+                    <div
+                      className="text-center"
+                      title={`Dungeon Delve runs completed across all tomes (Quest Board claims are tracked separately on the Quest Board itself)`}
+                      aria-label={`Delves — ${playerState.library.reduce((sum, t) => sum + (t.progress?.runsCompleted || 0), 0)} Dungeon Delve runs completed across all tomes. Not the same as Quest Board claims.`}
+                    >
+                      <div
+                        className="text-purple-400 font-bold text-lg"
+                        style={{ textShadow: '0 0 8px rgba(168, 85, 247, 0.5)' }}
+                      >
+                        {playerState.library.reduce((sum, t) => sum + (t.progress?.runsCompleted || 0), 0)}
+                      </div>
+                      <div className="text-xs text-amber-700 tracking-wider">DELVES</div>
+                    </div>
+                    <div
+                      className="text-center"
+                      title={`Dungeon-lord bosses defeated across all tomes`}
+                      aria-label={`Dragons — ${playerState.library.reduce((sum, t) => sum + (t.progress?.bossesDefeated || 0), 0)} dungeon-lord bosses defeated across all tomes`}
+                    >
+                      <div
+                        className="text-red-400 font-bold text-lg"
+                        style={{ textShadow: '0 0 8px rgba(239, 68, 68, 0.5)' }}
+                      >
+                        {playerState.library.reduce((sum, t) => sum + (t.progress?.bossesDefeated || 0), 0)}
+                      </div>
+                      <div className="text-xs text-amber-700 tracking-wider">DRAGONS</div>
+                    </div>
+                  </div>
+                  {user && <ProfileChip user={user} syncStatus={sync.status} onOpen={() => openModal('account')} />}
+                </div>
+              </div>
+            ) : (
+              <div className="mb-4 flex items-center gap-3 flex-wrap">
+                <button
+                  onClick={() => setScreen('home')}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-sm border-2 border-amber-700/50 hover:border-amber-500 transition text-amber-200"
+                  title={`${currentTitle} — Level ${playerState.level}`}
+                  aria-label={`Level ${playerState.level}, ${currentTitle}. Return to home.`}
+                >
+                  <span
+                    className="w-7 h-7 flex items-center justify-center text-sm font-bold border border-amber-500 text-amber-200"
+                    style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}
+                  >
+                    {playerState.level}
+                  </span>
+                  <span className="text-sm font-bold italic text-amber-300">{currentTitle}</span>
+                </button>
+                <div className="flex-1 min-w-[140px] max-w-xs">
+                  <div className="flex justify-between text-[10px] text-amber-700 tracking-widest mb-0.5">
+                    <span>EXPERIENCE</span>
+                    <span className="text-amber-400">
+                      {playerState.xp} / {xpNeeded}
+                    </span>
                   </div>
                   <div
-                    className="text-center"
-                    title={`Dungeon Delve runs completed across all tomes (Quest Board claims are tracked separately on the Quest Board itself)`}
-                    aria-label={`Delves — ${playerState.library.reduce((sum, t) => sum + (t.progress?.runsCompleted || 0), 0)} Dungeon Delve runs completed across all tomes. Not the same as Quest Board claims.`}
+                    className="h-2 rounded-full overflow-hidden border border-amber-800"
+                    style={{ background: 'linear-gradient(to bottom, #1c1917 0%, #0c0a09 100%)' }}
                   >
                     <div
-                      className="text-purple-400 font-bold text-lg"
-                      style={{ textShadow: '0 0 8px rgba(168, 85, 247, 0.5)' }}
-                    >
-                      {playerState.library.reduce((sum, t) => sum + (t.progress?.runsCompleted || 0), 0)}
-                    </div>
-                    <div className="text-xs text-amber-700 tracking-wider">DELVES</div>
-                  </div>
-                  <div
-                    className="text-center"
-                    title={`Dungeon-lord bosses defeated across all tomes`}
-                    aria-label={`Dragons — ${playerState.library.reduce((sum, t) => sum + (t.progress?.bossesDefeated || 0), 0)} dungeon-lord bosses defeated across all tomes`}
-                  >
-                    <div
-                      className="text-red-400 font-bold text-lg"
-                      style={{ textShadow: '0 0 8px rgba(239, 68, 68, 0.5)' }}
-                    >
-                      {playerState.library.reduce((sum, t) => sum + (t.progress?.bossesDefeated || 0), 0)}
-                    </div>
-                    <div className="text-xs text-amber-700 tracking-wider">DRAGONS</div>
+                      className="h-full transition-all duration-500"
+                      style={{
+                        width: `${xpPercent}%`,
+                        background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 50%, #b45309 100%)',
+                      }}
+                    />
                   </div>
                 </div>
                 {user && <ProfileChip user={user} syncStatus={sync.status} onOpen={() => openModal('account')} />}
               </div>
-            </div>
+            )}
 
             {/* PHASE-39 39H: one Suspense boundary for every lazy-loaded screen (HomeScreen
             stays static so first paint never suspends). Modals/tutorial panel below stay outside. */}
