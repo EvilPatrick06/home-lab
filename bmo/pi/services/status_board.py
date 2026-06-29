@@ -356,37 +356,3 @@ def board_is_stale(state: BoardState, max_age_s: float = 600) -> bool:
     """True if the reconciler hasn't updated the board within max_age_s — the
     cue for the watchdog to fall back to notify.sh (Pi/bot/Discord dark)."""
     return (time.time() - (state.updated or 0)) > max_age_s
-
-
-def _dryrun() -> None:
-    try:
-        with open(MONITOR_STATE, encoding="utf-8") as f:
-            ms = json.load(f)
-    except Exception as e:
-        print("could not read monitor_state.json:", e); return
-    state = reconcile_incidents(BoardState.load(), derive_incidents(ms))
-    inbox = load_inbox()
-    # demo feed items (what email-triage / calendar / deadline producers would sync)
-    if not inbox:
-        now = time.time()
-        sync_source(inbox, "email-triage", [
-            Item("email:abc", "email-triage", "attention", "Reply: landlord re: lease",
-                 "from rentals@…, 2 days unanswered", "warning", "https://mail.google.com/…", now)])
-        sync_source(inbox, "deadlines", [
-            Item("due:hw7", "deadlines", "attention", "Assignment: CS homework 7",
-                 "from email", "warning", None, now, due=now + 36 * 3600)])
-        sync_source(inbox, "calendar-today", [
-            Item("cal:work", "calendar-today", "info", "Work 1:00–9:00 PM", "today", "info", None, now)])
-    rows = all_rows(state, derive_incidents(ms), inbox)
-    print("=== TOPIC ===", render_topic(rows), sep="\n")
-    print("=== PRESENCE ===", "Watching: " + render_presence(rows), sep="\n")
-    emb = render_embed(rows)
-    print("=== EMBED ===", emb["title"], "| color", hex(emb["color"]))
-    for fld in emb.get("fields", []):
-        print("\n#", fld["name"]); print(fld["value"])
-    if "fields" not in emb:
-        print(emb["description"])
-
-
-if __name__ == "__main__":
-    _dryrun()
