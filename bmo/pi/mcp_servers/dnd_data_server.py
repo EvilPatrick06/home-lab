@@ -15,6 +15,11 @@ import re
 import sys
 from pathlib import Path
 
+_HERE = os.path.dirname(os.path.abspath(__file__))
+if _HERE not in sys.path:
+    sys.path.insert(0, _HERE)
+from _stdio_server import serve  # shared JSON-RPC stdio transport
+
 # ── Paths ─────────────────────────────────────────────────────────────
 
 MARKDOWN_ROOT = Path(os.environ.get(
@@ -51,40 +56,6 @@ def _get_rag():
 
 
 # ── JSON-RPC 2.0 stdio transport ─────────────────────────────────────
-
-def _read_message() -> dict | None:
-    """Read a JSON-RPC message with Content-Length framing from stdin."""
-    headers = {}
-    while True:
-        line = sys.stdin.readline()
-        if not line:
-            return None
-        line = line.strip()
-        if line == "":
-            break
-        if ":" in line:
-            key, value = line.split(":", 1)
-            headers[key.strip()] = value.strip()
-
-    length = int(headers.get("Content-Length", 0))
-    if length == 0:
-        return None
-    return json.loads(sys.stdin.read(length))
-
-
-def _write_message(msg: dict):
-    """Write a JSON-RPC message with Content-Length framing to stdout."""
-    body = json.dumps(msg)
-    sys.stdout.write(f"Content-Length: {len(body)}\r\n\r\n{body}")
-    sys.stdout.flush()
-
-
-def _result(id_val, result: dict):
-    _write_message({"jsonrpc": "2.0", "id": id_val, "result": result})
-
-
-def _error(id_val, code: int, message: str):
-    _write_message({"jsonrpc": "2.0", "id": id_val, "error": {"code": code, "message": message}})
 
 
 # ── Tool implementations ─────────────────────────────────────────────
@@ -272,35 +243,7 @@ def _handle_tool_call(name: str, args: dict) -> list[dict]:
 # ── Main loop ─────────────────────────────────────────────────────────
 
 def main():
-    while True:
-        msg = _read_message()
-        if msg is None:
-            break
-
-        method = msg.get("method", "")
-        msg_id = msg.get("id")
-        params = msg.get("params", {})
-
-        if method == "initialize":
-            _result(msg_id, {
-                "protocolVersion": "2024-11-05",
-                "capabilities": {"tools": {"listChanged": False}},
-                "serverInfo": {"name": "bmo-dnd-data", "version": "1.0.0"},
-            })
-        elif method == "notifications/initialized":
-            pass
-        elif method == "tools/list":
-            _result(msg_id, {"tools": TOOLS})
-        elif method == "tools/call":
-            try:
-                content = _handle_tool_call(params.get("name", ""), params.get("arguments", {}))
-                _result(msg_id, {"content": content})
-            except Exception as e:
-                _result(msg_id, {"content": [{"type": "text", "text": f"Error: {e}"}], "isError": True})
-        elif method == "ping":
-            _result(msg_id, {})
-        elif msg_id is not None:
-            _error(msg_id, -32601, f"Method not found: {method}")
+    serve("bmo-dnd-data", "1.0.0", TOOLS, _handle_tool_call)
 
 
 if __name__ == "__main__":
