@@ -237,14 +237,16 @@ class BoardState:
 
 
 def derive_incidents(monitor_state: dict, labels: dict | None = None,
-                     extra: list | None = None) -> list[dict]:
+                     extra: list | None = None, messages: dict | None = None) -> list[dict]:
     """Re-derive keyed health rows from real state. extra = CI/deploy/chat-probe
     adapters [{key,label,status,message}] so non-monitor truth shares the board."""
     labels = labels or {}
+    messages = messages or {}
     rows = []
     for key, status in (monitor_state or {}).items():
         rows.append({"key": key, "label": labels.get(key, key), "domain": _domain_for(key),
-                     "status": status, "severity": _status_to_sev(key, status), "message": ""})
+                     "status": status, "severity": _status_to_sev(key, status),
+                     "message": messages.get(key, "")})
     for r in (extra or []):
         k = r["key"]
         rows.append({"key": k, "label": r.get("label", k), "domain": _domain_for(k),
