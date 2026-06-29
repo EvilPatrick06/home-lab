@@ -82,7 +82,7 @@ export const EmbeddedWebView = forwardRef<EmbeddedWebViewHandle, Props>(function
   }
 
   return (
-    // @ts-expect-error react-native-webview class-component types are incompatible with the installed @types/react (props inferred as never)
+    // @ts-expect-error react-native-webview@14 (latest) class-component types are incompatible with React 19 / @types/react 19 (props inferred as never). No released version fixes this; revisit on the next react-native-webview major.
     <WebView
       ref={webRef}
       source={{ uri }}
