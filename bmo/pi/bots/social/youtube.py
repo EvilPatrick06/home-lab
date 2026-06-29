@@ -1,14 +1,14 @@
 """YouTube / yt-dlp search + extraction helpers for the social bot.
 
 Extracted from discord_social_bot.py (BMO-SUGGESTIONS 2026-06-22: decompose the
-social-bot monolith into sibling modules, continuing bots/social_bot_utils.py).
+social-bot monolith into sibling modules, continuing bots/social/utils.py).
 Pure helpers — no Discord/bot runtime state — so they import cleanly and are
 independently testable. yt_dlp is imported lazily inside each function.
 """
 import logging
 from typing import Optional
 
-from bots.social_bot_utils import _format_duration
+from bots.social.utils import _format_duration
 
 logger = logging.getLogger("social_bot")
 
