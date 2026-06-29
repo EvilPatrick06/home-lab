@@ -85,3 +85,40 @@ def test_pair_start_reachable_proceeds(client, monkeypatch):
     data = r.get_json()
     assert not data.get("unreachable")
     assert data.get("ok") is True
+
+
+# ── PHASE-13 13A: TV worker read-timeout (fail fast, not ~30s hang) ──
+
+def test_tv_cmd_times_out_and_resets_worker(monkeypatch):
+    """13A: when the worker stdout never becomes ready (TV off), _tv_cmd must
+    fail fast via the select() gate, never block on readline(), and reset the
+    worker so a half-open handshake can't wedge the next attempt."""
+    monkeypatch.setattr(tv_api, "_ensure_tv_worker", lambda: True)
+    fake = MagicMock()
+    fake.poll.return_value = None
+    monkeypatch.setattr(tv_api, "_tv_proc", fake)
+    monkeypatch.setattr(tv_api.select, "select", lambda r, w, x, t: ([], [], []))
+    r = tv_api._tv_cmd("pair_start", timeout=0.01)
+    assert r == {"error": "TV unreachable", "timeout": True}
+    fake.stdout.readline.assert_not_called()
+    assert tv_api._tv_proc is None
+
+
+def test_pair_start_timeout_returns_503(client, monkeypatch):
+    """13A: a TV-off pairing that times out returns a fast 503 'unreachable',
+    not a ~30s hang or a generic 500."""
+    monkeypatch.setattr(tv_api, "_tv_reachable", lambda *a, **k: True)
+    monkeypatch.setattr(tv_api, "_tv_cmd",
+                        lambda action, **kw: {"error": "TV unreachable", "timeout": True})
+    r = client.post("/api/tv/pair/start")
+    assert r.status_code == 503
+    assert r.get_json().get("unreachable") is True
+
+
+def test_pair_finish_timeout_returns_503(client, monkeypatch):
+    """13A: a pair_finish that times out also returns 503 'unreachable'."""
+    monkeypatch.setattr(tv_api, "_tv_cmd",
+                        lambda action, **kw: {"error": "TV unreachable", "timeout": True})
+    r = client.post("/api/tv/pair/finish", json={"pin": "1234"})
+    assert r.status_code == 503
+    assert r.get_json().get("unreachable") is True

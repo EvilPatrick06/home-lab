@@ -1,5 +1,5 @@
 [Unit]
-Description=BMO IDE Test App (port 5001)
+Description=BMO experimental IDE (ide_app, loopback :5001 — NOT the production /ide on :5000; normally inactive)
 After=network.target bmo.service
 
 [Service]

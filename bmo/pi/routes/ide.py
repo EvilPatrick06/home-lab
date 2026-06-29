@@ -1409,13 +1409,25 @@ def register_ide(flask_app, socketio_obj, agent_obj):
         sid = request.sid
         mgr = _get_terminal_mgr()
 
+        # 13B: start the PTY in the same root the explorer/file API use so the
+        # editor and terminal share one working copy. A caller-supplied cwd is
+        # jailed through _ide_safe_path; anything outside the sandbox (or
+        # missing) falls back to the primary IDE root.
+        cwd = _IDE_ALLOWED_ROOTS[0]
+        req_cwd = data.get("cwd")
+        if req_cwd:
+            try:
+                cwd = _ide_safe_path(req_cwd)
+            except PermissionError:
+                cwd = _IDE_ALLOWED_ROOTS[0]
+
         def _output_cb(tid, raw_data):
             socketio.emit("terminal_output", {
                 "term_id": tid,
                 "data": raw_data.decode("utf-8", errors="replace"),
             }, room=sid)
 
-        mgr.open_terminal(sid, term_id, cols, rows, _output_cb)
+        mgr.open_terminal(sid, term_id, cols, rows, _output_cb, cwd=cwd)
 
 
 

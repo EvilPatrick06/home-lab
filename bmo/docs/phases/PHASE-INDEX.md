@@ -35,7 +35,7 @@
 | 10 | [`PHASE-10-service-health-truth.md`](./completed/PHASE-10-service-health-truth.md) | bmo | — | done |
 | 11 | [`PHASE-11-dashboard-ux-round.md`](./completed/PHASE-11-dashboard-ux-round.md) | bmo | — | done |
 | 12 | [`PHASE-12-dashboard-ux-correctness.md`](./completed/PHASE-12-dashboard-ux-correctness.md) | bmo | — | done |
-| 13 | [`PHASE-13-ide-tv-doc-truth.md`](./PHASE-13-ide-tv-doc-truth.md) | bmo | — | pending |
+| 13 | [`PHASE-13-ide-tv-doc-truth.md`](./completed/PHASE-13-ide-tv-doc-truth.md) | bmo | — | done |
 
 > **Provenance of this batch:** PHASE-01..03 were consolidated from
 > `QA/QA-report-2026-06-24.md` (now in `QA/completed/`) by the bmo phase-maker on
