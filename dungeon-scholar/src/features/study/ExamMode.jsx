@@ -331,7 +331,7 @@ export default function ExamMode({
             <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0 text-red-300" />
             <div>
               This tome has only {quizPool.length} riddle{quizPool.length === 1 ? '' : 's'} — too few for a practice
-              exam. Regenerate the tome with the updated prompt to populate the deck.
+              exam. Add more riddles to this tome — or import a larger deck — to run a practice exam.
             </div>
           </div>
         ) : (

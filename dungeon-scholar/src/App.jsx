@@ -771,9 +771,7 @@ export default function DungeonScholarApp() {
         }
         // Phase 30c QA #6: addTomeToLibrary now returns false on empty
         // content — only celebrate when it actually inscribed.
-        if (addTomeToLibrary(data)) {
-          showNotif(`Tome inscribed: ${data.metadata.title}`, 'success');
-        }
+        addTomeToLibrary(data); // 07A: single toast owned by addTomeToLibrary
       } catch (_err) {
         showNotif('Failed to decipher the tome', 'error');
       }
@@ -802,14 +800,13 @@ export default function DungeonScholarApp() {
         return false;
       }
       const quizReport = quizImportReport(data);
-      if (!addTomeToLibrary(data)) return false;
       const quizWarn =
         quizReport.dropped > 0
           ? ` — ${quizReport.dropped} quiz item${quizReport.dropped === 1 ? '' : 's'} had no answer key and ${
               quizReport.dropped === 1 ? 'was' : 'were'
             } skipped`
           : '';
-      showNotif(`Tome inscribed: ${data.metadata.title}${quizWarn}`, 'success');
+      if (!addTomeToLibrary(data, { detail: quizWarn })) return false;
       return true;
     } catch (_err) {
       showNotif('Could not parse the pasted text as JSON', 'error');
@@ -830,18 +827,17 @@ export default function DungeonScholarApp() {
       showNotif(/** @type {{error:string}} */ (res).error, 'error');
       return false;
     }
-    if (!addTomeToLibrary(res.tome)) return false;
     const skipped = /** @type {{skipped?:number}} */ (res).skipped || 0;
     const skipMsg =
-      skipped > 0 ? ` (${skipped} row${skipped === 1 ? '' : 's'} skipped — check the delimiter/format)` : '';
-    showNotif(`Imported ${res.count} card${res.count === 1 ? '' : 's'} into a new tome${skipMsg}`, 'success');
+      skipped > 0 ? `, ${skipped} row${skipped === 1 ? '' : 's'} skipped — check the delimiter/format` : '';
+    const detail = ` (${res.count} card${res.count === 1 ? '' : 's'}${skipMsg})`;
+    if (!addTomeToLibrary(res.tome, { detail })) return false;
     return true;
   };
 
   // Item: create a tome from an authored image-occlusion card.
   const handleOcclusionCreate = (tome) => {
-    if (!addTomeToLibrary(tome)) return false;
-    showNotif(`Occlusion tome inscribed: ${tome.metadata.title}`, 'success');
+    if (!addTomeToLibrary(tome)) return false; // 07A: single toast owned by addTomeToLibrary
     return true;
   };
 
@@ -896,8 +892,7 @@ export default function DungeonScholarApp() {
       showNotif('Share code decoded but tome is malformed', 'error');
       return false;
     }
-    if (!addTomeToLibrary(data)) return false;
-    showNotif(`Tome received: ${data.metadata.title}`, 'success');
+    if (!addTomeToLibrary(data)) return false; // 07A: single toast owned by addTomeToLibrary
     return true;
   };
 

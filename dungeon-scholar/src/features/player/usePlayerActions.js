@@ -1110,7 +1110,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   };
 
   // ===== Library Operations =====
-  const addTomeToLibrary = (data) => {
+  const addTomeToLibrary = (data, opts = {}) => {
     // PHASE-41 41B: a sealed-tome envelope carries only metadata + sealCounts
     // (its content arrays are encrypted away), so it cannot flow through the
     // plain-tome content check / normalizeTomeData below. Validate from the
@@ -1148,9 +1148,16 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
         }
         return next;
       });
+      // PHASE-07 07A: one activation-accurate post-add toast for BOTH cases.
+      const title = data?.metadata?.title || 'untitled';
+      const detail = opts.detail || '';
       if (playerState.activeTomeId) {
-        const title = data?.metadata?.title || 'untitled';
-        setTimeout(() => showNotif(`Tome added: "${title}" — switch from the Library when ready.`, 'info'), 100);
+        setTimeout(
+          () => showNotif(`Tome added: "${title}" — switch from the Library when ready.${detail}`, 'info'),
+          100,
+        );
+      } else {
+        setTimeout(() => showNotif(`Now studying: "${title}"${detail}`, 'success'), 100);
       }
       return true;
     }
@@ -1193,11 +1200,14 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
       }
       return next;
     });
-    // PHASE-17 17C: the "added, not auto-activated" info toast fires from the
-    // handler (computed from render state) rather than inside the updater.
+    // PHASE-07 07A: one activation-accurate post-add toast for BOTH cases
+    // (computed from render state, deferred per 17C so it can't double-fire).
+    const title = data?.metadata?.title || 'untitled';
+    const detail = opts.detail || '';
     if (playerState.activeTomeId) {
-      const title = data?.metadata?.title || 'untitled';
-      setTimeout(() => showNotif(`Tome added: "${title}" — switch from the Library when ready.`, 'info'), 100);
+      setTimeout(() => showNotif(`Tome added: "${title}" — switch from the Library when ready.${detail}`, 'info'), 100);
+    } else {
+      setTimeout(() => showNotif(`Now studying: "${title}"${detail}`, 'success'), 100);
     }
     return true;
   };

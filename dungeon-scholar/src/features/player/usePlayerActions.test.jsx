@@ -105,6 +105,47 @@ describe('usePlayerActions', () => {
     expect(result.current.playerState.activeTomeId).toBe(newId);
   });
 
+  it('addTomeToLibrary with no active tome fires a single "Now studying" toast (PHASE-07 07A)', () => {
+    vi.useFakeTimers();
+    try {
+      const { result } = makeHook();
+      act(() => {
+        result.current.actions.addTomeToLibrary(VALID_TOME);
+      });
+      act(() => {
+        vi.runAllTimers();
+      });
+      const msgs = result.current.showNotif.mock.calls.map((c) => `${c[0]}|${c[1]}`);
+      expect(msgs.some((m) => m.includes('Now studying: "Test Tome"') && m.endsWith('|success'))).toBe(true);
+      expect(msgs.some((m) => m.includes('switch from the Library'))).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('addTomeToLibrary with an active tome fires a single "switch from the Library" info toast (PHASE-07 07A)', () => {
+    vi.useFakeTimers();
+    try {
+      const seeded = { id: 'tome_existing', data: VALID_TOME, addedAt: 1, lastOpened: 1, progress: {} };
+      const { result } = makeHook({ library: [seeded], activeTomeId: 'tome_existing' });
+      act(() => {
+        result.current.actions.addTomeToLibrary({ ...VALID_TOME, metadata: { title: 'Second Tome' } });
+      });
+      act(() => {
+        vi.runAllTimers();
+      });
+      const msgs = result.current.showNotif.mock.calls.map((c) => `${c[0]}|${c[1]}`);
+      expect(
+        msgs.some(
+          (m) => m.includes('Tome added: "Second Tome" — switch from the Library when ready.') && m.endsWith('|info'),
+        ),
+      ).toBe(true);
+      expect(msgs.some((m) => m.includes('Now studying'))).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('claimDailyReward twice on the same day rejects the second claim', () => {
     const { result } = makeHook();
 
