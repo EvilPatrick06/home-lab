@@ -45,6 +45,55 @@ New entries go at the TOP of their section (newest first).
 
 # Low-severity polish / info
 
+### [2026-06-29] `dungeonMap.js`'s entire unit suite is misfiled as `components/dungeon/DungeonExplore.test.js` (wrong name, wrong directory)
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** automated cleanup/structure scan of `dungeon-scholar/src`
+
+**Description:**
+`src/components/dungeon/DungeonExplore.test.js` does not import a single symbol from `DungeonExplore.jsx` -- its only `import` lines pull from `../../game/dungeonMap.js` (BIOMES, BIOME_BOSS_POOL, generateMap, makeSeededRng, pickBiomeForSubject, revealDecoration, buildQuestionLogEntry, takeForesightPreview, TILE, POTION_EFFECTS, ROOMS/SIZE_BY_DIFFICULTY) and `../../game/difficulty.js`. All nine `describe` blocks assert on those `dungeonMap.js` exports. So this file is really the unit suite for `src/game/dungeonMap.js` (656 lines of core map-gen/biome/boss logic), but it lives two directories away under the component name. Consequences: (1) a `find src/game -name dungeonMap.test.js` or a co-located-test check reports `dungeonMap.js` as **untested** when in fact it is well covered; (2) the test sits in `components/dungeon/` next to the canvas component it never touches, so a reader editing `dungeonMap.js` would not find its tests beside it.
+
+Note: this also **corrects a factual premise** in two earlier entries (the [2026-06-28] god-component entry and the [2026-06-28] test-extension entry), both of which describe `DungeonExplore.test.js` as exercising constants “exported from the component file `DungeonExplore.jsx`” / constants that “want their own module.” Those constants already live in their own module (`game/dungeonMap.js`); the component merely re-imports them. The remaining real problem is purely the **test files name + location**, not constants trapped inside the `.jsx`.
+
+**Hypothesis / root cause:** The logic now in `game/dungeonMap.js` was likely once inlined in `DungeonExplore.jsx`; when it was extracted to `game/`, its test file kept the old component name and old location instead of moving to `game/dungeonMap.test.js`.
+
+**Proposed fix / improvement:**
+- [ ] `git mv src/components/dungeon/DungeonExplore.test.js src/game/dungeonMap.test.js` and fix the now-shorter relative import paths (`../../game/dungeonMap.js` -> `./dungeonMap.js`, `../../game/difficulty.js` -> `./difficulty.js`). No assertion changes needed.
+- [ ] Leave `DungeonExplore.smoke.test.jsx` where it is -- that one genuinely renders the component.
+- [ ] This supersedes the rename half of the [2026-06-28] test-extension entry: once the suite lives at `game/dungeonMap.test.js`, the `.test.js`-testing-a-`.jsx` concern is gone (it tests a `.js` module), and the component is left with exactly one test file (`.smoke.test.jsx`).
+
+**Related files:** `src/components/dungeon/DungeonExplore.test.js`, `src/game/dungeonMap.js`, `src/components/dungeon/DungeonExplore.smoke.test.jsx`
+
+**Related entries:** SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md [2026-06-28] “Extract logic/content out of the two god-component files” and [2026-06-28] “Test-file extension convention is inconsistent” (both partly mis-attribute the dungeonMap constants to `DungeonExplore.jsx`).
+
+---
+
+### [2026-06-29] `src/services/README.md` concern-taxonomy table is stale -- 8 of 32 service modules are absent from it
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** automated cleanup/structure scan of `dungeon-scholar/src`
+
+**Description:**
+`src/services/README.md` documents a four-group “concern taxonomy” table whose stated purpose is “so new modules land in the right conceptual group.” But the table lists only 24 of the 32 non-test service modules. Eight are missing entirely (verified by checking each filename against the README): `accuracyPalette.js`, `certificate.js`, `deckImport.js`, `leech.js`, `libraryBulk.js`, `occlusion.js`, `pwaUpdate.js`, `shortcuts.js`. A doc that exists specifically to map every service into a group, but silently omits a quarter of them, sends the wrong signal: a contributor adding a sibling to (say) `deckImport.js` finds no row to pattern-match against, and the omitted modules have no documented home group.
+
+**Hypothesis / root cause:** The taxonomy table was written as a point-in-time snapshot and not updated as new service modules (import/deck handling, certificate, leech/SRS extras, PWA update, keyboard shortcuts, accuracy palette) were added.
+
+**Proposed fix / improvement:**
+- [ ] Add the eight missing modules to the existing table under a sensible group -- e.g. `deckImport.js`, `libraryBulk.js`, `importLimits.js`(already listed) cohere as an **import / library** group; `certificate.js`, `occlusion.js`, `leech.js`, `accuracyPalette.js` fit **exam/SRS engine** or a new **study artifacts** group; `pwaUpdate.js`, `shortcuts.js` fit **platform / UI infra**.
+- [ ] Consider adding a tiny CI/test guard (or a note) that every `src/services/*.js` non-test module appears exactly once in the README table, so the taxonomy cannot silently drift again -- mirrors the locale-parity test already used for i18n.
+
+**Related files:** `src/services/README.md`, `src/services/accuracyPalette.js`, `src/services/certificate.js`, `src/services/deckImport.js`, `src/services/leech.js`, `src/services/libraryBulk.js`, `src/services/occlusion.js`, `src/services/pwaUpdate.js`, `src/services/shortcuts.js`
+
+**Related entries:** SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md [2026-06-28] “Inconsistent README coverage across `src/` subdirectories” (that entry is about which dirs lack a README; this one is about the existing services README being internally incomplete).
+
+---
+
 ### [2026-06-28] Orphaned utility modules `utils/time.js` + `utils/shuffle.js` — unused, and the duplication they were meant to remove still exists
 
 - **Category:** debt
