@@ -38,7 +38,10 @@ import os
 import sys
 import time
 
-DATA_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
+# Resolve relative to this script so a copy run from any checkout writes that
+# checkout's data dir (the deployed copy -> the deploy data dir the cog reads).
+DATA_DIR = os.path.expanduser(os.environ.get("BOARD_DATA_DIR", "")) or os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 INBOX = os.path.join(DATA_DIR, "board_inbox.json")
 _VALID_CAT = {"incident", "attention", "agent", "brief", "today", "info"}
 
