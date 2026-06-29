@@ -157,7 +157,7 @@ class VoicePipeline:
         self._no_input_device = False
 
         # Lazy-loaded LOCAL models (fallback only)
-        self._whisper = None
+        self._transcriber = Transcriber(self)  # owns the lazy whisper model
         self._wake_model = None
         self._speaker_encoder = None
         self._voice_profiles = {}
@@ -204,10 +204,7 @@ class VoicePipeline:
     # ── Model Loading (local fallback models) ─────────────────────────
 
     def _load_whisper(self):
-        if self._whisper is None:
-            from faster_whisper import WhisperModel
-            self._whisper = WhisperModel("small", device="cpu", compute_type="int8")
-        return self._whisper
+        return self._transcriber.load_whisper()
 
     def _load_wake_model(self):
         if self._wake_model is None:
@@ -840,68 +837,10 @@ class VoicePipeline:
                     log.exception("[wake] STT check failed")
 
     def _pcm_to_wav(self, pcm_bytes: bytes) -> bytes:
-        """Convert raw PCM to WAV format for STT."""
-        import wave
-        buf = io.BytesIO()
-        with wave.open(buf, "wb") as wf:
-            wf.setnchannels(CHANNELS)
-            wf.setsampwidth(2)  # 16-bit
-            wf.setframerate(SAMPLE_RATE)
-            wf.writeframes(pcm_bytes)
-        return buf.getvalue()
-
-    # Common Whisper hallucinations on silence/ambient noise
-    _WHISPER_HALLUCINATIONS = frozenset({
-        "", ".", "so", "the", "i", "a", "oh", "oh.", "okay",
-        "okay.", "thank you", "thank you.", "thanks", "thanks.", "bye",
-        "hmm", "uh", "um", "mm", "you", "it", "is", "no", "yes",
-    })
+        return self._transcriber.pcm_to_wav(pcm_bytes)
 
     def _quick_stt(self, wav_bytes: bytes) -> str:
-        """Quick STT for wake word confirmation — local whisper first, cloud backup.
-
-        Returns empty string if the result looks like a hallucination
-        (very short text that Whisper commonly produces from silence).
-        """
-        text = ""
-
-        # Prefer local faster-whisper: no network latency, works offline
-        try:
-            model = self._load_whisper()
-            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
-                f.write(wav_bytes)
-                tmp = f.name
-            segments, _ = model.transcribe(tmp, language="en", beam_size=1,
-                                           vad_filter=False)
-            os.unlink(tmp)
-            text = " ".join(s.text for s in segments).strip()
-        except Exception:
-            pass
-
-        if not text:
-            # Cloud fallback: Groq Whisper for higher accuracy
-            try:
-                from services.cloud_providers import groq_stt, GROQ_API_KEY
-                if GROQ_API_KEY:
-                    from services import metrics_counters
-                    metrics_counters.incr("stt_cloud_fallback_total")
-                    result = groq_stt(wav_bytes, prompt="Hey BMO.")
-                    text = result.get("text", "")
-                    segments = result.get("segments", [])
-                    if segments:
-                        avg_no_speech = sum(s.get("no_speech_probability", 0) for s in segments) / len(segments)
-                        if avg_no_speech > 0.5:
-                            log.info("[wake] Rejected (no_speech_prob=%.2f): '%s'", avg_no_speech, _s(text))
-                            return ""
-            except Exception:
-                return ""
-
-        # Filter common single-word hallucinations
-        cleaned = text.strip().lower().rstrip(".,!?")
-        if cleaned in self._WHISPER_HALLUCINATIONS:
-            return ""
-
-        return text
+        return self._transcriber.quick_stt(wav_bytes)
 
     def _on_wake(self):
         """Called when wake word is detected. Records, transcribes, processes, then listens for follow-ups."""
@@ -2235,3 +2174,7 @@ class VoicePipeline:
         """Emit a SocketIO event if available."""
         if self.socketio:
             self.socketio.emit(event, data)
+
+
+# ── Collaborators (imported at bottom to avoid an import cycle) ──
+from services.voice.transcriber import Transcriber  # noqa: E402
