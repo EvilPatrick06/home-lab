@@ -22,6 +22,7 @@ monkey.patch_all()
 
 import json
 import os
+from services.paths import DATA_DIR as _P_DATA_DIR
 import secrets
 import subprocess
 import threading
@@ -469,7 +470,7 @@ def ensure_calendar():
     if not _reinit_allowed("calendar"):
         return None
     try:
-        from services.calendar_service import CalendarService
+        from services.calendar.service import CalendarService
         calendar = CalendarService(socketio=socketio)
         service_init_status["calendar"] = {"ok": True, "reinit": True}
         log.info("[bmo]   Calendar: re-init OK")
@@ -682,12 +683,12 @@ def init_services():
 
     # Calendar (Google API)
     if BMO_CANARY:
-        from services.calendar_service import CalendarService  # noqa: F401 — canary import check
+        from services.calendar.service import CalendarService  # noqa: F401 — canary import check
         calendar = None
         log.info("[bmo]   Calendar: CANARY (import-only)")
     else:
         try:
-            from services.calendar_service import CalendarService
+            from services.calendar.service import CalendarService
             calendar = CalendarService(socketio=socketio)
             service_map["calendar"] = calendar
             service_init_status["calendar"] = {"ok": True}
@@ -1289,7 +1290,7 @@ def api_scratchpad_write():
     """Write to the shared scratchpad. See schema doc above."""
     if not (agent and agent.orchestrator):
         return jsonify({"error": "Agent not initialized"}), 503
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     section, content, append, err = _scratchpad_validate(data)
     if err:
         return jsonify({"error": err}), 400
@@ -1306,7 +1307,7 @@ def api_scratchpad_clear():
     """Clear scratchpad section(s). Body: {section: str} optional."""
     if not (agent and agent.orchestrator):
         return jsonify({"error": "Agent not initialized"}), 503
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     section = data.get("section")
     if section is not None and (not isinstance(section, str) or not section.strip()):
         return jsonify({"error": "`section` must be a non-empty string if provided"}), 400
@@ -1317,7 +1318,7 @@ def api_scratchpad_clear():
 @app.route("/api/init", methods=["POST"])
 def api_init():
     """Create a BMO.md file in the specified directory (/init slash command)."""
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     directory = data.get("directory", ".")
     try:
         from agents.project_context import create_bmo_md
@@ -1387,7 +1388,7 @@ def api_camera_snapshot_last():
 
 @app.route("/api/camera/describe", methods=["POST"])
 def api_camera_describe():
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     prompt = data.get("prompt", "What do you see?")
 
     def _do_describe():
@@ -1445,7 +1446,7 @@ def api_camera_motion():
     reality (UI was drifting from server on the second click)."""
     if not camera:
         return jsonify({"ok": False, "enabled": False, "error": "Camera service not available"}), 503
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     want = bool(data.get("enabled", True))
     if want:
         camera.start_motion_detection()
@@ -1469,7 +1470,7 @@ def api_voice_enroll():
     if not voice:
         return jsonify({"error": "Voice pipeline not available"}), 503
 
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     name = data.get("name", "").strip()
     duration = data.get("duration", 5)
     if not name:
@@ -1526,7 +1527,7 @@ def api_timers():
 
 @app.route("/api/timers/create", methods=["POST"])
 def api_timer_create():
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     timer = timers.create_timer(data.get("seconds", 300), data.get("label", ""))
     return jsonify(timer)
 
@@ -1545,7 +1546,7 @@ def api_timer_pause(timer_id):
 
 @app.route("/api/alarms/create", methods=["POST"])
 def api_alarm_create():
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     tz_name = _request_client_timezone(default_to_pi=True)
     alarm = timers.create_alarm(
         data.get("hour", 7),
@@ -1568,14 +1569,14 @@ def api_alarm_cancel(alarm_id):
 
 @app.route("/api/alarms/<alarm_id>/snooze", methods=["POST"])
 def api_alarm_snooze(alarm_id):
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     timers.snooze_alarm(alarm_id, data.get("minutes", 5))
     return jsonify({"ok": True})
 
 
 @app.route("/api/alarms/<alarm_id>/enabled", methods=["POST"])
 def api_alarm_enabled(alarm_id):
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     if "enabled" not in data:
         return jsonify({"error": "Missing 'enabled' boolean"}), 400
     enabled_raw = data.get("enabled")
@@ -1604,7 +1605,7 @@ def api_alarm_volume():
     """Get or set alarm volume. None = use system volume."""
     if request.method == "GET":
         return jsonify({"volume": timers.alarm_volume})
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     vol = data.get("volume")  # None or int 0-100
     timers.alarm_volume = int(vol) if vol is not None else None
     return jsonify({"ok": True, "volume": timers.alarm_volume})
@@ -1622,7 +1623,7 @@ def api_led_wake():
 
 @app.route("/api/led/state", methods=["POST"])
 def api_led_state():
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     state = data.get("state", "ready")
     if led_controller:
         led_controller.set_state(state)
@@ -1632,7 +1633,7 @@ def api_led_state():
 @app.route("/api/led/color", methods=["POST"])
 def api_led_color():
     """Set LED color directly by name or RGB values."""
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     if not led_controller:
         return jsonify({"ok": False, "error": "LED controller not available"})
     if "color" in data:
@@ -1648,7 +1649,7 @@ def api_led_color():
 @app.route("/api/led/mode", methods=["POST"])
 def api_led_mode():
     """Set LED mode (static, breathing, chase, rainbow, off)."""
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     if not led_controller:
         return jsonify({"ok": False, "error": "LED controller not available"})
     mode = data.get("mode", "static")
@@ -1661,7 +1662,7 @@ def api_led_mode():
 @app.route("/api/led/brightness", methods=["POST"])
 def api_led_brightness():
     """Set LED brightness (0-100)."""
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     if not led_controller:
         return jsonify({"ok": False, "error": "LED controller not available"})
     led_controller.set_brightness(data.get("brightness", 100))
@@ -1689,7 +1690,7 @@ def api_oled_expression_get():
 @app.route("/api/oled/expression", methods=["POST"])
 def api_oled_expression_set():
     """Set OLED expression (syncs LED too)."""
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     expression = data.get("expression", "idle")
     _sync_expression(expression)
     return jsonify({"ok": True, "expression": expression})
@@ -1748,14 +1749,14 @@ def _proxy_to_dm_control(path: str, method: str = "POST", json_body=None, read_t
 @app.route("/api/v1/discord/dm/start", methods=["POST"])
 def api_discord_dm_start():
     """Proxy: start a Discord DM session in the bot process (PHASE-20 20C)."""
-    return _proxy_to_dm_control("start", "POST", request.json or {})
+    return _proxy_to_dm_control("start", "POST", request.get_json(silent=True) or {})
 
 
 @app.route("/api/discord/dm/stop", methods=["POST"])
 @app.route("/api/v1/discord/dm/stop", methods=["POST"])
 def api_discord_dm_stop():
     """Proxy: stop the Discord DM session (idempotent, bounded — PHASE-20 20C)."""
-    return _proxy_to_dm_control("stop", "POST", request.json or {})
+    return _proxy_to_dm_control("stop", "POST", request.get_json(silent=True) or {})
 
 
 @app.route("/api/discord/dm/narrate", methods=["POST"])
@@ -1763,7 +1764,7 @@ def api_discord_dm_stop():
 @limiter.limit(RATE_LIMIT_NARRATE)
 def api_discord_dm_narrate():
     """Proxy: forward narration to the DM bot (idempotent via event_id — 20C)."""
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     if not data.get("text"):
         return jsonify({"error": "No text provided"}), 400
     return _proxy_to_dm_control("narrate", "POST", data)
@@ -1774,7 +1775,7 @@ def api_discord_dm_narrate():
 @limiter.limit(RATE_LIMIT_NARRATE)
 def api_discord_dm_narrate_cancel():
     """Proxy: barge-in — flush the narration queue + stop playback (PHASE-21 21B)."""
-    return _proxy_to_dm_control("narrate/cancel", "POST", request.json or {})
+    return _proxy_to_dm_control("narrate/cancel", "POST", request.get_json(silent=True) or {})
 
 
 @app.route("/api/discord/dm/status")
@@ -1789,35 +1790,35 @@ def api_discord_dm_status():
 @app.route("/api/v1/discord/pbp/start", methods=["POST"])
 @limiter.limit(RATE_LIMIT_PBP)
 def api_discord_pbp_start():
-    return _proxy_to_dm_control("pbp/start", "POST", request.json or {})
+    return _proxy_to_dm_control("pbp/start", "POST", request.get_json(silent=True) or {})
 
 
 @app.route("/api/discord/pbp/advance", methods=["POST"])
 @app.route("/api/v1/discord/pbp/advance", methods=["POST"])
 @limiter.limit(RATE_LIMIT_PBP)
 def api_discord_pbp_advance():
-    return _proxy_to_dm_control("pbp/advance", "POST", request.json or {})
+    return _proxy_to_dm_control("pbp/advance", "POST", request.get_json(silent=True) or {})
 
 
 @app.route("/api/discord/pbp/skip", methods=["POST"])
 @app.route("/api/v1/discord/pbp/skip", methods=["POST"])
 @limiter.limit(RATE_LIMIT_PBP)
 def api_discord_pbp_skip():
-    return _proxy_to_dm_control("pbp/skip", "POST", request.json or {})
+    return _proxy_to_dm_control("pbp/skip", "POST", request.get_json(silent=True) or {})
 
 
 @app.route("/api/discord/pbp/scene", methods=["POST"])
 @app.route("/api/v1/discord/pbp/scene", methods=["POST"])
 @limiter.limit(RATE_LIMIT_PBP)
 def api_discord_pbp_scene():
-    return _proxy_to_dm_control("pbp/scene", "POST", request.json or {})
+    return _proxy_to_dm_control("pbp/scene", "POST", request.get_json(silent=True) or {})
 
 
 @app.route("/api/discord/pbp/stop", methods=["POST"])
 @app.route("/api/v1/discord/pbp/stop", methods=["POST"])
 @limiter.limit(RATE_LIMIT_PBP)
 def api_discord_pbp_stop():
-    return _proxy_to_dm_control("pbp/stop", "POST", request.json or {})
+    return _proxy_to_dm_control("pbp/stop", "POST", request.get_json(silent=True) or {})
 
 
 @app.route("/api/discord/pbp/status", methods=["GET"])
@@ -1854,14 +1855,14 @@ def api_discord_dm_recap():
 @app.route("/api/v1/discord/dm/sync/initiative", methods=["POST"])
 def api_discord_dm_sync_initiative():
     """Proxy: push VTT initiative into the bot process (PHASE-22 22B)."""
-    return _proxy_to_dm_control("sync/initiative", "POST", request.json or {})
+    return _proxy_to_dm_control("sync/initiative", "POST", request.get_json(silent=True) or {})
 
 
 @app.route("/api/discord/dm/sync/state", methods=["POST"])
 @app.route("/api/v1/discord/dm/sync/state", methods=["POST"])
 def api_discord_dm_sync_state():
     """Proxy: push VTT game state into the bot process (PHASE-22 22B)."""
-    return _proxy_to_dm_control("sync/state", "POST", request.json or {})
+    return _proxy_to_dm_control("sync/state", "POST", request.get_json(silent=True) or {})
 
 
 # ── PHASE-21 21C: per-NPC voice casting ──────────────────────────────
@@ -1897,7 +1898,7 @@ def api_discord_dm_voices_set():
 
     from services.voice.voice_casting import VoiceCasting
 
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     campaign_id = data.get("campaign_id")
     speaker = data.get("speaker")
     if not campaign_id or not speaker:
@@ -1915,7 +1916,7 @@ def api_discord_dm_voices_set():
 def api_discord_dm_voices_delete():
     from services.voice.voice_casting import VoiceCasting
 
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     campaign_id = data.get("campaign_id")
     speaker = data.get("speaker")
     if not campaign_id or not speaker:
@@ -1939,7 +1940,7 @@ def api_scene_activate():
     """Activate a scene. Body: {scene: "anime"}."""
     if not scene_service:
         return jsonify({"error": "Scene service not available"}), 503
-    name = (request.json or {}).get("scene", "")
+    name = (request.get_json(silent=True) or {}).get("scene", "")
     if not name:
         return jsonify({"error": "scene name required"}), 400
     log.info("[scene-api] Activating scene: %s", _s(name))
@@ -1979,7 +1980,7 @@ def api_scene_create():
     """Create a custom scene. Body: {name: str, config: {...}}."""
     if not scene_service:
         return jsonify({"error": "Scene service not available"}), 503
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     name = data.get("name", "").strip()
     config = data.get("config", {})
     if not name:
@@ -1999,7 +2000,7 @@ def api_scene_update(name):
     """Update a custom scene. Body: {config: {...}}."""
     if not scene_service:
         return jsonify({"error": "Scene service not available"}), 503
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     config = data.get("config", {})
     try:
         ok, msg = scene_service.update_scene(name, config)
@@ -2090,7 +2091,7 @@ def api_device_status(device_name):
 
 @app.route("/api/devices/<device_name>/volume", methods=["POST"])
 def api_device_volume(device_name):
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     smart_home.set_volume(device_name, data.get("level", 0.5))
     return jsonify({"ok": True})
 
@@ -2136,7 +2137,7 @@ def api_device_mute(device_name):
     if not smart_home:
         return jsonify({"error": "Smart home not available"}), 503
     try:
-        data = request.json or {}
+        data = request.get_json(silent=True) or {}
         smart_home.mute(device_name, data.get("muted", True))
         return jsonify({"ok": True})
     except Exception as e:
@@ -2149,7 +2150,7 @@ def api_device_launch(device_name):
     if not smart_home:
         return jsonify({"error": "Smart home not available"}), 503
     try:
-        data = request.json or {}
+        data = request.get_json(silent=True) or {}
         smart_home.launch_app(device_name, data.get("app_id", ""))
         return jsonify({"ok": True})
     except Exception as e:
@@ -2242,7 +2243,7 @@ def _restore_agent_history():
 
 # ── Notes API ────────────────────────────────────────────────────────
 
-NOTES_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/notes.json")
+NOTES_FILE = str(_P_DATA_DIR / "notes.json")
 # STATE.notes_list, STATE.notes_lock — moved to state.STATE.notes_list / state.STATE.notes_lock
 
 
@@ -2275,7 +2276,7 @@ def api_notes_create():
     (case-insensitive text match) already exists, unless the request
     body sets `allow_duplicate=true`. The 409 body includes the matching
     note so the UI can offer "add anyway" without a second lookup."""
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     text = data.get("text", "").strip()
     if not text:
         return jsonify({"error": "No text provided"}), 400
@@ -2303,7 +2304,7 @@ def api_notes_create():
 
 @app.route("/api/notes/<note_id>", methods=["PUT"])
 def api_notes_update(note_id):
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     with STATE.notes_lock:
         for note in STATE.notes_list:
             if note["id"] == note_id:
@@ -2339,7 +2340,7 @@ def api_lists_create():
     """Create a new list. Body: {name: str}."""
     if not list_service:
         return jsonify({"error": "List service not available"}), 503
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     name = data.get("name", "").strip()
     if not name:
         return jsonify({"error": "List name required"}), 400
@@ -2438,7 +2439,7 @@ def api_alerts_config_update():
     """Update alert configuration. Body: partial config dict."""
     if not alert_service:
         return jsonify({"error": "Alert service not available"}), 503
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     alert_service.update_config(data)
     return jsonify(alert_service.get_config())
 
@@ -2448,7 +2449,7 @@ def api_alerts_send():
     """Send a test alert. Body: {source, title, body, priority}."""
     if not alert_service:
         return jsonify({"error": "Alert service not available"}), 503
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     alert_service.send_alert(
         source=data.get("source", "test"),
         title=data.get("title", "Test Alert"),
@@ -2473,7 +2474,7 @@ def api_routines_create():
     """Create a new routine. Body: routine schema dict."""
     if not routine_service:
         return jsonify({"error": "Routine service not available"}), 503
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     routine = routine_service.create_routine(
         name=data.get("name", ""),
         triggers=data.get("triggers", []),
@@ -2488,7 +2489,7 @@ def api_routines_update(routine_id):
     """Update a routine. Body: partial update dict."""
     if not routine_service:
         return jsonify({"error": "Routine service not available"}), 503
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     routine = routine_service.update_routine(routine_id, **data)
     if routine:
         return jsonify(routine)
@@ -2520,7 +2521,7 @@ def api_routines_toggle(routine_id):
     """Enable/disable a routine."""
     if not routine_service:
         return jsonify({"error": "Routine service not available"}), 503
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     enabled = data.get("enabled", True)
     if routine_service.enable_routine(routine_id, enabled):
         return jsonify({"ok": True, "enabled": enabled})
@@ -2542,7 +2543,7 @@ def api_personality_settings_update():
     """Update personality settings. Body: partial settings dict."""
     if not personality_engine:
         return jsonify({"error": "Personality engine not available"}), 503
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     personality_engine.update_settings(updates=data)
     return jsonify(personality_engine.get_settings())
 
@@ -2568,7 +2569,7 @@ def api_notification_settings():
 @app.route("/api/notifications/settings", methods=["POST"])
 def api_notification_settings_update():
     if notifier:
-        data = request.json or {}
+        data = request.get_json(silent=True) or {}
         notifier.update_settings(
             enabled=data.get("enabled"),
             blocklist=data.get("blocklist"),
@@ -2608,7 +2609,7 @@ def api_notification_clear():
 def api_notification_reply():
     """Reply to a notification via KDE Connect."""
     if notifier:
-        data = request.json or {}
+        data = request.get_json(silent=True) or {}
         notif_id = data.get("id", "")
         message = data.get("message", "")
         device_id = data.get("device_id", "")
@@ -2632,7 +2633,7 @@ def api_mcp_servers():
 @app.route("/api/mcp/servers", methods=["POST"])
 def api_mcp_servers_add():
     """Add a new MCP server. Body: {name, config}."""
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     name = data.get("name", "")
     config = data.get("config", {})
     if not name or not config:
@@ -2660,7 +2661,7 @@ def api_mcp_servers_remove(name):
 @app.route("/api/mcp/connect", methods=["POST"])
 def api_mcp_connect():
     """Connect/reconnect an MCP server. Body: {server}."""
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     server = data.get("server", "")
     if not server:
         return jsonify({"error": "server name required"}), 400
@@ -2674,7 +2675,7 @@ def api_mcp_connect():
 @app.route("/api/mcp/disconnect", methods=["POST"])
 def api_mcp_disconnect():
     """Disconnect an MCP server. Body: {server}."""
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     server = data.get("server", "")
     if not server:
         return jsonify({"error": "server name required"}), 400
@@ -2697,7 +2698,7 @@ def api_mcp_tools():
 @app.route("/api/mcp/tools/<path:name>/call", methods=["POST"])
 def api_mcp_tool_call(name):
     """Call an MCP tool directly. Body: {args: {}}."""
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     args = data.get("args", {})
 
     if agent and agent.orchestrator and agent.orchestrator.mcp_manager:
@@ -2722,7 +2723,7 @@ def api_commands():
 @app.route("/api/commands/<name>", methods=["POST"])
 def api_commands_execute(name):
     """Execute a custom command. Body: {args: ""}."""
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     args = data.get("args", "")
 
     try:
@@ -2756,7 +2757,7 @@ def api_memory():
 @app.route("/api/memory", methods=["POST"])
 def api_memory_write():
     """Write to auto-memory. Body: {section, content}."""
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     section = data.get("section", "Notes")
     content = data.get("content", "")
 
@@ -2803,7 +2804,7 @@ def api_voice_settings_update():
     """Update voice settings. Body: partial dict of settings."""
     if not voice:
         return jsonify({"error": "Voice pipeline not available"}), 503
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     for key, value in data.items():
         voice.update_voice_setting(key, value)
     return jsonify({"ok": True, **voice.get_voice_settings()})
@@ -2814,7 +2815,7 @@ def api_voice_wake():
     """Enable/disable wake word listening."""
     if not voice:
         return jsonify({"error": "Voice pipeline not available"}), 503
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     enabled = data.get("enabled", True)
     voice.update_voice_setting("wake_enabled", enabled)
     if enabled:
@@ -2822,6 +2823,15 @@ def api_voice_wake():
     else:
         voice.stop_listening()
     return jsonify({"ok": True, "wake_enabled": enabled})
+
+
+@app.route("/api/voice/interrupt", methods=["POST"])
+def api_voice_interrupt():
+    """Stop BMO mid-speech (barge-in) — invoke the already-built VoicePipeline.interrupt()."""
+    if not voice:
+        return jsonify({"error": "Voice pipeline not available"}), 503
+    voice.interrupt()
+    return jsonify({"ok": True})
 
 
 # ── AI/Agent Controls API ──────────────────────────────────────────
@@ -2843,7 +2853,7 @@ def api_model_set():
     """Set session-level model override."""
     if not agent:
         return jsonify({"error": "Agent not available"}), 503
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     model_id = data.get("model")
     if model_id == "auto" or model_id is None:
         agent._model_override = None

@@ -130,7 +130,7 @@ def _format_initiative_order(order: list, limit: int = 6) -> str:
 
 # ── Data Directory ───────────────────────────────────────────────────
 
-DATA_DIR = Path.home() / "bmo" / "data" / "5e"
+DATA_DIR = Path(__file__).resolve().parents[1] / "data" / "5e"
 
 
 def _load_json(filename: str) -> list | dict:
@@ -343,7 +343,7 @@ class NarrationJob:
 
 # PHASE-22 reliability: persist recoverable DMSession state so a mid-session
 # restart (deploy / OOM / Pi reboot) does not wipe the live encounter.
-_DM_STATE_PATH = os.path.expanduser("~/home-lab/bmo/pi/data/dm_session_state.json")
+_DM_STATE_PATH = str(Path(__file__).resolve().parents[1] / "data" / "dm_session_state.json")
 _DM_STATE_TTL = 3 * 3600  # ignore state older than this on restore
 
 
@@ -844,7 +844,7 @@ class DMBot(commands.Bot):
         try:
             from services.rag_search import SearchEngine
             self._search_engine = SearchEngine()
-            rag_dir = os.path.expanduser("~/home-lab/bmo/pi/data/rag_data")
+            rag_dir = str(Path(__file__).resolve().parents[1] / "data" / "rag_data")
             index_path = os.path.join(rag_dir, "chunk-index-dnd.json")
             if os.path.exists(index_path):
                 count = self._search_engine.load_index_file("dnd", index_path)

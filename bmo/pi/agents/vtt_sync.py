@@ -14,6 +14,7 @@ Requires: requests.
 import json
 import logging
 import os
+from services.paths import DATA_DIR as _P_DATA_DIR
 import threading
 import time
 from datetime import datetime
@@ -49,7 +50,7 @@ last_push: Dict[str, Any] = {"ok": None, "at": None, "url": None, "status": None
 # dropping it, then replay in order once /api/sync/health is healthy again. The
 # stable eventId makes replay safe (VTT dedups). Stale events expire so an old
 # roll never replays into a later session.
-_OUTBOX_PATH = os.path.expanduser("~/home-lab/bmo/pi/data/vtt_sync_outbox.jsonl")
+_OUTBOX_PATH = str(_P_DATA_DIR / "vtt_sync_outbox.jsonl")
 _OUTBOX_LOCK = threading.Lock()
 _OUTBOX_TTL = 6 * 3600
 _DRAIN_INTERVAL = 30

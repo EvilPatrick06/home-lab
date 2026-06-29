@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import json
 import os
+from services.paths import DATA_DIR as _P_DATA_DIR
 import shutil as _shutil
 import threading
 import time
@@ -156,7 +157,7 @@ def _job_get(job_id: str, key: str, default=None):
     with lock:
         return job.get(key, default)
 # STATE.ide_job_counter, STATE.current_running_job_id — moved to state.STATE
-_IDE_JOBS_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/ide_jobs.json")
+_IDE_JOBS_FILE = str(_P_DATA_DIR / "ide_jobs.json")
 
 
 # (moved to state.STATE.ide_jobs_lock)
@@ -1340,7 +1341,7 @@ def api_ide_jobs_unarchive(job_id):
 
 # ── IDE State Persistence ────────────────────────────────────────────
 
-_IDE_STATE_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/ide_state.json")
+_IDE_STATE_FILE = str(_P_DATA_DIR / "ide_state.json")
 
 
 @ide_bp.route("/state", methods=["GET"])

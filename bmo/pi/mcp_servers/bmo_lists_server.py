@@ -17,43 +17,16 @@ _PI_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _PI_ROOT not in sys.path:
     sys.path.insert(0, _PI_ROOT)
 
+_HERE = os.path.dirname(os.path.abspath(__file__))
+if _HERE not in sys.path:
+    sys.path.insert(0, _HERE)
+from _stdio_server import serve  # shared JSON-RPC stdio transport
+
 
 def _svc():
     # Fresh instance per call so external edits to lists.json are picked up.
     from services.list_service import ListService
     return ListService()
-
-
-def _read_message():
-    headers = {}
-    while True:
-        line = sys.stdin.readline()
-        if not line:
-            return None
-        line = line.strip()
-        if line == "":
-            break
-        if ":" in line:
-            k, v = line.split(":", 1)
-            headers[k.strip()] = v.strip()
-    length = int(headers.get("Content-Length", 0))
-    if length == 0:
-        return None
-    return json.loads(sys.stdin.read(length))
-
-
-def _write_message(msg):
-    body = json.dumps(msg)
-    sys.stdout.write(f"Content-Length: {len(body)}\r\n\r\n{body}")
-    sys.stdout.flush()
-
-
-def _result(id_val, result):
-    _write_message({"jsonrpc": "2.0", "id": id_val, "result": result})
-
-
-def _error(id_val, code, message):
-    _write_message({"jsonrpc": "2.0", "id": id_val, "error": {"code": code, "message": message}})
 
 
 TOOLS = [
@@ -97,31 +70,7 @@ def _handle_tool_call(name, args):
 
 
 def main():
-    while True:
-        msg = _read_message()
-        if msg is None:
-            break
-        method = msg.get("method", "")
-        msg_id = msg.get("id")
-        params = msg.get("params", {})
-        if method == "initialize":
-            _result(msg_id, {"protocolVersion": "2024-11-05",
-                             "capabilities": {"tools": {"listChanged": False}},
-                             "serverInfo": {"name": "bmo-lists", "version": "1.0.0"}})
-        elif method == "notifications/initialized":
-            pass
-        elif method == "tools/list":
-            _result(msg_id, {"tools": TOOLS})
-        elif method == "tools/call":
-            try:
-                content = _handle_tool_call(params.get("name", ""), params.get("arguments", {}))
-                _result(msg_id, {"content": content})
-            except Exception as e:
-                _result(msg_id, {"content": [{"type": "text", "text": f"Error: {e}"}], "isError": True})
-        elif method == "ping":
-            _result(msg_id, {})
-        elif msg_id is not None:
-            _error(msg_id, -32601, f"Method not found: {method}")
+    serve("bmo-lists", "1.0.0", TOOLS, _handle_tool_call)
 
 
 if __name__ == "__main__":

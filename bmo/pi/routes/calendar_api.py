@@ -16,7 +16,7 @@ import time
 from flask import Blueprint, Response, jsonify, request
 
 from services.bmo_logging import _s, fail
-from services.calendar_service import CalendarReadOnlyEventError
+from services.calendar.service import CalendarReadOnlyEventError
 
 log = logging.getLogger("bmo")
 
@@ -249,6 +249,7 @@ def _calendar_write_token_file(path: str, payload_json: str):
     tmp_path = f"{path}.tmp"
     with open(tmp_path, "w", encoding="utf-8") as f:
         f.write(payload_json)
+    os.chmod(tmp_path, 0o600)  # token holds refresh_token + client_secret
     os.replace(tmp_path, path)
 
 

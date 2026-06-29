@@ -11,8 +11,9 @@ from __future__ import annotations
 
 import hashlib
 import os
+from services.paths import DATA_DIR as _P_DATA_DIR
 
-MEMORY_BASE_DIR = os.path.expanduser("~/home-lab/bmo/pi/data/memory")
+MEMORY_BASE_DIR = str(_P_DATA_DIR / "memory")
 MEMORY_FILENAME = "MEMORY.md"
 
 

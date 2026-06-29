@@ -839,3 +839,31 @@ class TestListEndpointRequestRobustness:
             ms.add_item.assert_called_once_with("groceries", "milk")
         finally:
             mod.list_service = original
+
+
+class TestVoiceInterrupt:
+    """POST /api/voice/interrupt wires the kiosk Stop button to VoicePipeline.interrupt()."""
+
+    def test_interrupt_503_when_no_voice(self, client):
+        import app as bmo_app_module
+        original = bmo_app_module.voice
+        bmo_app_module.voice = None
+        try:
+            r = client.post("/api/voice/interrupt")
+            assert r.status_code == 503
+        finally:
+            bmo_app_module.voice = original
+
+    def test_interrupt_calls_pipeline_and_returns_ok(self, client):
+        import app as bmo_app_module
+        from unittest.mock import MagicMock
+        original = bmo_app_module.voice
+        fake = MagicMock()
+        bmo_app_module.voice = fake
+        try:
+            r = client.post("/api/voice/interrupt")
+            assert r.status_code == 200
+            assert r.get_json()["ok"] is True
+            fake.interrupt.assert_called_once()
+        finally:
+            bmo_app_module.voice = original

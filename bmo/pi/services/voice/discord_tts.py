@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import io
 import os
+from services.paths import MODELS_DIR as _P_MODELS_DIR
 import re
 import subprocess
 import threading
@@ -138,7 +139,7 @@ def _piper_model_path() -> str:
     env = os.environ.get("PIPER_DM_MODEL")
     if env:
         return os.path.expanduser(env)
-    base = os.path.expanduser("~/home-lab/bmo/pi/models/piper")
+    base = str(_P_MODELS_DIR / "piper")
     libritts = os.path.join(base, "en_US-libritts_r-medium.onnx")
     if os.path.exists(libritts):
         return libritts

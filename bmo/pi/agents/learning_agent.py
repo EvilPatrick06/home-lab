@@ -7,10 +7,11 @@ from __future__ import annotations
 
 import json
 import os
+from services.paths import DATA_DIR as _P_DATA_DIR
 
 from agents.base_agent import AgentConfig, AgentResult, BaseAgent
 
-MEMORY_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
+MEMORY_DIR = str(_P_DATA_DIR)
 MEMORY_FILE = os.path.join(MEMORY_DIR, "memory.json")
 
 SYSTEM_PROMPT = """You are BMO's learning/memory agent. You save and recall user preferences, facts, and context across sessions.

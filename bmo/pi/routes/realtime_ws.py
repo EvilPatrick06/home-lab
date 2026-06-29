@@ -371,6 +371,18 @@ def register_realtime(socketio_obj):
             agent.orchestrator.scratchpad.clear(section)
             emit("scratchpad_update", agent.orchestrator.scratchpad.to_dict())
 
+    @socketio.on("voice_interrupt")
+    def on_voice_interrupt(data=None):
+        """Barge-in: stop BMO mid-speech. Wires the kiosk/dashboard Stop button to
+        the already-implemented VoicePipeline.interrupt() (previously unreachable)."""
+        from flask_socketio import emit
+        v = _app().voice
+        if not v:
+            emit("voice_interrupt_ack", {"ok": False, "error": "voice pipeline unavailable"})
+            return
+        v.interrupt()
+        emit("voice_interrupt_ack", {"ok": True})
+
     @socketio.on("disconnect")
     def on_disconnect():
         from routes.ide import cleanup_client_session

@@ -15,9 +15,10 @@ Example file: .bmo/commands/deploy.md
 from __future__ import annotations
 
 import os
+from services.paths import DATA_DIR as _P_DATA_DIR
 
 
-USER_COMMANDS_DIR = os.path.expanduser("~/home-lab/bmo/pi/data/commands")
+USER_COMMANDS_DIR = str(_P_DATA_DIR / "commands")
 
 
 def discover_commands(working_dir: str | None = None) -> dict[str, str]:

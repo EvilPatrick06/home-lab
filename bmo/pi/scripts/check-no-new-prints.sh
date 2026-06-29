@@ -8,7 +8,7 @@
 # (BMO-SUGGESTIONS 2026-06-22.)
 set -euo pipefail
 cd "$(dirname "$0")/.."   # bmo/pi
-EXCL='^\./(cli|dev|scripts|tests|mcp_servers|wake)/|^\./cli\.py:|^\./services/(authorize|reauth)_calendar\.py:'
+EXCL='^\./(cli|dev|scripts|tests|mcp_servers|wake)/|^\./cli\.py:|^\./services/(authorize|reauth)_calendar\.py:|^\./services/calendar/(authorize|reauth)\.py:'
 count=$(grep -rnE '^\s*print\(' --include=*.py . | grep -vE "$EXCL" | wc -l)
 baseline=$(cat .print-baseline 2>/dev/null || echo 0)
 echo "production print() count=$count baseline=$baseline"

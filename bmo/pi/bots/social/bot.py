@@ -34,7 +34,7 @@ from typing import Optional
 
 import discord
 
-from bots.social_bot_utils import (
+from bots.social.utils import (
     _build_progress_bar,
     _format_duration,
     _is_playlist_url,
@@ -403,9 +403,9 @@ async def _on_user_speech(guild_id: int, user_id: int, wav_bytes: bytes) -> None
     logger.info("Voice response to user %s: %s", user_id, response[:100])
 
 
-# YouTube/yt-dlp search + extraction helpers extracted to bots/social_youtube.py
+# YouTube/yt-dlp search + extraction helpers extracted to bots/social/youtube.py
 # (2026-06-22 monolith decomposition). Re-exported so existing callers/tests keep working.
-from bots.social_youtube import (  # noqa: E402
+from bots.social.youtube import (  # noqa: E402
     _extract_audio_url,
     _extract_playlist_tracks,
     _extract_track_info,

@@ -9,6 +9,7 @@ import io
 import difflib
 import json
 import os
+from services.paths import BMO_ROOT as _P_BMO_ROOT, DATA_DIR as _P_DATA_DIR, MODELS_DIR as _P_MODELS_DIR
 import queue
 import re
 import subprocess
@@ -28,9 +29,9 @@ from services.bmo_logging import _s, get_logger
 from services.voice.voice_metrics import record_stage as _record_stage
 log = get_logger("voice_pipeline")
 
-MODELS_DIR = os.path.expanduser("~/home-lab/bmo/pi/models")
+MODELS_DIR = str(_P_MODELS_DIR)
 os.makedirs(os.path.join(MODELS_DIR, "piper"), exist_ok=True)
-DATA_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
+DATA_DIR = str(_P_DATA_DIR)
 VOICE_PROFILES_JSON = os.path.join(DATA_DIR, "voice_profiles.json")
 
 EDGE_TTS_VOICE = "en-US-AnaNeural"  # Young/playful voice for BMO
@@ -156,18 +157,18 @@ class VoicePipeline:
         self._no_input_device = False
 
         # Lazy-loaded LOCAL models (fallback only)
-        self._whisper = None
+        self._transcriber = Transcriber(self)  # owns the lazy whisper model
         self._wake_model = None
         self._speaker_encoder = None
         self._voice_profiles = {}
+        self._enrollment = SpeakerEnrollment(self)
 
         # Audio state
         self._audio_queue = queue.Queue()
         self._is_speaking = False
 
-        # Silero VAD model (lazy-loaded)
-        self._silero_vad = None
-        self._silero_vad_tried = False
+        # Silero VAD collaborator (owns the lazy model)
+        self._vad = Vad(self)
 
         # Adaptive ambient noise level (calibrated during wake word listening)
         self._ambient_rms_avg = 0.0
@@ -183,6 +184,8 @@ class VoicePipeline:
         self._tts_queue = queue.Queue()
         self._tts_worker_active = threading.Event()
         self._tts_interrupted = threading.Event()
+        self._speech_output = SpeechOutput(self)
+        self._wake_detector = WakeDetector(self)
 
         # TTS disk cache
         self._tts_cache_lock = threading.Lock()
@@ -203,103 +206,25 @@ class VoicePipeline:
     # ── Model Loading (local fallback models) ─────────────────────────
 
     def _load_whisper(self):
-        if self._whisper is None:
-            from faster_whisper import WhisperModel
-            self._whisper = WhisperModel("small", device="cpu", compute_type="int8")
-        return self._whisper
+        return self._transcriber.load_whisper()
 
     def _load_wake_model(self):
-        if self._wake_model is None:
-            from openwakeword.model import Model
-            paths = _get_wake_model_paths()
-            if not paths:
-                # No ONNX wake models installed — an expected setup gap on hosts
-                # without the openwakeword default models (or a custom model).
-                # Log once at INFO and fall back to energy+STT (caller handles
-                # None); not an ERROR traceback every boot.
-                log.info("[wake] no wake-word ONNX models found — using energy+STT fallback")
-                return None
-            try:
-                self._wake_model = Model(
-                    wakeword_models=paths,
-                    inference_framework="onnx",
-                )
-            except TypeError:
-                self._wake_model = Model(wakeword_model_paths=paths)
-        return self._wake_model
+        return self._wake_detector.load_wake_model()
 
     def _load_speaker_encoder(self):
-        if self._speaker_encoder is None:
-            from resemblyzer import VoiceEncoder
-            self._speaker_encoder = VoiceEncoder()
-        return self._speaker_encoder
+        return self._enrollment.load_speaker_encoder()
 
     def _load_silero_vad(self):
-        """Load Silero VAD model for speech detection. ~1MB, runs on CPU in <1ms."""
-        if self._silero_vad is not None:
-            return self._silero_vad
-        if self._silero_vad_tried:
-            return None
-        self._silero_vad_tried = True
-        try:
-            import torch
-            import torchaudio  # noqa: F401 — required by silero
-            model, utils = torch.hub.load(
-                repo_or_dir='snakers4/silero-vad',
-                model='silero_vad',
-                force_reload=False,
-                trust_repo=True,
-            )
-            self._silero_vad = model
-            log.info("[vad] Silero VAD loaded")
-        except ImportError as exc:
-            # torchaudio (a silero dep) isn't installed in this venv — an
-            # expected optional-dependency gap, not an error. Log once at INFO
-            # instead of an ERROR traceback every boot; energy-only VAD is used.
-            log.info("[vad] Silero VAD unavailable (%s), using energy-only", exc)
-        except Exception:
-            log.exception("[vad] Silero VAD not available, using energy-only")
-        return self._silero_vad
+        return self._vad.load()
 
     def _silero_check_speech(self, audio_int16: np.ndarray) -> float:
-        """Run Silero VAD on audio chunk. Returns max speech probability 0.0-1.0."""
-        vad = self._load_silero_vad()
-        if vad is None:
-            return 1.0  # No VAD = assume speech (fall back to energy-only)
-        try:
-            import torch
-            # Silero v5 expects 512-sample (32ms) windows at 16kHz
-            audio_f32 = audio_int16.flatten().astype(np.float32) / 32768.0
-            window = 512
-            max_prob = 0.0
-            # Process in 512-sample windows, take max probability
-            for i in range(0, len(audio_f32) - window + 1, window):
-                chunk = torch.from_numpy(audio_f32[i:i + window])
-                prob = vad(chunk, SAMPLE_RATE).item()
-                if prob > max_prob:
-                    max_prob = prob
-                if max_prob > 0.5:
-                    break  # Early exit — speech confirmed
-            return max_prob
-        except Exception:
-            log.exception("[vad] Silero error")
-            return 1.0
+        return self._vad.check_speech(audio_int16)
 
     def _load_voice_profiles(self):
-        if os.path.exists(VOICE_PROFILES_JSON):
-            with open(VOICE_PROFILES_JSON, encoding="utf-8") as f:
-                raw = json.load(f)
-            self._voice_profiles = {
-                k: np.asarray(v, dtype=np.float32) for k, v in raw.items()
-            }
-        # Legacy .pkl voice-profile migration removed for security (py/unsafe-deserialization) — JSON only.
-        return self._voice_profiles
+        return self._enrollment.load_voice_profiles()
 
     def _save_voice_profiles_json(self):
-        os.makedirs(os.path.dirname(VOICE_PROFILES_JSON), exist_ok=True)
-        serializable = {k: v.astype(float).tolist() for k, v in self._voice_profiles.items()}
-        with open(VOICE_PROFILES_JSON, "w", encoding="utf-8") as f:
-            json.dump(serializable, f, indent=2)
+        return self._enrollment.save_voice_profiles_json()
 
     # ── Voice Settings API ────────────────────────────────────────────
 
@@ -407,323 +332,13 @@ class VoicePipeline:
         return False
 
     def _wake_word_loop(self):
-        """Listen for 'hey BMO' wake word.
-
-        Priority: Picovoice Porcupine (best accuracy) → OpenWakeWord → energy+STT fallback.
-        """
-        self._wake_triggered = False
-
-        # Pre-warm TTS cache in background
-        threading.Thread(target=self._prewarm_tts_cache, daemon=True).start()
-        # Pre-load Silero VAD so first recording doesn't have 3s load delay
-        threading.Thread(target=self._load_silero_vad, daemon=True).start()
-        # Verify AEC on startup
-        self._check_aec()
-
-        # Try Porcupine first (best accuracy)
-        if PORCUPINE_AVAILABLE:
-            log.info("[wake] Using Picovoice Porcupine for wake word detection")
-            while self._running:
-                if not self._await_input_device():
-                    continue
-                try:
-                    self._wake_listen_cycle_porcupine()
-                    if self._wake_triggered:
-                        self._wake_triggered = False
-                        time.sleep(0.2)
-                        self._on_wake()
-                except Exception:
-                    log.exception("[wake] Porcupine error, restarting in 2s...")
-                    time.sleep(2)
-            return
-
-        # Fallback to OpenWakeWord
-        chunk_size = 1280
-        ring_buffer = []
-        max_ring_chunks = int(2.0 * SAMPLE_RATE / chunk_size)
-        energy_threshold = 2500
-        cooldown_until = 0.0
-        consecutive_active = 0
-        ACTIVE_CHUNKS_NEEDED = 6
-
-        oww_model = None
-        try:
-            oww_model = self._load_wake_model()
-            mode = "single-stage" if WAKE_USE_CUSTOM else "OWW + STT confirm"
-            log.info(f"[wake] Listening for 'hey BMO' ({mode})...")
-        except Exception:
-            log.exception("[wake] openwakeword not available, using energy+STT fallback...")
-
-        while self._running:
-            if not self._await_input_device():
-                continue
-            try:
-                if oww_model:
-                    self._wake_listen_cycle_oww(
-                        oww_model, chunk_size, ring_buffer, max_ring_chunks,
-                    )
-                else:
-                    self._wake_listen_cycle(
-                        chunk_size, ring_buffer, max_ring_chunks,
-                        energy_threshold, cooldown_until, consecutive_active,
-                        ACTIVE_CHUNKS_NEEDED,
-                    )
-                if self._wake_triggered:
-                    self._wake_triggered = False
-                    time.sleep(0.2)
-                    self._on_wake()
-            except Exception:
-                log.exception("[wake] Listener error, restarting in 2s...")
-                time.sleep(2)
+        return self._wake_detector.wake_word_loop()
 
     def _wake_listen_cycle_porcupine(self):
-        """Wake word detection using Picovoice Porcupine.
-
-        Porcupine handles all audio processing internally — frame size is 512 samples
-        at 16kHz. Much higher accuracy than OpenWakeWord with near-zero false positives.
-        """
-        import pvporcupine
-
-        # Use custom .ppn if available, otherwise fall back to built-in "bumblebee"
-        if os.path.isfile(PORCUPINE_MODEL):
-            porcupine = pvporcupine.create(
-                access_key=PORCUPINE_ACCESS_KEY,
-                keyword_paths=[PORCUPINE_MODEL],
-                sensitivities=[PORCUPINE_SENSITIVITY],
-            )
-            wake_phrase = "hey BMO"
-        else:
-            porcupine = pvporcupine.create(
-                access_key=PORCUPINE_ACCESS_KEY,
-                keywords=["bumblebee"],
-                sensitivities=[PORCUPINE_SENSITIVITY],
-            )
-            wake_phrase = "bumblebee"
-
-        frame_length = porcupine.frame_length  # 512 samples
-        cooldown_until = 0.0
-
-        # Try 16kHz directly (avoids resampling artifacts)
-        # Fall back to native rate + resampling if 16kHz fails
-        try:
-            _test = sd.InputStream(samplerate=SAMPLE_RATE, channels=CHANNELS, dtype="int16", blocksize=frame_length)
-            _test.close()
-            stream_rate = SAMPLE_RATE
-            stream_blocksize = frame_length
-            use_resampling = False
-            log.info(f"[wake] Porcupine mic: direct {SAMPLE_RATE}Hz (no resampling needed)")
-        except Exception:
-            stream_rate = _get_native_input_rate()
-            stream_blocksize = int(frame_length * (stream_rate / SAMPLE_RATE))
-            use_resampling = True
-            log.info(f"[wake] Porcupine mic: {stream_rate}Hz → resampling to {SAMPLE_RATE}Hz")
-
-        def audio_callback(indata, frames, time_info, status):
-            if status:
-                log.info("[audio] %s", _s(status))
-            self._audio_queue.put(indata.copy())
-
-        log.info(f"[wake] Porcupine listening for '{wake_phrase}' (frame={frame_length}, sensitivity={PORCUPINE_SENSITIVITY})")
-
-        try:
-            with sd.InputStream(
-                samplerate=stream_rate,
-                channels=CHANNELS,
-                dtype="int16",
-                blocksize=stream_blocksize,
-                callback=audio_callback,
-            ):
-                chunks_processed = 0
-                speech_threshold = 1500  # Log chunks above this RMS
-                while self._running:
-                    try:
-                        chunk = self._audio_queue.get(timeout=1.0)
-                    except queue.Empty:
-                        continue
-
-                    chunks_processed += 1
-
-                    if use_resampling:
-                        chunk = scipy.signal.resample(
-                            chunk.flatten(), frame_length
-                        ).astype(np.int16)
-                    else:
-                        chunk = chunk.flatten()
-
-                    # Track ambient noise level
-                    rms = np.sqrt(np.mean(chunk.astype(np.float32) ** 2))
-                    if rms < 800:
-                        if self._ambient_rms_avg == 0.0:
-                            self._ambient_rms_avg = rms
-                        else:
-                            self._ambient_rms_avg = 0.02 * rms + 0.98 * self._ambient_rms_avg
-
-                    # Log periodic status + speech-level chunks
-                    if chunks_processed <= 3 or chunks_processed % 1000 == 0:
-                        log.info(f"[wake] Porcupine #{chunks_processed}: rms={rms:.0f}, ambient={self._ambient_rms_avg:.0f}")
-                    elif rms > speech_threshold:
-                        log.info(f"[wake] SPEECH? rms={rms:.0f} (ambient={self._ambient_rms_avg:.0f})")
-
-                    keyword_index = porcupine.process(chunk)
-
-                    if keyword_index >= 0:
-                        now = time.time()
-                        if now < cooldown_until:
-                            continue
-                        cooldown_until = now + 1.5
-
-                        # Bedtime mode: ignore wake word (mic muted)
-                        scene_svc = getattr(self, '_scene_service', None)
-                        if scene_svc and scene_svc.get_active() == "bedtime":
-                            log.info("[wake] Suppressed (bedtime mode) — mic muted")
-                            continue
-
-                        log.info("[wake] Porcupine detected 'hey BMO'!")
-                        self._emit("status", {"state": "listening"})
-                        # Drain audio queue
-                        while not self._audio_queue.empty():
-                            self._audio_queue.get_nowait()
-                        self._wake_triggered = True
-                        return
-        finally:
-            porcupine.delete()
+        return self._wake_detector.wake_listen_cycle_porcupine()
 
     def _wake_listen_cycle_oww(self, oww_model, chunk_size, ring_buffer, max_ring_chunks):
-        """Wake detection with auto sample rate and single-stage for custom model.
-
-        Custom hey_bmo model: single-stage — OWW trigger = immediate wake.
-        Fallback hey_jarvis model: two-stage — OWW trigger + local STT confirmation.
-        Auto-detects mic native sample rate and resamples to 16kHz if needed.
-        """
-        cooldown_until = time.time() + 3.0  # Skip initial mic noise
-        use_single_stage = WAKE_USE_CUSTOM
-
-        native_rate = _get_native_input_rate()
-        use_resampling = (native_rate != SAMPLE_RATE)
-        input_chunk_size = int(chunk_size * (native_rate / SAMPLE_RATE)) if use_resampling else chunk_size
-        if use_resampling:
-            log.info(f"[wake] Mic native rate: {native_rate}Hz, resampling to {SAMPLE_RATE}Hz")
-
-        def audio_callback(indata, frames, time_info, status):
-            if status:
-                log.info(f"[audio] {status}")
-            self._audio_queue.put(indata.copy())
-
-        log.info(f"[wake] Opening mic: rate={native_rate}, blocksize={input_chunk_size}, resampling={use_resampling}")
-        try:
-            mic_stream = sd.InputStream(
-                samplerate=native_rate,
-                channels=CHANNELS,
-                dtype="int16",
-                blocksize=input_chunk_size,
-                callback=audio_callback,
-            )
-        except Exception:
-            log.exception("[wake] FATAL: Failed to open mic stream")
-            time.sleep(2)
-            return
-
-        with mic_stream:
-            chunks_processed = 0
-            while self._running:
-                try:
-                    chunk = self._audio_queue.get(timeout=1.0)
-                except queue.Empty:
-                    continue
-
-                chunks_processed += 1
-                if chunks_processed <= 3 or chunks_processed % 100 == 0:
-                    rms_dbg = np.sqrt(np.mean(chunk.astype(np.float32) ** 2))
-                    log.info(f"[wake] Chunk #{chunks_processed}: shape={chunk.shape}, rms={rms_dbg:.0f}")
-
-                if use_resampling:
-                    chunk = scipy.signal.resample(
-                        chunk.flatten(), chunk_size
-                    ).astype(np.int16).reshape(-1, 1)
-
-                ring_buffer.append(chunk)
-                if len(ring_buffer) > max_ring_chunks:
-                    ring_buffer.pop(0)
-
-                rms = np.sqrt(np.mean(chunk.astype(np.float32) ** 2))
-                if rms < 800:
-                    if self._ambient_rms_avg == 0.0:
-                        self._ambient_rms_avg = rms
-                    else:
-                        self._ambient_rms_avg = 0.02 * rms + 0.98 * self._ambient_rms_avg
-
-                audio_f32 = chunk.flatten().astype(np.float32) / 32768.0
-                try:
-                    prediction = oww_model.predict(audio_f32)
-                except Exception:
-                    log.exception("[wake] predict() error")
-                    time.sleep(0.5)
-                    continue
-
-                triggered = False
-                for key, score in prediction.items():
-                    if score > 0.04:  # Only log scores approaching threshold
-                        log.info(f"[wake] OWW score: {key}={score:.4f} (threshold={WAKE_OWW_THRESHOLD})")
-                    if score > WAKE_OWW_THRESHOLD:
-                        log.info(f"[wake] OWW triggered: {key}={score:.3f}")
-                        triggered = True
-                        break
-
-                if not triggered:
-                    continue
-
-                now = time.time()
-                if now < cooldown_until:
-                    continue
-                cooldown_until = now + 1.5
-
-                if use_single_stage:
-                    # Silero VAD gate: confirm there's actual speech, not just noise
-                    ring_audio = np.concatenate(ring_buffer) if ring_buffer else chunk.flatten()
-                    speech_prob = self._silero_check_speech(ring_audio)
-                    if speech_prob < 0.3:
-                        log.info(f"[wake] OWW triggered but Silero says no speech (prob={speech_prob:.2f}), ignoring")
-                        oww_model.reset()
-                        continue
-
-                    log.info(f"[wake] 'hey BMO' detected (single-stage, VAD={speech_prob:.2f})")
-                    self._emit("status", {"state": "listening"})
-                    ring_buffer.clear()
-                    while not self._audio_queue.empty():
-                        self._audio_queue.get_nowait()
-                    oww_model.reset()
-                    self._wake_triggered = True
-                    return
-
-                # Fallback two-stage: STT confirmation (local whisper first, cloud backup)
-                ring_audio = np.concatenate(ring_buffer)
-                try:
-                    audio_bytes = ring_audio.tobytes()
-                    wav_buf = self._pcm_to_wav(audio_bytes)
-                    text = self._quick_stt(wav_buf)
-                    if not text:
-                        oww_model.reset()
-                        continue
-                    text_lower = text.lower().strip()
-                    log.info("[wake] STT confirm: '%s'", _s(text_lower))
-                    is_wake = any(
-                        re.search(r'\b' + re.escape(v) + r'\b', text_lower)
-                        for v in WAKE_VARIANTS
-                    )
-                    if is_wake:
-                        log.info("[wake] Confirmed 'hey BMO' in: %s", _s(text))
-                        self._emit("status", {"state": "listening"})
-                        ring_buffer.clear()
-                        while not self._audio_queue.empty():
-                            self._audio_queue.get_nowait()
-                        oww_model.reset()
-                        self._wake_triggered = True
-                        return
-                    else:
-                        oww_model.reset()
-                except Exception:
-                    log.exception("[wake] STT confirm failed")
-                    oww_model.reset()
+        return self._wake_detector.wake_listen_cycle_oww(oww_model, chunk_size, ring_buffer, max_ring_chunks)
 
     def _check_aec(self):
         """Check PipeWire for echo-cancel nodes on startup."""
@@ -751,156 +366,13 @@ class VoicePipeline:
     def _wake_listen_cycle(self, chunk_size, ring_buffer, max_ring_chunks,
                            energy_threshold, cooldown_until, consecutive_active,
                            active_needed):
-        """One cycle of wake word listening. Exits when wake detected."""
-        # Adaptive threshold state — mutable via nonlocal
-        ambient_rms_avg = getattr(self, '_ambient_rms_avg', 0.0)
-        ambient_alpha = 0.02
-        ENERGY_HEADROOM = 1.8
-
-        def audio_callback(indata, frames, time_info, status):
-            if status:
-                log.info(f"[audio] {status}")
-            self._audio_queue.put(indata.copy())
-
-        with sd.InputStream(
-            samplerate=SAMPLE_RATE,
-            channels=CHANNELS,
-            dtype="int16",
-            blocksize=chunk_size,
-            callback=audio_callback,
-        ) as stream:
-            while self._running:
-                try:
-                    chunk = self._audio_queue.get(timeout=1.0)
-                except queue.Empty:
-                    continue
-
-                # Maintain rolling buffer
-                ring_buffer.append(chunk)
-                if len(ring_buffer) > max_ring_chunks:
-                    ring_buffer.pop(0)
-
-                # Check energy level
-                rms = np.sqrt(np.mean(chunk.astype(np.float32) ** 2))
-
-                # Adaptive ambient noise tracking: update when chunk is quiet
-                # (below current threshold = ambient noise, not speech)
-                if rms < energy_threshold:
-                    if ambient_rms_avg == 0.0:
-                        ambient_rms_avg = rms  # seed on first quiet chunk
-                    else:
-                        ambient_rms_avg = ambient_alpha * rms + (1 - ambient_alpha) * ambient_rms_avg
-                    # Update threshold: must be well above ambient
-                    energy_threshold = max(800, ambient_rms_avg * ENERGY_HEADROOM)
-                    self._ambient_rms_avg = ambient_rms_avg
-                    consecutive_active = 0
-                    continue
-
-                # RMS above threshold — potential speech
-                consecutive_active += 1
-
-                now = time.time()
-                if consecutive_active < active_needed or now < cooldown_until:
-                    continue
-
-                # Grab last ~2s of audio for analysis
-                ring_audio = np.concatenate(ring_buffer)
-                cooldown_until = now + 3.0  # 3s cooldown between STT checks
-                consecutive_active = 0
-
-                # Silero VAD check — confirm it's actually speech, not just noise
-                speech_prob = self._silero_check_speech(ring_audio)
-                if speech_prob < 0.3:
-                    log.info(f"[wake] Silero rejected (prob={speech_prob:.2f})")
-                    continue
-
-                try:
-                    audio_bytes = ring_audio.tobytes()
-                    wav_buf = self._pcm_to_wav(audio_bytes)
-                    text = self._quick_stt(wav_buf)
-                    if not text:
-                        continue  # Filtered as hallucination or no speech
-                    text_lower = text.lower().strip()
-                    log.info("[wake] STT check: '%s'", _s(text_lower))
-                    is_wake = any(
-                        re.search(r'\b' + re.escape(v) + r'\b', text_lower)
-                        for v in WAKE_VARIANTS
-                    )
-                    if is_wake:
-                        log.info("[wake] Detected 'hey BMO' in: %s", _s(text))
-                        self._emit("status", {"state": "listening"})
-                        ring_buffer.clear()
-                        while not self._audio_queue.empty():
-                            self._audio_queue.get_nowait()
-                        # Exit the stream context first, then handle wake
-                        self._wake_triggered = True
-                        return
-                except Exception:
-                    log.exception("[wake] STT check failed")
+        return self._wake_detector.wake_listen_cycle(chunk_size, ring_buffer, max_ring_chunks, energy_threshold, cooldown_until, consecutive_active, active_needed)
 
     def _pcm_to_wav(self, pcm_bytes: bytes) -> bytes:
-        """Convert raw PCM to WAV format for STT."""
-        import wave
-        buf = io.BytesIO()
-        with wave.open(buf, "wb") as wf:
-            wf.setnchannels(CHANNELS)
-            wf.setsampwidth(2)  # 16-bit
-            wf.setframerate(SAMPLE_RATE)
-            wf.writeframes(pcm_bytes)
-        return buf.getvalue()
-
-    # Common Whisper hallucinations on silence/ambient noise
-    _WHISPER_HALLUCINATIONS = frozenset({
-        "", ".", "so", "the", "i", "a", "oh", "oh.", "okay",
-        "okay.", "thank you", "thank you.", "thanks", "thanks.", "bye",
-        "hmm", "uh", "um", "mm", "you", "it", "is", "no", "yes",
-    })
+        return self._transcriber.pcm_to_wav(pcm_bytes)
 
     def _quick_stt(self, wav_bytes: bytes) -> str:
-        """Quick STT for wake word confirmation — local whisper first, cloud backup.
-
-        Returns empty string if the result looks like a hallucination
-        (very short text that Whisper commonly produces from silence).
-        """
-        text = ""
-
-        # Prefer local faster-whisper: no network latency, works offline
-        try:
-            model = self._load_whisper()
-            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
-                f.write(wav_bytes)
-                tmp = f.name
-            segments, _ = model.transcribe(tmp, language="en", beam_size=1,
-                                           vad_filter=False)
-            os.unlink(tmp)
-            text = " ".join(s.text for s in segments).strip()
-        except Exception:
-            pass
-
-        if not text:
-            # Cloud fallback: Groq Whisper for higher accuracy
-            try:
-                from services.cloud_providers import groq_stt, GROQ_API_KEY
-                if GROQ_API_KEY:
-                    from services import metrics_counters
-                    metrics_counters.incr("stt_cloud_fallback_total")
-                    result = groq_stt(wav_bytes, prompt="Hey BMO.")
-                    text = result.get("text", "")
-                    segments = result.get("segments", [])
-                    if segments:
-                        avg_no_speech = sum(s.get("no_speech_probability", 0) for s in segments) / len(segments)
-                        if avg_no_speech > 0.5:
-                            log.info("[wake] Rejected (no_speech_prob=%.2f): '%s'", avg_no_speech, _s(text))
-                            return ""
-            except Exception:
-                return ""
-
-        # Filter common single-word hallucinations
-        cleaned = text.strip().lower().rstrip(".,!?")
-        if cleaned in self._WHISPER_HALLUCINATIONS:
-            return ""
-
-        return text
+        return self._transcriber.quick_stt(wav_bytes)
 
     def _on_wake(self):
         """Called when wake word is detected. Records, transcribes, processes, then listens for follow-ups."""
@@ -922,175 +394,16 @@ class VoicePipeline:
         threading.Thread(target=self._follow_up_loop, daemon=True).start()
 
     def _tts_worker(self):
-        """Background thread: pops sentences from queue and speaks them.
-
-        Batches short consecutive sentences (< 80 chars) together to reduce
-        API round-trips and inter-sentence gaps.
-        """
-        while True:
-            try:
-                text = self._tts_queue.get(timeout=0.1)
-            except queue.Empty:
-                continue
-            if text is None:
-                break
-            if self._tts_interrupted.is_set():
-                continue
-
-            # Batch short sentences: peek at queue for more short items
-            if len(text) < 80:
-                batch = [text]
-                batch_len = len(text)
-                while batch_len < 250:
-                    try:
-                        next_text = self._tts_queue.get_nowait()
-                    except queue.Empty:
-                        break
-                    if next_text is None:
-                        self._tts_queue.put(None)  # put sentinel back
-                        break
-                    batch.append(next_text)
-                    batch_len += len(next_text)
-                    if len(next_text) >= 80:
-                        break  # long sentence ends the batch
-                text = " ".join(batch)
-
-            self._tts_worker_active.set()
-            if not getattr(self, '_bmo_tts_enabled', True):
-                log.info("[tts-worker] Suppressed (BMO TTS off): %s...", _s(text[:60]))
-                self._tts_worker_active.clear()
-                continue
-            # Bedtime mode check — suppress TTS unless it's a priority item
-            scene_svc = getattr(self, '_scene_service', None)
-            if scene_svc and scene_svc.get_active() == "bedtime":
-                log.info("[tts-worker] Suppressed (bedtime mode): %s...", _s(text[:60]))
-                self._tts_worker_active.clear()
-                continue
-            try:
-                provider = getattr(self, '_tts_provider', 'auto')
-                if provider == "piper_bmo" or (provider == "auto" and PIPER_BMO_AVAILABLE):
-                    self._bmo_speak(text)
-                elif provider == "edge":
-                    self._edge_speak(text)
-                else:
-                    # Fish Audio has the BMO voice clone — best quality
-                    self._cloud_speak(text)
-            except Exception:
-                try:
-                    self._edge_speak(text)
-                except Exception:
-                    log.exception("[tts-worker] All TTS failed")
-            finally:
-                self._tts_worker_active.clear()
+        return self._speech_output.tts_worker()
 
     def _wait_for_tts(self):
-        """Block until the TTS queue is drained and the worker finishes speaking."""
-        while not self._tts_queue.empty() or self._tts_worker_active.is_set():
-            if self._tts_interrupted.is_set():
-                break
-            time.sleep(0.05)
+        return self._speech_output.wait_for_tts()
 
     def interrupt(self):
-        """Stop BMO mid-speech: clear TTS queue and abort current playback."""
-        self._tts_interrupted.set()
-        while not self._tts_queue.empty():
-            try:
-                self._tts_queue.get_nowait()
-            except queue.Empty:
-                break
-        self._tts_queue.put(None)
-        self._is_speaking = False
-        self._emit("status", {"state": "idle"})
-        log.info("[voice] Interrupted")
+        return self._speech_output.interrupt()
 
     def _stream_and_speak(self, text_gen) -> str:
-        """Consume LLM text stream, buffer sentences, TTS each via worker thread.
-
-        Sentences are pushed to a queue as they complete. A dedicated TTS worker
-        thread speaks them in order, so the LLM keeps generating while TTS plays.
-        The user hears the first sentence within 1-2 seconds of the LLM starting.
-        Returns the full response text.
-        """
-        self._emit("status", {"state": "speaking"})
-        self._is_speaking = True
-        # Don't reset _speak_volume — it's set by the volume slider and should persist
-        self._tts_interrupted.clear()
-        # NOTE: mic muting removed — gevent blocks Popen for 5s, causing
-        # more latency than echo pickup. The AEC source handles echo cancellation.
-
-        # Drain any leftover items from previous runs
-        while not self._tts_queue.empty():
-            try:
-                self._tts_queue.get_nowait()
-            except queue.Empty:
-                break
-
-        worker = threading.Thread(target=self._tts_worker, daemon=True)
-        worker.start()
-
-        full_text = ""
-        try:
-            buffer = ""
-            sentences_queued = 0
-
-            for chunk in text_gen:
-                if self._tts_interrupted.is_set():
-                    break
-                full_text += chunk
-                buffer += chunk
-
-                while True:
-                    match = re.search(r'[.!?][\s\n]', buffer)
-                    if match:
-                        end = match.end()
-                    elif len(buffer) > 60:
-                        comma_match = re.search(r',\s', buffer[40:])
-                        end = comma_match.end() + 40 if comma_match else None
-                    else:
-                        end = None
-                    if end is None:
-                        break
-                    sentence = buffer[:end].strip()
-                    buffer = buffer[end:]
-                    if sentence:
-                        # Strip [RELAY:...] tags — they're agent routing, not speech
-                        sentence = re.sub(r'\[RELAY:\w+\].*', '', sentence, flags=re.DOTALL).strip()
-                        tts_text = self._strip_markdown(sentence)
-                        if tts_text:
-                            sentences_queued += 1
-                            log.info("[stream] Queue sentence %d: %s...", sentences_queued, _s(tts_text[:60]))
-                            self._tts_queue.put(tts_text)
-
-            remaining = buffer.strip()
-            if remaining and not self._tts_interrupted.is_set():
-                # Strip [RELAY:...] tags from final chunk too
-                remaining = re.sub(r'\[RELAY:\w+\].*', '', remaining, flags=re.DOTALL).strip()
-                tts_text = self._strip_markdown(remaining)
-                if tts_text:
-                    sentences_queued += 1
-                    log.info("[stream] Queue final (%d): %s...", sentences_queued, _s(tts_text[:60]))
-                    self._tts_queue.put(tts_text)
-
-            # Signal worker to exit after all sentences are spoken
-            self._tts_queue.put(None)
-            if full_text.strip():
-                self._remember_spoken(full_text)
-            self._wait_for_tts()
-            worker.join(timeout=5.0)
-
-            return full_text
-        except Exception:
-            log.exception("[stream] Error")
-            self._tts_queue.put(None)
-            return full_text
-        finally:
-            self._is_speaking = False
-            while not self._audio_queue.empty():
-                try:
-                    self._audio_queue.get_nowait()
-                except queue.Empty:
-                    break
-            self._emit("status", {"state": "idle"})
+        return self._speech_output.stream_and_speak(text_gen)
 
     def _process_one_turn(self, is_follow_up: bool = False) -> str | None:
         """Record, transcribe, get response, speak it. Returns response text or None."""
@@ -1349,28 +662,13 @@ class VoicePipeline:
     ]
 
     def _check_enrollment_request(self, text_lower: str) -> str | None:
-        """Check if the user is asking for voice enrollment. Returns name or None."""
-        for pattern in self._ENROLL_PATTERNS:
-            m = re.search(pattern, text_lower, re.IGNORECASE)
-            if m:
-                name = m.group(1).capitalize()
-                log.info("[voice] Enrollment request detected for: %s", _s(name))
-                return name
-        return None
+        return self._enrollment.check_enrollment_request(text_lower)
 
     _MIN_ENROLLMENT_CLIPS = 3       # need at least this many good clips
     _ENROLLMENT_CLIP_MIN_SAMPLES = 8000  # ~0.5s at 16kHz — reject tiny clips
 
     def _validate_enrollment_clip(self, audio_data: np.ndarray) -> bool:
-        """Check if an audio clip has enough speech for voice enrollment."""
-        if len(audio_data) < self._ENROLLMENT_CLIP_MIN_SAMPLES:
-            log.info(f"[voice] Clip too short ({len(audio_data)} samples)")
-            return False
-        speech_prob = self._silero_check_speech(audio_data)
-        if speech_prob < 0.3:
-            log.info(f"[voice] Clip rejected by VAD (prob={speech_prob:.2f})")
-            return False
-        return True
+        return self._enrollment.validate_enrollment_clip(audio_data)
 
     def _do_voice_enrollment(self, name: str, current_audio_path: str) -> str:
         """Enroll a speaker with 3 audio clips for a robust voice profile.
@@ -1971,7 +1269,7 @@ class VoicePipeline:
         try:
             _t0 = time.time()
             # Try venv edge-tts first, then system
-            edge_tts_bin = os.path.expanduser("~/home-lab/bmo/pi/venv/bin/edge-tts")
+            edge_tts_bin = str(_P_BMO_ROOT / "venv/bin/edge-tts")
             if not os.path.isfile(edge_tts_bin):
                 edge_tts_bin = "edge-tts"
             result = subprocess.run(
@@ -2234,3 +1532,11 @@ class VoicePipeline:
         """Emit a SocketIO event if available."""
         if self.socketio:
             self.socketio.emit(event, data)
+
+
+# ── Collaborators (imported at bottom to avoid an import cycle) ──
+from services.voice.transcriber import Transcriber  # noqa: E402
+from services.voice.vad import Vad  # noqa: E402
+from services.voice.speaker_enrollment import SpeakerEnrollment  # noqa: E402
+from services.voice.speech_output import SpeechOutput  # noqa: E402
+from services.voice.wake_detector import WakeDetector  # noqa: E402

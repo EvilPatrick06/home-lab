@@ -8,6 +8,7 @@ from services.chat_history; rate limits from extensions (the deferred-init limit
 import json
 import logging
 import os
+from services.paths import DATA_DIR as _P_DATA_DIR
 import threading
 import time
 
@@ -570,7 +571,7 @@ def api_dnd_public_qa():
 
 
 _DND_ALLOWED_DATA_ROOTS = [
-    os.path.realpath(os.path.expanduser("~/home-lab/bmo/pi/data")),
+    os.path.realpath(str(_P_DATA_DIR)),
     os.path.realpath(os.path.expanduser("~/home-lab/dnd-app/src/renderer/public/data")),
 ]
 

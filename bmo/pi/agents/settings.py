@@ -13,6 +13,7 @@ from services.identity import DEFAULT_SPEAKER
 
 import json
 import os
+from services.paths import BMO_ROOT as _P_BMO_ROOT, DATA_DIR as _P_DATA_DIR
 import threading
 import time
 from pathlib import Path
@@ -20,7 +21,7 @@ from typing import Any, Callable
 
 # ── Defaults ─────────────────────────────────────────────────────────
 
-USER_SETTINGS_PATH = os.path.expanduser("~/home-lab/bmo/pi/data/settings.json")
+USER_SETTINGS_PATH = str(_P_DATA_DIR / "settings.json")
 PROJECT_SETTINGS_NAME = "settings.local.json"
 
 
@@ -96,19 +97,19 @@ def _get_default_settings() -> dict:
                 "dnd_data": {
                     "transport": "stdio",
                     "command": "python3",
-                    "args": [os.path.expanduser("~/home-lab/bmo/pi/mcp_servers/dnd_data_server.py")],
+                    "args": [str(_P_BMO_ROOT / "mcp_servers/dnd_data_server.py")],
                     "env": {
-                        "DND_MARKDOWN_ROOT": os.path.expanduser("~/home-lab/bmo/pi/data/5e-references"),
-                        "DND_JSON_ROOT": os.path.expanduser("~/home-lab/bmo/pi/data/5e"),
-                        "RAG_DATA_DIR": os.path.expanduser("~/home-lab/bmo/pi/data/rag_data"),
+                        "DND_MARKDOWN_ROOT": str(_P_DATA_DIR / "5e-references"),
+                        "DND_JSON_ROOT": str(_P_DATA_DIR / "5e"),
+                        "RAG_DATA_DIR": str(_P_DATA_DIR / "rag_data"),
                     },
                 },
                 "filesystem": {
                     "transport": "stdio",
                     "command": "npx",
                     "args": ["-y", "@modelcontextprotocol/server-filesystem",
-                             os.path.expanduser("~/home-lab/bmo/pi"),
-                             os.path.expanduser("~/home-lab/bmo/pi/data")],
+                             str(_P_BMO_ROOT),
+                             str(_P_DATA_DIR)],
                     "lazy": True,
                 },
                 "web_search": {

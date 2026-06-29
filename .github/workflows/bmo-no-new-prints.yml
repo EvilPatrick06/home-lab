@@ -8,13 +8,17 @@ on:
     paths:
       - 'bmo/pi/**/*.py'
       - 'bmo/pi/.print-baseline'
+      - 'bmo/pi/.home-lab-literal-baseline'
       - 'bmo/pi/scripts/check-no-new-prints.sh'
+      - 'bmo/pi/scripts/check-no-home-lab-literals.sh'
       - '.github/workflows/bmo-no-new-prints.yml'
   pull_request:
     paths:
       - 'bmo/pi/**/*.py'
       - 'bmo/pi/.print-baseline'
+      - 'bmo/pi/.home-lab-literal-baseline'
       - 'bmo/pi/scripts/check-no-new-prints.sh'
+      - 'bmo/pi/scripts/check-no-home-lab-literals.sh'
       - '.github/workflows/bmo-no-new-prints.yml'
 
 permissions:
@@ -26,3 +30,4 @@ jobs:
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - run: bash bmo/pi/scripts/check-no-new-prints.sh
+      - run: bash bmo/pi/scripts/check-no-home-lab-literals.sh
