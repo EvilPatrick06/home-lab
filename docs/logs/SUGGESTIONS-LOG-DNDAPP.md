@@ -207,6 +207,8 @@ This is distinct from the existing `ai-service.ts` decompose entry (that's a mai
 
 > **2026-06-29 (dnd-resolver, deferred follow-up #2) — THREE extractions now shipped across BOTH god-files.** GameLayout: `usePanelResize` (panel collapse/size + drag handlers) and `useFullscreen` (fullscreen state + toggle). PdfViewer: `usePdfSearch` (full-text search state, per-page highlight computation, result navigation — `pdfDoc`/`scale`/`goToPage` injected). Each is behavior-preserving (verbatim logic), tsc + biome + GameLayout test green. The files are smaller but still large (~1.3k LOC each) — decomposition is incremental; further cohesive regions (TOC, bookmarks/annotations, drawing for PdfViewer; modal-group/overlay wiring for GameLayout) and the per-file size lint-budget remain.
 
+> **2026-06-29 (dnd-resolver, deferred follow-up #3) — PdfViewer further decomposed (5 hooks total now).** Added `usePdfDrawing` (tool/color/size + per-page strokes + undo/redo stacks + handlers) and `usePdfAnnotations` (bookmarks, page annotations, panel/input UI state + add/remove handlers, `bookId`/`currentPage` injected). PdfViewer is now 1,378 → 1,236 LOC with its search/drawing/annotation concerns in `pdf-viewer/use-pdf-*.ts`; GameLayout has `usePanelResize` + `useFullscreen`. All behavior-preserving (verbatim logic), tsc + biome + LibraryPage/GameLayout tests green. Still remaining: the PdfViewer page-render/TOC logic (entangled in the main load effect), GameLayout's modal-group/overlay wiring, and the per-file size-budget lint — the next slices.
+
 ---
 
 ### [2026-06-25] DO NOT "dedupe" the `shared/types/*` <-> `renderer/src/types/*` re-export shims — the duplicate basenames are an intentional process-boundary split
