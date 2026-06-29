@@ -24,11 +24,6 @@ const config: ExpoConfig = {
   scheme: 'dndvtt',
   userInterfaceStyle: 'dark',
   backgroundColor: '#030712',
-  splash: {
-    image: './assets/icon.png',
-    resizeMode: 'contain',
-    backgroundColor: '#030712'
-  },
   assetBundlePatterns: ['**/*'],
   android: {
     package: 'com.dndvtt.app',
@@ -39,7 +34,19 @@ const config: ExpoConfig = {
     },
     permissions: ['INTERNET', 'ACCESS_NETWORK_STATE', 'RECORD_AUDIO']
   },
-  plugins: ['expo-sqlite'],
+  // SDK 56 removed the top-level `splash` key from ExpoConfig; splash is now
+  // configured via the expo-splash-screen config plugin (same image/colors).
+  plugins: [
+    'expo-sqlite',
+    [
+      'expo-splash-screen',
+      {
+        image: './assets/icon.png',
+        resizeMode: 'contain',
+        backgroundColor: '#030712'
+      }
+    ]
+  ],
   experiments: {
     typedRoutes: false
   },
