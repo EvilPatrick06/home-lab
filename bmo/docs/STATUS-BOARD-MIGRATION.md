@@ -81,3 +81,40 @@ Re-enable `monitoring.py`'s webhook call and revert the task prompts (kept in
 git / recoverable from this doc). `notify.sh` is never removed, so SMS can be
 fully re-armed by reverting step D5. Board state files
 (`status_board_state.json`, `board_inbox.json`) are disposable.
+
+## F. Status after live cutover (2026-06-28)
+
+LIVE NOW (driven by the standalone REST reconciler `bmo-board` systemd --user
+timer every 3 min; watchdog every 5 min):
+- `#bmo` is the board: locked to bot-only, one pinned edited-in-place embed,
+  live topic, sections 🚨 Incidents · 📌 Needs you · 🤖 Agents · 📅 Today · 💡 Info.
+- `notify.sh` routes every caller to the board (🤖 Agents by default; life feeds
+  set NOTIFY_BOARD_CATEGORY) — SMS only as the dead-mans-switch fallback.
+
+## F. Status after live cutover (2026-06-28)
+
+LIVE NOW (driven by the standalone REST reconciler `bmo-board` systemd --user
+timer every 3 min; watchdog every 5 min):
+- `#bmo` is the board: locked to bot-only, one pinned edited-in-place embed,
+  live topic, sections 🚨 Incidents · 📌 Needs you · 🤖 Agents · 📅 Today · 💡 Info.
+- `notify.sh` routes every caller to the board (🤖 Agents by default; life feeds
+  set NOTIFY_BOARD_CATEGORY) — SMS only as the dead-man's-switch fallback.
+- Old firehose webhook deleted; old messages bulk/serial-deleted.
+- Items self-heal: producers re-sync their namespace each run + a 26h last-seen
+  TTL backstop, so handled/approved items drop even without the Done button.
+- Tasks converted: phase-executers (bmo/dnd/scholar), resolvers
+  (bmo/dnd/scholar/overall), email-triage, email-follow-up, morning-brief,
+  evening-winddown, severe-weather, calendar-conflict, weekly-digest.
+
+GATED (cog deploy for buttons + presence): `status_board_cog` is wired into
+`bots/social/bot.py` (guarded). It activates when `auto/alert-board` merges to
+master and bmo-deploy ships it. HELD because master CI is currently red
+(pre-existing unrelated `dnd-app CI` failure) — per "merge only if clean".
+AT DEPLOY: disable the standalone `bmo-board.timer` so the cog is the sole board
+writer (avoid double-drive); the watchdog timer stays.
+
+NOT converted (optional cleanup): the silent-when-healthy infra watchdogs
+(pi-health, ollama, external-uptime, bot-heartbeat, ci-failure-triage,
+cert-expiry, backup-verifier) still post via the notify.sh router and auto-expire
+via TTL when healthy. Most duplicate what monitoring.py already shows live in
+Incidents, so they can be slimmed/retired or re-pointed to the incident category.
