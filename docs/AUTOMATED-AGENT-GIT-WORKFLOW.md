@@ -192,6 +192,49 @@ For each open Dependabot PR:
 
 The integrator never force-merges a red or major Dependabot PR.
 
+### D. Auto-cut a dnd-app release when application source changed (after consolidation)
+
+After the A-merges land on `master`, the integrator decides whether to cut a
+dnd-app **desktop** release for the work it just integrated. This is the
+automated form of the old manual release step — release-cutting now lives here,
+not in the phase agents (see `../dnd-app/docs/phases/INSTRUCTIONS.md` rules 6 & 13).
+
+```bash
+# Run from the main checkout on a clean master, AFTER the A-merges are pushed.
+node dnd-app/scripts/release/auto-release.mjs      # == npm --prefix dnd-app run release:auto
+```
+
+`auto-release.mjs` **reuses the existing helper** (`cut.mjs`) for the actual
+bump → commit → tag → push → draft-release path — it never reinvents the
+tag/publish path. Its decision rules:
+
+- **Trigger** — release **only** when real dnd-app *application source* changed
+  since the last published `v*` tag. Release-worthy globs: `dnd-app/src/**`,
+  `dnd-app/package.json` / `package-lock.json`, `dnd-app/resources/**`,
+  `dnd-app/index.html`, `dnd-app/electron.vite.config.ts`,
+  `dnd-app/scripts/build/**` — **minus** tests, `**/*.md`, `dnd-app/docs/**`, and
+  `dnd-app/mobile/**` (the mobile line versions separately). A run that
+  integrated only docs / logs / QA reports / suggestion churn cuts **no** release.
+- **Bump** — semver **patch** by default; **minor** when the integrated range
+  added a completed phase plan under `dnd-app/docs/phases/completed/` (a phase
+  landing == a shipped feature, rule 8). Base = `max(latest tag, package.json)`.
+- **Cadence** — at most **one** release per integrator run with app changes
+  (not batched across runs).
+- **Idempotent** — keyed on the latest tag: if `master` HEAD is already the
+  tagged release commit, or nothing release-worthy changed since the tag, it
+  no-ops. The same commit is never released twice, so the 4-hourly cadence
+  **cannot release-storm**; docs-only runs are silent.
+- **Notes / changelog** — it writes the GitHub Release body via
+  `cut.mjs --notes-file` (completed phases + app-commit summary). Per
+  `CHANGELOG.md`, the GitHub Releases page *is* the living changelog, so the
+  Release notes are the changelog update; `docs/CHANGELOG.md` stays the frozen
+  ≤ v2.1.16 archive.
+
+The cut only ever happens on `master` in the main checkout (the integrator is the
+sole automated writer to `master`), and the tag push hands off to `release.yml`
+exactly as a manual cut would. A new published release correctly drives
+`app-qa-tester` to ask for a fresh desktop QA pass — that interaction is intended.
+
 ### C. Report
 
 At the end of its run the integrator reports to the user:
@@ -202,6 +245,9 @@ At the end of its run the integrator reports to the user:
 - Dependabot PRs merged.
 - Dependabot PRs **left for manual review** — with the PR number, the bump
   (e.g. `major: 4.x → 5.x`), and why.
+- The dnd-app release cut this run (`vX.Y.Z` + patch/minor and why), or — if
+  no release-worthy app source changed — that **no** release was cut (a
+  docs/log/QA-only run is silent here). See Rule 3D.
 
 If `~/.claude-tools/notify.sh` exists, a left-behind branch or a skipped
 risky/major Dependabot PR is a warn-level notification (surfaced on the BMO
@@ -303,11 +349,15 @@ worktree model above so you do not collide with the scheduled agents.
 
 ---
 
-## Release flow & CI (unchanged)
+## Release flow & CI
 
 - The dnd-app release helper (`dnd-app/scripts/release/cut.mjs` /
-  `npm run release:cut`) and the tag-driven `release.yml` workflow are
-  **unchanged**. Releases are still cut from `master`.
+  `npm run release:cut`) and the tag-driven `release.yml` workflow are unchanged
+  in *mechanism* — what changed is **who drives them**: the integrator now
+  **auto-cuts** the release after consolidating branches (Rule 3D /
+  `release:auto`), instead of a human or the phase agents cutting it manually.
+  Releases are still cut from `master`, still only via `cut.mjs`, and a human can
+  still cut one by hand at any time.
 - The CI 4-gate is still authoritative. Relevant for branches:
   - `dnd-app-ci.yml` triggers on **every push** (no branch filter) — so a push
     to `auto/<agent-id>` runs the dnd-app lint → forbidden-patterns → typecheck
