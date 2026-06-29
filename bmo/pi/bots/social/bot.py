@@ -3477,22 +3477,13 @@ async def _trivia_cmd(interaction: discord.Interaction, category: str = "9") -> 
     answers = incorrect + [correct]
     random.shuffle(answers)
 
-    embed = discord.Embed(title="🧠 Trivia Time!", color=0x00BFFF)
-    embed.description = f"**{question}**"
-    embed.add_field(name="Category", value=cat, inline=True)
-    embed.add_field(name="Difficulty", value=difficulty, inline=True)
-    embed.set_footer(text="You have 20 seconds to answer!")
-
-    view = TriviaView(correct, answers)
-    msg = await interaction.followup.send(embed=embed, view=view)
+    view = TriviaView(question, cat, difficulty, correct, answers)
+    msg = await interaction.followup.send(view=view)
 
     await asyncio.sleep(20)
-    embed.add_field(name="✅ Answer", value=f"**{correct}**", inline=False)
-    embed.color = 0x00FF88
-    for item in view.children:
-        item.disabled = True
+    view.reveal()
     try:
-        await msg.edit(embed=embed, view=view)
+        await msg.edit(view=view)
     except discord.HTTPException:
         pass
 
@@ -3526,31 +3517,14 @@ _WYR_QUESTIONS = [
 @app_commands.command(name="wyr", description="Would you rather...?")
 async def _wyr_cmd(interaction: discord.Interaction) -> None:
     option_a, option_b = random.choice(_WYR_QUESTIONS)
-    embed = discord.Embed(title="🤔 Would You Rather...", color=0xFF6B6B)
-    embed.add_field(name="🅰️ Option A", value=option_a, inline=False)
-    embed.add_field(name="🅱️ Option B", value=option_b, inline=False)
-    embed.set_footer(text="Vote below! Results in 30 seconds.")
-
     view = WYRView(option_a, option_b)
-    await interaction.response.send_message(embed=embed, view=view)
+    await interaction.response.send_message(view=view)
     msg = await interaction.original_response()
 
     await asyncio.sleep(30)
-    total = len(view.votes_a) + len(view.votes_b)
-    pct_a = int(len(view.votes_a) / total * 100) if total else 0
-    pct_b = int(len(view.votes_b) / total * 100) if total else 0
-
-    embed.add_field(
-        name="📊 Results",
-        value=(f"🅰️ **{option_a}**: {pct_a}% ({len(view.votes_a)} votes)\n"
-               f"🅱️ **{option_b}**: {pct_b}% ({len(view.votes_b)} votes)"),
-        inline=False,
-    )
-    embed.color = 0x00FF88
-    for item in view.children:
-        item.disabled = True
+    view.close()
     try:
-        await msg.edit(embed=embed, view=view)
+        await msg.edit(view=view)
     except discord.HTTPException:
         pass
 
@@ -5327,15 +5301,8 @@ async def _rps_cmd(interaction: discord.Interaction, opponent: discord.Member) -
     if not isinstance(member, discord.Member):
         return
 
-    embed = discord.Embed(
-        title="Rock Paper Scissors! ✊📄✂️",
-        description=f"**{member.display_name}** vs **{opponent.display_name}**\nBoth players, choose your weapon!",
-        color=0xFF6B6B,
-    )
-    embed.set_footer(text="You have 30 seconds!")
-
     view = RPSView(member, opponent)
-    await interaction.response.send_message(embed=embed, view=view)
+    await interaction.response.send_message(view=view)
 
 
 # ── Blackjack ──
@@ -5598,26 +5565,14 @@ async def _poll_cmd(
     if option4:
         options.append(option4)
 
-    embed = discord.Embed(title="📊 Poll", description=f"**{question}**", color=0x7B68EE)
-    for i, opt in enumerate(options):
-        labels = ["🅰️", "🅱️", "🅲", "🅳"]
-        embed.add_field(name=f"{labels[i]} {opt}", value="\u200b", inline=False)
-    embed.set_footer(text="Vote below! Results in 5 minutes.")
-
-    view = PollView(options)
-    await interaction.response.send_message(embed=embed, view=view)
+    view = PollView(question, options)
+    await interaction.response.send_message(view=view)
     msg = await interaction.original_response()
 
     await asyncio.sleep(300)
-
-    # Final results
-    results = view._results_str()
-    embed.add_field(name="📊 Final Results", value=results, inline=False)
-    embed.color = 0x00FF88
-    for item in view.children:
-        item.disabled = True
+    view.close()
     try:
-        await msg.edit(embed=embed, view=view)
+        await msg.edit(view=view)
     except discord.HTTPException:
         pass
 
