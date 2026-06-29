@@ -28,6 +28,8 @@
 | 03 | [`PHASE-03-light-theme-dark-on-dark-contrast.md`](./PHASE-03-light-theme-dark-on-dark-contrast.md) | dungeon-scholar | — | pending |
 | 04 | [`PHASE-04-import-deck-ingestion-robustness.md`](./PHASE-04-import-deck-ingestion-robustness.md) | dungeon-scholar | — | pending |
 | 05 | [`PHASE-05-interaction-recovery-dialogs-oracle-copy.md`](./PHASE-05-interaction-recovery-dialogs-oracle-copy.md) | dungeon-scholar | — | pending |
+| 06 | [`PHASE-06-vault-redeemed-unlock-gate.md`](./PHASE-06-vault-redeemed-unlock-gate.md) | dungeon-scholar | — | pending |
+| 07 | [`PHASE-07-import-toast-exam-copy.md`](./PHASE-07-import-toast-exam-copy.md) | dungeon-scholar | — | pending |
 
 > **Source (01-02):** both plans were consolidated from `QA/QA-report-2026-06-24.md` (now in
 > `QA/completed/`) by the dungeon-scholar phase-maker. PHASE-01 carries the report's
@@ -63,5 +65,26 @@
 > is a small hardening on top of PHASE-02's refresh-gating; fold it into a future
 > load-noise round if it persists after PHASE-02 ships.
 >
+> **Source (06-07) + 2026-06-28 additions:** consolidated from `QA/QA-report-2026-06-28.md` (now in
+> `QA/completed/`) by the dungeon-scholar phase-maker — tested @ deployed `index-Dy2bw_1f.js` / src `8a8891fb`,
+> cross-checked `origin/master` `43e4be93`. **PHASE-06** carries the report's highest-severity *new* finding (a
+> Medium): the Mistake-Vault "The Redeemed" title + the `vault_clear` achievement (+50 gold) unlocking just by
+> *opening* an empty — or tomeless — vault (an effect that runs before the `!courseSet` early-return and treats a
+> never-populated vault as "all foes banished"). **PHASE-07** bundles the report's two Lows: the inconsistent /
+> (when a tome is active) contradictory post-import toasts across the CSV and paste import paths, and the
+> Practice-Exam "too few riddles" gate telling non-AI (CSV / pasted / starter) decks to "regenerate with the
+> updated prompt." Neither 06 nor 07 depends on the other or on 03-05; run by severity — **PHASE-06 first**.
+>
+> **Already covered — not re-authored (2026-06-28 run):** the report's two other Mediums + one Low were already
+> planned or tracked. The Light-theme **flashcard question/answer dark-on-dark** is **PHASE-03 F1 / 03B**
+> (re-confirmed on `index-Dy2bw_1f.js`). The Light-theme **Oracle/Chat answer light-on-light** was **folded into
+> PHASE-03 as the new F5 / sub-phase 03G** rather than given its own plan — it is the same light-theme contrast
+> family but a *distinct inverse root cause* (a theme-aware *lightening* `--surface-amber` bubble under a
+> hardcoded *non-inverting* light inline `color: '#fef3c7'`), which PHASE-03's existing F2/03E dark-on-dark grep
+> would not catch, so 03G fixes it by darkening the text rather than the (already-correct) background. The
+> **Supabase token-refresh console-noise loop** is **PHASE-02 F1** (done) — re-confirmed on the current build, a
+> fix-forward matter for the executer/integrator, not a new plan. The report's other "could not test" items are
+> environment blockers (no file download/upload, no viewport resize, no offline toggle), not findings.
+
 > Add a row per future plan (numeric order), list prerequisites in **Depends on**, and
 > update **Status** (`pending` → `in progress` → `done`) as the ds-phase-executer ships each one.
