@@ -1142,16 +1142,24 @@ function bmo() {
         if (!res.ok) return;
         const data = await res.json();
         const overall = (data.overall || '').toLowerCase();
-        let next;
-        if (overall === 'critical') {
-          const failing = Object.entries(data.services || {})
-            .filter(([_, s]) => (s.status || '').toLowerCase() === 'down')
+        // PHASE-17 17A: name the first failing subsystem in the pill. The critical
+        // branch already did this for down services; the degraded/warning branch
+        // previously hard-coded 'BMO ⚠' with no cause -- a warning with green
+        // numbers and no explanation. Shared helper so both branches name it.
+        const services = data.services || {};
+        const firstFailing = (statuses) =>
+          Object.entries(services)
+            .filter(([_, s]) => statuses.includes((s.status || '').toLowerCase()))
             .map(([name]) => name.replace(/^svc_|^google_/, ''))
             .slice(0, 2)
             .join(',');
+        let next;
+        if (overall === 'critical') {
+          const failing = firstFailing(['down']);
           next = failing ? `BMO ⚠ ${failing}` : 'BMO ⚠';
         } else if (overall === 'warning' || overall === 'degraded') {
-          next = 'BMO ⚠';
+          const failing = firstFailing(['down', 'degraded']);
+          next = failing ? `BMO ⚠ ${failing}` : 'BMO ⚠';
         } else {
           next = 'BMO';
         }
@@ -1163,6 +1171,31 @@ function bmo() {
       } catch {
         // Network failure — keep last summary; connection pill flips via apiFetch.
       }
+    },
+
+    // PHASE-17 17A: the System Status summary card binds to this instead of the
+    // raw backend `systemStatus.summary`. The backend summary names failing
+    // services for healthy/critical/warning, but a `degraded` overall is NOT
+    // handled there -- it yields a summary of only Pi metrics ("CPU 9.8%...")
+    // with no cause. Frontend-only (no Python change): when the overall is a
+    // non-healthy state the backend summary doesn't name, append the failing
+    // subsystem from the raw status lists so the cause is visible without
+    // drilling into the detailed view.
+    systemStatusSummary() {
+      const st = this.systemStatus;
+      if (!st) return '';
+      let text = st.summary || '';
+      const overall = (st.overall || '').toLowerCase();
+      if (overall && !['healthy', 'critical', 'warning'].includes(overall)) {
+        const raw = st.raw || {};
+        const names = []
+          .concat(raw.down_services || [], raw.degraded_services || [],
+                  raw.down_degraded_tier_services || [], raw.down_noncritical_services || [])
+          .map((n) => String(n).replace(/^svc_|^google_/, '').replace(/_/g, ' '));
+        const uniq = [...new Set(names)].slice(0, 2).join(', ');
+        if (uniq) text = text ? `${text} (Affected: ${uniq}.)` : `Affected: ${uniq}.`;
+      }
+      return text;
     },
 
     healthPillClass() {

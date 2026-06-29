@@ -41,7 +41,7 @@
   <header class="h-[60px] shrink-0 bg-surface flex items-center justify-between px-4 text-base border-b border-surface-light z-10 relative"
           @click="tab = 'calendar'">
     <div class="flex items-center gap-3">
-      <span x-text="clock" class="font-mono text-accent-light text-lg"></span>
+      <span x-text="clock" class="font-mono text-accent-light text-lg whitespace-nowrap"></span>
       <span x-text="dateStr" class="text-text-muted text-sm"></span>
     </div>
     <div class="flex items-center gap-3">
@@ -52,7 +52,7 @@
         <span x-text="weather.temperature + '°F'"></span>
         <span x-text="weatherIcon(weather.icon)" class="ml-1 text-base"></span>
       </span>
-      <span x-show="locationLabel" class="text-text-dim text-xs" x-text="locationLabel"></span>
+      <span x-show="locationLabel" class="text-text-dim text-xs truncate min-w-0" x-text="locationLabel"></span>
       <!-- Notification bell -->
       <div class="relative" @click.stop="showNotifications = !showNotifications; unreadNotifications = 0; ideCompletedJobCount = 0">
         <span class="text-text-muted cursor-pointer text-lg">&#x1F514;</span>
@@ -1441,7 +1441,7 @@
               <span class="text-sm font-medium capitalize" x-text="systemStatus.overall"></span>
               <span x-show="conversationActive" class="text-sm text-blue-400 ml-auto">🎙️ Conversation Active</span>
             </div>
-            <p class="text-sm text-text-muted leading-relaxed" x-text="systemStatus.summary"></p>
+            <p class="text-sm text-text-muted leading-relaxed" x-text="systemStatusSummary()"></p>
             <p class="text-xs text-accent mt-1">Tap for detailed view →</p>
           </div>
         </template>
