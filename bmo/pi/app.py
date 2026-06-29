@@ -185,7 +185,12 @@ def _cache_policy(response):
             # connect-src below) so it loads instead of being CSP-blocked.
             "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.jsdelivr.net https://cdn.socket.io https://static.cloudflareinsights.com; "
             "worker-src 'self' blob: https://cdn.jsdelivr.net; "
-            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+            # 2026-06-29 (PHASE-14 14A): allow the Google Fonts stylesheet
+            # origin so /ide's JetBrains Mono / Inter webfonts load instead of
+            # tripping a style-src CSP violation. Host-scoped (not a wildcard),
+            # matching the img-src host allowlist pattern; the paired font-file
+            # origin (fonts.gstatic.com) is added to font-src below.
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; "
             # Round 3 #14 (2026-05-17): allow YouTube + Google Calendar
             # thumbnail hosts so Music + Calendar cards aren't broken-image
             # icons under our restrictive CSP. Limited to the specific
@@ -194,7 +199,9 @@ def _cache_policy(response):
             "https://yt3.googleusercontent.com "
             "https://lh3.googleusercontent.com "
             "https://i.ytimg.com; "
-            "font-src 'self' data: https://cdn.jsdelivr.net; "
+            # 2026-06-29 (PHASE-14 14A): fonts.gstatic.com serves the actual
+            # JetBrains Mono / Inter font files the /ide Google Fonts stylesheet pulls.
+            "font-src 'self' data: https://cdn.jsdelivr.net https://fonts.gstatic.com; "
             # `data:` in connect-src lets PixiJS's ImageBitmap feature-detect
             # (fetch of a 1x1 data: PNG) succeed instead of falling back to the
             # slower HTMLImage path. The Electron build's CSP already allows it.
@@ -588,6 +595,11 @@ def init_services():
         led_controller = SimLedController(socketio=socketio)
         led_controller.start()
         service_map["leds"] = led_controller
+        # PHASE-16 16A: agents declare the LED service as "led_controller"
+        # (smart_home_agent.py services=[..., "led_controller"]); register that
+        # key too so the chat LED handlers resolve the controller. Keep "leds"
+        # as a back-compat alias for any existing reader.
+        service_map["led_controller"] = led_controller
         log.info("[bmo]   LED controller: SIMULATED")
     elif BMO_CANARY:
         from hardware.led_controller import LedController  # noqa: F401 — canary import check
@@ -598,6 +610,9 @@ def init_services():
             led_controller = LedController()
             led_controller.start()
             service_map["leds"] = led_controller
+            # PHASE-16 16A: also register under the agent-declared "led_controller"
+            # key (see the simulated branch above); "leds" stays a back-compat alias.
+            service_map["led_controller"] = led_controller
             log.info("[bmo]   LED controller: OK")
         except Exception:
             log.exception("[bmo]   LED controller: SKIPPED")

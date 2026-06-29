@@ -110,6 +110,34 @@ def save_recent_message(msg: dict):
             log.exception("[chat] Failed to save recent chat")
 
 
+def delete_recent_message(ts, role: str | None = None) -> bool:
+    """Remove the first recent-chat message matching a stable timestamp (PHASE-15
+    15B). Matches on `ts` (and `role` when given) rather than a client array index,
+    which would race-shift under concurrent appends. Returns True if a row was
+    deleted, False on no match. Mirrors save_recent_message's pytest store-guard +
+    the same atomic-ish write under the chat lock."""
+    if os.environ.get("PYTEST_CURRENT_TEST") and RECENT_CHAT_FILE.endswith(
+        "/home-lab/bmo/pi/data/recent_chat.json"
+    ):
+        log.debug("[chat] refusing real-path recent-chat delete under pytest")
+        return False
+    with STATE.chat_lock:
+        try:
+            messages = load_recent_chat()
+            for i, m in enumerate(messages):
+                if not isinstance(m, dict):
+                    continue
+                if m.get("ts") == ts and (role is None or m.get("role") == role):
+                    del messages[i]
+                    os.makedirs(os.path.dirname(RECENT_CHAT_FILE), exist_ok=True)
+                    with open(RECENT_CHAT_FILE, "w", encoding="utf-8") as f:
+                        json.dump(messages, f, ensure_ascii=False)
+                    return True
+        except Exception:
+            log.exception("[chat] delete_recent_message failed")
+    return False
+
+
 def save_dnd_message(msg: dict):
     """Append a message to the permanent DnD session log."""
     os.makedirs(DND_LOG_DIR, exist_ok=True)

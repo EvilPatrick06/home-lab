@@ -36,10 +36,10 @@
 | 11 | [`PHASE-11-dashboard-ux-round.md`](./completed/PHASE-11-dashboard-ux-round.md) | bmo | — | done |
 | 12 | [`PHASE-12-dashboard-ux-correctness.md`](./completed/PHASE-12-dashboard-ux-correctness.md) | bmo | — | done |
 | 13 | [`PHASE-13-ide-tv-doc-truth.md`](./completed/PHASE-13-ide-tv-doc-truth.md) | bmo | — | done |
-| 14 | [`PHASE-14-ide-font-csp-and-redirect-doc-truth.md`](./PHASE-14-ide-font-csp-and-redirect-doc-truth.md) | bmo | — | pending |
-| 15 | [`PHASE-15-chat-transcript-management.md`](./PHASE-15-chat-transcript-management.md) | bmo | — | pending |
-| 16 | [`PHASE-16-chat-agent-action-execution-truth.md`](./PHASE-16-chat-agent-action-execution-truth.md) | bmo | — | pending |
-| 17 | [`PHASE-17-dashboard-health-signal-ux-truth.md`](./PHASE-17-dashboard-health-signal-ux-truth.md) | bmo | — | pending |
+| 14 | [`PHASE-14-ide-font-csp-and-redirect-doc-truth.md`](./completed/PHASE-14-ide-font-csp-and-redirect-doc-truth.md) | bmo | — | done |
+| 15 | [`PHASE-15-chat-transcript-management.md`](./completed/PHASE-15-chat-transcript-management.md) | bmo | — | done |
+| 16 | [`PHASE-16-chat-agent-action-execution-truth.md`](./completed/PHASE-16-chat-agent-action-execution-truth.md) | bmo | — | done |
+| 17 | [`PHASE-17-dashboard-health-signal-ux-truth.md`](./completed/PHASE-17-dashboard-health-signal-ux-truth.md) | bmo | — | done |
 
 > **Provenance of this batch:** PHASE-01..03 were consolidated from
 > `QA/QA-report-2026-06-24.md` (now in `QA/completed/`) by the bmo phase-maker on

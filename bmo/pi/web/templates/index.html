@@ -41,7 +41,7 @@
   <header class="h-[60px] shrink-0 bg-surface flex items-center justify-between px-4 text-base border-b border-surface-light z-10 relative"
           @click="tab = 'calendar'">
     <div class="flex items-center gap-3">
-      <span x-text="clock" class="font-mono text-accent-light text-lg"></span>
+      <span x-text="clock" class="font-mono text-accent-light text-lg whitespace-nowrap"></span>
       <span x-text="dateStr" class="text-text-muted text-sm"></span>
     </div>
     <div class="flex items-center gap-3">
@@ -52,7 +52,7 @@
         <span x-text="weather.temperature + '°F'"></span>
         <span x-text="weatherIcon(weather.icon)" class="ml-1 text-base"></span>
       </span>
-      <span x-show="locationLabel" class="text-text-dim text-xs" x-text="locationLabel"></span>
+      <span x-show="locationLabel" class="text-text-dim text-xs truncate min-w-0" x-text="locationLabel"></span>
       <!-- Notification bell -->
       <div class="relative" @click.stop="showNotifications = !showNotifications; unreadNotifications = 0; ideCompletedJobCount = 0">
         <span class="text-text-muted cursor-pointer text-lg">&#x1F514;</span>
@@ -347,6 +347,12 @@
               <div x-show="msg.role === 'assistant' && msg.incomplete"
                    class="text-xs text-amber-400/80 italic mt-1">(interrupted — try asking again)</div>
             </div>
+            <!-- PHASE-15 15B: per-message delete (persisted user/assistant rows
+                 only). Removal is owned by the chat_message_deleted broadcast. -->
+            <button x-show="msg.ts && (msg.role === 'user' || msg.role === 'assistant')"
+                    @click="deleteMessage(msg)"
+                    class="shrink-0 self-center min-w-[44px] min-h-[44px] flex items-center justify-center text-text-dim hover:text-red-300 opacity-50 hover:opacity-100 focus:opacity-100 transition-opacity"
+                    title="Delete message" aria-label="Delete message">&times;</button>
           </div>
         </template>
         <div x-show="status === 'thinking' || status === 'yapping' || status === 'code_done' || status === 'code_incomplete'" class="flex justify-start">
@@ -367,9 +373,17 @@
       </div>
       <!-- Agent/Model picker (Phase 7, collapsible) -->
       <div class="px-2 pt-1 border-t border-surface-light">
+        <div class="flex items-center justify-between gap-2">
         <button @click="showAgentPicker = !showAgentPicker" class="text-xs text-text-dim hover:text-accent flex items-center gap-1">
           ⚙ <span x-text="(selectedAgent && selectedAgent !== 'auto' ? selectedAgent : '') + (selectedModel && selectedModel !== 'auto' ? (selectedAgent && selectedAgent !== 'auto' ? ' · ' : '') + selectedModel : '') || 'Auto'"></span>
         </button>
+        <!-- PHASE-15 15A: discoverable, confirm-guarded clear-chat control.
+             Reuses the existing /api/chat/clear + chat_cleared broadcast flow
+             (via clearChat -> handleSlashCommand('/clear')); no second path. -->
+        <button @click="clearChat()" class="shrink-0 min-h-[44px] px-2 flex items-center gap-1 text-xs text-text-dim hover:text-red-300" title="Clear chat" aria-label="Clear chat">
+          &#128465; <span>Clear</span>
+        </button>
+        </div>
         <div x-show="showAgentPicker" class="py-1.5 space-y-1.5">
           <!-- Agent pills -->
           <div class="flex flex-wrap gap-1">
@@ -1427,7 +1441,7 @@
               <span class="text-sm font-medium capitalize" x-text="systemStatus.overall"></span>
               <span x-show="conversationActive" class="text-sm text-blue-400 ml-auto">🎙️ Conversation Active</span>
             </div>
-            <p class="text-sm text-text-muted leading-relaxed" x-text="systemStatus.summary"></p>
+            <p class="text-sm text-text-muted leading-relaxed" x-text="systemStatusSummary()"></p>
             <p class="text-xs text-accent mt-1">Tap for detailed view →</p>
           </div>
         </template>

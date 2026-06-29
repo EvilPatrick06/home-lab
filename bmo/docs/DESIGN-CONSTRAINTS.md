@@ -53,6 +53,8 @@ There are two separate, diverged IDE frontends in `bmo/pi/`:
 
 The two asset trees have already diverged (different sizes + md5s), so a fix applied to one will **not** reach the other. A contributor editing `ide_app/` expecting it to change the live `/ide` tab (or vice-versa) will be surprised. Treat `web/` + `routes/ide.py` as the **single source of truth**; `ide_app/` is a stalled/experimental rebuild — plan a cutover and retire one side rather than maintaining two diverging copies of `ide.css`/`ide.js`/`ide.html`.
 
+**The dashboard "IDE" bottom-nav tab is a full-page redirect to the canonical `/ide` page, not an in-SPA panel.** Selecting "IDE" runs `window.location.href = '/ide'` (`web/templates/index.html`), so the dashboard SPA state is dropped on entry and editing happens on the standalone `/ide` page (Back returns to the dashboard). This is intentional — it consolidates editing onto the single source of truth above rather than embedding a second editor in-tab; a reader/QA pass expecting an in-place panel should treat the redirect as designed behavior.
+
 Related: `bmo/pi/app.py` (`/ide` route), `bmo/pi/routes/ide.py`, `bmo/pi/web/templates/ide.html`, `bmo/pi/web/static/ide/`, `bmo/pi/ide_app/`.
 
 _Relocated from `docs/BMO-SUGGESTIONS-LOG.md` on 2026-06-22._

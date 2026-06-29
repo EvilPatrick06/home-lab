@@ -976,6 +976,15 @@ function bmo() {
         // Toast on the current tab too — was silent before.
         this.showNotification?.(note);
       });
+      // PHASE-15 15B: server broadcasts chat_message_deleted after a per-message
+      // delete so every connected tab drops exactly that row (matched by stable
+      // ts + role), mirroring chat_cleared. Single removal path.
+      this.socket.on('chat_message_deleted', (data) => {
+        if (!data || data.ts == null) return;
+        const idx = this.messages.findIndex(
+          (m) => m.ts === data.ts && (data.role == null || m.role === data.role));
+        if (idx !== -1) this.messages.splice(idx, 1);
+      });
       this.socket.on('scene_change', (data) => {
         // QA #13: backend now emits the full scenes list alongside the
         // active name so the UI's `s.active` highlight stays in sync even
@@ -1133,16 +1142,24 @@ function bmo() {
         if (!res.ok) return;
         const data = await res.json();
         const overall = (data.overall || '').toLowerCase();
-        let next;
-        if (overall === 'critical') {
-          const failing = Object.entries(data.services || {})
-            .filter(([_, s]) => (s.status || '').toLowerCase() === 'down')
+        // PHASE-17 17A: name the first failing subsystem in the pill. The critical
+        // branch already did this for down services; the degraded/warning branch
+        // previously hard-coded 'BMO ⚠' with no cause -- a warning with green
+        // numbers and no explanation. Shared helper so both branches name it.
+        const services = data.services || {};
+        const firstFailing = (statuses) =>
+          Object.entries(services)
+            .filter(([_, s]) => statuses.includes((s.status || '').toLowerCase()))
             .map(([name]) => name.replace(/^svc_|^google_/, ''))
             .slice(0, 2)
             .join(',');
+        let next;
+        if (overall === 'critical') {
+          const failing = firstFailing(['down']);
           next = failing ? `BMO ⚠ ${failing}` : 'BMO ⚠';
         } else if (overall === 'warning' || overall === 'degraded') {
-          next = 'BMO ⚠';
+          const failing = firstFailing(['down', 'degraded']);
+          next = failing ? `BMO ⚠ ${failing}` : 'BMO ⚠';
         } else {
           next = 'BMO';
         }
@@ -1154,6 +1171,31 @@ function bmo() {
       } catch {
         // Network failure — keep last summary; connection pill flips via apiFetch.
       }
+    },
+
+    // PHASE-17 17A: the System Status summary card binds to this instead of the
+    // raw backend `systemStatus.summary`. The backend summary names failing
+    // services for healthy/critical/warning, but a `degraded` overall is NOT
+    // handled there -- it yields a summary of only Pi metrics ("CPU 9.8%...")
+    // with no cause. Frontend-only (no Python change): when the overall is a
+    // non-healthy state the backend summary doesn't name, append the failing
+    // subsystem from the raw status lists so the cause is visible without
+    // drilling into the detailed view.
+    systemStatusSummary() {
+      const st = this.systemStatus;
+      if (!st) return '';
+      let text = st.summary || '';
+      const overall = (st.overall || '').toLowerCase();
+      if (overall && !['healthy', 'critical', 'warning'].includes(overall)) {
+        const raw = st.raw || {};
+        const names = []
+          .concat(raw.down_services || [], raw.degraded_services || [],
+                  raw.down_degraded_tier_services || [], raw.down_noncritical_services || [])
+          .map((n) => String(n).replace(/^svc_|^google_/, '').replace(/_/g, ' '));
+        const uniq = [...new Set(names)].slice(0, 2).join(', ');
+        if (uniq) text = text ? `${text} (Affected: ${uniq}.)` : `Affected: ${uniq}.`;
+      }
+      return text;
     },
 
     healthPillClass() {
@@ -1261,6 +1303,29 @@ function bmo() {
         this.socket.emit('client_timezone', { client_timezone: tz });
       }
       this.fetchTimers();
+    },
+
+    // PHASE-15 15A: discoverable clear-chat. Confirm, then reuse the existing
+    // /clear flow (fetch /api/chat/clear + the chat_cleared broadcast) — no
+    // second clearing codepath.
+    clearChat() {
+      if (!this.messages || this.messages.length === 0) return;
+      if (!confirm('Clear the entire chat transcript? This cannot be undone.')) return;
+      this.handleSlashCommand('/clear');
+    },
+
+    // PHASE-15 15B: delete one persisted message. The removal from `messages`
+    // is owned by the chat_message_deleted broadcast handler (single path), so
+    // this only POSTs the delete; every tab (including this one) drops the row.
+    async deleteMessage(msg) {
+      if (!msg || msg.ts == null) return;
+      try {
+        await fetch('/api/chat/message/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ts: msg.ts, role: msg.role }),
+        });
+      } catch {}
     },
 
     async handleSlashCommand(cmd) {

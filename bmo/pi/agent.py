@@ -568,6 +568,15 @@ MAP_ENVIRONMENTS = {
 }
 
 
+class CommandError(Exception):
+    """PHASE-16 16B: an expected, non-crashing failure of a real-world control
+    command -- a controller is unavailable, an unknown color/mode was asked for,
+    or a TV API call errored. Control handlers raise this (instead of *returning*
+    an error string) so _execute_command records success=False with the message,
+    rather than recording the error string as a success the agent then confirms.
+    """
+
+
 class BmoAgent:
     """Manages conversations with the BMO Ollama model and parses action commands.
 
@@ -824,6 +833,22 @@ class BmoAgent:
         for r in results:
             if r.get("success") and r.get("action") in INFORMATIONAL_ACTIONS and r.get("result"):
                 text = f"{text}\n{r['result']}" if text.strip() else r["result"]
+
+        # PHASE-16 16B: surface real-world CONTROL command failures so the LLM's
+        # optimistic "Done -- your lights are blue" can't stand uncorrected when
+        # the action did not actually happen. These actions are not informational,
+        # so their result/error was previously dropped from the reply entirely.
+        CONTROL_ACTIONS = {
+            "led_set_color", "led_set_mode", "led_set_brightness",
+            "alarm_set",
+            "tv_pause", "tv_play", "tv_stop", "tv_volume", "tv_mute",
+            "tv_power", "tv_key", "tv_off", "tv_launch",
+        }
+        for r in results:
+            if r.get("success") is False and r.get("action") in CONTROL_ACTIONS:
+                err = r.get("error") or "it didn't work"
+                note = f"(Heads up: I couldn't actually do that — {err})"
+                text = f"{text}\n{note}" if text.strip() else note
 
         # Parse response tags for hardware control ([FACE:x], [LED:x], etc.)
         tags = parse_response_tags(text)
@@ -1204,6 +1229,12 @@ class BmoAgent:
                 return {"action": action, "success": True, "result": result}
             else:
                 return {"action": action, "success": False, "error": f"Unknown action: {action}"}
+        except CommandError as e:
+            # PHASE-16 16B: an expected control-command failure (controller
+            # unavailable, unknown color/mode, TV API error). Record it as a
+            # failure with the message -- never success:True with an error string
+            # in `result` -- and skip the crash traceback (this is not a bug).
+            return {"action": action, "success": False, "error": str(e)}
         except Exception as e:
             print(f"[agent] Command failed: {action} — {e}")
             return {"action": action, "success": False, "error": str(e)}
@@ -1432,28 +1463,28 @@ class BmoAgent:
     def _handle_tv_launch(self, params):
         app_name = params.get("app", "").lower().strip()
         if not app_name:
-            return "No app specified"
+            raise CommandError("No app specified")
         _, err = self._tv_api("/api/tv/launch", {"app": app_name})
         if err:
-            return f"Failed to launch {app_name}: {err}"
+            raise CommandError(f"Failed to launch {app_name}: {err}")
         return f"Launched {app_name} on your TV"
 
     def _handle_tv_pause(self, params):
         _, err = self._tv_api("/api/tv/key", {"key": "play_pause"})
         if err:
-            return f"Pause failed: {err}"
+            raise CommandError(f"Pause failed: {err}")
         return "Paused TV"
 
     def _handle_tv_play(self, params):
         _, err = self._tv_api("/api/tv/key", {"key": "play_pause"})
         if err:
-            return f"Play failed: {err}"
+            raise CommandError(f"Play failed: {err}")
         return "Resumed TV"
 
     def _handle_tv_stop(self, params):
         _, err = self._tv_api("/api/tv/key", {"key": "play_pause"})
         if err:
-            return f"Stop failed: {err}"
+            raise CommandError(f"Stop failed: {err}")
         return "Stopped TV"
 
     def _handle_tv_volume(self, params):
@@ -1462,29 +1493,29 @@ class BmoAgent:
         if level is not None:
             data, err = self._tv_api("/api/tv/volume", {"level": int(level)})
             if err:
-                return f"Volume failed: {err}"
+                raise CommandError(f"Volume failed: {err}")
             return f"Volume set to {level}%"
         if direction:
             _, err = self._tv_api("/api/tv/volume", {"direction": direction})
             if err:
-                return f"Volume failed: {err}"
+                raise CommandError(f"Volume failed: {err}")
             return f"Volume {direction}"
         _, err = self._tv_api("/api/tv/volume", {"direction": "up"})
         if err:
-            return f"Volume failed: {err}"
+            raise CommandError(f"Volume failed: {err}")
         return "Volume up"
 
     def _handle_tv_mute(self, params):
         _, err = self._tv_api("/api/tv/volume", {"direction": "mute"})
         if err:
-            return f"Mute failed: {err}"
+            raise CommandError(f"Mute failed: {err}")
         return "Toggled mute"
 
     def _handle_tv_power(self, params):
         state = params.get("state", "on")
         _, err = self._tv_api("/api/tv/power", {"state": state})
         if err:
-            return f"Power {state} failed: {err}"
+            raise CommandError(f"Power {state} failed: {err}")
         return f"TV power {state}"
 
     def _handle_tv_key(self, params):
@@ -1498,13 +1529,13 @@ class BmoAgent:
         mapped = KEY_MAP.get(key, key.upper())
         _, err = self._tv_api("/api/tv/key", {"key": mapped})
         if err:
-            return f"Key '{key}' failed: {err}"
+            raise CommandError(f"Key '{key}' failed: {err}")
         return f"Sent {key}"
 
     def _handle_tv_off(self, params):
         _, err = self._tv_api("/api/tv/power", {"state": "off"})
         if err:
-            return f"TV off failed: {err}"
+            raise CommandError(f"TV off failed: {err}")
         return "Turned off TV"
 
     def _handle_device_list(self, params):
@@ -1521,11 +1552,13 @@ class BmoAgent:
     def _handle_led_set_color(self, params):
         led = self.services.get("led_controller")
         if not led:
-            return "LED controller not available"
+            raise CommandError("LED controller not available")
         name = params.get("color")
         if name:
             ok = led.set_color_by_name(name)
-            return f"Set LED color to {name}" if ok else f"Unknown color '{name}'"
+            if not ok:
+                raise CommandError(f"Unknown color '{name}'")
+            return f"Set LED color to {name}"
         r, g, b = params.get("r", 0), params.get("g", 0), params.get("b", 0)
         led.set_color(r, g, b)
         return f"Set LED color to RGB({r}, {g}, {b})"
@@ -1533,15 +1566,17 @@ class BmoAgent:
     def _handle_led_set_mode(self, params):
         led = self.services.get("led_controller")
         if not led:
-            return "LED controller not available"
+            raise CommandError("LED controller not available")
         mode = params.get("mode", "")
         ok = led.set_mode(mode)
-        return f"Set LED mode to {mode}" if ok else f"Unknown mode '{mode}'"
+        if not ok:
+            raise CommandError(f"Unknown mode '{mode}'")
+        return f"Set LED mode to {mode}"
 
     def _handle_led_set_brightness(self, params):
         led = self.services.get("led_controller")
         if not led:
-            return "LED controller not available"
+            raise CommandError("LED controller not available")
         level = params.get("brightness", 100)
         led.set_brightness(level)
         return f"Set LED brightness to {level}%"
@@ -1549,7 +1584,7 @@ class BmoAgent:
     def _handle_led_get_state(self, params):
         led = self.services.get("led_controller")
         if not led:
-            return "LED controller not available"
+            raise CommandError("LED controller not available")
         return led.get_full_state()
 
     # ── Calendar Handlers ────────────────────────────────────────────
@@ -1723,6 +1758,7 @@ class BmoAgent:
             repeat_info = f" ({alarm.get('repeat')})" if alarm.get("repeat", "none") != "none" else ""
             tag_info = f" [{alarm.get('tag')}]" if alarm.get("tag", "reminder") != "reminder" else ""
             return f"Alarm set for {alarm['target_time']}{repeat_info}{tag_info}"
+        raise CommandError("Alarm service not available")
 
     def _find_alarm(self, label: str):
         """Find an alarm by fuzzy label match (substring, word overlap, or tag)."""
