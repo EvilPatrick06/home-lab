@@ -20,6 +20,7 @@ import { EXAM_PRESETS, gradeExamItem, pickStratifiedSample, summarizeExamResults
 import { clearSession, loadSession, SESSION_KIND, saveSession } from '../../services/sessionResume.js';
 import { timerAnnouncement } from '../../services/timerAnnounce.js';
 import { speak, ttsSupported } from '../../services/tts.js';
+import { formatDateLabel, formatDateTimeLabel } from '../../utils/date.js';
 
 function formatClock(sec) {
   const s = Math.max(0, sec | 0);
@@ -419,9 +420,7 @@ export default function ExamMode({
                           title="Click for breakdown"
                           className={`w-full text-left flex items-center gap-3 text-amber-100 rounded-sm px-1.5 py-1 hover:bg-amber-900/30 focus:bg-amber-900/40 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-400 ${isAbandoned ? 'opacity-60 italic' : ''}`}
                         >
-                          <span className="text-amber-700 tabular-nums">
-                            {rec.startedAt ? new Date(rec.startedAt).toLocaleDateString() : '—'}
-                          </span>
+                          <span className="text-amber-700 tabular-nums">{formatDateLabel(rec.startedAt)}</span>
                           <span>
                             {rec.totalCount} riddles · {Math.floor((rec.durationSec || 0) / 60)}m{' '}
                             {(rec.durationSec || 0) % 60}s
@@ -1029,10 +1028,7 @@ function TrialDetailModal({ rec, onClose }) {
 
   const byDomain = rec?.byDomain || {};
   const domains = Object.keys(byDomain).sort((a, b) => (byDomain[b]?.total || 0) - (byDomain[a]?.total || 0));
-  const date = rec?.startedAt ? new Date(rec.startedAt) : null;
-  const dateLabel = date
-    ? `${date.toLocaleDateString()} · ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-    : '—';
+  const dateLabel = formatDateTimeLabel(rec?.startedAt);
   const durM = Math.floor((rec?.durationSec || 0) / 60);
   const durS = (rec?.durationSec || 0) % 60;
   const statusLabel = rec?.isAbandoned ? 'Abandoned' : rec?.status === 'timeout' ? 'Timed out' : 'Submitted';
