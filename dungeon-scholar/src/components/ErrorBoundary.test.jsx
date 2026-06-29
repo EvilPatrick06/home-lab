@@ -10,13 +10,13 @@ function Boom({ error }) {
 }
 
 describe('ErrorBoundary', () => {
-  let errSpy;
-  let warnSpy;
+  let _errSpy;
+  let _warnSpy;
   beforeEach(() => {
     window.sessionStorage.clear();
     // React logs the caught error to console.error; silence it in the test.
-    errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    _errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    _warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     vi.spyOn(window.location, 'reload').mockImplementation(() => {});
   });
   afterEach(() => {

@@ -72,7 +72,7 @@ export function useDungeonInput({
       const sk = e.key.toLowerCase();
       if (sk === 'z' || sk === 'x' || sk === 'c') {
         const idx = sk === 'z' ? 0 : sk === 'x' ? 1 : 2;
-        castSpellRef.current && castSpellRef.current(idx);
+        castSpellRef.current?.(idx);
         e.preventDefault();
         return;
       }
@@ -89,13 +89,13 @@ export function useDungeonInput({
       // adjacent (with key in hand) or harvests a plant when standing
       // on a lootable tile. Silent no-op otherwise.
       if (sk === 'e') {
-        interactRef.current && interactRef.current();
+        interactRef.current?.();
         e.preventDefault();
         return;
       }
       // Potion hotkeys 1/2/3.
       if (e.key === '1' || e.key === '2' || e.key === '3') {
-        quaffPotionRef.current && quaffPotionRef.current(parseInt(e.key, 10) - 1);
+        quaffPotionRef.current?.(parseInt(e.key, 10) - 1);
         e.preventDefault();
         return;
       }

@@ -1,5 +1,3 @@
-import React from 'react';
-
 const COLORS = {
   idle: '#10b981',
   saving: '#f59e0b',

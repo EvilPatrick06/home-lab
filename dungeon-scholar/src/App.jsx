@@ -1,16 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { AccountPanel } from './components/AccountPanel.jsx';
-import { AudioInviteBanner } from './components/AudioInviteBanner.jsx';
 import { ProfileChip } from './components/ProfileChip.jsx';
 import RichContent from './components/RichContent.jsx';
 import { RlsWarningBanner } from './components/RlsWarningBanner.jsx';
-import { SignInButton } from './components/SignInButton.jsx';
 import { MergeChooser } from './components/ui/MergeChooser.jsx';
 import PromptModal from './components/ui/PromptModal.jsx';
 import { useAppModals } from './hooks/useAppModals.js';
 import { useAppSurfaces } from './hooks/useAppSurfaces.js';
 import { useAuth } from './hooks/useAuth.js';
-import { useDialogA11y } from './hooks/useDialogA11y.js';
 import { useOAuthCallback } from './hooks/useOAuthCallback.js';
 import { usePlayerState } from './hooks/usePlayerState.js';
 import { useRlsProbe } from './hooks/useRlsProbe.js';
@@ -19,7 +16,7 @@ import { setLocale, t } from './services/i18n.js';
 import { checkImportSize } from './services/importLimits.js';
 import { hasMeaningfulData, writeSnapshot } from './services/persistence.js';
 import { isSealedTome, unsealTome } from './services/sealedTome.js';
-import { clearSession, loadSession, SESSION_KIND, saveSession } from './services/sessionResume.js';
+import { clearSession, loadSession, SESSION_KIND } from './services/sessionResume.js';
 import { signOut } from './services/supabase.js';
 import { lazyWithReload } from './utils/lazyWithReload.js';
 
@@ -30,144 +27,46 @@ const ExamMode = lazyWithReload(() => import('./features/study/ExamMode.jsx'));
 const DungeonExplore = lazyWithReload(() => import('./components/dungeon/DungeonExplore.jsx'));
 
 import {
-  AlertTriangle,
-  ArrowLeft,
-  Award,
-  BookMarked,
-  BookOpen,
-  Brain,
-  Calendar,
   Castle,
-  Check,
-  CheckCircle2,
-  ChevronDown,
   ChevronRight,
-  ChevronUp,
-  Clock,
   Coins,
-  Compass,
-  Copy,
-  Crown,
-  Download,
-  Edit2,
-  Eye,
-  EyeOff,
-  FileJson,
-  Flame,
-  FlaskConical,
-  Gem,
-  Gift,
-  Hash,
-  Heart,
-  HelpCircle,
   Home,
   Keyboard,
   Library,
   Loader2,
-  Lock,
-  MessageSquare,
-  Minus,
   Package,
-  Play,
-  Plus,
-  RotateCcw,
-  Scroll,
   ScrollText,
-  Send,
-  Settings,
-  Share2,
-  Shield,
   ShoppingBag,
-  Skull,
-  Sparkles,
-  Star,
-  Swords,
-  Tag,
-  Target,
-  Trash2,
   TrendingUp,
   Trophy,
-  Upload,
-  User,
-  Wand2,
-  X,
-  Zap,
 } from 'lucide-react';
-import {
-  armAutoSuspend,
-  armOnFirstGesture,
-  disarmAutoSuspend,
-  getAudioSettings,
-  getDefaultAudioSettings,
-  playSfx,
-  setAudioPersistErrorHandler,
-  setBgmVolume,
-  setMuted,
-  setSfxVolume,
-} from './audio/sound.js';
+import { armAutoSuspend, armOnFirstGesture, disarmAutoSuspend, setAudioPersistErrorHandler } from './audio/sound.js';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import { AchievementsModal } from './components/ui/AchievementsModal.jsx';
-import { BLOOM_PALETTE, BloomBadge, DifficultyStars } from './components/ui/badges.jsx';
-import { CollapsibleGroup } from './components/ui/CollapsibleGroup.jsx';
 import { ConfirmModal } from './components/ui/ConfirmModal.jsx';
-import { FilteredModeBanner } from './components/ui/FilteredModeBanner.jsx';
-import { ModeCard } from './components/ui/ModeCard.jsx';
-import { OrnatePanel } from './components/ui/OrnatePanel.jsx';
-import { RecordTile } from './components/ui/RecordTile.jsx';
 import { ResetConfirmModal } from './components/ui/ResetConfirmModal.jsx';
 import ShortcutHelpModal from './components/ui/ShortcutHelpModal.jsx';
 import { TitlesModal } from './components/ui/TitlesModal.jsx';
 import TutorialPanel from './features/tutorial/TutorialPanel.jsx';
 import WelcomeModal from './features/tutorial/WelcomeModal.jsx';
 import { ACHIEVEMENTS } from './game/achievements.js';
-import { BESTIARY_ENTRIES } from './game/bestiary.js';
 import { DEFAULT_STATE } from './game/defaultState.js';
+import { ITEMS } from './game/items.js';
 import {
-  BOSS_ORDER,
-  BOSS_TYPES,
-  DIFFICULTIES,
-  DIFFICULTY_ORDER,
-  isDifficultyUnlocked,
-  rollBoss,
-} from './game/difficulty.js';
-import { findItem, ITEM_CATEGORIES, ITEMS, pickShopStock, RECIPES, sanctumAtCap, sanctumCount } from './game/items.js';
-import {
-  COUNTER_ACTIONS,
   currentWeekStartStr,
-  DAILY_QUEST_POOL,
-  formatStoryAction,
   getCounterValue,
   pickDailyQuests,
   pickWeeklyQuests,
   STORY_CHAINS,
-  WEEKLY_QUEST_POOL,
 } from './game/quests.js';
-import { getTitle, SPECIAL_TITLES, TITLES, xpForLevel } from './game/titles.js';
-import {
-  blankTomeProgress,
-  decodeTomeShareCode,
-  encodeTomeShareCode,
-  formatDuration,
-  generateTomeId,
-  normalizeTomeData,
-  shuffleArray,
-  summarizeRunHistory,
-} from './game/tome.js';
-import { migrateTutorialIndex, snapshotBaselines, TUTORIAL_STEPS, tutorialAutoConditionMet } from './game/tutorial.js';
-import { computeNextClaim, DAILY_REWARDS, dayDiff, evaluateClaim, todayDateStr } from './services/devotion.js';
-import { computeExamPace } from './services/examPace.js';
-import {
-  computeExamPrediction,
-  PREDICTION_HIGH_COVERAGE,
-  PREDICTION_MEDIUM_COVERAGE,
-} from './services/examPrediction.js';
-import { computeMilestones, computeRetentionCurve } from './services/forgettingCurve.js';
+import { getTitle, SPECIAL_TITLES, xpForLevel } from './game/titles.js';
+import { blankTomeProgress, decodeTomeShareCode, shuffleArray } from './game/tome.js';
+import { snapshotBaselines, TUTORIAL_STEPS, tutorialAutoConditionMet } from './game/tutorial.js';
+import { todayDateStr } from './services/devotion.js';
 import { notificationPermission, showStudyReminder } from './services/notifications.js';
-import { getOracleEndpoint, gradeAnswer, isOracleConfigured, ORACLE_MODEL } from './services/oracleGrader.js';
-import { findPet, PET_LEVEL_XP, PET_MAX_LEVEL, PETS, petLevelFromXp } from './services/pets.js';
-import { findSpell, SPELLS } from './services/spells.js';
-import { dueCount, filterDue, SRS_RATINGS, scheduleCard, sortByDueness } from './services/srs.js';
-import { pickWeakestDomain, WEAK_DOMAIN_ACCURACY_THRESHOLD, WEAK_DOMAIN_MIN_SAMPLE } from './services/weakDomain.js';
+import { PETS } from './services/pets.js';
+import { SPELLS } from './services/spells.js';
+import { dueCount } from './services/srs.js';
 
 const LibraryScreen = lazyWithReload(() => import('./features/library/LibraryScreen.jsx'));
 
@@ -307,7 +206,7 @@ export default function DungeonScholarApp() {
       const pref = playerState.theme || 'dark';
       let effective = pref;
       if (pref === 'system') {
-        const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+        const prefersLight = window.matchMedia?.('(prefers-color-scheme: light)').matches;
         effective = prefersLight ? 'light' : 'dark';
       }
       document.documentElement.setAttribute('data-theme', effective);
@@ -535,7 +434,7 @@ export default function DungeonScholarApp() {
   useEffect(() => {
     if (playerState.tutorialCompleted || !playerState.tutorialStarted) return;
     const step = TUTORIAL_STEPS[playerState.tutorialStepIndex];
-    if (!step || !step.autoComplete) return;
+    if (!step?.autoComplete) return;
 
     // Absolute checks: a returning user who already has a tome / studied card /
     // beaten the dungeon should not have to redo it. The previous "delta from
@@ -647,8 +546,8 @@ export default function DungeonScholarApp() {
       if (e.key !== '?') return;
       if (e.ctrlKey || e.metaKey || e.altKey) return;
       const tg = e.target;
-      const tag = tg && tg.tagName ? tg.tagName.toLowerCase() : '';
-      if (tag === 'input' || tag === 'textarea' || (tg && tg.isContentEditable)) return;
+      const tag = tg?.tagName ? tg.tagName.toLowerCase() : '';
+      if (tag === 'input' || tag === 'textarea' || tg?.isContentEditable) return;
       e.preventDefault();
       openModal('shortcuts');
     };
@@ -667,8 +566,8 @@ export default function DungeonScholarApp() {
       if (!(e.ctrlKey || e.metaKey)) return;
       if (e.shiftKey || e.altKey) return; // leave Ctrl+Shift+Z for redo
       const t = e.target;
-      const tag = t && t.tagName ? t.tagName.toLowerCase() : '';
-      if (tag === 'input' || tag === 'textarea' || (t && t.isContentEditable)) return;
+      const tag = t?.tagName ? t.tagName.toLowerCase() : '';
+      if (tag === 'input' || tag === 'textarea' || t?.isContentEditable) return;
       if (!notification || typeof notification.onClick !== 'function') return;
       e.preventDefault();
       try {
@@ -875,7 +774,7 @@ export default function DungeonScholarApp() {
         if (addTomeToLibrary(data)) {
           showNotif(`Tome inscribed: ${data.metadata.title}`, 'success');
         }
-      } catch (err) {
+      } catch (_err) {
         showNotif('Failed to decipher the tome', 'error');
       }
     };
@@ -905,7 +804,7 @@ export default function DungeonScholarApp() {
       if (!addTomeToLibrary(data)) return false;
       showNotif(`Tome inscribed: ${data.metadata.title}`, 'success');
       return true;
-    } catch (err) {
+    } catch (_err) {
       showNotif('Could not parse the pasted text as JSON', 'error');
       return false;
     }
@@ -952,7 +851,7 @@ export default function DungeonScholarApp() {
           if (res) {
             const text = await res.text();
             await cache.delete('shared-tome');
-            if (text && text.trim() && handlePasteImport(text)) {
+            if (text?.trim() && handlePasteImport(text)) {
               setScreen('library');
             }
           }
@@ -1009,7 +908,7 @@ export default function DungeonScholarApp() {
     }
   };
 
-  const lockSealedTome = (tomeId) =>
+  const _lockSealedTome = (tomeId) =>
     setUnsealedTomes((prev) => {
       const n = { ...prev };
       delete n[tomeId];

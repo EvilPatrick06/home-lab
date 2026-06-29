@@ -120,7 +120,7 @@ function LibraryScreen({
   };
   const doBulkTag = () => {
     const tag = typeof window !== 'undefined' && window.prompt ? window.prompt('Add a tag to the selected tomes:') : '';
-    if (tag && tag.trim() && typeof onBulkTag === 'function') onBulkTag(Array.from(selectedIds), tag.trim());
+    if (tag?.trim() && typeof onBulkTag === 'function') onBulkTag(Array.from(selectedIds), tag.trim());
   };
   const doBulkDelete = () => {
     if (

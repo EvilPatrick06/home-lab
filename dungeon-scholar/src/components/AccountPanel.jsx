@@ -1,5 +1,5 @@
 import { Bell, CloudOff, Download, LogOut, RotateCcw, Trash2, Upload } from 'lucide-react';
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useDialogA11y } from '../hooks/useDialogA11y.js';
 import { deleteAccount, deleteCloudSave } from '../services/cloudSync.js';
 import { logError } from '../services/logger.js';
@@ -75,7 +75,7 @@ export function AccountPanel({
     return snap.reason === 'pre-reset' ? `${stamp} — before a reset` : stamp;
   };
   const doImportJournal = (ev) => {
-    const file = ev.target.files && ev.target.files[0];
+    const file = ev.target.files?.[0];
     ev.target.value = '';
     if (!file) return;
     const reader = new FileReader();

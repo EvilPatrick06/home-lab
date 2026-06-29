@@ -1,4 +1,3 @@
-import React from 'react';
 import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 
 function summarize(state) {

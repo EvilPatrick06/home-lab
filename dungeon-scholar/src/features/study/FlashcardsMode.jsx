@@ -42,7 +42,7 @@ function FlashcardsMode({
   // branch must not hand the raw courseSet array to component state, and an
   // unstable identity would re-fire the cards memo + session effects every render.
   const baseDeck = useMemo(
-    () => (cardsProp && cardsProp.length ? cardsProp : courseSet.flashcards || []).slice(),
+    () => (cardsProp?.length ? cardsProp : courseSet.flashcards || []).slice(),
     [cardsProp, courseSet],
   );
 
@@ -176,7 +176,7 @@ function FlashcardsMode({
     setReviewed((r) => r + 1);
     updateTomeProgress((prev) => ({ cardsReviewed: (prev.cardsReviewed || 0) + 1 })); // 17D functional form
     if (card && updateCardProgress) {
-      const prev = (tomeProgress?.cardProgress || {})[card.id];
+      const prev = tomeProgress?.cardProgress?.[card.id];
       updateCardProgress(card.id, scheduleCard(prev, rating));
     }
     const totalCardsAcrossLib = playerState.library.reduce((s, t) => s + (t.progress?.cardsReviewed || 0), 0) + 1;

@@ -10,12 +10,25 @@ import {
 
 function printDataUrl(dataUrl) {
   if (!dataUrl || typeof window === 'undefined') return;
+  // SEC: this is the only raw-print sink; assert the invariant that dataUrl is a
+  // canvas-produced PNG data URL so a future change to renderCertificatePng
+  // (remote/SVG/text passthrough) can never turn the print window into a
+  // DOM-XSS vector. Then build the <img> via DOM APIs instead of document.write
+  // so the URL is assigned as a property and is never parsed as HTML.
+  if (typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image/png;base64,')) return;
   const w = window.open('', '_blank');
   if (!w) return;
-  w.document.write(
-    `<title>Certificate</title><body style="margin:0"><img src="${dataUrl}" style="max-width:100%" onload="window.focus();window.print();"></body>`,
-  );
-  w.document.close();
+  const doc = w.document;
+  doc.title = 'Certificate';
+  doc.body.style.margin = '0';
+  const img = doc.createElement('img');
+  img.src = dataUrl;
+  img.style.maxWidth = '100%';
+  img.addEventListener('load', () => {
+    w.focus();
+    w.print();
+  });
+  doc.body.appendChild(img);
 }
 
 const SHELL_STYLE = {

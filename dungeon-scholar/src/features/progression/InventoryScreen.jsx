@@ -104,7 +104,7 @@ function InventoryScreen({
                           <div className="mt-2 flex items-center gap-2">
                             {isEquipped ? (
                               <button
-                                onClick={() => onUnequip && onUnequip(it.slot)}
+                                onClick={() => onUnequip?.(it.slot)}
                                 className="px-2 py-1 rounded-sm text-[11px] italic"
                                 style={{
                                   background: 'rgba(31,17,8,0.7)',
@@ -116,7 +116,7 @@ function InventoryScreen({
                               </button>
                             ) : (
                               <button
-                                onClick={() => onEquip && onEquip(it.id)}
+                                onClick={() => onEquip?.(it.id)}
                                 className="px-2 py-1 rounded-sm text-[11px] italic"
                                 style={{
                                   background: 'rgba(var(--surface-amber-strong, 120, 53, 15),0.55)',

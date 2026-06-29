@@ -20,7 +20,7 @@ describe('parseHash (PHASE-39 39G)', () => {
   });
 
   it('parses every valid screen', () => {
-    for (const s of SCREENS) expect(parseHash('#/' + s)).toEqual({ screen: s, tomeId: null });
+    for (const s of SCREENS) expect(parseHash(`#/${s}`)).toEqual({ screen: s, tomeId: null });
   });
 
   it('parses tome deep links (bare + with screen + percent-encoded id)', () => {

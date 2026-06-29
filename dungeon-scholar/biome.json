@@ -20,7 +20,7 @@
       "complexity": { "noForEach": "off", "noUselessFragments": "off" },
       "suspicious": { "noArrayIndexKey": "off", "noAssignInExpressions": "warn" },
       "style": { "useNodejsImportProtocol": "off", "noParameterAssign": "off" },
-      "correctness": { "useExhaustiveDependencies": "warn", "noUnusedImports": "warn", "noUnusedFunctionParameters": "warn" }
+      "correctness": { "useExhaustiveDependencies": "warn", "noUnusedImports": "error", "noUnusedFunctionParameters": "warn" }
     }
   },
   "overrides": [

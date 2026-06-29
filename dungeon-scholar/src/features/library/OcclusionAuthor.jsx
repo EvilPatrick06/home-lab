@@ -23,7 +23,7 @@ function OcclusionAuthor({ onClose, onCreate }) {
   const [error, setError] = useState('');
 
   const onPickImage = (e) => {
-    const file = e.target.files && e.target.files[0];
+    const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {

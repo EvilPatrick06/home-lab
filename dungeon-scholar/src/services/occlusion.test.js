@@ -4,7 +4,6 @@ import {
   isAllowedOcclusionImage,
   isOcclusionCard,
   normalizeMask,
-  normalizeMasks,
   removeMask,
   updateMaskAnswer,
   validOcclusionCard,
@@ -14,9 +13,14 @@ const PNG =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
 
 describe('isAllowedOcclusionImage', () => {
-  it('accepts data:image base64 and https URLs', () => {
+  it('accepts data:image base64', () => {
     expect(isAllowedOcclusionImage(PNG)).toBe(true);
-    expect(isAllowedOcclusionImage('https://user-images.githubusercontent.com/x.png')).toBe(true);
+  });
+  it('rejects remote https (data:image-only convergence with CSP img-src)', () => {
+    // SEC: remote https images are a tracking-beacon surface for shared tomes
+    // and are blocked by the production CSP anyway — now rejected at the source.
+    expect(isAllowedOcclusionImage('https://user-images.githubusercontent.com/x.png')).toBe(false);
+    expect(isAllowedOcclusionImage('https://random-host.example/x.png')).toBe(false);
   });
   it('rejects junk / svg / non-string', () => {
     expect(isAllowedOcclusionImage('data:image/svg+xml;base64,abc')).toBe(false);

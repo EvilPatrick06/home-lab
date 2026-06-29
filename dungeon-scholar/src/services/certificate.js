@@ -16,7 +16,7 @@ const MASTERED_MIN_STABILITY_DAYS = 7;
 export function tomeMasteryPct(progress, tome) {
   const cards = Array.isArray(tome?.flashcards) ? tome.flashcards : [];
   if (cards.length === 0) return 0;
-  const map = (progress && progress.cardProgress) || {};
+  const map = progress?.cardProgress || {};
   let mastered = 0;
   for (const c of cards) {
     if (!c || typeof c.id !== 'string') continue;
@@ -77,7 +77,7 @@ export function renderCertificatePng(opts = {}) {
     const canvas = document.createElement('canvas');
     canvas.width = 1000;
     canvas.height = 700;
-    const ctx = canvas.getContext && canvas.getContext('2d');
+    const ctx = canvas.getContext?.('2d');
     if (!ctx) return null;
 
     // Parchment background.

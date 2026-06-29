@@ -18,7 +18,7 @@ export default function SealedTomeGate({ title, onUnlock, onBack }) {
     setBusy(true);
     setError('');
     const res = await onUnlock(passphrase);
-    if (!res || !res.ok) {
+    if (!res?.ok) {
       setError(
         res?.reason === 'wrong-passphrase'
           ? 'That passphrase does not match this seal.'

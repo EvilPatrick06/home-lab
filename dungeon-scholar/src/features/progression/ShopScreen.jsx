@@ -28,7 +28,7 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
 
   const isOwned = (item) => {
     if (!item.oneTime) return false;
-    return ((playerState.inventory || {})[item.id] || 0) > 0;
+    return (playerState.inventory?.[item.id] || 0) > 0;
   };
   const sanctumLevel = (item) => sanctumCount(playerState, item);
   const sanctumCap = (item) => item.cap || 1;

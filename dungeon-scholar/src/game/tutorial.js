@@ -280,10 +280,10 @@ export function tutorialAutoConditionMet(condition, ctx) {
     totalLabsAttemptedAcrossLib = 0,
     totalOracleAcrossLib = 0,
   } = ctx || {};
-  const visits = (playerState && playerState.tutorialVisits) || {};
+  const visits = playerState?.tutorialVisits || {};
   switch (condition) {
     case 'has_tome':
-      return ((playerState && playerState.library) || []).length > 0;
+      return (playerState?.library || []).length > 0;
     case 'studied_card':
       return totalCardsAcrossLib > 0;
     case 'solved_quiz':
@@ -293,7 +293,7 @@ export function tutorialAutoConditionMet(condition, ctx) {
     case 'oracle_used':
       return totalOracleAcrossLib > 0;
     case 'dungeon_completed':
-      return ((playerState && playerState.dungeonAttempts) || 0) > 0;
+      return (playerState?.dungeonAttempts || 0) > 0;
     case 'library_visited':
       return !!visits.library;
     case 'vault_visited':

@@ -80,7 +80,7 @@ function stableStringify(value) {
       const s = stableStringify(v);
       return s === undefined ? 'null' : s;
     });
-    return '[' + items.join(',') + ']';
+    return `[${items.join(',')}]`;
   }
   if (typeof value === 'object') {
     const keys = Object.keys(value).sort();
@@ -88,9 +88,9 @@ function stableStringify(value) {
     for (const k of keys) {
       const s = stableStringify(value[k]);
       if (s === undefined) continue;
-      parts.push(JSON.stringify(k) + ':' + s);
+      parts.push(`${JSON.stringify(k)}:${s}`);
     }
-    return '{' + parts.join(',') + '}';
+    return `{${parts.join(',')}}`;
   }
   return undefined;
 }
@@ -254,7 +254,7 @@ export function listSnapshots() {
   try {
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (!key || !key.startsWith(SNAPSHOT_PREFIX)) continue;
+      if (!key?.startsWith(SNAPSHOT_PREFIX)) continue;
       const tsFromKey = Number(key.slice(SNAPSHOT_PREFIX.length));
       let reason = null;
       let bytes = 0;
@@ -262,7 +262,7 @@ export function listSnapshots() {
         const raw = localStorage.getItem(key);
         bytes = raw ? raw.length : 0;
         const parsed = raw ? JSON.parse(raw) : null;
-        reason = parsed && parsed.reason ? parsed.reason : null;
+        reason = parsed?.reason ? parsed.reason : null;
       } catch {
         /* leave defaults */
       }
@@ -309,7 +309,7 @@ export function writeSnapshot(state, opts = {}) {
   if (!force && !hasMeaningfulData(state)) return { ok: false, skipped: true };
   // Ensure a unique key even for multiple writes within the same ms.
   let key = SNAPSHOT_PREFIX + now;
-  for (let n = 1; localStorage.getItem(key) != null; n++) key = SNAPSHOT_PREFIX + now + '.' + n;
+  for (let n = 1; localStorage.getItem(key) != null; n++) key = `${SNAPSHOT_PREFIX + now}.${n}`;
   const payload = JSON.stringify({ ts: now, reason: opts.reason || null, __schemaVer: CURRENT_SCHEMA_VER, state });
   try {
     localStorage.setItem(key, payload);
@@ -333,7 +333,7 @@ export function restoreSnapshot(key) {
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     const ver = typeof parsed.__schemaVer === 'number' ? parsed.__schemaVer : 0;
-    const state = parsed && parsed.state;
+    const state = parsed?.state;
     if (!state || typeof state !== 'object') return null;
     return migrateIfNeeded(state, ver);
   } catch {

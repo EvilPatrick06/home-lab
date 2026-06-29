@@ -197,16 +197,16 @@ describe('parseRichContent', () => {
       ]);
     });
 
-    it('accepts trusted https hosts (GitHub user images)', () => {
-      const out = parseRichContent('![diagram](https://user-images.githubusercontent.com/123/abc.png)');
-      expect(out).toEqual([
-        { type: 'image', alt: 'diagram', src: 'https://user-images.githubusercontent.com/123/abc.png' },
+    it('falls back to text for ALL remote https images (data:image-only convergence)', () => {
+      // SEC: remote https images (even the former GitHub-host allowlist) are a
+      // tracking-beacon surface for shared tomes and are blocked by the
+      // production CSP anyway, so they now fall back to literal text.
+      const gh = parseRichContent('![diagram](https://user-images.githubusercontent.com/123/abc.png)');
+      expect(gh).toEqual([
+        { type: 'text', content: '![diagram](https://user-images.githubusercontent.com/123/abc.png)' },
       ]);
-    });
-
-    it('falls back to text for an untrusted host', () => {
-      const out = parseRichContent('![evil](https://random-host.example/x.png)');
-      expect(out).toEqual([{ type: 'text', content: '![evil](https://random-host.example/x.png)' }]);
+      const evil = parseRichContent('![evil](https://random-host.example/x.png)');
+      expect(evil).toEqual([{ type: 'text', content: '![evil](https://random-host.example/x.png)' }]);
     });
 
     it('falls back to text for http://', () => {

@@ -19,7 +19,7 @@ export const POTION_EFFECTS = {
 export const takeForesightPreview = (chargesRef, q) => {
   if (!chargesRef || chargesRef.current <= 0) return null;
   chargesRef.current -= 1;
-  return q && q.domain ? q.domain : 'Uncharted';
+  return q?.domain ? q.domain : 'Uncharted';
 };
 // === Spell info (Phase 19) ==============================================
 // In-dungeon mirror of the SPELLS catalog in App.jsx — kept here so the
