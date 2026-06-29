@@ -48,6 +48,8 @@ jobs:
         run: npm run lint
       - name: Forbidden patterns (28e.3-28e.7)
         run: npm run lint:forbidden
+      - name: File size budget (god-file ratchet)
+        run: npm run lint:file-size
       - name: Typecheck (web)
         run: npx tsc --noEmit -p tsconfig.web.json
       - name: Typecheck (node)

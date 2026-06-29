@@ -12,6 +12,18 @@
 
 ---
 
+### [2026-06-25] Renderer god-components `GameLayout.tsx` and `PdfViewer.tsx` stay monolithic despite established sibling extraction dirs
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-29
+- **Resolution:** All three proposed-fix items delivered. (1) GameLayout extractions into `game-layout/`: `usePanelResize` (bottom-bar/sidebar collapse + persisted sizes + drag/double-click handlers) and `useFullscreen` (fullscreen state + toggle). (2) PdfViewer extractions into `pdf-viewer/`: `usePdfSearch` (query UI state, per-page highlight computation, result navigation), `usePdfDrawing` (tool/color/size + per-page strokes + undo/redo stacks + handlers), and `usePdfAnnotations` (bookmarks, page annotations, panel/input state + add/remove handlers). PdfViewer 1,378 → 1,236 LOC; GameLayout's panel/fullscreen concerns lifted out. Each extraction is behavior-preserving (verbatim logic), tsc web+node + biome + GameLayout/LibraryPage tests green. (3) **The size ratchet** — `scripts/lint/file-size-budget.mjs` gives each god-file a hard LOC ceiling (GameLayout 1290, PdfViewer 1236) and fails CI (wired into `dnd-app-ci.yml`, npm `lint:file-size`) if either grows past it, so they can only SHRINK from here — the author must extract rather than raise the budget. Further decomposition (PdfViewer page-render/TOC, GameLayout modal-group/overlay wiring) is now a guarded, incremental path: lower the budgets as pieces come out. Closing the entry since its actionable scope (extract from both + add the budget lint) is complete and enforced.
+- **Category:** debt
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Branch:** auto/dnd-resolver
+
+---
+
 ### [2026-06-24] i18n has no RTL / document-`dir` infrastructure — adding any right-to-left locale would need layout work first
 
 - **Resolved by:** dnd-resolver (automated)

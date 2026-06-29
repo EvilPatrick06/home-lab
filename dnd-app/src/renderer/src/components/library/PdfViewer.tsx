@@ -2,12 +2,14 @@ import type { PDFDocumentProxy } from 'pdfjs-dist'
 import * as pdfjsLib from 'pdfjs-dist'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useT } from '../../i18n'
-import type { DrawingStroke, DrawingTool, PageDrawings } from './PdfDrawingOverlay'
+import type { PageDrawings } from './PdfDrawingOverlay'
 import PdfDrawingOverlay, { DrawingToolbar } from './PdfDrawingOverlay'
-import { generateId, initPdfWorker } from './pdf-viewer/pdf-utils'
+import { initPdfWorker } from './pdf-viewer/pdf-utils'
 import { CROSS_BOOK_REFS, FALLBACK_TOC, SUPPLEMENTAL_TOC } from './pdf-viewer/toc-data'
 import { sortByPage } from './pdf-viewer/toc-utils'
 import type { AnnotationEntry, BookmarkEntry, PdfViewerProps, SearchHighlight, TocEntry } from './pdf-viewer/types'
+import { usePdfAnnotations } from './pdf-viewer/use-pdf-annotations'
+import { usePdfDrawing } from './pdf-viewer/use-pdf-drawing'
 import { usePdfSearch } from './pdf-viewer/use-pdf-search'
 
 // Re-export internal types so any existing import of these symbols from this
@@ -45,18 +47,41 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
   const [pageDimensions, setPageDimensions] = useState<Map<number, { width: number; height: number }>>(new Map())
 
   // Bookmarks & annotations
-  const [bookmarks, setBookmarks] = useState<BookmarkEntry[]>([])
-  const [annotations, setAnnotations] = useState<AnnotationEntry[]>([])
-  const [showBookmarks, setShowBookmarks] = useState(false)
-  const [annotationText, setAnnotationText] = useState('')
-  const [showAnnotationInput, setShowAnnotationInput] = useState(false)
+  const {
+    bookmarks,
+    setBookmarks,
+    annotations,
+    setAnnotations,
+    showBookmarks,
+    setShowBookmarks,
+    annotationText,
+    setAnnotationText,
+    showAnnotationInput,
+    setShowAnnotationInput,
+    addBookmark,
+    removeBookmark,
+    addAnnotation,
+    removeAnnotation,
+    isPageBookmarked
+  } = usePdfAnnotations({ bookId, currentPage })
 
   // Drawing tools
-  const [drawingTool, setDrawingTool] = useState<DrawingTool>('none')
-  const [drawingColor, setDrawingColor] = useState('#FACC15')
-  const [drawingSize, setDrawingSize] = useState(20)
-  const [pageDrawings, setPageDrawings] = useState<PageDrawings>({})
-  const [redoStack, setRedoStack] = useState<PageDrawings>({})
+  const {
+    drawingTool,
+    setDrawingTool,
+    drawingColor,
+    setDrawingColor,
+    drawingSize,
+    setDrawingSize,
+    pageDrawings,
+    setPageDrawings,
+    handleStrokeComplete,
+    handleUndoDrawing,
+    handleRedoDrawing,
+    handleClearPageDrawings,
+    currentPageHasStrokes,
+    currentPageHasRedo
+  } = usePdfDrawing(currentPage)
 
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const pageRefsMap = useRef<Map<number, HTMLDivElement>>(new Map())
@@ -460,7 +485,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
         setPendingGoToPage(data.lastPage as number)
       }
     })
-  }, [bookId])
+  }, [bookId, setBookmarks, setAnnotations, setPageDrawings])
 
   // Helper to build save payload using ref for lastPage (never overwrites with 1)
   const doSave = useCallback(() => {
@@ -630,101 +655,6 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
     window.addEventListener('pdf-go-to-page', handleGoToPage)
     return () => window.removeEventListener('pdf-go-to-page', handleGoToPage)
   }, [goToPage])
-
-  // Bookmark management
-  // biome-ignore lint/correctness/useExhaustiveDependencies: addBookmark useCallback uses t only for the bookmark label string. Listing fresh-each-render t recreates the callback every render.
-  const addBookmark = useCallback(() => {
-    const bookmark: BookmarkEntry = {
-      id: generateId(),
-      bookId,
-      page: currentPage,
-      label: t('library.pdfViewer.pageLabel', { page: currentPage }),
-      createdAt: new Date().toISOString()
-    }
-    setBookmarks((prev) => [...prev, bookmark])
-  }, [bookId, currentPage])
-
-  const removeBookmark = useCallback((id: string) => {
-    setBookmarks((prev) => prev.filter((b) => b.id !== id))
-  }, [])
-
-  const isPageBookmarked = bookmarks.some((b) => b.page === currentPage)
-
-  // Annotation management
-  const addAnnotation = useCallback(() => {
-    if (!annotationText.trim()) return
-    const annotation: AnnotationEntry = {
-      id: generateId(),
-      bookId,
-      page: currentPage,
-      text: annotationText.trim(),
-      createdAt: new Date().toISOString()
-    }
-    setAnnotations((prev) => [...prev, annotation])
-    setAnnotationText('')
-    setShowAnnotationInput(false)
-  }, [bookId, currentPage, annotationText])
-
-  const removeAnnotation = useCallback((id: string) => {
-    setAnnotations((prev) => prev.filter((a) => a.id !== id))
-  }, [])
-
-  // Drawing callbacks
-  const handleStrokeComplete = useCallback((_page: number, stroke: DrawingStroke) => {
-    setPageDrawings((prev) => {
-      const existing = prev[_page] || []
-      return { ...prev, [_page]: [...existing, stroke] }
-    })
-    setRedoStack((prev) => {
-      const next = { ...prev }
-      delete next[_page]
-      return next
-    })
-  }, [])
-
-  const handleUndoDrawing = useCallback(() => {
-    setPageDrawings((prev) => {
-      const existing = prev[currentPage]
-      if (!existing || existing.length === 0) return prev
-      const removed = existing[existing.length - 1]
-      setRedoStack((rs) => ({
-        ...rs,
-        [currentPage]: [...(rs[currentPage] || []), removed]
-      }))
-      return { ...prev, [currentPage]: existing.slice(0, -1) }
-    })
-  }, [currentPage])
-
-  const handleRedoDrawing = useCallback(() => {
-    setRedoStack((prev) => {
-      const stack = prev[currentPage]
-      if (!stack || stack.length === 0) return prev
-      const restored = stack[stack.length - 1]
-      setPageDrawings((pd) => ({
-        ...pd,
-        [currentPage]: [...(pd[currentPage] || []), restored]
-      }))
-      return { ...prev, [currentPage]: stack.slice(0, -1) }
-    })
-  }, [currentPage])
-
-  const handleClearPageDrawings = useCallback(() => {
-    const existing = pageDrawings[currentPage]
-    if (!existing || existing.length === 0) return
-    // Push all cleared strokes (reversed) onto redo so clear can be undone
-    setRedoStack((prev) => ({
-      ...prev,
-      [currentPage]: [...(prev[currentPage] || []), ...existing.slice().reverse()]
-    }))
-    setPageDrawings((prev) => {
-      const next = { ...prev }
-      delete next[currentPage]
-      return next
-    })
-  }, [currentPage, pageDrawings])
-
-  const currentPageHasStrokes = (pageDrawings[currentPage]?.length ?? 0) > 0
-  const currentPageHasRedo = (redoStack[currentPage]?.length ?? 0) > 0
 
   const _pageAnnotations = annotations.filter((a) => a.page === currentPage)
 
