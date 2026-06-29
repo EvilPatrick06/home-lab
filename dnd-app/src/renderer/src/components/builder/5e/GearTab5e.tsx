@@ -219,7 +219,7 @@ function InventoryItem({
               e.stopPropagation()
               onRemove()
             }}
-            className="text-gray-600 hover:text-red-400 transition-colors ml-2 shrink-0 text-xs px-1"
+            className="text-gray-600 hover:text-red-400 transition-colors ms-2 shrink-0 text-xs px-1"
             title={t('builder.gearTab.removeItem')}
             aria-label={t('builder.gearTab.removeItem')}
           >
@@ -228,7 +228,7 @@ function InventoryItem({
         )}
       </div>
       {expanded && (
-        <div className="ml-5 mb-1 bg-surface-2/40 rounded">
+        <div className="ms-5 mb-1 bg-surface-2/40 rounded">
           <ItemDetailView item={looked} />
         </div>
       )}

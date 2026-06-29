@@ -77,7 +77,7 @@ export default function PlayerHUDStats({
             <span className="absolute inset-0 flex items-center justify-center text-[9px] font-semibold text-white drop-shadow">
               {hp.current}/{hp.maximum}
               {hp.temporary > 0 && (
-                <span className="text-blue-300 ml-0.5">
+                <span className="text-blue-300 ms-0.5">
                   {t('game.playerHUDStats.tempBonus', { temp: hp.temporary })}
                 </span>
               )}

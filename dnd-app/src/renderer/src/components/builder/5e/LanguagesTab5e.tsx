@@ -198,12 +198,12 @@ export default function LanguagesTab5e(): JSX.Element {
                   >
                     {lang}
                     {desc && (
-                      <span className={`text-xs ml-0.5 ${isRare ? 'text-purple-500/60' : 'text-green-500/60'}`}>?</span>
+                      <span className={`text-xs ms-0.5 ${isRare ? 'text-purple-500/60' : 'text-green-500/60'}`}>?</span>
                     )}
                     {isChosen && (
                       <button
                         onClick={() => handleRemoveChosenLanguage(lang)}
-                        className={`ml-0.5 hover:text-red-400 transition-colors ${isRare ? 'text-purple-400' : 'text-green-400'}`}
+                        className={`ms-0.5 hover:text-red-400 transition-colors ${isRare ? 'text-purple-400' : 'text-green-400'}`}
                         title={t('builder.languagesTab.removeLanguage', { lang })}
                       >
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

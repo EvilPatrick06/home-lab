@@ -61,7 +61,7 @@ export default function CantripPicker5e({
                 {selected && '\u2713'}
               </span>
               {spell.name}
-              <span className="ml-auto text-xs text-gray-600">{spell.school}</span>
+              <span className="ms-auto text-xs text-gray-600">{spell.school}</span>
             </button>
           )
         })}

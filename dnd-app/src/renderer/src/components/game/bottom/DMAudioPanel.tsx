@@ -423,7 +423,7 @@ export default function DMAudioPanel(): JSX.Element {
               >
                 <span className="text-xs">{track.icon}</span>
                 <span className="truncate">{track.label}</span>
-                {isActive && <span className="ml-auto text-[8px] text-accent animate-pulse">{'\u25B6'}</span>}
+                {isActive && <span className="ms-auto text-[8px] text-accent animate-pulse">{'\u25B6'}</span>}
               </button>
             )
           })}
@@ -667,7 +667,7 @@ export default function DMAudioPanel(): JSX.Element {
 
                   {/* Tracks */}
                   {pl.tracks.length > 0 && (
-                    <div className="mt-1 pl-6 space-y-0.5">
+                    <div className="mt-1 ps-6 space-y-0.5">
                       {pl.tracks.map((t, i) => (
                         <div key={i} className="flex items-center gap-1 text-[9px] text-muted">
                           <span
@@ -687,7 +687,7 @@ export default function DMAudioPanel(): JSX.Element {
                   )}
 
                   {/* Add-track controls */}
-                  <div className="mt-1 pl-6 flex gap-1">
+                  <div className="mt-1 ps-6 flex gap-1">
                     <select
                       name="add-preset-track"
                       value=""

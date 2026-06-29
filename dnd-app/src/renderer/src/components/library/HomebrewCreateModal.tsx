@@ -400,7 +400,7 @@ export default function HomebrewCreateModal({
                   : t('library.homebrewCreateModal.campaignOnly')}
               </span>
             </label>
-            <p className="text-xs text-gray-500 mt-1 ml-6">
+            <p className="text-xs text-gray-500 mt-1 ms-6">
               {campaignOnly
                 ? t('library.homebrewCreateModal.campaignScopedDesc')
                 : t('library.homebrewCreateModal.globalScopeDesc')}
@@ -680,7 +680,7 @@ function EffectRow({
         />
       )}
 
-      <button onClick={onRemove} className="ml-auto text-xs text-red-400 hover:text-red-300 cursor-pointer">
+      <button onClick={onRemove} className="ms-auto text-xs text-red-400 hover:text-red-300 cursor-pointer">
         {t('library.homebrewCreateModal.remove')}
       </button>
     </div>

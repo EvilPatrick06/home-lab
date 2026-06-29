@@ -99,7 +99,7 @@ export default function HpRollSection5e({ character, level, hitDieOverride }: Hp
             con: `${conMod >= 0 ? '+' : ''}${conMod}`
           })}
           {locked && (
-            <span className="ml-2 text-xs text-gray-500 border border-gray-600 rounded px-1 uppercase">
+            <span className="ms-2 text-xs text-gray-500 border border-gray-600 rounded px-1 uppercase">
               {t('levelup.hpRollSection.locked')}
             </span>
           )}

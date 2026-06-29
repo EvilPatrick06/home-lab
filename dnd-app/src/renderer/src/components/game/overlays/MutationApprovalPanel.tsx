@@ -237,7 +237,7 @@ function MutationCard({
               <span>{changeLabel(m)}</span>
             </div>
             {m.reason ? (
-              <div className="text-[10px] text-gray-500 break-words pl-3" title={String(m.reason)}>
+              <div className="text-[10px] text-gray-500 break-words ps-3" title={String(m.reason)}>
                 ({String(m.reason)})
               </div>
             ) : null}

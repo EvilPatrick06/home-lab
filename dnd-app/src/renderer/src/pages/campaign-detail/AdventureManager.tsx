@@ -174,7 +174,7 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
 
       {/* Adventure Edit Modal */}
       <Modal open={editingId !== null} onClose={() => setEditingId(null)} title={t('pages.adventureManager.editTitle')}>
-        <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+        <div className="space-y-3 max-h-[60vh] overflow-y-auto pe-1">
           <div>
             <label className="block text-muted text-xs mb-1">{t('pages.adventureManager.titleLabel')}</label>
             <input

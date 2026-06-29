@@ -170,7 +170,7 @@ function LogEntry({ entry }: { entry: CombatLogEntry }): JSX.Element {
   const valueColor = getValueColor(entry.type)
 
   return (
-    <div className={`border-l-2 ${borderColor} pl-2 py-1`}>
+    <div className={`border-l-2 ${borderColor} ps-2 py-1`}>
       <div className="flex items-start gap-1.5">
         <span className="text-[11px] shrink-0 mt-px">{icon}</span>
         <div className="flex-1 min-w-0">
@@ -342,7 +342,7 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
           <button
             onClick={() => handleExport('json')}
             title={t('game.combatLogPanel.exportJson')}
-            className="px-1.5 py-0.5 text-[9px] font-bold text-muted bg-surface-2 rounded hover:text-accent hover:bg-gray-700 transition-colors uppercase cursor-pointer mr-1"
+            className="px-1.5 py-0.5 text-[9px] font-bold text-muted bg-surface-2 rounded hover:text-accent hover:bg-gray-700 transition-colors uppercase cursor-pointer me-1"
           >
             {t('game.combatLogPanel.json')}
           </button>

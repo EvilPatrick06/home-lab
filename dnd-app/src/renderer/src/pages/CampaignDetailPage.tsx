@@ -383,7 +383,7 @@ export default function CampaignDetailPage(): JSX.Element {
                 <div key={player.userId} className="flex items-center justify-between bg-surface-2/50 rounded-lg p-3">
                   <div>
                     <span className="font-semibold text-sm">{player.displayName}</span>
-                    <span className="text-gray-500 text-xs ml-2">
+                    <span className="text-gray-500 text-xs ms-2">
                       {t('pages.campaignDetailPage.joined', { date: new Date(player.joinedAt).toLocaleDateString() })}
                     </span>
                   </div>
@@ -467,7 +467,7 @@ export default function CampaignDetailPage(): JSX.Element {
           {!campaign.lootHistory || campaign.lootHistory.length === 0 ? (
             <p className="text-gray-500 text-sm">{t('pages.campaignDetailPage.noLoot')}</p>
           ) : (
-            <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
+            <div className="space-y-2 max-h-64 overflow-y-auto pe-2">
               {campaign.lootHistory
                 .slice()
                 .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())

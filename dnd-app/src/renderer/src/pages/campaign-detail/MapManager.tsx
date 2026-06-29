@@ -164,15 +164,15 @@ export default function MapManager({ campaign, saveCampaign }: MapManagerProps):
                   <div key={map.id} className="flex items-center justify-between bg-surface-2/50 rounded-lg p-3">
                     <div>
                       <span className="font-semibold text-sm">{displayName}</span>
-                      <span className="text-gray-500 text-xs ml-2">
+                      <span className="text-gray-500 text-xs ms-2">
                         {t('pages.mapManager.gridInfo', { gridType: map.grid.type, cellSize: map.grid.cellSize })}
                       </span>
-                      <span className="text-gray-600 text-xs ml-2">·</span>
-                      <span className="text-gray-600 text-xs ml-2">
+                      <span className="text-gray-600 text-xs ms-2">·</span>
+                      <span className="text-gray-600 text-xs ms-2">
                         {map.width}×{map.height}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 ml-2">
+                    <div className="flex items-center gap-2 ms-2">
                       {campaign.activeMapId === map.id && (
                         <span className="text-xs text-accent bg-amber-900/30 px-2 py-0.5 rounded-full">
                           {t('pages.mapManager.active')}

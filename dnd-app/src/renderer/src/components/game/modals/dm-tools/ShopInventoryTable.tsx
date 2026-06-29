@@ -112,7 +112,7 @@ export default function ShopInventoryTable({
                   {item.name}
                   {item.dmNotes && (
                     <span
-                      className="text-red-400 ml-1"
+                      className="text-red-400 ms-1"
                       title={t('game.shopInventoryTable.dmNoteTooltip', { note: item.dmNotes })}
                     >
                       *

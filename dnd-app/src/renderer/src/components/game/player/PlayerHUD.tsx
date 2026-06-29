@@ -45,7 +45,7 @@ export default function PlayerHUD({ character, conditions }: PlayerHUDProps): JS
           aria-label={t('game.playerHud.characterLabel', { name: character.name, level: character.level })}
         >
           <span className="text-sm font-semibold text-fg">{character.name}</span>
-          <span className="text-xs text-gray-500 ml-2">{t('game.playerHud.level', { level: character.level })}</span>
+          <span className="text-xs text-gray-500 ms-2">{t('game.playerHud.level', { level: character.level })}</span>
         </div>
 
         {/* HP bar */}
@@ -74,7 +74,7 @@ export default function PlayerHUD({ character, conditions }: PlayerHUDProps): JS
             </div>
             <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-white drop-shadow">
               {hp.current} / {hp.maximum}
-              {hp.temporary > 0 && <span className="text-blue-300 ml-1">(+{hp.temporary})</span>}
+              {hp.temporary > 0 && <span className="text-blue-300 ms-1">(+{hp.temporary})</span>}
             </span>
           </div>
         </div>

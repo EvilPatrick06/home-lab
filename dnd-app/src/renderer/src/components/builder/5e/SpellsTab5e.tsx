@@ -366,7 +366,7 @@ export default function SpellsTab5e(): JSX.Element {
           <div className="text-xs text-gray-500 mb-1">
             {t('builder.spellsTab.speciesSpellsLabel')}
             <span className="text-accent">{speciesSpells.length}</span>
-            <span className="text-gray-600 ml-1">{t('builder.spellsTab.autoIncluded')}</span>
+            <span className="text-gray-600 ms-1">{t('builder.spellsTab.autoIncluded')}</span>
           </div>
         )}
 
@@ -374,7 +374,7 @@ export default function SpellsTab5e(): JSX.Element {
           <div className="text-xs text-gray-500 mb-1">
             {t('builder.spellsTab.alwaysPreparedLabel')}{' '}
             <span className="text-green-400">{alwaysPreparedIds.size}</span>
-            <span className="text-gray-600 ml-1">{t('builder.spellsTab.fromClassFeatures')}</span>
+            <span className="text-gray-600 ms-1">{t('builder.spellsTab.fromClassFeatures')}</span>
           </div>
         )}
 
@@ -419,7 +419,7 @@ export default function SpellsTab5e(): JSX.Element {
           <div className="px-4 py-1 bg-surface/60">
             <span className="text-xs font-semibold text-green-400 uppercase">
               {t('builder.spellsTab.alwaysPreparedHeader')}
-              <span className="text-gray-600 ml-1">
+              <span className="text-gray-600 ms-1">
                 {t('builder.spellsTab.count', { count: alwaysPreparedIds.size })}
               </span>
             </span>
@@ -455,7 +455,7 @@ export default function SpellsTab5e(): JSX.Element {
           <div className="px-4 py-1 bg-surface/60">
             <span className="text-xs font-semibold text-purple-400 uppercase">
               {t('builder.spellsTab.speciesSpellsHeaderPlain')}
-              <span className="text-gray-600 ml-1">
+              <span className="text-gray-600 ms-1">
                 {t('builder.spellsTab.count', { count: speciesSpells.length })}
               </span>
             </span>

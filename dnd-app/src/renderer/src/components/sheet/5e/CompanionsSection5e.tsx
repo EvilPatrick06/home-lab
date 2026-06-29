@@ -117,7 +117,7 @@ export default function CompanionsSection5e({ character, readonly }: CompanionsS
                     <span className="text-xs opacity-50">{isExpanded ? '\u25BE' : '\u25B8'}</span>
                   </button>
 
-                  <div className="flex items-center gap-2 shrink-0 ml-2">
+                  <div className="flex items-center gap-2 shrink-0 ms-2">
                     {/* HP bar */}
                     <div className="w-16 flex items-center gap-1">
                       <div className="flex-1 h-1.5 bg-gray-700 rounded-full overflow-hidden">
@@ -157,7 +157,7 @@ export default function CompanionsSection5e({ character, readonly }: CompanionsS
                         {comp.type === 'familiar' && !comp.dismissed && (
                           <button
                             onClick={() => updateCompanion(comp.id, { dismissed: true })}
-                            className="ml-auto px-2 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer"
+                            className="ms-auto px-2 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer"
                           >
                             {t('sheet.companions.dismiss')}
                           </button>
@@ -165,7 +165,7 @@ export default function CompanionsSection5e({ character, readonly }: CompanionsS
                         {comp.type === 'familiar' && comp.dismissed && (
                           <button
                             onClick={() => updateCompanion(comp.id, { dismissed: false })}
-                            className="ml-auto px-2 py-0.5 text-xs bg-amber-700 hover:bg-amber-600 rounded text-white cursor-pointer"
+                            className="ms-auto px-2 py-0.5 text-xs bg-amber-700 hover:bg-amber-600 rounded text-white cursor-pointer"
                           >
                             {t('sheet.companions.resummon')}
                           </button>
@@ -242,7 +242,7 @@ export default function CompanionsSection5e({ character, readonly }: CompanionsS
               <div key={i} className="flex items-center justify-between bg-surface-2/50 rounded px-2 py-1 text-sm">
                 <div>
                   <span className="text-gray-300 font-medium">{pet.name}</span>
-                  {pet.type && <span className="text-gray-500 text-xs ml-1.5">({pet.type})</span>}
+                  {pet.type && <span className="text-gray-500 text-xs ms-1.5">({pet.type})</span>}
                 </div>
               </div>
             ))}

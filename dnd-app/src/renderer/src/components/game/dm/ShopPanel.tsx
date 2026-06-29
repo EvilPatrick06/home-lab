@@ -176,13 +176,13 @@ export default function ShopPanel(): JSX.Element {
               >
                 <div>
                   <span className="text-gray-200">{item.name}</span>
-                  <span className="text-gray-500 ml-1">({formatPrice(item.price)})</span>
+                  <span className="text-gray-500 ms-1">({formatPrice(item.price)})</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <span className="text-muted">x{item.quantity}</span>
                   <button
                     onClick={() => removeShopItem(item.id)}
-                    className="text-red-400 hover:text-red-300 ml-1 cursor-pointer"
+                    className="text-red-400 hover:text-red-300 ms-1 cursor-pointer"
                   >
                     x
                   </button>

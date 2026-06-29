@@ -146,7 +146,7 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
                 update('maxPlayers', val)
               }}
             />
-            <span className="text-gray-500 text-sm ml-3">{t('campaign.detailsStep.maxPlayersRange')}</span>
+            <span className="text-gray-500 text-sm ms-3">{t('campaign.detailsStep.maxPlayersRange')}</span>
           </div>
         )}
 

@@ -168,7 +168,7 @@ export default function MacroBar({ character, onRoll }: MacroBarProps): JSX.Elem
       </button>
 
       {/* Custom formula */}
-      <div className="shrink-0 flex items-center gap-1 ml-1">
+      <div className="shrink-0 flex items-center gap-1 ms-1">
         <input
           type="text"
           name="custom-formula"

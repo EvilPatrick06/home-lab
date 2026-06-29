@@ -124,7 +124,7 @@ function ChapterDetail({ chapter, index }: { chapter: AdventureChapter; index: n
         <span className="text-sm font-semibold">{chapter.title}</span>
       </button>
       {expanded && (
-        <div className="mt-2 ml-6 space-y-2">
+        <div className="mt-2 ms-6 space-y-2">
           <p className="text-sm text-muted">{chapter.description}</p>
           {chapter.maps.length > 0 && (
             <div className="text-xs text-gray-500">
@@ -380,7 +380,7 @@ export default function AdventureSelector({
                         >
                           <div>
                             <span className="text-sm font-semibold">{enc.name}</span>
-                            <span className="text-xs text-gray-500 ml-2">
+                            <span className="text-xs text-gray-500 ms-2">
                               {enc.monsters.map((m) => `${m.monsterId} x${m.count}`).join(', ')}
                             </span>
                           </div>

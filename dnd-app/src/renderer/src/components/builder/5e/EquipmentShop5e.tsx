@@ -142,7 +142,7 @@ export default function EquipmentShop5e({
                   }}
                 >
                   <div className="flex items-center justify-between px-3 py-1.5 border-b border-gray-800/50 hover:bg-surface-2/40">
-                    <div className="min-w-0 flex-1 mr-2">
+                    <div className="min-w-0 flex-1 me-2">
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-gray-200 truncate">{item.name}</span>
                         <span className="text-xs text-gray-500 shrink-0">{item.cost}</span>

@@ -145,7 +145,7 @@ function MagicItemCard5e({
         </div>
         {/* Charges */}
         {item.charges && (
-          <div className="flex items-center gap-1 mr-2 shrink-0">
+          <div className="flex items-center gap-1 me-2 shrink-0">
             <span className="text-xs text-gray-500">{t('sheet.magicItemCard.charges')}</span>
             <button
               disabled={readonly || item.charges.current <= 0}
@@ -213,7 +213,7 @@ function MagicItemCard5e({
               } as Character5e
               saveAndBroadcast(updated)
             }}
-            className="text-gray-600 hover:text-red-400 cursor-pointer text-xs ml-2 shrink-0"
+            className="text-gray-600 hover:text-red-400 cursor-pointer text-xs ms-2 shrink-0"
             title={t('sheet.magicItemCard.removeMagicItem')}
           >
             &#x2715;
@@ -233,7 +233,7 @@ function MagicItemCard5e({
               } as Character5e
               saveAndBroadcast(updated)
             }}
-            className="text-xs text-green-400 hover:text-green-300 cursor-pointer ml-2 shrink-0 border border-green-600 rounded px-1.5 py-0.5"
+            className="text-xs text-green-400 hover:text-green-300 cursor-pointer ms-2 shrink-0 border border-green-600 rounded px-1.5 py-0.5"
             title={t('sheet.magicItemCard.identifyTitle')}
           >
             {t('sheet.magicItemCard.identify')}

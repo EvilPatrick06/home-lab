@@ -119,13 +119,13 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
               <span className="text-xs text-gray-500">
                 {t('game.shortRestPanel.levelPrefix', { level: pc.level })} {classes.map((c) => c.name).join('/')}
               </span>
-              <span className="ml-auto text-xs text-muted">
+              <span className="ms-auto text-xs text-muted">
                 {t('game.shortRestPanel.hp', { current: pc.hitPoints.current, max: pc.hitPoints.maximum })}
               </span>
             </div>
 
             {state.selected && (
-              <div className="space-y-2 pl-6">
+              <div className="space-y-2 ps-6">
                 {/* HD info */}
                 <div className="text-xs text-muted">
                   {t('game.shortRestPanel.hitDice')}{' '}
@@ -133,7 +133,7 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
                     {pc.hitDice.reduce((s, h) => s + h.current, 0)}/{pc.hitDice.reduce((s, h) => s + h.maximum, 0)}
                   </span>
                   {isMulticlass && (
-                    <span className="text-gray-500 ml-1">
+                    <span className="text-gray-500 ms-1">
                       ({pc.hitDice.map((h) => `${h.current}/${h.maximum}d${h.dieType}`).join(' + ')})
                     </span>
                   )}
@@ -216,7 +216,7 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
                     {state.rolls.length > 0 && (
                       <div className="text-xs font-semibold text-green-400 pt-1 border-t border-border/50">
                         {t('game.shortRestPanel.totalHp', { total: totalHealing })}
-                        <span className="text-gray-500 font-normal ml-2">
+                        <span className="text-gray-500 font-normal ms-2">
                           ({pc.hitPoints.current} →{' '}
                           {Math.min(pc.hitPoints.maximum, pc.hitPoints.current + totalHealing)})
                         </span>

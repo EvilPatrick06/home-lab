@@ -104,7 +104,7 @@ export default function RulingApprovalModal(): JSX.Element | null {
               {t('game.rulingApprovalModal.queueCount', { count: pendingActionSets.length })}
             </span>
           )}
-          <span className="text-xs text-muted ml-auto">
+          <span className="text-xs text-muted ms-auto">
             {t('game.rulingApprovalModal.actionCount', { count: pendingActions.actions.length })}
           </span>
         </div>

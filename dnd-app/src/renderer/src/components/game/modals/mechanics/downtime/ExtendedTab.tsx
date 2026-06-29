@@ -250,7 +250,7 @@ export default function ExtendedTab({
           {selected.favorExamples && resultText && (
             <div className="text-xs text-gray-500">
               <span className="font-semibold text-muted">{t('game.extendedTab.favorExamples')}</span>
-              <ul className="list-disc ml-4 mt-0.5 space-y-0.5">
+              <ul className="list-disc ms-4 mt-0.5 space-y-0.5">
                 {selected.favorExamples.map((f, i) => (
                   <li key={i}>{f}</li>
                 ))}

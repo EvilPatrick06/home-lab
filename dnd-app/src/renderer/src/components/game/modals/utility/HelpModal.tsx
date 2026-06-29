@@ -149,7 +149,7 @@ export default function HelpModal({
               <div className="text-xs text-muted">
                 {t('game.helpModal.stabilizeDesc')}
                 {zeroHpAllies.length === 0 && (
-                  <span className="text-red-400 ml-1">{t('game.helpModal.noZeroHpAllies')}</span>
+                  <span className="text-red-400 ms-1">{t('game.helpModal.noZeroHpAllies')}</span>
                 )}
               </div>
             </button>
@@ -162,7 +162,7 @@ export default function HelpModal({
               <div className="text-xs text-muted">
                 {t('game.helpModal.assistCheckDesc')}
                 {proficientSkills.length === 0 && (
-                  <span className="text-red-400 ml-1">{t('game.helpModal.noSkillProficiencies')}</span>
+                  <span className="text-red-400 ms-1">{t('game.helpModal.noSkillProficiencies')}</span>
                 )}
               </div>
             </button>
@@ -174,7 +174,7 @@ export default function HelpModal({
               <div className="text-sm font-semibold text-amber-300">{t('game.helpModal.titleAssistAttack')}</div>
               <div className="text-xs text-muted">
                 {t('game.helpModal.assistAttackDesc')}
-                {enemyTokens.length === 0 && <span className="text-red-400 ml-1">{t('game.helpModal.noEnemies')}</span>}
+                {enemyTokens.length === 0 && <span className="text-red-400 ms-1">{t('game.helpModal.noEnemies')}</span>}
               </div>
             </button>
           </div>
@@ -205,7 +205,7 @@ export default function HelpModal({
                   }`}
                 >
                   <span className="text-sm text-gray-200">{token.label}</span>
-                  <span className="text-xs text-red-400 ml-2">{t('game.helpModal.zeroHp')}</span>
+                  <span className="text-xs text-red-400 ms-2">{t('game.helpModal.zeroHp')}</span>
                 </button>
               ))}
             </div>

@@ -161,12 +161,12 @@ export function AttackRollStep({
           <div className="text-xs text-muted bg-surface-2 rounded-lg px-3 py-2">
             <span className="text-accent font-semibold">
               {isUnarmed ? t('game.attackRollStep.unarmedStrike') : selectedWeapon.name}
-              {isOffhandAttack && <span className="text-cyan-400 ml-1">{t('game.attackRollStep.offhand')}</span>}
+              {isOffhandAttack && <span className="text-cyan-400 ms-1">{t('game.attackRollStep.offhand')}</span>}
             </span>
             <span className="mx-2">{t('game.attackRollStep.vs')}</span>
             <span className="text-red-400 font-semibold">{selectedTarget.label}</span>
             {cover !== 'none' && (
-              <span className="ml-2 text-blue-400">
+              <span className="ms-2 text-blue-400">
                 {t('game.attackRollStep.coverInfo', { cover, bonus: getCoverACBonus(cover) })}
               </span>
             )}

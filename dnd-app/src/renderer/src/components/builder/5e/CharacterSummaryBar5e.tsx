@@ -101,7 +101,7 @@ function EditableHP({
           <span className="text-gray-600 text-xs">/{maxHP}</span>
           {tempHP > 0 && (
             <span
-              className="text-blue-400 text-xs font-medium ml-0.5 cursor-pointer"
+              className="text-blue-400 text-xs font-medium ms-0.5 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation()
                 startEditTemp()

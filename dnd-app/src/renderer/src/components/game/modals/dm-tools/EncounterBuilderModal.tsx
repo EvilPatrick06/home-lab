@@ -510,7 +510,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
 
           {/* Phase 26d — wave tabs */}
           <div className="flex items-center gap-1 flex-wrap">
-            <span className="text-xs text-muted mr-1">{t('game.encounterBuilderModal.waves')}</span>
+            <span className="text-xs text-muted me-1">{t('game.encounterBuilderModal.waves')}</span>
             {Array.from({ length: maxWave }, (_, i) => i + 1).map((w) => (
               <button
                 key={w}

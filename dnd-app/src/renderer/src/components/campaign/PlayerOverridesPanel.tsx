@@ -81,7 +81,7 @@ export default function PlayerOverridesPanel({ campaign }: { campaign: Campaign 
                 <button
                   type="button"
                   onClick={() => clearPlayerOverride(campaign.id, player.userId)}
-                  className="ml-auto text-xs text-muted hover:text-red-300 cursor-pointer"
+                  className="ms-auto text-xs text-muted hover:text-red-300 cursor-pointer"
                 >
                   {t('campaign.playerOverridesPanel.clear')}
                 </button>

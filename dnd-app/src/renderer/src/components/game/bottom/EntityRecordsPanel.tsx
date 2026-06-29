@@ -209,12 +209,12 @@ export default function EntityRecordsPanel({ campaignId }: EntityRecordsPanelPro
                 <div className="space-y-0.5">
                   {group.map((rec) => (
                     <div key={rec.id} className="flex items-center justify-between py-0.5">
-                      <div className="min-w-0 mr-2">
+                      <div className="min-w-0 me-2">
                         <span className="text-xs text-fg">
                           {rec.locked && <span title={t('game.entityRecordsPanel.locked')}>🔒 </span>}
                           {rec.name}
                         </span>
-                        <span className="text-[10px] text-gray-500 ml-1">[{rec.injection}]</span>
+                        <span className="text-[10px] text-gray-500 ms-1">[{rec.injection}]</span>
                         {rec.summary && <p className="text-[11px] text-muted truncate">{rec.summary}</p>}
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0">

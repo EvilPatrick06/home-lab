@@ -79,7 +79,7 @@ const SpellRow = memo(function SpellRow({
               }
             }}
             disabled={readonly}
-            className={`flex-shrink-0 w-4 h-4 ml-2 rounded border transition-colors ${
+            className={`flex-shrink-0 w-4 h-4 ms-2 rounded border transition-colors ${
               isPrepared ? 'bg-accent-strong border-accent' : 'border-gray-600 bg-surface-2'
             } ${readonly ? 'opacity-50 cursor-default' : 'cursor-pointer hover:border-amber-500'}`}
             title={isPrepared ? t('sheet.spellList.unprepareSpell') : t('sheet.spellList.prepareSpell')}
@@ -147,7 +147,7 @@ const SpellRow = memo(function SpellRow({
             })()}
             {/* Innate use pips */}
             {hasInnateUses && innateMax > 0 && (
-              <div className="flex gap-0.5 ml-1">
+              <div className="flex gap-0.5 ms-1">
                 {Array.from({ length: innateMax }, (_, i) => {
                   const isFilled = i < innateRemaining
                   return (

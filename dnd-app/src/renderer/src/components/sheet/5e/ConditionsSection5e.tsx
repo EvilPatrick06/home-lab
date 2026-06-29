@@ -140,7 +140,7 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
                       speed: cond.value * 5
                     })}
                     {cond.value >= 6 && (
-                      <span className="text-red-400 font-bold ml-2">{t('sheet.conditions.death')}</span>
+                      <span className="text-red-400 font-bold ms-2">{t('sheet.conditions.death')}</span>
                     )}
                   </div>
                 )}

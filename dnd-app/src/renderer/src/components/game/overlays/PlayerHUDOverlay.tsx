@@ -355,7 +355,7 @@ function PlayerHUDOverlay({ character, conditions }: PlayerHUDOverlayProps): JSX
           {/* Expand/collapse toggle */}
           <button
             onClick={() => setExpanded(!expanded)}
-            className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer ml-auto"
+            className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer ms-auto"
             title={expanded ? t('game.playerHUDOverlay.collapse') : t('game.playerHUDOverlay.expand')}
           >
             {expanded ? '\u25B2' : '\u25BC'}

@@ -209,7 +209,7 @@ export default function MapConfigStep({ maps, campaignId, onChange, adventureMap
                 >
                   <div>
                     <span className="font-semibold text-sm">{map.name}</span>
-                    <span className="text-gray-500 text-xs ml-2">
+                    <span className="text-gray-500 text-xs ms-2">
                       {t('campaign.mapConfigStep.gridInfo', { size: map.grid.cellSize, type: map.grid.type })}
                     </span>
                   </div>
@@ -259,7 +259,7 @@ export default function MapConfigStep({ maps, campaignId, onChange, adventureMap
                 value={newGridSize}
                 onChange={(e) => setNewGridSize(Math.max(20, Math.min(100, parseInt(e.target.value, 10) || 40)))}
               />
-              <span className="text-gray-500 text-sm ml-3">{t('campaign.mapConfigStep.gridSizeRange')}</span>
+              <span className="text-gray-500 text-sm ms-3">{t('campaign.mapConfigStep.gridSizeRange')}</span>
             </div>
             <div className="flex gap-3">
               <Button onClick={handleAddCustomMap} disabled={!newMapName.trim()}>

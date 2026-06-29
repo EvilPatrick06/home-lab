@@ -148,7 +148,7 @@ export default function DmScreenPanel({ onClose }: DmScreenPanelProps): JSX.Elem
               <div key={p.pace}>
                 <span className="text-xs font-semibold text-gray-200">{p.pace}: </span>
                 <span className="text-xs text-muted">{p.speed}</span>
-                <div className="text-xs text-gray-500 ml-2">{p.effect}</div>
+                <div className="text-xs text-gray-500 ms-2">{p.effect}</div>
               </div>
             ))}
           </div>

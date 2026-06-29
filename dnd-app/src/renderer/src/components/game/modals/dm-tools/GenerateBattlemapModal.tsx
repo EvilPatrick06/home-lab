@@ -194,7 +194,7 @@ export default function GenerateBattlemapModal({ onClose }: GenerateBattlemapMod
               {warnings.length > 0 && (
                 <div className="text-[11px] text-amber-400">
                   <p>{t('game.generateBattlemap.warningsTitle')}</p>
-                  <ul className="list-disc ml-4">
+                  <ul className="list-disc ms-4">
                     {warnings.map((w) => (
                       <li key={w}>{w}</li>
                     ))}

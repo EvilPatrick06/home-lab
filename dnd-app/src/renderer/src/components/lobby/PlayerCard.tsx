@@ -270,7 +270,7 @@ export default memo(function PlayerCard({
 
       {/* Color picker — shown when local user clicks their avatar */}
       {showColorPicker && isLocal && onColorChange && (
-        <div className="flex flex-wrap gap-1.5 ml-[3.25rem] mt-1">
+        <div className="flex flex-wrap gap-1.5 ms-[3.25rem] mt-1">
           {PLAYER_COLORS.map((color) => {
             // Phase 29d: gray out colors taken by other peers (excluding self).
             const taken = usedByOtherPeers?.has(color) ?? false
@@ -301,7 +301,7 @@ export default memo(function PlayerCard({
 
       {/* DM moderation controls — second row */}
       {isHostView && !isLocal && !player.isHost && (
-        <div className="flex flex-wrap items-center gap-1 ml-[3.25rem] overflow-hidden">
+        <div className="flex flex-wrap items-center gap-1 ms-[3.25rem] overflow-hidden">
           {/* Chat timeout (5 min) */}
           {onChatTimeout && (
             <button

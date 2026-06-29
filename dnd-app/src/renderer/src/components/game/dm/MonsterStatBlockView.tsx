@@ -39,7 +39,7 @@ function ActionQuickRef({ action }: { action: MonsterAction }): JSX.Element {
   return (
     <div className="flex items-center justify-between text-xs">
       <span className="text-gray-300 truncate">{action.name}</span>
-      <div className="flex items-center gap-1 ml-1 shrink-0">
+      <div className="flex items-center gap-1 ms-1 shrink-0">
         {conditions.length > 0 && (
           <span className="text-red-400/80" title={conditions.map((c) => c.condition).join(', ')}>
             {conditions.map((c) => c.condition.slice(0, 3)).join('/')}
@@ -250,14 +250,14 @@ function MonsterStatBlockView({ monster, compact = false }: MonsterStatBlockView
                 </span>
               </div>
               {monster.spellcasting.atWill && monster.spellcasting.atWill.length > 0 && (
-                <div className="text-gray-300 pl-2">
+                <div className="text-gray-300 ps-2">
                   <span className="text-gray-500">{t('game.monsterStatBlockView.atWill')}</span>
                   {monster.spellcasting.atWill.join(', ')}
                 </div>
               )}
               {monster.spellcasting.perDay &&
                 Object.entries(monster.spellcasting.perDay).map(([uses, spells]) => (
-                  <div key={uses} className="text-gray-300 pl-2">
+                  <div key={uses} className="text-gray-300 ps-2">
                     <span className="text-gray-500">{t('game.monsterStatBlockView.perDayEach', { uses })}</span>
                     {spells.join(', ')}
                   </div>

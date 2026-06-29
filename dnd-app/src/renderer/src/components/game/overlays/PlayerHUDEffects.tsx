@@ -379,7 +379,7 @@ export function PlayerHUDEffectsExpanded({
           </span>
           <button
             onClick={() => setDeathSaveResult(null)}
-            className="text-gray-500 hover:text-gray-300 ml-2 cursor-pointer"
+            className="text-gray-500 hover:text-gray-300 ms-2 cursor-pointer"
           >
             &times;
           </button>

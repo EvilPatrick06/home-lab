@@ -123,7 +123,7 @@ export default function CraftingRecipeList5e({
                       {!readonly && (
                         <button
                           onClick={() => onCraft(item)}
-                          className="ml-2 px-2.5 py-1 text-xs bg-amber-600 hover:bg-accent-strong rounded text-white cursor-pointer transition-colors flex-shrink-0"
+                          className="ms-2 px-2.5 py-1 text-xs bg-amber-600 hover:bg-accent-strong rounded text-white cursor-pointer transition-colors flex-shrink-0"
                         >
                           {t('sheet.craftingRecipeList.craft')}
                         </button>

@@ -208,7 +208,7 @@ export default function InitiativeOverlay({ isDM }: InitiativeOverlayProps): JSX
             ))}
           </div>
           {isDM && (
-            <div className="flex items-center gap-1 ml-1">
+            <div className="flex items-center gap-1 ms-1">
               <button
                 onClick={(e) => {
                   e.stopPropagation()

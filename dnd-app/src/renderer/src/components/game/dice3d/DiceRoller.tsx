@@ -197,7 +197,7 @@ export default function DiceRoller({
         </div>
 
         {system === 'dnd5e' && (
-          <div className="flex gap-1 ml-2">
+          <div className="flex gap-1 ms-2">
             {(['normal', 'advantage', 'disadvantage'] as const).map((mode) => (
               <button
                 key={mode}
@@ -230,7 +230,7 @@ export default function DiceRoller({
           <span className="text-xs text-green-300 font-semibold">{t('game.diceRoller.critHit')}</span>
           <button
             onClick={() => setLastRollWasCrit(false)}
-            className="text-xs text-green-400 hover:text-green-200 cursor-pointer underline ml-auto"
+            className="text-xs text-green-400 hover:text-green-200 cursor-pointer underline ms-auto"
           >
             {t('game.diceRoller.dismiss')}
           </button>

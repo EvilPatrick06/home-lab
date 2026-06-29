@@ -210,7 +210,7 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
                     <div className="flex justify-between items-start">
                       <p className="text-sm font-medium">{summary.name}</p>
                       {character.campaignId && character.campaignId !== campaignId && (
-                        <span className="text-[9px] text-accent-strong/80 border border-amber-500/30 rounded px-1 ml-2 pointer-events-none">
+                        <span className="text-[9px] text-accent-strong/80 border border-amber-500/30 rounded px-1 ms-2 pointer-events-none">
                           {t('lobby.characterSelector.diffCampaign')}
                         </span>
                       )}

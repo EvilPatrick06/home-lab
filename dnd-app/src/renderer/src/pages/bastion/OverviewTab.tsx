@@ -63,7 +63,7 @@ function FactionRenownSection({ bastion }: { bastion: Bastion }): JSX.Element {
                     delete next[name]
                     updateRenown(next)
                   }}
-                  className="text-red-400 hover:text-red-300 ml-1 transition-colors"
+                  className="text-red-400 hover:text-red-300 ms-1 transition-colors"
                 >
                   x
                 </button>
@@ -233,7 +233,7 @@ export function OverviewTab({
                 >
                   <div>
                     <span className="text-purple-300 font-medium">{charm.name}</span>
-                    <span className="text-gray-500 ml-2">{charm.description}</span>
+                    <span className="text-gray-500 ms-2">{charm.description}</span>
                   </div>
                   <span className="text-muted">
                     {t('pages.overviewTab.daysLeft', {

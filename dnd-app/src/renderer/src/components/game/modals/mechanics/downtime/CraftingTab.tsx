@@ -141,7 +141,7 @@ export default function CraftingTab({
                       })
                     )
                   }}
-                  className="px-2 py-0.5 text-xs bg-red-600/50 hover:bg-red-600 text-red-300 rounded cursor-pointer ml-auto"
+                  className="px-2 py-0.5 text-xs bg-red-600/50 hover:bg-red-600 text-red-300 rounded cursor-pointer ms-auto"
                 >
                   {t('game.craftingTab.abandon')}
                 </button>

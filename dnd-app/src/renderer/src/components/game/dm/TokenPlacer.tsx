@@ -217,7 +217,7 @@ export default function TokenPlacer({
                 >
                   <div>
                     <span className="text-sm text-gray-200">{m.name}</span>
-                    <span className="text-xs text-gray-500 ml-2">
+                    <span className="text-xs text-gray-500 ms-2">
                       {m.size} {m.type}
                     </span>
                   </div>
@@ -294,7 +294,7 @@ export default function TokenPlacer({
             type="file"
             accept="image/png,image/jpeg,image/webp"
             onChange={handleImageUpload}
-            className="text-xs text-muted file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-surface-2 file:text-gray-300 hover:file:bg-gray-700 w-full"
+            className="text-xs text-muted file:me-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-surface-2 file:text-gray-300 hover:file:bg-gray-700 w-full"
           />
           {imagePath && (
             <button
@@ -509,7 +509,7 @@ export default function TokenPlacer({
                   </div>
                   <button
                     onClick={() => onRemoveToken(token.id)}
-                    className="text-gray-500 hover:text-red-400 text-xs cursor-pointer ml-2 flex-shrink-0"
+                    className="text-gray-500 hover:text-red-400 text-xs cursor-pointer ms-2 flex-shrink-0"
                     title={t('game.tokenPlacer.removeToken')}
                   >
                     &#x2715;

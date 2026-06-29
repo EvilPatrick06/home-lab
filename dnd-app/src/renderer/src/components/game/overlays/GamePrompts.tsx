@@ -243,7 +243,7 @@ export function StabilizeCheckPrompt({
         <p className="text-xs text-muted mb-4">
           {t('game.stabilizeCheckPrompt.medicineCheck')}{' '}
           <span className="text-white font-bold">{t('game.stabilizeCheckPrompt.dc10')}</span>
-          <span className="text-gray-500 ml-1">
+          <span className="text-gray-500 ms-1">
             {t('game.stabilizeCheckPrompt.modifier', {
               mod: `${prompt.medicineMod >= 0 ? '+' : ''}${prompt.medicineMod}`
             })}

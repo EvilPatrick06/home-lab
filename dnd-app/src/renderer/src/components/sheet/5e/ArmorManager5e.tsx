@@ -229,7 +229,7 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
               </span>
             )}
             {equippedArmor.stealthDisadvantage && (
-              <span className="text-xs text-yellow-500 ml-2">{t('sheet.armorManager.stealthDisadvantage')}</span>
+              <span className="text-xs text-yellow-500 ms-2">{t('sheet.armorManager.stealthDisadvantage')}</span>
             )}
           </div>
         ) : (
@@ -297,7 +297,7 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
                   {!readonly && (
                     <button
                       onClick={() => handleRemoveArmor(a.id)}
-                      className="text-gray-600 hover:text-red-400 cursor-pointer ml-1"
+                      className="text-gray-600 hover:text-red-400 cursor-pointer ms-1"
                       title={t('sheet.armorManager.removeArmor')}
                     >
                       &#x2715;

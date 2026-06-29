@@ -148,7 +148,7 @@ export default function EnvironmentalEffectsPanel({ onBroadcastResult }: Environ
                         <div className="flex-1 min-w-0">
                           <span className="text-white text-sm font-medium">{effect.name}</span>
                           {effect.saveDC != null && (
-                            <span className="ml-1.5 text-xs px-1.5 py-0.5 rounded bg-gray-700/80 text-gray-300">
+                            <span className="ms-1.5 text-xs px-1.5 py-0.5 rounded bg-gray-700/80 text-gray-300">
                               {t('game.environmentalEffectsPanel.dc', {
                                 dc: effect.saveDC,
                                 ability: effect.saveAbility ?? ''

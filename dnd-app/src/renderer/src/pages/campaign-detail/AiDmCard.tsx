@@ -324,7 +324,7 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
                 {t('campaign.aiProviderSetup.semanticSearch')}
               </label>
               {aiDmConfig.ragEmbeddingsEnabled && (
-                <div className="mt-2 pl-6">
+                <div className="mt-2 ps-6">
                   <input
                     type="text"
                     name="rag-embedding-model"
@@ -375,7 +375,7 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
               />
               {t('pages.aiDmCard.questTracking')}
             </label>
-            <p className="text-[11px] text-gray-500 mb-2 ml-6">{t('pages.aiDmCard.questTrackingHint')}</p>
+            <p className="text-[11px] text-gray-500 mb-2 ms-6">{t('pages.aiDmCard.questTrackingHint')}</p>
             {/* PHASE-34: AI battlemap generation (off by default; behavior-risky ⇒ opt-in). */}
             <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
               <input
@@ -386,7 +386,7 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
               />
               {t('pages.aiDmCard.allowMapGeneration')}
             </label>
-            <p className="text-[11px] text-gray-500 mb-2 ml-6">{t('pages.aiDmCard.allowMapGenerationHint')}</p>
+            <p className="text-[11px] text-gray-500 mb-2 ms-6">{t('pages.aiDmCard.allowMapGenerationHint')}</p>
             <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
               <input
                 type="checkbox"
@@ -396,9 +396,9 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
               />
               {t('pages.aiDmCard.director')}
             </label>
-            <p className="text-[11px] text-gray-500 mb-1 ml-6">{t('pages.aiDmCard.directorHint')}</p>
+            <p className="text-[11px] text-gray-500 mb-1 ms-6">{t('pages.aiDmCard.directorHint')}</p>
             {aiDmConfig.directorEnabled && (
-              <label className="flex items-center gap-2 text-xs text-gray-300 mb-2 ml-6">
+              <label className="flex items-center gap-2 text-xs text-gray-300 mb-2 ms-6">
                 {t('pages.aiDmCard.directorCadence')}
                 <input
                   type="number"
@@ -425,7 +425,7 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
               />
               {t('pages.aiDmCard.oracle')}
             </label>
-            <p className="text-[11px] text-gray-500 ml-6">{t('pages.aiDmCard.oracleHint')}</p>
+            <p className="text-[11px] text-gray-500 ms-6">{t('pages.aiDmCard.oracleHint')}</p>
           </div>
         </div>
         {/* PHASE-10 10H — informative, not obstructive: detection probes the SAVED main-side URL,

@@ -307,7 +307,7 @@ function TreeNodeRow({
                       }`}
                     >
                       {target.placeType && (
-                        <span className={`text-[7px] px-0.5 rounded mr-1 ${PLACE_TYPE_COLORS[target.placeType]}`}>
+                        <span className={`text-[7px] px-0.5 rounded me-1 ${PLACE_TYPE_COLORS[target.placeType]}`}>
                           {t(PLACE_TYPE_LABEL_KEYS[target.placeType])}
                         </span>
                       )}

@@ -37,7 +37,7 @@ function TrinketRoller(): JSX.Element {
         <p className="text-xs text-gray-500">{t('builder.backstoryEditor.trinketRolled')}</p>
         <div className="bg-surface-2/60 border border-border rounded px-3 py-2">
           {rollNumber && (
-            <span className="text-xs text-accent font-mono mr-2">
+            <span className="text-xs text-accent font-mono me-2">
               {t('builder.backstoryEditor.d100', { rollNumber })}
             </span>
           )}
@@ -165,7 +165,7 @@ export function VariantChoicesSection({
                   <span className="text-sm text-gray-200 font-medium">{item.chosenVariant}</span>
                   <button
                     onClick={() => setRePickKey(`${item.key}-${item.eqIndex}`)}
-                    className="text-xs text-accent hover:text-amber-300 cursor-pointer underline decoration-dotted underline-offset-2 ml-2"
+                    className="text-xs text-accent hover:text-amber-300 cursor-pointer underline decoration-dotted underline-offset-2 ms-2"
                   >
                     {t('builder.backstoryEditor.chooseDifferent')}
                   </button>

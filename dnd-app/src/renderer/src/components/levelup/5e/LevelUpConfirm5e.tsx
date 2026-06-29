@@ -271,18 +271,18 @@ export function InvocationSection5e({
                 <div className="text-sm font-semibold">
                   {inv.name}
                   {inv.isPactBoon && (
-                    <span className="text-xs text-accent ml-1">{t('levelup.invocationSection.pactBoon')}</span>
+                    <span className="text-xs text-accent ms-1">{t('levelup.invocationSection.pactBoon')}</span>
                   )}
                   {inv.repeatable && (
-                    <span className="text-xs text-cyan-400 ml-1">{t('levelup.invocationSection.repeatable')}</span>
+                    <span className="text-xs text-cyan-400 ms-1">{t('levelup.invocationSection.repeatable')}</span>
                   )}
                   {count > 1 && (
-                    <span className="text-xs text-purple-300 ml-1">
+                    <span className="text-xs text-purple-300 ms-1">
                       {t('levelup.invocationSection.count', { n: count })}
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-1 ml-auto">
+                <div className="flex items-center gap-1 ms-auto">
                   {selected && inv.repeatable && (
                     <span
                       role="button"
@@ -424,7 +424,7 @@ export function MetamagicSection5e({
             >
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold">{mm.name}</span>
-                <span className="text-xs text-gray-500 ml-auto">
+                <span className="text-xs text-gray-500 ms-auto">
                   {t('levelup.metamagicSection.sorceryPointCost', { cost: mm.sorceryPointCost })}
                 </span>
               </div>
@@ -488,7 +488,7 @@ export function MulticlassSkillSection5e({
                 count: grant.count,
                 chosen: chosen.length
               })}
-              {incomplete && <span className="ml-2 font-semibold">{t('levelup.multiclassSkillSection.required')}</span>}
+              {incomplete && <span className="ms-2 font-semibold">{t('levelup.multiclassSkillSection.required')}</span>}
             </div>
             <div className="flex flex-wrap gap-1">
               {options.map((skill) => {

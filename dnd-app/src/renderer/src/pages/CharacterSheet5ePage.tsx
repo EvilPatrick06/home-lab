@@ -193,7 +193,7 @@ export default function CharacterSheet5ePage(): JSX.Element {
   return (
     <div className="h-screen flex flex-col bg-base">
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-2 px-4 py-2 pr-12 bg-surface border-b border-gray-800 shrink-0">
+      <div className="flex items-center justify-between gap-2 px-4 py-2 pe-12 bg-surface border-b border-gray-800 shrink-0">
         <div className="flex items-center gap-3">
           <button
             onClick={handleBack}
@@ -365,7 +365,7 @@ export default function CharacterSheet5ePage(): JSX.Element {
       >
         <div className="space-y-4">
           <p className="text-sm text-muted">{t('pages.characterSheet5ePage.longRestWill')}</p>
-          <ul className="list-disc ml-5 mt-2 space-y-1 text-sm text-muted">
+          <ul className="list-disc ms-5 mt-2 space-y-1 text-sm text-muted">
             <li>{t('pages.characterSheet5ePage.restoreHp')}</li>
             <li>{t('pages.characterSheet5ePage.recoverHitDice')}</li>
             <li>{t('pages.characterSheet5ePage.restoreSpellSlots')}</li>

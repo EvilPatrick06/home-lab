@@ -92,7 +92,7 @@ export function AttackResultStep({
           d20: {attackRoll.d20}
           {attackRoll.d20_2 !== undefined ? `, ${attackRoll.d20_2}` : ''} {formatMod(attackRoll.modifier)}
           {attackRoll.d20_2 !== undefined && (
-            <span className="text-gray-500 ml-1">
+            <span className="text-gray-500 ms-1">
               {t('game.attackResultStep.took', { value: attackRoll.total - attackRoll.modifier })}
             </span>
           )}
@@ -100,7 +100,7 @@ export function AttackResultStep({
         <div className="text-xs text-muted mt-1">
           {t('game.attackResultStep.vsAc', { ac: targetAC })}
           {coverBonus > 0 && (
-            <span className="text-blue-400 ml-1">
+            <span className="text-blue-400 ms-1">
               {t('game.attackResultStep.coverBreakdown', { base: selectedTarget.ac ?? 10, bonus: coverBonus })}
             </span>
           )}

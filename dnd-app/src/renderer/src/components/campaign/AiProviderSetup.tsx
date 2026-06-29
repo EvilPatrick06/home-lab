@@ -659,9 +659,9 @@ export default function AiProviderSetup({
                 />
                 {t('campaign.aiProviderSetup.routingEnabled')}
               </label>
-              <p className="text-gray-500 text-xs mt-0.5 ml-6">{t('campaign.aiProviderSetup.routingHint')}</p>
+              <p className="text-gray-500 text-xs mt-0.5 ms-6">{t('campaign.aiProviderSetup.routingHint')}</p>
               {routingEnabled && (
-                <div className="ml-6 mt-2">
+                <div className="ms-6 mt-2">
                   <label className="block text-xs text-muted mb-1">
                     {t('campaign.aiProviderSetup.routingSmallModel')}
                   </label>
@@ -731,7 +731,7 @@ function StatusItem({
         {phaseLabel || label}
       </span>
       {active && progress !== undefined && (
-        <div className="flex-1 max-w-32 h-1.5 bg-gray-700 rounded-full overflow-hidden ml-2">
+        <div className="flex-1 max-w-32 h-1.5 bg-gray-700 rounded-full overflow-hidden ms-2">
           <div className="h-full bg-accent-strong rounded-full transition-all" style={{ width: `${progress}%` }} />
         </div>
       )}

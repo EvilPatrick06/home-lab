@@ -110,7 +110,7 @@ export default function MainMenuPage(): JSX.Element {
           <button
             onClick={clearDisconnectReason}
             aria-label={t('pages.mainMenuPage.dismiss')}
-            className={`ml-4 cursor-pointer ${
+            className={`ms-4 cursor-pointer ${
               disconnectReason === 'banned' ? 'text-red-400 hover:text-red-200' : 'text-accent hover:text-amber-200'
             }`}
           >

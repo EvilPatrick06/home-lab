@@ -122,12 +122,12 @@ export default function TraitEditor5e({
               <div key={i} className="flex items-center justify-between bg-surface-2/50 rounded px-2 py-1 text-sm">
                 <div>
                   <span className="text-gray-300 font-medium">{pet.name}</span>
-                  {pet.type && <span className="text-gray-500 text-xs ml-1.5">({pet.type})</span>}
+                  {pet.type && <span className="text-gray-500 text-xs ms-1.5">({pet.type})</span>}
                 </div>
                 {!readonly && (
                   <button
                     onClick={() => handleRemovePet(i)}
-                    className="text-gray-600 hover:text-red-400 cursor-pointer text-xs ml-2"
+                    className="text-gray-600 hover:text-red-400 cursor-pointer text-xs ms-2"
                     title={t('sheet.traitEditor.removePet')}
                   >
                     &#x2715;
@@ -225,7 +225,7 @@ export default function TraitEditor5e({
                           e.stopPropagation()
                           handleRemoveLanguage(lang)
                         }}
-                        className="text-green-500 hover:text-red-400 cursor-pointer ml-0.5"
+                        className="text-green-500 hover:text-red-400 cursor-pointer ms-0.5"
                         title={t('sheet.traitEditor.removeLanguage')}
                       >
                         &#x2715;
@@ -268,7 +268,7 @@ export default function TraitEditor5e({
                     >
                       <span className="text-gray-300">{lang}</span>
                       {LANGUAGE_DESCRIPTIONS[lang] && (
-                        <span className="text-gray-600 text-xs truncate ml-2 max-w-[60%]">
+                        <span className="text-gray-600 text-xs truncate ms-2 max-w-[60%]">
                           {LANGUAGE_DESCRIPTIONS[lang]}
                         </span>
                       )}
