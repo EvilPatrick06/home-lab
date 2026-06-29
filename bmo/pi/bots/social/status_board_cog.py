@@ -32,6 +32,8 @@ OWNER_ID = os.environ.get("DISCORD_OWNER_ID", "")
 MUTE_SECONDS = 3600
 MC_HOST = os.environ.get("BOARD_MC_HOST", "100.70.183.24")  # laptop (Tailscale)
 MC_PORT = int(os.environ.get("BOARD_MC_PORT", "25565"))
+MC_PING_COOLDOWN = int(os.environ.get("BOARD_MC_PING_COOLDOWN_S", "300"))  # debounce friend->owner pings
+NOTIFY_SH = os.path.expanduser("~/.claude-tools/notify.sh")  # board-first notifier (stable <sev> <subj> <body>)
 COMPONENT_BUDGET = 36          # stay under Discord's V2 40-component cap
 MAX_SECTION_CHARS = 3500       # TextDisplay hard limit is 4000
 
@@ -126,6 +128,35 @@ async def _respond(interaction: discord.Interaction, cog) -> None:
             await interaction.response.defer()
         except discord.HTTPException:
             pass
+
+
+def _send_owner_mc_ping() -> bool:
+    """Fire notify.sh to alert the owner that a friend wants the Minecraft
+    server back up. notify.sh routes to the board (its own SMS failsafe handles
+    a dark board); we just invoke the stable `<sev> <subject> <body>` signature
+    and tag it for the actionable 'Needs you' section. Returns True if the
+    notifier was invoked."""
+    if not os.path.exists(NOTIFY_SH):
+        return False
+    try:
+        env = dict(os.environ, NOTIFY_BOARD_CATEGORY="attention")
+        subprocess.run([NOTIFY_SH, "warn", "Minecraft server down",
+                        "\U0001F3AE A friend is asking you to bring the Minecraft server back up."],
+                       timeout=30, check=False, env=env)
+        return True
+    except Exception:
+        return False
+
+
+def _mc_ping_decision(now: float, ping_until: float, mc_down: bool) -> str:
+    """Pure cooldown/debounce logic for the 'ping the owner' button. Returns
+    'up' (server not down → nothing to do), 'cooldown' (owner pinged within the
+    last MC_PING_COOLDOWN seconds), or 'ping' (go ahead and notify)."""
+    if not mc_down:
+        return "up"
+    if now < ping_until:
+        return "cooldown"
+    return "ping"
 
 
 # ── Persistent (DynamicItem) buttons ─────────────────────────────────────────
@@ -231,6 +262,47 @@ class ClearBriefsButton(discord.ui.DynamicItem[discord.ui.Button], template=r"bo
         await _respond(interaction, _cog(interaction))
 
 
+class PingOwnerButton(discord.ui.DynamicItem[discord.ui.Button], template=r"board:pingmc"):
+    """Shown only on the 🎮 Minecraft-server-down info item. Any friend can click
+    it to alert the owner (via notify.sh) that the MC server needs a restart.
+    Debounced (MC_PING_COOLDOWN) so repeated clicks don't spam the owner; always
+    confirms ephemerally to the clicker."""
+
+    def __init__(self):
+        super().__init__(discord.ui.Button(label="Ping the owner", emoji="\U0001F6CE\uFE0F",
+                                           style=discord.ButtonStyle.primary,
+                                           custom_id="board:pingmc"))
+
+    @classmethod
+    async def from_custom_id(cls, interaction, item, match):
+        return cls()
+
+    async def callback(self, interaction: discord.Interaction):
+        cog = _cog(interaction)
+        now = time.time()
+        mc_down = bool(getattr(cog, "_mc_down", False)) if cog else False
+        ping_until = float(getattr(cog, "_mc_ping_until", 0.0)) if cog else 0.0
+        decision = _mc_ping_decision(now, ping_until, mc_down)
+        if decision == "up":
+            msg = "✅ The Minecraft server looks back up — no need to ping."
+        elif decision == "cooldown":
+            wait = max(1, int(ping_until - now))
+            msg = f"⏳ The owner was just pinged — give it ~{wait}s before trying again."
+        else:
+            sent = await asyncio.to_thread(_send_owner_mc_ping)
+            if cog is not None:
+                cog._mc_ping_until = now + MC_PING_COOLDOWN
+            msg = ("🛎️ The owner has been pinged to bring the Minecraft server back up."
+                   if sent else "⚠️ Couldn't reach the notifier — please tell the owner directly.")
+        try:
+            await interaction.response.send_message(msg, ephemeral=True)
+        except discord.HTTPException:
+            try:
+                await interaction.response.defer()
+            except discord.HTTPException:
+                pass
+
+
 # ── Layout ───────────────────────────────────────────────────────────────────
 
 def build_layout(rows: list[dict], state: sb.BoardState) -> discord.ui.LayoutView:
@@ -324,6 +396,10 @@ def build_layout(rows: list[dict], state: sb.BoardState) -> discord.ui.LayoutVie
                 chunk = btns[i:i + 5]
                 children.append(discord.ui.ActionRow(*chunk))
                 sect_comp += 1 + len(chunk)
+        if cat == "info" and any((r.get("source") == "mc" or r.get("key") == "mc") for r in crows) \
+                and comp + sect_comp + 2 <= COMPONENT_BUDGET:
+            children.append(discord.ui.ActionRow(PingOwnerButton()))
+            sect_comp += 2
         view.add_item(discord.ui.Container(*children, accent_colour=_colour(sb.worst_severity(crows))))
         comp += sect_comp
 
@@ -376,10 +452,11 @@ class StatusBoardCog(commands.Cog):
         self._last_rows: list = []
         self._last_hash = ""
         self._mc_down = False
+        self._mc_ping_until = 0.0   # next time a friend->owner MC ping is allowed
 
     async def cog_load(self):
         for dyn in (MuteButton, DoneButton, RefreshButton, AckAllButton,
-                    ToggleInfoButton, ClearBriefsButton):
+                    ToggleInfoButton, ClearBriefsButton, PingOwnerButton):
             self.bot.add_dynamic_items(dyn)
         self.loop.start()
 
