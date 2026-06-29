@@ -74,7 +74,6 @@ describe('LibraryScreen — 120 tomes (Phase-30 QA gap)', () => {
   }, 20000);
 });
 
-
 describe('LibraryScreen — import entry points reachable with an active tome (PHASE-04 04C)', () => {
   it('exposes Import Deck + Author Occlusion and fires their handlers', () => {
     const onImportDeck = vi.fn();
