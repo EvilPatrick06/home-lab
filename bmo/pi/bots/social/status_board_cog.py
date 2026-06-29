@@ -176,6 +176,9 @@ class ToggleInfoButton(discord.ui.DynamicItem[discord.ui.Button], template=r"boa
 # ── Layout builder ───────────────────────────────────────────────────────────
 
 def build_layout(rows: list[dict], state: sb.BoardState) -> discord.ui.LayoutView:
+    # Drop non-actionable agent info FYIs (defense-in-depth; the notify.sh router
+    # already skips them). The board shows only things that need action.
+    rows = [r for r in rows if not (r.get("category") == "agent" and r.get("severity") == "info")]
     view = discord.ui.LayoutView(timeout=None)
     worst = sb.worst_severity(rows)
 
