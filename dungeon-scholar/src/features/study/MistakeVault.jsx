@@ -1,5 +1,5 @@
 import { Check, Skull } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 function MistakeVault({
   courseSet,
@@ -12,13 +12,33 @@ function MistakeVault({
   onGoHome,
 }) {
   const vault = tomeProgress?.mistakeVault || [];
+  const activeTomeId = playerState?.activeTomeId;
 
+  // PHASE-06 06A: "The Redeemed" / vault_clear must fire only on a genuine
+  // had-foes -> all-banished transition WITH an active tome — never on a
+  // tomeless or never-populated vault (the old `vault.length === 0` guard was
+  // vacuously true on first view, and the hook runs before the !courseSet
+  // early-return below, so a tomeless visit granted the reward). We track,
+  // per active tome, whether the vault actually held a foe this session and
+  // only grant once it then empties out. Errs toward NOT granting (a clear that
+  // happened entirely in a prior session won't re-toast) — the safe direction.
+  const everHadEntriesRef = useRef(false);
+  const lastTomeRef = useRef(activeTomeId);
   useEffect(() => {
-    if (vault.length === 0 && playerState.totalAnswered > 10) {
+    if (lastTomeRef.current !== activeTomeId) {
+      lastTomeRef.current = activeTomeId;
+      everHadEntriesRef.current = false;
+    }
+    if (!courseSet) return;
+    if (vault.length > 0) {
+      everHadEntriesRef.current = true;
+      return;
+    }
+    if (everHadEntriesRef.current && playerState.totalAnswered > 10) {
       checkAchievement('vault_clear');
       unlockSpecialTitle('vaultkeeper');
     }
-  }, [vault.length]);
+  }, [vault.length, courseSet, activeTomeId]);
 
   if (!courseSet) {
     return (
