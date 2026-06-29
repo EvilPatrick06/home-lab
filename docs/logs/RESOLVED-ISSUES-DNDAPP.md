@@ -12,6 +12,67 @@
 
 ---
 
+### [2026-06-25] dnd-app CI omits the doc/i18n drift guards that `check:full` defines, and `gen:ipc-surface` has no `--check` mode
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-29
+- **Resolution:** (1) Added a `--check` mode to `scripts/build/gen-ipc-surface.mjs` — it builds the catalog in memory and diffs it against the committed `docs/IPC-SURFACE.md`, exiting 1 on drift (the generator previously only wrote the file). (2) Wired three drift guards into `.github/workflows/dnd-app-ci.yml` after the content-schema step: `npm run i18n:check-parity`, `npm run sync:doc-counts -- --check`, and `npm run gen:ipc-surface -- --check`. So IPC-surface drift, doc-count drift, and locale-parity drift now fail CI instead of silently accumulating on master between rare manual `check:full` runs. All three guards pass locally; YAML validated. (Paired with the now-resolved ISSUES entry "Generated-artifact drift on master", which was the concrete materialization this prevention closes.)
+- **Category:** debt, docs
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Branch:** auto/dnd-resolver
+
+### [2026-06-28] Remaining un-prefixed VTT localStorage keys — broaden the Phase-56D namespacing sweep
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-29
+- **Resolution:** Namespaced the remaining static keys under `dnd-vtt-` (`NOTIFICATION_CONFIG`, `LIBRARY_FAVORITES`, `DICE_TRAY_POSITION`, `NARRATION_TTS`, `ENCOUNTER_PRESETS`) and the `macro-storage-` / `builder-draft-` dynamic prefixes in `constants/settings-keys.ts`, and extended `migrateLegacyStorageKeys` (STATIC_RENAMES + PREFIX_RENAMES) so existing values migrate forward with no data loss (+4 migration tests). Reconciled the `DiceTray.tsx` vs `SETTINGS_KEYS.DICE_TRAY_POSITION` mismatch (DiceTray now imports the constant, which equals its prior hardcoded value). Pointed the hardcoded duplicates at the constants: `EncounterBuilderModal.tsx` (→ `SETTINGS_KEYS.ENCOUNTER_PRESETS`; the identical *library content-type id* `encounter-presets` is unrelated and untouched) and `builder-auto-save.ts` (prefix namespaced; existing test literals updated). DECISION (noted): the `autosave:*` colon-namespaced keys are intentionally LEFT as-is — they are a distinct deliberate namespace and are the subject of the autosave storage-backend rework, so renaming them now would create churn a future IndexedDB migration would supersede. tsc/biome green; migration + storage-handlers + builder-auto-save suites pass.
+- **Category:** tech-debt, portability
+- **Severity:** low
+- **Domain:** dnd-app
+- **Branch:** auto/dnd-resolver
+
+---
+
+### [2026-06-28] dnd-app CI red on `auto/dnd-phase-executer` — asset-url refactor strips leading `./`, breaks remote-sounds tests
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-29
+- **Resolution:** Verified RESOLVED on `origin/master` — the defect was confined to the unmerged `auto/dnd-phase-executer` branch, which the integrator has since merged/deleted (no remote branch remains). On master, `remote-sounds.ts` routes bundled paths through `resolveAssetUrl` and `remote-sounds.test.ts` expects the normalized `/sounds/...` passthrough; `npx vitest run remote-sounds.test.ts asset-url.test.ts` → 19/19 green. No code change needed on `auto/dnd-resolver`; archived to keep the active log accurate. (As dnd-resolver I do not touch branches I don't own — the branch CI-red state was the integrator's to reconcile, and it was.)
+- **Category:** bug / ci / test
+- **Severity:** high (was: branch CI red)
+- **Domain:** dnd-app
+
+### [2026-06-28] dnd-app CI red on `auto/dnd-phase-executer` — biome lint (unused imports + organizeImports) on phase-56 commit
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-29
+- **Resolution:** Verified RESOLVED on `origin/master` — `npx biome check` on the three flagged files (`storage-migrations.test.ts`, `MapCanvas.tsx`, `map-canvas/use-map-background.ts`) is clean (exit 0). The lint-red state was branch-local to `auto/dnd-phase-executer`, since merged/deleted by the integrator. No code change on `auto/dnd-resolver`.
+- **Category:** ci / lint
+- **Severity:** high (was: branch CI red)
+- **Domain:** dnd-app
+
+### [2026-06-28] dnd-app CI red on `auto/play-store-prep` — biome `useTemplate` on protocol.ts (stale branch, 24 behind master)
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-29
+- **Resolution:** Verified RESOLVED on `origin/master` — `src/shared/bridge/protocol.ts:61,64` already use template literals (`${...}==` / `${...}=`); the equivalent fix had long since landed on master. The red state was confined to the stale `auto/play-store-prep` branch (1 ahead / 24 behind), now gone from the remote (integrator-handled). Rebasing a branch I don't own is outside the dnd-resolver workflow, so no code change here.
+- **Category:** ci / lint
+- **Severity:** high (was: branch CI red)
+- **Domain:** dnd-app
+
+### [2026-06-28] Generated-artifact drift on master — README test-file count (852→856) and IPC-SURFACE.md channel catalog (238→241) are stale
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-29
+- **Resolution:** Ran `npm run sync:doc-counts` and `npm run gen:ipc-surface`; committed the regenerated `README.md` (root + dnd-app, 852→856 test files; bmo count synced 64→66) and `docs/IPC-SURFACE.md` (238→241, +`file:open-request` / `file:consume-pending` / `book:save-bytes`; subsequently 241→243 after this run added the two campaign-version channels). Prevention shipped alongside as SUGGESTIONS entry [2026-06-25] "dnd-app CI omits the doc/i18n drift guards": `i18n:check-parity`, `sync:doc-counts --check`, and a new `gen:ipc-surface --check` are now CI steps, so this cannot silently recur. All three guards green locally.
+- **Category:** config, docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Branch:** auto/dnd-resolver
+
+---
+
 ### [2026-06-23] Cloud-sync residual: book config/PDFs not synced; binary re-hashed each reconcile
 
 - **Resolved by:** dnd-resolver (automated)
