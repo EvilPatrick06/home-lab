@@ -18,3 +18,11 @@ the **browser HTTP cache on `index.html`** and the **published `assets/` tree**
 HTTP cache?) **before** assuming an app bug. Do not add runtime caching for the
 cross-origin Supabase/Oracle requests to "fix" it — those are deliberately
 network-only (`vite.config.js`).
+
+
+## Light-theme surfaces must route through theme vars (Phase 03, 2026-06-29)
+
+The light theme (`html[data-theme="light"]` in `src/index.css`) inverts the Tailwind colour ramps, so `text-amber-50/100/200` resolve to **dark** ink. Any surface that hardcodes a dark `rgba(...)` background (instead of a `--panel-bg-*` / `--surface-*` var) therefore renders **dark-on-dark** in light theme. Rule: never hardcode a dark background under inverting `text-*` utilities. Route backgrounds through the theme vars:
+- Panels: `linear-gradient(135deg, var(--panel-bg-<color>, <dark-fallback>) 0%, var(--panel-end, ...) 100%)` (see `OrnatePanel.jsx`).
+- Inline surfaces: `rgba(var(--surface-<name>, <r, g, b>), <alpha>)`. Phase 03 added `--surface-rose/red/danger/known/locked` for previously-hardcoded surfaces.
+- **Inverse case (Chat bubbles):** when the *background* is already theme-aware (lightens in light theme), the *text* must darken too — use an inverting `var(--color-amber-100)` / `text-amber-*` utility, NOT a fixed light hex like `#fef3c7`. A surface that is intentionally dark in both themes (e.g. the `isSearch` tome-search bubble, `rgba(0,0,0,...)` code blocks) keeps fixed light text.

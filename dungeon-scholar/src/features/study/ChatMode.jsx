@@ -525,7 +525,7 @@ ${fullKb}
                   style={{
                     background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)',
                     border: '1px solid rgba(245, 158, 11, 0.5)',
-                    color: '#fde047',
+                    color: 'var(--color-amber-300)',
                   }}
                 >
                   ⚠ {m.content}
@@ -542,7 +542,7 @@ ${fullKb}
                     background:
                       'linear-gradient(to bottom, rgba(var(--surface-amber-strong, 120, 53, 15), 0.6), rgba(var(--surface-amber, 41, 24, 12), 0.8))',
                     border: '1px solid rgba(245, 158, 11, 0.5)',
-                    color: '#fef3c7',
+                    color: 'var(--color-amber-100)',
                   }}
                 >
                   <div className="whitespace-pre-wrap italic">{m.content}</div>
@@ -560,7 +560,7 @@ ${fullKb}
                   style={{
                     background: isSearch ? 'rgba(12, 24, 41, 0.7)' : 'rgba(var(--surface-amber, 41, 24, 12), 0.7)',
                     border: `1px solid ${isSearch ? 'rgba(59, 130, 246, 0.4)' : 'rgba(245, 158, 11, 0.3)'}`,
-                    color: '#fef3c7',
+                    color: isSearch ? '#fef3c7' : 'var(--color-amber-100)',
                   }}
                 >
                   <div
@@ -681,7 +681,8 @@ ${fullKb}
             aria-label="Clear chat confirmation"
             className="rounded-sm max-w-md w-full overflow-hidden flex flex-col relative"
             style={{
-              background: 'linear-gradient(135deg, rgba(80, 20, 20, 0.95) 0%, rgba(20, 6, 6, 0.99) 100%)',
+              background:
+                'linear-gradient(135deg, rgba(var(--surface-danger, 80, 20, 20), 0.95) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.99) 100%)',
               border: '3px double rgba(220, 38, 38, 0.7)',
               boxShadow: '0 0 40px rgba(220, 38, 38, 0.4)',
             }}

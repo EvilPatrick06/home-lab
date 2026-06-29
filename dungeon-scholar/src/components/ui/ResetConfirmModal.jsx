@@ -16,7 +16,8 @@ export function ResetConfirmModal({ onConfirm, onCancel }) {
         aria-label="Reset progress"
         className="rounded-sm max-w-md w-full overflow-hidden flex flex-col relative"
         style={{
-          background: 'linear-gradient(135deg, rgba(80, 20, 20, 0.95) 0%, rgba(20, 6, 6, 0.99) 100%)',
+          background:
+            'linear-gradient(135deg, rgba(var(--surface-danger, 80, 20, 20), 0.95) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.99) 100%)',
           border: '3px double rgba(220, 38, 38, 0.7)',
           boxShadow: '0 0 40px rgba(220, 38, 38, 0.4)',
         }}

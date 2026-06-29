@@ -87,6 +87,12 @@
   --surface-emerald: 6, 78, 59;
   --surface-modal: 20, 12, 6;
   --focus-ring: #fde047;
+  /* Phase 03: surface triplets for previously-hardcoded-dark surfaces so they re-theme in light mode. */
+  --surface-rose: 41, 12, 27;
+  --surface-red: 41, 12, 12;
+  --surface-danger: 80, 20, 20;
+  --surface-known: 31, 17, 8;
+  --surface-locked: 15, 12, 18;
 }
 html[data-theme="light"] {
   --surface-deep: 250, 247, 240;
@@ -96,6 +102,11 @@ html[data-theme="light"] {
   --surface-emerald: 209, 250, 229;
   --surface-modal: 255, 251, 235;
   --focus-ring: #b45309;
+  --surface-rose: 252, 231, 243;
+  --surface-red: 254, 226, 226;
+  --surface-danger: 254, 202, 202;
+  --surface-known: 254, 243, 198;
+  --surface-locked: 233, 231, 235;
 }
 html[data-theme="light"] body {
   background: #fafaf9; /* stone-50 base — neutral warm off-white */

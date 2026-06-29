@@ -25,7 +25,7 @@
 |---|---|---|---|---|
 | 01 | [`PHASE-01-routing-pwa-update-resilience.md`](./PHASE-01-routing-pwa-update-resilience.md) | dungeon-scholar | — | done |
 | 02 | [`PHASE-02-load-noise-ux-docs-round.md`](./PHASE-02-load-noise-ux-docs-round.md) | dungeon-scholar | — | done |
-| 03 | [`PHASE-03-light-theme-dark-on-dark-contrast.md`](./PHASE-03-light-theme-dark-on-dark-contrast.md) | dungeon-scholar | — | pending |
+| 03 | [`completed/PHASE-03-light-theme-dark-on-dark-contrast.md`](./completed/PHASE-03-light-theme-dark-on-dark-contrast.md) | dungeon-scholar | — | done |
 | 04 | [`PHASE-04-import-deck-ingestion-robustness.md`](./PHASE-04-import-deck-ingestion-robustness.md) | dungeon-scholar | — | pending |
 | 05 | [`PHASE-05-interaction-recovery-dialogs-oracle-copy.md`](./PHASE-05-interaction-recovery-dialogs-oracle-copy.md) | dungeon-scholar | — | pending |
 | 06 | [`PHASE-06-vault-redeemed-unlock-gate.md`](./PHASE-06-vault-redeemed-unlock-gate.md) | dungeon-scholar | — | pending |

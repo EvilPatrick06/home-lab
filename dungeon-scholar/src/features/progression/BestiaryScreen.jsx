@@ -109,8 +109,8 @@ function BestiaryScreen({ playerState, setScreen }) {
                     className="p-4 rounded-sm relative"
                     style={{
                       background: seen
-                        ? 'linear-gradient(135deg, rgba(31, 17, 8, 0.9) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.97) 100%)'
-                        : 'linear-gradient(135deg, rgba(15, 12, 18, 0.85) 0%, rgba(6, 4, 8, 0.95) 100%)',
+                        ? 'linear-gradient(135deg, rgba(var(--surface-known, 31, 17, 8), 0.9) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.97) 100%)'
+                        : 'linear-gradient(135deg, rgba(var(--surface-locked, 15, 12, 18), 0.85) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.95) 100%)',
                       border: `2px ${isBoss ? 'double' : 'solid'} ${
                         seen
                           ? isBoss

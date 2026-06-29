@@ -100,7 +100,8 @@ function LabMode({
               }}
               className="w-full text-left p-4 rounded-sm transition relative"
               style={{
-                background: 'linear-gradient(135deg, rgba(41, 12, 27, 0.85) 0%, rgba(20, 6, 13, 0.95) 100%)',
+                background:
+                  'linear-gradient(135deg, var(--panel-bg-rose, rgba(41, 12, 27, 0.85)) 0%, var(--panel-end, rgba(var(--surface-deep, 10, 6, 4), 0.9)) 100%)',
                 border: '2px solid rgba(190, 24, 93, 0.5)',
                 boxShadow: '0 0 15px rgba(244, 63, 94, 0.15)',
               }}
@@ -335,7 +336,8 @@ function LabMode({
       <div
         className="rounded-sm p-6 relative"
         style={{
-          background: 'linear-gradient(135deg, rgba(41, 12, 27, 0.85) 0%, rgba(20, 6, 13, 0.95) 100%)',
+          background:
+            'linear-gradient(135deg, var(--panel-bg-rose, rgba(41, 12, 27, 0.85)) 0%, var(--panel-end, rgba(var(--surface-deep, 10, 6, 4), 0.9)) 100%)',
           border: '3px double rgba(190, 24, 93, 0.6)',
           boxShadow: '0 0 25px rgba(244, 63, 94, 0.2)',
         }}
@@ -362,7 +364,10 @@ function LabMode({
               as="div"
               text={currentStep.prompt || currentStep.question}
               className="p-4 rounded-sm text-amber-50 italic"
-              style={{ background: 'rgba(41, 12, 27, 0.7)', border: '1px solid rgba(190, 24, 93, 0.4)' }}
+              style={{
+                background: 'rgba(var(--surface-rose, 41, 12, 27), 0.7)',
+                border: '1px solid rgba(190, 24, 93, 0.4)',
+              }}
             />
             {currentStep.options ? (
               <div className="space-y-2">
@@ -376,7 +381,10 @@ function LabMode({
                     key={i}
                     onClick={() => submitStep(i === currentStep.correctIndex)}
                     className="w-full text-left p-3 rounded-sm border-2 text-amber-50"
-                    style={{ background: 'rgba(41, 12, 27, 0.6)', borderColor: 'rgba(190, 24, 93, 0.5)' }}
+                    style={{
+                      background: 'rgba(var(--surface-rose, 41, 12, 27), 0.6)',
+                      borderColor: 'rgba(190, 24, 93, 0.5)',
+                    }}
                   >
                     <span className="text-rose-300 font-bold mr-2">{String.fromCharCode(65 + i)}.</span>
                     {opt}
@@ -395,7 +403,10 @@ function LabMode({
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && textAnswer.trim() && !grading) submitTextWithOracle();
                   }}
-                  style={{ background: 'rgba(41, 12, 27, 0.6)', borderColor: 'rgba(190, 24, 93, 0.5)' }}
+                  style={{
+                    background: 'rgba(var(--surface-rose, 41, 12, 27), 0.6)',
+                    borderColor: 'rgba(190, 24, 93, 0.5)',
+                  }}
                 />
                 <button
                   onClick={submitTextWithOracle}

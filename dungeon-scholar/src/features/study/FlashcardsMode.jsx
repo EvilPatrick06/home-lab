@@ -344,7 +344,8 @@ function FlashcardsMode({
         aria-label={flipped ? 'Flashcard answer — Space flips, 1-4 to rate' : 'Flashcard question — Space flips'}
         className="rounded-sm p-8 min-h-[300px] flex items-center justify-center cursor-pointer transition relative"
         style={{
-          background: 'linear-gradient(135deg, rgba(12, 24, 41, 0.85) 0%, rgba(6, 12, 20, 0.95) 100%)',
+          background:
+            'linear-gradient(135deg, var(--panel-bg-sapphire, rgba(12, 24, 41, 0.85)) 0%, var(--panel-end, rgba(var(--surface-deep, 10, 6, 4), 0.9)) 100%)',
           border: '3px double rgba(29, 78, 216, 0.6)',
           boxShadow: '0 0 30px rgba(59, 130, 246, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',
         }}

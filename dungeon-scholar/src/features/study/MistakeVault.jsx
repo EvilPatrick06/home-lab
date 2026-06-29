@@ -66,7 +66,8 @@ function MistakeVault({
           key={i}
           className="p-4 rounded-sm relative"
           style={{
-            background: 'linear-gradient(135deg, rgba(41, 12, 12, 0.7) 0%, rgba(20, 6, 6, 0.9) 100%)',
+            background:
+              'linear-gradient(135deg, rgba(var(--surface-red, 41, 12, 12), 0.7) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.9) 100%)',
             border: '2px solid rgba(185, 28, 28, 0.5)',
           }}
         >

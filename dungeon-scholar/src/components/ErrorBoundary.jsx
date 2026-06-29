@@ -52,7 +52,8 @@ export default class ErrorBoundary extends React.Component {
         <div
           className="max-w-2xl mx-auto my-12 p-6 rounded-sm relative"
           style={{
-            background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.92) 0%, rgba(10, 6, 4, 0.97) 100%)',
+            background:
+              'linear-gradient(135deg, rgba(var(--surface-amber, 41, 24, 12), 0.92) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.97) 100%)',
             border: '3px double rgba(245, 158, 11, 0.7)',
             boxShadow: '0 0 40px rgba(245, 158, 11, 0.25)',
           }}
@@ -87,7 +88,8 @@ export default class ErrorBoundary extends React.Component {
       <div
         className="max-w-2xl mx-auto my-12 p-6 rounded-sm relative"
         style={{
-          background: 'linear-gradient(135deg, rgba(80, 20, 20, 0.92) 0%, rgba(20, 6, 6, 0.97) 100%)',
+          background:
+            'linear-gradient(135deg, rgba(var(--surface-danger, 80, 20, 20), 0.92) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.97) 100%)',
           border: '3px double rgba(220, 38, 38, 0.7)',
           boxShadow: '0 0 40px rgba(220, 38, 38, 0.3)',
         }}
