@@ -333,6 +333,17 @@ The consolidated 🤖 Agents summary each agent posts now reports three buckets:
 **any awaiting-restart items** — still one consolidated line per agent,
 re-synced at the start of every run.
 
+### Every awaiting item carries a one-line description
+
+Each item the board lists as **awaiting your approve/deny** — in both the
+consolidated 🤖 Agents summary detail and the in-app needs-action message — must
+carry a concise **one-line plain-English description of what it actually does**, not
+just its phase number / title (e.g. `PHASE-09 — make Shop and exam dates use one
+consistent format`), so the board is decision-ready at a glance. Awaiting-restart
+items likewise name the service plus what the restart enables. The canonical wording
+lives in each agent’s scheduled-task `SKILL.md`; this is the repo-side note so the
+workflow doc and the per-agent definitions agree.
+
 ---
 
 ## Humans / interactive sessions
