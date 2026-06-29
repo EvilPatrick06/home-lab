@@ -1,5 +1,18 @@
 # Phase Execution Instructions
 
+> **Autonomy policy (auto-approve `bug`/`security`; gate the rest).** Resolver and
+> phase-executer agents now **auto-implement `bug` and `security` work every run**
+> (built on `auto/<agent-id>`, CI-gated, integrator-merged — no human approval);
+> everything else (`future-idea`/enhancement/`debt`/`docs`/`info`/non-bug `UX`/cosmetic
+> `config`·`perf`·`portability`) stays gated on the status board for approval. The one
+> remaining gate is the **live bmo service restart**: auto-approved code lands and
+> merges automatically, but a fix needing a live restart posts a "⏳ needs restart
+> approval" board item instead of restarting unattended. Canonical wording lives in
+> each agent's scheduled-task `SKILL.md`; the repo-side summary is
+> [`AUTOMATED-AGENT-GIT-WORKFLOW.md`](../../../docs/AUTOMATED-AGENT-GIT-WORKFLOW.md) Rule 5. This does not change the
+> STOP-and-ask test below or the live-service boundary.
+
+
 > How to work through the phase plans in this directory. Read this before starting any phase work.
 
 > **Scope — repo-wide / all domains (not dnd-app-only).** Despite living under `dnd-app/docs/`, this file is the **canonical implement → verify → git → release process for EVERY automated/scheduled agent across ALL domains** — `dnd-app/`, `bmo/`, `dungeon-scholar/`, and any cross-cutting resolver or agent. Its workflow (per-agent `auto/*` branch + worktree, CI as the authoritative gate, fix-forward on red, the release flow) applies repo-wide; a bmo- or dungeon-scholar-scoped agent follows these same rules — only the concrete build/test commands differ per domain (see each domain's README / `AGENTS.md`). Git mechanics: [`../../../docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`](../../../docs/AUTOMATED-AGENT-GIT-WORKFLOW.md); this file governs how agents execute and verify the work itself.

@@ -233,6 +233,62 @@ Auto-diagnosis is never itself a reason to stop: you diagnose, then either fix f
 
 ---
 
+## Rule 5 — Resolver & phase-executer autonomy: auto-approve `bug`/`security`, gate the rest, restart stays gated
+
+The seven resolver / phase-executer agents (`dnd-resolver`, `scholar-resolver`,
+`bmo-resolver`, `overall-resolver`, `dnd-phase-executer`, `scholar-phase-executer`,
+`bmo-phase-executer`) run a two-class autonomy policy. **The canonical wording
+lives in each agent's scheduled-task definition (its `SKILL.md`); this rule is
+the repo-side summary so the workflow doc and the per-domain `INSTRUCTIONS.md`
+agree.**
+
+- **AUTO-APPROVE class — `bug` and `security`.** Log entries tagged `bug` or
+  `security` (and, for the phase-executers, phases whose primary purpose is
+  fixing broken behavior or closing a vulnerability) are **implemented
+  automatically every run** — built on the agent's `auto/<agent-id>` branch,
+  CI-gated, merged by the daily integrator (Rule 3). **No human approval, and
+  they are NOT posted to the status board for approval.**
+- **WAIT class — everything else.** `future-idea`, suggestion, enhancement,
+  `debt`, `docs`, `info`, `design-gotcha`, non-bug `UX`, and cosmetic
+  `config`/`performance`/`portability` keep the prior gated behavior: posted to
+  the BMO status board (🤖 Agents) as "awaiting your approval," **not
+  implemented until the user approves.**
+- **Ambiguous tags resolve toward "bug."** A `debt`/`performance`/`config`/
+  `portability`/`UX`/`test` entry that actually describes broken or incorrect
+  behavior is treated as a `bug` (auto-approve). A `security`-tagged item that is
+  only a hardening *future-idea* (no actual vulnerability) stays WAIT. When
+  genuinely unsure, the item stays WAIT and the board note says why.
+- **Runs never block.** Each run implements the auto-approve class, posts the
+  wait class, then finishes — it never stalls waiting on a gated item.
+
+### The one gate that remains — live bmo service restart
+
+Auto-approving `bug`/`security` fixes means the *code* now lands and merges
+unattended. **The live-service restart path does not.** A fix's code is
+implemented + merged automatically, but **if it needs a live bmo service restart
+(or a release) to take effect, the agent does NOT restart/release unattended** —
+it posts a distinct **"⏳ needs restart approval"** status-board item naming the
+service + fix and leaves the restart for a human / approved follow-up. **Code
+lands automatically; only the live restart waits.**
+
+This gate is only reachable by the agents that ever touch live bmo services —
+`dnd-resolver`, `bmo-resolver`, `overall-resolver`, and `dnd-phase-executer`.
+The other three never restart bmo at all: `scholar-resolver` and
+`scholar-phase-executer` redeploy to GitHub Pages on merge (unchanged automatic
+behavior, not a bmo restart), and `bmo-phase-executer` keeps its absolute
+"never mutate the live Pi" boundary (the owner / `bmo-deploy.yml` runs
+`deploy.sh` after merge). The deploy itself stays decoupled from this tree (see
+the deploy note under Rule 3).
+
+### Board notice reflects the split
+
+The consolidated 🤖 Agents summary each agent posts now reports three buckets:
+**what was auto-fixed this run**, **what awaits approval** (WAIT class), and
+**any awaiting-restart items** — still one consolidated line per agent,
+re-synced at the start of every run.
+
+---
+
 ## Humans / interactive sessions
 
 Humans and interactive (non-scheduled) AI sessions **may still commit to
