@@ -50,7 +50,7 @@ from bots.social.games import (  # mini-game UI extracted from this module
     HangmanGuessModal, HangmanView, WordleGuessModal, WordleView,
     Connect4View, PollView, PollButton,
 )
-from bots.social.music_ui import MusicControlView, MusicQueue, PageButton, VolumeSelect  # music UI extracted
+from bots.social.music_ui import MusicQueue, build_music_panel  # music UI extracted (V2)
 from discord import app_commands
 from discord.ext import commands, tasks
 
@@ -560,8 +560,7 @@ def _build_now_playing_embed(queue: MusicQueue) -> discord.Embed:
 
 async def _send_or_update_controls(queue: MusicQueue, channel: discord.abc.Messageable, guild_id: int, force_new: bool = False) -> None:
     """Send a new control message or update the existing one."""
-    embed = _build_now_playing_embed(queue)
-    view = MusicControlView(guild_id)
+    view = build_music_panel(guild_id)
 
     # Delete old and re-send if forced (keeps controls at bottom of chat)
     if force_new and queue.control_message:
@@ -574,7 +573,7 @@ async def _send_or_update_controls(queue: MusicQueue, channel: discord.abc.Messa
     # Try to edit existing control message
     if queue.control_message:
         try:
-            await queue.control_message.edit(embed=embed, view=view)
+            await queue.control_message.edit(view=view)
             return
         except (discord.NotFound, discord.HTTPException):
             queue.control_message = None
@@ -650,7 +649,7 @@ class SocialBot(commands.Bot):
 
     async def setup_hook(self) -> None:
         # Re-register persistent views for button callbacks
-        self.add_view(MusicControlView(self._guild_id or 0))
+        self.add_view(build_music_panel(self._guild_id or 0))
         # Sync slash commands to guild
         if self._guild_id:
             guild = discord.Object(id=self._guild_id)
@@ -1190,9 +1189,8 @@ async def _progress_updater(guild_id: int) -> None:
         if not vc or not vc.is_connected() or (not vc.is_playing() and not vc.is_paused()):
             break
         if queue.control_message and queue.control_channel:
-            embed = _build_now_playing_embed(queue)
             try:
-                await queue.control_message.edit(embed=embed, view=MusicControlView(guild_id))
+                await queue.control_message.edit(view=build_music_panel(guild_id))
             except (discord.NotFound, discord.HTTPException):
                 break
 
@@ -1345,8 +1343,7 @@ async def _on_track_end(guild_id: int) -> None:
             await _set_deaf(vc.guild, vc, False)
         if queue.control_message and queue.control_channel:
             try:
-                embed = _build_now_playing_embed(queue)
-                await queue.control_message.edit(embed=embed, view=MusicControlView(guild_id))
+                await queue.control_message.edit(view=build_music_panel(guild_id))
             except (discord.NotFound, discord.HTTPException):
                 pass
 
@@ -5796,6 +5793,8 @@ _music_ui._get_queue = _get_queue
 _music_ui._build_now_playing_embed = _build_now_playing_embed
 _music_ui._set_deaf = _set_deaf
 _music_ui._start_playing = _start_playing
+_music_ui._format_duration = _format_duration
+_music_ui._build_progress_bar = _build_progress_bar
 
 
 if __name__ == "__main__":
