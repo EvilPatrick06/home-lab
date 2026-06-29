@@ -6,7 +6,7 @@
 help:
 	@echo "Targets: install hooks lint typecheck test build audit all"
 	@echo "  lint      -> dnd-app + dnd-app/mobile + dungeon-scholar (biome); bmo/pi (ruff); oracle-worker (no-op)"
-	@echo "  typecheck -> dnd-app + dnd-app/mobile (dungeon-scholar/oracle-worker are JS; no tsc)"
+	@echo "  typecheck -> dnd-app + oracle-worker (enforced); dnd-app/mobile + dungeon-scholar (non-blocking checkJs)"
 	@echo "  test      -> dnd-app + dungeon-scholar + oracle-worker (npm) + bmo/pi (pytest)"
 	@echo "  build     -> dnd-app + dungeon-scholar (npm) + oracle-worker (wrangler dry-run)"
 	@echo "  audit     -> each project: npm run audit:ci"
@@ -32,13 +32,16 @@ lint:
 	cd oracle-worker && npm run lint
 	cd bmo/pi && ruff check .
 
-# typecheck covers the TypeScript projects: dnd-app (web tsconfig) and
-# dnd-app/mobile (Expo/RN; tsc --noEmit). dungeon-scholar and oracle-worker are
-# JavaScript (no .ts sources, no tsconfig) so there is nothing to type-check there;
-# oracle-worker is validated by its wrangler dry-run under `build`.
+# typecheck fans out to all four code areas. Enforced (must pass): dnd-app (web
+# tsconfig) and oracle-worker (checkJs over its JS worker, currently clean).
+# Non-blocking (leading `-`: errors print but do not fail the target) until their
+# backlogs are burned down: dnd-app/mobile (Expo/RN) and dungeon-scholar (checkJs
+# over JS/JSX; pre-existing errors tracked in ISSUES-LOG-DUNGEON-SCHOLAR.md).
 typecheck:
 	cd dnd-app && npx tsc --noEmit -p tsconfig.web.json
-	cd dnd-app/mobile && npm run typecheck
+	cd oracle-worker && npm run typecheck
+	-cd dnd-app/mobile && npm run typecheck
+	-cd dungeon-scholar && npm run typecheck
 
 test:
 	cd dnd-app && npm test

@@ -35,6 +35,27 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Medium
 
+### [2026-06-29] checkJs typecheck gate added (non-blocking) — 167 pre-existing type errors to burn down
+
+- **Category:** debt, test
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** overall-resolver
+- **During:** adding a type-check gate to the JS projects per user request (cross-cutting SUGGESTIONS-LOG `TypeScript type-checking coverage is uneven`, resolved 2026-06-29).
+
+**Description:**
+dungeon-scholar is a JavaScript/JSX app (no `.ts` sources). A new `tsconfig.json` (allowJs + checkJs, non-strict, jsx react-jsx, scoped to `src`, `src/sw.js` excluded) plus a `vite-env.d.ts` and a `typecheck` script (`tsc --noEmit`) were added so `tsc` can check the JS via JSDoc/inference. checkJs currently reports **167 errors**, so the CI gate (`dungeon-scholar-ci.yml`) and the root `Makefile typecheck` entry are **non-blocking** (continue-on-error / leading `-`) until the backlog is burned down. Top error codes: TS2339 (79, property does not exist on inferred type), TS2739/TS2741/TS2322 (~51, object/JSX prop shape mismatches), TS2353 (20, unknown object-literal keys). Worst files: `components/dungeon/DungeonExplore.jsx` (53), `features/home/HomeScreen.jsx` (19), `services/sealedTome.js` (10), `components/RichContent.jsx` (9).
+
+**Proposed fix / improvement:**
+- [ ] Burn down the 167 errors incrementally (add JSDoc `@param`/`@type`, prop typedefs, narrow object shapes), worst-offender files first.
+- [ ] Once `npm run typecheck` is clean, drop `continue-on-error: true` from `dungeon-scholar-ci.yml` and the leading `-` from the `Makefile` dungeon-scholar typecheck line to make the gate blocking.
+- [ ] Consider raising strictness (`noImplicitAny`, then `strict`) once the baseline is green.
+
+**Related files:** `dungeon-scholar/tsconfig.json`, `dungeon-scholar/src/vite-env.d.ts`, `dungeon-scholar/package.json`, `.github/workflows/dungeon-scholar-ci.yml`, `Makefile`
+
+**Related entries:** RESOLVED-ISSUES.md [2026-06-29] "TypeScript type-checking coverage is uneven across the three TS projects".
+
+
 *(none currently logged)*
 
 ## Low

@@ -14,6 +14,32 @@ How to triage: [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md)
 
 > Resolved cross-cutting / `Domain: both` entries moved out of `ISSUES-LOG.md` + `SUGGESTIONS-LOG.md`. Newest first.
 
+### [2026-06-28] TypeScript type-checking coverage is uneven across the three TS projects — only dnd-app has a `tsc` gate
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-29
+- **Resolution:** Implemented per user request (2026-06-29). NOTE the original premise was wrong: dungeon-scholar and oracle-worker are JavaScript, not TypeScript, so this ADDS checkJs-based type-checking rather than gating existing TS. oracle-worker: added tsconfig.json (allowJs+checkJs, non-strict, @cloudflare/workers-types) + typecheck script + a BLOCKING Typecheck step in oracle-worker-ci.yml + Makefile entry — 0 errors, fully gated. dungeon-scholar: added tsconfig.json (allowJs+checkJs, non-strict, jsx react-jsx, scoped to src, sw.js excluded) + src/vite-env.d.ts + typecheck script; wired a NON-BLOCKING (continue-on-error) Typecheck step into dungeon-scholar-ci.yml and a leading-`-` Makefile entry, because checkJs surfaces 167 pre-existing untyped-JS errors (tracked in ISSUES-LOG-DUNGEON-SCHOLAR.md for burndown; flip to blocking once green). Installed typescript + @types/react/react-dom/node (dungeon-scholar) and typescript + @cloudflare/workers-types (oracle-worker). Makefile typecheck now fans out to all four areas (dnd-app + oracle-worker enforced; dnd-app/mobile + dungeon-scholar non-blocking). dnd-app/mobile, the one genuinely-TS surface, was wired in the companion mobile entry.
+- **Branch:** auto/overall-resolver
+
+- **Category:** future-idea
+- **Severity:** medium
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** cross-cutting CI/tooling review
+
+**Description:**
+Three of the repo's code areas are TypeScript, but only `dnd-app` is ever type-checked. `dnd-app` runs `tsc --noEmit` (Makefile `typecheck` + `dnd-app-ci`). `dungeon-scholar` has **no `tsconfig*.json` and no typecheck/`check` script at all** — Vite/esbuild transpiles by stripping types without checking them, so a type error there only ever surfaces at runtime. `oracle-worker` has only `check: wrangler deploy --dry-run` (an esbuild bundle, not a full project type-check). So two production TS surfaces ship with zero compiler-enforced type safety, while a third is fully gated — an inconsistency that mirrors the (now-resolved) lint/audit-coverage gaps overall-suggestor previously closed for these same two projects. The Makefile documents the omission ("dungeon-scholar has no tsconfig/tsc step … Revisit if either gains a tsconfig") but it is not tracked as an improvement.
+
+**Hypothesis / root cause:** Both projects were bootstrapped from Vite/Wrangler templates that rely on the bundler for transpile and never added a standalone `tsc` config; the bundler-transpiles-so-no-typecheck assumption was accepted as permanent rather than as debt.
+
+**Proposed fix / improvement:**
+- [ ] Add a `tsconfig.json` (strict) + `"typecheck": "tsc --noEmit"` script to `dungeon-scholar`, and a `"typecheck": "tsc --noEmit"` (or `wrangler types` + tsc) to `oracle-worker`.
+- [ ] Extend Makefile `typecheck` to fan out to all three TS projects (today it covers dnd-app only, by design-note).
+- [ ] Wire the new typecheck step into `dungeon-scholar-ci` / `oracle-worker-ci`.
+- [ ] Optionally add a shared `tsconfig.base.json` at repo root (parallel to the existing `biome.base.json`) so the three projects share compiler-strictness defaults.
+
+**Related files:** `dungeon-scholar/package.json`, `oracle-worker/package.json`, `Makefile`, `.github/workflows/dungeon-scholar-ci.yml`, `.github/workflows/oracle-worker-ci.yml`, `biome.base.json`
+
 ### [2026-06-28] New `dnd-e2e.yml` workflow violates two established repo-wide CI conventions (literal Node pin + unpinned/mutable action tags)
 
 - **Resolved by:** overall-resolver (automated)

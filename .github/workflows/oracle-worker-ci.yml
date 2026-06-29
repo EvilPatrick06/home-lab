@@ -32,6 +32,8 @@ jobs:
       - uses: ./.github/actions/setup-node-project
         with:
           working-directory: oracle-worker
+      - name: Typecheck (tsc)
+        run: npm run typecheck
       - name: Validate Worker build (no publish)
         run: npx wrangler deploy --dry-run --outdir=dist
       - name: Tests
