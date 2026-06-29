@@ -34,6 +34,8 @@
 | 09 | [`PHASE-09-chat-agent-module-init.md`](./completed/PHASE-09-chat-agent-module-init.md) | bmo | — | done |
 | 10 | [`PHASE-10-service-health-truth.md`](./completed/PHASE-10-service-health-truth.md) | bmo | — | done |
 | 11 | [`PHASE-11-dashboard-ux-round.md`](./completed/PHASE-11-dashboard-ux-round.md) | bmo | — | done |
+| 12 | [`PHASE-12-dashboard-ux-correctness.md`](./PHASE-12-dashboard-ux-correctness.md) | bmo | — | pending |
+| 13 | [`PHASE-13-ide-tv-doc-truth.md`](./PHASE-13-ide-tv-doc-truth.md) | bmo | — | pending |
 
 > **Provenance of this batch:** PHASE-01..03 were consolidated from
 > `QA/QA-report-2026-06-24.md` (now in `QA/completed/`) by the bmo phase-maker on
@@ -79,3 +81,28 @@
 > is an automation/infra coverage gap (attach a Pi-local browser), not bmo app code, so it is an
 > owner/QA-infra item, not a phase; report-3's deploy-restart structural ask is already in
 > `docs/logs/BMO-ISSUES-LOG.md` (08 adds only the code-side *observability*); and report-3's lo
+
+
+> **Provenance of this batch (12–13):** PHASE-12..13 were consolidated from
+> `QA/QA-report-2026-06-28-2.md` (the **second** 2026-06-28 pass, live process
+> `655a930f` / `origin/master@a2d87c53`, now in `QA/completed/`) by the bmo
+> phase-maker on 2026-06-29, verified against `origin/master@af795b36`. Run 2's two
+> headline findings — the chat agent down and the calendar OAuth revoked — were
+> **already planned** (chat = PHASE-09; calendar health/UX = PHASE-10/11; the reauth
+> is an owner action) and are **not** re-planned; this batch covers only the **new**
+> dashboard/backend defects run 2 surfaced. Same layer split as prior batches:
+> **12** = frontend UX correctness (the `x-init="init()"` double-bootstrap, calendar
+> create/update success-gating + retain-on-failure, timer-preset label, TV pairing
+> affordance + friendly error copy); **13** = backend/IDE/doc truth (the unbounded
+> `_tv_cmd` worker read → ~30s pairing hang, the IDE terminal opening in the deploy
+> checkout while the explorer is on the dev tree, the blank-until-keypress terminal,
+> and the `SERVICES.md`/`bmo-ide.service` `:5001`-vs-`/ide`-on-`:5000` doc reconciliation
+> that extends PHASE-11 11F). Dependencies are **soft** — disjoint files, any order;
+> 12→13 (frontend→backend) is the recommended order. **Coordinate, don't collide:**
+> 12A vs 11E (geolocation double-log — different files), 12B vs 11C (same calendar
+> handlers, different lines), and 12D/13A vs 11D (TV pairing, from the UI/backend
+> sides). **Not re-planned as code phases:** the calendar refresh-token reauth and the
+> missing `GOOGLE_VISION_API_KEY` are owner/log items, and the header-clock TZ
+> divergence is intentional per `DESIGN-CONSTRAINTS` (the report itself reclassifies
+> it). The bmo-phase-executer updates the Status column (`pending` → `in progress`
+> → `done`) as it ships each plan.
