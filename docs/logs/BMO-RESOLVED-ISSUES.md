@@ -12,6 +12,43 @@
 
 ---
 
+### [2026-06-29] Google Calendar refresh token revoked — calendar reauthorized (operational), token hardened
+
+- **Resolved by:** user (reauth) + bmo-resolver (live hardening)  **Branch:** n/a (operational; token files are gitignored/local)
+- The revoked OAuth grant was re-minted by the user via the reauth flow. `bmo.service` now logs `Calendar: OK` (CRITICALs cleared); the live deploy `token.json` advanced to expiry `2026-06-29T09:11Z` with a fresh refresh_token.
+- **Follow-up done by bmo-resolver:** the reauth ran on the *deployed* (pre-fix) code, which re-created `token.json` at `0644` (the exact sec-1 regression) and only updated the deploy checkout. Restored `0600` on both checkouts and synced the fresh token into `~/home-lab/bmo/pi/config/token.json` so the main checkout no longer holds the stale/revoked grant. The committed 0600 writer fix (sec-1, `2bac5487`) will make this hold automatically once it deploys via the integrator merge.
+- No code change was required (the calendar code, monitoring escalation, and error messages were all behaving correctly — this was a genuine external token revocation, not a defect).
+
+<details><summary>Original entry (verbatim, moved from BMO-ISSUES-LOG.md)</summary>
+
+### [2026-06-28] Google Calendar refresh token genuinely revoked — calendar integration DOWN, CRITICAL alerts firing all day (operational reauth needed)
+
+- **Category:** config (credential)
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** scheduled bmo error scan — `bmo.service` journal shows recurring `[CRITICAL] google_calendar: 📅 Calendar token expired and auto-refresh is not happening — run reauth_calendar.py to re-authorize` throughout 2026-06-28 (e.g. 14:52, 16:13–16:45, 18:42–19:14), paired with `[calendar] Cache refresh failed: Google Calendar refresh failed (token revoked or expired)` every cache cycle (~5 min, e.g. 18:46:40 → 19:41:42).
+
+**Description:**
+The calendar integration is currently non-functional. `config/token.json` (used by both `~/home-lab` and `~/home-lab-deploy`) is frozen at mtime 2026-06-24 20:10:36 with `expiry: 2026-06-25T03:10:35Z` — i.e. the access token expired ~3.5 days ago and has not been re-persisted since. `refresh_token` IS present, but every `creds.refresh(Request())` now fails with a revoked/expired-grant error, so the live client cannot self-heal and the monitor's 05C live-probe also fails → it correctly escalates to the actionable reauth CRITICAL.
+
+**Important — this is NOT the resolved 2026-06-24 monitoring bug.** BMO-RESOLVED-ISSUES `[2026-06-24] Calendar token never re-persisted after in-memory refresh` was a *false* CRITICAL while the calendar still worked; the persist-after-refresh fix (`calendar_service.py` `_persist_token_if_changed` / the 05A belt in `_get_service`) and the monitor live-probe (05C) both landed and verified-present in current master. Today's CRITICAL is a *genuine* outage: the underlying Google OAuth refresh token has been revoked/expired. The code, monitoring, escalation, and error messages are all behaving correctly.
+
+**Hypothesis / root cause:** Google refresh token revoked/expired (e.g. password change, 7-day expiry on an app still in OAuth "Testing" publishing status, or admin revocation). Not a code defect — `git`-side calendar handling is correct.
+
+**Proposed fix / improvement:**
+- [ ] Operational (human, not a code resolver): run `cd ~/home-lab/bmo/pi && ./venv/bin/python services/reauth_calendar.py` (paste code) or `services/authorize_calendar.py` in a browser session to mint a fresh token. Verify `config/token.json` mtime/expiry advances and the CRITICAL clears.
+- [ ] Optional follow-up (resolver-actionable IF the revocation recurs): if the OAuth app is still in "Testing" publishing status, refresh tokens expire every 7 days by design — moving the app to "In production" (or adding the account as a test user with a longer-lived grant) would stop the periodic forced re-auth. Investigate only if this becomes a repeating pattern.
+
+**Related files:** `bmo/pi/services/calendar_service.py`, `bmo/pi/services/monitoring.py` (`_check_calendar_token`, ~L1528–1675), `bmo/pi/services/reauth_calendar.py`, `bmo/pi/config/token.json`
+
+**Related entries:** BMO-RESOLVED-ISSUES `[2026-06-24] Calendar token never re-persisted after in-memory refresh …` (the prior, distinct false-positive variant — do NOT re-touch that code).
+
+</details>
+
+---
+
+
 ### [2026-06-29] VoicePipeline 2,236-line god-class decomposed into 5 collaborators (user-requested follow-up)
 
 - **Resolved by:** bmo-resolver  **Branch:** `auto/bmo-resolver`  **Commits:** `9db98391`, `b8355597`, `b78325b6`, `ab70611a`, `cb80bcb7`
