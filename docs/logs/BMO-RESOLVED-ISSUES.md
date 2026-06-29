@@ -12,6 +12,244 @@
 
 ---
 
+### [2026-06-29] bmo-resolver — bmo backlog batch (2 issues + 8 suggestions + 1 security), user-approved
+
+- **Resolved by:** bmo-resolver  **Branch:** `auto/bmo-resolver` (reset onto current origin/master; integrator merges; bmo auto-deploys on merge)
+- **During:** scheduled bmo-resolver run; all open bmo entries approved by the user 2026-06-29.
+
+**Issue resolutions:**
+1. ide_app.py startup-banner print() tripping the ratchet — **already resolved on current master** (line 798 is `log.info(...)`; ratchet green at 163=163). The offending commit `363c8cef` never merged (integrator left the red branch behind). Archived as already-resolved; no code change.
+2. discord_dm_bot.py hardcoded dev-tree data paths — resolve `_DM_STATE_PATH`, `rag_dir` and `DATA_DIR` via `Path(__file__).resolve().parents[1]` so DM state + RAG + 5e data live under the running checkout (deploy sandbox safe; mirrors the social-bot fix). Also fixed `DATA_DIR` previously pointing at a nonexistent `~/bmo/data/5e`. (`6767e89c`)
+
+**Suggestion resolutions:**
+- mcp_servers shared stdio base — extract the JSON-RPC Content-Length transport into `mcp_servers/_stdio_server.serve()`; both servers ported (behaviour-identical, stdio smoke-tested) + `test_mcp_stdio_base`. (`85eda155`)
+- request.json sweep — 55 `request.json or {}` → `request.get_json(silent=True) or {}` in `app.py`. (`3a6b3205`)
+- orphaned vendored assets — deleted ~860 KB (`tailwind.js`, `xterm`, `addon-fit`, `marked`, `hljs`), verified unreferenced. (`a952f692`)
+- bots/ layout — moved `social_bot_utils.py`/`social_youtube.py` into `bots/social/` as `utils.py`/`youtube.py`. (`3e9e994d`)
+- voice barge-in — wired `VoicePipeline.interrupt()` to a `POST /api/voice/interrupt` REST endpoint + a `voice_interrupt` SocketIO handler (previously zero production callers). (`ee13c8fe`)
+- services/calendar/ subpackage — grouped the 4 calendar modules into `services/calendar/` with operator-path compat shims; ratchet EXCL updated for the moved auth CLIs. (`8829a261`, `b3ed5e72`)
+- services.paths centralization — added `services/paths.py` (BMO_ROOT/DATA_DIR/MODELS_DIR via BMO_HOME, default-preserving); migrated 41 literals across 24 in-process modules; added `check-no-home-lab-literals.sh` ratchet (baseline 13) wired into CI. (`4346536b`)
+- expression-tag registry — added `services/voice/expression_tags.py` (families + FACE vocab derived from the OLED enum) + `tags_prompt()`; parser family list now sourced from it and unknown closed-family tags are logged. **Partial:** migrating the ~8 per-agent prompt-prose blocks onto `tags_prompt()` is the incremental follow-up (it changes LLM input — needs per-prompt review). (`ba41204b`)
+
+**Security resolution** (full entry moved to gitignored `RESOLVED-SECURITY-ISSUES.md`): calendar `token.json`/`credentials.json` world-readable — all four token writers now land 0600; live files chmod 600 + config dirs 700. (`2bac5487`)
+
+**Verification:** full bmo pytest suite **1355 passed, 6 skipped** on the branch; `check-no-new-prints.sh` + `check-no-home-lab-literals.sh` green. Live-Pi out-of-band actions: `chmod 600` token/credentials + `chmod 700 config/` in both `~/home-lab` and `~/home-lab-deploy`. Code deploys via the integrator merge.
+
+**NOT done (left active):**
+- Suggestion: `VoicePipeline` 2,236-line god-class decomposition — left active in `BMO-SUGGESTIONS-LOG.md`. Its correctness rests on live-audio/AEC behaviour the 52 mocked tests cannot exercise, so a CI-green extraction could still silently break live voice on deploy; needs the incremental, on-device-verifiable pass the entry prescribes (not landed blind on a shared branch carrying 10 verified fixes).
+- Issue: Google Calendar refresh token revoked — left active in `BMO-ISSUES-LOG.md`. Operational/human action (run `services/reauth_calendar.py` to mint a fresh token, or move the OAuth app out of "Testing"); no code fix is possible from the resolver.
+
+<details><summary>Original entries (verbatim, moved from BMO-ISSUES-LOG.md + BMO-SUGGESTIONS-LOG.md)</summary>
+
+### [2026-06-28] ide_app.py startup-banner print() trips bmo print() ratchet on auto/bmo-resolver
+
+- **Reported by:** ci-failure-triage (automated)
+- **Category:** ci / lint (print ratchet)
+- **Severity:** high (branch CI red; blocks bmo-resolver integration)
+- **Domain:** bmo
+- **Failing run:** 28338228795 (2026-06-28T22:32Z) — job `bmo print() ratchet`, step `bash bmo/pi/scripts/check-no-new-prints.sh`, exit 1 (production print() count=164 baseline=163 → 1 new). Paired `dnd-app CI` run 28338228779 on the same push was a benign concurrency-cancel (ignored).
+- **Branch / commit:** `auto/bmo-resolver` @ 363c8cef ("docs(logs): archive social-bot god-module split (#12) — now resolved")
+
+**Root cause:**
+The commit adds one `print()` at `bmo/pi/ide_app/ide_app.py:798`: a startup banner `print(f'... BMO IDE Test App starting on {_host}:{_port} ...')` (confirmed via `git diff origin/master 363c8cef -- *ide_app.py`). Count 163 → 164.
+
+**Fix needed:**
+Replace the startup-banner `print()` with `services.bmo_logging.get_logger(__name__).info(...)`, then re-run the ratchet. Owner: bmo-resolver / bmo domain.
+
+### [2026-06-28] discord_dm_bot.py hardcodes read-only dev-tree data paths (same trap that broke the social bot deploy)
+
+- **Reported by:** ci-failure-triage (automated)
+- **Category:** bug / latent
+- **Severity:** high (will fail at runtime under the deploy-isolation sandbox)
+- **Domain:** bmo
+- **Context:** found while fix-forwarding bmo/deploy run 28334130910 (social bot crash)
+
+**Description:**
+The deploy-isolation hardening runs the bots from `~/home-lab-deploy` with `ProtectHome=read-only` and only `ReadWritePaths=~/home-lab-deploy/bmo/pi/data` writable. `bmo/pi/bots/social/bot.py` was fixed this cycle (commit 655a930f) to resolve its data dir relative to the module. But `bmo/pi/bots/discord_dm_bot.py` still hardcodes the dev-tree path in two spots:
+- line 346: `_DM_STATE_PATH = os.path.expanduser("~/home-lab/bmo/pi/data/dm_session_state.json")`
+- line 847: `rag_dir = os.path.expanduser("~/home-lab/bmo/pi/data/rag_data")`
+(line 133 `DATA_DIR = Path.home() / "bmo" / "data" / "5e"` also points outside the deploy checkout.)
+These are not executed at import time, so the service starts and deploy passes — but the first write to `_DM_STATE_PATH` (or a RAG read expecting the deploy tree) hits `OSError: Read-only file system` / wrong path at runtime.
+
+**Fix needed:**
+Resolve these paths relative to the module (mirror the social-bot fix: `Path(__file__).resolve().parents[2] / "data"`) or to the writable deploy data dir, so DM session state + RAG live under `~/home-lab-deploy/bmo/pi/data`. Verify against the systemd `ReadWritePaths` for bmo-dm-bot. Owner: bmo-resolver.
+
+*(none currently logged)*
+
+### [2026-06-28] Both `mcp_servers/*` hand-roll identical JSON-RPC stdio framing — extract a shared base so new BMO MCP servers (timers/calendar/smart-home/music) don't re-implement the protocol
+
+- **Category:** future-idea (DX + portability)
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of `pi/mcp_servers/`
+
+**Description:**
+`mcp_servers/` now has two stdio servers — `bmo_lists_server.py` (128 lines) and `dnd_data_server.py` (307 lines) — and each **independently re-implements the same JSON-RPC 2.0 over Content-Length-framed stdio plumbing**: a `_read_message()` that parses `Content-Length` headers off stdin, a `_write_message()` that emits `Content-Length: …\r\n\r\n{body}`, `_result(id, result)` / `_error(id, code, message)` wrappers, and a `main()` dispatch loop handling `initialize` → `notifications/initialized` → `tools/list` → `tools/call`. These blocks are byte-for-byte equivalent across the two files (lists: lines 27-115; dnd_data: lines 55-294). There is no shared helper — `mcp_servers/` holds only the two servers, an `__init__.py`, the README, and `mcp_settings.json`. The earlier "expose BMO's subsystems as MCP servers" idea (BMO-RESOLVED 2026-06-22) envisioned wrapping timers/calendar/smart-home/music the same way, but only the lists server materialized; every additional server will copy this boilerplate again, and a protocol-level fix (e.g. handling the `initialized` notification, an MCP spec bump, batch framing, or graceful EOF) has to be applied in N places.
+
+**Hypothesis / root cause:** the dnd-data server came first and established the stdio pattern by hand; the lists server was written by copying that framing rather than factoring it out, because no base module existed to import.
+
+**Proposed fix / improvement:**
+- [ ] Add `mcp_servers/_stdio_server.py` exposing the transport (read/write/Content-Length framing, `result`/`error` helpers) and a tiny dispatch loop that takes a `name → handler` tool table plus a `TOOLS` manifest, so a concrete server is just "define TOOLS + handlers, call `serve(TOOLS, handlers)`".
+- [ ] Port `bmo_lists_server.py` and `dnd_data_server.py` onto it (behavior-identical; covered by their existing import/JSON-RPC tests).
+- [ ] This directly lowers the cost of the deferred timers/calendar/smart-home/music MCP servers — each becomes ~a tool table over the existing in-process service, not another protocol re-implementation.
+
+**Related files:** `bmo/pi/mcp_servers/bmo_lists_server.py:27-115`, `bmo/pi/mcp_servers/dnd_data_server.py:55-294`, `bmo/pi/mcp_servers/__init__.py`, `bmo/pi/mcp_servers/README.md`.
+
+**Related entries:** BMO-RESOLVED 2026-06-22 (expose BMO's own subsystems as MCP servers) — only the lists server shipped; a shared base is the missing enabler for the rest.
+
+### [2026-06-28] BMO's hardware-control tag vocabulary (`[FACE:]`/`[LED:]`/`[EMOTION:]`/`[SOUND:]`/`[MUSIC:]`/`[NPC:]`) has no single source of truth — it's hand-listed in ~8 prompt files, parsed by regex in one place, and the valid face set is a separate enum, so the three can silently drift
+
+- **Category:** future-idea (reliability + DX)
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of the personality/expression-tag path (prompts → parser → hardware)
+
+**Description:**
+BMO controls its face, LEDs, sounds, TTS emotion, music and NPC voices by having the LLM emit inline tags like `[FACE:happy]`, `[LED:rainbow]`, `[EMOTION:sassy]`. The set of legal tags is defined three separate ways that nothing keeps in sync:
+1. **Advertised to the model** as prose, independently re-listed in at least eight prompt-bearing modules: `agents/orchestrator.py`, `agents/conversation.py`, `agents/timer_agent.py`, `agents/weather_agent.py`, `agents/music_agent.py`, `services/personality_engine.py`, `services/voice/voice_personality.py`, and `services/timer_service.py` (each enumerates its own subset of FACE/LED/EMOTION/SOUND tags in the system prompt).
+2. **Parsed/dispatched** by regex in `services/voice/voice_personality.py` (the module that turns response tags into hardware actions + Fish-Audio emotion/NPC voice mapping).
+3. **Implemented** as a hard enum of face names in `hardware/oled_face.py` (`HAPPY`/`LAUGHING`/`SINGING`/`MISCHIEVOUS`/… each with a `_render_*`).
+A `grep` for any central registry (`TAG_REGISTRY`/`VALID_FACES`/`FACE_TAGS`/`EXPRESSION_TAGS`) finds nothing — the lists are maintained by hand. The drift modes are real: add a face to `oled_face.py` and the model never learns it exists (you must remember to edit every prompt); advertise a `[FACE:x]` in a prompt that `oled_face.py` doesn't implement and the renderer silently no-ops; and an emitted tag the parser doesn't recognize risks leaking into spoken/displayed output instead of being consumed. Because each agent re-lists its own subset, the vocabularies are already partial and inconsistent across agents.
+
+**Hypothesis / root cause:** the tag protocol started small (a handful of faces in `conversation.py`) and every new agent/feature copied the relevant snippet into its own prompt; the parser and the OLED enum grew in parallel. No shared definition was introduced, so "the list of valid tags" exists only as duplicated prose + one regex + one enum.
+
+**Proposed fix / improvement:**
+- [ ] Introduce one registry (e.g. `services/voice/expression_tags.py` or a small data file) that enumerates each tag family and its allowed values, with the OLED enum derived from / validated against it.
+- [ ] Generate the prompt snippet from the registry (a single `tags_prompt()` helper the agents import) instead of hand-listing values per file, so the model is always told exactly what the parser+hardware support.
+- [ ] Drive the `voice_personality` parser/dispatcher off the same table, and have it log (via `bmo_logging`) any tag it sees that isn't in the registry — turning silent drift into an observable warning.
+- [ ] Add a tiny test asserting prompt-advertised tags ⊆ parser-handled tags ⊆ hardware-implemented tags (or an explicit allowlist for intentional supersets).
+
+**Related files:** `bmo/pi/agents/conversation.py`, `bmo/pi/agents/orchestrator.py`, `bmo/pi/agents/timer_agent.py`, `bmo/pi/agents/weather_agent.py`, `bmo/pi/agents/music_agent.py`, `bmo/pi/services/personality_engine.py`, `bmo/pi/services/voice/voice_personality.py`, `bmo/pi/services/timer_service.py`, `bmo/pi/hardware/oled_face.py`.
+
+### [2026-06-28] `request.json or {}` used 58× in `app.py` — the same 415-before-fallback brittleness PHASE-07 fixed on the list surface applies repo-wide
+
+- **Category:** debt (robustness / consistency)
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-phase-executer
+- **During:** PHASE-07 implementation (list-endpoint request-parsing robustness)
+
+**Description:**
+`data = request.json or {}` appears **58×** in `bmo/pi/app.py`. Flask's `request.json` is the *non-silent* accessor: it raises `UnsupportedMediaType` (415) before the `or {}` fallback can run whenever the request mimetype isn't `application/json`, so every such site 415s on a bodyless / non-JSON POST instead of falling back to an empty dict. PHASE-07 hardened the three list-item handlers (`api_list_add_item`, `api_list_check_item`, `api_list_clear`) to `request.get_json(silent=True) or {}`; the remaining ~55 sites still carry the brittle pattern. No user impact today (the dashboard callers always send the JSON header), but any future caller (curl probe, bodyless toggle, third-party script) gets a confusing 415.
+
+**Proposed fix / improvement:** A scoped repo-wide sweep replacing `request.json or {}` with `request.get_json(silent=True) or {}` (auditing each site for whether default-on-empty or a clean 400 is the right semantics, as PHASE-07 did per-handler). Out of PHASE-07's scope (which intentionally fixed only the QA-flagged list surface + its sibling, per INSTRUCTIONS.md rule 12).
+
+**Related files:** `bmo/pi/app.py` (~55 remaining `request.json or {}` sites).
+
+### [2026-06-24] ~860 KB of orphaned vendored frontend assets in `web/static/` — Tailwind Play-CDN runtime + a duplicate xterm/marked/hljs vendor set the IDE no longer loads locally
+
+- **Category:** debt (cleanup / dead artifacts)
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** read-only scan of `bmo/pi/web/static` vs the templates that reference it
+
+**Description:**
+Several large vendored frontend blobs ship in the repo but are referenced by **nothing** — they are dead weight from earlier asset strategies that were since changed:
+- `web/static/js/tailwind.js` (**412 KB**, the Tailwind *Play CDN* runtime) — `index.html` loads the **compiled** stylesheet `/static/css/tailwind.css`, which `setup-bmo.sh:122` builds with the Tailwind CLI (`tailwindcss -i static/css/tailwind-input.css -o static/css/tailwind.css --minify`). The JIT-in-browser runtime is unused; it has not been touched since the April monorepo reorg (`f96bad8f`).
+- `web/static/js/xterm.min.js` (**290 KB**), `web/static/js/addon-fit.min.js`, `web/static/css/xterm.min.css`, `web/static/vendor/marked.min.js` (**35 KB**), `web/static/vendor/hljs/highlight.min.js` (**122 KB**) + `github-dark.css` — `ide.html` now pulls xterm, addon-fit, xterm.css and marked from **jsdelivr CDN**, and hljs is referenced nowhere at all. A repo-wide grep for these local paths across `*.html`/`*.js`/`*.py`/`*.css` returns zero hits, and `web/static/ide/sw.js` does not precache them.
+
+Net: ~860 KB of tracked binaries that no served page loads. They bloat the repo, the Docker image, and every `rsync`/deploy, and they mislead future contributors into thinking the app self-hosts these libs (it half does — `alpine.min.js`, `socket.io.min.js`, `bmo.js` ARE loaded locally by `index.html`, while the IDE went CDN). This is also a latent **inconsistency/supply-chain** smell: `index.html` vendors its JS locally for offline/Cloudflare-independence, but `ide.html` depends on three external CDNs — a deliberate-looking split that is probably accidental drift.
+
+**Hypothesis / root cause:** asset strategy changed twice (Tailwind browser-runtime → CLI-compiled CSS; IDE local-vendor → jsdelivr CDN) and the now-unreferenced files were never deleted.
+
+**Proposed fix / improvement:**
+- [ ] Delete the confirmed-orphan files: `web/static/js/tailwind.js`, `web/static/js/xterm.min.js`, `web/static/js/addon-fit.min.js`, `web/static/css/xterm.min.css`, `web/static/vendor/marked.min.js`, `web/static/vendor/hljs/` (verify with a final `grep -r` for each basename before removing).
+- [ ] Decide the IDE vendoring policy deliberately: either re-vendor xterm/addon-fit/marked locally (matches `index.html`, survives a CDN/Cloudflare outage on the kiosk) **or** document that `ide.html` intentionally uses CDNs — and note it in `bmo/docs/DESIGN-CONSTRAINTS.md` so it is not "fixed" back and forth.
+- [ ] Add a tiny CI check (or extend `check-no-new-prints.sh`-style guard) that greps templates for every file under `web/static/{js,vendor}` and flags any that nothing references, to stop orphans re-accumulating.
+
+**Related files:** `bmo/pi/web/static/js/tailwind.js`, `bmo/pi/web/static/js/xterm.min.js`, `bmo/pi/web/static/js/addon-fit.min.js`, `bmo/pi/web/static/css/xterm.min.css`, `bmo/pi/web/static/vendor/marked.min.js`, `bmo/pi/web/static/vendor/hljs/{highlight.min.js,github-dark.css}`, `bmo/pi/web/templates/index.html`, `bmo/pi/web/templates/ide.html`, `bmo/setup-bmo.sh:119-122`, `bmo/pi/tailwind.config.js`.
+
+### [2026-06-24] `bots/` package layout is inconsistent — social-only helpers + the social entrypoint shim live at `bots/` top level beside the `bots/social/` package, while the DM bot has no package at all
+
+- **Category:** future-idea (structure / DX consistency)
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** read-only scan of the `bmo/pi/bots/` tree
+
+**Description:**
+The social-bot decomposition created a `bots/social/` package (`__init__.py`, `bot.py`, `games_logic.py`), but two modules that are **exclusively social-bot code** still sit at the `bots/` top level next to it: `bots/social_bot_utils.py` and `bots/social_youtube.py`. Their own docstrings say they were "Extracted from discord_social_bot.py … decompose the social-bot monolith into sibling modules," and the only importers are `bots/social/bot.py` and each other (`social_youtube` imports `social_bot_utils`). So the package boundary is half-drawn: some social pieces are inside `bots/social/`, two are outside it. Meanwhile the **DM** bot is the mirror-image inconsistency — `bots/discord_dm_bot.py` (83 KB) + `bots/dm_bot_control.py` + `bots/pbp.py` are a comparably large subsystem with **no** package, sitting flat in `bots/` alongside the social files. The result is a directory where naming (`social_*` flat files vs a `social/` dir vs un-namespaced `discord_dm_bot.py`) does not communicate the actual module ownership, making the tree harder to navigate and to reason about which file belongs to which bot.
+
+This is distinct from the existing god-module entry (which is about extracting the View/Modal classes *out of* `bots/social/bot.py`); this item is purely about **where the already-extracted modules live** and the asymmetry between the two bots' layouts.
+
+**Hypothesis / root cause:** the package was introduced mid-decomposition; the earliest-extracted helpers predate the `bots/social/` dir and were never moved in, and the DM bot was never given the same treatment.
+
+**Proposed fix / improvement:**
+- [ ] `git mv bots/social_bot_utils.py bots/social/utils.py` and `git mv bots/social_youtube.py bots/social/youtube.py` (update the two import sites in `bots/social/bot.py`/`social_youtube.py`); keep `bots/discord_social_bot.py` as the unchanged `python -m` entry shim.
+- [ ] Consider a parallel `bots/dm/` package (`bot.py`, `control.py`, `pbp.py`) with `bots/discord_dm_bot.py` kept as the entrypoint shim, so the two bots have symmetric, self-describing layouts.
+- [ ] Behavior-identical reorg; `tests/test_social_bot_import.py` (50+ commands register) guards the social move.
+
+**Related files:** `bmo/pi/bots/social_bot_utils.py`, `bmo/pi/bots/social_youtube.py`, `bmo/pi/bots/social/bot.py:37,445`, `bmo/pi/bots/discord_dm_bot.py`, `bmo/pi/bots/dm_bot_control.py`, `bmo/pi/bots/pbp.py`, `bmo/pi/bots/discord_social_bot.py`.
+
+**Related entries:** Future-ideas 2026-06-23 (social-bot god-module decomposition incomplete) — complementary: that one moves classes out of `bot.py`; this one fixes where the sibling modules sit.
+
+### [2026-06-24] Calendar OAuth/service code is four flat files at `services/` top level — would read better as a `services/calendar/` subpackage, mirroring the existing `services/voice/`
+
+- **Category:** future-idea (structure / DX)
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** read-only scan of the `bmo/pi/services/` directory
+
+**Description:**
+The Google Calendar integration is spread across four sibling files at the `services/` top level — `calendar_service.py` (the API client, 15.7 KB), `calendar_oauth_config.py` (explicitly "Shared Google Calendar OAuth config — single source of truth for paths + scopes"), `authorize_calendar.py` (browser OAuth flow), and `reauth_calendar.py` (headless re-auth). They form one obvious cluster (`calendar_oauth_config` exists solely to be shared by `authorize_calendar` and `reauth_calendar`), yet they are interleaved alphabetically among ~40 unrelated service modules, so the relationship is invisible from the listing. The codebase already established the grouping pattern with `services/voice/` (10 voice modules in their own subpackage); the calendar cluster is the next-most-obvious candidate and currently the largest un-grouped one.
+
+**Hypothesis / root cause:** `services/` grew flat; only the voice subsystem was ever pulled into a subpackage, so later clusters (calendar, and arguably the calendar-adjacent `accounts.py`/`identity.py`/`jwt_util.py`/`auth_guard.py` auth set) never got the same treatment.
+
+**Proposed fix / improvement:**
+- [ ] Introduce `services/calendar/` (`__init__.py` re-exporting the public surface) and move the four files in as `service.py`, `oauth_config.py`, `authorize.py`, `reauth.py`; update the ~6 intra-repo import sites.
+- [ ] Keep a thin compatibility shim or update imports atomically so `app.py`'s calendar wiring and the QA/phase docs referencing these paths don't break.
+- [ ] Optionally document the "cluster ≥3 related service modules into a subpackage" convention in `bmo/docs/ARCHITECTURE.md` so `services/` stays navigable as it grows.
+
+**Related files:** `bmo/pi/services/calendar_service.py`, `bmo/pi/services/calendar_oauth_config.py`, `bmo/pi/services/authorize_calendar.py`, `bmo/pi/services/reauth_calendar.py`, `bmo/pi/services/voice/` (precedent), `bmo/pi/app.py` (calendar wiring), `bmo/docs/ARCHITECTURE.md`.
+
+### [2026-06-24] Voice barge-in / "stop talking" is unreachable — `VoicePipeline.interrupt()` has a unit test but zero production callers, so BMO cannot be cut off mid-speech
+
+- **Category:** future-idea (UX)
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of the Pi voice pipeline (`services/voice/voice_pipeline.py`)
+
+**Description:**
+The voice pipeline already contains all the machinery for barge-in: `_tts_interrupted = threading.Event()` (init ~line 185), an `interrupt()` method (~line 993) that sets the event, clears the TTS queue and aborts current playback, and `_tts_worker` / `_stream_and_speak` / playback loops that all check `self._tts_interrupted.is_set()` between chunks (~lines 937, 989, 1037, 1065). There is even a unit test for it (`tests/test_voice_pipeline.py::test_interrupt_clears_speaking_state`). But a repo-wide grep shows **`interrupt()` has no production caller** — nothing in `app.py`, `routes/` (incl. the `realtime_ws.py` / `game_relay_ws.py` socketio handlers), the wake-word loop, or the agents ever invokes it. The Discord side has its own separate `interrupt` plumbing (`bots/discord_dm_bot.py`, `bots/dm_bot_control.py`) but that does not touch the Pi voice pipeline. Net effect: once BMO starts a long spoken answer, the user has no voice or UI way to stop it — `_follow_up_loop` only begins listening *after* TTS finishes, and the wake word is not monitored during playback. The user must wait out the whole utterance (or kill the service). The capability exists and is tested; it is simply not wired to any trigger.
+
+**Hypothesis / root cause:** `interrupt()` was built as half-duplex barge-in infrastructure but the triggering side (wake-word/VAD monitoring during playback, plus a UI/REST "stop" control) was never connected. AEC notes in `_check_aec` suggest full-duplex listening-while-speaking was anticipated but left unfinished.
+
+**Proposed fix / improvement:**
+- [ ] Run a lightweight wake-word (or VAD energy) listener on the mic *during* TTS playback; on a hit, call `self.interrupt()` and drop straight into `_process_one_turn` so the user can talk over BMO. Leverage the existing PipeWire echo-cancel source so playback is not self-detected.
+- [ ] Expose an explicit "stop talking" control: a `@socketio.on("voice_interrupt")` handler (and/or a small `POST /api/voice/interrupt`) that calls `pipeline.interrupt()` — wires the kiosk/dashboard Stop button to the already-implemented method.
+- [ ] Treat the spoken closing word "stop" (already in the `is_closing` set) as an interrupt while speaking, not just between turns.
+- [ ] Emit a `conversation_mode`/`status` event on interrupt so the UI reflects the cut-off (mirrors the existing "(interrupted)" pill used on the chat side).
+
+### [2026-06-24] BMO root path `~/home-lab/bmo/pi` is hardcoded across ~40 Python files — no central path/config root, hurting portability (Docker / other user / CI)
+
+- **Category:** future-idea (portability, DX)
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only portability review of the bmo/ Python tree
+
+**Description:**
+The absolute path prefix `~/home-lab/bmo/pi/...` (and a few `/home/patrick/home-lab` literals) is repeated as `os.path.expanduser(...)` in ~40 source files, with no single module that owns the project root. Examples: `app.py:2140` (`notes.json`), `agent.py:21,325,344`, `agents/memory.py:15`, `agents/learning_agent.py:13`, `agents/settings.py:23,99`, `routes/ide.py:64,149,1333`, `routes/chat_api.py:558`, `bots/social/bot.py:70,902`, `bots/discord_dm_bot.py:753`, `hardware/camera_service.py:18`, `mcp_servers/dnd_data_server.py:22,27,32`, `wake/enroll_voice.py:25,89`. There is no `BMO_HOME` / `BMO_ROOT` env var or shared `paths.py`; `config_preflight.py` and `settings_store.py` exist but do not centralize the filesystem root. This couples the entire assistant to a specific home directory layout (`patrick` user, repo cloned at exactly `~/home-lab`). It makes the existing `docker/` image, any non-`patrick` user, a relocated checkout, and CI more brittle than necessary — and any future relocation of the data dir means editing dozens of files. (Distinct from the already-resolved "owner identity (Gavin) hardcoded" entry, which was about *who* the user is, not *where the tree lives*.)
+
+**Hypothesis / root cause:** organic growth — each module reached for `os.path.expanduser("~/home-lab/bmo/pi/...")` independently rather than importing a shared root, because no path module was established early.
+
+**Proposed fix / improvement:**
+- [ ] Add a tiny `services/paths.py` (or extend `config_preflight`) exporting `BMO_ROOT` / `DATA_DIR` / `MODELS_DIR`, resolved from a `BMO_HOME` env var with the current `~/home-lab/bmo/pi` as the default. Never raises; importable from hot paths.
+- [ ] Mechanically migrate the ~40 call sites to `from services.paths import DATA_DIR` etc. (small, low-risk, mostly find/replace; do it incrementally per package to keep diffs reviewable).
+- [ ] Add a lint/CI check (similar to `scripts/check-no-new-prints.sh`) that fails on new `expanduser("~/home-lab` literals outside `paths.py`, to stop the pattern from regrowing.
+- [ ] Wire `BMO_HOME` through the Docker image and systemd unit `Environment=` so the container/relocated installs work without code edits.
+
+
+</details>
+
+---
+
+
 ### [2026-06-28] bmo-resolver — social-bot god-module split (suggestion #12), user-approved
 
 - **Resolved by:** bmo-resolver  **Branch:** `auto/bmo-resolver`  **Commit:** `61135694`
