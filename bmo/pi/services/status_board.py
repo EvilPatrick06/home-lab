@@ -41,6 +41,9 @@ BOARD_INBOX = os.path.join(_DATA_DIR, "board_inbox.json")
 # notify-board post refreshes 'seen'). Backstop so nothing lingers if a
 # 'resolved/approved' signal is missed and before the Done button is used.
 INBOX_TTL_S = int(os.environ.get("BOARD_INBOX_TTL_S", str(26 * 3600)))
+# Agent items (approvals/blocked/findings) expire faster: most agents re-run
+# every 2-4h and re-post if still relevant, so a resolved one clears on its own.
+AGENT_TTL_S = int(os.environ.get("BOARD_AGENT_TTL_S", str(6 * 3600)))
 
 # Severity ordering (worst first) drives the board color + topic summary.
 SEV_ORDER = ["critical", "warning", "info", "ok"]
@@ -149,8 +152,9 @@ def prune_inbox(inbox: dict, ttl_s: float = INBOX_TTL_S) -> int:
     for src in list(inbox):
         keep = {}
         for iid, it in inbox[src].items():
+            limit = AGENT_TTL_S if getattr(it, "category", "") == "agent" else ttl_s
             age = now - (getattr(it, "seen", 0) or it.created or now)
-            if age <= ttl_s:
+            if age <= limit:
                 keep[iid] = it
             else:
                 dropped += 1
