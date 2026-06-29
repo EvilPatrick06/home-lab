@@ -76,6 +76,8 @@ cryptography==48.0.1
     #   pyjwt
 ctranslate2==4.8.0
     # via faster-whisper
+davey==0.1.6
+    # via -r requirements.in
 decorator==5.3.1
     # via librosa
 deprecated==1.3.1
