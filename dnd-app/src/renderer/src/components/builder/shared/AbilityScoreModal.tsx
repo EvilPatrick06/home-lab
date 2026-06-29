@@ -174,7 +174,7 @@ export default function AbilityScoreModal(): JSX.Element {
                 <table className="w-full text-xs">
                   <thead>
                     <tr className="bg-surface-2 text-muted">
-                      <th className="px-2 py-1 text-left font-semibold">
+                      <th className="px-2 py-1 text-start font-semibold">
                         {t('builder.abilityScoreModal.classHeader')}
                       </th>
                       {ABILITY_NAMES.map((ab) => (

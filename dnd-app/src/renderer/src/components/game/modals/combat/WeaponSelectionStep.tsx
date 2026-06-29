@@ -55,7 +55,7 @@ export function WeaponSelectionStep({
                 onSelectWeapon(i)
               }
             }}
-            className={`w-full text-left px-3 py-2 border rounded-lg cursor-pointer ${
+            className={`w-full text-start px-3 py-2 border rounded-lg cursor-pointer ${
               isUnarmedEntry || isImprovisedEntry
                 ? 'bg-surface-2/50 hover:bg-gray-700 border-gray-600 border-dashed'
                 : 'bg-surface-2 hover:bg-gray-700 border-border'
@@ -120,7 +120,7 @@ export function UnarmedModeStep({ strMod, unarmedStrikeDC, onSelectMode, onBack 
     <div className="space-y-2">
       <button
         onClick={() => onSelectMode('damage')}
-        className="w-full text-left px-3 py-2 bg-surface-2 hover:bg-gray-700 border border-border rounded-lg cursor-pointer"
+        className="w-full text-start px-3 py-2 bg-surface-2 hover:bg-gray-700 border border-border rounded-lg cursor-pointer"
       >
         <div className="text-sm font-semibold text-gray-200">{t('game.unarmedModeStep.damage')}</div>
         <div className="text-xs text-muted">
@@ -129,7 +129,7 @@ export function UnarmedModeStep({ strMod, unarmedStrikeDC, onSelectMode, onBack 
       </button>
       <button
         onClick={() => onSelectMode('grapple')}
-        className="w-full text-left px-3 py-2 bg-surface-2 hover:bg-gray-700 border border-blue-700/50 rounded-lg cursor-pointer"
+        className="w-full text-start px-3 py-2 bg-surface-2 hover:bg-gray-700 border border-blue-700/50 rounded-lg cursor-pointer"
       >
         <div className="text-sm font-semibold text-blue-300">{t('game.unarmedModeStep.grapple')}</div>
         <div className="text-xs text-muted">
@@ -139,7 +139,7 @@ export function UnarmedModeStep({ strMod, unarmedStrikeDC, onSelectMode, onBack 
       </button>
       <button
         onClick={() => onSelectMode('shove')}
-        className="w-full text-left px-3 py-2 bg-surface-2 hover:bg-gray-700 border border-orange-700/50 rounded-lg cursor-pointer"
+        className="w-full text-start px-3 py-2 bg-surface-2 hover:bg-gray-700 border border-orange-700/50 rounded-lg cursor-pointer"
       >
         <div className="text-sm font-semibold text-orange-300">{t('game.unarmedModeStep.shove')}</div>
         <div className="text-xs text-muted">{t('game.unarmedModeStep.shoveDesc', { dc: unarmedStrikeDC })}</div>

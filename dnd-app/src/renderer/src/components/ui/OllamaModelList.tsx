@@ -157,7 +157,7 @@ export function InstalledModelList({
                         style={{ width: `${activeOp.percent}%` }}
                       />
                     </div>
-                    <span className="text-xs text-muted w-8 text-right">{activeOp.percent}%</span>
+                    <span className="text-xs text-muted w-8 text-end">{activeOp.percent}%</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-1 ms-3">
@@ -259,7 +259,7 @@ export function AvailableModelList({ models, activeOp, isBusy, vram, onPull }: A
                       style={{ width: `${activeOp.percent}%` }}
                     />
                   </div>
-                  <span className="text-xs text-muted w-8 text-right">{activeOp.percent}%</span>
+                  <span className="text-xs text-muted w-8 text-end">{activeOp.percent}%</span>
                 </div>
               ) : (
                 <button

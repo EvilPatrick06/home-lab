@@ -23,7 +23,7 @@ export default function TimerOverlay(): JSX.Element {
   const display = `${minutes}:${seconds.toString().padStart(2, '0')}`
 
   return (
-    <div className="absolute top-3 right-16 z-10" role="status" aria-label={t('game.timerOverlay.gameTimer')}>
+    <div className="absolute top-3 end-16 z-10" role="status" aria-label={t('game.timerOverlay.gameTimer')}>
       <div className="bg-surface/70 backdrop-blur-sm border border-border/50 rounded-xl px-4 py-2 min-w-[140px]">
         <div className="flex items-center justify-between gap-3">
           <div>

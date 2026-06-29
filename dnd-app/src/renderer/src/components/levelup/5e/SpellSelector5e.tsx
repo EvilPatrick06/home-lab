@@ -41,7 +41,7 @@ export function PrimalOrderSelector5e({
           <button
             key={opt.id}
             onClick={() => onSelect(selection === opt.id ? null : opt.id)}
-            className={`w-full text-left p-2 rounded border transition-colors ${
+            className={`w-full text-start p-2 rounded border transition-colors ${
               selection === opt.id
                 ? 'bg-green-900/30 border-green-600 text-green-300'
                 : 'border-border hover:border-green-600 text-gray-300 hover:bg-surface-2'
@@ -97,7 +97,7 @@ export function DivineOrderSelector5e({
           <button
             key={opt.id}
             onClick={() => onSelect(selection === opt.id ? null : opt.id)}
-            className={`w-full text-left p-2 rounded border transition-colors ${
+            className={`w-full text-start p-2 rounded border transition-colors ${
               selection === opt.id
                 ? 'bg-yellow-900/30 border-yellow-600 text-yellow-300'
                 : 'border-border hover:border-yellow-600 text-gray-300 hover:bg-surface-2'
@@ -151,7 +151,7 @@ export function ElementalFurySelector5e({
           <button
             key={opt.id}
             onClick={() => onSelect(selection === opt.id ? null : opt.id)}
-            className={`w-full text-left p-2 rounded border transition-colors ${
+            className={`w-full text-start p-2 rounded border transition-colors ${
               selection === opt.id
                 ? 'bg-orange-900/30 border-orange-600 text-orange-300'
                 : 'border-border hover:border-orange-600 text-gray-300 hover:bg-surface-2'

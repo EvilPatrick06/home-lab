@@ -322,7 +322,7 @@ export default function SidebarEntryList({
                     moveSidebarEntry(category, target, contextMenu.entryId)
                     setContextMenu(null)
                   }}
-                  className="w-full px-4 py-1.5 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg cursor-pointer"
+                  className="w-full px-4 py-1.5 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg cursor-pointer"
                 >
                   {t('game.sidebarEntryList.moveToCategory', { category: t(CATEGORY_LABEL_KEYS[target]) })}
                 </button>
@@ -333,7 +333,7 @@ export default function SidebarEntryList({
                   toggleEntryVisibility(category, contextMenu.entryId)
                   setContextMenu(null)
                 }}
-                className="w-full px-4 py-1.5 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg cursor-pointer"
+                className="w-full px-4 py-1.5 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg cursor-pointer"
               >
                 {t('game.sidebarEntryList.toggleVisibility')}
               </button>
@@ -342,7 +342,7 @@ export default function SidebarEntryList({
                   removeSidebarEntry(category, contextMenu.entryId)
                   setContextMenu(null)
                 }}
-                className="w-full px-4 py-1.5 text-left text-xs text-red-400 hover:bg-surface-2 hover:text-red-300 cursor-pointer"
+                className="w-full px-4 py-1.5 text-start text-xs text-red-400 hover:bg-surface-2 hover:text-red-300 cursor-pointer"
               >
                 {t('common.actions.delete')}
               </button>

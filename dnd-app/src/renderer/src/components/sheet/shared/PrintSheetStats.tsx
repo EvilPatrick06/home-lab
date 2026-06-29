@@ -76,7 +76,7 @@ export default function PrintSheetStats({ character, proficiencyBonus: pb }: Pri
                 return (
                   <div key={ab} className="flex items-center gap-1.5">
                     <span className="inline-block w-3 text-center font-bold">{prof ? '+' : '-'}</span>
-                    <span className="w-8 font-mono text-right">{formatMod(mod)}</span>
+                    <span className="w-8 font-mono text-end">{formatMod(mod)}</span>
                     <span>{ABILITY_LABELS[ab]}</span>
                   </div>
                 )
@@ -102,7 +102,7 @@ export default function PrintSheetStats({ character, proficiencyBonus: pb }: Pri
                   return (
                     <div key={skill.name} className="flex items-center gap-1.5">
                       <span className="inline-block w-3 text-center font-bold">{marker}</span>
-                      <span className="w-8 font-mono text-right">{formatMod(mod)}</span>
+                      <span className="w-8 font-mono text-end">{formatMod(mod)}</span>
                       <span>{skill.name}</span>
                       <span className="text-[7pt] text-muted ms-0.5">({ABILITY_LABELS[skill.ability]})</span>
                     </div>
@@ -188,7 +188,7 @@ export default function PrintSheetStats({ character, proficiencyBonus: pb }: Pri
               <table className="mt-0.5 w-full text-[8.5pt]">
                 <thead>
                   <tr className="border-b border-gray-300">
-                    <th className="text-left py-0.5 font-semibold">{t('sheet.printSheetStats.weapon')}</th>
+                    <th className="text-start py-0.5 font-semibold">{t('sheet.printSheetStats.weapon')}</th>
                     <th className="text-center py-0.5 font-semibold w-14">{t('sheet.printSheetStats.atk')}</th>
                     <th className="text-center py-0.5 font-semibold">{t('sheet.printSheetStats.damage')}</th>
                   </tr>

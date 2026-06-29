@@ -84,7 +84,7 @@ export default function SteedSelectorModal({
 
         <div className="flex-1 flex min-h-0 overflow-hidden">
           {/* Steed list */}
-          <div className="w-48 overflow-y-auto border-r border-border/50 p-2">
+          <div className="w-48 overflow-y-auto border-e border-border/50 p-2">
             <div className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-1">
               {t('game.steedSelectorModal.availableSteeds')}
             </div>
@@ -93,7 +93,7 @@ export default function SteedSelectorModal({
                 <button
                   key={m.id}
                   onClick={() => setSelected(m)}
-                  className={`w-full p-2 rounded-lg text-left cursor-pointer transition-all ${
+                  className={`w-full p-2 rounded-lg text-start cursor-pointer transition-all ${
                     selected?.id === m.id
                       ? 'bg-blue-600/20 border border-blue-500/50'
                       : 'bg-surface-2/60 border border-border/50 hover:bg-gray-700/60'

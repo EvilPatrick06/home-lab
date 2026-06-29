@@ -245,14 +245,14 @@ function TreeNodeRow({
                 {readAloudMenuOpen && (
                   <div
                     ref={readAloudMenuRef}
-                    className="absolute right-0 top-6 bg-surface border border-border rounded-lg shadow-xl z-50 py-1 min-w-[140px]"
+                    className="absolute end-0 top-6 bg-surface border border-border rounded-lg shadow-xl z-50 py-1 min-w-[140px]"
                   >
                     <button
                       onClick={() => {
                         onReadAloud(entry.description!, 'chat')
                         setReadAloudMenuOpen(false)
                       }}
-                      className="w-full px-3 py-1.5 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg cursor-pointer"
+                      className="w-full px-3 py-1.5 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg cursor-pointer"
                     >
                       {t('game.placesTree.sendToChat')}
                     </button>
@@ -261,7 +261,7 @@ function TreeNodeRow({
                         onReadAloud(entry.description!, 'dramatic')
                         setReadAloudMenuOpen(false)
                       }}
-                      className="w-full px-3 py-1.5 text-left text-xs text-accent hover:bg-surface-2 hover:text-amber-300 cursor-pointer"
+                      className="w-full px-3 py-1.5 text-start text-xs text-accent hover:bg-surface-2 hover:text-amber-300 cursor-pointer"
                     >
                       {t('game.placesTree.dramaticReveal')}
                     </button>
@@ -282,14 +282,14 @@ function TreeNodeRow({
               {moveMenuOpen && (
                 <div
                   ref={moveMenuRef}
-                  className="absolute right-0 top-6 bg-surface border border-border rounded-lg shadow-xl z-50 py-1 min-w-[140px] max-h-48 overflow-y-auto"
+                  className="absolute end-0 top-6 bg-surface border border-border rounded-lg shadow-xl z-50 py-1 min-w-[140px] max-h-48 overflow-y-auto"
                 >
                   <button
                     onClick={() => {
                       onReparent(entry.id, null)
                       setMoveMenuOpen(false)
                     }}
-                    className={`w-full px-3 py-1.5 text-left text-xs hover:bg-surface-2 cursor-pointer ${
+                    className={`w-full px-3 py-1.5 text-start text-xs hover:bg-surface-2 cursor-pointer ${
                       !entry.parentId ? 'text-accent font-semibold' : 'text-gray-300 hover:text-fg'
                     }`}
                   >
@@ -302,7 +302,7 @@ function TreeNodeRow({
                         onReparent(entry.id, target.id)
                         setMoveMenuOpen(false)
                       }}
-                      className={`w-full px-3 py-1.5 text-left text-xs hover:bg-surface-2 cursor-pointer ${
+                      className={`w-full px-3 py-1.5 text-start text-xs hover:bg-surface-2 cursor-pointer ${
                         entry.parentId === target.id ? 'text-accent font-semibold' : 'text-gray-300 hover:text-fg'
                       }`}
                     >

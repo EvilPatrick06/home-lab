@@ -227,7 +227,7 @@ function LibraryPicker({ macros, position, onPick, onClose }: LibraryPickerProps
           <button
             key={m.id}
             onClick={() => onPick(m)}
-            className={`w-full text-left px-2 py-1.5 rounded text-xs cursor-pointer hover:bg-surface-2 flex items-center gap-2 ${m.color ?? ''}`}
+            className={`w-full text-start px-2 py-1.5 rounded text-xs cursor-pointer hover:bg-surface-2 flex items-center gap-2 ${m.color ?? ''}`}
           >
             {m.icon && <span className="text-sm">{m.icon}</span>}
             <div className="min-w-0">
@@ -407,7 +407,7 @@ export default function Hotbar({ characterId, onExecuteMacro }: HotbarProps): JS
               <span className="text-xs font-mono text-gray-600">{SLOT_LABELS[index]}</span>
             )}
             {/* Slot number badge */}
-            <span className="absolute -top-1 -right-1 w-3.5 h-3.5 text-[8px] font-bold rounded-full bg-surface border border-border text-gray-500 flex items-center justify-center">
+            <span className="absolute -top-1 -end-1 w-3.5 h-3.5 text-[8px] font-bold rounded-full bg-surface border border-border text-gray-500 flex items-center justify-center">
               {SLOT_LABELS[index]}
             </span>
           </div>

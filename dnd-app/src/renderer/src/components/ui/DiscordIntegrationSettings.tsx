@@ -154,7 +154,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => updateConfig({ dmMode: 'webhook' })}
-                className={`p-2 rounded-lg border text-left transition-colors cursor-pointer ${
+                className={`p-2 rounded-lg border text-start transition-colors cursor-pointer ${
                   config.dmMode === 'webhook'
                     ? 'border-amber-500 bg-amber-900/20'
                     : 'border-border bg-surface-2/30 hover:border-gray-600'
@@ -165,7 +165,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
               </button>
               <button
                 onClick={() => updateConfig({ dmMode: 'bot-api' })}
-                className={`p-2 rounded-lg border text-left transition-colors cursor-pointer ${
+                className={`p-2 rounded-lg border text-start transition-colors cursor-pointer ${
                   config.dmMode === 'bot-api'
                     ? 'border-amber-500 bg-amber-900/20'
                     : 'border-border bg-surface-2/30 hover:border-gray-600'

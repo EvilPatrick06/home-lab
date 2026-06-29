@@ -259,17 +259,17 @@ export default function CreatureModal({
         {/* Content */}
         <div className="flex-1 flex min-h-0 overflow-hidden">
           {/* List */}
-          <div className="w-64 overflow-y-auto border-r border-border/50">
+          <div className="w-64 overflow-y-auto border-e border-border/50">
             {filtered.slice(0, 200).map((m) => (
               <button
                 key={m.id}
                 onClick={() => setSelected(m)}
-                className={`w-full px-3 py-2 text-left cursor-pointer transition-colors ${
+                className={`w-full px-3 py-2 text-start cursor-pointer transition-colors ${
                   selected?.id === m.id
                     ? tab === 'browse'
-                      ? 'bg-amber-600/20 border-l-2 border-amber-500'
-                      : 'bg-purple-600/20 border-l-2 border-purple-500'
-                    : 'hover:bg-surface-2 border-l-2 border-transparent'
+                      ? 'bg-amber-600/20 border-s-2 border-amber-500'
+                      : 'bg-purple-600/20 border-s-2 border-purple-500'
+                    : 'hover:bg-surface-2 border-s-2 border-transparent'
                 }`}
               >
                 <div className="text-sm text-gray-200 font-medium">{m.name}</div>

@@ -25,7 +25,7 @@ export default function TurnNotificationBanner({ entityName, onDismiss }: TurnNo
 
   return (
     <div
-      className={`fixed top-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none transition-all duration-300 ${
+      className={`fixed top-24 start-1/2 -translate-x-1/2 z-40 pointer-events-none transition-all duration-300 ${
         visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
       }`}
       // Phase 15g — accessibility for the turn-notification banner. Screen

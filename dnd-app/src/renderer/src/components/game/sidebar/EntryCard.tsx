@@ -186,14 +186,14 @@ export default function EntryCard({
                     {readAloudMenuOpen && (
                       <div
                         ref={readAloudMenuRef}
-                        className="absolute right-0 top-7 bg-surface border border-border rounded-lg shadow-xl z-50 py-1 min-w-[140px]"
+                        className="absolute end-0 top-7 bg-surface border border-border rounded-lg shadow-xl z-50 py-1 min-w-[140px]"
                       >
                         <button
                           onClick={() => {
                             onReadAloud(entry.description!, 'chat')
                             setReadAloudMenuOpen(false)
                           }}
-                          className="w-full px-3 py-1.5 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg cursor-pointer"
+                          className="w-full px-3 py-1.5 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg cursor-pointer"
                         >
                           {t('game.entryCard.sendToChat')}
                         </button>
@@ -202,7 +202,7 @@ export default function EntryCard({
                             onReadAloud(entry.description!, 'dramatic')
                             setReadAloudMenuOpen(false)
                           }}
-                          className="w-full px-3 py-1.5 text-left text-xs text-accent hover:bg-surface-2 hover:text-amber-300 cursor-pointer"
+                          className="w-full px-3 py-1.5 text-start text-xs text-accent hover:bg-surface-2 hover:text-amber-300 cursor-pointer"
                         >
                           {t('game.entryCard.dramaticReveal')}
                         </button>

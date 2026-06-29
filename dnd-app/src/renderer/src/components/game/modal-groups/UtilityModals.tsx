@@ -161,7 +161,7 @@ export default function UtilityModals({
           <div className="bg-surface border border-border rounded-lg p-4 w-96 max-h-[80vh] overflow-y-auto relative">
             <button
               onClick={close}
-              className="absolute top-2 right-2 text-muted hover:text-gray-200 cursor-pointer text-sm"
+              className="absolute top-2 end-2 text-muted hover:text-gray-200 cursor-pointer text-sm"
             >
               Close
             </button>

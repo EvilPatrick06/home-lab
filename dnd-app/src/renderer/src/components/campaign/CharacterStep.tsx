@@ -39,14 +39,14 @@ export default function CharacterStep({
               return (
                 <div
                   key={c.id}
-                  className={`relative rounded-lg border p-3 text-left transition-all ${
+                  className={`relative rounded-lg border p-3 text-start transition-all ${
                     selected ? 'border-amber-500 bg-amber-900/20' : 'border-border bg-surface/50 hover:border-gray-600'
                   }`}
                 >
                   <button
                     type="button"
                     onClick={() => onSelect(c.id)}
-                    className="block w-full text-left cursor-pointer"
+                    className="block w-full text-start cursor-pointer"
                   >
                     <div className="truncate font-semibold text-sm">{c.name}</div>
                   </button>

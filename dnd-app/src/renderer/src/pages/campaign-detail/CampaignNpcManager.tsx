@@ -314,7 +314,7 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
                       setMonsterSearchQuery(m.name)
                       setMonsterSearchResults([])
                     }}
-                    className="w-full text-left px-3 py-2 text-xs hover:bg-gray-700/50 cursor-pointer flex items-center justify-between border-b border-border/30 last:border-b-0"
+                    className="w-full text-start px-3 py-2 text-xs hover:bg-gray-700/50 cursor-pointer flex items-center justify-between border-b border-border/30 last:border-b-0"
                   >
                     <span className="text-gray-200 font-medium">{m.name}</span>
                     <div className="flex items-center gap-3 text-xs">
@@ -477,7 +477,7 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
                           setMonsterSearchQuery(m.name)
                           setMonsterSearchResults([])
                         }}
-                        className={`w-full text-left px-3 py-1.5 text-xs hover:bg-gray-700 cursor-pointer flex items-center justify-between ${
+                        className={`w-full text-start px-3 py-1.5 text-xs hover:bg-gray-700 cursor-pointer flex items-center justify-between ${
                           form.statBlockId === m.id ? 'text-accent' : 'text-gray-300'
                         }`}
                       >

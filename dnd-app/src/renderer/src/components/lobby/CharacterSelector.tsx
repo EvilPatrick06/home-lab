@@ -106,7 +106,7 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
       {/* Current selection */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full p-3 rounded-lg border text-left transition-all cursor-pointer
+        className="w-full p-3 rounded-lg border text-start transition-all cursor-pointer
                    border-border bg-surface-2/50 hover:border-gray-600"
       >
         {isNoneSelected ? (
@@ -153,7 +153,7 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
           {canSkipCharacter && (
             <button
               onClick={handleSelectNone}
-              className={`w-full text-left px-3 py-2.5 transition-colors cursor-pointer
+              className={`w-full text-start px-3 py-2.5 transition-colors cursor-pointer
                 border-b border-border/50
                 ${isNoneSelected ? 'bg-amber-900/20 text-amber-300' : 'hover:bg-gray-700/50 text-gray-200'}`}
             >
@@ -179,7 +179,7 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
                   <button
                     key={character.id}
                     onClick={() => handleSelect(character)}
-                    className={`w-full text-left px-3 py-2.5 transition-colors cursor-pointer
+                    className={`w-full text-start px-3 py-2.5 transition-colors cursor-pointer
                       border-b border-border/50 last:border-b-0
                       ${isSelected ? 'bg-amber-900/20 text-amber-300' : 'hover:bg-gray-700/50 text-gray-200'}`}
                   >
@@ -203,7 +203,7 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
                   <button
                     key={character.id}
                     onClick={() => handleSelect(character)}
-                    className={`w-full text-left px-3 py-2.5 transition-colors cursor-pointer
+                    className={`w-full text-start px-3 py-2.5 transition-colors cursor-pointer
                       border-b border-border/50 last:border-b-0
                       ${isSelected ? 'bg-amber-900/20 text-amber-300' : 'hover:bg-gray-700/50 text-gray-200'}`}
                   >

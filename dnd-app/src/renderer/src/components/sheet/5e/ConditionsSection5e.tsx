@@ -251,7 +251,7 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
                     key={def.name}
                     disabled={isActive}
                     onClick={() => handleAddCondition(def, pickerTab === 'buffs' ? 'buff' : 'condition')}
-                    className={`w-full text-left p-2 rounded text-sm transition-colors cursor-pointer ${
+                    className={`w-full text-start p-2 rounded text-sm transition-colors cursor-pointer ${
                       isActive ? 'bg-surface-2 text-gray-600 cursor-not-allowed' : 'hover:bg-surface-2 text-gray-300'
                     }`}
                     title={def.description}

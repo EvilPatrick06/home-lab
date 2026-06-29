@@ -119,7 +119,7 @@ export default function DmAlertTray(): JSX.Element {
       >
         {t('game.dmAlertTray.alerts')}
         {unreadCount > 0 && (
-          <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
+          <span className="absolute -top-1.5 -end-1.5 bg-red-500 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
             {unreadCount > 9 ? t('game.dmAlertTray.overflow') : unreadCount}
           </span>
         )}
@@ -129,7 +129,7 @@ export default function DmAlertTray(): JSX.Element {
       {expanded && (
         <div
           id={panelId}
-          className="absolute top-9 right-0 w-80 max-h-96 bg-surface border border-border rounded-lg shadow-2xl overflow-hidden"
+          className="absolute top-9 end-0 w-80 max-h-96 bg-surface border border-border rounded-lg shadow-2xl overflow-hidden"
         >
           <div className="flex items-center justify-between px-3 py-2 border-b border-border">
             <span className="text-xs font-semibold text-gray-300">{t('game.dmAlertTray.title')}</span>

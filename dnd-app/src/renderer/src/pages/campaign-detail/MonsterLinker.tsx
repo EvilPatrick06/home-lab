@@ -54,7 +54,7 @@ export default function MonsterLinker({ onSelect, selectedId, showPreview }: Mon
                 setQuery(m.name)
                 setResults([])
               }}
-              className={`w-full text-left px-3 py-1.5 text-xs hover:bg-gray-700 cursor-pointer flex items-center justify-between ${
+              className={`w-full text-start px-3 py-1.5 text-xs hover:bg-gray-700 cursor-pointer flex items-center justify-between ${
                 selectedId === m.id ? 'text-accent' : 'text-gray-300'
               }`}
             >

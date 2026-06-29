@@ -73,7 +73,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
                 {desc ? (
                   <span className="group relative text-accent cursor-help underline decoration-dotted underline-offset-2">
                     {prof}
-                    <span className="absolute bottom-full left-0 mb-1 hidden group-hover:block bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-300 w-72 z-10 shadow-lg">
+                    <span className="absolute bottom-full start-0 mb-1 hidden group-hover:block bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-300 w-72 z-10 shadow-lg">
                       {desc}
                     </span>
                   </span>

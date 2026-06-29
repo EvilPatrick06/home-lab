@@ -172,22 +172,22 @@ export default function ViewCharactersPage(): JSX.Element {
               <span className="text-xs">{showImportMenu ? '\u25B2' : '\u25BC'}</span>
             </button>
             {showImportMenu && (
-              <div className="absolute right-0 top-full mt-1 w-52 bg-surface border border-border rounded-lg shadow-xl z-20 py-1">
+              <div className="absolute end-0 top-full mt-1 w-52 bg-surface border border-border rounded-lg shadow-xl z-20 py-1">
                 <button
                   onClick={handleImport}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-surface-2 hover:text-accent cursor-pointer"
+                  className="w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-surface-2 hover:text-accent cursor-pointer"
                 >
                   {t('pages.viewCharactersPage.importFromFile')}
                 </button>
                 <button
                   onClick={handleImportDdb}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-surface-2 hover:text-accent cursor-pointer"
+                  className="w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-surface-2 hover:text-accent cursor-pointer"
                 >
                   {t('pages.viewCharactersPage.importDdb')}
                 </button>
                 <button
                   onClick={handleImportFoundry}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-surface-2 hover:text-accent cursor-pointer"
+                  className="w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-surface-2 hover:text-accent cursor-pointer"
                 >
                   {t('pages.viewCharactersPage.importFoundry')}
                 </button>

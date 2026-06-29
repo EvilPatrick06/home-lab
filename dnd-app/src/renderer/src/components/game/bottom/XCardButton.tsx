@@ -39,7 +39,7 @@ export default function XCardButton(): JSX.Element {
           role="dialog"
           aria-label={t('game.xCard.confirmTitle')}
           onKeyDown={(e) => e.key === 'Escape' && setOpen(false)}
-          className="absolute bottom-full right-0 mb-1 w-64 z-20 rounded-lg border border-border bg-surface p-3 shadow-lg space-y-2"
+          className="absolute bottom-full end-0 mb-1 w-64 z-20 rounded-lg border border-border bg-surface p-3 shadow-lg space-y-2"
         >
           <p className="text-sm font-semibold text-gray-200">{t('game.xCard.confirmTitle')}</p>
           <p className="text-xs text-gray-400">{t('game.xCard.confirmBody')}</p>

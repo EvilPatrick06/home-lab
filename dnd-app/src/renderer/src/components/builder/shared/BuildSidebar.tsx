@@ -38,7 +38,7 @@ export default function BuildSidebar(): JSX.Element {
   }, [guidedMode, groupedSlots])
 
   return (
-    <div className="w-full md:w-64 border-b md:border-b-0 md:border-r border-border bg-surface/50 flex flex-col shrink-0 max-h-[40vh] md:max-h-none">
+    <div className="w-full md:w-64 border-b md:border-b-0 md:border-e border-border bg-surface/50 flex flex-col shrink-0 max-h-[40vh] md:max-h-none">
       {/* Character name & level */}
       <div className="p-3 border-b border-border space-y-2">
         <input

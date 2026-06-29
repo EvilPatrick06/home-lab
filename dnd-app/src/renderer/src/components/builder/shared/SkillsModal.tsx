@@ -91,7 +91,7 @@ export default function SkillsModal(): JSX.Element {
                 key={skill.name}
                 onClick={() => toggleSkill(skill.name)}
                 disabled={isDisabled}
-                className={`flex items-center gap-2 px-3 py-2 rounded text-left text-sm transition-colors ${
+                className={`flex items-center gap-2 px-3 py-2 rounded text-start text-sm transition-colors ${
                   isProficient
                     ? 'bg-amber-900/20 text-amber-300'
                     : isDisabled

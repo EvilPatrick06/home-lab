@@ -186,7 +186,7 @@ export default function LibraryFilterBar({
           {menuOpen && (
             <div
               role="menu"
-              className="absolute left-0 top-full mt-1 bg-surface-2 border border-border rounded-lg shadow-xl z-50 min-w-[180px]"
+              className="absolute start-0 top-full mt-1 bg-surface-2 border border-border rounded-lg shadow-xl z-50 min-w-[180px]"
             >
               {unusedFilters.map((fc) => {
                 const isSubOpen = openSubmenu === fc.field
@@ -197,7 +197,7 @@ export default function LibraryFilterBar({
                       onClick={() => setOpenSubmenu(isSubOpen ? null : fc.field)}
                       aria-expanded={isSubOpen}
                       aria-haspopup="menu"
-                      className={`w-full px-3 py-1.5 text-xs text-left flex items-center justify-between transition-colors cursor-pointer ${
+                      className={`w-full px-3 py-1.5 text-xs text-start flex items-center justify-between transition-colors cursor-pointer ${
                         isSubOpen ? 'bg-gray-700 text-amber-300' : 'text-gray-300 hover:bg-gray-700'
                       }`}
                     >
@@ -207,14 +207,14 @@ export default function LibraryFilterBar({
                     {isSubOpen && (
                       <div
                         role="menu"
-                        className="absolute left-full top-0 bg-surface-2 border border-border rounded-lg shadow-xl min-w-[140px] max-h-60 overflow-y-auto"
+                        className="absolute start-full top-0 bg-surface-2 border border-border rounded-lg shadow-xl min-w-[140px] max-h-60 overflow-y-auto"
                       >
                         {fc.values.map((val) => (
                           <button
                             type="button"
                             key={val}
                             onClick={() => handleAddFilter(fc.field, val)}
-                            className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-700 hover:text-accent cursor-pointer"
+                            className="w-full text-start px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-700 hover:text-accent cursor-pointer"
                           >
                             {val}
                           </button>

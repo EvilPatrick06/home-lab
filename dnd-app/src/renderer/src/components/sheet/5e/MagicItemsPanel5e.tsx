@@ -284,7 +284,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                                   } as Character5e
                                   saveTyped(updated)
                                 }}
-                                className="w-full flex items-center justify-between text-xs py-1 px-2 hover:bg-surface-2/50 rounded text-left cursor-pointer"
+                                className="w-full flex items-center justify-between text-xs py-1 px-2 hover:bg-surface-2/50 rounded text-start cursor-pointer"
                               >
                                 <span className={`font-medium ${rarityColor[item.rarity] ?? 'text-gray-300'}`}>
                                   {item.name}

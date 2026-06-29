@@ -115,7 +115,7 @@ function MagicItemSlot({
                     setExpanded(false)
                     setSearch('')
                   }}
-                  className="w-full text-left flex items-center justify-between px-2 py-1 hover:bg-surface-2 border-b border-gray-800/50 last:border-0 cursor-pointer"
+                  className="w-full text-start flex items-center justify-between px-2 py-1 hover:bg-surface-2 border-b border-gray-800/50 last:border-0 cursor-pointer"
                 >
                   <div>
                     <span className="text-sm text-gray-200">{item.name}</span>

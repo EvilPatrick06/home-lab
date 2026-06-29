@@ -10,9 +10,9 @@ interface SelectionOptionListProps {
 
 const rarityColors: Record<string, string> = {
   common: '',
-  uncommon: 'border-l-orange-500',
-  rare: 'border-l-blue-500',
-  unique: 'border-l-purple-500'
+  uncommon: 'border-s-orange-500',
+  rare: 'border-s-blue-500',
+  unique: 'border-s-purple-500'
 }
 
 export default function SelectionOptionList({
@@ -40,12 +40,12 @@ export default function SelectionOptionList({
           <button
             key={option.id}
             onClick={() => onPreview(option.id)}
-            className={`w-full text-left px-4 py-3 border-l-2 transition-colors ${rarityColors[option.rarity] || ''} ${
+            className={`w-full text-start px-4 py-3 border-s-2 transition-colors ${rarityColors[option.rarity] || ''} ${
               isPreviewing
-                ? 'bg-amber-900/30 border-l-amber-400'
+                ? 'bg-amber-900/30 border-s-amber-400'
                 : isSelected
-                  ? 'bg-green-900/20 border-l-green-500'
-                  : 'border-l-transparent hover:bg-surface-2'
+                  ? 'bg-green-900/20 border-s-green-500'
+                  : 'border-s-transparent hover:bg-surface-2'
             }`}
           >
             <div className="flex items-center justify-between">

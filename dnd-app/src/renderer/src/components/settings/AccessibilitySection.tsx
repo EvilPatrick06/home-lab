@@ -63,7 +63,7 @@ export function AccessibilitySection(): JSX.Element {
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-gray-300">{t('pages.settingsPage.uiScale')}</span>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted w-10 text-right">{uiScale}%</span>
+              <span className="text-sm text-muted w-10 text-end">{uiScale}%</span>
               {uiScale !== 100 && (
                 <button
                   onClick={() => setUiScale(100)}
@@ -100,7 +100,7 @@ export function AccessibilitySection(): JSX.Element {
               <button
                 key={opt.mode}
                 onClick={() => setColorblindMode(opt.mode)}
-                className={`p-2 rounded-lg border text-left transition-colors cursor-pointer ${
+                className={`p-2 rounded-lg border text-start transition-colors cursor-pointer ${
                   colorblindMode === opt.mode
                     ? 'border-amber-500 bg-amber-900/20'
                     : 'border-border bg-surface-2/30 hover:border-gray-600'
@@ -134,7 +134,7 @@ export function AccessibilitySection(): JSX.Element {
               <button
                 key={opt.value}
                 onClick={() => setFontStyle(opt.value)}
-                className={`p-2 rounded-lg border text-left transition-colors cursor-pointer ${
+                className={`p-2 rounded-lg border text-start transition-colors cursor-pointer ${
                   fontStyle === opt.value
                     ? 'border-amber-500 bg-amber-900/20'
                     : 'border-border bg-surface-2/30 hover:border-gray-600'

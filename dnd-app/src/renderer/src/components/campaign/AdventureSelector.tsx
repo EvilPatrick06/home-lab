@@ -115,7 +115,7 @@ function ChapterDetail({ chapter, index }: { chapter: AdventureChapter; index: n
     <div className="bg-surface-2/30 rounded-lg p-3">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full text-left flex items-center gap-2 cursor-pointer"
+        className="w-full text-start flex items-center gap-2 cursor-pointer"
       >
         <span className="text-gray-500 text-xs">{expanded ? '\u25BC' : '\u25B6'}</span>
         <span className="text-xs text-accent font-mono">
@@ -208,7 +208,7 @@ export default function AdventureSelector({
             onSelectType('preset')
             onSelectAdventure(null)
           }}
-          className={`flex-1 p-5 rounded-lg border text-left transition-all cursor-pointer
+          className={`flex-1 p-5 rounded-lg border text-start transition-all cursor-pointer
             ${
               campaignType === 'preset'
                 ? 'border-amber-500 bg-amber-900/20'
@@ -225,7 +225,7 @@ export default function AdventureSelector({
             onSelectType('custom')
             onSelectAdventure(null)
           }}
-          className={`flex-1 p-5 rounded-lg border text-left transition-all cursor-pointer
+          className={`flex-1 p-5 rounded-lg border text-start transition-all cursor-pointer
             ${
               campaignType === 'custom'
                 ? 'border-amber-500 bg-amber-900/20'
@@ -254,7 +254,7 @@ export default function AdventureSelector({
                   <button
                     key={adventure.id}
                     onClick={() => onSelectAdventure(adventure.id)}
-                    className="text-left cursor-pointer"
+                    className="text-start cursor-pointer"
                   >
                     <Card
                       className={`transition-all h-full

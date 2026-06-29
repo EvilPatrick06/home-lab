@@ -116,7 +116,7 @@ export default function FallingDamageModal({
                   setHeight(token.elevation)
                 }
               }}
-              className={`w-full text-left px-3 py-1.5 border rounded-lg cursor-pointer ${
+              className={`w-full text-start px-3 py-1.5 border rounded-lg cursor-pointer ${
                 selectedTokenId === token.id
                   ? 'bg-amber-900/30 border-amber-500'
                   : 'bg-surface-2 hover:bg-gray-700 border-border'

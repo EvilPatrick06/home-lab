@@ -85,8 +85,8 @@ export default function NarrationOverlay({ text, onDismiss, autoDismissSeconds }
         onClick={(e) => e.stopPropagation()}
       >
         {/* Decorative top border */}
-        <div className="absolute top-0 left-4 right-4 h-0.5 bg-amber-700/30" />
-        <div className="absolute bottom-0 left-4 right-4 h-0.5 bg-amber-700/30" />
+        <div className="absolute top-0 start-4 end-4 h-0.5 bg-amber-700/30" />
+        <div className="absolute bottom-0 start-4 end-4 h-0.5 bg-amber-700/30" />
 
         {/* Scrollable narration — a long scene scrolls here so countdown/hint/close stay visible.
             tabIndex makes the region keyboard-scrollable (arrow keys). */}
@@ -118,7 +118,7 @@ export default function NarrationOverlay({ text, onDismiss, autoDismissSeconds }
         <button
           ref={closeRef}
           onClick={handleDismiss}
-          className="absolute top-2 right-3 text-amber-700/40 hover:text-amber-700 text-lg cursor-pointer transition-colors"
+          className="absolute top-2 end-3 text-amber-700/40 hover:text-amber-700 text-lg cursor-pointer transition-colors"
           title={t('game.narrationOverlay.dismiss')}
         >
           &#10005;

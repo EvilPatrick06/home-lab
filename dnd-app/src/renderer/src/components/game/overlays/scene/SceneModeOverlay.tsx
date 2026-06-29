@@ -70,7 +70,7 @@ export default function SceneModeOverlay({ isDM, onExit }: SceneModeOverlayProps
         <button
           type="button"
           onClick={onExit}
-          className="absolute top-[8vh] left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-black/70 hover:bg-black/90 text-gray-100 text-sm font-semibold border border-white/20 cursor-pointer"
+          className="absolute top-[8vh] start-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-black/70 hover:bg-black/90 text-gray-100 text-sm font-semibold border border-white/20 cursor-pointer"
         >
           {t('game.sceneMode.exitScene')}
         </button>

@@ -171,7 +171,7 @@ export default function PlayerBottomBar({
       {/* Collapse toggle */}
       <button
         onClick={onToggleCollapse}
-        className="absolute -top-5 left-1/2 -translate-x-1/2 z-10 px-3 py-1
+        className="absolute -top-5 start-1/2 -translate-x-1/2 z-10 px-3 py-1
           bg-surface-2 border border-border/50 rounded-t-lg text-muted hover:text-gray-200
           cursor-pointer transition-colors"
         title={collapsed ? t('game.playerBottomBar.expand') : t('game.playerBottomBar.collapse')}
@@ -190,7 +190,7 @@ export default function PlayerBottomBar({
           is actually playing; null state stays out of the way. */}
       {currentAmbient && (
         <div
-          className="absolute -top-5 right-3 z-10 px-2.5 py-0.5 text-xs flex items-center gap-1
+          className="absolute -top-5 end-3 z-10 px-2.5 py-0.5 text-xs flex items-center gap-1
             bg-surface-2 border border-border/50 rounded-t-lg text-amber-300"
           title={t('game.playerBottomBar.currentlyPlaying', { track: currentAmbient })}
         >
@@ -227,7 +227,7 @@ export default function PlayerBottomBar({
       ) : (
         <>
           {/* Left: action buttons */}
-          <div className="w-36 shrink-0 flex flex-col gap-1.5 p-2 border-r border-border/50 overflow-y-auto">
+          <div className="w-36 shrink-0 flex flex-col gap-1.5 p-2 border-e border-border/50 overflow-y-auto">
             <button
               onClick={handleViewSheet}
               disabled={!character}
@@ -278,7 +278,7 @@ export default function PlayerBottomBar({
               </button>
 
               {toolsOpen && (
-                <div className="absolute bottom-full left-0 mb-1 w-48 max-h-[60vh] overflow-y-auto bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl shadow-xl z-20">
+                <div className="absolute bottom-full start-0 mb-1 w-48 max-h-[60vh] overflow-y-auto bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl shadow-xl z-20">
                   {/* Combat & Movement */}
                   <div className="px-2 pt-2 pb-1">
                     <span className="text-[9px] text-gray-500 uppercase tracking-wider font-semibold">
@@ -290,7 +290,7 @@ export default function PlayerBottomBar({
                       setToolsOpen(false)
                       onOpenModal?.('diceRoller')
                     }}
-                    className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
+                    className="w-full px-3 py-2 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
                   >
                     {t('game.playerBottomBar.diceRoller')}
                   </button>
@@ -304,7 +304,7 @@ export default function PlayerBottomBar({
                         setToolsOpen(false)
                         onMeasure()
                       }}
-                      className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
+                      className="w-full px-3 py-2 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
                     >
                       {t('game.playerBottomBar.measureDistance')}
                     </button>
@@ -315,7 +315,7 @@ export default function PlayerBottomBar({
                         setToolsOpen(false)
                         onCheckLos()
                       }}
-                      className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
+                      className="w-full px-3 py-2 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
                     >
                       {t('game.playerBottomBar.checkLineOfSight')}
                     </button>
@@ -325,7 +325,7 @@ export default function PlayerBottomBar({
                       setToolsOpen(false)
                       onJump?.()
                     }}
-                    className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
+                    className="w-full px-3 py-2 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
                   >
                     {t('game.playerBottomBar.jumpCalculator')}
                   </button>
@@ -334,7 +334,7 @@ export default function PlayerBottomBar({
                       setToolsOpen(false)
                       onFallingDamage?.()
                     }}
-                    className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
+                    className="w-full px-3 py-2 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
                   >
                     {t('game.playerBottomBar.fallingDamage')}
                   </button>
@@ -343,7 +343,7 @@ export default function PlayerBottomBar({
                       setToolsOpen(false)
                       onTravelPace?.()
                     }}
-                    className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
+                    className="w-full px-3 py-2 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
                   >
                     {t('game.playerBottomBar.travelPaceReference')}
                   </button>
@@ -352,7 +352,7 @@ export default function PlayerBottomBar({
                       setToolsOpen(false)
                       onQuickCondition?.()
                     }}
-                    className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
+                    className="w-full px-3 py-2 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
                   >
                     {t('game.playerBottomBar.conditionsViewer')}
                   </button>
@@ -362,7 +362,7 @@ export default function PlayerBottomBar({
                         setToolsOpen(false)
                         onLightSource()
                       }}
-                      className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
+                      className="w-full px-3 py-2 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
                     >
                       {t('game.playerBottomBar.lightSources')}
                     </button>
@@ -384,7 +384,7 @@ export default function PlayerBottomBar({
                         setToolsOpen(false)
                         onSpellPrep()
                       }}
-                      className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
+                      className="w-full px-3 py-2 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
                     >
                       {t('game.playerBottomBar.prepareSpells')}
                     </button>
@@ -394,7 +394,7 @@ export default function PlayerBottomBar({
                       setToolsOpen(false)
                       onSpellRef?.()
                     }}
-                    className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
+                    className="w-full px-3 py-2 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
                   >
                     {t('game.playerBottomBar.quickReference')}
                   </button>
@@ -403,7 +403,7 @@ export default function PlayerBottomBar({
                       setToolsOpen(false)
                       onOpenModal?.('commandRef')
                     }}
-                    className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
+                    className="w-full px-3 py-2 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
                   >
                     {t('game.playerBottomBar.commandReference')}
                   </button>
@@ -412,7 +412,7 @@ export default function PlayerBottomBar({
                       setToolsOpen(false)
                       onShortcutRef?.()
                     }}
-                    className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
+                    className="w-full px-3 py-2 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
                   >
                     {t('game.playerBottomBar.shortcutReference')}
                   </button>
@@ -433,7 +433,7 @@ export default function PlayerBottomBar({
                         setToolsOpen(false)
                         onMyNotes()
                       }}
-                      className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
+                      className="w-full px-3 py-2 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
                     >
                       {t('game.playerBottomBar.myNotes')}
                     </button>
@@ -444,7 +444,7 @@ export default function PlayerBottomBar({
                         setToolsOpen(false)
                         onWhisper()
                       }}
-                      className="w-full px-3 py-2 text-left text-xs text-purple-300 hover:bg-surface-2 hover:text-purple-200 transition-colors cursor-pointer"
+                      className="w-full px-3 py-2 text-start text-xs text-purple-300 hover:bg-surface-2 hover:text-purple-200 transition-colors cursor-pointer"
                     >
                       {t('game.playerBottomBar.whisper')}
                     </button>
@@ -455,7 +455,7 @@ export default function PlayerBottomBar({
                         setToolsOpen(false)
                         onCheckTime()
                       }}
-                      className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
+                      className="w-full px-3 py-2 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
                     >
                       {t('game.playerBottomBar.checkTime')}
                     </button>
@@ -474,7 +474,7 @@ export default function PlayerBottomBar({
                       })
                       sendMessage('chat:message', { message: msg, isSystem: true })
                     }}
-                    className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
+                    className="w-full px-3 py-2 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
                   >
                     {t('game.playerBottomBar.requestShortRest')}
                   </button>
@@ -492,7 +492,7 @@ export default function PlayerBottomBar({
                       })
                       sendMessage('chat:message', { message: msg, isSystem: true })
                     }}
-                    className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
+                    className="w-full px-3 py-2 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
                   >
                     {t('game.playerBottomBar.requestLongRest')}
                   </button>
@@ -502,7 +502,7 @@ export default function PlayerBottomBar({
                         setToolsOpen(false)
                         onDowntime()
                       }}
-                      className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
+                      className="w-full px-3 py-2 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
                     >
                       {t('game.playerBottomBar.downtimeActivity')}
                     </button>
@@ -513,7 +513,7 @@ export default function PlayerBottomBar({
                         setToolsOpen(false)
                         onTrade()
                       }}
-                      className="w-full px-3 py-2 text-left text-xs text-amber-300 hover:bg-surface-2 hover:text-amber-200 transition-colors cursor-pointer"
+                      className="w-full px-3 py-2 text-start text-xs text-amber-300 hover:bg-surface-2 hover:text-amber-200 transition-colors cursor-pointer"
                     >
                       {t('game.playerBottomBar.tradeItems')}
                     </button>
@@ -524,7 +524,7 @@ export default function PlayerBottomBar({
                         setToolsOpen(false)
                         onJournal()
                       }}
-                      className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
+                      className="w-full px-3 py-2 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
                     >
                       {t('game.playerBottomBar.sharedJournal')}
                     </button>
@@ -535,7 +535,7 @@ export default function PlayerBottomBar({
                         setToolsOpen(false)
                         onCompendium()
                       }}
-                      className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
+                      className="w-full px-3 py-2 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
                     >
                       {t('game.playerBottomBar.compendium')}
                     </button>

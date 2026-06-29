@@ -35,7 +35,7 @@ export default function BuildSlotItem({ slot, onClick }: BuildSlotItemProps): JS
     <button
       onClick={onClick}
       disabled={isAutoGranted}
-      className={`w-full text-left px-3 py-2 rounded border transition-colors cursor-pointer ${
+      className={`w-full text-start px-3 py-2 rounded border transition-colors cursor-pointer ${
         isAutoGranted
           ? 'bg-surface-2/50 border-border/50 !cursor-default opacity-60'
           : isSelected

@@ -53,7 +53,7 @@ export default function AoETemplateModal({
   const [shape, setShape] = useState<AoEShape>('sphere')
   const [sizeFeet, setSizeFeet] = useState(20)
   const [direction, setDirection] = useState<Direction8>('N')
-  // S-7 — when opened via the map's right-click "Place AoE here", origin defaults
+  // S-7 — when opened via the map's end-click "Place AoE here", origin defaults
   // to that cell (set as pendingPlaceCell); otherwise the map center.
   const placeCell = useGameStore.getState().pendingPlaceCell
   const [originX, setOriginX] = useState(placeCell?.gridX ?? Math.floor(gridWidth / 2))

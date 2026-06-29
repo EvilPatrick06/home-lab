@@ -448,7 +448,7 @@ export default function DMAudioPanel(): JSX.Element {
               onChange={(e) => handleAmbientVolumeChange(Number(e.target.value))}
               className="flex-1 h-1 accent-amber-500 cursor-pointer"
             />
-            <span className="text-xs text-gray-500 w-8 text-right">{ambientVol}%</span>
+            <span className="text-xs text-gray-500 w-8 text-end">{ambientVol}%</span>
           </div>
           {/* Master volume */}
           <div className="flex items-center gap-2">
@@ -462,7 +462,7 @@ export default function DMAudioPanel(): JSX.Element {
               onChange={(e) => handleMasterVolumeChange(Number(e.target.value))}
               className="flex-1 h-1 accent-amber-500 cursor-pointer"
             />
-            <span className="text-xs text-gray-500 w-8 text-right">{masterVol}%</span>
+            <span className="text-xs text-gray-500 w-8 text-end">{masterVol}%</span>
           </div>
         </div>
       </div>

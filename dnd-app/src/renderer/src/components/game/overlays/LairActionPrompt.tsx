@@ -27,7 +27,7 @@ export default function LairActionPrompt(): JSX.Element | null {
   }
 
   return (
-    <div className="absolute top-12 left-1/2 -translate-x-1/2 z-40 bg-surface/95 border border-amber-500/60 rounded-xl shadow-2xl p-4 w-96 max-w-[90vw]">
+    <div className="absolute top-12 start-1/2 -translate-x-1/2 z-40 bg-surface/95 border border-amber-500/60 rounded-xl shadow-2xl p-4 w-96 max-w-[90vw]">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-xs font-bold text-accent">
           {t('game.lairActionPrompt.title', { creatureName: pendingLairAction.creatureName })}
@@ -41,7 +41,7 @@ export default function LairActionPrompt(): JSX.Element | null {
           <button
             key={i}
             onClick={() => handleSelect(action)}
-            className="w-full text-left px-3 py-2 rounded-lg bg-surface-2 hover:bg-gray-700 transition-colors cursor-pointer group"
+            className="w-full text-start px-3 py-2 rounded-lg bg-surface-2 hover:bg-gray-700 transition-colors cursor-pointer group"
             title={action.description}
           >
             <div className="text-[11px] font-semibold text-gray-200 group-hover:text-amber-300">{action.name}</div>

@@ -143,7 +143,7 @@ export default function HelpModal({
             <button
               onClick={() => setMode('stabilize')}
               disabled={zeroHpAllies.length === 0}
-              className="w-full text-left px-3 py-2 bg-surface-2 hover:bg-gray-700 border border-green-700/50 rounded-lg cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full text-start px-3 py-2 bg-surface-2 hover:bg-gray-700 border border-green-700/50 rounded-lg cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <div className="text-sm font-semibold text-green-300">{t('game.helpModal.titleStabilize')}</div>
               <div className="text-xs text-muted">
@@ -156,7 +156,7 @@ export default function HelpModal({
             <button
               onClick={() => setMode('assist-check')}
               disabled={proficientSkills.length === 0}
-              className="w-full text-left px-3 py-2 bg-surface-2 hover:bg-gray-700 border border-blue-700/50 rounded-lg cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full text-start px-3 py-2 bg-surface-2 hover:bg-gray-700 border border-blue-700/50 rounded-lg cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <div className="text-sm font-semibold text-blue-300">{t('game.helpModal.titleAssistCheck')}</div>
               <div className="text-xs text-muted">
@@ -169,7 +169,7 @@ export default function HelpModal({
             <button
               onClick={() => setMode('assist-attack')}
               disabled={enemyTokens.length === 0}
-              className="w-full text-left px-3 py-2 bg-surface-2 hover:bg-gray-700 border border-amber-700/50 rounded-lg cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full text-start px-3 py-2 bg-surface-2 hover:bg-gray-700 border border-amber-700/50 rounded-lg cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <div className="text-sm font-semibold text-amber-300">{t('game.helpModal.titleAssistAttack')}</div>
               <div className="text-xs text-muted">
@@ -198,7 +198,7 @@ export default function HelpModal({
                   onClick={() => {
                     setSelectedAllyId(token.id)
                   }}
-                  className={`w-full text-left px-3 py-2 border rounded-lg cursor-pointer ${
+                  className={`w-full text-start px-3 py-2 border rounded-lg cursor-pointer ${
                     selectedAllyId === token.id
                       ? 'bg-green-900/30 border-green-500'
                       : 'bg-surface-2 hover:bg-gray-700 border-border'
@@ -259,7 +259,7 @@ export default function HelpModal({
                   <button
                     key={token.id}
                     onClick={() => setSelectedAllyId(token.id)}
-                    className={`w-full text-left px-3 py-1.5 border rounded-lg cursor-pointer ${
+                    className={`w-full text-start px-3 py-1.5 border rounded-lg cursor-pointer ${
                       selectedAllyId === token.id
                         ? 'bg-blue-900/30 border-blue-500'
                         : 'bg-surface-2 hover:bg-gray-700 border-border'
@@ -292,7 +292,7 @@ export default function HelpModal({
                 <button
                   key={token.id}
                   onClick={() => setSelectedEnemyId(token.id)}
-                  className={`w-full text-left px-3 py-2 border rounded-lg cursor-pointer ${
+                  className={`w-full text-start px-3 py-2 border rounded-lg cursor-pointer ${
                     selectedEnemyId === token.id
                       ? 'bg-amber-900/30 border-amber-500'
                       : 'bg-surface-2 hover:bg-gray-700 border-border'

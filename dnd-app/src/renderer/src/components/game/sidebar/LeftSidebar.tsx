@@ -372,7 +372,7 @@ export default function LeftSidebar({
   if (collapsed) {
     return (
       <div
-        className="w-3 h-full bg-surface/85 backdrop-blur-sm border-r border-border/50 flex flex-col items-center"
+        className="w-3 h-full bg-surface/85 backdrop-blur-sm border-e border-border/50 flex flex-col items-center"
         role="region"
         aria-label={t('game.leftSidebar.sidebarCollapsed')}
       >
@@ -397,7 +397,7 @@ export default function LeftSidebar({
 
   return (
     <div
-      className="w-56 h-full bg-surface/85 backdrop-blur-sm border-r border-border/50 flex flex-col min-h-0"
+      className="w-56 h-full bg-surface/85 backdrop-blur-sm border-e border-border/50 flex flex-col min-h-0"
       role="region"
       aria-label={t('game.leftSidebar.regionLabel')}
     >
@@ -442,7 +442,7 @@ export default function LeftSidebar({
               <button
                 onClick={() => toggleSection(section.id)}
                 aria-expanded={expandedSection === section.id}
-                className="flex-1 flex items-center gap-2 px-3 py-2.5 text-left hover:bg-surface-2/50 transition-colors cursor-pointer"
+                className="flex-1 flex items-center gap-2 px-3 py-2.5 text-start hover:bg-surface-2/50 transition-colors cursor-pointer"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

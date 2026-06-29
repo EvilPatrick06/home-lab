@@ -359,7 +359,7 @@ export function DrawingToolbar({
 
       {/* Dropdown picker */}
       {showPicker && activeTool !== 'none' && (
-        <div className="absolute top-full left-0 mt-1 bg-surface border border-border rounded-lg shadow-xl p-3 z-50 min-w-48">
+        <div className="absolute top-full start-0 mt-1 bg-surface border border-border rounded-lg shadow-xl p-3 z-50 min-w-48">
           {/* Colors — hidden for eraser */}
           {activeTool !== 'eraser' && (
             <>

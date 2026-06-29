@@ -77,7 +77,7 @@ export function SubclassSelector5e({ slot, classId }: { slot: BuildSlot; classId
                       setSlotSelection(slot.id, sc.id, sc.name)
                       setExpanded(false)
                     }}
-                    className="w-full text-left bg-surface-2/50 hover:bg-surface-2 border border-border hover:border-indigo-600 rounded p-2 cursor-pointer transition-colors"
+                    className="w-full text-start bg-surface-2/50 hover:bg-surface-2 border border-border hover:border-indigo-600 rounded p-2 cursor-pointer transition-colors"
                   >
                     <div className="text-sm text-indigo-300 font-medium">{sc.name}</div>
                     <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{sc.description}</p>

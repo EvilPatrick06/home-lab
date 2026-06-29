@@ -242,7 +242,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
                       >
                         <span
                           className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform ${
-                            trig.enabled ? 'left-4' : 'left-0.5'
+                            trig.enabled ? 'start-4' : 'start-0.5'
                           }`}
                         />
                       </button>

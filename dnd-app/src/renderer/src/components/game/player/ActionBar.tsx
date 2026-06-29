@@ -59,7 +59,7 @@ export default function ActionBar({ isMyTurn, onAction }: ActionBarProps): JSX.E
   return (
     <div className="flex items-center gap-3">
       {/* Action economy indicators */}
-      <div className="flex items-center gap-2 pe-3 border-r border-border">
+      <div className="flex items-center gap-2 pe-3 border-e border-border">
         <div className="flex flex-col items-center">
           <div
             className={`w-4 h-4 rounded-full border-2 ${

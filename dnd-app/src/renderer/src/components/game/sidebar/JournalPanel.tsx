@@ -279,8 +279,8 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
                   onClick={() => selectEntry(entry.id)}
                   className={`px-3 py-2 cursor-pointer transition-colors ${
                     selectedId === entry.id
-                      ? 'bg-amber-900/20 border-l-2 border-l-amber-500'
-                      : 'hover:bg-surface-2/50 border-l-2 border-l-transparent'
+                      ? 'bg-amber-900/20 border-s-2 border-s-amber-500'
+                      : 'hover:bg-surface-2/50 border-s-2 border-s-transparent'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-1">

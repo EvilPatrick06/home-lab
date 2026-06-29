@@ -155,7 +155,7 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
         )}
 
         {showIconPicker && !readonly && (
-          <div className="absolute top-full left-0 mt-1 z-50 bg-surface border border-border rounded-lg p-3 shadow-xl w-64">
+          <div className="absolute top-full start-0 mt-1 z-50 bg-surface border border-border rounded-lg p-3 shadow-xl w-64">
             <div className="flex gap-1 mb-2">
               <button
                 onClick={() => saveIcon(undefined, undefined)}
@@ -321,7 +321,7 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
 
           {/* Transfer dropdown */}
           {showInspirationTransfer && (
-            <div className="absolute top-full left-0 mt-1 z-50 bg-surface border border-amber-500/50 rounded-lg p-2 shadow-xl w-56">
+            <div className="absolute top-full start-0 mt-1 z-50 bg-surface border border-amber-500/50 rounded-lg p-2 shadow-xl w-56">
               <p className="text-xs text-accent font-semibold mb-1.5">{t('sheet.sheetHeader.giveInspirationTo')}</p>
               {transferTargets.length === 0 ? (
                 <p className="text-xs text-gray-500">{t('sheet.sheetHeader.noEligibleCharacters')}</p>
@@ -330,7 +330,7 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
                   <button
                     key={t.id}
                     onClick={() => transferInspiration(t.id)}
-                    className="w-full text-left px-2 py-1 text-xs text-gray-200 hover:bg-surface-2 rounded cursor-pointer"
+                    className="w-full text-start px-2 py-1 text-xs text-gray-200 hover:bg-surface-2 rounded cursor-pointer"
                   >
                     {t.name}
                   </button>
@@ -339,7 +339,7 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
               <div className="border-t border-border mt-1.5 pt-1.5">
                 <button
                   onClick={removeInspiration}
-                  className="w-full text-left px-2 py-1 text-xs text-muted hover:bg-surface-2 rounded cursor-pointer"
+                  className="w-full text-start px-2 py-1 text-xs text-muted hover:bg-surface-2 rounded cursor-pointer"
                 >
                   {t('sheet.sheetHeader.removeNoTransfer')}
                 </button>

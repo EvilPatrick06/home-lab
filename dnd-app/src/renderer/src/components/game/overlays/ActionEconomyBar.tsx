@@ -92,7 +92,7 @@ export default function ActionEconomyBar({
 
   return (
     <div
-      className="absolute top-14 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 px-3 py-1.5 bg-surface/80 backdrop-blur-sm border border-border/50 rounded-xl shadow-lg"
+      className="absolute top-14 start-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 px-3 py-1.5 bg-surface/80 backdrop-blur-sm border border-border/50 rounded-xl shadow-lg"
       role="status"
       aria-label={t('game.actionEconomyBar.turnResources', { entityName })}
     >

@@ -213,7 +213,7 @@ export default function TokenPlacer({
                 <button
                   key={m.id}
                   onClick={() => handleSelectMonster(m)}
-                  className="w-full px-3 py-2 text-left hover:bg-gray-700 transition-colors cursor-pointer flex items-center justify-between"
+                  className="w-full px-3 py-2 text-start hover:bg-gray-700 transition-colors cursor-pointer flex items-center justify-between"
                 >
                   <div>
                     <span className="text-sm text-gray-200">{m.name}</span>

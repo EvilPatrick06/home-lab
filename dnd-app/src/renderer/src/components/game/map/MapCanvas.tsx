@@ -839,7 +839,7 @@ export default function MapCanvas({
       />
       {/* Phase 16g — hover grid-coordinate readout + its toggle. */}
       {showGridHud && hoverCoord && (
-        <div className="absolute bottom-2 right-2 z-20 bg-black/60 text-white text-xs px-2 py-1 rounded pointer-events-none font-mono">
+        <div className="absolute bottom-2 end-2 z-20 bg-black/60 text-white text-xs px-2 py-1 rounded pointer-events-none font-mono">
           {hoverCoord}
         </div>
       )}
@@ -879,7 +879,7 @@ export default function MapCanvas({
         }}
         title={showGridHud ? t('game.mapCanvas.hideGridCoords') : t('game.mapCanvas.showGridCoords')}
         aria-label={t('game.mapCanvas.toggleGridReadout')}
-        className={`absolute bottom-2 left-2 z-20 px-2 py-1 text-xs font-mono rounded cursor-pointer transition-colors ${
+        className={`absolute bottom-2 start-2 z-20 px-2 py-1 text-xs font-mono rounded cursor-pointer transition-colors ${
           showGridHud ? 'bg-amber-600/70 text-white' : 'bg-black/50 text-muted hover:text-gray-200'
         }`}
       >
@@ -887,7 +887,7 @@ export default function MapCanvas({
       </button>
       {/* Reset View button lives in GameLayout's top-right control cluster now
           (inline with the other map controls + the gear) instead of as a
-          separate `absolute top-3 right-3` element that sat BEHIND the cluster
+          separate `absolute top-3 end-3` element that sat BEHIND the cluster
           and the settings gear. It fires RESET_MAP_VIEW_EVENT, which
           useResetViewHotkey (above) handles via handleResetView. */}
       {isHost && hasMultipleFloors && map?.floors && (
@@ -896,7 +896,7 @@ export default function MapCanvas({
         </Suspense>
       )}
       {pendingPlacement && (
-        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 bg-surface/90 border border-cyan-500/60 rounded-lg px-4 py-2 text-xs text-cyan-300 pointer-events-none">
+        <div className="absolute top-3 start-1/2 -translate-x-1/2 z-20 bg-surface/90 border border-cyan-500/60 rounded-lg px-4 py-2 text-xs text-cyan-300 pointer-events-none">
           {t('game.mapCanvas.clickToPlace')}{' '}
           <span className="font-semibold">{pendingPlacement.tokenData.label ?? t('game.mapCanvas.tokenFallback')}</span>
           {t('game.mapCanvas.pressEscPrefix')} <kbd className="px-1 py-0.5 bg-surface-2 rounded text-gray-200">Esc</kbd>
@@ -922,7 +922,7 @@ export default function MapCanvas({
         </div>
       )}
       {bgLoadError && !initError && (
-        <div className="absolute top-2 left-2 z-20 flex items-start gap-2 bg-yellow-900/90 border border-yellow-600 rounded px-3 py-2 text-yellow-200 text-xs max-w-xs">
+        <div className="absolute top-2 start-2 z-20 flex items-start gap-2 bg-yellow-900/90 border border-yellow-600 rounded px-3 py-2 text-yellow-200 text-xs max-w-xs">
           <span className="flex-1">{bgLoadError}</span>
           <button
             type="button"

@@ -185,7 +185,7 @@ export default function FloatingWindow({
         <div
           onMouseDown={startDrag('resize')}
           aria-hidden="true"
-          className="absolute bottom-0 right-0 w-3 h-3 cursor-nwse-resize border-r-2 border-b-2 border-gray-500/60"
+          className="absolute bottom-0 end-0 w-3 h-3 cursor-nwse-resize border-e-2 border-b-2 border-gray-500/60"
         />
       )}
     </div>

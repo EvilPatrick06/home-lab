@@ -377,7 +377,7 @@ export default function AiProviderSetup({
                         apiKey: p === provider ? apiKey : ''
                       })
                     }}
-                    className={`px-3 py-2 rounded border text-sm text-left transition-colors cursor-pointer ${
+                    className={`px-3 py-2 rounded border text-sm text-start transition-colors cursor-pointer ${
                       provider === p
                         ? 'border-amber-500 bg-accent-strong/10 text-amber-300'
                         : 'border-border bg-surface-2 text-muted hover:border-gray-500'

@@ -35,7 +35,7 @@ export default function PortalPrompt({ portal, onConfirm, onCancel }: PortalProm
   }, [handleKeyDown])
 
   return (
-    <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3 px-4 py-2.5 bg-surface/90 backdrop-blur-sm border border-purple-500/50 rounded-xl shadow-lg">
+    <div className="absolute top-20 start-1/2 -translate-x-1/2 z-30 flex items-center gap-3 px-4 py-2.5 bg-surface/90 backdrop-blur-sm border border-purple-500/50 rounded-xl shadow-lg">
       <span className="text-xs text-purple-300 font-semibold">{t('game.portalPrompt.portal')}</span>
       <span className="text-xs text-gray-300">{t('game.portalPrompt.travelTo', { mapName })}</span>
       <button

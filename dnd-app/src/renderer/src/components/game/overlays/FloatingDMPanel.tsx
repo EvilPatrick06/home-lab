@@ -38,7 +38,7 @@ export default function FloatingDMPanel({
   const { t } = useT()
   return (
     <div
-      className="absolute bottom-3 right-3 z-40 pointer-events-none"
+      className="absolute bottom-3 end-3 z-40 pointer-events-none"
       role="region"
       aria-label={t('game.floatingDMPanel.regionLabel')}
     >

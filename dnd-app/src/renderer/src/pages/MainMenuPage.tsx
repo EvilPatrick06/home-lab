@@ -144,7 +144,7 @@ export default function MainMenuPage(): JSX.Element {
             onClick={() => navigate(item.path)}
             className="group flex items-center gap-4 p-4 sm:p-5 min-h-[56px] rounded-lg border border-gray-800
                        bg-surface/50 hover:bg-surface-2/80 hover:border-amber-600/50 active:bg-surface-2
-                       transition-all duration-200 text-left cursor-pointer touch-manipulation"
+                       transition-all duration-200 text-start cursor-pointer touch-manipulation"
           >
             <span className="text-gray-500 group-hover:text-accent-strong transition-colors">{item.icon}</span>
             <div>

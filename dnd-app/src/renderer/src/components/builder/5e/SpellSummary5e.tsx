@@ -54,7 +54,7 @@ export const SpellRow = memo(function SpellRow({
         >
           {selected && '\u2713'}
         </button>
-        <button onClick={() => setExpanded(!expanded)} className="flex-1 flex items-center justify-between text-left">
+        <button onClick={() => setExpanded(!expanded)} className="flex-1 flex items-center justify-between text-start">
           <span className={`text-sm ${selected ? 'text-gray-200' : 'text-muted'} flex items-center gap-1.5`}>
             {spell.name}
             {isOffList && (

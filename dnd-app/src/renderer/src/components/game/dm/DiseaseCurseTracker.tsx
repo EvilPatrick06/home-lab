@@ -155,7 +155,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
                     <button
                       type="button"
                       onClick={() => setExpandedDisease(isExpanded ? null : ad.id)}
-                      className="flex items-center gap-1.5 text-left w-full"
+                      className="flex items-center gap-1.5 text-start w-full"
                     >
                       <span className={`text-xs transition-transform ${isExpanded ? 'rotate-90' : ''}`}>▶</span>
                       <span className="font-medium text-gray-200 truncate">{ad.name}</span>
@@ -327,7 +327,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
                     <button
                       type="button"
                       onClick={() => setExpandedCurse(isExpanded ? null : ac.id)}
-                      className="flex items-center gap-1.5 text-left w-full"
+                      className="flex items-center gap-1.5 text-start w-full"
                     >
                       <span className={`text-xs transition-transform ${isExpanded ? 'rotate-90' : ''}`}>▶</span>
                       <span className="font-medium text-gray-200 truncate">{ac.name}</span>

@@ -120,15 +120,15 @@ export default function WildShapeBrowserModal({
 
         <div className="flex-1 flex min-h-0 overflow-hidden">
           {/* Beast list */}
-          <div className="w-56 overflow-y-auto border-r border-border/50">
+          <div className="w-56 overflow-y-auto border-e border-border/50">
             {filtered.map((m) => (
               <button
                 key={m.id}
                 onClick={() => setSelected(m)}
-                className={`w-full px-3 py-2 text-left cursor-pointer transition-colors ${
+                className={`w-full px-3 py-2 text-start cursor-pointer transition-colors ${
                   selected?.id === m.id
-                    ? 'bg-green-600/20 border-l-2 border-green-500'
-                    : 'hover:bg-surface-2 border-l-2 border-transparent'
+                    ? 'bg-green-600/20 border-s-2 border-green-500'
+                    : 'hover:bg-surface-2 border-s-2 border-transparent'
                 }`}
               >
                 <div className="text-sm text-gray-200 font-medium">{m.name}</div>

@@ -1087,7 +1087,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
       <div className="flex flex-1 min-h-0">
         {/* Table of Contents sidebar */}
         {showToc && tocEntries.length > 0 && (
-          <div className="w-64 bg-surface border-r border-gray-800 shrink-0 flex flex-col">
+          <div className="w-64 bg-surface border-e border-gray-800 shrink-0 flex flex-col">
             <div className="p-3 border-b border-gray-800">
               <h3 className="text-sm font-bold text-accent">{t('library.pdfViewer.tableOfContents')}</h3>
             </div>
@@ -1176,7 +1176,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
                             goToPage(entry.page)
                           }
                         }}
-                        className={`flex-1 text-left px-1 py-1 text-xs flex items-center justify-between gap-1 min-w-0 ${
+                        className={`flex-1 text-start px-1 py-1 text-xs flex items-center justify-between gap-1 min-w-0 ${
                           entry.crossRef ? 'text-blue-400 hover:text-blue-300' : ''
                         }`}
                       >
@@ -1195,7 +1195,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
 
         {/* Bookmarks & Annotations sidebar */}
         {showBookmarks && (
-          <div className="w-64 bg-surface border-r border-gray-800 overflow-y-auto shrink-0 p-3">
+          <div className="w-64 bg-surface border-e border-gray-800 overflow-y-auto shrink-0 p-3">
             <h3 className="text-sm font-bold text-accent mb-3">{t('library.pdfViewer.bookmarks')}</h3>
             {bookmarks.length === 0 ? (
               <p className="text-xs text-gray-500">{t('library.pdfViewer.noBookmarks')}</p>
@@ -1207,7 +1207,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
                     <div key={bm.id} className="flex items-center gap-1 group">
                       <button
                         onClick={() => goToPage(bm.page)}
-                        className={`flex-1 text-left text-xs px-2 py-1 rounded transition-colors ${
+                        className={`flex-1 text-start text-xs px-2 py-1 rounded transition-colors ${
                           bm.page === currentPage ? 'bg-amber-600/20 text-accent' : 'text-gray-300 hover:bg-surface-2'
                         }`}
                       >
@@ -1324,7 +1324,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
                       )}
 
                       {pageAnns.length > 0 && (
-                        <div className="absolute top-2 right-2 flex flex-col gap-1 max-w-48">
+                        <div className="absolute top-2 end-2 flex flex-col gap-1 max-w-48">
                           {pageAnns.map((ann) => (
                             <span
                               key={ann.id}

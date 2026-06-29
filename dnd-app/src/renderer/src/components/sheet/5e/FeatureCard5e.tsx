@@ -17,7 +17,7 @@ function FeatureRowImpl({ feature, onRemove }: FeatureRowProps): JSX.Element {
     <div className="border-b border-gray-800 last:border-0">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between px-2 py-1.5 hover:bg-surface-2/50 transition-colors text-left"
+        className="w-full flex items-center justify-between px-2 py-1.5 hover:bg-surface-2/50 transition-colors text-start"
       >
         <div className="flex items-center gap-2">
           <span className="text-sm text-gray-200 font-medium">{feature.name}</span>
@@ -73,7 +73,7 @@ function FeatPickerRowImpl({ feat, character, onSelect }: FeatPickerRowProps): J
       className={`border rounded ${meetsPrereqs ? 'bg-surface-2/50 border-border' : 'bg-surface/50 border-gray-800 opacity-50'}`}
     >
       <div className="flex items-center justify-between px-2 py-1.5">
-        <button onClick={() => setExpanded(!expanded)} className="flex-1 text-left cursor-pointer">
+        <button onClick={() => setExpanded(!expanded)} className="flex-1 text-start cursor-pointer">
           <span className="text-sm text-amber-300 font-medium">{feat.name}</span>
           <span className="text-xs text-gray-500 ms-2">({feat.category})</span>
           {feat.repeatable && <span className="text-xs text-purple-400 ms-1">*</span>}

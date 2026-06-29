@@ -53,7 +53,7 @@ export default function ThemeSelector({ onClose }: ThemeSelectorProps): JSX.Elem
             <button
               key={name}
               onClick={() => handleSelect(name)}
-              className={`w-full px-4 py-2 flex items-center gap-3 text-left text-xs transition-colors cursor-pointer ${
+              className={`w-full px-4 py-2 flex items-center gap-3 text-start text-xs transition-colors cursor-pointer ${
                 isActive ? 'bg-surface-2 text-fg' : 'text-gray-300 hover:bg-surface-2/60 hover:text-fg'
               }`}
             >

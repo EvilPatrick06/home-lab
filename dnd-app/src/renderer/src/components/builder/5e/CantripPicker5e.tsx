@@ -45,7 +45,7 @@ export default function CantripPicker5e({
               key={spell.id}
               onClick={() => toggleCantrip(spell.id)}
               disabled={!selected && selectedCantrips.length >= 2}
-              className={`w-full text-left flex items-center gap-2 px-2 py-1 rounded text-sm transition-colors ${
+              className={`w-full text-start flex items-center gap-2 px-2 py-1 rounded text-sm transition-colors ${
                 selected
                   ? 'bg-blue-800/40 text-blue-300'
                   : selectedCantrips.length >= 2

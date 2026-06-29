@@ -345,7 +345,7 @@ export default function DMRollerModal({ onClose, onMinimize, onRestore }: DMRoll
           </div>
 
           {/* Right: Roll results */}
-          <div className="w-64 shrink-0 flex flex-col min-h-0 border-l border-border/50 ps-3">
+          <div className="w-64 shrink-0 flex flex-col min-h-0 border-s border-border/50 ps-3">
             <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-2">
               {t('game.dmRollerModal.rollHistory')}
             </div>

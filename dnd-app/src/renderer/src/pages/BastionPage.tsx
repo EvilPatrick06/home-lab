@@ -181,7 +181,7 @@ export default function BastionPage(): JSX.Element {
 
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Sidebar */}
-        <div className="w-full md:w-64 border-b md:border-b-0 md:border-r border-gray-800 overflow-y-auto bg-surface/50 max-h-[35vh] md:max-h-none shrink-0">
+        <div className="w-full md:w-64 border-b md:border-b-0 md:border-e border-gray-800 overflow-y-auto bg-surface/50 max-h-[35vh] md:max-h-none shrink-0">
           {bastions.length === 0 ? (
             <div className="p-4 text-center text-gray-500 text-sm">{t('pages.bastionPage.noBastionsYet')}</div>
           ) : (
@@ -194,9 +194,9 @@ export default function BastionPage(): JSX.Element {
                     setSelectedBastionId(bastion.id)
                     setActiveTab('overview')
                   }}
-                  className={`w-full text-left px-4 py-3 border-b border-gray-800/50 transition-colors ${
+                  className={`w-full text-start px-4 py-3 border-b border-gray-800/50 transition-colors ${
                     selectedBastionId === bastion.id
-                      ? 'bg-surface-2 border-l-2 border-l-amber-500'
+                      ? 'bg-surface-2 border-s-2 border-s-amber-500'
                       : 'hover:bg-surface-2/50'
                   }`}
                 >

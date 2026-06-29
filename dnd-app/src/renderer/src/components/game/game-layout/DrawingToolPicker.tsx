@@ -18,7 +18,7 @@ export default function DrawingToolPicker({ onSetTool }: DrawingToolPickerProps)
   const { t } = useT()
   return (
     <div
-      className="absolute top-16 right-4 flex flex-col gap-1 bg-surface/90 backdrop-blur-sm border border-border/50 rounded-xl p-2 shadow-xl"
+      className="absolute top-16 end-4 flex flex-col gap-1 bg-surface/90 backdrop-blur-sm border border-border/50 rounded-xl p-2 shadow-xl"
       style={{ zIndex: Z.TOOLBAR }}
       role="toolbar"
       aria-label={t('game.drawingToolPicker.toolbarLabel')}

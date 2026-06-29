@@ -178,7 +178,7 @@ export default function SpellPrepModal({ character, onClose }: SpellPrepModalPro
                   } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                   aria-pressed={isPrepared}
                 >
-                  <div className="text-left">
+                  <div className="text-start">
                     <div className="font-medium">{spell.name}</div>
                     <div className="text-[9px] text-gray-500">
                       {t('game.spellPrepModal.spellLevel', { level: spell.level })}

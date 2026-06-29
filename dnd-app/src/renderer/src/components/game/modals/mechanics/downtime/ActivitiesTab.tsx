@@ -205,7 +205,7 @@ export default function ActivitiesTab({
               if (activity.spellLevelTable) setSelectedSpellLevel(0)
               if (activity.potionTable) setSelectedPotion(activity.potionTable[0].type)
             }}
-            className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-colors cursor-pointer ${
+            className={`w-full text-start px-3 py-2 rounded-lg text-xs transition-colors cursor-pointer ${
               selectedId === activity.id
                 ? 'bg-amber-600/20 border border-amber-500/50 text-amber-300'
                 : 'bg-surface-2/50 border border-border/50 text-gray-300 hover:bg-surface-2'

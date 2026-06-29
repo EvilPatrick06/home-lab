@@ -280,7 +280,7 @@ export default function SpellSelectionSection5e({
                     toggleNewCantrip(c.id)
                   }}
                   disabled={!selected && cantripAtLimit}
-                  className={`w-full text-left flex items-center gap-2 px-2 py-1 rounded text-sm transition-colors ${
+                  className={`w-full text-start flex items-center gap-2 px-2 py-1 rounded text-sm transition-colors ${
                     selected
                       ? 'bg-amber-600/20 border border-amber-600 text-amber-300'
                       : cantripAtLimit
@@ -390,7 +390,7 @@ export default function SpellSelectionSection5e({
                           toggleNewSpell(spell.id)
                         }}
                         disabled={!selected && atLimit}
-                        className={`w-full text-left flex items-center gap-2 px-2 py-1 rounded text-sm transition-colors ${
+                        className={`w-full text-start flex items-center gap-2 px-2 py-1 rounded text-sm transition-colors ${
                           selected
                             ? 'bg-amber-600/20 border border-amber-600 text-amber-300'
                             : atLimit

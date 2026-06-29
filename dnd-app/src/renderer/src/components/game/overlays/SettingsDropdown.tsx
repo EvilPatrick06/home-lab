@@ -253,7 +253,7 @@ function GlobalSettingsLink(): JSX.Element {
   return (
     <button
       onClick={() => navigate('/settings', { state: { returnTo: location.pathname } })}
-      className="w-full px-4 py-2 text-left text-xs text-amber-300 hover:bg-surface-2 hover:text-amber-200 transition-colors cursor-pointer flex items-center justify-between"
+      className="w-full px-4 py-2 text-start text-xs text-amber-300 hover:bg-surface-2 hover:text-amber-200 transition-colors cursor-pointer flex items-center justify-between"
     >
       <span>{t('game.settingsDropdown.globalSettings')}</span>
       <span aria-hidden className="text-gray-500">
@@ -340,7 +340,7 @@ export default function SettingsDropdown({
       </Tooltip>
 
       {isOpen && (
-        <div className="absolute right-0 top-11 w-64 bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden shadow-xl">
+        <div className="absolute end-0 top-11 w-64 bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden shadow-xl">
           {/* Campaign info */}
           <div className="px-4 py-3 border-b border-gray-800">
             <div className="text-sm font-semibold text-fg truncate">{campaign.name}</div>
@@ -438,21 +438,21 @@ export default function SettingsDropdown({
             {isDM && onCreateCharacter && (
               <button
                 onClick={onCreateCharacter}
-                className="w-full px-4 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
+                className="w-full px-4 py-2 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
               >
                 {t('game.settingsDropdown.createCharacter')}
               </button>
             )}
             <button
               onClick={onReturnToLobby}
-              className="w-full px-4 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
+              className="w-full px-4 py-2 text-start text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
             >
               {t('game.settingsDropdown.returnToLobby')}
             </button>
             {isDM && onEndSession ? (
               <button
                 onClick={() => setShowEndSessionConfirm(true)}
-                className="w-full px-4 py-2 text-left text-xs text-red-400 hover:bg-red-900/30 hover:text-red-300 transition-colors cursor-pointer font-semibold"
+                className="w-full px-4 py-2 text-start text-xs text-red-400 hover:bg-red-900/30 hover:text-red-300 transition-colors cursor-pointer font-semibold"
               >
                 {t('game.settingsDropdown.endSession')}
               </button>
@@ -463,7 +463,7 @@ export default function SettingsDropdown({
                   stopAllCustomAudio()
                   onLeaveGame('/')
                 }}
-                className="w-full px-4 py-2 text-left text-xs text-red-400 hover:bg-red-900/30 hover:text-red-300 transition-colors cursor-pointer"
+                className="w-full px-4 py-2 text-start text-xs text-red-400 hover:bg-red-900/30 hover:text-red-300 transition-colors cursor-pointer"
               >
                 {t('game.settingsDropdown.leaveGame')}
               </button>

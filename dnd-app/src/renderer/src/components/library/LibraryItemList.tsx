@@ -144,7 +144,7 @@ export default function LibraryItemList({
                     setDraggingId(item.id)
                   }}
                   onDragEnd={() => setDraggingId(null)}
-                  className={`w-full text-left flex items-center gap-3 px-4 py-3 border-b border-gray-800/50
+                  className={`w-full text-start flex items-center gap-3 px-4 py-3 border-b border-gray-800/50
                     hover:bg-surface-2/40 transition-colors cursor-pointer group ${draggingId === item.id ? 'opacity-50' : ''}`}
                 >
                   {catDef && <span className="text-lg leading-none flex-shrink-0">{catDef.icon}</span>}

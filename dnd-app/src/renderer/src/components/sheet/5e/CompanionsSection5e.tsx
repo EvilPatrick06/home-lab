@@ -123,7 +123,7 @@ export default function CompanionsSection5e({ character, readonly }: CompanionsS
                       <div className="flex-1 h-1.5 bg-gray-700 rounded-full overflow-hidden">
                         <div className={`h-full ${hpColor} transition-all`} style={{ width: `${hpPct}%` }} />
                       </div>
-                      <span className="text-xs font-medium w-10 text-right">
+                      <span className="text-xs font-medium w-10 text-end">
                         {comp.currentHP}/{comp.maxHP}
                       </span>
                     </div>

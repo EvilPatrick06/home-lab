@@ -220,7 +220,7 @@ export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JS
       {/* Main content */}
       <div className="flex-1 flex min-h-0">
         {/* Tools strip */}
-        <div className="w-12 bg-surface/80 border-r border-border flex flex-col items-center py-2 gap-1 shrink-0">
+        <div className="w-12 bg-surface/80 border-e border-border flex flex-col items-center py-2 gap-1 shrink-0">
           <DMToolbar
             activeTool={activeTool}
             onToolChange={setActiveTool}

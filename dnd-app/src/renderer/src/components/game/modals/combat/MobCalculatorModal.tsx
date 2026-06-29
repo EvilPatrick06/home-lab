@@ -229,8 +229,8 @@ export default function MobCalculatorModal({ onClose, onBroadcastResult }: MobCa
               <table className="w-full text-xs">
                 <thead>
                   <tr className="bg-surface-2 text-muted">
-                    <th className="text-left px-3 py-1.5">{t('game.mobCalculatorModal.d20Needed')}</th>
-                    <th className="text-left px-3 py-1.5">{t('game.mobCalculatorModal.attackersPerHitCol')}</th>
+                    <th className="text-start px-3 py-1.5">{t('game.mobCalculatorModal.d20Needed')}</th>
+                    <th className="text-start px-3 py-1.5">{t('game.mobCalculatorModal.attackersPerHitCol')}</th>
                   </tr>
                 </thead>
                 <tbody>
