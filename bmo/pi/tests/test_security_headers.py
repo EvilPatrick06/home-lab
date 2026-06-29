@@ -49,6 +49,17 @@ def test_csp_on_html(client):
     assert "'unsafe-eval'" in csp
 
 
+def test_csp_allows_ide_google_fonts(client):
+    # PHASE-14 14A: /ide loads the Google Fonts stylesheet (fonts.googleapis.com)
+    # and its font files (fonts.gstatic.com). The CSP must host-scope-allowlist both
+    # or every /ide load trips a style-src/font-src violation and the IDE falls back
+    # to system fonts. Regression lock for the two scoped font origins.
+    r = client.get("/__no_such_route__")
+    csp = r.headers.get("Content-Security-Policy", "")
+    assert "https://fonts.googleapis.com" in csp  # stylesheet origin (style-src)
+    assert "https://fonts.gstatic.com" in csp  # font-file origin (font-src)
+
+
 def test_html_cache_policy(client):
     r = client.get("/__no_such_route__")
     assert r.headers.get("Cache-Control") == "no-cache"

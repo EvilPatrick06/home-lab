@@ -105,3 +105,12 @@ sed -n '49,49p;85,86p' bmo/docs/phases/QA/INSTRUCTIONS.md     # §4.8 'open it i
 - **Embedding the IDE in-tab (reverting the redirect)** — that is a product/architecture decision against the `DESIGN-CONSTRAINTS` consolidation, not a QA fix; 14B documents the existing behavior rather than changing it.
 - **The chat-agent outage and the chat-history clear/delete affordance** — the chat outage is **already planned (PHASE-09, merged; awaiting deploy)** and the clear/delete affordance is **PHASE-15**. **The Google Calendar OAuth reauth** — owner action, live-Pi data (rule 6); see PHASE-INDEX provenance.
 - **Restarting/deploying the live Pi or loading `/ide` on the device** — owner/infra (rule 6).
+
+
+## Completed
+
+_Implemented 2026-06-29 on `auto/bmo-phase-executer` (worktree off `origin/master@e004827c`)._
+
+- **14A — `/ide` Google-Fonts CSP fix (primary option: host-scoped allowlist, smallest diff).** Added `https://fonts.googleapis.com` to `style-src` and `https://fonts.gstatic.com` to `font-src` in the `after_request` CSP, host-scoped (not wildcard) and matching the existing `img-src` host-allowlist pattern, with dated inline comments. `bmo/pi/app.py:193` (style-src) + `bmo/pi/app.py:204` (font-src). Chose the allowlist over self-host/drop to preserve the intended JetBrains Mono / Inter fonts with no template change; the two origins are scoped to the Google Fonts hosts only, so the dashboard policy is not otherwise loosened. Regression lock added: `bmo/pi/tests/test_security_headers.py::test_csp_allows_ide_google_fonts` asserts both origins are present in the CSP header (8 passed; `ruff check` clean).
+- **14B — IDE-tab redirect doc truth.** `bmo/docs/DESIGN-CONSTRAINTS.md` "Two IDE implementations coexist" section now states the dashboard "IDE" bottom-nav tab is a full-page redirect (`window.location.href='/ide'`) to the canonical `/ide`, not an in-SPA panel. `bmo/docs/phases/QA/INSTRUCTIONS.md` bullet (§ dashboard surfaces) and §4.8 reworded from "open it in-tab" to test the redirect + the standalone page, cross-referencing the DESIGN-CONSTRAINTS section. Doc-only; no code/behavior change.
+- **Live-Pi boundary respected (rule 6):** no `systemctl`/deploy/live `/ide` load. Verified by the header-assertion test + diff; real-process font load confirmed by the owner-run deploy.

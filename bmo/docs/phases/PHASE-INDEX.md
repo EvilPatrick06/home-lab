@@ -36,7 +36,7 @@
 | 11 | [`PHASE-11-dashboard-ux-round.md`](./completed/PHASE-11-dashboard-ux-round.md) | bmo | — | done |
 | 12 | [`PHASE-12-dashboard-ux-correctness.md`](./completed/PHASE-12-dashboard-ux-correctness.md) | bmo | — | done |
 | 13 | [`PHASE-13-ide-tv-doc-truth.md`](./completed/PHASE-13-ide-tv-doc-truth.md) | bmo | — | done |
-| 14 | [`PHASE-14-ide-font-csp-and-redirect-doc-truth.md`](./PHASE-14-ide-font-csp-and-redirect-doc-truth.md) | bmo | — | pending |
+| 14 | [`PHASE-14-ide-font-csp-and-redirect-doc-truth.md`](./completed/PHASE-14-ide-font-csp-and-redirect-doc-truth.md) | bmo | — | done |
 | 15 | [`PHASE-15-chat-transcript-management.md`](./PHASE-15-chat-transcript-management.md) | bmo | — | pending |
 | 16 | [`PHASE-16-chat-agent-action-execution-truth.md`](./PHASE-16-chat-agent-action-execution-truth.md) | bmo | — | pending |
 | 17 | [`PHASE-17-dashboard-health-signal-ux-truth.md`](./PHASE-17-dashboard-health-signal-ux-truth.md) | bmo | — | pending |
