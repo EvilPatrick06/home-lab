@@ -28,7 +28,38 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## High
 
-*(none currently logged)*
+### [2026-06-29] RAG chunk IDs diverge between TS and Python engines — chunk-builder.ts joins with NUL, not the documented space
+
+- **Category:** bug
+- **Severity:** high
+- **Domain:** dnd-app
+- **Discovered by:** dnd-errors
+- **During:** autonomous dnd-app error scan — static review of `src/main/ai/context`
+
+**Description:**
+`stableChunkId()` in `dnd-app/src/main/ai/context/chunk-builder.ts` must produce content-stable chunk IDs that match its Python twin `bmo/pi/services/rag_search.py` byte-for-byte. The file's own comment states the contract: "The Python twin (rag_search.py) uses the SAME recipe — space-joined, NOT NUL-joined; change both engines or neither," documenting `sha256([source, ...headingPath, content].join(SPACE))`. The actual code instead joins with a literal NUL byte: the source file contains a raw `0x00` character where a single space should be (`.update([source, ...headingPath, content].join(<NUL>))`). The Python twin (`rag_search.py:172`) does `hashlib.sha256(" ".join([source, *heading_path, content])...)` and its docstring says it "Mirrors dnd-app chunk-builder.ts stableChunkId EXACTLY." Because `"a<SPACE>b"` and `"a<NUL>b"` hash to different digests, the two engines compute **different** IDs for the same chunk content, silently violating the cross-engine invariant. This defeats PHASE-24 24A (content-stable chunk IDs) and PHASE-07 `contextChunkIds` provenance whenever a chunk crosses the Electron(TS) <-> Pi(Python) boundary: chunk-id provenance, de-dup, and cross-engine lookups will not match.
+
+Secondary effect: the embedded NUL makes the `.ts` file register as **binary** to git/grep/diff (`grep` reports "binary file matches", diffs render unreadably), which hampers tooling and review.
+
+**Reproduction (if bug):**
+1. TS: `stableChunkId("doc", ["H1"], "body")` hashes the string `doc<NUL>H1<NUL>body`.
+2. Py: `stable_chunk_id("doc", ["H1"], "body")` hashes the string `doc<SPACE>H1<SPACE>body`.
+3. Observed: the two 16-hex prefixes differ -> different chunk IDs for identical content.
+
+**Expected behavior (if bug):** Both engines join the parts with a single space (the documented recipe) and produce identical IDs.
+
+**Hypothesis / root cause:** A literal NUL character was substituted for the space delimiter in `chunk-builder.ts` (present as of commit `2c306a13`, 2026-06-28, the `src/main/ai` subfolder regroup). The comment and the Python twin were left unchanged, so only the TS engine drifted off the agreed recipe.
+
+**Proposed fix / improvement:**
+- [ ] In `chunk-builder.ts`, change the join delimiter from the literal NUL back to a single space, removing the `0x00` byte and realigning with the comment + Python twin.
+- [ ] Add a cross-engine fixture test asserting `stableChunkId` equals a known `stable_chunk_id` digest for the same input, so the two engines cannot silently drift again.
+- [ ] Changing the delimiter changes every generated ID — verify whether persisted v2 indexes need a rebuild/migration. `applyStableIds` recomputes ids on load, so it is likely self-healing, but confirm.
+
+**Blocked by:** none. (LOG-ONLY scan — app code not modified; the domain resolver applies the fix after approval.)
+
+**Related files:** `dnd-app/src/main/ai/context/chunk-builder.ts` (`stableChunkId`, ~line 16), `bmo/pi/services/rag_search.py` (`stable_chunk_id`, ~line 172)
+
+**Related entries:** Cross-engine consistency also affects the bmo RAG retrieval path, but the defect itself lives in the dnd-app TS file (logged here per `Domain: dnd-app`). A bmo-side reviewer should be aware the IDs will not match until this TS fix lands.
 
 ## Medium
 
