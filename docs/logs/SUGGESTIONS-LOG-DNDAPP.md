@@ -51,6 +51,74 @@ New entries go at the TOP of their section (newest first).
 
 ---
 
+### [2026-06-29] 5e *content* values (monster/spell/species/class/alignment names + descriptions) are English-only — only the UI chrome is bilingual
+
+- **Category:** future-idea, portability, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (i18n surface vs the 5e content set)
+
+**Description:**
+The renderer UI chrome is fully bilingual (`locales/en.json` + `es.json`, ~6.5k leaf keys each, parity-gated in CI). But the ~3,041-file 5e content library (monsters, spells, species, items, traps, etc.) carries no localized fields: `es.json` has **zero** keys under any content namespace (`content.*`, `monsters.*`, `spells.*`). So a Spanish-locale user navigates a fully-translated app yet reads every stat block, spell description, and species/class/alignment label ("Dwarf fighter", "Lawful Good", monster traits) in English. This is the "remaining content-localization gap" noted only inside a *resolved* i18n entry — it is not tracked anywhere in the active logs, so a scanner grepping the active backlog will not find it.
+
+**Hypothesis / root cause:** intentional original scope boundary — i18n was built for UI strings; the JSON content set was authored once in English and has no translation layer (no per-locale content files, no `name_es`/`desc_es` fields, no content-translation fallback in the data-provider).
+
+**Proposed fix / improvement:**
+- [ ] Decide the model: parallel `locales`-style content overlays vs. per-record localized fields vs. a translation lookup keyed by content id.
+- [ ] Localize a high-value slice first (alignment, species/class labels, condition names) — short, bounded, and the most visible in the builder/sheet — before attempting full monster/spell text.
+- [ ] Add a content-locale fallback in the data-provider so untranslated records cleanly render English (no raw-key leak), mirroring the chrome i18next fallback.
+- [ ] Consider a CI parity guard for any content namespace that *does* get translated, like the existing `i18n:check-parity` for chrome.
+
+**Related files:** `src/renderer/src/i18n/locales/{en,es}.json`, `src/renderer/src/services/data-provider/`, `src/renderer/public/data/`, `scripts/i18n/check-locale-parity.mjs`
+
+**Related entries:** resolved i18n entry [2026-06-24] PHASE-56E Español walk ("remaining content-localization gap"); resolved [2026-06-23] data-driven locale-parity.
+
+### [2026-06-29] No single cross-target feature-parity matrix for the four renderer build targets (Electron desktop / web SPA / embed / Expo mobile)
+
+- **Category:** future-idea, docs, portability
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (build targets vs docs)
+
+**Description:**
+The same `src/renderer` is shipped to four targets — Electron desktop, the web SPA (`src/web/main.web.tsx`), the embeddable build (`main.embed.tsx`), and the Expo `mobile/` app — each reaching native/main-process capability through a different `window.api` shim (real preload, web shim, embed shim, mobile bridge). There is no one document mapping *which features actually work on which target*. `docs/WEB-VERSION-PLAN.md` covers only the web build's feasibility ("parity to desktop"); the existing `mobile/_shared` drift entry is about code-sync, not feature coverage. A contributor (or QA agent) has to read four shim files to learn that, e.g., the auto-updater, native crash capture, Bonjour LAN discovery, or local-Ollama paths are desktop-only.
+
+**Hypothesis / root cause:** the targets were added incrementally (desktop first, then web/embed/mobile), each with its own shim, and no consolidating parity doc was written as they accreted.
+
+**Proposed fix / improvement:**
+- [ ] Add `dnd-app/docs/TARGET-PARITY.md`: rows = features/capabilities (updater, crash capture, LAN/Bonjour, file IO, TURN, AI providers, TTS, etc.), columns = desktop / web / embed / mobile, cells = full / shimmed-noop / partial / N-A.
+- [ ] Seed it from the four `window.api` surfaces (`src/preload/index.ts` + the web/embed/mobile install-*-api shims) so each "noop shim" is one visible cell.
+- [ ] Link it from each target's section in `README.md` and from `WEB-VERSION-PLAN.md`.
+- [ ] Optional follow-up: a tiny script that diffs the shim method sets and flags a capability present on one target but silently missing on another.
+
+**Related files:** `src/preload/index.ts`, `src/web/install-web-api.ts`, `src/web/install-embed-api.ts`, `mobile/`, `docs/WEB-VERSION-PLAN.md`, `README.md`
+
+**Related entries:** [2026-06-28] mobile `_shared` sync-copy drift; [2026-06-28] mobile version pinned behind desktop.
+
+### [2026-06-29] a11y (jest-axe) harness only asserts on a synthetic fragment — real high-traffic components are still unguarded
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (a11y coverage)
+
+**Description:**
+`src/renderer/src/a11y/a11y-smoke.test.tsx` wires up jest-axe + vitest + happy-dom and proves the harness runs, but it only renders a hand-written accessible `<main>` fragment (heading + labeled input + button) and asserts zero violations. No *real* component is exercised, so the guard cannot catch an actual regression. The test's own comment flags this ("Expand coverage to high-traffic components … incrementally"); the harness seed itself is resolved, but the expansion is unlogged follow-up work and easy to forget.
+
+**Hypothesis / root cause:** the seed was deliberately non-blocking (prove the harness, defer triaging the real-component baseline) and the follow-up was left only as an in-code comment, not a tracked backlog item.
+
+**Proposed fix / improvement:**
+- [ ] Pick the highest-traffic surfaces first: the game table / `GameLayout`, the character sheet, the settings panels, and the most-used modals.
+- [ ] Render each in the happy-dom harness, snapshot the *current* axe violation set as a triaged baseline, and gate only on **new** violations (so pre-existing issues do not block CI but no new ones land).
+- [ ] File the triaged pre-existing violations as their own follow-ups in `ISSUES-LOG-DNDAPP.md`.
+
+**Related files:** `src/renderer/src/a11y/a11y-smoke.test.tsx`, `src/renderer/src/components/game/GameLayout.tsx`, `src/renderer/src/components/sheet/`, `src/renderer/src/components/settings/`
+
+**Related entries:** resolved [2026-06-23] a11y jest-axe harness seed.
+
 ### [2026-06-29] Two different `usePanelResize` hooks coexist — `hooks/use-panel-resize.ts` is a stale, non-persisting duplicate left behind by the GameLayout decomposition
 
 - **Category:** debt
