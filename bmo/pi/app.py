@@ -2824,6 +2824,15 @@ def api_voice_wake():
     return jsonify({"ok": True, "wake_enabled": enabled})
 
 
+@app.route("/api/voice/interrupt", methods=["POST"])
+def api_voice_interrupt():
+    """Stop BMO mid-speech (barge-in) — invoke the already-built VoicePipeline.interrupt()."""
+    if not voice:
+        return jsonify({"error": "Voice pipeline not available"}), 503
+    voice.interrupt()
+    return jsonify({"ok": True})
+
+
 # ── AI/Agent Controls API ──────────────────────────────────────────
 
 @app.route("/api/models")
