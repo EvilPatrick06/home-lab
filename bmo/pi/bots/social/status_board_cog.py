@@ -323,10 +323,11 @@ def _decision_cid(prefix: str, item_id: str, sid: str) -> str:
 
 
 async def _handle_decision(interaction: discord.Interaction, decision: str,
-                           item_id: str, sid: str) -> None:
-    """Shared Approve/Deny click handler: idempotency-guard a double-click,
-    record the decision to the outbox (stamped with the originating session id),
-    remove the item from the board, and ephemerally confirm to the clicker."""
+                           item_id: str, sid: str, text: str | None = None) -> None:
+    """Shared Approve/Deny/Other decision handler: idempotency-guard a repeat,
+    record the decision to the outbox (stamped with the originating session id,
+    plus the typed instruction for an 'other' decision), remove the item from the
+    board, and ephemerally confirm to the clicker."""
     cog = _cog(interaction)
     now = time.time()
     if cog is not None and now < cog._decided.get(item_id, 0.0):
@@ -344,7 +345,7 @@ async def _handle_decision(interaction: discord.Interaction, decision: str,
         return
     if not getattr(item, "session_id", None) and sid:
         item.session_id = sid
-    rec = sb.record_decision(decision, item)
+    rec = sb.record_decision(decision, item, text=text)
     sb.mark_done(inbox, item_id)
     sb.save_inbox(inbox)
     if cog is not None:
@@ -364,8 +365,8 @@ async def _handle_decision(interaction: discord.Interaction, decision: str,
         except discord.HTTPException:
             pass
     # …then confirm to the clicker (a followup, since the response was consumed).
-    verb = "Approved" if decision == "approve" else "Denied"
-    icon = "✅" if decision == "approve" else "✖️"
+    verb = {"approve": "Approved", "deny": "Denied", "other": "Noted"}[decision]
+    icon = {"approve": "✅", "deny": "✖️", "other": "✏️"}[decision]
     if rec.get("session_id"):
         tail = " Relayed to the originating agent session to act on."
     else:
@@ -405,6 +406,44 @@ class DenyButton(discord.ui.DynamicItem[discord.ui.Button],
 
     async def callback(self, interaction: discord.Interaction):
         await _handle_decision(interaction, "deny", self.iid, self.sid)
+
+
+class DecisionModal(discord.ui.Modal, title="Send the agent a correction"):
+    """Free-form '✏️ Other' response. The user types a correction or custom
+    instruction; on submit it is relayed to the ORIGINATING agent session just
+    like Approve/Deny — recorded to the decisions outbox with decision='other'
+    and the typed text — then the board entry is removed. The modal is transient
+    (handled in-memory); only the buttons need persistent registration. See
+    docs/BOARD-APPROVAL-BRIDGE.md."""
+
+    response = discord.ui.TextInput(
+        label="What should the agent do instead?",
+        style=discord.TextStyle.paragraph,
+        placeholder="Type a correction or instruction — it's relayed to the agent that posted this.",
+        required=True, max_length=1500)
+
+    def __init__(self, iid: str, sid: str = ""):
+        super().__init__()
+        self.iid, self.sid = iid, sid
+
+    async def on_submit(self, interaction: discord.Interaction):
+        await _handle_decision(interaction, "other", self.iid, self.sid,
+                               text=str(self.response.value))
+
+
+class OtherButton(discord.ui.DynamicItem[discord.ui.Button],
+                  template=r"board:oth:(?P<sid>[^~]*)~(?P<iid>.+)"):
+    def __init__(self, iid: str, sid: str = "", label: str = "✏️ Other"):
+        self.iid, self.sid = iid, sid
+        super().__init__(discord.ui.Button(label=label, style=discord.ButtonStyle.secondary,
+                                           custom_id=_decision_cid("board:oth", iid, sid)))
+
+    @classmethod
+    async def from_custom_id(cls, interaction, item, match):
+        return cls(match["iid"], match["sid"])
+
+    async def callback(self, interaction: discord.Interaction):
+        await interaction.response.send_modal(DecisionModal(self.iid, self.sid))
 
 
 # ── Layout ───────────────────────────────────────────────────────────────────
@@ -472,20 +511,24 @@ def build_layout(rows: list[dict], state: sb.BoardState) -> discord.ui.LayoutVie
             awaiting = [r for r in crows if sb.is_approval_row(r)]
             alines, arows = [], []
             for idx, r in enumerate(awaiting, 1):
-                if comp + sect_comp + 1 + len(arows) * 3 + 3 >= COMPONENT_BUDGET:
+                # Each ActionRow now carries 3 buttons (Approve/Deny/Other) =
+                # 4 components (the row + its 3 buttons); budget accordingly.
+                if comp + sect_comp + 1 + len(arows) * 4 + 4 >= COMPONENT_BUDGET:
                     break
                 alines.append(f"`{idx}` " + _line(r, compact=len(awaiting) > 6))
                 arows.append(discord.ui.ActionRow(
                     ApproveButton(r["id"], r.get("session_id") or "", label=f"✅ Approve {idx}"),
-                    DenyButton(r["id"], r.get("session_id") or "", label=f"✖️ Deny {idx}")))
+                    DenyButton(r["id"], r.get("session_id") or "", label=f"✖️ Deny {idx}"),
+                    OtherButton(r["id"], r.get("session_id") or "", label=f"✏️ Other {idx}")))
             if alines:
                 children.append(discord.ui.TextDisplay(
-                    "**Awaiting your approve/deny — a click is relayed to the agent:**\n"
+                    "**Awaiting your decision — Approve / Deny / ✏️ Other "
+                    "(a click is relayed to the agent):**\n"
                     + "\n".join(alines)))
                 sect_comp += 1
                 for ar in arows:
                     children.append(ar)
-                    sect_comp += 3
+                    sect_comp += 4
             view.add_item(discord.ui.Container(*children,
                           accent_colour=_colour(sb.worst_severity(crows))))
             comp += sect_comp
@@ -586,7 +629,7 @@ class StatusBoardCog(commands.Cog):
     async def cog_load(self):
         for dyn in (MuteButton, DoneButton, RefreshButton, AckAllButton,
                     ToggleInfoButton, ClearBriefsButton, PingOwnerButton,
-                    ApproveButton, DenyButton):
+                    ApproveButton, DenyButton, OtherButton):
             self.bot.add_dynamic_items(dyn)
         self.loop.start()
 

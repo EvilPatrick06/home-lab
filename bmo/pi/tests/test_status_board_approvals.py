@@ -185,3 +185,163 @@ def test_info_severity_agent_item_filtered_and_no_buttons():
     row = _await_row(sev="info")
     ids = _custom_ids(cog.build_layout([row], _state()))
     assert not any(c.startswith("board:apv:") for c in ids)
+
+# ── Other (free-text decision via the ✏️ Other modal) ────────────────────────
+
+def test_record_decision_other_carries_text(tmp_path):
+    item = sb.Item(id="issue:9", source="bmo-resolver", category="agent",
+                   title="BMO: add retry to uploader", session_id="local_abc",
+                   severity="warning")
+    out = tmp_path / "dec.jsonl"
+    rec = sb.record_decision("other", item,
+                             text="only the uploader, not the whole pipeline",
+                             outbox=str(out))
+    assert rec["decision"] == "other"
+    assert rec["text"] == "only the uploader, not the whole pipeline"
+    assert rec["session_id"] == "local_abc"
+    parsed = json.loads(out.read_text(encoding="utf-8").strip())
+    assert parsed["decision"] == "other"
+    assert parsed["text"] == "only the uploader, not the whole pipeline"
+    assert parsed["item_id"] == "issue:9"
+    assert parsed["source"] == "bmo-resolver"
+
+
+def test_record_decision_approve_has_no_text_field(tmp_path):
+    # approve/deny lines stay shape-identical to before — no 'text' key.
+    item = sb.Item(id="issue:9", source="s", category="agent", title="t",
+                   session_id="sid")
+    out = tmp_path / "dec.jsonl"
+    sb.record_decision("approve", item, outbox=str(out))
+    sb.record_decision("deny", item, outbox=str(out))
+    for line in out.read_text(encoding="utf-8").strip().splitlines():
+        assert "text" not in json.loads(line)
+
+
+def test_record_decision_other_defaults_empty_text(tmp_path):
+    item = sb.Item(id="x", source="s", category="agent", title="t", session_id="sid")
+    out = tmp_path / "dec.jsonl"
+    rec = sb.record_decision("other", item, outbox=str(out))
+    assert rec["text"] == ""
+
+
+def test_decision_cid_other_roundtrip():
+    assert cog._decision_cid("board:oth", "issue:1", "local_abc") == "board:oth:local_abc~issue:1"
+
+
+def test_other_button_custom_id():
+    assert cog.OtherButton("issue:1", "local_abc").item.custom_id == "board:oth:local_abc~issue:1"
+
+
+def test_all_three_buttons_render_for_awaiting_item():
+    ids = _custom_ids(cog.build_layout([_await_row()], _state()))
+    assert any(c.startswith("board:apv:") for c in ids)
+    assert any(c.startswith("board:dny:") for c in ids)
+    assert any(c.startswith("board:oth:") for c in ids)
+
+
+def test_no_other_button_without_session_id():
+    ids = _custom_ids(cog.build_layout([_await_row(sid=None)], _state()))
+    assert not any(c.startswith("board:oth:") for c in ids)
+
+
+# ── modal submit → outbox path (the ✏️ Other flow end to end) ────────────────
+
+class _FakeResponse:
+    def __init__(self):
+        self.deferred = False
+        self.modal = None
+        self.edited = False
+    async def defer(self):
+        self.deferred = True
+    async def edit_message(self, **kwargs):
+        self.edited = True
+    async def send_message(self, *a, **k):
+        pass
+    async def send_modal(self, modal):
+        self.modal = modal
+
+
+class _FakeFollowup:
+    def __init__(self):
+        self.sent = []
+    async def send(self, content="", **k):
+        self.sent.append(content)
+
+
+class _FakeClient:
+    def get_cog(self, name):
+        return None
+
+
+class _FakeInteraction:
+    def __init__(self):
+        self.response = _FakeResponse()
+        self.followup = _FakeFollowup()
+        self.client = _FakeClient()
+
+
+async def test_other_button_opens_modal_with_keys():
+    btn = cog.OtherButton("issue:7", "local_xyz")
+    inter = _FakeInteraction()
+    await btn.callback(inter)
+    assert isinstance(inter.response.modal, cog.DecisionModal)
+    assert inter.response.modal.iid == "issue:7"
+    assert inter.response.modal.sid == "local_xyz"
+
+
+async def test_modal_submit_writes_other_decision(tmp_path, monkeypatch):
+    inbox_path = tmp_path / "board_inbox.json"
+    out_path = tmp_path / "board_decisions_outbox.jsonl"
+    monkeypatch.setattr(sb, "BOARD_INBOX", str(inbox_path))
+    monkeypatch.setattr(sb, "BOARD_DECISIONS", str(out_path))
+    now = time.time()
+    seed = {"bmo-resolver": [{
+        "id": "issue:7", "source": "bmo-resolver", "category": "agent",
+        "title": "BMO: add retry to uploader", "session_id": "local_xyz",
+        "severity": "warning", "detail": "", "url": None, "due": None,
+        "created": now, "seen": now}]}
+    inbox_path.write_text(json.dumps(seed), encoding="utf-8")
+
+    modal = cog.DecisionModal("issue:7", "local_xyz")
+    modal.response._value = "Only add retry to the uploader, not the whole pipeline"
+    inter = _FakeInteraction()
+    await modal.on_submit(inter)
+
+    lines = out_path.read_text(encoding="utf-8").strip().splitlines()
+    assert len(lines) == 1
+    rec = json.loads(lines[0])
+    assert rec["decision"] == "other"
+    assert rec["text"] == "Only add retry to the uploader, not the whole pipeline"
+    assert rec["item_id"] == "issue:7"
+    assert rec["source"] == "bmo-resolver"
+    assert rec["session_id"] == "local_xyz"
+    assert rec["decided_by"] == "board"
+    # board entry removed
+    remaining = json.loads(inbox_path.read_text(encoding="utf-8"))
+    all_ids = [i["id"] for items in remaining.values() for i in items]
+    assert "issue:7" not in all_ids
+    # clicker got an ephemeral confirmation mentioning the relay
+    assert inter.followup.sent and "Noted" in inter.followup.sent[0]
+
+
+async def test_modal_submit_without_session_warns_not_relayable(tmp_path, monkeypatch):
+    inbox_path = tmp_path / "board_inbox.json"
+    out_path = tmp_path / "board_decisions_outbox.jsonl"
+    monkeypatch.setattr(sb, "BOARD_INBOX", str(inbox_path))
+    monkeypatch.setattr(sb, "BOARD_DECISIONS", str(out_path))
+    now = time.time()
+    seed = {"bmo-resolver": [{
+        "id": "issue:8", "source": "bmo-resolver", "category": "agent",
+        "title": "no-session item", "session_id": None,
+        "severity": "warning", "detail": "", "url": None, "due": None,
+        "created": now, "seen": now}]}
+    inbox_path.write_text(json.dumps(seed), encoding="utf-8")
+    modal = cog.DecisionModal("issue:8", "")
+    modal.response._value = "do the thing"
+    inter = _FakeInteraction()
+    await modal.on_submit(inter)
+    rec = json.loads(out_path.read_text(encoding="utf-8").strip())
+    assert rec["decision"] == "other"
+    assert rec["text"] == "do the thing"
+    assert rec["session_id"] is None
+    assert inter.followup.sent and "can't be auto-relayed" in inter.followup.sent[0]

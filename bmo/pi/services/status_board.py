@@ -299,17 +299,21 @@ def is_approval_row(r: dict) -> bool:
 
 
 def record_decision(decision: str, item, *, decided_by: str = "board",
-                    outbox: str | None = None) -> dict:
+                    text: str | None = None, outbox: str | None = None) -> dict:
     """Append a decision record to the append-only decisions outbox (JSONL) for
     the dispatch-side poller to consume, and return the record written.
 
-    decision is 'approve' or 'deny'. The record names the item, its source, the
-    ORIGINATING session id (so the poller knows which session to resume), the
-    item title, who decided, and a timestamp. Writing is append-only so a click
-    never races the bot's inbox writes. See docs/BOARD-APPROVAL-BRIDGE.md.
+    decision is 'approve', 'deny', or 'other'. The record names the item, its
+    source, the ORIGINATING session id (so the poller knows which session to
+    resume), the item title, who decided, and a timestamp. For an 'other'
+    decision (the board's ✏️ Other modal) the free-form instruction the user
+    typed is carried in an additional 'text' field, which the poller relays into
+    the session verbatim. Writing is append-only so a click never races the
+    bot's inbox writes. See docs/BOARD-APPROVAL-BRIDGE.md.
     """
-    if decision not in ("approve", "deny"):
-        raise ValueError(f"decision must be 'approve' or 'deny', got {decision!r}")
+    if decision not in ("approve", "deny", "other"):
+        raise ValueError(
+            f"decision must be 'approve', 'deny', or 'other', got {decision!r}")
     outbox = outbox or BOARD_DECISIONS
     rec = {
         "ts": time.time(),
@@ -320,6 +324,9 @@ def record_decision(decision: str, item, *, decided_by: str = "board",
         "title": getattr(item, "title", ""),
         "decided_by": decided_by,
     }
+    if decision == "other":
+        # Only 'other' carries free-form text; approve/deny lines stay unchanged.
+        rec["text"] = text or ""
     os.makedirs(os.path.dirname(outbox), exist_ok=True)
     with open(outbox, "a", encoding="utf-8") as f:
         f.write(json.dumps(rec, ensure_ascii=False) + "\n")

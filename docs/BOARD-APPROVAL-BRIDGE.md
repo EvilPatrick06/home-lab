@@ -1,11 +1,13 @@
 # Board Approve/Deny → originating-session bridge
 
 > **What this is.** Each "awaiting your approve/deny" item on the BMO status board
-> (🤖 Agents) can carry **✅ Approve / ✖️ Deny** buttons. A click is relayed back
-> to the **agent session that posted the item** — the same dispatch/cowork session
-> (id `local_<uuid>` / `cse_<…>`), resumed with its full context — so it implements
-> the item (approve) or closes it out (deny). It does **not** spin up a new agent
-> and does **not** wait for the next scheduled run.
+> (🤖 Agents) can carry **✅ Approve / ✖️ Deny / ✏️ Other** buttons. A click is
+> relayed back to the **agent session that posted the item** — the same
+> dispatch/cowork session (id `local_<uuid>` / `cse_<…>`), resumed with its full
+> context — so it implements the item (approve), closes it out (deny), or follows
+> a typed correction/instruction (**✏️ Other** opens a modal; the free-form text
+> is relayed verbatim). It does **not** spin up a new agent and does **not** wait
+> for the next scheduled run.
 
 This document is the **contract**: how an item carries its session id, what a click
 writes, and how the dispatch-side poller consumes it. The Pi side of this is
@@ -36,10 +38,11 @@ resolver session (orchestrator) ──SSH──> notify-board set … --session-
         status board (Pi)  ──renders──>  ✅ Approve / ✖️ Deny on the item
                                               │  user clicks
                                               ▼
-        status_board_cog  ──writes──>  board_decisions_outbox.jsonl  (item, decision, sid, ts)
+        status_board_cog  ──writes──>  board_decisions_outbox.jsonl  (item, decision[, text], sid, ts)
+                                              │  (✏️ Other opens a modal first; the typed text → the "text" field)
                                               │  + removes the board entry, ephemeral confirm
                                               ▼
-   dispatch-side poller (orchestrator) ──reads outbox──> send_message(sid, "user APPROVED <item>, implement it")
+   dispatch-side poller (orchestrator) ──reads outbox──> send_message(sid, "user APPROVED / DENIED / <typed correction> <item>")
                                               │
                                               ▼
                           originating session resumes with full context → acts
@@ -82,7 +85,16 @@ and keep the existing in-chat path.
 
 ## 2. What a click writes (board side — implemented)
 
-On a click the board (`status_board_cog.py`):
+Each awaiting item carries three buttons: **✅ Approve**, **✖️ Deny**, and
+**✏️ Other**. Approve/Deny record their decision immediately. **✏️ Other** opens a
+Discord **modal** with a multi-line text box; when the user submits a correction
+or custom instruction, that free-form text is recorded as a `decision: "other"`
+line carrying a `text` field. All three buttons share the same custom_id encoding
+(item key + originating session id) and the same cooldown/idempotency guard; the
+modal is transient (handled in-memory), so only the buttons need persistent
+registration.
+
+On a click (or modal submit) the board (`status_board_cog.py`):
 
 1. **Idempotency guard** — ignores a repeat decision on the same item within
    `BOARD_DECISION_COOLDOWN_S` (default 30 s), so a double-click can't double-fire.
@@ -101,17 +113,19 @@ On a click the board (`status_board_cog.py`):
 
 ```json
 {"ts": 1782772055.52, "decision": "approve", "item_id": "issue:42", "source": "bmo-resolver", "session_id": "local_deadbeef", "title": "BMO: add retry to uploader", "decided_by": "board"}
+{"ts": 1782772061.09, "decision": "other", "item_id": "issue:43", "source": "bmo-resolver", "session_id": "local_deadbeef", "title": "BMO: rotate log files", "decided_by": "board", "text": "do it, but cap retained logs at 7 days, not 30"}
 ```
 
 | Field        | Meaning |
 |--------------|---------|
 | `ts`         | Unix epoch seconds the decision was recorded. |
-| `decision`   | `"approve"` or `"deny"`. |
+| `decision`   | `"approve"`, `"deny"`, or `"other"` (a typed correction/instruction via the ✏️ Other modal). |
 | `item_id`    | The board item id (stable per logical thing, e.g. `issue:1234`). |
 | `source`     | Producer namespace (the agent slug, e.g. `bmo-resolver`). |
 | `session_id` | **Originating session to resume** (`local_<uuid>`/`cse_<…>`), or `null` if none was stamped (then it is not auto-relayable). |
 | `title`      | Human-readable item title (for the resume message + audit). |
 | `decided_by` | `"board"` (a click). Lets the poller distinguish board clicks from any future producers. |
+| `text`       | **Present only for `decision: "other"`** — the free-form correction/instruction the user typed in the modal, relayed into the session verbatim. Absent for approve/deny. |
 
 ## 3. Consuming the outbox (dispatch-side poller — TO BUILD, orchestrator-side)
 
@@ -125,8 +139,10 @@ The poller runs **where the sessions live** (the orchestrator), not on the Pi. I
    session with a message like:
    - approve → `user APPROVED "<title>" (<item_id>). Resume and implement it per your normal workflow, then mark it done.`
    - deny → `user DENIED "<title>" (<item_id>). Do not implement it; close it out (archive/note) and remove it from the board.`
+   - other → `user responded to "<title>" (<item_id>) with a correction/instruction: "<text>". Resume, follow it, then mark it done.` — relay the typed `text` **verbatim**, not a yes/no. Treat it as the authoritative instruction: it may approve-with-changes, redirect scope, or ask for something different. The poller MUST read the `text` field for `other` lines (it is absent for approve/deny).
 4. For a line with `session_id: null`, surfaces it for manual handling (it can't be
-   auto-relayed).
+   auto-relayed) — including `other` lines, whose typed `text` is preserved in the
+   outbox for the manual handler.
 
 Idempotency is shared: the board's cooldown prevents duplicate **lines**; the poller's
 cursor prevents duplicate **deliveries**.
@@ -147,8 +163,10 @@ fast path, not a replacement.
 - `Item.session_id` field; `load_inbox` tolerant of unknown keys (schema drift-safe).
 - `is_approval_item` / `is_approval_row`, `record_decision`, `BOARD_DECISIONS` outbox.
 - `notify-board` `--session-id` (and `sync` `session_id` passthrough).
-- `ApproveButton` / `DenyButton` (Components-V2, matching Mute/Done/Refresh), rendered
-  per awaiting item that carries a session id, with the cooldown/idempotency guard.
+- `ApproveButton` / `DenyButton` / `OtherButton` (Components-V2, matching Mute/Done/Refresh),
+  rendered per awaiting item that carries a session id, with the cooldown/idempotency guard.
+  `OtherButton` opens a `DecisionModal` (paragraph text input); its submit writes a
+  `decision: "other"` line carrying the typed `text`.
 - Tests (`tests/test_status_board_approvals.py`) + this contract doc.
 
 **Still needs orchestrator-side work (out of this repo):**
