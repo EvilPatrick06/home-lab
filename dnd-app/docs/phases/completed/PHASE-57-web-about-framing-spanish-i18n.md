@@ -130,3 +130,15 @@ grep -in '"races"\|"alignments"\|lawfulGood' i18n/locales/en.json   # none today
 **Acceptance:** either a policy note lands (no code change) or all occurrences are translated consistently; the locale has no lone-outlier "Dungeon Master" string introduced by a spot-fix.
 
 > The character-card noun leak (WEB-I18N-5) is **owned by PHASE-56 56E** (now un-gated by this run's verification); execute it there with the pin recorded above — no sub-phase here, to avoid double-authoring the same fix.
+
+
+## Completed
+
+> Implemented 2026-06-28 on `auto/dnd-phase-executer` (approved per-phase: 57A + 57B). Web-build-only; desktop unchanged.
+
+- **57A Step 1 — DONE** (`src/renderer/src/pages/AboutPage.tsx:29-31`, render `:316`) — `techStack` is now computed from `isWebBuild()`: on the web build the first `TECH_STACK` entry (`Electron 40` / `techDesktopFramework`) is replaced with `{ name: 'Vite', detailKey: 'pages.aboutPage.techWebRuntime' }`; the desktop default `TECH_STACK` const is untouched. Render switched from `TECH_STACK.map` to `techStack.map`.
+- **57A Step 2 — DONE** (`src/renderer/src/pages/AboutPage.tsx:40`) — the multiplayer feature line is gated: web renders `featureMultiplayerWeb` ("Online multiplayer via cloud relay") instead of `featureMultiplayer` ("P2P Multiplayer via WebRTC"). New i18n keys `pages.aboutPage.techWebRuntime` + `pages.aboutPage.featureMultiplayerWeb` added to `en.json` and `es.json` (both `:5730-5731`); `generated-keys.ts` regenerated via `npm run i18n:gen-keys` (6576 keys). The "Web edition" qualifier near the title (`webEditionNote`, `AboutPage.tsx:161`) already exists from PHASE-56, so the generic `appDescription` was left unchanged.
+- **57A Step 3 — coordination** — the AboutPage edits are additive (a new `techStack` const + a single feature-line ternary) and do not touch PHASE-45's Updates-block / `isWebBuild()` gates, so there is no churn against PHASE-45.
+- **57B — DONE** (no string change; recommended default policy path) (`src/renderer/src/i18n/README.md`) — added a "Locale conventions — terms kept in English" section documenting the deliberate es keep-"Dungeon Master" policy (~15 occurrences enumerated) and the English "D&D Virtual Tabletop" wordmark. QA item resolved-by-policy; the Join-Game subtitle (`joinGameDescription`) stays as-is because it matches the policy.
+- **WEB-I18N-5** (character-card race/class/alignment noun leak + casing) — NOT implemented here; owned by PHASE-56 sub-phase 56E per this plan. The verification/pin is recorded in the body above only.
+- **Checks:** `tsc --noEmit -p tsconfig.web.json` clean; `npm run i18n:check-parity` green (es 6526 keys, in parity); vitest `generated-keys` + `locale-parity` + `key-check` green (5 tests). CI runs the authoritative full gate on push.

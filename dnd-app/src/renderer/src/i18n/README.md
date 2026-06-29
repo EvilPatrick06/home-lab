@@ -82,3 +82,21 @@ The English value should read exactly as the on-screen text — text-based tests
    every `locales/*.json` and checks each non-`en` locale in `SUPPORTED_LOCALES`),
    so the new locale is key/placeholder-checked automatically with no test edit.
 5. Run `npm run i18n:check-parity` for the runtime gate.
+
+## Locale conventions — terms kept in English
+
+Some proper nouns / terms of art are **deliberately left untranslated** in the
+non-English locales. They are not leaks — translating them in isolation would
+make the locale *less* consistent, not more.
+
+- **"Dungeon Master" (es)** — kept in English everywhere in `locales/es.json`
+  (e.g. `lobby.*.hostNamePlaceholder`, `*.dungeonMaster`, the AI-DM strings, the
+  Join-Game subtitle `pages.*.joinGameDescription`, `soloPrep*`, `defaultHostName`,
+  `webLocalAiNotice` — ~15 occurrences). "Dungeon Master" is a recognized term of
+  art in Spanish-language D&D play, so the es locale keeps it English across the
+  board. If this is ever localized (e.g. to "Director de juego" / "DM"), change
+  **every** occurrence together — never a single string, which would create the
+  lone-outlier inconsistency this policy exists to avoid.
+- **"D&D Virtual Tabletop" wordmark** — the product wordmark is the intentional
+  brand and stays English on every surface (menu hero, About header), in all
+  locales. It is not subject to translation.

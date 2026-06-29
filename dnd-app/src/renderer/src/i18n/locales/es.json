@@ -5726,7 +5726,9 @@
       "importConfirmTitle": "¿Importar datos desde la copia de seguridad?",
       "importConfirmMessage": "Al importar se restaurarán personajes, campañas, bastiones y preferencias desde el archivo de copia de seguridad. Los datos existentes con los mismos ID se sobrescribirán.",
       "importConfirmLabel": "Importar",
-      "webEditionNote": "Dungeon Table Online es la edición web de Mesa virtual de D&D."
+      "webEditionNote": "Dungeon Table Online es la edición web de Mesa virtual de D&D.",
+      "techWebRuntime": "Entorno de ejecución web",
+      "featureMultiplayerWeb": "Multijugador en línea vía relé en la nube"
     },
     "bastionPage": {
       "loadingBastions": "Cargando bastiones...",

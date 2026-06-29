@@ -24,6 +24,11 @@ const TECH_STACK = [
 export default function AboutPage(): JSX.Element {
   const { t } = useT()
   const navigate = useNavigate()
+  // On the web build the renderer is a Vite/React SPA, not Electron, so relabel the
+  // first tech-stack entry to the actual web runtime; desktop keeps the default const.
+  const techStack = isWebBuild()
+    ? [{ name: 'Vite', detailKey: 'pages.aboutPage.techWebRuntime' } as const, ...TECH_STACK.slice(1)]
+    : TECH_STACK
   const FEATURES = [
     t('pages.aboutPage.featureCharacterBuilder'),
     t('pages.aboutPage.featureCharacterSheets'),
@@ -32,7 +37,7 @@ export default function AboutPage(): JSX.Element {
     t('pages.aboutPage.featureBattleMap'),
     t('pages.aboutPage.featureInitiativeTracker'),
     t('pages.aboutPage.featureDice'),
-    t('pages.aboutPage.featureMultiplayer'),
+    isWebBuild() ? t('pages.aboutPage.featureMultiplayerWeb') : t('pages.aboutPage.featureMultiplayer'),
     t('pages.aboutPage.featureAiDm'),
     t('pages.aboutPage.featureBastion'),
     t('pages.aboutPage.featureCraftingShop'),
@@ -308,7 +313,7 @@ export default function AboutPage(): JSX.Element {
             {t('pages.aboutPage.techStack')}
           </h2>
           <div className="grid grid-cols-2 gap-3">
-            {TECH_STACK.map((tech) => (
+            {techStack.map((tech) => (
               <div key={tech.name} className="flex items-center justify-between">
                 <span className="text-sm text-gray-200 font-medium">{tech.name}</span>
                 <span className="text-xs text-gray-500">{t(tech.detailKey)}</span>
