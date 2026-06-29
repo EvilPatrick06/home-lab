@@ -1,8 +1,19 @@
 name: dnd-app mobile CI
 
-# Lint + typecheck gate for the Expo/React-Native subproject dnd-app/mobile,
-# which has its own lockfile + biome/tsc scripts. Path-filtered to mobile-only
-# changes so it does not gate unrelated dnd-app work.
+# Lint + typecheck + BUNDLE-SMOKE gate for the Expo/React-Native subproject
+# dnd-app/mobile, which has its own lockfile + biome/tsc scripts.
+#
+# Why a bundle smoke (added 2026-06-29): lint + tsc do NOT exercise Metro,
+# Babel, NativeWind/Tailwind, or the Expo config plugins. A run where tsc/lint
+# are green can still be completely un-buildable -- e.g. a NativeWind 4 project
+# whose tailwindcss was bumped to v4 (NativeWind 4 requires Tailwind v3), or a
+# @babel/core bumped past the Expo SDK's supported Babel 7 line. Those only
+# fail at `expo export` / metro bundle time. `expo export:embed` reproduces the
+# exact JS bundle the gradle/EAS build runs, so it catches that class of
+# breakage -- which is exactly what slipped through when Expo SDK 56 (PR #46)
+# landed without a mobile build gate.
+#
+# Path-filtered to mobile-only changes so it does not gate unrelated dnd-app work.
 on:
   push:
     paths:
@@ -39,3 +50,24 @@ jobs:
         run: npm run lint
       - name: Typecheck (tsc)
         run: npm run typecheck
+      # Expo config + plugin resolution -- catches a broken/removed config plugin
+      # (e.g. the SDK 56 `splash` -> expo-splash-screen migration) independent of
+      # whether tsc happens to flag it.
+      - name: Expo config resolves
+        run: npx expo config --type public > /dev/null
+      # Bundle smoke. The offline embed.zip asset is normally produced by the
+      # heavy desktop-web `build:embed`; for a pure bundle smoke we only need the
+      # asset to RESOLVE, so we stub a valid empty-zip (22-byte EOCD record).
+      # This validates the full Metro/Babel/NativeWind module graph -- the real
+      # "does it actually build" check.
+      - name: Stub embed asset (bundle smoke only)
+        run: echo UEsFBgAAAAAAAAAAAAAAAAAAAAAAAA== | base64 -d > assets/embed.zip
+      - name: Bundle smoke (expo export:embed)
+        run: npx expo export:embed --platform android --dev false --bundle-output "$RUNNER_TEMP/index.android.js" --assets-dest "$RUNNER_TEMP/embed-assets"
+      # Informational only (continue-on-error, mirrors dnd-app-ci's Electron-EOL
+      # reminder): surfaces Expo SDK dependency drift so a future Dependabot bump
+      # that pushes a package past the SDK matrix is visible before it breaks a
+      # build. Non-blocking because expo-doctor also flags advisory-only items.
+      - name: Expo dependency drift (expo-doctor)
+        run: npx expo-doctor
+        continue-on-error: true

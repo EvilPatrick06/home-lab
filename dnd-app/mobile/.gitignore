@@ -11,6 +11,7 @@ web-build/
 
 # Staged embed bundle (produced by `npm run build:embed`)
 assets/embed/
+assets/embed.zip
 
 # Secrets / signing
 *.keystore
