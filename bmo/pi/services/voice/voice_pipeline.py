@@ -161,6 +161,7 @@ class VoicePipeline:
         self._wake_model = None
         self._speaker_encoder = None
         self._voice_profiles = {}
+        self._enrollment = SpeakerEnrollment(self)
 
         # Audio state
         self._audio_queue = queue.Queue()
@@ -226,10 +227,7 @@ class VoicePipeline:
         return self._wake_model
 
     def _load_speaker_encoder(self):
-        if self._speaker_encoder is None:
-            from resemblyzer import VoiceEncoder
-            self._speaker_encoder = VoiceEncoder()
-        return self._speaker_encoder
+        return self._enrollment.load_speaker_encoder()
 
     def _load_silero_vad(self):
         return self._vad.load()
@@ -238,20 +236,10 @@ class VoicePipeline:
         return self._vad.check_speech(audio_int16)
 
     def _load_voice_profiles(self):
-        if os.path.exists(VOICE_PROFILES_JSON):
-            with open(VOICE_PROFILES_JSON, encoding="utf-8") as f:
-                raw = json.load(f)
-            self._voice_profiles = {
-                k: np.asarray(v, dtype=np.float32) for k, v in raw.items()
-            }
-        # Legacy .pkl voice-profile migration removed for security (py/unsafe-deserialization) — JSON only.
-        return self._voice_profiles
+        return self._enrollment.load_voice_profiles()
 
     def _save_voice_profiles_json(self):
-        os.makedirs(os.path.dirname(VOICE_PROFILES_JSON), exist_ok=True)
-        serializable = {k: v.astype(float).tolist() for k, v in self._voice_profiles.items()}
-        with open(VOICE_PROFILES_JSON, "w", encoding="utf-8") as f:
-            json.dump(serializable, f, indent=2)
+        return self._enrollment.save_voice_profiles_json()
 
     # ── Voice Settings API ────────────────────────────────────────────
 
@@ -1243,28 +1231,13 @@ class VoicePipeline:
     ]
 
     def _check_enrollment_request(self, text_lower: str) -> str | None:
-        """Check if the user is asking for voice enrollment. Returns name or None."""
-        for pattern in self._ENROLL_PATTERNS:
-            m = re.search(pattern, text_lower, re.IGNORECASE)
-            if m:
-                name = m.group(1).capitalize()
-                log.info("[voice] Enrollment request detected for: %s", _s(name))
-                return name
-        return None
+        return self._enrollment.check_enrollment_request(text_lower)
 
     _MIN_ENROLLMENT_CLIPS = 3       # need at least this many good clips
     _ENROLLMENT_CLIP_MIN_SAMPLES = 8000  # ~0.5s at 16kHz — reject tiny clips
 
     def _validate_enrollment_clip(self, audio_data: np.ndarray) -> bool:
-        """Check if an audio clip has enough speech for voice enrollment."""
-        if len(audio_data) < self._ENROLLMENT_CLIP_MIN_SAMPLES:
-            log.info(f"[voice] Clip too short ({len(audio_data)} samples)")
-            return False
-        speech_prob = self._silero_check_speech(audio_data)
-        if speech_prob < 0.3:
-            log.info(f"[voice] Clip rejected by VAD (prob={speech_prob:.2f})")
-            return False
-        return True
+        return self._enrollment.validate_enrollment_clip(audio_data)
 
     def _do_voice_enrollment(self, name: str, current_audio_path: str) -> str:
         """Enroll a speaker with 3 audio clips for a robust voice profile.
@@ -2133,3 +2106,4 @@ class VoicePipeline:
 # ── Collaborators (imported at bottom to avoid an import cycle) ──
 from services.voice.transcriber import Transcriber  # noqa: E402
 from services.voice.vad import Vad  # noqa: E402
+from services.voice.speaker_enrollment import SpeakerEnrollment  # noqa: E402
