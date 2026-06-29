@@ -1,5 +1,18 @@
 # Phase Execution Instructions — dungeon-scholar
 
+> **Autonomy policy (auto-approve `bug`/`security`; gate the rest).** Resolver and
+> phase-executer agents now **auto-implement `bug` and `security` work every run**
+> (built on `auto/<agent-id>`, CI-gated, integrator-merged — no human approval);
+> everything else (`future-idea`/enhancement/`debt`/`docs`/`info`/non-bug `UX`/cosmetic
+> `config`·`perf`·`portability`) stays gated on the status board for approval. The one
+> remaining gate is the **live bmo service restart**: auto-approved code lands and
+> merges automatically, but a fix needing a live restart posts a "⏳ needs restart
+> approval" board item instead of restarting unattended. Canonical wording lives in
+> each agent's scheduled-task `SKILL.md`; the repo-side summary is
+> [`AUTOMATED-AGENT-GIT-WORKFLOW.md`](../../../docs/AUTOMATED-AGENT-GIT-WORKFLOW.md) Rule 5. This does not change the
+> STOP-and-ask test below or the live-service boundary.
+
+
 > How to work through the phase plans in **this** directory (`dungeon-scholar/docs/phases/`). Read this before starting any phase work.
 
 > **Scope — dungeon-scholar.** This file is the **self-contained, authoritative implement → verify → commit → release loop for the dungeon-scholar–scoped phase-executer** (`agent-id: ds-phase-executer`). It is the dungeon-scholar analogue of the repo-wide process doc at [`../../../dnd-app/docs/phases/INSTRUCTIONS.md`](../../../dnd-app/docs/phases/INSTRUCTIONS.md): the rules, the STOP-and-ask test, the fix-forward stance, and the branch/worktree model are identical across domains — **only the concrete build/test/release commands differ**, and the domain-specific ones are spelled out here so an executer reading **only this file** knows how to implement, verify, and release within dungeon-scholar. Git mechanics (per-agent branch + worktree + the daily integrator) are the repo-wide [`AUTOMATED-AGENT-GIT-WORKFLOW.md`](../../../docs/AUTOMATED-AGENT-GIT-WORKFLOW.md); that file governs how agents reach `master`, this one governs how they execute and verify the work.
