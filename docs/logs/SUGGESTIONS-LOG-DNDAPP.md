@@ -51,6 +51,83 @@ New entries go at the TOP of their section (newest first).
 
 ---
 
+### [2026-06-28] Stale one-off `scripts/submit/*-batch.ts` content-gen scripts no longer wired up, and they ignore the documented per-system submit layout
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** dnd-cleanup scheduled cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+`scripts/submit/` holds six one-off Anthropic Batch API generation scripts — `submit-phase4-batch.ts`, `submit-phase5-batch.ts`, `submit-subclass-batch.ts`, `submit-integration-batch.ts`, `submit-mass-batch.ts`, `submit-missing-data-batch.ts`. They are leftovers from earlier content-build phases: none is referenced from `package.json` scripts, from any other script, or from docs (only PLUGIN-SYSTEM.md mentions the directory generically). Each hardcodes a payload/cache file in `process.cwd()` (`batch_payload_phase4.jsonl`, `.mass_batch_cache.json`, `batch-subclasses.jsonl`, etc.) — none of which exist in the repo anymore, so the scripts cannot run as-is. `submit-missing-data-batch.ts`'s header usage block still points at the pre-move path `scripts/submit-missing-data-batch.ts` (the files now live one level deeper in `scripts/submit/`). Separately, PLUGIN-SYSTEM.md documents the intended layout as `scripts/submit/<system-id>/submit-*.ts` (per-plugin-system subdirectories), but the actual files sit flat in `scripts/submit/` keyed by old phase numbers — so the directory neither matches the documented convention nor reflects any live system.
+
+**Hypothesis / root cause:** Phase-era bulk-generation tooling that was never pruned after the 5e content set was finalized; the per-`<system-id>` convention in PLUGIN-SYSTEM.md was written aspirationally and the historical phase scripts predate it.
+
+**Proposed fix / improvement:**
+- [ ] Confirm none are needed for live workflows (grep already shows zero callers), then archive them out of the active tree — either delete, or move to `_archive/` / a `scripts/submit/_historical/` folder with a one-line README noting they were phase-era batch jobs.
+- [ ] If the submit pattern is meant to stay as a template, keep ONE canonical example renamed to the documented `scripts/submit/<system-id>/submit-*.ts` shape and fix its usage-comment path, rather than six phase-numbered copies.
+- [ ] Reconcile PLUGIN-SYSTEM.md so the documented layout matches whatever is actually kept.
+
+**Related files:** `scripts/submit/submit-phase4-batch.ts`, `scripts/submit/submit-phase5-batch.ts`, `scripts/submit/submit-subclass-batch.ts`, `scripts/submit/submit-integration-batch.ts`, `scripts/submit/submit-mass-batch.ts`, `scripts/submit/submit-missing-data-batch.ts`, `docs/PLUGIN-SYSTEM.md`
+
+### [2026-06-28] `CHANGELOG.md` is ~14 versions stale (top entry 2.2.2, app shipping 2.6.4) and nothing in the release flow updates it
+
+- **Category:** docs
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** dnd-cleanup scheduled cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+`package.json` is at `2.6.4`, but `CHANGELOG.md`'s newest entry is `## [2.2.2]` (entries stop at 2.2.2 / 2.2.1 / 2.2.0 / 2.1.39). That is roughly fourteen releases of drift. The release helper `scripts/release/cut.mjs` does not touch `CHANGELOG.md`, and `package.json` build config explicitly excludes `CHANGELOG.md` from the packaged app — so the file just rots silently and provides no usable release history to anyone reading the repo. A changelog that lies is arguably worse than none.
+
+**Hypothesis / root cause:** Changelog upkeep was manual and quietly dropped around 2.2.x once the automated phase/release cadence took over; the release script was never extended to append an entry.
+
+**Proposed fix / improvement:**
+- [ ] Decide on a single source of truth: either (a) have `cut.mjs` auto-append a `## [x.y.z]` stub (date + version) on each release cut so the changelog stays current, or (b) formally retire `CHANGELOG.md` in favour of git tags / GitHub Releases and replace its body with a pointer to those.
+- [ ] If keeping it, backfill (even tersely) the 2.3.0 -> 2.6.4 gap from release tags / commit history so the file is internally consistent.
+
+**Related files:** `CHANGELOG.md`, `scripts/release/cut.mjs`, `package.json`
+
+### [2026-06-28] `mobile/` version is pinned behind the desktop app (2.6.3 vs 2.6.4) with no shared version source
+
+- **Category:** config
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** dnd-cleanup scheduled cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+`dnd-app/package.json` is `2.6.4`; `dnd-app/mobile/package.json` is `2.6.3`. The mobile Expo client embeds and reuses the desktop/web renderer logic, so a lagging version number is a quiet correctness/traceability hazard — a bug reproduced against "2.6.3 mobile" could actually be running 2.6.4 renderer code (or vice versa). There is no single version source the two manifests derive from, so they drift whenever a desktop release is cut without a matching mobile bump.
+
+**Hypothesis / root cause:** Desktop releases are cut by `scripts/release/cut.mjs` (which bumps the desktop manifest only); the mobile manifest is bumped by a separate manual/EAS step that lagged this cycle.
+
+**Proposed fix / improvement:**
+- [ ] Short term: bump `mobile/package.json` to match desktop (2.6.4) and note the coupling.
+- [ ] Longer term: have `cut.mjs` also bump `mobile/package.json` (and `app.config.ts` version) in the same release commit, or read both from one shared `version` constant, so they cannot diverge.
+
+**Related files:** `package.json`, `mobile/package.json`, `mobile/app.config.ts`, `scripts/release/cut.mjs`
+
+### [2026-06-28] `scripts/` has ~40 scripts across 11 sub-areas but no `scripts/README.md` documenting the taxonomy
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** dnd-cleanup scheduled cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+`scripts/` is organised into `audit/`, `build/`, `dev/`, `i18n/`, `lib/`, `lint/`, `maintenance/`, `release/`, `schemas/`, `smoke/`, `submit/` plus loose top-level scripts (`check-circular.mjs`, `sign.mjs`), mixing `.mjs` and `.ts`. There is no `scripts/README.md` explaining what each sub-area is for, which scripts are wired into `package.json` vs run ad-hoc, or the `.mjs`-vs-`.ts` split. New contributors (and scanning agents) have to reverse-engineer the layout from `package.json` and grep — which is exactly how the stale `submit/` scripts above went unnoticed. A short index would make dead/one-off scripts obvious and give a home for documenting conventions (e.g. the per-`<system-id>` submit layout, where new audit vs maintenance scripts belong).
+
+**Hypothesis / root cause:** The directory grew organically per phase without a documentation pass.
+
+**Proposed fix / improvement:**
+- [ ] Add `scripts/README.md`: one line per sub-directory (purpose), a table of the package.json-invoked entry points vs ad-hoc/one-off scripts, and the `.mjs` (build/tooling) vs `.ts` (tsx-run, type-checked) convention.
+- [ ] While writing it, flag any script with no caller (see the `submit/*-batch.ts` entry) so the index doubles as a cleanup checklist.
+
+**Related files:** `scripts/`, `package.json`, `docs/PLUGIN-SYSTEM.md`
+
 ### [2026-06-25] dnd-app CI omits the doc/i18n drift guards that `check:full` defines, and `gen:ipc-surface` has no `--check` mode
 
 - **Category:** debt, docs
