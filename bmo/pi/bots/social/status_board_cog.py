@@ -249,7 +249,7 @@ def build_layout(rows: list[dict], state: sb.BoardState) -> discord.ui.LayoutVie
         bits.append(f"📌 {len(att)}")
     if brf:
         bits.append(f"📋 {len(brf)}")
-    agt_src = {r.get("source") for r in rows if r["category"] == "agent"}
+    agt_src = sb.agent_keys(rows)
     if agt_src:
         bits.append(f"🤖 {len(agt_src)}")
     info_n = len([r for r in rows if r["category"] == "info"])
@@ -273,25 +273,19 @@ def build_layout(rows: list[dict], state: sb.BoardState) -> discord.ui.LayoutVie
             continue
         crows.sort(key=lambda r: sb.SEV_ORDER.index(r["severity"]))
         if cat == "agent":
-            # Collapse to ONE line per producing source (resilient to any agent
-            # posting many individual entries). Shows only approve/deny-style asks.
-            groups: dict[str, list] = {}
-            for r in crows:
-                groups.setdefault(r.get("source") or "agent", []).append(r)
+            # Collapse to ONE line per canonical producer (the agent slug). The
+            # same status posted via the generic router bucket (producer name in
+            # the title prefix) AND via the slug source folds into a single row
+            # that updates in place — never a second line. See sb.agent_identity.
+            agroups = sb.group_agent_rows(crows)
             glines = []
-            for src in sorted(groups):
-                items = groups[src]
-                items.sort(key=lambda r: sb.SEV_ORDER.index(r["severity"]))
-                if src in ("agent", "notify"):
-                    # generic router bucket — heterogeneous asks; list each by title
-                    for it in items:
-                        glines.append(f"{sb.SEV_DOT[it['severity']]} {it['title']}")
-                else:
-                    worst_s = items[0]["severity"]
-                    only = items[0]["title"] if len(items) == 1 else f"{len(items)} items awaiting review"
-                    glines.append(f"{sb.SEV_DOT[worst_s]} **{src}** — {only}")
+            for g in agroups:
+                line = f"{sb.SEV_DOT[g['severity']]} **{g['label']}**"
+                if g["message"]:
+                    line += f" — {g['message']}"
+                glines.append(line)
             view.add_item(discord.ui.Container(
-                discord.ui.TextDisplay(f"### {label} · {len(groups)} source(s)"),
+                discord.ui.TextDisplay(f"### {label} · {len(agroups)} source(s)"),
                 discord.ui.TextDisplay("\n".join(glines)[:MAX_SECTION_CHARS]),
                 accent_colour=_colour(sb.worst_severity(crows))))
             comp += 3
@@ -421,6 +415,7 @@ class StatusBoardCog(commands.Cog):
         health = sb.derive_incidents(monitor, labels=labels, messages=messages, extra=self._cached_extra)
         self.state = sb.reconcile_incidents(self.state, health)
         inbox = sb.load_inbox()
+        sb.dedupe_agents(inbox)
         sb.prune_inbox(inbox)
         sb.save_inbox(inbox)
         now = time.time()

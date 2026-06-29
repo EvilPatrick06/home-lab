@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import time
 from dataclasses import dataclass, field, asdict
 
@@ -101,6 +102,85 @@ def _status_to_sev(key: str, status: str) -> str:
     if status == "down":
         return "critical" if key in REQUIRED_FOR_OVERALL else "warning"
     return "info"
+
+
+# -- Agent identity: ONE canonical key per producing agent --------------------
+# The agents section dedups by *producer*, but the same logical agent can post
+# through two paths: the generic notify.sh router (source "agent"/"notify", with
+# the producer name carried as the "Name: message" title prefix) and a slug-keyed
+# direct post (source = the agent slug). Keying the board by the raw `source`
+# treats those as two sources and shows the status twice. agent_identity()
+# collapses both to the SAME slug, so a source updates its single live row in
+# place instead of appending a second line.
+_GENERIC_AGENT_SOURCES = {"", "agent", "notify"}
+
+
+def _slug(text: str) -> str:
+    """Producer slug -- mirrors notify.sh's key derivation (lowercase,
+    non-alphanumeric runs -> '-', trimmed, capped)."""
+    return re.sub(r"[^a-z0-9]+", "-", (text or "").lower()).strip("-")[:48]
+
+
+def agent_identity(source, title):
+    """Return (canonical_key, display_label, message) for an agent item.
+
+    canonical_key is the producer slug used for dedup/grouping; it is identical
+    whether the item arrived via the slug source or via the generic router bucket
+    (with the producer name in the title prefix). display_label is the
+    plain-English producer name; message is the title with any "Name:" prefix
+    removed."""
+    title = (title or "").strip()
+    if ":" in title:
+        name, message = title.split(":", 1)
+        name, message = name.strip(), message.strip()
+    else:
+        name, message = "", title
+    src = (source or "").strip()
+    if src.lower() in _GENERIC_AGENT_SOURCES:
+        if name:                       # "Name: message" -> producer + message
+            return _slug(name), name, message
+        # bare title -> the whole title IS the producer identity, no message
+        return (_slug(title) or "agent"), (title or "agent"), ""
+    return _slug(src), (name or src), message
+
+
+def agent_keys(rows):
+    """Distinct canonical agent producers among the given rows (for counts)."""
+    return {agent_identity(r.get("source"), r.get("title"))[0]
+            for r in rows if r.get("category") == "agent"}
+
+
+def group_agent_rows(rows):
+    """Collapse agent rows to ONE rendered entry per canonical producer.
+
+    Returns [{key, label, severity, message, count}] sorted by label. Multiple
+    distinct asks from the same producer fold into a single 'N items awaiting
+    review' entry at that producer's worst severity -- the single-self-healing-
+    board contract (one live entry per source, updated in place)."""
+    groups = {}
+    labels = {}
+    for r in rows:
+        if r.get("category") != "agent":
+            continue
+        key, label, message = agent_identity(r.get("source"), r.get("title"))
+        # Dedup distinct ASKS by message so the SAME status arriving via two
+        # paths (generic source + slug source) counts once, not twice.
+        msgs = groups.setdefault(key, {})
+        mkey = _slug(message)
+        sev = r["severity"]
+        prev = msgs.get(mkey)
+        if prev is None or SEV_ORDER.index(sev) < SEV_ORDER.index(prev["severity"]):
+            msgs[mkey] = {"message": message, "severity": sev}
+        labels.setdefault(key, label)
+    out = []
+    for key, msgs in groups.items():
+        items = sorted(msgs.values(), key=lambda m: SEV_ORDER.index(m["severity"]))
+        worst = items[0]["severity"]
+        message = items[0]["message"] if len(items) == 1 else f"{len(items)} items awaiting review"
+        out.append({"key": key, "label": labels[key], "severity": worst,
+                    "message": message, "count": len(items)})
+    out.sort(key=lambda g: g["label"].lower())
+    return out
 
 
 # ── Inbox: producer-synced feed items (email / calendar / deadlines / notes) ──
@@ -186,6 +266,34 @@ def mark_done(inbox: dict, item_id: str) -> bool:
             del inbox[src][item_id]
             return True
     return False
+
+
+def dedupe_agents(inbox: dict) -> int:
+    """Collapse already-persisted duplicate agent items that map to the same
+    canonical producer AND carry the same message (e.g. the same status posted
+    under both the generic 'agent' source and the agent's own slug source). Keeps
+    the most-recently-seen copy and drops the rest, so a stale dual-keyed line
+    clears on the next reconcile. Returns the number of duplicates removed."""
+    seen = {}
+    removed = 0
+    for src in inbox:
+        for iid, it in list(inbox[src].items()):
+            if getattr(it, "category", "") != "agent":
+                continue
+            key, _label, message = agent_identity(it.source, it.title)
+            ident = (key, _slug(message))
+            ts = (getattr(it, "seen", 0) or 0) or (getattr(it, "created", 0) or 0)
+            if ident not in seen:
+                seen[ident] = (src, iid, ts)
+                continue
+            psrc, piid, pts = seen[ident]
+            if ts > pts:
+                inbox[psrc].pop(piid, None)
+                seen[ident] = (src, iid, ts)
+            else:
+                inbox[src].pop(iid, None)
+            removed += 1
+    return removed
 
 
 # ── State: board identity + open health incidents (auto-derived) ─────────────
@@ -312,8 +420,7 @@ def render_topic(rows: list[dict]) -> str:
     att = [r for r in rows if r["category"] == "attention"]
     brf = [r for r in rows if r["category"] == "brief"]
     info = [r for r in rows if r["category"] == "info"]
-    agt_src = {r.get("source") for r in rows
-               if r["category"] == "agent" and r["severity"] != "info"}
+    agt_src = agent_keys([r for r in rows if r["severity"] != "info"])
     if inc:
         head = "🔴" if any(r["severity"] == "critical" for r in inc) else "🟡"
         bits = [f"{len(inc)} incident" + ("s" if len(inc) != 1 else "")]
@@ -333,7 +440,7 @@ def render_topic(rows: list[dict]) -> str:
 def render_presence(rows: list[dict]) -> str:
     inc = [r for r in rows if r["category"] == "incident" and r["severity"] in _ACTIVE]
     att = len([r for r in rows if r["category"] in ("attention", "brief")])
-    agt = len({r.get("source") for r in rows if r["category"] == "agent" and r["severity"] != "info"})
+    agt = len(agent_keys([r for r in rows if r["severity"] != "info"]))
     if inc:
         return f"🔴 {len(inc)} incident(s)"
     if att + agt:
@@ -349,6 +456,20 @@ def render_embed(rows: list[dict]) -> dict:
         if not crows:
             continue
         crows.sort(key=lambda r: SEV_ORDER.index(r["severity"]))
+        if cat == "agent":
+            agroups = group_agent_rows(crows)
+            alines = []
+            for g in agroups[:10]:
+                line = f"{SEV_DOT[g['severity']]} **{g['label']}**"
+                if g["message"]:
+                    line += f" — {g['message']}"
+                alines.append(line)
+            if len(agroups) > 10:
+                alines.append(f"_…and {len(agroups) - 10} more_")
+            fields.append({"name": f"{header} · {len(agroups)}",
+                           "value": "\n".join(alines)[:1024], "inline": False})
+            summary.append(f"{header.split()[0]} {len(agroups)}")
+            continue
         lines = []
         for r in crows[:10]:
             line = f"{SEV_DOT[r['severity']]} **{r['title'].strip()}**"
