@@ -27,7 +27,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 
 ## Defined channels
 
-*Total: **238** channel strings (from `IPC_CHANNELS`).*
+*Total: **243** channel strings (from `IPC_CHANNELS`).*
 
 ### Storage: Characters
 
@@ -333,6 +333,8 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 |---|---|
 | `SAVE_SETTINGS` | `storage:save-settings` |
 | `LOAD_SETTINGS` | `storage:load-settings` |
+| `FILE_OPEN_REQUEST` | `file:open-request` |
+| `FILE_CONSUME_PENDING` | `file:consume-pending` |
 
 ### Audio: Custom Tracks
 
@@ -357,6 +359,8 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 |---|---|
 | `CHARACTER_VERSIONS` | `storage:character-versions` |
 | `CHARACTER_RESTORE_VERSION` | `storage:character-restore-version` |
+| `CAMPAIGN_VERSIONS` | `storage:campaign-versions` |
+| `CAMPAIGN_RESTORE_VERSION` | `storage:campaign-restore-version` |
 
 ### App Info
 
@@ -463,6 +467,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 | `BOOK_READ_FILE` | `book:read-file` |
 | `BOOK_LOAD_DATA` | `book:load-data` |
 | `BOOK_SAVE_DATA` | `book:save-data` |
+| `BOOK_SAVE_BYTES` | `book:save-bytes` |
 
 ### Discord Integration
 
