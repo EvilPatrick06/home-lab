@@ -477,6 +477,26 @@ class HealthChecker:
             self._prev_status[name] = info.get("status", "unknown")
         self._save_prev_status()
 
+        # Persist a rich snapshot (friendly label + message + recommended action)
+        # so the Discord status board can show specifics, not a bare key.
+        try:
+            full = {
+                name: {
+                    "status": info.get("status", "unknown"),
+                    "label": self._service_label(name),
+                    "message": info.get("message", ""),
+                    "action": info.get("recommended_action", ""),
+                }
+                for name, info in self._service_status.items()
+            }
+            full_path = os.path.join(_DATA_DIR, "monitor_status_full.json")
+            tmp_path = full_path + ".tmp"
+            with open(tmp_path, "w", encoding="utf-8") as f:
+                json.dump(full, f)
+            os.replace(tmp_path, full_path)
+        except Exception:
+            log.exception("[monitor] failed to persist full status snapshot")
+
     def _source_check_for_service(self, name: str) -> str:
         if name.startswith("svc_"):
             return "systemd"
@@ -619,6 +639,10 @@ class HealthChecker:
         "mdns": "📡 mDNS hostname",
         "tailscale": "🔐 Tailscale",
         "rclone": "☁️ Rclone (Google Drive)",
+        "ports": "🔌 Service ports",
+        "net_wlan0": "📶 Wi-Fi (wlan0)",
+        "net_eth0": "🔌 Ethernet (eth0)",
+        "voice_canary": "🎤 Voice path",
     }
 
     # Services that should drive overall=critical when they are down.
