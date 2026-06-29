@@ -38,6 +38,8 @@
 | 13 | [`PHASE-13-ide-tv-doc-truth.md`](./completed/PHASE-13-ide-tv-doc-truth.md) | bmo | — | done |
 | 14 | [`PHASE-14-ide-font-csp-and-redirect-doc-truth.md`](./PHASE-14-ide-font-csp-and-redirect-doc-truth.md) | bmo | — | pending |
 | 15 | [`PHASE-15-chat-transcript-management.md`](./PHASE-15-chat-transcript-management.md) | bmo | — | pending |
+| 16 | [`PHASE-16-chat-agent-action-execution-truth.md`](./PHASE-16-chat-agent-action-execution-truth.md) | bmo | — | pending |
+| 17 | [`PHASE-17-dashboard-health-signal-ux-truth.md`](./PHASE-17-dashboard-health-signal-ux-truth.md) | bmo | — | pending |
 
 > **Provenance of this batch:** PHASE-01..03 were consolidated from
 > `QA/QA-report-2026-06-24.md` (now in `QA/completed/`) by the bmo phase-maker on
@@ -130,3 +132,34 @@
 > PHASE-09 09C, merged; awaiting deploy), and the calendar OAuth reauth (owner
 > action). The bmo-phase-executer updates the Status column (`pending` ->
 > `in progress` -> `done`) as it ships each plan.
+
+
+> **Provenance of this batch (16-17):** PHASE-16..17 were consolidated from the
+> two 2026-06-29 QA passes (`QA/QA-report-2026-06-29.md`, run 1, live `605e712f`,
+> and `QA/QA-report-2026-06-29-2.md`, run 2, live `7a266d22`, both now in
+> `QA/completed/`) by the bmo phase-maker on 2026-06-29, verified against
+> `origin/master@937f89f7`. Both runs' headline **High** is one trust failure —
+> the chat agent confirms real-world actions that silently failed — so its three
+> root causes are consolidated into **16**: the LED service-key mismatch
+> (`led_controller` vs registered `leds`), the `_execute_command` success flag
+> derived from a truthy error string + non-informational control errors dropped
+> from the reply, and the latent `create_alarm` timezone `.key` `AttributeError`.
+> **17** = the two dashboard-frontend findings 16 doesn't cover: the
+> degraded/warning health pill + System Status summary never naming the failing
+> subsystem (the `critical` branch already does), and the narrow-viewport header
+> wrap. Dependencies are **soft** — disjoint files (16 = `agent.py`/`app.py`/
+> `timer_service.py`; 17 = `bmo.js`/`index.html`), any order; 16->17 (high->low)
+> recommended. **Not re-planned as code phases:** the **weather forecast ⚡ icon**
+> (investigated — `WMO_CODES` is complete and defaults to *clear* not storm, so
+> three storm icons = a real all-thunderstorm forecast, not a fallback bug); the
+> **alarm create-vs-list TZ display** (intentional Pi-system-vs-location-TZ
+> reconciliation per `DESIGN-CONSTRAINTS`); the **README `:5001` reference**
+> (already corrected by PHASE-11 11F / PHASE-13 13D — HEAD already qualifies it as
+> experimental/loopback-only/stalled); the **`/ide` Google-Fonts CSP** (already
+> PHASE-14); the **"Hello from BMO!" chat-seed pollution** (owner one-time
+> `recent_chat.json` cleanup per `DESIGN-CONSTRAINTS` 01E; the new-leak guard
+> landed in PHASE-09 09C); the **Google Calendar OAuth reauth** and the missing
+> **`GOOGLE_VISION_API_KEY`** (owner/ops actions, tracked in the logs); and the
+> **Conversation-agent personality deflections** (intended BMO personality). The
+> bmo-phase-executer updates the Status column (`pending` -> `in progress` ->
+> `done`) as it ships each plan.
