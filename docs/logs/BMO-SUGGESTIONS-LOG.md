@@ -20,6 +20,50 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-06-29] `app.py` is a 3,087-line half-decomposed Flask god-module — PHASE-16 extracted 7 blueprints but ~20 domains + 145 inline routes still live in it, with no tracking of what remains
+
+- **Category:** future-idea (structure / DX), debt
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** read-only scan of the largest bmo source files vs the `routes/` blueprint split
+
+**Description:**
+`bmo/pi/app.py` is 3,087 lines — the largest non-bot source file in the tree — and is a **partially-decomposed** Flask god-module. PHASE-16 began extracting the HTTP/WS surface into a `routes/` package and the bottom of the file registers seven blueprints (`register_ide`, `register_game_relay`, `register_library`, `register_rclone`, `register_sounds`, `register_system`, `register_music`, `register_calendar` at `app.py:3021-3028`, plus `chat_api`/`realtime_ws`/`tv_api`). But the extraction stopped half-way: `app.py` still defines **145 inline `@app.route` handlers** and, by its own module docstring (`app.py:1-13`), "still hosts the un-extracted domains: camera, voice enroll, timers/alarms, LED + OLED face, Discord DM bridge, scenes, weather, smart-home, notes, lists, alerts, routines, personality, notifications, MCP, commands, memory, voice-settings, models, and the games registry SSE." So the route surface is split across two homes — a `routes/` blueprint package **and** a 3k-line `app.py` — with no rule or tracked checklist for which domains remain or in what order to finish. This is the same "decompose the oversized module behind a stable public surface" pattern already logged for `services/monitoring.py` (this log, 2026-06-28), `VoicePipeline` (2026-06-28, since resolved), and the social/DM bots — but `app.py` is the un-flagged route-layer instance, and unlike those it is mid-migration with a documented-but-unfinished target. Net: adding or changing any of the ~20 inline domains means navigating a 3k-line file even though the `routes/` convention to host them already exists.
+
+**Hypothesis / root cause:** PHASE-16 extracted the highest-traffic surfaces (system/music/calendar/tv/chat/ide/realtime) into blueprints first and left the long tail of smaller domains inline; the migration was never finished and the remaining set is tracked only as prose in the docstring, so there is no forcing function (or checklist) to complete it.
+
+**Proposed fix / improvement:**
+- [ ] Continue the PHASE-16 extraction one cohesive domain at a time into new `routes/` blueprints (e.g. `routes/timers_api.py`, `routes/face_api.py` for LED+OLED, `routes/smart_home_api.py`, `routes/notes_lists_api.py`, `routes/scenes_api.py`, `routes/personality_api.py`, `routes/notifications_api.py`), each registered via a `register_*` shim like the existing blueprints, so `app.py` shrinks toward a thin factory (`Flask`/`SocketIO` construction + auth gate + `init_services()` + the registration block).
+- [ ] Track the remaining set explicitly: convert the docstring's prose list of "un-extracted domains" into a short checklist in `bmo/docs/ARCHITECTURE.md` (or a `routes/README.md`) so the half-done state is visible and the convention ("new routes go in a `routes/` blueprint, not `app.py`") is written down.
+- [ ] Keep each extraction behavior-neutral and gate it on pytest + the CI 4-gate (no endpoint path/response changes), per the fix-forward stance.
+
+**Related files:** `bmo/pi/app.py:1-13` (docstring inventory of un-extracted domains), `app.py:3021-3028` (blueprint registration block), `app.py` (145 `@app.route` handlers); precedent blueprints `bmo/pi/routes/{system_api,music_api,calendar_api,tv_api,chat_api,ide}.py`; `bmo/pi/docs/ARCHITECTURE.md`.
+
+**Related entries:** Future-ideas 2026-06-28 (`services/monitoring.py` god-class) and the resolved `VoicePipeline` / social-bot / DM-bot decompositions — same oversized-module-behind-a-stable-surface pattern; this is the route-layer instance and the only one that is explicitly mid-migration.
+
+### [2026-06-29] ~5.4 MB of machine-generated RAG chunk-index JSON is committed to git (`data/rag_data/*.json`), regenerable from tracked sources and with no drift/freshness guard
+
+- **Category:** debt (repo-hygiene / portability)
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** read-only scan of the largest tracked data artifacts under `bmo/pi/data/`
+
+**Description:**
+`bmo/pi/data/rag_data/` holds five tracked, machine-generated RAG indexes totalling **~5.4 MB** — `chunk-index-dnd.json` alone is **5.5 MB** (the single largest file in the bmo tree), plus `chunk-index-{anime,games,movies,music}.json`. They are **not** gitignored (`git check-ignore` returns non-zero; `git ls-files` lists all five) and are produced by the tracked offline script `services/build_rag_indexes.py`, which `save_index()`s them into `RAG_DIR` from the tracked `data/5e-references/` (3.6 MB, 62 files) and the other knowledge sources. `docs/SERVICES.md:70` describes `build_rag_indexes.py` as an "offline script to rebuild RAG indexes," so the artifacts are reproducible from sources already in the repo. Two smells follow: (1) **repo bloat** — a 5.4 MB regenerable blob is carried in every clone/worktree (this scanner's own `git worktree add` checked out 6,406 files including it), and a regenerated index is a 5 MB churning diff whenever it is rebuilt; (2) **silent drift** — each index carries a frozen `"createdAt": "2026-03-06T..."` snapshot with no check that it still matches the current `data/5e-references/` content, so edits to the source markdown leave the committed index stale until someone remembers to rerun the script (the only commit touching `chunk-index-dnd.json` is the original monorepo-reorg import, i.e. it has never been regenerated in-tree). This is hygiene/debt, not a bug — RAG works today — but it is the kind of large committed generated artifact that is usually either gitignored-and-rebuilt or, if intentionally committed, documented + freshness-checked, and here it is neither.
+
+**Hypothesis / root cause:** the indexes were generated once and committed alongside the source references during the monorepo reorg (so the Pi could load RAG without a build step), but no decision was recorded about whether they should be tracked, and no regeneration/freshness step was wired, so they sit as a frozen 5 MB snapshot.
+
+**Proposed fix / improvement (pick one, deliberately):**
+- [ ] **Option A — stop tracking, rebuild on deploy.** Add `bmo/pi/data/rag_data/*.json` to `.gitignore`, `git rm --cached` them, and have `build_rag_indexes.py` run as a deploy/first-boot step (`scripts/deploy.sh` or `setup-bmo.sh`). Only if the rebuild cost + any embedding-model dependency is acceptable on the Pi — verify before choosing this.
+- [ ] **Option B — keep tracked, but document + guard.** If they are committed on purpose (Pi can't cheaply rebuild), record that in `bmo/docs/SERVICES.md` / `DESIGN-CONSTRAINTS.md` ("these indexes are intentionally committed; rebuild with `build_rag_indexes.py` after editing `data/5e-references/`") and add a small preflight/CI freshness check comparing each index's source-hash/`createdAt` against `data/5e-references/` so a stale index is surfaced instead of drifting silently.
+- [ ] Either way, note that `build_rag_indexes.py:15` resolves `RAG_DIR` via the hardcoded `~/home-lab/...` path — that portability angle is already covered by the path-centralization entry (BMO-RESOLVED 2026-06-24, `BMO_ROOT`/`paths.py`); cross-referenced here, not re-logged.
+
+**Related files:** `bmo/pi/data/rag_data/chunk-index-dnd.json` (5.5 MB) + `chunk-index-{anime,games,movies,music}.json`; generator `bmo/pi/services/build_rag_indexes.py:15,44,366`; sources `bmo/pi/data/5e-references/` (tracked); `bmo/pi/docs/SERVICES.md:70`; `bmo/.gitignore`.
+
+**Related entries:** Debt (BMO-RESOLVED 2026-06-24) "~860 KB of orphaned vendored frontend assets in `web/static/`" — same large-tracked-artifacts-that-should-not-be-in-git smell (there the fix was deletion; here it is gitignore-and-rebuild or document-and-guard). Future-idea 2026-06-28 (`services/game/` subpackage incl. a `rag/` home for `rag_search.py`+`build_rag_indexes.py`) — that is about the RAG *code* location; this entry is about the generated RAG *data* artifacts, distinct.
+
 ### [2026-06-28] `services/monitoring.py` is a 2,221-line `HealthChecker` god-class — ~40 unrelated probe/alerting concerns in one class; the largest service module by far and untouched by the prior god-class entries
 
 - **Category:** future-idea (architecture + DX)
