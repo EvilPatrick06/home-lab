@@ -115,29 +115,6 @@ This is a notable asymmetry with how *services* are handled. `routes/system_api.
 
 **Related entries:** BMO-RESOLVED 2026-06-22 (adopt `bmo_logging` / retire `print()`) — that added the print *ratchet* but left existing prints (incl. this one) to be retired opportunistically and added no agent health surface; BMO-RESOLVED 2026-06-22 (per-service init status / degraded health) — the service-side pattern this proposes to mirror for agents.
 
-### [2026-06-28] `VoicePipeline` is a 2,236-line god-class — wake, VAD, STT, TTS, enrollment, device handling and the turn loop all live in one class (the `services/voice/` move grouped the files but never decomposed this core)
-
-- **Category:** future-idea (architecture + DX)
-- **Severity:** low
-- **Domain:** bmo
-- **Discovered by:** bmo-suggestor
-- **During:** read-only review of the voice pipeline + `services/voice/` subpackage
-
-**Description:**
-`services/voice/voice_pipeline.py` is a single `VoicePipeline` class (declared at line 140) spanning 2,236 lines — the second-largest source file in the bmo tree after `bots/social/bot.py`. One class owns at least six unrelated concerns, each a self-contained subsystem: **wake-word detection** for two engines (`_wake_word_loop`, `_wake_listen_cycle_porcupine`, `_wake_listen_cycle_oww`, `_load_wake_model`, `_get_wake_model_paths`); **VAD** (`_load_silero_vad`, `_silero_check_speech`, plus the energy-only fallback in `_wake_listen_cycle`); **STT** (`_load_whisper`, `_quick_stt`, `_pcm_to_wav`); **TTS streaming** (`_tts_worker`, `_stream_and_speak`, `_wait_for_tts`, `interrupt`); **speaker enrollment / profiles** (`_load_speaker_encoder`, `_load_voice_profiles`, `_check_enrollment_request`, `_validate_enrollment_clip`); **device/AEC/mic handling** (`_input_device_available`, `_await_input_device`, `_check_aec`, `_mute_mic`); and the **turn orchestration loop** (`_process_one_turn`, `listen_for_followup`, `_follow_up_loop`, `_wait_for_speech`). The 2026-06-23 `services/voice/` refactor (BMO-RESOLVED) made the *audio-stack boundary* explicit by grouping the nine voice/audio modules into a subpackage, but it explicitly left the file itself as "the 2,232-line core" — it `git mv`'d the module; it did not split this class. This is the exact same "package move done, class extraction not done" pattern already logged for the social bot (this log, 2026-06-23). The class works and is well-tested (`tests/test_voice_pipeline.py`), so this is maintainability/reviewability debt, not a bug — but every change to wake or TTS means navigating a 2k-line file where the subsystems share only `self`.
-
-**Hypothesis / root cause:** the pipeline grew organically engine-by-engine (porcupine → openWakeWord, energy VAD → Silero, etc.); each addition bolted another cluster of methods onto the one class rather than introducing a collaborator, and the `services/voice/` grouping addressed file *placement* without touching internal structure.
-
-**Proposed fix / improvement:**
-- [ ] Extract cohesive collaborators that `VoicePipeline` composes rather than inlines: `WakeDetector` (porcupine + oww + model loading), `SpeechGate`/`Vad` (Silero + energy), `Transcriber` (whisper + quick-STT + wav framing), `SpeechOutput` (the `_tts_worker`/`_stream_and_speak`/interrupt machinery), and `SpeakerEnrollment` (encoder + profiles + enrollment-request handling). Leave `VoicePipeline` as the thin turn-loop orchestrator.
-- [ ] Keep the public surface (`start_listening`/`stop_listening`/`start_conversation`/`get_voice_settings`/`update_voice_setting`) stable so `app.py` and the kiosk WS handlers are untouched.
-- [ ] Move per-subsystem tests alongside each extracted unit; the existing `test_voice_pipeline.py` becomes an integration test over the composed orchestrator.
-- [ ] Gate the whole refactor behind CI/pytest (it is a pure restructuring — no behavior change), in line with the fix-forward stance.
-
-**Related files:** `bmo/pi/services/voice/voice_pipeline.py:140` (`VoicePipeline`), and the method clusters cited above; `bmo/pi/tests/test_voice_pipeline.py`.
-
-**Related entries:** BMO-RESOLVED 2026-06-23 (group the 9 voice/audio modules into `services/voice/`) — that grouped the files but called this out as the unsplit core; this log 2026-06-23 (social-bot package move done, class extraction not done) — the same pattern in the other god-module.
-
 ---
 
 # Design gotchas (warnings for future agents)

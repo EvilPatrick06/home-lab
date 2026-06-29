@@ -12,6 +12,43 @@
 
 ---
 
+### [2026-06-29] VoicePipeline 2,236-line god-class decomposed into 5 collaborators (user-requested follow-up)
+
+- **Resolved by:** bmo-resolver  **Branch:** `auto/bmo-resolver`  **Commits:** `9db98391`, `b8355597`, `b78325b6`, `ab70611a`, `cb80bcb7`
+- The user asked to do the deferred item. Extracted the five collaborators the entry called for — **Transcriber** (whisper + quick-STT + WAV framing), **Vad** (Silero VAD), **SpeakerEnrollment** (encoder + voice profiles + enrollment-request/clip validation), **SpeechOutput** (streaming TTS worker + drain/wait + barge-in `interrupt` + the LLM-stream sentence pump), and **WakeDetector** (wake loop + Porcupine/openWakeWord engines + energy/STT fallback + wake-model loading) — into `services/voice/{transcriber,vad,speaker_enrollment,speech_output,wake_detector}.py`. `voice_pipeline.py` **2,237 -> 1,542 lines**.
+- **Design:** each collaborator holds a back-reference to the pipeline. Shared state (TTS queues + interrupt/active events, `_wake_triggered`, `_voice_profiles`/`_speaker_encoder`, `_is_speaking`, ambient RMS) and the public + turn-loop surface stay on the orchestrator; the collaborators operate on them via the back-ref. So every call site and **test patch point** (`pipeline.interrupt`, `pipeline._stream_and_speak`, `pipeline._wake_word_loop`, `pipeline._load_voice_profiles`, `pipeline._tts_queue`, ...) is byte-for-byte unchanged — a behaviour-preserving relocation, not a logic change.
+- **Verification:** done incrementally, one collaborator per commit; `test_voice_pipeline.py` (52) green after **each** of the five extractions; full bmo suite **1361 passed / 6 skipped**; print + `~/home-lab` path ratchets green. CAVEAT: the live-audio / AEC paths run only on real mic hardware and are not exercised by the mocked tests — the change is a mechanical `self -> self._p` back-ref relocation behind delegating facades, deploying via the integrator merge.
+
+<details><summary>Original entry (verbatim, moved from BMO-SUGGESTIONS-LOG.md)</summary>
+
+### [2026-06-28] `VoicePipeline` is a 2,236-line god-class — wake, VAD, STT, TTS, enrollment, device handling and the turn loop all live in one class (the `services/voice/` move grouped the files but never decomposed this core)
+
+- **Category:** future-idea (architecture + DX)
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of the voice pipeline + `services/voice/` subpackage
+
+**Description:**
+`services/voice/voice_pipeline.py` is a single `VoicePipeline` class (declared at line 140) spanning 2,236 lines — the second-largest source file in the bmo tree after `bots/social/bot.py`. One class owns at least six unrelated concerns, each a self-contained subsystem: **wake-word detection** for two engines (`_wake_word_loop`, `_wake_listen_cycle_porcupine`, `_wake_listen_cycle_oww`, `_load_wake_model`, `_get_wake_model_paths`); **VAD** (`_load_silero_vad`, `_silero_check_speech`, plus the energy-only fallback in `_wake_listen_cycle`); **STT** (`_load_whisper`, `_quick_stt`, `_pcm_to_wav`); **TTS streaming** (`_tts_worker`, `_stream_and_speak`, `_wait_for_tts`, `interrupt`); **speaker enrollment / profiles** (`_load_speaker_encoder`, `_load_voice_profiles`, `_check_enrollment_request`, `_validate_enrollment_clip`); **device/AEC/mic handling** (`_input_device_available`, `_await_input_device`, `_check_aec`, `_mute_mic`); and the **turn orchestration loop** (`_process_one_turn`, `listen_for_followup`, `_follow_up_loop`, `_wait_for_speech`). The 2026-06-23 `services/voice/` refactor (BMO-RESOLVED) made the *audio-stack boundary* explicit by grouping the nine voice/audio modules into a subpackage, but it explicitly left the file itself as "the 2,232-line core" — it `git mv`'d the module; it did not split this class. This is the exact same "package move done, class extraction not done" pattern already logged for the social bot (this log, 2026-06-23). The class works and is well-tested (`tests/test_voice_pipeline.py`), so this is maintainability/reviewability debt, not a bug — but every change to wake or TTS means navigating a 2k-line file where the subsystems share only `self`.
+
+**Hypothesis / root cause:** the pipeline grew organically engine-by-engine (porcupine → openWakeWord, energy VAD → Silero, etc.); each addition bolted another cluster of methods onto the one class rather than introducing a collaborator, and the `services/voice/` grouping addressed file *placement* without touching internal structure.
+
+**Proposed fix / improvement:**
+- [ ] Extract cohesive collaborators that `VoicePipeline` composes rather than inlines: `WakeDetector` (porcupine + oww + model loading), `SpeechGate`/`Vad` (Silero + energy), `Transcriber` (whisper + quick-STT + wav framing), `SpeechOutput` (the `_tts_worker`/`_stream_and_speak`/interrupt machinery), and `SpeakerEnrollment` (encoder + profiles + enrollment-request handling). Leave `VoicePipeline` as the thin turn-loop orchestrator.
+- [ ] Keep the public surface (`start_listening`/`stop_listening`/`start_conversation`/`get_voice_settings`/`update_voice_setting`) stable so `app.py` and the kiosk WS handlers are untouched.
+- [ ] Move per-subsystem tests alongside each extracted unit; the existing `test_voice_pipeline.py` becomes an integration test over the composed orchestrator.
+- [ ] Gate the whole refactor behind CI/pytest (it is a pure restructuring — no behavior change), in line with the fix-forward stance.
+
+**Related files:** `bmo/pi/services/voice/voice_pipeline.py:140` (`VoicePipeline`), and the method clusters cited above; `bmo/pi/tests/test_voice_pipeline.py`.
+
+**Related entries:** BMO-RESOLVED 2026-06-23 (group the 9 voice/audio modules into `services/voice/`) — that grouped the files but called this out as the unsplit core; this log 2026-06-23 (social-bot package move done, class extraction not done) — the same pattern in the other god-module.
+
+</details>
+
+---
+
+
 ### [2026-06-29] bmo-resolver — bmo backlog batch (2 issues + 8 suggestions + 1 security), user-approved
 
 - **Resolved by:** bmo-resolver  **Branch:** `auto/bmo-resolver` (reset onto current origin/master; integrator merges; bmo auto-deploys on merge)
