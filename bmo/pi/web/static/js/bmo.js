@@ -302,6 +302,7 @@ function bmo() {
     tvConnected: false,
     tvPairing: false,
     tvPairPin: '',
+    tvPairBusy: false,   // 12D: in-flight pairing round-trip → disable Pair/Connect
     tvPairHint: '',  // PHASE-11 11D: reachability hint when the TV can't be reached
     tvAutoSkip: false,
     tvCurrentApp: '',
@@ -2044,11 +2045,19 @@ function bmo() {
       if (rrule) body.recurrence = rrule;
 
       try {
-        await fetch('/api/calendar/create', {
+        const res = await fetch('/api/calendar/create', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         });
+        // 12B: a resolved non-2xx (e.g. calendar-down 503) is NOT success.
+        // Keep the form populated so the user doesn't lose what they typed.
+        if (!res.ok) {
+          let msg = "Couldn't create event — calendar may be disconnected";
+          try { const d = await res.json(); if (d && d.error) msg = d.error; } catch {}
+          this.showNotification(msg, 'error');
+          return;
+        }
         this.showEventForm = false;
         this.newEvent = {
           summary: '', date: '', startTime: '12:00', durationHrs: '1', location: '', description: '',
@@ -2169,11 +2178,19 @@ function bmo() {
       else body.recurrence = [];  // Clear recurrence if set to "none"
 
       try {
-        await fetch(`/api/calendar/update/${e.id}`, {
+        const res = await fetch(`/api/calendar/update/${e.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         });
+        // 12B: only clear + announce success on a 2xx; a non-2xx keeps the
+        // edit form populated so the user can retry after reconnecting.
+        if (!res.ok) {
+          let msg = "Couldn't update event — calendar may be disconnected";
+          try { const d = await res.json(); if (d && d.error) msg = d.error; } catch {}
+          this.showNotification(msg, 'error');
+          return;
+        }
         this.editingEvent = null;
         this.fetchCalendar();
         this.showNotification('Event updated!');
@@ -2319,15 +2336,19 @@ function bmo() {
     },
 
     async startPresetTimer(seconds, label) {
-      // 03D: quick-start preset — one tap = one timer, WITHOUT mutating the
-      // custom newTimerSec/Min/Label fields (so a later Start can't reuse a
+      // 03D: quick-start preset — one tap = one timer, WITHOUT reusing the
+      // custom newTimerSec/Min DURATION fields (so a later Start can't reuse a
       // lingering preset value and create an accidental second timer).
+      // 12C: the typed Label IS honored — reading ONLY newTimerLabel, never the
+      // duration fields — matching the custom Start button and alarms.
       if (!seconds || seconds <= 0) return;
+      const finalLabel = (this.newTimerLabel && this.newTimerLabel.trim()) || label || `${seconds}s timer`;
       await fetch('/api/timers/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ seconds, label: label || `${seconds}s timer` }),
+        body: JSON.stringify({ seconds, label: finalLabel }),
       });
+      this.newTimerLabel = '';
       this.fetchTimers();
     },
 
@@ -2928,23 +2949,41 @@ function bmo() {
       } catch {}
     },
 
+    _tvPairErrorCopy(rawError, status) {
+      // 12D: map worker/internal pairing errors to plain-language copy. The raw
+      // string (e.g. "pair_finish failed: Called async_finish_pairing after
+      // disconnect") is logged for debugging but never shown to the user.
+      if (rawError) console.warn('[bmo] TV pairing error:', rawError);
+      const e = (rawError || '').toLowerCase();
+      if (status === 503 || e.includes('unreachable') || e.includes('timeout') || e.includes('timed out')) {
+        return "Can't reach the TV — make sure it's powered on and on the same network.";
+      }
+      if (e.includes('disconnect')) {
+        return "Couldn't pair — the TV disconnected. Make sure it's on and try again.";
+      }
+      return "Couldn't pair with the TV — please try again.";
+    },
+
     async tvStartPairing() {
       // PHASE-11 11D: don't jump to the PIN step until pairing actually
       // starts. A powered-off / unreachable TV can never show a PIN, so
       // surface a reachability hint instead of an un-fulfillable prompt.
       this.tvPairPin = '';
       this.tvPairHint = '';
+      this.tvPairBusy = true;   // 12D: disable Pair button during the round-trip
       try {
         const res = await fetch('/api/tv/pair/start', { method: 'POST' });
         const data = await res.json();
-        if (data.unreachable) {
-          this.tvPairHint = data.error || "Can't reach the TV — make sure it's powered on and on the same network.";
+        // 12D: a 503 "TV unreachable" (PHASE-13) or an unreachable flag → a
+        // plain-language reachability hint, not a raw worker string.
+        if (!res.ok || data.unreachable) {
+          this.tvPairHint = this._tvPairErrorCopy(data.error, res.status);
           this.showNotification(this.tvPairHint);
           this.tvPairing = false;
           return;
         }
         if (data.error) {
-          this.showNotification('Pairing failed: ' + data.error);
+          this.showNotification(this._tvPairErrorCopy(data.error, res.status));
           this.tvPairing = false;
           return;
         }
@@ -2953,11 +2992,14 @@ function bmo() {
       } catch {
         this.showNotification('Failed to start pairing');
         this.tvPairing = false;
+      } finally {
+        this.tvPairBusy = false;
       }
     },
 
     async tvFinishPairing() {
       if (!this.tvPairPin) return;
+      this.tvPairBusy = true;   // 12D: disable Connect during the round-trip
       try {
         const res = await fetch('/api/tv/pair/finish', {
           method: 'POST',
@@ -2965,8 +3007,9 @@ function bmo() {
           body: JSON.stringify({ pin: this.tvPairPin }),
         });
         const data = await res.json();
-        if (data.error) {
-          this.showNotification('Pairing failed: ' + data.error);
+        if (!res.ok || data.error) {
+          // 12D: friendly copy; raw worker string stays in the console only.
+          this.showNotification(this._tvPairErrorCopy(data.error, res.status));
         } else {
           this.showNotification('TV paired and connected!');
           this.tvConnected = true;
@@ -2974,6 +3017,8 @@ function bmo() {
         }
       } catch {
         this.showNotification('Failed to finish pairing');
+      } finally {
+        this.tvPairBusy = false;
       }
       this.tvPairing = false;
       this.tvPairPin = '';

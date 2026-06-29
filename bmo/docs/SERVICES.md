@@ -85,7 +85,7 @@ Service modules in `bmo/pi/services/` — business logic used by agents + Flask 
 | Port | Served by | Purpose |
 |---|---|---|
 | 5000 | `app.py` (Flask) | Main HTTP + WebSocket |
-| 5001 | `ide_app/ide_app.py` | Embedded web IDE (optional) |
+| 5001 | `ide_app/ide_app.py` | Experimental web IDE rebuild — loopback-only, normally inactive. **Production IDE is `/ide` on :5000.** |
 | 5002 | app.py (canary) | deploy-time boot check only (BMO_PORT/BMO_CANARY; see DEPLOY.md) |
 
 BMO's services run inside the main Flask process on :5000. They share an `init_services()` lifecycle.
@@ -248,8 +248,13 @@ The Pi also advertises `_bmo._tcp` (port 5000) via `/etc/avahi/services/bmo.serv
 
 | Path | Method | Purpose |
 |---|---|---|
-| `/ide` | GET | Render IDE UI |
-| `/api/ide/*` | various | IDE job management (runs on :5001 primarily) |
+| `/ide` | GET | Render IDE UI (the **production** IDE, served in-process on :5000) |
+| `/api/ide/*` | various | IDE job management (served in-process on :5000) |
+
+> **Note:** the live IDE is `/ide` served by the main app on **:5000**. The
+> `ide_app` on **:5001** (`bmo-ide.service`) is an **experimental, loopback-only**
+> rebuild that is normally inactive — see `DESIGN-CONSTRAINTS.md` "Two IDE
+> implementations coexist". Don't point users at `:5001`.
 
 ### System / settings
 

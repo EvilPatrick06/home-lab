@@ -157,3 +157,14 @@ sed -n '2908,2947p' bmo/pi/web/static/js/bmo.js               # tvStartPairing /
 - **The TV pairing backend hang (`_tv_cmd` has no short read timeout, so `/pair/*` blocks ~30s)** — PHASE-13 (this phase only fixes the dashboard affordance + error copy around it).
 - **Chat agent** — PHASE-09. **Calendar health-signal truth + notification-feed data** — PHASE-10. **Header badge deep-link, Cal-tab needs_auth state, per-field add-event validation wording, TV reachability pre-flight, Places/geolocation console hygiene, README IDE reference** — PHASE-11 (12A/12B coordinate with 11E/11C per "Dependencies & cross-phase notes"). **IDE terminal working-copy split, IDE terminal initial-prompt, SERVICES.md/bmo-ide.service doc truth** — PHASE-13.
 - **The calendar reauth itself / moving the Google OAuth app to Production** — owner action, live-Pi data (rule 6).
+
+## Completed
+
+Implemented 2026-06-29 against `origin/master@d9dccc65` (re-anchored from the authoring base per INSTRUCTIONS.md rule 3). Frontend-only; no Python touched, so `bmo-pi-pytest.yml` is unaffected and the gate is the surgical diff (no JS unit harness — PHASE-02/03/11).
+
+- **12A** — Removed the redundant `x-init="init()"` from the dashboard root (`web/templates/index.html:18`); Alpine auto-invokes `init()` on `x-data` init, so each bootstrap GET (and the geolocation INFO) now fires once. Supersedes PHASE-11 11E's geolocation double-log symptom fix at the root (different file, no conflict).
+- **12B** — `createCalEvent` / `updateCalEvent` (`web/static/js/bmo.js`) now capture the response and gate the success path (form-reset/close + "Event created!/updated!") on `res.ok`; a resolved non-2xx (e.g. calendar-down 503) shows an error toast (server `error` if present) and leaves the form populated. Mirrors the `setFace`/`tvLaunch` `if (!res.ok)` pattern. Pre-flight validation + network `catch` unchanged.
+- **12C** — `startPresetTimer` (`web/static/js/bmo.js`) now honors a typed Label via `finalLabel = (newTimerLabel.trim()) || label || (seconds + "s timer")`, reading ONLY `newTimerLabel` (the 03D duration-field guard preserved), and clears `newTimerLabel` after start.
+- **12D** — Added `tvPairBusy` state (`web/static/js/bmo.js`) set at the top of `tvStartPairing`/`tvFinishPairing` and reset in `finally`; bound `:disabled="tvPairBusy"` + a "Connecting…" label and `disabled:` styles on the Pair-with-TV and Connect buttons (`web/templates/index.html`). Added `_tvPairErrorCopy(rawError, status)` mapping worker/503 errors to plain-language copy (disconnect / unreachable / generic), keeping the raw string in `console.warn` only — no raw worker string reaches `showNotification`. Consumes the 503 PHASE-13 13A returns.
+
+Verification: `node --check web/static/js/bmo.js` passes; diff reviewed against the cited handlers; `tvPairBusy` referenced 5x in bmo.js / 4x in index.html.

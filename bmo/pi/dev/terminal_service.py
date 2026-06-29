@@ -26,8 +26,13 @@ class TerminalSession:
         self._reader_thread = None
         self._output_callback = None
 
-    def start_pty(self, output_callback):
-        """Fork a bash PTY and start the reader thread."""
+    def start_pty(self, output_callback, cwd=None, paint_prompt=True):
+        """Fork a bash PTY and start the reader thread.
+
+        13B: `cwd` starts the shell in the IDE explorer root so terminal
+        commands and editor edits act on the same working copy.
+        13C: `paint_prompt` nudges a redraw shortly after the shell is up so
+        the first prompt appears without requiring a keypress."""
         self._output_callback = output_callback
         master_fd, slave_fd = pty.openpty()
         self._master_fd = master_fd
@@ -46,12 +51,25 @@ class TerminalSession:
             os.close(master_fd)
             os.close(slave_fd)
             os.environ["TERM"] = "xterm-256color"
+            if cwd:
+                # 13B: match the IDE explorer/file-API root; a missing dir
+                # falls back to the inherited cwd rather than aborting the shell.
+                try:
+                    os.chdir(cwd)
+                except OSError:
+                    pass
             os.execvp("/bin/bash", ["/bin/bash", "--login"])
         else:
             # Parent
             os.close(slave_fd)
             self.alive = True
             self._start_reader()
+            if paint_prompt:
+                # 13C: bash prints its prompt on startup, but the xterm client
+                # may attach after that output is emitted. Nudge a redraw
+                # (Ctrl-L) once the shell is up so the first prompt paints
+                # without a keypress; Ctrl-L only redraws — no blank command.
+                threading.Timer(0.25, lambda: self.write(b"\x0c")).start()
 
     def _start_reader(self):
         """Background thread that reads PTY output and calls the callback."""
@@ -122,7 +140,7 @@ class TerminalManager:
         self._lock = threading.Lock()
 
     def open_terminal(self, sid: str, term_id: str, cols: int, rows: int,
-                      output_callback) -> TerminalSession:
+                      output_callback, cwd=None, paint_prompt=True) -> TerminalSession:
         """Create and start a new terminal session.
 
         Args:
@@ -136,7 +154,7 @@ class TerminalManager:
             The new TerminalSession.
         """
         session = TerminalSession(term_id, cols, rows)
-        session.start_pty(output_callback)
+        session.start_pty(output_callback, cwd=cwd, paint_prompt=paint_prompt)
 
         with self._lock:
             if sid not in self._sessions:

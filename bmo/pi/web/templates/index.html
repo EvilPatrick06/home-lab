@@ -15,7 +15,7 @@
   <script defer src="/static/js/alpine.min.js"></script>
   <link rel="stylesheet" href="/static/css/bmo.css?v={{ css_v }}">
 </head>
-<body class="bg-surface-dark text-text select-none flex flex-col h-screen{% if kiosk_mode %} kiosk-mode{% endif %}" x-data="bmo()" x-init="init()">
+<body class="bg-surface-dark text-text select-none flex flex-col h-screen{% if kiosk_mode %} kiosk-mode{% endif %}" x-data="bmo()">
 
   <!-- QA #7 (2026-05-17): CF Access expiry / offline banners. Above everything. -->
   <div x-show="connectionState === 'cf_expired'" x-cloak
@@ -1230,8 +1230,9 @@
         <template x-if="!tvPairing">
           <div class="text-center">
             <div class="text-base text-text-muted mb-3" x-text="tvNeedsPairing ? 'TV needs to be paired' : 'TV not connected'"></div>
-            <button @click="tvStartPairing()" class="bg-accent hover:bg-accent-light text-surface-dark px-8 py-3 rounded-lg text-base font-medium">
-              Pair with TV
+            <button @click="tvStartPairing()" :disabled="tvPairBusy"
+                    class="bg-accent hover:bg-accent-light text-surface-dark px-8 py-3 rounded-lg text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+              <span x-text="tvPairBusy ? 'Connecting…' : 'Pair with TV'"></span>
             </button>
             <!-- PHASE-11 11D: shown when the TV is unreachable (powered off / off-network) -->
             <div x-show="tvPairHint" x-text="tvPairHint" class="mt-3 text-sm text-amber-300"></div>
@@ -1244,7 +1245,9 @@
                    class="w-40 bg-surface-light rounded-lg px-4 py-3 text-2xl text-text font-mono text-center outline-none focus:ring-2 focus:ring-accent tracking-widest">
             <div class="flex gap-2 justify-center">
               <button @click="tvCancelPairing()" class="bg-surface-light text-text-muted px-5 py-2.5 rounded-lg text-base">Cancel</button>
-              <button @click="tvFinishPairing()" class="bg-accent hover:bg-accent-light text-surface-dark px-5 py-2.5 rounded-lg text-base font-medium">Connect</button>
+              <button @click="tvFinishPairing()" :disabled="tvPairBusy"
+                      class="bg-accent hover:bg-accent-light text-surface-dark px-5 py-2.5 rounded-lg text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                      x-text="tvPairBusy ? 'Connecting…' : 'Connect'"></button>
             </div>
           </div>
         </template>

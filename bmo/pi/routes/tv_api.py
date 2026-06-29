@@ -12,6 +12,7 @@ import json
 import logging
 import os
 import re
+import select
 import subprocess
 import threading
 import time
@@ -70,6 +71,9 @@ _TV_WORKER = os.path.join(_TV_CERT_DIR, "services", "tv_worker.py")
 _TV_PYTHON = os.path.join(_TV_CERT_DIR, "venv", "bin", "python3")
 _tv_proc = None
 # (lock lives on state.STATE.tv_proc_lock)
+# 13A: short ceiling (seconds) for the TV worker stdout read on interactive
+# (pairing / status) commands, so a powered-off TV fails fast, not ~30s.
+_TV_READ_TIMEOUT_S = 8
 
 
 def _ensure_tv_worker():
@@ -99,8 +103,33 @@ def _ensure_tv_worker():
             return False
 
 
-def _tv_cmd(action, **kwargs):
-    """Send a command to the long-lived TV worker and get the response."""
+def _reset_tv_worker_locked():
+    """Terminate the long-lived TV worker. Caller MUST hold STATE.tv_proc_lock.
+
+    Shared by /pair/cancel and the 13A read-timeout path so a half-open
+    handshake (TV went away mid-pairing) can't wedge the next attempt."""
+    global _tv_proc
+    if _tv_proc is not None:
+        try:
+            _tv_proc.terminate()
+            _tv_proc.wait(timeout=2)
+        except Exception:
+            try:
+                _tv_proc.kill()
+            except Exception:
+                pass
+        _tv_proc = None
+
+
+def _tv_cmd(action, timeout=None, **kwargs):
+    """Send a command to the long-lived TV worker and get the response.
+
+    13A: when the TV is off, the worker's pairing/connect handshake blocks on
+    the device, so an unbounded stdout.readline() hangs the whole Flask request
+    (~30s). Interactive callers pass a short `timeout`; we gate the read with
+    select() and, on expiry, reset the worker and return a handled
+    {"error": "TV unreachable", "timeout": True}. Non-interactive callers omit
+    `timeout` and keep the original blocking read."""
     global _tv_proc
     if not _ensure_tv_worker():
         return {"error": "TV worker not running"}
@@ -113,6 +142,12 @@ def _tv_cmd(action, **kwargs):
                     return {"error": "TV worker died"}
             _tv_proc.stdin.write(json.dumps(cmd_data) + "\n")
             _tv_proc.stdin.flush()
+            if timeout is not None:
+                ready, _, _ = select.select([_tv_proc.stdout], [], [], timeout)
+                if not ready:
+                    log.info("[tv] command %s timed out after %ss — TV unreachable; resetting worker", action, timeout)
+                    _reset_tv_worker_locked()
+                    return {"error": "TV unreachable", "timeout": True}
             line = _tv_proc.stdout.readline().strip()
             if line:
                 return json.loads(line)
@@ -308,7 +343,7 @@ def api_tv_status():
     current_app = ""
     volume_level = -1
     if connected:
-        r = _tv_cmd("connect_test")
+        r = _tv_cmd("connect_test", timeout=_TV_READ_TIMEOUT_S)
         if r.get("ok"):
             current_app = r.get("current_app", "")
             volume_level = r.get("volume_level", -1)
@@ -350,7 +385,13 @@ def api_tv_pair_start():
             "unreachable": True,
             "error": "Can't reach the TV — make sure it's powered on and on the same network.",
         })
-    result = _tv_cmd("pair_start")
+    result = _tv_cmd("pair_start", timeout=_TV_READ_TIMEOUT_S)
+    if result.get("timeout"):
+        log.info("[tv] Pairing start timed out — TV unreachable")
+        return jsonify({
+            "unreachable": True,
+            "error": "Can't reach the TV — make sure it's powered on and on the same network.",
+        }), 503
     if result.get("error"):
         log.info("[tv] Pairing start failed: %s", _s(result["error"]))
         return jsonify(result), 500
@@ -367,7 +408,13 @@ def api_tv_pair_finish():
     if not pin:
         return jsonify({"error": "No PIN provided"}), 400
 
-    result = _tv_cmd("pair_finish", pin=pin)
+    result = _tv_cmd("pair_finish", pin=pin, timeout=_TV_READ_TIMEOUT_S)
+    if result.get("timeout"):
+        log.info("[tv] Pairing finish timed out — TV unreachable")
+        return jsonify({
+            "unreachable": True,
+            "error": "Can't reach the TV — make sure it's powered on and on the same network.",
+        }), 503
     if result.get("error"):
         log.info("[tv] Pairing finish failed: %s", _s(result["error"]))
         return jsonify(result), 500
@@ -387,16 +434,7 @@ def api_tv_pair_cancel():
     `pairing_remote=None`. Idempotent — safe when no pairing is open."""
     global _tv_proc
     with STATE.tv_proc_lock:
-        if _tv_proc is not None:
-            try:
-                _tv_proc.terminate()
-                _tv_proc.wait(timeout=2)
-            except Exception:
-                try:
-                    _tv_proc.kill()
-                except Exception:
-                    pass
-            _tv_proc = None
+        _reset_tv_worker_locked()
     return jsonify({"ok": True, "message": "Pairing cancelled"})
 
 
