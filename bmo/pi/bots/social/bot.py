@@ -580,7 +580,7 @@ async def _send_or_update_controls(queue: MusicQueue, channel: discord.abc.Messa
 
     # Send new
     queue.control_channel = channel
-    queue.control_message = await channel.send(embed=embed, view=view)
+    queue.control_message = await channel.send(view=view)
 
 
 # ── Bot Class ────────────────────────────────────────────────────────
