@@ -31,13 +31,18 @@ import json
 import os
 import re
 import time
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field, fields, asdict
 
 _PI_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _DATA_DIR = os.path.join(_PI_ROOT, "data")
 MONITOR_STATE = os.path.join(_DATA_DIR, "monitor_state.json")
 BOARD_STATE = os.path.join(_DATA_DIR, "status_board_state.json")
 BOARD_INBOX = os.path.join(_DATA_DIR, "board_inbox.json")
+# Append-only decisions outbox: a board Approve/Deny click writes one JSON
+# line here naming the item, the decision, and the ORIGINATING session id, for
+# the dispatch-side poller to read and resume that session. See
+# docs/BOARD-APPROVAL-BRIDGE.md.
+BOARD_DECISIONS = os.path.join(_DATA_DIR, "board_decisions_outbox.jsonl")
 # An inbox item auto-expires once its producer stops re-posting it (each
 # notify-board post refreshes 'seen'). Backstop so nothing lingers if a
 # 'resolved/approved' signal is missed and before the Done button is used.
@@ -205,6 +210,7 @@ class Item:
     created: float = 0.0          # first seen — drives 'since <t:R>'
     seen: float = 0.0             # last time a producer re-posted it (TTL)
     due: float | None = None      # for deadlines → 'due <t:R>'
+    session_id: str | None = None  # originating dispatch/cowork session id (approve/deny bridge)
 
 
 def _read_json(path):
@@ -212,11 +218,20 @@ def _read_json(path):
         return json.load(f)
 
 
+_ITEM_FIELDS = {f.name for f in fields(Item)}
+
+
+def _item_from_dict(d: dict) -> "Item":
+    """Build an Item, ignoring any unknown keys so an older/newer on-disk
+    schema (e.g. before/after 'session_id' was added) never crashes the loader."""
+    return Item(**{k: v for k, v in d.items() if k in _ITEM_FIELDS})
+
+
 def load_inbox() -> dict:
     try:
         with open(BOARD_INBOX, encoding="utf-8") as f:
             raw = json.load(f)
-        return {src: {i["id"]: Item(**i) for i in items} for src, items in raw.items()}
+        return {src: {i["id"]: _item_from_dict(i) for i in items} for src, items in raw.items()}
     except Exception:
         return {}
 
@@ -266,6 +281,49 @@ def mark_done(inbox: dict, item_id: str) -> bool:
             del inbox[src][item_id]
             return True
     return False
+
+
+# ── Approve/Deny bridge: decisions outbox + originating-session relay ─────
+
+def is_approval_item(it) -> bool:
+    """True if this inbox item is an agent 'awaiting approve/deny' item that
+    carries an originating session id — the marker that a board click can relay
+    the decision back to the session that posted it. Only these items get
+    Approve/Deny buttons; everything else keeps the existing in-chat path."""
+    return getattr(it, "category", "") == "agent" and bool(getattr(it, "session_id", None))
+
+
+def is_approval_row(r: dict) -> bool:
+    """Row-dict form of is_approval_item (used by the renderer)."""
+    return r.get("category") == "agent" and bool(r.get("session_id"))
+
+
+def record_decision(decision: str, item, *, decided_by: str = "board",
+                    outbox: str | None = None) -> dict:
+    """Append a decision record to the append-only decisions outbox (JSONL) for
+    the dispatch-side poller to consume, and return the record written.
+
+    decision is 'approve' or 'deny'. The record names the item, its source, the
+    ORIGINATING session id (so the poller knows which session to resume), the
+    item title, who decided, and a timestamp. Writing is append-only so a click
+    never races the bot's inbox writes. See docs/BOARD-APPROVAL-BRIDGE.md.
+    """
+    if decision not in ("approve", "deny"):
+        raise ValueError(f"decision must be 'approve' or 'deny', got {decision!r}")
+    outbox = outbox or BOARD_DECISIONS
+    rec = {
+        "ts": time.time(),
+        "decision": decision,
+        "item_id": getattr(item, "id", None),
+        "source": getattr(item, "source", None),
+        "session_id": getattr(item, "session_id", None),
+        "title": getattr(item, "title", ""),
+        "decided_by": decided_by,
+    }
+    os.makedirs(os.path.dirname(outbox), exist_ok=True)
+    with open(outbox, "a", encoding="utf-8") as f:
+        f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    return rec
 
 
 def dedupe_agents(inbox: dict) -> int:
@@ -401,7 +459,8 @@ def all_rows(state: BoardState, health_rows: list[dict], inbox: dict) -> list[di
             rows.append({"category": it.category, "severity": it.severity,
                          "title": it.title, "detail": it.detail, "since": it.created,
                          "due": it.due, "url": it.url,
-                         "kind": "item", "key": it.id, "id": it.id, "source": it.source})
+                         "kind": "item", "key": it.id, "id": it.id, "source": it.source,
+                         "session_id": getattr(it, "session_id", None)})
     return rows
 
 

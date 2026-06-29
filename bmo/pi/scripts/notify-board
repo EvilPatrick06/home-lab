@@ -25,6 +25,12 @@ Examples
 
   # nothing wrong this run → clear the namespace:
   notify-board clear ci-triage
+
+  # a resolver posts a gated item AND stamps its own session id so a board
+  # Approve/Deny click can be relayed back to THIS session to act on it:
+  notify-board set bmo-resolver issue:1234 agent "BMO: add retry to uploader" \
+    --detail "WAIT-class enhancement — implement on approve" --severity warning \
+    --session-id "$CLAUDE_SESSION_ID"
 """
 import argparse
 import json
@@ -62,6 +68,7 @@ def _norm(item, source):
     item.setdefault("detail", "")
     item.setdefault("url", None)
     item.setdefault("due", None)
+    item.setdefault("session_id", None)
     item["source"] = source
     return item
 
@@ -91,6 +98,8 @@ def main():
     st.add_argument("title")
     st.add_argument("--detail", default=""); st.add_argument("--severity", default="info")
     st.add_argument("--url", default=None); st.add_argument("--due", type=float, default=None)
+    st.add_argument("--session-id", dest="session_id", default=None,
+                    help="originating dispatch/cowork session id (enables board Approve/Deny relay)")
 
     c = sub.add_parser("clear", help="empty a source"); c.add_argument("source")
     dn = sub.add_parser("done", help="dismiss one item by id"); dn.add_argument("id")
@@ -104,7 +113,8 @@ def main():
         _apply_sync(d, a.source, items)
     elif a.cmd == "set":
         item = {"id": a.id, "category": a.category, "title": a.title, "detail": a.detail,
-                "severity": a.severity, "url": a.url, "due": a.due}
+                "severity": a.severity, "url": a.url, "due": a.due,
+                "session_id": a.session_id}
         rest = [i for i in d.get(a.source, []) if i["id"] != a.id]
         _apply_sync(d, a.source, rest + [item])
     elif a.cmd == "clear":
