@@ -90,8 +90,8 @@ def _domain_for(key: str) -> str:
 
 
 def _status_to_sev(key: str, status: str) -> str:
-    if status == "up":
-        return "ok"
+    if status in ("up", "skipped"):
+        return "ok"  # "skipped" = a check that can't run (e.g. avahi/mDNS); non-actionable, hide
     if status in ("info", "unknown"):
         return "info"
     if status == "degraded":
