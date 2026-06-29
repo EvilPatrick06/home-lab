@@ -49,6 +49,7 @@ import {
   GamePromptsLayer,
   InspectModalRenderer,
   MapSelector,
+  useFullscreen,
   usePanelResize,
   useViewMode,
   ViewAsSelector,
@@ -129,7 +130,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
     handleSidebarDoubleClick
   } = usePanelResize()
   const [mapKey, setMapKey] = useState(0)
-  const [isFullscreen, setIsFullscreen] = useState(false)
+  const { isFullscreen, setIsFullscreen, handleToggleFullscreen } = useFullscreen()
   const [leaving, setLeaving] = useState(false)
   const [teleportMove, _setTeleportMove] = useState(false)
   const [activeAoE, setActiveAoE] = useState<AoEConfig | null>(null)
@@ -510,9 +511,6 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
       return
     }
     setShowCharacterPicker(true)
-  }
-  const handleToggleFullscreen = (): void => {
-    window.api.toggleFullscreen().then((fs) => setIsFullscreen(fs))
   }
 
   // PHASE-27 27C: AI memory sync is now a single writer driven by use-game-effects.ts
