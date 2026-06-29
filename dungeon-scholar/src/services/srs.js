@@ -194,7 +194,7 @@ export function dueCount(cardProgressMap, allCards, now = Date.now()) {
   return n;
 }
 
-export function sortByDueness(cards, cardProgressMap, now = Date.now()) {
+export function sortByDueness(cards, cardProgressMap, _now = Date.now()) {
   const map = cardProgressMap && typeof cardProgressMap === 'object' ? cardProgressMap : {};
   const list = Array.isArray(cards) ? cards.slice() : [];
   return list.sort((a, b) => {

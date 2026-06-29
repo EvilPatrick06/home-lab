@@ -1,14 +1,6 @@
 import { useMemo } from 'react';
 import { findItem, RECIPES, sanctumAtCap } from '../../game/items.js';
-import {
-  currentWeekStartStr,
-  DAILY_QUEST_POOL,
-  getCounterValue,
-  pickDailyQuests,
-  pickWeeklyQuests,
-  STORY_CHAINS,
-  WEEKLY_QUEST_POOL,
-} from '../../game/quests.js';
+import { DAILY_QUEST_POOL, getCounterValue, STORY_CHAINS, WEEKLY_QUEST_POOL } from '../../game/quests.js';
 import { TITLES, xpForLevel } from '../../game/titles.js';
 import { blankTomeProgress, generateTomeId, normalizeTomeData } from '../../game/tome.js';
 import { DAILY_REWARDS, evaluateClaim, todayDateStr } from '../../services/devotion.js';
@@ -125,7 +117,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
       ...prev,
       library: (prev.library || []).map((t) => {
         if (t.id !== tomeId) return t;
-        const map = { ...((t.progress && t.progress.cardProgress) || {}) };
+        const map = { ...(t.progress?.cardProgress || {}) };
         const cur = map[cardId] || {};
         map[cardId] = { ...cur, suspended: !!suspended };
         return { ...t, progress: { ...(t.progress || {}), cardProgress: map } };
@@ -141,7 +133,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
         ...prev,
         library: (prev.library || []).map((t) => {
           if (t.id !== prev.activeTomeId) return t;
-          const map = { ...((t.progress && t.progress.cardProgress) || {}) };
+          const map = { ...(t.progress?.cardProgress || {}) };
           map[cardId] = nextState;
           return { ...t, progress: { ...(t.progress || {}), cardProgress: map } };
         }),
@@ -183,7 +175,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
     if (!item) return { ok: false, reason: 'Unknown ware.' };
     if (item.locked) return { ok: false, reason: 'This ware is sealed until a future age.' };
 
-    const owned = (playerState.inventory || {})[itemId] || 0;
+    const owned = playerState.inventory?.[itemId] || 0;
     if (item.oneTime && owned > 0) return { ok: false, reason: 'Thou already ownest this.' };
     if (
       (item.category === 'sanctum' || item.category === 'devotion' || item.category === 'celestial') &&
@@ -215,7 +207,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
         ascensionTokens: usesTokens ? (prev.ascensionTokens || 0) - item.ascensionPrice : prev.ascensionTokens || 0,
         inventory: {
           ...(prev.inventory || {}),
-          [item.id]: ((prev.inventory || {})[item.id] || 0) + 1,
+          [item.id]: (prev.inventory?.[item.id] || 0) + 1,
         },
       };
       // Sanctum + devotion + celestial all stack into permUpgrades counters.
@@ -226,14 +218,14 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
         const step = item.step || 1;
         next.permUpgrades = {
           ...(prev.permUpgrades || {}),
-          [item.permKey]: ((prev.permUpgrades || {})[item.permKey] || 0) + step,
+          [item.permKey]: (prev.permUpgrades?.[item.permKey] || 0) + step,
         };
       }
       // Phase 18: stable eggs auto-hatch into a pet entry on purchase.
       if (item.category === 'stable' && item.petId) {
         next.pets = {
           ...(prev.pets || {}),
-          [item.petId]: (prev.pets || {})[item.petId] || {
+          [item.petId]: prev.pets?.[item.petId] || {
             hatchedAt: new Date().toISOString(),
             xp: 0,
           },
@@ -243,7 +235,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
       if (item.category === 'arcanum' && item.spellId) {
         next.spellbook = {
           ...(prev.spellbook || {}),
-          [item.spellId]: (prev.spellbook || {})[item.spellId] || {
+          [item.spellId]: prev.spellbook?.[item.spellId] || {
             learnedAt: new Date().toISOString(),
           },
         };
@@ -262,9 +254,9 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   // Equip an inventory item. Items with no `slot` are not equippable.
   const equipItem = (itemId) => {
     const item = findItem(itemId);
-    if (!item || !item.slot) return { ok: false, reason: 'This ware cannot be equipped.' };
+    if (!item?.slot) return { ok: false, reason: 'This ware cannot be equipped.' };
     if (item.locked) return { ok: false, reason: 'This ware is sealed until a future age.' };
-    if (!((playerState.inventory || {})[itemId] || 0)) return { ok: false, reason: 'Thou dost not own this.' };
+    if (!(playerState.inventory?.[itemId] || 0)) return { ok: false, reason: 'Thou dost not own this.' };
     setPlayerState((prev) => ({
       ...prev,
       equipped: { ...(prev.equipped || {}), [item.slot]: itemId },
@@ -284,7 +276,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   const equipPet = (petId) => {
     const pet = findPet(petId);
     if (!pet) return { ok: false, reason: 'Unknown familiar.' };
-    if (!(playerState.pets || {})[petId]) {
+    if (!playerState.pets?.[petId]) {
       return { ok: false, reason: 'Thou hast not hatched this familiar yet.' };
     }
     setPlayerState((prev) => ({
@@ -311,11 +303,11 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
     if (!pet) return;
     // PHASE-17 17C: compute the level transition from render state so the
     // level-up toast fires from the handler, not inside the (pure) updater.
-    const curRender = (playerState.pets || {})[petId] || { xp: 0 };
+    const curRender = playerState.pets?.[petId] || { xp: 0 };
     const beforeLvlRender = petLevelFromXp(curRender.xp || 0);
     const afterLvlRender = petLevelFromXp((curRender.xp || 0) + amount);
     setPlayerState((prev) => {
-      const cur = (prev.pets || {})[petId] || { hatchedAt: new Date().toISOString(), xp: 0 };
+      const cur = prev.pets?.[petId] || { hatchedAt: new Date().toISOString(), xp: 0 };
       const nextXp = (cur.xp || 0) + amount;
       return {
         ...prev,
@@ -428,7 +420,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   const equipSpell = (spellId, slotIdx) => {
     const spell = findSpell(spellId);
     if (!spell) return { ok: false, reason: 'Unknown incantation.' };
-    if (!(playerState.spellbook || {})[spellId]) {
+    if (!playerState.spellbook?.[spellId]) {
       return { ok: false, reason: 'Thou hast not learned this spell.' };
     }
     let placed = false;
@@ -461,10 +453,10 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   // slotIdx is omitted, fills the first empty slot.
   const equipPotion = (itemId, slotIdx) => {
     const item = findItem(itemId);
-    if (!item || item.category !== 'apothecary') {
+    if (item?.category !== 'apothecary') {
       return { ok: false, reason: 'Only potions and elixirs can be quick-slotted.' };
     }
-    if (!((playerState.inventory || {})[itemId] || 0)) {
+    if (!(playerState.inventory?.[itemId] || 0)) {
       return { ok: false, reason: 'Thou dost not own this.' };
     }
     let placed = false;
@@ -721,7 +713,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
       // (lowest accuracy) and flag dangerous overconfidence (high-confidence yet
       // wrong). Keyed by item.id; skipped for id-less items, which would alias
       // each other (same guard as the mistakeVault block above).
-      if (item && item.id && prev.activeTomeId) {
+      if (item?.id && prev.activeTomeId) {
         const isHighConf = confidenceBucket === 'high';
         next = {
           ...next,

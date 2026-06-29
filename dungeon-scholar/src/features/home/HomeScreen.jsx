@@ -544,7 +544,7 @@ function HomeScreen({
             desc={`Achievements earned through valor. ${(playerState?.achievements || []).length}/${ACHIEVEMENTS.length} unlocked.`}
             icon={<Trophy className="w-8 h-8" />}
             color="amber"
-            onClick={() => onShowAchievements && onShowAchievements()}
+            onClick={() => onShowAchievements?.()}
           />
           <ModeCard
             title="Tome of Failures"

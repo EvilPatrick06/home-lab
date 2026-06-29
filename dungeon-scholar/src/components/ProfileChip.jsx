@@ -1,4 +1,3 @@
-import React from 'react';
 import { SyncStatusDot } from './SyncStatusDot.jsx';
 
 export function ProfileChip({ user, syncStatus, onOpen }) {

@@ -31,13 +31,13 @@ export function backfillDungeonAnswers(state) {
   let dungeonCorrect = 0;
   let libraryChanged = false;
   const newLibrary = library.map((tome) => {
-    const runs = (tome.progress && tome.progress.runHistory) || [];
+    const runs = tome.progress?.runHistory || [];
     const tomeAdditions = [];
     runs.forEach((run) => {
-      const log = (run && run.questionLog) || [];
+      const log = run?.questionLog || [];
       log.forEach((entry) => {
         dungeonTotal += 1;
-        if (entry && entry.correct) dungeonCorrect += 1;
+        if (entry?.correct) dungeonCorrect += 1;
         // Missing-vault repair: any wrong dungeon answer that isn't
         // already in the tome's vault gets added.
         if (entry && entry.correct === false && entry.id) {
@@ -53,7 +53,7 @@ export function backfillDungeonAnswers(state) {
       });
     });
     if (tomeAdditions.length === 0) return tome;
-    const existingVault = (tome.progress && tome.progress.mistakeVault) || [];
+    const existingVault = tome.progress?.mistakeVault || [];
     const seen = new Set(existingVault.map((m) => m.id));
     const dedupedAdditions = tomeAdditions.filter((m) => {
       if (seen.has(m.id)) return false;

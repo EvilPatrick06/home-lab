@@ -15,7 +15,7 @@ export const encodeTomeShareCode = (data) => {
     const b64 = btoa(unescape(encodeURIComponent(json)));
     // Wrap in a recognizable header for validation
     return `TOME-V1:${b64}`;
-  } catch (e) {
+  } catch (_e) {
     return null;
   }
 };
@@ -29,7 +29,7 @@ export const decodeTomeShareCode = (code) => {
     const b64 = cleaned.slice('TOME-V1:'.length);
     const json = decodeURIComponent(escape(atob(b64)));
     return JSON.parse(json);
-  } catch (e) {
+  } catch (_e) {
     return null;
   }
 };

@@ -13,7 +13,7 @@
 // The results live on tome.progress.practiceExams as a capped history.
 
 import { AlertTriangle, ArrowLeft, ArrowRight, Award, Clock } from 'lucide-react';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import RichContent from '../../components/RichContent.jsx';
 import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 import { EXAM_PRESETS, gradeExamItem, pickStratifiedSample, summarizeExamResults } from '../../services/examSession.js';
@@ -186,7 +186,7 @@ export default function ExamMode({
   useEffect(() => {
     const onKey = (e) => {
       const s = examKeyRef.current;
-      if (!s || s.phase !== 'inProgress') return;
+      if (s?.phase !== 'inProgress') return;
       if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       const q = s.sample[s.currentIdx];

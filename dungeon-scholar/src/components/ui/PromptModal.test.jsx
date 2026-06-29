@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import PromptModal from './PromptModal.jsx';
 
@@ -79,22 +79,29 @@ describe('PromptModal — copy behavior', () => {
     });
   });
 
-  it('clicking copy with empty exam-target writes the prompt with the leave-blank placeholder', () => {
+  it('clicking copy with empty exam-target writes the prompt with the leave-blank placeholder', async () => {
     const execSpy = vi.spyOn(document, 'execCommand');
     render(<PromptModal onClose={() => {}} />);
     fireEvent.click(screen.getByRole('button', { name: /CompTIA/i }));
-    fireEvent.click(screen.getByRole('button', { name: /Copy the Spell/i }));
+    // onCopy is async (awaits copyToClipboard, then setCopied); wrap the click
+    // in act so the post-await state update flushes inside React's act scope.
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /Copy the Spell/i }));
+    });
     expect(execSpy).toHaveBeenCalledWith('copy');
     expect(screen.getByTestId('prompt-preview').textContent).toMatch(/EXAM TARGET: <leave blank/);
   });
 
-  it('clicking copy with a filled exam-target writes the substituted prompt', () => {
+  it('clicking copy with a filled exam-target writes the substituted prompt', async () => {
     render(<PromptModal onClose={() => {}} />);
     fireEvent.click(screen.getByRole('button', { name: /CompTIA/i }));
     fireEvent.change(screen.getByPlaceholderText(/Security\+ SY0-701/i), {
       target: { value: 'CySA+ CS0-003' },
     });
-    fireEvent.click(screen.getByRole('button', { name: /Copy the Spell/i }));
+    // onCopy is async; wrap the click in act so setCopied flushes in scope.
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /Copy the Spell/i }));
+    });
     expect(screen.getByTestId('prompt-preview').textContent).toMatch(/EXAM TARGET: CySA\+ CS0-003/);
   });
 });

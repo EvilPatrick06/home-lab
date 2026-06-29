@@ -6,7 +6,7 @@ import { getOracleEndpoint, isOracleConfigured, ORACLE_MODEL } from '../../servi
 function ChatMode({ courseSet, tomeProgress, updateTomeProgress, checkAchievement }) {
   // Chat history lives in tome progress so it persists across navigation, reloads, and journal restores
   const messages = tomeProgress?.chatHistory || [];
-  const setMessages = (updater) => {
+  const _setMessages = (updater) => {
     updateTomeProgress((prev) => ({
       // 17D functional form — base off live progress, not the stale render closure
       chatHistory: typeof updater === 'function' ? updater(prev.chatHistory || []) : updater,
@@ -379,7 +379,7 @@ ${fullKb}
           return;
         }
       }
-    } catch (err) {
+    } catch (_err) {
       fallbackReason = 'The mystic connection has faltered. Falling back to Tome Search.';
     }
 
@@ -586,7 +586,7 @@ ${fullKb}
                         const key = `${i}-${si}`;
                         const expanded = expandedSources[key];
                         const sourceLabel = `[${si + 1}] ${s.icon} ${s.typeLabel}`;
-                        const preview = s.text.length > 100 ? s.text.slice(0, 100) + '...' : s.text;
+                        const preview = s.text.length > 100 ? `${s.text.slice(0, 100)}...` : s.text;
                         return (
                           <div
                             key={si}

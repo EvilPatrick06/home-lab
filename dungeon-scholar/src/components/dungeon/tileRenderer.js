@@ -1,7 +1,7 @@
 // Canvas tile/sprite renderer for the Dungeon Delve (S26 — extracted from
 // the DungeonExplore God-file). Pure 2D-canvas drawing functions + their
 // lookup tables. No React. TILE/BIOMES come from the game-data module.
-import { BIOMES, TILE } from '../../game/dungeonMap.js';
+import { TILE } from '../../game/dungeonMap.js';
 
 export const TILE_PX = 48; // canvas tile size in px (shared with the component)
 

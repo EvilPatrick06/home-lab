@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { hasMeaningfulData, loadFromLocalStorage, STORAGE_KEY } from '../services/persistence.js';
+import { loadFromLocalStorage, STORAGE_KEY } from '../services/persistence.js';
 import { usePlayerState } from './usePlayerState.js';
 
 vi.mock('../services/cloudSync.js', () => ({
@@ -365,7 +365,7 @@ describe('usePlayerState — Realtime echo dedup', () => {
     subscribeSaves.mockReset();
     realtimeCb = null;
     unsubSpy = vi.fn();
-    subscribeSaves.mockImplementation((uid, cb) => {
+    subscribeSaves.mockImplementation((_uid, cb) => {
       realtimeCb = cb;
       return unsubSpy;
     });

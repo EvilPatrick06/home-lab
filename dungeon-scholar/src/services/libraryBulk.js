@@ -26,7 +26,7 @@ export function applyTagToTomes(library, ids, tag) {
   if (!clean || set.size === 0) return lib;
   return lib.map((t) => {
     if (!t || !set.has(t.id)) return t;
-    const meta = (t.data && t.data.metadata) || {};
+    const meta = t.data?.metadata || {};
     const tags = Array.isArray(meta.tags) ? meta.tags : [];
     if (tags.includes(clean)) return t;
     return { ...t, data: { ...t.data, metadata: { ...meta, tags: [...tags, clean] } } };

@@ -1,7 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import katex from 'katex';
-import React from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import RichContent from './RichContent.jsx';
 
 describe('RichContent — math rendering (Phase 38f / 41a)', () => {

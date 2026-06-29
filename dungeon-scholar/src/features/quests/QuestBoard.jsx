@@ -188,7 +188,7 @@ function StoryStepCard({
   const isLocked = status === 'locked';
   const pct = target > 0 ? Math.min(100, (progress / target) * 100) : 0;
   const stepGold = Math.max(1, Math.floor(step.xp * 0.1));
-  const totalXp = step.xp + (isFinal && chainBonusXp ? chainBonusXp : 0);
+  const _totalXp = step.xp + (isFinal && chainBonusXp ? chainBonusXp : 0);
   const goldReward = isFinal ? stepGold + (chainBonusGold || 0) : stepGold;
 
   const bg = isClaimed

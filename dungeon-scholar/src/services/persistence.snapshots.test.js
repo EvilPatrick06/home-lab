@@ -14,7 +14,7 @@ const meaningful = (over = {}) => ({ level: 4, totalXp: 120, library: [{ id: 't1
 function clearSnapshots() {
   for (let i = localStorage.length - 1; i >= 0; i--) {
     const k = localStorage.key(i);
-    if (k && k.startsWith(SNAPSHOT_PREFIX)) localStorage.removeItem(k);
+    if (k?.startsWith(SNAPSHOT_PREFIX)) localStorage.removeItem(k);
   }
 }
 
@@ -58,6 +58,6 @@ describe('autosave snapshot ring buffer (I1)', () => {
   });
 
   it('returns null for a missing snapshot key', () => {
-    expect(restoreSnapshot(SNAPSHOT_PREFIX + 'nope')).toBe(null);
+    expect(restoreSnapshot(`${SNAPSHOT_PREFIX}nope`)).toBe(null);
   });
 });

@@ -173,8 +173,8 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
     const tomes = isCombined ? library : selectedTome ? [selectedTome] : [];
     const list = [];
     tomes.forEach((t) => {
-      const cards = (t.data && t.data.flashcards) || [];
-      const map = (t.progress && t.progress.cardProgress) || {};
+      const cards = t.data?.flashcards || [];
+      const map = t.progress?.cardProgress || {};
       cards.forEach((c) => {
         if (c && typeof c.id === 'string') list.push(map[c.id] || null);
       });

@@ -20,8 +20,14 @@ const DATA_IMG_RE = /^data:image\/(png|jpe?g|gif|webp);base64,[a-zA-Z0-9+/=]+$/i
 
 export function isAllowedOcclusionImage(src) {
   if (typeof src !== 'string' || src.length === 0) return false;
-  if (DATA_IMG_RE.test(src)) return true;
-  return /^https:\/\//i.test(src); // production CSP img-src further restricts hosts
+  // SEC convergence (scholar-resolver 2026-06-29): occlusion images are
+  // data:image-only, matching richContent.isSafeImageUrl and the production
+  // CSP img-src ('self' data: https://avatars.githubusercontent.com). Tomes are
+  // importable/shareable, so the old any-https branch was a tracking-beacon
+  // surface that the shipped CSP silently blocked anyway (the "CSP further
+  // restricts" comment was misleading — it restricts to avatars, which
+  // occlusion images never use).
+  return DATA_IMG_RE.test(src);
 }
 
 function clamp01(v) {
@@ -62,7 +68,7 @@ export function isOcclusionCard(card) {
 }
 
 export function normalizeOcclusionCard(card) {
-  if (!card || card.type !== 'occlusion') return card;
+  if (card?.type !== 'occlusion') return card;
   return { ...card, masks: normalizeMasks(card.masks) };
 }
 

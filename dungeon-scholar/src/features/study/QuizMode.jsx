@@ -64,7 +64,7 @@ function QuizMode({
   // shuffle so the saved index points to the right riddle.
   // PHASE-40 40B (L15): defensive copy with a stable identity (see FlashcardsMode).
   const baseDeck = useMemo(
-    () => (questionsProp && questionsProp.length ? questionsProp : courseSet.quiz || []).slice(),
+    () => (questionsProp?.length ? questionsProp : courseSet.quiz || []).slice(),
     [questionsProp, courseSet],
   );
   // 25e2: Domain Study can launch this mode with a single-domain filter.
@@ -219,7 +219,7 @@ function QuizMode({
   useEffect(() => {
     const onKey = (e) => {
       const s = keyRef.current;
-      if (!s || !s.q) return;
+      if (!s?.q) return;
       if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       // Phase 43d round-10 P4: Enter / Space advances on the explanation
@@ -369,7 +369,7 @@ function QuizMode({
   // the keydown listener always uses fresh handleAnswer / next / state.
   keyRef.current = {
     q,
-    isMC: q && q.options && Array.isArray(q.options),
+    isMC: q?.options && Array.isArray(q.options),
     isTF: q && q.type === 'truefalse',
     answered,
     confidence,

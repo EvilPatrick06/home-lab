@@ -13,6 +13,33 @@
 
 ---
 
+### [2026-06-28] PromptModal copy tests fire async copy outside `act()` (React warnings)
+> **Resolved 2026-06-29 (scholar-resolver):** Fixed. Both PromptModal copy tests now wrap the copy click in `await act(async () => { fireEvent.click(...) })` so the async `onCopy`'s post-await `setCopied(ok)` flushes inside React's act scope — the two `An update to PromptModal inside a test was not wrapped in act(...)` warnings are gone. Tests made `async`; `act` imported from `@testing-library/react`. PromptModal.test.jsx (9 tests) + full suite (749 tests) green. Code on branch `auto/scholar-resolver`.
+
+
+- **Category:** test
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error scan (full vitest run, 65 files / 694 tests all green)
+
+**Description:**
+The two tests under `PromptModal — copy behavior` ("clicking copy with a filled exam-target…" and "clicking copy with empty exam-target…") emit `An update to PromptModal inside a test was not wrapped in act(...)` on stderr. The handler `onCopy` (PromptModal.jsx:271) is `async` — it `await`s `copyToClipboard()` then runs `setCopied(ok)` and `setTimeout(() => setCopied(false), 2000)`. The tests call `fireEvent.click(... copy ...)` synchronously with no `await` and no `act()` wrapper, so the post-await `setCopied` state update lands after the test body returns, outside React's act scope.
+
+**Reproduction (if bug):**
+1. `cd dungeon-scholar && node_modules/.bin/vitest run src/components/ui/PromptModal.test.jsx`
+2. Observe two `not wrapped in act(...)` warnings on stderr.
+3. Tests still PASS (they assert on the clipboard mock, not on the `copied` state).
+
+**Expected behavior (if bug):** No act() warnings; the async state update is awaited/flushed inside the test.
+
+**Hypothesis / root cause:** `onCopy` is async + schedules a 2s `setTimeout`; the tests do not `await`/`act()` the click, so `setCopied(ok)` fires outside act. The dangling 2s timer is also never cleared (no fake timers / cleanup), a minor leak. Two real act violations are masked by the noise.
+
+**Proposed fix / improvement:**
+- [ ] Make the copy click `await act(async () => { fireEvent.click(...) })` (or use `userEvent` + `findBy*`).
+- [ ] Optionally use fake timers and clear the 2s `setCopied(false)` timeout.
+
+**Related files:** `src/components/ui/PromptModal.test.jsx`, `src/components/ui/PromptModal.jsx`
 ### [2026-06-28] DungeonExplore: extract the React-coupled input + state into useDungeonInput / useDungeonState
 > **Resolved 2026-06-28 (scholar-resolver):** Done. Added a DungeonExplore mount smoke test plus an 11-case `useDungeonInput` unit test (arrow/WASD movement, held-key debounce, Z/X/C spells, 1/2/3 potions, E interact, Escape, phase/battle/alive gating, unmount cleanup) as the missing safety net, then extracted **`useDungeonInput`** (keydown/keyup handlers + held-key refs + quaff/cast/interact action refs) behavior-preserving — same `[phase, battle, runState, map, onExit]` effect deps, `tryMove` still invoked from the effect closure — and **`useDungeonState`** (the run-state cluster: pos/facing, hp/shields/mana, score/streak/mistakes, battle, runState, banners) as a grouping hook with plain `useState` relocated and initial vitals passed in. Full suite (749 tests) + build green. Commits `9c4afd13`, `d5377b3e`.
 

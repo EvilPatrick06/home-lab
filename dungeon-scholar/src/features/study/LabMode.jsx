@@ -2,7 +2,6 @@ import { ArrowLeft, Check, ChevronRight, Loader2, Wand2, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react';
 import RichContent from '../../components/RichContent.jsx';
 import { BloomBadge, DifficultyStars } from '../../components/ui/badges.jsx';
-import { ConfirmModal } from '../../components/ui/ConfirmModal.jsx';
 import { gradeAnswer } from '../../services/oracleGrader.js';
 
 function LabMode({
@@ -355,7 +354,7 @@ function LabMode({
           {currentStep && typeof currentStep.difficulty === 'number' && (
             <DifficultyStars value={currentStep.difficulty} />
           )}
-          {currentStep && currentStep.bloomLevel && <BloomBadge level={currentStep.bloomLevel} />}
+          {currentStep?.bloomLevel && <BloomBadge level={currentStep.bloomLevel} />}
         </div>
         {currentStep && !feedback && (
           <div className="space-y-3">

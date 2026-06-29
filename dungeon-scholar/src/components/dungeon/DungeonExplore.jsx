@@ -4,10 +4,9 @@
 // Reach the boss room and survive its 5-question gauntlet to win the run.
 
 import { ArrowLeft } from 'lucide-react';
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { playSfx, startBgm, stopBgm } from '../../audio/sound.js';
 import {
-  BIOME_BOSS_POOL,
   BIOMES,
   buildQuestionLogEntry,
   DIFF_CONFIG,
@@ -18,12 +17,11 @@ import {
   pickBiomeForSubject,
   ROOMS_BY_DIFFICULTY,
   revealDecoration,
-  SIZE_BY_DIFFICULTY,
   TILE,
   takeForesightPreview,
 } from '../../game/dungeonMap.js';
 import { petLevelFromXp } from '../../services/pets.js';
-import { checkAnswerCorrect, DIR_DELTAS, isWalkable, pickOneQuestion, pickQuestions } from './dungeonLogic.js';
+import { checkAnswerCorrect, DIR_DELTAS, isWalkable, pickOneQuestion } from './dungeonLogic.js';
 import {
   BOSS_DISPLAY,
   BOSS_DRAWERS,
@@ -31,7 +29,6 @@ import {
   drawChest,
   drawPlayer,
   drawTile,
-  drawWeapon,
   MOB_DRAWERS,
   PET_DRAWERS,
   TILE_PX,
@@ -125,7 +122,7 @@ function LoadoutSelect({ label, icon, currentId, items, onChange, emptyLabel, su
       <select
         value={currentId || ''}
         disabled={!!disabled}
-        onChange={(e) => onChange && onChange(e.target.value || null)}
+        onChange={(e) => onChange?.(e.target.value || null)}
         className="w-full mt-1 px-2 py-1 rounded-sm text-xs italic focus:outline-hidden"
         style={{
           background: 'rgba(20,12,4,0.85)',
@@ -335,7 +332,7 @@ function BattleModal({
   // since the parent doesn't commit `correctCount` until the 900 ms
   // reveal timer fires.
   const displayHp = revealResult && !revealResult.correct ? Math.max(0, hp - dmgIfWrong) : hp;
-  const displayMobHp = revealResult && revealResult.correct ? Math.max(0, mobHpRemaining - 1) : mobHpRemaining;
+  const displayMobHp = revealResult?.correct ? Math.max(0, mobHpRemaining - 1) : mobHpRemaining;
 
   return (
     <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.78)' }}>
@@ -1077,7 +1074,7 @@ export default function DungeonExplore({
       setNotice({ tone: 'info', text: `Potion slot ${hk} is empty. Slot one in The Hoard.` });
       return;
     }
-    const count = (playerState?.inventory || {})[itemId] || 0;
+    const count = playerState?.inventory?.[itemId] || 0;
     if (count <= 0) {
       const usedLabel = POTION_INFO[itemId]?.name || 'this potion';
       setNotice({ tone: 'info', text: `Slot ${hk}: thou hast no ${usedLabel} left.` });
@@ -1519,7 +1516,7 @@ export default function DungeonExplore({
   // Flee a non-boss battle. Costs 1 shield for basic mobs, 2 shields for
   // elites. Removes the mob and closes the modal.
   const onBattleFlee = () => {
-    if (!battle || battle.type !== 'mob') return;
+    if (battle?.type !== 'mob') return;
     const cost = battle.mobTier === 'elite' ? 2 : 1;
     if (shields < cost) return;
     setShields((s) => s - cost);
@@ -2406,7 +2403,7 @@ export default function DungeonExplore({
               bossId: initial.boss?.kind,
             }
           }
-          onExit={() => onExit && onExit()}
+          onExit={() => onExit?.()}
           onNewDelve={newDelve}
         />
 
@@ -2417,7 +2414,7 @@ export default function DungeonExplore({
             {[0, 1, 2].map((i) => {
               const pid = (equipped.potions || [null, null, null])[i];
               const info = pid ? POTION_INFO[pid] : null;
-              const count = pid ? (playerState?.inventory || {})[pid] || 0 : 0;
+              const count = pid ? playerState?.inventory?.[pid] || 0 : 0;
               const usable = !!info && count > 0;
               return (
                 <button
@@ -2680,7 +2677,7 @@ export default function DungeonExplore({
             ◀
           </button>
           <button
-            onClick={() => onExit && onExit()}
+            onClick={() => onExit?.()}
             className="rounded-sm text-amber-700 text-xs italic"
             style={{
               background: 'rgba(31,24,12,0.7)',

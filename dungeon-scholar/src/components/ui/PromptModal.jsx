@@ -24,11 +24,11 @@ function copyToClipboard(text) {
     ta.select();
     try {
       success = document.execCommand('copy');
-    } catch (e) {
+    } catch (_e) {
       success = false;
     }
     document.body.removeChild(ta);
-  } catch (e) {
+  } catch (_e) {
     success = false;
   }
   if (!success && navigator.clipboard) {

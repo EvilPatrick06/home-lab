@@ -3,9 +3,7 @@ import { applyBackfills } from '../services/backfill.js';
 import { pullSave, pushSave, subscribeSaves, upsertProfile } from '../services/cloudSync.js';
 import { logError } from '../services/logger.js';
 import {
-  CURRENT_SCHEMA_VER,
   clearSyncMeta,
-  hashState,
   hasMeaningfulData,
   loadFromLocalStorage,
   loadSyncMeta,
@@ -146,7 +144,7 @@ export function usePlayerState(defaultState, user = null) {
       writeSyncMeta({ lastSyncedAt: updatedAt, dirty: false });
       setStatus('idle');
       retryAttemptRef.current = 0;
-    } catch (err) {
+    } catch (_err) {
       const next = retryAttemptRef.current;
       if (next < RETRY_DELAYS_MS.length) {
         retryAttemptRef.current = next + 1;
@@ -228,7 +226,7 @@ export function usePlayerState(defaultState, user = null) {
     const channel = new BroadcastChannel(BROADCAST_CHANNEL);
     broadcastChannelRef.current = channel;
     channel.onmessage = (ev) => {
-      if (!ev?.data || ev.data.type !== 'state') return;
+      if (ev.data?.type !== 'state') return;
       // BroadcastChannel structured-clones on send, so reference equality
       // against latestRef would never match — use the hash dedup instead.
       try {
@@ -433,7 +431,7 @@ export function usePlayerState(defaultState, user = null) {
           const { updatedAt } = await pushSave(user.id, latestRef.current);
           lastKnownCloudUpdatedAtRef.current = updatedAt;
           writeSyncMeta({ lastSyncedAt: updatedAt, dirty: false });
-        } catch (err) {
+        } catch (_err) {
           setStatus('offline');
         }
       } else if (choice === 'cloud' && cloudPreview) {

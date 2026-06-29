@@ -153,7 +153,7 @@ const BGM_PHRASES = {
 
 const midiToHz = (n) => 440 * 2 ** ((n - 69) / 12);
 
-const playPhrase = (phrase, biomeId) => {
+const playPhrase = (phrase, _biomeId) => {
   if (!ctx || !bgmGain) return 0;
   let elapsed = 0;
   phrase.forEach(({ n, d }) => {

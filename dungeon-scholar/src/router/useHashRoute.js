@@ -31,7 +31,7 @@ export function parseHash(hash) {
 }
 
 export function formatHash(screen) {
-  return '#/' + screen;
+  return `#/${screen}`;
 }
 
 // Returns [screen, setScreen, pendingTomeId, clearPendingTome]. `setScreen(name)`

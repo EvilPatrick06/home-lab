@@ -49,5 +49,5 @@ async function handleShare(event) {
   } catch {
     // Land the user in the app regardless; the page handles an empty payload.
   }
-  return Response.redirect(self.registration.scope + '?share-target=1', 303);
+  return Response.redirect(`${self.registration.scope}?share-target=1`, 303);
 }
