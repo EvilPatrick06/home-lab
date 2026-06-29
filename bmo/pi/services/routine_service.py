@@ -8,12 +8,13 @@ Data: ~/home-lab/bmo/pi/data/routines.json
 
 import json
 import os
+from services.paths import DATA_DIR as _P_DATA_DIR
 import threading
 import time
 import uuid
 
 
-DATA_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
+DATA_DIR = str(_P_DATA_DIR)
 ROUTINES_FILE = os.path.join(DATA_DIR, "routines.json")
 
 

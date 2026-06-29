@@ -2,6 +2,7 @@
 
 import json
 import os
+from services.paths import DATA_DIR as _P_DATA_DIR
 import threading
 import time
 
@@ -12,10 +13,10 @@ from services.bmo_logging import get_logger
 log = get_logger("music_service")
 
 STREAM_URL_TTL = 18000  # 5 hours — re-extract before expiry
-HISTORY_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/music_history.json")
-PLAY_COUNTS_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/play_counts.json")
-PLAYBACK_STATE_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/playback_state.json")
-SETTINGS_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/settings.json")
+HISTORY_FILE = str(_P_DATA_DIR / "music_history.json")
+PLAY_COUNTS_FILE = str(_P_DATA_DIR / "play_counts.json")
+PLAYBACK_STATE_FILE = str(_P_DATA_DIR / "playback_state.json")
+SETTINGS_FILE = str(_P_DATA_DIR / "settings.json")
 MAX_HISTORY = 100
 
 # Valid output device names

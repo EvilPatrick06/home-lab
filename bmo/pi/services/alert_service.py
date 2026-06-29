@@ -9,13 +9,14 @@ History: ~/home-lab/bmo/pi/data/alert_history.json
 
 import json
 import os
+from services.paths import DATA_DIR as _P_DATA_DIR
 import threading
 import time
 
 import requests
 
 
-DATA_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
+DATA_DIR = str(_P_DATA_DIR)
 CONFIG_FILE = os.path.join(DATA_DIR, "alert_config.json")
 HISTORY_FILE = os.path.join(DATA_DIR, "alert_history.json")
 MAX_HISTORY = 200

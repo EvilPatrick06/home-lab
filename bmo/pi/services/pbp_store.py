@@ -11,13 +11,14 @@ import copy
 import json
 import logging
 import os
+from services.paths import DATA_DIR as _P_DATA_DIR
 import tempfile
 import threading
 from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_PATH = os.path.expanduser("~/home-lab/bmo/pi/data/pbp_sessions.json")  # mirrors campaign_memory.py
+DEFAULT_PATH = str(_P_DATA_DIR / "pbp_sessions.json")  # mirrors campaign_memory.py
 MAX_PARTICIPANTS = 12
 MAX_HISTORY = 100
 MIN_REMINDER_HOURS, MAX_REMINDER_HOURS = 1.0, 168.0

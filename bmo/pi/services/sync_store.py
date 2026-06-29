@@ -23,6 +23,7 @@ from __future__ import annotations
 import base64
 import json
 import os
+from services.paths import DATA_DIR as _P_DATA_DIR
 import re
 import sqlite3
 import time
@@ -67,7 +68,7 @@ def configure(base_dir: str | None = None, db_path: str | None = None) -> None:
 def _root() -> str:
     if _base_dir:
         return _base_dir
-    return os.environ.get("BMO_SYNC_DIR") or os.path.expanduser("~/home-lab/bmo/pi/data/sync")
+    return os.environ.get("BMO_SYNC_DIR") or str(_P_DATA_DIR / "sync")
 
 
 def _dbp() -> str:

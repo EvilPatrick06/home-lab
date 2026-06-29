@@ -12,11 +12,12 @@ Context files are loaded hierarchically: user-level → project-level → subdir
 from __future__ import annotations
 
 import os
+from services.paths import DATA_DIR as _P_DATA_DIR
 from pathlib import Path
 
 # Default locations to search for BMO.md files
-USER_BMO_MD = os.path.expanduser("~/home-lab/bmo/pi/data/BMO.md")
-PROJECT_CONFIGS_DIR = os.path.expanduser("~/home-lab/bmo/pi/data/projects")
+USER_BMO_MD = str(_P_DATA_DIR / "BMO.md")
+PROJECT_CONFIGS_DIR = str(_P_DATA_DIR / "projects")
 
 
 def find_bmo_md(working_dir: str | None = None) -> list[str]:

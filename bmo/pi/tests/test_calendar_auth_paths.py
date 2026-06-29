@@ -10,7 +10,7 @@ from routes.calendar_api import (
     _ensure_calendar_credentials_path,
     _ensure_calendar_token_path,
 )
-from services.calendar_service import CalendarService
+from services.calendar.service import CalendarService
 
 
 class CalendarPathResolutionTests(unittest.TestCase):
@@ -47,7 +47,7 @@ class CalendarPathResolutionTests(unittest.TestCase):
         self.assertEqual(self._normalize(copied_from), legacy)
         self.assertEqual(self._normalize(copied_to), local)
 
-    @patch("services.calendar_service.os.path.exists")
+    @patch("services.calendar.service.os.path.exists")
     def test_calendar_service_prefers_local_paths(self, mock_exists):
         local_credentials = _calendar_config_dir() + "/credentials.json"
         local_token = _calendar_config_dir() + "/token.json"

@@ -6,6 +6,7 @@ to Gemini cloud API. Falls back to local YOLOv8-Nano and Ollama.
 
 import json
 import os
+from services.paths import DATA_DIR as _P_DATA_DIR
 import threading
 import time
 
@@ -15,7 +16,7 @@ import requests
 
 from services.cloud_providers import google_vision_detect
 
-DATA_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
+DATA_DIR = str(_P_DATA_DIR)
 KNOWN_FACES_JSON = os.path.join(DATA_DIR, "known_faces.json")
 SNAPSHOTS_DIR = os.path.join(DATA_DIR, "snapshots")
 

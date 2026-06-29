@@ -16,7 +16,7 @@ import time
 from flask import Blueprint, Response, jsonify, request
 
 from services.bmo_logging import _s, fail
-from services.calendar_service import CalendarReadOnlyEventError
+from services.calendar.service import CalendarReadOnlyEventError
 
 log = logging.getLogger("bmo")
 

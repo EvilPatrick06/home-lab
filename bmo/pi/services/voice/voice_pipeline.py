@@ -9,6 +9,7 @@ import io
 import difflib
 import json
 import os
+from services.paths import BMO_ROOT as _P_BMO_ROOT, DATA_DIR as _P_DATA_DIR, MODELS_DIR as _P_MODELS_DIR
 import queue
 import re
 import subprocess
@@ -28,9 +29,9 @@ from services.bmo_logging import _s, get_logger
 from services.voice.voice_metrics import record_stage as _record_stage
 log = get_logger("voice_pipeline")
 
-MODELS_DIR = os.path.expanduser("~/home-lab/bmo/pi/models")
+MODELS_DIR = str(_P_MODELS_DIR)
 os.makedirs(os.path.join(MODELS_DIR, "piper"), exist_ok=True)
-DATA_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
+DATA_DIR = str(_P_DATA_DIR)
 VOICE_PROFILES_JSON = os.path.join(DATA_DIR, "voice_profiles.json")
 
 EDGE_TTS_VOICE = "en-US-AnaNeural"  # Young/playful voice for BMO
@@ -1971,7 +1972,7 @@ class VoicePipeline:
         try:
             _t0 = time.time()
             # Try venv edge-tts first, then system
-            edge_tts_bin = os.path.expanduser("~/home-lab/bmo/pi/venv/bin/edge-tts")
+            edge_tts_bin = str(_P_BMO_ROOT / "venv/bin/edge-tts")
             if not os.path.isfile(edge_tts_bin):
                 edge_tts_bin = "edge-tts"
             result = subprocess.run(

@@ -6,12 +6,13 @@ and seasonal behaviors. Configurable chattiness and sleep hours.
 
 import json
 import os
+from services.paths import DATA_DIR as _P_DATA_DIR
 import random
 import threading
 import time
 
 
-DATA_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
+DATA_DIR = str(_P_DATA_DIR)
 SETTINGS_FILE = os.path.join(DATA_DIR, "settings.json")
 QUIPS_FILE = os.path.join(DATA_DIR, "personality", "quips.json")
 AT_QUOTES_FILE = os.path.join(DATA_DIR, "personality", "adventure_time_quotes.json")

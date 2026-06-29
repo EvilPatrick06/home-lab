@@ -20,6 +20,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+from services.paths import DATA_DIR as _P_DATA_DIR
 import tempfile
 import threading
 from dataclasses import asdict, dataclass
@@ -99,7 +100,7 @@ class CastEntry:
 def _default_path() -> str:
     return os.environ.get(
         "BMO_VOICE_CAST_PATH",
-        os.path.expanduser("~/home-lab/bmo/pi/data/voice_cast.json"),
+        str(_P_DATA_DIR / "voice_cast.json"),
     )
 
 

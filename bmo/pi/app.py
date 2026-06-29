@@ -22,6 +22,7 @@ monkey.patch_all()
 
 import json
 import os
+from services.paths import DATA_DIR as _P_DATA_DIR
 import secrets
 import subprocess
 import threading
@@ -469,7 +470,7 @@ def ensure_calendar():
     if not _reinit_allowed("calendar"):
         return None
     try:
-        from services.calendar_service import CalendarService
+        from services.calendar.service import CalendarService
         calendar = CalendarService(socketio=socketio)
         service_init_status["calendar"] = {"ok": True, "reinit": True}
         log.info("[bmo]   Calendar: re-init OK")
@@ -682,12 +683,12 @@ def init_services():
 
     # Calendar (Google API)
     if BMO_CANARY:
-        from services.calendar_service import CalendarService  # noqa: F401 — canary import check
+        from services.calendar.service import CalendarService  # noqa: F401 — canary import check
         calendar = None
         log.info("[bmo]   Calendar: CANARY (import-only)")
     else:
         try:
-            from services.calendar_service import CalendarService
+            from services.calendar.service import CalendarService
             calendar = CalendarService(socketio=socketio)
             service_map["calendar"] = calendar
             service_init_status["calendar"] = {"ok": True}
@@ -2242,7 +2243,7 @@ def _restore_agent_history():
 
 # ── Notes API ────────────────────────────────────────────────────────
 
-NOTES_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/notes.json")
+NOTES_FILE = str(_P_DATA_DIR / "notes.json")
 # STATE.notes_list, STATE.notes_lock — moved to state.STATE.notes_list / state.STATE.notes_lock
 
 

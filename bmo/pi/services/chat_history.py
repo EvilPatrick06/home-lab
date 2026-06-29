@@ -12,6 +12,7 @@ app.py at module load. It calls `_agent_resolver()`; app.py installs a resolver 
 import json
 import logging
 import os
+from services.paths import DATA_DIR as _P_DATA_DIR
 import time
 from typing import Any, Callable
 
@@ -58,11 +59,11 @@ def normalize_chat_speaker(speaker, source_voice: bool = False) -> str:
 # ── Chat Persistence ─────────────────────────────────────────────────
 
 # Recent chat buffer — kept in memory, served to frontend on refresh
-RECENT_CHAT_FILE = os.path.expanduser("~/home-lab/bmo/pi/data/recent_chat.json")
+RECENT_CHAT_FILE = str(_P_DATA_DIR / "recent_chat.json")
 MAX_RECENT = 200  # Rolling buffer of recent messages
 
 # DnD session log — permanently saved to its own file
-DND_LOG_DIR = os.path.expanduser("~/home-lab/bmo/pi/data/dnd_sessions")
+DND_LOG_DIR = str(_P_DATA_DIR / "dnd_sessions")
 
 # Late-bound agent accessor (app.py installs the real one via set_agent_resolver).
 _agent_resolver: Callable[[], Any] = lambda: None

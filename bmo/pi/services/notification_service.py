@@ -16,6 +16,7 @@ Usage:
 import hashlib
 import json
 import os
+from services.paths import DATA_DIR as _P_DATA_DIR
 import subprocess
 import threading
 import time
@@ -24,7 +25,7 @@ from services.bmo_logging import _s, get_logger
 log = get_logger("notification_service")
 
 SETTINGS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "settings.json")
-UNKNOWN_NOTIF_LOG = os.path.expanduser("~/home-lab/bmo/pi/data/logs/unknown_notifications.jsonl")
+UNKNOWN_NOTIF_LOG = str(_P_DATA_DIR / "logs/unknown_notifications.jsonl")
 MAX_HISTORY = 100
 DEDUP_WINDOW = 10  # seconds — suppress duplicate notifications within this window
 

@@ -6,12 +6,13 @@ Data persisted to ~/home-lab/bmo/pi/data/lists.json.
 
 import json
 import os
+from services.paths import DATA_DIR as _P_DATA_DIR
 import re
 import time
 import uuid
 
 
-DATA_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
+DATA_DIR = str(_P_DATA_DIR)
 LISTS_FILE = os.path.join(DATA_DIR, "lists.json")
 
 

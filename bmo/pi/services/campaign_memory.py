@@ -8,11 +8,12 @@ context back into the AI DM system.
 
 import sqlite3
 import os
+from services.paths import DATA_DIR as _P_DATA_DIR
 import datetime
 from typing import Optional
 
 
-DB_PATH = os.path.expanduser("~/home-lab/bmo/pi/data/campaign_memory.db")
+DB_PATH = str(_P_DATA_DIR / "campaign_memory.db")
 
 
 class CampaignMemory:
