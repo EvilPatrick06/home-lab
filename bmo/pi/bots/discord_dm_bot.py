@@ -1355,6 +1355,29 @@ class DMBot(commands.Bot):
         vc = self.session.voice_client
         if vc and vc.is_connected():
             return True
+        # BUGFIX: only rejoin when humans are actually in the Dungeon channel.
+        # Narration is narrate-only and only needs a live voice connection when
+        # players are present to hear it. An active session with an empty Dungeon
+        # channel (e.g. an orphaned session restored after a restart, where the
+        # only empty-channel auto-leave path — a human's on_voice_state_update
+        # leave event — never fires) otherwise drives an endless 20–60s rejoin
+        # loop into "🗺️ | Dungeon". End the orphaned session instead of rejoining.
+        target = None
+        for guild in _candidate_guilds(self):
+            target = await self.find_dungeon_channel(guild)
+            if target:
+                break
+        humans = [m for m in target.members if not m.bot] if target else []
+        if not humans:
+            _log("Voice health: no humans in Dungeon channel — ending orphaned session instead of rejoining")
+            if vc:
+                try:
+                    await vc.disconnect(force=True)
+                except Exception:
+                    pass
+            self.session.voice_client = None
+            self.session.reset()
+            return True
         _log("Voice health: connection lost — attempting rejoin")
         if vc:
             # discord.py keeps kicked clients in a stale connected-ish state;
