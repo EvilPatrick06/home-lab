@@ -166,9 +166,8 @@ class VoicePipeline:
         self._audio_queue = queue.Queue()
         self._is_speaking = False
 
-        # Silero VAD model (lazy-loaded)
-        self._silero_vad = None
-        self._silero_vad_tried = False
+        # Silero VAD collaborator (owns the lazy model)
+        self._vad = Vad(self)
 
         # Adaptive ambient noise level (calibrated during wake word listening)
         self._ambient_rms_avg = 0.0
@@ -233,55 +232,10 @@ class VoicePipeline:
         return self._speaker_encoder
 
     def _load_silero_vad(self):
-        """Load Silero VAD model for speech detection. ~1MB, runs on CPU in <1ms."""
-        if self._silero_vad is not None:
-            return self._silero_vad
-        if self._silero_vad_tried:
-            return None
-        self._silero_vad_tried = True
-        try:
-            import torch
-            import torchaudio  # noqa: F401 — required by silero
-            model, utils = torch.hub.load(
-                repo_or_dir='snakers4/silero-vad',
-                model='silero_vad',
-                force_reload=False,
-                trust_repo=True,
-            )
-            self._silero_vad = model
-            log.info("[vad] Silero VAD loaded")
-        except ImportError as exc:
-            # torchaudio (a silero dep) isn't installed in this venv — an
-            # expected optional-dependency gap, not an error. Log once at INFO
-            # instead of an ERROR traceback every boot; energy-only VAD is used.
-            log.info("[vad] Silero VAD unavailable (%s), using energy-only", exc)
-        except Exception:
-            log.exception("[vad] Silero VAD not available, using energy-only")
-        return self._silero_vad
+        return self._vad.load()
 
     def _silero_check_speech(self, audio_int16: np.ndarray) -> float:
-        """Run Silero VAD on audio chunk. Returns max speech probability 0.0-1.0."""
-        vad = self._load_silero_vad()
-        if vad is None:
-            return 1.0  # No VAD = assume speech (fall back to energy-only)
-        try:
-            import torch
-            # Silero v5 expects 512-sample (32ms) windows at 16kHz
-            audio_f32 = audio_int16.flatten().astype(np.float32) / 32768.0
-            window = 512
-            max_prob = 0.0
-            # Process in 512-sample windows, take max probability
-            for i in range(0, len(audio_f32) - window + 1, window):
-                chunk = torch.from_numpy(audio_f32[i:i + window])
-                prob = vad(chunk, SAMPLE_RATE).item()
-                if prob > max_prob:
-                    max_prob = prob
-                if max_prob > 0.5:
-                    break  # Early exit — speech confirmed
-            return max_prob
-        except Exception:
-            log.exception("[vad] Silero error")
-            return 1.0
+        return self._vad.check_speech(audio_int16)
 
     def _load_voice_profiles(self):
         if os.path.exists(VOICE_PROFILES_JSON):
@@ -2178,3 +2132,4 @@ class VoicePipeline:
 
 # ── Collaborators (imported at bottom to avoid an import cycle) ──
 from services.voice.transcriber import Transcriber  # noqa: E402
+from services.voice.vad import Vad  # noqa: E402
