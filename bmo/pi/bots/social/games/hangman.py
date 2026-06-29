@@ -63,12 +63,9 @@ class HangmanGuessModal(discord.ui.Modal, title="Guess a Letter"):
                 gv.game_over = True
                 gv.won = False
 
-        embed = gv._build_embed()
-        if gv.game_over:
-            for item in gv.children:
-                item.disabled = True
+        gv.refresh()
         try:
-            await interaction.response.edit_message(embed=embed, view=gv)
+            await interaction.response.edit_message(view=gv)
         except discord.HTTPException:
             pass
 
@@ -76,7 +73,19 @@ class HangmanGuessModal(discord.ui.Modal, title="Guess a Letter"):
             gv.stop()
 
 
-class HangmanView(discord.ui.View):
+class _HangmanGuessButton(discord.ui.Button):
+    def __init__(self) -> None:
+        super().__init__(label="Guess Letter", style=discord.ButtonStyle.primary)
+
+    async def callback(self, interaction: discord.Interaction) -> None:
+        view: "HangmanView" = self.view  # type: ignore[assignment]
+        if interaction.user.id != view.player.id:
+            await interaction.response.send_message("Not your game!", ephemeral=True)
+            return
+        await interaction.response.send_modal(HangmanGuessModal(view))
+
+
+class HangmanView(discord.ui.LayoutView):
     def __init__(self, player: discord.Member) -> None:
         super().__init__(timeout=120)
         self.player = player
@@ -86,32 +95,28 @@ class HangmanView(discord.ui.View):
         self.wrong = 0
         self.game_over = False
         self.won = False
+        self._btn = _HangmanGuessButton()
+        self._text = discord.ui.TextDisplay(self._content())
+        self._container = discord.ui.Container(self._text, accent_colour=discord.Colour(0x3498DB))
+        self.add_item(self._container)
+        self.add_item(discord.ui.ActionRow(self._btn))
 
     def _word_display(self) -> str:
         return " ".join(c if c in self.guessed else "\\_" for c in self.word_upper)
 
-    def _build_embed(self) -> discord.Embed:
+    def _content(self) -> str:
         stage = _HANGMAN_STAGES[min(self.wrong, 6)]
-        word_display = self._word_display()
-        guessed_str = " ".join(sorted(self.guessed)) if self.guessed else "None"
-
         if self.game_over and self.won:
-            embed = discord.Embed(title="Hangman — You Win! 🎉", color=0x00FF00)
-            embed.description = f"{stage}\n**{self.word}**\n\nCongratulations, {self.player.display_name}!"
-        elif self.game_over:
-            embed = discord.Embed(title="Hangman — Game Over! 💀", color=0xFF0000)
-            embed.description = f"{stage}\n\nThe word was: **{self.word}**"
-        else:
-            embed = discord.Embed(title="Hangman", color=0x3498DB)
-            embed.description = f"{stage}\n**{word_display}**"
-            embed.add_field(name="Guessed", value=guessed_str, inline=True)
-            embed.add_field(name="Wrong", value=f"{self.wrong}/6", inline=True)
-        return embed
+            return (f"## Hangman — You Win! \U0001F389\n{stage}\n**{self.word}**\n\n"
+                    f"Congratulations, {self.player.display_name}!")
+        if self.game_over:
+            return f"## Hangman — Game Over! \U0001F480\n{stage}\n\nThe word was: **{self.word}**"
+        guessed_str = " ".join(sorted(self.guessed)) if self.guessed else "None"
+        return (f"## Hangman\n{stage}\n**{self._word_display()}**\n\n"
+                f"Guessed: {guessed_str} · Wrong: {self.wrong}/6")
 
-    @discord.ui.button(label="Guess Letter", style=discord.ButtonStyle.primary, row=0)
-    async def guess_btn(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        if interaction.user.id != self.player.id:
-            await interaction.response.send_message("Not your game!", ephemeral=True)
-            return
-        await interaction.response.send_modal(HangmanGuessModal(self))
+    def refresh(self) -> None:
+        self._text.content = self._content()
+        if self.game_over:
+            self._container.accent_colour = discord.Colour(0x00FF00 if self.won else 0xFF0000)
+            self._btn.disabled = True

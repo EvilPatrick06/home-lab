@@ -119,12 +119,9 @@ class WordleGuessModal(discord.ui.Modal, title="Wordle Guess"):
             gv.game_over = True
             gv.won = False
 
-        embed = gv._build_embed()
-        if gv.game_over:
-            for item in gv.children:
-                item.disabled = True
+        gv.refresh()
         try:
-            await interaction.response.edit_message(embed=embed, view=gv)
+            await interaction.response.edit_message(view=gv)
         except discord.HTTPException:
             pass
 
@@ -132,7 +129,19 @@ class WordleGuessModal(discord.ui.Modal, title="Wordle Guess"):
             gv.stop()
 
 
-class WordleView(discord.ui.View):
+class _WordleGuessButton(discord.ui.Button):
+    def __init__(self) -> None:
+        super().__init__(label="Guess", style=discord.ButtonStyle.primary)
+
+    async def callback(self, interaction: discord.Interaction) -> None:
+        view: "WordleView" = self.view  # type: ignore[assignment]
+        if interaction.user.id != view.player.id:
+            await interaction.response.send_message("Not your game!", ephemeral=True)
+            return
+        await interaction.response.send_modal(WordleGuessModal(view))
+
+
+class WordleView(discord.ui.LayoutView):
     def __init__(self, player: discord.Member) -> None:
         super().__init__(timeout=300)
         self.player = player
@@ -142,43 +151,28 @@ class WordleView(discord.ui.View):
         self.attempts = 0
         self.game_over = False
         self.won = False
+        self._btn = _WordleGuessButton()
+        self._text = discord.ui.TextDisplay(self._content())
+        self._container = discord.ui.Container(self._text, accent_colour=discord.Colour(0x3498DB))
+        self.add_item(self._container)
+        self.add_item(discord.ui.ActionRow(self._btn))
 
-    def _build_embed(self) -> discord.Embed:
-        lines = []
-        for i in range(len(self.guesses)):
-            lines.append(f"{self.results[i]}  `{self.guesses[i]}`")
-
-        # Pad remaining rows
+    def _board(self) -> str:
+        lines = [f"{self.results[i]}  `{self.guesses[i]}`" for i in range(len(self.guesses))]
         for _ in range(6 - len(self.guesses)):
             lines.append("⬛⬛⬛⬛⬛")
+        return "\n".join(lines)
 
-        board = "\n".join(lines)
-
+    def _content(self) -> str:
+        board = self._board()
         if self.game_over and self.won:
-            embed = discord.Embed(
-                title=f"Wordle — You Win! 🎉 ({self.attempts}/6)",
-                description=board,
-                color=0x00FF00,
-            )
-        elif self.game_over:
-            embed = discord.Embed(
-                title="Wordle — Game Over!",
-                description=f"{board}\n\nThe word was: **{self.word.upper()}**",
-                color=0xFF0000,
-            )
-        else:
-            embed = discord.Embed(
-                title=f"Wordle ({self.attempts}/6)",
-                description=board,
-                color=0x3498DB,
-            )
-            embed.set_footer(text="Click the button to submit a guess!")
-        return embed
+            return f"## Wordle — You Win! \U0001F389 ({self.attempts}/6)\n{board}"
+        if self.game_over:
+            return f"## Wordle — Game Over!\n{board}\n\nThe word was: **{self.word.upper()}**"
+        return f"## Wordle ({self.attempts}/6)\n{board}\n\n*Click the button to submit a guess!*"
 
-    @discord.ui.button(label="Guess", style=discord.ButtonStyle.primary, row=0)
-    async def guess_btn(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        if interaction.user.id != self.player.id:
-            await interaction.response.send_message("Not your game!", ephemeral=True)
-            return
-        await interaction.response.send_modal(WordleGuessModal(self))
+    def refresh(self) -> None:
+        self._text.content = self._content()
+        if self.game_over:
+            self._container.accent_colour = discord.Colour(0x00FF00 if self.won else 0xFF0000)
+            self._btn.disabled = True

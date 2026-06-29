@@ -1,11 +1,24 @@
-"""Blackjack game UI — extracted verbatim from bots/social/bot.py (behaviour-identical god-module split)."""
+"""Blackjack game UI — Components V2."""
 
 import discord
 
 from bots.social.games_logic import _hand_str, _hand_value, _new_deck
 
 
-class BlackjackView(discord.ui.View):
+class _BJButton(discord.ui.Button):
+    def __init__(self, label: str, style: discord.ButtonStyle, action: str) -> None:
+        super().__init__(label=label, style=style)
+        self.action = action
+
+    async def callback(self, interaction: discord.Interaction) -> None:
+        view: "BlackjackView" = self.view  # type: ignore[assignment]
+        if interaction.user.id != view.player.id:
+            await interaction.response.send_message("Not your game!", ephemeral=True)
+            return
+        await getattr(view, self.action)(interaction)
+
+
+class BlackjackView(discord.ui.LayoutView):
     def __init__(self, player: discord.Member) -> None:
         super().__init__(timeout=60)
         self.player = player
@@ -14,93 +27,78 @@ class BlackjackView(discord.ui.View):
         self.dealer_hand: list[tuple[str, str]] = [self.deck.pop(), self.deck.pop()]
         self.doubled = False
         self.game_over = False
+        self.reveal = False
+        self.result = ""
+        self._text = discord.ui.TextDisplay(self._content())
+        self._container = discord.ui.Container(self._text, accent_colour=discord.Colour(0x2F8B4B))
+        self.add_item(self._container)
+        self._row = discord.ui.ActionRow(
+            _BJButton("Hit", discord.ButtonStyle.primary, "hit"),
+            _BJButton("Stand", discord.ButtonStyle.secondary, "stand"),
+            _BJButton("Double Down", discord.ButtonStyle.success, "double"))
+        self.add_item(self._row)
 
-    def _build_embed(self, reveal_dealer: bool = False) -> discord.Embed:
+    def _content(self) -> str:
         pval = _hand_value(self.player_hand)
-        embed = discord.Embed(title="🃏 Blackjack", color=0x2F8B4B)
-        if reveal_dealer:
+        if self.reveal:
             dval = _hand_value(self.dealer_hand)
-            embed.add_field(
-                name=f"Dealer ({dval})",
-                value=_hand_str(self.dealer_hand),
-                inline=False,
-            )
+            dealer = f"**Dealer ({dval})**\n{_hand_str(self.dealer_hand)}"
         else:
-            embed.add_field(
-                name="Dealer (?)",
-                value=_hand_str(self.dealer_hand, hide_first=True),
-                inline=False,
-            )
-        embed.add_field(
-            name=f"{self.player.display_name} ({pval})",
-            value=_hand_str(self.player_hand),
-            inline=False,
-        )
-        return embed
+            dealer = f"**Dealer (?)**\n{_hand_str(self.dealer_hand, hide_first=True)}"
+        player = f"**{self.player.display_name} ({pval})**\n{_hand_str(self.player_hand)}"
+        out = f"## \U0001F0CF Blackjack\n{dealer}\n\n{player}"
+        if self.result:
+            out += f"\n\n**{self.result}**"
+        return out
+
+    def _refresh(self, accent: int = 0x2F8B4B) -> None:
+        self._text.content = self._content()
+        self._container.accent_colour = discord.Colour(accent)
+
+    def _disable(self) -> None:
+        for b in self._row.children:
+            b.disabled = True
 
     async def _finish(self, interaction: discord.Interaction) -> None:
         self.game_over = True
-        # Dealer plays
+        self.reveal = True
         while _hand_value(self.dealer_hand) <= 16:
             self.dealer_hand.append(self.deck.pop())
-
         pval = _hand_value(self.player_hand)
         dval = _hand_value(self.dealer_hand)
-
         if pval > 21:
-            result = "You busted! Dealer wins. 💥"
-            color = 0xFF0000
+            self.result, accent = "You busted! Dealer wins. \U0001F4A5", 0xFF0000
         elif dval > 21:
-            result = "Dealer busted! You win! 🎉"
-            color = 0x00FF00
+            self.result, accent = "Dealer busted! You win! \U0001F389", 0x00FF00
         elif pval > dval:
-            result = "You win! 🎉"
-            color = 0x00FF00
+            self.result, accent = "You win! \U0001F389", 0x00FF00
         elif dval > pval:
-            result = "Dealer wins! 😔"
-            color = 0xFF0000
+            self.result, accent = "Dealer wins! \U0001F614", 0xFF0000
         else:
-            result = "It's a push! (tie) 🤝"
-            color = 0xFFAA00
-
-        embed = self._build_embed(reveal_dealer=True)
-        embed.color = color
-        embed.add_field(name="Result", value=result, inline=False)
-        for item in self.children:
-            item.disabled = True
+            self.result, accent = "It's a push! (tie) \U0001F91D", 0xFFAA00
+        self._disable()
+        self._refresh(accent)
         try:
-            await interaction.response.edit_message(embed=embed, view=self)
+            await interaction.response.edit_message(view=self)
         except discord.HTTPException:
             pass
         self.stop()
 
-    @discord.ui.button(label="Hit", style=discord.ButtonStyle.primary, row=0)
-    async def hit_btn(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        if interaction.user.id != self.player.id:
-            await interaction.response.send_message("Not your game!", ephemeral=True)
-            return
+    async def hit(self, interaction: discord.Interaction) -> None:
         self.player_hand.append(self.deck.pop())
         if _hand_value(self.player_hand) >= 21:
             await self._finish(interaction)
         else:
-            embed = self._build_embed()
-            await interaction.response.edit_message(embed=embed, view=self)
+            self._refresh()
+            try:
+                await interaction.response.edit_message(view=self)
+            except discord.HTTPException:
+                pass
 
-    @discord.ui.button(label="Stand", style=discord.ButtonStyle.secondary, row=0)
-    async def stand_btn(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        if interaction.user.id != self.player.id:
-            await interaction.response.send_message("Not your game!", ephemeral=True)
-            return
+    async def stand(self, interaction: discord.Interaction) -> None:
         await self._finish(interaction)
 
-    @discord.ui.button(label="Double Down", style=discord.ButtonStyle.success, row=0)
-    async def double_btn(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        if interaction.user.id != self.player.id:
-            await interaction.response.send_message("Not your game!", ephemeral=True)
-            return
+    async def double(self, interaction: discord.Interaction) -> None:
         if len(self.player_hand) != 2:
             await interaction.response.send_message("Can only double on first turn!", ephemeral=True)
             return
@@ -108,7 +106,17 @@ class BlackjackView(discord.ui.View):
         self.player_hand.append(self.deck.pop())
         await self._finish(interaction)
 
+    def maybe_natural(self) -> None:
+        if _hand_value(self.player_hand) == 21:
+            self.game_over = True
+            self.reveal = True
+            if _hand_value(self.dealer_hand) == 21:
+                self.result, accent = "Both blackjack! Push! \U0001F91D", 0xFFAA00
+            else:
+                self.result, accent = "Blackjack! You win! \U0001F389", 0x00FF00
+            self._disable()
+            self._refresh(accent)
+
     async def on_timeout(self) -> None:
         if not self.game_over:
-            for item in self.children:
-                item.disabled = True
+            self._disable()
