@@ -985,6 +985,14 @@ def init_services():
         notifier = NotificationService(voice_pipeline=voice, socketio=socketio)
         notifier.start()
         service_map["notifier"] = notifier
+        # PHASE-10 10C: let the health checker mirror critical/degraded
+        # service-down alerts into the notification feed the dashboard bell
+        # reads (both services now exist).
+        if health_checker is not None:
+            try:
+                health_checker.set_notification_sink(notifier.add_system_notification)
+            except Exception:
+                log.exception("[bmo]   Health->notification wiring: SKIPPED")
         log.info("[bmo]   Notifications: OK")
     except Exception:
         log.exception("[bmo]   Notifications: SKIPPED")

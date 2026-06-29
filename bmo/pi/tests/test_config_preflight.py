@@ -74,3 +74,12 @@ def test_logger_is_optional_and_called(monkeypatch, preflight):
     log = _Log()
     preflight.run_preflight(logger=log)
     assert log.msgs  # something was logged
+
+
+# ── PHASE-10 10A — calendar token TTL carries an explicit basis label ──
+
+
+def test_calendar_token_ttl_basis_label_present(monkeypatch, preflight):
+    r = preflight.run_preflight()
+    assert "calendar_token_ttl_basis" in r
+    assert "credential file" in r["calendar_token_ttl_basis"]

@@ -32,7 +32,7 @@
 | 07 | [`PHASE-07-list-endpoint-request-robustness.md`](./completed/PHASE-07-list-endpoint-request-robustness.md) | bmo | — | done |
 | 08 | [`PHASE-08-deploy-runtime-version-truth.md`](./completed/PHASE-08-deploy-runtime-version-truth.md) | bmo | — | done |
 | 09 | [`PHASE-09-chat-agent-module-init.md`](./completed/PHASE-09-chat-agent-module-init.md) | bmo | — | done |
-| 10 | [`PHASE-10-service-health-truth.md`](./PHASE-10-service-health-truth.md) | bmo | — | pending |
+| 10 | [`PHASE-10-service-health-truth.md`](./completed/PHASE-10-service-health-truth.md) | bmo | — | done |
 | 11 | [`PHASE-11-dashboard-ux-round.md`](./PHASE-11-dashboard-ux-round.md) | bmo | — | pending |
 
 > **Provenance of this batch:** PHASE-01..03 were consolidated from
