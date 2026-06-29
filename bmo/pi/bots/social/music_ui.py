@@ -39,8 +39,16 @@ class MusicQueue:
         self.pause_offset: float = 0.0
         # Queue pagination
         self.page: int = 0
-        # Autoplay
-        self.autoplay: bool = False
+        # Autoplay (radio). Default ON: when the visible queue runs dry BMO
+        # fills the dead air with related "radio" tracks. Those picks live ONLY
+        # in autoplay_pool below — they are never added to self.tracks, never
+        # shown in the queue display, and never persisted. User requests always
+        # win: _on_track_end drains self.tracks (real requests) before it ever
+        # consults the radio reservoir.
+        self.autoplay: bool = True
+        # Invisible radio reservoir + per-session seen-set (de-dupes picks).
+        self.autoplay_pool: list[dict] = []
+        self.autoplay_seen: set[str] = set()
         # Seeking flag (prevents _on_track_end from advancing)
         self.seeking: bool = False
         # Background tasks
@@ -66,6 +74,9 @@ class MusicQueue:
         self.tracks.clear()
         self.current = None
         self.page = 0
+        # Drop the invisible radio reservoir too so a fresh /stop reseeds clean.
+        self.autoplay_pool.clear()
+        self.autoplay_seen.clear()
 
 
 class VolumeSelect(discord.ui.Select):
@@ -227,6 +238,40 @@ class LoopButton(_MusicBtn):
         await self._refresh(interaction)
 
 
+class ClearQueueButton(_MusicBtn):
+    """Empty the upcoming queue in one tap — keeps the current track playing."""
+
+    def __init__(self, guild_id: int, disabled: bool = False):
+        super().__init__(guild_id, emoji="\U0001F5D1️", label="Clear Queue",
+                         style=discord.ButtonStyle.danger,
+                         custom_id="music_clear_queue", disabled=disabled)
+
+    async def callback(self, interaction: discord.Interaction) -> None:
+        queue = _get_queue(self.guild_id)
+        # Clear ONLY the upcoming queue; the current track keeps playing.
+        queue.tracks.clear()
+        queue.autoplay_pool.clear()
+        queue.page = 0
+        await self._refresh(interaction)
+
+
+class AutoplayButton(_MusicBtn):
+    """Toggle the autoplay radio that fills dead air when the queue empties."""
+
+    def __init__(self, guild_id: int, on: bool):
+        super().__init__(guild_id, emoji="\U0001F4FB",
+                         label=("Radio On" if on else "Radio Off"),
+                         style=(discord.ButtonStyle.success if on else discord.ButtonStyle.secondary),
+                         custom_id="music_autoplay")
+
+    async def callback(self, interaction: discord.Interaction) -> None:
+        queue = _get_queue(self.guild_id)
+        queue.autoplay = not queue.autoplay
+        if not queue.autoplay:
+            queue.autoplay_pool.clear()
+        await self._refresh(interaction)
+
+
 def build_music_panel(guild_id: int) -> discord.ui.LayoutView:
     """Components-V2 now-playing + controls panel (replaces the embed + classic View)."""
     queue = _get_queue(guild_id)
@@ -291,5 +336,7 @@ def build_music_panel(guild_id: int) -> discord.ui.LayoutView:
     total_pages = max(1, (len(queue.tracks) + 4) // 5)
     view.add_item(discord.ui.ActionRow(
         PageButton("\u25C0\uFE0F", "page_prev", guild_id, disabled=not has_pages or queue.page <= 0),
-        PageButton("\u25B6\uFE0F", "page_next", guild_id, disabled=not has_pages or queue.page >= total_pages - 1)))
+        PageButton("\u25B6\uFE0F", "page_next", guild_id, disabled=not has_pages or queue.page >= total_pages - 1),
+        ClearQueueButton(guild_id, disabled=not queue.tracks),
+        AutoplayButton(guild_id, queue.autoplay)))
     return view

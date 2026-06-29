@@ -644,7 +644,9 @@ class SocialBot(commands.Bot):
                     _rps_cmd, _blackjack_cmd, _slots_cmd,
                     _hangman_cmd, _wordle_cmd, _connect4_cmd,
                     # Mega Phase 5: Music + Polls + Reminders
-                    _replay_cmd, _skipto_cmd, _poll_cmd, _remind_cmd]:
+                    _replay_cmd, _skipto_cmd, _poll_cmd, _remind_cmd,
+                    # Music queue tools: clear / remove-range / play-now
+                    _clearqueue_cmd, _removerange_cmd, _playnow_cmd]:
             self.tree.add_command(cmd)
 
     async def setup_hook(self) -> None:
@@ -1348,47 +1350,81 @@ async def _on_track_end(guild_id: int) -> None:
                 pass
 
 
+def _fill_autoplay_pool(queue: MusicQueue, last_track: Optional[dict]) -> None:
+    """Populate the invisible radio reservoir (queue.autoplay_pool) from a
+    YouTube Mix seeded by the last-played track. Blocking yt-dlp work — call
+    inside an executor. NEVER touches queue.tracks, so radio picks stay out of
+    the visible queue, the queue display, and anything that persists the queue.
+    """
+    last_id = last_track.get("id", "") if last_track else ""
+    last_title = last_track.get("title", "") if last_track else ""
+    picks: list[dict] = []
+    if last_id:
+        try:
+            mix_url = f"https://www.youtube.com/watch?v={last_id}&list=RD{last_id}"
+            _, tracks = _extract_playlist_tracks(mix_url)
+            picks = [t for t in tracks if t.get("id") and t.get("id") != last_id]
+        except Exception:
+            picks = []
+    if not picks and last_title:
+        try:
+            t = _search_youtube(f"{last_title} radio")
+            if t:
+                picks = [t]
+        except Exception:
+            picks = []
+    seen = queue.autoplay_seen
+    fresh = [p for p in picks if p.get("id", "") not in seen]
+    queue.autoplay_pool.extend(fresh[:10])
+
+
 async def _autoplay_next(queue: MusicQueue, last_track: dict, guild_id: int, channel) -> None:
-    """Find and play related tracks when queue empties and autoplay is on."""
-    last_id = last_track.get("id", "")
-    last_title = last_track.get("title", "")
-    if not last_title:
+    """Fill empty-queue dead air with an INVISIBLE radio track.
+
+    Radio picks are never added to queue.tracks, never listed in the queue
+    display, and never persisted — they live only in queue.autoplay_pool. This
+    runs only after _on_track_end has already drained queue.next() (real user
+    requests), so autoplay can never preempt or jump ahead of a requested song.
+    """
+    if not queue.autoplay:
         queue.current = None
         return
 
     loop = asyncio.get_running_loop()
 
-    # Try YouTube Mix first
-    if last_id:
-        try:
-            mix_url = f"https://www.youtube.com/watch?v={last_id}&list=RD{last_id}"
-            _, tracks = await loop.run_in_executor(None, lambda: _extract_playlist_tracks(mix_url))
-            tracks = [t for t in tracks if t.get("id") != last_id][:5]
-            if tracks:
-                for t in tracks:
-                    t["requester"] = "Autoplay"
-                    queue.add(t)
-                first = queue.next()
-                if first:
-                    await _start_playing(queue, first, guild_id, channel)
-                    return
-        except Exception:
-            pass
+    # Refill the invisible reservoir if it has run dry.
+    if not queue.autoplay_pool:
+        await loop.run_in_executor(None, lambda: _fill_autoplay_pool(queue, last_track))
 
-    # Fallback: search YouTube
-    try:
-        track = await loop.run_in_executor(None, lambda: _search_youtube(f"{last_title} mix"))
-        if track:
-            track["requester"] = "Autoplay"
-            await _start_playing(queue, track, guild_id, channel)
-            return
-    except Exception:
-        pass
+    # Pop the next fresh radio pick (skip anything already played this session).
+    pick: Optional[dict] = None
+    while queue.autoplay_pool:
+        cand = queue.autoplay_pool.pop(0)
+        vid = cand.get("id", "")
+        if vid and vid in queue.autoplay_seen:
+            continue
+        pick = cand
+        break
 
-    queue.current = None
-    vc = queue.voice_client
-    if vc and vc.is_connected() and vc.guild:
-        await _set_deaf(vc.guild, vc, False)
+    if not pick:
+        # No radio track available — go idle cleanly.
+        queue.current = None
+        vc = queue.voice_client
+        if vc and vc.is_connected() and vc.guild:
+            await _set_deaf(vc.guild, vc, False)
+        if queue.control_message and queue.control_channel:
+            try:
+                await queue.control_message.edit(view=build_music_panel(guild_id))
+            except (discord.NotFound, discord.HTTPException):
+                pass
+        return
+
+    vid = pick.get("id", "")
+    if vid:
+        queue.autoplay_seen.add(vid)
+    pick["requester"] = "📻 Radio"
+    pick["_autoplay"] = True
+    await _start_playing(queue, pick, guild_id, channel)
 
 
 async def _play_next(guild_id: int) -> None:
@@ -1648,7 +1684,10 @@ async def _help_cmd(interaction: discord.Interaction) -> None:
             "**/seek** `<timestamp>` — Seek to a position (e.g. 1:23)\n"
             "**/replay** — Restart the current track\n"
             "**/skipto** `<position>` — Skip to a queue position\n"
+            "**/playnow** `<query>` — Play a song now, jumping ahead of the queue\n"
+            "**/clearqueue** — Clear the upcoming queue (keeps the current track)\n"
             "**/remove** `<position>` — Remove a track from the queue\n"
+            "**/removerange** `<start> <end>` — Remove a range of tracks\n"
             "**/move** `<from> <to>` — Move a track in the queue\n"
             "**/lyrics** — Get lyrics for the current song\n"
             "**/autoplay** — Toggle autoplay when queue ends\n"
@@ -1851,6 +1890,99 @@ async def _autoplay_cmd(interaction: discord.Interaction) -> None:
     queue.autoplay = not queue.autoplay
     status = "enabled" if queue.autoplay else "disabled"
     await interaction.response.send_message(f"🔄 Autoplay **{status}**!")
+
+
+@app_commands.command(name="clearqueue", description="Clear the upcoming queue (keeps the current track playing)")
+async def _clearqueue_cmd(interaction: discord.Interaction) -> None:
+    if not interaction.guild:
+        await interaction.response.send_message("Server only!", ephemeral=True)
+        return
+    queue = _get_queue(interaction.guild.id)
+    count = len(queue.tracks)
+    queue.tracks.clear()
+    queue.autoplay_pool.clear()
+    queue.page = 0
+    if count == 0:
+        await interaction.response.send_message("The queue is already empty!", ephemeral=True)
+        return
+    plural = "s" if count != 1 else ""
+    await interaction.response.send_message(
+        f"🗑️ Cleared **{count}** track{plural} from the queue. The current track keeps playing."
+    )
+    await _send_or_update_controls(queue, interaction.channel, interaction.guild.id)
+
+
+@app_commands.command(name="removerange", description="Remove a range of tracks from the queue")
+@app_commands.describe(start="First position to remove (1-based)", end="Last position to remove (inclusive)")
+async def _removerange_cmd(interaction: discord.Interaction, start: int, end: int) -> None:
+    if not interaction.guild:
+        await interaction.response.send_message("Server only!", ephemeral=True)
+        return
+    queue = _get_queue(interaction.guild.id)
+    n = len(queue.tracks)
+    if n == 0:
+        await interaction.response.send_message("The queue is empty!", ephemeral=True)
+        return
+    if start < 1 or end > n or start > end:
+        await interaction.response.send_message(
+            f"Invalid range! Queue has {n} track(s). Use 1–{n}.", ephemeral=True)
+        return
+    removed = queue.tracks[start - 1:end]
+    del queue.tracks[start - 1:end]
+    queue.page = 0
+    await interaction.response.send_message(
+        f"🗑️ Removed **{len(removed)}** track(s) (#{start}–#{end}) from the queue.")
+    await _send_or_update_controls(queue, interaction.channel, interaction.guild.id)
+
+
+@app_commands.command(name="playnow", description="Play a song immediately, jumping ahead of the queue")
+@app_commands.describe(query="Song name or URL to play right now")
+@app_commands.autocomplete(query=_play_autocomplete)
+async def _playnow_cmd(interaction: discord.Interaction, query: str) -> None:
+    member = interaction.user
+    if not isinstance(member, discord.Member) or not member.voice:
+        await interaction.response.send_message("You need to be in a voice channel!", ephemeral=True)
+        return
+    voice_channel = member.voice.channel
+    if not voice_channel or not interaction.guild:
+        await interaction.response.send_message("Couldn't find your voice channel!", ephemeral=True)
+        return
+
+    await interaction.response.defer()
+    guild = interaction.guild
+    guild_id = guild.id
+    queue = _get_queue(guild_id)
+
+    vc = await _ensure_voice(guild, voice_channel)
+    if not vc:
+        await interaction.followup.send("Couldn't join your voice channel!")
+        return
+
+    loop = asyncio.get_running_loop()
+    q = query
+    if q.startswith(("http://", "https://")) and _is_spotify_url(q):
+        q = await _spotify_to_search(q) or q
+    if q.startswith(("http://", "https://")):
+        track = await loop.run_in_executor(None, lambda: _extract_track_info(q))
+    else:
+        track = await loop.run_in_executor(None, lambda: _search_youtube(q))
+    if not track:
+        await interaction.followup.send(f"Couldn't find anything for: **{query}**")
+        return
+
+    track["requester"] = member.display_name
+    track["requester_id"] = member.id
+
+    # Interrupt the current track and play this one NOW. The existing upcoming
+    # queue is preserved and resumes after. seeking=True stops the dying track's
+    # after_play from auto-advancing into the wrong song.
+    channel = queue.control_channel or interaction.channel
+    if vc.is_playing() or vc.is_paused():
+        queue.seeking = True
+        vc.stop()
+        await asyncio.sleep(0.3)
+    await _start_playing(queue, track, guild_id, channel)
+    await interaction.followup.send(f"▶️ Now playing **{track['title']}** — jumped ahead of the queue!")
 
 
 # ── Phase 3: Soundboard + 8ball + Coinflip + Anime ──────────────────
