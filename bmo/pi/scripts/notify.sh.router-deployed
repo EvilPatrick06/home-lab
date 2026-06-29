@@ -1,16 +1,12 @@
 #!/usr/bin/env bash
 # notify.sh — BMO notification router (board-first; SMS only as failsafe).
-#
-# STABLE signature (every scheduled task depends on it): notify.sh <sev> <subject> <body>
-#   severity: info | warn | error
-#
-# Routine notifications go to the BMO status board (the single live surface) via
-# notify-board, NOT SMS. notify.sh callers are the dev/ops AGENTS, so by default
-# their items land in the board's 🤖 Agents section. A caller may override the
-# section with NOTIFY_BOARD_CATEGORY (the life feeds set attention/info/today).
-#
-# SMS (notify-sms.sh) fires ONLY when the board is unreachable (fallback so an
-# alert is never lost) or NOTIFY_FORCE_SMS=1 (the board_watchdog dead-man's-switch).
+# STABLE signature: notify.sh <sev> <subject> <body>   (severity: info|warn|error)
+# Routine notices go to the BMO status board via notify-board, NOT SMS.
+# Agent callers default to the 🤖 Agents section. NON-ACTIONABLE agent FYIs
+# (info severity, no explicit NOTIFY_BOARD_CATEGORY) are dropped so the board
+# only shows things that need action. Life feeds set NOTIFY_BOARD_CATEGORY to
+# post info/today items (calendar, digests) which DO belong on the board.
+# SMS (notify-sms.sh) fires only when the board is unreachable, or NOTIFY_FORCE_SMS=1.
 set -u
 TOOLS_DIR="${HOME}/.claude-tools"
 LOG="${TOOLS_DIR}/notify.log"
@@ -23,12 +19,11 @@ body="${3:-}"
 stamp() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 touch "${LOG}" 2>/dev/null || true
 
-# Failsafe path: forced SMS (board_watchdog / explicit override).
+# Failsafe: forced SMS (board_watchdog / explicit override).
 if [[ "${NOTIFY_FORCE_SMS:-0}" == "1" ]]; then
   exec "${SMS}" "${severity}" "${subject}" "${body}"
 fi
 
-# Severity → board dot; category defaults to the Agents section.
 case "${severity}" in
   error)        bsev="critical" ;;
   warn|warning) bsev="warning"  ;;
@@ -36,7 +31,12 @@ case "${severity}" in
 esac
 cat="${NOTIFY_BOARD_CATEGORY:-agent}"
 
-# Stable key from the subject so a recurring alert updates ONE board row.
+# Non-actionable agent FYI (info, no explicit category) → don't clutter the board.
+if [[ "${bsev}" == "info" && -z "${NOTIFY_BOARD_CATEGORY:-}" ]]; then
+  echo "$(stamp) SKIP non-actionable agent info :: ${subject}" >> "${LOG}"
+  exit 0
+fi
+
 key=$(printf '%s' "${subject}" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-*//;s/-*$//' | cut -c1-48)
 [[ -z "${key}" ]] && key="alert"
 detail=$(printf '%s' "${body}" | tr '\n' ' ' | cut -c1-200)
@@ -45,7 +45,5 @@ if [[ -x "${BOARD}" ]] && "${BOARD}" set "${cat}" "${cat}:${key}" "${cat}" "${su
   echo "$(stamp) BOARD [${severity}/${cat}] ${subject} (${cat}:${key})" >> "${LOG}"
   exit 0
 fi
-
-# Board unreachable → don't lose the alert; fall back to SMS.
 echo "$(stamp) BOARD-FAILED -> SMS fallback [${severity}] ${subject}" >> "${LOG}"
 exec "${SMS}" "${severity}" "${subject}" "${body}"
