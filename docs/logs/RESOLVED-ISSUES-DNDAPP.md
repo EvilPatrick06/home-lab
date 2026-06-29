@@ -12,6 +12,38 @@
 
 ---
 
+### [2026-06-24] Campaign on-disk `.versions/` backups are write-only — no list/restore IPC or UI (asymmetric with characters)
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-29
+- **Resolution:** Full feature shipped, end to end. Backend: `listCampaignVersions` / `restoreCampaignVersion` in `campaign-storage.ts` (mirrors the character API incl. the path-traversal guard + CHR-2 UTC-`Z` timestamp fix), `CAMPAIGN_VERSIONS` / `CAMPAIGN_RESTORE_VERSION` IPC channels + handlers (handler-side traversal guard + `logSecurityEvent`), preload methods + `CampaignAPI` types. UI: new reusable `campaign-detail/CampaignVersionHistory.tsx` (history list + restore-confirm modals, mirrors the character version-history UI), mounted in `CampaignDetailPage` action row, with i18n keys in en + es (parity green). +8 storage tests, +2 component render tests; tsc web+node, biome, IPC-surface (243), locale-parity all green. (Store-unification with the renderer autosave store was reconciled in practice by the IndexedDB autosave migration — see that resolved entry.)
+- **Category:** future-idea, UX
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Branch:** auto/dnd-resolver
+
+### [2026-06-24] Renderer autosave stores full game-state snapshots in `localStorage` — quota-bound + synchronous, fragile on large campaigns and on the web target
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-29
+- **Resolution:** Snapshot bodies now persist to **IndexedDB** (async, large quota, no main-thread `setItem` jank) via the new dependency-free `autosave-snapshot-store.ts`, with a graceful **localStorage fallback** when IndexedDB is unavailable (web fallback / non-browser); the small per-campaign manifest stays in localStorage. Restore reads IndexedDB first then localStorage (migrates older saves transparently); delete clears both. The earlier-shipped fail-loud quota safeguard (eviction loop + error toast) remains for the fallback path. Tests: existing 14 autosave tests pass unchanged via the fallback path (node env), + 2 new IndexedDB-path tests using `fake-indexeddb` (happy-dom). This delivers items 1 (off localStorage → IndexedDB) and 3 (async writes); the quota safeguard (item 2) shipped earlier. 0 npm-audit vulns from the new devDep.
+- **Category:** future-idea, portability, performance
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Branch:** auto/dnd-resolver
+
+### [2026-06-28] PHASE-56E Spanish menu / character-card i18n walk needs the deployed web build to verify
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-29
+- **Resolution:** Drove the Español walk against the LIVE web build (`bmo.mybmoai.work/DungeonTableOnline/`) via the browser tools. Main-menu hero: fully localized — the one English token ("Dungeon Master") is a deliberate kept term, consistent across all of es.json (`dungeonMaster: "Dungeon Master"`), not a leak. Character cards: found one genuine carried leak — the status badge rendered the raw English `character.status` ("Retired"/"Deceased") while the filter tabs already translate it; fixed `CharacterCard.tsx` to use new `ui.characterCard.statusRetired/statusDeceased` keys (en + es, parity + generated-keys regenerated). The card's race/class/alignment ("Dwarf fighter", "Lawful Good") are un-localized 5e CONTENT values (not UI strings) — out of PHASE-56E scope; logged here as the remaining content-localization gap, not a carried i18n leak.
+- **Category:** future-idea, i18n
+- **Severity:** low
+- **Domain:** dnd-app
+- **Branch:** auto/dnd-resolver
+
+---
+
 ### [2026-06-25] dnd-app CI omits the doc/i18n drift guards that `check:full` defines, and `gen:ipc-surface` has no `--check` mode
 
 - **Resolved by:** dnd-resolver (automated)

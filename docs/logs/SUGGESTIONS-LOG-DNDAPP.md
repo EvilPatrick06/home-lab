@@ -203,6 +203,8 @@ This is distinct from the existing `ai-service.ts` decompose entry (that's a mai
 
 > **2026-06-29 (dnd-resolver) — APPROVED; left for a focused refactor (not done this run).** Decomposing the 1,331-LOC `GameLayout.tsx` / 1,378-LOC `PdfViewer.tsx` stateful cores is a judgment-heavy refactor whose correctness the cheap local CI gate cannot confirm (tsc/biome/unit tests will not catch a broken render), and it would be a large diff on the busiest UI files that risks blocking the integrator's merge of this run's verified fixes. Left diagnosed under the workflow (b) exception (needs visual/runtime verification + seam judgment), not abandoned.
 
+> **2026-06-29 (dnd-resolver, deferred follow-up) — FIRST EXTRACTION SHIPPED.** Extracted GameLayout's panel-resize concern (bottom-bar + sidebar collapse state, persisted sizes, drag/double-click handlers) into `game-layout/use-panel-resize.ts` (GameLayout -52 lines; tsc + GameLayout test green). This is the first increment of the 'continue extracting' work — `PdfViewer.tsx` and further `GameLayout` sub-regions remain monolithic and are the next slices.
+
 ---
 
 ### [2026-06-25] DO NOT "dedupe" the `shared/types/*` <-> `renderer/src/types/*` re-export shims — the duplicate basenames are an intentional process-boundary split
@@ -220,49 +222,6 @@ This is distinct from the existing `ai-service.ts` decompose entry (that's a mai
 **What to do instead:** Leave both files. Treat `src/shared/types/*` as canonical (type-only, no runtime) and `src/renderer/src/types/*` as the renderer-facing re-export + runtime-helper layer. Add new shared types in `shared/`, re-export from the renderer shim, and keep renderer-only helpers in the shim. (Recording here so future cleanup/scanner runs — including this one — do not re-propose the merge.)
 
 **Related files:** `dnd-app/src/shared/types/character-5e.ts`, `dnd-app/src/renderer/src/types/character-5e.ts`, `dnd-app/src/shared/types/character-common.ts`, `dnd-app/src/shared/types/companion.ts`, `dnd-app/src/shared/types/library.ts`
-### [2026-06-24] Campaign on-disk `.versions/` backups are write-only — no list/restore IPC or UI (asymmetric with characters)
-
-- **Category:** future-idea, UX
-- **Severity:** medium
-- **Domain:** dnd-app
-- **Discovered by:** dnd-suggestor
-- **During:** dnd-app tree review (storage layer + version-history survey)
-
-**Description:**
-`campaign-storage.ts` (saveCampaign, ~L55-75) writes a timestamped versioned backup to `<campaignsDir>/.versions/<id>/<id>_<ts>.json` before every overwrite and prunes to the latest 20 — a real, working safety net. But unlike characters, **none of it is reachable by the user.** Characters get the full path: on-disk `.versions/` PLUS `listCharacterVersions` / `restoreCharacterVersion` in `character-storage.ts`, the `CHARACTER_VERSIONS` + `CHARACTER_RESTORE_VERSION` IPC channels, and a restore UI in `CharacterSheet5ePage.tsx`. For campaigns there is **no `listCampaignVersions` / `restoreCampaignVersion`, no `CAMPAIGN_VERSIONS` / `CAMPAIGN_RESTORE_VERSION` IPC channel, and no UI** (grep confirms only the character variants exist). So the 20 campaign backups silently accumulate on disk and the user has no way to see or roll back to them when a campaign gets corrupted or a bad AI/DM action mangles state — the exact scenario the backups were written for. This also overlaps confusingly with the *separate* renderer-side autosave system (`services/io/auto-save.ts`) that keeps its own campaign "versions" in localStorage with its own UI — two parallel, non-interoperating version stores for the same object.
-
-**Proposed fix / improvement:**
-- [ ] Add `listCampaignVersions(id)` / `restoreCampaignVersion(id, fileName)` to `campaign-storage.ts` mirroring the character API (including the same path-traversal guard the character restore handler already applies to `fileName`).
-- [ ] Expose them via new `CAMPAIGN_VERSIONS` / `CAMPAIGN_RESTORE_VERSION` IPC channels and a restore-from-history UI (campaign detail / load screen), reusing the character version-list component if practical.
-- [ ] Decide how the on-disk `.versions/` store and the renderer localStorage autosave store should relate — ideally unify them so the user sees one coherent version history rather than two.
-
-**Related files:** `dnd-app/src/main/storage/campaign-storage.ts` (`.versions/` write ~L55-75), `dnd-app/src/main/storage/character-storage.ts` (`listCharacterVersions`/`restoreCharacterVersion`), `dnd-app/src/main/ipc/storage-handlers.ts` (`CHARACTER_VERSIONS`/`CHARACTER_RESTORE_VERSION`), `dnd-app/src/shared/ipc-channels.ts`, `dnd-app/src/renderer/src/services/io/auto-save.ts`, `dnd-app/src/renderer/src/pages/CharacterSheet5ePage.tsx`
-
-> **2026-06-29 (dnd-resolver) — BACKEND SHIPPED on `auto/dnd-resolver`; restore UI residual.** Implemented the reachable API: `listCampaignVersions` / `restoreCampaignVersion` in `campaign-storage.ts` (mirrors the character API incl. the path-traversal guard + the CHR-2 UTC-`Z` timestamp fix), new `CAMPAIGN_VERSIONS` / `CAMPAIGN_RESTORE_VERSION` IPC channels + handlers (handler-side traversal guard + `logSecurityEvent`), and `window.api.campaign.listCampaignVersions/restoreCampaignVersion` in preload + types. +8 storage unit tests; tsc/biome green; IPC-SURFACE regenerated (243 channels). RESIDUAL: the restore-from-history UI panel + placement in the campaign load/detail screen (needs visual verification), and the decision to unify the on-disk `.versions/` store with the renderer autosave store (see the autosave entry below).
-
----
-
-### [2026-06-24] Renderer autosave stores full game-state snapshots in `localStorage` — quota-bound + synchronous, fragile on large campaigns and on the web target
-
-- **Category:** future-idea, portability, performance
-- **Severity:** medium
-- **Domain:** dnd-app
-- **Discovered by:** dnd-suggestor
-- **During:** dnd-app tree review (autosave service + web-persistence survey)
-
-**Description:**
-`services/io/auto-save.ts` periodically (default every 5 min, `maxVersions` 10) serializes the **entire game state** to JSON and stores each version under its own `localStorage` key (`autosave:<campaignId>:<versionId>`), plus a per-campaign manifest. `localStorage` has a hard ~5-10 MB per-origin quota, is **synchronous** (each `setItem` blocks the main thread), and throws `QuotaExceededError` on overflow. A large campaign (many tokens, maps, fog/lighting, drawings, NPC memory) serialized × up to 10 versions can realistically approach or exceed that quota, at which point `setItem` throws and autosaves are silently lost — or, worse, the throw cascades into other `localStorage`-backed settings writes. This is most acute on the **web target** (`build:web`), where there is no Electron file-system fallback at all, so localStorage is the only persistence the autosave path has. IndexedDB (async, hundreds of MB+ quota, structured-clone instead of JSON-stringify) is the standard home for blobs this size; in the Electron build the main-process file store (which already has the campaign `.versions/` mechanism) is an even better home.
-
-**Proposed fix / improvement:**
-- [ ] Move autosave snapshot bodies off `localStorage` to IndexedDB (keep only the small manifest in localStorage if convenient), or in the Electron build route them through a main-process IPC into the existing on-disk version store.
-- [ ] Wrap the current `setItem` writes in `QuotaExceededError` handling as an immediate safeguard (evict oldest version + retry, and surface a toast) so autosave fails loud, not silent.
-- [ ] Make the write async / chunked so a large snapshot doesn't jank the frame during a session.
-
-**Related files:** `dnd-app/src/renderer/src/services/io/auto-save.ts`, `dnd-app/src/renderer/src/constants/settings-keys.ts` (`autosaveVersions`/`autosaveVersion` key builders), `dnd-app/docs/WEB-VERSION-PLAN.md`
-
-**Related entries:** [2026-06-24] "Campaign on-disk `.versions/` backups are write-only…" (the two version systems should be reconciled).
-
-> **2026-06-29 (dnd-resolver) — FAIL-LOUD SAFEGUARD SHIPPED on `auto/dnd-resolver`; IndexedDB migration residual.** Replaced the silent single-shot quota retry in `auto-save.ts` with a robust eviction LOOP (`persistSnapshotWithEviction` drains oldest versions until the write fits) plus a loud `addToast(..., 'error')` when a snapshot still cannot be persisted — autosave now fails loud, not silent (the immediate safeguard the entry asked for). `QuotaExceededError` is detected cross-browser; serialization errors are not mistaken for quota. +2 tests; suite green. RESIDUAL: moving snapshot bodies off `localStorage` to IndexedDB / a main-process store + async/chunked writes — a larger architectural change entangled with the campaign-version store-unification decision above.
 
 ---
 
@@ -286,21 +245,6 @@ The i18n stack (`src/renderer/src/i18n/`) ships two locales, `en` and `es`, both
 
 > **2026-06-29 (dnd-resolver) — document-`dir`/`lang` INFRA already present on master; CSS logical-property sweep residual.** Verified the first proposed-fix item is done on master: `i18n/index.ts` `applyDocumentLocale()` sets `document.documentElement.dir` (via `dirFor` + `RTL_LOCALES`) and `lang` on `languageChanged` and first paint, covered by `document-locale.test.ts` (WEB-I18N-1 / phase-56). RESIDUAL: the physical→logical Tailwind migration (`ml/pl/left` → `ms/ps/start`) across ~164 components — not done blind, because not every physical class should become logical and there is no RTL locale to verify against (the entry itself gates adding one). Best done as a focused pass with the actual RTL-locale decision.
 
----
-
-### [2026-06-28] PHASE-56E Spanish menu / character-card i18n walk needs the deployed web build to verify
-
-- **Category:** future-idea, i18n
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-phase-executer
-- **During:** PHASE-56 (56E, verification-gated)
-
-**Description:**
-Sub-phase 56E is verification-gated: re-walk the menu + character cards in Espanol and fix carried i18n leaks IF they reproduce. It could not be exercised — the automated executor has no running/deployed web build, and the plan forbids guesswork. No code change for 56E. The next WEB-QA pass should drive the Espanol main-menu hero + character-card walk on `https://bmo.mybmoai.work/DungeonTableOnline/` and fix only if leaks reproduce.
-
-**Related files:** `dnd-app/src/renderer/src/i18n/locales/{en,es}.json`, main-menu hero + character-card components (TBD)
-
-> **2026-06-29 (dnd-resolver) — GENUINELY BLOCKED this run (no deployed web build).** 56E is verification-gated and the plan forbids guesswork; the automated resolver has no running/deployed web build to drive the Español main-menu + character-card walk. No code change. Remains for the next WEB-QA pass with a live build.
+> **2026-06-29 (dnd-resolver, deferred follow-up) — SPACING SWEEP SHIPPED.** Converted all physical margin/padding classes to logical (`ml/mr/pl/pr` → `ms/me/ps/pe`, 294 tokens across 149 components) — LTR-identical today (Tailwind v4), RTL-correct later; biome green. RESIDUAL: the judgment-heavy classes (`left/right` positioning, `border-l/r`, `text-left/right`, `rounded-l/r`) are deliberately left for a focused pass alongside the actual RTL-locale decision, since not every physical class should flip and there is still no RTL locale to verify against.
 
 ---
