@@ -8,11 +8,24 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "baseUrl": ".",
-    "types": ["react", "react-native"],
+    "ignoreDeprecations": "6.0",
+    "types": [
+      "react",
+      "react-native"
+    ],
     "paths": {
-      "@app/*": ["src/*"],
-      "@shared/*": ["../src/shared/*"],
-      "@renderer/*": ["../src/renderer/src/*"]
+      "@app/*": [
+        "src/*"
+      ],
+      "@shared/*": [
+        "../src/shared/*"
+      ],
+      "@renderer/*": [
+        "../src/renderer/src/*"
+      ],
+      "@msgpack/msgpack": [
+        "node_modules/@msgpack/msgpack"
+      ]
     }
   },
   "include": [
@@ -22,5 +35,11 @@
     "assets.d.ts",
     "../src/shared/bridge/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "../src/shared/**/*.test.ts",
+    "../src/shared/**/*.test.tsx",
+    "node_modules"
+  ]
 }

@@ -1,8 +1,8 @@
-import { useEffect, useImperativeHandle, useRef, useState, forwardRef, type ReactElement } from 'react'
+import { resolveEmbedEntry } from '@app/embed/embed-loader'
+import type { BridgeEndpoint } from '@shared/bridge'
+import { forwardRef, type ReactElement, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { ActivityIndicator, BackHandler, View } from 'react-native'
 import { WebView, type WebViewMessageEvent, type WebViewNavigation } from 'react-native-webview'
-import type { BridgeEndpoint } from '@shared/bridge'
-import { resolveEmbedEntry } from '@app/embed/embed-loader'
 import { createNativeBridge } from './native-bridge'
 
 const BOOTSTRAP = `
@@ -82,6 +82,7 @@ export const EmbeddedWebView = forwardRef<EmbeddedWebViewHandle, Props>(function
   }
 
   return (
+    // @ts-expect-error react-native-webview class-component types are incompatible with the installed @types/react (props inferred as never)
     <WebView
       ref={webRef}
       source={{ uri }}

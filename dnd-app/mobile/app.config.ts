@@ -8,7 +8,7 @@ import type { ExpoConfig } from 'expo/config'
  * Mirrors the desktop electron-builder appId `com.dnd-vtt.app` but uses an
  * Android-legal segment (no hyphen in the final label).
  */
-const config: ExpoConfig = {
+const config = {
   name: 'Dungeon Table Online',
   slug: 'dungeontableonline',
   owner: 'evilpatrick06s-team',
@@ -52,4 +52,4 @@ const config: ExpoConfig = {
   }
 }
 
-export default config
+export default config as ExpoConfig

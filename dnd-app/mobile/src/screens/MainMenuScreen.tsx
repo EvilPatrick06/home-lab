@@ -1,8 +1,8 @@
-import type { ReactElement } from 'react'
+import type { ScreenProps } from '@app/navigation/types'
 import Constants from 'expo-constants'
+import type { ReactElement } from 'react'
 import { Pressable, ScrollView, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import type { ScreenProps } from '@app/navigation/types'
 
 interface MenuItem {
   label: string
@@ -49,9 +49,7 @@ export default function MainMenuScreen({ navigation }: ScreenProps<'MainMenu'>):
         ))}
       </View>
 
-      <Text className="text-center text-gray-600 text-xs mt-8">
-        v{Constants.expoConfig?.version ?? 'dev'}
-      </Text>
+      <Text className="text-center text-gray-600 text-xs mt-8">v{Constants.expoConfig?.version ?? 'dev'}</Text>
     </ScrollView>
   )
 }
