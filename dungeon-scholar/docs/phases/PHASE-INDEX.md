@@ -28,7 +28,7 @@
 | 03 | [`completed/PHASE-03-light-theme-dark-on-dark-contrast.md`](./completed/PHASE-03-light-theme-dark-on-dark-contrast.md) | dungeon-scholar | — | done |
 | 04 | [`completed/PHASE-04-import-deck-ingestion-robustness.md`](./completed/PHASE-04-import-deck-ingestion-robustness.md) | dungeon-scholar | — | done |
 | 05 | [`completed/PHASE-05-interaction-recovery-dialogs-oracle-copy.md`](./completed/PHASE-05-interaction-recovery-dialogs-oracle-copy.md) | dungeon-scholar | — | done |
-| 06 | [`PHASE-06-vault-redeemed-unlock-gate.md`](./PHASE-06-vault-redeemed-unlock-gate.md) | dungeon-scholar | — | pending |
+| 06 | [`completed/PHASE-06-vault-redeemed-unlock-gate.md`](./completed/PHASE-06-vault-redeemed-unlock-gate.md) | dungeon-scholar | — | done |
 | 07 | [`PHASE-07-import-toast-exam-copy.md`](./PHASE-07-import-toast-exam-copy.md) | dungeon-scholar | — | pending |
 | 08 | [`PHASE-08-routing-hero-exam-jank-oracle-sources-auth-circuit-breaker.md`](./PHASE-08-routing-hero-exam-jank-oracle-sources-auth-circuit-breaker.md) | dungeon-scholar | — | pending |
 | 09 | [`PHASE-09-user-facing-date-format-consistency.md`](./PHASE-09-user-facing-date-format-consistency.md) | dungeon-scholar | — | pending |
