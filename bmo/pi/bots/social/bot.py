@@ -45,6 +45,12 @@ from bots.social.games_logic import (  # pure logic extracted from this module
     _parse_timestamp, _parse_time_str, _fuzzy_title_match, _days_in_month,
     _xp_level_for, _xp_progress_bar, _new_deck, _hand_value, _hand_str,
 )
+from bots.social.games import (  # mini-game UI extracted from this module
+    TriviaButton, TriviaView, WYRView, RPSView, BlackjackView,
+    HangmanGuessModal, HangmanView, WordleGuessModal, WordleView,
+    Connect4View, PollView, PollButton,
+)
+from bots.social.music_ui import MusicControlView, MusicQueue, PageButton, VolumeSelect  # music UI extracted
 from discord import app_commands
 from discord.ext import commands, tasks
 
@@ -245,53 +251,6 @@ TTS_COOLDOWN = 3.0
 # ── Music Queue ──────────────────────────────────────────────────────
 
 
-class MusicQueue:
-    def __init__(self) -> None:
-        self.tracks: list[dict] = []
-        self.current: Optional[dict] = None
-        self.voice_client: Optional[discord.VoiceClient] = None
-        self.volume: float = 0.5
-        self.control_message: Optional[discord.Message] = None
-        self.control_channel: Optional[discord.TextChannel] = None
-        self.history: collections.deque = collections.deque(maxlen=50)
-        self.listener_sink = None         # Active VoiceListenerSink or None
-        self.is_speaking_tts: bool = False  # True while BMO is speaking TTS
-        self.last_stt_time: dict = {}    # Per-user rate limiting {user_id: timestamp}
-        # Shuffle & Loop
-        self.shuffle: bool = False
-        self.loop_mode: str = "off"       # "off" | "all" | "one"
-        # Timing for progress bar
-        self.start_time: float = 0.0
-        self.pause_offset: float = 0.0
-        # Queue pagination
-        self.page: int = 0
-        # Autoplay
-        self.autoplay: bool = False
-        # Seeking flag (prevents _on_track_end from advancing)
-        self.seeking: bool = False
-        # Background tasks
-        self._progress_task: Optional[asyncio.Task] = None
-        self._backfill_task: Optional[asyncio.Task] = None
-
-    def add(self, track: dict) -> int:
-        self.tracks.append(track)
-        return len(self.tracks)
-
-    def next(self) -> Optional[dict]:
-        if self.tracks:
-            return self.tracks.pop(0)
-        return None
-
-    def previous_track(self) -> Optional[dict]:
-        """Pop and return the most recent track from history."""
-        if self.history:
-            return self.history.pop()
-        return None
-
-    def clear(self) -> None:
-        self.tracks.clear()
-        self.current = None
-        self.page = 0
 
 
 _music_queues: dict[int, MusicQueue] = {}
@@ -510,188 +469,10 @@ async def _ai_respond(channel_id: int, user_text: str) -> str:
 # ── Music Control View (buttons in chat) ─────────────────────────────
 
 
-class VolumeSelect(discord.ui.Select):
-    """Volume dropdown: 0% to 200% in 10% steps."""
-
-    def __init__(self, current_volume: float) -> None:
-        current_pct = round(current_volume * 10) * 10  # Nearest 10%
-        options = []
-        for pct in range(0, 210, 10):
-            options.append(discord.SelectOption(
-                label=f"{pct}%",
-                value=str(pct),
-                default=(pct == current_pct),
-            ))
-        super().__init__(
-            placeholder="🔊 Volume",
-            custom_id="music_volume_select",
-            options=options,
-            min_values=1,
-            max_values=1,
-            row=1,
-        )
-
-    async def callback(self, interaction: discord.Interaction) -> None:
-        pct = int(self.values[0])
-        guild_id = interaction.guild_id
-        if not guild_id:
-            return
-        queue = _get_queue(guild_id)
-        queue.volume = pct / 100.0
-        vc = queue.voice_client
-        if vc and vc.source and isinstance(vc.source, discord.PCMVolumeTransformer):
-            vc.source.volume = queue.volume
-        embed = _build_now_playing_embed(queue)
-        view = MusicControlView(guild_id)
-        try:
-            await interaction.response.edit_message(embed=embed, view=view)
-        except discord.HTTPException:
-            pass
 
 
-class PageButton(discord.ui.Button):
-    """Pagination button for queue pages."""
-
-    def __init__(self, emoji: str, direction: str, guild_id: int, disabled: bool = False) -> None:
-        super().__init__(
-            emoji=emoji, style=discord.ButtonStyle.secondary,
-            custom_id=f"music_{direction}", row=2, disabled=disabled,
-        )
-        self.guild_id = guild_id
-        self.direction = direction
-
-    async def callback(self, interaction: discord.Interaction) -> None:
-        queue = _get_queue(self.guild_id)
-        per_page = 5
-        total_pages = max(1, (len(queue.tracks) + per_page - 1) // per_page)
-        if self.direction == "page_prev":
-            queue.page = max(0, queue.page - 1)
-        else:
-            queue.page = min(total_pages - 1, queue.page + 1)
-        embed = _build_now_playing_embed(queue)
-        try:
-            await interaction.response.edit_message(embed=embed, view=MusicControlView(self.guild_id))
-        except discord.HTTPException:
-            pass
 
 
-class MusicControlView(discord.ui.View):
-    """Persistent music controls: Prev | Pause | Skip | Shuffle | Loop + Volume + Pages"""
-
-    def __init__(self, guild_id: int) -> None:
-        super().__init__(timeout=None)
-        self.guild_id = guild_id
-        queue = _get_queue(guild_id)
-
-        # Pause/play button state
-        vc = queue.voice_client
-        if vc and vc.is_paused():
-            self.pause_button.emoji = "\u25B6\uFE0F"  # ▶️
-            self.pause_button.style = discord.ButtonStyle.success
-        else:
-            self.pause_button.emoji = "\u23F8\uFE0F"  # ⏸️
-            self.pause_button.style = discord.ButtonStyle.danger
-
-        # Shuffle button state
-        if queue.shuffle:
-            self.shuffle_button.style = discord.ButtonStyle.success
-        else:
-            self.shuffle_button.style = discord.ButtonStyle.secondary
-
-        # Loop button label
-        loop_labels = {"off": "Off", "all": "All", "one": "One"}
-        self.loop_button.label = loop_labels.get(queue.loop_mode, "Off")
-
-        # Volume dropdown (row 1)
-        self.add_item(VolumeSelect(queue.volume))
-
-        # Page buttons (row 2) — always present for persistent view compat
-        has_pages = len(queue.tracks) > 5
-        total_pages = max(1, (len(queue.tracks) + 4) // 5)
-        self.add_item(PageButton("◀️", "page_prev", guild_id,
-                                 disabled=not has_pages or queue.page <= 0))
-        self.add_item(PageButton("▶️", "page_next", guild_id,
-                                 disabled=not has_pages or queue.page >= total_pages - 1))
-
-    def _get_vc(self) -> tuple[MusicQueue, Optional[discord.VoiceClient]]:
-        queue = _get_queue(self.guild_id)
-        return queue, queue.voice_client
-
-    async def _update_embed(self, interaction: discord.Interaction) -> None:
-        queue, vc = self._get_vc()
-        embed = _build_now_playing_embed(queue)
-        try:
-            await interaction.response.edit_message(embed=embed, view=MusicControlView(self.guild_id))
-        except discord.HTTPException:
-            pass
-
-    @discord.ui.button(emoji="\u23EE\uFE0F", style=discord.ButtonStyle.secondary, custom_id="music_prev", row=0)
-    async def prev_button(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        queue, vc = self._get_vc()
-        if not vc or not vc.is_connected():
-            await self._update_embed(interaction)
-            return
-
-        if queue.current:
-            prev = queue.previous_track()
-            if prev:
-                queue.tracks.insert(0, queue.current)
-                queue.tracks.insert(0, prev)
-            else:
-                queue.tracks.insert(0, queue.current)
-            if vc.is_playing() or vc.is_paused():
-                vc.stop()
-        elif queue.history:
-            prev = queue.history.pop()
-            queue.tracks.insert(0, prev)
-            channel = queue.control_channel or vc.channel
-            await _start_playing(queue, queue.next(), self.guild_id, channel)
-
-        await self._update_embed(interaction)
-
-    @discord.ui.button(emoji="\u23F8\uFE0F", style=discord.ButtonStyle.danger, custom_id="music_pause", row=0)
-    async def pause_button(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        queue, vc = self._get_vc()
-        if vc:
-            if vc.is_paused():
-                vc.resume()
-                queue.start_time = time.time() - queue.pause_offset
-                if vc.guild:
-                    await _set_deaf(vc.guild, vc, True)
-            elif vc.is_playing():
-                queue.pause_offset = time.time() - queue.start_time
-                vc.pause()
-                if vc.guild:
-                    await _set_deaf(vc.guild, vc, False)
-        await self._update_embed(interaction)
-
-    @discord.ui.button(emoji="\u23ED\uFE0F", style=discord.ButtonStyle.secondary, custom_id="music_skip", row=0)
-    async def skip_button(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        queue, vc = self._get_vc()
-        if vc and (vc.is_playing() or vc.is_paused()):
-            vc.stop()
-        await self._update_embed(interaction)
-
-    @discord.ui.button(emoji="🔀", style=discord.ButtonStyle.secondary, custom_id="music_shuffle", row=0)
-    async def shuffle_button(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        queue, _ = self._get_vc()
-        queue.shuffle = not queue.shuffle
-        if queue.shuffle and queue.tracks:
-            random.shuffle(queue.tracks)
-        queue.page = 0
-        await self._update_embed(interaction)
-
-    @discord.ui.button(emoji="🔁", label="Off", style=discord.ButtonStyle.secondary, custom_id="music_loop", row=0)
-    async def loop_button(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        queue, _ = self._get_vc()
-        cycle = {"off": "all", "all": "one", "one": "off"}
-        queue.loop_mode = cycle.get(queue.loop_mode, "off")
-        await self._update_embed(interaction)
 
 
 def _build_now_playing_embed(queue: MusicQueue) -> discord.Embed:
@@ -3654,38 +3435,8 @@ async def _stats_cmd(interaction: discord.Interaction, server: bool = False) -> 
 # ── Phase 7: Mini Games ─────────────────────────────────────────────
 
 
-class TriviaButton(discord.ui.Button):
-    def __init__(self, label: str, answer: str, is_correct: bool, row: int = 0) -> None:
-        display = answer[:77] + "..." if len(answer) > 80 else answer
-        super().__init__(label=display, style=discord.ButtonStyle.primary, row=row)
-        self.answer = answer
-        self.is_correct = is_correct
-
-    async def callback(self, interaction: discord.Interaction) -> None:
-        view: TriviaView = self.view  # type: ignore[assignment]
-        if interaction.user.id in view.answered:
-            await interaction.response.send_message("You already answered!", ephemeral=True)
-            return
-        view.answered.add(interaction.user.id)
-        if self.is_correct:
-            await interaction.response.send_message(
-                f"✅ Correct, {interaction.user.display_name}!")
-        else:
-            await interaction.response.send_message(
-                f"❌ Wrong! The answer was: **{view.correct}**", ephemeral=True)
 
 
-class TriviaView(discord.ui.View):
-    def __init__(self, correct: str, answers: list[str]) -> None:
-        super().__init__(timeout=20)
-        self.correct = correct
-        self.answered: set[int] = set()
-        labels = ["🅰️", "🅱️", "🅲", "🅳"]
-        for i, answer in enumerate(answers):
-            self.add_item(TriviaButton(
-                f"{labels[i]} {answer[:70]}", answer, answer == correct,
-                row=0 if i < 2 else 1,
-            ))
 
 
 @app_commands.command(name="trivia", description="Start a trivia question!")
@@ -3773,41 +3524,6 @@ _WYR_QUESTIONS = [
 ]
 
 
-class WYRView(discord.ui.View):
-    def __init__(self, option_a: str, option_b: str) -> None:
-        super().__init__(timeout=30)
-        self.option_a = option_a
-        self.option_b = option_b
-        self.votes_a: set[int] = set()
-        self.votes_b: set[int] = set()
-
-    @discord.ui.button(label="Option A", style=discord.ButtonStyle.primary, row=0)
-    async def vote_a(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        uid = interaction.user.id
-        self.votes_b.discard(uid)
-        self.votes_a.add(uid)
-        total = len(self.votes_a) + len(self.votes_b)
-        pct_a = int(len(self.votes_a) / total * 100) if total else 0
-        pct_b = int(len(self.votes_b) / total * 100) if total else 0
-        await interaction.response.send_message(
-            f"You chose **A**! A={pct_a}% ({len(self.votes_a)}) vs B={pct_b}% ({len(self.votes_b)})",
-            ephemeral=True,
-        )
-
-    @discord.ui.button(label="Option B", style=discord.ButtonStyle.danger, row=0)
-    async def vote_b(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        uid = interaction.user.id
-        self.votes_a.discard(uid)
-        self.votes_b.add(uid)
-        total = len(self.votes_a) + len(self.votes_b)
-        pct_a = int(len(self.votes_a) / total * 100) if total else 0
-        pct_b = int(len(self.votes_b) / total * 100) if total else 0
-        await interaction.response.send_message(
-            f"You chose **B**! A={pct_a}% ({len(self.votes_a)}) vs B={pct_b}% ({len(self.votes_b)})",
-            ephemeral=True,
-        )
 
 
 @app_commands.command(name="wyr", description="Would you rather...?")
@@ -5595,64 +5311,6 @@ async def _leaderboard_cmd(interaction: discord.Interaction) -> None:
 
 # ── Rock Paper Scissors ──
 
-class RPSView(discord.ui.View):
-    def __init__(self, challenger: discord.Member, opponent: discord.Member) -> None:
-        super().__init__(timeout=30)
-        self.challenger = challenger
-        self.opponent = opponent
-        self.choices: dict[int, str] = {}
-
-    async def _handle_choice(self, interaction: discord.Interaction, choice: str) -> None:
-        uid = interaction.user.id
-        if uid not in (self.challenger.id, self.opponent.id):
-            await interaction.response.send_message("This game isn't for you!", ephemeral=True)
-            return
-        self.choices[uid] = choice
-        await interaction.response.send_message(f"You chose **{choice}**!", ephemeral=True)
-
-        if len(self.choices) == 2:
-            self.stop()
-            c1 = self.choices[self.challenger.id]
-            c2 = self.choices[self.opponent.id]
-            wins = {"Rock": "Scissors", "Scissors": "Paper", "Paper": "Rock"}
-            if c1 == c2:
-                result = "It's a **tie**! 🤝"
-            elif wins[c1] == c2:
-                result = f"**{self.challenger.display_name}** wins! 🎉"
-            else:
-                result = f"**{self.opponent.display_name}** wins! 🎉"
-
-            embed = discord.Embed(title="Rock Paper Scissors — Results!", color=0x00FF88)
-            embed.add_field(name=self.challenger.display_name, value=c1, inline=True)
-            embed.add_field(name="vs", value="⚔️", inline=True)
-            embed.add_field(name=self.opponent.display_name, value=c2, inline=True)
-            embed.add_field(name="Result", value=result, inline=False)
-            for item in self.children:
-                item.disabled = True
-            try:
-                await interaction.message.edit(embed=interaction.message.embeds[0], view=self)
-                await interaction.followup.send(embed=embed)
-            except discord.HTTPException:
-                pass
-
-    @discord.ui.button(label="Rock 🪨", style=discord.ButtonStyle.primary, row=0)
-    async def rock_btn(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        await self._handle_choice(interaction, "Rock")
-
-    @discord.ui.button(label="Paper 📄", style=discord.ButtonStyle.success, row=0)
-    async def paper_btn(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        await self._handle_choice(interaction, "Paper")
-
-    @discord.ui.button(label="Scissors ✂️", style=discord.ButtonStyle.danger, row=0)
-    async def scissors_btn(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        await self._handle_choice(interaction, "Scissors")
-
-    async def on_timeout(self) -> None:
-        for item in self.children:
-            item.disabled = True
 
 
 @app_commands.command(name="rps", description="Play Rock Paper Scissors against someone!")
@@ -5686,113 +5344,6 @@ async def _rps_cmd(interaction: discord.Interaction, opponent: discord.Member) -
 # ── Blackjack ──
 
 
-class BlackjackView(discord.ui.View):
-    def __init__(self, player: discord.Member) -> None:
-        super().__init__(timeout=60)
-        self.player = player
-        self.deck = _new_deck()
-        self.player_hand: list[tuple[str, str]] = [self.deck.pop(), self.deck.pop()]
-        self.dealer_hand: list[tuple[str, str]] = [self.deck.pop(), self.deck.pop()]
-        self.doubled = False
-        self.game_over = False
-
-    def _build_embed(self, reveal_dealer: bool = False) -> discord.Embed:
-        pval = _hand_value(self.player_hand)
-        embed = discord.Embed(title="🃏 Blackjack", color=0x2F8B4B)
-        if reveal_dealer:
-            dval = _hand_value(self.dealer_hand)
-            embed.add_field(
-                name=f"Dealer ({dval})",
-                value=_hand_str(self.dealer_hand),
-                inline=False,
-            )
-        else:
-            embed.add_field(
-                name="Dealer (?)",
-                value=_hand_str(self.dealer_hand, hide_first=True),
-                inline=False,
-            )
-        embed.add_field(
-            name=f"{self.player.display_name} ({pval})",
-            value=_hand_str(self.player_hand),
-            inline=False,
-        )
-        return embed
-
-    async def _finish(self, interaction: discord.Interaction) -> None:
-        self.game_over = True
-        # Dealer plays
-        while _hand_value(self.dealer_hand) <= 16:
-            self.dealer_hand.append(self.deck.pop())
-
-        pval = _hand_value(self.player_hand)
-        dval = _hand_value(self.dealer_hand)
-
-        if pval > 21:
-            result = "You busted! Dealer wins. 💥"
-            color = 0xFF0000
-        elif dval > 21:
-            result = "Dealer busted! You win! 🎉"
-            color = 0x00FF00
-        elif pval > dval:
-            result = "You win! 🎉"
-            color = 0x00FF00
-        elif dval > pval:
-            result = "Dealer wins! 😔"
-            color = 0xFF0000
-        else:
-            result = "It's a push! (tie) 🤝"
-            color = 0xFFAA00
-
-        embed = self._build_embed(reveal_dealer=True)
-        embed.color = color
-        embed.add_field(name="Result", value=result, inline=False)
-        for item in self.children:
-            item.disabled = True
-        try:
-            await interaction.response.edit_message(embed=embed, view=self)
-        except discord.HTTPException:
-            pass
-        self.stop()
-
-    @discord.ui.button(label="Hit", style=discord.ButtonStyle.primary, row=0)
-    async def hit_btn(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        if interaction.user.id != self.player.id:
-            await interaction.response.send_message("Not your game!", ephemeral=True)
-            return
-        self.player_hand.append(self.deck.pop())
-        if _hand_value(self.player_hand) >= 21:
-            await self._finish(interaction)
-        else:
-            embed = self._build_embed()
-            await interaction.response.edit_message(embed=embed, view=self)
-
-    @discord.ui.button(label="Stand", style=discord.ButtonStyle.secondary, row=0)
-    async def stand_btn(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        if interaction.user.id != self.player.id:
-            await interaction.response.send_message("Not your game!", ephemeral=True)
-            return
-        await self._finish(interaction)
-
-    @discord.ui.button(label="Double Down", style=discord.ButtonStyle.success, row=0)
-    async def double_btn(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        if interaction.user.id != self.player.id:
-            await interaction.response.send_message("Not your game!", ephemeral=True)
-            return
-        if len(self.player_hand) != 2:
-            await interaction.response.send_message("Can only double on first turn!", ephemeral=True)
-            return
-        self.doubled = True
-        self.player_hand.append(self.deck.pop())
-        await self._finish(interaction)
-
-    async def on_timeout(self) -> None:
-        if not self.game_over:
-            for item in self.children:
-                item.disabled = True
 
 
 @app_commands.command(name="blackjack", description="Play a game of Blackjack!")
@@ -5897,115 +5448,11 @@ async def _slots_cmd(interaction: discord.Interaction) -> None:
 
 # ── Hangman ──
 
-_HANGMAN_WORDS = [
-    "adventure", "algorithm", "balloon", "butterfly", "calendar",
-    "chocolate", "dinosaur", "elephant", "fantastic", "geometry",
-    "hamburger", "igloo", "jellyfish", "keyboard", "labyrinth",
-    "mountain", "notebook", "octopus", "paradise", "question",
-    "rainbow", "sandwich", "treasure", "umbrella", "vacation",
-    "waterfall", "xylophone", "yourself", "zeppelin", "abstract",
-    "building", "computer", "dragon", "electric", "friction",
-]
-
-_HANGMAN_STAGES = [
-    "```\n  +---+\n      |\n      |\n      |\n      |\n=========\n```",
-    "```\n  +---+\n  O   |\n      |\n      |\n      |\n=========\n```",
-    "```\n  +---+\n  O   |\n  |   |\n      |\n      |\n=========\n```",
-    "```\n  +---+\n  O   |\n /|   |\n      |\n      |\n=========\n```",
-    "```\n  +---+\n  O   |\n /|\\  |\n      |\n      |\n=========\n```",
-    "```\n  +---+\n  O   |\n /|\\  |\n /    |\n      |\n=========\n```",
-    "```\n  +---+\n  O   |\n /|\\  |\n / \\  |\n      |\n=========\n```",
-]
 
 
-class HangmanGuessModal(discord.ui.Modal, title="Guess a Letter"):
-    letter = discord.ui.TextInput(
-        label="Enter a letter (A-Z)",
-        placeholder="A",
-        max_length=1,
-        min_length=1,
-    )
-
-    def __init__(self, game_view: "HangmanView") -> None:
-        super().__init__()
-        self.game_view = game_view
-
-    async def on_submit(self, interaction: discord.Interaction) -> None:
-        guess = self.letter.value.upper()
-        if not guess.isalpha():
-            await interaction.response.send_message("Please enter a letter!", ephemeral=True)
-            return
-
-        gv = self.game_view
-        if guess in gv.guessed:
-            await interaction.response.send_message(f"You already guessed **{guess}**!", ephemeral=True)
-            return
-
-        gv.guessed.add(guess)
-
-        if guess in gv.word_upper:
-            # Correct guess
-            if all(c in gv.guessed for c in gv.word_upper):
-                gv.game_over = True
-                gv.won = True
-        else:
-            gv.wrong += 1
-            if gv.wrong >= 6:
-                gv.game_over = True
-                gv.won = False
-
-        embed = gv._build_embed()
-        if gv.game_over:
-            for item in gv.children:
-                item.disabled = True
-        try:
-            await interaction.response.edit_message(embed=embed, view=gv)
-        except discord.HTTPException:
-            pass
-
-        if gv.game_over:
-            gv.stop()
 
 
-class HangmanView(discord.ui.View):
-    def __init__(self, player: discord.Member) -> None:
-        super().__init__(timeout=120)
-        self.player = player
-        self.word = random.choice(_HANGMAN_WORDS).upper()
-        self.word_upper = self.word
-        self.guessed: set[str] = set()
-        self.wrong = 0
-        self.game_over = False
-        self.won = False
 
-    def _word_display(self) -> str:
-        return " ".join(c if c in self.guessed else "\\_" for c in self.word_upper)
-
-    def _build_embed(self) -> discord.Embed:
-        stage = _HANGMAN_STAGES[min(self.wrong, 6)]
-        word_display = self._word_display()
-        guessed_str = " ".join(sorted(self.guessed)) if self.guessed else "None"
-
-        if self.game_over and self.won:
-            embed = discord.Embed(title="Hangman — You Win! 🎉", color=0x00FF00)
-            embed.description = f"{stage}\n**{self.word}**\n\nCongratulations, {self.player.display_name}!"
-        elif self.game_over:
-            embed = discord.Embed(title="Hangman — Game Over! 💀", color=0xFF0000)
-            embed.description = f"{stage}\n\nThe word was: **{self.word}**"
-        else:
-            embed = discord.Embed(title="Hangman", color=0x3498DB)
-            embed.description = f"{stage}\n**{word_display}**"
-            embed.add_field(name="Guessed", value=guessed_str, inline=True)
-            embed.add_field(name="Wrong", value=f"{self.wrong}/6", inline=True)
-        return embed
-
-    @discord.ui.button(label="Guess Letter", style=discord.ButtonStyle.primary, row=0)
-    async def guess_btn(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        if interaction.user.id != self.player.id:
-            await interaction.response.send_message("Not your game!", ephemeral=True)
-            return
-        await interaction.response.send_modal(HangmanGuessModal(self))
 
 
 @app_commands.command(name="hangman", description="Play a game of Hangman!")
@@ -6022,183 +5469,10 @@ async def _hangman_cmd(interaction: discord.Interaction) -> None:
 
 # ── Wordle ──
 
-_WORDLE_WORDS = [
-    "about", "above", "abuse", "actor", "acute", "admit", "adopt", "adult",
-    "agent", "agree", "alarm", "album", "alert", "alien", "align", "alive",
-    "angel", "anger", "angle", "apple", "arena", "arise", "aside", "avoid",
-    "badge", "basic", "beach", "begin", "below", "bench", "birth", "blade",
-    "blank", "blast", "blaze", "blend", "blind", "block", "blood", "bloom",
-    "board", "bonus", "brain", "brand", "brave", "bread", "break", "brick",
-    "bride", "brief", "bring", "broad", "brown", "brush", "build", "burst",
-    "candy", "cargo", "cause", "chain", "chair", "chase", "cheap", "check",
-    "chest", "chief", "child", "claim", "class", "clean", "clear", "click",
-    "climb", "close", "cloud", "coach", "coast", "coral", "couch", "count",
-    "cover", "craft", "crash", "cream", "crime", "cross", "crowd", "crush",
-    "dance", "debut", "decay", "depth", "devil", "diary", "dirty", "doubt",
-    "draft", "drain", "drama", "dream", "dress", "drift", "drink", "drive",
-    "eager", "earth", "eight", "elect", "empty", "enemy", "enjoy", "enter",
-    "equal", "error", "event", "every", "exact", "exist", "extra", "faith",
-    "false", "fault", "feast", "fence", "fetch", "fever", "fiber", "field",
-    "fight", "final", "flame", "flash", "fleet", "flesh", "float", "flood",
-    "floor", "flour", "fluid", "focus", "force", "forge", "forth", "found",
-    "frame", "frank", "fresh", "front", "frost", "fruit", "ghost", "giant",
-    "given", "glass", "globe", "gloom", "glory", "grace", "grade", "grain",
-    "grand", "grant", "graph", "grasp", "grass", "grave", "great", "green",
-    "greet", "grief", "grind", "gross", "group", "grove", "guard", "guess",
-    "guest", "guide", "guild", "guilt", "habit", "happy", "heart", "heavy",
-    "hence", "honey", "honor", "horse", "hotel", "house", "human", "humor",
-    "ideal", "image", "imply", "index", "inner", "input", "irony", "ivory",
-    "jewel", "joint", "judge", "juice", "knife", "knock", "known", "label",
-    "labor", "large", "laser", "later", "laugh", "layer", "learn", "lease",
-    "legal", "lemon", "level", "light", "limit", "linen", "liter", "logic",
-    "loose", "lover", "lower", "lucky", "lunch", "magic", "major", "maker",
-    "manor", "march", "match", "mayor", "media", "mercy", "metal", "meter",
-    "minor", "minus", "model", "money", "month", "moral", "motor", "mount",
-    "mouse", "mouth", "movie", "music", "naked", "nerve", "never", "night",
-    "noble", "noise", "north", "noted", "novel", "nurse", "ocean", "offer",
-    "often", "orbit", "order", "other", "outer", "owner", "oxide", "paint",
-    "panel", "panic", "paper", "party", "paste", "patch", "pause", "peace",
-    "penny", "phase", "phone", "photo", "piano", "piece", "pilot", "pitch",
-    "place", "plain", "plane", "plant", "plate", "plaza", "plead", "point",
-    "polar", "pound", "power", "press", "price", "pride", "prime", "print",
-    "prior", "prize", "probe", "proof", "proud", "prove", "psalm", "pulse",
-    "punch", "pupil", "queen", "quest", "queue", "quick", "quiet", "quota",
-    "radar", "radio", "raise", "rally", "range", "rapid", "ratio", "reach",
-    "ready", "realm", "rebel", "refer", "reign", "relax", "reply", "rider",
-    "ridge", "rifle", "right", "rigid", "rival", "river", "robin", "robot",
-    "rocky", "roman", "rouge", "round", "route", "royal", "rural", "saint",
-    "salad", "scale", "scene", "scope", "score", "sense", "serve", "seven",
-    "shade", "shake", "shall", "shame", "shape", "share", "sharp", "sheer",
-    "shelf", "shell", "shift", "shine", "shirt", "shock", "shore", "short",
-    "shout", "sight", "since", "sixth", "sixty", "skill", "slave", "sleep",
-    "slide", "slope", "small", "smart", "smell", "smile", "smoke", "snake",
-    "solar", "solid", "solve", "spare", "speak", "speed", "spend", "spill",
-    "spine", "split", "sport", "spray", "squad", "stack", "staff", "stage",
-    "stake", "stand", "stark", "start", "state", "steam", "steel", "steep",
-    "steer", "stern", "stick", "stiff", "still", "stock", "stone", "store",
-    "storm", "story", "strip", "stuck", "study", "stuff", "style", "sugar",
-    "suite", "super", "swamp", "swear", "sweep", "sweet", "swift", "swing",
-    "sword", "table", "taste", "teach", "tenth", "theme", "thick", "thing",
-    "think", "third", "thorn", "those", "three", "throw", "thumb", "tiger",
-    "tight", "tired", "title", "today", "token", "total", "touch", "tough",
-    "tower", "toxic", "trace", "track", "trade", "trail", "train", "trait",
-    "trash", "treat", "trend", "trial", "tribe", "trick", "troop", "truck",
-    "truly", "trump", "trunk", "trust", "truth", "tumor", "twice", "twist",
-    "ultra", "uncle", "under", "union", "unite", "unity", "until", "upper",
-    "upset", "urban", "usage", "usual", "valid", "value", "vault", "video",
-    "vigor", "virus", "visit", "vital", "vivid", "vocal", "voice", "voter",
-    "waste", "watch", "water", "weave", "weigh", "weird", "whale", "wheat",
-    "wheel", "where", "which", "while", "white", "whole", "whose", "widow",
-    "woman", "world", "worry", "worse", "worst", "worth", "would", "wound",
-    "write", "wrong", "wrote", "yield", "young", "youth",
-]
 
 
-class WordleGuessModal(discord.ui.Modal, title="Wordle Guess"):
-    guess_input = discord.ui.TextInput(
-        label="Enter a 5-letter word",
-        placeholder="CRANE",
-        max_length=5,
-        min_length=5,
-    )
-
-    def __init__(self, game_view: "WordleView") -> None:
-        super().__init__()
-        self.game_view = game_view
-
-    async def on_submit(self, interaction: discord.Interaction) -> None:
-        guess = self.guess_input.value.lower()
-        if not guess.isalpha() or len(guess) != 5:
-            await interaction.response.send_message("Enter a valid 5-letter word!", ephemeral=True)
-            return
-
-        gv = self.game_view
-        answer = gv.word
-
-        # Build colored feedback
-        result = []
-        for i, c in enumerate(guess):
-            if c == answer[i]:
-                result.append("🟩")
-            elif c in answer:
-                result.append("🟨")
-            else:
-                result.append("⬛")
-
-        gv.guesses.append(guess.upper())
-        gv.results.append("".join(result))
-        gv.attempts += 1
-
-        if guess == answer:
-            gv.game_over = True
-            gv.won = True
-        elif gv.attempts >= 6:
-            gv.game_over = True
-            gv.won = False
-
-        embed = gv._build_embed()
-        if gv.game_over:
-            for item in gv.children:
-                item.disabled = True
-        try:
-            await interaction.response.edit_message(embed=embed, view=gv)
-        except discord.HTTPException:
-            pass
-
-        if gv.game_over:
-            gv.stop()
 
 
-class WordleView(discord.ui.View):
-    def __init__(self, player: discord.Member) -> None:
-        super().__init__(timeout=300)
-        self.player = player
-        self.word = random.choice(_WORDLE_WORDS)
-        self.guesses: list[str] = []
-        self.results: list[str] = []
-        self.attempts = 0
-        self.game_over = False
-        self.won = False
-
-    def _build_embed(self) -> discord.Embed:
-        lines = []
-        for i in range(len(self.guesses)):
-            lines.append(f"{self.results[i]}  `{self.guesses[i]}`")
-
-        # Pad remaining rows
-        for _ in range(6 - len(self.guesses)):
-            lines.append("⬛⬛⬛⬛⬛")
-
-        board = "\n".join(lines)
-
-        if self.game_over and self.won:
-            embed = discord.Embed(
-                title=f"Wordle — You Win! 🎉 ({self.attempts}/6)",
-                description=board,
-                color=0x00FF00,
-            )
-        elif self.game_over:
-            embed = discord.Embed(
-                title="Wordle — Game Over!",
-                description=f"{board}\n\nThe word was: **{self.word.upper()}**",
-                color=0xFF0000,
-            )
-        else:
-            embed = discord.Embed(
-                title=f"Wordle ({self.attempts}/6)",
-                description=board,
-                color=0x3498DB,
-            )
-            embed.set_footer(text="Click the button to submit a guess!")
-        return embed
-
-    @discord.ui.button(label="Guess", style=discord.ButtonStyle.primary, row=0)
-    async def guess_btn(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        if interaction.user.id != self.player.id:
-            await interaction.response.send_message("Not your game!", ephemeral=True)
-            return
-        await interaction.response.send_modal(WordleGuessModal(self))
 
 
 @app_commands.command(name="wordle", description="Play Wordle — guess the 5-letter word!")
@@ -6215,153 +5489,6 @@ async def _wordle_cmd(interaction: discord.Interaction) -> None:
 
 # ── Connect 4 ──
 
-class Connect4View(discord.ui.View):
-    ROWS = 6
-    COLS = 7
-
-    def __init__(self, player1: discord.Member, player2: discord.Member) -> None:
-        super().__init__(timeout=120)
-        self.player1 = player1
-        self.player2 = player2
-        self.board: list[list[int]] = [[0] * self.COLS for _ in range(self.ROWS)]
-        self.current_player = 1  # 1 = player1 (red), 2 = player2 (yellow)
-        self.game_over = False
-        self.winner: Optional[discord.Member] = None
-
-    def _board_str(self) -> str:
-        pieces = {0: "⚪", 1: "🔴", 2: "🟡"}
-        lines = []
-        for row in self.board:
-            lines.append("".join(pieces[c] for c in row))
-        lines.append("1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣")
-        return "\n".join(lines)
-
-    def _drop_piece(self, col: int, player: int) -> bool:
-        for row in range(self.ROWS - 1, -1, -1):
-            if self.board[row][col] == 0:
-                self.board[row][col] = player
-                return True
-        return False
-
-    def _check_win(self, player: int) -> bool:
-        b = self.board
-        # Horizontal
-        for r in range(self.ROWS):
-            for c in range(self.COLS - 3):
-                if b[r][c] == b[r][c+1] == b[r][c+2] == b[r][c+3] == player:
-                    return True
-        # Vertical
-        for r in range(self.ROWS - 3):
-            for c in range(self.COLS):
-                if b[r][c] == b[r+1][c] == b[r+2][c] == b[r+3][c] == player:
-                    return True
-        # Diagonal (down-right)
-        for r in range(self.ROWS - 3):
-            for c in range(self.COLS - 3):
-                if b[r][c] == b[r+1][c+1] == b[r+2][c+2] == b[r+3][c+3] == player:
-                    return True
-        # Diagonal (up-right)
-        for r in range(3, self.ROWS):
-            for c in range(self.COLS - 3):
-                if b[r][c] == b[r-1][c+1] == b[r-2][c+2] == b[r-3][c+3] == player:
-                    return True
-        return False
-
-    def _is_full(self) -> bool:
-        return all(self.board[0][c] != 0 for c in range(self.COLS))
-
-    def _build_embed(self) -> discord.Embed:
-        board_display = self._board_str()
-        if self.game_over and self.winner:
-            embed = discord.Embed(
-                title=f"Connect 4 — {self.winner.display_name} Wins! 🎉",
-                description=board_display,
-                color=0x00FF00,
-            )
-        elif self.game_over:
-            embed = discord.Embed(
-                title="Connect 4 — Draw! 🤝",
-                description=board_display,
-                color=0xFFAA00,
-            )
-        else:
-            current = self.player1 if self.current_player == 1 else self.player2
-            piece = "🔴" if self.current_player == 1 else "🟡"
-            embed = discord.Embed(
-                title="Connect 4",
-                description=f"{board_display}\n\n{piece} **{current.display_name}**'s turn",
-                color=0x3498DB,
-            )
-        return embed
-
-    async def _handle_drop(self, interaction: discord.Interaction, col: int) -> None:
-        current = self.player1 if self.current_player == 1 else self.player2
-        if interaction.user.id != current.id:
-            await interaction.response.send_message("Not your turn!", ephemeral=True)
-            return
-        if self.game_over:
-            return
-        if not self._drop_piece(col, self.current_player):
-            await interaction.response.send_message("Column is full!", ephemeral=True)
-            return
-
-        if self._check_win(self.current_player):
-            self.game_over = True
-            self.winner = current
-        elif self._is_full():
-            self.game_over = True
-        else:
-            self.current_player = 2 if self.current_player == 1 else 1
-
-        embed = self._build_embed()
-        if self.game_over:
-            for item in self.children:
-                item.disabled = True
-        try:
-            await interaction.response.edit_message(embed=embed, view=self)
-        except discord.HTTPException:
-            pass
-        if self.game_over:
-            self.stop()
-
-    @discord.ui.button(label="1", style=discord.ButtonStyle.secondary, row=0)
-    async def col1(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        await self._handle_drop(interaction, 0)
-
-    @discord.ui.button(label="2", style=discord.ButtonStyle.secondary, row=0)
-    async def col2(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        await self._handle_drop(interaction, 1)
-
-    @discord.ui.button(label="3", style=discord.ButtonStyle.secondary, row=0)
-    async def col3(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        await self._handle_drop(interaction, 2)
-
-    @discord.ui.button(label="4", style=discord.ButtonStyle.secondary, row=0)
-    async def col4(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        await self._handle_drop(interaction, 3)
-
-    @discord.ui.button(label="5", style=discord.ButtonStyle.secondary, row=0)
-    async def col5(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        await self._handle_drop(interaction, 4)
-
-    @discord.ui.button(label="6", style=discord.ButtonStyle.secondary, row=1)
-    async def col6(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        await self._handle_drop(interaction, 5)
-
-    @discord.ui.button(label="7", style=discord.ButtonStyle.secondary, row=1)
-    async def col7(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        await self._handle_drop(interaction, 6)
-
-    async def on_timeout(self) -> None:
-        for item in self.children:
-            item.disabled = True
 
 
 @app_commands.command(name="connect4", description="Play Connect 4 against someone!")
@@ -6448,54 +5575,8 @@ async def _skipto_cmd(interaction: discord.Interaction, position: int) -> None:
 
 # ── /poll ──
 
-class PollView(discord.ui.View):
-    def __init__(self, options: list[str]) -> None:
-        super().__init__(timeout=300)
-        self.options = options
-        self.votes: dict[int, set[int]] = {i: set() for i in range(len(options))}
-        # Track which option each user voted for (to allow changing vote)
-        self.user_votes: dict[int, int] = {}  # user_id -> option_index
-
-        for i, opt in enumerate(options):
-            btn = PollButton(i, opt[:75])
-            self.add_item(btn)
-
-    def _results_str(self) -> str:
-        total = sum(len(v) for v in self.votes.values())
-        lines = []
-        for i, opt in enumerate(self.options):
-            count = len(self.votes[i])
-            pct = int(count / total * 100) if total > 0 else 0
-            bar_len = int(pct / 10)
-            bar = "▰" * bar_len + "▱" * (10 - bar_len)
-            lines.append(f"**{opt}**: {bar} {pct}% ({count})")
-        return "\n".join(lines)
 
 
-class PollButton(discord.ui.Button):
-    def __init__(self, index: int, label: str) -> None:
-        colors = [
-            discord.ButtonStyle.primary, discord.ButtonStyle.success,
-            discord.ButtonStyle.danger, discord.ButtonStyle.secondary,
-        ]
-        super().__init__(label=label, style=colors[index % len(colors)], row=0 if index < 2 else 1)
-        self.index = index
-
-    async def callback(self, interaction: discord.Interaction) -> None:
-        view: PollView = self.view  # type: ignore[assignment]
-        uid = interaction.user.id
-
-        # Remove previous vote if any
-        prev = view.user_votes.get(uid)
-        if prev is not None:
-            view.votes[prev].discard(uid)
-
-        # Record new vote
-        view.votes[self.index].add(uid)
-        view.user_votes[uid] = self.index
-
-        await interaction.response.send_message(
-            f"You voted for **{view.options[self.index]}**!", ephemeral=True)
 
 
 @app_commands.command(name="poll", description="Create a poll with 2-4 options")
@@ -6706,6 +5787,15 @@ def main() -> None:
         print("\nSocial bot stopped.")
     finally:
         loop.close()
+
+
+# Inject the bot-side helpers the music UI calls back into (placeholders in music_ui
+# avoid an import cycle; wire the real functions now that they are defined).
+import bots.social.music_ui as _music_ui  # noqa: E402
+_music_ui._get_queue = _get_queue
+_music_ui._build_now_playing_embed = _build_now_playing_embed
+_music_ui._set_deaf = _set_deaf
+_music_ui._start_playing = _start_playing
 
 
 if __name__ == "__main__":
