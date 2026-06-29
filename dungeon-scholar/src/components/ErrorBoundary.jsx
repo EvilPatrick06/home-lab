@@ -33,6 +33,21 @@ export default class ErrorBoundary extends React.Component {
     // eslint-disable-next-line no-console
     if (!import.meta.env.PROD) console.error(info?.componentStack);
   }
+  componentDidMount() {
+    // PHASE-05 05A: clear a latched NON-chunk error on hash route change so
+    // navigation always recovers (the boundary otherwise stays tripped across
+    // every route until a hard reload). A chunk-load error is left intact — its
+    // Reload affordance (01B) is the recovery there, not a reset-loop.
+    if (typeof window !== 'undefined') window.addEventListener('hashchange', this.handleRouteChange);
+  }
+  componentWillUnmount() {
+    if (typeof window !== 'undefined') window.removeEventListener('hashchange', this.handleRouteChange);
+  }
+  handleRouteChange = () => {
+    if (this.state.hasError && !isChunkLoadError(this.state.error)) {
+      this.setState({ hasError: false, error: null });
+    }
+  };
   resetError = () => {
     this.setState({ hasError: false, error: null });
     if (typeof this.props.onReset === 'function') {

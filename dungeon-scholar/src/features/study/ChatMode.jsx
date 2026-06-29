@@ -272,16 +272,10 @@ function ChatMode({ courseSet, tomeProgress, updateTomeProgress, checkAchievemen
       relevantSources.length > 0
         ? `\n\n=== RELEVANT TOME EXCERPTS (use these as your primary source of truth) ===\n${relevantSources.map((s, i) => `[${i + 1}] (${s.typeLabel}) ${s.text}`).join('\n\n')}\n=== END OF TOME EXCERPTS ===`
         : '';
-    const fullKb = courseSet.knowledgeBase || courseSet.knowledge_base || '';
-
     return `You are the Oracle, a wise and ancient sage who guides scholars through the tome titled "${tomeTitle}". Speak with the warmth of a beloved mentor and the gravitas of one who has studied these mysteries for an age. You may use light fantasy flourishes ("brave scholar", "young one") but stay rigorous and clear above all.
 
 PRIMARY DIRECTIVE: Use the tome as your source of truth. The relevant excerpts below have been retrieved for this question — base your answer on them whenever possible. When you cite information from the tome, reference it like [1] or [2] matching the excerpt numbers below. If the tome does not cover the question, you may draw on broader knowledge but say so explicitly (e.g., "This goes beyond the current tome, but...").
-${sourceText}
-
-=== FULL KNOWLEDGE BASE (background context) ===
-${fullKb}
-=== END KNOWLEDGE BASE ===`;
+${sourceText}`;
   };
 
   const send = async () => {
@@ -326,7 +320,9 @@ ${fullKb}
 
     // Oracle mode: search tome, send to AI, fall back to search on failure
     setLoading(true);
-    const relevantSources = searchTome(query, 5);
+    // PHASE-05 05C: top-K excerpts only — the full KB is no longer inlined, so
+    // raise K modestly now that the body is bounded.
+    const relevantSources = searchTome(query, 8);
 
     let fallbackReason = null;
     try {
@@ -337,7 +333,8 @@ ${fullKb}
           model: ORACLE_MODEL,
           max_tokens: 1000,
           system: buildSystemPrompt(relevantSources),
-          messages: newMessages.filter((m) => m.role === 'user' || m.role === 'assistant'),
+          // PHASE-05 05C: bound history to the last turns so long chats don't re-bloat the body.
+          messages: newMessages.filter((m) => m.role === 'user' || m.role === 'assistant').slice(-12),
         }),
       });
       if (!response.ok) {
@@ -345,6 +342,8 @@ ${fullKb}
           fallbackReason = "The Oracle's voice is silent — too many petitions today. Falling back to Tome Search.";
         else if (response.status === 401 || response.status === 403)
           fallbackReason = 'The Oracle cannot be reached at present. Falling back to Tome Search.';
+        else if (response.status === 413)
+          fallbackReason = 'The Oracle cannot hold so great a tome at once — showing local matches.';
         else fallbackReason = 'The Oracle stumbles. Falling back to Tome Search.';
 
         try {

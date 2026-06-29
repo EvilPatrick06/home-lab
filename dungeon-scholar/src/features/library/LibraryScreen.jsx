@@ -23,6 +23,8 @@ import {
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import RichContent from '../../components/RichContent.jsx';
+import { ConfirmModal } from '../../components/ui/ConfirmModal.jsx';
+import { TextInputModal } from '../../components/ui/TextInputModal.jsx';
 import { blankTomeProgress } from '../../game/tome.js';
 import { buildTomeBundle, bundleFilename, downloadTextFile } from '../../services/libraryBulk.js';
 import { isSealedTome } from '../../services/sealedTome.js';
@@ -56,6 +58,8 @@ function LibraryScreen({
   const [query, setQuery] = useState(''); // S6: client-side content search
   const [selectMode, setSelectMode] = useState(false); // bulk multi-select
   const [selectedIds, setSelectedIds] = useState(() => new Set());
+  const [bulkTagOpen, setBulkTagOpen] = useState(false); // 05B themed Tag modal
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false); // 05B themed Banish confirm
 
   const startRename = (tome) => {
     setRenamingId(tome.id);
@@ -122,19 +126,23 @@ function LibraryScreen({
     const tomes = playerState.library.filter((t) => selectedIds.has(t.id));
     if (tomes.length) downloadTextFile(JSON.stringify(buildTomeBundle(tomes), null, 2), bundleFilename(tomes.length));
   };
+  // PHASE-05 05B: themed, focus-trapped modals replace the native
+  // window.prompt/window.confirm (which were unthemed and prompt() returns null
+  // in some PWA contexts, silently no-opping the tag).
   const doBulkTag = () => {
-    const tag = typeof window !== 'undefined' && window.prompt ? window.prompt('Add a tag to the selected tomes:') : '';
-    if (tag?.trim() && typeof onBulkTag === 'function') onBulkTag(Array.from(selectedIds), tag.trim());
+    if (selectedCount) setBulkTagOpen(true);
+  };
+  const confirmBulkTag = (tag) => {
+    if (tag && typeof onBulkTag === 'function') onBulkTag(Array.from(selectedIds), tag);
+    setBulkTagOpen(false);
   };
   const doBulkDelete = () => {
-    if (
-      typeof window !== 'undefined' &&
-      window.confirm &&
-      !window.confirm(`Banish ${selectedCount} selected tome(s)? This cannot be undone.`)
-    )
-      return;
+    if (selectedCount) setBulkDeleteOpen(true);
+  };
+  const confirmBulkDelete = () => {
     for (const id of Array.from(selectedIds)) onDelete(id);
     setSelectedIds(new Set());
+    setBulkDeleteOpen(false);
   };
 
   return (
@@ -784,6 +792,27 @@ function LibraryScreen({
             );
           })}
         </div>
+      )}
+      {bulkTagOpen && (
+        <TextInputModal
+          title="✦ Tag Selected Tomes ✦"
+          label={`Add a tag to ${selectedCount} selected tome${selectedCount === 1 ? '' : 's'}:`}
+          placeholder="e.g. exam-prep"
+          confirmLabel="Apply Tag"
+          onConfirm={confirmBulkTag}
+          onCancel={() => setBulkTagOpen(false)}
+        />
+      )}
+      {bulkDeleteOpen && (
+        <ConfirmModal
+          title="⚠ Banish Selected Tomes ⚠"
+          body={`Banish ${selectedCount} selected tome${selectedCount === 1 ? '' : 's'}? This cannot be undone.`}
+          confirmLabel="Banish"
+          cancelLabel="Cancel"
+          confirmVariant="danger"
+          onConfirm={confirmBulkDelete}
+          onCancel={() => setBulkDeleteOpen(false)}
+        />
       )}
     </div>
   );

@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ErrorBoundary from './ErrorBoundary.jsx';
 
@@ -57,5 +57,44 @@ describe('ErrorBoundary', () => {
     expect(screen.getByText(/a spell misfired in this chamber/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /return to hearth/i })).toBeInTheDocument();
     expect(screen.queryByText(/new edition/i)).not.toBeInTheDocument();
+  });
+  it('clears a non-chunk error on hashchange and renders the recovered route (PHASE-05 05A)', () => {
+    const { rerender } = render(
+      <ErrorBoundary>
+        <Boom error={new Error('Cannot read properties of undefined')} />
+      </ErrorBoundary>,
+    );
+    expect(screen.getByText(/a spell misfired/i)).toBeInTheDocument();
+    rerender(
+      <ErrorBoundary>
+        <div>recovered home</div>
+      </ErrorBoundary>,
+    );
+    // Still latched until the route actually changes.
+    expect(screen.queryByText('recovered home')).not.toBeInTheDocument();
+    act(() => {
+      window.dispatchEvent(new Event('hashchange'));
+    });
+    expect(screen.getByText('recovered home')).toBeInTheDocument();
+  });
+
+  it('does NOT reset the chunk-load panel on hashchange (PHASE-05 05A)', () => {
+    window.sessionStorage.setItem('ds:chunk-reload', '1');
+    const { rerender } = render(
+      <ErrorBoundary>
+        <Boom error={new Error('Failed to fetch dynamically imported module: /assets/x.js')} />
+      </ErrorBoundary>,
+    );
+    expect(screen.getByText(/new edition/i)).toBeInTheDocument();
+    rerender(
+      <ErrorBoundary>
+        <div>recovered</div>
+      </ErrorBoundary>,
+    );
+    act(() => {
+      window.dispatchEvent(new Event('hashchange'));
+    });
+    expect(screen.getByText(/new edition/i)).toBeInTheDocument();
+    expect(screen.queryByText('recovered')).not.toBeInTheDocument();
   });
 });
