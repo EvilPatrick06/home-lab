@@ -10,8 +10,8 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
+  pages: write  # zizmor: ignore[excessive-permissions] required by actions/configure-pages + deploy-pages
+  id-token: write  # zizmor: ignore[excessive-permissions] required for GitHub Pages OIDC deploy
 
 concurrency:
   group: pages
@@ -25,6 +25,8 @@ jobs:
         working-directory: ./dungeon-scholar
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
       - uses: ./.github/actions/setup-node-project
         with:
           working-directory: dungeon-scholar

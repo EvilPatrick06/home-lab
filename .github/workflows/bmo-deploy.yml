@@ -18,7 +18,8 @@
 #   - Without TS_OAUTH_CLIENT_ID / TS_OAUTH_SECRET the gate job emits a notice
 #     and the deploy job is skipped → the workflow lands GREEN, not red.
 name: bmo / deploy
-on:
+# zizmor: ignore[dangerous-triggers] workflow_run is intentional: the deploy job is gated and skips without TS_OAUTH secrets, and deploys a pinned SHA (see header).
+on:  # zizmor: ignore[dangerous-triggers]
   workflow_run:
     workflows: ["bmo / pi pytest"]   # MUST match the `name:` in .github/workflows/bmo-pi-pytest.yml exactly
     types: [completed]
