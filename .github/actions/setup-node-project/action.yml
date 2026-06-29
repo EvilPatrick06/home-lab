@@ -1,0 +1,27 @@
+name: Setup Node project
+description: >-
+  Shared monorepo Node bootstrap: SHA-pinned actions/setup-node reading the
+  repo-root .nvmrc with npm caching, followed by npm ci in the given project
+  dir. Extracted so the setup-node + npm ci block lives in one place and the
+  SHA-pin / .nvmrc convention cannot drift per-workflow.
+inputs:
+  working-directory:
+    description: Project dir containing package-lock.json (where npm ci runs).
+    required: true
+  install-args:
+    description: >-
+      Extra args appended to npm ci (e.g. --prefer-offline --no-audit
+      --no-fund). Empty by default.
+    required: false
+    default: ""
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+      with:
+        node-version-file: .nvmrc
+        cache: npm
+        cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
+    - run: npm ci ${{ inputs.install-args }}
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
