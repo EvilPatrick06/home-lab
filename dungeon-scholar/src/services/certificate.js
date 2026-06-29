@@ -39,6 +39,7 @@ function safeName(s, fallback) {
 }
 
 // Pure text builder — unit-testable without a canvas.
+/** @param {{ scholarName?: any, tomeTitle?: any, title?: any, masteryPct?: any, date?: any }} [opts] */
 export function buildCertificateText({ scholarName, tomeTitle, title, masteryPct, date } = {}) {
   const d = date instanceof Date ? date : date ? new Date(date) : new Date();
   const dateText = Number.isNaN(d.getTime())
@@ -58,6 +59,7 @@ export function buildCertificateText({ scholarName, tomeTitle, title, masteryPct
   };
 }
 
+/** @param {{ tomeTitle?: any }} [opts] */
 export function certificateFilename({ tomeTitle } = {}) {
   const slug =
     safeName(tomeTitle, 'tome')

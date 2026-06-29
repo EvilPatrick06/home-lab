@@ -69,7 +69,7 @@ loadSettings();
 const ensureContext = () => {
   if (typeof window === 'undefined') return null;
   if (!ctx) {
-    const Ctor = window.AudioContext || window.webkitAudioContext;
+    const Ctor = window.AudioContext || /** @type {any} */ (window).webkitAudioContext;
     if (!Ctor) return null;
     ctx = new Ctor();
     masterGain = ctx.createGain();

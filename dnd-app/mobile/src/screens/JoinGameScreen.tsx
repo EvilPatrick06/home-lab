@@ -1,6 +1,6 @@
-import { useState, type ReactElement } from 'react'
-import { Pressable, Text, TextInput, View } from 'react-native'
 import type { ScreenProps } from '@app/navigation/types'
+import { type ReactElement, useState } from 'react'
+import { Pressable, Text, TextInput, View } from 'react-native'
 
 export default function JoinGameScreen({ navigation }: ScreenProps<'JoinGame'>): ReactElement {
   const [code, setCode] = useState('')

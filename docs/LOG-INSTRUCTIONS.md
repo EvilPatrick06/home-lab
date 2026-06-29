@@ -17,12 +17,14 @@ Active logs are **fully domain-split** for issues + suggestions. Security stays 
 | [`BMO-ISSUES-LOG.md`](./BMO-ISSUES-LOG.md) | git | **BMO-domain bugs, debt, broken config, perf, test failures.** Pi voice assistant + Discord bots + DM engine (Python/Flask/agents/services/wake/MCP). Also Pi-side infra/tooling that BMO depends on. |
 | [`ISSUES-LOG-DNDAPP.md`](./ISSUES-LOG-DNDAPP.md) | git | **dnd-app-domain bugs, debt, broken config, perf, test failures.** Electron VTT (TS/React/Electron/Vite/biome/vitest/Pixi/peerjs/the 5e JSON content set). |
 | [`ISSUES-LOG-DUNGEON-SCHOLAR.md`](./ISSUES-LOG-DUNGEON-SCHOLAR.md) | git | **dungeon-scholar-domain bugs, debt, broken config, perf, test failures.** Vite/React D&D-themed study app, the per-tome run/quiz/lab content set, the Supabase auth wiring. |
+| [`ISSUES-LOG.md`](./ISSUES-LOG.md) | git | **Cross-cutting / repo-wide bugs, debt, config (`Domain: both`, repo-wide structural).** The cross-cutting *pointer* log: its `# Cross-cutting issues` section is the single home for whole-repo / monorepo-tooling / multi-project findings (fed by the `overall-*` scanners). NOT for items that belong to one domain. |
 | [`BMO-SUGGESTIONS-LOG.md`](./BMO-SUGGESTIONS-LOG.md) | git | **BMO-domain future ideas / deferred backlog only.** Design gotchas + durable info now live in [`bmo/docs/DESIGN-CONSTRAINTS.md`](../bmo/docs/DESIGN-CONSTRAINTS.md). |
 | [`bmo/docs/DESIGN-CONSTRAINTS.md`](../bmo/docs/DESIGN-CONSTRAINTS.md) | git | **BMO-domain design gotchas + durable info/observations** (knowledge, not work). |
 | [`SUGGESTIONS-LOG-DNDAPP.md`](./SUGGESTIONS-LOG-DNDAPP.md) | git | **dnd-app-domain future ideas / deferred backlog only.** Design gotchas + durable info now live in [`dnd-app/docs/DESIGN-CONSTRAINTS.md`](../dnd-app/docs/DESIGN-CONSTRAINTS.md). |
 | [`dnd-app/docs/DESIGN-CONSTRAINTS.md`](../dnd-app/docs/DESIGN-CONSTRAINTS.md) | git | **dnd-app-domain design gotchas + durable info/observations** (knowledge, not work). |
 | [`SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`](./SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md) | git | **dungeon-scholar-domain future ideas / deferred backlog only.** Design gotchas + durable info now live in [`dungeon-scholar/docs/DESIGN-CONSTRAINTS.md`](../dungeon-scholar/docs/DESIGN-CONSTRAINTS.md). |
 | [`dungeon-scholar/docs/DESIGN-CONSTRAINTS.md`](../dungeon-scholar/docs/DESIGN-CONSTRAINTS.md) | git | **dungeon-scholar-domain design gotchas + durable info/observations** (knowledge, not work). |
+| [`SUGGESTIONS-LOG.md`](./SUGGESTIONS-LOG.md) | git | **Cross-cutting / repo-wide future ideas (`Domain: both`, repo-wide structural).** The cross-cutting *pointer* log: its `## Cross-cutting / repo-wide suggestions` section is the single home for whole-repo structural/convention ideas (fed by the `overall-*` scanners). |
 | [`SECURITY-LOG.md`](./SECURITY-LOG.md) | **gitignored** | **Security concerns, hardening backlog, incident notes — any domain (global).** Sensitive — kept local. Never put raw secret values here. |
 | [`BMO-RESOLVED-ISSUES.md`](./BMO-RESOLVED-ISSUES.md) | git | Archive of completed BMO entries (issues + suggestions). |
 | [`RESOLVED-ISSUES-DNDAPP.md`](./RESOLVED-ISSUES-DNDAPP.md) | git | Archive of completed dnd-app entries (issues + suggestions). |
@@ -35,8 +37,8 @@ Active logs are **fully domain-split** for issues + suggestions. Security stays 
 
    |  | Domain `bmo` | Domain `dnd-app` | Domain `dungeon-scholar` | Domain `both` (or three-way) |
    |---|---|---|---|---|
-   | `bug` / `debt` / `config` / `perf` / `test` | `BMO-ISSUES-LOG.md` | `ISSUES-LOG-DNDAPP.md` | `ISSUES-LOG-DUNGEON-SCHOLAR.md` | **mirror in each relevant log** |
-   | `future-idea` (deferred work) | `BMO-SUGGESTIONS-LOG.md` | `SUGGESTIONS-LOG-DNDAPP.md` | `SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` | **mirror in each relevant log** |
+   | `bug` / `debt` / `config` / `perf` / `test` | `BMO-ISSUES-LOG.md` | `ISSUES-LOG-DNDAPP.md` | `ISSUES-LOG-DUNGEON-SCHOLAR.md` | **repo-wide/structural -> `ISSUES-LOG.md` (pointer); else mirror per domain** |
+   | `future-idea` (deferred work) | `BMO-SUGGESTIONS-LOG.md` | `SUGGESTIONS-LOG-DNDAPP.md` | `SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` | **repo-wide/structural -> `SUGGESTIONS-LOG.md` (pointer); else mirror per domain** |
    | `design-gotcha` / `info` (durable knowledge, not work) | `bmo/docs/DESIGN-CONSTRAINTS.md` | `dnd-app/docs/DESIGN-CONSTRAINTS.md` | `dungeon-scholar/docs/DESIGN-CONSTRAINTS.md` | **document in each relevant constraints doc** |
 
 3. Edge-cases:
@@ -44,7 +46,7 @@ Active logs are **fully domain-split** for issues + suggestions. Security stays 
    - `Domain: infra` → BMO log (the Pi is BMO's host; pip/npm caches, systemd, host packages, etc.).
    - `oracle-worker/` (Cloudflare Worker backing dungeon-scholar's Oracle proxy) → file under the **dungeon-scholar** logs; it is dungeon-scholar's backend.
    - `Domain: docs` for repo-root docs (`README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, etc.) → BMO log by default; if it's domain-specific docs, file under that domain.
-   - **`Domain: both` deliberately duplicates** — small cost, big benefit (single grep finds it from either side; one fix removes both copies).
+   - **`Domain: both` routing (repo-wide vs. multi-project).** *Repo-wide / structural* items — whole-repo conventions, CI/Actions, monorepo tooling, cross-project docs — go in the cross-cutting **pointer logs** (`ISSUES-LOG.md` for bugs/debt/config, `SUGGESTIONS-LOG.md` for future ideas), which carry dedicated `# Cross-cutting` sections fed by the `overall-*` scanners (one entry, one home; fix once, remove once). Items that genuinely affect several **specific** projects but are not repo-wide structure are instead **mirrored** into each relevant per-domain log (single grep finds it from either side; one fix removes every copy). When unsure, prefer the pointer log for anything that is about the repo as a whole.
 
 ---
 

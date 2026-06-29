@@ -1,10 +1,10 @@
-import { useCallback, useRef, type ReactElement } from 'react'
-import { BackHandler, View } from 'react-native'
-import { useFocusEffect } from '@react-navigation/native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { BRIDGE_EVENT, type BridgeEndpoint } from '@shared/bridge'
 import { EmbeddedWebView } from '@app/bridge/EmbeddedWebView'
 import type { ScreenProps } from '@app/navigation/types'
+import { useFocusEffect } from '@react-navigation/native'
+import { BRIDGE_EVENT, type BridgeEndpoint } from '@shared/bridge'
+import { type ReactElement, useCallback, useRef } from 'react'
+import { BackHandler, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 /**
  * The live game session. The map, dice, and PeerJS run inside the embedded

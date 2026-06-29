@@ -1,3 +1,4 @@
+/** @param {{ label?: any, value?: any, sub?: any }} props */
 export function RecordTile({ label, value, sub }) {
   return (
     <div

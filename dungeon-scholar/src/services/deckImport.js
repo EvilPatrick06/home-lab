@@ -108,6 +108,8 @@ function looksLikeHeader(row) {
 
 /**
  * Convert delimited deck text into a tome object.
+ * @param {string} text
+ * @param {{ title?: any, delimiter?: any }} [opts]
  * @returns {{ ok: true, tome: object, count: number } | { ok: false, error: string }}
  */
 export function deckTextToTome(text, { title, delimiter } = {}) {

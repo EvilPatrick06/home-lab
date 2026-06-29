@@ -9,9 +9,10 @@
  * renderer already hides them behind `isWebBuild()` capability flags, and any
  * stray call rejects with "no handler" rather than hanging.
  */
-import Constants from 'expo-constants'
-import { BRIDGE_RPC, BridgeEndpoint } from '@shared/bridge'
+
 import * as store from '@app/storage/storage-adapter'
+import { BRIDGE_RPC, BridgeEndpoint } from '@shared/bridge'
+import Constants from 'expo-constants'
 
 type Json = Record<string, unknown>
 

@@ -12,7 +12,7 @@ import * as FileSystem from 'expo-file-system'
 import { unzipSync } from 'fflate'
 
 const REMOTE_EMBED = 'https://bmo.mybmoai.work/DungeonTableOnline/'
-const CACHE_DIR = `${FileSystem.cacheDirectory}embed/`
+const CACHE_DIR = `${(FileSystem as unknown as { cacheDirectory: string }).cacheDirectory}embed/`
 const INDEX_PATH = `${CACHE_DIR}index.html`
 
 // Metro resolves this at bundle time; `prestart` / `build:embed` must create the file.
@@ -75,6 +75,7 @@ async function ensureLocalEmbed(): Promise<string> {
 }
 
 async function resolveBase(): Promise<string> {
+  // biome-ignore lint/correctness/useHookAtTopLevel: useRemoteEmbed is a plain predicate, not a React hook
   if (useRemoteEmbed()) return REMOTE_EMBED
   try {
     const dir = await ensureLocalEmbed()

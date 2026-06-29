@@ -623,6 +623,7 @@ const MOB_DEFS = {
   spider: { biome: 'wastes', tier: 'basic', ai: 'aggressive' },
   elemental: { biome: 'wastes', tier: 'elite', ai: 'patrol' },
 };
+/** @type {Record<string, any>} */
 const MOBS_BY_BIOME = Object.entries(MOB_DEFS).reduce((acc, [kind, def]) => {
   acc[def.biome] = acc[def.biome] || { basic: [], elite: [] };
   acc[def.biome][def.tier].push(kind);

@@ -1,8 +1,8 @@
+import { EmbeddedWebView } from '@app/bridge/EmbeddedWebView'
+import type { ScreenProps } from '@app/navigation/types'
 import type { ReactElement } from 'react'
 import { View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { EmbeddedWebView } from '@app/bridge/EmbeddedWebView'
-import type { ScreenProps } from '@app/navigation/types'
 
 /**
  * The 5e content library. It's data-heavy (~3k JSON files) and already fully

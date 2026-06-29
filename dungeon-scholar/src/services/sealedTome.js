@@ -19,7 +19,7 @@ export const MAX_PBKDF2_ITERATIONS = 2_000_000;
 
 /**
  * Is `n` an accepted PBKDF2 iteration count (integer within the import band)?
- * @param {unknown} n
+ * @param {*} n
  * @returns {boolean}
  */
 export function isValidIterations(n) {
@@ -63,7 +63,7 @@ export function unb64(str) {
 
 /**
  * Structural check: does `data` look like a sealed-tome envelope?
- * @param {unknown} data
+ * @param {*} data
  * @returns {boolean}
  */
 export function isSealedTome(data) {
@@ -88,11 +88,15 @@ export function isSealedTome(data) {
  * @returns {Promise<CryptoKey>}
  */
 async function deriveKey(passphrase, saltBytes, iterations) {
-  const material = await crypto.subtle.importKey('raw', new TextEncoder().encode(passphrase), 'PBKDF2', false, [
-    'deriveKey',
-  ]);
+  const material = await crypto.subtle.importKey(
+    'raw',
+    /** @type {BufferSource} */ (new TextEncoder().encode(passphrase)),
+    'PBKDF2',
+    false,
+    ['deriveKey'],
+  );
   return crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt: saltBytes, iterations, hash: 'SHA-256' },
+    { name: 'PBKDF2', salt: /** @type {BufferSource} */ (saltBytes), iterations, hash: 'SHA-256' },
     material,
     { name: 'AES-GCM', length: 256 },
     false,
@@ -177,9 +181,9 @@ export async function unsealTome(envelope, passphrase) {
   let pt;
   try {
     pt = await crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv: unb64(envelope.cipher.iv) },
+      { name: 'AES-GCM', iv: /** @type {BufferSource} */ (unb64(envelope.cipher.iv)) },
       key,
-      unb64(envelope.cipher.ciphertext),
+      /** @type {BufferSource} */ (unb64(envelope.cipher.ciphertext)),
     );
   } catch {
     // OperationError: wrong passphrase or tampered ciphertext.

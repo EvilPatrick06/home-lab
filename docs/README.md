@@ -21,6 +21,7 @@ file by purpose; the logs further down are machine-appended and split by domain.
 | [`BACKUP.md`](./BACKUP.md) | Backup strategy (Pi + GitHub LFS + cloud). |
 | [`OLLAMA-TUNING.md`](./OLLAMA-TUNING.md) | Local LLM (Ollama) performance tuning. |
 | [`SECURITY.md`](./SECURITY.md) | Security posture, reporting, and secret-handling. |
+| [`BMO-DEPLOY.md`](./BMO-DEPLOY.md) | Decoupled bmo Pi deploy (deploy-owned checkout, fetch+reset flow). |
 
 ## Contributor process
 

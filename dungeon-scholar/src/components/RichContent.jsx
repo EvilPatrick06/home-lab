@@ -23,7 +23,7 @@ let katexPromise = null;
 function loadKatex() {
   if (!katexPromise) {
     katexPromise = Promise.all([import('katex'), import('katex/dist/katex.min.css')]).then(([mod]) => {
-      const katex = mod.default || mod;
+      const katex = /** @type {any} */ (mod.default || mod);
       try {
         if (typeof window !== 'undefined') window.katex = katex;
       } catch {
@@ -73,6 +73,7 @@ function MathRender({ expr, fallbackStyle }) {
   );
 }
 
+/** @type {import("react").CSSProperties} */
 const PRE_BASE_STYLE = {
   borderRadius: '4px',
   padding: '0.85rem 1rem 0.75rem',
@@ -98,6 +99,7 @@ const INLINE_CODE_STYLE = {
   fontStyle: 'normal',
 };
 
+/** @type {import("react").CSSProperties} */
 const LANG_TAG_STYLE = {
   position: 'absolute',
   top: '4px',
@@ -111,6 +113,10 @@ const LANG_TAG_STYLE = {
   pointerEvents: 'none',
 };
 
+/**
+ * @param {string} language
+ * @returns {import("react").CSSProperties}
+ */
 function styleForFence(language) {
   if (isDiagramLanguage(language)) {
     return {
@@ -128,8 +134,14 @@ function styleForFence(language) {
   };
 }
 
+/**
+ * @param {{ text?: any, className?: any, style?: import("react").CSSProperties, as?: any }} props
+ */
 export default function RichContent({ text, className, style, as: BlockTag = 'div' }) {
-  const nodes = parseRichContent(text);
+  const nodes =
+    /** @type {Array<{type:string,content?:string,language?:string,href?:string,label?:string,src?:string,alt?:string}>} */ (
+      parseRichContent(text)
+    );
   if (nodes.length === 0) {
     return BlockTag ? <BlockTag className={className} style={style} /> : null;
   }

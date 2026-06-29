@@ -104,6 +104,36 @@
 - **Branch:** auto/dnd-resolver
 
 ---
+### [2026-06-29] dnd-app/mobile lint script lints 0 files (biome config resolution) + typecheck unverified — new CI gate is non-blocking until fixed
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-29
+- **Resolution:** Fixed and gate flipped to BLOCKING (2026-06-29). LINT: added dnd-app/mobile/biome.json (extends ../../biome.base.json, includes src/**) so biome actually lints the 31 src files instead of resolving the dnd-app ancestor config and ignoring src/; biome check --write applied import-sort/format, and a biome-ignore covers the useHookAtTopLevel false positive on useRemoteEmbed (a plain predicate, not a React hook). Result: 0 lint errors. TYPECHECK: cleared all tsc errors under strict mode -- added ignoreDeprecations:6.0 (baseUrl), a global.css ambient module decl, an as-ExpoConfig assertion for the deprecated top-level splash key, a cacheDirectory cast for the new expo-file-system types, a @ts-expect-error for the react-native-webview vs @types/react class-component incompat (props inferred as never), an @msgpack/msgpack path mapping so parent shared/bridge files resolve it from mobile node_modules, and excluded parent *.test.ts (vitest) from the mobile program. Result: 0 tsc errors. Removed continue-on-error in dnd-app-mobile-ci.yml and the leading - in the Makefile typecheck line; mobile is now a blocking gate. (The lockfile drift noted in item 3 was already fixed earlier on this branch.)
+- **Branch:** auto/overall-resolver
+
+- **Category:** config, test
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** overall-resolver
+- **During:** wiring `dnd-app/mobile` into CI + Makefile (cross-cutting SUGGESTIONS-LOG `dnd-app/mobile excluded from Makefile + CI`, resolved 2026-06-29). Turning the never-run gate on surfaced these.
+
+**Description:**
+The new `.github/workflows/dnd-app-mobile-ci.yml` exposed pre-existing breakage in `dnd-app/mobile` that no make/CI target previously ran:
+
+1. **`npm run lint` lints nothing and exits 1.** The script is `biome check src/`, but biome reports "No files were processed ... These paths were provided but ignored: src/" and exits 1, even though `dnd-app/mobile/src/` has 31 tracked `.ts/.tsx` files and is NOT gitignored. Root cause is biome config resolution: `dnd-app/mobile` has no `biome.json`, so `biome check` resolves an ancestor biome config whose includes/ignore patterns exclude this nested path. The mobile lint bar has therefore been a silent no-op (a hard error under biome v2).
+2. **`npm run typecheck` (`tsc --noEmit`) is unverified.** The lint step fails first, so CI never reached typecheck; its pass/fail state on the real mobile sources is unknown.
+3. **(Fixed)** `package-lock.json` was out of sync with `package.json` (typescript / react-native-worklets / many `@babel/*` missing), so `npm ci` failed for everyone — fixed 2026-06-29 via `npm install --package-lock-only` on branch `auto/overall-resolver`.
+
+Because of items 1 and 2, the gate lint + typecheck steps are `continue-on-error: true` (non-blocking) and the workflow is named "(non-blocking)", matching the `dnd-e2e.yml` promote-to-required-once-stable convention.
+
+**Proposed fix / improvement:**
+- [ ] Give `dnd-app/mobile` its own `biome.json` (or fix the ancestor config includes) so `biome check src/` lints the 31 src files; confirm `npm run lint` processes more than 0 files and passes.
+- [ ] Run `npm run typecheck` locally; fix any `tsc --noEmit` errors on the mobile sources.
+- [ ] Once both are green, drop the `continue-on-error: true` lines from `dnd-app-mobile-ci.yml` (and its non-blocking name) to make the gate blocking.
+
+**Related files:** `dnd-app/mobile/package.json` (lint/typecheck scripts), `dnd-app/mobile/biome.json` (absent), `.github/workflows/dnd-app-mobile-ci.yml`, `Makefile` (mobile lint/typecheck targets)
+
+**Related entries:** RESOLVED-ISSUES.md [2026-06-29] "dnd-app/mobile is excluded from both the root Makefile fan-out and all CI" (this gate was added there).
 
 ### [2026-06-23] Cloud-sync residual: book config/PDFs not synced; binary re-hashed each reconcile
 

@@ -10,7 +10,7 @@ import { guardedReloadOnce } from './utils/lazyWithReload.js';
 // frame. Bundled, so script-src 'self' permits it.
 if (window.top !== window.self) {
   try {
-    window.top.location = window.self.location;
+    window.top.location = window.self.location.href;
   } catch {
     /* cross-origin frame: best effort */
   }

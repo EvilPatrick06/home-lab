@@ -1,8 +1,8 @@
-import { useCallback, useState, type ReactElement } from 'react'
-import { useFocusEffect } from '@react-navigation/native'
-import { ActivityIndicator, FlatList, Text, View } from 'react-native'
-import * as store from '@app/storage/storage-adapter'
 import type { ScreenProps } from '@app/navigation/types'
+import * as store from '@app/storage/storage-adapter'
+import { useFocusEffect } from '@react-navigation/native'
+import { type ReactElement, useCallback, useState } from 'react'
+import { ActivityIndicator, FlatList, Text, View } from 'react-native'
 
 interface CharacterRow {
   id: string

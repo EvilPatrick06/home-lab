@@ -40,15 +40,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
-      - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+      - name: Setup Node.js + install deps
+        uses: ./.github/actions/setup-node-project
         with:
-          node-version-file: .nvmrc
-          cache: npm
-          cache-dependency-path: dnd-app/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci --prefer-offline --no-audit --no-fund
+          working-directory: dnd-app
+          install-args: "--prefer-offline --no-audit --no-fund"
 
       - name: Verify package.json version matches tag
         run: |
@@ -83,15 +79,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
-      - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+      - name: Setup Node.js + install deps
+        uses: ./.github/actions/setup-node-project
         with:
-          node-version-file: .nvmrc
-          cache: npm
-          cache-dependency-path: dnd-app/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci --prefer-offline --no-audit --no-fund
+          working-directory: dnd-app
+          install-args: "--prefer-offline --no-audit --no-fund"
 
       - name: Test (shard ${{ matrix.shard }}/3)
         run: npx vitest run --shard=${{ matrix.shard }}/3

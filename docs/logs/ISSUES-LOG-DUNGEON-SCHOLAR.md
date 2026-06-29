@@ -35,8 +35,6 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Medium
 
-*(none currently logged)*
-
 ## Low
 
 ### [2026-06-28] biome `useExhaustiveDependencies` warnings — hook-dependency triage (dead-code half + lint gate now done)

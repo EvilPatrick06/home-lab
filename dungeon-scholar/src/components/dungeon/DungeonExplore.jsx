@@ -818,7 +818,13 @@ export default function DungeonExplore({
   // retroactively pulling XP back from playerState.
   const xpEarnedRef = useRef(0);
 
-  const stateRef = useRef({});
+  /**
+   * Mutable per-frame snapshot of run state, synced from React state for the
+   * render/game loop. Loosely typed: known fields listed for typo-safety; the
+   * index signature permits the other imperatively-synced keys.
+   * @typedef {{ hp?: number, maxHp?: number, shields?: number, maxShields?: number, score?: number, pos?: {x:number,y:number}, facing?: string, runState?: string, battle?: any, initial?: any, biome?: any, equipped?: any, activePet?: any, bossKeyFound?: boolean, [key: string]: any }} DungeonRunState
+   */
+  const stateRef = useRef(/** @type {DungeonRunState} */ ({}));
   useLayoutEffect(() => {
     stateRef.current = {
       phase,

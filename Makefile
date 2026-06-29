@@ -5,8 +5,8 @@
 
 help:
 	@echo "Targets: install hooks lint typecheck test build audit all"
-	@echo "  lint      -> dnd-app + dungeon-scholar (biome); bmo/pi (ruff); oracle-worker (no-op)"
-	@echo "  typecheck -> dnd-app only (dungeon-scholar/oracle-worker have no standalone tsc; vite/wrangler transpile)"
+	@echo "  lint      -> dnd-app + dnd-app/mobile + dungeon-scholar (biome); bmo/pi (ruff); oracle-worker (no-op)"
+	@echo "  typecheck -> dnd-app + oracle-worker + dungeon-scholar + dnd-app/mobile (all enforced)"
 	@echo "  test      -> dnd-app + dungeon-scholar + oracle-worker (npm) + bmo/pi (pytest)"
 	@echo "  build     -> dnd-app + dungeon-scholar (npm) + oracle-worker (wrangler dry-run)"
 	@echo "  audit     -> each project: npm run audit:ci"
@@ -21,20 +21,25 @@ hooks:
 
 install: hooks
 	cd dnd-app && npm ci
+	cd dnd-app/mobile && npm ci
 	cd dungeon-scholar && npm ci
 	cd oracle-worker && npm ci
 
 lint:
 	cd dnd-app && npm run lint
+	cd dnd-app/mobile && npm run lint
 	cd dungeon-scholar && npm run lint
 	cd oracle-worker && npm run lint
 	cd bmo/pi && ruff check .
 
-# typecheck covers dnd-app only: dungeon-scholar has no tsconfig/tsc step (Vite
-# transpiles; no standalone typecheck) and oracle-worker is validated by its
-# wrangler dry-run under `build`. Revisit if either gains a tsconfig.
+# typecheck fans out to all four code areas, all enforced (must pass): dnd-app
+# (web tsconfig), oracle-worker + dungeon-scholar (checkJs over JS/JSX), and
+# dnd-app/mobile (Expo/RN strict tsc).
 typecheck:
 	cd dnd-app && npx tsc --noEmit -p tsconfig.web.json
+	cd oracle-worker && npm run typecheck
+	cd dungeon-scholar && npm run typecheck
+	cd dnd-app/mobile && npm run typecheck
 
 test:
 	cd dnd-app && npm test

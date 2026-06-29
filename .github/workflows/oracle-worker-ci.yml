@@ -29,12 +29,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+      - uses: ./.github/actions/setup-node-project
         with:
-          node-version-file: .nvmrc
-          cache: npm
-          cache-dependency-path: oracle-worker/package-lock.json
-      - run: npm ci
+          working-directory: oracle-worker
+      - name: Typecheck (tsc)
+        run: npm run typecheck
       - name: Validate Worker build (no publish)
         run: npx wrangler deploy --dry-run --outdir=dist
       - name: Tests

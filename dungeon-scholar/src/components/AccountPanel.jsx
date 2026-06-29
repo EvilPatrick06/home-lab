@@ -17,6 +17,7 @@ function relativeTimeFrom(date) {
   return `${Math.floor(sec / 3600)} hr ago`;
 }
 
+/** @param {{ user?: any, syncStatus?: any, lastSyncedAt?: any, onClose?: any, onAfterDeleteCloud?: any, onAfterDeleteAccount?: any, onResetProgress?: any, playerState?: any, onImportSave?: any }} props */
 export function AccountPanel({
   user,
   syncStatus,

@@ -19,7 +19,7 @@ export const PREDICTION_MEDIUM_COVERAGE = MEDIUM_COVERAGE;
 export function computeExamPrediction(stats, weights) {
   if (!weights || typeof weights !== 'object') return null;
   const weightEntries = Object.entries(weights)
-    .map(([k, v]) => [k, Number(v)])
+    .map(([k, v]) => /** @type {[string, number]} */ ([k, Number(v)]))
     .filter(([, v]) => Number.isFinite(v) && v > 0);
   if (weightEntries.length === 0) return null;
   const totalWeight = weightEntries.reduce((sum, [, v]) => sum + v, 0);

@@ -1,0 +1,39 @@
+name: dnd-app mobile CI
+
+# Lint + typecheck gate for the Expo/React-Native subproject dnd-app/mobile,
+# which has its own lockfile + biome/tsc scripts. Path-filtered to mobile-only
+# changes so it does not gate unrelated dnd-app work.
+on:
+  push:
+    paths:
+      - "dnd-app/mobile/**"
+      - ".github/workflows/dnd-app-mobile-ci.yml"
+      - ".github/actions/setup-node-project/action.yml"
+  pull_request:
+    paths:
+      - "dnd-app/mobile/**"
+      - ".github/workflows/dnd-app-mobile-ci.yml"
+      - ".github/actions/setup-node-project/action.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dnd-app/mobile
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: ./.github/actions/setup-node-project
+        with:
+          working-directory: dnd-app/mobile
+      - name: Lint (biome)
+        run: npm run lint
+      - name: Typecheck (tsc)
+        run: npm run typecheck

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.0/schema.json",
+  "extends": ["../../biome.base.json"],
+  "files": {
+    "ignoreUnknown": true,
+    "includes": ["src/**", "!!**/node_modules", "!!**/dist", "!!**/.expo"]
+  },
+  "javascript": {
+    "formatter": {
+      "semicolons": "asNeeded",
+      "trailingCommas": "none"
+    }
+  }
+}

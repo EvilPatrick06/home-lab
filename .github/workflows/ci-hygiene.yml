@@ -1,0 +1,30 @@
+name: CI hygiene guards
+
+# Mechanical guards for repo-wide conventions previously checked only by hand:
+# literal Node pins, unpinned actions, docs-index parity, the superpowers orphan,
+# and missing permissions blocks. See scripts/check-ci-hygiene.sh.
+on:
+  push:
+    paths:
+      - ".github/workflows/**"
+      - ".github/actions/**"
+      - "docs/**"
+      - "scripts/check-ci-hygiene.sh"
+      - ".nvmrc"
+  pull_request:
+    paths:
+      - ".github/workflows/**"
+      - ".github/actions/**"
+      - "docs/**"
+      - "scripts/check-ci-hygiene.sh"
+      - ".nvmrc"
+
+permissions:
+  contents: read
+
+jobs:
+  guards:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - run: bash scripts/check-ci-hygiene.sh

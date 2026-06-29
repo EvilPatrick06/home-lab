@@ -1,7 +1,7 @@
-import { useEffect, useState, type ReactElement } from 'react'
-import { Pressable, ScrollView, Switch, Text, TextInput, View } from 'react-native'
-import * as store from '@app/storage/storage-adapter'
 import type { ScreenProps } from '@app/navigation/types'
+import * as store from '@app/storage/storage-adapter'
+import { type ReactElement, useEffect, useState } from 'react'
+import { Pressable, ScrollView, Switch, Text, TextInput, View } from 'react-native'
 
 interface AppSettings {
   userProfile?: { displayName?: string }
@@ -68,10 +68,10 @@ export default function SettingsScreen(_props: ScreenProps<'Settings'>): ReactEl
       </Pressable>
 
       <Text className="text-gray-600 text-xs text-center mt-6 leading-5">
-        Dungeon Table Online is unofficial Fan Content and is not affiliated with, endorsed, or sponsored by
-        Wizards of the Coast. Dungeons &amp; Dragons and D&amp;D are trademarks of Wizards of the Coast LLC. This work
-        includes material from the System Reference Document 5.2 (SRD 5.2) by Wizards of the Coast LLC, licensed under
-        the Creative Commons Attribution 4.0 International License, available at
+        Dungeon Table Online is unofficial Fan Content and is not affiliated with, endorsed, or sponsored by Wizards of
+        the Coast. Dungeons &amp; Dragons and D&amp;D are trademarks of Wizards of the Coast LLC. This work includes
+        material from the System Reference Document 5.2 (SRD 5.2) by Wizards of the Coast LLC, licensed under the
+        Creative Commons Attribution 4.0 International License, available at
         https://creativecommons.org/licenses/by/4.0/legalcode . Updates, local AI (Ollama), and LAN discovery are
         desktop-only and hidden on mobile.
       </Text>

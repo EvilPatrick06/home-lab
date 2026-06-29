@@ -53,6 +53,15 @@ _archive/
         └── CLOUDFLARE_TUNNEL_SETUP.md      superseded by bmo/docs/ version
 ```
 
+## 2026-06-29-completed-docs/superpowers
+
+- `specs/2026-06-23-user-accounts-cloud-sync-design.md` — IMPLEMENTED design spec
+  (code complete + tsc/lint/pytest/vitest green; go-live deploy/E2E tracked
+  separately). Re-populated `docs/superpowers/specs/` one day after the
+  2026-06-22 superpowers archival; moved here per the `_archive/` convention
+  for completed design docs (it was unindexed in `docs/README.md` and
+  referenced by no other doc). Sibling of the 2026-06-22 superpowers batch.
+
 ## Restoration
 
 If you need to restore something from here:
