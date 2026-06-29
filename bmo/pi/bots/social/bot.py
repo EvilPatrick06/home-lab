@@ -5318,24 +5318,8 @@ async def _blackjack_cmd(interaction: discord.Interaction) -> None:
         return
 
     view = BlackjackView(member)
-    pval = _hand_value(view.player_hand)
-    # Check for natural blackjack
-    if pval == 21:
-        embed = view._build_embed(reveal_dealer=True)
-        dval = _hand_value(view.dealer_hand)
-        if dval == 21:
-            embed.add_field(name="Result", value="Both blackjack! Push! 🤝", inline=False)
-            embed.color = 0xFFAA00
-        else:
-            embed.add_field(name="Result", value="Blackjack! You win! 🎉", inline=False)
-            embed.color = 0x00FF00
-        for item in view.children:
-            item.disabled = True
-        await interaction.response.send_message(embed=embed, view=view)
-        return
-
-    embed = view._build_embed()
-    await interaction.response.send_message(embed=embed, view=view)
+    view.maybe_natural()
+    await interaction.response.send_message(view=view)
 
 
 # ── Slots ──
@@ -5427,8 +5411,7 @@ async def _hangman_cmd(interaction: discord.Interaction) -> None:
         return
 
     view = HangmanView(member)
-    embed = view._build_embed()
-    await interaction.response.send_message(embed=embed, view=view)
+    await interaction.response.send_message(view=view)
 
 
 # ── Wordle ──
@@ -5447,8 +5430,7 @@ async def _wordle_cmd(interaction: discord.Interaction) -> None:
         return
 
     view = WordleView(member)
-    embed = view._build_embed()
-    await interaction.response.send_message(embed=embed, view=view)
+    await interaction.response.send_message(view=view)
 
 
 # ── Connect 4 ──
@@ -5473,8 +5455,7 @@ async def _connect4_cmd(interaction: discord.Interaction, opponent: discord.Memb
         return
 
     view = Connect4View(member, opponent)
-    embed = view._build_embed()
-    await interaction.response.send_message(embed=embed, view=view)
+    await interaction.response.send_message(view=view)
 
 
 # ── Phase 5 (Mega): Music + Polls + Reminders ────────────────────────

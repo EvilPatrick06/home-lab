@@ -1,11 +1,20 @@
-"""Connect Four game UI — extracted verbatim from bots/social/bot.py (behaviour-identical god-module split)."""
+"""Connect Four game UI — Components V2."""
 
 from typing import Optional
 
 import discord
 
 
-class Connect4View(discord.ui.View):
+class _C4Button(discord.ui.Button):
+    def __init__(self, col: int) -> None:
+        super().__init__(label=str(col + 1), style=discord.ButtonStyle.secondary)
+        self.col = col
+
+    async def callback(self, interaction: discord.Interaction) -> None:
+        await self.view._handle_drop(interaction, self.col)  # type: ignore[attr-defined]
+
+
+class Connect4View(discord.ui.LayoutView):
     ROWS = 6
     COLS = 7
 
@@ -14,17 +23,39 @@ class Connect4View(discord.ui.View):
         self.player1 = player1
         self.player2 = player2
         self.board: list[list[int]] = [[0] * self.COLS for _ in range(self.ROWS)]
-        self.current_player = 1  # 1 = player1 (red), 2 = player2 (yellow)
+        self.current_player = 1
         self.game_over = False
         self.winner: Optional[discord.Member] = None
+        self._text = discord.ui.TextDisplay(self._content())
+        self._container = discord.ui.Container(self._text, accent_colour=discord.Colour(0x3498DB))
+        self.add_item(self._container)
+        self._rows = [discord.ui.ActionRow(*[_C4Button(c) for c in range(0, 5)]),
+                      discord.ui.ActionRow(*[_C4Button(c) for c in range(5, 7)])]
+        for r in self._rows:
+            self.add_item(r)
 
     def _board_str(self) -> str:
-        pieces = {0: "⚪", 1: "🔴", 2: "🟡"}
-        lines = []
-        for row in self.board:
-            lines.append("".join(pieces[c] for c in row))
+        pieces = {0: "⚪", 1: "\U0001F534", 2: "\U0001F7E1"}
+        lines = ["".join(pieces[c] for c in row) for row in self.board]
         lines.append("1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣")
         return "\n".join(lines)
+
+    def _content(self) -> str:
+        board = self._board_str()
+        if self.game_over and self.winner:
+            return f"## Connect 4 — {self.winner.display_name} Wins! \U0001F389\n{board}"
+        if self.game_over:
+            return f"## Connect 4 — Draw! \U0001F91D\n{board}"
+        current = self.player1 if self.current_player == 1 else self.player2
+        piece = "\U0001F534" if self.current_player == 1 else "\U0001F7E1"
+        return f"## Connect 4\n{board}\n\n{piece} **{current.display_name}**'s turn"
+
+    def _accent(self) -> int:
+        if self.game_over and self.winner:
+            return 0x00FF00
+        if self.game_over:
+            return 0xFFAA00
+        return 0x3498DB
 
     def _drop_piece(self, col: int, player: int) -> bool:
         for row in range(self.ROWS - 1, -1, -1):
@@ -35,22 +66,18 @@ class Connect4View(discord.ui.View):
 
     def _check_win(self, player: int) -> bool:
         b = self.board
-        # Horizontal
         for r in range(self.ROWS):
             for c in range(self.COLS - 3):
                 if b[r][c] == b[r][c+1] == b[r][c+2] == b[r][c+3] == player:
                     return True
-        # Vertical
         for r in range(self.ROWS - 3):
             for c in range(self.COLS):
                 if b[r][c] == b[r+1][c] == b[r+2][c] == b[r+3][c] == player:
                     return True
-        # Diagonal (down-right)
         for r in range(self.ROWS - 3):
             for c in range(self.COLS - 3):
                 if b[r][c] == b[r+1][c+1] == b[r+2][c+2] == b[r+3][c+3] == player:
                     return True
-        # Diagonal (up-right)
         for r in range(3, self.ROWS):
             for c in range(self.COLS - 3):
                 if b[r][c] == b[r-1][c+1] == b[r-2][c+2] == b[r-3][c+3] == player:
@@ -60,29 +87,10 @@ class Connect4View(discord.ui.View):
     def _is_full(self) -> bool:
         return all(self.board[0][c] != 0 for c in range(self.COLS))
 
-    def _build_embed(self) -> discord.Embed:
-        board_display = self._board_str()
-        if self.game_over and self.winner:
-            embed = discord.Embed(
-                title=f"Connect 4 — {self.winner.display_name} Wins! 🎉",
-                description=board_display,
-                color=0x00FF00,
-            )
-        elif self.game_over:
-            embed = discord.Embed(
-                title="Connect 4 — Draw! 🤝",
-                description=board_display,
-                color=0xFFAA00,
-            )
-        else:
-            current = self.player1 if self.current_player == 1 else self.player2
-            piece = "🔴" if self.current_player == 1 else "🟡"
-            embed = discord.Embed(
-                title="Connect 4",
-                description=f"{board_display}\n\n{piece} **{current.display_name}**'s turn",
-                color=0x3498DB,
-            )
-        return embed
+    def _disable(self) -> None:
+        for r in self._rows:
+            for b in r.children:
+                b.disabled = True
 
     async def _handle_drop(self, interaction: discord.Interaction, col: int) -> None:
         current = self.player1 if self.current_player == 1 else self.player2
@@ -94,7 +102,6 @@ class Connect4View(discord.ui.View):
         if not self._drop_piece(col, self.current_player):
             await interaction.response.send_message("Column is full!", ephemeral=True)
             return
-
         if self._check_win(self.current_player):
             self.game_over = True
             self.winner = current
@@ -102,53 +109,16 @@ class Connect4View(discord.ui.View):
             self.game_over = True
         else:
             self.current_player = 2 if self.current_player == 1 else 1
-
-        embed = self._build_embed()
+        self._text.content = self._content()
+        self._container.accent_colour = discord.Colour(self._accent())
         if self.game_over:
-            for item in self.children:
-                item.disabled = True
+            self._disable()
         try:
-            await interaction.response.edit_message(embed=embed, view=self)
+            await interaction.response.edit_message(view=self)
         except discord.HTTPException:
             pass
         if self.game_over:
             self.stop()
 
-    @discord.ui.button(label="1", style=discord.ButtonStyle.secondary, row=0)
-    async def col1(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        await self._handle_drop(interaction, 0)
-
-    @discord.ui.button(label="2", style=discord.ButtonStyle.secondary, row=0)
-    async def col2(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        await self._handle_drop(interaction, 1)
-
-    @discord.ui.button(label="3", style=discord.ButtonStyle.secondary, row=0)
-    async def col3(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        await self._handle_drop(interaction, 2)
-
-    @discord.ui.button(label="4", style=discord.ButtonStyle.secondary, row=0)
-    async def col4(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        await self._handle_drop(interaction, 3)
-
-    @discord.ui.button(label="5", style=discord.ButtonStyle.secondary, row=0)
-    async def col5(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        await self._handle_drop(interaction, 4)
-
-    @discord.ui.button(label="6", style=discord.ButtonStyle.secondary, row=1)
-    async def col6(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        await self._handle_drop(interaction, 5)
-
-    @discord.ui.button(label="7", style=discord.ButtonStyle.secondary, row=1)
-    async def col7(self, *args) -> None:
-        interaction = next(a for a in args if isinstance(a, discord.Interaction))
-        await self._handle_drop(interaction, 6)
-
     async def on_timeout(self) -> None:
-        for item in self.children:
-            item.disabled = True
+        self._disable()
