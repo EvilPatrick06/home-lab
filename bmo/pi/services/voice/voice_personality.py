@@ -9,6 +9,11 @@ import os
 import re
 import time
 
+from services.bmo_logging import get_logger
+from services.voice import expression_tags
+
+log = get_logger(__name__)
+
 # ── NPC Voice Mapping (Fish Audio voice reference IDs) ────────────────
 # Set each to a Fish Audio voice model ID after creating/finding them.
 # Use FISH_AUDIO_NPC_* env vars to override without code changes.
@@ -178,7 +183,7 @@ def detect_emotion(text: str) -> str | None:
 # All recognized tag patterns: [TYPE:value]
 _TAG_PATTERN = re.compile(
     r"\["
-    r"(?P<type>FACE|LED|SOUND|EMOTION|MUSIC|NPC)"
+    r"(?P<type>" + expression_tags.family_pattern() + r")"
     r":(?P<value>[^\]]+)"
     r"\]",
     re.IGNORECASE,
@@ -189,6 +194,24 @@ _STANDALONE_EMOTION_PATTERN = re.compile(
     r"\[(?P<emotion>" + "|".join(re.escape(a) for a in _EMOTION_ALIASES) + r")\]",
     re.IGNORECASE,
 )
+
+
+def _is_unknown_tag_value(family: str, value: str) -> bool:
+    """True if a closed-family tag value is not in the registry/hardware vocab.
+
+    Turns silent drift (a [FACE:x]/[EMOTION:x]/[NPC:x] the hardware or canonical
+    set does not implement) into an observable warning. LED/SOUND/MUSIC are open
+    vocabularies and are never flagged.
+    """
+    fam = family.upper()
+    val = value.strip().lower()
+    if fam == "FACE":
+        return val not in expression_tags.FACE_VALUES
+    if fam == "EMOTION":
+        return val not in BMO_EMOTIONS
+    if fam == "NPC":
+        return val not in NPC_VOICES
+    return False
 
 
 def parse_response_tags(text: str) -> dict:
@@ -226,6 +249,8 @@ def parse_response_tags(text: str) -> dict:
         tag_type = match.group("type").lower()
         value = match.group("value").strip()
         result[tag_type] = value
+        if _is_unknown_tag_value(tag_type, value):
+            log.warning("[tags] unrecognized %s tag value: %r (not in registry/hardware)", tag_type.upper(), value)
 
     # Extract standalone emotion tags [HAPPY], [DRAMATIC], etc.
     for match in _STANDALONE_EMOTION_PATTERN.finditer(text):
