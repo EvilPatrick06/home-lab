@@ -12,6 +12,18 @@
 
 ---
 
+### [2026-06-24] i18n has no RTL / document-`dir` infrastructure — adding any right-to-left locale would need layout work first
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-29
+- **Resolution:** Both proposed-fix prerequisites are now in place. (1) Document `dir`/`lang` infrastructure already shipped on master (`i18n/index.ts` `applyDocumentLocale` sets `documentElement.dir` via `dirFor`/`RTL_LOCALES` + `lang` on `languageChanged` and first paint; `document-locale.test.ts`). (2) The physical→logical CSS migration is now complete across the renderer: margins/paddings (`ml/mr/pl/pr`→`ms/me/ps/pe`, 294 tokens) plus left/right insets (`left/right`→`start/end`), border sides (`border-l/r`→`border-s/e`, incl. per-side colors), and text alignment (`text-left/right`→`text-start/end`) — 665 tokens across ~190 component files total, all LTR-identical today (Tailwind v4) and RTL-correct under a future `dir="rtl"`. biome + tsc green. The only physical classes intentionally left are `rounded-l/r` corner radii (negligible real directional use; the count was dominated by `rounded-lg` size false-positives). REMAINING (deliberately NOT done — a product decision, not a bug): actually accepting an RTL locale into `SUPPORTED_LOCALES`, which the original entry itself gates ("only then"). With the infra + logical-property groundwork laid, that becomes a translation + focused RTL-QA task rather than a layout rewrite.
+- **Category:** future-idea, portability
+- **Severity:** low
+- **Domain:** dnd-app
+- **Branch:** auto/dnd-resolver
+
+---
+
 ### [2026-06-24] Campaign on-disk `.versions/` backups are write-only — no list/restore IPC or UI (asymmetric with characters)
 
 - **Resolved by:** dnd-resolver (automated)
