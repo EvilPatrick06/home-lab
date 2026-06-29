@@ -59,7 +59,7 @@ def _colour(sev: str) -> discord.Colour:
     return discord.Colour(sb.SEV_COLOR.get(sev, 0x808080))
 
 
-def _line(r: dict) -> str:
+def _line(r: dict, compact: bool = False) -> str:
     title = r["title"].strip()
     line = f"{sb.SEV_DOT[r['severity']]} **[{title}]({r['url']})**" if r.get("url") \
         else f"{sb.SEV_DOT[r['severity']]} **{title}**"
@@ -67,7 +67,7 @@ def _line(r: dict) -> str:
         line += f" · due <t:{int(r['due'])}:R>"
     elif r.get("since"):
         line += f" · <t:{int(r['since'])}:R>"
-    if r.get("detail"):
+    if r.get("detail") and not compact:
         line += f"\n　{r['detail'].strip()[:180]}"
     return line
 
@@ -232,16 +232,22 @@ def build_layout(rows: list[dict], state: sb.BoardState) -> discord.ui.LayoutVie
             continue
         crows.sort(key=lambda r: sb.SEV_ORDER.index(r["severity"]))
         interactive = cat in INTERACTIVE
+        compact = len(crows) > 12
         lines = []
         for idx, r in enumerate(crows, 1):
             pfx = f"`{idx}` " if interactive else ""
-            lines.append(pfx + _line(r))
-        text = "\n".join(lines)
-        if len(text) > MAX_SECTION_CHARS:
-            text = text[:MAX_SECTION_CHARS].rsplit("\n", 1)[0] + "\n…"
-        children = [discord.ui.TextDisplay(f"### {label} · {len(crows)}"),
-                    discord.ui.TextDisplay(text)]
-        sect_comp = 3
+            lines.append(pfx + _line(r, compact=compact))
+        children = [discord.ui.TextDisplay(f"### {label} · {len(crows)}")]
+        chunk, clen = [], 0
+        for ln in lines:
+            if chunk and clen + len(ln) + 1 > MAX_SECTION_CHARS:
+                children.append(discord.ui.TextDisplay("\n".join(chunk)))
+                chunk, clen = [], 0
+            chunk.append(ln)
+            clen += len(ln) + 1
+        if chunk:
+            children.append(discord.ui.TextDisplay("\n".join(chunk)))
+        sect_comp = 1 + len(children)
         if interactive and comp + sect_comp < COMPONENT_BUDGET:
             btns: list[discord.ui.Item] = []
             for idx, r in enumerate(crows, 1):
