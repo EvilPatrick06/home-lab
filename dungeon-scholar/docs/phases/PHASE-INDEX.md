@@ -30,7 +30,8 @@
 | 05 | [`completed/PHASE-05-interaction-recovery-dialogs-oracle-copy.md`](./completed/PHASE-05-interaction-recovery-dialogs-oracle-copy.md) | dungeon-scholar | — | done |
 | 06 | [`completed/PHASE-06-vault-redeemed-unlock-gate.md`](./completed/PHASE-06-vault-redeemed-unlock-gate.md) | dungeon-scholar | — | done |
 | 07 | [`completed/PHASE-07-import-toast-exam-copy.md`](./completed/PHASE-07-import-toast-exam-copy.md) | dungeon-scholar | — | done |
-| 08 | [`PHASE-08-routing-hero-exam-jank-oracle-sources-auth-circuit-breaker.md`](./PHASE-08-routing-hero-exam-jank-oracle-sources-auth-circuit-breaker.md) | dungeon-scholar | — | pending |
+| 08 | [`completed/PHASE-08-routing-hero-exam-jank-oracle-sources-auth-circuit-breaker.md`](./completed/PHASE-08-routing-hero-exam-jank-oracle-sources-auth-circuit-breaker.md) | dungeon-scholar | — | done |
+| 09 | [`PHASE-09-user-facing-date-format-consistency.md`](./PHASE-09-user-facing-date-format-consistency.md) | dungeon-scholar | — | pending |
 
 > **Source (01-02):** both plans were consolidated from `QA/QA-report-2026-06-24.md` (now in
 > `QA/completed/`) by the dungeon-scholar phase-maker. PHASE-01 carries the report's

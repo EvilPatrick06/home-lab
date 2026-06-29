@@ -505,11 +505,17 @@ describe('usePlayerState — BroadcastChannel dedup', () => {
     const channel = MockBC.instances.at(-1);
     expect(channel).toBeTruthy();
 
-    // Make a local change — this records the state hash in recentLocalHashes
-    // (and would have been broadcast in a real channel).
+    // Make a local change. PHASE-08 08C: the state fingerprint is now recorded on
+    // the trailing edge of the local-save debounce (together with the broadcast),
+    // not synchronously per setState — so let the debounce settle before the echo
+    // arrives, which mirrors reality (an echo can only follow our own broadcast,
+    // which also fires on that trailing edge).
     const local = { level: 2, totalXp: 20, library: [] };
     act(() => {
       result.current[1](local);
+    });
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 600));
     });
     const before = result.current[0];
 

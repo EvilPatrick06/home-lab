@@ -2,6 +2,7 @@ import { BookOpen, ChevronRight, Loader2, Send, Trash2, Wand2, X } from 'lucide-
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 import { getOracleEndpoint, isOracleConfigured, ORACLE_MODEL } from '../../services/oracleGrader.js';
+import { oracleSourcesForAnswer } from './oracleSources.js';
 
 function ChatMode({ courseSet, tomeProgress, updateTomeProgress, checkAchievement }) {
   // Chat history lives in tome progress so it persists across navigation, reloads, and journal restores
@@ -372,7 +373,12 @@ ${sourceText}`;
           fallbackReason = 'The Oracle was silent. Falling back to Tome Search.';
         } else {
           updateTomeProgress((prev) => ({
-            chatHistory: [...(prev.chatHistory || []), { role: 'assistant', content: text, sources: relevantSources }],
+            chatHistory: [
+              ...(prev.chatHistory || []),
+              // PHASE-08 08D: only attach tome sources that actually support the
+              // answer — suppress them on an out-of-tome answer or weak lexical hits.
+              { role: 'assistant', content: text, sources: oracleSourcesForAnswer(text, relevantSources) },
+            ],
           })); // 17D
           setLoading(false);
           return;
