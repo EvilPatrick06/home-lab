@@ -23,7 +23,8 @@ import time
 
 import requests
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_PI_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, _PI_ROOT)
 from services import status_board as sb  # noqa: E402
 
 API = "https://discord.com/api/v10"
@@ -43,7 +44,7 @@ LABELS = {
 
 def _env():
     e = dict(os.environ)
-    envf = os.path.expanduser("~/home-lab/bmo/pi/.env")
+    envf = os.path.join(_PI_ROOT, ".env")
     if os.path.exists(envf):
         for ln in open(envf, encoding="utf-8"):
             ln = ln.strip()
@@ -99,7 +100,12 @@ def calendar_flag(monitor, inbox):
 
 def main():
     e = _env()
-    DATA = os.path.expanduser(os.environ.get("BOARD_DATA_DIR", "~/home-lab/bmo/pi/data"))
+    # Data dir resolves RELATIVE to this script (its own checkout): the deployed
+    # copy under ~/home-lab-deploy uses the deploy data dir, the repo copy uses
+    # the repo data dir. This is what keeps the fallback reconciler writing the
+    # SAME board state + message id as the live cog (no second board). Override
+    # with BOARD_DATA_DIR only for tests. See docs/BOARD-APPROVAL-BRIDGE.md.
+    DATA = os.path.expanduser(os.environ.get("BOARD_DATA_DIR", "")) or os.path.join(_PI_ROOT, "data")
     sb.MONITOR_STATE = os.path.join(DATA, "monitor_state.json")
     sb.BOARD_STATE = os.path.join(DATA, "status_board_state.json")
     sb.BOARD_INBOX = os.path.join(DATA, "board_inbox.json")

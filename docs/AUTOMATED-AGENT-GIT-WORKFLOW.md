@@ -346,6 +346,36 @@ workflow doc and the per-agent definitions agree.
 
 ---
 
+## Rule 6 — Board Approve/Deny decisions relay to the ORIGINATING session
+
+The seven resolver / phase-executer agents post WAIT-class items to the BMO status
+board (🤖 Agents) as "awaiting your approve/deny" (Rule 5). Each such item can carry
+**✅ Approve / ✖️ Deny** buttons whose click is relayed back to the **session that
+posted the item** — the same dispatch/cowork session (`local_<uuid>` / `cse_<…>`),
+resumed with its full context — which then implements (approve) or closes out (deny)
+the item. **Not a new agent, not the next scheduled run.**
+
+- **Stamp the session id.** When a resolver / phase-executer posts a gated item it
+  passes its own session id: `notify-board set <agent> <id> agent "<title>" …
+  --session-id "$CLAUDE_SESSION_ID"` (or a `session_id` field in a `sync` payload).
+  Only items needing a decision carry a session id; FYIs / in-app asks omit it and
+  render without buttons.
+- **A click writes an outbox record, not a direct call.** The Pi can't `send_message`
+  into a session (that's orchestrator-side), so a click appends one JSON line to
+  `bmo/pi/data/board_decisions_outbox.jsonl` (item, decision, session id, ts),
+  removes the board entry, and ephemerally confirms. A double-click is idempotency-
+  guarded (`BOARD_DECISION_COOLDOWN_S`, default 30 s).
+- **A dispatch-side poller (orchestrator) consumes the outbox** and `send_message`s
+  the decision into the originating session. This poller and the per-agent session-id
+  stamping are **orchestrator-side work**, outside this repo.
+- **The in-chat path is preserved.** Deciding in chat still has the agents remove the
+  entry and act; the buttons are an additional fast path.
+
+Full contract (outbox format, fields, poller spec, what's implemented vs. pending):
+[`BOARD-APPROVAL-BRIDGE.md`](BOARD-APPROVAL-BRIDGE.md).
+
+---
+
 ## Humans / interactive sessions
 
 Humans and interactive (non-scheduled) AI sessions **may still commit to

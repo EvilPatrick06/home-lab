@@ -17,7 +17,10 @@ import os
 import subprocess
 import time
 
-DATA_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
+# Resolve relative to this script so the deployed copy watches the deploy data
+# dir (same files the live cog writes), not a stale non-deploy checkout.
+DATA_DIR = os.path.expanduser(os.environ.get("BOARD_DATA_DIR", "")) or os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 BOARD_STATE = os.path.join(DATA_DIR, "status_board_state.json")
 FLAG = os.path.join(DATA_DIR, ".board_dark")          # de-dupe sentinel
 NOTIFY = os.path.expanduser("~/.claude-tools/notify.sh")
