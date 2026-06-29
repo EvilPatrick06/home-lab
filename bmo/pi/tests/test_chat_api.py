@@ -58,3 +58,33 @@ def test_chat_503_when_agent_unavailable(client, monkeypatch):
     assert r.status_code == 503
     saved = chat_history.load_recent_chat()
     assert not any(m.get("text") == "are you there?" for m in saved)
+
+
+# ── PHASE-15 15B — per-message delete route ──
+
+
+def test_chat_message_delete_removes_existing(client, tmp_path, monkeypatch):
+    monkeypatch.setattr(chat_history, "RECENT_CHAT_FILE", str(tmp_path / "recent.json"))
+    chat_history.save_recent_message({"role": "user", "text": "bye", "ts": 11.0})
+    chat_history.save_recent_message({"role": "assistant", "text": "stay", "ts": 12.0})
+    r = client.post("/api/chat/message/delete", json={"ts": 11.0, "role": "user"})
+    assert r.status_code == 200
+    assert r.get_json()["ok"] is True
+    saved = json.loads((tmp_path / "recent.json").read_text())
+    assert [m["text"] for m in saved] == ["stay"]
+
+
+def test_chat_message_delete_unknown_is_404_not_500(client, tmp_path, monkeypatch):
+    monkeypatch.setattr(chat_history, "RECENT_CHAT_FILE", str(tmp_path / "recent.json"))
+    chat_history.save_recent_message({"role": "user", "text": "only", "ts": 5.0})
+    r = client.post("/api/chat/message/delete", json={"ts": 999.0})
+    assert r.status_code == 404
+    saved = json.loads((tmp_path / "recent.json").read_text())
+    assert len(saved) == 1  # untouched
+
+
+def test_chat_message_delete_requires_numeric_ts(client):
+    assert client.post("/api/chat/message/delete", json={}).status_code == 400
+    assert client.post("/api/chat/message/delete", json={"ts": "nope"}).status_code == 400
+    assert client.post("/api/chat/message/delete", json={"ts": True}).status_code == 400
+

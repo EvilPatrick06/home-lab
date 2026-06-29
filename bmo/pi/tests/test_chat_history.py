@@ -136,3 +136,37 @@ def test_finalize_path_unaffected_by_09c(tmp_path, monkeypatch):
     shown = chat_history.load_recent_chat_for_display()
     assert any(m.get("text") == "final" for m in shown)
     assert not any(m.get("incomplete") for m in shown)
+
+
+# ── PHASE-15 15B — per-message delete helper ──
+
+
+def test_delete_recent_message_removes_matched_row_preserves_rest(tmp_path, monkeypatch):
+    monkeypatch.setattr(chat_history, "RECENT_CHAT_FILE", str(tmp_path / "recent.json"))
+    for m in [
+        {"role": "user", "text": "keep1", "ts": 1.0},
+        {"role": "assistant", "text": "drop", "ts": 2.0},
+        {"role": "user", "text": "keep2", "ts": 3.0},
+    ]:
+        chat_history.save_recent_message(m)
+    assert chat_history.delete_recent_message(2.0) is True
+    saved = json.loads((tmp_path / "recent.json").read_text())
+    assert [m["text"] for m in saved] == ["keep1", "keep2"]
+
+
+def test_delete_recent_message_role_disambiguates_same_ts(tmp_path, monkeypatch):
+    monkeypatch.setattr(chat_history, "RECENT_CHAT_FILE", str(tmp_path / "recent.json"))
+    chat_history.save_recent_message({"role": "user", "text": "u", "ts": 7.0})
+    chat_history.save_recent_message({"role": "assistant", "text": "a", "ts": 7.0})
+    assert chat_history.delete_recent_message(7.0, "assistant") is True
+    saved = json.loads((tmp_path / "recent.json").read_text())
+    assert [m["text"] for m in saved] == ["u"]  # only the assistant row removed
+
+
+def test_delete_recent_message_miss_returns_false(tmp_path, monkeypatch):
+    monkeypatch.setattr(chat_history, "RECENT_CHAT_FILE", str(tmp_path / "recent.json"))
+    chat_history.save_recent_message({"role": "user", "text": "x", "ts": 1.0})
+    assert chat_history.delete_recent_message(999.0) is False
+    saved = json.loads((tmp_path / "recent.json").read_text())
+    assert len(saved) == 1  # nothing removed on a miss
+

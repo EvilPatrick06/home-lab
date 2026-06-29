@@ -112,3 +112,14 @@ sed -n '275,275p' bmo/pi/web/templates/index.html           # notes deleteNote b
 - **The chat-agent outage itself** (`/api/chat` 500 / agent `None`) — **already planned and merged as PHASE-09** (the `sys.modules["app"]` alias + `_app()` belt + None-agent guards); the run-3 live 500 is **deploy-lag** (the tested process `f51d9dc3` predates the merge). Re-verification is an owner deploy of merged master, not a new phase (see PHASE-INDEX provenance).
 - **A full conversation editor / multi-select / export** — larger product surface; this phase is the single-row delete + a clear button the report named.
 - **Hand-editing the live `recent_chat.json`, restarting, or deploying the Pi** — owner/infra, live-Pi data (rule 6).
+
+
+## Completed
+
+_Implemented 2026-06-29 on `auto/bmo-phase-executer` (worktree off `origin/master@e004827c`)._
+
+- **15A — discoverable, confirm-guarded clear-chat control.** Added a "🗑 Clear" button to the chat tab's agent/model picker row (always-visible, ≥44px touch target, `aria-label`/`title`), `bmo/pi/web/templates/index.html`. Wired to a new `clearChat()` method (`bmo/pi/web/static/js/bmo.js`) that `confirm()`s (matching the dashboard's existing native-confirm pattern used by service-restart/notes) then calls `handleSlashCommand('/clear')` — reusing the existing `/api/chat/clear` + `chat_cleared` broadcast flow, so there is **no** second clearing codepath and the D&D-session-save behavior is preserved.
+- **15B — per-message delete (bounded route + per-row affordance).** New `delete_recent_message(ts, role=None)` in `bmo/pi/services/chat_history.py` removes the first row matching a **stable timestamp** (not a client array index, which race-shifts), under the chat lock, mirroring `save_recent_message`'s pytest store-write guard. New route `POST /api/chat/message/delete` in `bmo/pi/routes/chat_api.py` validates a numeric `ts` (400 on missing/non-numeric/bool), returns a handled **404** (not 500) on no match, and on success emits `chat_message_deleted` so every tab drops the row. Frontend: a per-row `×` delete button shown only for persisted user/assistant rows (`msg.ts` present), calling `deleteMessage(msg)`; removal is owned by the `chat_message_deleted` socket handler (single path, like 15A), mirroring the notes/lists per-item delete UX.
+- **Tests:** `tests/test_chat_history.py` — delete removes the matched row + preserves the rest, role disambiguates a shared ts, miss returns False. `tests/test_chat_api.py` — delete-existing → 200 + row gone, unknown → 404 (not 500), missing/non-numeric/bool ts → 400. 24 passed; `ruff` clean; `node --check bmo.js` clean.
+- **PHASE-09 09C orphan-stub hygiene untouched** — this phase adds only the user-facing management controls; no change to `load_recent_chat_for_display` / `sweep_orphan_stubs`.
+- **Live-Pi boundary respected (rule 6):** no `systemctl`/deploy/live `recent_chat.json` hand-edit; verified by pytest + JS syntax check + diff.

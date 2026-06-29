@@ -976,6 +976,15 @@ function bmo() {
         // Toast on the current tab too — was silent before.
         this.showNotification?.(note);
       });
+      // PHASE-15 15B: server broadcasts chat_message_deleted after a per-message
+      // delete so every connected tab drops exactly that row (matched by stable
+      // ts + role), mirroring chat_cleared. Single removal path.
+      this.socket.on('chat_message_deleted', (data) => {
+        if (!data || data.ts == null) return;
+        const idx = this.messages.findIndex(
+          (m) => m.ts === data.ts && (data.role == null || m.role === data.role));
+        if (idx !== -1) this.messages.splice(idx, 1);
+      });
       this.socket.on('scene_change', (data) => {
         // QA #13: backend now emits the full scenes list alongside the
         // active name so the UI's `s.active` highlight stays in sync even
@@ -1261,6 +1270,29 @@ function bmo() {
         this.socket.emit('client_timezone', { client_timezone: tz });
       }
       this.fetchTimers();
+    },
+
+    // PHASE-15 15A: discoverable clear-chat. Confirm, then reuse the existing
+    // /clear flow (fetch /api/chat/clear + the chat_cleared broadcast) — no
+    // second clearing codepath.
+    clearChat() {
+      if (!this.messages || this.messages.length === 0) return;
+      if (!confirm('Clear the entire chat transcript? This cannot be undone.')) return;
+      this.handleSlashCommand('/clear');
+    },
+
+    // PHASE-15 15B: delete one persisted message. The removal from `messages`
+    // is owned by the chat_message_deleted broadcast handler (single path), so
+    // this only POSTs the delete; every tab (including this one) drops the row.
+    async deleteMessage(msg) {
+      if (!msg || msg.ts == null) return;
+      try {
+        await fetch('/api/chat/message/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ts: msg.ts, role: msg.role }),
+        });
+      } catch {}
     },
 
     async handleSlashCommand(cmd) {

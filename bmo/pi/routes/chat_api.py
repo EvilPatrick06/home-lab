@@ -787,6 +787,32 @@ def api_chat_clear():
     return jsonify(payload)
 
 
+@chat_bp.route("/api/chat/message/delete", methods=["POST"])
+def api_chat_message_delete():
+    """PHASE-15 15B: delete one persisted chat message by its stable timestamp.
+
+    Body: {"ts": <number>, "role": <optional str>}. Returns 400 on a missing/
+    non-numeric ts, 404 when no row matches, 200 on delete. On success emits
+    `chat_message_deleted` so every connected tab drops the row (mirrors the
+    `chat_cleared` broadcast) — the frontend relies on that single path rather
+    than a second local-removal codepath."""
+    data = request.get_json(silent=True) or {}
+    ts = data.get("ts")
+    role = data.get("role")
+    # bool is an int subclass — reject it explicitly so {"ts": true} is a 400.
+    if ts is None or isinstance(ts, bool) or not isinstance(ts, (int, float)):
+        return jsonify({"ok": False, "error": "a numeric 'ts' is required"}), 400
+    if role is not None and not isinstance(role, str):
+        return jsonify({"ok": False, "error": "'role' must be a string"}), 400
+    if not chat_history.delete_recent_message(ts, role):
+        return jsonify({"ok": False, "error": "message not found"}), 404
+    try:
+        _app().socketio.emit("chat_message_deleted", {"ts": ts, "role": role})
+    except Exception:
+        log.exception("[chat] failed to emit chat_message_deleted")
+    return jsonify({"ok": True})
+
+
 @chat_bp.route("/api/chat/compact", methods=["POST"])
 def api_chat_compact():
     """Compact conversation history."""
