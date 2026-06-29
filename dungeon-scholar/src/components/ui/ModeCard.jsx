@@ -1,3 +1,6 @@
+/**
+ * @param {{ title?: any, desc?: any, icon?: any, color?: any, onClick?: any, featured?: any, disabled?: any, disabledReason?: any }} props
+ */
 export function ModeCard({ title, desc, icon, color, onClick, featured, disabled, disabledReason }) {
   const colorMap = {
     amber: {
