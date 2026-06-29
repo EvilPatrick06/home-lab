@@ -227,7 +227,7 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
         <button
           onClick={onNewCampaign}
           className="group p-6 rounded-xl border-2 border-border hover:border-amber-500
-            bg-surface-2/50 hover:bg-amber-600/10 transition-all cursor-pointer text-left"
+            bg-surface-2/50 hover:bg-amber-600/10 transition-all cursor-pointer text-start"
         >
           <div className="text-3xl mb-3">&#10010;</div>
           <h3 className="text-lg font-semibold text-fg group-hover:text-accent transition-colors">
@@ -239,7 +239,7 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
         {/* Your Campaigns (hosted) */}
         <button
           onClick={() => setShowHosted(!showHosted)}
-          className={`group p-6 rounded-xl border-2 transition-all cursor-pointer text-left ${
+          className={`group p-6 rounded-xl border-2 transition-all cursor-pointer text-start ${
             showHosted
               ? 'border-amber-500 bg-amber-600/10'
               : 'border-border hover:border-amber-500 bg-surface-2/50 hover:bg-amber-600/10'
@@ -275,7 +275,7 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
         <div className="mb-6">
           <button
             onClick={() => setShowJoined(!showJoined)}
-            className={`w-full p-4 rounded-xl border-2 transition-all cursor-pointer text-left flex items-center gap-3 ${
+            className={`w-full p-4 rounded-xl border-2 transition-all cursor-pointer text-start flex items-center gap-3 ${
               showJoined
                 ? 'border-emerald-500 bg-emerald-600/10'
                 : 'border-border hover:border-emerald-500 bg-surface-2/50 hover:bg-emerald-600/10'
@@ -476,7 +476,7 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
                       </button>
                     </div>
                     {confirmDelete === c.id && (
-                      <div className="absolute right-4 flex gap-1 bg-surface-2 p-1 rounded-lg border border-border shadow-lg">
+                      <div className="absolute end-4 flex gap-1 bg-surface-2 p-1 rounded-lg border border-border shadow-lg">
                         <button
                           onClick={() => handleDelete(c.id)}
                           className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-500

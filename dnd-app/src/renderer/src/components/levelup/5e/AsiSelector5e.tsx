@@ -220,7 +220,7 @@ export function GeneralFeatPicker({
                     setPendingChoices({})
                   }}
                   disabled={!meetsPrereqs}
-                  className={`w-full text-left border rounded p-2 transition-colors ${
+                  className={`w-full text-start border rounded p-2 transition-colors ${
                     meetsPrereqs
                       ? 'bg-surface-2/50 hover:bg-surface-2 border-border hover:border-green-600 cursor-pointer'
                       : 'bg-surface/50 border-gray-800 opacity-50 cursor-not-allowed'

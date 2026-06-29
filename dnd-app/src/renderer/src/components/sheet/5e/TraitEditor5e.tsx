@@ -264,7 +264,7 @@ export default function TraitEditor5e({
                     <button
                       key={lang}
                       onClick={() => handleAddLanguageFromList(lang)}
-                      className="w-full flex items-center justify-between text-xs py-1 px-2 hover:bg-surface-2/50 rounded text-left cursor-pointer"
+                      className="w-full flex items-center justify-between text-xs py-1 px-2 hover:bg-surface-2/50 rounded text-start cursor-pointer"
                     >
                       <span className="text-gray-300">{lang}</span>
                       {LANGUAGE_DESCRIPTIONS[lang] && (

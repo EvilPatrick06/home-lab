@@ -42,7 +42,7 @@ export function ThemeSection(): JSX.Element {
               >
                 <div className={`w-4 h-4 rounded ${preview.accent}`} />
               </div>
-              <div className="text-left">
+              <div className="text-start">
                 <div className="text-sm font-medium text-gray-200">{t(THEME_LABEL_KEYS[theme])}</div>
                 {isActive && <div className="text-xs text-accent">{t('pages.settingsPage.active')}</div>}
               </div>

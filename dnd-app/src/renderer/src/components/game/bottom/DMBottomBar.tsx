@@ -44,7 +44,7 @@ export default function DMBottomBar({
   return (
     <div className="min-h-0 h-full bg-base/90 backdrop-blur-sm border-t border-amber-900/30 flex min-w-0 relative">
       {/* Collapse toggle + Share Macros */}
-      <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 flex-wrap justify-center max-w-xs">
+      <div className="absolute -top-5 start-1/2 -translate-x-1/2 z-10 flex items-center gap-1 flex-wrap justify-center max-w-xs">
         <button
           onClick={onToggleCollapse}
           className="px-3 py-1
@@ -91,7 +91,7 @@ export default function DMBottomBar({
         <>
           {/* Left: Tab panel with resizable width */}
           <div
-            className="shrink-0 flex flex-col min-h-0 border-r border-border/50 overflow-hidden"
+            className="shrink-0 flex flex-col min-h-0 border-e border-border/50 overflow-hidden"
             style={{ width: tabPanelWidth }}
           >
             <DMTabPanel onOpenModal={handleOpenModal} campaign={campaign} onDispute={onDispute} onEditMap={onEditMap} />

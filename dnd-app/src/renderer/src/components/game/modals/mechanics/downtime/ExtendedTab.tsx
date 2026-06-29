@@ -102,7 +102,7 @@ export default function ExtendedTab({
           <button
             key={act.id}
             onClick={() => handleSelect(act.id)}
-            className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-colors cursor-pointer ${
+            className={`w-full text-start px-3 py-2 rounded-lg text-xs transition-colors cursor-pointer ${
               selectedId === act.id
                 ? 'bg-purple-600/20 border border-purple-500/50 text-purple-300'
                 : 'bg-surface-2/50 border border-border/50 text-gray-300 hover:bg-surface-2'

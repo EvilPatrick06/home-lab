@@ -179,7 +179,7 @@ export default function MapConfigStep({ maps, campaignId, onChange, adventureMap
                   key={bm.id}
                   onClick={() => handleAddBuiltIn(bm)}
                   disabled={isAdded}
-                  className={`p-4 rounded-lg border text-left transition-all cursor-pointer
+                  className={`p-4 rounded-lg border text-start transition-all cursor-pointer
                     ${
                       isAdded
                         ? 'border-amber-500/50 bg-amber-900/10 opacity-60 cursor-not-allowed'

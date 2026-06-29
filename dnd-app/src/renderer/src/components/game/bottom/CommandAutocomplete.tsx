@@ -53,12 +53,12 @@ export default function CommandAutocomplete({
   if (!visible || filtered.length === 0) return null
 
   return (
-    <div className="absolute bottom-full left-0 right-0 mb-1 bg-surface/95 backdrop-blur-sm border border-border/50 rounded-lg shadow-xl max-h-48 overflow-y-auto z-20">
+    <div className="absolute bottom-full start-0 end-0 mb-1 bg-surface/95 backdrop-blur-sm border border-border/50 rounded-lg shadow-xl max-h-48 overflow-y-auto z-20">
       {filtered.slice(0, 10).map((cmd, i) => (
         <button
           key={cmd.name}
           onClick={() => onSelect(`/${cmd.name} `)}
-          className={`w-full text-left px-3 py-1.5 flex items-center gap-2 text-xs cursor-pointer transition-colors ${
+          className={`w-full text-start px-3 py-1.5 flex items-center gap-2 text-xs cursor-pointer transition-colors ${
             i === selectedIndex ? 'bg-surface-2 text-fg' : 'text-muted hover:bg-surface-2/50'
           }`}
         >

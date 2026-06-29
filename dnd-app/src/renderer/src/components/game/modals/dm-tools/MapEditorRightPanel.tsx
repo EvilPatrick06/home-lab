@@ -105,7 +105,7 @@ export default function MapEditorRightPanel({
   )
 
   return (
-    <div className="w-72 bg-surface/80 border-l border-border flex flex-col shrink-0">
+    <div className="w-72 bg-surface/80 border-s border-border flex flex-col shrink-0">
       <div className="flex gap-0.5 p-1.5 border-b border-gray-800">
         {(['tokens', 'fog', 'terrain', 'regions', 'grid', 'npcs', 'notes', 'shop'] as const).map((tab) => (
           <button
@@ -172,7 +172,7 @@ export default function MapEditorRightPanel({
                       setTerrainPaintType(type)
                       setActiveTool('terrain')
                     }}
-                    className={`w-full text-left px-3 py-2 rounded-lg border text-xs transition-colors cursor-pointer ${
+                    className={`w-full text-start px-3 py-2 rounded-lg border text-xs transition-colors cursor-pointer ${
                       activeTool === 'terrain' && terrainPaintType === type
                         ? `border-amber-500 ${color}`
                         : 'border-border bg-surface-2/50 hover:border-gray-600'

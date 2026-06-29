@@ -44,7 +44,7 @@ export default function CharacterPickerOverlay({
             <button
               key={c.id}
               onClick={() => onSelect(c)}
-              className="w-full text-left px-3 py-2 rounded-lg hover:bg-surface-2 cursor-pointer flex items-center gap-3"
+              className="w-full text-start px-3 py-2 rounded-lg hover:bg-surface-2 cursor-pointer flex items-center gap-3"
             >
               <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-xs font-bold text-gray-300">
                 {c.name.charAt(0).toUpperCase()}

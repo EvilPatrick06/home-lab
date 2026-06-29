@@ -115,7 +115,7 @@ export default function AddEntryForm({
                 <button
                   key={token.id}
                   onClick={() => handleQuickAddFromToken(token)}
-                  className="w-full flex items-center gap-1.5 px-2 py-1 rounded bg-surface/50 hover:bg-surface-2 text-left transition-colors cursor-pointer"
+                  className="w-full flex items-center gap-1.5 px-2 py-1 rounded bg-surface/50 hover:bg-surface-2 text-start transition-colors cursor-pointer"
                 >
                   <span
                     className="w-4 h-4 rounded-full shrink-0 border border-gray-600 flex items-center justify-center text-[8px] text-white font-bold"

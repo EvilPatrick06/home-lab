@@ -72,7 +72,7 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
             <button
               type="button"
               onClick={() => update('hostingMode', 'p2p')}
-              className={`flex-1 p-3 rounded-lg border text-left transition-all cursor-pointer
+              className={`flex-1 p-3 rounded-lg border text-start transition-all cursor-pointer
                 ${
                   data.hostingMode === 'p2p'
                     ? 'border-amber-500 bg-amber-900/20'
@@ -85,7 +85,7 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
             <button
               type="button"
               onClick={() => update('hostingMode', 'cloud')}
-              className={`flex-1 p-3 rounded-lg border text-left transition-all cursor-pointer
+              className={`flex-1 p-3 rounded-lg border text-start transition-all cursor-pointer
                 ${
                   data.hostingMode === 'cloud'
                     ? 'border-amber-500 bg-amber-900/20'
@@ -98,7 +98,7 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
             <button
               type="button"
               onClick={() => update('hostingMode', 'solo')}
-              className={`flex-1 p-3 rounded-lg border text-left transition-all cursor-pointer
+              className={`flex-1 p-3 rounded-lg border text-start transition-all cursor-pointer
                 ${
                   data.hostingMode === 'solo'
                     ? 'border-amber-500 bg-amber-900/20'
@@ -156,7 +156,7 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
             <button
               type="button"
               onClick={() => update('turnMode', 'initiative')}
-              className={`flex-1 p-3 rounded-lg border text-left transition-all cursor-pointer
+              className={`flex-1 p-3 rounded-lg border text-start transition-all cursor-pointer
                 ${
                   data.turnMode === 'initiative'
                     ? 'border-amber-500 bg-amber-900/20'
@@ -169,7 +169,7 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
             <button
               type="button"
               onClick={() => update('turnMode', 'free')}
-              className={`flex-1 p-3 rounded-lg border text-left transition-all cursor-pointer
+              className={`flex-1 p-3 rounded-lg border text-start transition-all cursor-pointer
                 ${
                   data.turnMode === 'free'
                     ? 'border-amber-500 bg-amber-900/20'
@@ -207,7 +207,7 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
               <button
                 type="button"
                 onClick={() => update('isPublic', true)}
-                className={`flex-1 p-3 rounded-lg border text-left transition-all cursor-pointer
+                className={`flex-1 p-3 rounded-lg border text-start transition-all cursor-pointer
                   ${
                     data.isPublic
                       ? 'border-amber-500 bg-amber-900/20'
@@ -220,7 +220,7 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
               <button
                 type="button"
                 onClick={() => update('isPublic', false)}
-                className={`flex-1 p-3 rounded-lg border text-left transition-all cursor-pointer
+                className={`flex-1 p-3 rounded-lg border text-start transition-all cursor-pointer
                   ${
                     !data.isPublic
                       ? 'border-amber-500 bg-amber-900/20'

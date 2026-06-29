@@ -189,7 +189,7 @@ export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPa
                     key={n.id}
                     type="button"
                     onClick={() => setActiveId(n.id)}
-                    className={`w-full text-left px-2 py-1.5 rounded text-xs transition-colors cursor-pointer ${
+                    className={`w-full text-start px-2 py-1.5 rounded text-xs transition-colors cursor-pointer ${
                       activeId === n.id
                         ? 'bg-amber-900/40 border border-amber-600/40 text-amber-100'
                         : 'bg-surface-2/40 hover:bg-surface-2 text-gray-300'

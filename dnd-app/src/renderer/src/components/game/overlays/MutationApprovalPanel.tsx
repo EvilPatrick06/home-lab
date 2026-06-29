@@ -286,7 +286,7 @@ export default function MutationApprovalPanel(): JSX.Element | null {
 
   return (
     <div
-      className="fixed bottom-4 right-4 z-50 w-72 space-y-2"
+      className="fixed bottom-4 end-4 z-50 w-72 space-y-2"
       role="status"
       aria-label={t('game.mutationApprovalPanel.panelLabel')}
     >

@@ -67,7 +67,7 @@ export default function SpellPrepOptimizer({
                   <div className="flex-1 h-2 bg-surface-2 rounded-full overflow-hidden">
                     <div className="h-full bg-amber-600 rounded-full" style={{ width: `${d.percentage}%` }} />
                   </div>
-                  <span className="text-xs text-gray-500 w-16 text-right">
+                  <span className="text-xs text-gray-500 w-16 text-end">
                     {d.count} ({d.percentage}%)
                   </span>
                 </div>

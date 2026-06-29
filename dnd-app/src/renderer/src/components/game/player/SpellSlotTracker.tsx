@@ -117,9 +117,7 @@ export default function SpellSlotTracker({
           const remaining = slot.total - slot.used
           return (
             <div key={level} className="flex items-center gap-2 text-xs">
-              <span className="w-8 text-gray-500 text-right text-xs">
-                {t('game.spellSlotTracker.level', { level })}
-              </span>
+              <span className="w-8 text-gray-500 text-end text-xs">{t('game.spellSlotTracker.level', { level })}</span>
               <div className="flex gap-0.5">
                 {Array.from({ length: slot.total }).map((_, i) => {
                   // Phase 15h — accessibility. Each pip is a toggle that

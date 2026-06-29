@@ -107,12 +107,12 @@ export default function PlayerHUDEffects({
           {t('game.playerHUDEffects.addCond')}
         </button>
         {showConditionPicker && (
-          <div className="absolute top-full mt-1 left-0 z-20 bg-surface border border-border rounded-lg shadow-xl max-h-48 overflow-y-auto w-36">
+          <div className="absolute top-full mt-1 start-0 z-20 bg-surface border border-border rounded-lg shadow-xl max-h-48 overflow-y-auto w-36">
             {conditionNames.map((name) => (
               <button
                 key={name}
                 onClick={() => addConditionFromPicker(name)}
-                className="w-full text-left px-2 py-1 text-xs text-gray-300 hover:bg-surface-2 cursor-pointer"
+                className="w-full text-start px-2 py-1 text-xs text-gray-300 hover:bg-surface-2 cursor-pointer"
               >
                 {name}
               </button>

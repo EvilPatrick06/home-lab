@@ -81,7 +81,7 @@ export default function AiModelSwapPopover({
         {t('game.chatPanel.modelSwap.change')}
       </button>
       {open && (
-        <div className="absolute bottom-full right-0 mb-1 z-50 w-56 bg-surface border border-border rounded-lg shadow-lg p-2">
+        <div className="absolute bottom-full end-0 mb-1 z-50 w-56 bg-surface border border-border rounded-lg shadow-lg p-2">
           <div className="text-[11px] text-gray-400 mb-1">
             {t('game.chatPanel.modelSwap.current', { model: current || '—' })}
           </div>

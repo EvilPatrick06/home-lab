@@ -110,7 +110,7 @@ export default function RollRequestOverlay({ request, character, onRoll, onDismi
 
   return (
     <div
-      className={`fixed top-0 left-0 right-0 z-50 flex justify-center transition-transform duration-300 ${
+      className={`fixed top-0 start-0 end-0 z-50 flex justify-center transition-transform duration-300 ${
         visible ? 'translate-y-0' : '-translate-y-full'
       }`}
     >

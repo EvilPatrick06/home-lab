@@ -89,7 +89,7 @@ export default function FamiliarSelectorModal({
 
         <div className="flex-1 flex min-h-0 overflow-hidden">
           {/* Form grid */}
-          <div className="w-56 overflow-y-auto border-r border-border/50 p-2">
+          <div className="w-56 overflow-y-auto border-e border-border/50 p-2">
             <div className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-1">
               {t('game.familiarSelectorModal.standardForms')}
             </div>

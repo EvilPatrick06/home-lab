@@ -86,7 +86,7 @@ export default function DetailsTab5e(): JSX.Element {
           <div className="px-4 py-3 border-b border-gray-800">
             <button
               onClick={() => setOriginFeatExpanded(!originFeatExpanded)}
-              className="flex items-center gap-2 cursor-pointer hover:bg-surface-2/30 rounded px-1 -mx-1 py-0.5 transition-colors w-full text-left"
+              className="flex items-center gap-2 cursor-pointer hover:bg-surface-2/30 rounded px-1 -mx-1 py-0.5 transition-colors w-full text-start"
             >
               <span className="text-xs px-2 py-0.5 rounded bg-amber-900/50 text-amber-300 border border-amber-700">
                 {t('builder.detailsTab.originBadge')}

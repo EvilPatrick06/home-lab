@@ -22,7 +22,7 @@ export default function ToastContainer(): JSX.Element | null {
   if (toasts.length === 0) return null
 
   return (
-    <div className="fixed bottom-4 right-4 z-[100] flex flex-col-reverse gap-2 pointer-events-none">
+    <div className="fixed bottom-4 end-4 z-[100] flex flex-col-reverse gap-2 pointer-events-none">
       {toasts.map((toast) => (
         <div
           key={toast.id}

@@ -100,7 +100,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                   <button
                     key={id}
                     onClick={() => handlePresetChange(id)}
-                    className={`px-3 py-2.5 text-left text-sm rounded-lg border transition-colors cursor-pointer ${
+                    className={`px-3 py-2.5 text-start text-sm rounded-lg border transition-colors cursor-pointer ${
                       preset === id
                         ? 'bg-amber-600/20 border-amber-500/50 text-amber-300'
                         : 'bg-surface-2/60 border-border/50 text-gray-300 hover:bg-gray-700/60'

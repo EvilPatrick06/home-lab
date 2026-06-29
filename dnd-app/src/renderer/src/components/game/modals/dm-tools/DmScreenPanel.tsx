@@ -79,7 +79,7 @@ export default function DmScreenPanel({ onClose }: DmScreenPanelProps): JSX.Elem
   }, [onClose])
 
   return (
-    <div className="fixed right-0 top-0 h-full w-80 bg-surface border-l border-border shadow-2xl z-50 flex flex-col overflow-hidden">
+    <div className="fixed end-0 top-0 h-full w-80 bg-surface border-s border-border shadow-2xl z-50 flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-surface/95">
         <h2 className="text-sm font-bold text-accent">{t('game.dmScreenPanel.title')}</h2>
@@ -135,7 +135,7 @@ export default function DmScreenPanel({ onClose }: DmScreenPanelProps): JSX.Elem
           <div className="grid grid-cols-2 gap-1">
             {DIFFICULTY_CLASSES.map((d) => (
               <div key={d.dc} className="flex items-center gap-2">
-                <span className="text-xs font-bold text-accent w-6 text-right">{d.dc}</span>
+                <span className="text-xs font-bold text-accent w-6 text-end">{d.dc}</span>
                 <span className="text-xs text-gray-300">{d.label}</span>
               </div>
             ))}

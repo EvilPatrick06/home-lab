@@ -315,7 +315,7 @@ export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRoll
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="bg-surface-2 text-muted">
-                        <th className="text-left px-3 py-2 font-medium">{t('game.groupRollModal.colPlayer')}</th>
+                        <th className="text-start px-3 py-2 font-medium">{t('game.groupRollModal.colPlayer')}</th>
                         <th className="text-center px-3 py-2 font-medium">{t('game.groupRollModal.colRoll')}</th>
                         <th className="text-center px-3 py-2 font-medium">{t('game.groupRollModal.colMod')}</th>
                         <th className="text-center px-3 py-2 font-medium">{t('game.groupRollModal.colTotal')}</th>

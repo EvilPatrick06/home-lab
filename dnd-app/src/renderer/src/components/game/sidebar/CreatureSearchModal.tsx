@@ -92,7 +92,7 @@ export default function CreatureSearchModal({
             <button
               key={monster.id}
               onClick={() => onSelect(monster)}
-              className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-surface-2/50 hover:bg-surface-2 text-left transition-colors cursor-pointer border border-border/30"
+              className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-surface-2/50 hover:bg-surface-2 text-start transition-colors cursor-pointer border border-border/30"
             >
               <div className="flex-1 min-w-0">
                 <div className="text-xs font-medium text-gray-200 truncate">{monster.name}</div>

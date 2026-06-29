@@ -174,7 +174,7 @@ export default function GameCommandPalette({ onOpenModal, isDM }: GameCommandPal
                 type="button"
                 onClick={() => run(i)}
                 onMouseEnter={() => setSelected(i)}
-                className={`w-full cursor-pointer px-4 py-2 text-left text-sm ${i === selected ? 'bg-surface-2 text-accent' : 'text-gray-300'}`}
+                className={`w-full cursor-pointer px-4 py-2 text-start text-sm ${i === selected ? 'bg-surface-2 text-accent' : 'text-gray-300'}`}
               >
                 {a.label}
               </button>

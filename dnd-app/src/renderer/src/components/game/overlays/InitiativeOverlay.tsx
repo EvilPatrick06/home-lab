@@ -116,7 +116,7 @@ export default function InitiativeOverlay({ isDM }: InitiativeOverlayProps): JSX
   if (expanded) {
     return (
       <div
-        className="absolute top-3 left-1/2 -translate-x-1/2 z-10 w-80"
+        className="absolute top-3 start-1/2 -translate-x-1/2 z-10 w-80"
         role="region"
         aria-label={t('game.initiativeOverlay.trackerExpanded')}
       >
@@ -175,7 +175,7 @@ export default function InitiativeOverlay({ isDM }: InitiativeOverlayProps): JSX
 
   return (
     <div
-      className="absolute top-3 left-1/2 -translate-x-1/2 z-10"
+      className="absolute top-3 start-1/2 -translate-x-1/2 z-10"
       role="region"
       aria-label={t('game.initiativeOverlay.tracker')}
     >

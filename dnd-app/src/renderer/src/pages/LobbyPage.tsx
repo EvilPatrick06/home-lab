@@ -434,8 +434,8 @@ export default function LobbyPage(): JSX.Element {
 
   return (
     // Phase 17t — leave room on the right for the page-global settings gear
-    // (rendered absolutely-positioned at top-3 right-3 by GlobalSettingsButton).
-    // Without this padding the lobby's right-aligned header controls
+    // (rendered absolutely-positioned at top-3 end-3 by GlobalSettingsButton).
+    // Without this padding the lobby's end-aligned header controls
     // (Make Public/Private toggle, invite-code chip) ran into the gear.
     <div className="p-6 pe-16 h-screen flex flex-col overflow-hidden">
       {/* Header */}

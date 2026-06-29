@@ -49,6 +49,7 @@ import {
   GamePromptsLayer,
   InspectModalRenderer,
   MapSelector,
+  useFullscreen,
   usePanelResize,
   useViewMode,
   ViewAsSelector,
@@ -129,7 +130,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
     handleSidebarDoubleClick
   } = usePanelResize()
   const [mapKey, setMapKey] = useState(0)
-  const [isFullscreen, setIsFullscreen] = useState(false)
+  const { isFullscreen, setIsFullscreen, handleToggleFullscreen } = useFullscreen()
   const [leaving, setLeaving] = useState(false)
   const [teleportMove, _setTeleportMove] = useState(false)
   const [activeAoE, setActiveAoE] = useState<AoEConfig | null>(null)
@@ -511,9 +512,6 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
     }
     setShowCharacterPicker(true)
   }
-  const handleToggleFullscreen = (): void => {
-    window.api.toggleFullscreen().then((fs) => setIsFullscreen(fs))
-  }
 
   // PHASE-27 27C: AI memory sync is now a single writer driven by use-game-effects.ts
   // (startAiMemorySync, gated on isDM && aiDm.enabled). The duplicate useAiMemorySync hook
@@ -645,7 +643,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
         <button
           type="button"
           onClick={() => setViewAsTarget(null)}
-          className="absolute top-0 left-1/2 -translate-x-1/2 z-50 mt-2 px-3 py-1 rounded-full bg-amber-600/90 text-white text-xs font-semibold shadow-lg cursor-pointer hover:bg-accent-strong"
+          className="absolute top-0 start-1/2 -translate-x-1/2 z-50 mt-2 px-3 py-1 rounded-full bg-amber-600/90 text-white text-xs font-semibold shadow-lg cursor-pointer hover:bg-accent-strong"
         >
           Viewing as {viewAs.label} — click to exit
         </button>
@@ -743,7 +741,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
 
       {/* Left sidebar */}
       <div
-        className="absolute top-0 left-0 bottom-0 z-10 flex"
+        className="absolute top-0 start-0 bottom-0 z-10 flex"
         role="region"
         aria-label={t('game.gameLayout.gameSidebar')}
       >
@@ -786,7 +784,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
 
       {/* Bottom bar */}
       <div
-        className="absolute bottom-0 right-0 z-10 flex flex-col"
+        className="absolute bottom-0 end-0 z-10 flex flex-col"
         style={{ left: sidebarLeftPx, height: bottomCollapsed ? 40 : bottomBarHeight }}
         role="region"
         aria-label={t('game.gameLayout.gameControls')}
@@ -852,7 +850,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
 
       {/* Floating overlays */}
       <div
-        className="absolute top-3 right-3 z-40 flex items-center gap-1.5 flex-wrap justify-end max-w-[calc(100vw-2rem)]"
+        className="absolute top-3 end-3 z-40 flex items-center gap-1.5 flex-wrap justify-end max-w-[calc(100vw-2rem)]"
         role="region"
         aria-label={t('game.gameLayout.gameControlsToolbar')}
       >
@@ -1022,7 +1020,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
           mapId={activeMap.id}
           onClose={() => setEmptyCellMenu(null)}
           onPlaceToken={(gridX, gridY) => {
-            // BUG-6 — remember the right-clicked cell so the creature browser places
+            // BUG-6 — remember the end-clicked cell so the creature browser places
             // the picked creature there (it used to drop at the map origin 0,0).
             gameStore.setPendingPlaceCell({ gridX, gridY })
             setActiveModal('creatures')
@@ -1055,7 +1053,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
         </Suspense>
       )}
       {!effectiveIsDM && showCompactHUD ? (
-        <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-auto">
+        <div className="absolute bottom-0 start-0 end-0 z-20 pointer-events-auto">
           <PlayerHUD character={character} conditions={playerConditions} />
           {character && (
             <div className="hidden">

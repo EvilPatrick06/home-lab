@@ -8,6 +8,7 @@ import { generateId, initPdfWorker } from './pdf-viewer/pdf-utils'
 import { CROSS_BOOK_REFS, FALLBACK_TOC, SUPPLEMENTAL_TOC } from './pdf-viewer/toc-data'
 import { sortByPage } from './pdf-viewer/toc-utils'
 import type { AnnotationEntry, BookmarkEntry, PdfViewerProps, SearchHighlight, TocEntry } from './pdf-viewer/types'
+import { usePdfSearch } from './pdf-viewer/use-pdf-search'
 
 // Re-export internal types so any existing import of these symbols from this
 // module path continues to resolve after the decomposition.
@@ -43,12 +44,6 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
   const renderedPagesRef = useRef<Set<number>>(new Set())
   const [pageDimensions, setPageDimensions] = useState<Map<number, { width: number; height: number }>>(new Map())
 
-  // Search
-  const [searchQuery, setSearchQuery] = useState('')
-  const [searchOpen, setSearchOpen] = useState(false)
-  const [searchResults, setSearchResults] = useState<Array<{ page: number; matches: number }>>([])
-  const [currentSearchIdx, setCurrentSearchIdx] = useState(0)
-
   // Bookmarks & annotations
   const [bookmarks, setBookmarks] = useState<BookmarkEntry[]>([])
   const [annotations, setAnnotations] = useState<AnnotationEntry[]>([])
@@ -66,7 +61,6 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const pageRefsMap = useRef<Map<number, HTMLDivElement>>(new Map())
   const canvasRefsMap = useRef<Map<number, HTMLCanvasElement>>(new Map())
-  const searchInputRef = useRef<HTMLInputElement>(null)
   const isScrollingToPage = useRef(false)
   const renderingPages = useRef<Set<number>>(new Set())
   const currentPageRef = useRef(currentPage)
@@ -529,6 +523,20 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
     [totalPages, getPageLabel]
   )
 
+  const {
+    searchQuery,
+    setSearchQuery,
+    searchOpen,
+    setSearchOpen,
+    searchResults,
+    currentSearchIdx,
+    searchHighlights,
+    searchInputRef,
+    handleSearch,
+    nextSearchResult,
+    prevSearchResult
+  } = usePdfSearch({ pdfDoc, scale, goToPage })
+
   // Navigate to last-read page once pages are mounted and loading is complete
   useEffect(() => {
     if (loading) return
@@ -609,7 +617,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
 
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [searchOpen, onClose, nextPage, prevPage])
+  }, [searchOpen, setSearchOpen, searchInputRef, onClose, nextPage, prevPage])
 
   // Listen for cross-book navigation events
   useEffect(() => {
@@ -622,86 +630,6 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
     window.addEventListener('pdf-go-to-page', handleGoToPage)
     return () => window.removeEventListener('pdf-go-to-page', handleGoToPage)
   }, [goToPage])
-
-  // Search highlights per page
-  const [searchHighlights, setSearchHighlights] = useState<Map<number, SearchHighlight[]>>(new Map())
-
-  // Text search — also extracts highlight rectangles for matching text
-  const handleSearch = useCallback(async () => {
-    if (!pdfDoc || !searchQuery.trim()) return
-
-    const results: Array<{ page: number; matches: number }> = []
-    const highlights = new Map<number, SearchHighlight[]>()
-    const query = searchQuery.toLowerCase()
-
-    for (let i = 1; i <= pdfDoc.numPages; i++) {
-      try {
-        const page = await pdfDoc.getPage(i)
-        const textContent = await page.getTextContent()
-        const viewport = page.getViewport({ scale })
-
-        const pageHighlights: SearchHighlight[] = []
-        let totalMatches = 0
-
-        for (const item of textContent.items) {
-          if (!('str' in item) || !item.str) continue
-          const str = item.str.toLowerCase()
-          if (!str.includes(query)) continue
-
-          // Count matches in this item
-          let pos = str.indexOf(query)
-          while (pos !== -1) {
-            totalMatches++
-            pos = str.indexOf(query, pos + query.length)
-          }
-
-          // Extract position from the transform matrix [scaleX, skewX, skewY, scaleY, tx, ty]
-          const tx = item.transform[4]
-          const ty = item.transform[5]
-          const fontSize = Math.abs(item.transform[0]) || 12
-          // Convert PDF coordinates to canvas coordinates via viewport
-          const [x, y] = viewport.convertToViewportPoint(tx, ty)
-          const itemWidth = item.width * viewport.scale
-          const itemHeight = fontSize * viewport.scale
-
-          pageHighlights.push({
-            x,
-            y: y - itemHeight,
-            width: itemWidth,
-            height: itemHeight
-          })
-        }
-
-        if (totalMatches > 0) {
-          results.push({ page: i, matches: totalMatches })
-          highlights.set(i, pageHighlights)
-        }
-      } catch {
-        // Skip page
-      }
-    }
-
-    setSearchResults(results)
-    setSearchHighlights(highlights)
-    setCurrentSearchIdx(0)
-    if (results.length > 0) {
-      goToPage(results[0].page)
-    }
-  }, [pdfDoc, searchQuery, goToPage, scale])
-
-  const nextSearchResult = useCallback(() => {
-    if (searchResults.length === 0) return
-    const next = (currentSearchIdx + 1) % searchResults.length
-    setCurrentSearchIdx(next)
-    goToPage(searchResults[next].page)
-  }, [searchResults, currentSearchIdx, goToPage])
-
-  const prevSearchResult = useCallback(() => {
-    if (searchResults.length === 0) return
-    const prev = (currentSearchIdx - 1 + searchResults.length) % searchResults.length
-    setCurrentSearchIdx(prev)
-    goToPage(searchResults[prev].page)
-  }, [searchResults, currentSearchIdx, goToPage])
 
   // Bookmark management
   // biome-ignore lint/correctness/useExhaustiveDependencies: addBookmark useCallback uses t only for the bookmark label string. Listing fresh-each-render t recreates the callback every render.
@@ -1087,7 +1015,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
       <div className="flex flex-1 min-h-0">
         {/* Table of Contents sidebar */}
         {showToc && tocEntries.length > 0 && (
-          <div className="w-64 bg-surface border-r border-gray-800 shrink-0 flex flex-col">
+          <div className="w-64 bg-surface border-e border-gray-800 shrink-0 flex flex-col">
             <div className="p-3 border-b border-gray-800">
               <h3 className="text-sm font-bold text-accent">{t('library.pdfViewer.tableOfContents')}</h3>
             </div>
@@ -1176,7 +1104,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
                             goToPage(entry.page)
                           }
                         }}
-                        className={`flex-1 text-left px-1 py-1 text-xs flex items-center justify-between gap-1 min-w-0 ${
+                        className={`flex-1 text-start px-1 py-1 text-xs flex items-center justify-between gap-1 min-w-0 ${
                           entry.crossRef ? 'text-blue-400 hover:text-blue-300' : ''
                         }`}
                       >
@@ -1195,7 +1123,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
 
         {/* Bookmarks & Annotations sidebar */}
         {showBookmarks && (
-          <div className="w-64 bg-surface border-r border-gray-800 overflow-y-auto shrink-0 p-3">
+          <div className="w-64 bg-surface border-e border-gray-800 overflow-y-auto shrink-0 p-3">
             <h3 className="text-sm font-bold text-accent mb-3">{t('library.pdfViewer.bookmarks')}</h3>
             {bookmarks.length === 0 ? (
               <p className="text-xs text-gray-500">{t('library.pdfViewer.noBookmarks')}</p>
@@ -1207,7 +1135,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
                     <div key={bm.id} className="flex items-center gap-1 group">
                       <button
                         onClick={() => goToPage(bm.page)}
-                        className={`flex-1 text-left text-xs px-2 py-1 rounded transition-colors ${
+                        className={`flex-1 text-start text-xs px-2 py-1 rounded transition-colors ${
                           bm.page === currentPage ? 'bg-amber-600/20 text-accent' : 'text-gray-300 hover:bg-surface-2'
                         }`}
                       >
@@ -1324,7 +1252,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
                       )}
 
                       {pageAnns.length > 0 && (
-                        <div className="absolute top-2 right-2 flex flex-col gap-1 max-w-48">
+                        <div className="absolute top-2 end-2 flex flex-col gap-1 max-w-48">
                           {pageAnns.map((ann) => (
                             <span
                               key={ann.id}

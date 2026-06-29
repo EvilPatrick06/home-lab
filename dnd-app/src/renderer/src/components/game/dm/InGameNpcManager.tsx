@@ -316,7 +316,7 @@ export default function NPCManager({
             <div key={npc.id} className="bg-surface-2/50 rounded-lg overflow-hidden">
               <button
                 onClick={() => setExpandedId(isExpanded ? null : npc.id)}
-                className="w-full flex items-center gap-2 p-2 text-sm text-left
+                className="w-full flex items-center gap-2 p-2 text-sm text-start
                   hover:bg-surface-2 transition-colors cursor-pointer"
               >
                 <span className={`text-xs transition-transform ${isExpanded ? 'rotate-90' : ''}`}>&#9654;</span>
@@ -471,7 +471,7 @@ export default function NPCManager({
                             <button
                               key={r}
                               onClick={() => changeRole(npc.id, r)}
-                              className={`w-full text-left px-3 py-1 text-xs hover:bg-gray-700 cursor-pointer capitalize ${
+                              className={`w-full text-start px-3 py-1 text-xs hover:bg-gray-700 cursor-pointer capitalize ${
                                 npc.role === r ? 'text-accent' : 'text-gray-300'
                               }`}
                             >

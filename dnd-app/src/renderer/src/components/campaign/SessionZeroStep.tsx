@@ -152,7 +152,7 @@ export default function SessionZeroStep({
             <button
               key={opt.value}
               onClick={() => update('tone', opt.value)}
-              className={`text-left p-3 rounded-lg cursor-pointer border transition-colors ${
+              className={`text-start p-3 rounded-lg cursor-pointer border transition-colors ${
                 data.tone === opt.value
                   ? 'bg-amber-600/20 border-amber-500/40'
                   : 'bg-surface-2 border-border hover:bg-gray-750'
@@ -331,7 +331,7 @@ export default function SessionZeroStep({
             <button
               key={opt.value}
               onClick={() => update('characterDeathExpectation', opt.value)}
-              className={`text-left p-3 rounded-lg cursor-pointer border transition-colors ${
+              className={`text-start p-3 rounded-lg cursor-pointer border transition-colors ${
                 data.characterDeathExpectation === opt.value
                   ? 'bg-amber-600/20 border-amber-500/40'
                   : 'bg-surface-2 border-border hover:bg-gray-750'

@@ -63,7 +63,7 @@ const BottomChatMessage = memo(function BottomChatMessage({
   }
   if (msg.senderId === 'ai-dm') {
     return (
-      <div className="py-1 ps-2 border-l-2 border-amber-500/50 group">
+      <div className="py-1 ps-2 border-s-2 border-amber-500/50 group">
         <div className="flex items-start justify-between">
           <span className="text-xs font-semibold text-accent block mb-0.5">{t('game.chatPanel.dungeonMaster')}</span>
           <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">

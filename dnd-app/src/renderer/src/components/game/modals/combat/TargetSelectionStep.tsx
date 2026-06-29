@@ -90,7 +90,7 @@ export function TargetSelectionStep({
                   onSelectTarget(token)
                 }}
                 disabled={grappleShoveBlocked || charmedBlocked}
-                className={`w-full text-left px-3 py-2 bg-surface-2 border border-border rounded-lg ${
+                className={`w-full text-start px-3 py-2 bg-surface-2 border border-border rounded-lg ${
                   grappleShoveBlocked || charmedBlocked
                     ? 'opacity-40 cursor-not-allowed'
                     : 'hover:bg-gray-700 cursor-pointer'

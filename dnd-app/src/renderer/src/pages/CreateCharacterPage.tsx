@@ -86,7 +86,7 @@ export default function CreateCharacterPage(): JSX.Element {
 
   // Phase 17m — the "Library" quick-link now lives inline in the builder's
   // header (CharacterBuilder5e) instead of as a floating button here; the old
-  // `fixed top-3 right-14` button overlapped the Save Character button.
+  // `fixed top-3 end-14` button overlapped the Save Character button.
   if (unsupported) {
     const systemName = (resolvedSystem && GAME_SYSTEMS[resolvedSystem]?.name) || systemSeg || 'unknown'
     return (

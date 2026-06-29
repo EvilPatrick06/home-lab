@@ -414,11 +414,11 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
             <table className="w-full text-xs">
               <thead className="sticky top-0 bg-surface/95">
                 <tr className="border-b border-border/50 text-xs text-gray-500 uppercase tracking-wider">
-                  <th className="text-left py-1.5 px-2">{t('game.partyInventoryModal.colName')}</th>
+                  <th className="text-start py-1.5 px-2">{t('game.partyInventoryModal.colName')}</th>
                   <th className="text-center py-1.5 px-1 w-12">{t('game.partyInventoryModal.colQty')}</th>
-                  <th className="text-right py-1.5 px-1 w-14">{t('game.partyInventoryModal.colWeight')}</th>
-                  <th className="text-right py-1.5 px-1 w-16">{t('game.partyInventoryModal.colValue')}</th>
-                  <th className="text-left py-1.5 px-2 w-24">{t('game.partyInventoryModal.colAssigned')}</th>
+                  <th className="text-end py-1.5 px-1 w-14">{t('game.partyInventoryModal.colWeight')}</th>
+                  <th className="text-end py-1.5 px-1 w-16">{t('game.partyInventoryModal.colValue')}</th>
+                  <th className="text-start py-1.5 px-2 w-24">{t('game.partyInventoryModal.colAssigned')}</th>
                   <th className="py-1.5 px-1 w-20" />
                 </tr>
               </thead>
@@ -462,10 +462,10 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
                         )}
                       </div>
                     </td>
-                    <td className="text-right py-1.5 px-1 text-muted">
+                    <td className="text-end py-1.5 px-1 text-muted">
                       {item.weight != null ? `${(item.weight * item.quantity).toFixed(1)}` : '-'}
                     </td>
-                    <td className="text-right py-1.5 px-1 text-yellow-400/80">
+                    <td className="text-end py-1.5 px-1 text-yellow-400/80">
                       {item.value != null ? `${(item.value * item.quantity).toFixed(1)}` : '-'}
                     </td>
                     <td className="py-1.5 px-2">
@@ -489,7 +489,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
                         </span>
                       )}
                     </td>
-                    <td className="py-1.5 px-1 text-right">
+                    <td className="py-1.5 px-1 text-end">
                       {isDM && (
                         <button
                           onClick={() => handleRemoveItem(item.id)}

@@ -84,7 +84,7 @@ export default function EquipmentSection5e({ character, readonly }: EquipmentSec
               })}
             >
               <div
-                className={`absolute inset-y-0 left-0 ${barColor} transition-all`}
+                className={`absolute inset-y-0 start-0 ${barColor} transition-all`}
                 style={{ width: `${Math.min(pct, 100)}%` }}
               />
               <div className="absolute inset-0 flex items-center justify-center text-[11px] font-medium text-white drop-shadow">

@@ -147,7 +147,7 @@ export default function HighElfCantripSwapModal5e({
             <button
               key={cantrip.id}
               onClick={() => setSelectedCantripId(cantrip.id)}
-              className={`w-full text-left px-3 py-2 text-sm rounded transition-colors ${
+              className={`w-full text-start px-3 py-2 text-sm rounded transition-colors ${
                 selectedCantripId === cantrip.id
                   ? 'bg-purple-600/30 border border-purple-500 text-purple-300'
                   : 'hover:bg-surface-2 text-gray-300 border border-transparent'

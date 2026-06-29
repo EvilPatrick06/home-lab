@@ -319,7 +319,7 @@ function PlayerHUDOverlay({ character, conditions }: PlayerHUDOverlayProps): JSX
       // across the player's view, presenting as "a background covering
       // the map." DM view didn't show this because its bottom bar /
       // toolbar use opaque containers without backdrop-filter.
-      className={`${position ? '' : 'absolute top-16 left-1/2 -translate-x-1/2'} z-10 ${dragging ? 'cursor-grabbing' : 'cursor-grab'} isolate`}
+      className={`${position ? '' : 'absolute top-16 start-1/2 -translate-x-1/2'} z-10 ${dragging ? 'cursor-grabbing' : 'cursor-grab'} isolate`}
       style={style}
       onMouseDown={handleMouseDown}
     >

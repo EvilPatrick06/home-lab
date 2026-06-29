@@ -67,7 +67,7 @@ const SpellRow = memo(function SpellRow({
 
   return (
     <div
-      className={`border-b border-gray-800 last:border-0 ${isConcentratingOnThis ? 'border-l-2 border-l-yellow-500' : ''}`}
+      className={`border-b border-gray-800 last:border-0 ${isConcentratingOnThis ? 'border-s-2 border-s-yellow-500' : ''}`}
     >
       <div className="flex items-center">
         {!isCantrip && !isSpecies && !isItem && (
@@ -93,7 +93,7 @@ const SpellRow = memo(function SpellRow({
         )}
         <button
           onClick={() => setExpanded(!expanded)}
-          className="flex-1 flex items-center justify-between px-2 py-1.5 hover:bg-surface-2/50 transition-colors text-left text-sm"
+          className="flex-1 flex items-center justify-between px-2 py-1.5 hover:bg-surface-2/50 transition-colors text-start text-sm"
         >
           <div className="flex items-center gap-2">
             <span className="text-gray-200">{spell.name}</span>

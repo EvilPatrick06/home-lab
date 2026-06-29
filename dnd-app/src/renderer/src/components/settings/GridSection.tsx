@@ -44,7 +44,7 @@ export function GridSection(): JSX.Element {
               onChange={(e) => handleGridOpacityChange(Number(e.target.value))}
               className="w-36 h-1 accent-amber-500 cursor-pointer"
             />
-            <span className="text-sm text-muted w-10 text-right">{gridOpacity}%</span>
+            <span className="text-sm text-muted w-10 text-end">{gridOpacity}%</span>
           </div>
         </div>
         <div className="flex items-center justify-between">

@@ -26,7 +26,7 @@ export default function ChaseMap({ participants, maxZones }: ChaseMapProps): JSX
           {Array.from({ length: maxZones + 1 }, (_, i) => (
             <div key={i} className="flex-1 text-center">
               <div className="text-xs text-gray-500 mb-1">{i}</div>
-              <div className="h-4 border-l border-gray-600 mx-auto w-0" />
+              <div className="h-4 border-s border-gray-600 mx-auto w-0" />
             </div>
           ))}
         </div>

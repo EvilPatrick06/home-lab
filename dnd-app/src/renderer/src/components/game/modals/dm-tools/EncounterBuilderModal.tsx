@@ -423,7 +423,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
           <div>
             <div className="text-xs text-muted mb-1">{t('game.encounterBuilderModal.xpBudget')}</div>
             <div className="relative h-6 bg-surface-2 rounded-full overflow-hidden border border-border">
-              <div className="absolute top-0 left-0 h-full bg-green-700/60" style={{ width: `${lowPct}%` }} />
+              <div className="absolute top-0 start-0 h-full bg-green-700/60" style={{ width: `${lowPct}%` }} />
               <div
                 className="absolute top-0 h-full bg-amber-700/60"
                 style={{ left: `${lowPct}%`, width: `${modPct}%` }}
@@ -435,7 +435,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
               {/* XP marker */}
               {encounter.adjustedXP > 0 && (
                 <div className="absolute top-0 h-full w-0.5 bg-white shadow-lg" style={{ left: `${xpPct}%` }}>
-                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs text-white whitespace-nowrap bg-surface px-1 rounded">
+                  <div className="absolute -top-5 start-1/2 -translate-x-1/2 text-xs text-white whitespace-nowrap bg-surface px-1 rounded">
                     {t('game.encounterBuilderModal.xpMarker', { xp: encounter.adjustedXP.toLocaleString() })}
                   </div>
                 </div>
@@ -472,7 +472,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
                   <button
                     key={`${m.name}-${i}`}
                     onClick={() => addMonster(m)}
-                    className="w-full text-left px-3 py-1.5 text-sm text-gray-200 hover:bg-gray-700 flex justify-between"
+                    className="w-full text-start px-3 py-1.5 text-sm text-gray-200 hover:bg-gray-700 flex justify-between"
                   >
                     <span>{m.name}</span>
                     <span className="text-gray-500">
@@ -544,7 +544,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-surface-2 text-muted text-xs">
-                    <th className="text-left px-3 py-2">{t('game.encounterBuilderModal.colMonster')}</th>
+                    <th className="text-start px-3 py-2">{t('game.encounterBuilderModal.colMonster')}</th>
                     <th className="text-center px-2 py-2">{t('game.encounterBuilderModal.colCr')}</th>
                     <th className="text-center px-2 py-2">{t('game.encounterBuilderModal.colCount')}</th>
                     {mapId && <th className="text-center px-2 py-2">{t('game.encounterBuilderModal.colXy')}</th>}

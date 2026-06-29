@@ -130,7 +130,7 @@ export default function StudyActionModal({ character, onClose, onBroadcastResult
                   setSelectedIndex(idx)
                   setResult(null)
                 }}
-                className={`w-full text-left px-4 py-3 rounded-lg border transition-colors ${
+                className={`w-full text-start px-4 py-3 rounded-lg border transition-colors ${
                   isSelected ? 'border-amber-500 bg-amber-900/20' : 'border-border bg-surface-2 hover:border-gray-600'
                 }`}
               >

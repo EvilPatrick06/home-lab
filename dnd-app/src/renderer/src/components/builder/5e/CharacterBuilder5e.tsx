@@ -454,7 +454,7 @@ export default function CharacterBuilder5e(): JSX.Element {
           {/* S-3 — show the FULL checklist of what's still required (was a single
               truncated line that appeared to "cycle" as each item was resolved). */}
           {!canSave && validation.length > 0 && (
-            <ul role="alert" aria-live="polite" className="text-xs text-red-400 max-w-60 text-right space-y-0.5">
+            <ul role="alert" aria-live="polite" className="text-xs text-red-400 max-w-60 text-end space-y-0.5">
               {validation.map((issue) => (
                 <li key={issue}>{issue}</li>
               ))}

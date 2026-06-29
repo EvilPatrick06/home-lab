@@ -24,7 +24,7 @@ export default function SystemStep({ selected, onSelect }: SystemStepProps): JSX
           <button
             key={sys.id}
             onClick={() => onSelect(sys.id)}
-            className={`p-6 rounded-lg border text-left transition-all cursor-pointer
+            className={`p-6 rounded-lg border text-start transition-all cursor-pointer
               ${
                 selected === sys.id
                   ? 'border-amber-500 bg-amber-900/20'

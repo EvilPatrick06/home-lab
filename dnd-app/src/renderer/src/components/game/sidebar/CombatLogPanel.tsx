@@ -50,19 +50,19 @@ function getEntryColor(type: CombatLogEntry['type']): string {
 function getEntryBorderColor(type: CombatLogEntry['type']): string {
   switch (type) {
     case 'damage':
-      return 'border-l-red-500/50'
+      return 'border-s-red-500/50'
     case 'heal':
-      return 'border-l-green-500/50'
+      return 'border-s-green-500/50'
     case 'condition':
-      return 'border-l-purple-500/50'
+      return 'border-s-purple-500/50'
     case 'save':
-      return 'border-l-orange-500/50'
+      return 'border-s-orange-500/50'
     case 'attack':
-      return 'border-l-blue-500/50'
+      return 'border-s-blue-500/50'
     case 'death':
-      return 'border-l-red-400/50'
+      return 'border-s-red-400/50'
     default:
-      return 'border-l-gray-600/50'
+      return 'border-s-gray-600/50'
   }
 }
 
@@ -170,7 +170,7 @@ function LogEntry({ entry }: { entry: CombatLogEntry }): JSX.Element {
   const valueColor = getValueColor(entry.type)
 
   return (
-    <div className={`border-l-2 ${borderColor} ps-2 py-1`}>
+    <div className={`border-s-2 ${borderColor} ps-2 py-1`}>
       <div className="flex items-start gap-1.5">
         <span className="text-[11px] shrink-0 mt-px">{icon}</span>
         <div className="flex-1 min-w-0">
@@ -235,7 +235,7 @@ function SummaryBar({
   const pct = maxValue > 0 ? Math.min((value / maxValue) * 100, 100) : 0
   return (
     <div className="flex items-center gap-2">
-      <span className="text-xs text-gray-500 w-16 shrink-0 text-right">{label}</span>
+      <span className="text-xs text-gray-500 w-16 shrink-0 text-end">{label}</span>
       <div className="flex-1 h-2.5 bg-surface-2 rounded-full overflow-hidden">
         <div className={`h-full rounded-full transition-all duration-300 ${color}`} style={{ width: `${pct}%` }} />
       </div>
@@ -317,7 +317,7 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
 
   return (
     <div
-      className="w-80 h-full bg-surface/95 border-l border-border flex flex-col min-h-0"
+      className="w-80 h-full bg-surface/95 border-s border-border flex flex-col min-h-0"
       role="region"
       aria-label={t('game.combatLogPanel.regionLabel')}
     >

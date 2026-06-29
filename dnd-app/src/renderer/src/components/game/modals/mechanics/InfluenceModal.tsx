@@ -77,7 +77,7 @@ export default function InfluenceModal({ character, onClose, onBroadcastResult }
                   setSelectedIndex(i)
                   setResult(null)
                 }}
-                className={`w-full text-left px-3 py-2 border rounded-lg cursor-pointer ${
+                className={`w-full text-start px-3 py-2 border rounded-lg cursor-pointer ${
                   selectedIndex === i
                     ? 'bg-amber-900/30 border-amber-500'
                     : 'bg-surface-2 hover:bg-gray-700 border-border'

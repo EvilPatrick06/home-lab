@@ -205,6 +205,8 @@ This is distinct from the existing `ai-service.ts` decompose entry (that's a mai
 
 > **2026-06-29 (dnd-resolver, deferred follow-up) — FIRST EXTRACTION SHIPPED.** Extracted GameLayout's panel-resize concern (bottom-bar + sidebar collapse state, persisted sizes, drag/double-click handlers) into `game-layout/use-panel-resize.ts` (GameLayout -52 lines; tsc + GameLayout test green). This is the first increment of the 'continue extracting' work — `PdfViewer.tsx` and further `GameLayout` sub-regions remain monolithic and are the next slices.
 
+> **2026-06-29 (dnd-resolver, deferred follow-up #2) — THREE extractions now shipped across BOTH god-files.** GameLayout: `usePanelResize` (panel collapse/size + drag handlers) and `useFullscreen` (fullscreen state + toggle). PdfViewer: `usePdfSearch` (full-text search state, per-page highlight computation, result navigation — `pdfDoc`/`scale`/`goToPage` injected). Each is behavior-preserving (verbatim logic), tsc + biome + GameLayout test green. The files are smaller but still large (~1.3k LOC each) — decomposition is incremental; further cohesive regions (TOC, bookmarks/annotations, drawing for PdfViewer; modal-group/overlay wiring for GameLayout) and the per-file size lint-budget remain.
+
 ---
 
 ### [2026-06-25] DO NOT "dedupe" the `shared/types/*` <-> `renderer/src/types/*` re-export shims — the duplicate basenames are an intentional process-boundary split
@@ -222,29 +224,5 @@ This is distinct from the existing `ai-service.ts` decompose entry (that's a mai
 **What to do instead:** Leave both files. Treat `src/shared/types/*` as canonical (type-only, no runtime) and `src/renderer/src/types/*` as the renderer-facing re-export + runtime-helper layer. Add new shared types in `shared/`, re-export from the renderer shim, and keep renderer-only helpers in the shim. (Recording here so future cleanup/scanner runs — including this one — do not re-propose the merge.)
 
 **Related files:** `dnd-app/src/shared/types/character-5e.ts`, `dnd-app/src/renderer/src/types/character-5e.ts`, `dnd-app/src/shared/types/character-common.ts`, `dnd-app/src/shared/types/companion.ts`, `dnd-app/src/shared/types/library.ts`
-
----
-
-### [2026-06-24] i18n has no RTL / document-`dir` infrastructure — adding any right-to-left locale would need layout work first
-
-- **Category:** future-idea, portability
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-suggestor
-- **During:** dnd-app tree review (i18n config + locale survey)
-
-**Description:**
-The i18n stack (`src/renderer/src/i18n/`) ships two locales, `en` and `es`, both left-to-right, and the parity test (`locale-parity.test.ts`) is nicely set up to cover any future locale automatically. But there is **no right-to-left support anywhere**: `grep` finds no `documentElement.dir` / `dir=` management, `setLocale()` in `i18n/index.ts` only calls `changeLanguage` + persists the choice — it never sets the document direction — and the Tailwind/CSS is written with physical properties (`ml-*`, `pl-*`, `left-*`) rather than logical ones (`ms-*`, `ps-*`, `start-*`). So the moment someone adds an RTL locale (Arabic, Hebrew, Persian) — which the parity infrastructure otherwise invites — the entire UI would render mirrored-wrong (text right-aligned but layout still left-anchored). Logging now so the gap is known before a translator contributes an RTL `*.json` and is surprised the app doesn't flip.
-
-**Proposed fix / improvement:**
-- [ ] Add a per-locale `dir` ('ltr' | 'rtl') field and have `setLocale()` set `document.documentElement.dir` (and `lang`) on switch and on initial load.
-- [ ] Audit high-traffic components for physical-direction Tailwind classes and migrate to logical properties (`ms/me`, `ps/pe`, `start/end`) where feasible; add a lint note for new code.
-- [ ] Only then accept an RTL locale into `SUPPORTED_LOCALES` (the parity guard already handles the key-set side).
-
-**Related files:** `dnd-app/src/renderer/src/i18n/index.ts` (`setLocale`), `dnd-app/src/renderer/src/i18n/config.ts` (`SUPPORTED_LOCALES`/`LOCALE_LABELS`), `dnd-app/src/renderer/src/i18n/locales/`, `dnd-app/src/renderer/src/main.tsx` (init path)
-
-> **2026-06-29 (dnd-resolver) — document-`dir`/`lang` INFRA already present on master; CSS logical-property sweep residual.** Verified the first proposed-fix item is done on master: `i18n/index.ts` `applyDocumentLocale()` sets `document.documentElement.dir` (via `dirFor` + `RTL_LOCALES`) and `lang` on `languageChanged` and first paint, covered by `document-locale.test.ts` (WEB-I18N-1 / phase-56). RESIDUAL: the physical→logical Tailwind migration (`ml/pl/left` → `ms/ps/start`) across ~164 components — not done blind, because not every physical class should become logical and there is no RTL locale to verify against (the entry itself gates adding one). Best done as a focused pass with the actual RTL-locale decision.
-
-> **2026-06-29 (dnd-resolver, deferred follow-up) — SPACING SWEEP SHIPPED.** Converted all physical margin/padding classes to logical (`ml/mr/pl/pr` → `ms/me/ps/pe`, 294 tokens across 149 components) — LTR-identical today (Tailwind v4), RTL-correct later; biome green. RESIDUAL: the judgment-heavy classes (`left/right` positioning, `border-l/r`, `text-left/right`, `rounded-l/r`) are deliberately left for a focused pass alongside the actual RTL-locale decision, since not every physical class should flip and there is still no RTL locale to verify against.
 
 ---

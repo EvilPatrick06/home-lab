@@ -138,7 +138,7 @@ export default function MacroBar({ character, onRoll }: MacroBarProps): JSX.Elem
         </button>
         <button
           onClick={() => handlePinToHotbar(macro)}
-          className="absolute -top-1.5 -right-1.5 w-4 h-4 text-[8px] rounded-full bg-surface border border-gray-600 text-muted hover:text-accent hover:border-amber-500 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+          className="absolute -top-1.5 -end-1.5 w-4 h-4 text-[8px] rounded-full bg-surface border border-gray-600 text-muted hover:text-accent hover:border-amber-500 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
           title={t('game.macroBar.pinToHotbar')}
         >
           +

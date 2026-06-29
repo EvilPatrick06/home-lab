@@ -123,7 +123,7 @@ export default function ExpertiseModal(): JSX.Element {
                   key={opt.name}
                   onClick={() => toggleSelection(opt.name)}
                   disabled={isDisabled}
-                  className={`flex items-center gap-2 px-3 py-2 rounded text-left text-sm transition-colors ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded text-start text-sm transition-colors ${
                     isSelected
                       ? 'bg-amber-900/20 text-amber-300'
                       : isDisabled

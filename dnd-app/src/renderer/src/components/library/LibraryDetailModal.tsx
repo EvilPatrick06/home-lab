@@ -52,7 +52,7 @@ interface LibraryDetailModalProps {
 // (SpellCardView / MonsterStatBlockView etc.) so every category reads as one
 // design language instead of the old flat gray definition list.
 const FIELD_LABEL = 'text-xs font-semibold text-accent uppercase tracking-wider mb-1'
-const FIELD_GROUP = 'border-l-2 border-amber-800/30 ps-3'
+const FIELD_GROUP = 'border-s-2 border-amber-800/30 ps-3'
 
 function renderChips(values: unknown[]): JSX.Element {
   return (
@@ -141,7 +141,7 @@ function renderObject(obj: Record<string, unknown>): JSX.Element {
                 {v.map((item, i) => (
                   <div key={`${k}-${i}`} className="text-xs text-gray-300">
                     {typeof item === 'object' && item !== null ? (
-                      <div className="ps-2 border-l border-border">{renderObject(item as Record<string, unknown>)}</div>
+                      <div className="ps-2 border-s border-border">{renderObject(item as Record<string, unknown>)}</div>
                     ) : (
                       String(item)
                     )}
@@ -155,7 +155,7 @@ function renderObject(obj: Record<string, unknown>): JSX.Element {
           return (
             <div key={k}>
               <span className="text-xs text-gray-500">{formatLabel(k)}:</span>
-              <div className="ps-3 mt-0.5 border-l border-border">{renderObject(v as Record<string, unknown>)}</div>
+              <div className="ps-3 mt-0.5 border-s border-border">{renderObject(v as Record<string, unknown>)}</div>
             </div>
           )
         }

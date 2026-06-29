@@ -226,7 +226,7 @@ export function AddSpecialFacilityModal({
                 key={def.type}
                 onClick={() => canSelect && setSelectedSpecialType(def.type)}
                 disabled={!canSelect}
-                className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                className={`w-full text-start p-3 rounded-lg border transition-colors ${
                   isSelected
                     ? 'bg-amber-900/30 border-amber-700'
                     : canSelect

@@ -133,7 +133,7 @@ export default function EmptyCellContextMenu({
         <>
           <button
             onClick={() => setShowSearch(true)}
-            className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-surface-2 transition-colors cursor-pointer"
+            className="w-full px-4 py-2 text-xs text-start text-gray-200 hover:bg-surface-2 transition-colors cursor-pointer"
           >
             {t('game.emptyCellContextMenu.summonMonster')}
           </button>
@@ -142,7 +142,7 @@ export default function EmptyCellContextMenu({
               onPlaceToken(gridX, gridY)
               onClose()
             }}
-            className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-surface-2 transition-colors cursor-pointer"
+            className="w-full px-4 py-2 text-xs text-start text-gray-200 hover:bg-surface-2 transition-colors cursor-pointer"
           >
             {t('game.emptyCellContextMenu.placeToken')}
           </button>
@@ -154,7 +154,7 @@ export default function EmptyCellContextMenu({
                 onPlaceAoE(gridX, gridY)
                 onClose()
               }}
-              className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-surface-2 transition-colors cursor-pointer"
+              className="w-full px-4 py-2 text-xs text-start text-gray-200 hover:bg-surface-2 transition-colors cursor-pointer"
             >
               {t('game.emptyCellContextMenu.placeAoE')}
             </button>
@@ -167,7 +167,7 @@ export default function EmptyCellContextMenu({
                 onAddPin(gridX, gridY)
                 onClose()
               }}
-              className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-surface-2 transition-colors cursor-pointer"
+              className="w-full px-4 py-2 text-xs text-start text-gray-200 hover:bg-surface-2 transition-colors cursor-pointer"
             >
               {t('game.emptyCellContextMenu.addPin')}
             </button>
@@ -192,7 +192,7 @@ export default function EmptyCellContextMenu({
               <button
                 key={m.id}
                 onClick={() => handleSelectMonster(m)}
-                className="w-full text-left px-2 py-1.5 text-xs text-gray-200 hover:bg-gray-700 rounded transition-colors cursor-pointer flex items-center justify-between"
+                className="w-full text-start px-2 py-1.5 text-xs text-gray-200 hover:bg-gray-700 rounded transition-colors cursor-pointer flex items-center justify-between"
               >
                 <span>{m.name}</span>
                 <span className="text-xs text-gray-500">{t('game.emptyCellContextMenu.cr', { cr: m.cr })}</span>

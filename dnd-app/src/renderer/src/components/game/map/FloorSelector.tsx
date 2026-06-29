@@ -14,7 +14,7 @@ export default function FloorSelector({
   if (floors.length <= 1) return null
 
   return (
-    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-20">
+    <div className="absolute end-3 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-20">
       {floors.map((floor, index) => (
         <button
           key={floor.id}

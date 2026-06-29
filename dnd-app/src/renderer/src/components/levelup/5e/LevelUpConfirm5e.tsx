@@ -259,7 +259,7 @@ export function InvocationSection5e({
               key={inv.id}
               onClick={() => !disabled && handleClick(inv)}
               disabled={disabled}
-              className={`w-full text-left p-2 rounded border transition-colors ${
+              className={`w-full text-start p-2 rounded border transition-colors ${
                 selected
                   ? 'bg-purple-900/30 border-purple-600 text-purple-300'
                   : disabled
@@ -414,7 +414,7 @@ export function MetamagicSection5e({
               key={mm.id}
               onClick={() => !atMax && toggleMetamagic(mm.id)}
               disabled={atMax}
-              className={`w-full text-left p-2 rounded border transition-colors ${
+              className={`w-full text-start p-2 rounded border transition-colors ${
                 selected
                   ? 'bg-red-900/30 border-red-600 text-red-300'
                   : atMax

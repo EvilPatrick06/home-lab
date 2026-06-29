@@ -119,7 +119,7 @@ export default memo(function PlayerCard({
               cross-viewer-visible identity. */}
           {isLocal && onColorChange && (
             <div
-              className="pointer-events-none absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-surface border border-amber-500 flex items-center justify-center"
+              className="pointer-events-none absolute -bottom-0.5 -end-0.5 w-4 h-4 rounded-full bg-surface border border-amber-500 flex items-center justify-center"
               aria-hidden="true"
               title={t('lobby.playerCard.changeColorTitle')}
             >

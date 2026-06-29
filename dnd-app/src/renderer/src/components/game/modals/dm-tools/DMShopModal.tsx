@@ -238,7 +238,7 @@ export default function DMShopModal({ onClose }: DMShopModalProps): JSX.Element 
                 <button
                   onClick={() => loadPreset(key, false)}
                   title={t('game.dmShopModal.addToInventory')}
-                  className="text-[11px] px-1.5 py-1 bg-surface-2 border border-l-0 border-border rounded-r text-gray-500 hover:text-green-400 hover:border-green-600 cursor-pointer"
+                  className="text-[11px] px-1.5 py-1 bg-surface-2 border border-s-0 border-border rounded-r text-gray-500 hover:text-green-400 hover:border-green-600 cursor-pointer"
                 >
                   +
                 </button>

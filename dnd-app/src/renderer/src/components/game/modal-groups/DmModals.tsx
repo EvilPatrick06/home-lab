@@ -71,7 +71,7 @@ export default function DmModals({
   const handlePlaceMonster = effectiveIsDM
     ? (monster: MonsterStatBlock): void => {
         if (!activeMap) return
-        // BUG-6 — place at the cell the right-click "Place Token" came from (was
+        // BUG-6 — place at the cell the end-click "Place Token" came from (was
         // hardcoded to the map origin, dropping every token in the top-left corner).
         // Falls back to 0,0 only when opened without an originating cell.
         const cell = gameStore.pendingPlaceCell

@@ -131,7 +131,7 @@ export default function MagicItemTracker({ campaign }: MagicItemTrackerProps): J
                   style={{ width: `${pct}%` }}
                 />
               </div>
-              <span className="text-xs text-muted w-12 text-right shrink-0">
+              <span className="text-xs text-muted w-12 text-end shrink-0">
                 {actual}/{expected}
               </span>
             </div>

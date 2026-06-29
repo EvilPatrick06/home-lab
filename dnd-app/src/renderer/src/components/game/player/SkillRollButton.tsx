@@ -225,7 +225,7 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
       </button>
 
       {open && (
-        <div className="absolute bottom-full right-0 mb-1 w-64 bg-surface border border-border rounded-xl shadow-2xl z-30 overflow-hidden">
+        <div className="absolute bottom-full end-0 mb-1 w-64 bg-surface border border-border rounded-xl shadow-2xl z-30 overflow-hidden">
           {/* Tabs */}
           <div className="flex border-b border-border">
             <button
@@ -285,7 +285,7 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
                   <button
                     key={skill.name}
                     onClick={() => doRoll(skill.name, mod, true, skill.name)}
-                    className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-surface-2 cursor-pointer text-left"
+                    className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-surface-2 cursor-pointer text-start"
                   >
                     <div className="flex items-center gap-1.5">
                       <span
@@ -323,7 +323,7 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
                     onClick={() =>
                       doRoll(t('game.skillRollButton.saveLabel', { ability: ABILITY_LABELS[ability] }), mod)
                     }
-                    className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-surface-2 cursor-pointer text-left"
+                    className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-surface-2 cursor-pointer text-start"
                   >
                     <div className="flex items-center gap-1.5">
                       <span className={`w-1.5 h-1.5 rounded-full ${isProficient ? 'bg-green-400' : 'bg-gray-600'}`} />

@@ -120,9 +120,9 @@ export default function ShopInventoryTable({
                   )}
                 </span>
                 {/* Price (with markup) */}
-                <span className="text-accent shrink-0 w-20 text-right">{formatPrice(markedUpPrice)}</span>
+                <span className="text-accent shrink-0 w-20 text-end">{formatPrice(markedUpPrice)}</span>
                 {/* Weight */}
-                <span className="text-gray-500 shrink-0 w-10 text-right">{item.weight ? `${item.weight}lb` : '-'}</span>
+                <span className="text-gray-500 shrink-0 w-10 text-end">{item.weight ? `${item.weight}lb` : '-'}</span>
                 {/* Category */}
                 <span className="text-gray-500 shrink-0 w-20 truncate">{item.shopCategory ?? item.category}</span>
                 {/* Rarity */}
@@ -132,7 +132,7 @@ export default function ShopInventoryTable({
                   {item.rarity ?? '-'}
                 </span>
                 {/* Stock */}
-                <span className="text-muted shrink-0 w-12 text-right">{stock}</span>
+                <span className="text-muted shrink-0 w-12 text-end">{stock}</span>
                 {/* Actions */}
                 <div className="flex items-center gap-1 shrink-0">
                   <button

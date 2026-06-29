@@ -82,7 +82,7 @@ export function EpicBoonSelector5e({
                       setExpanded(false)
                     }}
                     disabled={!meetsPrereqs}
-                    className={`w-full text-left border rounded p-2 transition-colors ${meetsPrereqs ? 'bg-surface-2/50 hover:bg-surface-2 border-border hover:border-purple-600 cursor-pointer' : 'bg-surface/30 border-gray-800 opacity-50 cursor-not-allowed'}`}
+                    className={`w-full text-start border rounded p-2 transition-colors ${meetsPrereqs ? 'bg-surface-2/50 hover:bg-surface-2 border-border hover:border-purple-600 cursor-pointer' : 'bg-surface/30 border-gray-800 opacity-50 cursor-not-allowed'}`}
                   >
                     <div className="text-sm text-purple-300 font-medium">{feat.name}</div>
                     <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
@@ -159,7 +159,7 @@ function BlessedWarriorCantripPicker(): JSX.Element {
               key={spell.id}
               onClick={() => toggleCantrip(spell.id)}
               disabled={!selected && blessedWarriorCantrips.length >= 2}
-              className={`w-full text-left flex items-center gap-2 px-2 py-0.5 rounded text-xs transition-colors ${
+              className={`w-full text-start flex items-center gap-2 px-2 py-0.5 rounded text-xs transition-colors ${
                 selected
                   ? 'bg-blue-800/40 text-blue-300'
                   : blessedWarriorCantrips.length >= 2
@@ -233,7 +233,7 @@ function DruidicWarriorCantripPicker(): JSX.Element {
               key={spell.id}
               onClick={() => toggleCantrip(spell.id)}
               disabled={!selected && druidicWarriorCantrips.length >= 2}
-              className={`w-full text-left flex items-center gap-2 px-2 py-0.5 rounded text-xs transition-colors ${
+              className={`w-full text-start flex items-center gap-2 px-2 py-0.5 rounded text-xs transition-colors ${
                 selected
                   ? 'bg-green-800/40 text-green-300'
                   : druidicWarriorCantrips.length >= 2
@@ -359,7 +359,7 @@ export function FightingStyleSelector5e({
                     onSelect({ id: feat.id, name: feat.name, description: feat.description })
                     setExpanded(false)
                   }}
-                  className="w-full text-left bg-surface-2/50 hover:bg-surface-2 border border-border hover:border-blue-600 rounded p-2 cursor-pointer transition-colors"
+                  className="w-full text-start bg-surface-2/50 hover:bg-surface-2 border border-border hover:border-blue-600 rounded p-2 cursor-pointer transition-colors"
                 >
                   <div className="text-sm text-blue-300 font-medium">{feat.name}</div>
                   <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{feat.description}</p>

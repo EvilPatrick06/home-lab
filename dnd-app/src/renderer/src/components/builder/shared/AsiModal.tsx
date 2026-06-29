@@ -280,7 +280,7 @@ export default function AsiModal(): JSX.Element {
                     key={feat.id}
                     onClick={() => meetsPrereqs && setChosenFeat(feat)}
                     disabled={!meetsPrereqs}
-                    className={`w-full text-left px-3 py-2 rounded text-sm transition-colors ${
+                    className={`w-full text-start px-3 py-2 rounded text-sm transition-colors ${
                       isSelected
                         ? 'bg-amber-900/30 border border-amber-500 text-amber-200'
                         : meetsPrereqs

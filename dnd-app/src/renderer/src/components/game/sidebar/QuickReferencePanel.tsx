@@ -352,7 +352,7 @@ export default function QuickReferencePanel({ onClose }: QuickReferencePanelProp
   }
 
   return (
-    <div className="w-80 h-full bg-surface/95 border-l border-border flex flex-col min-h-0">
+    <div className="w-80 h-full bg-surface/95 border-s border-border flex flex-col min-h-0">
       {/* Header */}
       <div className="shrink-0 flex items-center justify-between px-3 py-2 border-b border-border">
         <h2 className="text-sm font-bold text-fg">{t('game.quickReferencePanel.title')}</h2>
