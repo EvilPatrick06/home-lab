@@ -20,6 +20,32 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+
+### [2026-06-28] Agent-registration failures are observability-invisible — a dropped specialized agent silently removes a capability with no metric, structured log, or health surface (unlike services, which have `service_init_status` + degraded health)
+
+- **Category:** future-idea (reliability + observability)
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of the agent-registration path (`agents/_registry.py` -> `agent.py`) vs the existing service health surface (`routes/system_api.py`)
+
+**Description:**
+The orchestrator gets its ~23 non-core specialized agents from `agents/_registry.create_all_agents()` (`agents/_registry.py:46`), which deliberately isolates per-agent failures so one broken agent never drops the rest (PHASE-15 15A). But its only failure signal is a bare `print(f"[registry] FAILED to create agent ...")` on stdout — there is **no `metrics_counters.incr(...)`, no `bmo_logging.get_logger` line, and nothing surfaced to `/api/health/full` or the status board.** So if a deploy ships a module that raises at import/construction time (a bad refactor, a missing dependency, a constructor that throws on a config gap), that agent silently vanishes from `orchestrator.agents` and BMO just quietly loses that capability — timers, smart-home, weather, the D&D agents, etc. The router then falls through / mis-routes with no indication that the agent it wanted no longer exists.
+
+This is a notable asymmetry with how *services* are handled. `routes/system_api.py:api_health_full` already exposes `service_init_status` (read via `getattr(_app(), "service_init_status", {})`), flips `overall` to `degraded`, and lists `degraded_init_services` when any service init swallowed an exception — explicitly so "a swallowed init failure surfaces as degraded rather than only as endpoint 500s." There is **no `agent_init_status` equivalent**: a failed agent never degrades health, never appears in `/metrics`, and never lands on the board (the board's "Agents" section in `bots/social/status_board_cog.py` is fed by agent-produced items, not by registration health). Runtime agent failures *are* observable — `orchestrator.run_agent` (`agents/orchestrator.py:155-163`) calls `log.exception(...)` on a per-turn failure — but even that path increments no counter, and the *registration* path is the truly dark one. Net: the one place designed to "never drop the rest" also makes a dropped agent the hardest failure to notice.
+
+**Hypothesis / root cause:** `create_all_agents` was written for *isolation* (don't let one bad agent crash startup) and used a quick `print` for the diagnostic, predating / not reusing the `service_init_status` pattern later added for services. No agent-registration result is threaded back to `app`/health the way `service_init_status` is, so the observability half of "fail one agent, keep the rest" was never built.
+
+**Proposed fix / improvement:**
+- [ ] In `create_all_agents`, on each failure: `metrics_counters.incr("bmo_agent_init_failed_total")` (and/or a per-agent label) and `get_logger("registry").exception(...)` instead of `print(...)` (also drops one entry off the `.print-baseline` ratchet).
+- [ ] Return/record per-agent init status (mirror `service_init_status`): have `create_all_agents` report `{agent_name: {"ok": bool, "error": repr}}` up to `agent.py` (`agent.py:624-629`), stash it on the app as `agent_init_status`, and add it to `/api/health/full` so a missing agent flips `overall` to `degraded` and lists `degraded_init_agents` — symmetric with the existing service path.
+- [ ] Optionally surface a failed/missing agent as a status-board incident row (it is exactly the "something is wrong" case the board exists for), reusing the empty-board-==-all-good model.
+- [ ] Add a tiny test asserting that a forced factory raise both keeps the other agents (already covered in `tests/agents/test_registry.py`) **and** records the failure in the new status surface.
+
+**Related files:** `bmo/pi/agents/_registry.py:46` (`create_all_agents`, the `except`/`print` branch), `bmo/pi/agent.py:618-629` (registration call site), `bmo/pi/routes/system_api.py:87-130` (`api_health_full`, `service_init_status`/`degraded_init_services` — the pattern to mirror), `bmo/pi/services/metrics_counters.py` (`incr`, exported at `/metrics`), `bmo/pi/agents/orchestrator.py:155-163` (runtime failure logging — observable but no counter), `bmo/pi/bots/social/status_board_cog.py` (board "Agents" section), `bmo/pi/tests/agents/test_registry.py`.
+
+**Related entries:** BMO-RESOLVED 2026-06-22 (adopt `bmo_logging` / retire `print()`) — that added the print *ratchet* but left existing prints (incl. this one) to be retired opportunistically and added no agent health surface; BMO-RESOLVED 2026-06-22 (per-service init status / degraded health) — the service-side pattern this proposes to mirror for agents.
+
 ### [2026-06-28] `VoicePipeline` is a 2,236-line god-class — wake, VAD, STT, TTS, enrollment, device handling and the turn loop all live in one class (the `services/voice/` move grouped the files but never decomposed this core)
 
 - **Category:** future-idea (architecture + DX)
