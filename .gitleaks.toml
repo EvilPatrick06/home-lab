@@ -16,10 +16,13 @@ useDefault = true
 [allowlist]
 description = "home-lab false-positive allowlist"
 paths = [
-  # Vendored, already-minified third-party bundles - scanning them is pure noise.
-  # e.g. xterm@5.5.0 (bmo/pi/web/static/js/xterm.min.js): the generic-api-key
-  # rule false-matched the minified identifier "FourKeyMap".
-  '''.*\.min\.js$''',
+  # Vendored, already-minified third-party bundles under the bmo web static dir
+  # (e.g. xterm@5.5.0, alpine, socket.io): scanning them is pure noise - the
+  # generic-api-key rule false-matched the minified identifier "FourKeyMap" in
+  # xterm.min.js. Scoped to this known vendored directory rather than repo-wide,
+  # so a secret inlined in any OTHER minified bundle (e.g. a frontend prod build)
+  # is still caught by the gate.
+  '''bmo/pi/web/static/js/.*\.min\.js$''',
   # Natural-language LLM prompt text (not a secret store): the generic-api-key
   # rule false-matched the prose "Cloud KMS key management".
   '''dungeon-scholar/src/prompts/google\.js$''',
