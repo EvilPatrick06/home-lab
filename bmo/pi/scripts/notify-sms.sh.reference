@@ -1,0 +1,255 @@
+#!/usr/bin/env bash
+# Claude Code failsafe notifier — sends SMS-via-email-to-MMS-gateway (+ optional email copy).
+# Usage: notify.sh <severity> <subject> <body>
+#   severity: info | warn | error
+#   subject:  short title (becomes the alert headline + email Subject)
+#   body:     detail block (multiline ok; quote it)
+#
+# Required env in ~/.claude-tools/.credentials (sourced; chmod 600):
+#   SMTP_HOST   e.g. smtp.gmail.com
+#   SMTP_PORT   e.g. 587
+#   SMTP_USER   sending Gmail address
+#   SMTP_PASS   Gmail app password (16 chars, no spaces)
+#   SMS_TO      MMS-gateway address, e.g. 3046217418@msg.fi.google.com
+#   EMAIL_TO    optional extra inbox copy (full HTML). Leave blank to disable.
+#
+# Behavior:
+#  - All alert formatting is CENTRALIZED here, so every alert looks the same
+#    regardless of caller. Callers only pass severity/subject/body.
+#  - The PLAIN-TEXT part is what shows on the phone (MMS gateways strip HTML),
+#    so it is rendered clean and self-contained. The HTML part is the richer
+#    email copy.
+#  - Rate limit: at most one outbound SMS per 1 min. Excess alerts queue to
+#    pending.txt and ride along on the next eligible send.
+#  - Failed sends queue back to pending.txt so they retry on next call.
+#  - All actions logged to ~/.claude-tools/notify.log (UTC, sortable).
+#
+# NOTE: The CLI interface `notify.sh <severity> <subject> <body>` is STABLE —
+# every scheduled task depends on it. Improve rendering, not the call signature.
+
+set -u
+
+TOOLS_DIR="${HOME}/.claude-tools"
+CREDENTIALS="${TOOLS_DIR}/.credentials"
+LAST_ALERT="${TOOLS_DIR}/last-alert"
+PENDING="${TOOLS_DIR}/pending.txt"
+LOG="${TOOLS_DIR}/notify.log"
+RATE_LIMIT_SECONDS=60
+
+severity="${1:-info}"
+subject="${2:-Claude alert}"
+body="${3:-(no body provided)}"
+
+mkdir -p "${TOOLS_DIR}"
+touch "${LOG}"
+
+stamp() { date -u +%Y-%m-%dT%H:%M:%SZ; }
+
+if [[ ! -r "${CREDENTIALS}" ]]; then
+  echo "$(stamp) ERROR credentials missing at ${CREDENTIALS}" >> "${LOG}"
+  exit 1
+fi
+# shellcheck source=/dev/null
+. "${CREDENTIALS}"
+
+for var in SMTP_HOST SMTP_PORT SMTP_USER SMTP_PASS SMS_TO; do
+  if [[ -z "${!var:-}" ]]; then
+    echo "$(stamp) ERROR ${var} not set in ${CREDENTIALS}" >> "${LOG}"
+    exit 1
+  fi
+done
+
+echo "$(stamp) [${severity}] ${subject} :: $(echo "${body}" | tr '\n' ' ' | cut -c1-300)" >> "${LOG}"
+
+if [[ -f "${LAST_ALERT}" ]]; then
+  last_ts=$(stat -c %Y "${LAST_ALERT}")
+  now_ts=$(date +%s)
+  elapsed=$(( now_ts - last_ts ))
+  if (( elapsed < RATE_LIMIT_SECONDS )); then
+    {
+      echo "[$(stamp)] [${severity}] ${subject}"
+      echo "${body}"
+      echo "---"
+    } >> "${PENDING}"
+    echo "$(stamp) RATE-LIMITED queued (${elapsed}s of ${RATE_LIMIT_SECONDS}s)" >> "${LOG}"
+    exit 0
+  fi
+fi
+
+final_body=""
+if [[ -s "${PENDING}" ]]; then
+  final_body="— queued alerts —
+$(cat "${PENDING}")
+— current —
+"
+  : > "${PENDING}"
+fi
+final_body+="${body}"
+
+SMTP_HOST="${SMTP_HOST}" SMTP_PORT="${SMTP_PORT}" \
+SMTP_USER="${SMTP_USER}" SMTP_PASS="${SMTP_PASS}" \
+SMS_TO="${SMS_TO}" EMAIL_TO="${EMAIL_TO:-}" \
+SEVERITY="${severity}" TITLE="${subject}" BODY="${final_body}" \
+python3 - <<'PYEOF' 2>>"${LOG}"
+import os, smtplib, sys, html, uuid, textwrap, re
+from datetime import datetime, timezone
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.utils import formatdate, make_msgid
+
+# ---- canonical, centralized rendering ---------------------------------------
+# One clean format every alert follows:
+#   <emoji> <LABEL> — <subject>
+#   <blank>
+#   <body, short lines>
+#   <blank>
+#   — Claude Code · <LOCAL timestamp>
+# Plain-text is tuned for the phone (the MMS gateway shows this); HTML is the
+# richer email copy and keeps the full, untruncated body.
+
+PLAIN_WIDTH      = 72     # wrap width for readable short lines on a phone
+PLAIN_BODY_LIMIT = 600    # truncate very long bodies in the SMS part only
+
+SEV = {
+    'info':  {'emoji': 'ℹ️',  'label': 'INFO',  'color': '#1e88e5', 'bg': '#eff6ff'},
+    'warn':  {'emoji': '⚠️',  'label': 'WARN',  'color': '#f59e0b', 'bg': '#fffbeb'},
+    'error': {'emoji': '🚨',  'label': 'ERROR', 'color': '#dc2626', 'bg': '#fef2f2'},
+}
+
+def clean(s):
+    # Normalize line endings; trim trailing whitespace per line; collapse 3+ blanks.
+    s = s.replace('\r\n', '\n').replace('\r', '\n')
+    s = '\n'.join(l.rstrip() for l in s.split('\n'))
+    s = re.sub(r'\n{3,}', '\n\n', s).strip('\n')
+    return s
+
+def wrap_plain(text, width=PLAIN_WIDTH):
+    out = []
+    for line in text.split('\n'):
+        if not line.strip():
+            out.append('')
+            continue
+        wrapped = textwrap.wrap(
+            line, width=width,
+            break_long_words=False, break_on_hyphens=False,
+        )
+        out.extend(wrapped if wrapped else [''])
+    return '\n'.join(out)
+
+def truncate(text, limit=PLAIN_BODY_LIMIT):
+    if len(text) <= limit:
+        return text
+    cut = text[:limit]
+    # prefer to break on a sensible boundary
+    for sep in ('\n', '. ', ' '):
+        idx = cut.rfind(sep)
+        if idx >= limit - 160:
+            cut = cut[:idx]
+            break
+    return cut.rstrip() + ' …\n(full details in the email copy)'
+
+try:
+    host = os.environ['SMTP_HOST']
+    port = int(os.environ['SMTP_PORT'])
+    user = os.environ['SMTP_USER']
+    pw   = os.environ['SMTP_PASS']
+    recipients = [os.environ['SMS_TO']]
+    if os.environ.get('EMAIL_TO'):
+        recipients.append(os.environ['EMAIL_TO'])
+
+    severity = os.environ.get('SEVERITY', 'info').lower()
+    sev      = SEV.get(severity, SEV['info'])
+    title    = clean(os.environ['TITLE']) or 'Claude Code alert'
+    body     = clean(os.environ['BODY']) or '(no body provided)'
+
+    # LOCAL timestamp (Pi's local TZ), e.g. "Jun 22 · 6:04 PM MDT"
+    local = datetime.now().astimezone()
+    ts_local = local.strftime('%b %-d · %-I:%M %p %Z')
+
+    emoji = sev['emoji']
+    label = sev['label']
+    color = sev['color']
+    bg    = sev['bg']
+
+    # ---- PLAIN TEXT (the phone view) ----
+    header     = f'{emoji} {label} — {title}'
+    body_plain = wrap_plain(truncate(body))
+    footer     = f'— Claude Code · {ts_local}'
+    plain_body = f'{header}\n\n{body_plain}\n\n{footer}'
+
+    # ---- HTML (the email copy; full body) ----
+    html_body = (
+        '<!DOCTYPE html><html><head><meta charset="utf-8">'
+        '<meta name="viewport" content="width=device-width,initial-scale=1">'
+        '</head><body style="margin:0;padding:16px;background:#f3f4f6;'
+        'font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;'
+        '-webkit-font-smoothing:antialiased;">'
+        '<div style="max-width:560px;margin:0 auto;background:#ffffff;'
+        'border-radius:14px;overflow:hidden;border:1px solid #e5e7eb;'
+        'box-shadow:0 2px 10px rgba(0,0,0,0.06);">'
+        f'<div style="background:{color};padding:16px 22px;color:#ffffff;">'
+        f'<div style="font-size:11px;font-weight:700;letter-spacing:1.5px;'
+        f'opacity:0.92;margin-bottom:4px;">{emoji}&nbsp;&nbsp;{label}</div>'
+        f'<div style="font-size:20px;font-weight:700;line-height:1.3;">'
+        f'{html.escape(title)}</div></div>'
+        f'<div style="padding:20px 22px;background:{bg};font-size:15px;line-height:1.6;'
+        f'color:#1f2937;white-space:pre-wrap;border-bottom:1px solid #e5e7eb;">'
+        f'{html.escape(body)}</div>'
+        '<div style="padding:13px 22px;font-size:12px;color:#6b7280;background:#fafafa;">'
+        'Claude Code'
+        f'<span style="color:#9ca3af;">&nbsp;·&nbsp;{html.escape(ts_local)}</span>'
+        '</div></div></body></html>'
+    )
+
+    # ---- assemble the message (anti-spam: stable, well-formed headers) ----
+    msg = MIMEMultipart('alternative')
+    msg['From']     = f'Claude Code Alerts <{user}>'
+    msg['To']       = ', '.join(recipients)
+    msg['Reply-To'] = user
+    # Stable, informative, emoji-free Subject (emoji in Subject is a spam trigger).
+    subj = f'Claude Code [{label}] {title}'
+    if len(subj) > 140:
+        subj = subj[:137].rstrip() + '…'
+    msg['Subject'] = subj
+    msg['Date']    = formatdate(localtime=True)
+    # Message-ID domain aligned with the sending domain (not a bogus .local host).
+    msg['Message-ID']               = make_msgid(domain='gmail.com')
+    msg['Auto-Submitted']           = 'auto-generated'
+    msg['X-Auto-Response-Suppress'] = 'All'
+    # Stable mailer tag — reply-watcher.py uses this to skip our own outbound.
+    msg['X-Mailer']                 = 'claude-code-notify/1.0'
+    # High priority only for real errors; keep normal otherwise (less spammy).
+    if severity == 'error':
+        msg['X-Priority'] = '1 (Highest)'
+        msg['Importance'] = 'High'
+    else:
+        msg['X-Priority'] = '3 (Normal)'
+        msg['Importance'] = 'Normal'
+
+    msg.attach(MIMEText(plain_body, 'plain', 'utf-8'))
+    msg.attach(MIMEText(html_body, 'html', 'utf-8'))
+
+    with smtplib.SMTP(host, port, timeout=20) as s:
+        s.ehlo()
+        s.starttls()
+        s.login(user, pw)
+        s.send_message(msg, from_addr=user, to_addrs=recipients)
+except Exception as e:
+    print(f"SMTP-ERROR {type(e).__name__}: {e}", file=sys.stderr)
+    sys.exit(1)
+PYEOF
+rc=$?
+
+if [[ $rc -eq 0 ]]; then
+  touch "${LAST_ALERT}"
+  echo "$(stamp) SENT to ${SMS_TO}" >> "${LOG}"
+else
+  echo "$(stamp) SEND-FAILED rc=${rc} (queued for retry)" >> "${LOG}"
+  {
+    echo "[$(stamp)] [${severity}] ${subject}"
+    echo "${body}"
+    echo "---"
+  } >> "${PENDING}"
+fi
+
+exit $rc

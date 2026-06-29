@@ -204,7 +204,8 @@ At the end of its run the integrator reports to the user:
   (e.g. `major: 4.x → 5.x`), and why.
 
 If `~/.claude-tools/notify.sh` exists, a left-behind branch or a skipped
-risky/major Dependabot PR is a warn-level notification (see the STOP-and-ask
+risky/major Dependabot PR is a warn-level notification (surfaced on the BMO
+status board, not SMS) (see the STOP-and-ask
 notification convention in `dnd-app/docs/phases/INSTRUCTIONS.md`).
 
 ---

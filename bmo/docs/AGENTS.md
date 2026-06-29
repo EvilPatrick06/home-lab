@@ -187,3 +187,8 @@ BMO_DND_MODEL = "claude-opus-4.6"           # DM brain (expensive, worth it)
 - Tests: `bmo/pi/tests/agents/`
 - Architecture: [`../../docs/ARCHITECTURE.md`](../../docs/ARCHITECTURE.md)
 - Services that agents use: [`SERVICES.md`](./SERVICES.md)
+
+
+## Notifications
+
+User-facing alerts go to the **BMO status board** (the single live Discord surface) via `notify-board`, never SMS. `~/.claude-tools/notify.sh` keeps its stable `<severity> <subject> <body>` signature but now **routes to the board**; it only sends SMS as a fallback when the board is unreachable, or for the `board_watchdog` dead-man's-switch (`NOTIFY_FORCE_SMS=1`). Don't add new SMS paths — post a keyed board item instead.

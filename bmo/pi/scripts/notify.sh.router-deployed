@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# notify.sh — BMO notification router (board-first; SMS only as failsafe).
+#
+# STABLE signature (every scheduled task depends on it): notify.sh <sev> <subject> <body>
+#   severity: info | warn | error
+#
+# Routine notifications go to the BMO status board (the single live surface) via
+# notify-board, NOT SMS. notify.sh callers are the dev/ops AGENTS, so by default
+# their items land in the board's 🤖 Agents section. A caller may override the
+# section with NOTIFY_BOARD_CATEGORY (the life feeds set attention/info/today).
+#
+# SMS (notify-sms.sh) fires ONLY when the board is unreachable (fallback so an
+# alert is never lost) or NOTIFY_FORCE_SMS=1 (the board_watchdog dead-man's-switch).
+set -u
+TOOLS_DIR="${HOME}/.claude-tools"
+LOG="${TOOLS_DIR}/notify.log"
+SMS="${TOOLS_DIR}/notify-sms.sh"
+BOARD="/home/patrick/bmo-board/notify-board"
+
+severity="${1:-info}"
+subject="${2:-BMO alert}"
+body="${3:-}"
+stamp() { date -u +%Y-%m-%dT%H:%M:%SZ; }
+touch "${LOG}" 2>/dev/null || true
+
+# Failsafe path: forced SMS (board_watchdog / explicit override).
+if [[ "${NOTIFY_FORCE_SMS:-0}" == "1" ]]; then
+  exec "${SMS}" "${severity}" "${subject}" "${body}"
+fi
+
+# Severity → board dot; category defaults to the Agents section.
+case "${severity}" in
+  error)        bsev="critical" ;;
+  warn|warning) bsev="warning"  ;;
+  *)            bsev="info"      ;;
+esac
+cat="${NOTIFY_BOARD_CATEGORY:-agent}"
+
+# Stable key from the subject so a recurring alert updates ONE board row.
+key=$(printf '%s' "${subject}" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-*//;s/-*$//' | cut -c1-48)
+[[ -z "${key}" ]] && key="alert"
+detail=$(printf '%s' "${body}" | tr '\n' ' ' | cut -c1-200)
+
+if [[ -x "${BOARD}" ]] && "${BOARD}" set "${cat}" "${cat}:${key}" "${cat}" "${subject}" --detail "${detail}" --severity "${bsev}" >>"${LOG}" 2>&1; then
+  echo "$(stamp) BOARD [${severity}/${cat}] ${subject} (${cat}:${key})" >> "${LOG}"
+  exit 0
+fi
+
+# Board unreachable → don't lose the alert; fall back to SMS.
+echo "$(stamp) BOARD-FAILED -> SMS fallback [${severity}] ${subject}" >> "${LOG}"
+exec "${SMS}" "${severity}" "${subject}" "${body}"

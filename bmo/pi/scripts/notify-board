@@ -1,0 +1,119 @@
+#!/usr/bin/env python3
+"""notify-board — producer CLI for the BMO status board (design scaffold).
+
+The board replacement for `~/.claude-tools/notify.sh`. Scheduled tasks call this
+(over the same SSH access they already use) to publish KEYED items to the board
+instead of sending SMS. Every producer is a reconciler for its own namespace:
+  - `sync`  replaces a source's WHOLE item set (resolved items auto-drop)
+  - `set`   upsert one item (convenience)
+  - `clear` empty a source (nothing to show)
+  - `done`  dismiss one item by id
+
+Writes data/board_inbox.json; the bot's reconciler renders it. No Discord I/O
+here. SAFE: not yet referenced by any live task — wiring is part of the gated
+cutover. The legacy `notify.sh` stays installed ONLY as the dead-man's-switch.
+
+Examples
+  # email-triage re-publishes the current important set each run:
+  echo '[{"id":"email:THREAD","category":"attention","title":"Reply: ...",
+          "detail":"unanswered 2d","severity":"warning","url":"https://mail..."}]' \
+    | notify-board sync email-triage
+
+  # a one-off incident from ci-failure-triage:
+  notify-board set ci-triage ci:run123 incident "CI failed: dnd-app build" \
+    --detail "step: typecheck" --severity critical --url https://github.com/...
+
+  # nothing wrong this run → clear the namespace:
+  notify-board clear ci-triage
+"""
+import argparse
+import json
+import os
+import sys
+import time
+
+DATA_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
+INBOX = os.path.join(DATA_DIR, "board_inbox.json")
+_VALID_CAT = {"incident", "attention", "agent", "today", "info"}
+
+
+def _load():
+    try:
+        with open(INBOX, encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+def _save(d):
+    os.makedirs(DATA_DIR, exist_ok=True)
+    tmp = INBOX + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(d, f, indent=2, ensure_ascii=False)
+    os.replace(tmp, INBOX)
+
+
+def _norm(item, source):
+    if item.get("category") not in _VALID_CAT:
+        raise SystemExit(f"item {item.get('id')!r}: category must be one of {_VALID_CAT}")
+    if not item.get("id") or not item.get("title"):
+        raise SystemExit("each item needs an 'id' and 'title'")
+    item.setdefault("severity", "info")
+    item.setdefault("detail", "")
+    item.setdefault("url", None)
+    item.setdefault("due", None)
+    item["source"] = source
+    return item
+
+
+def _apply_sync(d, source, items):
+    prev = {i["id"]: i for i in d.get(source, [])}
+    now = time.time()
+    out = []
+    for it in items:
+        it = _norm(it, source)
+        it["created"] = prev.get(it["id"], {}).get("created", it.get("created") or now)
+        it["seen"] = now
+        out.append(it)
+    d[source] = out
+    return d
+
+
+def main():
+    p = argparse.ArgumentParser(prog="notify-board")
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    s = sub.add_parser("sync", help="replace a source's whole item set (JSON list on stdin)")
+    s.add_argument("source")
+
+    st = sub.add_parser("set", help="upsert one item")
+    st.add_argument("source"); st.add_argument("id"); st.add_argument("category")
+    st.add_argument("title")
+    st.add_argument("--detail", default=""); st.add_argument("--severity", default="info")
+    st.add_argument("--url", default=None); st.add_argument("--due", type=float, default=None)
+
+    c = sub.add_parser("clear", help="empty a source"); c.add_argument("source")
+    dn = sub.add_parser("done", help="dismiss one item by id"); dn.add_argument("id")
+
+    a = p.parse_args()
+    d = _load()
+    if a.cmd == "sync":
+        items = json.load(sys.stdin)
+        if not isinstance(items, list):
+            raise SystemExit("sync expects a JSON list on stdin")
+        _apply_sync(d, a.source, items)
+    elif a.cmd == "set":
+        item = {"id": a.id, "category": a.category, "title": a.title, "detail": a.detail,
+                "severity": a.severity, "url": a.url, "due": a.due}
+        rest = [i for i in d.get(a.source, []) if i["id"] != a.id]
+        _apply_sync(d, a.source, rest + [item])
+    elif a.cmd == "clear":
+        d[a.source] = []
+    elif a.cmd == "done":
+        for src in d:
+            d[src] = [i for i in d[src] if i["id"] != a.id]
+    _save(d)
+
+
+if __name__ == "__main__":
+    main()

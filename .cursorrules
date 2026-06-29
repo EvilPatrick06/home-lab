@@ -199,3 +199,5 @@ All are for **unfixed or deferred** work that crosses session boundaries.
 - **dnd-app:** obey electron-vite roots (`src/main`, `preload`, `renderer`, `shared`). Feature-group *inside* `renderer/src/` (`components/`, `services/`, `stores/` by feature), not a new top-level that breaks the bundler.
 - **bmo:** Python under `bmo/pi/` in existing packages (`services/`, `agents/`, `bots/`, …) with prefixed imports.
 - **Monorepo docs:** `docs/`; BMO-only deep docs: `bmo/docs/`.
+
+Notifications: user-facing alerts go to the BMO status board via notify-board, not SMS. notify.sh routes to the board (SMS only as failsafe).
