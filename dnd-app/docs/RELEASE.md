@@ -1,6 +1,18 @@
 # dnd-app release reference
 
-## Cutting a release
+## Automated releases (the integrator cuts these)
+
+Routine releases are **automatic**. The scheduled `integrator` runs
+`dnd-app/scripts/release/auto-release.mjs` (`npm run release:auto`) after it
+consolidates `auto/*` branches into `master`, and cuts a release **only when
+real dnd-app application source changed since the last `v*` tag** — **patch**
+by default, **minor** when a phase landed in `docs/phases/completed/`. It is
+idempotent (never double-releases a commit) and silent on docs/log/QA-only
+runs, and it **reuses `cut.mjs`** below for the actual tag/publish path. See
+[`../../docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`](../../docs/AUTOMATED-AGENT-GIT-WORKFLOW.md)
+Rule 3D. The manual path below is for hotfixes or an explicit hand-cut.
+
+## Cutting a release manually
 
 Use the helper — never tag manually (version drift between `package.json` and the
 tag causes electron-builder to publish to the wrong release):

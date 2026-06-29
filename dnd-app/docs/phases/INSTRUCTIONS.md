@@ -92,7 +92,9 @@ If a contributor wants per-sub-phase commits + gating back, they can revert this
 
 ### 6. Ship release — ONLY after the FINAL phase, or on an explicit user ask (changed 2026-06-10)
 
-> **No per-phase releases.** Master accumulates one pushed commit per phase (rule 5). A release is cut exactly once — after the LAST phase plan in the folder completes — unless the user explicitly asks for a mid-run release. Do not cut a release on your own judgment mid-run.
+> **Release-cutting is the INTEGRATOR's job now — phase agents do NOT cut releases (changed 2026-06-29).** The daily/4-hourly integrator auto-cuts the dnd-app release after it consolidates branches to `master`, but only when real dnd-app *application source* changed since the last release — patch by default, minor when a phase landed in `completed/` (see [`../../../docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`](../../../docs/AUTOMATED-AGENT-GIT-WORKFLOW.md) Rule 3D). So a phase agent's job ends at "phase committed + pushed on its own `auto/*` branch + plan moved to `completed/` (rule 8)"; it does **not** run `cut.mjs` itself, and does **not** wait around for a release. The integrator's cut is keyed on merged `master` and is idempotent, so it ships exactly the phases that actually landed.
+>
+> **No per-phase releases (manual path).** When a human cuts by hand (or the user explicitly asks for a mid-run release), a release is still cut exactly once — after the LAST phase plan completes — not per phase. Do not hand-cut a release on your own judgment mid-run.
 
 When the final phase is green, committed, and pushed (or the user explicitly asks mid-run), cut the release per `dnd-app/docs/RELEASE.md` (or `CLAUDE.md` release flow):
 
@@ -225,6 +227,8 @@ Use the entry template + severity / category fields from `docs/LOG-INSTRUCTIONS.
 Logs grow during phase work and are emptied when a future phase plan absorbs each entry. That's normal — the log files are entry points for triage, not permanent backlogs.
 
 ### 13. After the LAST phase, cut the run's release and wait for it to fully publish
+> **Automated runs: the integrator cuts + owns the release (changed 2026-06-29) — a phase agent does NOT cut here.** Once the last phase is committed + pushed on the `auto/*` branch and its plan is in `completed/`, the phase agent is done; the integrator auto-cuts on its next pass (rule 6) and is responsible for the watch below. This section applies to a **human / explicit manual** cut.
+
 After the final phase plan moves to `completed/` (rule 8 applied to the last plan), cut the single end-of-run release per rule 6. The work is NOT done until that release (plus any mid-run releases the user explicitly requested) fully publishes and verifies.
 
 For each release shipped during the run (normally exactly one):
