@@ -12,16 +12,17 @@ const FOCUSABLE =
  * always-mounted components (inline confirms) arm the hook only while their
  * overlay is rendered.
  */
+/** @param {{ onClose?: () => void, active?: boolean }} [opts] */
 export function useDialogA11y({ onClose, active = true } = {}) {
   const panelRef = useRef(null);
   useEffect(() => {
     if (!active) return undefined;
     const panel = panelRef.current;
     if (!panel) return undefined;
-    const previouslyFocused = document.activeElement;
-    const focusables = () => Array.from(panel.querySelectorAll(FOCUSABLE));
+    const previouslyFocused = /** @type {HTMLElement|null} */ (document.activeElement);
+    const focusables = () => /** @type {HTMLElement[]} */ (Array.from(panel.querySelectorAll(FOCUSABLE)));
     // Initial focus: first [data-autofocus], else first focusable, else the panel.
-    const preferred = panel.querySelector('[data-autofocus]') || focusables()[0];
+    const preferred = /** @type {HTMLElement} */ (panel.querySelector('[data-autofocus]')) || focusables()[0];
     if (preferred) preferred.focus();
     else {
       panel.setAttribute('tabindex', '-1');

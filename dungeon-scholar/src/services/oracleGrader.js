@@ -127,6 +127,7 @@ const extractJsonVerdict = (text) => {
   return last;
 };
 
+/** @returns {{ correct: boolean, feedback: string, source: "fallback", fallbackReason: string }} */
 const fallbackResult = ({ userAnswer, expectedAnswer, acceptedAnswers, reason }) => {
   const correct = stringMatchAnswer({ userAnswer, expectedAnswer, acceptedAnswers });
   return {
@@ -143,10 +144,10 @@ const fallbackResult = ({ userAnswer, expectedAnswer, acceptedAnswers, reason })
  * Ask the Oracle to grade a free-text answer.
  *
  * @param {object} args
- * @param {string} args.question
+ * @param {string} [args.question]
  * @param {string} [args.expectedAnswer]      canonical answer (lab.answer or quiz.correctAnswer)
  * @param {string[]} [args.acceptedAnswers]   alternative accepted phrasings
- * @param {string} args.userAnswer
+ * @param {string} [args.userAnswer]
  * @param {AbortSignal} [args.signal]         to cancel in-flight requests
  * @param {typeof fetch} [args.fetchImpl]     for tests
  * @returns {Promise<{ correct: boolean, feedback: string, source: 'oracle'|'fallback'|'local', fallbackReason?: string }>}
