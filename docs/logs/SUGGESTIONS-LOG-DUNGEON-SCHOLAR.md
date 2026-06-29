@@ -21,6 +21,111 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-06-29] Cross-tome "comprehensive" mixed practice exam (draw from multiple tomes / all weak domains at once)
+
+- **Category:** future-idea
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement scan of dungeon-scholar/src
+
+**Description:**
+Every practice exam is scoped to a single tome — `ExamMode` builds its `sample`, persists its in-progress session, and keys resume state by one `tomeId` (`saved.tomeId`). Real certifications are comprehensive: a learner studying several sub-topic tomes (or a "whole cert" split across tomes) has no way to sit one timed exam that samples across all of them, which is exactly the highest-fidelity rehearsal of the real test and the best way to surface cross-domain weak spots. A grep for `crossTome` / `mixedExam` / `multiTome` / `allDecks` returns nothing, so this is unbuilt.
+
+**Proposed fix / improvement:**
+- [ ] Add a "Comprehensive Trial" entry point that lets the learner pick N tomes (or "everything due") and assembles one weighted question pool across them.
+- [ ] Weight selection toward weak domains using the existing `weakDomain` / `examPrediction` signals so the mixed exam is adaptive rather than uniform.
+- [ ] Generalize the exam session/resume key from a single `tomeId` to a composite/ad-hoc session id so a mixed run can be saved + resumed like a single-tome run.
+- [ ] Report results both overall and broken down per source tome/domain (the per-question `questionLog` already carries domain, so the RunHistory heatmap can absorb it).
+
+**Blocked by:** none (additive; builds on existing ExamMode + weakDomain + examPrediction).
+
+**Related files:** `src/features/study/ExamMode.jsx`, `src/services/examSession.js`, `src/services/weakDomain.js`, `src/services/examPrediction.js`, `src/features/progression/RunHistoryScreen.jsx`
+
+---
+
+### [2026-06-29] Windows High Contrast / `forced-colors` support + an opt-in high-contrast theme
+
+- **Category:** UX
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement scan of dungeon-scholar/src
+
+**Description:**
+The app ships a real Dark/Light/Match-System theme set (`ThemePanel`) and a colorblind-safe (CVD) analytics palette toggle, and it honors `prefers-reduced-motion` — a good accessibility baseline. But there is no support for forced-colors / high-contrast modes: a grep for `forced-colors`, `high-contrast`, and `contrast-more` across `src/` returns nothing. Users on Windows High Contrast Mode (or any OS forced-colors setting) get the app's hardcoded parchment/amber palette rather than their chosen system colors, and there is no in-app maximal-contrast theme for low-vision users for whom even the Light theme is insufficient. This is distinct from the already-logged text-size/reading-comfort and CVD-palette items — it is about color/contrast adaptation, not font scale or hue-pairing.
+
+**Proposed fix / improvement:**
+- [ ] Add an `@media (forced-colors: active)` block in `index.css` that maps key surfaces/borders/focus rings to `CanvasText` / `Canvas` / `Highlight` system keywords and avoids color-only affordances.
+- [ ] Optionally add a 4th theme option ("High Contrast") alongside Dark/Light/System, persisted in `playerState.theme` like the others.
+- [ ] Verify the dungeon canvas (`DungeonExplore`) degrades acceptably under forced-colors (canvas pixels are immune to forced-colors, so consider a non-canvas/high-contrast fallback indicator).
+
+**Related files:** `src/index.css`, `src/features/home/ThemePanel.jsx`, `src/components/dungeon/DungeonExplore.jsx`
+
+**Related entries:** SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md [2026-06-28] "User-facing text-size / reading-comfort settings" (sibling accessibility item; this one is contrast, that one is font scale).
+
+---
+
+### [2026-06-29] Confidence-calibration insight (the app already captures per-answer confidence but never reports calibration)
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement scan of dungeon-scholar/src
+
+**Description:**
+Quiz mode already records a self-reported confidence (Low/Medium/High — the `1/2/3` shortcut, threaded through `QuizMode` -> `usePlayerActions` and surfaced in `ScholarsLedger`). That signal is captured but never turned into a calibration view: how often were "High" answers actually correct vs "Low" ones? Calibration (and overconfidence detection) is one of the most evidence-backed metacognition tools in exam prep — a learner who is reliably wrong when "High" is wasting review time on the wrong cards. (Note: the `confidence` field in `examPrediction.js` is a different concept — prediction-coverage confidence — so this is genuinely unbuilt.)
+
+**Proposed fix / improvement:**
+- [ ] Aggregate accuracy bucketed by reported confidence (correct-rate per Low/Med/High) over the question log.
+- [ ] Render a small calibration panel in `ScholarsLedger` (three bars: stated confidence vs actual accuracy), flagging overconfidence when High-confidence accuracy lags.
+- [ ] Optionally feed a calibration nudge into review prioritization (surface confidently-wrong cards sooner).
+
+**Related files:** `src/features/study/QuizMode.jsx`, `src/features/player/usePlayerActions.js`, `src/features/progression/ScholarsLedger.jsx`
+
+---
+
+### [2026-06-29] Printable / PDF export of a tome for offline paper review
+
+- **Category:** portability
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement scan of dungeon-scholar/src
+
+**Description:**
+The app is an installable offline PWA and can export the player save as JSON, but there is no way to get a tome's questions/flashcards out as a printable study sheet — a grep for `window.print`, `@media print`, and `printable` returns nothing. Many cert learners still want a paper or PDF copy for annotation, last-minute cram on a device that cannot run the app, or sharing with a study group offline. The content already renders rich Markdown (`RichContent`), so a print-stylesheet or "export tome to printable HTML/PDF" path is mostly a presentation-layer addition.
+
+**Proposed fix / improvement:**
+- [ ] Add a print stylesheet (`@media print`) that lays a tome out as a clean Q-then-A study sheet (hide chrome, dungeon UI, nav).
+- [ ] Add an "Export for print / PDF" action on the tome (reuse the Blob/object-URL download pattern already used by `ShareTomeModal` / `AccountPanel`), with an option for "questions only" vs "with answers".
+- [ ] Keep diagrams/code (Mermaid/KaTeX/highlight) legible in the print path or fall back to their source text.
+
+**Related files:** `src/components/RichContent.jsx`, `src/features/library/ShareTomeModal.jsx`, `src/index.css`
+
+---
+
+### [2026-06-29] Pin Biome as a devDependency instead of `npx --yes @biomejs/biome@2.5.0` on every lint/format run
+
+- **Category:** portability
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement scan of dungeon-scholar tooling
+
+**Description:**
+`package.json` runs lint/format via `npx --yes @biomejs/biome@2.5.0 ...` for all three of `lint`, `lint:fix`, and `format`. Because Biome is not a declared devDependency, every invocation can trigger an on-demand npm fetch of the `@biomejs/biome` package, so linting cannot run offline (a hit for the offline-first ethos of this PWA repo and for CI cold caches) and is not locked in `package-lock.json` the way every other tool is. The version is also pinned in three string literals rather than one place, so a Biome bump means editing three script lines instead of one dependency entry (and Dependabot, which the repo relies on per the agent git workflow, cannot see/manage a version that lives only inside a script string).
+
+**Proposed fix / improvement:**
+- [ ] Add `@biomejs/biome` at `2.5.0` to `devDependencies` so it is installed + lockfile-pinned with everything else.
+- [ ] Change the scripts to `biome check src` / `biome check --write src` / `biome format --write src` (resolve from `node_modules/.bin`), dropping `npx --yes` and the inline version.
+- [ ] This also lets Dependabot track Biome version bumps like the other dev tools.
+
+**Related files:** `dungeon-scholar/package.json`, `dungeon-scholar/biome.json`
+
+---
+
 ### [2026-06-28] Extract logic/content out of the two god-component files (`DungeonExplore.jsx` 2736 lines, `App.jsx` 2085 lines)
 
 - **Category:** debt
