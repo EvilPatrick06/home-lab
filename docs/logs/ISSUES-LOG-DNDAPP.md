@@ -87,6 +87,33 @@ Merge `origin/master` into `auto/play-store-prep` (brings in the existing fix an
 
 ## Medium
 
+### [2026-06-29] dnd-app/mobile lint script lints 0 files (biome config resolution) + typecheck unverified — new CI gate is non-blocking until fixed
+
+- **Category:** config, test
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** overall-resolver
+- **During:** wiring `dnd-app/mobile` into CI + Makefile (cross-cutting SUGGESTIONS-LOG `dnd-app/mobile excluded from Makefile + CI`, resolved 2026-06-29). Turning the never-run gate on surfaced these.
+
+**Description:**
+The new `.github/workflows/dnd-app-mobile-ci.yml` exposed pre-existing breakage in `dnd-app/mobile` that no make/CI target previously ran:
+
+1. **`npm run lint` lints nothing and exits 1.** The script is `biome check src/`, but biome reports "No files were processed ... These paths were provided but ignored: src/" and exits 1, even though `dnd-app/mobile/src/` has 31 tracked `.ts/.tsx` files and is NOT gitignored. Root cause is biome config resolution: `dnd-app/mobile` has no `biome.json`, so `biome check` resolves an ancestor biome config whose includes/ignore patterns exclude this nested path. The mobile lint bar has therefore been a silent no-op (a hard error under biome v2).
+2. **`npm run typecheck` (`tsc --noEmit`) is unverified.** The lint step fails first, so CI never reached typecheck; its pass/fail state on the real mobile sources is unknown.
+3. **(Fixed)** `package-lock.json` was out of sync with `package.json` (typescript / react-native-worklets / many `@babel/*` missing), so `npm ci` failed for everyone — fixed 2026-06-29 via `npm install --package-lock-only` on branch `auto/overall-resolver`.
+
+Because of items 1 and 2, the gate lint + typecheck steps are `continue-on-error: true` (non-blocking) and the workflow is named "(non-blocking)", matching the `dnd-e2e.yml` promote-to-required-once-stable convention.
+
+**Proposed fix / improvement:**
+- [ ] Give `dnd-app/mobile` its own `biome.json` (or fix the ancestor config includes) so `biome check src/` lints the 31 src files; confirm `npm run lint` processes more than 0 files and passes.
+- [ ] Run `npm run typecheck` locally; fix any `tsc --noEmit` errors on the mobile sources.
+- [ ] Once both are green, drop the `continue-on-error: true` lines from `dnd-app-mobile-ci.yml` (and its non-blocking name) to make the gate blocking.
+
+**Related files:** `dnd-app/mobile/package.json` (lint/typecheck scripts), `dnd-app/mobile/biome.json` (absent), `.github/workflows/dnd-app-mobile-ci.yml`, `Makefile` (mobile lint/typecheck targets)
+
+**Related entries:** RESOLVED-ISSUES.md [2026-06-29] "dnd-app/mobile is excluded from both the root Makefile fan-out and all CI" (this gate was added there).
+
+
 ## Low
 
 ### [2026-06-28] Generated-artifact drift on master — README test-file count (852→856) and IPC-SURFACE.md channel catalog (238→241) are stale

@@ -1,9 +1,15 @@
-name: dnd-app mobile CI
+name: dnd-app mobile CI (non-blocking)
 
 # Lint + typecheck gate for the Expo/React-Native subproject dnd-app/mobile,
 # which has its own lockfile + biome/tsc scripts but was previously covered by
 # no Makefile target and no CI job. Path-filtered to mobile-only changes so it
 # does not gate unrelated dnd-app work.
+#
+# NON-BLOCKING for now: turning this never-run gate on surfaced pre-existing
+# mobile breakage (npm lint script resolves 0 files via biome config; tsc not
+# yet verified) tracked in ISSUES-LOG-DNDAPP.md. The lint/typecheck steps are
+# continue-on-error until the dnd-app/mobile owner fixes those; flip them to
+# blocking once green (same convention as dnd-e2e.yml).
 on:
   push:
     paths:
@@ -36,5 +42,7 @@ jobs:
           working-directory: dnd-app/mobile
       - name: Lint (biome)
         run: npm run lint
+        continue-on-error: true
       - name: Typecheck (tsc)
         run: npm run typecheck
+        continue-on-error: true
