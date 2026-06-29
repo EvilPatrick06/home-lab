@@ -171,7 +171,7 @@ dungeon-scholar/
 ├── src/
 │   ├── App.jsx                    Orchestration shell (state, effects, render switch)
 │   ├── game/                      Game data + pure helpers — titles, quests, items,
-│   │                              bestiary, difficulty, achievements, tome, defaultState
+│   │                              bestiary, difficulty, achievements, tome, defaultState, starterDecks
 │   ├── features/                  One folder per area, each owns its screen(s):
 │   │   ├── home/                  HomeScreen (+ AudioPanel, ThemePanel)
 │   │   ├── study/                 Flashcards / Quiz / Lab / Chat / MistakeVault / DomainStudy

@@ -1,17 +1,18 @@
-import { ArrowLeft, Award } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Award } from 'lucide-react';
 import { useState } from 'react';
 import { OrnatePanel } from '../../components/ui/OrnatePanel.jsx';
 import { RecordTile } from '../../components/ui/RecordTile.jsx';
 import { getTitle } from '../../game/titles.js';
 import { barColor, tierLabel } from '../../services/accuracyPalette.js';
 import { isTomeMastered, tomeMasteryPct } from '../../services/certificate.js';
+import { LEECH_LAPSE_THRESHOLD, listLeeches } from '../../services/leech.js';
 import { isSealedTome } from '../../services/sealedTome.js';
 import { dueCount } from '../../services/srs.js';
 import CertificateModal from './CertificateModal.jsx';
 
 // S2: Scholar's Ledger — a learner-facing analytics view aggregating the
 // study signals that were previously scattered across the RPG screens.
-function ScholarsLedger({ playerState, setScreen, scholarName }) {
+function ScholarsLedger({ playerState, setScreen, scholarName, onSuspendCard, onEditTome }) {
   const lib = playerState.library || [];
   const unsealed = (t) => !isSealedTome(t.data);
   const cardsReviewed = lib.reduce((s, t) => s + (t.progress?.cardsReviewed || 0), 0);
@@ -51,6 +52,44 @@ function ScholarsLedger({ playerState, setScreen, scholarName }) {
     }))
     .sort((a, b) => a.acc - b.acc);
   const weakest = domainRows.find((r) => r.total >= 5) || domainRows[0] || null;
+  const leeches = [];
+  for (const t of lib) {
+    if (!unsealed(t)) continue;
+    for (const l of listLeeches(t.progress?.cardProgress || {}, t.data?.flashcards || [])) {
+      leeches.push({ ...l, tomeId: t.id, tomeTitle: t.data?.metadata?.title || 'Untitled Tome' });
+    }
+  }
+  leeches.sort((a, b) => b.lapses - a.lapses);
+  const activeLeeches = leeches.filter((l) => !l.suspended).length;
+  const hardest = [];
+  for (const t of lib) {
+    if (!unsealed(t)) continue;
+    const qs = t.progress?.questionStats || {};
+    const data = t.data || {};
+    const labelFor = (id) => {
+      const fc = (data.flashcards || []).find((c) => c && c.id === id);
+      if (fc) return fc.front || fc.back || id;
+      const q = (data.quiz || []).find((c) => c && c.id === id);
+      if (q) return q.question || id;
+      return id;
+    };
+    for (const [id, st] of Object.entries(qs)) {
+      const attempts = st?.attempts || 0;
+      if (attempts < 2) continue;
+      const correct = st?.correct || 0;
+      hardest.push({
+        key: `${t.id}:${id}`,
+        tomeId: t.id,
+        tomeTitle: data.metadata?.title || 'Untitled Tome',
+        label: labelFor(id),
+        attempts,
+        correct,
+        acc: attempts ? Math.round((100 * correct) / attempts) : 0,
+        highConfWrong: st?.highConfWrong || 0,
+      });
+    }
+  }
+  hardest.sort((a, b) => a.acc - b.acc || b.attempts - a.attempts);
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -76,6 +115,7 @@ function ScholarsLedger({ playerState, setScreen, scholarName }) {
         <RecordTile label="Due now" value={due} sub="across all tomes" />
         <RecordTile label="In review rotation" value={inRotation} sub="cards scheduled" />
         <RecordTile label="Tomes" value={lib.length} />
+        <RecordTile label="Leeches" value={activeLeeches} sub="cards keep slipping" />
       </div>
 
       {weakest && (
@@ -112,6 +152,97 @@ function ScholarsLedger({ playerState, setScreen, scholarName }) {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+      </OrnatePanel>
+
+      <OrnatePanel color="sapphire">
+        <h3 className="text-base font-bold text-sky-200 italic mb-1">Hardest questions</h3>
+        <div className="text-xs text-amber-100/60 italic mb-3">
+          Your lowest-accuracy items (answered at least twice). A ⚠ marks dangerous overconfidence — answered with high
+          confidence but still wrong.
+        </div>
+        {hardest.length === 0 ? (
+          <div className="text-sm text-amber-100/60 italic">
+            Answer some questions more than once to surface which ones trip you up.
+          </div>
+        ) : (
+          <div className="space-y-1">
+            {hardest.slice(0, 10).map((h) => (
+              <div key={h.key} className="flex items-center gap-2 text-sm">
+                <div className="flex-1 min-w-0">
+                  <div className="italic text-amber-100 truncate">{h.label}</div>
+                  <div className="text-xs text-amber-200/50 italic truncate">{h.tomeTitle}</div>
+                </div>
+                {h.highConfWrong > 0 && (
+                  <span
+                    className="text-xs text-rose-300 italic whitespace-nowrap"
+                    title={`${h.highConfWrong} high-confidence wrong answer(s)`}
+                  >
+                    ⚠ overconfident
+                  </span>
+                )}
+                <div className="w-24 text-right tabular-nums text-amber-200 italic whitespace-nowrap">
+                  {h.acc}%{' '}
+                  <span className="text-amber-200/60">
+                    ({h.correct}/{h.attempts})
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </OrnatePanel>
+
+      <OrnatePanel color="rose">
+        <h3 className="text-base font-bold text-rose-200 italic mb-1 flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4" /> Leeches
+        </h3>
+        <div className="text-xs text-amber-100/60 italic mb-3">
+          Cards you keep forgetting (≥ {LEECH_LAPSE_THRESHOLD} lapses). Rewrite them, add a hint, or suspend them from
+          review so they stop crowding the due queue.
+        </div>
+        {leeches.length === 0 ? (
+          <div className="text-sm text-amber-100/60 italic">
+            No leeches — nothing is chronically slipping away. Keep it up.
+          </div>
+        ) : (
+          <div className="space-y-1">
+            {leeches.slice(0, 12).map((l) => (
+              <div key={`${l.tomeId}:${l.id}`} className="flex items-center gap-2 text-sm">
+                <div className="flex-1 min-w-0">
+                  <div className={`italic truncate ${l.suspended ? 'text-stone-300 line-through' : 'text-amber-100'}`}>
+                    {l.front || l.id}
+                  </div>
+                  <div className="text-xs text-amber-200/50 italic truncate">
+                    {l.tomeTitle}
+                    {l.domain ? ` · ${l.domain}` : ''}
+                  </div>
+                </div>
+                <div className="text-xs tabular-nums text-rose-300 italic whitespace-nowrap">{l.lapses}× lapsed</div>
+                {onSuspendCard && (
+                  <button
+                    type="button"
+                    onClick={() => onSuspendCard(l.tomeId, l.id, !l.suspended)}
+                    className="px-2 py-1 rounded-sm border border-stone-600 text-stone-300 italic text-xs hover:bg-stone-800/40"
+                  >
+                    {l.suspended ? 'Resume' : 'Suspend'}
+                  </button>
+                )}
+                {onEditTome && (
+                  <button
+                    type="button"
+                    onClick={() => onEditTome(l.tomeId)}
+                    className="px-2 py-1 rounded-sm border border-amber-700 text-amber-200 italic text-xs hover:bg-amber-900/30"
+                  >
+                    Edit
+                  </button>
+                )}
+              </div>
+            ))}
+            {leeches.length > 12 && (
+              <div className="text-xs text-amber-100/50 italic pt-1">+{leeches.length - 12} more…</div>
+            )}
           </div>
         )}
       </OrnatePanel>

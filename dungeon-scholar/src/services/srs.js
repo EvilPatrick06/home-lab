@@ -174,6 +174,10 @@ export function scheduleCard(prevState, rating, now = Date.now()) {
 }
 
 export function isCardDue(state, now = Date.now()) {
+  // Leeches/cards the learner suspended are pulled out of the due queue
+  // entirely (services/leech.js). Backward-compatible: absent flag = due as
+  // before.
+  if (state && state.suspended === true) return false;
   if (isNew(state)) return true;
   if (typeof state.dueAt !== 'number') return true;
   return state.dueAt <= now;

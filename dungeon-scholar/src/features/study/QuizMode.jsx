@@ -57,6 +57,7 @@ function QuizMode({
   // recordAnswer so the per-tome confidenceStats can track calibration.
   // Reset to null on every next() so the picker re-appears.
   const [confidence, setConfidence] = useState(null);
+  const [showHint, setShowHint] = useState(false);
   // Pre-shuffled deck comes from App level (stable across re-renders / cloud
   // sync). Fall back to the raw quiz array if a parent hasn't provided one.
   // Phase 39a: sessionDeck (when set by a resume) overrides the parent's
@@ -348,6 +349,11 @@ function QuizMode({
     setStreak(0);
   };
 
+  // Optional per-question hint hides again whenever the riddle changes.
+  useEffect(() => {
+    setShowHint(false);
+  }, [index]);
+
   const next = () => {
     setAnswered(null);
     setTextAnswer('');
@@ -548,6 +554,24 @@ function QuizMode({
           );
         })()}
         <RichContent as="div" text={q.question} className="text-lg text-amber-50 mb-6 italic" />
+        {!answered && q.hint && (
+          <div className="mb-4 -mt-2">
+            {showHint ? (
+              <div className="text-sm text-amber-200/80 italic">
+                <span className="text-amber-400 not-italic">Hint: </span>
+                <RichContent as="span" text={q.hint} />
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowHint(true)}
+                className="px-3 py-1 rounded-sm border border-amber-700 text-amber-200 italic text-xs hover:bg-amber-900/30"
+              >
+                Show hint
+              </button>
+            )}
+          </div>
+        )}
         {ttsSupported() && (
           <button
             type="button"

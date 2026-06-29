@@ -23,6 +23,7 @@ import {
   takeForesightPreview,
 } from '../../game/dungeonMap.js';
 import { petLevelFromXp } from '../../services/pets.js';
+import { checkAnswerCorrect, DIR_DELTAS, isWalkable, pickOneQuestion, pickQuestions } from './dungeonLogic.js';
 import {
   BOSS_DISPLAY,
   BOSS_DRAWERS,
@@ -35,6 +36,8 @@ import {
   PET_DRAWERS,
   TILE_PX,
 } from './tileRenderer.js';
+import { useDungeonInput } from './useDungeonInput.js';
+import { useDungeonState } from './useDungeonState.js';
 
 // === Equipment effects ==================================================
 // In-dungeon stat bonuses for equipped items. Items live in App.jsx ITEMS;
@@ -166,10 +169,6 @@ const HOLD_REPEAT_MS = 130;
 const MOB_MOVE_MIN_MS = 1400;
 const MOB_MOVE_MAX_MS = 2800;
 
-const isWalkable = (t) => t === TILE.FLOOR || t === TILE.DOOR || t === TILE.STAIRS_UP || t === TILE.STAIRS_DOWN;
-
-const DIR_DELTAS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
-
 // === Biomes ============================================================
 const ELITE_QUESTION_COUNT = 3;
 // Damage a wrong answer costs depending on what hit you back.
@@ -234,37 +233,6 @@ const LOOTABLE_DECOS = {
 // difficulty/biome combo doesn't always pit you against the same trial.
 // Every boss appears in ≥2 pools so its sprite stays familiar across
 // the game.
-const norm = (s) =>
-  String(s ?? '')
-    .trim()
-    .toLowerCase();
-
-// Pull random questions from the active tome's quiz pool, excluding any
-// already-used questions in this run. Includes flashcards as fallback.
-function pickQuestions(courseSet, count, excludeIds = new Set()) {
-  const quizPool = (courseSet?.quiz || []).filter(
-    (q) => !excludeIds.has(q.id) && (q.type === 'multiplechoice' || q.type === 'truefalse'),
-  );
-  // Shuffle and take.
-  const arr = quizPool.slice();
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr.slice(0, count);
-}
-
-// Pick a single question, preferring un-used ones but falling back to the
-// full pool if the run has burned through every question. Used by the
-// open-ended gauntlet — each wrong answer pulls a fresh prompt instead
-// of advancing toward a fixed end-of-trial.
-function pickOneQuestion(courseSet, excludeIds = new Set()) {
-  const filtered = pickQuestions(courseSet, 1, excludeIds);
-  if (filtered.length > 0) return filtered[0];
-  const anyOf = pickQuestions(courseSet, 1, new Set());
-  return anyOf[0] || null;
-}
-
 // 25e: build a single per-question entry for the run's questionLog.
 // Pure, exported for unit tests. Captures the source (`mob` / `boss`),
 // `mobTier` for mobs, and `bossKind` for bosses so the Chronicle can
@@ -275,20 +243,6 @@ function pickOneQuestion(courseSet, excludeIds = new Set()) {
 // PHASE-19 19C: non-color reveal decoration (WCAG 1.4.1). The correct option
 // gets a check glyph + solid border, the picked-wrong option a cross glyph +
 // dashed border, so the outcome reads without color perception.
-function checkAnswerCorrect(question, choice) {
-  if (!question) return false;
-  if (question.type === 'multiplechoice') {
-    return choice === question.correctIndex;
-  }
-  if (question.type === 'truefalse') {
-    if (typeof question.correctIndex === 'number') return choice === question.correctIndex;
-    if (typeof question.correctAnswer === 'string') {
-      return norm(question.correctAnswer) === norm(choice === 0 ? 'true' : 'false');
-    }
-  }
-  return false;
-}
-
 // === BattleModal ========================================================
 function BattleModal({
   battle,
@@ -768,37 +722,64 @@ export default function DungeonExplore({
 
   // Run state
   const [phase, setPhase] = useState('setup'); // setup | world
-  const [pos, setPos] = useState(initial.spawn);
-  const [facing, setFacing] = useState('down');
-  const [hp, setHp] = useState(effectiveMaxHp);
-  const [shields, setShields] = useState(effectiveMaxShield);
-  const [firstWrongUsed, setFirstWrongUsed] = useState(false);
   // 25a-5: boss room is locked at delve start. The key is hidden in one
   // random chest in the dungeon (tagged hasKey at map-gen) OR can drop
   // from a felled mob (5% basic, 25% elite). Once held, the boss
   // collision starts the trial; without it the player gets a notice.
-  const [bossKeyFound, setBossKeyFound] = useState(false);
   // Phase 19: mana for active spells. Resets each delve to maxMana, refills
   // +1 per correct answer. Cap = playerState.maxMana.
   const maxMana = playerState?.maxMana ?? 3;
-  const [mana, setMana] = useState(maxMana);
+  // Run-state cluster (position, vitals, mana, score/streak, battle, outcome,
+  // and the transient SR/banner/pickup UI) — extracted to useDungeonState.
+  const {
+    pos,
+    setPos,
+    facing,
+    setFacing,
+    hp,
+    setHp,
+    shields,
+    setShields,
+    firstWrongUsed,
+    setFirstWrongUsed,
+    bossKeyFound,
+    setBossKeyFound,
+    mana,
+    setMana,
+    revealedAnswer,
+    setRevealedAnswer,
+    reviveAvailable,
+    setReviveAvailable,
+    xpBuffRemaining,
+    setXpBuffRemaining,
+    score,
+    setScore,
+    streak,
+    setStreak,
+    maxStreak,
+    setMaxStreak,
+    mistakes,
+    setMistakes,
+    runState,
+    setRunState,
+    battle,
+    setBattle,
+    liveMsg,
+    setLiveMsg,
+    endSummary,
+    setEndSummary,
+    notice,
+    setNotice,
+    floatingPickups,
+    setFloatingPickups,
+  } = useDungeonState({ spawn: initial.spawn, maxHp: effectiveMaxHp, maxShields: effectiveMaxShield, maxMana });
   // 17G: banked Foresight Scroll charges — each reveals the domain of the next
   // posed riddle. A ref (not state) so consuming a charge at battle creation
   // doesn't need a re-render cycle.
   const foresightChargesRef = useRef(0);
   // Brief hint shown above the battle question when a Sigil of Clarity is
   // cast — clears on the next question cycle.
-  const [revealedAnswer, setRevealedAnswer] = useState(null);
-  const [reviveAvailable, setReviveAvailable] = useState(false);
-  const [xpBuffRemaining, setXpBuffRemaining] = useState(0);
-  const [score, setScore] = useState(0);
-  const [streak, setStreak] = useState(0);
-  const [maxStreak, setMaxStreak] = useState(0);
-  const [mistakes, setMistakes] = useState(0);
-  const [runState, setRunState] = useState('alive'); // alive | victory | death
-  const [battle, setBattle] = useState(null);
   // S3: off-canvas screen-reader announcements for the (otherwise opaque) delve.
-  const [liveMsg, setLiveMsg] = useState('');
   useEffect(() => {
     if (phase !== 'world') return;
     if (runState === 'victory') {
@@ -815,11 +796,8 @@ export default function DungeonExplore({
     }
     setLiveMsg('');
   }, [phase, battle, runState]);
-  const [endSummary, setEndSummary] = useState(null);
   // Brief notification banner for potion/revive/buff feedback.
-  const [notice, setNotice] = useState(null);
   // Phase 15: floating "+gold" / "Acquired: X" labels — short-lived UI.
-  const [floatingPickups, setFloatingPickups] = useState([]);
   const showPickup = (text, color = '#fde047') => {
     const id = `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
     setFloatingPickups((prev) => [...prev, { id, text, color }]);
@@ -1262,34 +1240,9 @@ export default function DungeonExplore({
   // Track which direction keys are held so the player can walk
   // continuously by holding a key. The rAF loop repeats the move at
   // HOLD_REPEAT_MS cadence; the initial press fires immediately.
-  const heldKeysRef = useRef(new Set());
-  const lastMoveAtRef = useRef(0);
   // 25i-3: timestamp of the most recent bump-into-mob/boss. drawPlayer
   // reads this to draw a 200ms weapon swing arc on collision.
   const bumpAtRef = useRef(0);
-  const dirOfKey = (key) => {
-    switch (key) {
-      case 'ArrowUp':
-      case 'w':
-      case 'W':
-        return 'up';
-      case 'ArrowDown':
-      case 's':
-      case 'S':
-        return 'down';
-      case 'ArrowLeft':
-      case 'a':
-      case 'A':
-        return 'left';
-      case 'ArrowRight':
-      case 'd':
-      case 'D':
-        return 'right';
-      default:
-        return null;
-    }
-  };
-
   // 25b: harvest action — picks the plant the player is currently standing
   // on. Moved out of tryMove so harvest is an explicit interact, not a
   // pickup-by-walk-over.
@@ -1336,82 +1289,21 @@ export default function DungeonExplore({
     }
   };
 
-  // Latest quaffPotion / tryMove / interact via refs so the keydown handler
-  // can reach them without restarting on every render.
-  const quaffPotionRef = useRef(quaffPotion);
-  useLayoutEffect(() => {
-    quaffPotionRef.current = quaffPotion;
+  // Keyboard input subsystem (extracted to useDungeonInput). Returns the
+  // held-key set + last-move timestamp the rAF draw loop reads for held-key
+  // repeat movement.
+  const { heldKeysRef, lastMoveAtRef } = useDungeonInput({
+    phase,
+    battle,
+    runState,
+    map: initial.map,
+    onExit,
+    containerRef,
+    tryMove,
+    quaffPotion,
+    castSpell,
+    interactWithWorld,
   });
-  const castSpellRef = useRef(castSpell);
-  useLayoutEffect(() => {
-    castSpellRef.current = castSpell;
-  });
-  const interactRef = useRef(interactWithWorld);
-  useLayoutEffect(() => {
-    interactRef.current = interactWithWorld;
-  });
-
-  useEffect(() => {
-    if (phase !== 'world') return undefined;
-    const onKeyDown = (e) => {
-      // Phase 19: Spell hotkeys Z/X/C (rebound from Q/W/E in 25a so W
-      // doesn't collide with WASD movement). Spells work even during a
-      // battle (auto_correct, reveal_answer); other spells refuse
-      // mid-trial via castSpell's checks.
-      const sk = e.key.toLowerCase();
-      if (sk === 'z' || sk === 'x' || sk === 'c') {
-        const idx = sk === 'z' ? 0 : sk === 'x' ? 1 : 2;
-        castSpellRef.current && castSpellRef.current(idx);
-        e.preventDefault();
-        return;
-      }
-      if (battle) return;
-      if (runState !== 'alive') {
-        if (e.key === 'Escape' && onExit) onExit();
-        return;
-      }
-      if (e.key === 'Escape') {
-        if (onExit) onExit();
-        return;
-      }
-      // 25b: E interacts with the world — unlocks the Boss Door when
-      // adjacent (with key in hand) or harvests a plant when standing
-      // on a lootable tile. Silent no-op otherwise.
-      if (sk === 'e') {
-        interactRef.current && interactRef.current();
-        e.preventDefault();
-        return;
-      }
-      // Potion hotkeys 1/2/3.
-      if (e.key === '1' || e.key === '2' || e.key === '3') {
-        quaffPotionRef.current && quaffPotionRef.current(parseInt(e.key, 10) - 1);
-        e.preventDefault();
-        return;
-      }
-      const dir = dirOfKey(e.key);
-      if (!dir) return;
-      e.preventDefault();
-      if (!heldKeysRef.current.has(dir)) {
-        heldKeysRef.current.add(dir);
-        const [dx, dy] = DIR_DELTAS[dir];
-        tryMove(dx, dy, dir);
-        lastMoveAtRef.current = performance.now();
-      }
-    };
-    const onKeyUp = (e) => {
-      const dir = dirOfKey(e.key);
-      if (dir) heldKeysRef.current.delete(dir);
-    };
-    window.addEventListener('keydown', onKeyDown);
-    window.addEventListener('keyup', onKeyUp);
-    if (containerRef.current) containerRef.current.focus();
-    return () => {
-      window.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('keyup', onKeyUp);
-      heldKeysRef.current.clear();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, battle, runState, initial.map, onExit]);
 
   // Mob / boss / chest / plant collision detection on every position change.
   useEffect(() => {

@@ -21,157 +21,11 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
-
-### [2026-06-24] App.jsx orchestration shell is a 2100-line God component (~48 hook calls)
-
-- **Category:** debt
-- **Severity:** medium
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-cleanup
-- **During:** automated cleanup/structure scan of dungeon-scholar/
-
-**Description:**
-`src/App.jsx` (`DungeonScholarApp`) is ~2100 lines and makes ~48 `useState`/`useEffect`/`useCallback`/`useMemo`/`useRef` calls in one component. A large cluster is per-surface UI open/close state — `pendingConfirm`, `tutorialOpenedSurface`, `shareTomeId`, `editMetadataTomeId`, `editContentTomeId`, `notesTome`, `unsealedTomes` (in-memory sealed-tome decrypt map), `domainFilter`, `reviewMode` — alongside the RLS-exposure probe effect and the OAuth-callback effect. The shell mixes routing, auth, player-state, sealed-tome session lifetime, and modal flags, making the render switch and effect list hard to follow and risky to edit.
-
-**Proposed fix / improvement:**
-- [ ] Extract the surface/modal open-close cluster into a dedicated hook (e.g. `useAppSurfaces`) next to the existing `useAppModals`.
-- [ ] Move the RLS-exposure probe and OAuth-callback consumption effects into small hooks (`useRlsProbe`, `useOAuthCallback`).
-- [ ] Keep the `[screen, setScreen]` hash-router shape untouched (every `setScreen` call site stays valid). Net: App.jsx becomes a thin shell; surface state becomes unit-testable.
-
-**Related files:** `src/App.jsx`, `src/hooks/useAppModals.js`
-
-### [2026-06-24] DungeonExplore.jsx (2844 lines) is the repo's largest module and is monolithic
-
-- **Category:** debt
-- **Severity:** medium
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-cleanup
-- **During:** automated cleanup/structure scan of dungeon-scholar/
-
-**Description:**
-`src/components/dungeon/DungeonExplore.jsx` is 2844 lines — the largest file in the tree — and appears to bundle map state, keyboard/turn input handling, and render orchestration in a single component. Its sibling `src/components/dungeon/tileRenderer.js` is 1576 lines (2nd largest) and has **no** test file, despite being largely pure rendering helpers that are cheap to cover.
-
-**Proposed fix / improvement:**
-- [ ] Decompose `DungeonExplore` into focused units — e.g. a `useDungeonInput` hook (key/turn handling), a `useDungeonState` reducer, and a presentational grid component.
-- [ ] Add a unit test for `tileRenderer.js` (pure helpers → low-cost coverage of the 2nd-largest module).
-- [ ] Behavior-preserving decomposition only, not a redesign.
-
-**Related files:** `src/components/dungeon/DungeonExplore.jsx`, `src/components/dungeon/tileRenderer.js`
-
-**Related entries:** App.jsx God-component entry [2026-06-24]
+*(none currently logged)*
 
 # Low-severity polish / info
 
-
-### [2026-06-24] src/data/ is a single-file directory; starterDecks.js fits the src/game/ taxonomy
-
-- **Category:** debt
-- **Severity:** low
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-cleanup
-- **During:** automated cleanup/structure scan of dungeon-scholar/
-
-**Description:**
-`src/data/` contains exactly one module, `starterDecks.js`. The README's own structure taxonomy describes `src/game/` as "Game data + pure helpers" (titles, quests, items, bestiary, defaultState, …). Starter-deck content is game data, so the lone `src/data/` directory is an orphan namespace that overlaps the role of `src/game/`.
-
-**Proposed fix / improvement:**
-- [ ] Move `src/data/starterDecks.js` → `src/game/starterDecks.js`, update imports, and remove the now-empty `src/data/`.
-- [ ] OR, if a dedicated content layer is intended to grow, rename to `src/content/` and document it in the README "Project structure" block and `src/components/README.md` placement rules.
-- [ ] Update README "Project structure" either way.
-
-**Related files:** `src/data/starterDecks.js`, `README.md`
-
-### [2026-06-24] services/ is a 31-module flat bucket with no placement README (components/ has one)
-
-- **Category:** docs
-- **Severity:** low
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-cleanup
-- **During:** automated cleanup/structure scan of dungeon-scholar/
-
-**Description:**
-`src/services/` holds 31 non-test modules spanning unrelated concerns — persistence/cloudSync/backfill, FSRS scheduling (`srs`, `forgettingCurve`, `weakDomain`), exam logic (`examSession`, `examPace`, `examPrediction`), crypto (`notesCrypto`), `oracleGrader`, `certificate`, `devotion`, `pets`, `spells`, `i18n`+`locales`, `tts`, `logger`, etc. `src/components/` ships a `components/README.md` documenting a clear placement rule, but `services/` — the larger, more heterogeneous bucket — has no equivalent, so there is no guidance on where a new service module belongs or how the bucket is organized.
-
-**Proposed fix / improvement:**
-- [ ] Add `src/services/README.md` documenting the grouping convention (mirroring the precedent in `src/components/README.md`).
-- [ ] OR introduce sub-namespaces (e.g. `services/sync`, `services/study`, `services/exam`, `services/content`) and update the README structure block.
-- [ ] Low effort; improves discoverability.
-
-**Related files:** `src/services/`, `src/components/README.md`
-### [2026-06-24] Leech detection — auto-flag (and optionally suspend) chronic-lapse cards
-
-- **Category:** future-idea
-- **Severity:** medium
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-suggestor
-- **During:** automated suggestion scan of the SRS + study-mode code
-
-**Description:**
-The FSRS-5 scheduler already records a per-card `lapses` counter (`services/srs.js` — incremented on every `Again`/rating-1 review), but nothing in the app ever *reads* it. A card the learner keeps forgetting just cycles back into the due queue indefinitely, burning review time on material that isn't sticking. Anki's "leech" mechanic is the standard answer: once a card crosses a lapse threshold (commonly 8), flag it as a leech so the learner (or tome author) can rewrite it, break it into smaller cards, add a mnemonic/hint, or temporarily suspend it from the queue. This is a high-leverage, learning-science-backed retention feature whose input data is *already being tracked* — only the consumer is missing.
-
-**Proposed fix / improvement:**
-- [ ] Add a pure helper (e.g. `services/leech.js` `isLeech(cardState, threshold=8)` + `listLeeches(cardProgress)`), unit-tested like the other SRS helpers.
-- [ ] Surface leeches in Scholar's Ledger and/or the Mistake Vault ("N cards keep slipping away").
-- [ ] Offer a per-card action: suspend from the due queue, or jump to edit it in TomeEditor.
-- [ ] Make the threshold a constant (consistent with `weakDomain.js` / `examPrediction.js` exporting their tuning constants).
-
-**Related files:** `src/services/srs.js`, `src/features/progression/ScholarsLedger.jsx`, `src/features/study/MistakeVault.jsx`, `src/game/tome.js`
-
-### [2026-06-24] TomeEditor: live rendered preview for Markdown / Mermaid / code / LaTeX content
-
-- **Category:** future-idea, UX
-- **Severity:** medium
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-suggestor
-- **During:** automated suggestion scan of the in-app tome authoring flow
-
-**Description:**
-`features/library/TomeEditor.jsx` is a plain set of `<textarea>` fields — it imports nothing from `components/RichContent.jsx`, so an author writing a question that uses the app's rich-content pipeline (Markdown, Mermaid diagrams, syntax-highlighted code blocks, KaTeX/LaTeX math — all supported at study time via `services/richContent.js` + `RichContent.jsx`) gets zero feedback on how it will render until they save the tome and open it in a study mode. That round-trip makes diagram- and code-heavy authoring painful and error-prone (a malformed Mermaid block or unbalanced `$…$` only shows up after leaving the editor). A side-by-side or toggled live preview that pipes the field's text through the same `RichContent` renderer the study modes use would close the loop and reuse code that already exists.
-
-**Proposed fix / improvement:**
-- [ ] Add a "Preview" toggle (or split pane) next to the question/answer textareas that renders the current text via `<RichContent>`.
-- [ ] Reuse the existing renderer so preview == study-time rendering exactly (no second markdown path to drift).
-- [ ] Optionally show inline parse warnings (bad Mermaid / unterminated code fence) before save.
-
-**Related files:** `src/features/library/TomeEditor.jsx`, `src/components/RichContent.jsx`, `src/services/richContent.js`
-
-# Low-severity polish / info
-
-### [2026-06-24] Surface per-question item analysis — the declared `questionStats` field is a never-populated stub
-
-- **Category:** future-idea
-- **Severity:** low
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-suggestor
-- **During:** automated suggestion scan of the tome progress schema
-
-**Description:**
-`game/tome.js` declares `questionStats: {}` in the tome-progress schema (line ~66), but a repo-wide grep shows it is **never written or read anywhere else in `src/`** — it is dead scaffolding. (Note: the resolved FSRS-5 entry in RESOLVED-ISSUES-DUNGEON-SCHOLAR.md states the app "already records per-card review outcomes (`questionStats`/`cardProgress`)" — that is only half true; `cardProgress` is recorded, `questionStats` is an empty stub.) Populating it would unlock genuinely useful **item analysis**: per-question attempt counts, accuracy, and average confidence. For the *learner*, a "hardest questions" view (lowest accuracy, or high-confidence-but-wrong = dangerous overconfidence, cross-referencing the existing `confidenceStats`). For the *tome author*, a flag for questions the population reliably misses — often a sign of a bad/ambiguous question or wrong key, not a hard topic. The plumbing point (`recordAnswer`) already exists.
-
-**Proposed fix / improvement:**
-- [ ] Decide whether to populate `questionStats` or remove the dead field (if removing, it is an issue-log debt entry instead).
-- [ ] If populating: increment attempts/correct/confidence in the answer-recording path; add a small "hardest questions" panel in Scholar's Ledger.
-- [ ] Correct the over-claim in the resolved FSRS entry when this is touched.
-
-**Related files:** `src/game/tome.js`, `src/features/player/usePlayerActions.js`, `src/features/study/QuizMode.jsx`, `src/features/progression/ScholarsLedger.jsx`
-
-### [2026-06-24] Optional per-card hint field with progressive reveal
-
-- **Category:** future-idea, UX
-- **Severity:** low
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-suggestor
-- **During:** automated suggestion scan of the flashcard/quiz content model
-
-**Description:**
-The tome content model has no learner-facing **hint** field (the only "hints" in the codebase are keyboard-hotkey legends in ExamMode/LabMode — unrelated). A common study-app affordance is an optional per-card hint the learner can choose to reveal before flipping/answering: it supports retrieval practice with scaffolding (a nudge beats giving up and revealing the full answer, which short-circuits the memory benefit) and pairs naturally with the leech idea above — a chronically-lapsed card is exactly where an author would add a mnemonic hint. Cost is small: an optional `hint` string on flashcard/quiz items, a "Show hint" affordance in the study modes, and an extra textarea in TomeEditor.
-
-**Proposed fix / improvement:**
-- [ ] Add optional `hint` to the flashcard/quiz item shape in `game/tome.js` (back-compatible; absent = no hint button).
-- [ ] Render a "Show hint" reveal in FlashcardsMode/QuizMode (collapsed by default; track reveals if desired).
-- [ ] Add the field to TomeEditor (ties in with the live-preview idea).
-
-**Related files:** `src/game/tome.js`, `src/features/study/FlashcardsMode.jsx`, `src/features/study/QuizMode.jsx`, `src/features/library/TomeEditor.jsx`
+*(none currently logged)*
 
 # Design gotchas (warnings for future agents)
 
@@ -184,5 +38,6 @@ The tome content model has no learner-facing **hint** field (the only "hints" in
 *(none active)*
 
 ---
+
 
 > dungeon-scholar active bugs / debt: [`ISSUES-LOG-DUNGEON-SCHOLAR.md`](./ISSUES-LOG-DUNGEON-SCHOLAR.md). Resolved dungeon-scholar entries: [`RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`](./RESOLVED-ISSUES-DUNGEON-SCHOLAR.md). Security (any domain): [`SECURITY-LOG.md`](./SECURITY-LOG.md) (gitignored). dnd-app suggestions: [`SUGGESTIONS-LOG-DNDAPP.md`](./SUGGESTIONS-LOG-DNDAPP.md). BMO suggestions: [`BMO-SUGGESTIONS-LOG.md`](./BMO-SUGGESTIONS-LOG.md).

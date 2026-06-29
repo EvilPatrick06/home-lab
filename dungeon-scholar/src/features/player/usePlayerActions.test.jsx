@@ -455,3 +455,31 @@ describe('usePlayerActions — streak tracking (I2)', () => {
     expect(result.current.playerState.longestStreak).toBe(2);
   });
 });
+
+describe('usePlayerActions — questionStats item analysis', () => {
+  it('accumulates per-question attempts/correct and flags high-confidence-wrong', () => {
+    const { result } = makeHook({
+      library: [{ id: 't1', data: { metadata: { title: 'One' } }, progress: {} }],
+      activeTomeId: 't1',
+    });
+    act(() => {
+      result.current.actions.recordAnswer(true, { id: 'q1' });
+    });
+    act(() => {
+      result.current.actions.recordAnswer(false, { id: 'q1' }, { confidence: 'high' });
+    });
+    const qs = result.current.playerState.library[0].progress.questionStats.q1;
+    expect(qs).toEqual({ attempts: 2, correct: 1, highConfWrong: 1 });
+  });
+
+  it('does not record questionStats for id-less items', () => {
+    const { result } = makeHook({
+      library: [{ id: 't1', data: {}, progress: {} }],
+      activeTomeId: 't1',
+    });
+    act(() => {
+      result.current.actions.recordAnswer(true, { question: 'no id here' });
+    });
+    expect(result.current.playerState.library[0].progress.questionStats || {}).toEqual({});
+  });
+});

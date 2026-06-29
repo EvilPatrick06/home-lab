@@ -116,6 +116,23 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   // 26g: per-card spaced-repetition state lives at
   // `tome.progress.cardProgress[cardId]`. Updates target the active
   // tome (the player can only review cards from the active tome).
+  // Leech control: suspend / unsuspend a specific card so it leaves the FSRS
+  // due queue (services/leech.js + srs.isCardDue). Tome-targeted (not just the
+  // active tome) because the Scholar's Ledger leech panel spans the library.
+  const setCardSuspended = (tomeId, cardId, suspended) => {
+    if (!tomeId || !cardId) return;
+    setPlayerState((prev) => ({
+      ...prev,
+      library: (prev.library || []).map((t) => {
+        if (t.id !== tomeId) return t;
+        const map = { ...((t.progress && t.progress.cardProgress) || {}) };
+        const cur = map[cardId] || {};
+        map[cardId] = { ...cur, suspended: !!suspended };
+        return { ...t, progress: { ...(t.progress || {}), cardProgress: map } };
+      }),
+    }));
+  };
+
   const updateCardProgress = (cardId, nextState) => {
     if (!cardId || !nextState) return;
     setPlayerState((prev) => {
@@ -698,6 +715,30 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
         };
       }
 
+      // Per-question item analysis (questionStats). This field was declared in
+      // the tome-progress schema but never written — dead scaffolding. Populate
+      // it here so the Scholar's Ledger can show a "hardest questions" view
+      // (lowest accuracy) and flag dangerous overconfidence (high-confidence yet
+      // wrong). Keyed by item.id; skipped for id-less items, which would alias
+      // each other (same guard as the mistakeVault block above).
+      if (item && item.id && prev.activeTomeId) {
+        const isHighConf = confidenceBucket === 'high';
+        next = {
+          ...next,
+          library: next.library.map((t) => {
+            if (t.id !== prev.activeTomeId) return t;
+            const qs = { ...(t.progress?.questionStats || {}) };
+            const cur = qs[item.id] || { attempts: 0, correct: 0, highConfWrong: 0 };
+            qs[item.id] = {
+              attempts: cur.attempts + 1,
+              correct: cur.correct + (correct ? 1 : 0),
+              highConfWrong: cur.highConfWrong + (!correct && isHighConf ? 1 : 0),
+            };
+            return { ...t, progress: { ...t.progress, questionStats: qs } };
+          }),
+        };
+      }
+
       // Volume / accuracy achievement checks
       const volumeMilestones = [
         { amt: 50, id: 'fifty_correct' },
@@ -1243,6 +1284,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
     updateProgress,
     updateTomeProgress,
     updateCardProgress,
+    setCardSuspended,
     setTomeExamDate,
     awardXP,
     awardGold,

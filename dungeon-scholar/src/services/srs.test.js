@@ -262,3 +262,12 @@ describe('retrievability', () => {
     expect(r5).toBeGreaterThan(r10);
   });
 });
+
+describe('isCardDue — suspended cards', () => {
+  it('treats a suspended card as not due regardless of dueAt', () => {
+    expect(isCardDue({ stability: 2, reps: 3, dueAt: 0, suspended: true }, Date.now())).toBe(false);
+  });
+  it('still schedules a non-suspended due card', () => {
+    expect(isCardDue({ stability: 2, reps: 3, dueAt: 0 }, Date.now())).toBe(true);
+  });
+});

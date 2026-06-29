@@ -8,17 +8,19 @@ import { SignInButton } from './components/SignInButton.jsx';
 import { MergeChooser } from './components/ui/MergeChooser.jsx';
 import PromptModal from './components/ui/PromptModal.jsx';
 import { useAppModals } from './hooks/useAppModals.js';
+import { useAppSurfaces } from './hooks/useAppSurfaces.js';
 import { useAuth } from './hooks/useAuth.js';
 import { useDialogA11y } from './hooks/useDialogA11y.js';
+import { useOAuthCallback } from './hooks/useOAuthCallback.js';
 import { usePlayerState } from './hooks/usePlayerState.js';
+import { useRlsProbe } from './hooks/useRlsProbe.js';
 import { COURSE_SET_GATED, SEALED_GATED } from './router/screens.js';
-import { checkRlsExposure } from './services/cloudSync.js';
 import { setLocale, t } from './services/i18n.js';
 import { checkImportSize } from './services/importLimits.js';
 import { hasMeaningfulData, writeSnapshot } from './services/persistence.js';
 import { isSealedTome, unsealTome } from './services/sealedTome.js';
 import { clearSession, loadSession, SESSION_KIND, saveSession } from './services/sessionResume.js';
-import { consumeOAuthCallback, signOut, warnIfBaseMismatch } from './services/supabase.js';
+import { signOut } from './services/supabase.js';
 import { lazyWithReload } from './utils/lazyWithReload.js';
 
 const ExamMode = lazyWithReload(() => import('./features/study/ExamMode.jsx'));
@@ -160,7 +162,6 @@ import {
   PREDICTION_MEDIUM_COVERAGE,
 } from './services/examPrediction.js';
 import { computeMilestones, computeRetentionCurve } from './services/forgettingCurve.js';
-import { logError } from './services/logger.js';
 import { notificationPermission, showStudyReminder } from './services/notifications.js';
 import { getOracleEndpoint, gradeAnswer, isOracleConfigured, ORACLE_MODEL } from './services/oracleGrader.js';
 import { findPet, PET_LEVEL_XP, PET_MAX_LEVEL, PETS, petLevelFromXp } from './services/pets.js';
@@ -171,7 +172,6 @@ import { pickWeakestDomain, WEAK_DOMAIN_ACCURACY_THRESHOLD, WEAK_DOMAIN_MIN_SAMP
 const LibraryScreen = lazyWithReload(() => import('./features/library/LibraryScreen.jsx'));
 
 import TomeNotes from './components/TomeNotes.jsx';
-import { STARTER_DECKS } from './data/starterDecks.js';
 import ImportCodeModal from './features/library/ImportCodeModal.jsx';
 import ImportDeckModal from './features/library/ImportDeckModal.jsx';
 import MetadataEditModal from './features/library/MetadataEditModal.jsx';
@@ -180,6 +180,7 @@ import PasteTomeModal from './features/library/PasteTomeModal.jsx';
 import SealedTomeGate from './features/library/SealedTomeGate.jsx';
 import ShareTomeModal from './features/library/ShareTomeModal.jsx';
 import TomeEditor from './features/library/TomeEditor.jsx';
+import { STARTER_DECKS } from './game/starterDecks.js';
 import { deckTextToTome } from './services/deckImport.js';
 import { applyTagToTomes } from './services/libraryBulk.js';
 
@@ -245,61 +246,38 @@ export default function DungeonScholarApp() {
   const [notification, setNotification] = useState(null);
   // M11 (18C): after sign-in, probe whether other users' saves rows are readable
   // (RLS off / mis-policied). Read-only, so StrictMode double-invoke is harmless.
-  const [rlsExposed, setRlsExposed] = useState(false);
-  useEffect(() => {
-    if (!user?.id) {
-      setRlsExposed(false);
-      return;
-    }
-    let active = true;
-    checkRlsExposure(user.id)
-      .then((r) => {
-        if (active && r.checked) setRlsExposed(r.exposed);
-      })
-      .catch(() => {});
-    return () => {
-      active = false;
-    };
-  }, [user?.id]);
+  const { rlsExposed, setRlsExposed } = useRlsProbe(user);
   // Phase 33c QA P3: pending in-app confirmation (replaces window.confirm
   // which was unreliable — headless QA tools auto-dismissed it, making the
   // Trial-of-Hours abandon guard look silent). When non-null, renders an
   // in-DOM alertdialog; user resolves via Abandon (calls .onConfirm) or
   // Keep going (just clears the state).
-  const [pendingConfirm, setPendingConfirm] = useState(null);
   const { open: modalOpen, openModal, closeModal } = useAppModals();
-  // When the tutorial action-button opens a surface, remember which one so
-  // we can flip the matching tutorialVisits flag once the player navigates
-  // back / closes the modal. null when no tutorial-driven surface is open.
-  const [tutorialOpenedSurface, setTutorialOpenedSurface] = useState(null);
-  const [shareTomeId, setShareTomeId] = useState(null);
-  const [editMetadataTomeId, setEditMetadataTomeId] = useState(null);
-  const [editContentTomeId, setEditContentTomeId] = useState(null);
-  // Phase 40F: tome whose encrypted private notes are open (null = closed).
-  const [notesTome, setNotesTome] = useState(null);
-  // PHASE-41 41B: decrypted sealed-tome content keyed by tomeId. This map is
-  // NEVER written into playerState — so decrypted content never reaches
-  // localStorage or Supabase. That in-memory-only lifetime IS the security
-  // property: a hard refresh, sign-out, or process exit re-locks every tome.
-  const [unsealedTomes, setUnsealedTomes] = useState({});
-  // 25e2: Domain Study screen launches Quiz/Flashcards filtered by a single
-  // domain string. Cleared whenever the player navigates somewhere other than
-  // 'quiz' / 'flashcards' so it doesn't carry over into a fresh, unfiltered run.
-  const [domainFilter, setDomainFilter] = useState(null);
-  // 26g: when true, FlashcardsMode scopes the deck to due cards (FSRS
-  // scheduling). Reset on every navigation away from the flashcards
-  // screen so a casual "open scrolls" doesn't accidentally enter review
-  // mode.
-  const [reviewMode, setReviewMode] = useState(false);
+  // Per-surface open/close + filter cluster — extracted to useAppSurfaces.
+  const {
+    pendingConfirm,
+    setPendingConfirm,
+    tutorialOpenedSurface,
+    setTutorialOpenedSurface,
+    shareTomeId,
+    setShareTomeId,
+    editMetadataTomeId,
+    setEditMetadataTomeId,
+    editContentTomeId,
+    setEditContentTomeId,
+    notesTome,
+    setNotesTome,
+    unsealedTomes,
+    setUnsealedTomes,
+    domainFilter,
+    setDomainFilter,
+    reviewMode,
+    setReviewMode,
+  } = useAppSurfaces();
   const fileInputRef = useRef(null);
 
   // Consume OAuth ?code=... on mount (returns false if no callback in URL).
-  useEffect(() => {
-    warnIfBaseMismatch(); // 18D / L13: one startup warning if BASE_URL can't match the served path
-    consumeOAuthCallback().catch((err) => {
-      logError('OAuth callback exchange failed', err);
-    });
-  }, []);
+  useOAuthCallback();
 
   // Phase 21: prime the audio context on first user gesture so BGM/SFX
   // don't fail silently due to browser auto-play policies.
@@ -502,6 +480,7 @@ export default function DungeonScholarApp() {
     updateProgress,
     updateTomeProgress,
     updateCardProgress,
+    setCardSuspended,
     setTomeExamDate,
     awardXP,
     awardGold,
@@ -1238,7 +1217,13 @@ export default function DungeonScholarApp() {
     ascension: () => <AscensionScreen playerState={playerState} setScreen={setScreen} onAscend={ascend} />,
     history: () => <RunHistoryScreen playerState={playerState} setScreen={setScreen} />,
     ledger: () => (
-      <ScholarsLedger playerState={playerState} setScreen={setScreen} scholarName={user?.githubLogin || 'Scholar'} />
+      <ScholarsLedger
+        playerState={playerState}
+        setScreen={setScreen}
+        scholarName={user?.githubLogin || 'Scholar'}
+        onSuspendCard={setCardSuspended}
+        onEditTome={(id) => setEditContentTomeId(id)}
+      />
     ),
     domainStudy: () =>
       !sealedLocked && (
