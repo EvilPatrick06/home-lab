@@ -1,6 +1,6 @@
 # PHASE-03 — Light-theme dark-on-dark contrast (systemic)
 
-> Authored from the 2026-06-24 dungeon-scholar QA reports — [`QA-report-2026-06-24-2.md`](./QA/completed/QA-report-2026-06-24-2.md) (run 2, the fuller pass) — tested @ deployed `index-B4qcBDzT.js` / src `9e454930` · `origin/master` `3c89d787`. Order/dependencies: [`PHASE-INDEX.md`](./PHASE-INDEX.md). Execute per [`INSTRUCTIONS.md`](./INSTRUCTIONS.md). PLANNING ONLY — this phase authors the plan; no app changes here.
+> Authored from the 2026-06-24 dungeon-scholar QA reports — [`QA-report-2026-06-24-2.md`](./QA/completed/QA-report-2026-06-24-2.md) (run 2, the fuller pass) — tested @ deployed `index-B4qcBDzT.js` / src `9e454930` · `origin/master` `3c89d787`. Order/dependencies: [`PHASE-INDEX.md`](./PHASE-INDEX.md). Execute per [`INSTRUCTIONS.md`](./INSTRUCTIONS.md). PLANNING ONLY — this phase authors the plan; no app changes here. **Amended 2026-06-29** to add **F5 / sub-phase 03G** from [`QA-report-2026-06-28.md`](./QA/completed/QA-report-2026-06-28.md) (deployed `index-Dy2bw_1f.js`, src `8a8891fb`): the Light-theme Oracle/Chat-bubble **light-on-light** regression — the *inverse* of F1-F3 and a distinct root cause the F2 03E dark-on-dark grep does not catch.
 
 ## Goal
 
@@ -93,6 +93,34 @@ Verification: `grep -n "restyle every screen" dungeon-scholar/src/features/home/
 
 **Suggested action:** once F1-F3 land, the copy is accurate and can stay. No copy change is needed if the contrast fix is complete; only revise the copy if any hardcoded-dark surface is intentionally left dark-on-light-incompatible (it should not be).
 
+### F5 (medium) — Light theme: Oracle (Chat) answer AND user-message bubbles are light-on-light (the INVERSE of F1-F3)
+
+**Status: confirmed in source.**
+
+QA repro (Light theme, a tome loaded, Oracle reachable):
+
+1. In Light theme, load a tome and open Chat (`#/chat`). 2. Ask any question and Speak. 3. The Oracle answers correctly (RAG retrieval + generation both work) but the **answer body is invisible** — light text on a light bubble — until you select it. The user's own message bubble has the same defect; only the gold "THE ORACLE" label and the amber "SOURCES FROM THE TOME" citations stay legible.
+
+QA measured: answer bubble background `rgba(254, 243, 198, 0.7)` (amber-50, light) with body text `rgb(254, 243, 199)` (amber-100, near-white) — essentially the same colour.
+
+Root cause, confirmed in source — and **distinct from F1-F3** (note this carefully, the fix differs):
+
+- **The bubble background is already theme-aware (it lightens correctly).** The Oracle/search bubble at `src/features/study/ChatMode.jsx:561` uses `background: isSearch ? 'rgba(12, 24, 41, 0.7)' : 'rgba(var(--surface-amber, 41, 24, 12), 0.7)'`. In Light theme `--surface-amber` flips to a light amber value, so the **non-search (Oracle) bubble surface becomes light** — exactly as intended. The user bubble at `:543` likewise uses `rgba(var(--surface-amber-strong …)` / `rgba(var(--surface-amber …)` and lightens.
+- **The text colour is a hardcoded, NON-inverting inline hex.** The same bubble pins `color: '#fef3c7'` inline (`:563` Oracle, `:545` user) — amber-100's raw light value. Because it is an inline hex (not a `text-amber-*` Tailwind utility), it is **not** part of the ramp that `html[data-theme="light"]` inverts, so it stays near-white in Light theme. Light bubble + non-inverting light text = light-on-light.
+- This is the **mirror image of F1-F3**: there a hardcoded-*dark* background sat under auto-*inverting* `text-amber-*` (dark-on-dark); here a theme-aware *lightening* background sits under a hardcoded-*light* inline colour (light-on-light). **The F2 03E sweep grep — "a hardcoded dark `linear-gradient(... rgba(...` paired with a `text-amber-50/100/200`" — will NOT match this**, because the offender is a themeable-var background + an inline hex colour, not a hardcoded-dark background + a utility class. So this needs its own fix (03G), not the 03A var-swap.
+- **The search-result branch is fine — leave it.** When `isSearch`, the background is a *hardcoded dark* `rgba(12, 24, 41, 0.7)` that stays dark in both themes, so the `#fef3c7` light text reads correctly there. Only the Oracle (non-search) and user bubbles are affected.
+
+Verification commands (read-only):
+
+```bash
+sed -n '536,572p' dungeon-scholar/src/features/study/ChatMode.jsx   # user bubble (:543 bg / :545 #fef3c7) + Oracle bubble (:561 bg / :563 #fef3c7) + search-branch dark bg
+grep -n "color: '#fef3c7'" dungeon-scholar/src/features/study/ChatMode.jsx
+grep -n -- '--surface-amber' dungeon-scholar/src/index.css            # the var that lightens the bubble in light theme
+```
+
+**Suggested action:** stop hardcoding the bubble body text as a fixed light hex. Because these surfaces **lighten** in Light theme, the text must **darken** — route the body text through an inverting `text-amber-*` utility / a theme-aware text token so it resolves dark-on-light in Light theme and light-on-dark in Dark theme. Do **not** apply the 03A var-swap (the background is already correct) and do **not** use the non-inverting `--on-dark-fg` escape hatch here (that is only for surfaces that must stay dark in both themes — these don't).
+
+
 ## Sub-phases
 
 > dungeon-scholar checks (run from `dungeon-scholar/`): single test `npx vitest run src/.../that.test.jsx` during sub-phase work; CI (`dungeon-scholar-ci.yml`) runs the full `npm run test` + `npm run build` (`VITE_BASE=/home-lab/`) gate on push. A pure colour/contrast change has no unit gate beyond the build — validate with the build + a careful read + the next live deploy in both themes; where practical, add a contrast assertion (computed-style/luminance) test.
@@ -180,6 +208,22 @@ Verification: `grep -n "restyle every screen" dungeon-scholar/src/features/home/
 
 **Acceptance:** the copy matches reality after the contrast fixes; `npm run build` clean.
 
+### 03G — Chat (Oracle + user) bubble text follows the theme (F5)
+
+**Objective:** the Oracle answer body and the user-message body meet WCAG AA (>=4.5:1) in **both** themes, without altering the (already-correct) bubble backgrounds.
+
+**Files:** `dungeon-scholar/src/features/study/ChatMode.jsx` (`:545` user-bubble inline `color`, `:563` Oracle-bubble inline `color`; audit the other inline text colours in this file — e.g. the `system_notice` `color: '#fde047'` at `:528` on a `--surface-amber-strong` surface, the input `text-amber-50` at `:650`).
+
+**Steps:**
+
+1. Replace the hardcoded `color: '#fef3c7'` on the **Oracle** bubble (`:563`) and the **user** bubble (`:545`) with a **theme-aware** text colour that darkens in Light theme — an inverting `text-amber-50/100` utility class (so it tracks the ramp like ordinary parchment text) or a dedicated themed token. This is the OPPOSITE of the 03A pattern: do not touch the background (it already lightens correctly), and do not pin to the non-inverting `--on-dark-fg` token (these surfaces are meant to lighten, so the text must darken).
+2. **Leave the search-result branch (`isSearch`) as-is** — its background is a hardcoded dark `rgba(12, 24, 41, 0.7)` that stays dark in both themes, so its `#fef3c7` light text is correct. Verify it still reads.
+3. Sweep the remaining hardcoded inline `color: '#fe…'` / `'#fde047'` values that sit on a themeable `--surface-*` background in this file; fix any that go light-on-light in Light theme. Keep the gold "THE ORACLE" label (`#fcd34d`, `:568`) and the amber-600 sources legible (they already are).
+4. Add a contrast/computed-style assertion if tractable (render an Oracle message under `data-theme="light"`, assert the body-text colour is dark / passes a luminance-ratio check against the lightened bubble).
+
+**Acceptance:** the Oracle answer body and user-message body pass AA in **both** themes; "THE ORACLE" label + sources stay legible; the search-result bubble is unchanged and still reads; dark theme visually unchanged; `npm run build` clean; any new test green.
+
+
 ## Research notes
 
 - The light theme is implemented by **overriding Tailwind's colour-ramp CSS variables** under `html[data-theme="light"]` (`src/index.css:129+`), so `text-amber-50` resolves to a dark value in light theme by design — correct for ink-on-parchment, wrong only when the surface under it is also dark. The fix is to make the surface theme-aware too (it already has `--panel-bg-*`/`--surface-*` vars for exactly this) or to opt the text out of the ramp via a non-inverting token.
@@ -197,6 +241,7 @@ Verification: `grep -n "restyle every screen" dungeon-scholar/src/features/home/
 - Flashcard question/answer, Lab trial descriptions, and Mistake-Vault prompts all meet WCAG AA contrast in **both** themes (F1-F3).
 - No remaining component pairs a hardcoded-dark background with inverted `text-amber-*` text (F2 systemic sweep, 03E).
 - The Theme-picker "reads best" copy is accurate (F4).
+- The Oracle/Chat answer body and user-message bubbles pass WCAG AA in both themes (F5) — fixed by darkening the text, not the already-themed background.
 - Dark theme is visually unchanged.
 - `dungeon-scholar-ci.yml` green (full `npm run test` + `npm run build`).
 
