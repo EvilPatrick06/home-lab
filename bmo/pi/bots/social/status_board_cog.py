@@ -38,11 +38,44 @@ MAX_SECTION_CHARS = 3500       # TextDisplay hard limit is 4000
 LABELS = {
     "google_calendar": "📅 Google Calendar", "svc_bmo": "🏠 BMO service",
     "svc_docker": "🐳 Docker engine", "svc_bmo_social_bot": "🎵 Social bot",
-    "svc_bmo_dm_bot": "🐉 DM bot", "svc_bmo_kiosk": "🖥️ Kiosk",
-    "peerjs": "🌐 PeerJS", "ollama_local": "🧠 Ollama", "internet": "🌐 Internet",
-    "cloudflared": "🌐 Cloudflare Tunnel", "fish_audio_api": "🔊 Fish Audio",
-    "pi_cpu_temp": "🌡️ CPU temp", "pi_load": "📊 System load", "voice_canary": "🎤 Voice path",
-    "net_eth0": "🔌 Ethernet", "mdns": "📡 mDNS", "rclone": "☁️ Rclone",
+    "svc_bmo_dm_bot": "🐉 DM bot", "svc_bmo_kiosk": "🖥️ Kiosk", "svc_bmo_fan": "🌀 Fan controller",
+    "peerjs": "🌐 PeerJS (D&D multiplayer)", "ollama_local": "🧠 Ollama (AI model server)",
+    "internet": "🌐 Internet", "cloudflared": "🌐 Cloudflare tunnel", "tailscale": "🔐 Tailscale",
+    "fish_audio_api": "🔊 Fish Audio (TTS)", "gemini_api": "✨ Gemini API", "groq_api": "⚡ Groq API",
+    "google_maps_api": "🗺️ Google Maps API", "pihole": "🛡️ Pi-hole", "pihole_dns": "🛡️ Pi-hole DNS",
+    "pi_cpu_temp": "🌡️ CPU temperature", "pi_load": "📊 System load", "pi_ram": "🧠 RAM",
+    "pi_disk": "💾 Disk", "pi_boot_disk": "🗂️ Boot partition", "pi_power": "⚡ Power supply",
+    "pi_resources": "📊 Pi resources", "voice_canary": "🎤 Voice path", "rclone": "☁️ Rclone backup",
+    "net_wlan0": "📶 Wi-Fi", "net_eth0": "🔌 Ethernet", "ports": "🔌 Service ports", "mdns": "📡 mDNS",
+}
+
+# Plain-English "what it means / what to do" used when the monitor hasn't persisted a specific message.
+MEANINGS = {
+    "ports": "An expected service port isn't responding — a service (e.g. BMO web :5000) may be down; restart it.",
+    "pi_cpu_temp": "The Pi CPU is running hot — check airflow/load; it may throttle.",
+    "pi_load": "System load is high — something is hammering the CPU.",
+    "pi_ram": "RAM is nearly full — a process may be leaking; consider restarting it.",
+    "pi_resources": "Pi resources (CPU/RAM/disk) are strained.",
+    "pi_disk": "Disk is filling up — free some space.",
+    "pi_boot_disk": "The boot partition is filling up.",
+    "pi_power": "Power supply issue (under-voltage) — check the charger/cable.",
+    "voice_canary": "The voice path (speech-to-text / text-to-speech) failed its self-test — voice features may be broken.",
+    "peerjs": "D&D multiplayer signaling (PeerJS) is down — online play won't connect.",
+    "ollama_local": "The local AI model server (Ollama) isn't responding — the AI DM is offline.",
+    "google_calendar": "Google Calendar auth is broken (token revoked) — re-authorize it.",
+    "cloudflared": "The Cloudflare tunnel is down — public access to the apps is broken.",
+    "tailscale": "Tailscale (the VPN mesh) is down — remote access may be lost.",
+    "internet": "The Pi can't reach the internet.",
+    "pihole": "Pi-hole (DNS / ad-blocking) is down.",
+    "pihole_dns": "Pi-hole DNS isn't resolving.",
+    "fish_audio_api": "The Fish Audio TTS API isn't responding.",
+    "gemini_api": "The Gemini API isn't responding.",
+    "groq_api": "The Groq API isn't responding.",
+    "google_maps_api": "The Google Maps API isn't responding.",
+    "rclone": "Cloud backup (rclone) isn't configured/reachable.",
+    "net_wlan0": "Wi-Fi is down.",
+    "net_eth0": "Ethernet is down.",
+    "mdns": "mDNS (.local hostname) resolution can't run — the avahi tool may be missing; install avahi-utils.",
 }
 
 # (category, header) — interactive sections get per-item buttons.
@@ -363,7 +396,29 @@ class StatusBoardCog(commands.Cog):
         """Re-derive truth from local state (fast, no subprocess) and render. Used
         by button responses and the periodic loop. Does NOT edit the message."""
         monitor = sb._read_json(sb.MONITOR_STATE) if os.path.exists(sb.MONITOR_STATE) else {}
-        health = sb.derive_incidents(monitor, labels=LABELS, extra=self._cached_extra)
+        labels = dict(LABELS)
+        messages = {}
+        full_path = os.path.join(os.path.dirname(sb.MONITOR_STATE), "monitor_status_full.json")
+        if os.path.exists(full_path):
+            try:
+                for k, v in (sb._read_json(full_path) or {}).items():
+                    if v.get("label"):
+                        labels[k] = v["label"]
+                    detail = (v.get("message") or "").strip()
+                    act = (v.get("action") or "").strip()
+                    if detail or act:
+                        messages[k] = (detail + (" — " + act if act else "")).strip(" -—")
+            except Exception:
+                pass
+        for k in monitor:
+            if k.startswith("docker_"):
+                labels.setdefault(k, "🐳 " + k[7:])
+                messages.setdefault(k, "A Docker container is down — restart it.")
+            elif k.startswith("svc_"):
+                messages.setdefault(k, "A system service is down — restart it.")
+        for k, mng in MEANINGS.items():
+            messages.setdefault(k, mng)
+        health = sb.derive_incidents(monitor, labels=labels, messages=messages, extra=self._cached_extra)
         self.state = sb.reconcile_incidents(self.state, health)
         inbox = sb.load_inbox()
         sb.prune_inbox(inbox)
