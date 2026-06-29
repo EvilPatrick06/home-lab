@@ -326,9 +326,30 @@ def api_tv_status():
     })
 
 
+def _tv_reachable(timeout: float = 1.5) -> bool:
+    """PHASE-11 11D: cheap TCP reachability probe to the Android TV pairing
+    port, so the pair flow can tell the user to power on / connect the TV
+    instead of prompting for a PIN that can never appear."""
+    import socket
+    try:
+        with socket.create_connection((TV_IP, 6467), timeout=timeout):
+            return True
+    except OSError:
+        return False
+
+
 @tv_bp.route("/pair/start", methods=["POST"])
 def api_tv_pair_start():
     """Start pairing — TV will show a PIN code."""
+    # PHASE-11 11D: pre-flight reachability — a powered-off / off-network TV
+    # will never display a PIN, so return a handled "unreachable" signal
+    # (not a PIN prompt) the frontend turns into an actionable hint.
+    if not _tv_reachable():
+        log.info("[tv] Pairing aborted — TV unreachable at %s", _s(TV_IP))
+        return jsonify({
+            "unreachable": True,
+            "error": "Can't reach the TV — make sure it's powered on and on the same network.",
+        })
     result = _tv_cmd("pair_start")
     if result.get("error"):
         log.info("[tv] Pairing start failed: %s", _s(result["error"]))

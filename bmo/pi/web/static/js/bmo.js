@@ -39,6 +39,13 @@ function loadPlacesAPI(apiKey) {
   script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=_onPlacesReady&loading=async`;
   script.async = true;
   script.onerror = () => {
+    // PHASE-11 11E: make the failure a visible, explained degradation — the
+    // location inputs still accept manual text, just without autocomplete.
+    window._placesUnavailable = true;
+    ['newEventLocation', 'editEventLocation'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.placeholder = 'Location (search unavailable — type it manually)';
+    });
     if (_placesWarned) return;   // 03B: at most once per session
     _placesWarned = true;
     console.warn('[bmo] Google Places API failed to load — check the API key, its HTTP-referrer restriction (must include this host), and that the Maps JS API is enabled.');
@@ -56,6 +63,8 @@ const _autocompleteInstances = {};
 function initPlacesAutocomplete(inputId, onSelect) {
   const el = document.getElementById(inputId);
   if (!el) return;
+  // PHASE-11 11E: Places already failed this session — label + skip autocomplete.
+  if (window._placesUnavailable) { el.placeholder = 'Location (search unavailable — type it manually)'; return; }
   if (_autocompleteInstances[inputId]) return;
   // 06D: lazy-load the Places script on first real use (not on page init).
   if (window._bmoMapsKey) loadPlacesAPI(window._bmoMapsKey);
@@ -204,6 +213,7 @@ function bmo() {
     // Calendar
     calEvents: [],
     calOffline: false,
+    calNeedsAuth: false,  // PHASE-11 11B: calendar unauthorized/down
     calAuthUrl: '',
     calAuthManualUrl: '',
     calAuthCode: '',
@@ -292,6 +302,7 @@ function bmo() {
     tvConnected: false,
     tvPairing: false,
     tvPairPin: '',
+    tvPairHint: '',  // PHASE-11 11D: reachability hint when the TV can't be reached
     tvAutoSkip: false,
     tvCurrentApp: '',
     tvVolumeLevel: -1,
@@ -567,8 +578,11 @@ function bmo() {
         this._geoInterval = setInterval(() => this.pushDeviceLocation(), 900000);
         this.startGeoWatch();
       } else {
+        // PHASE-11 11E: log once even if the location-init path runs twice on load.
+        if (!this._geoBlocked) {
+          console.info('[bmo] Geolocation disabled by Permissions-Policy — skipping device-location updates.');
+        }
         this._geoBlocked = true;
-        console.info('[bmo] Geolocation disabled by Permissions-Policy — skipping device-location updates.');
       }
 
       // IDE: stubbed out — new IDE on port 5001
@@ -1843,10 +1857,12 @@ function bmo() {
         if (!res.ok) {
           if (!this.calOffline) console.warn('[cal] API error:', res.status, data);
           this.calOffline = true;
+          this.calNeedsAuth = !!(data && data.needs_auth);
           return;
         }
         if (this.calOffline) console.info('[cal] recovered');
-        this.calOffline = false;
+        this.calOffline = !!(data && data.offline);
+        this.calNeedsAuth = !!(data && data.needs_auth);
         this.calEvents = data.events || data || [];
         const nowMs = Date.now();
         this.nextEvent = this.calEvents.find((e) => new Date(e.start_iso || e.start).getTime() >= nowMs) || null;
@@ -1972,10 +1988,17 @@ function bmo() {
       return null;
     },
 
+    _missingEventFieldMsg(e) {
+      // PHASE-11 11C: name the field that's actually missing.
+      if (!e.summary && !e.date) return 'Please enter a title and choose a date';
+      if (!e.summary) return 'Please enter a title';
+      return 'Please choose a date';
+    },
+
     async createCalEvent() {
       const e = this.newEvent;
       if (!e.summary || !e.date) {
-        this.showNotification('Fill in title and date');
+        this.showNotification(this._missingEventFieldMsg(e));
         return;
       }
       if (!e.allDay && !e.startTime) {
@@ -2112,7 +2135,7 @@ function bmo() {
     async updateCalEvent() {
       const e = this.editEvent;
       if (!e.id || !e.summary || !e.date) {
-        this.showNotification('Fill in title and date');
+        this.showNotification(this._missingEventFieldMsg(e));
         return;
       }
       if (!e.allDay && !e.startTime) {
@@ -2906,17 +2929,27 @@ function bmo() {
     },
 
     async tvStartPairing() {
-      this.tvPairing = true;
+      // PHASE-11 11D: don't jump to the PIN step until pairing actually
+      // starts. A powered-off / unreachable TV can never show a PIN, so
+      // surface a reachability hint instead of an un-fulfillable prompt.
       this.tvPairPin = '';
+      this.tvPairHint = '';
       try {
         const res = await fetch('/api/tv/pair/start', { method: 'POST' });
         const data = await res.json();
+        if (data.unreachable) {
+          this.tvPairHint = data.error || "Can't reach the TV — make sure it's powered on and on the same network.";
+          this.showNotification(this.tvPairHint);
+          this.tvPairing = false;
+          return;
+        }
         if (data.error) {
           this.showNotification('Pairing failed: ' + data.error);
           this.tvPairing = false;
-        } else {
-          this.showNotification('Check your TV for a PIN code!');
+          return;
         }
+        this.tvPairing = true;
+        this.showNotification('Check your TV for a PIN code!');
       } catch {
         this.showNotification('Failed to start pairing');
         this.tvPairing = false;

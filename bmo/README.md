@@ -15,7 +15,7 @@ Named after the Adventure Time character. Lives in a 3D-printed BMO case on a Pi
 - **Discord bots** — DM bot relays player chat / dice rolls / commands to the VTT; social bot handles a casual server (music control, calendar lookups, weather).
 - **Smart home hub** — Chromecast / TV control, BLE thermostat, room presence detection via camera, audio-output routing across multiple speakers.
 - **Game-discovery registry** (Phase 29f) — `/api/games*` REST + SSE that the `dnd-app` clients use to find hosted games on the LAN. Advertised via avahi (`_bmo._tcp`) so Windows clients can discover the Pi without installing Bonjour Print Services.
-- **Embedded web IDE** — a sub-app on port 5001 for editing BMO code from any browser on the LAN. Self-contained xterm + Monaco + chat.
+- **Embedded web IDE** — the production IDE is the dashboard's **IDE** tab → the standalone **`/ide`** page on **:5000** (self-contained xterm + Monaco + chat). A separate experimental `ide_app` rebuild runs on **:5001** but is **bound to loopback (127.0.0.1) only — not LAN-reachable** — and is a stalled/diverged second IDE pending cutover/retirement (see `docs/DESIGN-CONSTRAINTS.md` 47-56).
 
 ## Using BMO
 
@@ -39,7 +39,7 @@ For end users on the same household / LAN as a running BMO.
 - The Pi narrates initiative + scene descriptions in the running session if you've turned on TTS.
 
 **Web IDE (developers / Pi owner only):**
-- BMO ships an embedded code editor at `http://bmo.local:5001` for editing BMO's own source over LAN. Username/password is in `pi/.env`.
+- The production editor is the dashboard **IDE** tab (`/ide` on **:5000**) for editing BMO's own source over LAN. Username/password is in `pi/.env`. (The `ide_app` on **:5001** is experimental and **loopback-only** — not reachable from other LAN machines; see `docs/DESIGN-CONSTRAINTS.md` 47-56.)
 
 ---
 
@@ -122,7 +122,7 @@ Optional sub-app:
 
 | Service | What | Port |
 |---|---|---|
-| `bmo-ide` | Embedded web IDE | 5001 |
+| `bmo-ide` | Embedded web IDE — **experimental, loopback-only** (the production IDE is `/ide` on the `bmo` service, :5000) | 5001 |
 
 Status: `systemctl status bmo bmo-fan bmo-kiosk bmo-dm-bot bmo-social-bot`.
 

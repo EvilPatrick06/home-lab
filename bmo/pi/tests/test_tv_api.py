@@ -60,3 +60,28 @@ def test_path_constants_resolve_under_bmo_pi():
     assert tv_api._TV_WORKER.endswith(os.path.join("services", "tv_worker.py"))
     assert os.path.basename(tv_api._TV_CERT_DIR) == "pi"
     assert tv_api._TV_PYTHON.endswith(os.path.join("venv", "bin", "python3"))
+
+
+# ── PHASE-11 11D — pair flow pre-flights TV reachability ─────────────
+
+
+def test_pair_start_unreachable_returns_handled_signal(client, monkeypatch):
+    """A powered-off / unreachable TV must surface a handled 'unreachable'
+    result (not a PIN prompt / 500)."""
+    monkeypatch.setattr(tv_api, "_tv_reachable", lambda *a, **k: False)
+    r = client.post("/api/tv/pair/start")
+    assert r.status_code == 200
+    data = r.get_json()
+    assert data.get("unreachable") is True
+    assert "power" in data.get("error", "").lower() or "reach" in data.get("error", "").lower()
+
+
+def test_pair_start_reachable_proceeds(client, monkeypatch):
+    """When the TV is reachable the pair flow proceeds to the PIN step."""
+    monkeypatch.setattr(tv_api, "_tv_reachable", lambda *a, **k: True)
+    # client fixture stubs _tv_cmd -> {"ok": True}
+    r = client.post("/api/tv/pair/start")
+    assert r.status_code == 200
+    data = r.get_json()
+    assert not data.get("unreachable")
+    assert data.get("ok") is True
