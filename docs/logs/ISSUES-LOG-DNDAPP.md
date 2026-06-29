@@ -88,3 +88,34 @@ Merge `origin/master` into `auto/play-store-prep` (brings in the existing fix an
 ## Medium
 
 ## Low
+
+### [2026-06-28] Generated-artifact drift on master — README test-file count (852→856) and IPC-SURFACE.md channel catalog (238→241) are stale
+
+- **Category:** config, docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-errors
+- **During:** autonomous dnd-app error scan (static + generator dry-runs; full `npm test` suite was green: 857 files / 8306 tests, and `tsc` web+node + `validate:content` + `lint:forbidden` all clean)
+
+**Description:**
+Two committed, generated/synced doc artifacts have silently drifted out of sync with the source they are derived from. Neither generator is gated by `dnd-app-ci.yml`, so master stays green while the docs are wrong. This is the concrete materialization of the gap predicted in SUGGESTIONS-LOG-DNDAPP.md `[2026-06-25] dnd-app CI omits the doc/i18n drift guards…`.
+
+1. **`dnd-app/README.md` test-file count is stale.** Line 157 reads `Current baseline: **852 test files**…`. `node scripts/build/sync-doc-counts.mjs --check` reports DRIFT; running the sync rewrites it to `**856 test files**` (root `README.md` `[\d,]+ test files` drifts the same way). `sync-doc-counts --check` exits 1.
+2. **`dnd-app/docs/IPC-SURFACE.md` channel catalog is stale.** Header says `Total: **238** channel strings`; regenerating with `node scripts/build/gen-ipc-surface.mjs` produces `**241**` and adds three channels missing from the committed doc: `FILE_OPEN_REQUEST` (`file:open-request`), `FILE_CONSUME_PENDING` (`file:consume-pending`), and `BOOK_SAVE_BYTES` (`book:save-bytes`).
+
+**Reproduction:**
+1. `cd dnd-app`
+2. `node scripts/build/sync-doc-counts.mjs --check` → exits 1, "2 doc count(s) drifted" (the dnd-app README + root README test-file counts).
+3. `node scripts/build/gen-ipc-surface.mjs` then `git diff docs/IPC-SURFACE.md` → shows 238→241 and the three added channel rows.
+
+**Expected behavior:** Committed README test-file count and IPC-SURFACE channel catalog match the source of truth (the vitest test-file glob and `IPC_CHANNELS` respectively).
+
+**Hypothesis / root cause:** `IPC_CHANNELS` gained `file:open-request`, `file:consume-pending`, `book:save-bytes` and ~4 test files were added, but neither `npm run gen:ipc-surface` nor `npm run sync:doc-counts` was re-run/committed afterward. Because `dnd-app-ci.yml` runs neither `sync:doc-counts --check` nor any IPC-surface drift check (confirmed: not present in the workflow), the drift never tripped CI — exactly the silent-drift scenario the 2026-06-25 suggestion warned about (and `gen:ipc-surface` still has no `--check` mode).
+
+**Proposed fix / improvement:**
+- [ ] Run `npm run sync:doc-counts` and `npm run gen:ipc-surface` in `dnd-app/` and commit the regenerated `README.md` (root + dnd-app) and `docs/IPC-SURFACE.md`.
+- [ ] (Prevention — see related suggestion) add `sync:doc-counts -- --check` and an IPC-surface `--check` to `dnd-app-ci.yml` so this cannot recur.
+
+**Related files:** `dnd-app/README.md` (line 157), `README.md`, `dnd-app/docs/IPC-SURFACE.md`, `dnd-app/scripts/build/sync-doc-counts.mjs`, `dnd-app/scripts/build/gen-ipc-surface.mjs`, `dnd-app/src/shared/**` (`IPC_CHANNELS` source)
+
+**Related entries:** SUGGESTIONS-LOG-DNDAPP.md `[2026-06-25] dnd-app CI omits the doc/i18n drift guards that check:full defines, and gen:ipc-surface has no --check mode`
