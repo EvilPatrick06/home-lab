@@ -30,10 +30,9 @@ from services import status_board as sb
 
 RECONCILE_SECONDS = int(os.environ.get("BOARD_RECONCILE_S", "150"))
 STATUS_CHANNEL_ID = int(os.environ.get("DISCORD_STATUS_CHANNEL_ID", "0"))
-DASHBOARD_URL = os.environ.get("BMO_DASHBOARD_URL", "https://bmo.example/status")
 
 
-# ── Buttons / select (owner: Refresh · Acknowledge/Mute · Open dashboard) ────
+# ── Buttons / select (Refresh · Acknowledge/Mute · per-item Done) ────
 
 class BoardView(discord.ui.View):
     """Persistent view attached to the board message (timeout=None)."""
@@ -41,9 +40,7 @@ class BoardView(discord.ui.View):
     def __init__(self, cog: "StatusBoardCog", dismissable: list[tuple[str, str]]):
         super().__init__(timeout=None)
         self.cog = cog
-        # "Open dashboard" link button
-        self.add_item(discord.ui.Button(label="Open dashboard", url=DASHBOARD_URL,
-                                        style=discord.ButtonStyle.link, row=1))
+        # No external dashboard link — the board IS the dashboard, in Discord.
         # Per-item "Done" select (check off — dismiss now; also auto-drops on next scan)
         if dismissable:
             self.add_item(DoneSelect(cog, dismissable))
@@ -98,7 +95,11 @@ class StatusBoardCog(commands.Cog):
 
     @tasks.loop(seconds=RECONCILE_SECONDS)
     async def loop(self):
-        await self.reconcile_and_render()
+        try:
+            await self.reconcile_and_render()
+        except Exception:
+            import logging
+            logging.getLogger("status_board").exception("board reconcile failed (will retry next cycle)")
 
     @loop.before_loop
     async def _before(self):

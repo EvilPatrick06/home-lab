@@ -884,6 +884,14 @@ class SocialBot(commands.Bot):
         sd_watchdog.notify_ready()
         asyncio.create_task(sd_watchdog.run_watchdog(lambda: self.is_ready() and not self.is_closed()))
 
+        # Status board cog (single live status surface). Guarded: a board failure
+        # must never take down the social bot.
+        try:
+            await self.load_extension("bots.social.status_board_cog")
+            logger.info("Status board cog loaded")
+        except Exception:
+            logger.exception("Status board cog failed to load (board disabled this run)")
+
         @self.tree.error
         async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError) -> None:
             logger.error("Command /%s failed: %s", interaction.command.name if interaction.command else "?", error, exc_info=error)
