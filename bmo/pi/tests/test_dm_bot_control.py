@@ -325,6 +325,14 @@ async def test_voice_health_tick_rejoins_on_drop(monkeypatch):
     dropped.disconnect = AsyncMock()
     bot.session.voice_client = dropped
 
+    # Humans present in the Dungeon channel → rejoin path (not orphaned-session
+    # teardown). The fe663d3d "stop rejoining empty Dungeon channel" fix only
+    # rejoins when non-bot members are actually there to hear narration.
+    human = MagicMock(); human.bot = False
+    channel = MagicMock(); channel.members = [human]
+    monkeypatch.setattr(dm, "_candidate_guilds", lambda b: [MagicMock()])
+    monkeypatch.setattr(bot, "find_dungeon_channel", AsyncMock(return_value=channel))
+
     async def fake_listen():
         good = MagicMock(); good.is_connected = MagicMock(return_value=True)
         bot.session.voice_client = good
@@ -333,6 +341,25 @@ async def test_voice_health_tick_rejoins_on_drop(monkeypatch):
     assert await bot._voice_health_tick() is True
     bot.start_voice_listen.assert_awaited_once()
     dropped.disconnect.assert_awaited_once()
+
+
+async def test_voice_health_tick_ends_orphaned_session_when_no_humans(monkeypatch):
+    # Voice dropped but the Dungeon channel has no human members → end the
+    # orphaned session instead of looping a rejoin (regression guard for fe663d3d).
+    bot = DMBot(); bot.session.active = True
+    dropped = MagicMock(); dropped.is_connected = MagicMock(return_value=False)
+    dropped.disconnect = AsyncMock()
+    bot.session.voice_client = dropped
+
+    channel = MagicMock(); channel.members = []          # no humans
+    monkeypatch.setattr(dm, "_candidate_guilds", lambda b: [MagicMock()])
+    monkeypatch.setattr(bot, "find_dungeon_channel", AsyncMock(return_value=channel))
+    monkeypatch.setattr(bot, "start_voice_listen", AsyncMock())
+
+    assert await bot._voice_health_tick() is True
+    bot.start_voice_listen.assert_not_awaited()          # never rejoins
+    dropped.disconnect.assert_awaited_once()             # stale client cleaned
+    assert bot.session.active is False                   # orphaned session ended
 
 
 async def test_voice_health_tick_noop_when_no_session(monkeypatch):
