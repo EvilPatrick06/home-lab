@@ -1,17 +1,18 @@
 """status_board_cog — Components-V2 Discord driver for the BMO status board.
 
 The ONLY component that talks to Discord for the board. Loaded by the bmo-social
-bot (discord.py 2.7.1). Owns ONE message in #status — a Components-V2 LayoutView
-that the reconciler rebuilds + edits in place every cycle.
+bot (discord.py 2.7.1). Owns ONE message in #status — a Components-V2 LayoutView.
 
-V2 layout: a colour-accented Container per section (🚨 Incidents · 📌 Needs you ·
-🤖 Agents · 📅 Today · 💡 Info), each active incident / needs-you item rendered as
-a Section with an INLINE accessory button (🔕 Mute 1h on incidents, ✓ Done on
-items). A global action row carries 🔄 Refresh · ✅ Ack all · 👁 Hide/Show Info.
-A NEW critical incident pings the owner once (transient, auto-deleting message).
+Buttons respond via the INTERACTION (interaction.response.edit_message), never a
+bot-side message PATCH, so clicks are instant and don't hit the message edit
+rate-limit. The periodic reconciler only PATCHes the board when content actually
+changed (hash compare), so the board never enters an edit-storm.
 
-Self-healing is unchanged: truth is re-derived from the live checks + the
-producer-synced inbox every cycle, so the board converges on its own.
+Sections: 🚨 Incidents · 📌 Needs you · 📋 Briefs · 🤖 Agents · 📅 Today · 💡 Info.
+ALL items in a section are listed (no truncation). Interactive sections get
+numbered action buttons (🔕 mute / ✓ done) mapping to the numbered lines, plus a
+group button (Ack-all incidents / Clear-all briefs). Non-actionable agent info
+FYIs are filtered out.
 """
 from __future__ import annotations
 
@@ -29,8 +30,8 @@ RECONCILE_SECONDS = int(os.environ.get("BOARD_RECONCILE_S", "150"))
 STATUS_CHANNEL_ID = int(os.environ.get("DISCORD_STATUS_CHANNEL_ID", "0"))
 OWNER_ID = os.environ.get("DISCORD_OWNER_ID", "")
 MUTE_SECONDS = 3600
-MAX_INTERACTIVE = 4   # per actionable section (V2 component budget)
-MAX_TEXT = 8          # lines in a grouped text section
+COMPONENT_BUDGET = 36          # stay under Discord's V2 40-component cap
+MAX_SECTION_CHARS = 3500       # TextDisplay hard limit is 4000
 
 LABELS = {
     "google_calendar": "📅 Google Calendar", "svc_bmo": "🏠 BMO service",
@@ -42,13 +43,16 @@ LABELS = {
     "net_eth0": "🔌 Ethernet", "mdns": "📡 mDNS", "rclone": "☁️ Rclone",
 }
 
+# (category, header) — interactive sections get per-item buttons.
 SECTIONS = [
-    ("incident",  "🚨 Incidents",   "incident"),
-    ("attention", "📌 Needs you",   "item"),
-    ("agent",     "🤖 Agents",      "text"),
-    ("today",     "📅 Today",       "text"),
-    ("info",      "💡 Info",        "text"),
+    ("incident",  "🚨 Incidents"),
+    ("attention", "📌 Needs you"),
+    ("brief",     "📋 Briefs"),
+    ("agent",     "🤖 Agents"),
+    ("today",     "📅 Today"),
+    ("info",      "💡 Info"),
 ]
+INTERACTIVE = {"incident", "attention", "brief"}
 
 
 def _colour(sev: str) -> discord.Colour:
@@ -56,29 +60,46 @@ def _colour(sev: str) -> discord.Colour:
 
 
 def _line(r: dict) -> str:
-    line = f"{sb.SEV_DOT[r['severity']]} **{r['title'].strip()}**"
-    if r.get("url"):
-        line = f"{sb.SEV_DOT[r['severity']]} **[{r['title'].strip()}]({r['url']})**"
+    title = r["title"].strip()
+    line = f"{sb.SEV_DOT[r['severity']]} **[{title}]({r['url']})**" if r.get("url") \
+        else f"{sb.SEV_DOT[r['severity']]} **{title}**"
     if r.get("due"):
         line += f" · due <t:{int(r['due'])}:R>"
     elif r.get("since"):
         line += f" · <t:{int(r['since'])}:R>"
     if r.get("detail"):
-        line += f"\n　{r['detail'].strip()[:170]}"
+        line += f"\n　{r['detail'].strip()[:180]}"
     return line
 
-
-# ── Persistent (DynamicItem) buttons — survive bot restarts ──────────────────
 
 def _cog(interaction) -> "StatusBoardCog | None":
     return interaction.client.get_cog("StatusBoardCog")
 
 
+async def _respond(interaction: discord.Interaction, cog) -> None:
+    """Re-render the board via the interaction response (no rate-limited PATCH)."""
+    if cog is None:
+        try:
+            await interaction.response.defer()
+        except discord.HTTPException:
+            pass
+        return
+    try:
+        await interaction.response.edit_message(view=cog.build_current_view())
+    except discord.HTTPException:
+        try:
+            await interaction.response.defer()
+        except discord.HTTPException:
+            pass
+
+
+# ── Persistent (DynamicItem) buttons ─────────────────────────────────────────
+
 class MuteButton(discord.ui.DynamicItem[discord.ui.Button], template=r"board:mute:(?P<key>.+)"):
-    def __init__(self, key: str):
+    def __init__(self, key: str, label: str = "🔕 Mute 1h"):
         self.key = key
-        super().__init__(discord.ui.Button(label="Mute 1h", emoji="🔕",
-                         style=discord.ButtonStyle.secondary, custom_id=f"board:mute:{key}"))
+        super().__init__(discord.ui.Button(label=label, style=discord.ButtonStyle.secondary,
+                                           custom_id=f"board:mute:{key}"))
 
     @classmethod
     async def from_custom_id(cls, interaction, item, match):
@@ -89,30 +110,24 @@ class MuteButton(discord.ui.DynamicItem[discord.ui.Button], template=r"board:mut
         if cog:
             cog.state.muted[self.key] = time.time() + MUTE_SECONDS
             cog.state.save()
-            await interaction.response.defer()
-            await cog.reconcile_and_render()
-        else:
-            await interaction.response.defer()
+        await _respond(interaction, cog)
 
 
 class DoneButton(discord.ui.DynamicItem[discord.ui.Button], template=r"board:done:(?P<iid>.+)"):
-    def __init__(self, iid: str):
+    def __init__(self, iid: str, label: str = "✓ Done"):
         self.iid = iid
-        super().__init__(discord.ui.Button(label="Done", emoji="✅",
-                         style=discord.ButtonStyle.success, custom_id=f"board:done:{iid}"))
+        super().__init__(discord.ui.Button(label=label, style=discord.ButtonStyle.success,
+                                           custom_id=f"board:done:{iid}"))
 
     @classmethod
     async def from_custom_id(cls, interaction, item, match):
         return cls(match["iid"])
 
     async def callback(self, interaction: discord.Interaction):
-        cog = _cog(interaction)
         inbox = sb.load_inbox()
         sb.mark_done(inbox, self.iid)
         sb.save_inbox(inbox)
-        await interaction.response.defer()
-        if cog:
-            await cog.reconcile_and_render()
+        await _respond(interaction, _cog(interaction))
 
 
 class RefreshButton(discord.ui.DynamicItem[discord.ui.Button], template=r"board:refresh"):
@@ -125,10 +140,7 @@ class RefreshButton(discord.ui.DynamicItem[discord.ui.Button], template=r"board:
         return cls()
 
     async def callback(self, interaction: discord.Interaction):
-        cog = _cog(interaction)
-        await interaction.response.defer()
-        if cog:
-            await cog.reconcile_and_render()
+        await _respond(interaction, _cog(interaction))
 
 
 class AckAllButton(discord.ui.DynamicItem[discord.ui.Button], template=r"board:ackall"):
@@ -147,10 +159,7 @@ class AckAllButton(discord.ui.DynamicItem[discord.ui.Button], template=r"board:a
             for k in list(cog.state.incidents):
                 cog.state.muted[k] = until
             cog.state.save()
-            await interaction.response.defer()
-            await cog.reconcile_and_render()
-        else:
-            await interaction.response.defer()
+        await _respond(interaction, cog)
 
 
 class ToggleInfoButton(discord.ui.DynamicItem[discord.ui.Button], template=r"board:toggle"):
@@ -167,80 +176,100 @@ class ToggleInfoButton(discord.ui.DynamicItem[discord.ui.Button], template=r"boa
         if cog:
             cog.state.collapse_info = not cog.state.collapse_info
             cog.state.save()
-            await interaction.response.defer()
-            await cog.reconcile_and_render()
-        else:
-            await interaction.response.defer()
+        await _respond(interaction, cog)
 
 
-# ── Layout builder ───────────────────────────────────────────────────────────
+class ClearBriefsButton(discord.ui.DynamicItem[discord.ui.Button], template=r"board:clearbriefs"):
+    def __init__(self):
+        super().__init__(discord.ui.Button(label="Clear all briefs", emoji="🧹",
+                         style=discord.ButtonStyle.secondary, custom_id="board:clearbriefs"))
+
+    @classmethod
+    async def from_custom_id(cls, interaction, item, match):
+        return cls()
+
+    async def callback(self, interaction: discord.Interaction):
+        inbox = sb.load_inbox()
+        for src in list(inbox):
+            inbox[src] = {iid: it for iid, it in inbox[src].items() if it.category != "brief"}
+        sb.save_inbox(inbox)
+        await _respond(interaction, _cog(interaction))
+
+
+# ── Layout ───────────────────────────────────────────────────────────────────
 
 def build_layout(rows: list[dict], state: sb.BoardState) -> discord.ui.LayoutView:
-    # Drop non-actionable agent info FYIs (defense-in-depth; the notify.sh router
-    # already skips them). The board shows only things that need action.
     rows = [r for r in rows if not (r.get("category") == "agent" and r.get("severity") == "info")]
     view = discord.ui.LayoutView(timeout=None)
     worst = sb.worst_severity(rows)
+    comp = 0
 
     inc = [r for r in rows if r["category"] == "incident"]
     att = [r for r in rows if r["category"] == "attention"]
-    agt = [r for r in rows if r["category"] == "agent"]
-    summary_bits = []
+    brf = [r for r in rows if r["category"] == "brief"]
+    bits = []
     if inc:
-        summary_bits.append(f"🔴 {len(inc)} incident" + ("s" if len(inc) != 1 else ""))
+        bits.append(f"🔴 {len(inc)} incident" + ("s" if len(inc) != 1 else ""))
     if att:
-        summary_bits.append(f"📌 {len(att)}")
-    if agt:
-        summary_bits.append(f"🤖 {len(agt)}")
-    summary = " · ".join(summary_bits) if summary_bits else "🟢 All clear"
-
-    header = discord.ui.Container(
+        bits.append(f"📌 {len(att)}")
+    if brf:
+        bits.append(f"📋 {len(brf)}")
+    summary = " · ".join(bits) if bits else "🟢 All clear"
+    view.add_item(discord.ui.Container(
         discord.ui.TextDisplay(f"## 📟 BMO Status Board\n{summary}　·　Updated <t:{int(time.time())}:R>"),
-        accent_colour=_colour(worst),
-    )
-    view.add_item(header)
+        accent_colour=_colour(worst)))
+    comp += 2
 
-    for cat, label, mode in SECTIONS:
+    for cat, label in SECTIONS:
         crows = [r for r in rows if r["category"] == cat]
         if not crows:
             continue
+        if cat == "info" and state.collapse_info:
+            view.add_item(discord.ui.Container(
+                discord.ui.TextDisplay(f"### {label} · {len(crows)} — hidden (tap Info to show)"),
+                accent_colour=_colour("info")))
+            comp += 2
+            continue
         crows.sort(key=lambda r: sb.SEV_ORDER.index(r["severity"]))
-        sect_worst = sb.worst_severity(crows)
-        children = []
-        collapsed = (cat == "info" and state.collapse_info)
-        if collapsed:
-            children.append(discord.ui.TextDisplay(f"### {label} · {len(crows)} (hidden)"))
-        else:
-            children.append(discord.ui.TextDisplay(f"### {label} · {len(crows)}"))
-            if mode in ("incident", "item"):
-                shown = crows[:MAX_INTERACTIVE]
-                for r in shown:
-                    if mode == "incident":
-                        acc = MuteButton(r["key"])
-                    else:
-                        acc = DoneButton(r["id"])
-                    children.append(discord.ui.Section(discord.ui.TextDisplay(_line(r)), accessory=acc))
-                if len(crows) > MAX_INTERACTIVE:
-                    extra = crows[MAX_INTERACTIVE:]
-                    children.append(discord.ui.TextDisplay(
-                        "\n".join(_line(r) for r in extra[:MAX_TEXT])))
-            else:  # grouped text block
-                children.append(discord.ui.TextDisplay(
-                    "\n".join(_line(r) for r in crows[:MAX_TEXT])
-                    + (f"\n_…and {len(crows) - MAX_TEXT} more_" if len(crows) > MAX_TEXT else "")))
-        view.add_item(discord.ui.Container(*children, accent_colour=_colour(sect_worst)))
+        interactive = cat in INTERACTIVE
+        lines = []
+        for idx, r in enumerate(crows, 1):
+            pfx = f"`{idx}` " if interactive else ""
+            lines.append(pfx + _line(r))
+        text = "\n".join(lines)
+        if len(text) > MAX_SECTION_CHARS:
+            text = text[:MAX_SECTION_CHARS].rsplit("\n", 1)[0] + "\n…"
+        children = [discord.ui.TextDisplay(f"### {label} · {len(crows)}"),
+                    discord.ui.TextDisplay(text)]
+        sect_comp = 3
+        if interactive and comp + sect_comp < COMPONENT_BUDGET:
+            btns: list[discord.ui.Item] = []
+            for idx, r in enumerate(crows, 1):
+                if comp + sect_comp + len(btns) + 2 >= COMPONENT_BUDGET:
+                    break
+                if cat == "incident":
+                    btns.append(MuteButton(r["key"], label=f"🔕 {idx}"))
+                else:
+                    btns.append(DoneButton(r["id"], label=f"✓ {idx}"))
+            if cat == "brief":
+                btns.append(ClearBriefsButton())
+            elif cat == "incident" and len(crows) > 1:
+                btns.append(AckAllButton())
+            for i in range(0, len(btns), 5):
+                chunk = btns[i:i + 5]
+                children.append(discord.ui.ActionRow(*chunk))
+                sect_comp += 1 + len(chunk)
+        view.add_item(discord.ui.Container(*children, accent_colour=_colour(sb.worst_severity(crows))))
+        comp += sect_comp
 
-    # global action row
-    buttons = [RefreshButton()]
-    if inc:
-        buttons.append(AckAllButton())
+    glob = [RefreshButton()]
     if any(r["category"] == "info" for r in rows):
-        buttons.append(ToggleInfoButton())
-    view.add_item(discord.ui.ActionRow(*buttons))
+        glob.append(ToggleInfoButton())
+    view.add_item(discord.ui.ActionRow(*glob))
     return view
 
 
-# ── The cog ──────────────────────────────────────────────────────────────────
+# ── Cog ──────────────────────────────────────────────────────────────────────
 
 def _deploy_adapter() -> list:
     try:
@@ -259,19 +288,48 @@ class StatusBoardCog(commands.Cog):
         self.bot = bot
         self.state = sb.BoardState.load()
         self._lock = asyncio.Lock()
+        self._cached_extra: list = []
+        self._last_rows: list = []
+        self._last_hash = ""
 
     async def cog_load(self):
-        for dyn in (MuteButton, DoneButton, RefreshButton, AckAllButton, ToggleInfoButton):
+        for dyn in (MuteButton, DoneButton, RefreshButton, AckAllButton,
+                    ToggleInfoButton, ClearBriefsButton):
             self.bot.add_dynamic_items(dyn)
         self.loop.start()
 
     def cog_unload(self):
         self.loop.cancel()
 
+    def build_current_view(self) -> discord.ui.LayoutView:
+        """Re-derive truth from local state (fast, no subprocess) and render. Used
+        by button responses and the periodic loop. Does NOT edit the message."""
+        monitor = sb._read_json(sb.MONITOR_STATE) if os.path.exists(sb.MONITOR_STATE) else {}
+        health = sb.derive_incidents(monitor, labels=LABELS, extra=self._cached_extra)
+        self.state = sb.reconcile_incidents(self.state, health)
+        inbox = sb.load_inbox()
+        sb.prune_inbox(inbox)
+        sb.save_inbox(inbox)
+        now = time.time()
+        self.state.muted = {k: v for k, v in self.state.muted.items() if v > now}
+        rows = sb.all_rows(self.state, health, inbox)
+        rows = [r for r in rows if not (r["category"] == "incident" and r["key"] in self.state.muted)]
+        self.state.updated = now
+        self.state.save()
+        self._last_rows = rows
+        return build_layout(rows, self.state)
+
+    @staticmethod
+    def _hash(rows: list, state: sb.BoardState) -> str:
+        parts = [f"{r['category']}|{r['severity']}|{r['title']}|{r.get('detail','')}|{r.get('since')}|{r.get('due')}"
+                 for r in rows]
+        return repr((sorted(parts), state.collapse_info, sorted(state.muted)))
+
     @tasks.loop(seconds=RECONCILE_SECONDS)
     async def loop(self):
         try:
-            await self.reconcile_and_render()
+            self._cached_extra = await asyncio.to_thread(_deploy_adapter)
+            await self.render_to_message()
         except Exception:
             import logging
             logging.getLogger("status_board").exception("board reconcile failed (retry next cycle)")
@@ -280,39 +338,22 @@ class StatusBoardCog(commands.Cog):
     async def _before(self):
         await self.bot.wait_until_ready()
 
-    async def _extra_truth(self):
-        try:
-            return await asyncio.to_thread(_deploy_adapter)
-        except Exception:
-            return []
-
-    async def reconcile_and_render(self):
+    async def render_to_message(self):
         async with self._lock:
-            monitor = sb._read_json(sb.MONITOR_STATE) if os.path.exists(sb.MONITOR_STATE) else {}
-            health = sb.derive_incidents(monitor, labels=LABELS, extra=await self._extra_truth())
-            self.state = sb.reconcile_incidents(self.state, health)
-            inbox = sb.load_inbox()
-            sb.prune_inbox(inbox)
-            sb.save_inbox(inbox)
-            now = time.time()
-            self.state.muted = {k: v for k, v in self.state.muted.items() if v > now}
-            rows = sb.all_rows(self.state, health, inbox)
-            rows = [r for r in rows if not (r["category"] == "incident" and r["key"] in self.state.muted)]
-
             channel = self.bot.get_channel(STATUS_CHANNEL_ID)
             if channel is None:
                 return
-            await self._ping_new_criticals(channel, rows)
-
-            view = build_layout(rows, self.state)
+            view = self.build_current_view()
+            await self._ping_new_criticals(channel, self._last_rows)
+            h = self._hash(self._last_rows, self.state)
             msg, created = await self._ensure_board(channel, view)
-            if msg and not created:
+            if not created and h != self._last_hash:
                 try:
                     await msg.edit(view=view)
                 except discord.HTTPException:
                     await self._ensure_board(channel, view, force_new=True)
-
-            topic = sb.render_topic(rows)
+            self._last_hash = h
+            topic = sb.render_topic(self._last_rows)
             try:
                 if channel.topic != topic:
                     await channel.edit(topic=topic)
@@ -320,26 +361,22 @@ class StatusBoardCog(commands.Cog):
                 pass
             try:
                 await self.bot.change_presence(activity=discord.Activity(
-                    type=discord.ActivityType.watching, name=sb.render_presence(rows)))
+                    type=discord.ActivityType.watching, name=sb.render_presence(self._last_rows)))
             except Exception:
                 pass
-            self.state.save()
 
     async def _ping_new_criticals(self, channel, rows):
-        crit_keys = [r["key"] for r in rows if r["category"] == "incident" and r["severity"] == "critical"]
-        new = [r for r in rows if r["category"] == "incident" and r["severity"] == "critical"
-               and r["key"] not in self.state.pinged_critical]
-        for r in new:
+        crit = [r for r in rows if r["category"] == "incident" and r["severity"] == "critical"]
+        for r in crit:
+            if r["key"] in self.state.pinged_critical:
+                continue
             mention = f"<@{OWNER_ID}> " if OWNER_ID else ""
             try:
-                await channel.send(
-                    f"{mention}🔴 **New critical incident:** {r['title']}\n{r.get('detail', '')[:200]}",
-                    delete_after=120,
-                    allowed_mentions=discord.AllowedMentions(users=True))
+                await channel.send(f"{mention}🔴 **New critical incident:** {r['title']}\n{r.get('detail','')[:200]}",
+                                   delete_after=120, allowed_mentions=discord.AllowedMentions(users=True))
             except discord.HTTPException:
                 pass
-        # remember current criticals; drop keys no longer critical so they can re-ping later
-        self.state.pinged_critical = crit_keys
+        self.state.pinged_critical = [r["key"] for r in crit]
 
     async def _ensure_board(self, channel, view, force_new=False):
         st = self.state
