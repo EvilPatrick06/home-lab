@@ -45,7 +45,7 @@ export const dayDiff = (a, b) => {
   if (!a || !b) return Infinity;
   const da = new Date(`${a}T00:00:00`);
   const db = new Date(`${b}T00:00:00`);
-  return Math.round((db - da) / (1000 * 60 * 60 * 24));
+  return Math.round((db.getTime() - da.getTime()) / (1000 * 60 * 60 * 24));
 };
 
 // Pure helper: given today's date string, the player's last claimed date,

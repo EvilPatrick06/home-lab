@@ -25,11 +25,8 @@ jobs:
         with:
           working-directory: dungeon-scholar
       - run: npm run lint
-      # Non-blocking: checkJs over the JS/JSX sources has a pre-existing error
-      # backlog (see ISSUES-LOG-DUNGEON-SCHOLAR.md). Flip to blocking once burned down.
-      - name: Typecheck (tsc, non-blocking)
+      - name: Typecheck (tsc)
         run: npm run typecheck
-        continue-on-error: true
       - run: npm run test
       - run: npm run build
         env:

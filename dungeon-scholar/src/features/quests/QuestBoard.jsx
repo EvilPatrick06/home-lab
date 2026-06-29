@@ -84,7 +84,7 @@ function QuestCard({ q, onClaim }) {
           <span className="text-amber-300 font-bold">+{q.xp} XP</span>
           <span className="text-amber-700">•</span>
           <span className="text-amber-300 font-bold inline-flex items-center gap-0.5">
-            <Coins className="w-3 h-3" aria-label="gold" title="gold" /> +{goldReward}
+            <Coins className="w-3 h-3" aria-label="gold" /> +{goldReward}
           </span>
         </div>
         {q.claimed ? (
@@ -306,7 +306,7 @@ function StoryStepCard({
               <span
                 className={`font-bold inline-flex items-center gap-0.5 ${isLocked ? 'text-amber-700/60' : 'text-amber-300'}`}
               >
-                <Coins className="w-3 h-3" aria-label="gold" title="gold" /> +{goldReward}
+                <Coins className="w-3 h-3" aria-label="gold" /> +{goldReward}
               </span>
               {isFinal && chainBonusXp > 0 && !isLocked && (
                 <span className="text-purple-300/80">(includes chain bonus)</span>
@@ -394,7 +394,7 @@ function StoryChainView({ chainStatus, onClaimStep }) {
                 <span className="text-purple-300 italic inline-flex items-center gap-1">
                   ✦ Bonus
                   <span className="text-amber-300 font-bold inline-flex items-center gap-0.5">
-                    <Coins className="w-3 h-3" aria-label="gold" title="gold" /> +
+                    <Coins className="w-3 h-3" aria-label="gold" /> +
                     {chain.rewardGold ?? Math.floor((chain.rewardXp || 0) * 0.1)}
                   </span>
                 </span>

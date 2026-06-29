@@ -48,7 +48,7 @@ const BROADCAST_CHANNEL = 'dungeon-scholar:state';
  *   - both have data, cloud changed, local dirty   → CHOOSER (real concurrent conflict)
  *
  * @param defaultState  initial blob if nothing is stored anywhere
- * @param user          { id, githubLogin, avatarUrl } | null
+ * @param user user record (id, githubLogin, avatarUrl) or null
  * @returns [state, setState, sync]
  *   sync = { mergeRequired, localPreview, cloudPreview, resolveMerge, status, lastSyncedAt }
  */

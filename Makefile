@@ -6,7 +6,7 @@
 help:
 	@echo "Targets: install hooks lint typecheck test build audit all"
 	@echo "  lint      -> dnd-app + dnd-app/mobile + dungeon-scholar (biome); bmo/pi (ruff); oracle-worker (no-op)"
-	@echo "  typecheck -> dnd-app + oracle-worker (enforced); dnd-app/mobile + dungeon-scholar (non-blocking checkJs)"
+	@echo "  typecheck -> dnd-app + oracle-worker + dungeon-scholar (enforced); dnd-app/mobile (non-blocking)"
 	@echo "  test      -> dnd-app + dungeon-scholar + oracle-worker (npm) + bmo/pi (pytest)"
 	@echo "  build     -> dnd-app + dungeon-scholar (npm) + oracle-worker (wrangler dry-run)"
 	@echo "  audit     -> each project: npm run audit:ci"
@@ -33,15 +33,14 @@ lint:
 	cd bmo/pi && ruff check .
 
 # typecheck fans out to all four code areas. Enforced (must pass): dnd-app (web
-# tsconfig) and oracle-worker (checkJs over its JS worker, currently clean).
-# Non-blocking (leading `-`: errors print but do not fail the target) until their
-# backlogs are burned down: dnd-app/mobile (Expo/RN) and dungeon-scholar (checkJs
-# over JS/JSX; pre-existing errors tracked in ISSUES-LOG-DUNGEON-SCHOLAR.md).
+# tsconfig), oracle-worker, and dungeon-scholar (checkJs over JS/JSX, now clean).
+# Non-blocking (leading `-`: errors print but do not fail the target) until its
+# backlog is burned down: dnd-app/mobile (Expo/RN).
 typecheck:
 	cd dnd-app && npx tsc --noEmit -p tsconfig.web.json
 	cd oracle-worker && npm run typecheck
+	cd dungeon-scholar && npm run typecheck
 	-cd dnd-app/mobile && npm run typecheck
-	-cd dungeon-scholar && npm run typecheck
 
 test:
 	cd dnd-app && npm test

@@ -69,7 +69,7 @@ export async function deriveKey(passphrase, saltBytes, iterations = KDF_ITERATIO
     'deriveKey',
   ]);
   const key = await crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt: saltBytes, iterations, hash: 'SHA-256' },
+    { name: 'PBKDF2', salt: /** @type {BufferSource} */ (saltBytes), iterations, hash: 'SHA-256' },
     material,
     { name: 'AES-GCM', length: 256 },
     false,

@@ -862,7 +862,7 @@ export default function DungeonScholarApp() {
     const reader = new FileReader();
     reader.onload = (ev) => {
       try {
-        const data = JSON.parse(ev.target.result);
+        const data = JSON.parse(/** @type {string} */ (ev.target.result));
         // PHASE-41 41B: a sealed-tome envelope has metadata but no top-level
         // `flashcards` array, so accept it via the sealed predicate alongside
         // the plain-tome shape check.
@@ -921,7 +921,7 @@ export default function DungeonScholarApp() {
     }
     const res = deckTextToTome(text);
     if (!res.ok) {
-      showNotif(res.error, 'error');
+      showNotif(/** @type {{error:string}} */ (res).error, 'error');
       return false;
     }
     if (!addTomeToLibrary(res.tome)) return false;

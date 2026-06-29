@@ -88,7 +88,7 @@ export function subscribeSaves(userId, onUpdate) {
       // Only the channel topic above is hashed (it's a label, not an authenticator).
       { event: '*', schema: 'public', table: 'saves', filter: `user_id=eq.${userId}` },
       (payload) => {
-        const row = payload.new;
+        const row = /** @type {any} */ (payload.new);
         if (!row) return;
         onUpdate({
           data: row.data,

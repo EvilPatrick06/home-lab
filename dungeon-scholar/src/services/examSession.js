@@ -43,7 +43,7 @@ export function pickStratifiedSample(quiz, weights, totalCount, rng = Math.rando
   const weightEntries =
     weights && typeof weights === 'object'
       ? Object.entries(weights)
-          .map(([k, v]) => [k, Number(v)])
+          .map(([k, v]) => /** @type {[string, number]} */ ([k, Number(v)]))
           .filter(([, v]) => Number.isFinite(v) && v > 0)
       : [];
 

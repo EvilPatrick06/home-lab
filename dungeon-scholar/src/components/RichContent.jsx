@@ -138,7 +138,10 @@ function styleForFence(language) {
  * @param {{ text?: any, className?: any, style?: import("react").CSSProperties, as?: any }} props
  */
 export default function RichContent({ text, className, style, as: BlockTag = 'div' }) {
-  const nodes = /** @type {Array<{type:string,content?:string,language?:string,href?:string,label?:string,src?:string,alt?:string}>} */ (parseRichContent(text));
+  const nodes =
+    /** @type {Array<{type:string,content?:string,language?:string,href?:string,label?:string,src?:string,alt?:string}>} */ (
+      parseRichContent(text)
+    );
   if (nodes.length === 0) {
     return BlockTag ? <BlockTag className={className} style={style} /> : null;
   }
