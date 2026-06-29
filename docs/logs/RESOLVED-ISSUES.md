@@ -14,6 +14,20 @@ How to triage: [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md)
 
 > Resolved cross-cutting / `Domain: both` entries moved out of `ISSUES-LOG.md` + `SUGGESTIONS-LOG.md`. Newest first.
 
+### [2026-06-29] Deferred CI hardening guards implemented (node-pin, action SHA-pin, docs-index parity, superpowers orphan, permissions)
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-29
+- **Resolution:** Added `scripts/check-ci-hygiene.sh` + `.github/workflows/ci-hygiene.yml`, mechanically enforcing the conventions prior resolutions left as optional hand-checked follow-ups: (1) no literal `node-version:` in workflows (must use `node-version-file: .nvmrc`); (2) every non-local GitHub Action pinned to a full 40-char commit SHA; (3) `docs/README.md` indexes every `docs/*.md`; (4) no tracked file under `docs/superpowers/` unreferenced by the README (recurrence guard for the archived design specs); (5) every workflow declares a top-level `permissions:` block. All five pass on the current tree. The repo default workflow-permission was found ALREADY set to `read`, so the SEC defense-in-depth item needed no change. A deeper actions linter (actionlint / zizmor) is left as a future enhancement, deliberately NOT added as a `curl | bash` install to avoid re-introducing the unverified-download pattern the gitleaks-checksum fix closed.
+- **Branch:** auto/overall-resolver
+
+- **Category:** config, security, docs
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-resolver
+
+**Original deferrals closed:** the `ISSUES-LOG` dnd-e2e CI-conventions entry (deferred grep-guard for literal node pins / mutable tags), the `SUGGESTIONS-LOG` superpowers-orphan + README-index entries (optional CI parity / recurrence checks), and the `SECURITY-LOG` dnd-e2e + gitleaks entries (mechanical pin / permissions lint).
+
 ### [2026-06-28] TypeScript type-checking coverage is uneven across the three TS projects — only dnd-app has a `tsc` gate
 
 - **Resolved by:** overall-resolver (automated)
