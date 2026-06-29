@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { formatDateLabel } from '../../utils/date.js';
 
 // Phase 23 — Ascension. The cycle resets; identity persists. Confirms
 // before destruction so the player can't ascend by accident.
@@ -8,7 +9,7 @@ function AscensionScreen({ playerState, setScreen, onAscend }) {
   const ready = lvl >= REQ;
   const ascensions = playerState.ascensions || 0;
   const tokens = playerState.ascensionTokens || 0;
-  const lastAscended = playerState.lastAscendedAt ? new Date(playerState.lastAscendedAt).toLocaleDateString() : null;
+  const lastAscended = formatDateLabel(playerState.lastAscendedAt, null);
   const [confirming, setConfirming] = useState(false);
   const [feedback, setFeedback] = useState(null);
 

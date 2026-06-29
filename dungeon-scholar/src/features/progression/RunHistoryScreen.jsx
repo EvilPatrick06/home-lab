@@ -4,6 +4,7 @@ import { BloomBadge, DifficultyStars } from '../../components/ui/badges.jsx';
 import { RecordTile } from '../../components/ui/RecordTile.jsx';
 import { BOSS_TYPES, DIFFICULTIES } from '../../game/difficulty.js';
 import { blankTomeProgress, formatDuration, summarizeRunHistory } from '../../game/tome.js';
+import { formatDateTimeLabel } from '../../utils/date.js';
 
 function RunHistoryScreen({ playerState, setScreen }) {
   const activeTome = playerState.library?.find((t) => t.id === playerState.activeTomeId);
@@ -276,12 +277,7 @@ function RunHistoryScreen({ playerState, setScreen }) {
               const diff = DIFFICULTIES[run.difficulty] || DIFFICULTIES.apprentice;
               const boss = BOSS_TYPES[run.bossId];
               const isOpen = expanded === run.runId;
-              const dateLabel = new Date(run.date).toLocaleDateString(undefined, {
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              });
+              const dateLabel = formatDateTimeLabel(run.date);
               return (
                 <div
                   key={run.runId}
