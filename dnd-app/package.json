@@ -45,6 +45,7 @@
     "lint": "biome check src/",
     "lint:fix": "biome check --write src/",
     "lint:forbidden": "node scripts/lint/forbidden-patterns.mjs",
+    "lint:file-size": "node scripts/lint/file-size-budget.mjs",
     "format": "biome format --write src/",
     "audit:ci": "npm audit --audit-level=moderate --omit=dev",
     "audit:all": "npm audit --audit-level=moderate",
