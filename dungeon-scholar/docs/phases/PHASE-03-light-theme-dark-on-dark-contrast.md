@@ -1,6 +1,6 @@
 # PHASE-03 — Light-theme dark-on-dark contrast (systemic)
 
-> Authored from the 2026-06-24 dungeon-scholar QA reports — [`QA-report-2026-06-24-2.md`](./QA/completed/QA-report-2026-06-24-2.md) (run 2, the fuller pass) — tested @ deployed `index-B4qcBDzT.js` / src `9e454930` · `origin/master` `3c89d787`. Order/dependencies: [`PHASE-INDEX.md`](./PHASE-INDEX.md). Execute per [`INSTRUCTIONS.md`](./INSTRUCTIONS.md). PLANNING ONLY — this phase authors the plan; no app changes here. **Amended 2026-06-29** to add **F5 / sub-phase 03G** from [`QA-report-2026-06-28.md`](./QA/completed/QA-report-2026-06-28.md) (deployed `index-Dy2bw_1f.js`, src `8a8891fb`): the Light-theme Oracle/Chat-bubble **light-on-light** regression — the *inverse* of F1-F3 and a distinct root cause the F2 03E dark-on-dark grep does not catch.
+> Authored from the 2026-06-24 dungeon-scholar QA reports — [`QA-report-2026-06-24-2.md`](./QA/completed/QA-report-2026-06-24-2.md) (run 2, the fuller pass) — tested @ deployed `index-B4qcBDzT.js` / src `9e454930` · `origin/master` `3c89d787`. Order/dependencies: [`PHASE-INDEX.md`](./PHASE-INDEX.md). Execute per [`INSTRUCTIONS.md`](./INSTRUCTIONS.md). PLANNING ONLY — this phase authors the plan; no app changes here. **Amended 2026-06-29** to add **F5 / sub-phase 03G** from [`QA-report-2026-06-28.md`](./QA/completed/QA-report-2026-06-28.md) (deployed `index-Dy2bw_1f.js`, src `8a8891fb`): the Light-theme Oracle/Chat-bubble **light-on-light** regression — the *inverse* of F1-F3 and a distinct root cause the F2 03E dark-on-dark grep does not catch. **Further amended 2026-06-29** (run 2, deployed `index-C2MmghGQ.js`, src `dc85f35f`) to add **F6 / sub-phase 03H** from [`QA-report-2026-06-29.md`](./QA/completed/QA-report-2026-06-29.md): the Light-theme Library **tag chips + tome-subject label + sealed badge** are low-contrast — the *same* family as F5/03G (a theme-aware *lightening* surface under a hardcoded *non-inverting* inline hex colour), fixed by inverting the text, not the background. The run-2 report ([`QA-report-2026-06-29-2.md`](./QA/completed/QA-report-2026-06-29-2.md)) also re-confirmed F1 and located that the flashcard card gradient is applied as a **`background-image`** (not `background-color`) — see the added note in 03B.
 
 ## Goal
 
@@ -121,6 +121,35 @@ grep -n -- '--surface-amber' dungeon-scholar/src/index.css            # the var 
 **Suggested action:** stop hardcoding the bubble body text as a fixed light hex. Because these surfaces **lighten** in Light theme, the text must **darken** — route the body text through an inverting `text-amber-*` utility / a theme-aware text token so it resolves dark-on-light in Light theme and light-on-dark in Dark theme. Do **not** apply the 03A var-swap (the background is already correct) and do **not** use the non-inverting `--on-dark-fg` escape hatch here (that is only for surfaces that must stay dark in both themes — these don't).
 
 
+### F6 (low) — Light theme: Library tag chips, tome-subject label, and sealed badge are low-contrast (same family as F5)
+
+**Status: confirmed in source.**
+
+QA repro (report 1, section 7 — Light theme, Library open):
+
+1. Switch to Light theme. 2. Open the Library. 3. Tag chips ("#sociology", "#race", ...) and the "subject" label render pale-on-pale.
+
+QA measured: tag chip text gold `rgb(252,211,77)` (amber-300) on pale-amber chip `rgba(253,230,138,.4)` -> **1.16:1**; tome-subject label purple `rgb(216,180,254)` (purple-300) on pale-purple `rgba(243,232,255,.7)` -> **1.5:1**.
+
+Root cause, confirmed in source - and **identical to F5/03G** (theme-aware *lightening* background + hardcoded *non-inverting* inline hex text), not the F1-F3 dark-on-dark pattern:
+
+- **Tag chip** (`src/features/library/LibraryScreen.jsx:561-573`): background `rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)` (`:569`) - a themeable var that **lightens** in Light theme - under `color: '#fcd34d'` (`:570`), a hardcoded inline hex (amber-300's raw light value) that does **not** invert. Light chip + light text = ~1.16:1.
+- **Tome-subject label** (`src/features/library/LibraryScreen.jsx:520-531`): background `rgba(var(--surface-purple, 31, 12, 41), 0.7)` (`:526`, lightens) under `color: '#d8b4fe'` (`:528`, hardcoded purple-300 light value). Same defect, ~1.5:1.
+- **Sealed badge** (`src/features/library/LibraryScreen.jsx:493-504`): background `rgba(var(--surface-purple, 31, 12, 41), 0.8)` (`:497`, lightens) under `color: '#d8b4fe'` (`:499`). Same defect.
+- **Leave the author + difficulty chips** (`:540-545` `#93c5fd` on a hardcoded-dark `rgba(12,24,41,.7)`; `:551-556` `#fca5a5` on hardcoded-dark `rgba(41,12,12,.7)`): their backgrounds stay dark in both themes (like the ChatMode `isSearch` bubble), so the light text reads correctly - do not touch.
+- **The fix is the 03G mechanism, not 03A:** `index.css` already defines inverting Light overrides for `--color-amber-300` (`:133`) and `--color-purple-300` (`:143`), so replacing the inline `color: '#fcd34d'`/`'#d8b4fe'` with the `text-amber-300`/`text-purple-300` **utility classes** makes the text track the ramp and darken in Light theme. Do **not** alter the (already-correct) chip backgrounds.
+
+Verification commands (read-only):
+
+```bash
+sed -n '493,573p' dungeon-scholar/src/features/library/LibraryScreen.jsx   # sealed badge (:497/:499), subject label (:526/:528), tag chip (:569/:570), and the leave-alone author/difficulty chips
+grep -n "color: '#fcd34d'\|color: '#d8b4fe'" dungeon-scholar/src/features/library/LibraryScreen.jsx
+grep -n -- '--color-amber-300\|--color-purple-300' dungeon-scholar/src/index.css   # inverting Light overrides (:133 / :143)
+```
+
+**Suggested action:** route the chip/label/badge text through the inverting `text-amber-300` / `text-purple-300` utilities (or a theme-aware token) so it darkens in Light theme; leave the chip backgrounds and the on-dark author/difficulty chips unchanged.
+
+
 ## Sub-phases
 
 > dungeon-scholar checks (run from `dungeon-scholar/`): single test `npx vitest run src/.../that.test.jsx` during sub-phase work; CI (`dungeon-scholar-ci.yml`) runs the full `npm run test` + `npm run build` (`VITE_BASE=/home-lab/`) gate on push. A pure colour/contrast change has no unit gate beyond the build — validate with the build + a careful read + the next live deploy in both themes; where practical, add a contrast assertion (computed-style/luminance) test.
@@ -146,6 +175,8 @@ grep -n -- '--surface-amber' dungeon-scholar/src/index.css            # the var 
 **Objective:** flashcard question + answer meet WCAG AA (≥4.5:1) in both themes.
 
 **Files:** `dungeon-scholar/src/features/study/FlashcardsMode.jsx` (`:341` background, `:353` face text; check the OcclusionCard branch too).
+
+> **Note (re-confirmed 2026-06-29 run 2):** the `:341` dark gradient is set via the inline `background:` shorthand, i.e. it resolves to a **`background-image`** (a `linear-gradient`), not a `background-color`. A Light-theme override that only sets `background-color` will **not** cover it — route the whole `background` through the `--panel-bg-sapphire` var (or pin the face text per 03A) so the gradient itself flips.
 
 **Steps:**
 
@@ -224,6 +255,21 @@ grep -n -- '--surface-amber' dungeon-scholar/src/index.css            # the var 
 **Acceptance:** the Oracle answer body and user-message body pass AA in **both** themes; "THE ORACLE" label + sources stay legible; the search-result bubble is unchanged and still reads; dark theme visually unchanged; `npm run build` clean; any new test green.
 
 
+### 03H - Library tag chips, subject label, and sealed badge follow the theme (F6)
+
+**Objective:** the Library tag chips, the subject label, and the "Sealed" badge meet WCAG AA (>=4.5:1) in **both** themes, without altering their (already-correct) backgrounds.
+
+**Files:** `dungeon-scholar/src/features/library/LibraryScreen.jsx` (tag chip `:570`, subject label `:528`, sealed badge `:499`).
+
+**Steps:**
+
+1. Replace the hardcoded inline `color: '#fcd34d'` (tag chip `:570`) and `color: '#d8b4fe'` (subject label `:528`, sealed badge `:499`) with the inverting `text-amber-300` / `text-purple-300` utility classes (or a theme-aware token) - the 03G mechanism (darken the text), **not** the 03A var-swap (the backgrounds already lighten correctly).
+2. Leave the author chip (`:540-545`, `#93c5fd` on hardcoded-dark) and difficulty chip (`:551-556`, `#fca5a5` on hardcoded-dark) unchanged - their dark backgrounds stay dark in both themes, so the light text is correct.
+3. Add a contrast/computed-style assertion if tractable (render a Library card under `data-theme="light"`, assert the chip/label text passes a luminance-ratio check against its lightened background).
+
+**Acceptance:** Library tag chips, subject label, and sealed badge pass AA in **both** themes; the on-dark author/difficulty chips are unchanged; dark theme visually unchanged; `npm run build` clean; any new test green.
+
+
 ## Research notes
 
 - The light theme is implemented by **overriding Tailwind's colour-ramp CSS variables** under `html[data-theme="light"]` (`src/index.css:129+`), so `text-amber-50` resolves to a dark value in light theme by design — correct for ink-on-parchment, wrong only when the surface under it is also dark. The fix is to make the surface theme-aware too (it already has `--panel-bg-*`/`--surface-*` vars for exactly this) or to opt the text out of the ramp via a non-inverting token.
@@ -242,6 +288,7 @@ grep -n -- '--surface-amber' dungeon-scholar/src/index.css            # the var 
 - No remaining component pairs a hardcoded-dark background with inverted `text-amber-*` text (F2 systemic sweep, 03E).
 - The Theme-picker "reads best" copy is accurate (F4).
 - The Oracle/Chat answer body and user-message bubbles pass WCAG AA in both themes (F5) — fixed by darkening the text, not the already-themed background.
+- The Library tag chips, tome-subject label, and sealed badge pass WCAG AA in both themes (F6) - same fix as F5 (invert the text; leave the background and the on-dark author/difficulty chips alone).
 - Dark theme is visually unchanged.
 - `dungeon-scholar-ci.yml` green (full `npm run test` + `npm run build`).
 
