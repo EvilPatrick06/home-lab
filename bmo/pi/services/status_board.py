@@ -201,6 +201,10 @@ class BoardState:
     channel_id: int | None = None
     incidents: dict = field(default_factory=dict)
     updated: float = 0.0
+    muted: dict = field(default_factory=dict)          # incident key -> mute_until ts
+    collapse_info: bool = False                        # Info section hidden?
+    pinged_critical: list = field(default_factory=list)  # critical keys already pinged
+    board_v2: bool = False                             # is the live board a Components-V2 msg?
 
     @classmethod
     def load(cls) -> "BoardState":
@@ -208,14 +212,20 @@ class BoardState:
             with open(BOARD_STATE, encoding="utf-8") as f:
                 d = json.load(f)
             inc = {k: Incident(**v) for k, v in d.get("incidents", {}).items()}
-            return cls(d.get("board_message_id"), d.get("channel_id"), inc, d.get("updated", 0.0))
+            return cls(d.get("board_message_id"), d.get("channel_id"), inc,
+                       d.get("updated", 0.0), d.get("muted", {}),
+                       d.get("collapse_info", False), d.get("pinged_critical", []),
+                       d.get("board_v2", False))
         except Exception:
             return cls()
 
     def save(self) -> None:
         os.makedirs(_DATA_DIR, exist_ok=True)
         d = {"board_message_id": self.board_message_id, "channel_id": self.channel_id,
-             "incidents": {k: asdict(v) for k, v in self.incidents.items()}, "updated": time.time()}
+             "incidents": {k: asdict(v) for k, v in self.incidents.items()},
+             "updated": time.time(), "muted": self.muted,
+             "collapse_info": self.collapse_info, "pinged_critical": self.pinged_critical,
+             "board_v2": self.board_v2}
         with open(BOARD_STATE, "w", encoding="utf-8") as f:
             json.dump(d, f, indent=2)
 
@@ -268,12 +278,14 @@ def all_rows(state: BoardState, health_rows: list[dict], inbox: dict) -> list[di
         rows.append({"category": "incident" if r["severity"] in _ACTIVE else "info",
                      "severity": r["severity"], "title": r["label"],
                      "detail": r["message"], "since": inc.since if inc else None,
-                     "due": None, "url": None})
+                     "due": None, "url": None,
+                     "kind": "incident", "key": r["key"], "id": None})
     for src in inbox.values():
         for it in src.values():
             rows.append({"category": it.category, "severity": it.severity,
                          "title": it.title, "detail": it.detail, "since": it.created,
-                         "due": it.due, "url": it.url})
+                         "due": it.due, "url": it.url,
+                         "kind": "item", "key": it.id, "id": it.id})
     return rows
 
 
