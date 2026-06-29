@@ -26,10 +26,12 @@ from discord.ext import commands, tasks
 
 from services import status_board as sb
 
-RECONCILE_SECONDS = int(os.environ.get("BOARD_RECONCILE_S", "150"))
+RECONCILE_SECONDS = int(os.environ.get("BOARD_RECONCILE_S", "60"))
 STATUS_CHANNEL_ID = int(os.environ.get("DISCORD_STATUS_CHANNEL_ID", "0"))
 OWNER_ID = os.environ.get("DISCORD_OWNER_ID", "")
 MUTE_SECONDS = 3600
+MC_HOST = os.environ.get("BOARD_MC_HOST", "100.70.183.24")  # laptop (Tailscale)
+MC_PORT = int(os.environ.get("BOARD_MC_PORT", "25565"))
 COMPONENT_BUDGET = 36          # stay under Discord's V2 40-component cap
 MAX_SECTION_CHARS = 3500       # TextDisplay hard limit is 4000
 
@@ -59,7 +61,7 @@ def _colour(sev: str) -> discord.Colour:
     return discord.Colour(sb.SEV_COLOR.get(sev, 0x808080))
 
 
-def _line(r: dict, compact: bool = False) -> str:
+def _line(r: dict, compact: bool = False, detail_max: int = 180) -> str:
     title = r["title"].strip()
     line = f"{sb.SEV_DOT[r['severity']]} **[{title}]({r['url']})**" if r.get("url") \
         else f"{sb.SEV_DOT[r['severity']]} **{title}**"
@@ -68,7 +70,7 @@ def _line(r: dict, compact: bool = False) -> str:
     elif r.get("since"):
         line += f" · <t:{int(r['since'])}:R>"
     if r.get("detail") and not compact:
-        line += f"\n　{r['detail'].strip()[:180]}"
+        line += f"\n　{r['detail'].strip()[:detail_max]}"
     return line
 
 
@@ -214,6 +216,12 @@ def build_layout(rows: list[dict], state: sb.BoardState) -> discord.ui.LayoutVie
         bits.append(f"📌 {len(att)}")
     if brf:
         bits.append(f"📋 {len(brf)}")
+    agt_src = {r.get("source") for r in rows if r["category"] == "agent"}
+    if agt_src:
+        bits.append(f"🤖 {len(agt_src)}")
+    info_n = len([r for r in rows if r["category"] == "info"])
+    if info_n:
+        bits.append(f"💡 {info_n}")
     summary = " · ".join(bits) if bits else "🟢 All clear"
     view.add_item(discord.ui.Container(
         discord.ui.TextDisplay(f"## 📟 BMO Status Board\n{summary}　·　Updated <t:{int(time.time())}:R>"),
@@ -231,12 +239,36 @@ def build_layout(rows: list[dict], state: sb.BoardState) -> discord.ui.LayoutVie
             comp += 2
             continue
         crows.sort(key=lambda r: sb.SEV_ORDER.index(r["severity"]))
+        if cat == "agent":
+            # Collapse to ONE line per producing source (resilient to any agent
+            # posting many individual entries). Shows only approve/deny-style asks.
+            groups: dict[str, list] = {}
+            for r in crows:
+                groups.setdefault(r.get("source") or "agent", []).append(r)
+            glines = []
+            for src in sorted(groups):
+                items = groups[src]
+                items.sort(key=lambda r: sb.SEV_ORDER.index(r["severity"]))
+                if src in ("agent", "notify"):
+                    # generic router bucket — heterogeneous asks; list each by title
+                    for it in items:
+                        glines.append(f"{sb.SEV_DOT[it['severity']]} {it['title']}")
+                else:
+                    worst_s = items[0]["severity"]
+                    only = items[0]["title"] if len(items) == 1 else f"{len(items)} items awaiting review"
+                    glines.append(f"{sb.SEV_DOT[worst_s]} **{src}** — {only}")
+            view.add_item(discord.ui.Container(
+                discord.ui.TextDisplay(f"### {label} · {len(groups)} source(s)"),
+                discord.ui.TextDisplay("\n".join(glines)[:MAX_SECTION_CHARS]),
+                accent_colour=_colour(sb.worst_severity(crows))))
+            comp += 3
+            continue
         interactive = cat in INTERACTIVE
         compact = len(crows) > 12
         lines = []
         for idx, r in enumerate(crows, 1):
             pfx = f"`{idx}` " if interactive else ""
-            lines.append(pfx + _line(r, compact=compact))
+            lines.append(pfx + _line(r, compact=compact, detail_max=(1500 if cat == "brief" else 180)))
         children = [discord.ui.TextDisplay(f"### {label} · {len(crows)}")]
         chunk, clen = [], 0
         for ln in lines:
@@ -277,6 +309,25 @@ def build_layout(rows: list[dict], state: sb.BoardState) -> discord.ui.LayoutVie
 
 # ── Cog ──────────────────────────────────────────────────────────────────────
 
+def _mc_down() -> bool:
+    """True only if the laptop is reachable on the tailnet but the Minecraft
+    port is not responding (so a laptop that is simply off/asleep is NOT flagged)."""
+    import socket
+    try:
+        st = subprocess.run(["tailscale", "status"], capture_output=True, text=True, timeout=5).stdout
+    except Exception:
+        st = ""
+    online = any(MC_HOST in ln and "offline" not in ln.lower() for ln in st.splitlines())
+    if not online:
+        return False
+    try:
+        s = socket.create_connection((MC_HOST, MC_PORT), timeout=3)
+        s.close()
+        return False
+    except Exception:
+        return True
+
+
 def _deploy_adapter() -> list:
     try:
         active = subprocess.run(["systemctl", "is-active", "bmo"],
@@ -297,6 +348,7 @@ class StatusBoardCog(commands.Cog):
         self._cached_extra: list = []
         self._last_rows: list = []
         self._last_hash = ""
+        self._mc_down = False
 
     async def cog_load(self):
         for dyn in (MuteButton, DoneButton, RefreshButton, AckAllButton,
@@ -320,6 +372,10 @@ class StatusBoardCog(commands.Cog):
         self.state.muted = {k: v for k, v in self.state.muted.items() if v > now}
         rows = sb.all_rows(self.state, health, inbox)
         rows = [r for r in rows if not (r["category"] == "incident" and r["key"] in self.state.muted)]
+        if self._mc_down:
+            rows.append({"category": "info", "severity": "warning", "title": "🎮 Minecraft server down",
+                         "detail": "laptop is online but the MC port (25565) is not responding",
+                         "since": now, "due": None, "url": None, "kind": "item", "key": "mc", "id": "mc", "source": "mc"})
         self.state.updated = now
         self.state.save()
         self._last_rows = rows
@@ -335,6 +391,7 @@ class StatusBoardCog(commands.Cog):
     async def loop(self):
         try:
             self._cached_extra = await asyncio.to_thread(_deploy_adapter)
+            self._mc_down = await asyncio.to_thread(_mc_down)
             await self.render_to_message()
         except Exception:
             import logging

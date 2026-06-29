@@ -279,13 +279,13 @@ def all_rows(state: BoardState, health_rows: list[dict], inbox: dict) -> list[di
                      "severity": r["severity"], "title": r["label"],
                      "detail": r["message"], "since": inc.since if inc else None,
                      "due": None, "url": None,
-                     "kind": "incident", "key": r["key"], "id": None})
+                     "kind": "incident", "key": r["key"], "id": None, "source": None})
     for src in inbox.values():
         for it in src.values():
             rows.append({"category": it.category, "severity": it.severity,
                          "title": it.title, "detail": it.detail, "since": it.created,
                          "due": it.due, "url": it.url,
-                         "kind": "item", "key": it.id, "id": it.id})
+                         "kind": "item", "key": it.id, "id": it.id, "source": it.source})
     return rows
 
 
@@ -300,9 +300,12 @@ def worst_severity(rows: list[dict]) -> str:
 def render_topic(rows: list[dict]) -> str:
     if not rows:
         return "🟢 All clear"
-    inc = [r for r in rows if r["category"] == "incident"]
+    inc = [r for r in rows if r["category"] == "incident" and r["severity"] in _ACTIVE]
     att = [r for r in rows if r["category"] == "attention"]
-    agt = [r for r in rows if r["category"] == "agent"]
+    brf = [r for r in rows if r["category"] == "brief"]
+    info = [r for r in rows if r["category"] == "info"]
+    agt_src = {r.get("source") for r in rows
+               if r["category"] == "agent" and r["severity"] != "info"}
     if inc:
         head = "🔴" if any(r["severity"] == "critical" for r in inc) else "🟡"
         bits = [f"{len(inc)} incident" + ("s" if len(inc) != 1 else "")]
@@ -310,18 +313,23 @@ def render_topic(rows: list[dict]) -> str:
         head, bits = "🟢", ["systems normal"]
     if att:
         bits.append(f"📌 {len(att)}")
-    if agt:
-        bits.append(f"🤖 {len(agt)}")
+    if brf:
+        bits.append(f"📋 {len(brf)}")
+    if agt_src:
+        bits.append(f"🤖 {len(agt_src)}")
+    if info:
+        bits.append(f"💡 {len(info)}")
     return f"{head} " + " · ".join(bits)
 
 
 def render_presence(rows: list[dict]) -> str:
-    inc = [r for r in rows if r["category"] == "incident"]
-    pending = len([r for r in rows if r["category"] in ("attention", "agent")])
+    inc = [r for r in rows if r["category"] == "incident" and r["severity"] in _ACTIVE]
+    att = len([r for r in rows if r["category"] in ("attention", "brief")])
+    agt = len({r.get("source") for r in rows if r["category"] == "agent" and r["severity"] != "info"})
     if inc:
         return f"🔴 {len(inc)} incident(s)"
-    if pending:
-        return f"🟡 {pending} to review"
+    if att + agt:
+        return f"🟡 {att + agt} to review"
     return "🟢 all green"
 
 
