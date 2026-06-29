@@ -61,7 +61,9 @@ export default memo(function CharacterCard({
                 character.status === 'retired' ? 'bg-gray-700 text-gray-300' : 'bg-red-900/50 text-red-400'
               }`}
             >
-              {character.status.charAt(0).toUpperCase() + character.status.slice(1)}
+              {character.status === 'retired'
+                ? t('ui.characterCard.statusRetired')
+                : t('ui.characterCard.statusDeceased')}
             </span>
           )}
           {onExportPdf && (

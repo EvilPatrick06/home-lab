@@ -16,6 +16,7 @@ import type { MonsterStatBlock } from '../types/monster'
 import { logger } from '../utils/logger'
 import AdventureManager from './campaign-detail/AdventureManager'
 import NPCManager from './campaign-detail/CampaignNpcManager'
+import CampaignVersionHistory from './campaign-detail/CampaignVersionHistory'
 import LoreManager from './campaign-detail/LoreManager'
 import RuleManager from './campaign-detail/RuleManager'
 
@@ -327,6 +328,7 @@ export default function CampaignDetailPage(): JSX.Element {
           <Button variant="secondary" onClick={() => setShowSeedPackApply(true)}>
             {t('pages.campaignDetailPage.applySeedPack')}
           </Button>
+          <CampaignVersionHistory campaignId={campaign.id} />
           <Button
             variant="secondary"
             onClick={async () => {
