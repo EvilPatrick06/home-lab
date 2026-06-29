@@ -36,6 +36,8 @@
 | 11 | [`PHASE-11-dashboard-ux-round.md`](./completed/PHASE-11-dashboard-ux-round.md) | bmo | — | done |
 | 12 | [`PHASE-12-dashboard-ux-correctness.md`](./completed/PHASE-12-dashboard-ux-correctness.md) | bmo | — | done |
 | 13 | [`PHASE-13-ide-tv-doc-truth.md`](./completed/PHASE-13-ide-tv-doc-truth.md) | bmo | — | done |
+| 14 | [`PHASE-14-ide-font-csp-and-redirect-doc-truth.md`](./PHASE-14-ide-font-csp-and-redirect-doc-truth.md) | bmo | — | pending |
+| 15 | [`PHASE-15-chat-transcript-management.md`](./PHASE-15-chat-transcript-management.md) | bmo | — | pending |
 
 > **Provenance of this batch:** PHASE-01..03 were consolidated from
 > `QA/QA-report-2026-06-24.md` (now in `QA/completed/`) by the bmo phase-maker on
@@ -106,3 +108,25 @@
 > divergence is intentional per `DESIGN-CONSTRAINTS` (the report itself reclassifies
 > it). The bmo-phase-executer updates the Status column (`pending` → `in progress`
 > → `done`) as it ships each plan.
+
+> **Provenance of this batch (14-15):** PHASE-14..15 were consolidated from
+> `QA/QA-report-2026-06-28-3.md` (the **third** 2026-06-28 pass, live process
+> `f51d9dc3` driven against `origin/master@d9dccc65` over the Pi loopback, now in
+> `QA/completed/`) by the bmo phase-maker on 2026-06-29. Run 3's two headline
+> findings are **not** re-planned: the chat-agent outage (`/api/chat` 500 / agent
+> `None`) is **already planned and merged as PHASE-09** (the `sys.modules` alias +
+> `_app()` belt + None-agent guards) and the run-3 live 500 is **deploy-lag** (the
+> tested process `f51d9dc3` predates the merge); the Google Calendar OAuth
+> unauthenticated/`needs_auth` state is an **owner reauth action** (framed by
+> PHASE-05 / PHASE-10), not a code defect. This batch covers only the **new**
+> findings run 3 surfaced, split by surface: **14** = IDE surface (the `/ide`
+> Google-Fonts CSP violation + the dashboard IDE-tab-is-a-redirect doc-truth note,
+> extending PHASE-13 13D / PHASE-11 11F); **15** = chat transcript management
+> (a discoverable clear-chat button over the existing `/api/chat/clear` flow +
+> a new per-message delete — the affordances PHASE-09 09C's orphan-stub hygiene
+> did not provide). Dependencies are **soft** — disjoint files, any order;
+> 14->15 is fine. **Not re-planned as code phases:** the chat-agent outage
+> (PHASE-09, merged; awaiting deploy), the chat seed/probe noise (already swept by
+> PHASE-09 09C, merged; awaiting deploy), and the calendar OAuth reauth (owner
+> action). The bmo-phase-executer updates the Status column (`pending` ->
+> `in progress` -> `done`) as it ships each plan.
