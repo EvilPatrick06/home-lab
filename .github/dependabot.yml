@@ -12,6 +12,8 @@ updates:
     groups:
       pip-deps:
         patterns: ["*"]
+    cooldown:
+      default-days: 7
 
   - package-ecosystem: npm
     directory: /dnd-app
@@ -20,6 +22,8 @@ updates:
     groups:
       npm-deps:
         patterns: ["*"]
+    cooldown:
+      default-days: 7
 
   # The mobile (React Native / Expo) project is a separate npm lockfile under
   # /dnd-app/mobile; without its own entry Dependabot opened no version-update
@@ -33,6 +37,8 @@ updates:
     groups:
       npm-deps:
         patterns: ["*"]
+    cooldown:
+      default-days: 7
 
   - package-ecosystem: npm
     directory: /dungeon-scholar
@@ -41,6 +47,8 @@ updates:
     groups:
       npm-deps:
         patterns: ["*"]
+    cooldown:
+      default-days: 7
 
   - package-ecosystem: npm
     directory: /oracle-worker
@@ -49,6 +57,8 @@ updates:
     groups:
       npm-deps:
         patterns: ["*"]
+    cooldown:
+      default-days: 7
 
   # Keeps the SHA-pinned third-party actions current (see workflows pinned to
   # full commit SHAs with a version comment).
@@ -59,3 +69,5 @@ updates:
     groups:
       actions:
         patterns: ["*"]
+    cooldown:
+      default-days: 7

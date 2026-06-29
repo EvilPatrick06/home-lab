@@ -22,7 +22,7 @@ on:
       - 'v*'
 
 permissions:
-  contents: write
+  contents: read
 
 # Never cancel a mid-publish release run; queue same-tag re-runs instead (§B5).
 concurrency:
@@ -39,6 +39,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js + install deps
         uses: ./.github/actions/setup-node-project
@@ -78,6 +80,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js + install deps
         uses: ./.github/actions/setup-node-project
@@ -119,9 +123,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6  # zizmor: ignore[cache-poisoning] release is maintainer-tag-triggered; npm cache keyed by lockfile hash
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -129,7 +135,7 @@ jobs:
 
       # Per-OS key — never share Win↔Linux electron-builder caches.
       - name: Cache Electron / electron-builder downloads
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6  # zizmor: ignore[cache-poisoning] release is maintainer-tag-triggered; cache keyed by OS + lockfile hash
         with:
           path: |
             ${{ github.workspace }}/.cache/electron
@@ -208,9 +214,13 @@ jobs:
     name: Publish + verify assets
     needs: [test, build]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
 
       - name: Download build artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
@@ -221,8 +231,9 @@ jobs:
       - name: Upload assets to release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REF: ${{ github.ref_name }}
         run: |
-          gh release upload "${{ github.ref_name }}" \
+          gh release upload "$REF" \
             release-assets/* \
             dnd-app/scripts/build/install-linux.sh \
             --clobber
@@ -268,7 +279,8 @@ jobs:
       - name: Publish release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release edit "${{ github.ref_name }}" --draft=false --latest
+          REF: ${{ github.ref_name }}
+        run: gh release edit "$REF" --draft=false --latest
 
       # On failure only, keep a short-retention copy of the built binaries for debugging (§B4).
       - name: Upload diagnostics on failure

@@ -8,11 +8,11 @@
  */
 import { Asset } from 'expo-asset'
 import Constants from 'expo-constants'
-import * as FileSystem from 'expo-file-system'
+import * as FileSystem from 'expo-file-system/legacy'
 import { unzipSync } from 'fflate'
 
 const REMOTE_EMBED = 'https://bmo.mybmoai.work/DungeonTableOnline/'
-const CACHE_DIR = `${(FileSystem as unknown as { cacheDirectory: string }).cacheDirectory}embed/`
+const CACHE_DIR = `${FileSystem.cacheDirectory}embed/`
 const INDEX_PATH = `${CACHE_DIR}index.html`
 
 // Metro resolves this at bundle time; `prestart` / `build:embed` must create the file.

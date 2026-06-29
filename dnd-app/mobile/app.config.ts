@@ -1,4 +1,4 @@
-import type { ExpoConfig } from 'expo/config'
+import type { ExpoConfig } from '@expo/config-types'
 
 /**
  * Expo app config for the Dungeon Table Online Android client.
@@ -8,7 +8,7 @@ import type { ExpoConfig } from 'expo/config'
  * Mirrors the desktop electron-builder appId `com.dnd-vtt.app` but uses an
  * Android-legal segment (no hyphen in the final label).
  */
-const config = {
+const config: ExpoConfig = {
   name: 'Dungeon Table Online',
   slug: 'dungeontableonline',
   owner: 'evilpatrick06s-team',
@@ -52,4 +52,4 @@ const config = {
   }
 }
 
-export default config as ExpoConfig
+export default config

@@ -22,6 +22,8 @@ runs:
         node-version-file: .nvmrc
         cache: npm
         cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
-    - run: npm ci ${{ inputs.install-args }}
+    - run: npm ci $INSTALL_ARGS
       shell: bash
       working-directory: ${{ inputs.working-directory }}
+      env:
+        INSTALL_ARGS: ${{ inputs.install-args }}
