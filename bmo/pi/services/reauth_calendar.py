@@ -86,6 +86,7 @@ def main():
     os.makedirs(os.path.dirname(token_path), exist_ok=True)
     with open(token_path, "w") as f:
         f.write(creds.to_json())
+    os.chmod(token_path, 0o600)  # restrict refresh_token + client_secret
 
     log.info(f"\nToken saved to {token_path}")
     log.info("Restart BMO to pick up the new token: sudo systemctl restart bmo")

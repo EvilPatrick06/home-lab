@@ -58,6 +58,7 @@ def authorize():
         os.makedirs(_CONFIG_DIR, exist_ok=True)
         with open(TOKEN_PATH, "w") as f:
             f.write(creds.to_json())
+        os.chmod(TOKEN_PATH, 0o600)  # restrict refresh_token + client_secret
         print(f"Token saved to {TOKEN_PATH}")
 
     print("\nAuthorization successful! Restart BMO: sudo systemctl restart bmo")
