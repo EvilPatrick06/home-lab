@@ -47,16 +47,115 @@ export const shuffleArray = (arr) => {
   return a;
 };
 
-// Some AI-generated tomes use `stages` instead of `steps` for lab steps. Normalize
-// at import time so the rest of the app can rely on the canonical `steps` field.
-// Idempotent — won't touch labs that already have `steps`.
+// PHASE-04 04A: resolve a quiz item's answer key to canonical form. AI-generated
+// decks often carry `answer`/`correct`/`correctAnswer` as a 0- or 1-based index,
+// the option text, or a letter — none of which QuizMode grades (it reads
+// `correctIndex` for MCQ, `correctAnswer` for true/false). Without this, such a
+// deck imports "successfully" but grades every answer wrong.
+const toBool = (v) => {
+  if (typeof v === 'boolean') return v;
+  if (typeof v === 'number') return v === 1 ? true : v === 0 ? false : null;
+  if (typeof v === 'string') {
+    const s = v.trim().toLowerCase();
+    if (['true', 't', 'yes', 'y', '1'].includes(s)) return true;
+    if (['false', 'f', 'no', 'n', '0'].includes(s)) return false;
+  }
+  return null;
+};
+
+const resolveCorrectIndex = (item, opts) => {
+  const n = opts.length;
+  const inRange = (i) => Number.isInteger(i) && i >= 0 && i < n;
+  if (inRange(item.correctIndex)) return item.correctIndex;
+  // numeric synonyms: accept 0-based, else fall back to 1-based when that lands in range
+  for (const c of [item.correctIndex, item.answer, item.correct, item.correctAnswer]) {
+    if (typeof c === 'number' && Number.isInteger(c)) {
+      if (inRange(c)) return c;
+      if (inRange(c - 1)) return c - 1;
+    }
+  }
+  // string synonyms: numeric string, single letter, or exact option-text match
+  for (const raw of [item.answer, item.correct, item.correctAnswer]) {
+    if (typeof raw !== 'string') continue;
+    const s = raw.trim();
+    if (/^\d+$/.test(s)) {
+      const c = Number(s);
+      if (inRange(c)) return c;
+      if (inRange(c - 1)) return c - 1;
+    }
+    if (/^[a-z]$/i.test(s)) {
+      const i = s.toLowerCase().charCodeAt(0) - 97;
+      if (inRange(i)) return i;
+    }
+    const mi = opts.findIndex((o) => String(o).trim().toLowerCase() === s.toLowerCase());
+    if (mi >= 0) return mi;
+  }
+  return null;
+};
+
+// Returns { item, ok }. ok=false => the item has no gradeable answer key.
+const resolveQuizItem = (item) => {
+  if (!item || typeof item !== 'object') return { item, ok: false };
+  const opts = Array.isArray(item.options) ? item.options : null;
+  const isTF =
+    item.type === 'truefalse' || (!opts && (item.correctAnswer != null || item.answer != null || item.correct != null));
+  if (isTF) {
+    const b = toBool(item.correctAnswer ?? item.answer ?? item.correct);
+    if (b === null) return { item, ok: false };
+    return { item: item.correctAnswer === b ? item : { ...item, correctAnswer: b }, ok: true };
+  }
+  if (opts && opts.length) {
+    const idx = resolveCorrectIndex(item, opts);
+    if (idx === null) return { item, ok: false };
+    return { item: item.correctIndex === idx ? item : { ...item, correctIndex: idx }, ok: true };
+  }
+  // Unclassifiable item (no options, no answer-ish field) — leave untouched.
+  return { item, ok: true };
+};
+
+// Normalize a quiz array, dropping ungradeable items. Returns { quiz, dropped }.
+export const normalizeQuiz = (quiz) => {
+  if (!Array.isArray(quiz)) return { quiz, dropped: 0 };
+  const kept = [];
+  let dropped = 0;
+  for (const it of quiz) {
+    const { item, ok } = resolveQuizItem(it);
+    if (!ok) {
+      dropped++;
+      continue;
+    }
+    kept.push(item);
+  }
+  return { quiz: kept, dropped };
+};
+
+// Pure, non-mutating report of how many quiz items would be dropped on import
+// (so the UI can warn instead of silently importing an all-wrong deck).
+export const quizImportReport = (data) => {
+  if (!data || !Array.isArray(data.quiz)) return { dropped: 0, total: 0 };
+  const { dropped } = normalizeQuiz(data.quiz);
+  return { dropped, total: data.quiz.length };
+};
+
+// Some AI-generated tomes use `stages` instead of `steps` for lab steps, and
+// carry non-canonical quiz answer keys. Normalize both at import time so the
+// rest of the app can rely on canonical `steps` / `correctIndex` / `correctAnswer`.
+// Idempotent — a no-op on already-canonical items and on quiz-less tomes.
 export const normalizeTomeData = (data) => {
-  if (!data || !Array.isArray(data.labs)) return data;
-  const labs = data.labs.map((lab) => {
-    if (!lab || lab.steps || !Array.isArray(lab.stages)) return lab;
-    return { ...lab, steps: lab.stages };
-  });
-  return { ...data, labs };
+  if (!data || typeof data !== 'object') return data;
+  let out = data;
+  if (Array.isArray(data.labs)) {
+    out = {
+      ...out,
+      labs: data.labs.map((lab) =>
+        !lab || lab.steps || !Array.isArray(lab.stages) ? lab : { ...lab, steps: lab.stages },
+      ),
+    };
+  }
+  if (Array.isArray(data.quiz)) {
+    out = { ...out, quiz: normalizeQuiz(data.quiz).quiz };
+  }
+  return out;
 };
 
 export const blankTomeProgress = () => ({

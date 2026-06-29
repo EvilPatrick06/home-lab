@@ -4,8 +4,10 @@ import {
   ChevronRight,
   Copy,
   Edit2,
+  FileUp,
   Gift,
   Hash,
+  ImagePlus,
   Library,
   PencilLine,
   Scroll,
@@ -39,6 +41,8 @@ function LibraryScreen({
   onImport,
   onPaste,
   onImportCode,
+  onImportDeck,
+  onAuthorOcclusion,
   onShowPrompt,
   onBulkTag,
   setScreen,
@@ -222,6 +226,20 @@ function LibraryScreen({
               style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.7)' }}
             >
               <Hash className="w-4 h-4" /> Import Share Code
+            </button>
+            <button
+              onClick={onImportDeck}
+              className="px-4 py-2 rounded-sm text-sm border-2 border-amber-700 text-amber-200 flex items-center gap-2 hover:bg-amber-900/30 italic"
+              style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
+            >
+              <FileUp className="w-4 h-4" /> Import Deck (CSV / Quizlet)
+            </button>
+            <button
+              onClick={onAuthorOcclusion}
+              className="px-4 py-2 rounded-sm text-sm border-2 border-amber-700 text-amber-200 flex items-center gap-2 hover:bg-amber-900/30 italic"
+              style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
+            >
+              <ImagePlus className="w-4 h-4" /> Author Occlusion Card
             </button>
             <button
               onClick={onImport}

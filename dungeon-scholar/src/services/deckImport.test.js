@@ -76,3 +76,29 @@ describe('deckTextToTome', () => {
     expect(res.tome.metadata.title).toBe('Imported deck');
   });
 });
+
+describe('deckTextToTome mixed-delimiter robustness (PHASE-04 04B)', () => {
+  it('imports all rows from a mixed comma/tab deck', () => {
+    const text = 'What is 2+2?,Four\nCapital of France,Paris\nmitochondria\tpowerhouse of the cell';
+    const res = deckTextToTome(text);
+    expect(res.ok).toBe(true);
+    expect(res.count).toBe(3);
+    expect(res.skipped).toBe(0);
+  });
+  it('parses comma rows even when an early line contains a stray tab', () => {
+    const text = 'note\tside\nWhat is 2+2?,Four\nCapital of France,Paris';
+    const res = deckTextToTome(text);
+    expect(res.ok).toBe(true);
+    expect(res.count).toBe(3);
+  });
+  it('reports skipped rows alongside imported ones', () => {
+    const res = deckTextToTome('good,card\nlonelyrow');
+    expect(res.ok).toBe(true);
+    expect(res.count).toBe(1);
+    expect(res.skipped).toBe(1);
+  });
+  it('leaves pure CSV and pure TSV unchanged', () => {
+    expect(deckTextToTome('a,b\nc,d').count).toBe(2);
+    expect(deckTextToTome('a\tb\nc\td').count).toBe(2);
+  });
+});

@@ -33,8 +33,29 @@ const HEADER_PAIRS = new Set([
 ]);
 
 export function detectDelimiter(text) {
+  // PHASE-04 04B: pick the DOMINANT delimiter (count tabs vs commas over the
+  // sample) instead of the old whole-file tab-priority rule, which forced TSV
+  // mode — and silently dropped comma rows — whenever any early line had a tab.
   const sample = String(text).split(/\r?\n/).slice(0, 10).join('\n');
-  return sample.includes('\t') ? '\t' : ',';
+  const tabs = (sample.match(/\t/g) || []).length;
+  const commas = (sample.match(/,/g) || []).length;
+  return tabs > commas ? '\t' : ',';
+}
+
+// PHASE-04 04B: rescue minority-delimiter rows. After parsing with the dominant
+// delimiter, any row that produced <2 non-empty fields is re-split by the OTHER
+// delimiter (so a stray comma row in a TSV deck — or vice versa — still parses).
+function rescueMixedRows(rows, delimiter) {
+  const other = delimiter === '\t' ? ',' : '\t';
+  return rows.map((row) => {
+    if (row.filter((c) => c.trim() !== '').length >= 2) return row;
+    const joined = row.join(delimiter);
+    if (joined.includes(other)) {
+      const alt = joined.split(other);
+      if (alt.filter((c) => c.trim() !== '').length >= 2) return alt;
+    }
+    return row;
+  });
 }
 
 // Tokenize delimited text into an array of string[] rows. Tab mode is a simple
@@ -42,10 +63,13 @@ export function detectDelimiter(text) {
 export function parseDelimited(text, delimiter = detectDelimiter(text)) {
   const src = String(text);
   if (delimiter === '\t') {
-    return src
-      .split(/\r?\n/)
-      .map((line) => line.split('\t'))
-      .filter((row) => row.some((c) => c.trim() !== ''));
+    return rescueMixedRows(
+      src
+        .split(/\r?\n/)
+        .map((line) => line.split('\t'))
+        .filter((row) => row.some((c) => c.trim() !== '')),
+      '\t',
+    );
   }
   const rows = [];
   let row = [];
@@ -86,7 +110,10 @@ export function parseDelimited(text, delimiter = detectDelimiter(text)) {
     row.push(field);
     rows.push(row);
   }
-  return rows.filter((r) => r.some((c) => c.trim() !== ''));
+  return rescueMixedRows(
+    rows.filter((r) => r.some((c) => c.trim() !== '')),
+    ',',
+  );
 }
 
 function looksLikeHeader(row) {
@@ -110,7 +137,7 @@ function looksLikeHeader(row) {
  * Convert delimited deck text into a tome object.
  * @param {string} text
  * @param {{ title?: any, delimiter?: any }} [opts]
- * @returns {{ ok: true, tome: object, count: number } | { ok: false, error: string }}
+ * @returns {{ ok: true, tome: object, count: number, skipped: number } | { ok: false, error: string }}
  */
 export function deckTextToTome(text, { title, delimiter } = {}) {
   if (typeof text !== 'string' || !text.trim()) {
@@ -121,10 +148,14 @@ export function deckTextToTome(text, { title, delimiter } = {}) {
   if (rows.length && looksLikeHeader(rows[0])) rows = rows.slice(1);
 
   const flashcards = [];
+  let skipped = 0;
   for (const r of rows) {
     const front = (r[0] || '').trim();
     const back = (r[1] || '').trim();
-    if (!front || !back) continue; // need both sides
+    if (!front || !back) {
+      skipped++;
+      continue; // need both sides
+    }
     const domain = (r[2] || '').trim();
     const card = {
       id: `imp_${flashcards.length}_${Math.random().toString(36).slice(2, 8)}`,
@@ -157,5 +188,5 @@ export function deckTextToTome(text, { title, delimiter } = {}) {
     quiz: [],
     labs: [],
   });
-  return { ok: true, tome, count: flashcards.length };
+  return { ok: true, tome, count: flashcards.length, skipped };
 }

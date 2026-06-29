@@ -60,7 +60,7 @@ import {
   STORY_CHAINS,
 } from './game/quests.js';
 import { getTitle, SPECIAL_TITLES, xpForLevel } from './game/titles.js';
-import { blankTomeProgress, decodeTomeShareCode, shuffleArray } from './game/tome.js';
+import { blankTomeProgress, decodeTomeShareCode, quizImportReport, shuffleArray } from './game/tome.js';
 import { snapshotBaselines, TUTORIAL_STEPS, tutorialAutoConditionMet } from './game/tutorial.js';
 import { todayDateStr } from './services/devotion.js';
 import { notificationPermission, showStudyReminder } from './services/notifications.js';
@@ -801,8 +801,15 @@ export default function DungeonScholarApp() {
         showNotif('Invalid tome format — needs metadata and flashcards', 'error');
         return false;
       }
+      const quizReport = quizImportReport(data);
       if (!addTomeToLibrary(data)) return false;
-      showNotif(`Tome inscribed: ${data.metadata.title}`, 'success');
+      const quizWarn =
+        quizReport.dropped > 0
+          ? ` — ${quizReport.dropped} quiz item${quizReport.dropped === 1 ? '' : 's'} had no answer key and ${
+              quizReport.dropped === 1 ? 'was' : 'were'
+            } skipped`
+          : '';
+      showNotif(`Tome inscribed: ${data.metadata.title}${quizWarn}`, 'success');
       return true;
     } catch (_err) {
       showNotif('Could not parse the pasted text as JSON', 'error');
@@ -824,7 +831,10 @@ export default function DungeonScholarApp() {
       return false;
     }
     if (!addTomeToLibrary(res.tome)) return false;
-    showNotif(`Imported ${res.count} card${res.count === 1 ? '' : 's'} into a new tome`, 'success');
+    const skipped = /** @type {{skipped?:number}} */ (res).skipped || 0;
+    const skipMsg =
+      skipped > 0 ? ` (${skipped} row${skipped === 1 ? '' : 's'} skipped — check the delimiter/format)` : '';
+    showNotif(`Imported ${res.count} card${res.count === 1 ? '' : 's'} into a new tome${skipMsg}`, 'success');
     return true;
   };
 
