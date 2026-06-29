@@ -37,6 +37,10 @@ _DATA_DIR = os.path.join(_PI_ROOT, "data")
 MONITOR_STATE = os.path.join(_DATA_DIR, "monitor_state.json")
 BOARD_STATE = os.path.join(_DATA_DIR, "status_board_state.json")
 BOARD_INBOX = os.path.join(_DATA_DIR, "board_inbox.json")
+# An inbox item auto-expires once its producer stops re-posting it (each
+# notify-board post refreshes 'seen'). Backstop so nothing lingers if a
+# 'resolved/approved' signal is missed and before the Done button is used.
+INBOX_TTL_S = int(os.environ.get("BOARD_INBOX_TTL_S", str(26 * 3600)))
 
 # Severity ordering (worst first) drives the board color + topic summary.
 SEV_ORDER = ["critical", "warning", "info", "ok"]
@@ -49,9 +53,11 @@ _ACTIVE = ("critical", "warning")  # "info" = informational / honest skip, not a
 #   attention  : something NEEDS YOU          (email to reply, deadline due, cal soon)
 #   info       : informational               (today's calendar FYI, honest skips)
 SECTIONS = [
-    ("incident",  "🚨 Active incidents"),
-    ("attention", "📌 Needs your attention"),
-    ("info",      "💡 Informational"),
+    ("incident",  "🚨 Incidents"),
+    ("attention", "📌 Needs you"),
+    ("agent",     "🤖 Agents"),
+    ("today",     "📅 Today"),
+    ("info",      "💡 Info"),
 ]
 
 # Mirror of monitoring.HealthChecker._REQUIRED_FOR_OVERALL (single source at cutover).
@@ -112,6 +118,7 @@ class Item:
     severity: str = "info"
     url: str | None = None        # "Open" link (email/event/dashboard)
     created: float = 0.0          # first seen — drives 'since <t:R>'
+    seen: float = 0.0             # last time a producer re-posted it (TTL)
     due: float | None = None      # for deadlines → 'due <t:R>'
 
 
@@ -134,6 +141,21 @@ def save_inbox(inbox: dict) -> None:
     raw = {src: [asdict(it) for it in items.values()] for src, items in inbox.items()}
     with open(BOARD_INBOX, "w", encoding="utf-8") as f:
         json.dump(raw, f, indent=2, ensure_ascii=False)
+
+
+def prune_inbox(inbox: dict, ttl_s: float = INBOX_TTL_S) -> int:
+    """Drop items whose last 'seen' (or created) is older than ttl_s."""
+    now = time.time(); dropped = 0
+    for src in list(inbox):
+        keep = {}
+        for iid, it in inbox[src].items():
+            age = now - (getattr(it, "seen", 0) or it.created or now)
+            if age <= ttl_s:
+                keep[iid] = it
+            else:
+                dropped += 1
+        inbox[src] = keep
+    return dropped
 
 
 def sync_source(inbox: dict, source: str, items: list[Item]) -> dict:
@@ -264,56 +286,67 @@ def worst_severity(rows: list[dict]) -> str:
 
 
 def render_topic(rows: list[dict]) -> str:
-    inc = [r for r in rows if r["category"] == "incident"]
-    att = [r for r in rows if r["category"] == "attention"]
     if not rows:
         return "🟢 All clear"
+    inc = [r for r in rows if r["category"] == "incident"]
+    att = [r for r in rows if r["category"] == "attention"]
+    agt = [r for r in rows if r["category"] == "agent"]
     if inc:
         head = "🔴" if any(r["severity"] == "critical" for r in inc) else "🟡"
-        names = ", ".join(r["title"].split(" ", 1)[-1] for r in inc[:3])
-        tail = f" · {len(att)} to review" if att else ""
-        return f"{head} {len(inc)} active: {names}{tail}"
+        bits = [f"{len(inc)} incident" + ("s" if len(inc) != 1 else "")]
+    else:
+        head, bits = "🟢", ["systems normal"]
     if att:
-        return f"🟢 systems normal · {len(att)} to review"
-    return "🟢 systems normal · notes below"
+        bits.append(f"📌 {len(att)}")
+    if agt:
+        bits.append(f"🤖 {len(agt)}")
+    return f"{head} " + " · ".join(bits)
 
 
 def render_presence(rows: list[dict]) -> str:
     inc = [r for r in rows if r["category"] == "incident"]
-    att = [r for r in rows if r["category"] == "attention"]
+    pending = len([r for r in rows if r["category"] in ("attention", "agent")])
     if inc:
         return f"🔴 {len(inc)} incident(s)"
-    if att:
-        return f"🟡 {len(att)} to review"
+    if pending:
+        return f"🟡 {pending} to review"
     return "🟢 all green"
 
 
 def render_embed(rows: list[dict]) -> dict:
     worst = worst_severity(rows)
-    fields = []
+    fields, summary = [], []
     for cat, header in SECTIONS:
         crows = [r for r in rows if r["category"] == cat]
         if not crows:
             continue
         crows.sort(key=lambda r: SEV_ORDER.index(r["severity"]))
         lines = []
-        for r in crows:
-            line = f"{SEV_DOT[r['severity']]} **{r['title']}**"
-            if r.get("detail"):
-                line += f" — {r['detail']}"
+        for r in crows[:10]:
+            line = f"{SEV_DOT[r['severity']]} **{r['title'].strip()}**"
             if r.get("due"):
                 line += f" · due <t:{int(r['due'])}:R>"
             elif r.get("since"):
                 line += f" · <t:{int(r['since'])}:R>"
+            if r.get("detail"):
+                line += f"\n\u2003{r['detail'].strip()[:170]}"
             lines.append(line)
-        fields.append({"name": header, "value": "\n".join(lines)[:1024], "inline": False})
+        if len(crows) > 10:
+            lines.append(f"_…and {len(crows) - 10} more_")
+        fields.append({"name": f"{header} · {len(crows)}",
+                       "value": "\n".join(lines)[:1024], "inline": False})
+        summary.append(f"{header.split()[0]} {len(crows)}")
+    ts = f"<t:{int(time.time())}:R>"
     if not fields:
-        return {"title": "🟢 BMO — all clear", "color": SEV_COLOR["ok"],
-                "description": f"No incidents, nothing needs you. Updated <t:{int(time.time())}:R>",
+        return {"title": "🟢 All clear",
+                "color": SEV_COLOR["ok"],
+                "description": f"No incidents — nothing needs you.\nUpdated {ts}",
                 "footer": {"text": "BMO status board · self-healing"}}
-    return {"title": "BMO Status", "color": SEV_COLOR[worst], "fields": fields,
-            "description": f"Updated <t:{int(time.time())}:R>",
-            "footer": {"text": "BMO status board · self-healing"},
+    return {"title": "📟 BMO Status Board",
+            "color": SEV_COLOR[worst],
+            "description": "\u2002·\u2002".join(summary) + f"\nUpdated {ts}",
+            "fields": fields,
+            "footer": {"text": "self-healing · items clear automatically when resolved"},
             "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
 
 

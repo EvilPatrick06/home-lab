@@ -117,6 +117,7 @@ def main():
     health = sb.derive_incidents(monitor, labels=LABELS, extra=extra)
     state = sb.reconcile_incidents(sb.BoardState.load(), health)
     inbox = calendar_flag(monitor, sb.load_inbox())
+    sb.prune_inbox(inbox)
     sb.save_inbox(inbox)
     rows = sb.all_rows(state, health, inbox)
     embed = sb.render_embed(rows)

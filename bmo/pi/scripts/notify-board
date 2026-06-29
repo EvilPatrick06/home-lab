@@ -34,7 +34,7 @@ import time
 
 DATA_DIR = os.path.expanduser("~/home-lab/bmo/pi/data")
 INBOX = os.path.join(DATA_DIR, "board_inbox.json")
-_VALID_CAT = {"incident", "attention", "info"}
+_VALID_CAT = {"incident", "attention", "agent", "today", "info"}
 
 
 def _load():
@@ -73,6 +73,7 @@ def _apply_sync(d, source, items):
     for it in items:
         it = _norm(it, source)
         it["created"] = prev.get(it["id"], {}).get("created", it.get("created") or now)
+        it["seen"] = now
         out.append(it)
     d[source] = out
     return d
