@@ -64,7 +64,7 @@ export function DamageResultStep({
             </span>
           ))}
           {damageResult.modifier !== 0 && (
-            <span className="text-xs text-muted self-center ml-1">{formatMod(damageResult.modifier)}</span>
+            <span className="text-xs text-muted self-center ms-1">{formatMod(damageResult.modifier)}</span>
           )}
         </div>
         {damageResult.isCrit && (

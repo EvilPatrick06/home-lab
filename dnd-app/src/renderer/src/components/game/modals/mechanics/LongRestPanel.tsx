@@ -61,7 +61,7 @@ export default function LongRestPanel({ pcs, states, onStatesChange }: LongRestP
             </div>
 
             {state.selected && (
-              <div className="pl-6 space-y-1">
+              <div className="ps-6 space-y-1">
                 <div className="text-xs text-muted flex flex-wrap gap-x-4 gap-y-0.5">
                   {preview.currentHP < preview.maxHP && (
                     <span>

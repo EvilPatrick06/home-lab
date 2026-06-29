@@ -118,7 +118,7 @@ function SpellCardView({ spell }: SpellCardViewProps): JSX.Element {
             <span className="text-accent-strong font-semibold">{t('library.spellCardView.duration')}</span>
             <span className="text-gray-300">{duration.text}</span>
             {isConcentration && (
-              <span className="text-xs bg-blue-600/30 text-blue-300 px-1.5 py-0.5 rounded-full ml-1">
+              <span className="text-xs bg-blue-600/30 text-blue-300 px-1.5 py-0.5 rounded-full ms-1">
                 {t('library.spellCardView.concentration')}
               </span>
             )}

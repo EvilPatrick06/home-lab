@@ -124,7 +124,9 @@ export const geminiProvider: LLMProvider = {
     try {
       // Validate the key against the live models endpoint — no hardcoded probe
       // model (we use the REST endpoint directly, carrying no SDK dependency).
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`)
+      const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models', {
+        headers: { 'x-goog-api-key': apiKey }
+      })
       return res.ok
     } catch {
       return false
@@ -136,7 +138,9 @@ export const geminiProvider: LLMProvider = {
     try {
       // Real, current generateContent-capable models from the API — never a
       // hardcoded snapshot list.
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`)
+      const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models', {
+        headers: { 'x-goog-api-key': apiKey }
+      })
       if (!res.ok) return []
       const data = (await res.json()) as {
         models?: Array<{ name: string; supportedGenerationMethods?: string[] }>

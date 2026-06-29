@@ -211,11 +211,11 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
                       <span className="font-semibold text-sm">{npc.name}</span>
-                      {npc.role && <span className="text-xs text-muted ml-2 capitalize">{npc.role}</span>}
-                      {npc.location && <span className="text-gray-500 text-xs ml-2">{npc.location}</span>}
+                      {npc.role && <span className="text-xs text-muted ms-2 capitalize">{npc.role}</span>}
+                      {npc.location && <span className="text-gray-500 text-xs ms-2">{npc.location}</span>}
                       {npc.description && <p className="text-gray-500 text-xs mt-0.5 truncate">{npc.description}</p>}
                     </div>
-                    <div className="flex items-center gap-2 ml-2">
+                    <div className="flex items-center gap-2 ms-2">
                       <span
                         className={`text-xs px-2 py-0.5 rounded-full ${
                           npc.isVisible ? 'bg-green-900/40 text-green-300' : 'bg-surface-2 text-gray-500'
@@ -280,7 +280,7 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
         onClose={() => setShowModal(false)}
         title={editing ? t('pages.npcManager.editNpcTitle') : t('pages.npcManager.addNpcTitle')}
       >
-        <div className="space-y-3 max-h-[70vh] overflow-y-auto pr-1">
+        <div className="space-y-3 max-h-[70vh] overflow-y-auto pe-1">
           {/* Quick Add from Bestiary */}
           <div className="border border-amber-800/30 rounded-lg overflow-hidden">
             <div className="px-3 py-2 bg-amber-900/20">

@@ -86,7 +86,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
           {!readonly && !showAddArmorProf && (
             <button
               onClick={() => setShowAddArmorProf(true)}
-              className="text-xs text-accent hover:text-amber-300 cursor-pointer ml-2"
+              className="text-xs text-accent hover:text-amber-300 cursor-pointer ms-2"
             >
               {t('sheet.toolProficiencies.add')}
             </button>
@@ -176,7 +176,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
                   {!readonly && (
                     <button
                       onClick={() => rollToolCheck(tool, toolData?.ability)}
-                      className="ml-1 text-[11px] text-accent-strong hover:text-amber-300 cursor-pointer"
+                      className="ms-1 text-[11px] text-accent-strong hover:text-amber-300 cursor-pointer"
                       title={t('sheet.toolProficiencies.rollToolCheckTitle', {
                         tool,
                         ability: (toolData?.ability ?? 'INT').slice(0, 3).toUpperCase()
@@ -192,7 +192,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
                   {(isExpanded || showingVariants) && toolData?.description && (
                     <div className="text-xs text-gray-500 bg-surface-2/50 rounded px-2 py-1 mt-1 mb-1">
                       {toolData.description}
-                      {toolData.ability && <span className="text-gray-600 ml-1">({toolData.ability})</span>}
+                      {toolData.ability && <span className="text-gray-600 ms-1">({toolData.ability})</span>}
                     </div>
                   )}
                   {showingVariants && generic && genericBase && (
@@ -237,7 +237,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
           {!readonly && !showAddToolProf && (
             <button
               onClick={() => setShowAddToolProf(true)}
-              className="text-xs text-accent hover:text-amber-300 cursor-pointer ml-2"
+              className="text-xs text-accent hover:text-amber-300 cursor-pointer ms-2"
             >
               {t('sheet.toolProficiencies.add')}
             </button>

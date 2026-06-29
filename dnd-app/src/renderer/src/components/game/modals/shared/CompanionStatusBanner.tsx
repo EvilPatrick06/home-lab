@@ -28,13 +28,13 @@ export default function CompanionStatusBanner({
         <div>
           <span className="text-sm text-gray-200 font-medium">{companion.name}</span>
           <span
-            className={`ml-2 text-xs px-1.5 py-0.5 rounded-full ${
+            className={`ms-2 text-xs px-1.5 py-0.5 rounded-full ${
               companion.dismissed ? 'bg-gray-700 text-muted' : `${activeColor}`
             }`}
           >
             {companion.dismissed ? t('game.companionStatusBanner.dismissed') : t('game.companionStatusBanner.active')}
           </span>
-          <span className="ml-2 text-xs text-gray-500">
+          <span className="ms-2 text-xs text-gray-500">
             {t('game.companionStatusBanner.hp', { current: companion.currentHP, max: companion.maxHP })}
           </span>
         </div>

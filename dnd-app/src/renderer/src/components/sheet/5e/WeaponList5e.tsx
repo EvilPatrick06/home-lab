@@ -215,7 +215,7 @@ export function WeaponRow({ weapon, onRemove, onSell, character, weaponDatabase 
           {onSell && (
             <button
               onClick={onSell}
-              className="text-gray-600 hover:text-green-400 cursor-pointer ml-1"
+              className="text-gray-600 hover:text-green-400 cursor-pointer ms-1"
               title={t('sheet.weaponList.sellHalfPrice')}
             >
               &#x24;
@@ -224,7 +224,7 @@ export function WeaponRow({ weapon, onRemove, onSell, character, weaponDatabase 
           {onRemove && (
             <button
               onClick={onRemove}
-              className="text-gray-600 hover:text-red-400 cursor-pointer ml-1"
+              className="text-gray-600 hover:text-red-400 cursor-pointer ms-1"
               title={t('sheet.weaponList.removeWeapon')}
             >
               &#x2715;
@@ -233,7 +233,7 @@ export function WeaponRow({ weapon, onRemove, onSell, character, weaponDatabase 
         </div>
       </div>
       {expanded && (
-        <div className="text-xs text-gray-500 py-1 pl-2 space-y-0.5">
+        <div className="text-xs text-gray-500 py-1 ps-2 space-y-0.5">
           {weapon.properties.length > 0 && (
             <div>
               <span className="text-gray-600">{t('sheet.weaponList.properties')}</span> {weapon.properties.join(', ')}

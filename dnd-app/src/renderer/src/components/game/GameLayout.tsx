@@ -1,6 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { SETTINGS_KEYS } from '../../constants'
 import { useDiscordSync } from '../../hooks/use-discord-sync'
 import { useDmTriggers } from '../../hooks/use-dm-triggers'
 import { useGameEffects } from '../../hooks/use-game-effects'
@@ -50,6 +49,7 @@ import {
   GamePromptsLayer,
   InspectModalRenderer,
   MapSelector,
+  usePanelResize,
   useViewMode,
   ViewAsSelector,
   WeatherBanner
@@ -116,27 +116,21 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
   // PHASE-13 13H — deep-link targets for the compendium (chat links) + shared journal (pins).
   const [compendiumTarget, setCompendiumTarget] = useState<{ category: string; name: string } | null>(null)
   const [journalFocusEntryId, setJournalFocusEntryId] = useState<string | null>(null)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const {
+    sidebarCollapsed,
+    setSidebarCollapsed,
+    bottomCollapsed,
+    setBottomCollapsed,
+    bottomBarHeight,
+    sidebarWidth,
+    handleBottomResize,
+    handleBottomDoubleClick,
+    handleSidebarResize,
+    handleSidebarDoubleClick
+  } = usePanelResize()
   const [mapKey, setMapKey] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [leaving, setLeaving] = useState(false)
-  const [bottomCollapsed, setBottomCollapsed] = useState(false)
-  const [bottomBarHeight, setBottomBarHeight] = useState(() => {
-    try {
-      return parseInt(localStorage.getItem(SETTINGS_KEYS.BOTTOM_BAR_HEIGHT) || '320', 10)
-    } catch {
-      return 320
-    }
-  })
-  const [sidebarWidth, setSidebarWidth] = useState(() => {
-    try {
-      return parseInt(localStorage.getItem(SETTINGS_KEYS.SIDEBAR_WIDTH) || '280', 10)
-    } catch {
-      return 280
-    }
-  })
-  const prevBottomHeight = useRef(320)
-  const prevSidebarWidth = useRef(280)
   const [teleportMove, _setTeleportMove] = useState(false)
   const [activeAoE, setActiveAoE] = useState<AoEConfig | null>(null)
   // Phase 29f — view-as-role state (extracted to ./game-layout/use-view-mode).
@@ -249,39 +243,6 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
   const handleCreateCharacter = useCallback(() => {
     navigate(getBuilderCreatePath())
   }, [navigate])
-
-  const handleBottomResize = useCallback((delta: number) => {
-    setBottomBarHeight((h) => {
-      const newH = Math.max(160, Math.min(window.innerHeight * 0.6, h - delta))
-      localStorage.setItem(SETTINGS_KEYS.BOTTOM_BAR_HEIGHT, String(newH))
-      return newH
-    })
-  }, [])
-  const handleBottomDoubleClick = useCallback(() => {
-    if (bottomCollapsed) {
-      setBottomCollapsed(false)
-      setBottomBarHeight(prevBottomHeight.current)
-    } else {
-      prevBottomHeight.current = bottomBarHeight
-      setBottomCollapsed(true)
-    }
-  }, [bottomCollapsed, bottomBarHeight])
-  const handleSidebarResize = useCallback((delta: number) => {
-    setSidebarWidth((w) => {
-      const newW = Math.max(200, Math.min(500, w + delta))
-      localStorage.setItem(SETTINGS_KEYS.SIDEBAR_WIDTH, String(newW))
-      return newW
-    })
-  }, [])
-  const handleSidebarDoubleClick = useCallback(() => {
-    if (sidebarCollapsed) {
-      setSidebarCollapsed(false)
-      setSidebarWidth(prevSidebarWidth.current)
-    } else {
-      prevSidebarWidth.current = sidebarWidth
-      setSidebarCollapsed(true)
-    }
-  }, [sidebarCollapsed, sidebarWidth])
 
   const handleLinkClick = useCallback((category: string, name: string) => {
     // PHASE-13 13H — open the compendium pre-navigated to the clicked entry: its tab

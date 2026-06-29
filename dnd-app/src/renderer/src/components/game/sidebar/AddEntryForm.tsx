@@ -127,7 +127,7 @@ export default function AddEntryForm({
                   </span>
                   <span className="text-xs text-gray-300 truncate">{token.label}</span>
                   {getTokenStats(token).ac && (
-                    <span className="text-[9px] text-gray-500 shrink-0 ml-auto">AC {getTokenStats(token).ac}</span>
+                    <span className="text-[9px] text-gray-500 shrink-0 ms-auto">AC {getTokenStats(token).ac}</span>
                   )}
                 </button>
               ))}

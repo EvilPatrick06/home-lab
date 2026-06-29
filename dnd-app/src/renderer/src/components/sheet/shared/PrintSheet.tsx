@@ -49,7 +49,7 @@ function PrintSheet5e({ character, onClose }: { character: Character5e; onClose:
         >
           {t('common.actions.close')}
         </button>
-        <span className="ml-2 text-sm text-gray-600">
+        <span className="ms-2 text-sm text-gray-600">
           {t('sheet.printSheet.printPreviewFor', { name: character.name })}
         </span>
       </div>

@@ -6503,7 +6503,22 @@
       "deleteMessage": "Esta acción no se puede deshacer. La campaña \"{{name}}\" y todos sus datos se eliminarán de forma permanente.",
       "cloudFallbackTitle": "Servidor local inaccesible",
       "cloudFallbackMessage": "No se pudo acceder al servidor de relevo local. ¿Quieres hospedar usando servidores en la nube en su lugar? Los jugadores se conectarán a través de internet público.",
-      "useCloud": "Usar la nube"
+      "useCloud": "Usar la nube",
+      "versionHistory": {
+        "button": "Historial de versiones",
+        "title": "Historial de versiones",
+        "close": "Cerrar historial de versiones",
+        "loading": "Cargando versiones...",
+        "none": "Aún no hay versiones anteriores guardadas.",
+        "size": "{{size}} KB",
+        "restoring": "Restaurando...",
+        "restore": "Restaurar",
+        "confirmTitle": "Restaurar versión",
+        "confirmPrompt": "¿Restaurar esta campaña a esta versión? Tu guardado actual se respaldará primero.",
+        "toastLoadFailed": "No se pudo cargar el historial de versiones.",
+        "toastRestored": "Versión de la campaña restaurada correctamente.",
+        "toastRestoreFailed": "No se pudo restaurar la versión. Inténtalo de nuevo."
+      }
     },
     "characterSheet5ePage": {
       "characterNotFound": "Personaje no encontrado",
@@ -7466,7 +7481,9 @@
       "exportTitle": "Exportar personaje",
       "deleteTitle": "Eliminar personaje",
       "hpLabel": "PG:",
-      "acLabel": "CA:"
+      "acLabel": "CA:",
+      "statusRetired": "Retirado",
+      "statusDeceased": "Fallecido"
     },
     "discordIntegration": {
       "loadFailed": "No se pudo cargar la configuración de Discord",

@@ -15,7 +15,7 @@ const FileAttachment = memo(function FileAttachment({ msg }: { msg: ChatMessage 
 
   if (isImage && msg.fileData && msg.mimeType) {
     return (
-      <div className="ml-14 mt-1">
+      <div className="ms-14 mt-1">
         <img
           src={`data:${msg.mimeType};base64,${msg.fileData}`}
           alt={msg.fileName || t('lobby.chatPanel.sharedImageAlt')}
@@ -51,7 +51,7 @@ const FileAttachment = memo(function FileAttachment({ msg }: { msg: ChatMessage 
         : t('lobby.chatPanel.fileTypeFile')
 
   return (
-    <div className="ml-14 mt-1">
+    <div className="ms-14 mt-1">
       <button
         onClick={handleDownload}
         className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-2/60 border border-border
@@ -100,7 +100,7 @@ const MessageBubble = memo(function MessageBubble({ msg }: { msg: ChatMessage })
           </span>
           <span className="text-xs text-gray-500">{msg.content}</span>
         </div>
-        <div className="ml-14 bg-surface-2/60 border border-border rounded-lg px-3 py-2 inline-block">
+        <div className="ms-14 bg-surface-2/60 border border-border rounded-lg px-3 py-2 inline-block">
           {/* Phase 17z — explicit base + modifier = total breakdown.
               Previously we extracted the modifier by string-splitting the
               formula on '+' / '-', which was brittle for compound formulas
@@ -123,7 +123,7 @@ const MessageBubble = memo(function MessageBubble({ msg }: { msg: ChatMessage })
                     </span>
                   ))}
                   {modifier !== 0 && (
-                    <span className={`text-sm font-mono ml-1 ${modifier > 0 ? 'text-emerald-300' : 'text-red-300'}`}>
+                    <span className={`text-sm font-mono ms-1 ${modifier > 0 ? 'text-emerald-300' : 'text-red-300'}`}>
                       {modifier > 0 ? '+' : ''}
                       {modifier}
                     </span>
@@ -176,7 +176,7 @@ const MessageBubble = memo(function MessageBubble({ msg }: { msg: ChatMessage })
           {msg.senderName}
         </span>
       </div>
-      <p className={`text-sm ml-14 ${isWhisper ? 'text-purple-300 italic' : 'text-gray-300'}`}>{msg.content}</p>
+      <p className={`text-sm ms-14 ${isWhisper ? 'text-purple-300 italic' : 'text-gray-300'}`}>{msg.content}</p>
     </div>
   )
 })

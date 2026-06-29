@@ -40,7 +40,7 @@ export default function CloudStatusPanel({
         <Cloud className="w-4 h-4 text-sky-400" aria-hidden="true" />
         <span className="font-semibold text-sky-200">{t('game.cloudStatusPanel.title')}</span>
         <span
-          className={`ml-auto inline-flex items-center gap-1.5 text-xs ${
+          className={`ms-auto inline-flex items-center gap-1.5 text-xs ${
             connected ? 'text-emerald-400' : 'text-accent'
           }`}
         >
@@ -61,7 +61,7 @@ export default function CloudStatusPanel({
               <span className="text-gray-200">{p.displayName || t('game.cloudStatusPanel.player')}</span>
               <span className="text-gray-500 text-xs">({p.role})</span>
               {typeof p.latencyMs === 'number' && (
-                <span className="ml-auto text-gray-500 text-xs">
+                <span className="ms-auto text-gray-500 text-xs">
                   {t('game.cloudStatusPanel.latency', { ms: p.latencyMs })}
                 </span>
               )}

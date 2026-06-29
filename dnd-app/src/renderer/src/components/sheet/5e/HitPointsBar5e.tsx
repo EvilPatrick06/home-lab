@@ -201,7 +201,7 @@ function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBa
                 <div className="text-xs text-gray-500 mt-0.5">
                   {remaining}/{total} ({diceDisplay})
                   {spent > 0 && (
-                    <span className="text-red-400 ml-1">{t('sheet.hitPointsBar.spent', { count: spent })}</span>
+                    <span className="text-red-400 ms-1">{t('sheet.hitPointsBar.spent', { count: spent })}</span>
                   )}
                 </div>
               )
@@ -211,7 +211,7 @@ function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBa
               <div className="text-xs text-gray-500 mt-0.5">
                 {remaining}/{total} d{hitDie}
                 {spent > 0 && (
-                  <span className="text-red-400 ml-1">{t('sheet.hitPointsBar.spent', { count: spent })}</span>
+                  <span className="text-red-400 ms-1">{t('sheet.hitPointsBar.spent', { count: spent })}</span>
                 )}
               </div>
             )

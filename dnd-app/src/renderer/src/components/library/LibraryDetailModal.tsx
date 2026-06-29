@@ -52,7 +52,7 @@ interface LibraryDetailModalProps {
 // (SpellCardView / MonsterStatBlockView etc.) so every category reads as one
 // design language instead of the old flat gray definition list.
 const FIELD_LABEL = 'text-xs font-semibold text-accent uppercase tracking-wider mb-1'
-const FIELD_GROUP = 'border-l-2 border-amber-800/30 pl-3'
+const FIELD_GROUP = 'border-l-2 border-amber-800/30 ps-3'
 
 function renderChips(values: unknown[]): JSX.Element {
   return (
@@ -137,11 +137,11 @@ function renderObject(obj: Record<string, unknown>): JSX.Element {
           return (
             <div key={k}>
               <span className="text-xs text-gray-500">{formatLabel(k)}:</span>
-              <div className="pl-3 mt-0.5 space-y-1">
+              <div className="ps-3 mt-0.5 space-y-1">
                 {v.map((item, i) => (
                   <div key={`${k}-${i}`} className="text-xs text-gray-300">
                     {typeof item === 'object' && item !== null ? (
-                      <div className="pl-2 border-l border-border">{renderObject(item as Record<string, unknown>)}</div>
+                      <div className="ps-2 border-l border-border">{renderObject(item as Record<string, unknown>)}</div>
                     ) : (
                       String(item)
                     )}
@@ -155,7 +155,7 @@ function renderObject(obj: Record<string, unknown>): JSX.Element {
           return (
             <div key={k}>
               <span className="text-xs text-gray-500">{formatLabel(k)}:</span>
-              <div className="pl-3 mt-0.5 border-l border-border">{renderObject(v as Record<string, unknown>)}</div>
+              <div className="ps-3 mt-0.5 border-l border-border">{renderObject(v as Record<string, unknown>)}</div>
             </div>
           )
         }
@@ -379,7 +379,7 @@ export default function LibraryDetailModal({
           )}
           <button
             onClick={onClose}
-            className="ml-auto px-4 py-2 rounded-lg border border-gray-600 hover:bg-surface-2 text-gray-200 text-sm font-semibold transition-colors cursor-pointer"
+            className="ms-auto px-4 py-2 rounded-lg border border-gray-600 hover:bg-surface-2 text-gray-200 text-sm font-semibold transition-colors cursor-pointer"
           >
             {t('common.actions.close')}
           </button>

@@ -208,7 +208,7 @@ export default function MountModal({
                       <div className="flex items-center justify-between mb-2">
                         <div>
                           <span className="text-sm text-gray-200">{token.label}</span>
-                          <span className="text-xs text-gray-500 ml-2">({sizeNames[sizeIdx]})</span>
+                          <span className="text-xs text-gray-500 ms-2">({sizeNames[sizeIdx]})</span>
                         </div>
                       </div>
                       <div className="flex gap-2 mb-2">

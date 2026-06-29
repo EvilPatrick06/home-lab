@@ -74,7 +74,7 @@ export default function PlayerHUDActions({
             {hp.temporary}
           </button>
         )}
-        <span className="text-xs text-gray-600 ml-2">|</span>
+        <span className="text-xs text-gray-600 ms-2">|</span>
         <span className="text-xs text-gray-500">{t('game.playerHUDActions.speed', { speed })}</span>
         <span className="text-xs text-gray-500">{t('game.playerHUDActions.init', { mod: formatModFn(dexMod) })}</span>
       </div>

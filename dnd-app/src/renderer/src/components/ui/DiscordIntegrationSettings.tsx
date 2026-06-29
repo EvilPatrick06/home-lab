@@ -253,7 +253,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
             {testing ? t('ui.discordIntegration.testing') : t('ui.discordIntegration.testConnection')}
           </button>
         )}
-        {hasChanges && <span className="text-xs text-accent ml-2">{t('ui.discordIntegration.unsavedChanges')}</span>}
+        {hasChanges && <span className="text-xs text-accent ms-2">{t('ui.discordIntegration.unsavedChanges')}</span>}
       </div>
     </div>
   )

@@ -138,7 +138,7 @@ function RoleRow({
         <span className="text-xs text-gray-500">
           {role.permissions.length}/{ALL_PERMISSIONS.length}
         </span>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ms-auto flex items-center gap-2">
           <button
             type="button"
             onClick={() => onDuplicate(campaignId, role.id)}

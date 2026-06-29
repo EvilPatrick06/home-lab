@@ -120,7 +120,7 @@ function MagicItemSlot({
                   <div>
                     <span className="text-sm text-gray-200">{item.name}</span>
                     {item.attunement && (
-                      <span className="text-xs text-purple-400 ml-1">
+                      <span className="text-xs text-purple-400 ms-1">
                         {t('builder.higherLevelEquipment.attunement')}
                       </span>
                     )}

@@ -100,7 +100,7 @@ export default function CreatureSearchModal({
                   {monster.size} {monster.type} | CR {monster.cr}
                 </div>
               </div>
-              <span className="text-xs text-accent shrink-0 ml-2">{t('game.creatureSearchModal.select')}</span>
+              <span className="text-xs text-accent shrink-0 ms-2">{t('game.creatureSearchModal.select')}</span>
             </button>
           ))}
         </div>

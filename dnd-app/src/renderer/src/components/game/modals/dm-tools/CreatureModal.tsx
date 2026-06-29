@@ -213,7 +213,7 @@ export default function CreatureModal({
                 </option>
               ))}
             </select>
-            <span className="text-xs text-gray-500 self-center ml-auto">
+            <span className="text-xs text-gray-500 self-center ms-auto">
               {t('game.creatureModal.creatureCount', { count: filtered.length })}
             </span>
           </div>

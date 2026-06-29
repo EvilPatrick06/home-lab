@@ -66,7 +66,7 @@ export default function BackgroundPanel5e({
                         } as Character
                         saveAndBroadcast(updated as Character5e)
                       }}
-                      className="ml-1 text-accent hover:text-red-400 cursor-pointer"
+                      className="ms-1 text-accent hover:text-red-400 cursor-pointer"
                     >
                       &#x2715;
                     </button>

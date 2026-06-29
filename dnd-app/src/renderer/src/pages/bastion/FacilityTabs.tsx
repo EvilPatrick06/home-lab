@@ -70,7 +70,7 @@ function FacilityReferenceData({ facilityType }: { facilityType: string }): JSX.
           <span className="text-muted font-medium">{t('pages.facilityTabs.availableCreatures')}</span>{' '}
           {MENAGERIE_CREATURES.map((c) => `${c.name} (CR ${c.cr}, ${c.cost} GP)`).join(', ')}
           {CREATURE_COSTS_BY_CR.length > 0 && (
-            <span className="ml-1">
+            <span className="ms-1">
               {t('pages.facilityTabs.costByCr')} {CREATURE_COSTS_BY_CR.map((e) => `CR ${e.cr}=${e.cost} GP`).join(', ')}
             </span>
           )}
@@ -321,7 +321,7 @@ function CreateConstructPanel({ bastion }: { bastion: Bastion }): JSX.Element {
           >
             <div>
               <span className="text-gray-200">{c.name}</span>
-              <span className="text-gray-500 ml-1">
+              <span className="text-gray-500 ms-1">
                 (CR {c.cr}, {c.timeDays} days)
               </span>
             </div>

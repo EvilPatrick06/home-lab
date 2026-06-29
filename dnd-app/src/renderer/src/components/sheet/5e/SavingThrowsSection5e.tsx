@@ -38,7 +38,7 @@ export default function SavingThrowsSection5e({ character }: SavingThrowsSection
             <div key={ab} className="flex items-center gap-2 text-sm">
               <ProficiencyIndicator5e proficient={isProficient} />
               <span className="text-muted capitalize">{ab}</span>
-              <span className="ml-auto font-mono">{formatMod(mod)}</span>
+              <span className="ms-auto font-mono">{formatMod(mod)}</span>
             </div>
           )
         })}

@@ -231,11 +231,11 @@ export default function ViewCharactersPage(): JSX.Element {
           >
             {t(tab.labelKey)}
             {tab.key !== 'all' && (
-              <span className="ml-1.5 text-xs text-gray-600">
+              <span className="ms-1.5 text-xs text-gray-600">
                 {characters.filter((c) => c.status === tab.key).length}
               </span>
             )}
-            {tab.key === 'all' && <span className="ml-1.5 text-xs text-gray-600">{characters.length}</span>}
+            {tab.key === 'all' && <span className="ms-1.5 text-xs text-gray-600">{characters.length}</span>}
           </button>
         ))}
       </div>

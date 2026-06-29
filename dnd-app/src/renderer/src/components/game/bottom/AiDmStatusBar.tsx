@@ -101,7 +101,7 @@ export function AiDmStatusBar({
       </span>
 
       <span
-        className={`ml-auto ${overBudget ? 'text-amber-500' : 'text-gray-600'}`}
+        className={`ms-auto ${overBudget ? 'text-amber-500' : 'text-gray-600'}`}
         title={t('game.chatPanel.tokensTitle')}
       >
         {tokenText}

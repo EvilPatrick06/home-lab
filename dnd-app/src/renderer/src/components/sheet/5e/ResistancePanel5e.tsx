@@ -44,7 +44,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
                         className={`inline-flex items-center bg-blue-900/40 text-blue-300 border border-blue-700/50 rounded-full px-2 py-0.5 text-xs ${desc ? 'cursor-pointer hover:bg-blue-900/60' : ''}`}
                       >
                         {r}
-                        {desc && <span className="ml-1 text-blue-500 text-xs">{isExpanded ? '\u25B4' : '?'}</span>}
+                        {desc && <span className="ms-1 text-blue-500 text-xs">{isExpanded ? '\u25B4' : '?'}</span>}
                         {!readonly && (
                           <button
                             onClick={(e) => {
@@ -58,7 +58,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
                               } as Character
                               saveAndBroadcast(updated)
                             }}
-                            className="ml-1 text-blue-400 hover:text-red-400 cursor-pointer"
+                            className="ms-1 text-blue-400 hover:text-red-400 cursor-pointer"
                           >
                             &#x2715;
                           </button>
@@ -90,7 +90,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
                         className={`inline-flex items-center bg-green-900/40 text-green-300 border border-green-700/50 rounded-full px-2 py-0.5 text-xs ${desc ? 'cursor-pointer hover:bg-green-900/60' : ''}`}
                       >
                         {im}
-                        {desc && <span className="ml-1 text-green-500 text-xs">{isExpanded ? '\u25B4' : '?'}</span>}
+                        {desc && <span className="ms-1 text-green-500 text-xs">{isExpanded ? '\u25B4' : '?'}</span>}
                         {!readonly && (
                           <button
                             onClick={(e) => {
@@ -104,7 +104,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
                               } as Character
                               saveAndBroadcast(updated)
                             }}
-                            className="ml-1 text-green-400 hover:text-red-400 cursor-pointer"
+                            className="ms-1 text-green-400 hover:text-red-400 cursor-pointer"
                           >
                             &#x2715;
                           </button>
@@ -136,7 +136,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
                         className={`inline-flex items-center bg-red-900/40 text-red-300 border border-red-700/50 rounded-full px-2 py-0.5 text-xs ${desc ? 'cursor-pointer hover:bg-red-900/60' : ''}`}
                       >
                         {v}
-                        {desc && <span className="ml-1 text-red-500 text-xs">{isExpanded ? '\u25B4' : '?'}</span>}
+                        {desc && <span className="ms-1 text-red-500 text-xs">{isExpanded ? '\u25B4' : '?'}</span>}
                         {!readonly && (
                           <button
                             onClick={(e) => {
@@ -150,7 +150,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
                               } as Character
                               saveAndBroadcast(updated)
                             }}
-                            className="ml-1 text-red-400 hover:text-red-300 cursor-pointer"
+                            className="ms-1 text-red-400 hover:text-red-300 cursor-pointer"
                           >
                             &#x2715;
                           </button>

@@ -197,7 +197,7 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
               </div>
               <div className={`font-mono text-sm ${isEncumbered ? 'text-red-400' : 'text-gray-200'}`}>
                 {totalWeight.toFixed(1)} / {carryCapacity} lb
-                {isEncumbered && <span className="ml-1 text-xs uppercase">{t('game.itemModal.encumbered')}</span>}
+                {isEncumbered && <span className="ms-1 text-xs uppercase">{t('game.itemModal.encumbered')}</span>}
               </div>
             </div>
           </div>

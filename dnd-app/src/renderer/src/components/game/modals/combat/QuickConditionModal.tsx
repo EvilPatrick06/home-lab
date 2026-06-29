@@ -225,12 +225,12 @@ export default function QuickConditionModal({
                 <div key={c.id} className="flex items-center justify-between px-2 py-1.5 bg-surface-2/50 rounded">
                   <div>
                     <span className="text-xs text-gray-200">{c.entityName}</span>
-                    <span className="text-xs text-purple-400 ml-1.5">
+                    <span className="text-xs text-purple-400 ms-1.5">
                       {c.condition}
                       {c.condition === 'Exhaustion' && c.value ? ` (${c.value})` : ''}
                     </span>
                     {c.sourceEntityId && (
-                      <span className="text-[9px] text-accent ml-1">
+                      <span className="text-[9px] text-accent ms-1">
                         {t('game.quickConditionModal.fromSource', {
                           name:
                             entities.find((e) => e.id === c.sourceEntityId)?.name ??
@@ -238,7 +238,7 @@ export default function QuickConditionModal({
                         })}
                       </span>
                     )}
-                    <span className="text-[9px] text-gray-500 ml-1">
+                    <span className="text-[9px] text-gray-500 ms-1">
                       ({c.duration === 'permanent' ? t('game.quickConditionModal.perm') : `${c.duration}r`})
                     </span>
                   </div>

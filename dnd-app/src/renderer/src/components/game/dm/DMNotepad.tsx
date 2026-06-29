@@ -168,7 +168,7 @@ export default function DMNotepad(): JSX.Element {
         <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
           {t('game.dmNotepad.sessionNotes')}
         </h3>
-        <span className="ml-auto text-[9px] text-gray-600">
+        <span className="ms-auto text-[9px] text-gray-600">
           {t('game.dmNotepad.entriesCount', { n: sessionLog.length })}
         </span>
       </button>
@@ -304,7 +304,7 @@ function SessionGroup({
       >
         <span className={`text-xs text-gray-500 transition-transform ${collapsed ? '' : 'rotate-90'}`}>&#9654;</span>
         <span className="text-[11px] font-medium text-amber-300">{label}</span>
-        <span className="text-[9px] text-gray-500 ml-auto">
+        <span className="text-[9px] text-gray-500 ms-auto">
           {t('game.dmNotepadSession.notesCount', { n: entries.length })}
         </span>
         <button
@@ -312,7 +312,7 @@ function SessionGroup({
             e.stopPropagation()
             onExportJournal()
           }}
-          className="ml-2 px-1.5 py-0.5 text-[9px] bg-blue-600/30 text-blue-300 rounded hover:bg-blue-600/50 transition-colors"
+          className="ms-2 px-1.5 py-0.5 text-[9px] bg-blue-600/30 text-blue-300 rounded hover:bg-blue-600/50 transition-colors"
           title={t('game.dmNotepadSession.exportTitle')}
         >
           {t('game.dmNotepadSession.export')}

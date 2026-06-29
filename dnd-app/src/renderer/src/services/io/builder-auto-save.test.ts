@@ -41,24 +41,24 @@ describe('builder-auto-save', () => {
     it('persists state under the characterId key', () => {
       const state = { name: 'Gandalf', level: 20 }
       saveBuilderDraft(state, 'char-1')
-      expect(localStorage.setItem).toHaveBeenCalledWith('builder-draft-char-1', expect.any(String))
+      expect(localStorage.setItem).toHaveBeenCalledWith('dnd-vtt-builder-draft-char-1', expect.any(String))
     })
 
     it('uses "new" when characterId is null', () => {
       saveBuilderDraft({ name: 'New' }, null)
-      expect(localStorage.setItem).toHaveBeenCalledWith('builder-draft-new', expect.any(String))
+      expect(localStorage.setItem).toHaveBeenCalledWith('dnd-vtt-builder-draft-new', expect.any(String))
     })
 
     it('uses "new" when characterId is undefined', () => {
       saveBuilderDraft({ name: 'New' })
-      expect(localStorage.setItem).toHaveBeenCalledWith('builder-draft-new', expect.any(String))
+      expect(localStorage.setItem).toHaveBeenCalledWith('dnd-vtt-builder-draft-new', expect.any(String))
     })
 
     it('includes a savedAt timestamp', () => {
       const before = Date.now()
       saveBuilderDraft({ x: 1 }, 'char-2')
       const after = Date.now()
-      const raw = storageMap.get('builder-draft-char-2')!
+      const raw = storageMap.get('dnd-vtt-builder-draft-char-2')!
       const parsed = JSON.parse(raw)
       expect(parsed.savedAt).toBeGreaterThanOrEqual(before)
       expect(parsed.savedAt).toBeLessThanOrEqual(after)
@@ -90,12 +90,12 @@ describe('builder-auto-save', () => {
     })
 
     it('returns null on malformed JSON', () => {
-      storageMap.set('builder-draft-char-bad', 'not-json{{{')
+      storageMap.set('dnd-vtt-builder-draft-char-bad', 'not-json{{{')
       expect(loadBuilderDraft('char-bad')).toBeNull()
     })
 
     it('returns null when savedAt is missing', () => {
-      storageMap.set('builder-draft-char-nosave', JSON.stringify({ state: { x: 1 } }))
+      storageMap.set('dnd-vtt-builder-draft-char-nosave', JSON.stringify({ state: { x: 1 } }))
       expect(loadBuilderDraft('char-nosave')).toBeNull()
     })
 
@@ -113,7 +113,7 @@ describe('builder-auto-save', () => {
     it('removes the draft from localStorage', () => {
       saveBuilderDraft({ x: 1 }, 'char-5')
       clearBuilderDraft('char-5')
-      expect(localStorage.removeItem).toHaveBeenCalledWith('builder-draft-char-5')
+      expect(localStorage.removeItem).toHaveBeenCalledWith('dnd-vtt-builder-draft-char-5')
       expect(loadBuilderDraft('char-5')).toBeNull()
     })
 

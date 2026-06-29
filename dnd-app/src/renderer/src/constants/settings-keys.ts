@@ -10,13 +10,13 @@ export const SETTINGS_KEYS = {
   DICE_MODE: 'dnd-vtt-dice-mode',
   BOTTOM_BAR_HEIGHT: 'dnd-vtt-bottom-bar-height',
   SIDEBAR_WIDTH: 'dnd-vtt-sidebar-width',
-  NOTIFICATION_CONFIG: 'notification-config',
+  NOTIFICATION_CONFIG: 'dnd-vtt-notification-config',
   AUTOSAVE_CONFIG: 'autosave:config',
   LIBRARY_RECENT: 'dnd-vtt-library-recent',
-  LIBRARY_FAVORITES: 'library-favorites',
-  DICE_TRAY_POSITION: 'dice-tray-position',
-  NARRATION_TTS: 'narration-tts-enabled',
-  ENCOUNTER_PRESETS: 'encounter-presets',
+  LIBRARY_FAVORITES: 'dnd-vtt-library-favorites',
+  DICE_TRAY_POSITION: 'dnd-vtt-dice-tray-position',
+  NARRATION_TTS: 'dnd-vtt-narration-tts-enabled',
+  ENCOUNTER_PRESETS: 'dnd-vtt-encounter-presets',
   AUDIO: 'dnd-vtt-audio',
   SCENE_MODE_PREFS: 'dnd-vtt-scene-mode-prefs',
   LOBBY_DICE_COLORS: 'dnd-vtt-lobby-dice-colors'
@@ -27,6 +27,6 @@ export const dynamicKeys = {
   lobbyChat: (campaignId: string) => `dnd-vtt-lobby-chat-${campaignId}`,
   autosaveVersions: (campaignId: string) => `autosave:${campaignId}:versions`,
   autosaveVersion: (campaignId: string, versionId: string) => `autosave:${campaignId}:${versionId}`,
-  macroStorage: (characterId: string) => `macro-storage-${characterId}`,
-  builderDraft: (characterId: string) => `builder-draft-${characterId}`
+  macroStorage: (characterId: string) => `dnd-vtt-macro-storage-${characterId}`,
+  builderDraft: (characterId: string) => `dnd-vtt-builder-draft-${characterId}`
 } as const

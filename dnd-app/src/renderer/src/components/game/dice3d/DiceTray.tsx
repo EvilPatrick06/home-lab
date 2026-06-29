@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { SETTINGS_KEYS } from '../../../constants/settings-keys'
 import { useT } from '../../../i18n'
 import type { DiceTrayEntry } from '.'
 import { onDiceTrayUpdate } from '.'
 
 const MAX_TRAY_ENTRIES = 5
-const STORAGE_KEY = 'dnd-vtt-dice-tray-position'
+const STORAGE_KEY = SETTINGS_KEYS.DICE_TRAY_POSITION
 
 interface Position {
   x: number

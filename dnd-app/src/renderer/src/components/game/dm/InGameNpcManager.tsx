@@ -356,7 +356,7 @@ export default function NPCManager({
                   {/* DM: Reveal controls */}
                   {isDM && onUpdateNpc && (
                     <div className="flex flex-wrap gap-1 pb-1 border-b border-border/50">
-                      <span className="text-[9px] text-gray-500 uppercase mr-1 self-center">
+                      <span className="text-[9px] text-gray-500 uppercase me-1 self-center">
                         {t('game.npcManager.reveal')}
                       </span>
                       {(['description', 'role', 'personality', 'motivation'] as const).map((field) => (

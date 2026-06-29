@@ -33,6 +33,12 @@ interface CharacterVersion {
   sizeBytes: number
 }
 
+interface CampaignVersion {
+  fileName: string
+  timestamp: string
+  sizeBytes: number
+}
+
 // Entity records & lore injection (PHASE-25). Shapes mirror entity-store.ts /
 // ipc-schemas.ts (kept inline to match this file's self-contained ambient style).
 interface EntityRecordData {
@@ -165,6 +171,11 @@ interface CharacterAPI {
 }
 
 interface CampaignAPI {
+  listCampaignVersions: (id: string) => Promise<{ success: boolean; data?: CampaignVersion[] }>
+  restoreCampaignVersion: (
+    id: string,
+    fileName: string
+  ) => Promise<{ success: boolean; data?: Record<string, unknown> }>
   saveCampaign: (campaign: Record<string, unknown>) => Promise<{ success: boolean }>
   loadCampaigns: () => Promise<Record<string, unknown>[]>
   loadCampaign: (id: string) => Promise<Record<string, unknown> | null>

@@ -223,7 +223,7 @@ export default function LeftSidebar({
                           const path = getCharacterSheetPath(char)
                           navigate(path, { state: { returnTo } })
                         }}
-                        className="text-xs px-1.5 py-0.5 rounded bg-gray-700 text-gray-300 hover:bg-amber-600 hover:text-white transition-colors cursor-pointer shrink-0 ml-1"
+                        className="text-xs px-1.5 py-0.5 rounded bg-gray-700 text-gray-300 hover:bg-amber-600 hover:text-white transition-colors cursor-pointer shrink-0 ms-1"
                       >
                         {canEdit ? t('game.leftSidebar.edit') : t('game.leftSidebar.view')}
                       </button>
@@ -339,7 +339,7 @@ export default function LeftSidebar({
                       <span className="text-[9px] text-gray-500 capitalize">{item.rarity}</span>
                     )}
                   </div>
-                  <span className="text-xs text-muted shrink-0 ml-1">x{item.quantity}</span>
+                  <span className="text-xs text-muted shrink-0 ms-1">x{item.quantity}</span>
                 </div>
               ))
             )}
@@ -463,13 +463,13 @@ export default function LeftSidebar({
                   {t(section.labelKey)}
                 </span>
                 {section.id === 'party-loot' && partyInventory.items.length > 0 && (
-                  <span className="ml-auto text-[9px] bg-amber-600/30 text-amber-300 border border-amber-700/30 rounded-full px-1.5 py-0.5 leading-none">
+                  <span className="ms-auto text-[9px] bg-amber-600/30 text-amber-300 border border-amber-700/30 rounded-full px-1.5 py-0.5 leading-none">
                     {partyInventory.items.length}
                   </span>
                 )}
               </button>
               {isDM && section.id === 'npcs' && expandedSection === 'npcs' && (
-                <div className="flex items-center gap-1 pr-2">
+                <div className="flex items-center gap-1 pe-2">
                   <button
                     onClick={handleImportNpcs}
                     title={t('game.leftSidebar.importNpcs')}

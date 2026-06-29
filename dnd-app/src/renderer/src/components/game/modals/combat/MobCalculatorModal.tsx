@@ -201,7 +201,7 @@ export default function MobCalculatorModal({ onClose, onBroadcastResult }: MobCa
                   <span className="text-green-400">{hits}</span>
                   <span className="text-gray-500 text-lg mx-1">{t('game.mobCalculatorModal.of')}</span>
                   <span>{attackerCount}</span>
-                  <span className="text-muted text-lg ml-2">{t('game.mobCalculatorModal.hit')}</span>
+                  <span className="text-muted text-lg ms-2">{t('game.mobCalculatorModal.hit')}</span>
                 </div>
                 <div className="text-sm text-gray-500 mt-1">
                   {t('game.mobCalculatorModal.misses', { count: misses })}

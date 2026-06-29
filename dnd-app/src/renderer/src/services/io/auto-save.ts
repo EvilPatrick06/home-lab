@@ -1,4 +1,6 @@
 import { dynamicKeys, SETTINGS_KEYS } from '../../constants'
+import { addToast } from '../../hooks/use-toast'
+import { idbAvailable, idbDeleteSnapshot, idbGetSnapshot, idbPutSnapshot } from './autosave-snapshot-store'
 // ---------------------------------------------------------------------------
 // Auto-Save Service
 // ---------------------------------------------------------------------------
@@ -113,6 +115,21 @@ function buildLabel(timestamp: number, data: unknown): string {
   return roundSuffix ? `Auto-save${roundSuffix} (${time})` : `Auto-save ${time}`
 }
 
+/** Remove a snapshot body from both backends (IndexedDB best-effort + localStorage). */
+function removeSnapshot(campaignId: string, versionId: string): void {
+  const key = versionDataKey(campaignId, versionId)
+  if (idbAvailable()) {
+    idbDeleteSnapshot(key).catch(() => {
+      // best-effort
+    })
+  }
+  try {
+    localStorage.removeItem(key)
+  } catch {
+    // Ignore removal errors
+  }
+}
+
 function trimVersions(campaignId: string, versions: SaveVersion[]): SaveVersion[] {
   // Sort newest first
   const sorted = [...versions].sort((a, b) => b.timestamp - a.timestamp)
@@ -120,14 +137,60 @@ function trimVersions(campaignId: string, versions: SaveVersion[]): SaveVersion[
   // Remove excess versions from storage
   const excess = sorted.slice(config.maxVersions)
   for (const v of excess) {
-    try {
-      localStorage.removeItem(versionDataKey(campaignId, v.id))
-    } catch {
-      // Ignore removal errors
-    }
+    removeSnapshot(campaignId, v.id)
   }
 
   return sorted.slice(0, config.maxVersions)
+}
+
+/**
+ * QuotaExceededError detection across browsers (Chromium name/code 22, Firefox
+ * NS_ERROR_DOM_QUOTA_REACHED / code 1014). A non-quota write failure (e.g. a
+ * serialization error) is deliberately NOT treated as a quota problem, so we
+ * never evict save history for an unrelated error.
+ */
+function isQuotaExceeded(err: unknown): boolean {
+  if (!(err instanceof DOMException)) return false
+  return (
+    err.name === 'QuotaExceededError' ||
+    err.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
+    err.code === 22 ||
+    err.code === 1014
+  )
+}
+
+/**
+ * Persist one snapshot payload, evicting the oldest stored versions one at a
+ * time and retrying until the write fits or no history remains. Returns true on
+ * success. Unlike the previous single-shot retry this drains as many old
+ * versions as needed, so a large snapshot can still save on a near-full store.
+ */
+function persistSnapshotWithEviction(campaignId: string, versionId: string, serialized: string): boolean {
+  try {
+    localStorage.setItem(versionDataKey(campaignId, versionId), serialized)
+    return true
+  } catch (err) {
+    if (!isQuotaExceeded(err)) return false
+  }
+  let versions = loadVersionList(campaignId)
+  while (versions.length > 0) {
+    const oldest = [...versions].sort((a, b) => a.timestamp - b.timestamp)[0]
+    try {
+      localStorage.removeItem(versionDataKey(campaignId, oldest.id))
+    } catch {
+      // ignore removal errors
+    }
+    versions = versions.filter((v) => v.id !== oldest.id)
+    persistVersionList(campaignId, versions)
+    try {
+      localStorage.setItem(versionDataKey(campaignId, versionId), serialized)
+      return true
+    } catch (err) {
+      if (!isQuotaExceeded(err)) return false
+      // still over quota — keep evicting
+    }
+  }
+  return false
 }
 
 // ---- core save logic -------------------------------------------------------
@@ -143,27 +206,42 @@ async function performSave(campaignId: string, data: unknown, label?: string): P
     label: saveLabel
   }
 
-  // Persist the data payload
+  // Serialize first; a serialization failure (e.g. a cyclic snapshot) is not a
+  // storage problem, so we give up quietly rather than show a scary toast.
+  let serialized: string
   try {
-    localStorage.setItem(versionDataKey(campaignId, versionId), JSON.stringify(data))
+    serialized = JSON.stringify(data)
   } catch {
-    // localStorage full – try to make room by removing the oldest version
-    const versions = loadVersionList(campaignId)
-    if (versions.length > 0) {
-      const oldest = [...versions].sort((a, b) => a.timestamp - b.timestamp)[0]
-      localStorage.removeItem(versionDataKey(campaignId, oldest.id))
-      const trimmed = versions.filter((v) => v.id !== oldest.id)
-      persistVersionList(campaignId, trimmed)
-      // Retry
+    return
+  }
+
+  // Persist the data payload, evicting old versions on quota pressure. If it
+  // still cannot be written, FAIL LOUD (toast) instead of silently dropping the
+  // save — the user should know their work is no longer being backed up.
+  // Prefer IndexedDB for the (potentially large) snapshot body: async, a far
+  // bigger quota, and no synchronous main-thread localStorage write. Fall back
+  // to localStorage (with quota-eviction) when IndexedDB is unavailable or fails.
+  let stored = false
+  if (idbAvailable()) {
+    try {
+      await idbPutSnapshot(versionDataKey(campaignId, versionId), serialized)
+      // Drop any stale localStorage copy now that IndexedDB owns this body.
       try {
-        localStorage.setItem(versionDataKey(campaignId, versionId), JSON.stringify(data))
+        localStorage.removeItem(versionDataKey(campaignId, versionId))
       } catch {
-        // Still failing – give up silently
-        return
+        // ignore
       }
-    } else {
-      return
+      stored = true
+    } catch {
+      // fall back to localStorage below
     }
+  }
+  if (!stored && !persistSnapshotWithEviction(campaignId, versionId, serialized)) {
+    addToast(
+      'Auto-save failed: device storage is full. Free up space or lower the number of saved versions in Settings.',
+      'error'
+    )
+    return
   }
 
   // Update the version manifest
@@ -224,8 +302,18 @@ export function getSaveVersions(campaignId: string): SaveVersion[] {
  * Returns `null` if the version is not found.
  */
 export async function restoreVersion(campaignId: string, versionId: string): Promise<unknown | null> {
+  const key = versionDataKey(campaignId, versionId)
+  // IndexedDB owns bodies on the web target; older saves may still be in localStorage.
+  if (idbAvailable()) {
+    try {
+      const raw = await idbGetSnapshot(key)
+      if (raw !== null) return JSON.parse(raw) as unknown
+    } catch {
+      // fall through to localStorage
+    }
+  }
   try {
-    const raw = localStorage.getItem(versionDataKey(campaignId, versionId))
+    const raw = localStorage.getItem(key)
     if (raw) {
       return JSON.parse(raw) as unknown
     }
@@ -239,11 +327,7 @@ export async function restoreVersion(campaignId: string, versionId: string): Pro
  * Delete a single save version and its data payload.
  */
 export function deleteVersion(campaignId: string, versionId: string): void {
-  try {
-    localStorage.removeItem(versionDataKey(campaignId, versionId))
-  } catch {
-    // Ignore removal errors
-  }
+  removeSnapshot(campaignId, versionId)
 
   const versions = loadVersionList(campaignId)
   const filtered = versions.filter((v) => v.id !== versionId)

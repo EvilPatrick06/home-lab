@@ -18,7 +18,7 @@ export function RegisteredGameSystemsSection(): JSX.Element {
               <div key={sys.id} className="flex items-center justify-between py-2 px-3 bg-surface-2/40 rounded-lg">
                 <div className="flex-1 min-w-0">
                   <span className="text-sm text-gray-200 font-medium">{sys.name}</span>
-                  <span className="text-xs text-gray-500 ml-2 font-mono">{sys.id}</span>
+                  <span className="text-xs text-gray-500 ms-2 font-mono">{sys.id}</span>
                 </div>
                 {sys.id !== 'dnd5e' && (
                   <button

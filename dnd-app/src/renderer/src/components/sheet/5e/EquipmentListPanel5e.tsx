@@ -311,7 +311,7 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
                   (readonly ? (
                     <button
                       onClick={() => setExpandedPack(expandedPack === i ? null : i)}
-                      className="ml-1 px-1.5 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer flex-shrink-0"
+                      className="ms-1 px-1.5 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer flex-shrink-0"
                       title={t('sheet.equipmentList.viewPackContents')}
                     >
                       {expandedPack === i ? t('sheet.equipmentList.hide') : t('sheet.equipmentList.contents')}
@@ -319,7 +319,7 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
                   ) : (
                     <button
                       onClick={() => handleOpenPack(i)}
-                      className="ml-1 px-1.5 py-0.5 text-xs bg-amber-600 hover:bg-accent-strong rounded text-white cursor-pointer flex-shrink-0"
+                      className="ms-1 px-1.5 py-0.5 text-xs bg-amber-600 hover:bg-accent-strong rounded text-white cursor-pointer flex-shrink-0"
                       title={t('sheet.equipmentList.openPack')}
                     >
                       {t('sheet.equipmentList.open')}
@@ -330,7 +330,7 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
                     {item.consumable && (
                       <button
                         onClick={() => handleUseConsumable(i)}
-                        className="ml-1 px-1.5 py-0.5 text-xs bg-blue-700 hover:bg-blue-600 rounded text-white cursor-pointer flex-shrink-0"
+                        className="ms-1 px-1.5 py-0.5 text-xs bg-blue-700 hover:bg-blue-600 rounded text-white cursor-pointer flex-shrink-0"
                         title={t('sheet.equipmentList.useOne')}
                       >
                         {t('sheet.equipmentList.use')}
@@ -338,14 +338,14 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
                     )}
                     <button
                       onClick={() => handleSellEquipment(i)}
-                      className="ml-1 text-gray-600 hover:text-green-400 cursor-pointer text-xs flex-shrink-0"
+                      className="ms-1 text-gray-600 hover:text-green-400 cursor-pointer text-xs flex-shrink-0"
                       title={t('sheet.equipmentList.sellHalfPrice')}
                     >
                       &#x24;
                     </button>
                     <button
                       onClick={() => handleRemoveEquipment(i)}
-                      className="ml-2 text-gray-600 hover:text-red-400 cursor-pointer text-xs flex-shrink-0"
+                      className="ms-2 text-gray-600 hover:text-red-400 cursor-pointer text-xs flex-shrink-0"
                       title={t('sheet.equipmentList.removeItem')}
                     >
                       &#x2715;
@@ -359,7 +359,7 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
                   const contents = getPackContents(item.name, gearDatabase)
                   if (!contents) return null
                   return (
-                    <div className="text-xs text-gray-500 py-1 pl-2 bg-surface-2/30 rounded mt-0.5 mb-0.5">
+                    <div className="text-xs text-gray-500 py-1 ps-2 bg-surface-2/30 rounded mt-0.5 mb-0.5">
                       <div className="text-muted mb-1 font-medium">{t('sheet.equipmentList.packContents')}</div>
                       {contents.map((c, ci) => (
                         <div key={ci} className="flex items-center gap-1 py-0.5">
@@ -371,7 +371,7 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
                   )
                 })()}
               {expandedItem === i && (
-                <div className="text-xs text-gray-500 py-1 pl-2">
+                <div className="text-xs text-gray-500 py-1 ps-2">
                   {item.description ||
                     gearDatabase.find((g) => g.name.toLowerCase() === item.name.toLowerCase())?.description ||
                     t('sheet.equipmentList.noDescription')}

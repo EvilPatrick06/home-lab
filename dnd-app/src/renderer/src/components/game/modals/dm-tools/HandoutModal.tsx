@@ -180,7 +180,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                 type="file"
                 accept="image/*"
                 onChange={handleFileUpload}
-                className="w-full text-xs text-muted file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:bg-gray-700 file:text-gray-300 file:cursor-pointer hover:file:bg-gray-600"
+                className="w-full text-xs text-muted file:me-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:bg-gray-700 file:text-gray-300 file:cursor-pointer hover:file:bg-gray-600"
               />
               {content && (
                 <div className="border border-border/50 rounded p-1">
@@ -287,7 +287,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                         }
                         reader.readAsDataURL(file)
                       }}
-                      className="w-full text-xs text-muted file:mr-2 file:py-0.5 file:px-2 file:rounded file:border-0 file:text-xs file:bg-gray-700 file:text-gray-300 file:cursor-pointer"
+                      className="w-full text-xs text-muted file:me-2 file:py-0.5 file:px-2 file:rounded file:border-0 file:text-xs file:bg-gray-700 file:text-gray-300 file:cursor-pointer"
                     />
                   )}
                 </div>

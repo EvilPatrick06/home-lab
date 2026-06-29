@@ -190,7 +190,7 @@ export default function RollerQuickDice({
               {qr.label && qr.label !== qr.formula.replace(/ \(#\d+\)$/, '') && (
                 <span className="text-[9px] text-gray-500">({qr.label})</span>
               )}
-              <span className="ml-auto flex gap-1">
+              <span className="ms-auto flex gap-1">
                 <button
                   onClick={() => onRevealQuickResult(qr)}
                   className="text-[8px] px-1 py-0.5 bg-green-600/30 text-green-400 rounded cursor-pointer hover:bg-green-600/50"

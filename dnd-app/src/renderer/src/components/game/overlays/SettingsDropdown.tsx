@@ -212,7 +212,7 @@ function SoundCustomizationSection(): JSX.Element {
               </span>
               <button
                 onClick={() => handleRemove(event as SoundEvent)}
-                className="text-red-400 hover:text-red-300 cursor-pointer ml-1"
+                className="text-red-400 hover:text-red-300 cursor-pointer ms-1"
               >
                 x
               </button>

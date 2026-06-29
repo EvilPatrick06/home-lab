@@ -233,7 +233,7 @@ export default function TokenContextMenu({
           {isOwnToken && token.currentHP != null && (
             <div className="text-xs text-muted mt-0.5">
               {t('game.tokenContextMenu.hpLabel', { current: token.currentHP, max: stats.maxHP ?? '?' })}
-              {stats.ac != null && <span className="ml-2">{t('game.tokenContextMenu.acLabel', { ac: stats.ac })}</span>}
+              {stats.ac != null && <span className="ms-2">{t('game.tokenContextMenu.acLabel', { ac: stats.ac })}</span>}
             </div>
           )}
         </div>
@@ -333,7 +333,7 @@ export default function TokenContextMenu({
             {t('game.tokenContextMenu.applyGroupCondition', { count: selectedTokens.length })}
           </button>
           {showGroupConditions && (
-            <div className="ml-4 space-y-1">
+            <div className="ms-4 space-y-1">
               {[
                 'Blinded',
                 'Charmed',

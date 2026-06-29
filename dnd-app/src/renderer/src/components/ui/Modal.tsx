@@ -49,7 +49,7 @@ export default function Modal({
             )}
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-300 text-2xl leading-none cursor-pointer ml-auto"
+              className="text-gray-500 hover:text-gray-300 text-2xl leading-none cursor-pointer ms-auto"
               aria-label={t('ui.modal.closeDialog')}
             >
               &times;

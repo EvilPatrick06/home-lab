@@ -437,7 +437,7 @@ export default function LobbyPage(): JSX.Element {
     // (rendered absolutely-positioned at top-3 right-3 by GlobalSettingsButton).
     // Without this padding the lobby's right-aligned header controls
     // (Make Public/Private toggle, invite-code chip) ran into the gear.
-    <div className="p-6 pr-16 h-screen flex flex-col overflow-hidden">
+    <div className="p-6 pe-16 h-screen flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-4">
@@ -462,7 +462,7 @@ export default function LobbyPage(): JSX.Element {
             />
             <span className="text-xs text-gray-500 capitalize">{reconnecting ? 'reconnecting' : connectionState}</span>
             {role === 'client' && latencyMs != null && (
-              <span className="text-xs text-muted ml-1">{t('pages.lobbyPage.ping', { ms: latencyMs })}</span>
+              <span className="text-xs text-muted ms-1">{t('pages.lobbyPage.ping', { ms: latencyMs })}</span>
             )}
           </div>
 

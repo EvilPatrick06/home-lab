@@ -158,10 +158,11 @@ describe('storage-handlers', () => {
     expect(registeredChannels).toContain(IPC_CHANNELS.LOAD_SETTINGS)
   })
 
-  it('should register exactly 50 handlers', () => {
+  it('should register exactly 53 handlers', () => {
     registerStorageHandlers()
-    // 51 = 50 prior handlers + BOOK_SAVE_BYTES (custom-book PDF sync).
-    expect(mockHandle).toHaveBeenCalledTimes(51)
+    // 53 = 51 prior handlers + CAMPAIGN_VERSIONS + CAMPAIGN_RESTORE_VERSION
+    // (campaign version history list/restore — mirrors the character version API).
+    expect(mockHandle).toHaveBeenCalledTimes(53)
   })
 
   describe('SAVE_CHARACTER handler', () => {

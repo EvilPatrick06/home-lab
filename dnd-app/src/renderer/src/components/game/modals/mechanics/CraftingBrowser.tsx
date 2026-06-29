@@ -209,7 +209,7 @@ export default function CraftingBrowser({ characterTools, onStartCrafting }: Cra
               <button
                 onClick={() => onStartCrafting(item.name, item.tool, item.days, item.cost, item.recipeId)}
                 disabled={!item.hasProficiency}
-                className="px-2 py-1 text-xs bg-amber-600 hover:bg-accent-strong text-white rounded cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ml-2 shrink-0"
+                className="px-2 py-1 text-xs bg-amber-600 hover:bg-accent-strong text-white rounded cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ms-2 shrink-0"
               >
                 {t('game.craftingBrowser.craft')}
               </button>

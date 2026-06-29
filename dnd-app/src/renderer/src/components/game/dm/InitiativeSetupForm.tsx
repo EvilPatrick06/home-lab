@@ -193,7 +193,7 @@ export default function InitiativeSetupForm({
                       }`}
                     />
                     <span className="text-gray-300 truncate">{token.label}</span>
-                    <span className="text-gray-600 ml-auto text-xs">
+                    <span className="text-gray-600 ms-auto text-xs">
                       {token.initiativeModifier !== undefined ? `+${token.initiativeModifier}` : '+0'}
                     </span>
                   </label>
@@ -234,7 +234,7 @@ export default function InitiativeSetupForm({
               <span className="uppercase tracking-wider font-semibold">{t('game.initiativeSetupForm.turnTimer')}</span>
               <span className="text-gray-600 text-[9px]">{showTimerConfig ? '\u25B2' : '\u25BC'}</span>
               {timerEnabled && (
-                <span className="ml-auto text-green-400 text-[9px]">
+                <span className="ms-auto text-green-400 text-[9px]">
                   {t('game.initiativeSetupForm.timerSummary', {
                     seconds: timerSeconds,
                     action:
@@ -260,7 +260,7 @@ export default function InitiativeSetupForm({
                 {timerEnabled && (
                   <>
                     <div className="flex items-center gap-1 flex-wrap">
-                      <span className="text-xs text-gray-500 mr-1">{t('game.initiativeSetupForm.seconds')}</span>
+                      <span className="text-xs text-gray-500 me-1">{t('game.initiativeSetupForm.seconds')}</span>
                       {TIMER_PRESETS.map((preset) => (
                         <button
                           key={preset}

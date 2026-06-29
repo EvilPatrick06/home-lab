@@ -89,7 +89,7 @@ export default function ExpertiseModal(): JSX.Element {
         <h2 className="text-lg font-bold text-fg">
           {grant?.restrictedSkills ? t('builder.expertiseModal.scholar') : t('builder.expertiseModal.expertise')}
           {expertiseSlot && (
-            <span className="text-sm font-normal text-gray-500 ml-2">
+            <span className="text-sm font-normal text-gray-500 ms-2">
               {t('builder.expertiseModal.levelSuffix', { lvl: expertiseSlot.level })}
             </span>
           )}
@@ -104,7 +104,7 @@ export default function ExpertiseModal(): JSX.Element {
         <p className="text-sm text-muted mb-4">
           {t('builder.expertiseModal.instruction', { count: maxSelections })}
           {grant?.restrictedSkills && (
-            <span className="text-accent ml-1">
+            <span className="text-accent ms-1">
               {t('builder.expertiseModal.restrictedTo', { skills: grant.restrictedSkills.join(', ') })}
             </span>
           )}

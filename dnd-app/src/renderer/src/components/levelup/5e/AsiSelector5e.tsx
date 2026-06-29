@@ -228,7 +228,7 @@ export function GeneralFeatPicker({
                 >
                   <div className="text-sm text-green-300 font-medium">
                     {feat.name}
-                    {feat.repeatable && <span className="text-xs text-purple-400 ml-1">*</span>}
+                    {feat.repeatable && <span className="text-xs text-purple-400 ms-1">*</span>}
                   </div>
                   {formatPrerequisites(feat.prerequisites).length > 0 && (
                     <p className={`text-xs ${meetsPrereqs ? 'text-yellow-500' : 'text-red-400'}`}>

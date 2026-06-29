@@ -175,28 +175,6 @@ New entries go at the TOP of their section (newest first).
 
 ---
 
-### [2026-06-25] dnd-app CI omits the doc/i18n drift guards that `check:full` defines, and `gen:ipc-surface` has no `--check` mode
-
-- **Category:** debt, docs
-- **Severity:** medium
-- **Domain:** dnd-app
-- **Discovered by:** dnd-cleanup
-- **During:** scheduled cleanup/structure scan of dnd-app/ (CI vs npm-script coverage cross-check)
-
-**Description:**
-`package.json` defines a `check:full` aggregate that includes three generated-artifact / i18n drift guards — `sync:doc-counts -- --check`, `i18n:check-parity`, and (implicitly) keeping `docs/IPC-SURFACE.md` in sync — but `dnd-app-ci.yml` runs its gate as individual steps and does **not** invoke any of them. The CI steps are: lint, lint:forbidden, tsc (web+node), validate:content, test, electron-vite build, web build, check:bundle-size, test:coverage, audit:ci, circular, no-skipped-tests, dead-code, check:electron-eol. Missing: locale-parity (`i18n:check-parity`), doc-count drift (`sync:doc-counts --check`), and IPC-surface drift. Separately, `gen:ipc-surface` has **no `--check` mode at all** (the generator only writes the file; grep finds no check/diff/argv handling), so even a contributor who wanted to gate it cannot. `agent-docs-check.yml` only covers the five AI-assistant guide files, not these. Net effect: `docs/IPC-SURFACE.md`, the synced doc counts, and `src/renderer/src/i18n` locale parity can silently drift on `master` between the rare manual `check:full` runs.
-
-**Hypothesis / root cause:** CI was assembled as a hand-maintained list of explicit steps rather than calling `npm run check:full`, so guards added to `check:full` later (doc-counts/i18n) never propagated into the workflow; `gen:ipc-surface` predates the `--check` convention used by `sync-doc-counts.mjs`.
-
-**Proposed fix / improvement:**
-- [ ] Add `i18n:check-parity` and `sync:doc-counts -- --check` steps to `dnd-app-ci.yml`.
-- [ ] Add a `--check` flag to `scripts/build/gen-ipc-surface.mjs` (write to a temp/string, diff against committed `docs/IPC-SURFACE.md`, exit 1 on drift) and add `gen:ipc-surface -- --check` as a CI step.
-- [ ] Optionally fold all guards into `check:full` and have CI call that single script so the list cannot drift again.
-
-**Related files:** `/.github/workflows/dnd-app-ci.yml`, `dnd-app/package.json` (`check:full`, `gen:ipc-surface`, `sync:doc-counts`, `i18n:check-parity`), `dnd-app/scripts/build/gen-ipc-surface.mjs`, `dnd-app/scripts/build/sync-doc-counts.mjs`, `dnd-app/scripts/i18n/check-locale-parity.mjs`, `dnd-app/docs/IPC-SURFACE.md`
-
----
-
 ### [2026-06-25] Renderer god-components `GameLayout.tsx` and `PdfViewer.tsx` stay monolithic despite established sibling extraction dirs
 
 - **Category:** debt
@@ -223,6 +201,10 @@ This is distinct from the existing `ai-service.ts` decompose entry (that's a mai
 
 **Related entries:** [2026-06-23] `ai-service.ts` is a ~1,740-LOC god file; [2026-06-24] Two near-identical `MapSelector.tsx` components
 
+> **2026-06-29 (dnd-resolver) — APPROVED; left for a focused refactor (not done this run).** Decomposing the 1,331-LOC `GameLayout.tsx` / 1,378-LOC `PdfViewer.tsx` stateful cores is a judgment-heavy refactor whose correctness the cheap local CI gate cannot confirm (tsc/biome/unit tests will not catch a broken render), and it would be a large diff on the busiest UI files that risks blocking the integrator's merge of this run's verified fixes. Left diagnosed under the workflow (b) exception (needs visual/runtime verification + seam judgment), not abandoned.
+
+> **2026-06-29 (dnd-resolver, deferred follow-up) — FIRST EXTRACTION SHIPPED.** Extracted GameLayout's panel-resize concern (bottom-bar + sidebar collapse state, persisted sizes, drag/double-click handlers) into `game-layout/use-panel-resize.ts` (GameLayout -52 lines; tsc + GameLayout test green). This is the first increment of the 'continue extracting' work — `PdfViewer.tsx` and further `GameLayout` sub-regions remain monolithic and are the next slices.
+
 ---
 
 ### [2026-06-25] DO NOT "dedupe" the `shared/types/*` <-> `renderer/src/types/*` re-export shims — the duplicate basenames are an intentional process-boundary split
@@ -240,45 +222,6 @@ This is distinct from the existing `ai-service.ts` decompose entry (that's a mai
 **What to do instead:** Leave both files. Treat `src/shared/types/*` as canonical (type-only, no runtime) and `src/renderer/src/types/*` as the renderer-facing re-export + runtime-helper layer. Add new shared types in `shared/`, re-export from the renderer shim, and keep renderer-only helpers in the shim. (Recording here so future cleanup/scanner runs — including this one — do not re-propose the merge.)
 
 **Related files:** `dnd-app/src/shared/types/character-5e.ts`, `dnd-app/src/renderer/src/types/character-5e.ts`, `dnd-app/src/shared/types/character-common.ts`, `dnd-app/src/shared/types/companion.ts`, `dnd-app/src/shared/types/library.ts`
-### [2026-06-24] Campaign on-disk `.versions/` backups are write-only — no list/restore IPC or UI (asymmetric with characters)
-
-- **Category:** future-idea, UX
-- **Severity:** medium
-- **Domain:** dnd-app
-- **Discovered by:** dnd-suggestor
-- **During:** dnd-app tree review (storage layer + version-history survey)
-
-**Description:**
-`campaign-storage.ts` (saveCampaign, ~L55-75) writes a timestamped versioned backup to `<campaignsDir>/.versions/<id>/<id>_<ts>.json` before every overwrite and prunes to the latest 20 — a real, working safety net. But unlike characters, **none of it is reachable by the user.** Characters get the full path: on-disk `.versions/` PLUS `listCharacterVersions` / `restoreCharacterVersion` in `character-storage.ts`, the `CHARACTER_VERSIONS` + `CHARACTER_RESTORE_VERSION` IPC channels, and a restore UI in `CharacterSheet5ePage.tsx`. For campaigns there is **no `listCampaignVersions` / `restoreCampaignVersion`, no `CAMPAIGN_VERSIONS` / `CAMPAIGN_RESTORE_VERSION` IPC channel, and no UI** (grep confirms only the character variants exist). So the 20 campaign backups silently accumulate on disk and the user has no way to see or roll back to them when a campaign gets corrupted or a bad AI/DM action mangles state — the exact scenario the backups were written for. This also overlaps confusingly with the *separate* renderer-side autosave system (`services/io/auto-save.ts`) that keeps its own campaign "versions" in localStorage with its own UI — two parallel, non-interoperating version stores for the same object.
-
-**Proposed fix / improvement:**
-- [ ] Add `listCampaignVersions(id)` / `restoreCampaignVersion(id, fileName)` to `campaign-storage.ts` mirroring the character API (including the same path-traversal guard the character restore handler already applies to `fileName`).
-- [ ] Expose them via new `CAMPAIGN_VERSIONS` / `CAMPAIGN_RESTORE_VERSION` IPC channels and a restore-from-history UI (campaign detail / load screen), reusing the character version-list component if practical.
-- [ ] Decide how the on-disk `.versions/` store and the renderer localStorage autosave store should relate — ideally unify them so the user sees one coherent version history rather than two.
-
-**Related files:** `dnd-app/src/main/storage/campaign-storage.ts` (`.versions/` write ~L55-75), `dnd-app/src/main/storage/character-storage.ts` (`listCharacterVersions`/`restoreCharacterVersion`), `dnd-app/src/main/ipc/storage-handlers.ts` (`CHARACTER_VERSIONS`/`CHARACTER_RESTORE_VERSION`), `dnd-app/src/shared/ipc-channels.ts`, `dnd-app/src/renderer/src/services/io/auto-save.ts`, `dnd-app/src/renderer/src/pages/CharacterSheet5ePage.tsx`
-
----
-
-### [2026-06-24] Renderer autosave stores full game-state snapshots in `localStorage` — quota-bound + synchronous, fragile on large campaigns and on the web target
-
-- **Category:** future-idea, portability, performance
-- **Severity:** medium
-- **Domain:** dnd-app
-- **Discovered by:** dnd-suggestor
-- **During:** dnd-app tree review (autosave service + web-persistence survey)
-
-**Description:**
-`services/io/auto-save.ts` periodically (default every 5 min, `maxVersions` 10) serializes the **entire game state** to JSON and stores each version under its own `localStorage` key (`autosave:<campaignId>:<versionId>`), plus a per-campaign manifest. `localStorage` has a hard ~5-10 MB per-origin quota, is **synchronous** (each `setItem` blocks the main thread), and throws `QuotaExceededError` on overflow. A large campaign (many tokens, maps, fog/lighting, drawings, NPC memory) serialized × up to 10 versions can realistically approach or exceed that quota, at which point `setItem` throws and autosaves are silently lost — or, worse, the throw cascades into other `localStorage`-backed settings writes. This is most acute on the **web target** (`build:web`), where there is no Electron file-system fallback at all, so localStorage is the only persistence the autosave path has. IndexedDB (async, hundreds of MB+ quota, structured-clone instead of JSON-stringify) is the standard home for blobs this size; in the Electron build the main-process file store (which already has the campaign `.versions/` mechanism) is an even better home.
-
-**Proposed fix / improvement:**
-- [ ] Move autosave snapshot bodies off `localStorage` to IndexedDB (keep only the small manifest in localStorage if convenient), or in the Electron build route them through a main-process IPC into the existing on-disk version store.
-- [ ] Wrap the current `setItem` writes in `QuotaExceededError` handling as an immediate safeguard (evict oldest version + retry, and surface a toast) so autosave fails loud, not silent.
-- [ ] Make the write async / chunked so a large snapshot doesn't jank the frame during a session.
-
-**Related files:** `dnd-app/src/renderer/src/services/io/auto-save.ts`, `dnd-app/src/renderer/src/constants/settings-keys.ts` (`autosaveVersions`/`autosaveVersion` key builders), `dnd-app/docs/WEB-VERSION-PLAN.md`
-
-**Related entries:** [2026-06-24] "Campaign on-disk `.versions/` backups are write-only…" (the two version systems should be reconciled).
 
 ---
 
@@ -300,39 +243,8 @@ The i18n stack (`src/renderer/src/i18n/`) ships two locales, `en` and `es`, both
 
 **Related files:** `dnd-app/src/renderer/src/i18n/index.ts` (`setLocale`), `dnd-app/src/renderer/src/i18n/config.ts` (`SUPPORTED_LOCALES`/`LOCALE_LABELS`), `dnd-app/src/renderer/src/i18n/locales/`, `dnd-app/src/renderer/src/main.tsx` (init path)
 
----
+> **2026-06-29 (dnd-resolver) — document-`dir`/`lang` INFRA already present on master; CSS logical-property sweep residual.** Verified the first proposed-fix item is done on master: `i18n/index.ts` `applyDocumentLocale()` sets `document.documentElement.dir` (via `dirFor` + `RTL_LOCALES`) and `lang` on `languageChanged` and first paint, covered by `document-locale.test.ts` (WEB-I18N-1 / phase-56). RESIDUAL: the physical→logical Tailwind migration (`ml/pl/left` → `ms/ps/start`) across ~164 components — not done blind, because not every physical class should become logical and there is no RTL locale to verify against (the entry itself gates adding one). Best done as a focused pass with the actual RTL-locale decision.
 
-### [2026-06-28] Remaining un-prefixed VTT localStorage keys — broaden the Phase-56D namespacing sweep
-
-- **Category:** tech-debt, portability
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-phase-executer
-- **During:** PHASE-56 (56D storage namespacing)
-
-**Description:**
-PHASE-56D namespaced the QA-flagged keys (`library-recent`, `lobby-chat-*`, `lobby-dice-colors`) under `dnd-vtt-` with a tested one-time migration (`utils/storage-migrations.ts`). Scope was bounded to the flagged set because other un-prefixed keys are scattered across hardcoded call sites (not all routed through `SETTINGS_KEYS`), and one shares a name with a library content-type id (`encounter-presets`), so a blanket rename needs per-key care. **Root cause (file:line):** un-prefixed entries remain in `constants/settings-keys.ts` (`LIBRARY_FAVORITES`, `DICE_TRAY_POSITION`, `NARRATION_TTS`, `ENCOUNTER_PRESETS`, `NOTIFICATION_CONFIG`, `AUTOSAVE_CONFIG`, `dynamicKeys.macroStorage/builderDraft/autosave*`) plus hardcoded duplicates: `EncounterBuilderModal.tsx:352,357`, `services/io/builder-auto-save.ts:8`, and `DiceTray.tsx:7` uses a different prefixed key than `SETTINGS_KEYS.DICE_TRAY_POSITION` (existing inconsistency).
-
-**Proposed fix / improvement:**
-- [ ] Namespace the remaining static + macro/builder dynamic keys via the same `migrateLegacyStorageKeys` helper (extend STATIC_RENAMES / PREFIX_RENAMES + tests).
-- [ ] Reconcile the `DiceTray.tsx` vs `SETTINGS_KEYS.DICE_TRAY_POSITION` mismatch.
-- [ ] Decide the `autosave:*` colon-namespace policy.
-
-**Related files:** `dnd-app/src/renderer/src/constants/settings-keys.ts`, `utils/storage-migrations.ts`, `EncounterBuilderModal.tsx`, `services/io/builder-auto-save.ts`, `components/game/dice3d/DiceTray.tsx`
-
----
-
-### [2026-06-28] PHASE-56E Spanish menu / character-card i18n walk needs the deployed web build to verify
-
-- **Category:** future-idea, i18n
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-phase-executer
-- **During:** PHASE-56 (56E, verification-gated)
-
-**Description:**
-Sub-phase 56E is verification-gated: re-walk the menu + character cards in Espanol and fix carried i18n leaks IF they reproduce. It could not be exercised — the automated executor has no running/deployed web build, and the plan forbids guesswork. No code change for 56E. The next WEB-QA pass should drive the Espanol main-menu hero + character-card walk on `https://bmo.mybmoai.work/DungeonTableOnline/` and fix only if leaks reproduce.
-
-**Related files:** `dnd-app/src/renderer/src/i18n/locales/{en,es}.json`, main-menu hero + character-card components (TBD)
+> **2026-06-29 (dnd-resolver, deferred follow-up) — SPACING SWEEP SHIPPED.** Converted all physical margin/padding classes to logical (`ml/mr/pl/pr` → `ms/me/ps/pe`, 294 tokens across 149 components) — LTR-identical today (Tailwind v4), RTL-correct later; biome green. RESIDUAL: the judgment-heavy classes (`left/right` positioning, `border-l/r`, `text-left/right`, `rounded-l/r`) are deliberately left for a focused pass alongside the actual RTL-locale decision, since not every physical class should flip and there is still no RTL locale to verify against.
 
 ---

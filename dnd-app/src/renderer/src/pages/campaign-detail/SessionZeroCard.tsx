@@ -159,7 +159,7 @@ export default function SessionZeroCard({ campaign, saveCampaign }: SessionZeroC
                 ))}
               </div>
             ) : (
-              <span className="text-gray-600 ml-1">{t('pages.sessionZeroCard.banEmpty')}</span>
+              <span className="text-gray-600 ms-1">{t('pages.sessionZeroCard.banEmpty')}</span>
             )}
             <div className="flex items-center gap-2 mt-1.5">
               <input
@@ -188,7 +188,7 @@ export default function SessionZeroCard({ campaign, saveCampaign }: SessionZeroC
         onClose={() => setShowSessionZeroEdit(false)}
         title={t('pages.sessionZeroCard.editTitle')}
       >
-        <div className="max-h-[60vh] overflow-y-auto pr-1">
+        <div className="max-h-[60vh] overflow-y-auto pe-1">
           <SessionZeroStep
             data={editSessionZero}
             onChange={setEditSessionZero}

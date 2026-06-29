@@ -104,7 +104,7 @@ export default function PrintSheetStats({ character, proficiencyBonus: pb }: Pri
                       <span className="inline-block w-3 text-center font-bold">{marker}</span>
                       <span className="w-8 font-mono text-right">{formatMod(mod)}</span>
                       <span>{skill.name}</span>
-                      <span className="text-[7pt] text-muted ml-0.5">({ABILITY_LABELS[skill.ability]})</span>
+                      <span className="text-[7pt] text-muted ms-0.5">({ABILITY_LABELS[skill.ability]})</span>
                     </div>
                   )
                 })}

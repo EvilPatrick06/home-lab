@@ -377,7 +377,7 @@ export default function CombatStatsBar5e({ character, readonly }: CombatStatsBar
                 +
               </button>
             </div>
-            <span className="text-xs text-gray-500 ml-auto">{t('sheet.combatStatsBar.wildShapeRest')}</span>
+            <span className="text-xs text-gray-500 ms-auto">{t('sheet.combatStatsBar.wildShapeRest')}</span>
           </div>
         </div>
       )}

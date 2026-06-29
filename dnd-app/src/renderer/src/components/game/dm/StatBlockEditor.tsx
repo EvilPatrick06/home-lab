@@ -231,7 +231,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
   const abilityError = (score: number): boolean => score < 1 || score > 30
 
   return (
-    <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
+    <div className="space-y-3 max-h-96 overflow-y-auto pe-1">
       {/* Basic */}
       <CollapsibleSection title={t('game.statBlockEditor.sectionBasic')} defaultOpen>
         <div className="grid grid-cols-2 gap-2">

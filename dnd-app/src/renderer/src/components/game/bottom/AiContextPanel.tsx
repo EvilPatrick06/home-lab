@@ -121,7 +121,7 @@ export default function AiContextPanel({ campaignId }: AiContextPanelProps): JSX
           {files.map((file) => (
             <div key={file.name}>
               <div className="flex items-center justify-between py-0.5">
-                <span className="text-xs text-muted font-mono truncate mr-2">{file.name}</span>
+                <span className="text-xs text-muted font-mono truncate me-2">{file.name}</span>
                 <div className="flex items-center gap-1.5 shrink-0">
                   <span className="text-xs text-gray-600">{formatSize(file.size)}</span>
                   <button

@@ -61,7 +61,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
           <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
             {t('sheet.magicItemsPanel.title')}
             {characterMagicItems.some((mi) => mi.attunement) && (
-              <span className="ml-2 text-purple-400 normal-case">
+              <span className="ms-2 text-purple-400 normal-case">
                 {/* Phase 23f — single source: attuned items from getEffectiveMagicItems
                     (which projects state.magicItemAttuned). Matches AttunementTracker. */}
                 {t('sheet.magicItemsPanel.attuned', { count: characterMagicItems.filter((mi) => mi.attuned).length })}
@@ -289,7 +289,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                                 <span className={`font-medium ${rarityColor[item.rarity] ?? 'text-gray-300'}`}>
                                   {item.name}
                                 </span>
-                                <div className="flex items-center gap-2 shrink-0 ml-2">
+                                <div className="flex items-center gap-2 shrink-0 ms-2">
                                   {item.attunement && (
                                     <span className="text-[9px] text-purple-500">
                                       {t('sheet.magicItemsPanel.attune')}

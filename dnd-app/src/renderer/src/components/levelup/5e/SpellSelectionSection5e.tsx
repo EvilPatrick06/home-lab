@@ -265,7 +265,7 @@ export default function SpellSelectionSection5e({
           <div className="text-xs font-semibold text-accent uppercase tracking-wide mb-1">
             {t('levelup.spellSelection.newCantrips', { selected: newCantripIds.length, max: cantripsToLearn })}
             {newCantripIds.length < cantripsToLearn && (
-              <span className="ml-2 text-accent-strong">{t('levelup.spellSelection.required')}</span>
+              <span className="ms-2 text-accent-strong">{t('levelup.spellSelection.required')}</span>
             )}
           </div>
           <div className="max-h-40 overflow-y-auto space-y-0.5">
@@ -315,7 +315,7 @@ export default function SpellSelectionSection5e({
                 <span className="text-green-400">+{added?.name ?? sw.addId}</span>
                 <button
                   onClick={() => removeSpellSwap(sw.removeId)}
-                  className="ml-1 text-gray-500 hover:text-red-400 cursor-pointer"
+                  className="ms-1 text-gray-500 hover:text-red-400 cursor-pointer"
                 >
                   ×
                 </button>

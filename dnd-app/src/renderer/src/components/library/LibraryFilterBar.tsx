@@ -159,7 +159,7 @@ export default function LibraryFilterBar({
             <button
               type="button"
               onClick={() => handleRemoveFilterValue(field, val)}
-              className="ml-0.5 hover:text-amber-200 cursor-pointer"
+              className="ms-0.5 hover:text-amber-200 cursor-pointer"
               aria-label={t('library.libraryFilterBar.removeFilter', { label: config?.label ?? field, value: val })}
             >
               ×

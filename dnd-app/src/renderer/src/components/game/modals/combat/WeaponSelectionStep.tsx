@@ -82,11 +82,11 @@ export function WeaponSelectionStep({
                 <>
                   {w.damage} {w.damageType}
                   {w.range && (
-                    <span className="ml-2 text-gray-500">
+                    <span className="ms-2 text-gray-500">
                       {t('game.weaponSelectionStep.range', { range: w.range })}
                     </span>
                   )}
-                  {w.properties?.length > 0 && <span className="ml-2 text-gray-500">{w.properties.join(', ')}</span>}
+                  {w.properties?.length > 0 && <span className="ms-2 text-gray-500">{w.properties.join(', ')}</span>}
                 </>
               )}
             </div>
@@ -134,7 +134,7 @@ export function UnarmedModeStep({ strMod, unarmedStrikeDC, onSelectMode, onBack 
         <div className="text-sm font-semibold text-blue-300">{t('game.unarmedModeStep.grapple')}</div>
         <div className="text-xs text-muted">
           {t('game.unarmedModeStep.grappleDesc', { dc: unarmedStrikeDC })}
-          <span className="text-yellow-400 ml-1">{t('game.unarmedModeStep.requiresFreeHand')}</span>
+          <span className="text-yellow-400 ms-1">{t('game.unarmedModeStep.requiresFreeHand')}</span>
         </div>
       </button>
       <button

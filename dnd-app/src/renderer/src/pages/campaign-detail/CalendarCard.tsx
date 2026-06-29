@@ -101,7 +101,7 @@ export default function CalendarCard({ campaign, saveCampaign }: CalendarCardPro
         onClose={() => setShowCalendarEdit(false)}
         title={t('pages.calendarCard.editCalendar')}
       >
-        <div className="max-h-[60vh] overflow-y-auto pr-1">
+        <div className="max-h-[60vh] overflow-y-auto pe-1">
           <CalendarStep calendar={editCalendar} onChange={setEditCalendar} />
         </div>
         <div className="flex gap-3 justify-end mt-4">

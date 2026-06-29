@@ -6503,7 +6503,22 @@
       "deleteMessage": "This action cannot be undone. The campaign \"{{name}}\" and all its data will be permanently deleted.",
       "cloudFallbackTitle": "Local Server Unreachable",
       "cloudFallbackMessage": "The local relay server could not be reached. Would you like to host using cloud servers instead? Players will connect via the public internet.",
-      "useCloud": "Use Cloud"
+      "useCloud": "Use Cloud",
+      "versionHistory": {
+        "button": "Version History",
+        "title": "Version History",
+        "close": "Close version history",
+        "loading": "Loading versions...",
+        "none": "No previous versions saved yet.",
+        "size": "{{size}} KB",
+        "restoring": "Restoring...",
+        "restore": "Restore",
+        "confirmTitle": "Restore Version",
+        "confirmPrompt": "Restore this campaign to this version? Your current save will be backed up first.",
+        "toastLoadFailed": "Failed to load version history.",
+        "toastRestored": "Campaign version restored successfully.",
+        "toastRestoreFailed": "Failed to restore version. Please try again."
+      }
     },
     "characterSheet5ePage": {
       "characterNotFound": "Character not found",
@@ -7466,7 +7481,9 @@
       "exportTitle": "Export character",
       "deleteTitle": "Delete character",
       "hpLabel": "HP:",
-      "acLabel": "AC:"
+      "acLabel": "AC:",
+      "statusRetired": "Retired",
+      "statusDeceased": "Deceased"
     },
     "discordIntegration": {
       "loadFailed": "Failed to load Discord configuration",

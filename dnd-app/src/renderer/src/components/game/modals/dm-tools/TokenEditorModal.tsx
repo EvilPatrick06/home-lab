@@ -228,7 +228,7 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
               name="token-image"
               accept="image/png,image/jpeg,image/webp"
               onChange={handleImageUpload}
-              className="text-xs text-muted file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-surface-2 file:text-gray-300 hover:file:bg-gray-700"
+              className="text-xs text-muted file:me-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-surface-2 file:text-gray-300 hover:file:bg-gray-700"
             />
             {token.imagePath && (
               <div className="flex items-center gap-3 mt-1">

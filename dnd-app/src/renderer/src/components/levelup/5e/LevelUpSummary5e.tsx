@@ -114,7 +114,7 @@ export function LevelUpSummaryBar5e({
           </span>
         )}
         {incompleteChoices.length > 0 && (
-          <span className="text-accent font-semibold ml-auto">
+          <span className="text-accent font-semibold ms-auto">
             {t('levelup.summaryBar.choicesRemaining', { count: incompleteChoices.length })}
           </span>
         )}

@@ -153,7 +153,7 @@ export default function AsiModal(): JSX.Element {
         <h2 className="text-lg font-bold text-fg">
           {t('builder.asiModal.title')}
           {asiSlot && (
-            <span className="text-sm font-normal text-gray-500 ml-2">
+            <span className="text-sm font-normal text-gray-500 ms-2">
               {t('builder.asiModal.levelSuffix', { lvl: asiSlot.level })}
             </span>
           )}
@@ -246,12 +246,12 @@ export default function AsiModal(): JSX.Element {
                     <div className="text-xs text-muted uppercase font-semibold mb-1">{ab.slice(0, 3)}</div>
                     <div className="text-lg font-bold text-fg">
                       {score}
-                      {boost > 0 && <span className="text-green-400 text-sm ml-1">+{boost}</span>}
+                      {boost > 0 && <span className="text-green-400 text-sm ms-1">+{boost}</span>}
                     </div>
                     <div className="text-accent font-bold text-sm">
                       {formatMod(mod)}
                       {boost > 0 && (
-                        <span className="text-green-400 ml-1">({formatMod(abilityModifier(score + boost))})</span>
+                        <span className="text-green-400 ms-1">({formatMod(abilityModifier(score + boost))})</span>
                       )}
                     </div>
                   </button>

@@ -136,7 +136,7 @@ export default function DeathSaves5e({
               )}
             </button>
           ))}
-          <span className="text-xs text-gray-500 ml-1">{t('sheet.deathSaves.successes')}</span>
+          <span className="text-xs text-gray-500 ms-1">{t('sheet.deathSaves.successes')}</span>
         </div>
 
         <span className="text-gray-600">|</span>
@@ -158,7 +158,7 @@ export default function DeathSaves5e({
               )}
             </button>
           ))}
-          <span className="text-xs text-gray-500 ml-1">{t('sheet.deathSaves.failures')}</span>
+          <span className="text-xs text-gray-500 ms-1">{t('sheet.deathSaves.failures')}</span>
         </div>
 
         {/* Roll Death Save button */}
@@ -175,7 +175,7 @@ export default function DeathSaves5e({
         {!readonly && (deathSaves.successes > 0 || deathSaves.failures > 0) && (
           <button
             onClick={resetDeathSaves}
-            className="px-2 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 ml-auto"
+            className="px-2 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 ms-auto"
           >
             {t('sheet.deathSaves.reset')}
           </button>

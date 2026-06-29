@@ -124,7 +124,7 @@ export default function WebSearchApprovalPrompt(): JSX.Element | null {
           <span id={titleId} className="text-accent font-bold text-lg">
             {t('game.webSearchApproval.title')}
           </span>
-          <span className="ml-auto">
+          <span className="ms-auto">
             <Countdown deadline={deadline} />
           </span>
         </div>

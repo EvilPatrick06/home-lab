@@ -214,7 +214,7 @@ export function BastionTurnModal({
             {getBpPerTurn(ownerLevel) > 0 && (
               <div className="bg-purple-900/20 rounded p-2 border border-purple-800">
                 <span className="text-xs text-purple-400">{t('pages.bastionTurnModal.bastionPointsEarned')}</span>
-                <span className="text-xs text-gray-200 ml-1">+{getBpPerTurn(ownerLevel)} BP</span>
+                <span className="text-xs text-gray-200 ms-1">+{getBpPerTurn(ownerLevel)} BP</span>
               </div>
             )}
             {activeTurn.eventOutcome && (
@@ -231,7 +231,7 @@ export function BastionTurnModal({
             {activeTurn.eventDetails?.gamingHallWinnings && (
               <div className="bg-yellow-900/20 rounded p-2 border border-yellow-800">
                 <span className="text-xs text-yellow-400">{t('pages.bastionTurnModal.gamingHallWinnings')}</span>
-                <span className="text-xs text-gray-200 ml-1">
+                <span className="text-xs text-gray-200 ms-1">
                   {t('pages.bastionTurnModal.goldEarned', {
                     gold: (activeTurn.eventDetails.gamingHallWinnings as { goldEarned: number }).goldEarned
                   })}

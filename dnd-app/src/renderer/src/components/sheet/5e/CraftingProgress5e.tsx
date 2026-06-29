@@ -113,7 +113,7 @@ export default function CraftingProgress5e({
                     {!readonly && (
                       <button
                         onClick={() => onCraftScroll(spell)}
-                        className="ml-2 px-2.5 py-1 text-xs bg-purple-600 hover:bg-purple-500 rounded text-white cursor-pointer transition-colors flex-shrink-0"
+                        className="ms-2 px-2.5 py-1 text-xs bg-purple-600 hover:bg-purple-500 rounded text-white cursor-pointer transition-colors flex-shrink-0"
                       >
                         {t('sheet.craftingProgress.craft')}
                       </button>

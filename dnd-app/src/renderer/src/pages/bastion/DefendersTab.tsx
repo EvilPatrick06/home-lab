@@ -72,7 +72,7 @@ export function DefendersTab({
                         <span className="text-gray-200">{d.name}</span>
                         {d.isUndead && <span className="text-purple-400">{t('pages.defendersTab.undead')}</span>}
                         {d.isConstruct && <span className="text-orange-400">{t('pages.defendersTab.construct')}</span>}
-                        <button onClick={() => onRemove([d.id])} className="text-red-400 hover:text-red-300 ml-1">
+                        <button onClick={() => onRemove([d.id])} className="text-red-400 hover:text-red-300 ms-1">
                           x
                         </button>
                       </div>
@@ -98,7 +98,7 @@ export function DefendersTab({
                     className="flex items-center gap-1 text-xs bg-surface-2 rounded px-2 py-1 border border-border"
                   >
                     <span className="text-gray-200">{d.name}</span>
-                    <button onClick={() => onRemove([d.id])} className="text-red-400 hover:text-red-300 ml-1">
+                    <button onClick={() => onRemove([d.id])} className="text-red-400 hover:text-red-300 ms-1">
                       x
                     </button>
                   </div>
@@ -133,7 +133,7 @@ export function DefendersTab({
                     <span className="text-amber-200 font-medium">{d.name}</span>
                     <button
                       onClick={() => useBastionStore.getState().demoteLieutenant(bastion.id, d.id)}
-                      className="text-red-400 hover:text-red-300 ml-1 transition-colors"
+                      className="text-red-400 hover:text-red-300 ms-1 transition-colors"
                       title={t('pages.defendersTab.demote')}
                     >
                       x
@@ -180,7 +180,7 @@ export function DefendersTab({
           <div className="text-xs text-muted">
             {t('pages.defendersTab.squaresBuilt', { count: bastion.defensiveWalls.squaresBuilt })}
             {bastion.defensiveWalls.fullyEnclosed && (
-              <span className="text-green-400 ml-2">{t('pages.defendersTab.fullyEnclosed')}</span>
+              <span className="text-green-400 ms-2">{t('pages.defendersTab.fullyEnclosed')}</span>
             )}
           </div>
         ) : (

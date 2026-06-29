@@ -431,9 +431,9 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
         <div className="flex items-center justify-between mb-2">
           <div>
             <span className="text-xs font-semibold text-gray-200">{table.name}</span>
-            <span className="text-xs text-gray-500 ml-2">({table.diceFormula})</span>
+            <span className="text-xs text-gray-500 ms-2">({table.diceFormula})</span>
             {table.builtIn && (
-              <span className="text-[9px] text-accent-strong/70 ml-2 uppercase tracking-wider">
+              <span className="text-[9px] text-accent-strong/70 ms-2 uppercase tracking-wider">
                 {t('game.rollTableModal.builtIn')}
               </span>
             )}
@@ -479,11 +479,11 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
                 </span>{' '}
                 {entry.text}
                 {entry.weight !== undefined && (
-                  <span className="text-gray-600 ml-1">
+                  <span className="text-gray-600 ms-1">
                     {t('game.rollTableModal.weightIndicator', { weight: entry.weight })}
                   </span>
                 )}
-                {entry.subtable && <span className="text-cyan-500/70 ml-1">-&gt; {`{{${entry.subtable}}}`}</span>}
+                {entry.subtable && <span className="text-cyan-500/70 ms-1">-&gt; {`{{${entry.subtable}}}`}</span>}
               </div>
             )
           })}
@@ -681,7 +681,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
                     </div>
                     <button
                       onClick={() => handleShareResult(item)}
-                      className="ml-2 px-1.5 py-0.5 text-[9px] bg-gray-700 hover:bg-gray-600 text-muted hover:text-white rounded cursor-pointer whitespace-nowrap"
+                      className="ms-2 px-1.5 py-0.5 text-[9px] bg-gray-700 hover:bg-gray-600 text-muted hover:text-white rounded cursor-pointer whitespace-nowrap"
                       title={t('game.rollTableModal.shareToChat')}
                     >
                       {t('game.rollTableModal.share')}

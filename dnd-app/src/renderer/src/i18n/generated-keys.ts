@@ -3,7 +3,7 @@
  * Run `npm run i18n:gen-keys` (scripts/i18n/gen-key-union.mjs) to regenerate
  * after changing en.json. Source: src/renderer/src/i18n/locales/en.json.
  *
- * A literal union of every dotted leaf key in en.json (6576 keys),
+ * A literal union of every dotted leaf key in en.json (6591 keys),
  * so `t()` calls are checked at compile time instead of silently rendering a
  * raw key string when a key is typo'd or missing.
  */
@@ -5122,6 +5122,19 @@ export type TranslationKey =
   | 'pages.campaignDetailPage.typeCampaign'
   | 'pages.campaignDetailPage.unarchive'
   | 'pages.campaignDetailPage.useCloud'
+  | 'pages.campaignDetailPage.versionHistory.button'
+  | 'pages.campaignDetailPage.versionHistory.close'
+  | 'pages.campaignDetailPage.versionHistory.confirmPrompt'
+  | 'pages.campaignDetailPage.versionHistory.confirmTitle'
+  | 'pages.campaignDetailPage.versionHistory.loading'
+  | 'pages.campaignDetailPage.versionHistory.none'
+  | 'pages.campaignDetailPage.versionHistory.restore'
+  | 'pages.campaignDetailPage.versionHistory.restoring'
+  | 'pages.campaignDetailPage.versionHistory.size'
+  | 'pages.campaignDetailPage.versionHistory.title'
+  | 'pages.campaignDetailPage.versionHistory.toastLoadFailed'
+  | 'pages.campaignDetailPage.versionHistory.toastRestoreFailed'
+  | 'pages.campaignDetailPage.versionHistory.toastRestored'
   | 'pages.characterSheet5ePage.back'
   | 'pages.characterSheet5ePage.characterNotFound'
   | 'pages.characterSheet5ePage.characterSheet'
@@ -6436,6 +6449,8 @@ export type TranslationKey =
   | 'ui.characterCard.hpLabel'
   | 'ui.characterCard.levelLine'
   | 'ui.characterCard.pdf'
+  | 'ui.characterCard.statusDeceased'
+  | 'ui.characterCard.statusRetired'
   | 'ui.characterCard.systemLabel'
   | 'ui.characterCard.unknownClass'
   | 'ui.discordIntegration.botDm'

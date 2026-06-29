@@ -37,6 +37,9 @@ const api = {
     ipcRenderer.invoke(IPC_CHANNELS.CHARACTER_RESTORE_VERSION, id, fileName),
 
   // Campaign storage
+  listCampaignVersions: (id: string) => ipcRenderer.invoke(IPC_CHANNELS.CAMPAIGN_VERSIONS, id),
+  restoreCampaignVersion: (id: string, fileName: string) =>
+    ipcRenderer.invoke(IPC_CHANNELS.CAMPAIGN_RESTORE_VERSION, id, fileName),
   saveCampaign: (campaign: Record<string, unknown>) => ipcRenderer.invoke(IPC_CHANNELS.SAVE_CAMPAIGN, campaign),
   loadCampaigns: () => ipcRenderer.invoke(IPC_CHANNELS.LOAD_CAMPAIGNS),
   loadCampaign: (id: string) => ipcRenderer.invoke(IPC_CHANNELS.LOAD_CAMPAIGN, id),

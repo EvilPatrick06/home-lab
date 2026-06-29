@@ -99,7 +99,7 @@ export default function AttackCalculator5e({
                     }}
                   >
                     {prof}
-                    {desc && <span className="text-gray-600 text-xs ml-1">{isExpanded ? '\u25BE' : '?'}</span>}
+                    {desc && <span className="text-gray-600 text-xs ms-1">{isExpanded ? '\u25BE' : '?'}</span>}
                   </span>
                   {isExpanded && desc && (
                     <div className="text-xs text-gray-500 bg-surface-2/50 rounded px-2 py-1 mt-1 max-w-xs">{desc}</div>

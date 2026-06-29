@@ -126,7 +126,7 @@ export default function FallingDamageModal({
                 <span className="text-sm text-gray-200">
                   {token.label}
                   {token.elevation ? (
-                    <span className="text-blue-400 ml-1 text-xs">
+                    <span className="text-blue-400 ms-1 text-xs">
                       {t('game.fallingDamageModal.elevationUp', { elevation: token.elevation })}
                     </span>
                   ) : null}

@@ -83,7 +83,7 @@ export default function SpellPicker5e({
                     {level === 0
                       ? t('builder.spellPicker.cantrips')
                       : t('builder.spellPicker.levelHeader', { level, ord: ordinal(level) })}
-                    <span className="text-gray-600 ml-1">
+                    <span className="text-gray-600 ms-1">
                       {t('builder.spellPicker.count', { count: spells.length })}
                     </span>
                   </span>

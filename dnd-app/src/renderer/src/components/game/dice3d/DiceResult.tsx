@@ -73,7 +73,7 @@ export default memo(function DiceResult({
           const modifier = total - base
           const totalColor = isCritical ? 'text-green-400' : isFumble ? 'text-red-400' : 'text-accent'
           return (
-            <div className="ml-auto flex items-center gap-1.5 font-mono">
+            <div className="ms-auto flex items-center gap-1.5 font-mono">
               {modifier !== 0 && (
                 <>
                   <span className="text-[11px] text-gray-500">{base}</span>

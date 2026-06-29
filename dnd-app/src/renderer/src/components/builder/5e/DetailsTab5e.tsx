@@ -97,7 +97,7 @@ export default function DetailsTab5e(): JSX.Element {
                   background: backgroundSlot?.selectedName ?? t('builder.detailsTab.backgroundFallback')
                 })}
               </span>
-              <span className="text-gray-600 text-xs ml-auto">{originFeatExpanded ? '\u25BE' : '\u25B8'}</span>
+              <span className="text-gray-600 text-xs ms-auto">{originFeatExpanded ? '\u25BE' : '\u25B8'}</span>
             </button>
             {originFeatExpanded && originFeatDescription && (
               <div className="mt-2 bg-surface-2/60 border border-border rounded px-3 py-2">
@@ -201,7 +201,7 @@ export default function DetailsTab5e(): JSX.Element {
             <p className="text-xs text-gray-500 mb-2">
               {t('builder.detailsTab.chooseClassEquipment')}
               {backgroundEquipmentChoice === 'gold' && (
-                <span className="text-gray-600 ml-1">{t('builder.detailsTab.alwaysIncluded')}</span>
+                <span className="text-gray-600 ms-1">{t('builder.detailsTab.alwaysIncluded')}</span>
               )}
             </p>
             <div className="flex gap-2">

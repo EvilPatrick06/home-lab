@@ -96,7 +96,7 @@ export default function ActionEconomyBar({
       role="status"
       aria-label={t('game.actionEconomyBar.turnResources', { entityName })}
     >
-      <span className="text-xs text-gray-500 font-semibold mr-1 max-w-[80px] truncate" title={entityName}>
+      <span className="text-xs text-gray-500 font-semibold me-1 max-w-[80px] truncate" title={entityName}>
         {entityName}
       </span>
 
@@ -146,7 +146,7 @@ export default function ActionEconomyBar({
         <button
           onClick={onEndTurn}
           aria-label={t('game.actionEconomyBar.endTurnAria')}
-          className="ml-1 px-3 py-1 text-xs font-semibold bg-amber-600 hover:bg-accent-strong text-white rounded-lg cursor-pointer transition-colors"
+          className="ms-1 px-3 py-1 text-xs font-semibold bg-amber-600 hover:bg-accent-strong text-white rounded-lg cursor-pointer transition-colors"
         >
           {t('game.actionEconomyBar.endTurn')}
         </button>

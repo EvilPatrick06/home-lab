@@ -43,7 +43,7 @@ export default function PrintSheetSpells({ character }: PrintSheetSpellsProps): 
                 <div className="text-[8pt] font-bold">
                   {lvl === 0 ? t('sheet.printSheetSpells.cantrips') : t('sheet.printSheetSpells.level', { level: lvl })}
                   {slotInfo && (
-                    <span className="font-normal text-gray-500 ml-1">
+                    <span className="font-normal text-gray-500 ms-1">
                       {t('sheet.printSheetSpells.slots', { current: slotInfo.current, max: slotInfo.max })}
                     </span>
                   )}
@@ -54,8 +54,8 @@ export default function PrintSheetSpells({ character }: PrintSheetSpellsProps): 
                     return (
                       <span key={sp.id} className={isPrepared ? 'font-semibold' : 'text-muted'}>
                         {sp.name}
-                        {sp.concentration && <span className="text-[7pt] align-super ml-px">C</span>}
-                        {sp.ritual && <span className="text-[7pt] align-super ml-px">R</span>}
+                        {sp.concentration && <span className="text-[7pt] align-super ms-px">C</span>}
+                        {sp.ritual && <span className="text-[7pt] align-super ms-px">R</span>}
                       </span>
                     )
                   })}
@@ -76,8 +76,8 @@ export default function PrintSheetSpells({ character }: PrintSheetSpellsProps): 
             {character.features.map((f: Feature, i: number) => (
               <div key={`${f.name}-${i}`}>
                 <strong>{f.name}</strong>
-                <span className="text-muted text-[7pt] ml-1">({f.source})</span>
-                {f.description && <span className="ml-1">{f.description}</span>}
+                <span className="text-muted text-[7pt] ms-1">({f.source})</span>
+                {f.description && <span className="ms-1">{f.description}</span>}
               </div>
             ))}
           </div>
@@ -94,7 +94,7 @@ export default function PrintSheetSpells({ character }: PrintSheetSpellsProps): 
             {feats.map((f: { id: string; name: string; description: string }) => (
               <div key={f.id}>
                 <strong>{f.name}</strong>
-                {f.description && <span className="ml-1">{f.description}</span>}
+                {f.description && <span className="ms-1">{f.description}</span>}
               </div>
             ))}
           </div>

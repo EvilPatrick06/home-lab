@@ -97,7 +97,7 @@ export default function QuestLogPanel({ campaignId }: { campaignId: string }): J
             {chapter.title ? `: ${chapter.title}` : ''}
           </span>
           {chapter.goal && (
-            <span className="text-gray-400 ml-1">— {t('game.questLogPanel.goal', { goal: chapter.goal })}</span>
+            <span className="text-gray-400 ms-1">— {t('game.questLogPanel.goal', { goal: chapter.goal })}</span>
           )}
         </div>
       )}
@@ -130,7 +130,7 @@ export default function QuestLogPanel({ campaignId }: { campaignId: string }): J
                 )}
               </div>
               {q.objectives.length > 0 && (
-                <div className="ml-3 space-y-0.5 mt-0.5">
+                <div className="ms-3 space-y-0.5 mt-0.5">
                   {q.objectives.map((o) => (
                     <div key={o.id} className="flex items-center gap-1.5">
                       <input

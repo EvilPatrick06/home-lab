@@ -157,7 +157,7 @@ export default function SpellPrepModal({ character, onClose }: SpellPrepModalPro
           </p>
         )}
 
-        <div className="flex-1 overflow-y-auto space-y-1 pr-1">
+        <div className="flex-1 overflow-y-auto space-y-1 pe-1">
           {leveled.length === 0 ? (
             <p className="text-xs text-gray-500 py-4 text-center">{t('game.spellPrepModal.noLeveledSpells')}</p>
           ) : (

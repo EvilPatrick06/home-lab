@@ -75,7 +75,7 @@ export default function AudioManager({ campaign, saveCampaign }: AudioManagerPro
               <div key={audio.id} className="flex items-center justify-between bg-surface-2/50 rounded-lg p-3">
                 <div>
                   <span className="font-semibold text-sm">{audio.displayName}</span>
-                  <span className="text-gray-500 text-xs ml-2">{audio.fileName}</span>
+                  <span className="text-gray-500 text-xs ms-2">{audio.fileName}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span
@@ -119,7 +119,7 @@ export default function AudioManager({ campaign, saveCampaign }: AudioManagerPro
 
       {/* Add Audio Modal */}
       <Modal open={showAudioAdd} onClose={() => setShowAudioAdd(false)} title={t('pages.audioManager.addCustomAudio')}>
-        <div className="max-h-[60vh] overflow-y-auto pr-1">
+        <div className="max-h-[60vh] overflow-y-auto pe-1">
           <AudioStep audioEntries={newAudioEntries} onChange={setNewAudioEntries} />
         </div>
         <div className="flex gap-3 justify-end mt-4">

@@ -496,7 +496,7 @@ export default function InitiativeTracker({
             {t('game.initiativeTracker.automation.configTitle')}
           </label>
           {monsterAutomation && (
-            <div className="ml-5 space-y-1">
+            <div className="ms-5 space-y-1">
               <label className="flex items-center gap-1.5 cursor-pointer text-gray-400">
                 <input
                   type="checkbox"

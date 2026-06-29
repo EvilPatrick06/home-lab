@@ -56,7 +56,7 @@ export function TargetSelectionStep({
           <>
             {t('game.targetSelectionStep.attackingWith')}{' '}
             <span className="text-accent font-semibold">{selectedWeapon.name}</span>
-            <span className="ml-2 text-gray-500">
+            <span className="ms-2 text-gray-500">
               {t('game.targetSelectionStep.weaponDamage', {
                 damage: selectedWeapon.damage,
                 damageType: selectedWeapon.damageType

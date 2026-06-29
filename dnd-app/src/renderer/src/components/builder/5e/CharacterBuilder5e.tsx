@@ -409,7 +409,7 @@ export default function CharacterBuilder5e(): JSX.Element {
   return (
     <div className="h-screen flex flex-col bg-base">
       {/* Top bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-1.5 pr-12 bg-surface border-b border-gray-800">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-1.5 pe-12 bg-surface border-b border-gray-800">
         <div className="flex items-center gap-2">
           <button
             onClick={handleBack}

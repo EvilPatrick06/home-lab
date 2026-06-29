@@ -928,7 +928,7 @@ export default function MapCanvas({
             type="button"
             onClick={() => setBgLoadError(null)}
             aria-label={t('game.mapCanvas.dismissMapError')}
-            className="shrink-0 -mr-1 text-yellow-300 hover:text-yellow-100 leading-none"
+            className="shrink-0 -me-1 text-yellow-300 hover:text-yellow-100 leading-none"
           >
             ×
           </button>

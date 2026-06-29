@@ -43,7 +43,7 @@ function FeatureRowImpl({ feature, onRemove }: FeatureRowProps): JSX.Element {
                   onRemove()
                 }
               }}
-              className="text-gray-600 hover:text-red-400 transition-colors cursor-pointer ml-1"
+              className="text-gray-600 hover:text-red-400 transition-colors cursor-pointer ms-1"
               title={t('sheet.featureCard.removeFeat')}
             >
               &times;
@@ -75,13 +75,13 @@ function FeatPickerRowImpl({ feat, character, onSelect }: FeatPickerRowProps): J
       <div className="flex items-center justify-between px-2 py-1.5">
         <button onClick={() => setExpanded(!expanded)} className="flex-1 text-left cursor-pointer">
           <span className="text-sm text-amber-300 font-medium">{feat.name}</span>
-          <span className="text-xs text-gray-500 ml-2">({feat.category})</span>
-          {feat.repeatable && <span className="text-xs text-purple-400 ml-1">*</span>}
+          <span className="text-xs text-gray-500 ms-2">({feat.category})</span>
+          {feat.repeatable && <span className="text-xs text-purple-400 ms-1">*</span>}
         </button>
         <button
           onClick={() => meetsPrereqs && onSelect(feat)}
           disabled={!meetsPrereqs}
-          className={`px-2 py-0.5 text-xs rounded transition-colors ml-2 ${
+          className={`px-2 py-0.5 text-xs rounded transition-colors ms-2 ${
             meetsPrereqs
               ? 'bg-amber-600 hover:bg-accent-strong text-white cursor-pointer'
               : 'bg-gray-700 text-gray-500 cursor-not-allowed'

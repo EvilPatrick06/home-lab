@@ -150,7 +150,7 @@ export function InstalledModelList({
                 </div>
 
                 {isPulling ? (
-                  <div className="flex items-center gap-2 ml-3">
+                  <div className="flex items-center gap-2 ms-3">
                     <div className="w-16 bg-gray-700 rounded-full h-1">
                       <div
                         className="bg-accent-strong h-1 rounded-full transition-all duration-300"
@@ -160,7 +160,7 @@ export function InstalledModelList({
                     <span className="text-xs text-muted w-8 text-right">{activeOp.percent}%</span>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-1 ml-3">
+                  <div className="flex items-center gap-1 ms-3">
                     <button
                       onClick={() => onPull(model.name)}
                       disabled={isBusy}
@@ -252,7 +252,7 @@ export function AvailableModelList({ models, activeOp, isBusy, vram, onPull }: A
               </div>
 
               {isPulling ? (
-                <div className="flex items-center gap-2 ml-3">
+                <div className="flex items-center gap-2 ms-3">
                   <div className="w-16 bg-gray-700 rounded-full h-1">
                     <div
                       className="bg-accent-strong h-1 rounded-full transition-all duration-300"
@@ -265,7 +265,7 @@ export function AvailableModelList({ models, activeOp, isBusy, vram, onPull }: A
                 <button
                   onClick={() => onPull(model.id)}
                   disabled={isBusy}
-                  className="ml-3 px-3 py-1 text-xs rounded-lg border border-border text-muted hover:border-amber-600 hover:text-accent transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="ms-3 px-3 py-1 text-xs rounded-lg border border-border text-muted hover:border-amber-600 hover:text-accent transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   {t('ui.ollamaModelList.install')}
                 </button>

@@ -110,17 +110,17 @@ export default function AiMapAnalysisModal({ onClose }: AiMapAnalysisModalProps)
               {activeMap ? (
                 <>
                   <span className="font-medium text-gray-200">{activeMap.name}</span>
-                  <span className="text-gray-500 ml-2">
+                  <span className="text-gray-500 ms-2">
                     {activeMap.grid?.cellSize
                       ? `${Math.floor(activeMap.width / activeMap.grid.cellSize)}x${Math.floor(activeMap.height / activeMap.grid.cellSize)}`
                       : `${activeMap.width}x${activeMap.height}`}{' '}
                     {t('game.aiMapAnalysisModal.grid')}
                   </span>
-                  <span className="text-gray-500 ml-2">
+                  <span className="text-gray-500 ms-2">
                     {t('game.aiMapAnalysisModal.tokenCount', { count: tokenCount })}
                   </span>
                   {initiative && (
-                    <span className="text-accent ml-2">
+                    <span className="text-accent ms-2">
                       {t('game.aiMapAnalysisModal.round', { round: initiative.round })}
                     </span>
                   )}
@@ -169,13 +169,13 @@ export default function AiMapAnalysisModal({ onClose }: AiMapAnalysisModalProps)
                     >
                       <span className="text-gray-300">
                         {token.label}
-                        <span className="text-gray-500 ml-1">({token.entityType})</span>
+                        <span className="text-gray-500 ms-1">({token.entityType})</span>
                       </span>
                       <span className="text-gray-500">
                         ({token.gridX}, {token.gridY})
                         {token.currentHP !== undefined && maxHP !== undefined && (
                           <span
-                            className={`ml-2 ${
+                            className={`ms-2 ${
                               token.currentHP <= 0
                                 ? 'text-red-400'
                                 : token.currentHP < maxHP / 2

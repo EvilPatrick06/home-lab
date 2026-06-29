@@ -321,7 +321,7 @@ export default function ShopView(): JSX.Element | null {
                         </div>
                         {item.description && <p className="text-xs text-gray-500 truncate">{item.description}</p>}
                       </div>
-                      <div className="flex items-center gap-1.5 ml-2 shrink-0">
+                      <div className="flex items-center gap-1.5 ms-2 shrink-0">
                         <span className="text-xs text-accent">{formatPrice(item.price)}</span>
                         {item.stockRemaining !== undefined && (
                           <span className="text-[9px] text-gray-500">({item.stockRemaining} left)</span>
@@ -378,11 +378,11 @@ export default function ShopView(): JSX.Element | null {
                 >
                   <div className="flex-1 min-w-0">
                     <span className="text-sm text-gray-200">{item.name}</span>
-                    <span className="text-xs text-gray-500 ml-1.5">
+                    <span className="text-xs text-gray-500 ms-1.5">
                       {t('game.shopView.quantity', { count: item.quantity })}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 ml-2 shrink-0">
+                  <div className="flex items-center gap-2 ms-2 shrink-0">
                     <span className="text-xs text-accent">{formatPrice(sellPrice)}</span>
                     <button
                       onClick={() => handleSell(item.name)}
