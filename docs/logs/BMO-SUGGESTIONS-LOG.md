@@ -63,6 +63,64 @@ New entries go at the TOP of their section (newest first).
 **Related files:** `bmo/pi/data/rag_data/chunk-index-dnd.json` (5.5 MB) + `chunk-index-{anime,games,movies,music}.json`; generator `bmo/pi/services/build_rag_indexes.py:15,44,366`; sources `bmo/pi/data/5e-references/` (tracked); `bmo/pi/docs/SERVICES.md:70`; `bmo/.gitignore`.
 
 **Related entries:** Debt (BMO-RESOLVED 2026-06-24) "~860 KB of orphaned vendored frontend assets in `web/static/`" — same large-tracked-artifacts-that-should-not-be-in-git smell (there the fix was deletion; here it is gitignore-and-rebuild or document-and-guard). Future-idea 2026-06-28 (`services/game/` subpackage incl. a `rag/` home for `rag_search.py`+`build_rag_indexes.py`) — that is about the RAG *code* location; this entry is about the generated RAG *data* artifacts, distinct.
+### [2026-06-29] `hardware/fan_control.py` is the one hardware module left out of the off-Pi sim/test/logging parity — unguarded `import smbus`, no `SimFanController`, bare `print()`, and an undocumented `smbus`-vs-`smbus2` / system-python-vs-venv split
+
+- **Category:** future-idea (portability, DX)
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of `hardware/` against the `BMO_SIMULATE=1` sim layer and `tests/conftest.py` mock list
+
+**Description:**
+The other three hardware controllers — `led_controller.py`, `oled_face.py`, `camera_service.py` — each (a) guard their Pi-only imports behind `try/except ImportError` (`led_controller.py:19-22`, `oled_face.py:11-16`, `camera_service.py:26-33`), (b) have a stub counterpart in `hardware/sim_hardware.py` (`SimLedController:49`, `SimOledFace:69`, `SimCameraService:77`) wired into `app.py`'s `BMO_SIMULATE` branch (`app.py:586,608,650`), and (c) log through `services.bmo_logging`. `fan_control.py` does **none** of these and is the lone exception:
+- It does `import smbus` unguarded at top of module (`fan_control.py:11`), so the module raises `ImportError` on import on any non-Pi host (or any host without the apt `python3-smbus` package) — it can't even be imported off-Pi for a smoke test.
+- There is **no `SimFanController`** in `sim_hardware.py`, so the fan is the one piece of BMO hardware with no off-Pi observable stub — the gap the 2026-06-22 "Mock-hardware simulator" resolved entry left open (it covered LED/OLED/camera only).
+- It uses bare `print(f"[fan] …", flush=True)` everywhere instead of `get_logger("fan")`, inconsistent with the rest of the tree and counter to the `.print-baseline` print-retirement ratchet.
+- **Module/runtime mismatch:** the venv pins `smbus2==0.6.1` (`requirements.txt:372`) and `tests/conftest.py:24` mocks `smbus2` — but `fan_control.py` imports `smbus` (the apt `python3-smbus` C module), a *different* package. This works in production only because `bmo-fan.service` runs `/usr/bin/python3 …/fan_control.py` (system Python, not the venv) while every other unit runs `venv/bin/python`. That dual-runtime split is real, deliberate, and **undocumented** — and it means a test that imported `fan_control` would fail even with the conftest mocks, which is presumably why there is **zero test coverage** for it (no `tests/**fan**`).
+
+Net: the fan path is the least-portable, least-testable, least-consistent hardware module, purely because it predates / was never folded into the sim+logging+venv conventions the others follow.
+
+**Hypothesis / root cause:** `fan_control.py` was written as a standalone always-on systemd script (its own process, system Python for `smbus`) before the `BMO_SIMULATE` sim layer and `bmo_logging` conventions existed, and was never retrofitted because it "just runs on the Pi" and isn't imported by `app.py`.
+
+**Proposed fix / improvement:**
+- [ ] Switch `fan_control.py` to `smbus2` (already a pinned dep and conftest-mocked) so it can run under the venv like every other unit, OR explicitly document the system-Python requirement in `bmo-fan.service` + `docs/SYSTEMD.md`; either way, guard the import (`try: import smbus2 as smbus / except ImportError:`) so the module is importable off-Pi.
+- [ ] Add a `SimFanController` to `sim_hardware.py` (fake duty/temperature pushed to the `sim_hardware` SocketIO event) so the fan joins LED/OLED/camera in `BMO_SIMULATE` mode and the curve logic is UX/test-observable off-device.
+- [ ] Replace `print(...)` with `get_logger("fan")` (drops fan off the print ratchet) and add a small unit test for `duty_for_temp()` + hysteresis (pure functions, no hardware) once the import is guarded/mocked.
+
+**Related files:** `bmo/pi/hardware/fan_control.py:11` (`import smbus`), `:79-83` (`run()` bus init), `bmo/pi/hardware/sim_hardware.py:49,69,77` (the three sims, no fan), `bmo/pi/systemd/bmo-fan.service` (`/usr/bin/python3` ExecStart), `bmo/pi/requirements.txt:372` (`smbus2`), `bmo/pi/tests/conftest.py:24` (mocks `smbus2`, not `smbus`), `bmo/pi/app.py:586,608,650` (`BMO_SIMULATE` wiring).
+
+**Related entries:** BMO-RESOLVED 2026-06-22 ("Mock-hardware simulator for off-Pi development") — added `sim_hardware.py` for LED/OLED/camera and explicitly scoped out the fan; this entry is the follow-up that closes that gap.
+
+---
+
+### [2026-06-29] A silently-dead `bmo-fan` controller is unobservable and has no thermal fail-safe — least-hardened unit (no Watchdog/sandbox), monitoring treats it as optional (info, not warning), and the I2C loop never commands a safe duty on error
+
+- **Category:** future-idea (reliability + observability)
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of `bmo-fan.service` + `fan_control.py` failure paths vs how the DM bot and `monitoring.py` treat the unit (distinct from the existing fan-*curve/cooling-capacity* entries)
+
+**Description:**
+This is **not** the well-logged "fan curve too weak under LLM load" thermal issue (BMO-ISSUES 2026-06-29 + several resolved entries). It is about what happens when the fan *controller software* dies or wedges — a path that is currently both unsafe and invisible:
+- **No fail-safe duty on error.** In `fan_control.py`'s loop, an I2C write exception closes and reopens the bus and `sleep`s, but never commands a safe (high) duty first. The FNK0100K holds its last-set duty when commands stop, so if the loop starts erroring while duty was low (cool idle), the fan can stay pinned low while the SoC heats up. A thermal controller should fail *hot* (drive max duty on any uncertainty), not hold-last.
+- **Least-hardened unit.** `bmo-fan.service` is a bare `Type=simple` unit with only `Restart=always`. Compare `bmo-dm-bot.service`, which has `WatchdogSec=120` (systemd kills+restarts a stalled event loop), `StartLimitIntervalSec/Burst`, and full sandboxing. The fan loop can wedge (e.g. a hung I2C transaction) without exiting, and nothing would notice — there is no watchdog ping, unlike the bot.
+- **Failure is classified as info, not a warning.** `monitoring.py:672` lists `bmo-fan` in `_OPTIONAL_DISABLED_SERVICES`, so `_check_systemd_services` treats a down/disabled `bmo-fan` as informational rather than a per-cycle WARNING (the kiosk entry, BMO-RESOLVED 2026-06-24, documents exactly this branch). Monitoring *does* already read `vcgencmd get_throttled` for thermal/throttle state (`monitoring.py:1444+`) and alerts on CPU temp — but it never correlates "`bmo-fan` not active" with "temp/throttle rising," so a silently-dead fan during a hot workload would surface only as a generic temp-critical alert with no pointer to the actual cause.
+
+So the one service guarding thermal safety is the least observable and least defensively-coded, and its monitoring is deliberately muted.
+
+**Hypothesis / root cause:** `bmo-fan` was treated as best-effort cosmetic cooling (hence "optional" in monitoring and a minimal unit), predating the watchdog/sandbox hardening the Discord bots later got; the control loop optimizes for quiet (hold-last, sub-threshold deltas) rather than for fail-safe thermal behavior.
+
+**Proposed fix / improvement:**
+- [ ] Fail hot: on any loop exception (and on `SIGTERM`/clean stop while the Pi is warm), command full duty (`255`) before reopening/closing the bus, instead of holding last duty or zeroing it.
+- [ ] Add a liveness signal: convert `bmo-fan.service` to `Type=notify` + `WatchdogSec` (ping each successful loop tick), mirroring `bmo-dm-bot.service`, so a wedged loop is restarted rather than silently stuck.
+- [ ] Make a dead fan a real alert when it matters: in `monitoring.py`, escalate `bmo-fan` down→WARNING/CRITICAL *when CPU temp or throttle flags are elevated* (correlate the existing throttle/temp probe with the unit state) instead of the blanket "optional → info" treatment.
+
+**Related files:** `bmo/pi/hardware/fan_control.py` (loop error handling ~`:96-107`, `KeyboardInterrupt` stop path zeroes duty), `bmo/pi/systemd/bmo-fan.service` (bare unit), `bmo/pi/systemd/bmo-dm-bot.service` (`WatchdogSec`/sandbox model to mirror), `bmo/pi/services/monitoring.py:672` (`_OPTIONAL_DISABLED_SERVICES`), `:1177` (`_MONITORED_SERVICES`), `:1444+` (throttle/power probe to correlate).
+
+**Related entries:** BMO-ISSUES 2026-06-29 (Pi thermally throttles under local-LLM fallback) + BMO-RESOLVED fan-curve entries — those are about cooling *capacity*; this is about controller *robustness + observability*, the complementary software half. BMO-RESOLVED 2026-06-24 (kiosk `_OPTIONAL_DISABLED_SERVICES` mis-classification) — same optional-service classification mechanism.
+
+---
 
 ### [2026-06-28] `services/monitoring.py` is a 2,221-line `HealthChecker` god-class — ~40 unrelated probe/alerting concerns in one class; the largest service module by far and untouched by the prior god-class entries
 
