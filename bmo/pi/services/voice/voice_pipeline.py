@@ -184,6 +184,7 @@ class VoicePipeline:
         self._tts_queue = queue.Queue()
         self._tts_worker_active = threading.Event()
         self._tts_interrupted = threading.Event()
+        self._speech_output = SpeechOutput(self)
 
         # TTS disk cache
         self._tts_cache_lock = threading.Lock()
@@ -804,175 +805,16 @@ class VoicePipeline:
         threading.Thread(target=self._follow_up_loop, daemon=True).start()
 
     def _tts_worker(self):
-        """Background thread: pops sentences from queue and speaks them.
-
-        Batches short consecutive sentences (< 80 chars) together to reduce
-        API round-trips and inter-sentence gaps.
-        """
-        while True:
-            try:
-                text = self._tts_queue.get(timeout=0.1)
-            except queue.Empty:
-                continue
-            if text is None:
-                break
-            if self._tts_interrupted.is_set():
-                continue
-
-            # Batch short sentences: peek at queue for more short items
-            if len(text) < 80:
-                batch = [text]
-                batch_len = len(text)
-                while batch_len < 250:
-                    try:
-                        next_text = self._tts_queue.get_nowait()
-                    except queue.Empty:
-                        break
-                    if next_text is None:
-                        self._tts_queue.put(None)  # put sentinel back
-                        break
-                    batch.append(next_text)
-                    batch_len += len(next_text)
-                    if len(next_text) >= 80:
-                        break  # long sentence ends the batch
-                text = " ".join(batch)
-
-            self._tts_worker_active.set()
-            if not getattr(self, '_bmo_tts_enabled', True):
-                log.info("[tts-worker] Suppressed (BMO TTS off): %s...", _s(text[:60]))
-                self._tts_worker_active.clear()
-                continue
-            # Bedtime mode check — suppress TTS unless it's a priority item
-            scene_svc = getattr(self, '_scene_service', None)
-            if scene_svc and scene_svc.get_active() == "bedtime":
-                log.info("[tts-worker] Suppressed (bedtime mode): %s...", _s(text[:60]))
-                self._tts_worker_active.clear()
-                continue
-            try:
-                provider = getattr(self, '_tts_provider', 'auto')
-                if provider == "piper_bmo" or (provider == "auto" and PIPER_BMO_AVAILABLE):
-                    self._bmo_speak(text)
-                elif provider == "edge":
-                    self._edge_speak(text)
-                else:
-                    # Fish Audio has the BMO voice clone — best quality
-                    self._cloud_speak(text)
-            except Exception:
-                try:
-                    self._edge_speak(text)
-                except Exception:
-                    log.exception("[tts-worker] All TTS failed")
-            finally:
-                self._tts_worker_active.clear()
+        return self._speech_output.tts_worker()
 
     def _wait_for_tts(self):
-        """Block until the TTS queue is drained and the worker finishes speaking."""
-        while not self._tts_queue.empty() or self._tts_worker_active.is_set():
-            if self._tts_interrupted.is_set():
-                break
-            time.sleep(0.05)
+        return self._speech_output.wait_for_tts()
 
     def interrupt(self):
-        """Stop BMO mid-speech: clear TTS queue and abort current playback."""
-        self._tts_interrupted.set()
-        while not self._tts_queue.empty():
-            try:
-                self._tts_queue.get_nowait()
-            except queue.Empty:
-                break
-        self._tts_queue.put(None)
-        self._is_speaking = False
-        self._emit("status", {"state": "idle"})
-        log.info("[voice] Interrupted")
+        return self._speech_output.interrupt()
 
     def _stream_and_speak(self, text_gen) -> str:
-        """Consume LLM text stream, buffer sentences, TTS each via worker thread.
-
-        Sentences are pushed to a queue as they complete. A dedicated TTS worker
-        thread speaks them in order, so the LLM keeps generating while TTS plays.
-        The user hears the first sentence within 1-2 seconds of the LLM starting.
-        Returns the full response text.
-        """
-        self._emit("status", {"state": "speaking"})
-        self._is_speaking = True
-        # Don't reset _speak_volume — it's set by the volume slider and should persist
-        self._tts_interrupted.clear()
-        # NOTE: mic muting removed — gevent blocks Popen for 5s, causing
-        # more latency than echo pickup. The AEC source handles echo cancellation.
-
-        # Drain any leftover items from previous runs
-        while not self._tts_queue.empty():
-            try:
-                self._tts_queue.get_nowait()
-            except queue.Empty:
-                break
-
-        worker = threading.Thread(target=self._tts_worker, daemon=True)
-        worker.start()
-
-        full_text = ""
-        try:
-            buffer = ""
-            sentences_queued = 0
-
-            for chunk in text_gen:
-                if self._tts_interrupted.is_set():
-                    break
-                full_text += chunk
-                buffer += chunk
-
-                while True:
-                    match = re.search(r'[.!?][\s\n]', buffer)
-                    if match:
-                        end = match.end()
-                    elif len(buffer) > 60:
-                        comma_match = re.search(r',\s', buffer[40:])
-                        end = comma_match.end() + 40 if comma_match else None
-                    else:
-                        end = None
-                    if end is None:
-                        break
-                    sentence = buffer[:end].strip()
-                    buffer = buffer[end:]
-                    if sentence:
-                        # Strip [RELAY:...] tags — they're agent routing, not speech
-                        sentence = re.sub(r'\[RELAY:\w+\].*', '', sentence, flags=re.DOTALL).strip()
-                        tts_text = self._strip_markdown(sentence)
-                        if tts_text:
-                            sentences_queued += 1
-                            log.info("[stream] Queue sentence %d: %s...", sentences_queued, _s(tts_text[:60]))
-                            self._tts_queue.put(tts_text)
-
-            remaining = buffer.strip()
-            if remaining and not self._tts_interrupted.is_set():
-                # Strip [RELAY:...] tags from final chunk too
-                remaining = re.sub(r'\[RELAY:\w+\].*', '', remaining, flags=re.DOTALL).strip()
-                tts_text = self._strip_markdown(remaining)
-                if tts_text:
-                    sentences_queued += 1
-                    log.info("[stream] Queue final (%d): %s...", sentences_queued, _s(tts_text[:60]))
-                    self._tts_queue.put(tts_text)
-
-            # Signal worker to exit after all sentences are spoken
-            self._tts_queue.put(None)
-            if full_text.strip():
-                self._remember_spoken(full_text)
-            self._wait_for_tts()
-            worker.join(timeout=5.0)
-
-            return full_text
-        except Exception:
-            log.exception("[stream] Error")
-            self._tts_queue.put(None)
-            return full_text
-        finally:
-            self._is_speaking = False
-            while not self._audio_queue.empty():
-                try:
-                    self._audio_queue.get_nowait()
-                except queue.Empty:
-                    break
-            self._emit("status", {"state": "idle"})
+        return self._speech_output.stream_and_speak(text_gen)
 
     def _process_one_turn(self, is_follow_up: bool = False) -> str | None:
         """Record, transcribe, get response, speak it. Returns response text or None."""
@@ -2107,3 +1949,4 @@ class VoicePipeline:
 from services.voice.transcriber import Transcriber  # noqa: E402
 from services.voice.vad import Vad  # noqa: E402
 from services.voice.speaker_enrollment import SpeakerEnrollment  # noqa: E402
+from services.voice.speech_output import SpeechOutput  # noqa: E402
