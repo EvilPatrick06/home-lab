@@ -391,7 +391,7 @@ class VoicePipeline:
         """
         if not self._running:
             return
-        threading.Thread(target=self._follow_up_loop, daemon=True).start()
+        threading.Thread(target=self._follow_up_loop_guarded, daemon=True).start()
 
     def _tts_worker(self):
         return self._speech_output.tts_worker()
@@ -552,6 +552,21 @@ class VoicePipeline:
 
         threading.Thread(target=_listen, daemon=True).start()
 
+    def _follow_up_loop_guarded(self):
+        """Run _follow_up_loop for the background conversation thread, catching any
+        audio-device hiccup (e.g. PortAudioError) so it degrades to wake-word mode
+        instead of escaping the daemon thread uncaught (which silently kills
+        conversation mode)."""
+        try:
+            self._follow_up_loop()
+        except Exception:
+            log.exception("[conv] Follow-up loop error -- falling back to wake word mode.")
+            try:
+                self._emit("conversation_mode", {"active": False})
+                self._emit("status", {"state": "idle"})
+            except Exception:
+                pass
+
     def _follow_up_loop(self):
         """Listen for follow-up speech without wake word. Exits on silence or inactivity."""
         FOLLOW_UP_WAIT_FIRST = 4.0   # seconds to wait on first follow-up (short — most people don't follow up)
@@ -607,6 +622,17 @@ class VoicePipeline:
 
     def _wait_for_speech(self, timeout: float) -> bool:
         """Wait up to `timeout` seconds for speech energy. Returns True if speech detected."""
+        # Degrade quietly when no capture device is present (headless Pi / mic
+        # unplugged). The follow-up/conversation path was unguarded, so the
+        # sd.InputStream open below would raise PortAudioError('Error querying
+        # device -1') straight out of the daemon thread and kill conversation
+        # mode. Mirrors the wake-word loop's _input_device_available gate;
+        # returning False makes _follow_up_loop fall back to wake-word mode.
+        if not self._input_device_available():
+            if not self._no_input_device:
+                log.warning("[conv] No audio input device -- follow-up paused, back to wake word mode.")
+                self._no_input_device = True
+            return False
         chunk_size = 1280
         # Use adaptive ambient level if available, otherwise start at 2500
         ambient = getattr(self, '_ambient_rms_avg', 0.0)

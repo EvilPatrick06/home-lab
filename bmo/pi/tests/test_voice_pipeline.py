@@ -647,3 +647,22 @@ class TestInputDeviceGuard:
              patch("services.voice.voice_pipeline.log") as mock_log:
             assert pipeline._await_input_device() is True
             mock_log.info.assert_called_once()
+
+
+    def test_wait_for_speech_returns_false_when_no_input_device(self, pipeline):
+        """Follow-up path: _wait_for_speech degrades to False (no crash) when the
+        capture device is gone, instead of letting sd.InputStream raise an uncaught
+        PortAudioError('Error querying device -1') out of the conversation thread."""
+        with patch("sounddevice.query_devices", side_effect=Exception("Error querying device -1")), \
+             patch("sounddevice.InputStream") as mock_stream:
+            assert pipeline._wait_for_speech(0.5) is False
+            mock_stream.assert_not_called()
+        assert pipeline._no_input_device is True
+
+    def test_follow_up_loop_guarded_swallows_device_error(self, pipeline):
+        """The conversation-thread wrapper catches a device error raised by the
+        follow-up loop and degrades to wake-word mode instead of dying uncaught."""
+        with patch.object(pipeline, "_follow_up_loop", side_effect=Exception("Error querying device -1")), \
+             patch.object(pipeline, "_emit") as mock_emit:
+            pipeline._follow_up_loop_guarded()  # must not raise
+        mock_emit.assert_any_call("conversation_mode", {"active": False})
