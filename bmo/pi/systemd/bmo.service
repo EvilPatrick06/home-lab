@@ -17,7 +17,10 @@ EnvironmentFile=/home/patrick/home-lab-deploy/bmo/pi/.env
 ExecStart=/home/patrick/home-lab-deploy/bmo/pi/venv/bin/python app.py
 Restart=on-failure
 RestartSec=5
-KillMode=process
+# KillMode defaults to control-group so stopping the unit reaps the WHOLE cgroup
+# (audio/worker python3 subprocesses + the adb helper) instead of only the main
+# process — prevents orphan children leaking across every restart.
+TimeoutStopSec=20
 LimitNOFILE=65536
 StandardOutput=journal
 StandardError=journal

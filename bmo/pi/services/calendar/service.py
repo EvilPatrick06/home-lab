@@ -58,6 +58,12 @@ class CalendarService:
         self._creds = None
         self._cache = []
         self._cache_lock = threading.Lock()
+        # Serializes actual Google Calendar API calls. googleapiclient + httplib2
+        # are NOT thread-safe and we reuse one cached client, so concurrent callers
+        # (WS on_connect + the background poll loop, interleaved by gevent) must not
+        # share the single HTTP connection mid-request (ResponseNotReady / reentrant
+        # BufferedReader read). RLock: defensive against any nested retry path.
+        self._api_lock = threading.RLock()
         self._poll_thread = None
         self._running = False
         self._alerted_events = set()  # event IDs already alerted for dedup
@@ -202,21 +208,24 @@ class CalendarService:
         client, rebuild once, and retry. RuntimeError (missing/invalid creds)
         and CalendarReadOnlyEventError propagate unchanged so the route can map
         them. After a successful call, persist the token if it refreshed (05A)."""
-        try:
-            service = self._get_service()
-            before = getattr(self._creds, "token", None)
-            result = call(service)
-            self._persist_token_if_changed(before)
-            return result
-        except (RuntimeError, CalendarReadOnlyEventError):
-            raise
-        except Exception:
-            self._service = None
-            service = self._get_service()
-            before = getattr(self._creds, "token", None)
-            result = call(service)
-            self._persist_token_if_changed(before)
-            return result
+        # Serialize the whole build-or-reuse-client + execute + retry sequence so two
+        # greenlets/threads never interleave on the one shared httplib2 connection.
+        with self._api_lock:
+            try:
+                service = self._get_service()
+                before = getattr(self._creds, "token", None)
+                result = call(service)
+                self._persist_token_if_changed(before)
+                return result
+            except (RuntimeError, CalendarReadOnlyEventError):
+                raise
+            except Exception:
+                self._service = None
+                service = self._get_service()
+                before = getattr(self._creds, "token", None)
+                result = call(service)
+                self._persist_token_if_changed(before)
+                return result
 
     # ── Read Events ──────────────────────────────────────────────────
 
