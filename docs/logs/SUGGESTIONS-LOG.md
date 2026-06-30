@@ -12,6 +12,49 @@ How to triage: [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md)
 
 ## Cross-cutting / repo-wide suggestions
 
+### [2026-06-29] Supply-chain pinning is uneven: GitHub Actions are SHA-pinned + Dependabot-tracked, but the bmo Docker base image is tag-floated and has NO `docker` Dependabot ecosystem
+
+- **Category:** future-idea, config
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** cross-cutting review of `.github/dependabot.yml` ecosystem coverage vs. the repo's supply-chain pinning posture (SHA-pinned actions, `.nvmrc`, grouped npm/pip bumps).
+
+**Description:**
+The repo holds a deliberate, version-controlled dependency-currency policy: `dependabot.yml` enumerates **six** ecosystems — `pip` (`/bmo/pi`), `npm` (`/dnd-app`, `/dnd-app/mobile`, `/dungeon-scholar`, `/oracle-worker`), and `github-actions` (`/`) — each grouped into one PR for the integrator's 3B review job, and every third-party Action across the ~19 workflows is **SHA-pinned with a version comment** (the `ci-hygiene` guard enforces the pin). That is a strong, consistent supply-chain stance — with **one hole**: the only container image in the repo, `bmo/docker/Dockerfile`'s `FROM python:3.11-slim-bookworm`, is (a) floated by **tag** (no `@sha256:` digest pin, unlike the SHA-pinned actions) and (b) covered by **no `docker` Dependabot ecosystem**, so its base image never receives automated rebuild/patch PRs the way every npm/pip/actions dependency does. Base-image CVEs (the `python:3.11-slim` layer ships OS packages) therefore go unsurfaced between manual touches. Notably the safety net already exists: `bmo-docker-build.yml` builds the image on every change to `bmo/docker/**` or `bmo/pi/requirements*.txt`, so a Dependabot base-image bump PR would be CI-gated exactly like the other ecosystems' PRs.
+
+**Hypothesis / root cause:** `dependabot.yml` was grown ecosystem-by-ecosystem around the JS/Python source trees (npm + pip + actions); the Docker image was added/maintained separately (`bmo/docker/`) and the matching `docker` ecosystem entry was never back-filled. Digest-pinning the base image was likewise never adopted because the SHA-pin convention was framed around GitHub Actions only.
+
+**Proposed fix / improvement:**
+- [ ] Add a `docker` ecosystem to `.github/dependabot.yml` (`directory: /bmo/docker`, weekly, grouped like the others, 7-day cooldown) so base-image bumps flow to the integrator 3B review like every other dependency.
+- [ ] Decide whether to digest-pin the base image (`FROM python:3.11-slim-bookworm@sha256:...`, which Dependabot can then keep current) to match the SHA-pin-everything posture used for Actions — or consciously document tag-floating as the intended Docker policy.
+- [ ] Optionally note the chosen container-image pinning convention next to the Actions SHA-pin convention so the two halves of the supply-chain posture are documented together.
+
+**Related files:** `.github/dependabot.yml`, `bmo/docker/Dockerfile`, `.github/workflows/bmo-docker-build.yml`, `scripts/check-ci-hygiene.sh`
+
+**Related entries:** SUGGESTIONS-LOG.md -> [2026-06-29] audit-coverage parity gap + audit:ci threshold divergence (same "dependency-hygiene coverage is uniform except for one component" theme).
+
+### [2026-06-29] CI hygiene convention gap: 15 of 19 workflows declare no job `timeout-minutes`, so a hung step can burn the 6-hour default-runner ceiling under the high-churn agent model
+
+- **Category:** future-idea, config
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** cross-cutting CI-hygiene scan of `.github/workflows/` (job-level timeout coverage), alongside the already-logged concurrency-convention gap.
+
+**Description:**
+Only **4** of the repo's 19 workflows set a job-level `timeout-minutes` — `bmo-deploy.yml`, `bmo-docker-build.yml` (45), `codeql.yml`, and `dnd-web-deploy.yml`. The other **15** — including *every heavy gate* (`dnd-app-ci`, `dungeon-scholar-ci`, `oracle-worker-ci`, `dnd-app-mobile-ci`, `dnd-app-validate-5e`, `security-audit`, `bmo-pi-pytest`) and the cheap guards (`ci-hygiene`, `agent-docs-check`, `bmo-no-new-prints`, `secret-scan`, `dnd-e2e`) — declare none, so each job inherits GitHub's **360-minute (6-hour) default** ceiling. A hung step (a stuck `npm ci`, a deadlocked/flaky test, a watch-mode command that never exits, a wedged Playwright run) therefore occupies a runner for up to 6 hours before GitHub kills it. That is exactly the failure mode the repo's high-churn integrator/`auto/*` model multiplies — many branches push, many jobs run, and one wedged job per branch can quietly consume hours of Actions minutes. This is the same family of CI-hygiene convention gap as the already-logged concurrency entry (`ISSUES-LOG.md` 2026-06-29): a sensible guard applied to some workflows but never standardized repo-wide, and not mechanically enforced by `check-ci-hygiene.sh`.
+
+**Hypothesis / root cause:** `timeout-minutes` was added ad hoc to the few workflows whose authors anticipated long-running steps (deploys, the 45-min ARM docker build, CodeQL); the fast gates were authored expecting to finish in minutes and never given an explicit ceiling, and unlike SHA-pins / permissions / node-pins there is no `check-ci-hygiene.sh` guard asserting a timeout exists, so the omission is invisible.
+
+**Proposed fix / improvement:**
+- [ ] Add a modest job-level `timeout-minutes` to each unguarded workflow (e.g. ~15-20 for the npm/pytest gates, ~10 for the cheap guards), sized a few × the observed run time so a normal run is never killed but a hung one is.
+- [ ] Add a `check-ci-hygiene.sh` guard requiring every workflow job to declare a `timeout-minutes`, so the convention can't drift — pairing naturally with the proposed concurrency guard in the sibling concurrency entry.
+
+**Related files:** `.github/workflows/dnd-app-ci.yml`, `.github/workflows/dungeon-scholar-ci.yml`, `.github/workflows/oracle-worker-ci.yml`, `.github/workflows/dnd-app-mobile-ci.yml`, `.github/workflows/dnd-app-validate-5e.yml`, `.github/workflows/security-audit.yml`, `.github/workflows/bmo-pi-pytest.yml`, `scripts/check-ci-hygiene.sh`
+
+**Related entries:** `ISSUES-LOG.md` -> [2026-06-29] CI concurrency convention has gaps (same "hygiene guard applied to some workflows, never standardized + not enforced by check-ci-hygiene.sh" pattern); `SUGGESTIONS-LOG.md` -> [2026-06-29] actionlint gate (also CI-hygiene recurrence insurance).
+
 ### [2026-06-29] dnd-app/mobile shares dnd-app src/shared via tsconfig path-mapping; TS project references evaluated and rejected
 
 - **Category:** future-idea, debt
