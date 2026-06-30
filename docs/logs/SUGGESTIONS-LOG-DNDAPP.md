@@ -123,6 +123,69 @@ The renderer's convention is to colocate tests next to source (`foo.ts` + `foo.t
 **Related files:** `src/renderer/src/test/codebase-integrity.test.ts`, `src/renderer/src/a11y/a11y-smoke.test.tsx`, `src/renderer/src/a11y/jest-axe.d.ts`, `src/renderer/src/events/system-chat-bridge.ts`, `dnd-app/README.md` (Directory layout section)
 
 **Related entries:** [2026-06-29] "a11y (jest-axe) harness only asserts on a synthetic fragment" (same `a11y/` dir, coverage angle).
+### [2026-06-29] Keyboard-shortcut descriptions + ShortcutReferenceModal category labels are English-only — the one localized surface that still isn't
+
+- **Category:** UX, portability, future-idea
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (keyboard-shortcuts service vs the i18n surface)
+
+**Description:**
+The renderer chrome is fully bilingual (en/es, parity-gated in CI), but two keyboard-shortcut surfaces hardcode English. (1) `renderer/public/data/ui/keyboard-shortcuts.json` stores each binding's human label inline in an English `description` field ("End Turn", "Toggle Journal", "Open Dice Roller (Throw)", "Toggle Map Editor (DM)", …). (2) `ShortcutReferenceModal.tsx` renders `shortcut.description` raw — `<span>{shortcut.description}</span>` is the only string in that modal NOT passed through `t()`, while the title, category headers, and footer all are. The same English `description` also surfaces in `KeybindingEditor.tsx`. So a Spanish-locale user opens a fully-translated app, presses `/`, and reads a shortcut sheet whose every row label is English. Distinct from the 5e-*content* i18n gap (that entry is content data: monsters/spells); this is UI affordance metadata — but it is the same "chrome localized, data not" class and is not tracked in the active backlog.
+
+**Hypothesis / root cause:** the shortcut set was modeled as data (JSON) with an inline English label rather than an i18n key, and the modal trusts that label is display-ready so it skips `t()`.
+
+**Proposed fix / improvement:**
+- [ ] Replace (or shadow) the JSON `description` with an i18n key (e.g. `keyboardShortcuts.<action>`) resolved via `t()` in `ShortcutReferenceModal` + `KeybindingEditor`.
+- [ ] Add the keys to en/es locales so the existing locale-parity gate keeps them in sync.
+
+**Related files:** `src/renderer/public/data/ui/keyboard-shortcuts.json`, `src/renderer/src/components/game/modals/utility/ShortcutReferenceModal.tsx`, `src/renderer/src/components/settings/KeybindingEditor.tsx`, `src/renderer/src/services/keyboard-shortcuts.ts`
+
+**Related entries:** [2026-06-29] 5e content values English-only (same chrome-vs-data localization class).
+
+
+### [2026-06-29] Global command palette (Ctrl/Cmd+K) is navigation-only — no fuzzy search over compendium content, characters, or campaigns
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (CommandPalette vs library-service/fuse.js)
+
+**Description:**
+`components/ui/CommandPalette.tsx` ships a global Ctrl/Cmd+K palette, but its command set is a fixed list of ~10 route jumps (`home`, `characters`, `createCharacter`, `makeCampaign`, `joinGame`, `library`, `bastions`, `calendar`, `settings`, `about`). It cannot search *entities*: you can jump to the Library page but not to a specific spell, monster, item, character, or saved campaign. The app already has the machinery — `fuse.js` is a dependency and `library-service.ts` already fuzzy-searches the 5e content set (used by `CompendiumModal`). A content-aware palette ("type fireball -> open the spell"; "type a character name -> open the sheet") would turn the palette from a menu shortcut into the app's primary fast-navigation surface. The in-game `GameCommandPalette.tsx` is similarly action-only (opens board modals), so neither palette reaches content.
+
+**Hypothesis / root cause:** the palette shipped (resolved 2026-06-24) as a minimal route launcher; entity indexing was never layered on.
+
+**Proposed fix / improvement:**
+- [ ] Feed `CommandPalette` a fuse index over compendium content + the user's characters/campaigns, alongside the existing route commands.
+- [ ] Group results (Pages / Spells / Monsters / Items / Characters) and route the selection to the right detail view.
+- [ ] Consider sharing the index with `GameCommandPalette` so in-session lookups hit the same search.
+
+**Related files:** `src/renderer/src/components/ui/CommandPalette.tsx`, `src/renderer/src/components/game/GameCommandPalette.tsx`, `src/renderer/src/services/library-service.ts`
+
+**Related entries:** resolved [2026-06-24] command palette `CommandPalette.tsx` (this builds on the already-shipped palette).
+
+
+### [2026-06-29] ShortcutReferenceModal hardcodes CATEGORY_ORDER + English CATEGORY_LABELS, duplicating the category list that already lives in the shortcut type
+
+- **Category:** debt, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (ShortcutReferenceModal)
+
+**Description:**
+`ShortcutReferenceModal.tsx` keeps a hardcoded `CATEGORY_ORDER = ['combat','navigation','tools','general']` plus a hardcoded English `CATEGORY_LABELS` map, separate from the canonical category union on `ShortcutDefinition.category` in `keyboard-shortcuts.ts`. The `CATEGORY_LABELS` map is used only as a truthiness guard before falling back to the raw category key, so if a new shortcut category is ever added to the union + JSON, the modal will (a) not render it in the ordered list at all unless `CATEGORY_ORDER` is also edited, and (b) display the untranslated raw key if it slips through. Three spots (union, ORDER, LABELS) must stay in lockstep by hand. Minor today (the union is small and TS-typed), but a quiet maintenance trap.
+
+**Hypothesis / root cause:** category presentation metadata (order + label) was inlined in the view instead of co-located with the category definition.
+
+**Proposed fix / improvement:**
+- [ ] Derive ordered categories from a single source (e.g. an exported `SHORTCUT_CATEGORIES` ordered array in `keyboard-shortcuts.ts`) and map labels via i18n keys.
+- [ ] Or drive the modal off `getShortcutsByCategory()` keys with one explicit order array kept next to the union.
+
+**Related files:** `src/renderer/src/components/game/modals/utility/ShortcutReferenceModal.tsx`, `src/renderer/src/services/keyboard-shortcuts.ts`
 
 ### [2026-06-29] 5e *content* values (monster/spell/species/class/alignment names + descriptions) are English-only — only the UI chrome is bilingual
 
