@@ -1,6 +1,6 @@
 import { Check, Copy, Download, Loader2, Lock, Share2, X } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
-import { encodeTomeShareCode } from '../../game/tome.js';
+import { encodeTomeShareCode, stripLocalOnlyTomeFields } from '../../game/tome.js';
 import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 import { isSealedTome, sealTome } from '../../services/sealedTome.js';
 
@@ -19,7 +19,7 @@ function tomeSlug(data) {
 // reuse the exact same slug + blob machinery while writing `<slug>-sealed.json`.
 export function downloadTomeJson(tome, { suffix = '' } = {}) {
   try {
-    const json = JSON.stringify(tome.data, null, 2);
+    const json = JSON.stringify(stripLocalOnlyTomeFields(tome.data), null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');

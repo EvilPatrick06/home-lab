@@ -5,12 +5,29 @@
 // (FlashcardsMode / QuizMode "Show hint"); authored in TomeEditor.
 export const generateTomeId = () => `tome_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
+// Phase 40F per-tome `notes` is a device-local, passphrase-encrypted blob,
+// stored as a SIBLING of `tome.data` (not inside it), so the normal export
+// paths that serialize `tome.data` already exclude the user's own notes.
+// This allowlist is the belt-and-suspenders guard: it drops `notes` (and any
+// future local-only field) from any tome-data payload that is shared,
+// exported, OR imported -- so an attacker-injected `data.notes` cannot ride in
+// through import (normalizeTomeData spreads all incoming fields) and later
+// leak back out, and a future refactor that nests notes can't regress.
+const LOCAL_ONLY_TOME_FIELDS = ['notes'];
+export const stripLocalOnlyTomeFields = (data) => {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return data;
+  if (!LOCAL_ONLY_TOME_FIELDS.some((k) => k in data)) return data; // unchanged ref when clean
+  const out = { ...data };
+  for (const k of LOCAL_ONLY_TOME_FIELDS) delete out[k];
+  return out;
+};
+
 // Compress/decompress utilities for tome share codes.
 // We use a simple base64+JSON approach (no external libs available in artifacts).
 // The result is a reasonably long but copy-pasteable code.
 export const encodeTomeShareCode = (data) => {
   try {
-    const json = JSON.stringify(data);
+    const json = JSON.stringify(stripLocalOnlyTomeFields(data));
     // Convert to base64 (handles unicode via encodeURIComponent trick)
     const b64 = btoa(unescape(encodeURIComponent(json)));
     // Wrap in a recognizable header for validation
@@ -155,7 +172,7 @@ export const normalizeTomeData = (data) => {
   if (Array.isArray(data.quiz)) {
     out = { ...out, quiz: normalizeQuiz(data.quiz).quiz };
   }
-  return out;
+  return stripLocalOnlyTomeFields(out);
 };
 
 export const blankTomeProgress = () => ({

@@ -7,6 +7,7 @@ import {
   generateTomeId,
   normalizeTomeData,
   quizImportReport,
+  stripLocalOnlyTomeFields,
 } from './tome.js';
 
 describe('tome share codes (PHASE-39 39A)', () => {
@@ -20,6 +21,13 @@ describe('tome share codes (PHASE-39 39A)', () => {
   it('tolerates surrounding quotes/whitespace on decode', () => {
     const code = encodeTomeShareCode({ x: 1 });
     expect(decodeTomeShareCode(`  "${code}"  `)).toEqual({ x: 1 });
+  });
+
+  it('strips device-local notes from a share code (privacy guard)', () => {
+    const code = encodeTomeShareCode({ metadata: { title: 'T' }, flashcards: [], notes: { ct: 'secret', salt: 's' } });
+    const back = decodeTomeShareCode(code);
+    expect(back.notes).toBeUndefined();
+    expect(back.metadata.title).toBe('T');
   });
 
   it('returns null for malformed / non-TOME-V1 input', () => {
@@ -44,6 +52,17 @@ describe('normalizeTomeData (PHASE-39 39A)', () => {
     expect(normalizeTomeData(null)).toBeNull();
     const d = { labs: 'nope' };
     expect(normalizeTomeData(d)).toBe(d);
+  });
+
+  it('strips an injected device-local notes field on import', () => {
+    const out = normalizeTomeData({ metadata: { title: 'T' }, flashcards: [{ id: '1' }], notes: { ct: 'x' } });
+    expect(out.notes).toBeUndefined();
+    expect(out.metadata.title).toBe('T');
+  });
+
+  it('stripLocalOnlyTomeFields returns the same ref when there is nothing to strip', () => {
+    const clean = { metadata: { title: 'T' } };
+    expect(stripLocalOnlyTomeFields(clean)).toBe(clean);
   });
 });
 

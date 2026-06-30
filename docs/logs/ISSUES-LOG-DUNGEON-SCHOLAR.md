@@ -53,48 +53,7 @@ The `auto/scholar-phase-executer` branch (head `1b3c00ed`) is a genuine, unmerge
 
 ## Medium
 
-### [2026-06-29] Forgetting-curve forecast still uses the pre-FSRS-5 retrievability formula — diverges from the actual scheduler (up to ~11pp)
-
-- **Category:** bug
-- **Severity:** medium
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-errors
-- **During:** automated error scan of the dungeon-scholar SRS services
-
-**Description:**
-`src/services/forgettingCurve.js` (powering the Domain Codex retention forecast — `computeRetentionCurve` / `computeMilestones`, consumed by `src/features/study/DomainStudyScreen.jsx`) computes retrievability with the **legacy** formula `R = (1 + elapsed_days / (9 * stability)) ** -1`. Its header comment asserts this is "the same retrievability formula as the SRS scheduler". That is no longer true: the 2026-06-24 FSRS-5 upgrade replaced the scheduler's curve with the canonical **power-law** form `R = (1 + FACTOR * elapsed_days / stability) ** DECAY` (`DECAY = -0.5`, `FACTOR = 0.9 ** (1 / DECAY) - 1 = 19/81 ~= 0.2346`) in `src/services/srs.js` (`retrievability`). The two curves are calibrated to agree only at `elapsed = stability` (both = 0.90) and then diverge as the horizon grows.
-
-Numeric divergence (elapsed measured in units of stability S):
-
-| elapsed | srs.js (FSRS-5) | forgettingCurve.js (legacy) | diff |
-|---|---|---|---|
-| 1S | 0.900 | 0.900 | 0.000 |
-| 2S | 0.825 | 0.818 | +0.007 |
-| 5S | 0.678 | 0.643 | +0.036 |
-| 10S | 0.547 | 0.474 | +0.073 |
-| 20S | 0.419 | 0.310 | +0.109 |
-
-So the Domain Codex "what will my retention look like in N days if I skip reviews" forecast (and the 0/1/7/30-day milestones) systematically **under-predicts** retention versus the scheduler that actually sets due dates — the gap reaches ~11 percentage points at long horizons. Two parts of the same SRS feature now disagree about the forgetting model.
-
-**Reproduction:**
-1. Rate a flashcard so it gets FSRS state with, say, `stability = 5` days.
-2. Open the Domain Codex retention curve / milestones in `DomainStudyScreen`.
-3. Compare the forecast retention at ~50-100 days out against `retrievability()` from `srs.js` for the same card/time.
-4. Observed: forgettingCurve's value is several points lower; at 20x stability ~0.31 vs the scheduler's ~0.42.
-
-**Expected behavior:** The forecast curve uses the same FSRS-5 power-law retrievability the scheduler uses, so the Domain Codex projection matches the due-date logic (they agree at every horizon, not just at elapsed = stability).
-
-**Hypothesis / root cause:** The FSRS-5 migration (RESOLVED-ISSUES-DUNGEON-SCHOLAR.md, 2026-06-24, "Upgrade the SRS scheduler to full FSRS-5") updated `srs.js` but not `forgettingCurve.js`; the resolved entry noting "31 srs + 16 forgettingCurve tests pass" masked the gap because `forgettingCurve.test.js` was written against the legacy `1 / (1 + t/(9S))` shape (see its `R = 1 / (1 + 20/45) ~= 0.692` assertion at line ~83 and the `toBeCloseTo(0.9, 1)` calibration check, both of which still pass with the old formula). So the tests lock in the stale model rather than catching the divergence.
-
-**Proposed fix / improvement:**
-- [ ] Replace `forgettingCurve.js` `retrievabilityAt` with the FSRS-5 power-law form, importing `DECAY`/`FACTOR` from `srs.js` (already exported) rather than re-deriving — single source of truth for the curve.
-- [ ] Update `forgettingCurve.test.js` long-horizon expectations to the power-law values (the `~0.9 at elapsed = stability` calibration check stays valid).
-- [ ] Fix the now-false "same retrievability formula as the SRS scheduler" comment, or delete it once the formula is genuinely shared.
-
-**Related files:** `src/services/forgettingCurve.js`, `src/services/srs.js`, `src/services/forgettingCurve.test.js`, `src/features/study/DomainStudyScreen.jsx`
-
-**Related entries:** RESOLVED-ISSUES-DUNGEON-SCHOLAR.md [2026-06-24] "Upgrade the SRS scheduler to full FSRS-5 with per-user parameter optimization"
-
+*(none currently logged)*
 
 ## Low
 
