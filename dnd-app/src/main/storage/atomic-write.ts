@@ -17,17 +17,28 @@ import { rename, unlink, writeFile } from 'node:fs/promises'
  * @param data Content (string for text, Buffer for binary)
  * @param encoding Optional encoding hint for string data; ignored for Buffer
  */
+export interface AtomicWriteOptions {
+  /** Permission mode applied to BOTH the tmp staging file and the final file
+   *  (e.g. 0o600 for secret-bearing config such as settings.json /
+   *  discord-integration.json). Omit to use the process umask. The mode is set
+   *  on the tmp file before the rename, so the destination inode lands with the
+   *  restrictive perms even if it previously existed world-readable. */
+  mode?: number
+}
+
 export async function atomicWriteFile(
   filePath: string,
   data: string | Buffer,
-  encoding: BufferEncoding = 'utf-8'
+  encoding: BufferEncoding = 'utf-8',
+  options?: AtomicWriteOptions
 ): Promise<void> {
   const tmpPath = `${filePath}.${randomUUID()}.tmp`
+  const mode = options?.mode
   try {
     if (typeof data === 'string') {
-      await writeFile(tmpPath, data, encoding)
+      await writeFile(tmpPath, data, mode !== undefined ? { encoding, mode } : encoding)
     } else {
-      await writeFile(tmpPath, data)
+      await writeFile(tmpPath, data, mode !== undefined ? { mode } : undefined)
     }
     await rename(tmpPath, filePath)
   } catch (err) {
@@ -38,8 +49,9 @@ export async function atomicWriteFile(
 }
 
 /** Synchronous atomic write (main-process config that must stay sync). */
-export function atomicWriteFileSync(filePath: string, data: string): void {
+export function atomicWriteFileSync(filePath: string, data: string, options?: AtomicWriteOptions): void {
   const tmpPath = `${filePath}.${randomUUID()}.tmp`
-  writeFileSync(tmpPath, data, 'utf-8')
+  const mode = options?.mode
+  writeFileSync(tmpPath, data, mode !== undefined ? { encoding: 'utf-8', mode } : 'utf-8')
   renameSync(tmpPath, filePath)
 }

@@ -130,4 +130,16 @@ describe('stableChunkId (PHASE-24 24A)', () => {
   it('prefixes with the lowercased source', () => {
     expect(stableChunkId('PHB', ['A'], 'x')).toMatch(/^phb-[0-9a-f]{16}$/)
   })
+
+  // Cross-engine invariant guard. These digests are derived from the Python twin
+  // (bmo/pi/services/rag_search.py stable_chunk_id): sha256(parts.join(' ')) first
+  // 16 hex, source lowercased. They are hardcoded (NOT computed via stableChunkId)
+  // so the TS engine cannot silently drift off the documented single-space join
+  // again — regression guard for the 2026-06-29 NUL-delimiter bug. If this fails,
+  // the TS and Python engines no longer produce identical ids for identical input.
+  it('matches the Python twin (rag_search.py) byte-for-byte for known inputs', () => {
+    expect(stableChunkId('doc', ['H1'], 'body')).toBe('doc-f0b326612cf78bc4')
+    expect(stableChunkId('SRD', ['Combat', 'Actions'], 'You can move.')).toBe('srd-4ea724ea4cfd0a69')
+    expect(stableChunkId('phb', [], 'plain')).toBe('phb-72d161a8145ec70d')
+  })
 })

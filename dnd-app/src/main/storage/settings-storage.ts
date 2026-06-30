@@ -116,7 +116,9 @@ export async function saveSettings(settings: AppSettings): Promise<StorageResult
     await mkdir(dir, { recursive: true })
     const parsed = AppSettingsSchema.parse(settings)
     const toStore = encryptTurnCredentials(parsed)
-    await atomicWriteFile(getSettingsPath(), JSON.stringify(toStore, null, 2))
+    // settings.json holds bmoApiKey + TURN credentials (plaintext when safeStorage
+    // is unavailable, e.g. headless Linux) — write it owner-only (0o600).
+    await atomicWriteFile(getSettingsPath(), JSON.stringify(toStore, null, 2), 'utf-8', { mode: 0o600 })
     return { success: true }
   } catch (err) {
     return { success: false, error: (err as Error).message }

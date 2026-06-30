@@ -8,7 +8,7 @@
  */
 
 import type { AccountUser } from '../../shared/account-types'
-import { getBmoAccessHeaders, getBmoBaseUrl } from '../bmo-config'
+import { getBmoAccessHeaders, getBmoSecretBaseUrl } from '../bmo-config'
 import * as session from './account-session'
 
 function authHeaders(extra?: Record<string, string>): Record<string, string> {
@@ -23,7 +23,7 @@ function authHeaders(extra?: Record<string, string>): Record<string, string> {
 /** Is Discord login configured on the Pi? (drives whether to show "Sign in".) */
 export async function fetchAuthStatus(): Promise<{ configured: boolean }> {
   try {
-    const res = await fetch(`${getBmoBaseUrl()}/api/auth/status`, { headers: getBmoAccessHeaders() })
+    const res = await fetch(`${getBmoSecretBaseUrl()}/api/auth/status`, { headers: getBmoAccessHeaders() })
     if (!res.ok) return { configured: false }
     return (await res.json()) as { configured: boolean }
   } catch {
@@ -42,7 +42,7 @@ export async function fetchMe(): Promise<AccountUser | null> {
   if (!token) return null
   let res: Response
   try {
-    res = await fetch(`${getBmoBaseUrl()}/api/account/me`, { headers: authHeaders() })
+    res = await fetch(`${getBmoSecretBaseUrl()}/api/account/me`, { headers: authHeaders() })
   } catch {
     return session.getUser() // offline → keep cached identity
   }
@@ -56,7 +56,7 @@ export async function fetchMe(): Promise<AccountUser | null> {
 export async function postLogout(): Promise<void> {
   if (!session.getToken()) return
   try {
-    await fetch(`${getBmoBaseUrl()}/api/auth/logout`, { method: 'POST', headers: authHeaders() })
+    await fetch(`${getBmoSecretBaseUrl()}/api/auth/logout`, { method: 'POST', headers: authHeaders() })
   } catch {
     /* best-effort; the local session is cleared regardless */
   }

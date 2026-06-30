@@ -7,7 +7,7 @@
  * The renderer never sees the token.
  */
 
-import { getBmoAccessHeaders, getBmoBaseUrl } from '../bmo-config'
+import { getBmoAccessHeaders, getBmoSecretBaseUrl } from '../bmo-config'
 import * as session from './account-session'
 
 export interface SyncObjectMeta {
@@ -31,14 +31,14 @@ function authHeaders(): Record<string, string> {
 }
 
 export async function getManifest(): Promise<SyncObjectMeta[]> {
-  const res = await fetch(`${getBmoBaseUrl()}/api/sync/manifest`, { headers: authHeaders() })
+  const res = await fetch(`${getBmoSecretBaseUrl()}/api/sync/manifest`, { headers: authHeaders() })
   if (!res.ok) throw new Error(`sync manifest → ${res.status}`)
   const body = (await res.json()) as { objects?: SyncObjectMeta[] }
   return body.objects ?? []
 }
 
 export async function getObject(domain: string, id: string): Promise<ArrayBuffer | null> {
-  const url = `${getBmoBaseUrl()}/api/sync/object?domain=${encodeURIComponent(domain)}&id=${encodeURIComponent(id)}`
+  const url = `${getBmoSecretBaseUrl()}/api/sync/object?domain=${encodeURIComponent(domain)}&id=${encodeURIComponent(id)}`
   const res = await fetch(url, { headers: authHeaders() })
   if (res.status === 404) return null
   if (!res.ok) throw new Error(`sync get → ${res.status}`)
@@ -60,7 +60,11 @@ export async function putObject(
   form.set('mtime', String(mtime))
   form.set('hash', hash ?? '')
   form.set('blob', new Blob([bytes]), 'blob.bin')
-  const res = await fetch(`${getBmoBaseUrl()}/api/sync/object`, { method: 'POST', headers: authHeaders(), body: form })
+  const res = await fetch(`${getBmoSecretBaseUrl()}/api/sync/object`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: form
+  })
   if (res.status === 413) return { accepted: false } // quota / too large
   if (!res.ok) throw new Error(`sync put → ${res.status}`)
   return (await res.json()) as SyncPutResult
@@ -68,7 +72,7 @@ export async function putObject(
 
 export async function deleteObject(domain: string, id: string, version: number): Promise<SyncPutResult> {
   const url =
-    `${getBmoBaseUrl()}/api/sync/object?domain=${encodeURIComponent(domain)}` +
+    `${getBmoSecretBaseUrl()}/api/sync/object?domain=${encodeURIComponent(domain)}` +
     `&id=${encodeURIComponent(id)}&version=${version}`
   const res = await fetch(url, { method: 'DELETE', headers: authHeaders() })
   if (!res.ok) throw new Error(`sync delete → ${res.status}`)

@@ -156,3 +156,18 @@ export function getBmoAccessHeaders(): Record<string, string> {
   if (!id || !secret) return {}
   return { 'CF-Access-Client-Id': id, 'CF-Access-Client-Secret': secret }
 }
+
+/**
+ * CF-Access service-token headers, but ONLY when the resolved base URL is
+ * secret-trusted (isBmoBaseSecretTrusted()). Use this for any credentialed fetch
+ * made against getBmoBaseUrl(): an auto-discovered http LAN host (which passed
+ * only a /health identity probe, not proof it is the real Pi) must never receive
+ * the Cloudflare-Access service token. Returns {} for a non-secret-trusted base.
+ * Mirrors the gated pattern already used in sound-cache.ts. See SECURITY-LOG
+ * "CF-Access service token + user account JWT still leak to an auto-discovered
+ * http LAN BMO host".
+ */
+export function getBmoAccessHeadersIfTrusted(): Record<string, string> {
+  if (!isBmoBaseSecretTrusted()) return {}
+  return getBmoAccessHeaders()
+}

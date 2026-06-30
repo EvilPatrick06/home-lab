@@ -243,3 +243,41 @@ describe('isBmoBaseSecretTrusted / getBmoSecretBaseUrl (LAN Pi-impersonation gua
     expect(mod.getBmoSecretBaseUrl()).toBe('http://my-pi.lan:5000')
   })
 })
+
+describe('getBmoAccessHeadersIfTrusted (LAN credential-leak guard)', () => {
+  // Simulate a baked build (CF-Access defines present). The guard must still
+  // withhold them when the base is not secret-trusted.
+  const g = globalThis as unknown as Record<string, unknown>
+  beforeEach(() => {
+    g.__CF_ACCESS_CLIENT_ID__ = 'client-id.access'
+    g.__CF_ACCESS_CLIENT_SECRET__ = 'super-secret'
+  })
+  afterEach(() => {
+    delete g.__CF_ACCESS_CLIENT_ID__
+    delete g.__CF_ACCESS_CLIENT_SECRET__
+  })
+
+  it('emits NO CF-Access headers when the base is an auto-discovered http LAN host', async () => {
+    const mod = await loadFresh()
+    mod.setDiscoveredBmoUrl('http://discovered.local:5000')
+    expect(mod.isBmoBaseSecretTrusted()).toBe(false)
+    expect(mod.getBmoAccessHeadersIfTrusted()).toEqual({})
+  })
+
+  it('emits the CF-Access headers when the base is the https tunnel default (trusted)', async () => {
+    const mod = await loadFresh()
+    expect(mod.getBmoAccessHeadersIfTrusted()).toEqual({
+      'CF-Access-Client-Id': 'client-id.access',
+      'CF-Access-Client-Secret': 'super-secret'
+    })
+  })
+
+  it('emits the CF-Access headers for an explicit user-typed http base (trusted by intent)', async () => {
+    const mod = await loadFresh()
+    mod.applyBmoBaseUrlFromSettings({ bmoPiBaseUrl: 'http://my-pi.lan:5000' })
+    expect(mod.getBmoAccessHeadersIfTrusted()).toEqual({
+      'CF-Access-Client-Id': 'client-id.access',
+      'CF-Access-Client-Secret': 'super-secret'
+    })
+  })
+})
