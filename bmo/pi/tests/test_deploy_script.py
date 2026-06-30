@@ -190,6 +190,27 @@ class TestDryRunFlow:
         # app.py is under bmo/pi/ → main service restart.
         assert "systemctl restart" in result.stdout
 
+    def test_dry_run_refreshes_standalone_board_cli(self, repos):
+        """Every deploy refreshes the deploy-owned standalone notify-board CLI.
+
+        deploy.sh now OWNS /home/patrick/bmo-board/notify-board (the live-ops path
+        scheduled tasks call) and regenerates it from the repo's canonical copy on
+        every invocation, so it cannot silently drift from the deployed code. The
+        refresh must fire on BOTH the no-op "already deployed" path and a real
+        reset path. (Dry-run, so no file is actually written.)
+        """
+        clone, head, prev = repos
+        # No-op "already deployed" path still refreshes the standalone wrapper.
+        result = _run_deploy(clone, [head, "--dry-run"])
+        assert result.returncode == 0, f"stdout={result.stdout}\nstderr={result.stderr}"
+        assert "already deployed" in result.stdout
+        assert "install standalone notify-board" in result.stdout
+        # Real reset path refreshes it too.
+        _git(clone, "reset", "--hard", prev)
+        result2 = _run_deploy(clone, ["--dry-run"])
+        assert result2.returncode == 0, f"stdout={result2.stdout}\nstderr={result2.stderr}"
+        assert "install standalone notify-board" in result2.stdout
+
 
 class TestGuardRails:
     def test_dirty_tree_is_discarded_not_blocking(self, repos):
