@@ -205,3 +205,26 @@ grep -rn "rgba(var(--surface-red" dungeon-scholar/src --include=*.jsx
 - **Gold action buttons + rarity badges** (CSS-gradient backgrounds) — the gold-button variant is tracked in `docs/logs/ISSUES-LOG-DUNGEON-SCHOLAR.md` (~line 199); gradient-backed surfaces need a gradient-aware fix, a separate effort from this flat-accent-text/flat-background phase. Left for that log item.
 - **Light-theme focus ring** (report §7, low/observation) — **already theme-adaptive and not a defect.** `src/index.css` sets `--focus-ring: #fde047` (dark) → `#b45309` (light), and the focus rule consumes `var(--focus-ring)`; `#b45309` on `#fafaf9` clears the 3:1 non-text-contrast floor, and the run-3 pass explicitly logged "the theme-adaptive focus ring passing AA in both themes." The report's `rgb(255,210,48)` reading is the *dark/fallback* gold (`#fde047`), captured before/without `html[data-theme="light"]` taking effect — a measurement artifact, not a missing override. No change; documented here so a future pass doesn't re-file it.
 - **No change to the Phase-41 `--color-amber-*` ramp**, to Dark theme, or to any gradient/badge surface.
+
+## Completed
+
+> Implemented 2026-06-30 by `scholar-phase-executer` on `auto/scholar-phase-executer` (auto-approved: bug/contrast phase). CI is the authoritative gate.
+
+### 10A — `--text-accent-muted` token + player-stats header
+- `src/index.css` — added `--text-accent-muted` to the `:root` Phase-03 surface block and the `html[data-theme="light"]` override. **Amendment (rule 3):** the plan suggested a literal `#b45309` dark default, but Tailwind v4's `amber-700` resolves to `#bb4d00`, not `#b45309` — a literal would shift Dark theme. To keep Dark **byte-identical**, the dark default is `var(--color-amber-700)` (the exact value the prior `text-amber-700` produced); light override is `#92400e` (measured **6.79:1** on `#fafaf9`). Added `.text-accent-muted` + `.text-accent-muted-{80,70,60,50,40}` utilities (opacity variants use `color-mix(in oklab, …)` to match Tailwind v4's `/NN` modifier, so Dark stays identical).
+- `src/App.jsx` — player-stats header band (lines ~1755-1856): `EXPERIENCE`, `VICTORIES`, `DELVES`, `DRAGONS`, the `Level • Total XP` line, and the compact-header `EXPERIENCE` label converted `text-amber-700` → `text-accent-muted` (6 sites).
+- **Recorded decision:** the borderline `text-amber-400` XP *value* (`{xp}/{xpNeeded}`, measured **3.06:1** in light) was **left unchanged** — routing it through the muted token would darken it in Dark theme (token dark = brown vs the value's gold), violating the byte-identical-Dark requirement; it is a numeric value, consistent with the deliberately-left emerald/purple/red-400 stat values.
+
+### 10B — Inventory / Shop / Bestiary secondary labels + biome headings
+- `src/features/progression/InventoryScreen.jsx`, `ShopScreen.jsx`, `BestiaryScreen.jsx` — all `text-amber-700[/NN]` muted labels/glyphs converted to `.text-accent-muted[-NN]` (opacity preserved via the color-mix variants; corner `⚜` glyphs and the conditional locked-item label/description ternaries included). `text-amber-200/300/400/100` headings and values left untouched.
+- `src/features/progression/BestiaryScreen.jsx` (:90) — biome `<h3>` gained the `biome-heading` class; `src/index.css` `html[data-theme="light"] .biome-heading` darkens the inline per-biome-accent text fill in light theme (with `!important` to beat the inline `color`) while Dark keeps the per-biome accent + glow.
+- Bestiary `:96` found-count and `:145` `Drops:` label also converted (secondary labels per the sub-phase objective).
+
+### 10C — Danger-button backgrounds via `--surface-red`
+- Routed the single-line `style={{ background: 'rgba(41, 12, 12, 0.{7,6})' }}` button backgrounds through `rgba(var(--surface-red, 41, 12, 12), α)` in: `src/features/home/HomeScreen.jsx` (the two "Begin Anew" resets :250/:618), `src/features/library/LibraryScreen.jsx` (:783 Banish), `src/components/TomeNotes.jsx` (:315 Delete notes), `src/features/study/ChatMode.jsx` (:432 Clear), `LabMode.jsx` (:434 Skip Stage), `QuizMode.jsx` (:868 Skip Riddle). All use `text-red-300`, which the light ramp inverts to deep red; measured **Begin Anew 1.11:1 → 5.51:1** in light theme.
+- **Recorded decision (intentionally-dark-in-both, left unconverted):** the two difficulty-star badges (`HomeScreen.jsx:334`, `LibraryScreen.jsx:576`) use a **fixed light** text hex `color:'#fca5a5'`; lightening their background would *reduce* contrast, so per `DESIGN-CONSTRAINTS.md` they stay dark-in-both. `OrnatePanel.jsx:16`'s `rgba(41,12,12,…)` is a fallback inside `var(--panel-bg-red, …)` (already themed) — left as-is.
+
+### Verification
+- New guard: `src/phase10-contrast.test.js` (16 assertions: token present in both themes, utilities + biome-heading override defined, converted surfaces use the utility, danger buttons route through `--surface-red`, no single-line hardcoded button literal left). Passes.
+- `npx vitest run src/phase10-contrast.test.js` ✓, `src/theme.test.js` ✓ (8), `npm run lint` exit 0, `npm run typecheck` exit 0, `VITE_BASE=/home-lab/ npm run build` ✓. Contrast ratios verified numerically (oklch→sRGB→WCAG).
+- Out-of-scope same-family wash-out on non-enumerated screens logged to `docs/logs/ISSUES-LOG-DUNGEON-SCHOLAR.md` (rule 12).

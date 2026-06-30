@@ -780,7 +780,7 @@ function LibraryScreen({
                     <button
                       onClick={() => setConfirmDelete(tome.id)}
                       className="px-3 py-2 rounded-sm text-sm border-2 border-red-800 text-red-300 hover:bg-red-900/30"
-                      style={{ background: 'rgba(41, 12, 12, 0.6)' }}
+                      style={{ background: 'rgba(var(--surface-red, 41, 12, 12), 0.6)' }}
                       title={`Banish "${meta.title || 'this tome'}"`}
                       aria-label={`Banish tome "${meta.title || 'untitled'}"`}
                     >

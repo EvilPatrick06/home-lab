@@ -32,7 +32,7 @@
 | 07 | [`completed/PHASE-07-import-toast-exam-copy.md`](./completed/PHASE-07-import-toast-exam-copy.md) | dungeon-scholar | — | done |
 | 08 | [`completed/PHASE-08-routing-hero-exam-jank-oracle-sources-auth-circuit-breaker.md`](./completed/PHASE-08-routing-hero-exam-jank-oracle-sources-auth-circuit-breaker.md) | dungeon-scholar | — | done |
 | 09 | [`completed/PHASE-09-user-facing-date-format-consistency.md`](./completed/PHASE-09-user-facing-date-format-consistency.md) | dungeon-scholar | — | done |
-| 10 | [`PHASE-10-light-theme-accent-text-danger-button-contrast.md`](./PHASE-10-light-theme-accent-text-danger-button-contrast.md) | dungeon-scholar | — | pending |
+| 10 | [`PHASE-10-light-theme-accent-text-danger-button-contrast.md`](./completed/PHASE-10-light-theme-accent-text-danger-button-contrast.md) | dungeon-scholar | — | done |
 | 11 | [`PHASE-11-routing-headings-vault-exam-quest-copy-round.md`](./PHASE-11-routing-headings-vault-exam-quest-copy-round.md) | dungeon-scholar | — | pending |
 
 > **Source (01-02):** both plans were consolidated from `QA/QA-report-2026-06-24.md` (now in

@@ -98,6 +98,25 @@ So the Domain Codex "what will my retention look like in N days if I skip review
 
 ## Low
 
+### [2026-06-30] Light-theme muted accent-label wash-out persists on non-enumerated screens (same family as PHASE-10 F1)
+
+- **Category:** bug
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-phase-executer
+- **During:** PHASE-10 implementation (out-of-scope same-family finding, logged per INSTRUCTIONS rule 12)
+
+**Description:**
+PHASE-10 F1 introduced the `--text-accent-muted` token + `.text-accent-muted[-NN]` utilities and converted the app-wide player-stats header (App.jsx) plus the Inventory / Shop / Bestiary screens that QA run-4 enumerated. The identical Phase-41 ramp-inversion wash-out (`text-amber-700` muted labels brightening to ~1.4:1 on light parchment) still affects screens run-4 did **not** flag, so they were left in scope-discipline and logged here instead:
+
+- `src/features/progression/AscensionScreen.jsx`, `RunHistoryScreen.jsx`, `SpellbookScreen.jsx`, `CalendarScreen.jsx`, `StableScreen.jsx`, `CraftingScreen.jsx` — `text-amber-700` / `text-amber-700/NN` secondary labels.
+- `src/App.jsx` home-hero subtitle `⚜ A SCHOLAR'S QUEST ⚜` (:1515) and the four home-card corner `⚜` glyphs (:1726-1729) — outside PHASE-10's enumerated player-stats-header band.
+- `src/features/progression/BestiaryScreen.jsx` (~:149) boss lore-tier hint — inline `style={{ color: meta.accent }}` body text (same non-inverting-inline-hex family as the biome `<h3>` PHASE-10 fixed, but a non-heading element).
+
+**Root cause:** same as PHASE-10 F1 — `text-amber-700` / inline per-biome hex accents authored for the dark theme brighten (not darken) under the Phase-41 light-theme ramp inversion.
+
+**Proposed fix:** a follow-up round converts the above `text-amber-700[/NN]` labels to `.text-accent-muted[-NN]`, and gives the inline-hex boss-lore line a light-theme darken (e.g. the `.biome-heading` light-override pattern). Infrastructure already exists from PHASE-10; this is a mechanical extension. Dark theme is byte-identical via the token.
+
 ### [2026-06-29] Source comments point to a non-existent `.github/workflows/deploy.yml` (workflow is `dungeon-scholar-deploy.yml`)
 
 - **Category:** docs, config

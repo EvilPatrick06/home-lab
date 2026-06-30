@@ -62,7 +62,7 @@ function InventoryScreen({
                 {cat.label}
               </h3>
               <div className="flex-1 h-px bg-linear-to-r from-amber-700/50 to-transparent" />
-              <span className="text-xs text-amber-700 italic">
+              <span className="text-xs text-accent-muted italic">
                 {items.length} kind{items.length === 1 ? '' : 's'}
               </span>
             </div>
@@ -82,10 +82,10 @@ function InventoryScreen({
                         : '0 0 12px rgba(168, 85, 247, 0.12), inset 0 0 15px rgba(0,0,0,0.5)',
                     }}
                   >
-                    <div className="absolute top-1 left-1 text-amber-700/60 text-xs">⚜</div>
-                    <div className="absolute top-1 right-1 text-amber-700/60 text-xs">⚜</div>
-                    <div className="absolute bottom-1 left-1 text-amber-700/60 text-xs">⚜</div>
-                    <div className="absolute bottom-1 right-1 text-amber-700/60 text-xs">⚜</div>
+                    <div className="absolute top-1 left-1 text-accent-muted-60 text-xs">⚜</div>
+                    <div className="absolute top-1 right-1 text-accent-muted-60 text-xs">⚜</div>
+                    <div className="absolute bottom-1 left-1 text-accent-muted-60 text-xs">⚜</div>
+                    <div className="absolute bottom-1 right-1 text-accent-muted-60 text-xs">⚜</div>
                     <div className="flex items-start gap-3">
                       <div className="text-3xl shrink-0">{it.icon}</div>
                       <div className="flex-1 min-w-0">
@@ -131,7 +131,7 @@ function InventoryScreen({
                         )}
                         {it.category === 'apothecary' && !it.locked && onEquipPotion && (
                           <div className="mt-2 flex items-center gap-1">
-                            <span className="text-[10px] text-amber-700 italic mr-1">Quick-slot:</span>
+                            <span className="text-[10px] text-accent-muted italic mr-1">Quick-slot:</span>
                             {[0, 1, 2].map((i) => {
                               const filledId = equippedPotions[i];
                               const isThis = filledId === it.id;
@@ -230,7 +230,7 @@ function InventoryScreen({
               style={{ filter: 'drop-shadow(0 0 4px rgba(245, 158, 11, 0.6))' }}
             />
             <span className="text-amber-200 font-bold italic text-lg tabular-nums">{playerState.gold || 0}</span>
-            <span className="text-amber-700 italic text-xs">gold</span>
+            <span className="text-accent-muted italic text-xs">gold</span>
           </div>
         </div>
       </div>
@@ -280,7 +280,7 @@ function InventoryScreen({
                 Loadout
               </h3>
               <div className="flex-1 h-px bg-linear-to-r from-amber-700/50 to-transparent" />
-              <span className="text-[10px] text-amber-700 italic">Equipped gear is active inside the dungeon.</span>
+              <span className="text-[10px] text-accent-muted italic">Equipped gear is active inside the dungeon.</span>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               {SLOTS.map((s) => {
@@ -297,9 +297,9 @@ function InventoryScreen({
                   >
                     <div className="text-2xl">{item ? item.icon : s.icon}</div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-[10px] text-amber-700 italic uppercase tracking-wider">{s.label}</div>
+                      <div className="text-[10px] text-accent-muted italic uppercase tracking-wider">{s.label}</div>
                       <div className="text-xs text-amber-200 italic truncate">
-                        {item ? item.name : <span className="text-amber-700/60">— Empty —</span>}
+                        {item ? item.name : <span className="text-accent-muted-60">— Empty —</span>}
                       </div>
                     </div>
                     {item && onUnequip && (
@@ -328,7 +328,7 @@ function InventoryScreen({
             >
               <Package className="w-12 h-12 mx-auto text-purple-300/50 mb-3" />
               <p className="text-amber-100/70 italic mb-1">No gear stowed.</p>
-              <p className="text-xs text-amber-700 italic max-w-md mx-auto">
+              <p className="text-xs text-accent-muted italic max-w-md mx-auto">
                 Purchase wardrobe, armory, sanctum, or celestial wares at the Marketplace.
               </p>
             </div>
@@ -358,7 +358,7 @@ function InventoryScreen({
                 Potion Quick-Slots
               </h3>
               <div className="flex-1 h-px bg-linear-to-r from-emerald-700/50 to-transparent" />
-              <span className="text-[10px] text-amber-700 italic">Hotkeys 1 · 2 · 3</span>
+              <span className="text-[10px] text-accent-muted italic">Hotkeys 1 · 2 · 3</span>
             </div>
             <div className="grid grid-cols-3 gap-2">
               {[0, 1, 2].map((i) => {
@@ -381,12 +381,12 @@ function InventoryScreen({
                         border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15),0.4)',
                       }}
                     >
-                      {item ? item.icon : <span className="text-amber-700/40 text-xs italic">{i + 1}</span>}
+                      {item ? item.icon : <span className="text-accent-muted-40 text-xs italic">{i + 1}</span>}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-[10px] text-amber-700 italic uppercase tracking-wider">Slot {i + 1}</div>
+                      <div className="text-[10px] text-accent-muted italic uppercase tracking-wider">Slot {i + 1}</div>
                       <div className="text-xs text-amber-200 italic truncate">
-                        {item ? `${item.name} ×${count}` : <span className="text-amber-700/60">— Empty —</span>}
+                        {item ? `${item.name} ×${count}` : <span className="text-accent-muted-60">— Empty —</span>}
                       </div>
                     </div>
                     {item && onUnequipPotion && (
@@ -415,7 +415,7 @@ function InventoryScreen({
             >
               <span className="text-3xl">🧪</span>
               <p className="text-amber-100/70 italic mb-1 mt-2">No potions or ingredients stowed.</p>
-              <p className="text-xs text-amber-700 italic max-w-md mx-auto">
+              <p className="text-xs text-accent-muted italic max-w-md mx-auto">
                 Buy tonics at the Marketplace or harvest reagents in the dungeon, then brew at the bench.
               </p>
             </div>

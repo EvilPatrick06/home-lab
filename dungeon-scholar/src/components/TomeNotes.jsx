@@ -312,7 +312,7 @@ export default function TomeNotes({ tome, onSave, onClose }) {
               <button
                 onClick={() => setConfirmDelete(true)}
                 className="py-2 rounded-sm text-sm border-2 border-red-800 text-red-300 flex items-center justify-center gap-2 hover:bg-red-900/30 italic"
-                style={{ background: 'rgba(41, 12, 12, 0.6)' }}
+                style={{ background: 'rgba(var(--surface-red, 41, 12, 12), 0.6)' }}
               >
                 <Trash2 className="w-4 h-4" aria-hidden="true" /> Delete notes
               </button>

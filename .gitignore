@@ -157,3 +157,6 @@ dnd-app/docs/Screenshot*.png
 .*-resolver.lock
 **/.*-resolver.lock
 *-agent.lock
+
+# husky-generated hook wrappers (created by npm ci prepare; do not track)
+.husky/_/

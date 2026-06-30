@@ -429,7 +429,7 @@ ${sourceText}`;
             <button
               onClick={() => setShowClearConfirm(true)}
               className="px-2 py-1.5 rounded-sm text-xs italic border-2 border-red-800 text-red-300 hover:bg-red-900/30 flex items-center gap-1"
-              style={{ background: 'rgba(41, 12, 12, 0.6)' }}
+              style={{ background: 'rgba(var(--surface-red, 41, 12, 12), 0.6)' }}
               title="Clear chat history"
             >
               <Trash2 className="w-3 h-3" /> Clear

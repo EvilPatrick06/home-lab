@@ -247,7 +247,7 @@ function HomeScreen({
             <button
               onClick={onResetProgress}
               className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-red-800 text-red-300 hover:bg-red-900/30 italic"
-              style={{ background: 'rgba(41, 12, 12, 0.7)' }}
+              style={{ background: 'rgba(var(--surface-red, 41, 12, 12), 0.7)' }}
               aria-label="Begin Anew — permanently erases all local progress (a confirmation dialog will appear)"
             >
               <RotateCcw className="w-4 h-4" aria-hidden="true" /> Begin Anew
@@ -615,7 +615,7 @@ function HomeScreen({
             <button
               onClick={onResetProgress}
               className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-red-800 text-red-300 hover:bg-red-900/30 italic"
-              style={{ background: 'rgba(41, 12, 12, 0.7)' }}
+              style={{ background: 'rgba(var(--surface-red, 41, 12, 12), 0.7)' }}
               aria-label="Begin Anew — permanently erases all local progress (a confirmation dialog will appear)"
             >
               <RotateCcw className="w-4 h-4" aria-hidden="true" /> Begin Anew
