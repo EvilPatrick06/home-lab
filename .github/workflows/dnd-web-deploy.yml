@@ -51,6 +51,20 @@ jobs:
       - uses: ./.github/actions/setup-node-project
         with:
           working-directory: dnd-app
+      # Gate the live deploy on green CI BEFORE building/rsyncing, mirroring the
+      # inline test gate in dungeon-scholar-deploy.yml. dnd-app-ci.yml is the
+      # authoritative gate but runs concurrently with this deploy, so without
+      # these steps a commit that compiles yet fails lint / typecheck / vitest
+      # could still be rsynced live. These re-run the core correctness checks so
+      # a red result fails the deploy job before anything reaches the Pi.
+      - name: Lint (biome)
+        run: npm run lint
+      - name: Typecheck (web)
+        run: npx tsc --noEmit -p tsconfig.web.json
+      - name: Typecheck (node)
+        run: npx tsc --noEmit -p tsconfig.node.json
+      - name: Tests
+        run: npm test
       - name: Build web bundle
         run: npm run build:web
       - name: Join tailnet (ephemeral)

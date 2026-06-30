@@ -16,27 +16,6 @@ How to triage: [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md)
 
 > Repo-wide / multi-project findings. Per the domain-split triage in `LOG-INSTRUCTIONS.md` these are `Domain: both`; recorded here in the compatibility-pointer log.
 
-### [2026-06-29] dnd-app web deploy ships to the Pi with no test/lint/typecheck gate, unlike the other two app deploys
-
-- **Category:** config, bug
-- **Severity:** medium
-- **Domain:** both
-- **Discovered by:** overall-errors
-- **During:** cross-cutting CI/deploy scan of `.github/workflows/`
-
-**Description:**
-The three app-deploy workflows gate on test results inconsistently. `bmo-deploy.yml` is health-gated: it triggers via `workflow_run` on a *successful* "bmo / pi pytest" run, so a red test suite blocks the deploy. `dungeon-scholar-deploy.yml` runs `npm run test` inline (step at line 33) *before* `npm run build` + Pages upload, so a failing test fails the deploy. `dnd-web-deploy.yml` does **neither** — its only steps are checkout, `setup-node-project`, `npm run build:web`, the Tailscale join, and the rsync to `/home/patrick/web-apps/DungeonTableOnline`. It triggers directly on every `push` to `master` touching `dnd-app/**` and runs *concurrently with* `dnd-app-ci.yml` (the real gate) rather than waiting for it. So a commit that compiles but fails lint / typecheck / vitest is still rsynced live to the Pi-served web SPA (`https://bmo.mybmoai.work/DungeonTableOnline/`). dnd-app is the only one of the three apps whose live deploy can ship test-failing code. Low blast radius today (app in testing, no real users), but it is a real gap in the repo-wide "deploys are gated on green CI" convention.
-
-**Expected behavior:** dnd-web-deploy should only deploy a commit whose dnd-app CI is green — e.g. trigger via `workflow_run` on a successful "dnd-app CI" run (mirroring bmo-deploy), or add the test/typecheck steps inline before the rsync (mirroring dungeon-scholar-deploy).
-
-**Hypothesis / root cause:** dnd-web-deploy was written as a pure build-and-rsync job; the test-gate convention was added to bmo-deploy (workflow_run) and dungeon-scholar-deploy (inline `npm run test`) but never back-filled onto dnd-web-deploy. Verified by reading all three workflow files; the absence of any test/lint/typecheck/tsc/vitest step in dnd-web-deploy is confirmed (grep returned none).
-
-**Proposed fix / improvement:**
-- [ ] Gate dnd-web-deploy on a green "dnd-app CI" run (`workflow_run` trigger like bmo-deploy) OR add `npm test` + the two `tsc --noEmit` typechecks before `build:web`.
-- [ ] Once chosen, document the deploy-gating convention alongside the bmo-deploy/dungeon-scholar-deploy patterns so the three stay consistent.
-
-**Related files:** `.github/workflows/dnd-web-deploy.yml`, `.github/workflows/bmo-deploy.yml`, `.github/workflows/dungeon-scholar-deploy.yml`, `.github/workflows/dnd-app-ci.yml`
-
 ### [2026-06-29] CI concurrency convention has gaps: dungeon-scholar-ci + four mechanical-guard workflows have no `concurrency:` group, so push bursts pile up redundant runs
 
 - **Category:** config, performance, debt
