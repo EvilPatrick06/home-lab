@@ -21,6 +21,119 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-06-29] Tome → CSV / Quizlet export (round-trip with the existing importer)
+
+- **Category:** portability
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement scan of dungeon-scholar/src
+
+**Description:**
+`services/deckImport.js` imports external decks *in* from CSV / TSV / Quizlet copy-paste (term|definition[|tag]), but there is no symmetric path to get a tome back *out* into those universal formats — a grep for `csv`/`quizlet`/`toCsv`/`exportDeck` across `src/` returns nothing. The only export paths are `downloadTomeJson` (the app's own TOME-V1 JSON / sealed JSON, in `ShareTomeModal.jsx`) and `exportSaveText` (the whole player save, in `AccountPanel.jsx`). So a learner who authored or edited a tome in-app (TomeEditor) cannot extract their cards into the plain two-column format every other tool (Anki, Quizlet, a spreadsheet, a study group's shared doc) reads. This is a data-ownership / lock-in gap and the natural inverse of a feature that already exists one direction. It is distinct from the already-logged "Printable / PDF export" entry (that is print presentation, not re-importable structured data) and from JSON save export (that is the whole save, not a portable deck).
+
+**Proposed fix / improvement:**
+- [ ] Add an `exportTomeCsv(tome)` in `services/deckImport.js` (co-located with its inverse) that emits RFC-4180-quoted `term,definition,domain` rows, round-tripping cleanly back through `parseDeckText`.
+- [ ] Wire a "Download CSV" option into `ShareTomeModal.jsx` next to the existing JSON download (reuse the Blob/object-URL `download*` machinery already there).
+- [ ] Add a unit test asserting `parse(export(tome))` preserves card count + fields (mirrors the importer's existing test style).
+
+**Related files:** `src/services/deckImport.js`, `src/features/library/ShareTomeModal.jsx`, `src/features/library/TomeEditor.jsx`
+
+**Related entries:** SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md [2026-06-29] "Printable / PDF export of a tome" (sibling export idea; that one is paper/print, this one is machine-readable interchange).
+
+---
+
+### [2026-06-29] Tome schema versioning + update propagation for shared tomes
+
+- **Category:** future-idea
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement scan of dungeon-scholar/src
+
+**Description:**
+A tome carries no version / revision marker — a grep of `src/game/tome.js` for `version`/`schemaVersion`/`revision`/`updatedAt` returns nothing. Shared tomes (share code, JSON download, Web Share Target import) are therefore immutable point-in-time snapshots: once a student imports a tome, there is no signal that the author has since corrected a wrong answer key or typo, and no way to pull the fix short of deleting and re-importing (which also discards local study progress). This compounds the proposed in-app "report a problem with this question" flow — even after an author fixes a reported defect, every existing copy stays stale forever. A small monotonic `revision` field on the tome metadata, surfaced on re-import ("a newer version of this tome is available — merge?"), would let corrections propagate while preserving each learner's `progress`.
+
+**Hypothesis / root cause:** Tomes were modeled as self-contained study payloads, not as updatable published artifacts; no identity/version concept was needed until sharing + in-app editing made authored tomes mutable.
+
+**Proposed fix / improvement:**
+- [ ] Add an optional `revision` (and/or `updatedAt`) to tome metadata in `game/tome.js`, defaulting absent = revision 0 (back-compatible, mirrors the existing optional-field convention).
+- [ ] Bump it on edits in `TomeEditor.jsx`; carry it in share codes / JSON exports.
+- [ ] On import of a tome whose `id` already exists locally, compare revisions and offer a content-merge that keeps the learner's `progress` (reuse the existing `MergeChooser` UX) instead of a blind overwrite.
+
+**Blocked by:** none (additive metadata; merge UI already exists).
+
+**Related files:** `src/game/tome.js`, `src/features/library/TomeEditor.jsx`, `src/features/library/ShareTomeModal.jsx`, `src/components/ui/MergeChooser.jsx`, `src/services/deckImport.js`
+
+**Related entries:** SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md [2026-06-28] "In-app 'report a problem with this question' flow" (that captures defects; this propagates the fixes back to existing copies).
+
+---
+
+### [2026-06-29] README + TomeEditor promise Mermaid diagram rendering, but the renderer only supports ASCII/text diagram fences
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement scan of dungeon-scholar/src
+
+**Description:**
+The README's headline feature list ("Rich content — Markdown questions render diagrams (Mermaid) and syntax-highlighted code blocks inline") and `TomeEditor.jsx`'s preview tooltip ("Markdown / Mermaid / code / math render exactly as they [appear]") both advertise Mermaid rendering, but no Mermaid renderer exists: `package.json` has no `mermaid` dependency, and `services/richContent.js` defines `DIAGRAM_LANGUAGES = {ascii, diagram, topology, flow}` — a fenced ` ```mermaid ` block falls through to a plain monospace code block, not a rendered graph. (KaTeX is genuinely implemented and lazy-loaded; Mermaid simply isn't.) So an author who writes a Mermaid graph per the docs gets raw source text in study mode. Either the promise should be implemented or the docs/tooltip corrected; implementing it is the higher-value path for a technical-cert study app (network topologies, attack trees, state machines).
+
+**Hypothesis / root cause:** Mermaid was scoped as a rich-content target and documented, but deferred at implementation time for the same bundle-size reason `richContent.js` cites for keeping the renderer narrow — and the README/editor copy was never walked back.
+
+**Proposed fix / improvement:**
+- [ ] Implement real Mermaid rendering lazy-loaded on first `mermaid` fence, mirroring the existing KaTeX lazy-import pattern in `RichContent.jsx` (so tomes without diagrams pay zero bundle cost and it degrades to source text offline / on CDN block).
+- [ ] OR, if Mermaid stays out of scope, correct the README feature list and the TomeEditor tooltip to describe the actual ASCII/`topology`/`flow` diagram support so authors aren't misled.
+
+**Related files:** `README.md`, `src/features/library/TomeEditor.jsx`, `src/services/richContent.js`, `src/components/RichContent.jsx`, `dungeon-scholar/package.json`
+
+---
+
+### [2026-06-29] CI has no test-coverage floor and no bundle-size budget, despite "keep the initial bundle small" being a stated design value
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement scan of dungeon-scholar tooling
+
+**Description:**
+`dungeon-scholar-ci.yml` gates on lint + typecheck + `vitest run` + build, but enforces no coverage threshold and no JS bundle-size budget (grep for `chunkSizeWarningLimit` / `size-limit` / `bundlesize` / `lighthouse` returns nothing across the project + workflow). The repo invests heavily in a small initial bundle — `vite.config.js` ships a `manualChunks` splitter, every screen is `React.lazy`-loaded, and `richContent.js` explicitly rejects bundling KaTeX/Mermaid eagerly "to keep the bundle small" — yet nothing in CI prevents a regression: a heavy dependency landing in the initial chunk, or `manualChunks` silently degrading, would pass green. Likewise, the existing-issue note that exhaustive-deps hooks lack behavioral test coverage (see ISSUES-LOG) has no coverage metric to track whether that gap is shrinking or growing.
+
+**Hypothesis / root cause:** CI was built to gate correctness (lint/types/tests/build); the performance + coverage *budgets* that protect the app's stated design values were never added.
+
+**Proposed fix / improvement:**
+- [ ] Add a build-output size check (e.g. a tiny script asserting the largest initial JS chunk stays under a committed budget, or `size-limit`) as a non-blocking-then-blocking CI step.
+- [ ] Enable `vitest --coverage` (v8 provider) and set a modest floor that ratchets up, so coverage can't silently regress.
+- [ ] Keep both advisory at first (report in the PR) before making them gating, matching the repo's incremental-tightening posture.
+
+**Related files:** `.github/workflows/dungeon-scholar-ci.yml`, `dungeon-scholar/vite.config.js`, `dungeon-scholar/package.json`
+
+---
+
+### [2026-06-29] ASCII / topology / flow diagram code blocks have no text alternative for screen-reader users
+
+- **Category:** UX
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement scan of dungeon-scholar/src
+
+**Description:**
+`RichContent.jsx` renders fenced `diagram`/`topology`/`flow`/`ascii` blocks as a bare `<pre><code>` of glyph art with no `aria-label`, `role="img"`, or accompanying description (raster `image` nodes DO get an `alt`, but these text-diagram fences do not). A screen reader will read the box-drawing/ASCII characters one by one (or skip them), so a diagram-based question — common in networking/security certs (a topology, a packet flow, an attack tree drawn in ASCII) — is effectively inaccessible to a blind learner, even though the same content is perfectly legible visually. This is a different gap from the already-logged accessibility items (forced-colors/contrast, font-scale, speech-to-text): it is specifically the *missing text alternative for non-image diagrams*.
+
+**Proposed fix / improvement:**
+- [ ] Let authors attach a caption/description to a diagram fence (e.g. an info-string after the language: ` ```topology Caption text `), rendered as the block's `aria-label` with `role="img"`.
+- [ ] Where no caption is given, at minimum wrap the diagram in `role="img"` with a generic label ("ASCII diagram") so it is announced as a single unit rather than read glyph-by-glyph.
+- [ ] Document the caption convention in the authoring notes / TomeEditor help.
+
+**Related files:** `src/components/RichContent.jsx`, `src/services/richContent.js`, `src/features/library/TomeEditor.jsx`
+
+**Related entries:** SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md [2026-06-28] "User-facing text-size / reading-comfort settings" and [2026-06-29] "Windows High Contrast / forced-colors support" (sibling a11y items; those are visual contrast/scale, this is a non-visual text alternative).
+
+---
+
 ### [2026-06-29] Cross-tome "comprehensive" mixed practice exam (draw from multiple tomes / all weak domains at once)
 
 - **Category:** future-idea
