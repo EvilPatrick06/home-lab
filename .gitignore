@@ -110,6 +110,7 @@ bmo/pi/data/recent_chat.json
 bmo/pi/data/settings.json
 bmo/pi/data/dm_session_state.json
 bmo/pi/data/recent_chat.seeded-backup-*.json
+bmo/pi/data/*.orphan-bak-*
 bmo/pi/data/voice_canary_status.json
 bmo/pi/data/vtt_sync_outbox.jsonl
 bmo/pi/data/dnd_sessions/
