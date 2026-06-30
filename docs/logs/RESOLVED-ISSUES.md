@@ -14,6 +14,32 @@ How to triage: [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md)
 
 > Resolved cross-cutting / `Domain: both` entries moved out of `ISSUES-LOG.md` + `SUGGESTIONS-LOG.md`. Newest first.
 
+### [2026-06-29] dnd-web-deploy shipped to the Pi with no test/lint/typecheck gate (could rsync test-failing code live)
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-06-29
+- **Resolution:** Added an inline CI gate to `.github/workflows/dnd-web-deploy.yml`: the `deploy` job now runs `npm run lint`, `npx tsc --noEmit -p tsconfig.web.json`, `npx tsc --noEmit -p tsconfig.node.json`, and `npm test` (in `dnd-app`) BEFORE `npm run build:web` and the rsync to `/home/patrick/web-apps/DungeonTableOnline`. So a commit that compiles yet fails lint / typecheck / vitest now fails the deploy job before anything reaches the Pi-served web SPA. Chose the inline-gate approach (option b in the original entry, mirroring `dungeon-scholar-deploy.yml`) over re-triggering via `workflow_run` on a green "dnd-app CI" run (option a, mirroring `bmo-deploy.yml`): the inline gate is self-contained, leaves the existing push-on-master trigger model untouched, and is verifiable here with cheap checks (YAML parse + check-ci-hygiene all-pass; actionlint not installed in this env). The duplicate compute vs. the concurrent dnd-app-ci run is acceptable — the deploy job is dormant-by-design without the TS_OAUTH secrets and only runs on master. Restores the repo-wide "live deploys are gated on green CI" convention so all three app deploys (bmo via workflow_run, dungeon-scholar inline, dnd-web inline) now gate on tests.
+- **Branch:** auto/overall-resolver
+
+- **Category:** config, bug
+- **Severity:** medium
+- **Domain:** both
+- **Discovered by:** overall-errors
+- **During:** cross-cutting CI/deploy scan of `.github/workflows/`
+
+**Description:**
+The three app-deploy workflows gate on test results inconsistently. `bmo-deploy.yml` is health-gated: it triggers via `workflow_run` on a *successful* "bmo / pi pytest" run, so a red test suite blocks the deploy. `dungeon-scholar-deploy.yml` runs `npm run test` inline (step at line 33) *before* `npm run build` + Pages upload, so a failing test fails the deploy. `dnd-web-deploy.yml` does **neither** — its only steps are checkout, `setup-node-project`, `npm run build:web`, the Tailscale join, and the rsync to `/home/patrick/web-apps/DungeonTableOnline`. It triggers directly on every `push` to `master` touching `dnd-app/**` and runs *concurrently with* `dnd-app-ci.yml` (the real gate) rather than waiting for it. So a commit that compiles but fails lint / typecheck / vitest is still rsynced live to the Pi-served web SPA (`https://bmo.mybmoai.work/DungeonTableOnline/`). dnd-app is the only one of the three apps whose live deploy can ship test-failing code. Low blast radius today (app in testing, no real users), but it is a real gap in the repo-wide "deploys are gated on green CI" convention.
+
+**Expected behavior:** dnd-web-deploy should only deploy a commit whose dnd-app CI is green — e.g. trigger via `workflow_run` on a successful "dnd-app CI" run (mirroring bmo-deploy), or add the test/typecheck steps inline before the rsync (mirroring dungeon-scholar-deploy).
+
+**Hypothesis / root cause:** dnd-web-deploy was written as a pure build-and-rsync job; the test-gate convention was added to bmo-deploy (workflow_run) and dungeon-scholar-deploy (inline `npm run test`) but never back-filled onto dnd-web-deploy. Verified by reading all three workflow files; the absence of any test/lint/typecheck/tsc/vitest step in dnd-web-deploy is confirmed (grep returned none).
+
+**Proposed fix / improvement:**
+- [ ] Gate dnd-web-deploy on a green "dnd-app CI" run (`workflow_run` trigger like bmo-deploy) OR add `npm test` + the two `tsc --noEmit` typechecks before `build:web`.
+- [ ] Once chosen, document the deploy-gating convention alongside the bmo-deploy/dungeon-scholar-deploy patterns so the three stay consistent.
+
+**Related files:** `.github/workflows/dnd-web-deploy.yml`, `.github/workflows/bmo-deploy.yml`, `.github/workflows/dungeon-scholar-deploy.yml`, `.github/workflows/dnd-app-ci.yml`
+
 ### [2026-06-29] Deferred CI hardening guards implemented (node-pin, action SHA-pin, docs-index parity, superpowers orphan, permissions)
 
 - **Resolved by:** overall-resolver (automated)
