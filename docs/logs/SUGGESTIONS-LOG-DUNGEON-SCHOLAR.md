@@ -150,6 +150,71 @@ The app is an installable offline PWA and can export the player save as JSON, bu
 
 # Low-severity polish / info
 
+### [2026-06-29] Root README "Project structure" diagram omits the `components/dungeon/` crawler subsystem (and `utils/`, `services/locales/`, `sw.js`)
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** scheduled cleanup/structure scan of dungeon-scholar/
+
+**Description:**
+The `## Project structure` tree in `dungeon-scholar/README.md` lists `components/` and `components/ui/` but never mentions `components/dungeon/` — which is the single largest subsystem in the codebase (`DungeonExplore.jsx` 2739 lines, `tileRenderer.js` 1576, plus `dungeonLogic.js`, `useDungeonState.js`, `useDungeonInput.js`, `dungeonMap` content). The diagram also omits `src/utils/`, `src/services/locales/` (the en/es i18n bundles), and `src/sw.js` (the service worker, which is central to the PWA offline story the README itself emphasizes). A newcomer reading the structure map gets no pointer to the dungeon-crawler rendering/logic layer, the place most likely to confuse. This is distinct from the already-logged "inconsistent README coverage across src/ subdirectories" item, which is about missing per-directory `README.md` files, not the accuracy/completeness of the root README structure diagram.
+
+**Proposed fix / improvement:**
+- [ ] Add a `components/dungeon/` line to the structure diagram with a one-line description (canvas crawler render loop + input/state hooks + map data).
+- [ ] Add `utils/`, `services/locales/`, and `sw.js` lines (or fold locales under the `services/` line and call out `sw.js` next to `main.jsx`).
+- [ ] Keep it in sync going forward, or add a tiny test/lint that flags top-level `src/` dirs absent from the README block.
+
+**Related files:** `dungeon-scholar/README.md`, `src/components/dungeon/`, `src/utils/`, `src/services/locales/`, `src/sw.js`
+
+**Related entries:** [2026-06-28] Inconsistent README coverage across `src/` subdirectories
+
+---
+
+### [2026-06-29] `tsconfig.json` excludes ALL test files (and `src/sw.js`) from the `checkJs` typecheck, leaving a large type-coverage gap
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** scheduled cleanup/structure scan of dungeon-scholar/
+
+**Description:**
+`tsconfig.json` enables `allowJs` + `checkJs` (JSDoc-based type checking over the JS/JSX source) and `npm run typecheck` runs `tsc --noEmit`, but the `exclude` block lists `**/*.test.js`, `**/*.test.jsx`, and `src/sw.js`. Test files are a very large fraction of this tree (roughly one `.test.*` per module across `src/`), and they exercise the real public API of the app modules — so a breaking signature/shape change in app code that a test would surface is invisible to `tsc`, even though the test files themselves are never type-checked. `src/sw.js` (the service worker, a non-trivial PWA-critical module) is likewise outside the typecheck net.
+
+**Hypothesis / root cause:** Likely a deliberate choice to keep `tsc` fast and green and avoid typing the Vitest/happy-dom test surface, and to skip `sw.js` because it runs in a Worker global scope that tsc's default DOM lib does not model. Flagging as speculation — the exclusion may be intentional, but it is undocumented, so future contributors can mistake "typecheck passed" for "the tests type-check too."
+
+**Proposed fix / improvement:**
+- [ ] If intentional, add a short comment in `tsconfig.json` (or a line in DESIGN-CONSTRAINTS) explaining why tests and `sw.js` are excluded, so the coverage gap is a documented decision rather than a silent one.
+- [ ] If not, consider a second `tsconfig.test.json` (or a `checkJs` pass that includes tests with `@testing-library`/`vitest` types) so test files get at least loose type-checking; and add `WebWorker` lib coverage for `sw.js`.
+
+**Related files:** `dungeon-scholar/tsconfig.json`, `src/sw.js`
+
+---
+
+### [2026-06-29] Module-less convention-guard tests (`src/theme.test.js`, `src/components/lucide-a11y.test.jsx`) break the co-location convention and are hard to find
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** scheduled cleanup/structure scan of dungeon-scholar/
+
+**Description:**
+Almost every test in the tree sits next to the module it covers (`srs.js` + `srs.test.js`, etc.). Two tests have no module-under-test and instead statically scan the whole codebase as cross-cutting guards: `src/theme.test.js` (reads `index.css` and greps JSX for Tailwind color utilities to assert the light-theme ramp overrides exist) and `src/components/lucide-a11y.test.jsx` (an a11y convention check over lucide icon usage). Because they are named like ordinary co-located unit tests but have no sibling source file, they read as orphans (they surfaced in a "test with no matching module" scan) and their cross-cutting, repo-guard nature is non-obvious. There is no single place a contributor can look to see "what global conventions are enforced by tests."
+
+**Proposed fix / improvement:**
+- [ ] Adopt a distinguishing convention for codebase-wide guard tests — e.g. a `*.guard.test.js` suffix and/or a dedicated `src/__guards__/` (or `src/conventions/`) directory — and relocate `theme.test.js` and `lucide-a11y.test.jsx` there.
+- [ ] Add a one-paragraph note (in `src/components/README.md` or a new `docs/` testing-conventions doc) listing the active guard tests and what each enforces, so the theme-ramp and icon-a11y guarantees are discoverable.
+
+**Related files:** `src/theme.test.js`, `src/components/lucide-a11y.test.jsx`, `src/components/README.md`
+
+**Related entries:** [2026-06-28] Test-file extension convention is inconsistent (`.test.js` testing a `.jsx` component)
+
+---
+
+
 ### [2026-06-29] `dungeonMap.js`'s entire unit suite is misfiled as `components/dungeon/DungeonExplore.test.js` (wrong name, wrong directory)
 
 - **Category:** debt
