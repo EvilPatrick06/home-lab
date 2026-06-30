@@ -1,15 +1,21 @@
 // Phase 26h: forgetting-curve aggregation.
 //
-// Uses the same retrievability formula as the SRS scheduler
-// (R = (1 + elapsed_days / (9 × stability))^-1) but projects it
-// forward across a window of future days so the Domain Codex can plot
-// "what will my retention look like a week from now if I skip reviews?"
+// Projects the SRS scheduler's retrievability forward across a window of
+// future days so the Domain Codex can plot "what will my retention look
+// like a week from now if I skip reviews?". The curve is the FSRS-5
+// power-law R = (1 + FACTOR * elapsed_days / stability)^DECAY, with
+// DECAY/FACTOR imported from srs.js (single source of truth) so this
+// forecast matches the scheduler that actually sets due dates at EVERY
+// horizon -- not only at elapsed = stability, where the old legacy curve
+// happened to agree before diverging by up to ~11pp further out.
 //
 // Cards without SRS state (never rated) are EXCLUDED from the average
 // — they're "new" and haven't entered the decay curve yet. Reporting
 // them as 100% would mask actual decay; reporting them as 0% would
 // over-pessimize. Excluding them is honest about what the forecast
 // covers and lets the UI show coverage as "N of M scrolls rated".
+
+import { DECAY, FACTOR } from './srs.js';
 
 const DAY_MS = 86400000;
 
@@ -29,7 +35,9 @@ function isUsableState(s) {
 export function retrievabilityAt(state, atTime) {
   if (!isUsableState(state)) return null;
   const elapsedDays = Math.max(0, (atTime - state.lastReview) / DAY_MS);
-  return (1 + elapsedDays / (9 * state.stability)) ** -1;
+  // FSRS-5 power-law retrievability -- identical to srs.js `retrievability`
+  // so the Domain Codex forecast and the scheduler agree at every horizon.
+  return (1 + FACTOR * (elapsedDays / state.stability)) ** DECAY;
 }
 
 export function computeAverageRetrievability(stateList, atTime) {

@@ -42,6 +42,15 @@ describe('retrievabilityAt', () => {
     expect(r).toBeCloseTo(0.9, 1);
   });
 
+  it('matches the FSRS-5 power-law at long horizons (not the legacy curve)', () => {
+    const now = 1_000_000_000_000;
+    const state = card(5, 0, now);
+    // elapsed = 10x stability: FSRS-5 ≈ 0.547 (legacy 1/(1+t/9S) gives ≈ 0.474)
+    expect(retrievabilityAt(state, now + 50 * DAY)).toBeCloseTo(0.547, 2);
+    // elapsed = 20x stability: FSRS-5 ≈ 0.419 (legacy gives ≈ 0.310)
+    expect(retrievabilityAt(state, now + 100 * DAY)).toBeCloseTo(0.419, 2);
+  });
+
   it('returns null for missing / malformed / unusable state', () => {
     expect(retrievabilityAt(null, 0)).toBeNull();
     expect(retrievabilityAt(undefined, 0)).toBeNull();
@@ -70,7 +79,7 @@ describe('computeAverageRetrievability', () => {
   it('averages retrievability across rated cards', () => {
     const now = 1_000_000_000_000;
     const fresh = card(10, 0, now); // R ≈ 1
-    const stale = card(5, 10, now); // elapsed > stability, R ≈ 0.69
+    const stale = card(5, 10, now); // elapsed = 2x stability, FSRS-5 R ≈ 0.825
     const out = computeAverageRetrievability([fresh, stale], now);
     expect(out.sampleSize).toBe(2);
     expect(out.mean).toBeGreaterThan(0.7);
@@ -80,10 +89,9 @@ describe('computeAverageRetrievability', () => {
   it('accepts an arbitrary atTime in the future', () => {
     const now = 1_000_000_000_000;
     const state = card(5, 0, now);
-    // At elapsed=20d, stability=5: R = 1 / (1 + 20/45) ≈ 0.692
+    // At elapsed=20d, stability=5 (4x S): FSRS-5 R = (1 + FACTOR*4)^DECAY ≈ 0.718
     const future = computeAverageRetrievability([state], now + 20 * DAY);
-    expect(future.mean).toBeLessThan(0.75);
-    expect(future.mean).toBeGreaterThan(0.6);
+    expect(future.mean).toBeCloseTo(0.718, 2);
   });
 });
 
