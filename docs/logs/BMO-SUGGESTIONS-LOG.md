@@ -20,6 +20,56 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+
+### [2026-06-29] Speaker identity is resolved every voice turn but dropped before the agent layer — `run_agent`/`agent.run` never receive `speaker`, so memory/lists/learning/personality stay single-user despite BMO already knowing who is talking
+
+- **Category:** future-idea (capability / UX)
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of the voice pipeline → orchestrator → agent dispatch path and the per-user state held by the memory/list/learning agents
+
+**Description:**
+Every voice turn already pays for speaker identification: `VoicePipeline.identify_speaker()` runs at `services/voice/voice_pipeline.py:436` (its own recorded latency stage, `_record_stage("identify_speaker", …)`), the result gates unregistered speakers (`if speaker == "unknown" and profiles: …ignore`), and the `speaker` string is threaded into the chat callbacks (`_chat_stream_callback(text, speaker)` / `_chat_callback(text, speaker)`) and on into `Orchestrator.handle(message, speaker, history, services, …)` (`agents/orchestrator.py:85`). **But the orchestrator uses `speaker` only for telemetry/UX emits** — the `agent_selected` SocketIO event and the plan-mode passthrough — and then calls `run_agent(agent_name, clean_message, history=history)` **without it**. `run_agent` / `agent.run(message, history, context)` have no `speaker`/`user` parameter, and `context` is `None` on the normal path, so the identified speaker is **discarded before any agent runs**. The downstream agents are correspondingly single-user: `agents/learning_agent.py` persists one global `profile` + `entries` blob (`get_profile()` returns `self._memory.get("profile", {})`, not a per-speaker map), and lists / memory / calendar / personality are likewise global. Net: the system spends inference resolving *who* is speaking, supports *multiple* enrolled voice profiles (`data/voice_profiles.json`, `services/voice/speaker_enrollment.py`), then throws that identity away — so "remember that I like X", "add eggs to my list", or a personalized greeting from any household member all read and write the same shared store, and BMO can never answer "what's on **my** calendar" differently per person even though it knows the speaker.
+
+**Hypothesis / root cause:** speaker-ID was built for the *gate* use case (ignore strangers / label the transcript line) first; threading it through the agent execution context and re-keying the per-user stores (learning/memory/lists) is a larger, separate piece of work that was never done, so `speaker` stops at the orchestrator boundary.
+
+**Proposed fix / improvement:**
+- [ ] Add an optional `speaker`/`user` field to the agent call path — either widen `run_agent(..., context=...)` to always pass `{"speaker": speaker}` from `Orchestrator.handle`, or add a first-class param — so agents can opt into per-user behavior without changing the router.
+- [ ] Re-key the genuinely user-scoped stores by speaker: `learning_agent` profile/entries, `list_service` lists, and the personalization the personality engine could use (e.g. per-user greeting), with a clear default/fallback bucket for `"unknown"` / single-user setups so nothing regresses when only one profile exists.
+- [ ] Keep it behavior-neutral by default (one enrolled profile → identical behavior to today) and gate the multi-user paths on `len(profiles) > 1`, so the feature only activates in actual multi-person households.
+- [ ] Add tests: speaker A's "remember X" must not surface for speaker B; unknown speaker falls back to the shared bucket.
+
+**Blocked by:** none (additive; the identity value is already computed and already reaches the orchestrator).
+
+**Related files:** `bmo/pi/services/voice/voice_pipeline.py:436` (`identify_speaker`), `:1448` (definition), `bmo/pi/agents/orchestrator.py:85` (`handle` — receives `speaker`), `:124` (`run_agent` — does not), `bmo/pi/agents/learning_agent.py` (global `profile`/`entries`), `bmo/pi/services/list_service.py`, `bmo/pi/services/voice/speaker_enrollment.py`, `bmo/pi/data/voice_profiles.json`.
+
+**Related entries:** Future-idea 2026-06-28 (agent-registration observability) is adjacent in that both concern the orchestrator/agent layer, but this is the un-flagged *speaker-context-not-propagated* gap, not a registration/observability one.
+
+### [2026-06-29] Tier-2 keyword router has example-assertion tests but no measured accuracy / confusion-matrix eval, so a newly-added keyword can silently steal routes among the ~28 agents' hand-maintained substring lists
+
+- **Category:** future-idea (DX / observability), UX
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of `agents/router.py` Tier-2 keyword scoring and its test coverage in `tests/agents/test_0_routing_accuracy.py`
+
+**Description:**
+The Tier-2 keyword router (`agents/router._check_keywords`) scores each agent by raw substring hit count (`count = sum(1 for kw in keywords if kw in lower)`) and returns `max(scores, key=scores.get)`. The `KEYWORD_PATTERNS` map is ~28 agents' worth of hand-maintained substrings, several of them very generic — e.g. `lore` owns `"who is"`, `"what is a"`, `"history of"`; `rules` owns `"how does"`, `"can i"`, `"does this work"`. These collide easily with each other and with `conversation`, and ties are resolved by `max()` returning the **first** key in `KEYWORD_PATTERNS` insertion order (today `code` wins ties) — a determinism-by-declaration-order the existing tests explicitly tolerate (`test_0_routing_accuracy.py:123,146`: "either agent is a valid result"). Coverage is solid for the *cases someone thought to assert*, but it is pass/fail example assertions — **there is no aggregate accuracy number, no per-agent confusion matrix, and no labeled corpus**. So when someone adds a keyword to agent X that happens to be a substring of utterances meant for agent Y, nothing fails unless an assertion already pinned that exact X/Y pair. Per-tier *counters* exist (`bmo_router_tier_keyword_total`, etc., added in the resolved 2026-06-23 telemetry work) but they count *which tier fired*, not *whether the chosen agent was correct* — so misroutes, the single biggest voice-UX failure mode, remain unmeasured. The file name `test_0_routing_accuracy.py` promises an accuracy measurement the file does not actually compute.
+
+**Hypothesis / root cause:** the router grew agent-by-agent with each new agent appending its own keyword list; tests were added per agent as examples rather than as a corpus-driven accuracy gate, and the telemetry pass added tier counters but not an outcome/correctness signal.
+
+**Proposed fix / improvement:**
+- [ ] Convert the scattered example assertions into a single labeled corpus (`utterance → expected_agent`, dozens per agent incl. known-tricky generic phrases) and compute an **accuracy %** + a **confusion matrix** in the test, failing on a regression threshold and printing the top confused agent pairs — turning the existing telemetry/board metric into a measured DX gate.
+- [ ] Use the confusion output to find and tighten the genuinely collision-prone generic keywords (`"who is"`, `"what is a"`, `"how does"`, `"can i"`), e.g. require a longer/multi-word anchor or a minimum score margin before Tier-2 commits (fall through to default/Tier-3 on a weak single-keyword tie).
+- [ ] Optional closed loop: now that per-tier counters exist, periodically sample real (anonymized) routed utterances + chosen agent into the corpus so the eval reflects production phrasing, not just hand-written examples.
+
+**Blocked by:** none.
+
+**Related files:** `bmo/pi/agents/router.py` (`_check_keywords`, `KEYWORD_PATTERNS`, `route`), `bmo/pi/tests/agents/test_0_routing_accuracy.py`, `bmo/pi/services/metrics_counters.py`.
+
+**Related entries:** Resolved 2026-06-23 (router per-tier telemetry + Tier-3 re-enable) — that added *tier* counters; this is the un-addressed *routing-correctness* measurement gap on top of it.
+
 ### [2026-06-29] `app.py` is a 3,087-line half-decomposed Flask god-module — PHASE-16 extracted 7 blueprints but ~20 domains + 145 inline routes still live in it, with no tracking of what remains
 
 - **Category:** future-idea (structure / DX), debt
