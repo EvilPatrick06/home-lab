@@ -189,4 +189,85 @@ The repo-root `.husky/pre-commit` gives every subproject a fast local pre-flight
 
 **Related entries:** `ISSUES-LOG.md` -> [2026-06-28] dnd-e2e convention-drift (an actionlint gate is recurrence insurance for that class); `RESOLVED-ISSUES.md` -> composite-action entry ("validated with actionlint" — manual, not a standing gate).
 
+### [2026-06-29] Repo-root `scripts/` has no README — the only shared-tooling dir without an index, while bmo/pi/scripts and dnd-app/scripts both already have one logged
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+- **During:** cross-cutting scan of repo-root shared tooling and directory-level documentation.
+
+**Description:**
+The repo-root `scripts/` directory holds cross-cutting tooling that is wired into CI and the husky hooks — `check-agent-instructions.sh` (run by `agent-docs-check.yml`), `check-ci-hygiene.sh` (run by `ci-hygiene.yml`), and `claude-tools/watchdog.sh` — but has **no `scripts/README.md`**. Nothing tells a contributor or scanning agent what each script does, where it runs (CI vs. local hook vs. agent/cron), or which are safe to invoke by hand. This is the repo-root instance of a recurring missing-index pattern already logged for two *other* script dirs: `BMO-SUGGESTIONS-LOG.md` [2026-06-28] (`bmo/pi/scripts/` has no README) and `SUGGESTIONS-LOG-DNDAPP.md` [2026-06-28] (`dnd-app/scripts/` has ~40 scripts, no README). With three script dirs now flagged for the same gap, the cross-cutting fix is to adopt one convention — a one-line-per-script index README in every `scripts/` dir (root + per-project) — rather than three independent one-offs. The root dir is the smallest (3 files) so it is the cheapest place to set the pattern.
+
+**Hypothesis / root cause:** the root `scripts/` dir accreted CI guard scripts one at a time as workflows were added; no index pass was ever done, mirroring the per-project script dirs.
+
+**Proposed fix / improvement:**
+- [ ] Add `scripts/README.md`: one line per script (`check-agent-instructions.sh`, `check-ci-hygiene.sh`, `claude-tools/watchdog.sh`) with purpose + where-it-runs (CI workflow name / hook / cron).
+- [ ] Capture the "every `scripts/` dir carries a one-line index README" convention once (e.g. in `docs/CONTRIBUTING.md`) so the root + per-project entries can all close against a single standard.
+
+**Related files:** `scripts/`, `scripts/check-agent-instructions.sh`, `scripts/check-ci-hygiene.sh`, `scripts/claude-tools/watchdog.sh`, `docs/CONTRIBUTING.md`
+
+**Related entries:** `BMO-SUGGESTIONS-LOG.md` -> [2026-06-28] `pi/scripts/` has no README; `SUGGESTIONS-LOG-DNDAPP.md` -> [2026-06-28] `scripts/` has no README / [2026-06-?] `dnd-app/docs/` has no index (same missing-index pattern across sibling dirs).
+
+### [2026-06-29] Build/tooling config file-extension convention diverges across the two Vite projects: dnd-app uses `.ts`, dungeon-scholar uses `.js`
+
+- **Category:** config, debt
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+- **During:** cross-cutting scan of build/test tooling-config conventions across the JS/TS projects.
+
+**Description:**
+The two Vite-based projects write their build/test config files in different languages. `dnd-app` authors every tooling config in TypeScript — `electron.vite.config.ts`, `vite.web.config.ts`, `vite.embed.config.ts`, `vitest.config.ts`, `playwright.config.ts`. `dungeon-scholar` authors the equivalents in plain JavaScript — `vite.config.js`, `postcss.config.js`. Both are TS projects (each ships a `tsconfig.json` and `biome.json`), so there is no inherent reason the config layer differs; it is unguided drift from two separate Vite scaffolds. The practical cost is small but real: a contributor moving between the two projects has to context-switch on config language, `.js` configs get no type-checking of Vite/Plugin options, and there is no documented repo-wide answer to "what extension do tooling configs use here?" (Note: dungeon-scholar's own tsconfig is the looser `checkJs`/JS-leaning posture per the open `tsconfig.base.json` entry, so `.js` configs are *somewhat* consistent with its stance — logged as a convention observation to standardize, not a defect.)
+
+**Hypothesis / root cause:** each project was bootstrapped from its own Vite template (TS template for dnd-app, JS template for dungeon-scholar) and the config-file language was never reconciled when the repo standardized lint/format/script vocabulary.
+
+**Proposed fix / improvement:**
+- [ ] Decide one repo-wide convention for tooling configs (TS is the stronger default — typed plugin options, matches the flagship project) and record it in `docs/CONTRIBUTING.md` alongside the script vocabulary.
+- [ ] If TS is chosen, migrate `dungeon-scholar/vite.config.js` (and `postcss.config.js` where practical) to `.ts`; if JS is deliberately kept for dungeon-scholar, document why so it doesn't read as drift.
+
+**Related files:** `dnd-app/vite.web.config.ts`, `dnd-app/vitest.config.ts`, `dnd-app/electron.vite.config.ts`, `dungeon-scholar/vite.config.js`, `dungeon-scholar/postcss.config.js`, `docs/CONTRIBUTING.md`
+
+**Related entries:** `SUGGESTIONS-LOG.md` -> [2026-06-29] No shared `tsconfig.base.json` (same "per-project tooling configured in isolation, no repo-wide floor" theme).
+
+### [2026-06-29] `docs/README.md` index mislabels `CHANGELOG.md` as "Release history" and omits the living-changelog + per-project CHANGELOG convention
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+- **During:** cross-cutting scan of `docs/` organization and the docs index.
+
+**Description:**
+`docs/CHANGELOG.md` states up front that it is the **frozen archive of releases ≤ v2.1.16** and that "the living changelog is the GitHub Releases page" (written by `cut.mjs --notes-file` at cut time) — a convention also codified in `AUTOMATED-AGENT-GIT-WORKFLOW.md` Rule 3D. But the `docs/README.md` index row labels it simply `CHANGELOG.md | Release history`, which reads as *the* current changelog and points a reader at a file that is intentionally no longer extended. The index also never surfaces (a) that current release notes live on GitHub Releases, nor (b) that `dnd-app/` and `dungeon-scholar/` each keep their own per-project `CHANGELOG.md`. So the one place that catalogs repo docs gives an out-of-date mental model of where release history actually lives. (The index is otherwise complete and current — all 15 non-log docs are listed — so this is a labeling/accuracy fix, not a missing-entry fix.)
+
+**Hypothesis / root cause:** the index row predates the v2.1.16 freeze + "GitHub Releases is the living changelog" switchover and was never updated when `docs/CHANGELOG.md` became an archive.
+
+**Proposed fix / improvement:**
+- [ ] Reword the index row, e.g. `CHANGELOG.md | Frozen release archive (<= v2.1.16); current notes live on the GitHub Releases page`.
+- [ ] Add a one-line note that `dnd-app/` and `dungeon-scholar/` carry their own per-project CHANGELOGs, so the index reflects the real changelog layout.
+
+**Related files:** `docs/README.md`, `docs/CHANGELOG.md`, `dnd-app/CHANGELOG.md`, `dungeon-scholar/CHANGELOG.md`, `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`
+
+### [2026-06-29] Five byte-identical `LICENSE` files (root + each package) with no single source or drift guard
+
+- **Category:** debt, docs
+- **Severity:** info
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+- **During:** cross-cutting scan of duplicated top-level files across the repo.
+
+**Description:**
+The repo carries five `LICENSE` files — `LICENSE`, `bmo/LICENSE`, `dnd-app/LICENSE`, `dungeon-scholar/LICENSE`, `oracle-worker/LICENSE` — all byte-identical (md5 `664425a071832fc9381f1869505731d8`, ISC). Per-package LICENSE copies are a *legitimate, conventional* practice for independently-publishable/cloneable packages (each of the four areas is described in the root README as standing on its own), so this is logged as an observation to confirm intent rather than a defect. The only real cost is the duplication has no single source and no guard: if the license/holder ever changes, all five must be edited in lockstep, and nothing (no `check-*` script) asserts they stay identical — so a partial edit could leave the repo licensed inconsistently across packages without any signal.
+
+**Hypothesis / root cause:** each package was scaffolded with its own LICENSE; the root LICENSE was added for the monorepo. All happen to be the same ISC text today, kept in sync only by hand.
+
+**Proposed fix / improvement:**
+- [ ] Confirm the per-package LICENSE copies are intended (keep them — standard for publishable packages).
+- [ ] If kept, add a tiny guard (a line in `scripts/check-ci-hygiene.sh`, or a step in `ci-hygiene.yml`) asserting all `*/LICENSE` files match the root `LICENSE` byte-for-byte, so they cannot silently diverge.
+
+**Related files:** `LICENSE`, `bmo/LICENSE`, `dnd-app/LICENSE`, `dungeon-scholar/LICENSE`, `oracle-worker/LICENSE`, `scripts/check-ci-hygiene.sh`
+
+
 > **`Domain: both` routing** (see `LOG-INSTRUCTIONS.md`): whole-repo / structural / convention items (`Domain: both`) live **here** — one home, fix once, remove once. Items that affect several *specific* projects (not repo-wide structure) are **mirrored** into the per-domain suggestions logs instead.
