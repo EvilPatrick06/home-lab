@@ -98,6 +98,32 @@ So the Domain Codex "what will my retention look like in N days if I skip review
 
 ## Low
 
+### [2026-06-29] Source comments point to a non-existent `.github/workflows/deploy.yml` (workflow is `dungeon-scholar-deploy.yml`)
+
+- **Category:** docs, config
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error/problem scan of the dungeon-scholar tree
+
+**Description:**
+Three dungeon-scholar source files document the GitHub-Pages deploy by referring to a workflow file named `deploy.yml`, but no such workflow exists. The actual Pages deploy workflow is `.github/workflows/dungeon-scholar-deploy.yml` (confirmed: the only deploy workflows present are `dungeon-scholar-deploy.yml`, `bmo-deploy.yml`, `dnd-web-deploy.yml`, `oracle-worker-deploy.yml` — there is no bare `deploy.yml`). A reader who follows the comment and greps `.github/workflows/deploy.yml` finds nothing. The README, `docs/`, and `docs/phases/INSTRUCTIONS.md` already use the correct `dungeon-scholar-deploy.yml` name, so only these in-code comments are drifted.
+
+Offending references:
+- `dungeon-scholar/vite.config.js:10` — `// .github/workflows/deploy.yml. Forks should either rename their repo to`
+- `dungeon-scholar/src/services/supabase.js:74` — `'Fix: set VITE_BASE (deploy.yml / .env.local) or vite.config.js base to "/<repo-name>/", ' +` (this string is shown to users in the base-mismatch console warning, so the wrong filename is user-visible, not just an internal comment)
+- `dungeon-scholar/src/utils/lazyWithReload.js:4` — `// content-hashed chunk. When deploy.yml republishes mid-session the already`
+
+**Expected behavior:** Comments / the user-facing warning name the real workflow file (`dungeon-scholar-deploy.yml`), or refer to it generically ("the Pages deploy workflow") so they cannot drift again on rename.
+
+**Hypothesis / root cause:** The Pages workflow was renamed from a generic `deploy.yml` to the domain-scoped `dungeon-scholar-deploy.yml` (the monorepo hosts several deploy workflows); the docs/README were updated but these three inline references were missed. Not speculative — verified by `ls .github/workflows/` (no `deploy.yml`) against the three grep hits above.
+
+**Proposed fix / improvement:**
+- [ ] Replace `deploy.yml` with `dungeon-scholar-deploy.yml` in the three locations above (or use a rename-proof generic phrasing).
+- [ ] Prefer fixing the `supabase.js:74` warning string first — it is the only one that surfaces to an end user troubleshooting a broken OAuth redirect.
+
+**Related files:** `dungeon-scholar/vite.config.js`, `dungeon-scholar/src/services/supabase.js`, `dungeon-scholar/src/utils/lazyWithReload.js`, `.github/workflows/dungeon-scholar-deploy.yml`
+
 ### [2026-06-29] `auto/scholar-phase-maker` (tip `850f8404`) won't merge — competing PHASE-06 + PHASE-03 amendment vs the already-merged run
 
 - **Category:** integration / merge-conflict (duplicate work)
