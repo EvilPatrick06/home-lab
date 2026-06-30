@@ -82,7 +82,16 @@ export function useHashRoute(computeInitialScreen) {
       const parsed = parseHash(window.location.hash);
       if (parsed.screen) {
         setScreenState(parsed.screen);
-        if (parsed.tomeId) setPendingTomeId(parsed.tomeId);
+        if (parsed.tomeId) {
+          setPendingTomeId(parsed.tomeId);
+        } else {
+          // PHASE-11 F1: canonicalize a valid-but-non-canonical tome-less hash at
+          // runtime (e.g. bare '#/' -> '#/home'), matching the mount effect and the
+          // other non-canonical bounces. Hashes still carrying a tomeId are left for
+          // clearPendingTome to canonicalize after the tome switches.
+          const want = formatHash(parsed.screen);
+          if (window.location.hash !== want) window.history.replaceState(null, '', want);
+        }
       } else {
         window.history.replaceState(null, '', formatHash('home'));
         setScreenState('home');

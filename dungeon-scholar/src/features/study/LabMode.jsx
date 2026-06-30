@@ -431,7 +431,7 @@ function LabMode({
               <button
                 onClick={skipStep}
                 className="px-3 py-1.5 rounded-sm text-xs border-2 border-red-800 text-red-300 hover:bg-red-900/30 italic flex items-center gap-1"
-                style={{ background: 'rgba(41, 12, 12, 0.6)' }}
+                style={{ background: 'rgba(var(--surface-red, 41, 12, 12), 0.6)' }}
                 title="Skip this stage — counts as failed, abandons the trial"
               >
                 <ChevronRight className="w-3 h-3" /> Skip Stage

@@ -414,6 +414,7 @@ function QuizMode({
 
   return (
     <div className="space-y-4 max-w-3xl mx-auto">
+      <h2 className="sr-only">Quiz</h2>
       {domainFilter && <FilteredModeBanner domainFilter={domainFilter} onExitFilter={onExitFilter} accent="purple" />}
       <div className="flex justify-between items-center text-sm text-amber-600 italic flex-wrap gap-2">
         <span className="flex items-center gap-2 flex-wrap">
@@ -865,7 +866,7 @@ function QuizMode({
             <button
               onClick={handleSkip}
               className="px-3 py-1.5 rounded-sm text-xs border-2 border-red-800 text-red-300 hover:bg-red-900/30 italic flex items-center gap-1"
-              style={{ background: 'rgba(41, 12, 12, 0.6)' }}
+              style={{ background: 'rgba(var(--surface-red, 41, 12, 12), 0.6)' }}
               title="Skip — counts as wrong, breaks streak"
             >
               <ChevronRight className="w-3 h-3" /> Skip Riddle

@@ -90,7 +90,7 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
               style={{ filter: 'drop-shadow(0 0 4px rgba(245, 158, 11, 0.6))' }}
             />
             <span className="text-amber-200 font-bold italic text-lg tabular-nums">{playerState.gold || 0}</span>
-            <span className="text-amber-700 italic text-xs">gold</span>
+            <span className="text-accent-muted italic text-xs">gold</span>
           </div>
         </div>
       </div>
@@ -121,7 +121,7 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
       <p className="text-amber-100/70 italic text-sm">{currentCat.blurb}</p>
 
       {currentStock.length === 0 ? (
-        <div className="text-center py-12 text-amber-700 italic">The shelves are bare in this hall today.</div>
+        <div className="text-center py-12 text-accent-muted italic">The shelves are bare in this hall today.</div>
       ) : (
         <div className="grid md:grid-cols-2 gap-4">
           {currentStock.map((item) => {
@@ -169,17 +169,17 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
                   boxShadow: 'inset 0 0 20px rgba(0,0,0,0.5)',
                 }}
               >
-                <div className="absolute top-1 left-1 text-amber-700/60 text-xs">⚜</div>
-                <div className="absolute top-1 right-1 text-amber-700/60 text-xs">⚜</div>
-                <div className="absolute bottom-1 left-1 text-amber-700/60 text-xs">⚜</div>
-                <div className="absolute bottom-1 right-1 text-amber-700/60 text-xs">⚜</div>
+                <div className="absolute top-1 left-1 text-accent-muted-60 text-xs">⚜</div>
+                <div className="absolute top-1 right-1 text-accent-muted-60 text-xs">⚜</div>
+                <div className="absolute bottom-1 left-1 text-accent-muted-60 text-xs">⚜</div>
+                <div className="absolute bottom-1 right-1 text-accent-muted-60 text-xs">⚜</div>
 
                 <div className="flex items-start gap-3 mb-3">
                   <div className="text-3xl shrink-0">{item.icon}</div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline justify-between gap-2 flex-wrap">
                       <h3
-                        className={`font-bold italic text-sm ${locked ? 'text-amber-700/70' : 'text-amber-200'}`}
+                        className={`font-bold italic text-sm ${locked ? 'text-accent-muted-70' : 'text-amber-200'}`}
                         style={!locked ? { textShadow: '0 0 6px rgba(245, 158, 11, 0.3)' } : undefined}
                       >
                         {item.name}
@@ -190,7 +190,7 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
                         </span>
                       )}
                     </div>
-                    <p className={`text-xs italic mt-1 ${locked ? 'text-amber-700/50' : 'text-amber-100/70'}`}>
+                    <p className={`text-xs italic mt-1 ${locked ? 'text-accent-muted-50' : 'text-amber-100/70'}`}>
                       {item.description}
                     </p>
                   </div>
@@ -220,7 +220,7 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
                         <span className={`font-bold tabular-nums ${canAfford ? 'text-amber-300' : 'text-red-300'}`}>
                           {item.price}
                         </span>
-                        <span className="text-amber-700">gold</span>
+                        <span className="text-accent-muted">gold</span>
                       </>
                     )}
                   </div>
@@ -299,10 +299,10 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
                 className="px-4 py-3 rounded-sm border border-amber-700/60 inline-flex items-center gap-2"
                 style={{ background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)' }}
               >
-                <span className="text-xs text-amber-700 italic">Cost:</span>
+                <span className="text-xs text-accent-muted italic">Cost:</span>
                 <Coins className="w-4 h-4 text-amber-300" />
                 <span className="text-amber-200 font-bold italic tabular-nums">{pendingPurchase.price}</span>
-                <span className="text-xs text-amber-700 italic">gold</span>
+                <span className="text-xs text-accent-muted italic">gold</span>
               </div>
               <div className="text-xs text-amber-100/60 italic">
                 Thou hast <span className="text-amber-300 font-bold">{playerState.gold || 0}</span> gold.

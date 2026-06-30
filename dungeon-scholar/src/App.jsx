@@ -1752,14 +1752,14 @@ export default function DungeonScholarApp() {
                       >
                         {currentTitle} <ChevronRight className="w-4 h-4" />
                       </button>
-                      <div className="text-xs text-amber-700 tracking-wider">
+                      <div className="text-xs text-accent-muted tracking-wider">
                         ⚔ Level {playerState.level} • {playerState.totalXp.toLocaleString()} Total XP ⚔
                       </div>
                     </div>
                   </div>
                   <div className="flex-1 min-w-[200px] max-w-md">
                     <div className="flex justify-between text-xs mb-1">
-                      <span className="text-amber-700 tracking-widest">EXPERIENCE</span>
+                      <span className="text-accent-muted tracking-widest">EXPERIENCE</span>
                       <span className="text-amber-400">
                         {playerState.xp} / {xpNeeded}
                       </span>
@@ -1801,7 +1801,7 @@ export default function DungeonScholarApp() {
                       >
                         {playerState.totalCorrect}
                       </div>
-                      <div className="text-xs text-amber-700 tracking-wider">VICTORIES</div>
+                      <div className="text-xs text-accent-muted tracking-wider">VICTORIES</div>
                     </div>
                     <div
                       className="text-center"
@@ -1814,7 +1814,7 @@ export default function DungeonScholarApp() {
                       >
                         {playerState.library.reduce((sum, t) => sum + (t.progress?.runsCompleted || 0), 0)}
                       </div>
-                      <div className="text-xs text-amber-700 tracking-wider">DELVES</div>
+                      <div className="text-xs text-accent-muted tracking-wider">DELVES</div>
                     </div>
                     <div
                       className="text-center"
@@ -1827,7 +1827,7 @@ export default function DungeonScholarApp() {
                       >
                         {playerState.library.reduce((sum, t) => sum + (t.progress?.bossesDefeated || 0), 0)}
                       </div>
-                      <div className="text-xs text-amber-700 tracking-wider">DRAGONS</div>
+                      <div className="text-xs text-accent-muted tracking-wider">DRAGONS</div>
                     </div>
                   </div>
                   {user && <ProfileChip user={user} syncStatus={sync.status} onOpen={() => openModal('account')} />}
@@ -1850,7 +1850,7 @@ export default function DungeonScholarApp() {
                   <span className="text-sm font-bold italic text-amber-300">{currentTitle}</span>
                 </button>
                 <div className="flex-1 min-w-[140px] max-w-xs">
-                  <div className="flex justify-between text-[10px] text-amber-700 tracking-widest mb-0.5">
+                  <div className="flex justify-between text-[10px] text-accent-muted tracking-widest mb-0.5">
                     <span>EXPERIENCE</span>
                     <span className="text-amber-400">
                       {playerState.xp} / {xpNeeded}

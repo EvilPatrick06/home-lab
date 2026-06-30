@@ -54,9 +54,9 @@ function MistakeVault({
     return (
       <div className="text-center py-12 max-w-md mx-auto">
         <Skull className="w-20 h-20 mx-auto text-stone-600 mb-4" />
-        <h2 className="text-2xl font-bold text-amber-300 mb-2 italic">The Tome is Empty</h2>
+        <h2 className="text-2xl font-bold text-amber-300 mb-2 italic">The Vault Stands Empty</h2>
         <p className="text-amber-100/60 italic">
-          "All foes have been vanquished, brave scholar. Let new challenges find you..."
+          "No foes to redeem yet — miss a riddle in any study mode and it shall be captured here."
         </p>
         {/* 19E (L17): a way out of the dead-end ledger. */}
         <button

@@ -48,3 +48,12 @@ describe('MistakeVault "Redeemed" unlock gate (PHASE-06 06A)', () => {
     expect(p.checkAchievement).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('MistakeVault empty-vault copy (PHASE-11 F3)', () => {
+  it('describes the vault, not the tome, when a tome is loaded with no mistakes', () => {
+    const p = baseProps();
+    const { container } = render(<MistakeVault {...p} />);
+    expect(container.textContent).toContain('The Vault Stands Empty');
+    expect(container.textContent).not.toContain('The Tome is Empty');
+  });
+});

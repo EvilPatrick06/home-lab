@@ -302,3 +302,14 @@ grep -n 'await' dungeon-scholar/src/features/quests/QuestBoard.jsx
 - **Light-theme accent-text / "Begin Anew" / focus ring** (report §7) — **PHASE-10** (this round's higher-severity sibling). Not duplicated here.
 - **Info-only / QA-process items** — the prior-QA "QA Throwaway Tome" residue (banished during the run; an action item for QA *tooling*, not the app), the import-robustness reconfirmation (Phase-04 holds on both import paths), and the empty `screenshots/` folder (a CDP capture-host limitation, not an app defect) need no plan.
 - **No light-theme/contrast, auth/sync, or performance work** — those belong to PHASE-10, PHASE-02/08, and PHASE-08 respectively.
+
+## Completed (partial — F4/11D gated for approval)
+
+> 2026-06-30 on `auto/scholar-phase-executer` (layered on the prior run's PHASE-10 commit). Bug/correctness/a11y/copy sub-phases auto-implemented; the lone non-bug UX sub-phase (11D / F4) is posted to the status board (`PHASE-11D`, session-stamped) awaiting approve/deny per the auto-approve=bug / gate=non-bug-UX policy — so this plan stays in the active backlog (NOT moved to `completed/`) until 11D is decided.
+
+- **11A (F1, done)** — `src/router/useHashRoute.js`: `onHashChange` now canonicalizes a valid, tome-less hash to `formatHash(parsed.screen)` when it differs (runtime bare `#/`→`#/home`, matching mount + other bounces); `#/tome/<id>/<screen>` still left for `clearPendingTome`. `useHashRoute.test.jsx` +3 tests.
+- **11B (F2, done)** — ChatMode "⚜ MODE OF INQUIRY ⚜" `div`→`<h2>`; `sr-only` `<h2>` added to FlashcardsMode (Flashcards) and QuizMode (Quiz) main returns. Guarded by `src/features/phase11Guards.test.js`.
+- **11C (F3, done)** — `MistakeVault.jsx`: empty-vault heading/flavor reworded to describe the vault ("The Vault Stands Empty"); `!courseSet` branch untouched. `MistakeVault.test.jsx` +1 copy test.
+- **11E (F5, done)** — `QuestBoard.jsx`: verb agreement `await{totalClaimable === 1 ? 's' : ''} thy hand` ("1 reward awaits" / "N rewards await"). Guarded in phase11Guards.test.js.
+- **11D (F4, GATED — not implemented)** — preset de-dup is "a genuine UX ambiguity, not a bug" (plan's words) → gated. On approval: add a tested `presetsForPool(poolLen)` helper in `services/examSession.js` collapsing equal-`effective` presets and map `ExamMode.jsx` over it.
+- Targeted tests pass (24: router, vault, guards). CI gates test+build on push.

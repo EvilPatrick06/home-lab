@@ -87,13 +87,13 @@ function BestiaryScreen({ playerState, setScreen }) {
             <div className="flex items-center gap-2">
               <span className="text-2xl">{meta.icon}</span>
               <h3
-                className="text-lg font-bold italic tracking-wider"
+                className="text-lg font-bold italic tracking-wider biome-heading"
                 style={{ color: meta.accent, textShadow: `0 0 8px ${meta.accent}66` }}
               >
                 {meta.name}
               </h3>
               <div className="flex-1 h-px bg-linear-to-r from-amber-700/50 to-transparent" />
-              <span className="text-xs text-amber-700 italic">
+              <span className="text-xs text-accent-muted italic">
                 {entries.filter((e) => tracked[e.kind]).length}/{entries.length} found
               </span>
             </div>
@@ -126,7 +126,9 @@ function BestiaryScreen({ playerState, setScreen }) {
                       <div className="text-3xl">{seen ? entry.icon : '❓'}</div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-baseline justify-between gap-2">
-                          <h4 className={`font-bold italic text-sm ${seen ? 'text-amber-200' : 'text-amber-700/80'}`}>
+                          <h4
+                            className={`font-bold italic text-sm ${seen ? 'text-amber-200' : 'text-accent-muted-80'}`}
+                          >
                             {seen ? entry.name : '???'}
                             {isBoss && seen && <span className="ml-2 text-[10px] text-purple-300 italic">(Boss)</span>}
                             {entry.tier === 'elite' && seen && (
@@ -142,7 +144,7 @@ function BestiaryScreen({ playerState, setScreen }) {
                         </p>
                         {seen && entry.drops && (
                           <div className="text-[10px] italic text-emerald-300/80 mt-2">
-                            <span className="text-amber-700 not-italic">Drops:</span> {entry.drops}
+                            <span className="text-accent-muted not-italic">Drops:</span> {entry.drops}
                           </div>
                         )}
                         {isBoss && seen && (

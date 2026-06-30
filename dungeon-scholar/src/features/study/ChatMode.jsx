@@ -419,7 +419,7 @@ ${sourceText}`;
         }}
       >
         <div className="flex flex-col">
-          <div className="text-xs text-amber-700 italic tracking-wider">⚜ MODE OF INQUIRY ⚜</div>
+          <h2 className="text-xs text-amber-700 italic tracking-wider">⚜ MODE OF INQUIRY ⚜</h2>
           <div className="text-[10px] italic mt-0.5" style={{ color: mode === 'oracle' ? '#fcd34d' : '#86efac' }}>
             {mode === 'oracle' ? '🔮 AI-powered' : '📜 Local tome search'}
           </div>
@@ -429,7 +429,7 @@ ${sourceText}`;
             <button
               onClick={() => setShowClearConfirm(true)}
               className="px-2 py-1.5 rounded-sm text-xs italic border-2 border-red-800 text-red-300 hover:bg-red-900/30 flex items-center gap-1"
-              style={{ background: 'rgba(41, 12, 12, 0.6)' }}
+              style={{ background: 'rgba(var(--surface-red, 41, 12, 12), 0.6)' }}
               title="Clear chat history"
             >
               <Trash2 className="w-3 h-3" /> Clear

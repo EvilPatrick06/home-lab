@@ -103,3 +103,36 @@ describe('useHashRoute (PHASE-39 39G)', () => {
     expect(window.location.hash).toBe('#/home');
   });
 });
+
+describe('useHashRoute runtime canonicalization (PHASE-11 F1)', () => {
+  it('rewrites a runtime bare #/ to #/home', () => {
+    const { result } = renderHook(() => useHashRoute(() => 'home'));
+    act(() => {
+      setHash('#/');
+      fireHashChange();
+    });
+    expect(result.current[0]).toBe('home');
+    expect(window.location.hash).toBe('#/home');
+  });
+
+  it('leaves a #/tome/<id>/<screen> deep link uncanonicalized (tome consumed later)', () => {
+    const { result } = renderHook(() => useHashRoute(() => 'home'));
+    act(() => {
+      setHash('#/tome/abc/shop');
+      fireHashChange();
+    });
+    expect(result.current[0]).toBe('shop');
+    expect(result.current[2]).toBe('abc');
+    expect(window.location.hash).toBe('#/tome/abc/shop');
+  });
+
+  it('does not clobber an already-canonical screen hash', () => {
+    const { result } = renderHook(() => useHashRoute(() => 'home'));
+    act(() => {
+      setHash('#/shop');
+      fireHashChange();
+    });
+    expect(result.current[0]).toBe('shop');
+    expect(window.location.hash).toBe('#/shop');
+  });
+});
