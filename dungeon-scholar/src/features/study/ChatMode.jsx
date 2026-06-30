@@ -419,7 +419,7 @@ ${sourceText}`;
         }}
       >
         <div className="flex flex-col">
-          <div className="text-xs text-amber-700 italic tracking-wider">⚜ MODE OF INQUIRY ⚜</div>
+          <h2 className="text-xs text-amber-700 italic tracking-wider">⚜ MODE OF INQUIRY ⚜</h2>
           <div className="text-[10px] italic mt-0.5" style={{ color: mode === 'oracle' ? '#fcd34d' : '#86efac' }}>
             {mode === 'oracle' ? '🔮 AI-powered' : '📜 Local tome search'}
           </div>

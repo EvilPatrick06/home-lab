@@ -414,6 +414,7 @@ function QuizMode({
 
   return (
     <div className="space-y-4 max-w-3xl mx-auto">
+      <h2 className="sr-only">Quiz</h2>
       {domainFilter && <FilteredModeBanner domainFilter={domainFilter} onExitFilter={onExitFilter} accent="purple" />}
       <div className="flex justify-between items-center text-sm text-amber-600 italic flex-wrap gap-2">
         <span className="flex items-center gap-2 flex-wrap">

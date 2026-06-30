@@ -295,6 +295,7 @@ function FlashcardsMode({
 
   return (
     <div className="space-y-4 max-w-2xl mx-auto">
+      <h2 className="sr-only">Flashcards</h2>
       {domainFilter && <FilteredModeBanner domainFilter={domainFilter} onExitFilter={onExitFilter} accent="sapphire" />}
       {reviewMode && (
         <div

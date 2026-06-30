@@ -506,7 +506,7 @@ function QuestBoard({
             <div className="text-xs text-purple-400 tracking-[0.2em] italic">⚜ DAILY • WEEKLY • STORY ⚜</div>
             {totalClaimable > 0 && (
               <div className="text-xs text-amber-300 italic mt-1 font-bold animate-pulse">
-                {totalClaimable} reward{totalClaimable === 1 ? '' : 's'} await thy hand
+                {totalClaimable} reward{totalClaimable === 1 ? '' : 's'} await{totalClaimable === 1 ? 's' : ''} thy hand
               </div>
             )}
           </div>
