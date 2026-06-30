@@ -51,6 +51,79 @@ New entries go at the TOP of their section (newest first).
 
 ---
 
+### [2026-06-29] file-size-budget ratchet guards only 2 of ~7 hand-written 1000+ LOC modules — the main-process / web / store monoliths can still grow unbounded
+
+- **Category:** debt
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** dnd-cleanup scheduled cleanup/reorg scan of `dnd-app/` (largest-file sweep vs the size ratchet)
+
+**Description:**
+`scripts/lint/file-size-budget.mjs` (wired into `dnd-app-ci.yml` as `lint:file-size`) is a good pattern — it gives a god-file a hard LOC ceiling so CI fails if it grows, forcing extraction rather than budget-raising. But its `BUDGETS` map currently contains **only two** files: `GameLayout.tsx` (1290) and `PdfViewer.tsx` (1236). Meanwhile a largest-file sweep shows several other hand-written modules already over 1000 LOC that are **not** budgeted, so they can grow without limit:
+- `src/main/ai/ai-service.ts` — 1681 LOC (already logged as a god file mid-decomposition; entangled in a known circular dep)
+- `src/main/ai/ai-schemas.ts` — 1622 LOC
+- `src/main/ipc/ai-handlers.ts` — 1209 LOC
+- `src/web/web-api.ts` — 1177 LOC
+- `src/renderer/src/stores/network-store/index.ts` — 1007 LOC
+
+(The two larger files above these — `i18n/generated-keys.ts` 6601 and `preload/index.d.ts` 1383 — are generated and correctly out of scope.) So the ratchet protects the two renderer UI monoliths but leaves the main-process AI layer, the web API shim, and the largest Zustand store free to accrete. The script's own header even says "To add a file to the ratchet: set its budget to the file's CURRENT line count," so extending it is the intended, cheap follow-up — it just was never done for these.
+
+**Hypothesis / root cause:** The budget file was introduced specifically by the GameLayout/PdfViewer decomposition (see RESOLVED-ISSUES-DNDAPP "GameLayout / PdfViewer god-file decomposition") and seeded with exactly those two files; no pass has since enrolled the other large modules, so the ratchet's coverage is incidental to that one effort rather than systematic.
+
+**Proposed fix / improvement:**
+- [ ] Add the five modules above to `BUDGETS` at their current LOC (a freeze-in-place ceiling), so none can grow further; lower each as decomposition proceeds (same discipline already used for the two UI files).
+- [ ] Consider deriving the ratchet from a glob + threshold (e.g. flag any non-generated hand-written `.ts`/`.tsx` over N LOC that lacks an explicit budget) so newly-grown monoliths get caught automatically instead of needing manual enrollment.
+- [ ] Pair the `ai-service.ts` / `ai-schemas.ts` / `ai-handlers.ts` budgets with the already-open `ai-service.ts` decompose work so the ceilings ratchet down as that lands.
+
+**Related files:** `scripts/lint/file-size-budget.mjs`, `src/main/ai/ai-service.ts`, `src/main/ai/ai-schemas.ts`, `src/main/ipc/ai-handlers.ts`, `src/web/web-api.ts`, `src/renderer/src/stores/network-store/index.ts`, `.github/workflows/dnd-app-ci.yml`
+
+**Related entries:** RESOLVED-ISSUES-DNDAPP "GameLayout / PdfViewer god-file decomposition" + "the size ratchet" (introduced the budget); RESOLVED-ISSUES-DNDAPP [2026-06-23] "`ai-service.ts` is a ~1,740-LOC god file" (the still-open decompose this should ratchet).
+
+### [2026-06-29] `knip.json` carries ~30 hand-maintained individual `entry` exceptions with no inline rationale — each silently masks a module knip would otherwise flag as unreachable
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** dnd-cleanup scheduled cleanup/reorg scan of `dnd-app/` (dead-code tooling review)
+
+**Description:**
+Beyond the legitimate true entry points (the electron-vite config, the four `index.ts`/`main.tsx` process entries, and the broad `scripts/**` glob), `knip.json`'s `entry` array lists ~30 **individual source files** — e.g. `services/combat/{damage,attack,combat}-resolver.ts`, `services/game-actions/types.ts`, `components/game/map/map-canvas/types.ts`, `network/{schemas,message-types}.ts`, `services/io/combat-log-export.ts`, `components/game/map/map-overlay-effects.ts`, `main/ai/context/context-builder.ts`, several `types/**` and per-feature `index.ts` barrels. Each entry is there because knip could not reach that file from the real entry graph — i.e. it would otherwise be reported as unused. None carries a comment explaining **why** it is exempt (dynamically imported? a build-target entry? a barrel re-exported only via path alias? or genuinely dead and being masked?). So the file is now load-bearing dead-code-suppression config that nobody can audit: a future contributor cannot tell which entries are legitimately unreachable-but-needed vs which are hiding code that actually became dead after a refactor. This compounds the already-noted `scripts/**` glob blind spot (the stale `submit/*-batch.ts` scripts went unnoticed precisely because that glob exempts them from `npm run dead-code`).
+
+**Hypothesis / root cause:** The `entry` list grew one line at a time across many refactors (the git history of `knip.json` shows repeated "make knip see X" / "knip clean" commits) — each refactor that orphaned a module from the static graph added an `entry` exception to silence knip rather than re-wiring or removing the module, and no pass has since revisited whether each exception is still warranted.
+
+**Proposed fix / improvement:**
+- [ ] Annotate each individual `entry` line with a one-word reason via a sibling comment block (dynamic-import / build-target / alias-only-barrel / type-only), so the file is self-auditing.
+- [ ] Periodic audit: remove each individual `entry` exception one at a time and re-run `npm run dead-code`; if knip now reports the file as unused, it was masking dead code (delete it); if knip reports a *new* unreachable elsewhere, the entry was load-bearing (restore + document why).
+- [ ] Prefer fixing the reachability at the source (export the module from a real entry barrel, or delete it) over adding a fresh `entry` exception in future refactors.
+
+**Related files:** `dnd-app/knip.json`, `dnd-app/package.json` (`dead-code` script)
+
+**Related entries:** [2026-06-28] "Stale one-off `scripts/submit/*-batch.ts` content-gen scripts no longer wired up" (the `scripts/**` glob blind spot — same masking pattern); RESOLVED-ISSUES-DNDAPP entries noting knip's `scripts/**` glob hides retired tooling.
+
+### [2026-06-29] Renderer test organization is inconsistent — a couple of "meta" tests live in dedicated single-file dirs (`test/`, `a11y/`) while ~850 unit tests are colocated, and `test/`/`a11y/` aren't in the README layout
+
+- **Category:** debt, docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** dnd-cleanup scheduled cleanup/reorg scan of `dnd-app/` (renderer directory-structure review)
+
+**Description:**
+The renderer's convention is to colocate tests next to source (`foo.ts` + `foo.test.ts`), which the ~850 `*.test.*` files follow. Two "meta/cross-cutting" tests break that pattern by living in their own single-purpose directories: `src/renderer/src/test/codebase-integrity.test.ts` (a lone file in a `test/` dir) and `src/renderer/src/a11y/a11y-smoke.test.tsx` (plus its `jest-axe.d.ts`). There is also a one-file `events/` dir (`system-chat-bridge.ts`). The inconsistency is minor on its own, but two of these dirs (`test/`, `a11y/`) are **not** listed in the README "Directory layout" section (which does name `events/`, `styles/`, `constants/`, etc.), so a contributor scanning the documented layout will not know they exist or what belongs in them — and the next "where do I put a whole-app integrity/a11y test" decision has no documented home, risking a third ad-hoc location.
+
+**Hypothesis / root cause:** `a11y/` and `test/` were each created for a single seed test (the jest-axe harness; the codebase-integrity guard) without a convention decision or a README update, so they read as one-off folders rather than an intentional "meta tests live here" home.
+
+**Proposed fix / improvement:**
+- [ ] Decide and document one home for whole-app/meta tests (e.g. keep `src/renderer/src/test/` and move the a11y smoke test under it, or keep both and add both to the README layout) so the pattern is intentional, not incidental.
+- [ ] Add the chosen dir(s) to the README "Directory layout" block alongside the already-listed `events/`, `styles/`, `constants/`.
+- [ ] Low priority — purely organizational; no behavior change. Logged per the "log even minor structural items" guidance so the pattern is visible if more single-file dirs accrete.
+
+**Related files:** `src/renderer/src/test/codebase-integrity.test.ts`, `src/renderer/src/a11y/a11y-smoke.test.tsx`, `src/renderer/src/a11y/jest-axe.d.ts`, `src/renderer/src/events/system-chat-bridge.ts`, `dnd-app/README.md` (Directory layout section)
+
+**Related entries:** [2026-06-29] "a11y (jest-axe) harness only asserts on a synthetic fragment" (same `a11y/` dir, coverage angle).
+
 ### [2026-06-29] 5e *content* values (monster/spell/species/class/alignment names + descriptions) are English-only — only the UI chrome is bilingual
 
 - **Category:** future-idea, portability, UX
