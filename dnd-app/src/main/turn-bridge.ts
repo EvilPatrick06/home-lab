@@ -13,7 +13,7 @@
  * still covers a dead-ended join).
  */
 
-import { getBmoAccessHeaders, getBmoBaseUrl } from './bmo-config'
+import { getBmoAccessHeadersIfTrusted, getBmoBaseUrl } from './bmo-config'
 
 export interface TurnCredentials {
   username: string
@@ -37,7 +37,7 @@ export async function fetchTurnCredentials(baseOverride?: string): Promise<TurnC
   const timer = setTimeout(() => controller.abort(), TURN_TIMEOUT_MS)
   try {
     const resp = await fetch(`${base}/api/turn-credentials`, {
-      headers: getBmoAccessHeaders(),
+      headers: getBmoAccessHeadersIfTrusted(),
       signal: controller.signal
     })
     if (!resp.ok) return null

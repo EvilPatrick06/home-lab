@@ -11,7 +11,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from 'node:ht
 import { BrowserWindow } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc-channels'
 import { InitiativeSyncSchema, SyncEventSchema } from '../shared/ipc-schemas'
-import { getBmoAccessHeaders, getBmoApiKey, getBmoBaseUrl } from './bmo-config'
+import { getBmoAccessHeadersIfTrusted, getBmoApiKey, getBmoBaseUrl } from './bmo-config'
 import { logToFile } from './log'
 
 const TIMEOUT_MS = 15_000
@@ -200,7 +200,7 @@ async function bmoPiFetchOnce(path: string, options?: RequestInit, opts?: FetchO
       signal: controller.signal,
       headers: {
         'Content-Type': 'application/json',
-        ...getBmoAccessHeaders(),
+        ...getBmoAccessHeadersIfTrusted(),
         ...options?.headers
       }
     })

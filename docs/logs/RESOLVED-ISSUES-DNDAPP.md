@@ -12,6 +12,18 @@
 
 ---
 
+### [2026-06-29] RAG chunk IDs diverge between TS and Python engines — chunk-builder.ts joins with NUL, not the documented space
+
+- **Resolved by:** dnd-resolver (automated)
+- **Date resolved:** 2026-06-29
+- **Resolution:** Replaced the literal NUL (0x00) join delimiter in `stableChunkId()` (`dnd-app/src/main/ai/context/chunk-builder.ts`) with a single space, realigning the runtime TS engine with its own doc comment, the `scripts/build/build-chunk-index.mjs` build script, and the Python twin `bmo/pi/services/rag_search.py` — all of which already space-join. The `.ts` source is plain UTF-8 again (no embedded NUL), so git/grep/diff stop treating it as a binary file. Added a cross-engine fixture test in `chunk-builder.test.ts` asserting `stableChunkId` equals digests derived independently from the Python recipe (`doc-f0b326612cf78bc4`, `srd-4ea724ea4cfd0a69`, `phb-72d161a8145ec70d`), so the engines cannot silently drift again — exactly the guard the original checklist called for. `applyStableIds` recomputes ids on load with the corrected recipe, so persisted v2 indexes self-heal toward the (already space-derived) committed/Python ids on next load; no migration needed. The Python docstring already described the single-space join correctly, so it was left unchanged (now accurate). tsc(node) clean + full `chunk-builder.test.ts` (11 tests) green.
+- **Category:** bug
+- **Severity:** high
+- **Domain:** dnd-app
+- **Branch:** auto/dnd-resolver
+
+---
+
 ### [2026-06-25] Renderer god-components `GameLayout.tsx` and `PdfViewer.tsx` stay monolithic despite established sibling extraction dirs
 
 - **Resolved by:** dnd-resolver (automated)

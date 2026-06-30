@@ -62,7 +62,7 @@ describe('settings-storage', () => {
       expect(writeFile).toHaveBeenCalledWith(
         expect.stringContaining('settings.json'),
         JSON.stringify({ ...settings, version: 1 }, null, 2),
-        'utf-8'
+        { encoding: 'utf-8', mode: 0o600 }
       )
     })
 
@@ -75,7 +75,7 @@ describe('settings-storage', () => {
       expect(writeFile).toHaveBeenCalledWith(
         expect.stringContaining('settings.json'),
         JSON.stringify({ version: 1 }, null, 2),
-        'utf-8'
+        { encoding: 'utf-8', mode: 0o600 }
       )
     })
   })

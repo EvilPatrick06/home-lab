@@ -13,7 +13,7 @@
  * service-token headers so the tunnel-fronted endpoint is reachable.
  */
 
-import { getBmoAccessHeaders, getBmoBaseUrl } from './bmo-config'
+import { getBmoAccessHeadersIfTrusted, getBmoBaseUrl } from './bmo-config'
 
 // Time-box remote fetches so an unreachable / hung Pi falls back to bundled
 // data quickly instead of stalling the first library load.
@@ -28,7 +28,7 @@ async function fetchWithTimeout(url: string): Promise<Response> {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), REMOTE_TIMEOUT_MS)
   try {
-    return await fetch(url, { headers: { ...getBmoAccessHeaders() }, signal: controller.signal })
+    return await fetch(url, { headers: { ...getBmoAccessHeadersIfTrusted() }, signal: controller.signal })
   } finally {
     clearTimeout(timer)
   }

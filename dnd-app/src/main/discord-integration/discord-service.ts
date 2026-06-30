@@ -1,5 +1,5 @@
 import { app } from 'electron'
-import { mkdir, readFile, writeFile } from 'fs/promises'
+import { chmod, mkdir, readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
 import { logToFile } from '../log'
 import { decryptOptional, encryptOptional } from '../storage/safe-secret-storage'
@@ -50,19 +50,29 @@ export async function loadDiscordConfig(): Promise<DiscordIntegrationConfig> {
     // legacy plaintext (no `ss1:` prefix); cachedConfig always holds the runtime
     // plaintext token.
     const storedToken = parsed.botToken ?? ''
+    const storedWebhook = parsed.webhookUrl ?? ''
     cachedConfig = {
       enabled: parsed.enabled ?? false,
       botToken: decryptOptional(storedToken) ?? '',
-      webhookUrl: parsed.webhookUrl ?? '',
+      // The webhook URL is itself a bearer credential — encrypted at rest like
+      // the bot token; decryptOptional passes through legacy plaintext.
+      webhookUrl: decryptOptional(storedWebhook) ?? '',
       channelId: parsed.channelId,
       userId: parsed.userId,
       dmMode: parsed.dmMode ?? 'webhook'
     }
 
-    // Migrate a legacy plaintext token to encrypted-at-rest on first load.
-    if (storedToken && !storedToken.startsWith('ss1:')) {
+    // Self-heal perms: this file holds secrets and must be owner-only (0o600),
+    // not the world-readable default a pre-fix write may have left behind.
+    void chmod(configPath, 0o600).catch(() => undefined)
+
+    // Migrate any legacy plaintext secret (bot token OR webhook URL) to
+    // encrypted-at-rest on first load — covers a webhook-only config too.
+    const tokenIsLegacy = storedToken !== '' && !storedToken.startsWith('ss1:')
+    const webhookIsLegacy = storedWebhook !== '' && !storedWebhook.startsWith('ss1:')
+    if (tokenIsLegacy || webhookIsLegacy) {
       void saveDiscordConfig({ ...cachedConfig, botToken: cachedConfig.botToken }).catch((e) =>
-        logToFile('WARN', `Discord token migration to encrypted storage failed: ${String(e)}`)
+        logToFile('WARN', `Discord secret migration to encrypted storage failed: ${String(e)}`)
       )
     }
 
@@ -107,7 +117,8 @@ export async function saveDiscordConfig(config: DiscordIntegrationConfig): Promi
         enabled: finalConfig.enabled,
         // Phase 20a — encrypt the bot token at rest (OS keystore via safeStorage).
         botToken: encryptOptional(finalConfig.botToken),
-        webhookUrl: finalConfig.webhookUrl,
+        // Encrypt the webhook URL at rest too — it is a bearer credential.
+        webhookUrl: encryptOptional(finalConfig.webhookUrl),
         channelId: finalConfig.channelId,
         userId: finalConfig.userId,
         dmMode: finalConfig.dmMode
@@ -115,7 +126,8 @@ export async function saveDiscordConfig(config: DiscordIntegrationConfig): Promi
       null,
       2
     ),
-    'utf-8'
+    // discord-integration.json holds the bot token + webhook secret — owner-only.
+    { encoding: 'utf-8', mode: 0o600 }
   )
 
   // Cache keeps the plaintext token for runtime Discord API calls.
