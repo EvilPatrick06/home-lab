@@ -61,6 +61,13 @@ Secondary effect: the embedded NUL makes the `.ts` file register as **binary** t
 
 **Related entries:** Cross-engine consistency also affects the bmo RAG retrieval path, but the defect itself lives in the dnd-app TS file (logged here per `Domain: dnd-app`). A bmo-side reviewer should be aware the IDs will not match until this TS fix lands.
 
+**Supplement [2026-06-29, dnd-errors]:** Confirmed the NUL byte is present (the join delimiter renders as `^@` / `0x00`) and that there are actually **THREE** copies of the recipe, only one of which drifted:
+- `dnd-app/scripts/build/build-chunk-index.mjs:22` joins with a **space** (`.join(' ')`) — this generates the committed `resources/chunk-index.json` ids.
+- `bmo/pi/services/rag_search.py:172` joins with a **space** (`" ".join(...)`); its docstring even claims it "Mirrors dnd-app chunk-builder.ts stableChunkId EXACTLY ... joined with a SINGLE SPACE."
+- `dnd-app/src/main/ai/context/chunk-builder.ts` `stableChunkId` joins with **NUL** — the lone outlier.
+
+So the committed-index ids and the Python ids agree with each other (both space); the **runtime TS engine alone** disagrees with both. This corrects the original entry's "applyStableIds ... is likely self-healing" note: `applyStableIds` (used by `flattenToChunks` and the v1->v2 load migration) recomputes ids with the **NUL** recipe, so on load it rewrites every committed (space-derived) id to the **wrong** NUL-derived value rather than healing toward the Python/index value — it makes the divergence active at runtime, not benign. Also note `chunk-builder.test.ts` only asserts `loaded.id === stableChunkId(...)` (the function compared against itself) and hardcodes no cross-engine digest, which is why CI stays green despite the drift — exactly the cross-engine fixture the original proposed-fix checklist calls for. The Python docstring should also be corrected once the TS side is fixed (it currently misdescribes the TS reality).
+
 ## Medium
 
 ### [2026-06-29] dnd-app/mobile Dependabot npm-deps bump fails `npm ci` — package-lock.json out of sync with package.json
@@ -99,4 +106,25 @@ The grouped Dependabot branch `dependabot/npm_and_yarn/dnd-app/mobile/npm-deps-a
 
 ## Low
 
-*(none currently logged)*
+### [2026-06-29] chunk-index build is non-deterministic — `createdAt: new Date().toISOString()` makes every regeneration a noise diff
+
+- **Category:** debt, config
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-errors
+- **During:** autonomous dnd-app error scan — ran `node scripts/build/build-chunk-index.mjs` against the committed index
+
+**Description:**
+`dnd-app/scripts/build/build-chunk-index.mjs:280` stamps the output with `createdAt: new Date().toISOString()`. Re-running `npm run build:index` on a clean checkout therefore produces a diff in the committed `dnd-app/resources/chunk-index.json` **even when no source content changed** — I verified all 5383 chunks (ids, content, headingPath, keywords, tokenEstimate) are byte-identical between the committed index and a fresh regeneration; the **only** difference is the `createdAt` timestamp (`2026-06-17T02:15:02.694Z` committed vs the regen wall-clock). Because the build embeds wall-clock time, the index is not reproducible and cannot be byte-verified against its sources. There is currently no CI freshness gate for the index (release.yml regenerates it but nothing diffs it), so this does not fail CI today — it is latent churn / a missed-verifiability gap, not an active break.
+
+**Expected behavior:** Regenerating the index from unchanged sources yields a byte-identical file (deterministic build), so a future index-freshness `--check` gate becomes possible and regeneration never produces a spurious one-line diff.
+
+**Hypothesis / root cause:** The generator records its own run time in the artifact instead of deriving the timestamp from content/source mtime (or omitting it) — the same non-determinism pattern that would defeat any reproducible-build or index-freshness check.
+
+**Proposed fix / improvement:**
+- [ ] Drop `createdAt`, or derive it deterministically (e.g. max source-file mtime, or a content hash) so unchanged sources regenerate byte-identically.
+- [ ] Optionally add a `build:index -- --check` drift gate (mirroring `gen:ipc-surface --check` / `sync:doc-counts --check`) once the output is deterministic.
+
+**Blocked by:** none. (LOG-ONLY scan — app code not modified.)
+
+**Related files:** `dnd-app/scripts/build/build-chunk-index.mjs` (~line 280), `dnd-app/resources/chunk-index.json`
