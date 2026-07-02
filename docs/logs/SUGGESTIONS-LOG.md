@@ -100,27 +100,6 @@ The repo pins Node 22 at the root (`.nvmrc` = `22`) and `dnd-app`, `dungeon-scho
 
 **Related entries:** `SUGGESTIONS-LOG.md` → [2026-06-29] audit-coverage parity gap and [2026-06-29] mobile pre-commit floor (same "mobile misses repo conventions" pattern).
 
-### [2026-07-02] `docs/LOG-INSTRUCTIONS.md` never documents where resolved *cross-cutting* entries go — the archive that actually receives them (`RESOLVED-ISSUES.md` "Cross-cutting resolved") is absent from its tables
-
-- **Category:** docs
-- **Severity:** low
-- **Domain:** both
-- **Discovered by:** overall-cleanup
-- **During:** cross-cutting docs-consistency scan of the logging docs vs. actual log-file layout
-
-**Description:**
-`docs/logs/RESOLVED-ISSUES.md` opens as a "compatibility pointer" but in practice carries a live `## Cross-cutting resolved (overall-resolver)` section where resolved `Domain: both` entries from the pointer logs are archived (e.g. the 2026-06-29 dnd-web-deploy gate fix), and `docs/README.md` lists it as the "cross-cutting pointer" archive. `docs/LOG-INSTRUCTIONS.md` — the canonical triage doc — disagrees on both counts: its "Which log goes where" table omits `RESOLVED-ISSUES.md` entirely, and its "After fixing a logged issue" section instructs that `Domain: both` entries be filed "under the domain whose codebase the fix actually touched" in a per-domain archive. So the doc that agents are told to read BEFORE logging describes a resolution flow the overall-resolver does not follow, and a resolver following LOG-INSTRUCTIONS to the letter would scatter cross-cutting resolutions across per-domain archives while the existing convention concentrates them in RESOLVED-ISSUES.md.
-
-**Hypothesis / root cause:** the cross-cutting section was added to RESOLVED-ISSUES.md when the overall-* scanner/resolver family was introduced, and LOG-INSTRUCTIONS.md's after-fix table predates it and was never updated.
-
-**Proposed fix / improvement:**
-- [ ] Add `RESOLVED-ISSUES.md` (cross-cutting resolved archive) to LOG-INSTRUCTIONS.md's "Which log goes where" table.
-- [ ] Amend the "After fixing" routing: repo-wide/structural `Domain: both` entries from the pointer logs → `RESOLVED-ISSUES.md` "Cross-cutting resolved"; mirrored multi-project entries → the per-domain archive of the codebase the fix touched (current wording), so both flavors are covered.
-
-**Related files:** `docs/LOG-INSTRUCTIONS.md`, `docs/logs/RESOLVED-ISSUES.md`, `docs/README.md`
-
-**Related entries:** none found (grepped for "Cross-cutting resolved" / "resolved archive" in the pointer logs).
-
 ### [2026-07-02] Root `README.md` "Each project's own README" pointer list omits `oracle-worker/README.md` (3 of 4 projects listed)
 
 - **Category:** docs

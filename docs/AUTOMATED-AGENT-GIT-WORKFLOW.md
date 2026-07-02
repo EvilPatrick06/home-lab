@@ -129,6 +129,16 @@ ordinary "add a new dated entry" appends it is exactly right. When an agent does
 a structural edit (cutting a resolved entry and pasting it into a resolved log),
 keep the edit small and let the integrator flag anything that looks off.
 
+**Exception — the gitignored security logs never ride branches at all.**
+`docs/logs/SECURITY-LOG.md` and `docs/logs/RESOLVED-SECURITY-ISSUES.md` are
+gitignored, so they exist only in the **main checkout's** working tree — a
+per-agent worktree does not contain them, and an append made inside a worktree
+is silently lost when the worktree is reset. The `SECURITY-LOG*` union rule in
+the table above is inert (as noted). Automated agents write security entries
+directly to the main checkout's files, serialized via
+`flock /home/patrick/home-lab-locks/security-log.lock`; see the security
+section of [`docs/LOG-INSTRUCTIONS.md`](LOG-INSTRUCTIONS.md).
+
 ---
 
 ## Rule 3 — The daily integrator
@@ -403,12 +413,16 @@ worktree model above so you do not collide with the scheduled agents.
   - `dnd-app-ci.yml` triggers on **every push** (no branch filter) — so a push
     to `auto/<agent-id>` runs the dnd-app lint → forbidden-patterns → typecheck
     (web+node) → schema-validate → full vitest → build → verify → guards gate.
-  - The other gates (`bmo-pi-pytest.yml`, `security-audit.yml`, `codeql.yml`,
-    `dnd-app-validate-5e.yml`, `bmo-docker-build.yml`, `dungeon-scholar-deploy.yml`) trigger
-    push only on `master`/`main`, **plus** on `pull_request`. So to get the full
-    gate on an `auto/*` branch before integration, open a PR for it; otherwise
-    the master-scoped gates run when the integrator pushes the merge to
-    `master`.
+  - The correctness gates `bmo-pi-pytest.yml` and `dnd-app-validate-5e.yml`
+    also trigger on **every push** (path-filtered), so bmo and 5e-data changes
+    on an `auto/<agent-id>` branch produce a real pre-merge red/green signal.
+  - The remaining master-scoped gates (`security-audit.yml`, `codeql.yml`,
+    `bmo-docker-build.yml`, plus the deploy workflows) trigger push only on
+    `master`/`main`, **plus** on `pull_request`. A branch-only push leaves NO
+    run for them — the integrator must treat a never-ran gate as *unknown*
+    (not green) for branches touching their paths, not silently green; they
+    re-run as the final authority when the merge lands on `master`. Open a PR
+    for an `auto/*` branch if a pre-merge run of these is needed.
   - Either way, **the merge to `master` re-runs the master-scoped gates as the
     final authority.** The integrator only merges branches whose CI is green.
 

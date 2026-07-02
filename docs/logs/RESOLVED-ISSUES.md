@@ -14,6 +14,120 @@ How to triage: [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md)
 
 > Resolved cross-cutting / `Domain: both` entries moved out of `ISSUES-LOG.md` + `SUGGESTIONS-LOG.md`. Newest first.
 
+### [2026-07-02] Gitignored `SECURITY-LOG.md` is incompatible with the per-agent-worktree model: worktree appends are silently lost, main-checkout writes race unserialized
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-07-02
+- **Resolution:** Adopted convention (a) — the smallest change: automated agents append security entries directly to the MAIN checkout's gitignored `docs/logs/SECURITY-LOG.md` / `RESOLVED-SECURITY-ISSUES.md`, serialized via `flock /home/patrick/home-lab-locks/security-log.lock` (the lock host tooling already used, now documented). Documented in `docs/LOG-INSTRUCTIONS.md` (security section: new worktree-agents guidance incl. the dedup-grep caveat and the read-modify-write-under-flock rule), added a Rule 2 exception paragraph to `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`, and corrected the `AGENTS.md` sentence that overstated union-merge protection for `SECURITY-LOG`.
+- **Branch:** auto/overall-resolver
+
+- **Category:** config, debt
+- **Original severity:** medium
+- **Domain:** both
+- **Discovered by:** overall-errors
+- **During:** cross-cutting scan of the automated-agent git workflow vs. the logging conventions
+
+**Description:**
+`docs/logs/SECURITY-LOG.md` is gitignored (`.gitignore:140`) and exists only in the main checkout working tree (`/home/patrick/home-lab/docs/logs/SECURITY-LOG.md`, actively written — mtime today). But since the 2026-06-22 incident every automated agent works in its own worktree at `/home/patrick/home-lab-trees/<agent-id>` (Rule 1, `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`), where the gitignored file does NOT exist. `docs/LOG-INSTRUCTIONS.md` directs ALL security entries (any domain) to `SECURITY-LOG.md` with no worktree guidance, which leaves two failure modes: (1) an agent that follows the instructions literally appends to `docs/logs/SECURITY-LOG.md` **inside its worktree** — the file is untracked, never rides the `auto/*` branch, is never merged by the integrator, and is deleted with the worktree: the security finding is **silently lost**; (2) an agent that instead writes directly to the main checkout's copy bypasses every safety mechanism that the worktree model added — no branch isolation, no union merge (the `.gitattributes` `SECURITY-LOG*` union rule is inert on an untracked file, as the workflow doc itself notes), and only an out-of-repo, undocumented lock (`/home/patrick/home-lab-locks/security-log.lock` exists on the host, so some agent tooling does flock the file — but no repo doc mentions it, so nothing guarantees every writer uses it) — so a security-logging agent that skips the undocumented lock can interleave with or clobber another (exactly the lost-update class the 2026-06-22 fix eliminated for the tracked logs). `AGENTS.md` (the "append-only logs … use a merge=union driver" sentence) even lists `SECURITY-LOG` among the union-protected logs, overstating the protection.
+
+**Expected behavior:** one documented, race-safe convention for security logging from automated agents — e.g. (a) each agent appends via a small helper that flocks the main-checkout file, or (b) agents write per-agent security fragments that a single consumer consolidates, or (c) the log is split like the other logs and tracked with entries kept value-free (the "never log the secret value" rule already targets this) so it rides branches + union merge like everything else.
+
+**Hypothesis / root cause:** the worktree/branch model (2026-06-22) was retrofitted onto the logging conventions, and `SECURITY-LOG.md` — the only *gitignored* active log — was overlooked because git-based protections (branch isolation + union merge) simply don't apply to it. Verified: `.gitignore:140`; file absent from a fresh worktree; present + recently modified in the main checkout; no guidance in `LOG-INSTRUCTIONS.md` / `AUTOMATED-AGENT-GIT-WORKFLOW.md` on which path a worktree agent should write.
+
+**Proposed fix / improvement:**
+- [ ] Decide the convention (flock-guarded append to the main-checkout file is the smallest change; the notify/board tooling already lives outside the repo similarly).
+- [ ] Document it in `docs/LOG-INSTRUCTIONS.md` (security section) and `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md` Rule 2 caveat.
+- [ ] Correct the `AGENTS.md` sentence that implies `SECURITY-LOG` gets union-merge protection.
+
+**Related files:** `.gitignore`, `docs/logs/SECURITY-LOG.md` (untracked), `docs/LOG-INSTRUCTIONS.md`, `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`, `AGENTS.md`
+
+**Related entries:** `RESOLVED-ISSUES.md` -> 2026-06-22/23 worktree-model entries (this is the one log the model doesn't cover).
+
+### [2026-07-02] `LOG-INSTRUCTIONS.md` grep-first dup-check + resolved-routing are stale: they omit the cross-cutting pointer logs (`ISSUES-LOG.md`, `SUGGESTIONS-LOG.md`) and `RESOLVED-ISSUES.md`
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-07-02
+- **Resolution:** Added the two cross-cutting pointer logs (`ISSUES-LOG.md`, `SUGGESTIONS-LOG.md`) to the grep-first dedup command; fixed the Quick-reference count (five → seven tracked active logs); amended the after-fix routing so repo-wide `Domain: both` pointer-log entries archive to `RESOLVED-ISSUES.md`'s `## Cross-cutting resolved` section (mirrored multi-project entries keep the per-domain routing) and added the matching line to the Quick reference; added a `RESOLVED-ISSUES.md` row to the 'Which log goes where' table. Also closes the duplicate SUGGESTIONS-LOG entry (2026-07-02, resolved-cross-cutting routing) via the same change — archived just below.
+- **Branch:** auto/overall-resolver
+
+- **Category:** config, docs
+- **Original severity:** low
+- **Domain:** both
+- **Discovered by:** overall-errors
+- **During:** cross-cutting scan; followed the doc's own grep-first procedure and noticed it cannot find this log's entries
+
+**Description:**
+`docs/LOG-INSTRUCTIONS.md` predates (in three spots) the cross-cutting pointer-log model it elsewhere describes. (1) The canonical grep-first dedup command ("How to append", line ~210) enumerates seven logs but omits `docs/logs/ISSUES-LOG.md` and `docs/logs/SUGGESTIONS-LOG.md` — the exact logs the `overall-*` scanners write to. An agent following it verbatim will never see an already-logged cross-cutting entry and will re-log duplicates (the anti-dup rule defeats itself for the cross-cutting domain). (2) The Quick-reference says "grep all five tracked active logs" — there are seven tracked active logs. (3) The "After fixing a logged issue" routing lists only the three per-domain resolved archives (+ security) and says `Domain: both` entries file under the domain the fix touched — but actual practice (and `RESOLVED-ISSUES.md` itself, which carries a "## Cross-cutting resolved (overall-resolver)" section with entries since 2026-06-29) is to archive resolved pointer-log entries in `RESOLVED-ISSUES.md`. The doc never names `RESOLVED-ISSUES.md` as a valid destination, so doc and practice diverge; the "Which log goes where" table likewise omits it (and `RESOLVED-ISSUES-DNDAPP.md`'s cross-cutting sibling role).
+
+**Expected behavior:** the dedup grep covers all active tracked logs including both pointer logs; the Quick-reference count matches; the resolved-routing table names `RESOLVED-ISSUES.md` (cross-cutting section) as the archive for pointer-log entries, matching what `overall-resolver` already does.
+
+**Hypothesis / root cause:** the pointer-log `# Cross-cutting` sections were introduced (~2026-06-29, per the routing paragraphs added to `ISSUES-LOG.md`/`SUGGESTIONS-LOG.md` headers) after `LOG-INSTRUCTIONS.md`'s procedural sections were last swept; only the triage table was updated, not the grep command / quick-reference / resolved-routing.
+
+**Proposed fix / improvement:**
+- [ ] Add `docs/logs/ISSUES-LOG.md docs/logs/SUGGESTIONS-LOG.md` to the grep-first command.
+- [ ] Fix the "five tracked active logs" count and add `RESOLVED-ISSUES.md` to the after-fix routing (cross-cutting entries -> its `## Cross-cutting resolved` section).
+- [ ] While there, add `RESOLVED-ISSUES.md` to the "Which log goes where" table for completeness.
+
+**Related files:** `docs/LOG-INSTRUCTIONS.md`, `docs/logs/ISSUES-LOG.md`, `docs/logs/SUGGESTIONS-LOG.md`, `docs/logs/RESOLVED-ISSUES.md`
+
+**Related entries:** none (checked both pointer logs + per-domain logs for prior mentions).
+
+### [2026-06-29] Master/PR-scoped CI gates (bmo-pytest, validate-5e, security-audit, codeql, docker) never run on `auto/*` branch pushes, so the integrator's "merge only green branches" check is blind to them
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-07-02
+- **Resolution:** Implemented a split of proposed options (c)+(a). (c): dropped the `branches: [master]` push filter on the two cheap correctness gates `bmo-pi-pytest.yml` and `dnd-app-validate-5e.yml` — their path filters and cancel-in-progress concurrency bound per-branch cost — so bmo and 5e-data changes on `auto/*` branches now produce a real pre-merge red/green signal for the integrator. (a, documented): the expensive/scanner gates (`security-audit`, `codeql`, `bmo-docker-build`, deploys) stay master+PR-scoped, and the workflow doc's Release-flow section now states explicitly that a never-ran master-scoped gate is *unknown* (not green) for branches touching its paths and re-runs authoritatively on the master merge. This closes the asymmetry for the correctness gates while keeping scanner/build cost off every branch push.
+- **Branch:** auto/overall-resolver
+
+- **Category:** config, bug
+- **Original severity:** low
+- **Domain:** both
+- **Discovered by:** overall-errors
+- **During:** cross-cutting CI/deploy scan of `.github/workflows/` + the integrator gating model in `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`
+
+**Description:**
+The repo's CI gates split into two trigger classes, and the split breaks the integrator's pre-merge safety check for several domains. The per-project *gates* `dnd-app-ci`, `dungeon-scholar-ci`, `oracle-worker-ci`, `dnd-app-mobile-ci` (plus `secret-scan`, `bmo-no-new-prints`, `agent-docs-check`, `ci-hygiene`) trigger on **unfiltered `push:`**, so they run on every `auto/<agent-id>` branch push and genuinely gate that branch. But the heavy correctness/security gates `bmo-pi-pytest.yml`, `dnd-app-validate-5e.yml`, `security-audit.yml`, `codeql.yml`, and `bmo-docker-build.yml` are scoped to **`push: branches: [master]`** (verified by enumerating all workflows). They therefore run only on a master push or on `pull_request` — **never on an `auto/*` branch push**. Per `AUTOMATED-AGENT-GIT-WORKFLOW.md` Rule 1, automated agents push their branch with `git push -u origin auto/<agent-id>` and do **not** open a PR. So for a branch-only push, none of those five gates ever execute. The integrator (Rule 3A) green-checks a non-PR branch with `gh run list --branch <branch>` — which can only show workflows that actually ran (the unfiltered set). A bmo-resolver branch that breaks `pytest`, or a 5e-data change that breaks `validate:5e`, or a dependency that trips `security-audit`, shows **no red signal on the branch** because the relevant gate never ran; the integrator reads the visible runs as green and merges. The master-scoped gates then fire **post-merge** on `master` and can go red. The doc explicitly accepts this ("the merge to master re-runs the master-scoped gates as the final authority"; a red consolidated push is "normal fix-forward"), so it is a documented tradeoff — but the consequence is a real **asymmetry**: pre-merge protection is strong for dnd-app/dungeon-scholar/oracle-worker/mobile changes and effectively **absent** for bmo, 5e-validation, npm/pip-audit, CodeQL, and docker changes, even though the code-changing resolver agents (`bmo-resolver`, `dnd-resolver`, `overall-resolver`, phase-executers) rely on this gate. Low blast radius today (app in testing; fix-forward culture), but it means "the integrator only merges branches whose CI is green" overstates the guarantee for ~5 of the repo's gates.
+
+**Expected behavior:** Either (a) the integrator's branch green-check should treat a *never-ran* required gate as "not green / unknown" (not silently green) — e.g. confirm each path-relevant master-scoped workflow actually produced a run for the branch's HEAD before merging; or (b) the automated-agent flow should open a draft PR per `auto/*` branch (which triggers the `pull_request`-scoped gates) so all gates run pre-merge; or (c) drop the `branches: [master]` filter on the correctness gates that are cheap enough to run per-branch (mirroring `dnd-app-ci`). Whichever is chosen, the "merge only green" invariant and the gate trigger-scopes should be made consistent and documented together.
+
+**Hypothesis / root cause:** The gates were authored at different times with two different trigger idioms (unfiltered `push` vs. `push: branches:[master]` + `pull_request`) and the integrator's `gh run list --branch` check implicitly assumes every required gate leaves a run on the branch. Because the automated agents never open PRs, the `pull_request` half of the master-scoped gates' triggers is never exercised either, so those gates only ever see master (post-merge). Confirmed by: trigger enumeration across `.github/workflows/` (5 gates master-scoped on push, 8 unfiltered); `gh run list --branch auto/bmo-errors` showing only `Secret scan` + `CI hygiene guards` ran, not `bmo / pi pytest` or `Security audit`; and Rule 1 of the workflow doc showing a branch-push-only agent setup with no PR step.
+
+**Proposed fix / improvement:**
+- [ ] Decide between (a) integrator treats a missing required-gate run as non-green, (b) auto-open a draft PR per `auto/*` branch, or (c) per-branch-run the cheap correctness gates.
+- [ ] If (a): have the integrator assert, for each master-scoped gate whose paths the branch touched, that a completed run exists for the branch HEAD before merging — otherwise leave + report (Rule 3A).
+- [ ] Reconcile the two trigger idioms so the gate set that protects a branch matches the gate set that runs on master, and document the chosen model alongside the Release-flow/CI section.
+
+**Related files:** `.github/workflows/bmo-pi-pytest.yml`, `.github/workflows/dnd-app-validate-5e.yml`, `.github/workflows/security-audit.yml`, `.github/workflows/codeql.yml`, `.github/workflows/bmo-docker-build.yml`, `.github/workflows/dnd-app-ci.yml`, `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`
+
+**Related entries:** `ISSUES-LOG.md` -> [2026-06-29] dnd-web-deploy missing test gate (same "deploys/gates gated inconsistently" theme); `SUGGESTIONS-LOG-DNDAPP.md` -> mobile-has-no-CI (a stronger form of the same gating-blind-spot for Dependabot Rule 3B); `RESOLVED-ISSUES.md` -> subprojects-ci redundancy (touches the integrator CI-green check).
+
+### [2026-07-02] `docs/LOG-INSTRUCTIONS.md` never documents where resolved *cross-cutting* entries go — the archive that actually receives them (`RESOLVED-ISSUES.md` "Cross-cutting resolved") is absent from its tables
+
+- **Resolved by:** overall-resolver (automated)
+- **Date resolved:** 2026-07-02
+- **Resolution:** Duplicate of the ISSUES-LOG 2026-07-02 `LOG-INSTRUCTIONS.md` staleness entry (its item 3); fixed by that entry's change (after-fix routing + 'Which log goes where' table + Quick reference now name `RESOLVED-ISSUES.md`'s Cross-cutting resolved section as the archive for pointer-log entries). See the resolution recorded on that entry above.
+- **Branch:** auto/overall-resolver
+
+- **Category:** docs
+- **Original severity:** low
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+- **During:** cross-cutting docs-consistency scan of the logging docs vs. actual log-file layout
+
+**Description:**
+`docs/logs/RESOLVED-ISSUES.md` opens as a "compatibility pointer" but in practice carries a live `## Cross-cutting resolved (overall-resolver)` section where resolved `Domain: both` entries from the pointer logs are archived (e.g. the 2026-06-29 dnd-web-deploy gate fix), and `docs/README.md` lists it as the "cross-cutting pointer" archive. `docs/LOG-INSTRUCTIONS.md` — the canonical triage doc — disagrees on both counts: its "Which log goes where" table omits `RESOLVED-ISSUES.md` entirely, and its "After fixing a logged issue" section instructs that `Domain: both` entries be filed "under the domain whose codebase the fix actually touched" in a per-domain archive. So the doc that agents are told to read BEFORE logging describes a resolution flow the overall-resolver does not follow, and a resolver following LOG-INSTRUCTIONS to the letter would scatter cross-cutting resolutions across per-domain archives while the existing convention concentrates them in RESOLVED-ISSUES.md.
+
+**Hypothesis / root cause:** the cross-cutting section was added to RESOLVED-ISSUES.md when the overall-* scanner/resolver family was introduced, and LOG-INSTRUCTIONS.md's after-fix table predates it and was never updated.
+
+**Proposed fix / improvement:**
+- [ ] Add `RESOLVED-ISSUES.md` (cross-cutting resolved archive) to LOG-INSTRUCTIONS.md's "Which log goes where" table.
+- [ ] Amend the "After fixing" routing: repo-wide/structural `Domain: both` entries from the pointer logs → `RESOLVED-ISSUES.md` "Cross-cutting resolved"; mirrored multi-project entries → the per-domain archive of the codebase the fix touched (current wording), so both flavors are covered.
+
+**Related files:** `docs/LOG-INSTRUCTIONS.md`, `docs/logs/RESOLVED-ISSUES.md`, `docs/README.md`
+
+**Related entries:** none found (grepped for "Cross-cutting resolved" / "resolved archive" in the pointer logs).
+
+
 ### [2026-06-29] dnd-web-deploy shipped to the Pi with no test/lint/typecheck gate (could rsync test-failing code live)
 
 - **Resolved by:** overall-resolver (automated)
