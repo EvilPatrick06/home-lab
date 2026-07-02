@@ -20,6 +20,94 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-07-02] No TTS phrase cache — every recurring utterance (quips, timer/notification announcements, greetings) re-hits Fish Audio, adding latency and going silent with it during the logged API timeouts
+
+- **Category:** future-idea (UX / reliability), performance
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** Scheduled improvement-suggestion scan of the voice/TTS path
+
+**Description:**
+`services/voice/speech_output.py` synthesizes every utterance fresh — there is no cache layer anywhere in the TTS worker (`grep -i cache` finds nothing). Yet a large share of what BMO says is *deterministic, recurring text*: personality quips and Adventure Time quotes come from static JSON (`data/personality/quips.json`, `adventure_time_quotes.json`), time-of-day greetings, timer/routine completions, and notification announcement templates (`notification_service._format_announcement`) all repeat with identical or near-identical strings. Each replay pays full Fish Audio round-trip latency and depends on the API being up — and BMO-ISSUES-LOG already records CRITICAL Fish Audio timeout windows where the assistant goes silent. The Piper fallback (`piper_bmo` in `speech_output.py:74`) keeps *some* voice during outages but at a different/lower voice quality.
+
+**Proposed fix / improvement:**
+- [ ] Add a content-addressed disk cache keyed on `hash(provider + voice_id + text)` → WAV under `data/` (gitignored), checked before synthesis in `tts_worker`; write-through on successful synthesis, with a size/LRU cap.
+- [ ] Optionally pre-warm it at startup from the static quip/quote JSON and the fixed announcement templates.
+- [ ] Result: recurring phrases play instantly, keep primary-voice quality even while Fish Audio is timing out, and reduce API usage; novel sentences behave exactly as today.
+
+**Blocked by:** —
+
+**Related files:** `bmo/pi/services/voice/speech_output.py`, `bmo/pi/services/personality_engine.py`, `bmo/pi/data/personality/quips.json`, `bmo/pi/services/notification_service.py`
+
+**Related entries:** BMO-ISSUES-LOG [2026-06-29] "Intermittent Fish Audio TTS timeouts raise CRITICAL monitor alerts"
+
+### [2026-07-02] Wake-word quality has no feedback loop — near-threshold scores go only to text logs, and nothing records whether a wake actually led to a real command, so false-accept/false-reject rates are unknowable and the threshold is tuned blind
+
+- **Category:** future-idea (observability / UX)
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** Scheduled improvement-suggestion scan of the wake pipeline
+
+**Description:**
+`services/voice/wake_detector.py` logs openwakeword scores above 0.04 and Porcupine RMS diagnostics to the app log (lines ~320–323), but no wake event is persisted as *data*: there is no record of score-at-trigger, and — more importantly — no linkage to the outcome of the turn that followed (STT returned empty / router found no intent / user said "never mind" vs. a real command executed). That outcome signal is the ground truth for false accepts, and it already exists downstream in the pipeline; it is just never joined back to the wake event. Meanwhile the training tooling is already in the tree (`wake/record_wake_clips.py`, `wake/clips/`, `wake/enroll_voice.py`), so the raw material for retraining/tuning exists but nothing feeds it. `WAKE_OWW_THRESHOLD` / `PORCUPINE_SENSITIVITY` are hand-set constants with no measured basis — the same "no measured accuracy eval" gap already logged for the Tier-2 keyword router, one layer down the stack.
+
+**Proposed fix / improvement:**
+- [ ] Persist a small wake-event record (ts, engine, score, and the turn outcome: transcribed-command / empty-STT / no-intent / interrupted) via `metrics_counters` or a JSONL in `data/`.
+- [ ] Surface rolling false-accept rate (wakes with empty/no-intent turns) and wakes-per-day on `/api/health/full` / the status board.
+- [ ] Optionally: keep the trailing audio snippet for scored-but-rejected near-misses (with a privacy-conscious cap) to feed `record_wake_clips.py`-style retraining, and document a threshold-tuning procedure based on the measured rates.
+
+**Blocked by:** —
+
+**Related files:** `bmo/pi/services/voice/wake_detector.py`, `bmo/pi/wake/record_wake_clips.py`, `bmo/pi/services/metrics_counters.py`, `bmo/pi/services/voice/voice_metrics.py`
+
+**Related entries:** BMO-SUGGESTIONS-LOG [2026-06-29] "Tier-2 keyword router has example-assertion tests but no measured accuracy / confusion-matrix eval"
+
+### [2026-07-02] Notification TTS announcements have no quiet-hours gate — bedtime mode mutes the mic and the personality engine sleeps, but a 3 a.m. phone notification still speaks aloud; each TTS surface hand-rolls (or lacks) its own night policy
+
+- **Category:** future-idea (UX)
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** Scheduled improvement-suggestion scan of the notification path
+
+**Description:**
+Three surfaces can make BMO speak or stay quiet at night, and each has a different, uncoordinated policy: the wake listener suppresses the *mic* in bedtime mode (`wake_detector.py:234` "Suppressed (bedtime mode) — mic muted"), the personality engine has its own `_is_sleep_hours()` gate for quips (`personality_engine.py:393`), but `notification_service._handle_notification` → `self.voice.speak(announcement, ...)` (line ~357) goes straight to TTS after blocklist + dedup with no time-of-day / bedtime check at all (no `sleep`/`night`/`quiet` logic anywhere in the module). So a Discord ping or email arriving overnight is announced out loud in the room. As-read caveat: gating may conceivably happen inside the voice layer, but no such check was found in `speech_output.py` either — it plays whatever is queued.
+
+**Proposed fix / improvement:**
+- [ ] Extract one shared quiet-hours/bedtime policy (single source: settings_store + the existing bedtime flag) with a `may_speak(kind)` check.
+- [ ] Apply it in `notification_service` (store the notification silently, skip only the announcement), and refactor `personality_engine` + wake bedtime handling to consume the same policy instead of private copies.
+- [ ] Allow a critical-override class (e.g. monitoring CRITICAL alerts) to bypass, and consider a morning "while you slept" digest for suppressed announcements.
+
+**Blocked by:** —
+
+**Related files:** `bmo/pi/services/notification_service.py`, `bmo/pi/services/personality_engine.py`, `bmo/pi/services/voice/wake_detector.py`, `bmo/pi/services/settings_store.py`
+
+**Related entries:** —
+
+### [2026-07-02] The kiosk frontend is a two-file god-module — `index.html` (2,492 lines of inline Alpine markup) + `bmo.js` (4,837 lines) with no module split or JS tests, the frontend twin of the already-logged Python god-module pattern
+
+- **Category:** future-idea (structure / DX), debt
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** Scheduled improvement-suggestion scan of `pi/web/`
+
+**Description:**
+The entire kiosk UI — face canvas, chat, music, timers, TV remote, controls, settings, camera, notifications — lives in exactly two hand-edited files: `web/templates/index.html` (2,492 lines, all tabs' markup inline) and `web/static/js/bmo.js` (4,837 lines, one flat script). Every logged backend god-module (`app.py` 3.1k, `monitoring.py` 2.2k, social `bot.py` 6.7k pre-split) has had a decomposition entry; the frontend equivalent never has. Consequences: any two UI changes collide in the same files (bad for the multi-agent workflow specifically — union-merge does not apply to code), no JS is unit-tested (the pytest suite covers the API surface only), and a single syntax error in `bmo.js` can take down every tab at once. The local-vendor / no-build-step constraint is deliberate (offline kiosk; see the resolved vendored-assets entry) and does NOT require a bundler to fix this: native ES modules (`<script type="module">`) and `<template>`/Alpine component extraction work file-split with zero build.
+
+**Proposed fix / improvement:**
+- [ ] Split `bmo.js` into per-tab ES modules (`face.js`, `music.js`, `timers.js`, `tv.js`, `chat.js`, …) loaded natively — no bundler, keeping the offline-kiosk constraint.
+- [ ] Carve `index.html` tab panels into server-side Jinja `{% include %}` partials so agents editing different tabs touch different files.
+- [ ] Add a minimal JS test lane (node --test or vitest on pure-logic modules like formatting/state helpers) to CI's bmo gate.
+
+**Blocked by:** —
+
+**Related files:** `bmo/pi/web/templates/index.html`, `bmo/pi/web/static/js/bmo.js`, `bmo/pi/web/templates/ide.html`
+
+**Related entries:** BMO-SUGGESTIONS-LOG [2026-06-29] "`app.py` is a 3,087-line half-decomposed Flask god-module"; BMO-RESOLVED-ISSUES "~860 KB of orphaned vendored frontend assets in `web/static/`"
+
 ### [2026-06-29] `agents/` is a 40-file flat package with no sub-grouping — four distinct agent families (D&D, home/IoT, dev-meta, infra) live side-by-side at the top level, the same un-grouped-cluster pattern already logged for the `services/` game files
 
 - **Category:** future-idea (structure / DX), debt
