@@ -105,6 +105,71 @@ New entries go at the TOP of their section (newest first).
 - [ ] Delete `docs/phases/completed/.gitkeep`.
 
 **Related files:** `docs/phases/completed/.gitkeep`
+### [2026-07-02] Universal VTT (.uvtt/.dd2vtt) battlemap import/export — walls/doors/lights metadata interop with Dungeondraft, Dungeon Alchemist, Foundry
+
+- **Category:** future-idea
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** scheduled improvement-suggestion scan of `dnd-app/`
+
+**Description:**
+The app has native walls, doors, dynamic lighting, and fog-of-war, and PHASE-34 built an AI battlemap generator whose `BattlemapSpec` was deliberately designed "UVTT-adjacent (walls/portals/lights + grid resolution)" — with UVTT import/export explicitly called out as the cheap future path and "log to SUGGESTIONS-LOG-DNDAPP if desired" (see `docs/phases/completed/PHASE-34-battlemap-generation.md` §367/§401). It was never logged, and `grep -ri "uvtt\|dd2vtt\|dungeondraft" src/` finds no implementation. Today a DM who builds a map in Dungeondraft / Dungeon Alchemist must re-trace every wall, door, and light by hand in the in-app editor; the Universal VTT JSON format (an image plus grid size, colliders, portals, and lights) is the ecosystem-standard interchange that Foundry and Roll20 already consume.
+
+**Proposed fix / improvement:**
+- [ ] Import: parse `.uvtt`/`.dd2vtt`/`.df2vtt` (base64 image + `resolution`, `line_of_sight`, `portals`, `lights`) into the existing map + wall-layer + door + lighting-overlay model, mapping through/near `BattlemapSpec`.
+- [ ] Export: serialize the current map (background, walls, portals, lights, grid) back out to `.uvtt`, closing the round-trip PHASE-34 anticipated.
+- [ ] Wire into the DM map editor (`components/game/modals/dm-tools/DMMapEditor.tsx`) as an "Import map file…" action next to plain-image import, and reuse `upload-validation.ts` size/type guards for the embedded image.
+
+**Blocked by:** none
+
+**Related files:** `dnd-app/src/renderer/src/components/game/map/wall-layer.ts`, `dnd-app/src/renderer/src/components/game/map/lighting-overlay.ts`, `dnd-app/src/renderer/src/components/game/modals/dm-tools/DMMapEditor.tsx`, `dnd-app/docs/phases/completed/PHASE-34-battlemap-generation.md`
+
+**Related entries:** none (PHASE-34 completion note asked for this entry; first time logged)
+
+### [2026-07-02] Game chat has no transcript export — combat log exports CSV/JSON but the RP/narration chat (the actual story) cannot be saved
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** scheduled improvement-suggestion scan of `dnd-app/`
+
+**Description:**
+`CombatLogPanel.tsx` ships CSV + JSON export (`services/io/combat-log-export.ts`), but the game chat — player roleplay, DM/AI-DM narration, whispers, system messages rendered by `GameChatPanel.tsx` from `use-lobby-store` `ChatMessage[]` — has no export at all (`grep -i "export\|download" GameChatPanel.tsx` finds only the module `export default`). The AI DM produces end-of-session *recaps*, but the raw session transcript (the campaigns actual prose) is unrecoverable once the session ends. Groups that journal their campaigns, or want to feed a past session back to the AI DM or share it on Discord, have nothing to copy but scrollback.
+
+**Proposed fix / improvement:**
+- [ ] Add "Export transcript" (Markdown, plus optional JSON) to the chat panel header, mirroring the combat-log export UX: `# Session — <date>` then `**Speaker** (HH:MM): message`, with whispers marked and system messages toggleable.
+- [ ] Reuse the same blob-download path as `combat-log-export.ts`; factor a tiny shared `download-file` helper if desired.
+- [ ] Optional follow-up: a combined "session record" export that interleaves chat + combat-log by timestamp.
+
+**Blocked by:** none
+
+**Related files:** `dnd-app/src/renderer/src/components/game/bottom/GameChatPanel.tsx`, `dnd-app/src/renderer/src/stores/use-lobby-store.ts`, `dnd-app/src/renderer/src/services/io/combat-log-export.ts`, `dnd-app/src/renderer/src/components/game/sidebar/CombatLogPanel.tsx`
+
+**Related entries:** none found (grepped `transcript`, `chat export`, `session log` across active + resolved dnd-app logs)
+
+### [2026-07-02] Dice roll statistics panel — per-player d20 distributions, crit/fumble counts, session luck summary from events the app already records
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** scheduled improvement-suggestion scan of `dnd-app/`
+
+**Description:**
+Every roll already flows through structured paths — the 3D dice roller, chat roll commands, group rolls, and the combat log slice — and `DMRollerModal.tsx` keeps a `rollHistory`, but nothing aggregates rolls into statistics. `grep -ri "statistics\|roll.stat" src/renderer` finds only `ShortRestPanel`. A small stats view (per-player d20 histogram, average vs expected, nat-1/nat-20 counts, rolls-per-session) is a beloved QoL feature in other VTTs (Foundrys Dice Stats modules, Roll20 API scripts), fits the existing combat-log data model, and gives the end-of-session recap fun material ("Gavin rolled four nat-20s").
+
+**Proposed fix / improvement:**
+- [ ] Accumulate roll events (die size, raw result, roller, purpose) into a lightweight session-scoped stats slice or derive on demand from the combat log entries that already carry roll payloads.
+- [ ] Render a "Dice stats" tab/modal (per-player histogram + crit/fumble tallies + session totals); DM sees all, players see their own.
+- [ ] Optional: include a one-line luck summary in the AI DM end-of-session recap context.
+
+**Blocked by:** none
+
+**Related files:** `dnd-app/src/renderer/src/stores/game/combat-log-slice.ts`, `dnd-app/src/renderer/src/components/game/dice3d/DiceRoller.tsx`, `dnd-app/src/renderer/src/components/game/modals/dm-tools/DMRollerModal.tsx`
+
+**Related entries:** none found (no prior dice/roll-statistics entry in active or resolved dnd-app logs)
 
 ### [2026-06-29] file-size-budget ratchet guards only 2 of ~7 hand-written 1000+ LOC modules — the main-process / web / store monoliths can still grow unbounded
 
