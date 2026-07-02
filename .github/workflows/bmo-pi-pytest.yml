@@ -2,8 +2,11 @@
 name: bmo / pi pytest
 
 on:
+  # No branch filter on push: this correctness gate must run on auto/<agent-id>
+  # branch pushes too, so the integrator's "merge only green branches" check
+  # sees a real signal instead of a silently-missing run (path filters +
+  # cancel-in-progress concurrency keep per-branch cost bounded).
   push:
-    branches: [master]
     paths:
       - 'bmo/**'
       - '.github/workflows/bmo-pi-pytest.yml'
