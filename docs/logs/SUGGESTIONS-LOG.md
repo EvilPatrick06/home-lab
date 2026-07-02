@@ -12,6 +12,135 @@ How to triage: [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md)
 
 ## Cross-cutting / repo-wide suggestions
 
+### [2026-07-02] The repo-wide canonical process doc lives at `dnd-app/docs/phases/INSTRUCTIONS.md` — every referencing doc needs a "despite its path" disclaimer
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+- **During:** cross-cutting docs-organization scan (docs/ layout vs. per-project phases dirs)
+
+**Description:**
+`docs/AUTOMATED-AGENT-GIT-WORKFLOW.md` declares `dnd-app/docs/phases/INSTRUCTIONS.md` (621 lines) the "canonical implement → verify → commit → release loop for EVERY automated/scheduled agent across ALL domains" and has to immediately disclaim: "Despite its path under `dnd-app/docs/`, it is repo-wide, not dnd-app-only." The bmo and dungeon-scholar analogues (`bmo/docs/phases/INSTRUCTIONS.md`, `dungeon-scholar/docs/phases/INSTRUCTIONS.md`, ~165 lines each) each repeat the same cross-domain pointer back into another project's tree. So the single most important repo-wide process doc is filed under one project, and every doc that cites it (workflow doc, LOG-INSTRUCTIONS, both sibling INSTRUCTIONS files, agent-instruction files) pays a recurring disclaimer tax; a new agent scoped to bmo or dungeon-scholar has to know to read inside `dnd-app/` for its own process rules.
+
+**Hypothesis / root cause:** the doc grew up when dnd-app was the only phase-driven project and was later promoted to repo-wide canonical in place rather than relocated (speculation, but consistent with the disclaimer wording).
+
+**Proposed fix / improvement:**
+- [ ] Extract the domain-agnostic rules (STOP-and-ask test, fix-forward stance, rules 5/27/28, verify loop) into a repo-wide `docs/PHASE-EXECUTION.md`, leaving `dnd-app/docs/phases/INSTRUCTIONS.md` as the dnd-app analogue (same shape as the bmo/dungeon-scholar files: domain facts + concrete commands + pointer to the shared doc).
+- [ ] Update the cross-references (`docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`, `docs/LOG-INSTRUCTIONS.md`, `AGENTS.md`/`CLAUDE.md`/`GEMINI.md`/`.cursorrules`/`.github/copilot-instructions.md`, the two sibling INSTRUCTIONS files) and leave a pointer stub at the old path so stale agent task definitions don't 404.
+- [ ] Do it in one dedicated docs-only commit; the reference fan-out is wide, so this should not ride along with code changes.
+
+**Blocked by:** none, but scheduled-task `SKILL.md` definitions living outside the repo also cite the old path — the stub keeps them working.
+
+**Related files:** `dnd-app/docs/phases/INSTRUCTIONS.md`, `bmo/docs/phases/INSTRUCTIONS.md`, `dungeon-scholar/docs/phases/INSTRUCTIONS.md`, `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`, `docs/LOG-INSTRUCTIONS.md`
+
+**Related entries:** none found (grepped SUGGESTIONS-LOG.md + ISSUES-LOG.md for INSTRUCTIONS.md relocation).
+
+### [2026-07-02] `.husky/pre-commit`: dungeon-scholar gate is split into two non-adjacent blocks, and the second mislabels dungeon-scholar as "(VTT)"
+
+- **Category:** debt, docs
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+- **During:** cross-cutting review of repo-root tooling (`.husky/pre-commit`)
+
+**Description:**
+The repo-root hook defines a `staged()` helper and uses it for the dnd-app and dungeon-scholar biome blocks. But dungeon-scholar's *test* pre-flight is a separate block ~25 lines later (after the gitleaks scan), which (a) re-derives the staged list with a raw `git diff --cached --name-only --diff-filter=ACMR | grep -q "^dungeon-scholar/"` instead of `staged()`, (b) opens with the comment "dungeon-scholar (VTT) pre-flight" — VTT is dnd-app, not dungeon-scholar — and (c) says "the husky hook previously gated dnd-app alone", a stale historical note. So one project's local gate lives in two places with a wrong label between them; anyone editing the first dungeon-scholar block (e.g. to add typecheck) can easily miss the second, and the "(VTT)" label actively misleads about which project the test run belongs to.
+
+**Hypothesis / root cause:** the test block was copy-pasted from a dnd-app-era template when dungeon-scholar tests were added, and the comment header was only partially adapted.
+
+**Proposed fix / improvement:**
+- [ ] Merge the dungeon-scholar test run into the existing dungeon-scholar biome block (one `if staged | grep -q '^dungeon-scholar/'` guard, biome + `npm test`).
+- [ ] Fix the comment: drop "(VTT)" and the stale "previously gated dnd-app alone" note.
+- [ ] Use the `staged()` helper in the bmo/pi and oracle-worker blocks too, so the staged-detection idiom is uniform hook-wide.
+
+**Related files:** `.husky/pre-commit`
+
+**Related entries:** `SUGGESTIONS-LOG.md` → [2026-06-29] mobile has no local pre-commit floor (same file, different gap — fixing both at once is natural).
+
+### [2026-07-02] `.gitattributes` QA-screenshot LFS rules are copy-pasted per project × extension (15 lines); a fourth phases dir or new image extension silently bypasses LFS
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+- **During:** cross-cutting review of repo-root configs (`.gitattributes`)
+
+**Description:**
+The LFS rules for phase-QA screenshots are spelled out as 15 literal lines — `{dnd-app,dungeon-scholar,bmo}/docs/phases/QA/screenshots/*.{png,jpg,jpeg,gif,webp}` fully expanded, one line each. Git attributes support `**` globs (already used elsewhere in the same file: `**/docs/DESIGN-CONSTRAINTS.md merge=union`), so five lines of `**/docs/phases/QA/screenshots/*.png` etc. would cover all three projects plus any future one. As written, adding a fourth project with a phases/QA dir (or a new screenshot format, e.g. avif) requires remembering to extend three-way copy-paste — and forgetting means multi-MB screenshots land as regular git blobs, which is invisible until the repo bloats. The three-project QA-screenshot convention is identical everywhere, so this is pure duplication with a real (if slow-burn) failure mode.
+
+**Hypothesis / root cause:** the rules were appended per-project as each phases/QA dir gained screenshots, and nobody consolidated once the pattern repeated three times.
+
+**Proposed fix / improvement:**
+- [ ] Replace the 15 per-project lines with `**/docs/phases/QA/screenshots/*.<ext>` (5 lines, one per extension), matching the `**/docs/DESIGN-CONSTRAINTS.md` idiom already in the file.
+- [ ] Verify no non-QA `docs/phases/QA/screenshots/` path exists that should stay un-LFS'd (none found in this scan).
+
+**Related files:** `.gitattributes`
+
+**Related entries:** none found (grepped for gitattributes/LFS in SUGGESTIONS-LOG.md + ISSUES-LOG.md).
+
+### [2026-07-02] Node-version floor is declared in `.nvmrc` + three `engines` fields, but `dnd-app/mobile/package.json` has no `engines` — the one lockfile without the guard
+
+- **Category:** config
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+- **During:** cross-cutting convention scan of per-project `package.json` metadata vs. repo-root `.nvmrc`
+
+**Description:**
+The repo pins Node 22 at the root (`.nvmrc` = `22`) and `dnd-app`, `dungeon-scholar`, and `oracle-worker` each back it with `"engines": { "node": ">=22" }`, so an `npm install` under an old Node warns (or fails with engine-strict). `dnd-app/mobile/package.json` — the fourth independent npm lockfile — declares no `engines` at all. Mobile is exactly the project a contributor is most likely to build in a different environment (EAS/Expo tooling, possibly a different machine than the Electron dev box), so it is the one place the floor matters most and the only place it is missing. This mirrors the already-logged mobile parity gaps (audit, pre-commit, typecheck script) — same root pattern: mobile was added later and misses repo-wide conventions one at a time.
+
+**Hypothesis / root cause:** `dnd-app/mobile` was scaffolded by Expo tooling, which does not emit an `engines` field, and the repo convention was never back-filled.
+
+**Proposed fix / improvement:**
+- [ ] Add `"engines": { "node": ">=22" }` to `dnd-app/mobile/package.json` (verify Expo SDK's supported Node range still includes 22 first).
+- [ ] Consider one line in `docs/CONTRIBUTING.md`'s script-vocabulary section stating the convention ("every package.json declares the Node floor matching `.nvmrc`") so future packages inherit it.
+
+**Related files:** `dnd-app/mobile/package.json`, `.nvmrc`, `docs/CONTRIBUTING.md`
+
+**Related entries:** `SUGGESTIONS-LOG.md` → [2026-06-29] audit-coverage parity gap and [2026-06-29] mobile pre-commit floor (same "mobile misses repo conventions" pattern).
+
+### [2026-07-02] `docs/LOG-INSTRUCTIONS.md` never documents where resolved *cross-cutting* entries go — the archive that actually receives them (`RESOLVED-ISSUES.md` "Cross-cutting resolved") is absent from its tables
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+- **During:** cross-cutting docs-consistency scan of the logging docs vs. actual log-file layout
+
+**Description:**
+`docs/logs/RESOLVED-ISSUES.md` opens as a "compatibility pointer" but in practice carries a live `## Cross-cutting resolved (overall-resolver)` section where resolved `Domain: both` entries from the pointer logs are archived (e.g. the 2026-06-29 dnd-web-deploy gate fix), and `docs/README.md` lists it as the "cross-cutting pointer" archive. `docs/LOG-INSTRUCTIONS.md` — the canonical triage doc — disagrees on both counts: its "Which log goes where" table omits `RESOLVED-ISSUES.md` entirely, and its "After fixing a logged issue" section instructs that `Domain: both` entries be filed "under the domain whose codebase the fix actually touched" in a per-domain archive. So the doc that agents are told to read BEFORE logging describes a resolution flow the overall-resolver does not follow, and a resolver following LOG-INSTRUCTIONS to the letter would scatter cross-cutting resolutions across per-domain archives while the existing convention concentrates them in RESOLVED-ISSUES.md.
+
+**Hypothesis / root cause:** the cross-cutting section was added to RESOLVED-ISSUES.md when the overall-* scanner/resolver family was introduced, and LOG-INSTRUCTIONS.md's after-fix table predates it and was never updated.
+
+**Proposed fix / improvement:**
+- [ ] Add `RESOLVED-ISSUES.md` (cross-cutting resolved archive) to LOG-INSTRUCTIONS.md's "Which log goes where" table.
+- [ ] Amend the "After fixing" routing: repo-wide/structural `Domain: both` entries from the pointer logs → `RESOLVED-ISSUES.md` "Cross-cutting resolved"; mirrored multi-project entries → the per-domain archive of the codebase the fix touched (current wording), so both flavors are covered.
+
+**Related files:** `docs/LOG-INSTRUCTIONS.md`, `docs/logs/RESOLVED-ISSUES.md`, `docs/README.md`
+
+**Related entries:** none found (grepped for "Cross-cutting resolved" / "resolved archive" in the pointer logs).
+
+### [2026-07-02] Root `README.md` "Each project's own README" pointer list omits `oracle-worker/README.md` (3 of 4 projects listed)
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+- **During:** cross-cutting scan of repo-root docs for staleness vs. current project set
+
+**Description:**
+The root README's Projects table correctly lists all four shipping units including `oracle-worker/`, but the immediately-following "Each project's own README has the details" bullet list links only `dnd-app/README.md`, `bmo/README.md`, and `dungeon-scholar/README.md`. `oracle-worker/README.md` exists and is the natural landing page for the worker (deploy/typecheck/rate-limit details), so the omission reads as staleness from when oracle-worker was added to the table but not the list. Two adjacent sections of the same file disagreeing about the project count is a small but visible front-door inconsistency.
+
+**Hypothesis / root cause:** oracle-worker was added to the Projects table later and the README bullet list below it was not updated in the same pass.
+
+**Proposed fix / improvement:**
+- [ ] Add `📖 [oracle-worker/README.md](./oracle-worker/README.md)` to the list.
+
+**Related files:** `README.md`, `oracle-worker/README.md`
+
+**Related entries:** none found.
+
 ### [2026-06-29] Supply-chain pinning is uneven: GitHub Actions are SHA-pinned + Dependabot-tracked, but the bmo Docker base image is tag-floated and has NO `docker` Dependabot ecosystem
 
 - **Category:** future-idea, config
