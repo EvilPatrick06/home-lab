@@ -22,20 +22,19 @@ from _stdio_server import serve  # shared JSON-RPC stdio transport
 
 # ── Paths ─────────────────────────────────────────────────────────────
 
+# Default the data roots to THIS server's own checkout (…/bmo/pi/data), not a
+# fixed ~/home-lab, so a standalone launch reads the same tree it lives in
+# (BMO-ISSUES-LOG 2026-07-02). The app normally passes DND_* env explicitly.
+_PI_DATA = Path(__file__).resolve().parent.parent / "data"
+
 MARKDOWN_ROOT = Path(os.environ.get(
-    "DND_MARKDOWN_ROOT",
-    os.path.expanduser("~/home-lab/bmo/pi/data/5e-references"),
-))
+    "DND_MARKDOWN_ROOT", str(_PI_DATA / "5e-references")))
 
 JSON_DATA_ROOT = Path(os.environ.get(
-    "DND_JSON_ROOT",
-    os.path.expanduser("~/home-lab/bmo/pi/data/5e"),
-))
+    "DND_JSON_ROOT", str(_PI_DATA / "5e")))
 
 RAG_DATA_DIR = Path(os.environ.get(
-    "RAG_DATA_DIR",
-    os.path.expanduser("~/home-lab/bmo/pi/data/rag_data"),
-))
+    "RAG_DATA_DIR", str(_PI_DATA / "rag_data")))
 
 # ── Lazy RAG engine ──────────────────────────────────────────────────
 

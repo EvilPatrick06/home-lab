@@ -22,7 +22,7 @@ monkey.patch_all()
 
 import json
 import os
-from services.paths import DATA_DIR as _P_DATA_DIR
+from services.paths import BMO_ROOT as _P_BMO_ROOT, DATA_DIR as _P_DATA_DIR
 import secrets
 import subprocess
 import threading
@@ -3098,5 +3098,39 @@ if __name__ == "__main__":
             log.exception("[bmo] Music restore failed")
     if BMO_CANARY:
         log.info("[bmo] CANARY boot — hardware/services skipped")
-    log.info(f"[bmo] BMO is ready! Access at http://0.0.0.0:{BMO_PORT}")
-    socketio.run(app, host="0.0.0.0", port=BMO_PORT, debug=False)
+    # ── BMO_ROOT drift guard (BMO-ISSUES-LOG 2026-07-02) ──────────────────────
+    # BMO_ROOT (where services resolve data/models) MUST be the checkout this
+    # code is running from; otherwise live services read/write a DIFFERENT tree
+    # than they execute from (the dev-tree/deploy split-brain). Hard-fail the
+    # canary so the deploy gate catches the drift; warn loudly in a live boot.
+    _app_pi_dir = os.path.dirname(os.path.abspath(__file__))
+    if os.path.realpath(str(_P_BMO_ROOT)) != os.path.realpath(_app_pi_dir):
+        _drift = (f"[bmo] BMO_ROOT {_P_BMO_ROOT} != running checkout {_app_pi_dir} "
+                  f"— data/models resolve to a different tree than the code runs "
+                  f"from; check BMO_HOME.")
+        if BMO_CANARY:
+            raise RuntimeError(_drift)
+        log.warning(_drift)
+
+    # ── Bind host selection (SECURITY-LOG 2026-07-02) ─────────────────────────
+    # The canary boots WITHOUT BMO_API_KEY, so its front door is fully OPEN by
+    # design (_bmo_optional_api_key short-circuits when the key is unset). A
+    # canary that outlives its deploy (trap misses on SIGKILL / reparent) must
+    # therefore NEVER be reachable off-box: bind it to loopback only. The deploy
+    # health probe is local (localhost:$CANARY_PORT), so loopback is sufficient.
+    bind_host = "0.0.0.0"
+    if BMO_CANARY:
+        bind_host = "127.0.0.1"
+    elif not BMO_API_KEY:
+        # Fail-safe the fail-open: a keyless live boot on 0.0.0.0 would expose the
+        # gated admin surface to the whole LAN/tailnet with no credential. Warn
+        # loudly so an unintended keyless bind is visible in the journal.
+        log.warning(
+            "[bmo] BMO_API_KEY is unset — the app is serving UNAUTHENTICATED. "
+            "Binding 0.0.0.0 exposes the gated surface to the LAN/tailnet; set "
+            "BMO_API_KEY (or BMO_BIND_HOST=127.0.0.1) unless this is intentional."
+        )
+    # Explicit operator override (e.g. narrow to loopback + a reverse proxy).
+    bind_host = os.environ.get("BMO_BIND_HOST", bind_host)
+    log.info(f"[bmo] BMO is ready! Access at http://{bind_host}:{BMO_PORT}")
+    socketio.run(app, host=bind_host, port=BMO_PORT, debug=False)

@@ -118,7 +118,10 @@ venv/bin/python -m piper.download_voices en_US-libritts_r-medium \
 log "Installing Tailwind CLI and compiling CSS..."
 sudo curl -sL https://github.com/tailwindlabs/tailwindcss/releases/download/v3.4.17/tailwindcss-linux-arm64 -o /usr/local/bin/tailwindcss
 sudo chmod +x /usr/local/bin/tailwindcss
-cd ~/home-lab/bmo/pi
+# Frontend assets live under pi/web/ (static/ + templates/ were moved there in
+# the monorepo reorg); the tailwind.config.js is colocated at pi/web/ so its
+# ./templates + ./static/js content globs resolve. (BMO-ISSUES-LOG 2026-07-02.)
+cd ~/home-lab/bmo/pi/web
 tailwindcss -i static/css/tailwind-input.css -o static/css/tailwind.css --minify
 
 # ── 7. Environment File ─────────────────────────────────────────
