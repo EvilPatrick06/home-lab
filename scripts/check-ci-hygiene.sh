@@ -46,9 +46,13 @@ if [ -d docs/superpowers ]; then
   done < <(git ls-files docs/superpowers/)
 fi
 
-for f in .github/workflows/*.yml; do
+# Enumerate via git ls-files (both .yml and .yaml) rather than a *.yml shell
+# glob: GitHub Actions loads either extension, so a .yaml workflow must not
+# silently skip this guard (mirrors the recursive coverage of GUARDs 1-2).
+while IFS= read -r f; do
+  [ -z "$f" ] && continue
   grep -qE "^permissions:" "$f" || { echo "GUARD 5 FAIL: $f has no top-level permissions: block" >&2; fail=1; }
-done
+done < <(git ls-files ".github/workflows/*.yml" ".github/workflows/*.yaml")
 
 if [ "$fail" -ne 0 ]; then
   echo "check-ci-hygiene: FAILED" >&2

@@ -8,10 +8,11 @@ on:
       - '.github/workflows/dungeon-scholar-deploy.yml'
   workflow_dispatch:
 
+# Least-privilege: the npm-executing build job must not hold the Pages-publish
+# or OIDC-mint scopes (npm postinstall scripts run with this token). Job-level
+# permissions below grant each job only what it needs.
 permissions:
   contents: read
-  pages: write  # zizmor: ignore[excessive-permissions] required by actions/configure-pages + deploy-pages
-  id-token: write  # zizmor: ignore[excessive-permissions] required for GitHub Pages OIDC deploy
 
 concurrency:
   group: pages
@@ -20,6 +21,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write  # zizmor: ignore[excessive-permissions] actions/configure-pages may enable Pages on first deploy; build deliberately gets NO id-token: write
     defaults:
       run:
         working-directory: ./dungeon-scholar
@@ -54,6 +58,9 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pages: write  # zizmor: ignore[excessive-permissions] required by actions/deploy-pages
+      id-token: write  # zizmor: ignore[excessive-permissions] OIDC token minted only in this artifact-publishing job
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
