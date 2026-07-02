@@ -20,6 +20,32 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-07-02] `.env.template` has drifted from the code — 40+ `BMO_*` env vars the app reads are undocumented, several template keys are referenced nowhere, and the header cites a nonexistent `bmo.sh`
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** scheduled cleanup/structure scan (cross-check of `.env.template` keys vs `os.environ.get`/`os.getenv` literals in `bmo/pi/**/*.py`)
+
+**Description:**
+An earlier resolved entry (".env.example + fail-fast config preflight", commit `00596a22`) recorded that "`.env.template` already enumerates every key" — that is no longer true; the drift is two-way. **(1) Code → template:** 40+ env vars read in `bmo/pi/` never appear in the template, including operationally useful knobs: auth/API (`BMO_API_KEY`, `BMO_IDE_TOKEN`/`BMO_IDE_HOST`/`BMO_IDE_PORT`), the whole rate-limit family (`BMO_AUTH_RATE_LIMIT`, `BMO_CHAT_RATE_LIMIT`, `BMO_DEFAULT_RATE_LIMIT`, `BMO_GAMES_RATE_LIMIT`, `BMO_IDE_JOBS_RATE_LIMIT`, `BMO_DND_LOAD_RATE_LIMIT`, `BMO_NARRATE_RATE_LIMIT`), canary controls (`BMO_CANARY`, `BMO_CANARY_TTS`, `BMO_CANARY_STALE_H`, `BMO_CANARY_STT_BUDGET_S`), logging (`BMO_LOG_LEVEL`/`BMO_LOG_FILE`/`BMO_LOG_FORMAT`), model failover (`BMO_LLM_FAILOVER_MODEL`, `BMO_DND_FALLBACK_MODELS`, `BMO_LOCAL_MODEL`), size/quota limits (`BMO_MAX_REQUEST_SIZE`, `BMO_MAX_CHAT_MESSAGE_LEN`, `BMO_ACCOUNT_QUOTA_BYTES`, `BMO_MAX_BACKUP_SIZE`), and `BMO_HOME`. All have defaults (nothing is broken), but the template presents itself as the config reference, so an operator tuning any of these has to grep source. **(2) Template → code:** several template keys have zero references anywhere else in the repo (`CF_ACCOUNT_ID`, `CF_TUNNEL_ID`, `PI_IP`, `PI_SSH_ALIAS`, `PI_WEB_HOST`; `PI_HOST`/`PI_USER`/`PI_TAILSCALE_HOST`/`CLOUDFLARE_DOMAIN` have only 1–4 hits, some docs-only) — likely leftovers of retired shell tooling. **(3)** The template header says "All commands via \"bash bmo.sh <command>\" will source this file" — no `bmo.sh` exists anywhere in `bmo/`. Bonus: `setup-bmo.sh` section 7 writes its own inline `.env` seed (heredoc) with a *third*, smaller key list that also drifts independently.
+
+**Hypothesis / root cause:** every new feature added its `os.getenv` knob with a default and skipped the template (no guard couples them); the shell-tooling keys and the `bmo.sh` reference survived the retirement of the old command wrapper.
+
+**Proposed fix / improvement:**
+- [ ] Regenerate the documented key list: add the missing `BMO_*` knobs grouped by concern (auth/rate-limits, canary, logging, models, size limits, paths) with one-line comments + defaults; drop or annotate the dead `CF_*`/`PI_*` keys (verify `PI_HOST`'s few references first).
+- [ ] Fix the header: replace the `bash bmo.sh <command>` claim with how the file is actually consumed (systemd `EnvironmentFile`/dotenv at app boot via `config_preflight`).
+- [ ] De-duplicate the third list: make `setup-bmo.sh` seed `.env` by copying `.env.template` instead of its own inline heredoc.
+- [ ] Optional guard: a small test (alongside `tests/test_config_preflight.py`) asserting every `BMO_*` var read under `pi/` appears in `.env.template`, so the two cannot drift again.
+
+**Blocked by:** none
+
+**Related files:** `bmo/.env.template`, `bmo/pi/services/config_preflight.py`, `bmo/pi/tests/test_config_preflight.py`, `bmo/setup-bmo.sh` (section 7 inline `.env` heredoc)
+
+**Related entries:** BMO-RESOLVED-ISSUES ".env.example + fail-fast startup config preflight" (`00596a22`) — the state this entry reports drift from.
+
+
 ### [2026-06-29] `agents/` is a 40-file flat package with no sub-grouping — four distinct agent families (D&D, home/IoT, dev-meta, infra) live side-by-side at the top level, the same un-grouped-cluster pattern already logged for the `services/` game files
 
 - **Category:** future-idea (structure / DX), debt

@@ -32,6 +32,38 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Medium
 
+### [2026-07-02] `setup-bmo.sh` Tailwind compile step points at pre-reorg paths — `pi/static/` no longer exists, so a fresh-Pi build fails and the committed `tailwind.css` is a frozen, unrebuildable artifact
+
+- **Category:** bug, config
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** scheduled cleanup/structure scan of the `bmo/` tree (read-only)
+
+**Description:**
+`setup-bmo.sh` section 6 runs `cd ~/home-lab/bmo/pi && tailwindcss -i static/css/tailwind-input.css -o static/css/tailwind.css --minify` — but there is no `pi/static/` (nor `pi/templates/`): the frontend assets live under `pi/web/` (`web/static/css/tailwind-input.css`, `web/templates/`). The `cd` prefix was rewritten twice as the repo moved (`f96bad8f` `~/DnD/BMO-setup/pi` → `~/DnD/bmo/pi`; `5089b7e6` → `~/home-lab/bmo/pi`) but the relative `-i`/`-o` paths were never updated for the `web/` subtree, so the compile step errors out ("input file not found") on any fresh-Pi run. Compounding it, `pi/tailwind.config.js`'s content globs (`./templates/**/*.html`, `./static/js/**/*.js`) also resolve against `pi/` and match **zero files**, so even a corrected `-i`/`-o` invocation from `pi/` would purge every utility class and emit near-empty CSS. Net effect: the tracked, pre-built `web/static/css/tailwind.css` is the de-facto frozen styling artifact — nothing in the tree can currently rebuild it — and new utility classes silently no-op. PHASE-17 already collided with exactly this ("the plan's suggested `hidden sm:inline` / `max-w-[...]` would have been un-styled no-ops without a Tailwind rebuild (out of scope)") and had to restrict itself to classes already present in the built CSS.
+
+**Reproduction (if bug):**
+1. Fresh Pi (or any checkout), run `bash setup-bmo.sh` to section 6 ("Installing Tailwind CLI and compiling CSS...").
+2. `tailwindcss -i static/css/tailwind-input.css ...` from `bmo/pi/` — input file does not exist.
+3. Observed: compile step fails; the repo keeps serving the committed `tailwind.css` built before the April reorg.
+
+**Expected behavior (if bug):** the step compiles from `web/static/css/tailwind-input.css` scanning `web/templates/**` + `web/static/js/**`, reproducing (or refreshing) the committed `tailwind.css`.
+
+**Hypothesis / root cause:** path drift from the `f96bad8f` monorepo reorg that moved `static/`+`templates/` under `pi/web/`; the two later edits to this line only renamed the repo prefix, and the committed built CSS masked the breakage (the live Pi never needed a rebuild, so the failure only shows on fresh setup or when someone tries to add new utility classes).
+
+**Proposed fix / improvement:**
+- [ ] Point the build at the real tree: `cd ~/home-lab/bmo/pi/web && tailwindcss -i static/css/tailwind-input.css -o static/css/tailwind.css --minify`, and relocate `pi/tailwind.config.js` → `pi/web/tailwind.config.js` (or keep it at `pi/` with `--config` and fix its content globs to `./web/templates/**/*.html`, `./web/static/js/**/*.js`).
+- [ ] Rebuild once and diff against the committed `tailwind.css` to surface class drift accumulated since the reorg (PHASE-17's `hidden sm:inline` case would start working); commit the refreshed artifact.
+- [ ] Optional guard: a preflight/CI check (or `test_deploy_script.py`-style test) asserting the build step's input paths exist, so the next asset move surfaces immediately instead of silently freezing the CSS again.
+
+**Blocked by:** none
+
+**Related files:** `bmo/setup-bmo.sh:118-122`, `bmo/pi/tailwind.config.js`, `bmo/pi/web/static/css/tailwind-input.css`, `bmo/pi/web/static/css/tailwind.css`, `bmo/pi/web/templates/index.html`, `bmo/docs/phases/completed/PHASE-17-dashboard-health-signal-ux-truth.md` (17B build-drift note)
+
+**Related entries:** BMO-RESOLVED-ISSUES 2026-06-24 (orphaned vendored frontend assets) — same "asset strategy/layout changed, references never updated" family; this is the build-script instance.
+
+
 
 ### [2026-06-29] social-bot YouTube playback failing — `HTTP 403 Forbidden` + "Video unavailable" (likely yt-dlp staleness)
 
