@@ -21,6 +21,108 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-07-02] Broaden sign-in beyond GitHub-only OAuth (Google + email magic link)
+
+- **Category:** future-idea, UX
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement scan of dungeon-scholar/src + docs
+
+**Description:**
+The only sign-in path is GitHub OAuth: `services/supabase.js` exports a single `signInWithGitHub()`, `SignInButton.jsx` calls only it, and `docs/supabase-setup.md` documents only the GitHub provider. Cloud sync, cross-device continuity, and account recovery are therefore gated on having a GitHub account — a poor fit for the app's actual audience (cert students working through Security+/CCST/AWS material, many of whom are not developers). Supabase already supports Google OAuth and passwordless email magic links (`signInWithOtp`) on the same client with no schema changes, so the marginal code is one function + one button per provider. Everyone who bounces off the GitHub wall today silently loses the backup/sync safety net the app otherwise provides (the save-failure copy even points users at sign-in for cloud backup).
+
+**Hypothesis / root cause:** GitHub was the natural first provider for a developer-built project (zero-cost, already had an account); audience-fit was never revisited once sync shipped.
+
+**Proposed fix / improvement:**
+- [ ] Add `signInWithGoogle()` and `signInWithMagicLink(email)` alongside `signInWithGitHub()` in `services/supabase.js` (same `redirectTo` handling; `consumeOAuthCallback` already handles the return leg generically).
+- [ ] Turn `SignInButton.jsx` into a small provider chooser (GitHub / Google / email), reusing the existing `TextInputModal` for the email capture.
+- [ ] Document the extra providers in `docs/supabase-setup.md` as optional steps (deployments that configure only GitHub keep working — probe provider availability or make it env-driven).
+- [ ] Verify the RLS probe + account-deletion flows are provider-agnostic (they key on the Supabase user id, so they should be).
+
+**Blocked by:** none (Supabase dashboard config + additive client code).
+
+**Related files:** `src/services/supabase.js`, `src/components/SignInButton.jsx`, `src/components/AccountPanel.jsx`, `docs/supabase-setup.md`
+
+---
+
+### [2026-07-02] Playwright e2e smoke suite for dungeon-scholar (parity with dnd-app's dnd-e2e.yml)
+
+- **Category:** future-idea
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement scan of dungeon-scholar tooling + CI
+
+**Description:**
+dungeon-scholar has zero browser-level tests: CI (`dungeon-scholar-ci.yml`) runs lint → tsc → vitest (happy-dom) → build, and everything above the unit layer is left to the scheduled QA agent manually driving a real browser. Meanwhile the sibling dnd-app already has a non-blocking Playwright smoke workflow (`.github/workflows/dnd-e2e.yml`) establishing the repo pattern. The gap is measurable: the light-theme contrast defect family has now recurred across PHASE-03, PHASE-10, PHASE-12 and a fresh 2026-06-30 issue-log entry — each caught only by a later manual QA pass — and unit-level guards (`phase10-contrast.test.js`, `theme.test.js`) keep proving insufficient because they can't see real rendered styles. A small Playwright suite (boot → import starter tome → answer a quiz question → toggle light theme + run an axe/contrast scan → complete a short mock exam) would catch whole classes of regressions (routing, hash deep links, PWA update flow, theme contrast) at PR time instead of QA time, and would give the resolver agents a fast repro harness.
+
+**Hypothesis / root cause:** The unit suite grew excellent coverage of pure logic (749+ tests), so e2e never felt urgent; the recurring theme regressions live exactly in the rendered-CSS layer that vitest/happy-dom structurally cannot exercise.
+
+**Proposed fix / improvement:**
+- [ ] Add `@playwright/test` + `@axe-core/playwright` to dungeon-scholar devDeps; suite under `dungeon-scholar/e2e/` against `vite preview` (base `/home-lab/`).
+- [ ] Cover: app boot + hash routing, quiz answer round-trip, light/dark theme toggle with an axe contrast scan per theme on the top screens, short mock exam completion, tome JSON import.
+- [ ] Mirror `dnd-e2e.yml` as `dungeon-scholar-e2e.yml`: PR-paths + manual dispatch, non-blocking until stable (same promote-later note).
+- [ ] Wire Supabase/Oracle to disabled/local-fallback mode so the suite is hermetic (the deploy workflow already documents the fork-with-Oracle-disabled path).
+
+**Blocked by:** none.
+
+**Related files:** `.github/workflows/dungeon-scholar-ci.yml`, `.github/workflows/dnd-e2e.yml`, `dungeon-scholar/package.json`, `src/phase10-contrast.test.js`, `src/theme.test.js`
+
+**Related entries:** ISSUES-LOG-DUNGEON-SCHOLAR.md [2026-06-30] "Light-theme muted accent-label wash-out persists on non-enumerated screens" (the recurring family this would catch); SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md [2026-06-29] "CI has no test-coverage floor and no bundle-size budget" (sibling CI-hardening idea, different layer).
+
+---
+
+### [2026-07-02] Cloze-deletion (fill-in-the-blank text occlusion) card type
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement scan of dungeon-scholar/src
+
+**Description:**
+The app supports image occlusion (`services/occlusion.js`, `OcclusionAuthor.jsx`, `OcclusionCard.jsx`) but has no text equivalent: a grep for `cloze` across `src/` returns nothing. Cloze deletion ("The three-way handshake is SYN → {{SYN-ACK}} → ACK") is one of the highest-retention card formats for exactly this app's material — port numbers, protocol sequences, command syntax, acronym expansions — and is the single most-used card type in Anki. Authors today must hand-convert each fact into separate MC/FIB questions; a cloze syntax would generate one card per masked span from a single authored sentence. The grading path already exists: FIB questions grade free-text via `acceptedAnswers`, so a cloze card is essentially an authored-once, multi-blank FIB with rendered context. It also round-trips naturally with the proposed CSV export and the existing Anki-adjacent import (Anki's `{{c1::...}}` syntax could be recognized by `deckImport.js`).
+
+**Proposed fix / improvement:**
+- [ ] Support a `{{c1::answer}}` (or `{{answer}}`) span syntax in card text; expand each masked span into a study item at tome load (pure helper, e.g. `services/cloze.js`, mirroring how `occlusion.js` derives per-region cards).
+- [ ] Render the masked sentence via the existing `RichContent` path with the blank highlighted; grade with the existing FIB/`acceptedAnswers` machinery.
+- [ ] Recognize Anki cloze syntax in `deckImport.js` paste imports instead of importing the raw markup as literal text.
+- [ ] TomeEditor: a small "make cloze" affordance that wraps the selected text.
+
+**Blocked by:** none (additive card type; grading + rendering primitives exist).
+
+**Related files:** `src/services/occlusion.js`, `src/services/deckImport.js`, `src/features/library/TomeEditor.jsx`, `src/components/RichContent.jsx`, `src/game/tome.js`
+
+**Related entries:** RESOLVED-ISSUES-DUNGEON-SCHOLAR.md [2026-06-24] "Image-occlusion flashcards" (this is its text-mode sibling); SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md [2026-06-29] "Tome → CSV / Quizlet export" (cloze syntax should survive the round-trip).
+
+---
+
+### [2026-07-02] User-tunable SRS study load: desired-retention setting + daily new-card cap
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement scan of dungeon-scholar/src/services
+
+**Description:**
+The FSRS-5 scheduler hardcodes `DESIRED_RETENTION = 0.9` in `services/srs.js`, and nothing caps how many *new* (never-reviewed) cards enter the queue per day — a grep for `perDay`/`dailyLimit`/`newLimit` across `src/` returns nothing. Two practical consequences for a cert learner: (a) importing a 300-card tome floods the due queue with 300 new cards at once, the classic overwhelm-then-abandon failure mode every mature SRS mitigates with a new-cards/day cap (Anki defaults to 20); (b) retention is a real trade-off knob — a learner two weeks from their exam rationally wants 0.95 (more reviews, higher recall), a casual learner 0.85 (fewer reviews) — and FSRS is explicitly designed to expose it, but here it is unreachable. Both are small, additive knobs on machinery that already exists (`nextInterval` already derives from the retention constant; the due-queue builders in `usePlayerState`/`srs.js` can partition new-vs-review). Distinct from the already-resolved FSRS-5 upgrade entry (that noted per-user *weight fitting* as future work — these are the user-facing scheduler knobs, not weight optimization).
+
+**Proposed fix / improvement:**
+- [ ] Make desired retention a per-save setting (default 0.9, sane 0.8–0.97 range) threaded into the interval derivation the same way `setSchedulerWeights` already parameterizes the weights.
+- [ ] Add a new-cards-per-day cap (default ~20, configurable, 0 = pause new cards) applied when building the study queue, so review backlog is always served but new-card introduction is throttled.
+- [ ] Surface both under the existing settings/account surface with plain-language copy ("study more per day / remember more" vs "lighter daily load").
+- [ ] Unit-test that changing retention only rescales future intervals (no retroactive rewrite of stored card state).
+
+**Blocked by:** none.
+
+**Related files:** `src/services/srs.js`, `src/hooks/usePlayerState.js`, `src/features/player/usePlayerActions.js`, `src/game/defaultState.js`
+
+**Related entries:** RESOLVED-ISSUES-DUNGEON-SCHOLAR.md [2026-06-24] "Upgrade the SRS scheduler to full FSRS-5" (noted weight-fitting as future; this entry is the user-facing knobs instead); SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md [2026-06-28] "Daily study goal + streak-freeze" (goal/habit layer; this is the scheduler-load layer).
+
+---
+
 ### [2026-06-29] Tome → CSV / Quizlet export (round-trip with the existing importer)
 
 - **Category:** portability
