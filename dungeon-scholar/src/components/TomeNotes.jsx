@@ -1,7 +1,7 @@
 import { AlertTriangle, Lock, Save, ScrollText, Trash2, Unlock, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useDialogA11y } from '../hooks/useDialogA11y.js';
-import { clearKeyCache, decryptPayload, encryptPayload } from '../services/notesCrypto.js';
+import { clampIterations, clearKeyCache, decryptPayload, encryptPayload } from '../services/notesCrypto.js';
 
 // Phase 40F: per-tome encrypted private notes modal.
 //
@@ -116,11 +116,14 @@ export default function TomeNotes({ tome, onSave, onClose }) {
     if (busy) return;
     setBusy(true);
     try {
-      // Re-encrypt with the SAME salt/iterations (fresh IV every time) so the
-      // unlock passphrase keeps working across saves.
+      // Re-encrypt with the SAME salt (fresh IV every time) so the unlock
+      // passphrase keeps working across saves. The iteration count is reused
+      // only when sane: clampIterations upgrades a below-floor count (e.g. a
+      // hostile imported blob pinned to iter=1) to the production default, so
+      // a weak KDF can't silently persist across the user's own saves.
       const payload = await encryptPayload(pass, text, {
         salt: tome.notes?.salt,
-        iterations: tome.notes?.iter,
+        iterations: clampIterations(tome.notes?.iter),
       });
       onSave(payload);
     } finally {

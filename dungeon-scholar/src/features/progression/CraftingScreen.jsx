@@ -75,12 +75,12 @@ function CraftingScreen({ playerState, setScreen, onCraft }) {
           <span className="text-base">🧺</span>
           <h4 className="text-xs font-bold italic text-amber-200 tracking-wider">Reagents on hand</h4>
           <div className="flex-1 h-px bg-linear-to-r from-amber-700/40 to-transparent" />
-          <span className="text-[10px] italic text-amber-700">
+          <span className="text-[10px] italic text-accent-muted">
             {ownedIngredients.length}/{ingredients.length} kinds
           </span>
         </div>
         {ownedIngredients.length === 0 ? (
-          <p className="text-xs italic text-amber-700/80">
+          <p className="text-xs italic text-accent-muted-80">
             Thy basket lies empty. Walk over plants in the dungeon to gather what thou needest.
           </p>
         ) : (
@@ -115,7 +115,7 @@ function CraftingScreen({ playerState, setScreen, onCraft }) {
             Known Recipes
           </h3>
           <div className="flex-1 h-px bg-linear-to-r from-amber-700/50 to-transparent" />
-          <span className="text-xs text-amber-700 italic">{RECIPES.length} brews</span>
+          <span className="text-xs text-accent-muted italic">{RECIPES.length} brews</span>
         </div>
         <div className="grid md:grid-cols-2 gap-3">
           {RECIPES.map((recipe) => {
@@ -139,7 +139,7 @@ function CraftingScreen({ playerState, setScreen, onCraft }) {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline justify-between gap-2">
                       <h4 className="font-bold text-amber-200 italic text-sm">{recipe.name}</h4>
-                      <span className="text-[10px] italic text-amber-700">Owned ×{ownedResult}</span>
+                      <span className="text-[10px] italic text-accent-muted">Owned ×{ownedResult}</span>
                     </div>
                     <p className="text-[11px] italic text-amber-100/70 mt-0.5">{result?.description}</p>
                   </div>

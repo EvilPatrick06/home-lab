@@ -57,37 +57,6 @@ The `auto/scholar-phase-executer` branch (head `1b3c00ed`) is a genuine, unmerge
 
 ## Low
 
-### [2026-07-02] SW precache glob omits KaTeX font files — math typography degrades offline
-
-- **Category:** bug, config
-- **Severity:** low
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-errors
-- **During:** automated error scan (production build + dist/sw.js inspection)
-
-**Description:**
-`vite.config.js` sets `injectManifest.globPatterns: ["**/*.{js,css,html,svg,png,ico}"]`, which excludes the `.woff2`/`.woff`/`.ttf` files KaTeX emits into `dist/assets/` (~60 font files; `grep -c woff2 dist/sw.js` = 0 on a fresh build). The CSS that references them IS precached (`css` is in the glob), and the CSP (`font-src 'self' data:`) plus its comment ("KaTeX fonts are bundled same-origin") assume same-origin fonts. Offline, the precached KaTeX CSS requests font URLs that are not in any cache and there is no runtimeCaching (deliberately none for cross-origin — but these are same-origin), so `@font-face` fetches fail and math renders in fallback serif fonts: legible, but with degraded/misaligned glyphs and spacing — undercutting the PWA's "playable offline" rich-content story for math-heavy tomes. Intermittently masked when the browser HTTP cache still holds fonts from an online session.
-
-**Reproduction (if bug):**
-1. `npm run build`; serve `dist/`; load the app once online WITHOUT opening a math tome (fonts are lazy — only fetched when KaTeX renders).
-2. Go offline (DevTools → Network → Offline).
-3. Open a tome question containing LaTeX → math renders in fallback serif; font requests fail in the Network tab.
-
-**Expected behavior (if bug):** KaTeX math renders identically offline and online.
-
-**Hypothesis / root cause:** the precache glob predates (or overlooked) KaTeX's Vite-emitted font assets; nothing else in the pipeline caches same-origin fonts.
-
-**Proposed fix / improvement:**
-- [ ] Add `woff2` to `injectManifest.globPatterns` (modern browsers pick the first `woff2` source in KaTeX's `@font-face` stacks; precaching only woff2 adds ~350 KB rather than all three formats' ~1 MB+).
-- [ ] Verify with `grep -c woff2 dist/sw.js` > 0 and an offline math render; consider asserting font entries in a small build-output test alongside `generate-pwa-icons.test.mjs`.
-
-**Blocked by:** none
-
-**Related files:** `dungeon-scholar/vite.config.js` (injectManifest.globPatterns, CSP font-src), `dungeon-scholar/src/sw.js`, `dungeon-scholar/src/services/richContent.js`
-
-**Related entries:** SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md [2026-06-29] "CI has no test-coverage floor and no bundle-size budget" (a build-output assertion would also catch this class of drift)
-
-
 ### [2026-07-02] Entry chunk grew to 638 kB — exceeds the 500 kB warning the manualChunks split was added to stay under
 
 - **Category:** performance
@@ -112,51 +81,6 @@ A fresh production build emits Vite's "Some chunks are larger than 500 kB after 
 
 **Related entries:** SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md [2026-06-29] "CI has no test-coverage floor and no bundle-size budget, despite 'keep the initial bundle small' being a stated design value"
 
-
-### [2026-06-30] Light-theme muted accent-label wash-out persists on non-enumerated screens (same family as PHASE-10 F1)
-
-- **Category:** bug
-- **Severity:** low
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-phase-executer
-- **During:** PHASE-10 implementation (out-of-scope same-family finding, logged per INSTRUCTIONS rule 12)
-
-**Description:**
-PHASE-10 F1 introduced the `--text-accent-muted` token + `.text-accent-muted[-NN]` utilities and converted the app-wide player-stats header (App.jsx) plus the Inventory / Shop / Bestiary screens that QA run-4 enumerated. The identical Phase-41 ramp-inversion wash-out (`text-amber-700` muted labels brightening to ~1.4:1 on light parchment) still affects screens run-4 did **not** flag, so they were left in scope-discipline and logged here instead:
-
-- `src/features/progression/AscensionScreen.jsx`, `RunHistoryScreen.jsx`, `SpellbookScreen.jsx`, `CalendarScreen.jsx`, `StableScreen.jsx`, `CraftingScreen.jsx` — `text-amber-700` / `text-amber-700/NN` secondary labels.
-- `src/App.jsx` home-hero subtitle `⚜ A SCHOLAR'S QUEST ⚜` (:1515) and the four home-card corner `⚜` glyphs (:1726-1729) — outside PHASE-10's enumerated player-stats-header band.
-- `src/features/progression/BestiaryScreen.jsx` (~:149) boss lore-tier hint — inline `style={{ color: meta.accent }}` body text (same non-inverting-inline-hex family as the biome `<h3>` PHASE-10 fixed, but a non-heading element).
-
-**Root cause:** same as PHASE-10 F1 — `text-amber-700` / inline per-biome hex accents authored for the dark theme brighten (not darken) under the Phase-41 light-theme ramp inversion.
-
-**Proposed fix:** a follow-up round converts the above `text-amber-700[/NN]` labels to `.text-accent-muted[-NN]`, and gives the inline-hex boss-lore line a light-theme darken (e.g. the `.biome-heading` light-override pattern). Infrastructure already exists from PHASE-10; this is a mechanical extension. Dark theme is byte-identical via the token.
-
-### [2026-06-29] Source comments point to a non-existent `.github/workflows/deploy.yml` (workflow is `dungeon-scholar-deploy.yml`)
-
-- **Category:** docs, config
-- **Severity:** low
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-errors
-- **During:** automated error/problem scan of the dungeon-scholar tree
-
-**Description:**
-Three dungeon-scholar source files document the GitHub-Pages deploy by referring to a workflow file named `deploy.yml`, but no such workflow exists. The actual Pages deploy workflow is `.github/workflows/dungeon-scholar-deploy.yml` (confirmed: the only deploy workflows present are `dungeon-scholar-deploy.yml`, `bmo-deploy.yml`, `dnd-web-deploy.yml`, `oracle-worker-deploy.yml` — there is no bare `deploy.yml`). A reader who follows the comment and greps `.github/workflows/deploy.yml` finds nothing. The README, `docs/`, and `docs/phases/INSTRUCTIONS.md` already use the correct `dungeon-scholar-deploy.yml` name, so only these in-code comments are drifted.
-
-Offending references:
-- `dungeon-scholar/vite.config.js:10` — `// .github/workflows/deploy.yml. Forks should either rename their repo to`
-- `dungeon-scholar/src/services/supabase.js:74` — `'Fix: set VITE_BASE (deploy.yml / .env.local) or vite.config.js base to "/<repo-name>/", ' +` (this string is shown to users in the base-mismatch console warning, so the wrong filename is user-visible, not just an internal comment)
-- `dungeon-scholar/src/utils/lazyWithReload.js:4` — `// content-hashed chunk. When deploy.yml republishes mid-session the already`
-
-**Expected behavior:** Comments / the user-facing warning name the real workflow file (`dungeon-scholar-deploy.yml`), or refer to it generically ("the Pages deploy workflow") so they cannot drift again on rename.
-
-**Hypothesis / root cause:** The Pages workflow was renamed from a generic `deploy.yml` to the domain-scoped `dungeon-scholar-deploy.yml` (the monorepo hosts several deploy workflows); the docs/README were updated but these three inline references were missed. Not speculative — verified by `ls .github/workflows/` (no `deploy.yml`) against the three grep hits above.
-
-**Proposed fix / improvement:**
-- [ ] Replace `deploy.yml` with `dungeon-scholar-deploy.yml` in the three locations above (or use a rename-proof generic phrasing).
-- [ ] Prefer fixing the `supabase.js:74` warning string first — it is the only one that surfaces to an end user troubleshooting a broken OAuth redirect.
-
-**Related files:** `dungeon-scholar/vite.config.js`, `dungeon-scholar/src/services/supabase.js`, `dungeon-scholar/src/utils/lazyWithReload.js`, `.github/workflows/dungeon-scholar-deploy.yml`
 
 ### [2026-06-29] `auto/scholar-phase-maker` (tip `850f8404`) won't merge — competing PHASE-06 + PHASE-03 amendment vs the already-merged run
 
@@ -257,6 +181,8 @@ A production `vite build` prints `WARN inlineDynamicImports option is deprecated
 
 ### 2026-06-29 — Light-theme secondary surfaces not covered by Phase 03 (low)
 - **Category:** bug (contrast) · **Severity:** low
+
+> **Partly resolved 2026-07-02 (scholar-resolver):** the flashcard SRS rating buttons ("Again"/"Hard") now route through new `--surface-red-raised` / `--surface-amber-raised` triplets (dark byte-identical 127,29,29 / 146,64,14; light flips to the red-200/amber-200 tier under the ramp-inverted `text-red-200`/`text-amber-200` labels) — guarded in `phase10-contrast.test.js`. The `text-amber-700` micro-labels were converted app-wide by the 2026-06-30 entry's fix (see RESOLVED log). **Still open:** the app-wide gold action-button family (`linear-gradient(#fde047,#f59e0b)` + `text-amber-950` flipping to light-on-gold in light theme) needs a non-inverting button-text token across WelcomeModal/HomeScreen/LabMode/ChatMode + ConfirmModal/ErrorBoundary/PromptModal — a cross-cutting design decision, posted to the board for approval (`issue-light-theme-gold-buttons`).
 - Flashcard SRS rating buttons (`FlashcardsMode.jsx` "Again"/"Hard": rgba(127,29,29,.55) / rgba(146,64,14,.55)) keep hardcoded-dark backgrounds under inverting text-red-200/text-amber-200 -> mild dark-on-dark in light theme (post-flip only).
 - App-wide gold action buttons (linear-gradient(to bottom,#fde047,#f59e0b) + text-amber-950) flip to light-on-gold text in light theme (reduced contrast). Cross-cutting (ConfirmModal/ErrorBoundary/ChatMode/PromptModal).
 - text-amber-700 decorative micro-labels go light-on-light on lightened panels (consistent with existing OrnatePanel glyphs).

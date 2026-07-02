@@ -71,7 +71,7 @@ function AscensionScreen({ playerState, setScreen, onAscend }) {
           className="p-3 rounded-sm"
           style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}
         >
-          <div className="text-[10px] uppercase italic text-amber-700">Current Level</div>
+          <div className="text-[10px] uppercase italic text-accent-muted">Current Level</div>
           <div className="text-lg font-bold italic text-amber-200">
             {lvl} / {REQ}
           </div>
@@ -80,21 +80,21 @@ function AscensionScreen({ playerState, setScreen, onAscend }) {
           className="p-3 rounded-sm"
           style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}
         >
-          <div className="text-[10px] uppercase italic text-amber-700">Ascensions</div>
+          <div className="text-[10px] uppercase italic text-accent-muted">Ascensions</div>
           <div className="text-lg font-bold italic text-amber-200">🌟 {ascensions}</div>
         </div>
         <div
           className="p-3 rounded-sm"
           style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.5)' }}
         >
-          <div className="text-[10px] uppercase italic text-amber-700">Tokens</div>
+          <div className="text-[10px] uppercase italic text-accent-muted">Tokens</div>
           <div className="text-lg font-bold italic text-amber-200">🪙 {tokens}</div>
         </div>
         <div
           className="p-3 rounded-sm"
           style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}
         >
-          <div className="text-[10px] uppercase italic text-amber-700">Last Ascension</div>
+          <div className="text-[10px] uppercase italic text-accent-muted">Last Ascension</div>
           <div className="text-sm font-bold italic text-amber-200">{lastAscended || '—'}</div>
         </div>
       </div>
@@ -152,8 +152,10 @@ function AscensionScreen({ playerState, setScreen, onAscend }) {
       >
         {!ready ? (
           <div>
-            <div className="text-amber-700 italic mb-2">The path opens at level {REQ}.</div>
-            <div className="text-xs italic text-amber-700/70">{REQ - lvl} levels remain before thou mayest ascend.</div>
+            <div className="text-accent-muted italic mb-2">The path opens at level {REQ}.</div>
+            <div className="text-xs italic text-accent-muted-70">
+              {REQ - lvl} levels remain before thou mayest ascend.
+            </div>
           </div>
         ) : !confirming ? (
           <div>

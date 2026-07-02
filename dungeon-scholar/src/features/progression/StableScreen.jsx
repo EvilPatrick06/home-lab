@@ -71,7 +71,7 @@ function StableScreen({ playerState, setScreen, onEquipPet, onUnequipPet }) {
 
       {ownedPets.length === 0 && (
         <div
-          className="p-6 rounded-sm text-center text-sm italic text-amber-700"
+          className="p-6 rounded-sm text-center text-sm italic text-accent-muted"
           style={{
             background: 'rgba(0,0,0,0.5)',
             border: '2px dashed rgba(var(--surface-amber-strong, 120, 53, 15),0.4)',
@@ -121,7 +121,7 @@ function StableScreen({ playerState, setScreen, onEquipPet, onUnequipPet }) {
                 <div className="text-[11px] italic text-emerald-200 mb-2">✦ {passiveLabel(def, level)}</div>
                 {/* XP bar */}
                 <div className="mb-3">
-                  <div className="flex items-baseline justify-between text-[10px] italic text-amber-700 mb-1">
+                  <div className="flex items-baseline justify-between text-[10px] italic text-accent-muted mb-1">
                     <span>{isMax ? 'Maxed' : `XP ${xp - prevThreshold}/${nextThreshold - prevThreshold}`}</span>
                     <span className="tabular-nums">Total: {xp}</span>
                   </div>
@@ -183,8 +183,8 @@ function StableScreen({ playerState, setScreen, onEquipPet, onUnequipPet }) {
                 <div className="flex items-center gap-2">
                   <div className="text-2xl">🥚</div>
                   <div>
-                    <div className="text-amber-700">??? ({def.biome})</div>
-                    <div className="text-[10px] text-amber-700/70">Purchase the egg in the Marketplace.</div>
+                    <div className="text-accent-muted">??? ({def.biome})</div>
+                    <div className="text-[10px] text-accent-muted-70">Purchase the egg in the Marketplace.</div>
                   </div>
                 </div>
               </div>

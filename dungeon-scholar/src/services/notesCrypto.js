@@ -23,6 +23,28 @@ export const KDF_ITERATIONS = 600_000;
  */
 export const MAX_KDF_ITERATIONS = 2_000_000;
 
+/**
+ * Minimum accepted PBKDF2 iteration count for REUSE on re-encryption — mirrors
+ * sealedTome's MIN_PBKDF2_ITERATIONS band check. decryptPayload still accepts
+ * a below-floor blob (the user must be able to read notes they already hold),
+ * but clampIterations() guarantees a weak declared count (e.g. a hostile
+ * imported blob pinned to iter=1) can never survive the user's own saves.
+ */
+export const MIN_KDF_ITERATIONS = 100_000;
+
+/**
+ * Clamp a payload-declared iteration count for re-encryption: keep a sane
+ * declared value (floor..ceiling, so the passphrase key cache still hits on
+ * save), otherwise fall back to the production KDF_ITERATIONS.
+ * @param {unknown} iter
+ * @returns {number}
+ */
+export function clampIterations(iter) {
+  const n = typeof iter === 'number' && Number.isInteger(iter) ? iter : 0;
+  if (n >= MIN_KDF_ITERATIONS && n <= MAX_KDF_ITERATIONS) return n;
+  return KDF_ITERATIONS;
+}
+
 // Bumped only on incompatible wire-format changes. decryptPayload rejects any
 // other version with `unsupported-version`.
 const PAYLOAD_VERSION = 1;

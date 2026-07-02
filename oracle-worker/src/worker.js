@@ -229,10 +229,20 @@ export default {
       return new Response("Invalid JSON", { status: 400 });
     }
 
-    // Bound input size to cap per-request cost.
+    // Bound input size to cap per-request cost. Only STRING content is
+    // supported (the frontend always sends strings): a non-string content or
+    // system (e.g. a huge array of text parts) would count as 0 chars here yet
+    // be forwarded verbatim below, bypassing MAX_TOTAL_CHARS entirely — so
+    // reject it outright instead of skipping it in the accounting.
     const rawMessages = Array.isArray(body.messages) ? body.messages : [];
+    if (body.system != null && typeof body.system !== "string") {
+      return corsJson(allowedOrigin, { error: "Invalid request." }, 400);
+    }
     let totalChars = typeof body.system === "string" ? body.system.length : 0;
     for (const m of rawMessages) {
+      if (m?.content != null && typeof m.content !== "string") {
+        return corsJson(allowedOrigin, { error: "Invalid request." }, 400);
+      }
       if (typeof m?.content === "string") totalChars += m.content.length;
     }
     if (rawMessages.length > MAX_MESSAGES || totalChars > MAX_TOTAL_CHARS) {

@@ -73,21 +73,21 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
           className="p-3 rounded-sm"
           style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}
         >
-          <div className="text-[10px] uppercase italic text-amber-700">Current Streak</div>
+          <div className="text-[10px] uppercase italic text-accent-muted">Current Streak</div>
           <div className="text-lg font-bold italic text-amber-200">🔥 {streak}</div>
         </div>
         <div
           className="p-3 rounded-sm"
           style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}
         >
-          <div className="text-[10px] uppercase italic text-amber-700">Longest</div>
+          <div className="text-[10px] uppercase italic text-accent-muted">Longest</div>
           <div className="text-lg font-bold italic text-amber-200">{longest}</div>
         </div>
         <div
           className="p-3 rounded-sm"
           style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}
         >
-          <div className="text-[10px] uppercase italic text-amber-700">Total Logins</div>
+          <div className="text-[10px] uppercase italic text-accent-muted">Total Logins</div>
           <div className="text-lg font-bold italic text-amber-200">{totalLogins}</div>
         </div>
         <div
@@ -112,7 +112,7 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
         {claimedToday ? (
           <div>
             <div className="text-amber-200 italic mb-1">Today's flame is already lit.</div>
-            <div className="text-xs italic text-amber-700">Return tomorrow to continue the cycle.</div>
+            <div className="text-xs italic text-accent-muted">Return tomorrow to continue the cycle.</div>
           </div>
         ) : (
           <div>
@@ -178,7 +178,7 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
                   opacity: isPast && !isClaimedToday ? 0.55 : 1,
                 }}
               >
-                <div className="text-[10px] uppercase italic text-amber-700">Day {reward.day}</div>
+                <div className="text-[10px] uppercase italic text-accent-muted">Day {reward.day}</div>
                 <div className={`text-xs italic font-bold ${reward.capstone ? 'text-purple-200' : 'text-amber-200'}`}>
                   {reward.label}
                 </div>

@@ -1512,7 +1512,7 @@ export default function DungeonScholarApp() {
               >
                 DUNGEON SCHOLAR
               </h1>
-              <p className="text-xs text-amber-700 tracking-[0.3em] italic">⚜ A SCHOLAR'S QUEST ⚜</p>
+              <p className="text-xs text-accent-muted tracking-[0.3em] italic">⚜ A SCHOLAR'S QUEST ⚜</p>
             </div>
           </div>
           {/* Phase 30f QA #14: navigation landmark for the action-button row. */}
@@ -1723,10 +1723,10 @@ export default function DungeonScholarApp() {
                   boxShadow: '0 0 30px rgba(180, 83, 9, 0.15), inset 0 0 20px rgba(0,0,0,0.5)',
                 }}
               >
-                <div className="absolute top-1 left-1 text-amber-700 text-xs">⚜</div>
-                <div className="absolute top-1 right-1 text-amber-700 text-xs">⚜</div>
-                <div className="absolute bottom-1 left-1 text-amber-700 text-xs">⚜</div>
-                <div className="absolute bottom-1 right-1 text-amber-700 text-xs">⚜</div>
+                <div className="absolute top-1 left-1 text-accent-muted text-xs">⚜</div>
+                <div className="absolute top-1 right-1 text-accent-muted text-xs">⚜</div>
+                <div className="absolute bottom-1 left-1 text-accent-muted text-xs">⚜</div>
+                <div className="absolute bottom-1 right-1 text-accent-muted text-xs">⚜</div>
 
                 <div className="flex items-center justify-between flex-wrap gap-4">
                   <div className="flex items-center gap-4">
