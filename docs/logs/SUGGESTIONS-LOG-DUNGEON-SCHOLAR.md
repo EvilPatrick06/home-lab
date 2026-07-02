@@ -263,6 +263,53 @@ The app is an installable offline PWA and can export the player save as JSON, bu
 
 # Low-severity polish / info
 
+### [2026-07-02] `docs/phases/PHASE-INDEX.md` — broken links for completed PHASE-01/02, a mislabeled PHASE-10 link, and provenance narrative crowding out the index
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** scheduled cleanup/structure scan of dungeon-scholar/
+
+**Description:**
+Three staleness/structure problems in the phase index. (1) **Broken links:** rows 01 and 02 are marked `done` and their plan files were moved to `completed/` (they are in `docs/phases/completed/`), but the table still links `./PHASE-01-routing-pwa-update-resilience.md` and `./PHASE-02-load-noise-ux-docs-round.md` — both 404 as relative links now. (2) **Mislabeled link:** row 10's link *text* reads `PHASE-10-...md` as if in the active folder while its href correctly points at `./completed/...` — inconsistent with rows 03–09, which show the `completed/` prefix in the label. (3) **Structure:** each QA run appends a large `> **Source (NN)** ...` provenance blockquote; these narratives are now ~85% of the file (~20 KB total for a 13-row table) and bury the closing "Add a row per future plan..." maintenance instruction beneath ~10 dense paragraphs. The INSTRUCTIONS.md-declared purpose of the file is a dependency manifest / execution order; the provenance prose is valuable history but no longer index material.
+
+**Hypothesis / root cause:** The executer moves finished plan files into `completed/` but nothing re-points the 01/02 index rows (03–09 were fixed at some point; 01/02 predate that habit). The provenance blobs accumulate because the phase-maker appends per run with no size/placement rule.
+
+**Proposed fix / improvement:**
+- [ ] Re-point rows 01 and 02 at `./completed/PHASE-01-...md` / `./completed/PHASE-02-...md`, and fix row 10's label to show the `completed/` path like its siblings.
+- [ ] Move the per-run `> **Source (NN)**` provenance blockquotes into a sibling `PHASE-PROVENANCE.md` (or into each phase file's own header), leaving PHASE-INDEX as the lean table + the row-maintenance instruction; add a one-line rule to `docs/phases/INSTRUCTIONS.md` telling the phase-maker where provenance prose goes.
+- [ ] Optional: a tiny vitest guard (like the existing convention-guard tests) asserting every `Plan file` link in PHASE-INDEX resolves to an existing file, so future moves to `completed/` can't silently break rows.
+
+**Related files:** `dungeon-scholar/docs/phases/PHASE-INDEX.md`, `dungeon-scholar/docs/phases/INSTRUCTIONS.md`, `dungeon-scholar/docs/phases/completed/`
+
+**Related entries:** ISSUES-LOG-DUNGEON-SCHOLAR.md [2026-06-29] phase-maker/executer merge-collision entries (both touch PHASE-INDEX churn)
+
+---
+
+### [2026-07-02] `dungeon-scholar/CHANGELOG.md` has been frozen since it was seeded — phases 03–13 and all resolver fixes are absent, and no process owns updating it
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** scheduled cleanup/structure scan of dungeon-scholar/
+
+**Description:**
+`CHANGELOG.md` (38 lines) instructs "Keep it updated on each release; group new work under `[Unreleased]` and cut a dated, versioned section when a release is tagged" — but it has not been touched since its two seed commits (last change 2026-06-23), while master has since landed dungeon-scholar phases 03 through 11-partial (light-theme contrast rounds, import robustness, vault gate, exam/date/copy fixes, the auth circuit-breaker) plus resolver fixes (FSRS-5 forecast alignment, notes stripping, etc.). Two structural mismatches make the freeze inevitable: (a) dungeon-scholar has **no release/tag cadence at all** — the integrator's merge auto-deploys GitHub Pages continuously and `package.json` stays at `0.1.0`, so the promised "cut a versioned section when a release is tagged" trigger never fires; (b) no agent's task definition mentions this file, so nobody appends to `[Unreleased]` either. A changelog whose own header promises upkeep but is visibly weeks stale is worse than no changelog — it misleads readers about what the live app contains.
+
+**Hypothesis / root cause:** The file was seeded during the 2026-06-23 App.jsx de-god refactor as an aspirational Keep-a-Changelog document, but the domain's release model (continuous Pages deploys, no tags) never matched the versioned-sections format, and changelog upkeep was never added to the scholar-phase-executer / scholar-resolver checklists.
+
+**Proposed fix / improvement:**
+- [ ] Decide the model: either (a) repurpose the file as a pointer — a short header explaining that completed phase plans (`docs/phases/completed/`), `docs/logs/RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`, and the git history of `dungeon-scholar/` ARE the living changelog (mirroring how dnd-app's GitHub Releases page is its changelog) — or (b) keep Keep-a-Changelog format and add "append a bullet to `[Unreleased]`" to the scholar-phase-executer's and scholar-resolver's per-run checklists, with the integrator cutting a dated section on deploy.
+- [ ] Whichever is chosen, remove the stale "when a release is tagged" promise — there are no tags in this domain.
+
+**Related files:** `dungeon-scholar/CHANGELOG.md`, `dungeon-scholar/docs/phases/completed/`, `docs/logs/RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`
+
+**Related entries:** none
+
+---
+
 ### [2026-06-29] Root README "Project structure" diagram omits the `components/dungeon/` crawler subsystem (and `utils/`, `services/locales/`, `sw.js`)
 
 - **Category:** docs
@@ -324,6 +371,9 @@ Almost every test in the tree sits next to the module it covers (`srs.js` + `srs
 **Related files:** `src/theme.test.js`, `src/components/lucide-a11y.test.jsx`, `src/components/README.md`
 
 **Related entries:** [2026-06-28] Test-file extension convention is inconsistent (`.test.js` testing a `.jsx` component)
+
+> **[2026-07-02] scholar-cleanup follow-up:** the module-less guard-test family has since **grown by two**, both landed 2026-06-29 with phase-numbered names in yet more locations: `src/phase10-contrast.test.js` (src root — statically greps `index.css`/JSX for the PHASE-10 light-theme muted-label token) and `src/features/phase11Guards.test.js` (features root — greps three study-mode JSX files for `<h2>` and QuestBoard for verb agreement). So there are now 4 guard tests in 3 different directories, and the two new ones are named after *phase numbers* that will mean nothing to a future reader (the phase files will long since have moved to `completed/`). This strengthens the case for the proposed `src/__guards__/` + `*.guard.test.js` convention; the relocation should also rename the phase-numbered files after *what they enforce* (e.g. `lightThemeMutedLabel.guard.test.js`, `studyModeHeadings.guard.test.js`), keeping the PHASE-NN reference in a comment.
+
 
 ---
 
