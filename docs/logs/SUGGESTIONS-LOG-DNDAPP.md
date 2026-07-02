@@ -51,6 +51,61 @@ New entries go at the TOP of their section (newest first).
 
 ---
 
+### [2026-07-02] Dead Windows code-signing leftovers — `scripts/sign.mjs` + `.env.signing.template` survive the v2.2.2 removal of the `win.sign` hook
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** scheduled cleanup/reorganization scan of `dnd-app/`
+
+**Description:**
+`README.md` ("Code signing (Windows)", ~line 141) documents that the custom `win.sign` hook was **removed as of v2.2.2** (incompatible with electron-builder 26 — `build.win.sign` moved under `signtoolOptions` in v25) and that builds intentionally ship unsigned. But the hook implementation `scripts/sign.mjs` (added in phase 19d, commit `5ce0b34c`) and its companion `.env.signing.template` are still in the tree. Nothing wires them up: `package.json#build` has no `sign`/`signtoolOptions` key, and `.github/workflows/release.yml` sets no `CSC_LINK` (only the mac-side `CSC_IDENTITY_AUTO_DISCOVERY: false`). So `sign.mjs` is dead code — and `.env.signing.template` is actively misleading: it still instructs configuring `CSC_LINK`/`CSC_KEY_PASSWORD` "via .env.signing", implying a working signing path; a contributor following it gets an unchanged, unsigned build with no error or warning.
+
+**Hypothesis / root cause:** the v2.2.2 fix removed the *wiring* (the `win.sign` property) to unbreak the build, but the hook script and env template were never swept up.
+
+**Proposed fix / improvement:**
+- [ ] Delete `scripts/sign.mjs` and `.env.signing.template` — git history preserves them, and README already points future signing work at electron-builder's native `win.signtoolOptions` instead of a custom hook. OR:
+- [ ] If keeping them as a future starting point, add a prominent top-of-file note in BOTH files that they are currently UNWIRED (hook removed v2.2.2 — see README "Code signing (Windows)") so they stop advertising a flow that doesn't run.
+- [ ] Cross-check `docs/RELEASE.md` (§ notes around line 60 already explain why no `build.win.sign` exists) and link it from whichever file survives.
+
+**Related files:** `scripts/sign.mjs`, `.env.signing.template`, `package.json`, `README.md`, `docs/RELEASE.md`
+
+**Related entries:** [2026-06-28] "`scripts/` has ~40 scripts … no `scripts/README.md`" (a script index would have made this orphan obvious).
+
+### [2026-07-02] electron-builder `files` excludes reference six paths that no longer exist under `dnd-app/`
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** scheduled cleanup/reorganization scan of `dnd-app/`
+
+**Description:**
+`package.json#build.files` carries negation globs for `!5.5e References/**/*`, `!Tests/**/*`, `!bmo/**/*`, `!.claude/**/*`, `!audit-prompt.md`, and `!**/.vscode/*` — none of these paths exist under `dnd-app/` today (verified with a per-path existence check). They are leftovers from the pre-monorepo layout when the app directory sat beside the 5.5e reference dump, `bmo/`, and an ad-hoc `Tests/` folder. `!**/*.ps1` likewise guards against PowerShell scripts no longer present. Harmless at package time (a non-matching negation is a no-op), but the list misdescribes the tree, and every stale glob invites cargo-cult copying into future configs.
+
+**Proposed fix / improvement:**
+- [ ] Prune the six stale negations from `build.files`, keeping only excludes that match real paths (`!src/**/*`, `!scripts/**/*`, the config-file globs, etc.).
+- [ ] Verify with a packaged-artifact listing (`npx asar list` on the built app.asar, or `verify-build.mjs` if it inspects contents) that the pruned config produces an identical file set.
+
+**Related files:** `package.json`
+
+### [2026-07-02] Stale `.gitkeep` in `docs/phases/completed/` — the directory now holds 57 phase files
+
+- **Category:** debt
+- **Severity:** info
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** scheduled cleanup/reorganization scan of `dnd-app/`
+
+**Description:**
+`docs/phases/completed/.gitkeep` was added to keep the then-empty directory tracked; the directory now contains 57 completed phase plans, so the placeholder is dead weight and mildly confusing (implies emptiness must be preserved). The sibling `docs/phases/QA/screenshots/.gitkeep` is still legitimate — that directory is otherwise empty.
+
+**Proposed fix / improvement:**
+- [ ] Delete `docs/phases/completed/.gitkeep`.
+
+**Related files:** `docs/phases/completed/.gitkeep`
+
 ### [2026-06-29] file-size-budget ratchet guards only 2 of ~7 hand-written 1000+ LOC modules — the main-process / web / store monoliths can still grow unbounded
 
 - **Category:** debt
