@@ -30,6 +30,71 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## High
 
+### [2026-07-02] BMO_HOME never wired into the live units — `services/paths.py` points 24 live modules at the dev tree, splitting runtime state across two checkouts and breaking sandboxed writes
+
+- **Category:** bug, config
+- **Severity:** high
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** scheduled error scan — noticed the live app's MCP child running from `/home/patrick/home-lab` while every service runs from `/home/patrick/home-lab-deploy`
+
+**Description:**
+The paths centralization (`services/paths.py`, commit `4346536b`) defaulted `BMO_ROOT` to `~/home-lab/bmo/pi` "so existing installs are byte-for-byte unaffected", with an explicit checklist item to wire `BMO_HOME` through the systemd units. The deploy decoupling then moved all services to the dedicated checkout `/home/patrick/home-lab-deploy` — but `BMO_HOME` was never set anywhere: not in `/etc/systemd/system/bmo.service` (verified), not in the deploy checkout's `.env` (verified), not in the repo units. So every module importing `services.paths` (24 non-test modules: `services/chat_history.py`, `services/alert_service.py`, `services/notification_service.py`, `services/list_service.py`, `services/music_service.py`, `agents/memory.py`, `agents/settings.py`, `routes/chat_api.py`, `services/voice/voice_pipeline.py`, …) resolves `DATA_DIR` to the **dev tree**, while cwd/module-relative code (e.g. `services/monitoring.py` `_PI_ROOT`) uses the **deploy checkout**. Three observed consequences on the live box:
+
+1. **Split-brain runtime state.** Dev tree `data/` holds the newer `recent_chat.json` (Jun 30), `lists.json`/`notes.json` (Jun 29), `alert_history.json` (Jul 2 — written by unsandboxed callers such as the notify-board CLI / agent sessions), while the deploy checkout holds the live `monitor_state.json` / `location_cache.json` (Jul 2). Neither tree has a complete current state set, and `bmo-backup.service` (ExecStart in the deploy checkout) backs up only one of them.
+2. **Sandboxed writes fail silently.** `bmo.service` runs `ProtectSystem=strict` with `ReadWritePaths=` covering only the deploy checkout's `data/`+`config/` (+`~/.cache`), so live in-process writes to dev-tree paths are blocked. Journal 2026-06-30 10:54 (under bmo.service): `notify.sh`/`notify-sms.sh` repeatedly hit `Read-only file system` on `notify.log` and `pending.txt` — i.e. the monitor's SMS/alert delivery path fails from inside the service.
+3. **Deploy-isolation violation (live code from the dev tree).** The live app (deploy checkout, pid 834157) spawns its MCP child from the dev tree: `python3 /home/patrick/home-lab/bmo/pi/mcp_servers/dnd_data_server.py` (pid 834213, ppid 834157) — `agents/settings.py:100` builds the path from `BMO_ROOT`, and `mcp_servers/mcp_settings.json` hardcodes `/home/patrick/home-lab/...` absolute paths. Integrator/agent churn in the shared dev tree therefore changes code the LIVE assistant executes — exactly what the deploy decoupling (`docs/BMO-DEPLOY.md`) exists to prevent. `dnd_data_server.py:27-37`'s expanduser defaults likewise read the dev tree's 5e/RAG data.
+
+**Expected behavior:** All live services and their children resolve every code and data path inside `/home/patrick/home-lab-deploy`; the dev tree is never read or executed by live services.
+
+**Hypothesis / root cause (confirmed):** The 2026-06-24 "BMO root path hardcoded" resolution shipped `paths.py` + call-site migration + CI ratchet but the final checklist step — "Wire `BMO_HOME` through the Docker image and systemd unit `Environment=`" — was never done. The later deploy-checkout migration silently turned the "unaffected" default into a wrong-tree default.
+
+**Proposed fix / improvement:**
+- [ ] Set `Environment=BMO_HOME=/home/patrick/home-lab-deploy/bmo/pi` in `bmo/pi/systemd/bmo.service`, `bmo-dm-bot.service`, `bmo-social-bot.service` (and any unit importing app code), and have deploy.sh install the updated units (or write `BMO_HOME` into the deploy `.env`).
+- [ ] Make `mcp_servers/mcp_settings.json` paths derive from `BMO_ROOT` (or template them at deploy time); replace `dnd_data_server.py`'s expanduser defaults with `services.paths`.
+- [ ] One-time reconcile of the two `data/` trees into the canonical (deploy) one so chat history / lists / notes / alert history are whole again; confirm `bmo-backup` targets the canonical tree.
+- [ ] Add a health/canary assertion that `BMO_ROOT` sits inside the running checkout, to catch this drift class permanently.
+- ⏳ NOTE: the unit-file/env fix needs a service restart to take effect — restart stays gated per the workflow (needs-restart approval).
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/services/paths.py:13`, `bmo/pi/agents/settings.py:100,111`, `bmo/pi/mcp_servers/mcp_settings.json`, `bmo/pi/mcp_servers/dnd_data_server.py:27-37`, `bmo/pi/systemd/bmo.service`, `bmo/pi/scripts/deploy.sh`, `docs/BMO-DEPLOY.md`
+
+**Related entries:** BMO-RESOLVED-ISSUES 2026-06-24 "BMO root path `~/home-lab/bmo/pi` is hardcoded across ~40 Python files" (this is its unfinished final step, now load-bearing).
+
+---
+
+### [2026-07-02] deploy.sh canary gate can false-green off a stale listener on the canary port — Jun 30 00:15 deploy restarted services before its canary ever booted
+
+- **Category:** bug
+- **Severity:** high
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** scheduled error scan — `OSError: [Errno 98] Address already in use` traceback in `data/logs/deploy-canary.log`
+
+**Description:**
+`deploy.sh` Gate 7 launches the canary (`BMO_CANARY=1 BMO_PORT=$CANARY_PORT app.py`) in the background, then gates on `poll_health("http://localhost:$CANARY_PORT/health")`. `poll_health()` (deploy.sh:147-156) is a bare `curl -sf` loop — it validates *whatever is listening on the port*, not the canary process it just launched. If anything already holds `CANARY_PORT` (default 5002) and answers `/health` — e.g. a canary leaked by an earlier interrupted deploy (`cleanup_canary`'s trap can't run on SIGKILL / lost session) — the gate goes green instantly, the real canary later dies binding the port (`Errno 98`), and the deploy proceeds to restart live services having validated nothing about the target SHA.
+
+**Reproduction (observed 2026-06-30 00:15):**
+1. Journal: CI invoked `deploy.sh ae7b8b1a…` at 00:15:32; `sudo systemctl restart bmo` fired at 00:15:33 — 1 s later, impossible if a freshly-launched canary had to boot (the live app took 00:15:33→00:15:56 to reach ready).
+2. The surviving `deploy-canary.log` shows the canary only *began* init at 00:15:35, logged ready at 00:15:36, then crashed binding 0.0.0.0:5002 with `OSError: [Errno 98] Address already in use`.
+3. Conclusion: Gate 7's poll passed against a pre-existing 5002 listener before the real canary was even up, and the restart went ahead un-gated. (Nothing listens on 5002 today — the stale listener is gone; ~17 deploys ran on Jun 29, any interrupted one could have leaked its canary.)
+
+**Expected behavior:** The gate goes green only if the canary process deploy.sh launched serves `/health` **for the TARGET SHA**; a canary bind failure is RED.
+
+**Hypothesis / root cause:** `poll_health` checks the port, not the PID; `/health` already returns a `commit` field but the gate ignores it; there is no pre-launch "port must be free" check; and a leaked canary is possible because cleanup only TERM/KILLs the tracked `$CANARY_PID`.
+
+**Proposed fix / improvement:**
+- [ ] Pre-launch guard: fail (or reap + wait) if `CANARY_PORT` is already listening (`curl /health` must FAIL / `ss -tln` must be empty before launch).
+- [ ] Post-green verification: assert `curl -s /health | jq -r .commit` matches `$TARGET` (the field is already served) and that `$CANARY_PID` is still alive, before proceeding to Gate 8.
+- [ ] Fast-fail: if `$CANARY_PID` exits while polling, mark RED immediately instead of burning the 120 s timeout or passing on a foreign listener.
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/scripts/deploy.sh:147-156,336-358`, `bmo/pi/app.py:3102` (canary still calls `socketio.run`), deploy checkout `bmo/pi/data/logs/deploy-canary.log`
+
+---
+
 ## Medium
 
 ### [2026-07-02] `setup-bmo.sh` Tailwind compile step points at pre-reorg paths — `pi/static/` no longer exists, so a fresh-Pi build fails and the committed `tailwind.css` is a frozen, unrebuildable artifact
@@ -121,6 +186,30 @@ Jun 29 03:13:48 [monitor][CRITICAL] pi_power: THROTTLED NOW — CPU frequency re
 
 
 ## Low
+
+### [2026-07-02] `monitor_status_full.json` missing from .gitignore — live monitor write permanently dirties the deploy checkout
+
+- **Category:** config
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** scheduled error scan — `git status` in `/home/patrick/home-lab-deploy` shows `?? bmo/pi/data/monitor_status_full.json`
+
+**Description:**
+`services/monitoring.py:492` writes `data/monitor_status_full.json` (consumed by `bots/social/status_board_cog.py:645`), but `.gitignore` covers only its siblings `monitor_state.json` (line 101) and `monitor_alert_state.json` (line 104). The live monitor rewrites the file continuously (mtime today), so the deploy checkout's working tree is permanently non-clean — an untracked runtime artifact in what `docs/BMO-DEPLOY.md` treats as a pristine, deploy-owned tree — and any tree the app runs from risks the file being swept into a `git add -A` commit.
+
+**Expected behavior:** All monitor runtime state files under `bmo/pi/data/` are gitignored; `git status` in the deploy checkout stays empty.
+
+**Hypothesis / root cause:** The full-status dump was added after the per-file ignore list; the new filename was never appended alongside its siblings.
+
+**Proposed fix / improvement:**
+- [ ] Add `bmo/pi/data/monitor_status_full.json` next to the sibling monitor entries in `.gitignore` (~line 104).
+
+**Blocked by:** none
+
+**Related files:** `.gitignore:101-104`, `bmo/pi/services/monitoring.py:492`, `bmo/pi/bots/social/status_board_cog.py:645`
+
+---
 
 ### [2026-06-29] TV/ADB integration fails to connect on every startup (`[tv] Connection failed -- try pairing via the TV tab`)
 
