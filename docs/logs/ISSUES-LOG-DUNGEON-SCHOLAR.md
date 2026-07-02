@@ -57,6 +57,62 @@ The `auto/scholar-phase-executer` branch (head `1b3c00ed`) is a genuine, unmerge
 
 ## Low
 
+### [2026-07-02] SW precache glob omits KaTeX font files — math typography degrades offline
+
+- **Category:** bug, config
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error scan (production build + dist/sw.js inspection)
+
+**Description:**
+`vite.config.js` sets `injectManifest.globPatterns: ["**/*.{js,css,html,svg,png,ico}"]`, which excludes the `.woff2`/`.woff`/`.ttf` files KaTeX emits into `dist/assets/` (~60 font files; `grep -c woff2 dist/sw.js` = 0 on a fresh build). The CSS that references them IS precached (`css` is in the glob), and the CSP (`font-src 'self' data:`) plus its comment ("KaTeX fonts are bundled same-origin") assume same-origin fonts. Offline, the precached KaTeX CSS requests font URLs that are not in any cache and there is no runtimeCaching (deliberately none for cross-origin — but these are same-origin), so `@font-face` fetches fail and math renders in fallback serif fonts: legible, but with degraded/misaligned glyphs and spacing — undercutting the PWA's "playable offline" rich-content story for math-heavy tomes. Intermittently masked when the browser HTTP cache still holds fonts from an online session.
+
+**Reproduction (if bug):**
+1. `npm run build`; serve `dist/`; load the app once online WITHOUT opening a math tome (fonts are lazy — only fetched when KaTeX renders).
+2. Go offline (DevTools → Network → Offline).
+3. Open a tome question containing LaTeX → math renders in fallback serif; font requests fail in the Network tab.
+
+**Expected behavior (if bug):** KaTeX math renders identically offline and online.
+
+**Hypothesis / root cause:** the precache glob predates (or overlooked) KaTeX's Vite-emitted font assets; nothing else in the pipeline caches same-origin fonts.
+
+**Proposed fix / improvement:**
+- [ ] Add `woff2` to `injectManifest.globPatterns` (modern browsers pick the first `woff2` source in KaTeX's `@font-face` stacks; precaching only woff2 adds ~350 KB rather than all three formats' ~1 MB+).
+- [ ] Verify with `grep -c woff2 dist/sw.js` > 0 and an offline math render; consider asserting font entries in a small build-output test alongside `generate-pwa-icons.test.mjs`.
+
+**Blocked by:** none
+
+**Related files:** `dungeon-scholar/vite.config.js` (injectManifest.globPatterns, CSP font-src), `dungeon-scholar/src/sw.js`, `dungeon-scholar/src/services/richContent.js`
+
+**Related entries:** SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md [2026-06-29] "CI has no test-coverage floor and no bundle-size budget" (a build-output assertion would also catch this class of drift)
+
+
+### [2026-07-02] Entry chunk grew to 638 kB — exceeds the 500 kB warning the manualChunks split was added to stay under
+
+- **Category:** performance
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error scan (production build)
+
+**Description:**
+A fresh production build emits Vite's "Some chunks are larger than 500 kB after minification" warning: `dist/assets/index-*.js` is **638.36 kB** (181.97 kB gzip). The `manualChunks` splitter in `vite.config.js` carries a comment saying it exists "so the initial bundle drops below the 500 KB warning" — that claim has drifted: react (182 kB) and lucide vendors are split out and katex (258 kB) auto-splits via lazy import, but the remaining entry chunk (App shell + eagerly-imported services/game modules) has outgrown the budget as phases 03–11 landed. Screens are `React.lazy`-loaded, so the growth is concentrated in what App.jsx and the service/game layer import eagerly.
+
+**Hypothesis / root cause:** steady feature growth in eagerly-imported `src/services/` + `src/game/` modules (all imported by the App shell) with no bundle-size gate to flag the crossing; the vite.config comment was true when written, is stale now.
+
+**Proposed fix / improvement:**
+- [ ] Audit the entry-chunk composition (`vite build` with a visualizer or `--debug`) and move heavy, screen-specific eager imports behind the existing lazy-screen boundaries (or add `manualChunks` entries for large stable vendor/game-content modules).
+- [ ] Update or remove the stale "drops below the 500 KB warning" comment.
+- [ ] Longer-term: the already-logged CI bundle-size budget suggestion would have caught this crossing automatically.
+
+**Blocked by:** none
+
+**Related files:** `dungeon-scholar/vite.config.js` (build.rollupOptions.output.manualChunks), `dungeon-scholar/src/App.jsx`
+
+**Related entries:** SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md [2026-06-29] "CI has no test-coverage floor and no bundle-size budget, despite 'keep the initial bundle small' being a stated design value"
+
+
 ### [2026-06-30] Light-theme muted accent-label wash-out persists on non-enumerated screens (same family as PHASE-10 F1)
 
 - **Category:** bug
@@ -160,6 +216,8 @@ The integrator merged `auto/scholar-resolver` into `master` cleanly first; `auto
 - **During:** automated error scan (`biome check src`)
 
 > **Partly resolved 2026-06-29 (scholar-resolver):** The mechanical half shipped on `auto/scholar-resolver`. Swept the dead code (`noUnusedImports` / `noUnusedVariables` / `noUnusedFunctionParameters`, 22 files) and the safe cosmetic rewrites (`useOptionalChain` / `useTemplate`, 29 files) via targeted `biome check --write --unsafe --only=…`, dropping the tree from 287 → 157 warnings, then **promoted `noUnusedImports` to `"error"`** in `biome.json` so dead imports can no longer silently return (lint gate stays green; full suite 749 tests green). **Still open below:** the ~91 `useExhaustiveDependencies` warnings.
+
+> **2026-07-02 (scholar-errors):** count drifting UP — `biome check src` now reports 161 warnings total, `useExhaustiveDependencies` at **133** (was ~91), plus a handful of `noUnusedVariables`/`noUnusedFunctionParameters` returned post-sweep (`App.jsx` x4, `QuestBoard.jsx`, `DungeonExplore.jsx`, `usePlayerActions.js`, `ShopScreen.jsx`, `QuizMode.jsx`) — phases 08–11 added hooks/vars without dep hygiene. The triage below is getting more expensive the longer it waits.
 
 **Description:**
 The remaining warnings are `useExhaustiveDependencies` (latent stale-closure / missed-rerender risks), concentrated in `App.jsx` (~34), `components/dungeon/DungeonExplore.jsx` (~25), `hooks/usePlayerState.js` (~12), `features/player/usePlayerActions.js` (~6). They were deliberately NOT auto-fixed: there is no component-level behavioral/interaction test coverage for these hooks, so a blind dependency-array rewrite can introduce an infinite render loop or a perf regression that neither lint, the unit suite, nor build would catch. Each site needs per-hook judgment (add the real missing dep vs. annotate an intentional omission with `// biome-ignore` + reason).
