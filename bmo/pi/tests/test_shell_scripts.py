@@ -37,6 +37,8 @@ SETUP_BMO_SH = os.path.join(_BMOSEUP_DIR, "bmo", "setup-bmo.sh")
 DEPLOY_SH = os.path.join(_BMOSEUP_DIR, "bmo", "docker", "deploy.sh")
 # Phase 42B: health-gated Pi deploy script (distinct from docker/deploy.sh).
 PI_DEPLOY_SH = os.path.join(_SCRIPTS_DIR, "deploy.sh")
+# Admission gate: RAM-floor + flock semaphore wrapper for heavy tsc/vitest/builds.
+RUN_CHECK_SH = os.path.join(_SCRIPTS_DIR, "run-check.sh")
 # Deploy isolation: one-time owner migration to the dedicated deploy checkout.
 MIGRATE_DEPLOY_SH = os.path.join(_SCRIPTS_DIR, "migrate-bmo-deploy-checkout.sh")
 
@@ -57,6 +59,7 @@ ALL_SH_FILES = [
     APPLY_ACCESS_SH,
     PI_DEPLOY_SH,
     MIGRATE_DEPLOY_SH,
+    RUN_CHECK_SH,
 ] + ([DEPLOY_SH] if os.path.isfile(DEPLOY_SH) else [])
 
 # ── Helpers ───────────────────────────────────────────────────────────────────

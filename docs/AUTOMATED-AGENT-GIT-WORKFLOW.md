@@ -386,6 +386,53 @@ Full contract (outbox format, fields, poller spec, what's implemented vs. pendin
 
 ---
 
+## Rule 4 — Heavy local checks go through the admission gate (`run-check.sh`)
+
+Around 2026-07, `bmo` (the 8 GB Pi that hosts several scheduled agents) OOM-crashed
+when multiple agents each launched a full-project `npx tsc --noEmit` / `npx vitest` /
+build at the same time. Nothing bounded how many heavy jobs ran at once, and nothing
+checked whether there was enough free RAM to start one.
+
+The fix is an **admission gate**:
+[`bmo/pi/scripts/run-check.sh`](../bmo/pi/scripts/run-check.sh). Automated agents call
+heavy checks **through** it instead of invoking them directly:
+
+```bash
+bmo/pi/scripts/run-check.sh npx tsc --noEmit -p tsconfig.web.json
+bmo/pi/scripts/run-check.sh npx vitest run src/foo.test.ts
+```
+
+The wrapper:
+
+1. **Free-RAM floor** — reads admissible RAM from `free -m` (the `available` column,
+   which counts reclaimable cache) and refuses to launch while it is below a floor
+   (`RUN_CHECK_RAM_FLOOR_MB`, default 2500 MB); it waits and re-checks rather than
+   starting a job that would OOM.
+2. **Per-node semaphore of 1** — an `flock` lock file admits only
+   `RUN_CHECK_MAX_CONCURRENCY` heavy jobs (default 1) at a time, so concurrent agents
+   serialize instead of all running full-project `tsc`/`vitest` at once (exactly what
+   OOM'd the Pi).
+3. **Queue with jitter** — when saturated it waits with small randomized back-off up
+   to `RUN_CHECK_TIMEOUT_S` (default 900 s); on timeout it exits `75` (`EX_TEMPFAIL`)
+   without launching.
+4. **Pass-through** — on admission it runs the wrapped command and exits with the
+   command's own exit code.
+
+Everything is env-override-able: `RUN_CHECK_RAM_FLOOR_MB`, `RUN_CHECK_MAX_CONCURRENCY`,
+`RUN_CHECK_TIMEOUT_S`, `RUN_CHECK_POLL_INTERVAL_S`, `RUN_CHECK_JITTER_S`,
+`RUN_CHECK_LOCK_DIR`, plus a `RUN_CHECK_DISABLE=1` escape hatch for humans. Tests:
+`bmo/pi/tests/test_run_check.py` (semaphore serialization + RAM-floor gate) and the
+shellcheck / `bash -n` coverage in `bmo/pi/tests/test_shell_scripts.py`.
+
+**The rule:** the "cheap, targeted checks" step in the phase loop
+([`dnd-app/docs/phases/INSTRUCTIONS.md`](../dnd-app/docs/phases/INSTRUCTIONS.md) rule 5)
+— any heavy local `npx tsc --noEmit` / `npx vitest` / build an automated agent runs on
+a shared node — **MUST** go through `run-check.sh`. This applies to every scheduled
+resolver and phase-executer. CI remains the authoritative gate; the wrapper only governs
+how heavy checks are *launched locally* so they cannot OOM the box.
+
+---
+
 ## Humans / interactive sessions
 
 Humans and interactive (non-scheduled) AI sessions **may still commit to
