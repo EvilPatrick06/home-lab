@@ -12,6 +12,212 @@
 
 ---
 
+### [2026-07-02] Dead Windows code-signing leftovers — `scripts/sign.mjs` + `.env.signing.template` survive the v2.2.2 removal of the `win.sign` hook
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** scheduled cleanup/reorganization scan of `dnd-app/`
+
+**Description:**
+`README.md` ("Code signing (Windows)", ~line 141) documents that the custom `win.sign` hook was **removed as of v2.2.2** (incompatible with electron-builder 26 — `build.win.sign` moved under `signtoolOptions` in v25) and that builds intentionally ship unsigned. But the hook implementation `scripts/sign.mjs` (added in phase 19d, commit `5ce0b34c`) and its companion `.env.signing.template` are still in the tree. Nothing wires them up: `package.json#build` has no `sign`/`signtoolOptions` key, and `.github/workflows/release.yml` sets no `CSC_LINK` (only the mac-side `CSC_IDENTITY_AUTO_DISCOVERY: false`). So `sign.mjs` is dead code — and `.env.signing.template` is actively misleading: it still instructs configuring `CSC_LINK`/`CSC_KEY_PASSWORD` "via .env.signing", implying a working signing path; a contributor following it gets an unchanged, unsigned build with no error or warning.
+
+**Hypothesis / root cause:** the v2.2.2 fix removed the *wiring* (the `win.sign` property) to unbreak the build, but the hook script and env template were never swept up.
+
+**Proposed fix / improvement:**
+- [ ] Delete `scripts/sign.mjs` and `.env.signing.template` — git history preserves them, and README already points future signing work at electron-builder's native `win.signtoolOptions` instead of a custom hook. OR:
+- [ ] If keeping them as a future starting point, add a prominent top-of-file note in BOTH files that they are currently UNWIRED (hook removed v2.2.2 — see README "Code signing (Windows)") so they stop advertising a flow that doesn't run.
+- [ ] Cross-check `docs/RELEASE.md` (§ notes around line 60 already explain why no `build.win.sign` exists) and link it from whichever file survives.
+
+**Related files:** `scripts/sign.mjs`, `.env.signing.template`, `package.json`, `README.md`, `docs/RELEASE.md`
+
+**Related entries:** [2026-06-28] "`scripts/` has ~40 scripts … no `scripts/README.md`" (a script index would have made this orphan obvious).
+
+**Resolution [2026-07-03, dnd-cleanup-cluster]:** Deleted `scripts/sign.mjs` + `.env.signing.template` (git history retains them). Updated README "Code signing (Windows)" to stop pointing at the removed script. Landed on `auto/dnd-cleanup-cluster` for the integrator.
+
+
+### [2026-07-02] electron-builder `files` excludes reference six paths that no longer exist under `dnd-app/`
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** scheduled cleanup/reorganization scan of `dnd-app/`
+
+**Description:**
+`package.json#build.files` carries negation globs for `!5.5e References/**/*`, `!Tests/**/*`, `!bmo/**/*`, `!.claude/**/*`, `!audit-prompt.md`, and `!**/.vscode/*` — none of these paths exist under `dnd-app/` today (verified with a per-path existence check). They are leftovers from the pre-monorepo layout when the app directory sat beside the 5.5e reference dump, `bmo/`, and an ad-hoc `Tests/` folder. `!**/*.ps1` likewise guards against PowerShell scripts no longer present. Harmless at package time (a non-matching negation is a no-op), but the list misdescribes the tree, and every stale glob invites cargo-cult copying into future configs.
+
+**Proposed fix / improvement:**
+- [ ] Prune the six stale negations from `build.files`, keeping only excludes that match real paths (`!src/**/*`, `!scripts/**/*`, the config-file globs, etc.).
+- [ ] Verify with a packaged-artifact listing (`npx asar list` on the built app.asar, or `verify-build.mjs` if it inspects contents) that the pruned config produces an identical file set.
+
+**Related files:** `package.json`
+
+**Resolution [2026-07-03, dnd-cleanup-cluster]:** Pruned the stale negation globs from `package.json#build.files` (`!**/.vscode/*`, `!5.5e References/**/*`, `!bmo/**/*`, `!Tests/**/*`, `!.claude/**/*`, `!**/*.ps1`, `!CLAUDE.md`, and `audit-prompt.md` from the combined biome/knip glob). Kept only excludes matching real paths (`!src/**/*`, `!scripts/**/*`, config-file globs). Non-matching negations are no-ops, so the packaged file set is unchanged. Landed on `auto/dnd-cleanup-cluster` for the integrator.
+
+
+### [2026-07-02] Stale `.gitkeep` in `docs/phases/completed/` — the directory now holds 57 phase files
+
+- **Category:** debt
+- **Severity:** info
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** scheduled cleanup/reorganization scan of `dnd-app/`
+
+**Description:**
+`docs/phases/completed/.gitkeep` was added to keep the then-empty directory tracked; the directory now contains 57 completed phase plans, so the placeholder is dead weight and mildly confusing (implies emptiness must be preserved). The sibling `docs/phases/QA/screenshots/.gitkeep` is still legitimate — that directory is otherwise empty.
+
+**Proposed fix / improvement:**
+- [ ] Delete `docs/phases/completed/.gitkeep`.
+
+**Related files:** `docs/phases/completed/.gitkeep`
+
+**Resolution [2026-07-03, dnd-cleanup-cluster]:** Deleted `docs/phases/completed/.gitkeep` (dir holds 57 real phase files). Left the still-legitimate `docs/phases/QA/screenshots/.gitkeep` in place. Landed on `auto/dnd-cleanup-cluster` for the integrator.
+
+
+### [2026-06-29] `knip.json` carries ~30 hand-maintained individual `entry` exceptions with no inline rationale — each silently masks a module knip would otherwise flag as unreachable
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** dnd-cleanup scheduled cleanup/reorg scan of `dnd-app/` (dead-code tooling review)
+
+**Description:**
+Beyond the legitimate true entry points (the electron-vite config, the four `index.ts`/`main.tsx` process entries, and the broad `scripts/**` glob), `knip.json`'s `entry` array lists ~30 **individual source files** — e.g. `services/combat/{damage,attack,combat}-resolver.ts`, `services/game-actions/types.ts`, `components/game/map/map-canvas/types.ts`, `network/{schemas,message-types}.ts`, `services/io/combat-log-export.ts`, `components/game/map/map-overlay-effects.ts`, `main/ai/context/context-builder.ts`, several `types/**` and per-feature `index.ts` barrels. Each entry is there because knip could not reach that file from the real entry graph — i.e. it would otherwise be reported as unused. None carries a comment explaining **why** it is exempt (dynamically imported? a build-target entry? a barrel re-exported only via path alias? or genuinely dead and being masked?). So the file is now load-bearing dead-code-suppression config that nobody can audit: a future contributor cannot tell which entries are legitimately unreachable-but-needed vs which are hiding code that actually became dead after a refactor. This compounds the already-noted `scripts/**` glob blind spot (the stale `submit/*-batch.ts` scripts went unnoticed precisely because that glob exempts them from `npm run dead-code`).
+
+**Hypothesis / root cause:** The `entry` list grew one line at a time across many refactors (the git history of `knip.json` shows repeated "make knip see X" / "knip clean" commits) — each refactor that orphaned a module from the static graph added an `entry` exception to silence knip rather than re-wiring or removing the module, and no pass has since revisited whether each exception is still warranted.
+
+**Proposed fix / improvement:**
+- [ ] Annotate each individual `entry` line with a one-word reason via a sibling comment block (dynamic-import / build-target / alias-only-barrel / type-only), so the file is self-auditing.
+- [ ] Periodic audit: remove each individual `entry` exception one at a time and re-run `npm run dead-code`; if knip now reports the file as unused, it was masking dead code (delete it); if knip reports a *new* unreachable elsewhere, the entry was load-bearing (restore + document why).
+- [ ] Prefer fixing the reachability at the source (export the module from a real entry barrel, or delete it) over adding a fresh `entry` exception in future refactors.
+
+**Related files:** `dnd-app/knip.json`, `dnd-app/package.json` (`dead-code` script)
+
+**Related entries:** [2026-06-28] "Stale one-off `scripts/submit/*-batch.ts` content-gen scripts no longer wired up" (the `scripts/**` glob blind spot — same masking pattern); RESOLVED-ISSUES-DNDAPP entries noting knip's `scripts/**` glob hides retired tooling.
+
+**Resolution [2026-07-03, dnd-cleanup-cluster]:** Annotated every `entry` exemption in `knip.json` with grouped JSONC reason comments (true entry points / type-only / schema+message-types / barrels / plugin-API / dynamic-or-alias-reached), plus a re-audit note and a note that the `scripts/**` glob suppresses dead-code detection for scripts. Conservative: no entries removed (all preserved), so `npm run dead-code` behavior is unchanged; knip parses the config as JSONC. biome does not lint knip.json (its includes are `src/**` only). Landed on `auto/dnd-cleanup-cluster` for the integrator.
+
+
+### [2026-06-29] Renderer test organization is inconsistent — a couple of "meta" tests live in dedicated single-file dirs (`test/`, `a11y/`) while ~850 unit tests are colocated, and `test/`/`a11y/` aren't in the README layout
+
+- **Category:** debt, docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** dnd-cleanup scheduled cleanup/reorg scan of `dnd-app/` (renderer directory-structure review)
+
+**Description:**
+The renderer's convention is to colocate tests next to source (`foo.ts` + `foo.test.ts`), which the ~850 `*.test.*` files follow. Two "meta/cross-cutting" tests break that pattern by living in their own single-purpose directories: `src/renderer/src/test/codebase-integrity.test.ts` (a lone file in a `test/` dir) and `src/renderer/src/a11y/a11y-smoke.test.tsx` (plus its `jest-axe.d.ts`). There is also a one-file `events/` dir (`system-chat-bridge.ts`). The inconsistency is minor on its own, but two of these dirs (`test/`, `a11y/`) are **not** listed in the README "Directory layout" section (which does name `events/`, `styles/`, `constants/`, etc.), so a contributor scanning the documented layout will not know they exist or what belongs in them — and the next "where do I put a whole-app integrity/a11y test" decision has no documented home, risking a third ad-hoc location.
+
+**Hypothesis / root cause:** `a11y/` and `test/` were each created for a single seed test (the jest-axe harness; the codebase-integrity guard) without a convention decision or a README update, so they read as one-off folders rather than an intentional "meta tests live here" home.
+
+**Proposed fix / improvement:**
+- [ ] Decide and document one home for whole-app/meta tests (e.g. keep `src/renderer/src/test/` and move the a11y smoke test under it, or keep both and add both to the README layout) so the pattern is intentional, not incidental.
+- [ ] Add the chosen dir(s) to the README "Directory layout" block alongside the already-listed `events/`, `styles/`, `constants/`.
+- [ ] Low priority — purely organizational; no behavior change. Logged per the "log even minor structural items" guidance so the pattern is visible if more single-file dirs accrete.
+
+**Related files:** `src/renderer/src/test/codebase-integrity.test.ts`, `src/renderer/src/a11y/a11y-smoke.test.tsx`, `src/renderer/src/a11y/jest-axe.d.ts`, `src/renderer/src/events/system-chat-bridge.ts`, `dnd-app/README.md` (Directory layout section)
+
+**Related entries:** [2026-06-29] "a11y (jest-axe) harness only asserts on a synthetic fragment" (same `a11y/` dir, coverage angle).
+
+**Resolution [2026-07-03, dnd-cleanup-cluster]:** Documented the convention in the README "Directory layout" instead of moving test files (a move would churn CI and touch renderer source): added `test/`, `a11y/` to the layout with the note that whole-app/cross-cutting tests live there and ordinary unit tests colocate next to source. No files moved. Landed on `auto/dnd-cleanup-cluster` for the integrator.
+
+
+### [2026-06-29] `dnd-app/docs/` has 10 reference docs but no `docs/README.md` index mapping each file to its topic
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** dnd-cleanup scheduled cleanup/reorg scan of `dnd-app/` (docs-tree structure review)
+
+**Description:**
+`dnd-app/docs/` holds ten top-level reference docs — `ASSET-OFFLOAD.md`, `DEPENDENCIES.md`, `DESIGN-CONSTRAINTS.md`, `IPC-SURFACE.md`, `LLAMA-SERVER.md`, `PLUGIN-SYSTEM.md`, `RELEASE.md`, `SEED-PACKS.md`, `UI-LAYERS.md`, `WEB-VERSION-PLAN.md` — plus the `phases/` subtree (which *does* have its own `PHASE-INDEX.md`). The flat reference docs have **no `docs/README.md` index**: nothing tells a new contributor or scanning agent which doc covers what, which are living specs vs one-off plans (e.g. `WEB-VERSION-PLAN.md` reads as a plan that may be partly delivered), or how they relate. The top-level `README.md` only gestures at the directory with a single tree comment ("docs/ IPC-SURFACE, PLUGIN-SYSTEM, RELEASE, DESIGN-CONSTRAINTS, ASSET-OFFLOAD, …") and doesn't list all ten. This is the same gap already logged for `scripts/` ([2026-06-28] "`scripts/` has ~40 scripts … but no `scripts/README.md`") — a directory that grew per-phase without an index pass.
+
+**Hypothesis / root cause:** The docs accreted one reference file per phase/topic; the `phases/` subtree got an index (`PHASE-INDEX.md`) but the flat reference docs never did.
+
+**Proposed fix / improvement:**
+- [ ] Add `dnd-app/docs/README.md`: one line per doc (purpose + living-spec vs historical-plan status), so the directory is self-describing and stale/one-off plans (e.g. `WEB-VERSION-PLAN.md`) are visibly flagged.
+- [ ] While writing it, reconcile the top-level `README.md` tree comment so it doesn't enumerate a partial subset of the docs.
+- [ ] Consider doing the same one-line-index treatment uniformly across `scripts/`, `docs/`, and any other accreted directory (pairs with the `scripts/README.md` entry).
+
+**Related files:** `dnd-app/docs/` (the ten reference docs), `dnd-app/docs/phases/PHASE-INDEX.md` (existing index pattern to mirror), `dnd-app/README.md`
+
+**Related entries:** [2026-06-28] "`scripts/` has ~40 scripts across 11 sub-areas but no `scripts/README.md`" (same missing-index pattern, sibling directory).
+
+**Resolution [2026-07-03, dnd-cleanup-cluster]:** Added `dnd-app/docs/README.md` — one row per reference doc (topic + living-spec vs historical/plan status; `WEB-VERSION-PLAN.md` flagged historical/partly-delivered), plus links to the scripts and phase indexes. Landed on `auto/dnd-cleanup-cluster` for the integrator.
+
+
+### [2026-06-28] Stale one-off `scripts/submit/*-batch.ts` content-gen scripts no longer wired up, and they ignore the documented per-system submit layout
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** dnd-cleanup scheduled cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+`scripts/submit/` holds six one-off Anthropic Batch API generation scripts — `submit-phase4-batch.ts`, `submit-phase5-batch.ts`, `submit-subclass-batch.ts`, `submit-integration-batch.ts`, `submit-mass-batch.ts`, `submit-missing-data-batch.ts`. They are leftovers from earlier content-build phases: none is referenced from `package.json` scripts, from any other script, or from docs (only PLUGIN-SYSTEM.md mentions the directory generically). Each hardcodes a payload/cache file in `process.cwd()` (`batch_payload_phase4.jsonl`, `.mass_batch_cache.json`, `batch-subclasses.jsonl`, etc.) — none of which exist in the repo anymore, so the scripts cannot run as-is. `submit-missing-data-batch.ts`'s header usage block still points at the pre-move path `scripts/submit-missing-data-batch.ts` (the files now live one level deeper in `scripts/submit/`). Separately, PLUGIN-SYSTEM.md documents the intended layout as `scripts/submit/<system-id>/submit-*.ts` (per-plugin-system subdirectories), but the actual files sit flat in `scripts/submit/` keyed by old phase numbers — so the directory neither matches the documented convention nor reflects any live system.
+
+**Hypothesis / root cause:** Phase-era bulk-generation tooling that was never pruned after the 5e content set was finalized; the per-`<system-id>` convention in PLUGIN-SYSTEM.md was written aspirationally and the historical phase scripts predate it.
+
+**Proposed fix / improvement:**
+- [ ] Confirm none are needed for live workflows (grep already shows zero callers), then archive them out of the active tree — either delete, or move to `_archive/` / a `scripts/submit/_historical/` folder with a one-line README noting they were phase-era batch jobs.
+- [ ] If the submit pattern is meant to stay as a template, keep ONE canonical example renamed to the documented `scripts/submit/<system-id>/submit-*.ts` shape and fix its usage-comment path, rather than six phase-numbered copies.
+- [ ] Reconcile PLUGIN-SYSTEM.md so the documented layout matches whatever is actually kept.
+
+**Related files:** `scripts/submit/submit-phase4-batch.ts`, `scripts/submit/submit-phase5-batch.ts`, `scripts/submit/submit-subclass-batch.ts`, `scripts/submit/submit-integration-batch.ts`, `scripts/submit/submit-mass-batch.ts`, `scripts/submit/submit-missing-data-batch.ts`, `docs/PLUGIN-SYSTEM.md`
+
+**Resolution [2026-07-03, dnd-cleanup-cluster]:** Deleted all six unwired phase-era batch scripts under `scripts/submit/` (zero callers in package.json / scripts / docs; git history retains them). The per-`<system-id>` pipeline convention in `docs/PLUGIN-SYSTEM.md` is left as the documented shape for future content systems; README + scripts/README note the dir is now empty. Landed on `auto/dnd-cleanup-cluster` for the integrator.
+
+
+### [2026-06-28] `CHANGELOG.md` is ~14 versions stale (top entry 2.2.2, app shipping 2.6.4) and nothing in the release flow updates it
+
+- **Category:** docs
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** dnd-cleanup scheduled cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+`package.json` is at `2.6.4`, but `CHANGELOG.md`'s newest entry is `## [2.2.2]` (entries stop at 2.2.2 / 2.2.1 / 2.2.0 / 2.1.39). That is roughly fourteen releases of drift. The release helper `scripts/release/cut.mjs` does not touch `CHANGELOG.md`, and `package.json` build config explicitly excludes `CHANGELOG.md` from the packaged app — so the file just rots silently and provides no usable release history to anyone reading the repo. A changelog that lies is arguably worse than none.
+
+**Hypothesis / root cause:** Changelog upkeep was manual and quietly dropped around 2.2.x once the automated phase/release cadence took over; the release script was never extended to append an entry.
+
+**Proposed fix / improvement:**
+- [ ] Decide on a single source of truth: either (a) have `cut.mjs` auto-append a `## [x.y.z]` stub (date + version) on each release cut so the changelog stays current, or (b) formally retire `CHANGELOG.md` in favour of git tags / GitHub Releases and replace its body with a pointer to those.
+- [ ] If keeping it, backfill (even tersely) the 2.3.0 -> 2.6.4 gap from release tags / commit history so the file is internally consistent.
+
+**Related files:** `CHANGELOG.md`, `scripts/release/cut.mjs`, `package.json`
+
+**Resolution [2026-07-03, dnd-cleanup-cluster]:** Formally retired `CHANGELOG.md` (option (b) from the entry): added a top-of-file "Retired — no longer maintained" banner pointing at GitHub Releases + git tags as the canonical release history, and froze the existing `<= 2.2.2` entries as a labeled historical archive. No history fabricated. (Not option (a): wiring cut.mjs to auto-append would change release runtime tooling and needs a live release to verify.) Landed on `auto/dnd-cleanup-cluster` for the integrator.
+
+
+### [2026-06-28] `scripts/` has ~40 scripts across 11 sub-areas but no `scripts/README.md` documenting the taxonomy
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** dnd-cleanup scheduled cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+`scripts/` is organised into `audit/`, `build/`, `dev/`, `i18n/`, `lib/`, `lint/`, `maintenance/`, `release/`, `schemas/`, `smoke/`, `submit/` plus loose top-level scripts (`check-circular.mjs`, `sign.mjs`), mixing `.mjs` and `.ts`. There is no `scripts/README.md` explaining what each sub-area is for, which scripts are wired into `package.json` vs run ad-hoc, or the `.mjs`-vs-`.ts` split. New contributors (and scanning agents) have to reverse-engineer the layout from `package.json` and grep — which is exactly how the stale `submit/` scripts above went unnoticed. A short index would make dead/one-off scripts obvious and give a home for documenting conventions (e.g. the per-`<system-id>` submit layout, where new audit vs maintenance scripts belong).
+
+**Hypothesis / root cause:** The directory grew organically per phase without a documentation pass.
+
+**Proposed fix / improvement:**
+- [ ] Add `scripts/README.md`: one line per sub-directory (purpose), a table of the package.json-invoked entry points vs ad-hoc/one-off scripts, and the `.mjs` (build/tooling) vs `.ts` (tsx-run, type-checked) convention.
+- [ ] While writing it, flag any script with no caller (see the `submit/*-batch.ts` entry) so the index doubles as a cleanup checklist.
+
+**Related files:** `scripts/`, `package.json`, `docs/PLUGIN-SYSTEM.md`
+
+**Resolution [2026-07-03, dnd-cleanup-cluster]:** Added `scripts/README.md` — conventions (`.mjs` vs `.ts`, the knip `scripts/**` dead-code blind spot), a per-sub-area table, and an explicit wired-into-package.json vs ad-hoc/no-caller split so orphan scripts are visible. Landed on `auto/dnd-cleanup-cluster` for the integrator.
+
+
 ### [2026-07-02] `BOOK_SAVE_BYTES` / `saveBookBytes` never validates the peer-supplied `bookId` — path-traversal write primitive that every sibling storage handler already guards against
 
 - **Category:** bug

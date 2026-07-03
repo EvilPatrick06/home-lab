@@ -138,7 +138,7 @@ node scripts/release/cut.mjs X.Y.Z --notes-file=/tmp/vX.Y.Z-notes.md
 
 **Auto-update** — `electron-updater` handles diff updates on Windows (NSIS) and Linux (AppImage). Auto-**check** on launch is on by default (check-only, prompts); auto-download / auto-restart / silent install stay opt-in via Settings → Updates.
 
-**Code signing (Windows)** — builds ship **unsigned**; an unsigned installer triggers a SmartScreen "unknown publisher" prompt but installs fine. The previous custom `win.sign` hook (`scripts/sign.mjs`) and the `signAndEditExecutable: false` setting were **removed** as of v2.2.2 — they were incompatible with electron-builder 26 (`build.win.sign` was moved under `signtoolOptions` in v25) and `signAndEditExecutable: false` stripped the app icon + exe metadata. Leaving `signAndEditExecutable` at its default (`true`) preserves the icon/metadata. To add signing later, use electron-builder's native `win.signtoolOptions` with `CSC_LINK`/`CSC_KEY_PASSWORD`.
+**Code signing (Windows)** — builds ship **unsigned**; an unsigned installer triggers a SmartScreen "unknown publisher" prompt but installs fine. The previous custom `win.sign` hook and the `signAndEditExecutable: false` setting were **removed** as of v2.2.2 (the hook script `scripts/sign.mjs` and its `.env.signing.template` were later swept up in a cleanup pass; git history retains them) — they were incompatible with electron-builder 26 (`build.win.sign` was moved under `signtoolOptions` in v25) and `signAndEditExecutable: false` stripped the app icon + exe metadata. Leaving `signAndEditExecutable` at its default (`true`) preserves the icon/metadata. To add signing later, use electron-builder's native `win.signtoolOptions` with `CSC_LINK`/`CSC_KEY_PASSWORD`.
 
 ## Test + lint
 
@@ -211,7 +211,8 @@ dnd-app/
 │   │   │   ├── pages/            route components (MainMenuPage, JoinGamePage, LobbyPage, InGamePage, CharacterSheet5ePage, …)
 │   │   │   ├── data/             TS-exported game content
 │   │   │   ├── network/          peerjs multiplayer — host/client managers, message handlers, game sync, registry client, msgpack codec, replay buffer, host-announce lifecycle
-│   │   │   └── utils/, types/, hooks/, systems/, constants/, events/, styles/
+│   │   │   ├── utils/, types/, hooks/, systems/, constants/, events/, styles/
+│   │   │   └── test/, a11y/            whole-app / cross-cutting tests (codebase-integrity, a11y smoke); colocate ordinary unit tests next to source
 │   │   └── public/data/5e/       D&D 2024 content (~3,041 JSON files)
 │   ├── shared/                   cross-process types + IPC channels + zod schemas
 │   └── __mocks__/                vitest mocks
@@ -227,7 +228,7 @@ dnd-app/
 │   ├── release/                  cut.mjs (single-command tag + push)
 │   ├── schemas/                  schema generation + validation
 │   ├── smoke/                    smoke-test scripts
-│   └── submit/                   Anthropic Batch API submission
+│   └── submit/                   Anthropic Batch API submission (per-system pipeline convention — see docs/PLUGIN-SYSTEM.md; empty until a new content system is generated)
 │
 ├── docs/                         IPC-SURFACE, PLUGIN-SYSTEM, RELEASE, DESIGN-CONSTRAINTS, ASSET-OFFLOAD,
 │   │                             DEPENDENCIES, LLAMA-SERVER, SEED-PACKS, UI-LAYERS, WEB-VERSION-PLAN
