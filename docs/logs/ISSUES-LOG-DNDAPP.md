@@ -32,37 +32,6 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Medium
 
-### [2026-07-02] `BOOK_SAVE_BYTES` / `saveBookBytes` never validates the peer-supplied `bookId` — path-traversal write primitive that every sibling storage handler already guards against
-
-- **Category:** bug
-- **Severity:** medium
-- **Domain:** dnd-app
-- **Discovered by:** dnd-errors
-- **During:** autonomous dnd-app error scan — reviewing the custom-book sync path added in `ce917e30` (2026-06-28)
-
-**Description:**
-The `BOOK_SAVE_BYTES` IPC handler (`src/main/ipc/storage-handlers.ts` ~L476) passes `bookId` straight into `saveBookBytes(bookId, title, ext, bytes)` with no validation, and `saveBookBytes` (`src/main/storage/book-storage.ts` L122) interpolates it directly into a filesystem path: `const destPath = join(booksDir, `${bookId}${cleanExt}`)`, then `atomicWriteFile(destPath, Buffer.from(bytes))`. `bookId` is **not** a locally-chosen UUID here — on the sync pull path it is the entity `id` taken from a remote peer's manifest (`src/renderer/src/services/sync/domains.ts` L539 `putEntity` → `window.api.books.saveBytes(e.id, …)`), so its value is attacker-influenced in a multiplayer session. A `bookId` such as `../../<something>` escapes `booksDir` and writes attacker-supplied bytes to an arbitrary location (constrained to a `.pdf` extension, since `saveBookBytes` rejects non-`.pdf` `ext`). Every comparable handler already guards this exact shape: `CAMPAIGN_RESTORE_VERSION` and `CHARACTER_RESTORE_VERSION` reject `/`, `\`, `..`, `\0` and require the extension; `BOOK_IMPORT` and `BOOK_READ_FILE` reject `..`/`\0`; character/campaign storage additionally `isValidUUID(id)` before building any path. The book id-keyed handlers (`BOOK_SAVE_BYTES`, and pre-existing `BOOK_SAVE_DATA`/`BOOK_LOAD_DATA` via `getBookDataPath`) are the outlier with no guard at all. `BOOK_SAVE_BYTES` is the newest and highest-risk of these because it (a) arrived with the 2026-06-28 sync feature, (b) takes its id from a network peer, and (c) writes raw bytes.
-
-**Reproduction (if bug):**
-1. In a synced/multiplayer session, have a peer advertise a `book-files` entity whose `id` is `../../evil` (type `custom`, any bytes).
-2. The local pull calls `window.api.books.saveBytes('../../evil', title, '.pdf', bytes)` → `BOOK_SAVE_BYTES` → `saveBookBytes`.
-3. Observed: `join(booksDir, '../../evil.pdf')` resolves outside `booksDir`; `atomicWriteFile` writes the peer's bytes there. No validation error is raised (contrast `CAMPAIGN_RESTORE_VERSION`, which throws `Invalid version file name` on `..`).
-
-**Expected behavior (if bug):** `BOOK_SAVE_BYTES` (and ideally the whole book id-keyed family) validates `bookId` before it reaches a path join — reject `/`, `\`, `..`, `\0` (and preferably require `isValidUUID(bookId)`, matching character/campaign storage), throwing on a bad id exactly as the restore handlers do.
-
-**Hypothesis / root cause:** `saveBookBytes` was added with the custom-book sync feature (`ce917e30`) modeled on `importBook`, but unlike the security-hardened restore/import handlers it never picked up the path-traversal guard. Book storage historically assumed `bookId` was a locally-generated UUID; the sync feature made it remote-supplied without adding the corresponding input validation. No unit test covers `saveBookBytes` (no `book-storage` test references it), so the gap went unnoticed.
-
-**Proposed fix / improvement:**
-- [ ] In `saveBookBytes` (and the `BOOK_SAVE_BYTES` handler), reject `bookId` containing `/`, `\`, `..`, or `\0` before any path join; prefer `isValidUUID(bookId)` to match `campaign-storage`/`character-storage`.
-- [ ] Apply the same guard to the other id-keyed book paths (`getBookDataPath` → `BOOK_SAVE_DATA`/`BOOK_LOAD_DATA`) so the family is uniform.
-- [ ] Add a `book-storage` unit test asserting a traversal `bookId` is rejected and a valid UUID writes inside `booksDir` (mirrors the restore-handler tests).
-
-**Blocked by:** none. (LOG-ONLY scan — app code not modified.)
-
-**Related files:** `dnd-app/src/main/storage/book-storage.ts` (saveBookBytes ~L122, getBookDataPath L47), `dnd-app/src/main/ipc/storage-handlers.ts` (BOOK_SAVE_BYTES ~L476), `dnd-app/src/renderer/src/services/sync/domains.ts` (book-files putEntity ~L539), `dnd-app/src/preload/index.ts` (books.saveBytes ~L654)
-
-**Related entries:** ISSUES-LOG-DNDAPP [2026-06-29] "chunk-id NUL drift + credential at-rest/leak hardening" (same recent security-hardening pass that guarded the *restore* handlers but not the book-save family)
-
 ### [2026-06-29] dnd-app/mobile Dependabot npm-deps bump fails `npm ci` — package-lock.json out of sync with package.json
 
 - **Category:** config

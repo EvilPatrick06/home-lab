@@ -44,7 +44,32 @@ function getBookConfigPath(): string {
   return join(app.getPath('userData'), 'book-config.json')
 }
 
+/**
+ * Book ids are core-book slugs (e.g. 'phb-2024') or locally-generated UUIDs,
+ * but on the sync pull path they arrive from a REMOTE peer's manifest, so they
+ * must never be trusted as path components. Reject anything that could escape
+ * the books dir before it reaches a path join (mirrors the traversal guards on
+ * the campaign/character restore handlers).
+ */
+export function isSafeBookId(bookId: unknown): bookId is string {
+  return (
+    typeof bookId === 'string' &&
+    bookId.length > 0 &&
+    !bookId.includes('/') &&
+    !bookId.includes('\\') &&
+    !bookId.includes('..') &&
+    !bookId.includes('\0')
+  )
+}
+
+function assertSafeBookId(bookId: string): void {
+  if (!isSafeBookId(bookId)) {
+    throw new Error('Invalid book id')
+  }
+}
+
 function getBookDataPath(bookId: string): string {
+  assertSafeBookId(bookId)
   return join(getBooksDir(), `${bookId}-data.json`)
 }
 
@@ -126,6 +151,7 @@ export async function saveBookBytes(
   bytes: ArrayBuffer
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    assertSafeBookId(bookId)
     const cleanExt = ext.startsWith('.') ? ext.toLowerCase() : `.${(ext || 'pdf').toLowerCase()}`
     if (cleanExt !== '.pdf') return { success: false, error: 'Only PDF files are supported' }
     const booksDir = getBooksDir()
@@ -151,6 +177,7 @@ export async function importBook(
   bookId: string
 ): Promise<{ success: boolean; path?: string; error?: string }> {
   try {
+    assertSafeBookId(bookId)
     const ext = extname(sourcePath).toLowerCase()
     if (ext !== '.pdf') {
       return { success: false, error: 'Only PDF files are supported' }
