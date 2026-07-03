@@ -1241,6 +1241,21 @@ class VoicePipeline:
 
         return np.clip(filtered, -32768, 32767).astype(np.int16)
 
+    def _playback_timeout_s(self, path: str) -> float:
+        """Timeout for playing an already-synthesized clip: decoded duration
+        + 10s grace, clamped to [15, 120]. Falls back to the old flat 120s
+        when ffprobe is unavailable or cannot read the file."""
+        try:
+            probe = subprocess.run(
+                ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                 "-of", "default=noprint_wrappers=1:nokey=1", path],
+                capture_output=True, timeout=10,
+            )
+            duration = float(probe.stdout.decode().strip())
+            return min(120.0, max(15.0, duration + 10.0))
+        except Exception:
+            return 120.0
+
     def _play_audio(self, path: str):
         """Play an audio file — via ffplay (Pi) or emit URL to browser."""
         import os as _os
@@ -1272,13 +1287,33 @@ class VoicePipeline:
             cmd += ["-volume", str(vol)]
         cmd.append(path)
         start = time.time()
-        result = subprocess.run(
-            cmd,
-            capture_output=True, timeout=120, env=env,
-        )
+        # Timeout sized to the clip (decoded duration + grace) instead of a
+        # flat 120s, plus one retry after killing a wedged ffplay: a stuck
+        # playback (e.g. ALSA device contention with VLC) previously stalled
+        # speak() for 2 minutes and surfaced as "All TTS failed" even though
+        # synthesis had succeeded (BMO-ISSUES 2026-07-02).
+        timeout_s = self._playback_timeout_s(path)
+        result = None
+        for attempt in (1, 2):
+            try:
+                result = subprocess.run(
+                    cmd,
+                    capture_output=True, timeout=timeout_s, env=env,
+                )
+                break
+            except subprocess.TimeoutExpired:
+                log.warning(
+                    f"[tts] ffplay playback timed out after {timeout_s:.0f}s "
+                    f"(attempt {attempt}/2) -- ffplay killed"
+                )
         elapsed = time.time() - start
         _record_stage("tts", elapsed)
-        if result.returncode != 0:
+        if result is None:
+            # PLAYBACK failure, not synthesis failure -- do not raise into the
+            # TTS-provider fallback chain: the audio was already synthesized
+            # and re-synthesizing cannot help a stuck output device.
+            log.error(f"[tts] Playback failed: ffplay hung twice ({elapsed:.1f}s total)")
+        elif result.returncode != 0:
             log.warning(f"[tts] ffplay error (rc={result.returncode}, {elapsed:.1f}s): {result.stderr.decode().strip()}")
         else:
             log.info(f"[tts] Playback done ({elapsed:.1f}s)")

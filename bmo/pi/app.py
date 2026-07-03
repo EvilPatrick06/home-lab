@@ -21,6 +21,7 @@ from gevent import monkey
 monkey.patch_all()
 
 import json
+import hmac
 import os
 from services.paths import BMO_ROOT as _P_BMO_ROOT, DATA_DIR as _P_DATA_DIR
 import secrets
@@ -324,13 +325,20 @@ def _bmo_client_is_trusted_localhost() -> bool:
     return True
 
 
+def _secure_eq(presented: str | None, expected: str | None) -> bool:
+    """Constant-time shared-secret comparison (timing side-channel
+    hardening, SECURITY-LOG 2026-07-02). Callers still guard the
+    unset-key/open-door case FIRST; this only replaces `==`."""
+    return hmac.compare_digest(str(presented or ""), str(expected or ""))
+
+
 def _bmo_bearer_authorized() -> bool:
     if not BMO_API_KEY:
         return True
     if _bmo_client_is_trusted_localhost():
         return True
     auth = (request.headers.get("Authorization", "") or "").strip()
-    return auth == f"Bearer {BMO_API_KEY}"
+    return _secure_eq(auth, f"Bearer {BMO_API_KEY}")
 
 
 _cf_jwks_client = None
@@ -411,13 +419,13 @@ def _bmo_optional_api_key():
         return None
     if _bmo_client_is_trusted_localhost():
         return None
-    if request.headers.get("Authorization", "") == f"Bearer {BMO_API_KEY}":
+    if _secure_eq(request.headers.get("Authorization", ""), f"Bearer {BMO_API_KEY}"):
         return None
     # EventSource (the VTT's game-registry SSE subscription) can't set an
     # Authorization header, so accept the key as an `api_key` query param for
     # that one streaming route. Confined to /api/games/stream so the less-safe
     # query-param credential isn't accepted app-wide.
-    if p == "/api/games/stream" and (request.args.get("api_key") or "") == BMO_API_KEY:
+    if p == "/api/games/stream" and _secure_eq(request.args.get("api_key"), BMO_API_KEY):
         return None
     # Owner authenticated at the Cloudflare Access edge (a verified Access JWT) —
     # allow the gated admin surface (/bmo, /ide, control APIs) through the tunnel.
@@ -1416,6 +1424,12 @@ def api_camera_snapshot_last():
 
 @app.route("/api/camera/describe", methods=["POST"])
 def api_camera_describe():
+    # Guard mirrors the sibling camera endpoints (stream/snapshot/last):
+    # without it, _do_describe raised a NoneType AttributeError in the
+    # background thread and leaked raw Python to the user via vision_result
+    # (BMO-ISSUES 2026-07-02).
+    if not camera:
+        return jsonify({"error": "Camera service not available"}), 503
     data = request.get_json(silent=True) or {}
     prompt = data.get("prompt", "What do you see?")
 
@@ -2925,7 +2939,7 @@ def _registry_authorized() -> bool:
     if not BMO_REGISTRY_API_KEY:
         return True
     presented = (request.headers.get("X-Registry-Key", "") or "").strip()
-    return presented == BMO_REGISTRY_API_KEY
+    return _secure_eq(presented, BMO_REGISTRY_API_KEY)
 
 
 # Hard cap on inbound POST body size for registry routes — game entries
