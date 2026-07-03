@@ -30,6 +30,7 @@ file by purpose; the logs further down are machine-appended and split by domain.
 | [`CONTRIBUTING.md`](./CONTRIBUTING.md) | Branch / commit conventions, script vocabulary, PR flow. |
 | [`AUTOMATED-AGENT-GIT-WORKFLOW.md`](./AUTOMATED-AGENT-GIT-WORKFLOW.md) | Per-agent branch + worktree + daily integrator workflow. |
 | [`BOARD-APPROVAL-BRIDGE.md`](./BOARD-APPROVAL-BRIDGE.md) | Board Approve/Deny buttons → originating-session relay (decisions outbox contract). |
+| [`SCHEDULED-TASK-MIGRATION.md`](./SCHEDULED-TASK-MIGRATION.md) | Migration of recurring Claude scheduled tasks → GitHub Actions / bmo cron (triggers, secrets, retire steps). |
 | [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md) | Which log to write to, and when not to log. |
 | [`CHANGELOG.md`](./CHANGELOG.md) | Release history. |
 
@@ -77,6 +78,4 @@ Not tracked in git (sensitive); present only on a working checkout.
 | `SECURITY-LOG.md` | Security concerns, hardening backlog, incident notes (any domain). |
 | `RESOLVED-SECURITY-ISSUES.md` | Archive of resolved security entries. |
 
-> Process note: durable design knowledge (not work) lives in each project's
-> `docs/DESIGN-CONSTRAINTS.md`, not in the suggestions logs. See
-> [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md).
+> Process n

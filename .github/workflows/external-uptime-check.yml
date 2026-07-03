@@ -1,0 +1,45 @@
+# External uptime check → BMO board 🚨 Incidents, with a bmo-independent GitHub
+# Issue fallback. no-LLM replacement for the external-uptime-check Claude task.
+# The probe runs on the GitHub runner (off-tailnet) — that external vantage is
+# the whole point. Board post is dormant-green without TS_OAUTH; the fallback
+# issue path needs no secret. See docs/SCHEDULED-TASK-MIGRATION.md.
+name: external-uptime-check
+on:
+  schedule:
+    - cron: '*/30 * * * *'   # every 30 minutes
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+concurrency:
+  group: external-uptime-check
+  cancel-in-progress: true
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Detect board access (board post is best-effort; fallback is issue)
+        id: gate
+        env:
+          HAS_ID: ${{ secrets.TS_OAUTH_CLIENT_ID != '' }}
+          HAS_SECRET: ${{ secrets.TS_OAUTH_SECRET != '' }}
+        run: |
+          ok=false; [ "$HAS_ID" = "true" ] && [ "$HAS_SECRET" = "true" ] && ok=true
+          echo "ok=$ok" >> "$GITHUB_OUTPUT"
+          [ "$ok" = "true" ] || echo "::notice::board post unavailable (no TS_OAUTH) — alerts route to the GitHub-issue fallback."
+      - name: Checkout (probe scripts)
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - name: Join tailnet (ephemeral, only if board reachable)
+        if: steps.gate.outputs.ok == 'true'
+        uses: tailscale/github-action@306e68a486fd2350f2bfc3b19fcd143891a4a2d8 # v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+          ping: bmo.tail31b5d9.ts.net
+      - name: Probe endpoints + post/fallback
+        env:
+          BOARD_OK: ${{ steps.gate.outputs.ok }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/scripts/uptime-check.sh
