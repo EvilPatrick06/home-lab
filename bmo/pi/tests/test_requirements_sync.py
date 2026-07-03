@@ -13,6 +13,11 @@ import pytest
 REQ_DIR = Path(__file__).resolve().parents[1]  # bmo/pi/
 # pip-compile omits these "unsafe" packages unless --allow-unsafe.
 UNSAFE = {"pip", "setuptools", "wheel", "distribute"}
+# openwakeword is deliberately NOT pinned in the compiled .txt files: it is
+# installed separately with --no-deps (Dockerfile / CI / install scripts)
+# because its metadata hard-requires the abandoned tflite-runtime (no py3.12+
+# wheel), while bmo runs it onnx-only. Its real deps stay pinned in the .txt.
+INTENTIONALLY_UNPINNED = {"openwakeword"}
 
 PAIRS = [
     ("requirements.in", "requirements.txt"),
@@ -31,7 +36,7 @@ def _declared(in_path: Path) -> set[str]:
         line = line.split("#", 1)[0].strip()
         if not line or line.startswith(("-", "--")):
             continue
-        name = re.split(r"[<>=!~\[; ]", line, 1)[0]
+        name = re.split(r"[<>=!~\[; ]", line, maxsplit=1)[0]
         if name:
             names.add(_norm(name))
     return names
@@ -46,7 +51,7 @@ def _pinned(txt_path: Path) -> set[str]:
 def test_declared_deps_are_pinned(in_name, txt_name):
     in_path, txt_path = REQ_DIR / in_name, REQ_DIR / txt_name
     assert in_path.exists() and txt_path.exists()
-    missing = (_declared(in_path) - UNSAFE) - _pinned(txt_path)
+    missing = (_declared(in_path) - UNSAFE - INTENTIONALLY_UNPINNED) - _pinned(txt_path)
     assert not missing, (
         f"{in_name} declares {sorted(missing)} with no pin in {txt_name}. "
         f"Recompile: pip-compile --extra-index-url https://download.pytorch.org/whl/cpu "

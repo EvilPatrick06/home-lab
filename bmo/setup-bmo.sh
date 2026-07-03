@@ -100,6 +100,9 @@ python3 -m venv venv
 venv/bin/pip install --upgrade pip
 venv/bin/pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
 venv/bin/pip install -r requirements.txt
+# openwakeword hard-requires the abandoned tflite-runtime (no py3.12+ wheel);
+# bmo runs it onnx-only, so install it without deps (real deps are in the file above).
+venv/bin/pip install --no-deps openwakeword==0.6.0
 
 # PHASE-21 21A: streaming-TTS support for the DM bot.
 #  - NLTK punkt data for stream2sentence's default tokenizer. The regex fallback

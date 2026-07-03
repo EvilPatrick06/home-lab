@@ -3,13 +3,17 @@
 # does not pull the CUDA+nvidia stack (~4+ GB) from PyPI — Pi 5 has no GPU.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-PY="${1:-python3.11}"
+PY="${1:-python3.14}"
 test -f requirements.txt
 rm -rf venv
 "$PY" -m venv venv
 venv/bin/pip install --upgrade pip
 venv/bin/pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
 venv/bin/pip install -r requirements.txt
+# openwakeword pulls the abandoned tflite-runtime (no py3.12+ wheel) as a hard
+# dep, but bmo runs it onnx-only; install it without deps (its real deps are in
+# requirements.txt).
+venv/bin/pip install --no-deps openwakeword==0.6.0
 # Download openwakeword default ONNX wake models so wake-word detection can load.
 # Without them the voice pipeline silently degrades to the energy+STT fallback
 # (BMO-ISSUES 2026-06-22). Best-effort: never fail the install when offline.

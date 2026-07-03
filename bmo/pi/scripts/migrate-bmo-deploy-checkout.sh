@@ -110,7 +110,7 @@ step "3. Build venv in the deploy checkout (via install-venv.sh)"
 if [ -x "$PI_DEP/scripts/install-venv.sh" ]; then
   do_or_echo bash "$PI_DEP/scripts/install-venv.sh" "$VENV_PY"
 else
-  do_or_echo bash -c "cd '$PI_DEP' && '$VENV_PY' -m venv venv && venv/bin/pip install --upgrade pip && venv/bin/pip install -r requirements.txt"
+  do_or_echo bash -c "cd '$PI_DEP' && '$VENV_PY' -m venv venv && venv/bin/pip install --upgrade pip && venv/bin/pip install -r requirements.txt && venv/bin/pip install --no-deps openwakeword==0.6.0"
 fi
 
 # ── 4. Repoint the installed systemd units to the deploy checkout ─────────────

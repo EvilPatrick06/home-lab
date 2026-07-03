@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM python:3.11-slim-bookworm@sha256:721dc13fd1be0a771e54b72097634291d628d0007dee9da777e2ce676a9c998f
+FROM python:3.14-slim-bookworm@sha256:4ff4b92a68355dbdb52584ab3391dff8d371a61d4e063468bfd0130e3189c6d9
 ARG REQUIREMENTS=requirements.txt        # CI overrides with requirements-ci.txt
 RUN apt-get update && apt-get install -y --no-install-recommends \
       build-essential portaudio19-dev libsndfile1 ffmpeg vlc curl \
@@ -7,7 +7,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 COPY pi/requirements*.txt ./
 RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu \
- && pip install --no-cache-dir -r "$REQUIREMENTS"
+ && pip install --no-cache-dir -r "$REQUIREMENTS" \
+ && pip install --no-cache-dir --no-deps openwakeword==0.6.0
 COPY pi/ /app/
 ENV PYTHONUNBUFFERED=1
 EXPOSE 5000
