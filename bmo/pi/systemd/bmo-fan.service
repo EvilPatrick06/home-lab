@@ -1,9 +1,20 @@
 [Unit]
 Description=BMO Case Fan Controller
 After=multi-user.target
+StartLimitIntervalSec=300
+StartLimitBurst=5
 
 [Service]
-Type=simple
+# Type=notify + WatchdogSec: the controller pings WATCHDOG=1 each successful
+# I2C loop tick (via python3-systemd). A wedged loop (hung I2C transaction)
+# misses the deadline and systemd restarts the unit instead of leaving the fan
+# silently stuck at its last duty. TimeoutStartSec covers the initial bus init.
+# (If python3-systemd is ever unavailable on the host, the sd_notify calls are
+# no-ops and this must be reverted to Type=simple, or the unit will time out.)
+Type=notify
+NotifyAccess=main
+WatchdogSec=30
+TimeoutStartSec=15
 User=patrick
 ExecStart=/usr/bin/python3 /home/patrick/home-lab-deploy/bmo/pi/hardware/fan_control.py
 Restart=always

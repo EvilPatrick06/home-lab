@@ -705,3 +705,38 @@ class TestFishAudioHasFallbackRetier:
                     "(timed out after 5s)",
                 )
         assert len(sent) == 1, "repeated identical WARNING must dedupe to one webhook"
+
+
+# ── BMO-SUGGESTIONS 2026-06-29: fan-down-while-hot escalation ────────────────
+class TestFanDownThermalEscalation:
+    def test_cool_box_fan_down_is_not_escalated(self, tmp_path, monkeypatch):
+        checker = _make_checker(tmp_path)
+        monkeypatch.setattr(mon_module, "_read_cpu_temp", lambda: 45.0)
+        checker._service_status["pi_power"] = {"throttle_flags": "0x0"}
+        sev, note = checker._fan_down_thermal()
+        assert sev is None and note == ""
+
+    def test_hot_box_fan_down_is_warning(self, tmp_path, monkeypatch):
+        checker = _make_checker(tmp_path)
+        monkeypatch.setattr(mon_module, "_read_cpu_temp", lambda: 72.0)
+        checker._service_status["pi_power"] = {"throttle_flags": "0x0"}
+        sev, note = checker._fan_down_thermal()
+        assert sev == mon_module.Severity.WARNING
+        assert "fan DOWN" in note
+
+    def test_critical_temp_fan_down_is_critical(self, tmp_path, monkeypatch):
+        checker = _make_checker(tmp_path)
+        monkeypatch.setattr(mon_module, "_read_cpu_temp", lambda: 82.0)
+        checker._service_status["pi_power"] = {"throttle_flags": "0x0"}
+        sev, note = checker._fan_down_thermal()
+        assert sev == mon_module.Severity.CRITICAL
+
+    def test_throttling_now_fan_down_is_critical_even_if_temp_read_fails(self, tmp_path, monkeypatch):
+        checker = _make_checker(tmp_path)
+        def _boom():
+            raise OSError("no zone")
+        monkeypatch.setattr(mon_module, "_read_cpu_temp", _boom)
+        checker._service_status["pi_power"] = {"throttle_flags": "0x4"}
+        sev, note = checker._fan_down_thermal()
+        assert sev == mon_module.Severity.CRITICAL
+        assert "THROTTLING" in note
