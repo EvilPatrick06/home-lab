@@ -14,14 +14,25 @@ REPO="${GITHUB_REPOSITORY:-EvilPatrick06/home-lab}"
 BOARD_OK="${BOARD_OK:-false}"
 ISSUE_TITLE="External uptime: public endpoint(s) unreachable"
 
+# Realistic browser User-Agent so Cloudflare treats the probe like a real
+# browser (a bare curl UA gets bot-challenged with 403 from an off-tailnet
+# runner IP, which is NOT a real outage — the site serves 200 to browsers).
+PROBE_UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+
 # check <url> <mode>  → "UP" or "DOWN http=NNN"
-#   mode 200    : healthy ONLY on 200 (a 302-to-Access here means public access broke)
-#   mode access : 302/other healthy; DOWN only on connection failure (000) or 5xx
+#   mode 200    : healthy ONLY on 200 (a 302-to-Access here means public access broke).
+#                 A 403 is a Cloudflare bot-challenge (site is up but protected),
+#                 NOT an outage — treated as UP so it never false-alarms.
+#   mode access : 302/other healthy; DOWN only on connection failure (000) or 5xx.
+#                 403 (bot-challenge) is likewise treated as UP.
 check() {
   local url="$1" mode="$2" code
-  code=$(curl -sS -o /dev/null -w '%{http_code}' -m 20 "$url" 2>/dev/null || echo 000)
+  code=$(curl -sS -o /dev/null -w '%{http_code}' -m 20 -A "$PROBE_UA" "$url" 2>/dev/null || echo 000)
   if [ "$mode" = "200" ]; then
-    [ "$code" = "200" ] && echo "UP" || echo "DOWN http=$code"
+    case "$code" in
+      200|403) echo "UP" ;;          # 200 healthy; 403 = CF bot-block, up-but-protected
+      *)       echo "DOWN http=$code" ;;
+    esac
   else
     case "$code" in 000|5??) echo "DOWN http=$code" ;; *) echo "UP" ;; esac
   fi
