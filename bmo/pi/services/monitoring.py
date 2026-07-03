@@ -666,6 +666,17 @@ class HealthChecker:
     _DEGRADED_NOT_CRITICAL = {
         "google_calendar",
     }
+    # Cloud APIs that have a working LOCAL fallback, so an outage does NOT make
+    # the assistant non-functional. Fish Audio TTS falls back through
+    # edge-tts -> local Piper (voice_pipeline.speak chain), so a flapping Fish
+    # endpoint should NOT fire a device-level CRITICAL (which also flips the
+    # OLED to an error face + is the loudest alert). We emit these at WARNING on
+    # timeout/connection-error instead -- still surfaced + Discord-notified
+    # (state-change deduped), but not CRITICAL. BMO-ISSUES 2026-06-29
+    # (Fish Audio TTS timeouts raise CRITICALs while a local fallback exists).
+    _HAS_LOCAL_FALLBACK_SERVICES = {
+        "fish_audio_api",
+    }
     # bmo-kiosk is deliberately disabled on headless/mic-less hosts; treat a
     # disabled unit as info (not a per-cycle "restart me" WARNING). An
     # enabled-but-failed kiosk still alerts (this only covers disabled/masked).
@@ -727,8 +738,13 @@ class HealthChecker:
                 "message": f"Timeout after {timeout}s",
                 "response_time": None,
             }
+            level = (
+                Severity.WARNING
+                if name in self._HAS_LOCAL_FALLBACK_SERVICES
+                else Severity.CRITICAL
+            )
             self._emit_alert(
-                Severity.CRITICAL, name,
+                level, name,
                 f"{label} is not responding (timed out after {timeout}s)",
             )
 
@@ -739,8 +755,13 @@ class HealthChecker:
                 "message": "Connection refused",
                 "response_time": None,
             }
+            level = (
+                Severity.WARNING
+                if name in self._HAS_LOCAL_FALLBACK_SERVICES
+                else Severity.CRITICAL
+            )
             self._emit_alert(
-                Severity.CRITICAL, name,
+                level, name,
                 f"{label} is DOWN — connection refused. Service may have crashed.",
             )
 
