@@ -50,6 +50,10 @@ INBOX_TTL_S = int(os.environ.get("BOARD_INBOX_TTL_S", str(26 * 3600)))
 # Agent items (approvals/blocked/findings) expire faster: most agents re-run
 # every 2-4h and re-post if still relevant, so a resolved one clears on its own.
 AGENT_TTL_S = int(os.environ.get("BOARD_AGENT_TTL_S", str(6 * 3600)))
+# Page size for the board's paginated "awaiting your decision" agent rows.
+# The renderer may shrink the EFFECTIVE page size further so the total
+# component count always stays strictly under Discord's 40-component cap.
+AWAITING_PER_PAGE = int(os.environ.get("BOARD_AWAITING_PER_PAGE", "5"))
 
 # Severity ordering (worst first) drives the board color + topic summary.
 SEV_ORDER = ["critical", "warning", "info", "ok"]
@@ -298,6 +302,28 @@ def is_approval_row(r: dict) -> bool:
     return r.get("category") == "agent" and bool(r.get("session_id"))
 
 
+def clamp_page(page, total_items: int, per_page: int) -> int:
+    """Clamp a stored 0-based page index against the CURRENT item count, so a
+    list that shrank (items resolved/approved) never strands the board on an
+    empty page, and corrupt persisted state degrades to page 0."""
+    try:
+        page = int(page or 0)
+    except (TypeError, ValueError):
+        page = 0
+    if per_page <= 0 or total_items <= 0:
+        return 0
+    last_page = (total_items - 1) // per_page
+    return max(0, min(page, last_page))
+
+
+def page_slice(items: list, page: int, per_page: int) -> list:
+    """The items visible on 0-based `page` at `per_page` items per page."""
+    if per_page <= 0:
+        return list(items)
+    start = page * per_page
+    return list(items)[start:start + per_page]
+
+
 def record_decision(decision: str, item, *, decided_by: str = "board",
                     text: str | None = None, outbox: str | None = None) -> dict:
     """Append a decision record to the append-only decisions outbox (JSONL) for
@@ -384,6 +410,7 @@ class BoardState:
     collapse_info: bool = False                        # Info section hidden?
     pinged_critical: list = field(default_factory=list)  # critical keys already pinged
     board_v2: bool = False                             # is the live board a Components-V2 msg?
+    awaiting_page: int = 0                             # current awaiting-approval page (persisted)
 
     @classmethod
     def load(cls) -> "BoardState":
@@ -391,10 +418,14 @@ class BoardState:
             with open(BOARD_STATE, encoding="utf-8") as f:
                 d = json.load(f)
             inc = {k: Incident(**v) for k, v in d.get("incidents", {}).items()}
+            try:
+                page = int(d.get("awaiting_page", 0) or 0)
+            except (TypeError, ValueError):
+                page = 0
             return cls(d.get("board_message_id"), d.get("channel_id"), inc,
                        d.get("updated", 0.0), d.get("muted", {}),
                        d.get("collapse_info", False), d.get("pinged_critical", []),
-                       d.get("board_v2", False))
+                       d.get("board_v2", False), page)
         except Exception:
             return cls()
 
@@ -404,7 +435,7 @@ class BoardState:
              "incidents": {k: asdict(v) for k, v in self.incidents.items()},
              "updated": time.time(), "muted": self.muted,
              "collapse_info": self.collapse_info, "pinged_critical": self.pinged_critical,
-             "board_v2": self.board_v2}
+             "board_v2": self.board_v2, "awaiting_page": self.awaiting_page}
         with open(BOARD_STATE, "w", encoding="utf-8") as f:
             json.dump(d, f, indent=2)
 
