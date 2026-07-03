@@ -16,7 +16,7 @@ import { AlertTriangle, ArrowLeft, ArrowRight, Award, Clock } from 'lucide-react
 import { useEffect, useMemo, useRef, useState } from 'react';
 import RichContent from '../../components/RichContent.jsx';
 import { useDialogA11y } from '../../hooks/useDialogA11y.js';
-import { EXAM_PRESETS, gradeExamItem, pickStratifiedSample, summarizeExamResults } from '../../services/examSession.js';
+import { gradeExamItem, pickStratifiedSample, presetsForPool, summarizeExamResults } from '../../services/examSession.js';
 import { clearSession, loadSession, SESSION_KIND, saveSession } from '../../services/sessionResume.js';
 import { timerAnnouncement } from '../../services/timerAnnounce.js';
 import { speak, ttsSupported } from '../../services/tts.js';
@@ -343,8 +343,8 @@ export default function ExamMode({
               begins, the timer cannot be paused.
             </div>
             <div className="grid md:grid-cols-3 gap-3">
-              {EXAM_PRESETS.map((preset) => {
-                const effective = Math.min(preset.count, quizPool.length);
+              {presetsForPool(quizPool.length).map((preset) => {
+                const effective = preset.effective;
                 const disabled = effective < 5;
                 return (
                   <button

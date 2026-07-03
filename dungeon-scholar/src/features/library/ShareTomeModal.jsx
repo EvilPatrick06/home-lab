@@ -2,6 +2,7 @@ import { Check, Copy, Download, Loader2, Lock, Share2, X } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 import { encodeTomeShareCode, stripLocalOnlyTomeFields } from '../../game/tome.js';
 import { useDialogA11y } from '../../hooks/useDialogA11y.js';
+import { exportTomeCsv } from '../../services/deckImport.js';
 import { isSealedTome, sealTome } from '../../services/sealedTome.js';
 
 // Phase 30i QA #19: tomes whose share code exceeds this threshold default to
@@ -25,6 +26,26 @@ export function downloadTomeJson(tome, { suffix = '' } = {}) {
     const a = document.createElement('a');
     a.href = url;
     a.download = `${tomeSlug(tome.data)}${suffix}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch {
+    /* ignore */
+  }
+}
+
+// Download a tome's flashcards as a CSV / Quizlet-compatible two-column file —
+// the machine-readable, re-importable inverse of the CSV importer. Reuses the
+// same Blob/object-URL download machinery as downloadTomeJson.
+export function downloadTomeCsv(tome) {
+  try {
+    const csv = exportTomeCsv(tome);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${tomeSlug(tome.data)}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -181,6 +202,14 @@ function ShareTomeModal({ tome, onClose }) {
               >
                 <Download className="w-4 h-4" /> Download Tome JSON
               </button>
+              <button
+                type="button"
+                onClick={() => downloadTomeCsv(tome)}
+                className="py-2 font-bold rounded-sm flex items-center justify-center gap-2 text-amber-100 border-2 border-emerald-700/70 italic text-sm"
+                style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)' }}
+              >
+                <Download className="w-4 h-4" /> Download flashcards as CSV (Quizlet)
+              </button>
               <details
                 className="text-xs italic text-amber-700/85"
                 onToggle={(e) => setShowRawCode(e.currentTarget.open)}
@@ -243,6 +272,13 @@ function ShareTomeModal({ tome, onClose }) {
                 className="text-xs italic text-emerald-300 hover:text-emerald-200 flex items-center gap-1 self-start"
               >
                 <Download className="w-3 h-3" /> Download as JSON file instead
+              </button>
+              <button
+                type="button"
+                onClick={() => downloadTomeCsv(tome)}
+                className="text-xs italic text-emerald-300 hover:text-emerald-200 flex items-center gap-1 self-start"
+              >
+                <Download className="w-3 h-3" /> Download flashcards as CSV (Quizlet)
               </button>
             </>
           )}

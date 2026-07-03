@@ -149,3 +149,29 @@ export function summarizeExamResults(questions, answers) {
   const scorePct = total > 0 ? Math.round((correct / total) * 100) : 0;
   return { total, answered, correct, scorePct, byDomain };
 }
+
+// PHASE-11D (F4): collapse practice-exam presets that clamp to the same
+// effective riddle count for a given pool size. On a small tome, "Standard
+// Mock" (60) and "Full-Length Exam" (90) both clamp to the tome size (e.g. 45),
+// so they differ only by their timer — two cards that look functionally
+// identical ("45 riddles · Capped at 45"). This pure helper maps EXAM_PRESETS
+// to { ...preset, effective } and de-duplicates by effective count, keeping the
+// FIRST (shortest-count, hence shortest-timer) preset for each distinct
+// effective length. The result is guaranteed to contain no two cards with the
+// same effective count, so the UI never renders near-identical duplicates.
+//
+// Rationale for keep-first: the presets are ordered short→long by count. When
+// several clamp to the same length, the shortest-timer variant is the least
+// surprising default for a tome that genuinely can't fill the longer exams.
+export function presetsForPool(poolLen, presets = EXAM_PRESETS) {
+  const pool = Math.max(0, Math.floor(Number(poolLen) || 0));
+  const seen = new Set();
+  const out = [];
+  for (const preset of Array.isArray(presets) ? presets : []) {
+    const effective = Math.min(preset.count, pool);
+    if (seen.has(effective)) continue;
+    seen.add(effective);
+    out.push({ ...preset, effective });
+  }
+  return out;
+}

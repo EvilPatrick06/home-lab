@@ -190,3 +190,51 @@ export function deckTextToTome(text, { title, delimiter } = {}) {
   });
   return { ok: true, tome, count: flashcards.length, skipped };
 }
+
+// ── CSV / Quizlet export (the inverse of deckTextToTome) ────────────────────
+//
+// The importer above pulls two-column term/definition decks (CSV / TSV /
+// Quizlet copy-paste) INTO a tome. This is the symmetric OUT path: emit a
+// tome's flashcards as RFC-4180-quoted `term,definition,domain` rows that
+// round-trip cleanly back through parseDeckText / deckTextToTome. This gives a
+// learner who authored or edited a tome in-app a way to extract their cards
+// into the universal two-column format every other tool (Anki, Quizlet, a
+// spreadsheet, a study group's doc) reads — the data-ownership inverse of the
+// import feature.
+
+// Quote a single CSV field per RFC-4180: wrap in double quotes and double any
+// embedded quote WHEN the field contains a comma, quote, CR, or LF. Otherwise
+// emit it bare. Non-strings coerce to string first.
+export function csvQuoteField(value) {
+  const s = value == null ? '' : String(value);
+  if (/[",\r\n]/.test(s)) {
+    return `"${s.replace(/"/g, '""')}"`;
+  }
+  return s;
+}
+
+/**
+ * Serialize a tome's flashcards to RFC-4180 CSV text.
+ * Header row: term,definition,domain. The domain column is always emitted
+ * (empty when a card has none) so the shape is stable and re-importable.
+ * @param {object} tome — a library entry ({ data: { flashcards } }) or a raw
+ *   tome-data object ({ flashcards }).
+ * @param {{ header?: boolean }} [opts]
+ * @returns {string} CSV text (CRLF line endings per RFC-4180).
+ */
+export function exportTomeCsv(tome, { header = true } = {}) {
+  const data = tome && tome.data && typeof tome.data === 'object' ? tome.data : tome;
+  const cards = data && Array.isArray(data.flashcards) ? data.flashcards : [];
+  const lines = [];
+  if (header) lines.push('term,definition,domain');
+  for (const c of cards) {
+    if (!c || typeof c !== 'object') continue;
+    const front = c.front ?? '';
+    const back = c.back ?? '';
+    // Skip degenerate cards that carry no content in either column.
+    if (String(front).trim() === '' && String(back).trim() === '') continue;
+    const domain = c.domain ?? '';
+    lines.push([front, back, domain].map(csvQuoteField).join(','));
+  }
+  return lines.join('\r\n');
+}
