@@ -93,14 +93,14 @@ class TestCheckFreshness:
 
 class TestSaveIndexStamp:
     def test_save_index_round_trips_source_hash(self, tmp_path):
-        from services.rag_search import save_index
+        from services.game.rag.rag_search import save_index
         out = tmp_path / "idx.json"
         save_index([], str(out), source_hash="deadbeef")
         data = json.loads(out.read_text())
         assert data["sourceHash"] == "deadbeef"
 
     def test_save_index_without_hash_is_legacy_shaped(self, tmp_path):
-        from services.rag_search import save_index
+        from services.game.rag.rag_search import save_index
         out = tmp_path / "idx.json"
         save_index([], str(out))
         assert "sourceHash" not in json.loads(out.read_text())

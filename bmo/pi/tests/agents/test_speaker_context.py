@@ -18,6 +18,31 @@ from unittest.mock import MagicMock
 import pytest
 
 
+@pytest.fixture(autouse=True)
+def _real_agents_package():
+    """Guarantee the REAL ``agents`` package for this module.
+
+    Sibling test files install ``sys.modules["agents"] = MagicMock()`` (and mock
+    ``agents.router`` / ``agents.orchestrator`` / ``agent``) at import time. If such
+    a mock is left in ``sys.modules`` when this module's tests run, ``import
+    agents.base_agent`` fails ("'agents' is not a package") and importing the
+    orchestrator binds ``AgentRouter`` to a MagicMock (issubclass-fail). Snapshot +
+    drop every ``agents*``/``agent`` entry so the real package imports freshly, and
+    restore the snapshot exactly on teardown so we do not perturb sibling files.
+    """
+    snapshot = {k: v for k, v in sys.modules.items()
+                if k == "agents" or k.startswith("agents.") or k == "agent"}
+    for k in list(snapshot):
+        del sys.modules[k]
+    try:
+        yield
+    finally:
+        for k in [k for k in list(sys.modules)
+                  if k == "agents" or k.startswith("agents.") or k == "agent"]:
+            del sys.modules[k]
+        sys.modules.update(snapshot)
+
+
 # ── BaseAgent.speaker_bucket ─────────────────────────────────────────
 
 class TestSpeakerBucket:
@@ -37,9 +62,10 @@ class TestSpeakerBucket:
 
 class TestOrchestratorThreadsSpeaker:
     def test_handle_passes_speaker_into_run_agent_context(self, monkeypatch):
-        # Stub the heavy deps orchestrator imports lazily.
-        sys.modules.setdefault("agents.router", MagicMock())
-        from agents import orchestrator as orch_mod
+        # The autouse _real_agents_package fixture guarantees the real package,
+        # so agents.orchestrator + agents.router import cleanly here.
+        import importlib
+        orch_mod = importlib.import_module("agents.orchestrator")
 
         # Build a bare orchestrator without running __init__ (avoids agent wiring).
         orch = orch_mod.AgentOrchestrator.__new__(orch_mod.AgentOrchestrator)
@@ -72,7 +98,7 @@ class TestOrchestratorThreadsSpeaker:
 
 @pytest.fixture
 def learning_agent(tmp_path, monkeypatch):
-    import agents.learning_agent as la
+    import agents.dev.learning_agent as la
     mem = tmp_path / "memory.json"
     monkeypatch.setattr(la, "MEMORY_FILE", str(mem))
     monkeypatch.setattr(la, "MEMORY_DIR", str(tmp_path))
