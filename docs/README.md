@@ -22,6 +22,7 @@ file by purpose; the logs further down are machine-appended and split by domain.
 | [`OLLAMA-TUNING.md`](./OLLAMA-TUNING.md) | Local LLM (Ollama) performance tuning. |
 | [`SECURITY.md`](./SECURITY.md) | Security posture, reporting, and secret-handling. |
 | [`BMO-DEPLOY.md`](./BMO-DEPLOY.md) | Decoupled bmo Pi deploy (deploy-owned checkout, fetch+reset flow). |
+| [`PUSH-RESILIENCE.md`](./PUSH-RESILIENCE.md) | Off-Pi push fallback: dedicated write deploy key so automation can push to origin during a bmo outage. |
 
 ## Contributor process
 
