@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs'
+import { chmodSync, existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { app, BrowserWindow } from 'electron'
 import { DEFAULT_AI_MODEL } from '../../shared/ai-defaults'
@@ -576,7 +576,12 @@ export async function configure(config: AiConfig): Promise<void> {
       ragCampaignDocsEnabled: currentConfig.ragCampaignDocsEnabled,
       routing: currentConfig.routing,
       localEndpointFlavor: currentConfig.localEndpointFlavor
-    })
+    }),
+    // ai-config.json holds the cloud API keys, and encryptOptional falls back to
+    // plaintext when safeStorage is unavailable (headless Linux) — write it
+    // owner-only (0o600), mirroring settings-storage.ts / discord-service.ts.
+    'utf-8',
+    { mode: 0o600 }
   )
 
   maybeStartEmbeddingBuild() // PHASE-24 24C: (re)build the vector store on config change
@@ -589,6 +594,14 @@ export async function configure(config: AiConfig): Promise<void> {
 export function loadConfigFromDisk(): void {
   const configPath = getConfigPath()
   if (!existsSync(configPath)) return
+  // Self-heal perms for configs written before the 0o600 tightening (the cloud
+  // API keys may sit in plaintext when safeStorage was unavailable at save
+  // time). Best-effort: never let a chmod failure block config load.
+  try {
+    chmodSync(configPath, 0o600)
+  } catch {
+    // best-effort only (e.g. non-POSIX filesystem)
+  }
   try {
     const saved = JSON.parse(readFileSync(configPath, 'utf-8')) as Record<string, unknown>
     currentConfig = {
