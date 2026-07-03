@@ -52,10 +52,10 @@ These projects share infrastructure rather than features:
 
 Full protocol spec: [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md)
 
-## Current state (2026-06-30)
+## Current state (2026-07-03)
 
 - **`dnd-app`** at **v2.7.1**. Multiplayer (Phase 29), Token System (Phase 13), DM View (Phase 14), and the complete AI Dungeon Master (P6 roadmap — solo play, 127 DM actions, 37 stat-change types, Discord VC narration) shipped. 859 test files. Ships as Windows NSIS installer + Linux AppImage. Open backlog + deferred work: [`dnd-app/docs/phases/PHASE-INDEX.md`](./dnd-app/docs/phases/PHASE-INDEX.md) (the backlog phase set for the whole repo).
-- **`bmo`** runs 5 systemd services live on the Pi: `bmo`, `bmo-fan`, `bmo-kiosk`, `bmo-dm-bot`, `bmo-social-bot`. 72 pytest files. Game-discovery registry at `/api/games*` advertises via avahi for Windows-zero-config.
+- **`bmo`** runs 5 systemd services live on the Pi: `bmo`, `bmo-fan`, `bmo-kiosk`, `bmo-dm-bot`, `bmo-social-bot`. 74 pytest files. Game-discovery registry at `/api/games*` advertises via avahi for Windows-zero-config.
 - **`dungeon-scholar`** at Phase 34b (theme toggle); the Phase 27 audit remainder is now part of the backlog phase set ([`dnd-app/docs/phases/PHASE-INDEX.md`](./dnd-app/docs/phases/PHASE-INDEX.md), phases 17–19/39–41). Deployed via GitHub Pages workflow.
 
 ## Quick start
