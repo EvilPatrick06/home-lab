@@ -106,10 +106,19 @@ export function useHashRoute(computeInitialScreen) {
     window.location.hash = formatHash(name); // pushes a history entry + fires hashchange (syncs state)
   }, []);
 
-  const clearPendingTome = useCallback(() => {
+  const clearPendingTome = useCallback((targetScreen) => {
     setPendingTomeId(null);
     // Drop the consumed tome segment: #/tome/<id>/<screen> → #/<screen>.
-    window.history.replaceState(null, '', formatHash(screenRef.current));
+    // PHASE-13 F1: an explicit target wins over the (possibly stale) screenRef.
+    // 08A's not-found reset drives the screen through setScreen('home') →
+    // location.hash (an ASYNC queued hashchange), while this replaceState is
+    // SYNCHRONOUS — canonicalizing off screenRef here would rewrite the URL back
+    // to the deep-linked screen before the reset lands, and the queued hashchange
+    // would then read it back, undoing the reset. Passing the intended screen
+    // removes the dependence on ref timing; the no-arg default keeps the valid
+    // deep-link path (consume tome → canonicalize to the current screen) intact.
+    const target = targetScreen ?? screenRef.current;
+    window.history.replaceState(null, '', formatHash(target));
   }, []);
 
   return [screen, setScreen, pendingTomeId, clearPendingTome];

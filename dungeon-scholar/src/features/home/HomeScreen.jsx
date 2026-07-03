@@ -290,7 +290,7 @@ function HomeScreen({
 
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex-1 min-w-[250px]">
-            <div className="text-xs text-amber-600 tracking-[0.3em] mb-1">⚔ ACTIVE TOME ⚔</div>
+            <div className="text-xs text-amber-600 tracking-[0.3em] mb-1 active-tome-accent">⚔ ACTIVE TOME ⚔</div>
             <h2
               className="text-2xl font-bold text-amber-200 italic"
               style={{ textShadow: '0 0 12px rgba(245, 158, 11, 0.4)' }}
@@ -309,7 +309,7 @@ function HomeScreen({
                     style={{
                       background: 'rgba(var(--surface-purple, 31, 12, 41), 0.7)',
                       border: '1px solid rgba(126, 34, 206, 0.5)',
-                      color: '#d8b4fe',
+                      color: 'var(--accent-purple-ink, #d8b4fe)',
                     }}
                   >
                     📚 {courseSet.metadata.subject}
@@ -351,7 +351,7 @@ function HomeScreen({
                     style={{
                       background: 'rgba(var(--surface-amber-strong, 120, 53, 15), 0.4)',
                       border: '1px solid rgba(245, 158, 11, 0.4)',
-                      color: '#fcd34d',
+                      color: 'var(--accent-gold-ink, #fcd34d)',
                     }}
                   >
                     #{tag}
@@ -359,7 +359,7 @@ function HomeScreen({
                 ))}
               </div>
             )}
-            <div className="flex gap-4 mt-3 text-xs text-amber-300/80">
+            <div className="flex gap-4 mt-3 text-xs text-amber-300/80 active-tome-accent">
               <span>📜 {courseSet.flashcards?.length || 0} scrolls</span>
               <span>🎯 {courseSet.quiz?.length || 0} riddles</span>
               <span>⚗️ {courseSet.labs?.length || 0} trials</span>

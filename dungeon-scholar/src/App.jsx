@@ -737,6 +737,13 @@ export default function DungeonScholarApp() {
       // the screen form falls through to the same redirect as `#/tome/<bad-id>`.
       setScreen('home');
       showNotif('That tome is not in thy library.', 'error');
+      // PHASE-13 F1: canonicalize to '#/home' explicitly. screenRef still holds
+      // the deep-linked screen at this point (it only advances after the next
+      // render), so the default clearPendingTome() would synchronously rewrite
+      // the URL back to the gated screen and the queued hashchange from
+      // setScreen('home') would read it back — defeating 08A's reset.
+      clearPendingTome('home');
+      return;
     }
     clearPendingTome(); // also canonicalizes the URL to #/<screen> via replaceState
     // eslint-disable-next-line react-hooks/exhaustive-deps

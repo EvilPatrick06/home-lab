@@ -20,6 +20,9 @@ vi.mock('../services/supabase.js', () => ({
     },
   },
   isSupabaseConfigured: () => true,
+  // PHASE-13 F2: reachable by default so the PHASE-02 arm-the-ticker behaviour
+  // under test here is unchanged.
+  probeSupabaseReachable: () => Promise.resolve(true),
 }));
 
 vi.mock('../services/logger.js', () => ({
