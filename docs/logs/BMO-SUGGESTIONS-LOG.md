@@ -20,6 +20,84 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-07-02] `agent.py`'s `BmoAgent` is an 80-method god-class — 50 embedded `_handle_*` device-command handlers (music, audio/BT, scenes, ...) live inside the LLM-routing brain, the un-logged remainder after the D&D-helper extraction
+
+- **Category:** debt
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** scheduled cleanup/structure scan (module-size + class-shape sweep of `bmo/pi`)
+
+**Description:**
+`bmo/pi/agent.py` (1,955 lines) is still the second-largest non-bot source file, and almost everything below line 580 is **one class, `BmoAgent`** (~1,376 lines, **80 methods**). The module's top half is a coherent LLM-routing surface (`llm_chat`/`llm_chat_stream`, model selection, cloud/Ollama fallback, RAG glue) — but `BmoAgent` mixes at least five unrelated concerns sharing only `self`: (1) chat/stream orchestration (`chat`, `chat_stream`, `_parse_response`); (2) MCP client lifecycle (`_init_mcp`, `_reload_mcp_servers`); (3) D&D session context (`load_dnd_context`, `_auto_load_dnd`, `get_gamestate`, recap); (4) restart/resume persistence (`_write_resume_before_restart`, `_read_and_clear_resume`, `_execute_pending_confirmation`); and (5) — the bulk — a **50-method `_handle_*` command-dispatch layer** (`_handle_music_play/pause/next/previous/volume/cast`, `_handle_audio_list_devices/set_output/bt_scan/bt_pair`, `_handle_scene_list/activate`, ... dispatched via `_get_handler`/`_execute_command`). Those handlers are thin adapters onto the `services` dict and have nothing to do with the agent brain; each new voice-controllable capability grows this class further. This is another instance of the already-established oversized-module pattern (`app.py`, `monitoring.py`, kiosk frontend, social bot, `VoicePipeline`) — but `agent.py` has never had its own decomposition entry: the resolved entry extracted only the 7 D&D *data* helpers (~250 lines) and explicitly deferred the rest.
+
+**Hypothesis / root cause:** organic growth — every new `<verb>_<noun>` agent command added a `_handle_*` method to the one class that already had the dispatch table; no `commands/` seam was ever created.
+
+**Proposed fix / improvement:**
+- [ ] Extract the `_handle_*` layer behind the existing dispatch seam: a `commands/` module (or `services/command_handlers.py`) holding plain functions grouped by domain (music, audio, scene, ...), registered in a dict the existing `_get_handler` consults — behavior-neutral, `BmoAgent` keeps its public surface.
+- [ ] Optionally follow with the smaller extractions (MCP lifecycle, resume-restart persistence) once the handler move lands; D&D context can join `services/dnd_dm_data.py`'s orbit.
+- [ ] Gate on pytest (`tests/test_app_endpoints.py`, `tests/agents/*`) + the CI 4-gate; sequence independently of the `app.py` blueprint completion (different files, no overlap).
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/agent.py:580-1955` (`BmoAgent`), `bmo/pi/agent.py:1242` (`_get_handler`), `bmo/pi/agents/orchestrator.py` (calls `run_agent`), `bmo/pi/services/dnd_dm_data.py` (precedent extraction)
+
+**Related entries:** BMO-RESOLVED 2026-06-24 (agent.py D&D-helper extraction — explicitly partial); Future-ideas 2026-06-29 (`app.py` half-decomposed god-module), 2026-06-28 (`monitoring.py` god-class), 2026-07-02 (kiosk frontend god-module) — same pattern, different file.
+
+---
+
+### [2026-07-02] Nearly half the committed QA screenshots are orphaned — 48 of 99 files in `bmo/docs/phases/QA/screenshots/` are referenced by NO report (active or completed), spanning three abandoned naming generations with no pruning/archival convention
+
+- **Category:** debt, docs
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** scheduled cleanup/structure scan (cross-referencing every `screenshots/*.png` against all QA reports)
+
+**Description:**
+`bmo/docs/phases/QA/screenshots/` holds 99 LFS-tracked PNGs in one flat directory, accumulated across four QA rounds with three naming conventions (unprefixed `tab-home.png`-era, `r2-*`, `r3-*`, `r4-*`). Cross-referencing against every report — the active `QA-report-2026-07-02.md` plus all 10 in `completed/` — only **51** files are referenced anywhere; **48 are orphaned** (the unprefixed and `r2-` generations are almost fully unreferenced, e.g. `01-home-default.png`, `r2-tab-*.png`, plus stray `tab-cal.png` vs `tab-calendar.png` duplicates). The QA loop archives reports into `completed/` (their link paths were even fixed up to `../screenshots/`), but nothing ever prunes or archives the evidence files themselves, and neither `QA/README.md` nor `QA/INSTRUCTIONS.md` states a naming or retention convention — so each future round (`r5-*`, ...) grows the flat dir further and the orphan ratio only worsens. LFS keeps clone cost low, so this is hygiene/navigability debt, not bloat-urgent.
+
+**Hypothesis / root cause:** the QA agent's instructions cover capturing + committing screenshots but are silent on lifecycle — no counterpart to the report-archival step for the evidence files.
+
+**Proposed fix / improvement:**
+- [ ] One-time sweep: delete the 48 unreferenced PNGs (list reproducible via `grep -o "screenshots/[A-Za-z0-9._-]*\.png"` across all reports, `comm -23` against `ls`), on a branch, verifying no report link breaks.
+- [ ] Adopt per-round subfolders going forward (`screenshots/2026-07-02/...` or keep the `r<N>-` prefix but document it) and add a retention rule to `QA/INSTRUCTIONS.md` §8: when a report is archived to `completed/`, its unreferenced screenshots are deleted (referenced ones stay).
+- [ ] Optionally have the QA agent end each run by listing screenshots it saved but never cited, so orphans stop at the source.
+
+**Blocked by:** none
+
+**Related files:** `bmo/docs/phases/QA/screenshots/` (99 files, 7.1 MB), `bmo/docs/phases/QA/INSTRUCTIONS.md` (§8 output/commit rules — no retention rule), `bmo/docs/phases/QA/README.md`, `.gitattributes` (LFS rules already correct)
+
+**Related entries:** none (first entry covering the QA evidence lifecycle; the 2026-06-28 `pi/scripts/` README entry is the analogous "undocumented directory convention" finding).
+
+---
+
+### [2026-07-02] `STATUS-BOARD-MIGRATION.md` carries a duplicated "## F. Status after live cutover" section (union-merge artifact) and neither STATUS-BOARD doc is listed in the `bmo/docs/README.md` index
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** scheduled cleanup/structure scan (docs-index vs directory-listing cross-check)
+
+**Description:**
+Two related docs-hygiene finds. (1) `bmo/docs/STATUS-BOARD-MIGRATION.md` contains the section `## F. Status after live cutover (2026-06-28)` **twice** (lines 85 and 94), with near-identical but non-identical bodies (one says "dead-mans-switch", the other "dead-man's-switch") — the classic duplicate-section-header artifact the union-merge caveat in `AUTOMATED-AGENT-GIT-WORKFLOW.md` Rule 2 warns about, here landed in a regular doc and never cleaned. A reader can't tell which F-section is authoritative. (2) `bmo/docs/README.md` presents itself as the BMO docs index ("The docs" table) but omits both `STATUS-BOARD-DESIGN.md` and `STATUS-BOARD-MIGRATION.md` — the only two files in `bmo/docs/` not indexed — and no other doc links to the migration doc, so the board's design/cutover record is undiscoverable from the entry point. Bonus staleness signal: the doc's GATED paragraph says the `status_board_cog` deploy is HELD on a then-red master CI ("pre-existing unrelated dnd-app CI failure") — worth re-verifying and updating when the dup section is fixed, since the hold condition was transient.
+
+**Hypothesis / root cause:** (1) two branches both appended the cutover-status section and a union/auto merge kept both copies (expected for logs, unnoticed in a regular doc); (2) the README index predates the status-board docs and was never extended.
+
+**Proposed fix / improvement:**
+- [ ] Merge the two F-sections into one (keep the superset of bullets; they differ only in apostrophe + wrapping), and refresh the GATED paragraph to the current cog-deploy state.
+- [ ] Add both STATUS-BOARD docs to the `bmo/docs/README.md` table (one line each: design spec; migration/cutover record).
+- [ ] Awareness note for future agents: hand-edited docs touched by parallel branches need a post-merge dedupe glance — union-merge is only configured for logs + DESIGN-CONSTRAINTS, but ordinary auto-merges can still double-append.
+
+**Blocked by:** none
+
+**Related files:** `bmo/docs/STATUS-BOARD-MIGRATION.md:85,94`, `bmo/docs/README.md` ("The docs" table), `bmo/docs/STATUS-BOARD-DESIGN.md`, `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md` (Rule 2 union-merge caveat)
+
+**Related entries:** none prior on the status-board docs; complements the 2026-07-02 `.env.template` drift entry (same "docs drifted from reality" family).
+
+---
+
 ### [2026-07-02] `.env.template` has drifted from the code — 40+ `BMO_*` env vars the app reads are undocumented, several template keys are referenced nowhere, and the header cites a nonexistent `bmo.sh`
 
 - **Category:** docs
