@@ -16,6 +16,29 @@ How to triage: [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md)
 
 > Repo-wide / multi-project findings. Per the domain-split triage in `LOG-INSTRUCTIONS.md` these are `Domain: both`; recorded here in the compatibility-pointer log.
 
+### [2026-07-02] `workflow_run` trigger lists are coupled to workflow `name:` strings with no drift guard — a rename silently disables the bmo auto-deploy (and the incoming CI-failure triage)
+
+- **Category:** config, debt
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-errors
+- **During:** cross-cutting CI scan of `.github/workflows/` trigger wiring
+
+**Description:**
+`bmo-deploy.yml` fires via `on: workflow_run: workflows: ["bmo / pi pytest"]` — a match against the display `name:` of `bmo-pi-pytest.yml`, guarded today only by an inline comment ("MUST match the `name:` … exactly"). If anyone renames that workflow (exactly the kind of consistency sweep this repo does — cf. the resolved 2026-06-24 "deploy-workflow filenames" and 2026-06-28 "branch filters" convention entries), the coupling breaks **silently**: GitHub raises no error, `bmo / deploy` simply never triggers again, and nothing goes red — the auto-deploy just stops. The failure mode is invisible until someone notices the Pi is stale. The blast surface is about to grow ~15×: the in-flight `auto/gha-monitor-migration` branch adds `ci-failure-triage.yml` with a `workflow_run` list of **14** workflow names (every CI gate); one renamed gate silently drops out of failure triage the same way. `scripts/check-ci-hygiene.sh` (the mechanical-convention guard) has guards for node-pin / SHA-pin / docs-index / permissions but nothing that cross-checks `workflow_run.workflows` entries against the actual `name:` fields in `.github/workflows/*.yml`, so this cannot be caught before merge.
+
+**Expected behavior:** renaming a workflow that another workflow references via `workflow_run` should fail CI (hygiene guard), not silently sever the trigger.
+
+**Hypothesis / root cause:** GitHub's `workflow_run` API couples by display-name string with no referential integrity; the repo's convention guard predates any `workflow_run` consumer beyond the single bmo-deploy reference, so no guard was written. Verified: `bmo-deploy.yml` is the only `workflow_run` consumer on master; the 14-name list exists on `origin/auto/gha-monitor-migration`; `check-ci-hygiene.sh` contains no such check.
+
+**Proposed fix / improvement:**
+- [ ] Add a guard to `scripts/check-ci-hygiene.sh`: extract every `workflow_run.workflows` entry across `.github/workflows/*.yml` and assert each matches a `name:` declared by some workflow file in the same tree; fail with the offending reference otherwise.
+- [ ] Optionally note the convention (workflow `name:` strings are load-bearing for `workflow_run` consumers) in the CI section of `docs/CONTRIBUTING.md` or the workflow-doc Release-flow section.
+
+**Related files:** `.github/workflows/bmo-deploy.yml`, `.github/workflows/bmo-pi-pytest.yml`, `scripts/check-ci-hygiene.sh`, (branch) `.github/workflows/ci-failure-triage.yml`
+
+**Related entries:** `RESOLVED-ISSUES.md` -> [2026-06-24] deploy-workflow filename convention, [2026-06-28] inconsistent push branch filters (same "convention swept later" hazard class).
+
 ### [2026-07-02] Gitignored `SECURITY-LOG.md` is incompatible with the per-agent-worktree model: worktree appends are silently lost, main-checkout writes race unserialized
 
 - **Category:** config, debt
