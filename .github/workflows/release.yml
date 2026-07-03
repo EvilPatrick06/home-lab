@@ -33,6 +33,7 @@ jobs:
   checks-fast:
     name: Fast checks (version + lint + typecheck)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: dnd-app
@@ -70,6 +71,7 @@ jobs:
   test:
     name: Test (shard ${{ matrix.shard }}/3)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -112,6 +114,7 @@ jobs:
             builder-flag: '--mac'
             experimental: true
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     continue-on-error: ${{ matrix.experimental }}
     defaults:
       run:
@@ -214,6 +217,7 @@ jobs:
     name: Publish + verify assets
     needs: [test, build]
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: write
     steps:

@@ -9,7 +9,7 @@ help:
 	@echo "  typecheck -> dnd-app + oracle-worker + dungeon-scholar + dnd-app/mobile (all enforced)"
 	@echo "  test      -> dnd-app + dungeon-scholar + oracle-worker (npm) + bmo/pi (pytest)"
 	@echo "  build     -> dnd-app + dungeon-scholar (npm) + oracle-worker (wrangler dry-run)"
-	@echo "  audit     -> each project: npm run audit:ci"
+	@echo "  audit     -> dnd-app + dnd-app/mobile + dungeon-scholar + oracle-worker: npm run audit:ci"
 
 # hooks: wire the repo-root Husky pre-commit hook for ALL projects, independent
 # of which subproject you bootstrap. Pure-git (no npm/husky needed): points
@@ -36,7 +36,7 @@ lint:
 # (web tsconfig), oracle-worker + dungeon-scholar (checkJs over JS/JSX), and
 # dnd-app/mobile (Expo/RN strict tsc).
 typecheck:
-	cd dnd-app && npx tsc --noEmit -p tsconfig.web.json
+	cd dnd-app && npm run typecheck
 	cd oracle-worker && npm run typecheck
 	cd dungeon-scholar && npm run typecheck
 	cd dnd-app/mobile && npm run typecheck
@@ -54,6 +54,7 @@ build:
 
 audit:
 	cd dnd-app && npm run audit:ci
+	cd dnd-app/mobile && npm run audit:ci
 	cd dungeon-scholar && npm run audit:ci
 	cd oracle-worker && npm run audit:ci
 

@@ -4,6 +4,9 @@
   "private": true,
   "description": "Dungeon Table Online \u2014 React Native (Expo) Android client. Embeds the in-game renderer (PixiJS map + Three.js dice) in a WebView and reuses the desktop/web TypeScript logic over a typed window.api bridge.",
   "main": "index.ts",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "prestart": "node scripts/ensure-embed.mjs",
     "start": "expo start",
@@ -12,6 +15,7 @@
     "build:embed": "npm --prefix .. run build:embed && node scripts/sync-embed.mjs && node scripts/sync-shared.mjs",
     "lint": "biome check src/",
     "typecheck": "tsc --noEmit",
+    "audit:ci": "npm audit --omit=dev --audit-level=moderate",
     "build:android:preview": "eas build --platform android --profile preview",
     "build:android:production": "eas build --platform android --profile production",
     "submit:android": "eas submit --platform android --profile production",
@@ -45,7 +49,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
-    "@biomejs/biome": "^2.5.0",
+    "@biomejs/biome": "^2.5.1",
     "@expo/config-types": "^57.0.0",
     "@tailwindcss/postcss": "^4.3.1",
     "@types/react": "~19.2.14",
