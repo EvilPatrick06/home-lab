@@ -30,6 +30,39 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## High
 
+### [2026-07-02] Plan agent design phase always crashes — `DESIGN_PROMPT.format()` KeyError `'state'` from unescaped braces in the 38e endpoint examples
+
+- **Category:** bug
+- **Severity:** high
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** scheduled error scan — live journal 2026-07-02 19:00:52 and 19:01:21 (two identical failures minutes apart)
+
+**Description:**
+Every request that reaches the plan agent's DESIGN phase crashes before the LLM is even called. `agents/plan_agent.py:142` runs `DESIGN_PROMPT.format(task=..., scratchpad_context=...)`, but the "Examples (Round 3 #5, 2026-05-17)" block added to `DESIGN_PROMPT` contains **unescaped** literal braces — `{state:"breathing", color:"purple", brightness:40}` and `{scene:"movie"}` — so `str.format()` treats `{state:...}` as a replacement field and raises `KeyError: 'state'` 100% of the time. (The sibling `EXPLORE_PROMPT` correctly escapes its JSON example with `{{...}}`; this block was never escaped.) The orchestrator's per-agent exception handler (39a) catches it and the user just hears "I had trouble building that plan — try again", so the total breakage has been silent since it shipped. Confirmed twice in today's journal via the `plan` agent override (`Model override: flash (agent=plan)` → `Agent 'plan' failed` → `KeyError: 'state'` at `plan_agent.py:142`), and reproducible statically: `_design` cannot ever succeed with the current template.
+
+**Reproduction (if bug):**
+1. Trigger the plan agent with `phase: "design"` (any task; e.g. chat with agent override `plan` after an explore pass).
+2. `DESIGN_PROMPT.format(...)` raises `KeyError: 'state'` at `agents/plan_agent.py:142`.
+3. Orchestrator logs `Agent 'plan' failed`; user gets the generic "I had trouble building that plan" fallback.
+
+**Expected behavior (if bug):** The design phase formats the prompt and produces an implementation plan.
+
+**Hypothesis / root cause (confirmed):** Phase 38e (commit `eca94276`, 2026-05-17) added the "default to HTTP endpoints, not scripts" guidance with inline JSON payload examples but did not double the braces. Phase 39a then fixed the *symptom* the QA round caught (raw `KeyError: 'state'` leaking into chat) by catching agent exceptions in the orchestrator — the underlying format bug was never fixed, so the design phase has been fully broken since 2026-05-17 while looking like a friendly transient error. (The QA Round 4 "CRITICAL: 'state' KeyError raw in chat" entry in `BMO-RESOLVED-ISSUES.md` is this same defect; only the leak was resolved.)
+
+**Proposed fix / improvement:**
+- [ ] Escape the literal braces in the `DESIGN_PROMPT` examples (`{{state:"breathing", ...}}`, `{{scene:"movie"}}`) — or switch the template to `string.Template` / manual replacement so prose examples can't collide with format fields.
+- [ ] Add a unit test that calls `PlanAgent._design`'s prompt build (or simply `DESIGN_PROMPT.format(task="x", scratchpad_context="")`) so an unescaped-brace regression fails CI.
+- [ ] Audit the other agent prompt templates for the same pattern (`REDESIGN_PROMPT` is clean; check remaining agents).
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/agents/plan_agent.py:33-96,142` (`DESIGN_PROMPT` + `_design`), `bmo/pi/agents/orchestrator.py:145`
+
+**Related entries:** BMO-RESOLVED-ISSUES 2026-05-17 "Phase 39 (BMO) — QA Round 4 bundle" (masked this), "Phase 38 (BMO) — QA Round 3 bundle" 38e (introduced this).
+
+---
+
 ### [2026-07-02] BMO_HOME never wired into the live units — `services/paths.py` points 24 live modules at the dev tree, splitting runtime state across two checkouts and breaking sandboxed writes
 
 - **Category:** bug, config
@@ -67,6 +100,69 @@ The paths centralization (`services/paths.py`, commit `4346536b`) defaulted `BMO
 ---
 
 ## Medium
+
+### [2026-07-02] `/api/camera/describe` missing the `camera is None` guard — background thread AttributeError leaks raw Python to the user
+
+- **Category:** bug
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** scheduled error scan — live journal 2026-07-02 19:03:21
+
+**Description:**
+Every other camera endpoint (`/api/camera/stream`, `/api/camera/snapshot`, `/api/camera/snapshot/last`) starts with `if not camera: return 503`. `/api/camera/describe` (`app.py` ~1404) does not — it returns `{"ok": true, "message": "Describing..."}` immediately and spawns `_do_describe`, which calls `camera.describe_scene(prompt)` with `camera = None` on the live box (picamera2 init path leaves it None). The thread raises `AttributeError: 'NoneType' object has no attribute 'describe_scene'`, and the Round-3 #9 failure-mode classifier has no branch for it, so the socket emits the raw-Python fallback `Vision failed: 'NoneType' object has no attribute 'describe_scene'` to the user — exactly the "no camera" case that classifier was built to message nicely.
+
+**Reproduction (if bug):**
+1. Run with camera unavailable (live Pi state today; or `BMO_DISABLE_CAMERA=1` w/o simulate).
+2. `POST /api/camera/describe` → 200 "Describing...".
+3. `vision_result` arrives with the raw NoneType text (journal 19:03:21 traceback at `app.py:1412`).
+
+**Expected behavior (if bug):** Immediate 503 `Camera service not available` like the sibling endpoints (or a clean "Vision unavailable: camera hardware not detected" emission).
+
+**Hypothesis / root cause (confirmed):** Guard simply omitted when the describe endpoint was added; the error classifier matches on message substrings ("no camera", "frame", ...) that a NoneType AttributeError never contains.
+
+**Proposed fix / improvement:**
+- [ ] Add `if not camera: return jsonify({"error": "Camera service not available"}), 503` at the top of `api_camera_describe` (mirror siblings).
+- [ ] Optionally add a NoneType/AttributeError branch to the classifier as defense-in-depth.
+- [ ] Test: describe endpoint returns 503 when camera service is absent.
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/app.py:1404-1435` (`api_camera_describe` / `_do_describe`), `bmo/pi/app.py:663-680` (camera init)
+
+**Related entries:** BMO-RESOLVED-ISSUES 2026-05-17 Phase 38 "38d (camera): #9 describe error split by failure mode" (this case slips through that split).
+
+---
+
+### [2026-07-02] TTS playback via ffplay can hang to the full 120s static timeout — voice pipeline stalls, utterance dropped as "All TTS failed"
+
+- **Category:** bug, performance
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** scheduled error scan — live journal 2026-07-02 19:21:05 → 19:23:05
+
+**Description:**
+At 19:21:05 the 30s-timer chime ("Beep boop! 30s is done!", 17,623-byte cached opus, ~2-3s of audio) started playing via ffplay and hung until `subprocess.run(..., timeout=120)` in `voice_pipeline._play_audio` (line ~1275) expired at 19:23:05. Consequences: (1) the timer announcement was never heard — the one job of a timer; (2) the `speak()` path blocked for a full 2 minutes; (3) the `TimeoutExpired` escapes `_play_audio`, is treated as a synthesis failure, and the pipeline logs `[ERROR] All TTS failed` with no re-play attempt. Second occurrence of `timed out after 120 seconds` in the 14-day journal window. VLC music playback was active at the time (music_service playing since 19:04), and playbacks *interleaved with music* succeeded at 19:19:32 — so device contention is plausible but not deterministic.
+
+**Reproduction (if bug):** Not reliably reproducible — intermittent (2×/14d). Observed under concurrent VLC music playback.
+
+**Expected behavior (if bug):** A ~3s clip either plays in ~3s or fails fast and is retried/fallback-played; the pipeline never blocks 120s on playback of an already-synthesized file.
+
+**Hypothesis / root cause (speculative):** ffplay blocking on the ALSA output device (contention with VLC and/or a stale child process from an earlier service instance — see the left-over-process entry below dated the same day). The static 120s timeout, sized for long utterances, turns a stuck ffplay into a 2-minute pipeline stall; playback failure and synthesis failure are conflated so no recovery happens.
+
+**Proposed fix / improvement:**
+- [ ] Size the ffplay timeout dynamically (decoded duration + ~10s grace) instead of a flat 120s.
+- [ ] Catch `TimeoutExpired` inside `_play_audio`, kill the ffplay process group, and retry once before surfacing failure; log playback failure distinctly from "All TTS failed" (synthesis).
+- [ ] While debugging, capture which process holds the ALSA device when it recurs (`fuser -v /dev/snd/*`).
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/services/voice/voice_pipeline.py:1072` (`speak` cached path), `:1244-1285` (`_play_audio`), `bmo/pi/services/music_service.py` (VLC co-tenant)
+
+**Related entries:** [2026-06-29] "Intermittent Fish Audio TTS timeouts" (different failure mode: that is synthesis/API; this is local playback). [2026-07-02] left-over-process entry (Low) — possible device-holder.
+
+---
 
 ### [2026-06-29] social-bot YouTube playback failing — `HTTP 403 Forbidden` + "Video unavailable" (likely yt-dlp staleness)
 
@@ -126,6 +222,34 @@ Jun 29 03:13:48 [monitor][CRITICAL] pi_power: THROTTLED NOW — CPU frequency re
 
 
 ## Low
+
+### [2026-07-02] `bmo.service` stop still leaves child processes behind after the KillMode fix — stale `adb` server survives three restarts and lives in the current cgroup
+
+- **Category:** config, bug
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** scheduled error scan — journal for today's three service restarts (18:20, 18:32, 18:34)
+
+**Description:**
+The 2026-06-29 fix removed `KillMode=process` so control-group reaping would clean up children on stop (resolved entry "`bmo.service` `KillMode=process` leaked orphan children"). Today's journal shows reaping is still incomplete: at the 18:20:09 stop systemd reported `Unit process 2006/2036 (python3) and 2038 (adb) remains running after unit stopped`; at 18:32:26 the **18:20-started instance's** children (python3 12487, 12640) again survived their stop, plus the same adb. The orphaned python3 processes eventually exited on their own, but the `adb -L tcp:5037 fork-server server` (pid 2038, spawned by the pre-18:20 instance) is **still alive right now inside the live `bmo.service` cgroup**, having survived three stops. The installed unit *does* now have `KillMode=control-group` (verified via `systemctl show`) and `TimeoutStopSec=20`, yet "Deactivated successfully" was declared within the same second as the stop request while children remained — behavior that looks like `KillMode=process`, not control-group.
+
+Impact: journal noise (`Found left-over process ... Ignoring` × 7 lines today), a stale cross-instance adb daemon, and a plausible mechanism for the ALSA-device hang logged today (Medium ffplay entry) — the prior KillMode entry already noted orphaned audio children can hold the capture device.
+
+**Hypothesis / root cause (speculative — needs verification):** Either (a) the fixed unit was only installed/daemon-reloaded partway through today's restart sequence, so the earlier stops ran under stale config (the 18:34:04 stop *did* reap the python children — only adb survived — consistent with the fix engaging by then), or (b) control-group reaping engages but the adb fork-server is somehow abandoned rather than SIGKILLed. Next clean restart should disambiguate: if python children are reaped and only adb persists, the remaining bug is adb lifecycle, not KillMode.
+
+**Proposed fix / improvement:**
+- [ ] On the next approved restart, verify no `remains running after unit stopped` lines appear for python children; confirm the KillMode fix is actually in effect.
+- [ ] Manage adb's lifecycle explicitly: run `adb kill-server` in the TV worker's shutdown path (or `ExecStopPost=`), or start adb outside the unit's cgroup, so a fork-server never straddles service instances.
+- [ ] One-time cleanup of the current stale pid 2038 next restart window.
+
+**Blocked by:** restart gating (verification requires a service restart — observe, don't trigger).
+
+**Related files:** `bmo/pi/systemd/bmo.service`, `bmo/pi/services/tv_worker.py` (adb spawner), `bmo/pi/scripts/deploy.sh` (unit install / daemon-reload ordering)
+
+**Related entries:** BMO-RESOLVED-ISSUES [2026-06-29] "`bmo.service` `KillMode=process` leaked orphan children" (this is its follow-up: fix present but not observed effective). [2026-07-02] ffplay 120s playback hang (Medium) — possible consumer of the leaked device handle. [2026-06-29] TV/ADB startup connection failure (source of the adb process).
+
+---
 
 ### [2026-06-29] TV/ADB integration fails to connect on every startup (`[tv] Connection failed -- try pairing via the TV tab`)
 
