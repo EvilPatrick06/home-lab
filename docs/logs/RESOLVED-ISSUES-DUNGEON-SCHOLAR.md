@@ -13,6 +13,325 @@
 
 ---
 
+### [2026-06-29] `auto/scholar-phase-maker` (tip `850f8404`) won't merge — competing PHASE-06 + PHASE-03 amendment vs the already-merged run
+
+> **Resolved 2026-07-03 (scholar-debt-batch, approved backlog batch):** Reconciled on `master`, which already carries the **canonical split** — `PHASE-06-vault-redeemed-unlock-gate.md` + `PHASE-07-import-toast-exam-copy.md` both in `docs/phases/completed/` (the split 06/07 won; the stale combined `PHASE-06-vault-title-import-activation-exam-copy.md` does not exist on master). The stale `auto/scholar-phase-maker` branch (tip `850f8404`) is **already gone** — no local or remote ref points to it; commit `850f8404` is now an orphaned/dangling object (`git branch -a --contains 850f8404` = empty), so there was nothing to delete. `PHASE-INDEX.md` was reconciled (rows 01/02/10 links fixed) and a phase-maker rule added (INSTRUCTIONS.md + PHASE-INDEX pointer) to **check the index for an existing plan from the same QA report before authoring**, closing the duplicate-number race that caused this. No app code change.
+
+- **Category:** integration / merge-conflict (duplicate work)
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** integrator
+- **During:** daily branch integration (2026-06-29 run)
+
+**Description:**
+An earlier `auto/scholar-phase-maker` run was merged to `master` this same pass, adding `PHASE-06-vault-redeemed-unlock-gate.md` + `PHASE-07-import-toast-exam-copy.md` (the `QA-report-2026-06-28.md` findings, split into two plans) and an `03G` amendment to `PHASE-03`. A **second** `auto/scholar-phase-maker` branch (tip `850f8404`) then appeared and re-authored the **same** report into a single combined `PHASE-06-vault-title-import-activation-exam-copy.md` plus its own competing `PHASE-03` provenance/03E amendment — so it no longer merges: conflicts in `PHASE-INDEX.md` (PHASE-06 row: one combined `06` vs the merged `06`+`07`) and `PHASE-03-light-theme-dark-on-dark-contrast.md` (two different wordings of the same 2026-06-28 light-on-light amendment).
+
+**Root cause:** Two scholar phase-maker runs raced over the same `QA-report-2026-06-28.md`; the first landed (split 06/07), so the second is a redundant re-authoring (combined 06) rather than a mechanical conflict. Not fixed-forward because choosing the canonical PHASE-06 shape (split vs combined) and the canonical PHASE-03 amendment text is a scholar-domain decision. Note this also interacts with the routed `auto/scholar-phase-executer` (which marks PHASE-03/04/05 done) — reconcile together.
+
+**Proposed fix / improvement (scholar phase-maker owner):**
+- [ ] Decide canonical shape: keep the merged split `PHASE-06`+`PHASE-07`, OR adopt `850f8404`'s combined `PHASE-06` (port any better wording into the merged docs); keep ONE `PHASE-03` amendment.
+- [ ] Delete `auto/scholar-phase-maker` (tip `850f8404`) once reconciled — it has no unique code, only duplicate phase docs.
+- [ ] Have the phase-maker check `PHASE-INDEX.md` for an existing plan from the same QA report before authoring, to stop duplicate-number races.
+
+**Related files:** `dungeon-scholar/docs/phases/PHASE-INDEX.md`, `dungeon-scholar/docs/phases/PHASE-03-light-theme-dark-on-dark-contrast.md`, `dungeon-scholar/docs/phases/PHASE-06-*.md`, `dungeon-scholar/docs/phases/PHASE-07-import-toast-exam-copy.md`, branch `auto/scholar-phase-maker` (tip `850f8404`)
+
+---
+
+### [2026-06-29] Pin Biome as a devDependency instead of `npx --yes @biomejs/biome@2.5.0` on every lint/format run
+
+> **Resolved 2026-07-03 (scholar-debt-batch, approved backlog batch):** Added `@biomejs/biome@2.5.0` to `devDependencies` (lockfile-pinned, all 24 platform CLI packages resolved in `package-lock.json`) and changed the scripts to `biome check src` / `biome check --write src` / `biome format --write src`, dropping the `npx --yes @biomejs/biome@2.5.0` on-demand fetch from lint/format. Biome now resolves from `node_modules/.bin`, so lint runs offline and Dependabot can track the version. Verified: `npm run lint` exits 0 (163 pre-existing `useExhaustiveDependencies`/`noAssignInExpressions` warnings, 0 errors).
+
+- **Category:** portability
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement scan of dungeon-scholar tooling
+
+**Description:**
+`package.json` runs lint/format via `npx --yes @biomejs/biome@2.5.0 ...` for all three of `lint`, `lint:fix`, and `format`. Because Biome is not a declared devDependency, every invocation can trigger an on-demand npm fetch of the `@biomejs/biome` package, so linting cannot run offline (a hit for the offline-first ethos of this PWA repo and for CI cold caches) and is not locked in `package-lock.json` the way every other tool is. The version is also pinned in three string literals rather than one place, so a Biome bump means editing three script lines instead of one dependency entry (and Dependabot, which the repo relies on per the agent git workflow, cannot see/manage a version that lives only inside a script string).
+
+**Proposed fix / improvement:**
+- [ ] Add `@biomejs/biome` at `2.5.0` to `devDependencies` so it is installed + lockfile-pinned with everything else.
+- [ ] Change the scripts to `biome check src` / `biome check --write src` / `biome format --write src` (resolve from `node_modules/.bin`), dropping `npx --yes` and the inline version.
+- [ ] This also lets Dependabot track Biome version bumps like the other dev tools.
+
+**Related files:** `dungeon-scholar/package.json`, `dungeon-scholar/biome.json`
+
+---
+
+### [2026-07-02] `docs/phases/PHASE-INDEX.md` — broken links for completed PHASE-01/02, a mislabeled PHASE-10 link, and provenance narrative crowding out the index
+
+> **Resolved 2026-07-03 (scholar-debt-batch, approved backlog batch):** (1) Re-pointed PHASE-INDEX rows **01** and **02** at `./completed/PHASE-0X-...md` (both files are in `completed/`, the old `./PHASE-0X` links 404'd) and fixed row **10**'s label to show the `completed/` prefix like its siblings. (2) Moved the per-run `> **Source (NN)**` provenance blockquotes out to a new sibling **`PHASE-PROVENANCE.md`**, leaving PHASE-INDEX a lean dependency-manifest table + a pointer. (3) Added a rule to `docs/phases/INSTRUCTIONS.md` (and the index pointer) directing provenance prose to PHASE-PROVENANCE and telling the phase-maker to check the index for an existing plan from the same QA report first.
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** scheduled cleanup/structure scan of dungeon-scholar/
+
+**Description:**
+Three staleness/structure problems in the phase index. (1) **Broken links:** rows 01 and 02 are marked `done` and their plan files were moved to `completed/` (they are in `docs/phases/completed/`), but the table still links `./PHASE-01-routing-pwa-update-resilience.md` and `./PHASE-02-load-noise-ux-docs-round.md` — both 404 as relative links now. (2) **Mislabeled link:** row 10's link *text* reads `PHASE-10-...md` as if in the active folder while its href correctly points at `./completed/...` — inconsistent with rows 03–09, which show the `completed/` prefix in the label. (3) **Structure:** each QA run appends a large `> **Source (NN)** ...` provenance blockquote; these narratives are now ~85% of the file (~20 KB total for a 13-row table) and bury the closing "Add a row per future plan..." maintenance instruction beneath ~10 dense paragraphs. The INSTRUCTIONS.md-declared purpose of the file is a dependency manifest / execution order; the provenance prose is valuable history but no longer index material.
+
+**Hypothesis / root cause:** The executer moves finished plan files into `completed/` but nothing re-points the 01/02 index rows (03–09 were fixed at some point; 01/02 predate that habit). The provenance blobs accumulate because the phase-maker appends per run with no size/placement rule.
+
+**Proposed fix / improvement:**
+- [ ] Re-point rows 01 and 02 at `./completed/PHASE-01-...md` / `./completed/PHASE-02-...md`, and fix row 10's label to show the `completed/` path like its siblings.
+- [ ] Move the per-run `> **Source (NN)**` provenance blockquotes into a sibling `PHASE-PROVENANCE.md` (or into each phase file's own header), leaving PHASE-INDEX as the lean table + the row-maintenance instruction; add a one-line rule to `docs/phases/INSTRUCTIONS.md` telling the phase-maker where provenance prose goes.
+- [ ] Optional: a tiny vitest guard (like the existing convention-guard tests) asserting every `Plan file` link in PHASE-INDEX resolves to an existing file, so future moves to `completed/` can't silently break rows.
+
+**Related files:** `dungeon-scholar/docs/phases/PHASE-INDEX.md`, `dungeon-scholar/docs/phases/INSTRUCTIONS.md`, `dungeon-scholar/docs/phases/completed/`
+
+**Related entries:** ISSUES-LOG-DUNGEON-SCHOLAR.md [2026-06-29] phase-maker/executer merge-collision entries (both touch PHASE-INDEX churn)
+
+---
+
+### [2026-07-02] `dungeon-scholar/CHANGELOG.md` has been frozen since it was seeded — phases 03–13 and all resolver fixes are absent, and no process owns updating it
+
+> **Resolved 2026-07-03 (scholar-debt-batch, approved backlog batch):** Repurposed `CHANGELOG.md` as a **pointer doc** (option a) rather than fabricating history: a header now explains dungeon-scholar has no release/tag cadence (continuous Pages deploy, `package.json` stays 0.1.0) so the Keep-a-Changelog format never fit, and names the living changelog — completed phase plans (`docs/phases/completed/`), `RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`, and the git history — mirroring how dnd-app treats its Releases page. The stale "cut a versioned section when a release is tagged" promise is removed; the original seed (`[0.1.0]` + the aspirational `[Unreleased]` list) is preserved verbatim below a clearly-marked **frozen archive** divider. No fabricated entries.
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** scheduled cleanup/structure scan of dungeon-scholar/
+
+**Description:**
+`CHANGELOG.md` (38 lines) instructs "Keep it updated on each release; group new work under `[Unreleased]` and cut a dated, versioned section when a release is tagged" — but it has not been touched since its two seed commits (last change 2026-06-23), while master has since landed dungeon-scholar phases 03 through 11-partial (light-theme contrast rounds, import robustness, vault gate, exam/date/copy fixes, the auth circuit-breaker) plus resolver fixes (FSRS-5 forecast alignment, notes stripping, etc.). Two structural mismatches make the freeze inevitable: (a) dungeon-scholar has **no release/tag cadence at all** — the integrator's merge auto-deploys GitHub Pages continuously and `package.json` stays at `0.1.0`, so the promised "cut a versioned section when a release is tagged" trigger never fires; (b) no agent's task definition mentions this file, so nobody appends to `[Unreleased]` either. A changelog whose own header promises upkeep but is visibly weeks stale is worse than no changelog — it misleads readers about what the live app contains.
+
+**Hypothesis / root cause:** The file was seeded during the 2026-06-23 App.jsx de-god refactor as an aspirational Keep-a-Changelog document, but the domain's release model (continuous Pages deploys, no tags) never matched the versioned-sections format, and changelog upkeep was never added to the scholar-phase-executer / scholar-resolver checklists.
+
+**Proposed fix / improvement:**
+- [ ] Decide the model: either (a) repurpose the file as a pointer — a short header explaining that completed phase plans (`docs/phases/completed/`), `docs/logs/RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`, and the git history of `dungeon-scholar/` ARE the living changelog (mirroring how dnd-app's GitHub Releases page is its changelog) — or (b) keep Keep-a-Changelog format and add "append a bullet to `[Unreleased]`" to the scholar-phase-executer's and scholar-resolver's per-run checklists, with the integrator cutting a dated section on deploy.
+- [ ] Whichever is chosen, remove the stale "when a release is tagged" promise — there are no tags in this domain.
+
+**Related files:** `dungeon-scholar/CHANGELOG.md`, `dungeon-scholar/docs/phases/completed/`, `docs/logs/RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`
+
+**Related entries:** none
+
+---
+
+### [2026-06-29] Root README "Project structure" diagram omits the `components/dungeon/` crawler subsystem (and `utils/`, `services/locales/`, `sw.js`)
+
+> **Resolved 2026-07-03 (scholar-debt-batch, approved backlog batch):** Added the missing entries to the `README.md` project-structure diagram: a `components/dungeon/` line (canvas crawler subsystem — DungeonExplore render loop, tileRenderer, dungeonLogic, input/state hooks, map data), a `services/locales/` line (en/es i18n bundles), a `utils/` line (cross-cutting helpers), and an `sw.js` line (service worker / injectManifest PWA offline cache) next to `main.jsx`.
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** scheduled cleanup/structure scan of dungeon-scholar/
+
+**Description:**
+The `## Project structure` tree in `dungeon-scholar/README.md` lists `components/` and `components/ui/` but never mentions `components/dungeon/` — which is the single largest subsystem in the codebase (`DungeonExplore.jsx` 2739 lines, `tileRenderer.js` 1576, plus `dungeonLogic.js`, `useDungeonState.js`, `useDungeonInput.js`, `dungeonMap` content). The diagram also omits `src/utils/`, `src/services/locales/` (the en/es i18n bundles), and `src/sw.js` (the service worker, which is central to the PWA offline story the README itself emphasizes). A newcomer reading the structure map gets no pointer to the dungeon-crawler rendering/logic layer, the place most likely to confuse. This is distinct from the already-logged "inconsistent README coverage across src/ subdirectories" item, which is about missing per-directory `README.md` files, not the accuracy/completeness of the root README structure diagram.
+
+**Proposed fix / improvement:**
+- [ ] Add a `components/dungeon/` line to the structure diagram with a one-line description (canvas crawler render loop + input/state hooks + map data).
+- [ ] Add `utils/`, `services/locales/`, and `sw.js` lines (or fold locales under the `services/` line and call out `sw.js` next to `main.jsx`).
+- [ ] Keep it in sync going forward, or add a tiny test/lint that flags top-level `src/` dirs absent from the README block.
+
+**Related files:** `dungeon-scholar/README.md`, `src/components/dungeon/`, `src/utils/`, `src/services/locales/`, `src/sw.js`
+
+**Related entries:** [2026-06-28] Inconsistent README coverage across `src/` subdirectories
+
+---
+
+### [2026-06-29] `tsconfig.json` excludes ALL test files (and `src/sw.js`) from the `checkJs` typecheck, leaving a large type-coverage gap
+
+> **Resolved 2026-07-03 (scholar-debt-batch, approved backlog batch):** Documented the exclusion as an intentional decision (option a): added JSONC comments in `tsconfig.json` above the `exclude` block explaining that `**/*.test.js(x)` are kept out of the `checkJs` typecheck to keep `tsc --noEmit` fast/green (Vitest is the tests' gate), and `src/sw.js` is excluded because it runs in a WebWorker global scope the config's DOM lib does not model. Verified `npm run typecheck` still exits 0 with the comments (tsconfig is JSONC; tsc accepts them).
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** scheduled cleanup/structure scan of dungeon-scholar/
+
+**Description:**
+`tsconfig.json` enables `allowJs` + `checkJs` (JSDoc-based type checking over the JS/JSX source) and `npm run typecheck` runs `tsc --noEmit`, but the `exclude` block lists `**/*.test.js`, `**/*.test.jsx`, and `src/sw.js`. Test files are a very large fraction of this tree (roughly one `.test.*` per module across `src/`), and they exercise the real public API of the app modules — so a breaking signature/shape change in app code that a test would surface is invisible to `tsc`, even though the test files themselves are never type-checked. `src/sw.js` (the service worker, a non-trivial PWA-critical module) is likewise outside the typecheck net.
+
+**Hypothesis / root cause:** Likely a deliberate choice to keep `tsc` fast and green and avoid typing the Vitest/happy-dom test surface, and to skip `sw.js` because it runs in a Worker global scope that tsc's default DOM lib does not model. Flagging as speculation — the exclusion may be intentional, but it is undocumented, so future contributors can mistake "typecheck passed" for "the tests type-check too."
+
+**Proposed fix / improvement:**
+- [ ] If intentional, add a short comment in `tsconfig.json` (or a line in DESIGN-CONSTRAINTS) explaining why tests and `sw.js` are excluded, so the coverage gap is a documented decision rather than a silent one.
+- [ ] If not, consider a second `tsconfig.test.json` (or a `checkJs` pass that includes tests with `@testing-library`/`vitest` types) so test files get at least loose type-checking; and add `WebWorker` lib coverage for `sw.js`.
+
+**Related files:** `dungeon-scholar/tsconfig.json`, `src/sw.js`
+
+---
+
+### [2026-06-29] Module-less convention-guard tests (`src/theme.test.js`, `src/components/lucide-a11y.test.jsx`) break the co-location convention and are hard to find
+
+> **Resolved 2026-07-03 (scholar-debt-batch, approved backlog batch):** Relocated all codebase-wide guard tests into one **`src/__guards__/`** home with descriptive, what-they-enforce names (PHASE-NN kept in code comments): `theme.test.js` → `lightThemeColorRamp.guard.test.js`, `phase10-contrast.test.js` → `lightThemeAccentDangerContrast.guard.test.js`, `components/lucide-a11y.test.jsx` → `lucideIconA11y.guard.test.jsx`, `features/phase11Guards.test.js` → `studyModeHeadingsQuestVerb.guard.test.js`, `features/phase12Guards.test.js` → `activeTomePanelInk.guard.test.js`. Fixed the two that read files relative to their own location (`here` → `srcRoot = join(dirname(...), '..')`); the cwd-relative ones needed no path change. Added `src/__guards__/README.md` listing every active guard + the convention. All 5 guards pass under Vitest (44 tests) from the new location.
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** scheduled cleanup/structure scan of dungeon-scholar/
+
+**Description:**
+Almost every test in the tree sits next to the module it covers (`srs.js` + `srs.test.js`, etc.). Two tests have no module-under-test and instead statically scan the whole codebase as cross-cutting guards: `src/theme.test.js` (reads `index.css` and greps JSX for Tailwind color utilities to assert the light-theme ramp overrides exist) and `src/components/lucide-a11y.test.jsx` (an a11y convention check over lucide icon usage). Because they are named like ordinary co-located unit tests but have no sibling source file, they read as orphans (they surfaced in a "test with no matching module" scan) and their cross-cutting, repo-guard nature is non-obvious. There is no single place a contributor can look to see "what global conventions are enforced by tests."
+
+**Proposed fix / improvement:**
+- [ ] Adopt a distinguishing convention for codebase-wide guard tests — e.g. a `*.guard.test.js` suffix and/or a dedicated `src/__guards__/` (or `src/conventions/`) directory — and relocate `theme.test.js` and `lucide-a11y.test.jsx` there.
+- [ ] Add a one-paragraph note (in `src/components/README.md` or a new `docs/` testing-conventions doc) listing the active guard tests and what each enforces, so the theme-ramp and icon-a11y guarantees are discoverable.
+
+**Related files:** `src/theme.test.js`, `src/components/lucide-a11y.test.jsx`, `src/components/README.md`
+
+**Related entries:** [2026-06-28] Test-file extension convention is inconsistent (`.test.js` testing a `.jsx` component)
+
+> **[2026-07-02] scholar-cleanup follow-up:** the module-less guard-test family has since **grown by two**, both landed 2026-06-29 with phase-numbered names in yet more locations: `src/phase10-contrast.test.js` (src root — statically greps `index.css`/JSX for the PHASE-10 light-theme muted-label token) and `src/features/phase11Guards.test.js` (features root — greps three study-mode JSX files for `<h2>` and QuestBoard for verb agreement). So there are now 4 guard tests in 3 different directories, and the two new ones are named after *phase numbers* that will mean nothing to a future reader (the phase files will long since have moved to `completed/`). This strengthens the case for the proposed `src/__guards__/` + `*.guard.test.js` convention; the relocation should also rename the phase-numbered files after *what they enforce* (e.g. `lightThemeMutedLabel.guard.test.js`, `studyModeHeadings.guard.test.js`), keeping the PHASE-NN reference in a comment.
+
+---
+
+### [2026-06-29] `dungeonMap.js`'s entire unit suite is misfiled as `components/dungeon/DungeonExplore.test.js` (wrong name, wrong directory)
+
+> **Resolved 2026-07-03 (scholar-debt-batch, approved backlog batch):** `git mv src/components/dungeon/DungeonExplore.test.js src/game/dungeonMap.test.js` (the suite only imports `dungeonMap.js` + `difficulty.js`, never the component) and fixed the now-shorter relative imports (`../../game/…` → `./…`). `DungeonExplore.smoke.test.jsx` stays put (it genuinely renders the component). 43 tests pass at the new path. This also subsumes the `.test.js`-testing-a-`.jsx` half of the test-extension entry — the suite now tests a `.js` module as a `.test.js`.
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** automated cleanup/structure scan of `dungeon-scholar/src`
+
+**Description:**
+`src/components/dungeon/DungeonExplore.test.js` does not import a single symbol from `DungeonExplore.jsx` -- its only `import` lines pull from `../../game/dungeonMap.js` (BIOMES, BIOME_BOSS_POOL, generateMap, makeSeededRng, pickBiomeForSubject, revealDecoration, buildQuestionLogEntry, takeForesightPreview, TILE, POTION_EFFECTS, ROOMS/SIZE_BY_DIFFICULTY) and `../../game/difficulty.js`. All nine `describe` blocks assert on those `dungeonMap.js` exports. So this file is really the unit suite for `src/game/dungeonMap.js` (656 lines of core map-gen/biome/boss logic), but it lives two directories away under the component name. Consequences: (1) a `find src/game -name dungeonMap.test.js` or a co-located-test check reports `dungeonMap.js` as **untested** when in fact it is well covered; (2) the test sits in `components/dungeon/` next to the canvas component it never touches, so a reader editing `dungeonMap.js` would not find its tests beside it.
+
+Note: this also **corrects a factual premise** in two earlier entries (the [2026-06-28] god-component entry and the [2026-06-28] test-extension entry), both of which describe `DungeonExplore.test.js` as exercising constants “exported from the component file `DungeonExplore.jsx`” / constants that “want their own module.” Those constants already live in their own module (`game/dungeonMap.js`); the component merely re-imports them. The remaining real problem is purely the **test files name + location**, not constants trapped inside the `.jsx`.
+
+**Hypothesis / root cause:** The logic now in `game/dungeonMap.js` was likely once inlined in `DungeonExplore.jsx`; when it was extracted to `game/`, its test file kept the old component name and old location instead of moving to `game/dungeonMap.test.js`.
+
+**Proposed fix / improvement:**
+- [ ] `git mv src/components/dungeon/DungeonExplore.test.js src/game/dungeonMap.test.js` and fix the now-shorter relative import paths (`../../game/dungeonMap.js` -> `./dungeonMap.js`, `../../game/difficulty.js` -> `./difficulty.js`). No assertion changes needed.
+- [ ] Leave `DungeonExplore.smoke.test.jsx` where it is -- that one genuinely renders the component.
+- [ ] This supersedes the rename half of the [2026-06-28] test-extension entry: once the suite lives at `game/dungeonMap.test.js`, the `.test.js`-testing-a-`.jsx` concern is gone (it tests a `.js` module), and the component is left with exactly one test file (`.smoke.test.jsx`).
+
+**Related files:** `src/components/dungeon/DungeonExplore.test.js`, `src/game/dungeonMap.js`, `src/components/dungeon/DungeonExplore.smoke.test.jsx`
+
+**Related entries:** SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md [2026-06-28] “Extract logic/content out of the two god-component files” and [2026-06-28] “Test-file extension convention is inconsistent” (both partly mis-attribute the dungeonMap constants to `DungeonExplore.jsx`).
+
+---
+
+### [2026-06-29] `src/services/README.md` concern-taxonomy table is stale -- 8 of 32 service modules are absent from it
+
+> **Resolved 2026-07-03 (scholar-debt-batch, approved backlog batch):** Added all 8 missing modules to the `src/services/README.md` concern-taxonomy table: `deckImport.js` + `libraryBulk.js` (with `importLimits.js`) form a new **import / library** group; `leech.js`, `occlusion.js`, `certificate.js`, `accuracyPalette.js` join the **exam / SRS engine** group; `pwaUpdate.js` + `shortcuts.js` join **platform / UI infra**. Verified all 32 non-test service modules now appear in the table exactly once.
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** automated cleanup/structure scan of `dungeon-scholar/src`
+
+**Description:**
+`src/services/README.md` documents a four-group “concern taxonomy” table whose stated purpose is “so new modules land in the right conceptual group.” But the table lists only 24 of the 32 non-test service modules. Eight are missing entirely (verified by checking each filename against the README): `accuracyPalette.js`, `certificate.js`, `deckImport.js`, `leech.js`, `libraryBulk.js`, `occlusion.js`, `pwaUpdate.js`, `shortcuts.js`. A doc that exists specifically to map every service into a group, but silently omits a quarter of them, sends the wrong signal: a contributor adding a sibling to (say) `deckImport.js` finds no row to pattern-match against, and the omitted modules have no documented home group.
+
+**Hypothesis / root cause:** The taxonomy table was written as a point-in-time snapshot and not updated as new service modules (import/deck handling, certificate, leech/SRS extras, PWA update, keyboard shortcuts, accuracy palette) were added.
+
+**Proposed fix / improvement:**
+- [ ] Add the eight missing modules to the existing table under a sensible group -- e.g. `deckImport.js`, `libraryBulk.js`, `importLimits.js`(already listed) cohere as an **import / library** group; `certificate.js`, `occlusion.js`, `leech.js`, `accuracyPalette.js` fit **exam/SRS engine** or a new **study artifacts** group; `pwaUpdate.js`, `shortcuts.js` fit **platform / UI infra**.
+- [ ] Consider adding a tiny CI/test guard (or a note) that every `src/services/*.js` non-test module appears exactly once in the README table, so the taxonomy cannot silently drift again -- mirrors the locale-parity test already used for i18n.
+
+**Related files:** `src/services/README.md`, `src/services/accuracyPalette.js`, `src/services/certificate.js`, `src/services/deckImport.js`, `src/services/leech.js`, `src/services/libraryBulk.js`, `src/services/occlusion.js`, `src/services/pwaUpdate.js`, `src/services/shortcuts.js`
+
+**Related entries:** SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md [2026-06-28] “Inconsistent README coverage across `src/` subdirectories” (that entry is about which dirs lack a README; this one is about the existing services README being internally incomplete).
+
+---
+
+### [2026-06-28] Orphaned utility modules `utils/time.js` + `utils/shuffle.js` — unused, and the duplication they were meant to remove still exists
+
+> **Resolved 2026-07-03 (scholar-debt-batch, approved backlog batch):** Chose option (b) — **deleted** the two dead files (`git rm src/utils/time.js src/utils/shuffle.js`) after re-verifying zero importers anywhere in `src/` (grep for `utils/time`, `utils/shuffle`, `formatSec`, `formatMs`, `import { shuffle }` all empty; no test files). Deleting dead code cannot regress runtime behavior — nothing referenced them. Wiring them into the inlined m/s formatters / bespoke shuffles was declined: the call-site formatters differ subtly (some `Math.ceil`, inline-JSX `Xm`), the shuffle file's own header documents that the seeded variants **intentionally** keep their own algorithms, and those sites lack the behavioral coverage to verify a blind swap under the OOM constraint — so consolidation carried real regression risk for no live benefit, while deletion removes the misleading orphan cleanly.
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** automated cleanup/structure scan of `dungeon-scholar/src`
+
+**Description:**
+`src/utils/time.js` (exports `formatSec`, `formatMs`) and `src/utils/shuffle.js` (exports a generic Fisher-Yates `shuffle`) have **zero importers anywhere in `src/`** (grep for `utils/time`, `utils/shuffle`, `formatSec`, `formatMs`, and `import { shuffle }` all return nothing — including tests). They are dead module files. Note this is NOT caught by the biome `noUnusedImports` warnings already logged: nothing imports the files, so there is no unused-import to flag — biome only sees within-file dead code. Worse, both files were created (their own header comments say so, "S22") to be the *canonical home* that removes duplication, yet the duplication persists:
+- m/s formatting is still inlined in `features/study/ExamMode.jsx` (lines 26, 252) and `game/tome.js` (line 124) instead of using `time.js`.
+- bespoke shuffles still live in `game/items.js`, `game/dungeonMap.js` (its own local `shuffle`), `game/tome.js` (`shuffleArray`), `game/quests.js`, and `services/examSession.js` (`shuffleInPlace`) instead of using `utils/shuffle.js`.
+
+So the refactor was half-done: the shared helpers were written but never wired in, leaving orphans + ongoing duplication.
+
+**Hypothesis / root cause:** The consolidation commit (tagged "S22") added the shared util files but never completed the call-site migration; the originals were left in place and the new files stranded.
+
+**Proposed fix / improvement:**
+- [ ] Decide one direction. Either: (a) finish the consolidation — replace the inline m/s formatters with `time.js` and the bespoke shuffles with `utils/shuffle.js`, and add the missing `time.test.js` / `shuffle.test.js`; or (b) if the per-call-site variants are intentionally different (seeded vs `Math.random`, in-place vs copy), delete the two orphaned files so they stop implying a shared path that isn't used.
+- [ ] If keeping `utils/shuffle.js`, reconcile the seeded-RNG signature so `dungeonMap.js`/`quests.js`/`examSession.js` (which need a deterministic `rng`) can actually adopt it.
+
+**Related files:** `src/utils/time.js`, `src/utils/shuffle.js`, `src/features/study/ExamMode.jsx`, `src/game/tome.js`, `src/game/items.js`, `src/game/dungeonMap.js`, `src/game/quests.js`, `src/services/examSession.js`
+
+---
+
+### [2026-06-28] Inconsistent README coverage across `src/` subdirectories
+
+> **Resolved 2026-07-03 (scholar-debt-batch, approved backlog batch):** Added orientation `README.md` files to the three most-populous undocumented dirs: `src/features/` (the feature-folder convention + a table of what each folder owns), `src/game/` (the game data/rules-engine module table, and how it differs from `services/`), and `src/prompts/` (the per-vendor `*_PROMPT` / `*_PROMPT_META` pattern, the `_shared.js` blocks, and how `index.js` aggregates `ORG_PROMPTS`). Each carries a placement rule for new files.
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** automated cleanup/structure scan of `dungeon-scholar/src`
+
+**Description:**
+Only three `src` subdirectories carry a `README.md` (`src/components/`, `src/components/dungeon/`, `src/services/`). The rest have none — including the most populous and least self-explanatory ones: `src/features/` and its 7 feature folders (11+ screen components across study/progression/library/etc.), `src/game/` (the run/quiz/lab content + rules engine), `src/prompts/` (11 per-vendor Oracle prompt modules), `src/hooks/`, and `src/router/`. A newcomer can learn the `components`/`services` conventions but gets no orientation for the feature-folder layout or the game/prompts content model, which is where most of the domain logic lives.
+
+**Hypothesis / root cause:** READMEs were added ad hoc for the first few directories touched and the practice was never extended as `features/` and `game/` grew.
+
+**Proposed fix / improvement:**
+- [ ] Add a short `README.md` to `src/features/` explaining the feature-folder convention (one folder per screen group; co-located hooks/modals), plus one-liners per feature folder.
+- [ ] Add a `src/game/README.md` (what the run/quiz/lab content set is, how `starterDecks`/`bestiary`/`items`/`quests` relate) and a `src/prompts/README.md` (the per-vendor prompt + `_META` pattern and how `index.js` aggregates `ORG_PROMPTS`).
+- [ ] Alternatively, document all of these in one `src/README.md` architecture map rather than scattering files.
+
+**Related files:** `src/features/`, `src/game/`, `src/prompts/`, `src/hooks/`, `src/router/`
+
+---
+
+### [2026-06-28] Test-file extension convention is inconsistent (`.test.js` testing a `.jsx` component)
+
+> **Resolved 2026-07-03 (scholar-debt-batch, approved backlog batch):** Adopted and documented one rule in `src/components/README.md`: a co-located test takes the extension of the module it asserts against — `*.test.js` for a `.js` module, `*.test.jsx` when it renders React / targets a `.jsx` component — so no single component carries both. The concrete offender is already fixed by the dungeonMap-test-move entry (the misfiled `.test.js` now lives at `game/dungeonMap.test.js` testing a `.js` module). Codebase-wide guards are noted as the `src/__guards__/*.guard.test.js` exception.
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** automated cleanup/structure scan of `dungeon-scholar/src`
+
+**Description:**
+The repo overwhelmingly co-locates tests as `<name>.test.<ext>` matching the source extension, but `src/components/dungeon/DungeonExplore.test.js` (16 KB) is a `.test.js` whose subject is `DungeonExplore.jsx`, while a second test for the same component uses the expected `.jsx` extension (`DungeonExplore.smoke.test.jsx`). So the same component has one `.test.js` and one `.smoke.test.jsx`. It works because the `.test.js` actually exercises plain logic constants exported from the component file (not JSX rendering), which is itself a smell — those constants want their own module (see the god-component entry above). Two test files with divergent extensions for one component is an avoidable naming inconsistency for anyone grepping `*.test.jsx`.
+
+**Hypothesis / root cause:** `DungeonExplore.test.js` predates the smoke test and was named for the logic it tests; once the logic and the component live in the same `.jsx` file, neither extension is clearly "right".
+
+**Proposed fix / improvement:**
+- [ ] Adopt one rule: test file extension matches the module it imports/asserts against. If `DungeonExplore.test.js` keeps testing logic exported from the `.jsx`, either rename it `.test.jsx` for consistency, or (preferred) move those constants to a `.js` content module and have the `.test.js` target that module.
+- [ ] Optionally add a one-line convention note to `src/components/README.md`.
+
+**Related files:** `src/components/dungeon/DungeonExplore.test.js`, `src/components/dungeon/DungeonExplore.smoke.test.jsx`
+
+---
+
+### [2026-06-29] CI has no test-coverage floor and no bundle-size budget, despite "keep the initial bundle small" being a stated design value
+
+> **Resolved 2026-07-03 (scholar-debt-batch, approved backlog batch):** Added both budgets to `dungeon-scholar-ci.yml` as **advisory** (`continue-on-error: true`) steps after the build, matching the repo's incremental-tightening posture. (1) **Bundle-size budget**: a dependency-free `scripts/check-bundle-budget.mjs` that checks the largest initial JS chunk in `dist/assets` against a committed 600 KB budget (measured largest today = `index-*.js` @ 425 KB, well under) — `--strict`/`BUNDLE_BUDGET_STRICT=1` flips it to gating later. (2) **Coverage floor**: added `@vitest/coverage-v8@^4.1.9` (lockfile-pinned) + a `test:coverage` script and a v8 `coverage.thresholds` block in `vite.config.js` set just below the current actuals (lines 45 / stmts 45 / funcs 35 / branches 30 vs measured 51.7/49.8/38.3/32.7) so the floor passes today and is meant to ratchet up. Both verified green locally through the `run-check.sh` gate; full suite 848 tests + build stay green.
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement scan of dungeon-scholar tooling
+
+**Description:**
+`dungeon-scholar-ci.yml` gates on lint + typecheck + `vitest run` + build, but enforces no coverage threshold and no JS bundle-size budget (grep for `chunkSizeWarningLimit` / `size-limit` / `bundlesize` / `lighthouse` returns nothing across the project + workflow). The repo invests heavily in a small initial bundle — `vite.config.js` ships a `manualChunks` splitter, every screen is `React.lazy`-loaded, and `richContent.js` explicitly rejects bundling KaTeX/Mermaid eagerly "to keep the bundle small" — yet nothing in CI prevents a regression: a heavy dependency landing in the initial chunk, or `manualChunks` silently degrading, would pass green. Likewise, the existing-issue note that exhaustive-deps hooks lack behavioral test coverage (see ISSUES-LOG) has no coverage metric to track whether that gap is shrinking or growing.
+
+**Hypothesis / root cause:** CI was built to gate correctness (lint/types/tests/build); the performance + coverage *budgets* that protect the app's stated design values were never added.
+
+**Proposed fix / improvement:**
+- [ ] Add a build-output size check (e.g. a tiny script asserting the largest initial JS chunk stays under a committed budget, or `size-limit`) as a non-blocking-then-blocking CI step.
+- [ ] Enable `vitest --coverage` (v8 provider) and set a modest floor that ratchets up, so coverage can't silently regress.
+- [ ] Keep both advisory at first (report in the PR) before making them gating, matching the repo's incremental-tightening posture.
+
+**Related files:** `.github/workflows/dungeon-scholar-ci.yml`, `dungeon-scholar/vite.config.js`, `dungeon-scholar/package.json`
+
+
 ### [2026-07-02] Cloud-sync sign-in reconciliation trusts client clocks — cross-device skew can silently drop the newer save without the MergeChooser
 > **Resolved 2026-07-02 (scholar-resolver, auto-approved bug fix):** Sign-in reconciliation (`usePlayerState.js`) now decides "has the cloud changed since my last sync?" by comparing `cloud.updated_at` against the recorded `lastSyncedAt` for **identity** (string equality, with epoch-equality accepted only for serialization drift of the same instant) instead of wall-clock **ordering** — every `lastSyncedAt` the hook records is a stamp that was actually stored on the cloud row, so "same stamp" means nobody pushed since, regardless of device clock skew. A skewed-but-different stamp now routes to apply-cloud (clean) or the MergeChooser (dirty + divergent content) instead of a silent overwrite. `pushSave` (`cloudSync.js`) now reads back the stored `updated_at` via `.select()` — server-authoritative once the new `touch_saves_updated_at` before-insert/update trigger (added to `docs/supabase-setup.md`, with a run-once migration note for existing projects) is installed; without the trigger it echoes the client stamp, i.e. today's behavior, so the client change is backward-compatible. Regression tests added: dirty + older-but-different cloud stamp → chooser (the exact silent-loss scenario), clean + older-but-different → applies cloud, same-instant format drift (`...Z` vs `+00:00`) → still "unchanged" (dirty pushes, no false chooser), plus pushSave server-stamp read-back/fallback tests. Lint 0 errors, tsc green, cloudSync + usePlayerState suites 46/46, full vitest suite green. The optional optimistic-concurrency upsert (compare-and-swap via RPC) was deliberately NOT taken: identity comparison + server stamps close the described loss window without a schema/API change; it can ride a future entry if the remaining sub-second race (two devices pushing near-simultaneously while both offline-signed-out) ever matters. Code on `auto/scholar-resolver`.
 

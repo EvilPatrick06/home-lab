@@ -1,16 +1,39 @@
-# Changelog
+# Changelog — dungeon-scholar
 
-All notable changes to **dungeon-scholar** (the D&D-themed study app) are
-documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and the project aims to adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+> **This file is a pointer, not a maintained per-release changelog.**
+>
+> dungeon-scholar has **no release/tag cadence**: the daily integrator's merge to
+> `master` continuously auto-deploys the live GitHub-Pages site
+> (`dungeon-scholar-deploy.yml`), and `package.json` stays at `0.1.0`. There is no
+> "cut a versioned section when a release is tagged" trigger to hang a Keep-a-Changelog
+> file on, so this file was frozen shortly after it was seeded (2026-06-23).
+>
+> **The living changelog for dungeon-scholar is, in order of granularity:**
+>
+> - **Completed phase plans** — [`docs/phases/completed/`](./docs/phases/completed/)
+>   (each shipped `PHASE-NN-<slug>.md` is a feature/fix that landed), indexed by
+>   [`docs/phases/PHASE-INDEX.md`](./docs/phases/PHASE-INDEX.md).
+> - **Resolved issues/suggestions** —
+>   [`../docs/logs/RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`](../docs/logs/RESOLVED-ISSUES-DUNGEON-SCHOLAR.md),
+>   each entry stamped with its resolution.
+> - **The git history of `dungeon-scholar/`** — the authoritative record.
+>
+> This mirrors how dnd-app treats its GitHub Releases page as its changelog
+> (see the repo-root `CHANGELOG.md`): the release/phase artifacts *are* the log, so
+> there is nothing to hand-maintain here and no fabricated history is introduced.
+>
+> The historical Keep-a-Changelog seed (the original `[0.1.0]` snapshot and the
+> aspirational `[Unreleased]` list it shipped with) is preserved below verbatim as an
+> **archive**. It is not updated going forward — consult the three sources above for
+> anything after 2026-06-23.
 
-This file was seeded from `docs/RESOLVED-ISSUES-DUNGEON-SCHOLAR.md` and the phase
-history (`dnd-app/docs/phases/`). Keep it updated on each release; group new work
-under `[Unreleased]` and cut a dated, versioned section when a release is tagged.
+---
 
-## [Unreleased]
+## Archived seed (frozen 2026-06-23 — do not update; see the pointer above)
 
-### Added
+### [Unreleased] (as seeded)
+
+#### Added
 - PWA study reminders / re-engagement notifications (due cards, streak-at-risk).
 - Dedicated study-stats "Scholar's Ledger" dashboard (accuracy trend, study time, per-domain mastery).
 - Keyboard-accessible Dungeon Delve — a non-pointer / screen-reader path for the canvas game.
@@ -21,18 +44,15 @@ under `[Unreleased]` and cut a dated, versioned section when a release is tagged
 - Additional starter tomes from the bundled provider prompt sets.
 - Minimal internationalization scaffold (`services/i18n.js` + `locales/en.js`); first chrome strings migrated through `t()`.
 
-### Changed
+#### Changed
 - Dungeon canvas now honors `prefers-reduced-motion` (WCAG 2.3.3) in the render loop, not just CSS.
 - Architecture cleanup: `DungeonExplore` God-file split into the React component, `components/dungeon/tileRenderer.js`, and `game/dungeonMap.js`; `DungeonExplore.jsx` colocated under `components/dungeon/`.
-- `App.jsx` de-godded: tutorial auto-condition logic moved to `game/tutorial.js`, a screen registry added at `router/screens.js`, and the modal-visibility cluster moved behind a `useAppModals()` hook. The screen router now renders through that registry via a single `screenViews` dispatch (with an `App.test.jsx` smoke test) instead of a ~21-branch inline `screen === ...` ladder.
+- `App.jsx` de-godded: tutorial auto-condition logic moved to `game/tutorial.js`, a screen registry added at `router/screens.js`, and the modal-visibility cluster moved behind a `useAppModals()` hook.
 
-### Infrastructure
+#### Infrastructure
 - PR-time CI gate added for dungeon-scholar / oracle-worker.
 
-## [0.1.0] - 2025
+### [0.1.0] - 2025
 
-### Added
+#### Added
 - Initial dungeon-scholar study app: tome-based study modes (Quiz, Flashcards, Lab, Chat, Practice Exam), the Dungeon Delve mini-game, progression (XP, titles, achievements, quests), Supabase auth + cloud sync, and SRS scheduling.
-
-[Unreleased]: https://example.invalid/dungeon-scholar/compare/v0.1.0...HEAD
-[0.1.0]: https://example.invalid/dungeon-scholar/releases/tag/v0.1.0

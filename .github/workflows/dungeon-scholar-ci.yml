@@ -33,3 +33,13 @@ jobs:
       - run: npm run build
         env:
           VITE_BASE: /home-lab/
+      # --- Advisory budgets (report-only for now; see SUGGESTIONS-LOG "CI has no
+      #     test-coverage floor and no bundle-size budget"). continue-on-error keeps
+      #     them non-gating until the numbers prove stable, then drop the flag /
+      #     set BUNDLE_BUDGET_STRICT=1 to make them block. ---
+      - name: Bundle-size budget (advisory)
+        continue-on-error: true
+        run: npm run budget:bundle
+      - name: Test coverage floor (advisory)
+        continue-on-error: true
+        run: npm run test:coverage

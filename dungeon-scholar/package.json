@@ -14,10 +14,12 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "audit:ci": "npm audit --omit=dev --audit-level=moderate",
-    "lint": "npx --yes @biomejs/biome@2.5.0 check src",
-    "lint:fix": "npx --yes @biomejs/biome@2.5.0 check --write src",
-    "format": "npx --yes @biomejs/biome@2.5.0 format --write src",
-    "typecheck": "tsc --noEmit"
+    "lint": "biome check src",
+    "lint:fix": "biome check --write src",
+    "format": "biome format --write src",
+    "typecheck": "tsc --noEmit",
+    "test:coverage": "vitest run --coverage",
+    "budget:bundle": "node scripts/check-bundle-budget.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",
@@ -27,6 +29,7 @@
     "react-dom": "^19.2.7"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.5.0",
     "@tailwindcss/postcss": "^4.3.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -34,6 +37,7 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
+    "@vitest/coverage-v8": "^4.1.9",
     "happy-dom": "^20.10.6",
     "postcss": "^8.5.16",
     "tailwindcss": "^4.3.0",

@@ -58,28 +58,6 @@ The `auto/scholar-phase-executer` branch (head `1b3c00ed`) is a genuine, unmerge
 
 ## Low
 
-### [2026-06-29] `auto/scholar-phase-maker` (tip `850f8404`) won't merge — competing PHASE-06 + PHASE-03 amendment vs the already-merged run
-
-- **Category:** integration / merge-conflict (duplicate work)
-- **Severity:** low
-- **Domain:** dungeon-scholar
-- **Discovered by:** integrator
-- **During:** daily branch integration (2026-06-29 run)
-
-**Description:**
-An earlier `auto/scholar-phase-maker` run was merged to `master` this same pass, adding `PHASE-06-vault-redeemed-unlock-gate.md` + `PHASE-07-import-toast-exam-copy.md` (the `QA-report-2026-06-28.md` findings, split into two plans) and an `03G` amendment to `PHASE-03`. A **second** `auto/scholar-phase-maker` branch (tip `850f8404`) then appeared and re-authored the **same** report into a single combined `PHASE-06-vault-title-import-activation-exam-copy.md` plus its own competing `PHASE-03` provenance/03E amendment — so it no longer merges: conflicts in `PHASE-INDEX.md` (PHASE-06 row: one combined `06` vs the merged `06`+`07`) and `PHASE-03-light-theme-dark-on-dark-contrast.md` (two different wordings of the same 2026-06-28 light-on-light amendment).
-
-**Root cause:** Two scholar phase-maker runs raced over the same `QA-report-2026-06-28.md`; the first landed (split 06/07), so the second is a redundant re-authoring (combined 06) rather than a mechanical conflict. Not fixed-forward because choosing the canonical PHASE-06 shape (split vs combined) and the canonical PHASE-03 amendment text is a scholar-domain decision. Note this also interacts with the routed `auto/scholar-phase-executer` (which marks PHASE-03/04/05 done) — reconcile together.
-
-**Proposed fix / improvement (scholar phase-maker owner):**
-- [ ] Decide canonical shape: keep the merged split `PHASE-06`+`PHASE-07`, OR adopt `850f8404`'s combined `PHASE-06` (port any better wording into the merged docs); keep ONE `PHASE-03` amendment.
-- [ ] Delete `auto/scholar-phase-maker` (tip `850f8404`) once reconciled — it has no unique code, only duplicate phase docs.
-- [ ] Have the phase-maker check `PHASE-INDEX.md` for an existing plan from the same QA report before authoring, to stop duplicate-number races.
-
-**Related files:** `dungeon-scholar/docs/phases/PHASE-INDEX.md`, `dungeon-scholar/docs/phases/PHASE-03-light-theme-dark-on-dark-contrast.md`, `dungeon-scholar/docs/phases/PHASE-06-*.md`, `dungeon-scholar/docs/phases/PHASE-07-import-toast-exam-copy.md`, branch `auto/scholar-phase-maker` (tip `850f8404`)
-
----
-
 ### [2026-06-29] `auto/scholar-phase-executer` won't merge — collides with already-merged scholar-resolver (App.jsx imports, LibraryScreen bulk-tag) + PHASE-INDEX status rows
 
 - **Category:** integration / merge-conflict
@@ -143,6 +121,8 @@ The remaining warnings are `useExhaustiveDependencies` (latent stale-closure / m
 A production `vite build` prints `WARN inlineDynamicImports option is deprecated, please use codeSplitting: false instead.` during the service-worker (injectManifest) build step. It is not from `vite.config.js` (the app does not set `inlineDynamicImports`) — it originates inside the pinned dependency: `node_modules/vite-plugin-pwa/dist/vite-build-BGK4YAIU.js:109` hardcodes `inlineDynamicImports: true` when it builds `src/sw.js`. The build still succeeds today, but the option is slated for removal in Rolldown/Vite, at which point the SW build would break.
 
 **Hypothesis / root cause:** `vite-plugin-pwa@1.3.0` uses the deprecated Rollup/Rolldown `inlineDynamicImports` flag for the SW bundle; Vite 8 (Rolldown) now warns on it. App code can not fix it directly — it needs a plugin upgrade.
+
+> **[2026-07-03] WAIT-on-upstream confirmed (scholar-debt-batch):** re-checked — `vite-plugin-pwa` is **still at 1.3.0** (`npm view vite-plugin-pwa version` → `1.3.0`; latest published, no newer release). The deprecated `inlineDynamicImports: true` is still hardcoded in the plugin's SW-build path, and the app still does not set it in `vite.config.js`. There is **nothing app-side to change** until upstream ships a version using `codeSplitting: false`; forcing a change here would mean patching a dependency's internals. Entry **kept open (WAIT)**, not resolved — bump the plugin when a fixed release appears. Build still succeeds; treat the warning as known noise per the checklist.
 
 **Proposed fix / improvement:**
 - [ ] Track `vite-plugin-pwa` releases for a version that switches to `codeSplitting: false`; bump when available.

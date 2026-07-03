@@ -149,5 +149,24 @@ export default defineConfig({
     environment: 'happy-dom',
     setupFiles: ['./src/test-setup.js'],
     globals: true,
+    // Advisory coverage floor (see SUGGESTIONS-LOG "CI has no test-coverage
+    // floor"). Modest starting thresholds meant to RATCHET UP; the CI step runs
+    // continue-on-error so a dip reports without blocking yet. Enable via
+    //  (v8 provider).
+    coverage: {
+      provider: 'v8',
+      reporter: ['text-summary'],
+      include: ['src/**/*.{js,jsx}'],
+      exclude: ['src/**/*.test.{js,jsx}', 'src/__guards__/**', 'src/sw.js', 'src/main.jsx'],
+      thresholds: {
+        // Set just below the current actuals (2026-07-03 measured: statements
+        // ~49.8%, lines ~51.7%, functions ~38.4%, branches ~32.7%) so the floor
+        // PASSES today and is meant to RATCHET UP as behavioral coverage grows.
+        lines: 45,
+        functions: 35,
+        statements: 45,
+        branches: 30,
+      },
+    },
   },
 })

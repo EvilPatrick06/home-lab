@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DIFFICULTY_ORDER, isDifficultyUnlocked } from '../../game/difficulty.js';
+import { DIFFICULTY_ORDER, isDifficultyUnlocked } from './difficulty.js';
 import {
   BIOME_BOSS_POOL,
   BIOMES,
@@ -13,7 +13,7 @@ import {
   SIZE_BY_DIFFICULTY,
   TILE,
   takeForesightPreview,
-} from '../../game/dungeonMap.js';
+} from './dungeonMap.js';
 
 // Seedable RNG so map-gen assertions are deterministic per test.
 const seedRng = (seed) => {
