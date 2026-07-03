@@ -110,6 +110,39 @@ def _get_wake_model_paths() -> list[str]:
     return paths
 
 
+_ONNX_LOG_QUIETED = False
+
+
+def _quiet_onnxruntime() -> None:
+    """Silence onnxruntime's default-logger GPU device-discovery spam.
+
+    On the headless Pi, onnxruntime's C++ device_discovery probes
+    ``/sys/class/drm/cardN`` on every InferenceSession creation (wake model +
+    Piper voice) and logs a pair of ``[W:onnxruntime ...] Failed to detect
+    devices`` warnings -- harmless (CPU EP is used regardless) but it clutters
+    the journal on every model init, burying real errors
+    (BMO-ISSUES 2026-06-29). Raising the default logger severity to ERROR (3)
+    suppresses those W-level device-probe lines while still surfacing genuine
+    onnxruntime errors. Idempotent + import-guarded so it is a strict no-op if
+    onnxruntime is absent (dev/CI) or already quieted.
+
+    Override with ``BMO_ONNX_LOG_SEVERITY`` (0=verbose..4=fatal; default 3).
+    """
+    global _ONNX_LOG_QUIETED
+    if _ONNX_LOG_QUIETED:
+        return
+    try:
+        import onnxruntime  # transitive dep of openwakeword + piper
+
+        severity = int(os.environ.get("BMO_ONNX_LOG_SEVERITY", "3"))
+        onnxruntime.set_default_logger_severity(severity)
+        _ONNX_LOG_QUIETED = True
+    except Exception:
+        # onnxruntime not installed (dev/CI) or API shape changed -- never let
+        # log-quieting break model loading.
+        pass
+
+
 def _get_native_input_rate() -> int:
     """Auto-detect the mic's native sample rate to prevent ALSA errors."""
     try:
