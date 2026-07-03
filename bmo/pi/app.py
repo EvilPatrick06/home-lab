@@ -58,7 +58,7 @@ _PROCESS_STARTED_AT = datetime.now(timezone.utc)
 
 def _capture_running_commit():
     try:
-        from dev.dev_tools import git_command_args
+        from tools.dev_tools import git_command_args
         repo_root = os.path.dirname(os.path.abspath(__file__))
         result = git_command_args(["rev-parse", "HEAD"], repo_root)
         if isinstance(result, dict) and result.get("exit_code") == 0:

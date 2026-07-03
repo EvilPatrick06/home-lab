@@ -16,7 +16,7 @@ import requests
 import ollama as ollama_client
 
 from services.cloud_providers import cloud_chat, gemini_chat_stream, groq_llm_chat_stream, PRIMARY_MODEL, ROUTER_MODEL, DND_MODEL
-from dev.dev_tools import dispatch_tool
+from tools.dev_tools import dispatch_tool
 from services.voice.voice_personality import parse_response_tags
 from services.bmo_logging import get_logger, _s
 
@@ -1051,7 +1051,7 @@ class BmoAgent:
 
     def _execute_pending_confirmation(self, speaker: str) -> dict:
         """Execute all pending destructive operations after user confirmation."""
-        from dev.dev_tools import execute_confirmed, write_file_confirmed
+        from tools.dev_tools import execute_confirmed, write_file_confirmed
 
         results_text = []
         for pc in self._pending_confirmations:

@@ -22,17 +22,17 @@ _cloud_stub.ANTHROPIC_BASE = "https://api.anthropic.com/v1"
 _cloud_stub._claude_model_id = lambda m: m
 _cloud_stub._claude_session = MagicMock()
 sys.modules.setdefault("cloud_providers", _cloud_stub)
-# dev.claude_tools imports `from services.cloud_providers import ...` at call time
+# tools.claude_tools imports `from services.cloud_providers import ...` at call time
 sys.modules.setdefault("services.cloud_providers", _cloud_stub)
 
-import dev.claude_tools as claude_tools
-from dev.claude_tools import (
+import tools.claude_tools as claude_tools
+from tools.claude_tools import (
     _param_to_schema,
     get_auto_approve,
     set_auto_approve,
     tools_to_claude_format,
 )
-from dev.dev_tools import TOOL_DEFINITIONS
+from tools.dev_tools import TOOL_DEFINITIONS
 
 
 # ===========================================================================
@@ -354,7 +354,7 @@ class TestClaudeChatWithTools:
 
         set_auto_approve(True)
         try:
-            with patch("dev_tools.execute_confirmed", return_value=confirmed_result):
+            with patch("tools.dev_tools.execute_confirmed", return_value=confirmed_result):
                 result = claude_tools.claude_chat_with_tools(
                     messages=[{"role": "user", "content": "clean up"}],
                     tools=[],

@@ -122,7 +122,7 @@ _terminal_mgr = None
 def _get_terminal_mgr():
     global _terminal_mgr
     if _terminal_mgr is None:
-        from dev.terminal_service import TerminalManager
+        from ide.terminal_service import TerminalManager
         _terminal_mgr = TerminalManager()
     return _terminal_mgr
 
@@ -132,7 +132,7 @@ _file_watcher = None
 def _get_file_watcher():
     global _file_watcher
     if _file_watcher is None:
-        from dev.file_watcher import FileWatcher
+        from ide.file_watcher import FileWatcher
         def _on_file_change(path, mtime):
             socketio.emit("ide_file_changed", {"path": path, "mtime": mtime})
         _file_watcher = FileWatcher(_on_file_change)
@@ -309,7 +309,7 @@ def api_ide_tree():
         log.exception("request failed")
         return jsonify({"error": "path outside IDE sandbox",
                         "sandbox_roots": list(_IDE_ALLOWED_ROOTS)}), 403
-    from dev.dev_tools import list_directory
+    from tools.dev_tools import list_directory
     listing = _scrub_result(list_directory(path))
     if isinstance(listing, dict):
         listing["sandbox_roots"] = list(_IDE_ALLOWED_ROOTS)
@@ -370,7 +370,7 @@ def api_ide_file_read():
             path = _ide_safe_path(path)
         except PermissionError as e:
             return fail(log, e, 403, "path outside IDE sandbox")
-        from dev.dev_tools import read_file
+        from tools.dev_tools import read_file
         # dev_tools.read_file signature: read_file(path, limit, offset)
         try:
             result = read_file(path, limit=limit, offset=offset)
@@ -424,7 +424,7 @@ def api_ide_file_edit():
         path = _ide_safe_path(path)
     except PermissionError as e:
         return fail(log, e, 403, "path outside IDE sandbox")
-    from dev.dev_tools import edit_file
+    from tools.dev_tools import edit_file
     result = _scrub_result(edit_file(path, data.get("old_string", ""), data.get("new_string", "")))
     if result.get("success"):
         watcher = _get_file_watcher()
@@ -582,7 +582,7 @@ def api_ide_search():
         return jsonify(_proxy_to_windows("grep_files", {
             "pattern": pattern, "path": path, "file_glob": file_glob,
         }))
-    from dev.dev_tools import grep_files
+    from tools.dev_tools import grep_files
     return jsonify(_scrub_result(grep_files(pattern, path, file_glob)))
 
 
@@ -607,7 +607,7 @@ def api_ide_find():
     machine = request.args.get("machine", "pi")
     if machine == "win":
         return jsonify(_proxy_to_windows("find_files", {"path": path, "pattern": f"*{pattern}*"}))
-    from dev.dev_tools import find_files
+    from tools.dev_tools import find_files
     return jsonify(_scrub_result(find_files(f"**/*{pattern}*", path)))
 
 
@@ -625,7 +625,7 @@ def api_ide_git_status():
         repo = _safe_repo(request.args.get("path", "~"))
     except PermissionError as e:
         return fail(log, e, 403, "path outside IDE sandbox")
-    from dev.dev_tools import git_command_args
+    from tools.dev_tools import git_command_args
     branch_result = _scrub_result(git_command_args(["rev-parse", "--abbrev-ref", "HEAD"], repo))
     status_result = _scrub_result(git_command_args(["status", "--porcelain"], repo))
     branch = ""
@@ -654,7 +654,7 @@ def api_ide_git_stage():
     path = data.get("path", "")
     if not path or path.startswith("-"):
         return jsonify({"error": "invalid path"}), 400
-    from dev.dev_tools import git_command_args
+    from tools.dev_tools import git_command_args
     return jsonify(_scrub_result(git_command_args(["add", "--", path], repo)))
 
 
@@ -669,7 +669,7 @@ def api_ide_git_unstage():
     path = data.get("path", "")
     if not path or path.startswith("-"):
         return jsonify({"error": "invalid path"}), 400
-    from dev.dev_tools import git_command_args
+    from tools.dev_tools import git_command_args
     return jsonify(_scrub_result(git_command_args(["restore", "--staged", "--", path], repo)))
 
 
@@ -684,7 +684,7 @@ def api_ide_git_commit():
         repo = _safe_repo(data.get("repo", "~"))
     except PermissionError as e:
         return fail(log, e, 403, "path outside IDE sandbox")
-    from dev.dev_tools import git_command_args
+    from tools.dev_tools import git_command_args
     return jsonify(_scrub_result(git_command_args(["commit", "-m", msg], repo)))
 
 
@@ -700,7 +700,7 @@ def api_ide_git_log():
         count = max(1, min(int(count_raw), 1000))
     except (TypeError, ValueError):
         count = 20
-    from dev.dev_tools import git_command_args
+    from tools.dev_tools import git_command_args
     result = _scrub_result(git_command_args(["log", "--oneline", "-n", str(count)], repo))
     commits = []
     for line in (result.get("output", "") or "").splitlines():
@@ -721,7 +721,7 @@ def api_ide_git_diff():
     args = ["diff"]
     if path and not path.startswith("-"):
         args.extend(["--", path])
-    from dev.dev_tools import git_command_args
+    from tools.dev_tools import git_command_args
     return jsonify(_scrub_result(git_command_args(args, repo)))
 
 
@@ -736,7 +736,7 @@ def api_ide_git_checkout():
         repo = _safe_repo(data.get("repo", "~"))
     except PermissionError as e:
         return fail(log, e, 403, "path outside IDE sandbox")
-    from dev.dev_tools import git_command_args
+    from tools.dev_tools import git_command_args
     return jsonify(_scrub_result(git_command_args(["checkout", branch], repo)))
 
 
@@ -747,7 +747,7 @@ def api_ide_git_branches():
         repo = _safe_repo(request.args.get("path", "~"))
     except PermissionError as e:
         return fail(log, e, 403, "path outside IDE sandbox")
-    from dev.dev_tools import git_command_args
+    from tools.dev_tools import git_command_args
     result = _scrub_result(git_command_args(["branch", "-a"], repo))
     branches = []
     current = ""
@@ -769,7 +769,7 @@ def api_ide_git_push():
         repo = _safe_repo(data.get("repo", "~"))
     except PermissionError as e:
         return fail(log, e, 403, "path outside IDE sandbox")
-    from dev.dev_tools import git_command_args
+    from tools.dev_tools import git_command_args
     return jsonify(_scrub_result(git_command_args(["push"], repo)))
 
 
@@ -781,7 +781,7 @@ def api_ide_git_pull():
         repo = _safe_repo(data.get("repo", "~"))
     except PermissionError as e:
         return fail(log, e, 403, "path outside IDE sandbox")
-    from dev.dev_tools import git_command_args
+    from tools.dev_tools import git_command_args
     return jsonify(_scrub_result(git_command_args(["pull"], repo)))
 
 
@@ -793,7 +793,7 @@ def api_ide_git_fetch():
         repo = _safe_repo(data.get("repo", "~"))
     except PermissionError as e:
         return fail(log, e, 403, "path outside IDE sandbox")
-    from dev.dev_tools import git_command_args
+    from tools.dev_tools import git_command_args
     return jsonify(_scrub_result(git_command_args(["fetch", "--all"], repo)))
 
 
@@ -806,7 +806,7 @@ def api_ide_git_stash():
         repo = _safe_repo(data.get("repo", "~"))
     except PermissionError as e:
         return fail(log, e, 403, "path outside IDE sandbox")
-    from dev.dev_tools import git_command_args
+    from tools.dev_tools import git_command_args
     if action == "save":
         msg = data.get("message", "")
         args = ["stash", "push"] + (["-m", msg] if msg else [])
@@ -836,7 +836,7 @@ def api_ide_git_branch_create():
         repo = _safe_repo(data.get("repo", "~"))
     except PermissionError as e:
         return fail(log, e, 403, "path outside IDE sandbox")
-    from dev.dev_tools import git_command_args
+    from tools.dev_tools import git_command_args
     return jsonify(_scrub_result(git_command_args(["checkout", "-b", name], repo)))
 
 
@@ -851,7 +851,7 @@ def api_ide_git_branch_delete():
         repo = _safe_repo(data.get("repo", "~"))
     except PermissionError as e:
         return fail(log, e, 403, "path outside IDE sandbox")
-    from dev.dev_tools import git_command_args
+    from tools.dev_tools import git_command_args
     return jsonify(_scrub_result(git_command_args(["branch", "-d", name], repo)))
 
 
@@ -982,7 +982,7 @@ def api_ide_jobs_create():
 
             if job_mode == "autopilot":
                 # ── AUTOPILOT: loop until agent is done or cancelled ──
-                from dev.claude_tools import set_auto_approve
+                from tools.claude_tools import set_auto_approve
                 set_auto_approve(True)  # Auto-approve destructive commands
                 all_responses = []
                 current_message = task
@@ -1119,7 +1119,7 @@ def api_ide_jobs_create():
             _sys.stderr = _old_stderr
             STATE.current_running_job_id = None
             try:
-                from dev.claude_tools import set_auto_approve
+                from tools.claude_tools import set_auto_approve
                 set_auto_approve(False)
             except Exception:
                 pass
@@ -1200,7 +1200,7 @@ def api_ide_jobs_followup(job_id):
                 job["mode"] = "autopilot"
                 job.pop("_waiting_for", None)
 
-                from dev.claude_tools import set_auto_approve
+                from tools.claude_tools import set_auto_approve
                 set_auto_approve(True)
 
                 # Execute the original task in autopilot mode

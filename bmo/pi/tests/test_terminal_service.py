@@ -3,9 +3,9 @@ import importlib
 import sys
 from unittest.mock import MagicMock
 
-# Force the REAL module even if another test stubbed dev.terminal_service.
-sys.modules.pop("dev.terminal_service", None)
-terminal_service = importlib.import_module("dev.terminal_service")
+# Force the REAL module even if another test stubbed ide.terminal_service.
+sys.modules.pop("ide.terminal_service", None)
+terminal_service = importlib.import_module("ide.terminal_service")
 TerminalManager = terminal_service.TerminalManager
 TerminalSession = terminal_service.TerminalSession
 

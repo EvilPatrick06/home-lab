@@ -15,7 +15,7 @@ from flask_socketio import SocketIO
 
 # ── Import terminal service from parent directory ────────────────
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from dev.terminal_service import TerminalManager
+from ide.terminal_service import TerminalManager
 from services.bmo_logging import fail, get_logger
 
 log = get_logger("ide_app")

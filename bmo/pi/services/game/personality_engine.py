@@ -322,7 +322,7 @@ class PersonalityEngine:
         self._last_screensaver_time = mono_now
 
         try:
-            from dev.dev_tools import web_search
+            from tools.dev_tools import web_search
             topic = random.choice(SCREENSAVER_TOPICS)
             results = web_search(topic, num_results=3)
             if not results or not results.get("results"):

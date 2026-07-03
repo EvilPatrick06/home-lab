@@ -15,8 +15,8 @@ import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-import dev.dev_tools as dev_tools
-from dev.dev_tools import (
+import tools.dev_tools as dev_tools
+from tools.dev_tools import (
     TOOL_DEFINITIONS,
     dispatch_tool,
     edit_file,
@@ -371,7 +371,7 @@ class TestSshCommand:
             # Reload PC_HOST from env for this test
             import importlib
             importlib.reload(dev_tools)
-            from dev.dev_tools import ssh_command as sc2
+            from tools.dev_tools import ssh_command as sc2
             with patch("subprocess.run") as mock_run:
                 mock_run.return_value = MagicMock(stdout="ok", stderr="", returncode=0)
                 result = sc2("pc", "hostname")
@@ -470,7 +470,7 @@ class TestWebSearch:
         mock_ddgs.text.return_value = [
             {"title": "Result 1", "href": "https://example.com", "body": "snippet"}
         ]
-        with patch("dev_tools.DDGS", mock_ddgs, create=True):
+        with patch("tools.dev_tools.DDGS", mock_ddgs, create=True):
             # Patch the import inside the function
             with patch.dict("sys.modules", {"duckduckgo_search": MagicMock(DDGS=mock_ddgs)}):
                 result = web_search("test query", num_results=1)
