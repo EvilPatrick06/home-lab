@@ -1,6 +1,6 @@
 {
   "name": "dnd-vtt",
-  "version": "2.7.2",
+  "version": "2.7.3",
   "engines": {
     "node": ">=22"
   },
