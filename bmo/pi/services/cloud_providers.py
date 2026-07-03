@@ -153,13 +153,15 @@ def gemini_chat(messages: list[dict], model: str = "",
             "parts": [{"text": system_instruction}],
         }
 
-    url = f"{GEMINI_BASE}/models/{model_id}:generateContent?key={GEMINI_API_KEY}"
+    # Key goes in the x-goog-api-key header, never the URL query string, so it
+    # cannot leak into request URLs surfaced by exceptions / logs (CWE-312/532).
+    url = f"{GEMINI_BASE}/models/{model_id}:generateContent"
 
     # Retry on transient 500 errors (Gemini preview models can be flaky)
     last_err = None
     for attempt in range(3):
         try:
-            r = _gemini_session.post(url, json=payload, timeout=120)
+            r = _gemini_session.post(url, json=payload, headers={"x-goog-api-key": GEMINI_API_KEY}, timeout=120)
             r.raise_for_status()
             break
         except requests.exceptions.HTTPError as e:

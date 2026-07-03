@@ -102,7 +102,7 @@ if os.environ.get("GEMINI_API_KEY"):
               {"role":"user","content":ctx}]
         overview=gemini_chat(msgs, model=os.environ.get("BRIEF_MODEL","gemini-2.0-flash"), temperature=0.7, max_tokens=200).strip()
     except Exception as ex:
-        sys.stderr.write("gemini overview failed: %s\n"%str(ex)[:160])
+        sys.stderr.write("gemini overview failed: %s\n"%str(ex).replace(os.environ.get("GEMINI_API_KEY") or "\0","***")[:160])
         overview=None
 if not overview:
     overview="Good morning! %d event(s) today. Weather: %s. Pi %s."%(len(cal_lines), wx_summary or "n/a", "healthy" if pi_ok else "needs a look")
