@@ -213,11 +213,18 @@ Jun 29 03:13:48 [monitor][CRITICAL] pi_power: THROTTLED NOW — CPU frequency re
 **Hypothesis / root cause:** Local LLM (Ollama) inference is CPU-bound and pegs all cores; the case fan curve tops out before it can dissipate that sustained load, so the SoC hits 85°C and `vcgencmd` reports active throttling (flags `0xe0006` = under-volt + currently-throttled + freq-capped bits). Aggravated by the recurring cloud-LLM 503s forcing more local fallbacks than usual.
 
 **Proposed fix / improvement:**
-- [ ] Cap local-inference concurrency / thread count, or use a smaller/quantized local model, to bound peak CPU heat.
-- [ ] Re-tune the fan curve to reach 255 duty earlier (before 80°C), and/or verify heatsink/airflow.
-- [ ] Investigate the recurring Gemini 503s (see fallback trigger) so local fallback isn't entered as often.
+- [x] Cap local-inference concurrency / thread count, or use a smaller/quantized local model, to bound peak CPU heat. *(done 2026-07-02 — see update below)*
+- [ ] Re-tune the fan curve to reach 255 duty earlier (before 80°C) *(done 2026-06-22, `2ebb90e1` — full duty at 75°C; the Jun 28–29 alerts show that curve already saturated)*, and/or verify heatsink/airflow *(hardware — still open)*.
+- [ ] Investigate the recurring Gemini 503s (see fallback trigger) so local fallback isn't entered as often. *(partly addressed — see update below)*
 
-**Related files:** `bmo/pi/hardware/fan_control.py`, `bmo/pi/services/monitoring.py`, local-LLM/agent inference path (`bmo/pi/agents/`), `bmo/pi/systemd/bmo-fan.service`
+**Update [2026-07-02, thermal resolver]:** Software side implemented on `auto/bmo-thermal`:
+- **Ollama thread cap** — Pi-side `OLLAMA_OPTIONS` / `OLLAMA_PLAN_OPTIONS` in `agent.py` now set `num_thread: 3` (of the Pi's 4 cores; override `BMO_LOCAL_NUM_THREAD`), so a local-fallback burst can no longer peg every core — bounding peak package heat and keeping the voice pipeline/monitoring responsive during fallback.
+- **Thermal admission gate** — new `bmo/pi/services/thermal_gate.py`, applied in `agent._local_chat` immediately before inference: if the SoC is already ≥ 80°C (the monitoring CRITICAL threshold) it waits up to 20 s for the fan to pull the temp below 76°C before starting; if still hot after the bounded wait it clamps `num_predict` to 256 so the burst is short instead of sustained. It never refuses a request and is a strict no-op when the thermal zone is unreadable (dev/CI). Env knobs `BMO_THERMAL_GATE_C` / `RESUME_C` / `MAX_WAIT_S` / `POLL_S` / `HOT_NUM_PREDICT` / `ZONE`, escape hatch `BMO_THERMAL_GATE_DISABLE=1`. Tests: `bmo/pi/tests/test_thermal_gate.py` (11 green).
+- **Gemini 503s** — the cloud path already retries transient 5xx (`_post_with_retry`, 3 attempts with backoff, `services/cloud_providers.py`) and supports opt-in cross-vendor failover via `BMO_LLM_FAILOVER_MODEL` (currently unset). Setting that env to a Claude/Groq model would cut local-fallback entries substantially — left as an owner config decision, not code.
+
+**Kept Active (hardware remains):** the cooling solution itself is saturated (fan already at full duty by 75°C) — verifying heatsink contact / case airflow is a hardware task for Gavin. The software changes take effect via the normal auto-deploy (no manual service restart performed). Close once a sustained local-fallback episode passes with no `pi_cpu_temp` CRITICAL / `THROTTLED NOW` alert — or downgrade to low if the gate + thread cap hold it to brief warnings.
+
+**Related files:** `bmo/pi/hardware/fan_control.py`, `bmo/pi/services/monitoring.py`, local-LLM/agent inference path (`bmo/pi/agents/`), `bmo/pi/systemd/bmo-fan.service`, `bmo/pi/agent.py`, `bmo/pi/services/thermal_gate.py`
 
 ---
 
