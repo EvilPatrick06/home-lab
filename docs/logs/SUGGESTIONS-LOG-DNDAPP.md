@@ -64,6 +64,73 @@ New entries go at the TOP of their section (newest first).
 
 ---
 
+### [2026-07-02] `PLUGIN-SYSTEM.md` release checklist points to nonexistent `dnd-app/docs/DATA-FLOW.md` — the real file lives at repo-root `docs/DATA-FLOW.md`
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** scheduled cleanup/structure scan of `dnd-app/`
+
+**Description:**
+`dnd-app/docs/PLUGIN-SYSTEM.md` step 11 of its "adding a capability" checklist says: *"Update docs: this file + `dnd-app/docs/DATA-FLOW.md`"* — but no `DATA-FLOW.md` exists anywhere under `dnd-app/` (`find dnd-app -name "DATA-FLOW*"` returns nothing). The actual file is the repo-root [`docs/DATA-FLOW.md`](../DATA-FLOW.md). `dnd-app/docs/phases/QA/INSTRUCTIONS.md:38` has the same reference written as `docs/ARCHITECTURE.md`, `docs/DATA-FLOW.md` — which resolves correctly only if the reader assumes repo-root, not the QA file's own directory. An agent following the PLUGIN-SYSTEM checklist literally would conclude the doc was deleted (or create a duplicate at the wrong path).
+
+**Hypothesis / root cause:** `DATA-FLOW.md` either always lived at repo-root `docs/` or was moved there, and the two dnd-app references were never updated to the cross-project relative path.
+
+**Proposed fix / improvement:**
+- [ ] `PLUGIN-SYSTEM.md:133` — change to a real relative link: `../../docs/DATA-FLOW.md` (repo-root docs).
+- [ ] `docs/phases/QA/INSTRUCTIONS.md:38` — disambiguate the same two paths (`/docs/ARCHITECTURE.md`, `/docs/DATA-FLOW.md` repo-root, or proper relative links).
+- [ ] Optional: when the planned `dnd-app/docs/README.md` index (2026-06-29 entry) is written, list which referenced docs live at repo root vs `dnd-app/docs/` so future refs use the right base.
+
+**Related files:** `dnd-app/docs/PLUGIN-SYSTEM.md`, `dnd-app/docs/phases/QA/INSTRUCTIONS.md`, `docs/DATA-FLOW.md`
+
+**Related entries:** [2026-06-29] `dnd-app/docs/` has 10 reference docs but no `docs/README.md` index
+
+### [2026-07-02] `scripts/audit/validate-homebrew.ts` is wired to nothing and its own usage text cites a nonexistent npm script + wrong path
+
+- **Category:** debt, docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** scheduled cleanup/structure scan of `dnd-app/`
+
+**Description:**
+`scripts/audit/validate-homebrew.ts` (homebrew-content schema validator) is referenced by no `package.json` script, no CI workflow, no Makefile target, and no doc — a repo-wide grep for `validate-homebrew` finds only the file itself. Worse, its usage help is doubly wrong: it prints `Usage: npm run validate-homebrew <file-path>` (no such npm script exists) and `Or: node scripts/validate-homebrew.ts <file-path>` (wrong directory — the file is under `scripts/audit/` — and plain `node` cannot execute `.ts`; the repo pattern for TS scripts is `tsx`, cf. `validate:content`). So the only discoverable instructions for running it both fail. This is the same "audit script drift" family as the five redundant audit scripts consolidated earlier (see RESOLVED 2026-06-2x ultimate-audit consolidation), which kept `validate-homebrew.ts` without wiring it up.
+
+**Hypothesis / root cause:** the script predates the `scripts/audit/` reorg and the npm-script naming convention (`validate:5e`, `validate:content`); its usage strings were never updated after the move, and no script entry was ever added.
+
+**Proposed fix / improvement:**
+- [ ] Decide: is homebrew validation still wanted as a standalone tool? If yes, add `"validate:homebrew": "tsx scripts/audit/validate-homebrew.ts"` to `package.json` and fix both usage strings to match. If no (the in-app zod import path already validates homebrew), delete the script.
+- [ ] Either way, cover it in the planned `scripts/README.md` index (2026-06-28 entry) under "wired vs ad-hoc".
+
+**Related files:** `dnd-app/scripts/audit/validate-homebrew.ts`, `dnd-app/package.json`
+
+**Related entries:** [2026-06-28] `scripts/` has ~40 scripts across 11 sub-areas but no `scripts/README.md`
+
+### [2026-07-02] README "Directory layout" for `src/main/` omits the `account/` subdir and ~9 later-added root modules (turn/library/registry bridges, security-log, path-guard, upload-validation, …)
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** scheduled cleanup/structure scan of `dnd-app/`
+
+**Description:**
+`README.md` "Directory layout" documents `src/main/` as `index.ts`, `bmo-bridge.ts`, `bmo-config.ts`, `bmo-csp.ts`, `cloud-sync.ts`, `lan-discovery.ts`, `updater.ts` plus six subdirs (`ai/`, `ipc/`, `storage/`, `plugins/`, `discord-integration/`, `data/`). The tree has since grown past the doc: the **`account/` subdir** (account-client / account-oauth / account-session / sync-client — a whole capability area) is missing entirely, as are nine root modules: `library-bridge.ts`, `registry-bridge.ts`, `turn-bridge.ts`, `sound-cache.ts`, `security-log.ts`, `log.ts`, `paths.ts`, `path-guard.ts`, `upload-validation.ts`. A contributor scanning the documented layout gets a materially incomplete picture of the main process (notably every non-BMO bridge and the whole security/validation layer). This is the same README-drift pattern already logged for the renderer (`test/`, `a11y/` dirs missing — 2026-06-29 entry).
+
+Secondary observation (structure, optional): `src/main/` root now holds 4 sibling `*-bridge.ts` modules (bmo/library/registry/turn) alongside 6 subdirs; if root sprawl continues, grouping bridges under `src/main/bridges/` would keep the root scannable — but the README fix alone resolves the discoverability problem and avoids churning imports.
+
+**Hypothesis / root cause:** modules were added across phases (TURN bridge is from PHASE-53B, account/ from the account-sync work) without a README layout pass; nothing checks the README tree against the real tree.
+
+**Proposed fix / improvement:**
+- [ ] Update the `src/main/` block of README "Directory layout": add `account/` and one-liners for the nine missing root modules (or a summarizing line per group: bridges, security/log, path/upload guards).
+- [ ] Fold the renderer omissions from the 2026-06-29 entry into the same README pass (one edit, two entries resolved).
+- [ ] Optional future-idea: extend `sync:doc-counts --check` (which already guards doc counts in CI) to also diff the README layout tree against `ls src/main` so the next added module fails the check instead of silently drifting.
+
+**Related files:** `dnd-app/README.md` (Directory layout), `dnd-app/src/main/`, `dnd-app/scripts/build/sync-doc-counts.mjs`
+
+**Related entries:** [2026-06-29] Renderer test organization is inconsistent … `test/`/`a11y/` aren't in the README layout
+
 ### [2026-07-02] Dead Windows code-signing leftovers — `scripts/sign.mjs` + `.env.signing.template` survive the v2.2.2 removal of the `win.sign` hook
 
 - **Category:** debt
