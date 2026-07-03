@@ -1,17 +1,23 @@
 {
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "lib": ["ESNext"],
-    "module": "ESNext",
-    "moduleResolution": "bundler",
+    "lib": [
+      "ESNext"
+    ],
     "allowJs": true,
     "checkJs": true,
     "noEmit": true,
-    "skipLibCheck": true,
     "strict": false,
     "noImplicitAny": false,
-    "types": ["@cloudflare/workers-types"]
+    "types": [
+      "@cloudflare/workers-types"
+    ]
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

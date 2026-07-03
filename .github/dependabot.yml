@@ -71,3 +71,17 @@ updates:
         patterns: ["*"]
     cooldown:
       default-days: 7
+
+  # The only container image in the repo (bmo/docker/Dockerfile). Without a
+  # docker ecosystem entry its base image never got automated rebuild/patch PRs
+  # the way every npm/pip/actions dependency does, so base-image CVEs went
+  # unsurfaced between manual touches. bmo-docker-build.yml CI-gates any bump.
+  - package-ecosystem: docker
+    directory: /bmo/docker
+    schedule:
+      interval: weekly
+    groups:
+      docker:
+        patterns: ["*"]
+    cooldown:
+      default-days: 7

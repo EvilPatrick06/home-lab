@@ -16,7 +16,10 @@ Organized by cleanup batch:
 
 ```
 _archive/
-├── 2026-04-24-dead-code/     unused renderer components + duplicate MountModal + unwired plugin-runner (see README inside)
+├── 2026-04-24-dead-code/       unused renderer components + duplicate MountModal + unwired plugin-runner (see README inside)
+├── 2026-06-10-completed-docs/  completed/superseded docs batch (2026-06-10 cleanup cycle)
+├── 2026-06-22-completed-docs/  completed/superseded docs batch (2026-06-22 cleanup cycle; incl. superpowers design specs)
+├── 2026-06-29-completed-docs/  completed docs batch (2026-06-29); see the "2026-06-29-completed-docs/superpowers" note below
 └── 2026-04-reorg/              cleanup done during monorepo restructure (2026-04-23)
     ├── root-junk/              old files that shouldn't have been at repo root
     │   ├── fan_control.py      duplicate of bmo/pi/hardware/fan_control.py (older version)
@@ -93,7 +96,7 @@ Next review: 2026-10-23 (6 months from creation).
 
 1. Create a dated sub-directory: `_archive/YYYY-MM-<reason>/`
 2. Organize by category if moving multiple kinds of files
-3. Update this README with what's in the new archive + why
+3. Update this README with what's in the new archive + why (add a one-line row to the "What's inside" tree above; the tree is the human-facing index and must not fall behind the on-disk batches)
 4. Git-move files (preserves history): `git mv <path> _archive/...`
 
 ## NOT archived (deleted outright)

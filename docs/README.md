@@ -30,10 +30,12 @@ file by purpose; the logs further down are machine-appended and split by domain.
 |---|---|
 | [`CONTRIBUTING.md`](./CONTRIBUTING.md) | Branch / commit conventions, script vocabulary, PR flow. |
 | [`AUTOMATED-AGENT-GIT-WORKFLOW.md`](./AUTOMATED-AGENT-GIT-WORKFLOW.md) | Per-agent branch + worktree + daily integrator workflow. |
+| [`AGENT-FLEET.md`](./AGENT-FLEET.md) | In-repo registry of the scheduled agents: id, scope, kind, branch, log targets. |
+| [`PHASE-EXECUTION.md`](./PHASE-EXECUTION.md) | Top-level pointer to the canonical repo-wide agent implement/verify/commit/release loop (lives at dnd-app/docs/phases/INSTRUCTIONS.md). |
 | [`BOARD-APPROVAL-BRIDGE.md`](./BOARD-APPROVAL-BRIDGE.md) | Board Approve/Deny buttons → originating-session relay (decisions outbox contract). |
 | [`SCHEDULED-TASK-MIGRATION.md`](./SCHEDULED-TASK-MIGRATION.md) | Migration of recurring Claude scheduled tasks → GitHub Actions / bmo cron (triggers, secrets, retire steps). |
 | [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md) | Which log to write to, and when not to log. |
-| [`CHANGELOG.md`](./CHANGELOG.md) | Release history. |
+| [`CHANGELOG.md`](./CHANGELOG.md) | Frozen release archive (<= v2.1.16). Current release notes live on the GitHub Releases page (the living changelog, written by cut.mjs at cut time — see AUTOMATED-AGENT-GIT-WORKFLOW.md Rule 3D). `dnd-app/` and `dungeon-scholar/` also keep their own per-project CHANGELOG.md. |
 
 ## Logs — active issues / debt
 
