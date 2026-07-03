@@ -2060,7 +2060,15 @@ def api_scene_delete(name):
 @app.route("/api/weather")
 def api_weather():
     force = str(request.args.get("force", "")).strip().lower() in {"1", "true", "yes", "on"}
-    return jsonify(weather.get_current(force_refresh=force))
+    try:
+        result = weather.get_current(force_refresh=force)
+    except Exception as e:  # noqa: BLE001
+        return fail(log, e, 500)
+    if isinstance(result, dict) and "error" in result:
+        # Service surfaced a raw exception string — log it, return generic.
+        log.warning("[weather] service error: %s", _s(result.get("error")))
+        return jsonify({"error": "weather unavailable"}), 502
+    return jsonify(result)
 
 
 @app.route("/api/location")
@@ -2766,6 +2774,8 @@ def api_commands_execute(name):
         return jsonify(result)
     except ImportError:
         return jsonify({"error": "Custom commands not available"}), 500
+    except Exception as e:  # noqa: BLE001
+        return fail(log, e, 500)
 
 
 # ── Memory API ──────────────────────────────────────────────────────

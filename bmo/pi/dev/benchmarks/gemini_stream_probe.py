@@ -15,8 +15,8 @@ load_dotenv(Path(_PI_ROOT) / ".env")
 def main() -> None:
     key = os.environ.get("GEMINI_API_KEY", "")
     url = (
-        f"https://generativelanguage.googleapis.com/v1beta/models/"
-        f"gemini-3-flash-preview:streamGenerateContent?key={key}&alt=sse"
+        "https://generativelanguage.googleapis.com/v1beta/models/"
+        "gemini-3-flash-preview:streamGenerateContent?alt=sse"
     )
 
     payload = {
@@ -25,7 +25,13 @@ def main() -> None:
         "generationConfig": {"temperature": 0.8, "maxOutputTokens": 2048},
     }
 
-    r = requests.post(url, json=payload, timeout=30, stream=True)
+    r = requests.post(
+        url,
+        json=payload,
+        headers={"x-goog-api-key": key},
+        timeout=30,
+        stream=True,
+    )
     event_num = 0
     for line in r.iter_lines(decode_unicode=True):
         if not line or not line.startswith("data: "):

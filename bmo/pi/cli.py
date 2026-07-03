@@ -330,7 +330,15 @@ def _show_setting_key(agent, key: str):
         _print_dim(f"{key} = (not set)")
     else:
         import json
-        if isinstance(value, (dict, list)):
+        from agents.settings import _SECRET_KEYS, _redact_secrets
+        # Never echo a secret value in clear text (CWE-312/532). Redact when the
+        # leaf key names a secret (api key / token / password).
+        leaf = key.rsplit(".", 1)[-1]
+        if leaf in _SECRET_KEYS and isinstance(value, str) and value:
+            formatted = "***"
+        elif isinstance(value, dict):
+            formatted = json.dumps(_redact_secrets(value), indent=2)
+        elif isinstance(value, list):
             formatted = json.dumps(value, indent=2)
         else:
             formatted = repr(value)

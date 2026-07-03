@@ -58,6 +58,32 @@ def truncate_output(text: str, max_len: int = MAX_OUTPUT_LENGTH) -> str:
     return text[:half] + f"\n\n... ({len(text) - max_len} chars truncated) ...\n\n" + text[-half:]
 
 
+# ── Path jail ─────────────────────────────────
+# Dev tools accept caller-supplied paths (LLM agentic loop + IDE HTTP
+# endpoints). Confine every filesystem sink to an allowlist of roots so a
+# traversal/absolute path cannot escape the developer sandbox (CWE-22).
+_ALLOWED_ROOTS = [
+    os.path.realpath(os.path.expanduser("~")),
+    "/tmp",
+]
+
+
+def _safe_path(raw: str) -> str:
+    """Resolve *raw* (expanduser + realpath) and confine it to _ALLOWED_ROOTS.
+
+    Raises PermissionError when the resolved path escapes every allowed root.
+    Callers feed the returned value to the filesystem sink so CodeQL sees a
+    realpath+allowed-root barrier before the sink (py/path-injection).
+    """
+    if not raw:
+        raise PermissionError("path is required")
+    resolved = os.path.realpath(os.path.expanduser(raw))
+    for root in _ALLOWED_ROOTS:
+        if resolved == root or resolved.startswith(root + os.sep):
+            return resolved
+    raise PermissionError(f"path outside dev sandbox: {resolved}")
+
+
 # ── Tool Implementations ──────────────────────────────────────────────
 
 def execute_command(cmd: str, cwd: str | None = None, timeout: int = 30, settings=None) -> dict:
@@ -171,7 +197,7 @@ def read_file(path: str, offset: int = 0, limit: int = 200) -> dict:
     Returns: {content, total_lines, truncated}
     """
     try:
-        path = os.path.expanduser(path)
+        path = _safe_path(path)
         with open(path, "r", encoding="utf-8", errors="replace") as f:
             lines = f.readlines()
 
@@ -194,7 +220,7 @@ def write_file(path: str, content: str) -> dict:
 
     Returns: {success, path, needs_confirmation}
     """
-    path = os.path.expanduser(path)
+    path = _safe_path(path)
 
     if os.path.exists(path):
         return {
@@ -215,7 +241,7 @@ def write_file(path: str, content: str) -> dict:
 def write_file_confirmed(path: str, content: str) -> dict:
     """Write file after user confirmation (overwrites existing)."""
     try:
-        path = os.path.expanduser(path)
+        path = _safe_path(path)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "w", encoding="utf-8") as f:
             f.write(content)
@@ -230,7 +256,7 @@ def edit_file(path: str, old_string: str, new_string: str) -> dict:
     Returns: {success, diff, needs_confirmation} if change found
     """
     try:
-        path = os.path.expanduser(path)
+        path = _safe_path(path)
         with open(path, "r", encoding="utf-8") as f:
             content = f.read()
 
@@ -261,7 +287,7 @@ def list_directory(path: str = ".") -> dict:
     Returns: {files, dirs, total}
     """
     try:
-        path = os.path.expanduser(path)
+        path = _safe_path(path)
         entries = os.listdir(path)
 
         files = []
@@ -285,7 +311,7 @@ def find_files(pattern: str, path: str = ".") -> dict:
     Returns: {matches, count}
     """
     try:
-        path = os.path.expanduser(path)
+        path = _safe_path(path)
         full_pattern = os.path.join(path, pattern)
         matches = sorted(glob_module.glob(full_pattern, recursive=True))
 
@@ -308,15 +334,15 @@ def grep_files(pattern: str, path: str = ".", file_glob: str = "*") -> dict:
     Returns: {matches: [{file, line, content}], count}
     """
     try:
-        path = os.path.expanduser(path)
+        path = _safe_path(path)
 
         # Try ripgrep first, then grep
         for cmd_name in ["rg", "grep"]:
             try:
                 if cmd_name == "rg":
-                    cmd = ["rg", "-n", "--max-count=50", "--glob", file_glob, pattern, path]
+                    cmd = ["rg", "-n", "--max-count=50", "--glob", file_glob, "--", pattern, path]
                 else:
-                    cmd = ["grep", "-rn", "--max-count=50", "--include", file_glob, pattern, path]
+                    cmd = ["grep", "-rn", "--max-count=50", "--include", file_glob, "-e", pattern, path]
 
                 result = subprocess.run(
                     cmd, capture_output=True, text=True, timeout=10,
@@ -472,6 +498,20 @@ def git_command_args(args: list[str], repo_path: str = ".", timeout: int = 30) -
     Returns: {output, exit_code, truncated} on success; {needs_confirmation,
     command, reason} when the operation matches destructive_git below.
     """
+    # Argument-injection guard (CWE-88): the first token must be a known git
+    # subcommand, never an option/flag. Exact-token allowlist breaks the taint.
+    _ALLOWED_GIT_SUBCMDS = {
+        "status", "log", "diff", "show", "rev-parse", "branch", "checkout",
+        "add", "commit", "restore", "stash", "fetch", "pull", "push", "reset",
+        "clean", "remote", "config", "ls-files", "blame", "tag", "merge",
+        "rebase", "cherry-pick", "describe", "rev-list", "for-each-ref",
+    }
+    if not args or args[0] not in _ALLOWED_GIT_SUBCMDS:
+        return {
+            "output": f"Error: unsupported git subcommand: {args[0] if args else '(none)'}",
+            "exit_code": -1,
+        }
+
     cmd = ["git", "-C", os.path.expanduser(repo_path), *args]
 
     # Same destructive checks as git_command, but on the args list (no
