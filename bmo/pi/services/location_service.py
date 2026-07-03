@@ -37,6 +37,35 @@ AUTO_SYSTEM_TIMEZONE = os.environ.get("BMO_AUTO_SYSTEM_TIMEZONE", "1").strip().l
     "no",
 }
 
+
+def _env_flag(name: str, default: str = "") -> str:
+    return os.environ.get(name, default).strip().lower()
+
+
+# When to trust the configured BMO_WEATHER_* coordinates over IP geolocation.
+#
+# IP geolocation (ipwho.is / ipapi.co) is unreliable on this box: the Pi reaches
+# the internet through a Cloudflare tunnel / the ISP egress, so the resolved IP
+# geolocates to the provider's guess for that egress -- which repeatedly
+# collapses to the geographic centre of the US (~Kansas) and silently overwrites
+# the correct, operator-configured location. When an explicit location is
+# configured we PIN to it and skip IP geolocation entirely.
+#
+#   BMO_LOCATION_PIN=1  -> always pin to configured coords/label (recommended)
+#   BMO_LOCATION_PIN=0  -> never pin (legacy behaviour: trust IP geolocation)
+#   BMO_LOCATION_PIN unset -> auto: pin when BMO_WEATHER_LATITUDE/LONGITUDE are
+#                             both explicitly set in the environment.
+def _location_is_pinned() -> bool:
+    flag = _env_flag("BMO_LOCATION_PIN")
+    if flag in {"1", "true", "yes", "on"}:
+        return True
+    if flag in {"0", "false", "no", "off"}:
+        return False
+    return bool(
+        os.environ.get("BMO_WEATHER_LATITUDE", "").strip()
+        and os.environ.get("BMO_WEATHER_LONGITUDE", "").strip()
+    )
+
 _PI_DATA = Path(__file__).resolve().parent.parent / "data"
 _CACHE_PATH = _PI_DATA / "location_cache.json"
 _SETTINGS_PATH = _PI_DATA / "settings.json"
@@ -341,6 +370,27 @@ def _mls_wifi_location() -> dict | None:
         return None
 
 
+def _configured_location() -> dict:
+    """Build a location dict from the operator-configured BMO_WEATHER_* env.
+
+    Used when the location is pinned (see ``_location_is_pinned``). The label
+    prefers an explicit BMO_WEATHER_LOCATION_LABEL; otherwise it reuses the
+    package default label.
+    """
+    label = os.environ.get("BMO_WEATHER_LOCATION_LABEL", "").strip()
+    return {
+        "latitude": DEFAULT_LOCATION["latitude"],
+        "longitude": DEFAULT_LOCATION["longitude"],
+        "timezone": DEFAULT_LOCATION["timezone"],
+        "city": "",
+        "region": "",
+        "country": "",
+        "location_label": label or DEFAULT_LOCATION["location_label"],
+        "source": "configured",
+        "updated_at": time.time(),
+    }
+
+
 class LocationService:
     """Resolves and caches current location/timezone for BMO services."""
 
@@ -348,7 +398,13 @@ class LocationService:
         self._lock = threading.Lock()
         self._running = False
         self._poll_thread: threading.Thread | None = None
-        self._cache = self._load_cache() or dict(DEFAULT_LOCATION)
+        # When the location is pinned, always start from the configured
+        # location and ignore any stale on-disk cache (which may hold a bad
+        # IP-geolocation result, e.g. the Kansas US-centroid fallback).
+        if _location_is_pinned():
+            self._cache = _configured_location()
+        else:
+            self._cache = self._load_cache() or dict(DEFAULT_LOCATION)
 
     def get_location(self, force_refresh: bool = False) -> dict:
         """Return location data, refreshing if stale."""
@@ -365,8 +421,20 @@ class LocationService:
         """Attempt provider refresh and return latest location (cached on success)."""
         with self._lock:
             current = dict(self._cache)
+        # A fresh, explicit device-provided location always wins -- the operator
+        # (or their phone) set it deliberately.
         if self._is_fresh_device_location(current):
             return current
+        # Otherwise, when pinned, never let IP/WiFi geolocation override the
+        # operator-configured coordinates. This is what stops the dashboard from
+        # silently reverting to Kansas (the US-centroid IP fallback).
+        if _location_is_pinned():
+            pinned = _configured_location()
+            with self._lock:
+                self._cache = pinned
+            self._save_cache(pinned)
+            self._sync_system_timezone(pinned.get("timezone", ""))
+            return dict(pinned)
 
         mozilla_wifi = _mls_wifi_location()
         if mozilla_wifi:
