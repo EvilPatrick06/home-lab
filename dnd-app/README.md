@@ -154,7 +154,7 @@ npm run circular               # dpdm circular-deps report
 npm run check:release          # mirror the CI preflight gates before cutting a tag
 ```
 
-Current baseline: **861 test files**, lint + both tsc projects clean.
+Current baseline: **862 test files**, lint + both tsc projects clean.
 
 ## Multiplayer architecture (Phase 29)
 
