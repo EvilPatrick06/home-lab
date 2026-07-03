@@ -111,8 +111,18 @@ def valid_entity_id(entity_id: str) -> bool:
 
 
 def _blob_path(user_id: str, domain: str, entity_id: str) -> str:
+    # Defense-in-depth path jail (CWE-22): the routes already gate on
+    # valid_domain()/valid_entity_id(), but this store is the sink so it
+    # re-validates here. `domain` must be a path-safe slug; `entity_id` is
+    # base64url-encoded so the filename can never contain `/`, `.` or `\`.
+    if not valid_domain(domain):
+        raise ValueError("invalid sync domain")
     fname = base64.urlsafe_b64encode(entity_id.encode("utf-8")).decode("ascii").rstrip("=") + ".bin"
-    return os.path.join(_root(), str(user_id), domain, fname)
+    root = os.path.realpath(_root())
+    resolved = os.path.realpath(os.path.join(root, str(user_id), domain, fname))
+    if not resolved.startswith(root + os.sep):
+        raise ValueError("resolved blob path escapes the sync root")
+    return resolved
 
 
 def _meta_from_row(row: sqlite3.Row) -> dict:

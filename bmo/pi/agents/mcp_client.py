@@ -21,6 +21,40 @@ from typing import Any
 from services.bmo_logging import _s, get_logger
 log = get_logger("mcp_client")
 
+# stdio MCP servers are launched via subprocess. `command`/`args` come from the
+# server config, which /api/mcp/servers/add lets an authenticated client supply,
+# so the launch is a command-injection sink (CWE-78). It already uses an argv
+# list with shell=False (no shell metachar parsing); the remaining exposure is
+# an arbitrary executable. Restrict the launcher to the interpreters MCP stdio
+# servers legitimately use (or an absolute path under the repo), and require
+# args to be a flat list of strings.
+_MCP_ALLOWED_COMMANDS = frozenset({
+    "python", "python3", "node", "npx", "uv", "uvx", "deno", "bun",
+})
+
+
+def _validate_stdio_command(command: str, args: list) -> list[str]:
+    """Validate a stdio launcher into a safe argv list, or raise ValueError.
+
+    Allows a bare interpreter name from _MCP_ALLOWED_COMMANDS, or an absolute
+    path to an executable inside the home-lab checkout. Rejects everything else
+    (shell metacharacters, arbitrary abs paths like /bin/sh, non-string args)."""
+    if not isinstance(command, str) or not command:
+        raise ValueError("mcp stdio command must be a non-empty string")
+    base = os.path.basename(command)
+    repo_root = os.path.realpath(os.path.expanduser("~/home-lab"))
+    if command in _MCP_ALLOWED_COMMANDS or base in _MCP_ALLOWED_COMMANDS:
+        pass
+    elif os.path.isabs(command):
+        resolved = os.path.realpath(command)
+        if not resolved.startswith(repo_root + os.sep):
+            raise ValueError(f"mcp stdio command outside allowlist: {command}")
+    else:
+        raise ValueError(f"mcp stdio command not allowlisted: {command}")
+    if not isinstance(args, list) or not all(isinstance(a, str) for a in args):
+        raise ValueError("mcp stdio args must be a list of strings")
+    return [command, *args]
+
 
 class McpClient:
     """Manages connection to a single MCP server."""
@@ -196,8 +230,13 @@ class McpClient:
         env = dict(os.environ)
         env.update(env_overrides)
 
-        # Build full command
-        cmd = [command] + args
+        # Build + validate full command (argv list, shell=False). Rejects any
+        # non-allowlisted executable before spawning (CWE-78).
+        try:
+            cmd = _validate_stdio_command(command, args)
+        except ValueError as exc:
+            log.warning("[mcp:%s] Rejected stdio launcher: %s", _s(self.name), _s(exc))
+            return False
 
         try:
             self._process = subprocess.Popen(

@@ -19,6 +19,28 @@ from pathlib import Path
 USER_BMO_MD = str(_P_DATA_DIR / "BMO.md")
 PROJECT_CONFIGS_DIR = str(_P_DATA_DIR / "projects")
 
+# BMO.md may only be created under these roots. /api/init and the CLI pass a
+# caller-supplied directory straight through, so create_bmo_md() realpath-jails
+# it (CWE-22) to the monorepo checkout and an opt-in scratch workspace. Anything
+# else (/etc, ~/.ssh, arbitrary abs/`..` paths) is rejected.
+_BMO_MD_ALLOWED_ROOTS = [
+    os.path.realpath(os.path.expanduser("~/home-lab")),
+    os.path.realpath(os.path.expanduser("~/.bmo_ide_workspace")),
+    os.path.realpath(str(_P_DATA_DIR)),
+]
+
+
+def _bmo_md_safe_dir(directory: str) -> str:
+    """Resolve `directory` through expanduser+realpath; raise PermissionError
+    if it is outside _BMO_MD_ALLOWED_ROOTS. Used by create_bmo_md()."""
+    if not directory:
+        raise PermissionError("directory is required")
+    resolved = os.path.realpath(os.path.expanduser(directory))
+    for root in _BMO_MD_ALLOWED_ROOTS:
+        if resolved == root or resolved.startswith(root + os.sep):
+            return resolved
+    raise PermissionError(f"directory outside BMO.md sandbox: {resolved}")
+
 
 def find_bmo_md(working_dir: str | None = None) -> list[str]:
     """Find all BMO.md files from user-level to working directory.
@@ -95,6 +117,8 @@ def create_bmo_md(directory: str, content: str | None = None) -> str:
     Returns:
         Path to the created file.
     """
+    directory = _bmo_md_safe_dir(directory)
+
     if content is None:
         content = _default_template(directory)
 
