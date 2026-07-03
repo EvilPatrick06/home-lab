@@ -3,6 +3,7 @@ import { useMemo, useRef, useState } from 'react';
 import { encodeTomeShareCode, stripLocalOnlyTomeFields } from '../../game/tome.js';
 import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 import { exportTomeCsv } from '../../services/deckImport.js';
+import { openPrintableTome } from '../../services/printExport.js';
 import { isSealedTome, sealTome } from '../../services/sealedTome.js';
 
 // Phase 30i QA #19: tomes whose share code exceeds this threshold default to
@@ -210,6 +211,24 @@ function ShareTomeModal({ tome, onClose }) {
               >
                 <Download className="w-4 h-4" /> Download flashcards as CSV (Quizlet)
               </button>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => openPrintableTome(tome, { withAnswers: true })}
+                  className="flex-1 py-2 rounded-sm text-amber-100 border-2 border-amber-700/70 italic text-sm"
+                  style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)' }}
+                >
+                  ⎙ Print / PDF (with answers)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openPrintableTome(tome, { withAnswers: false })}
+                  className="flex-1 py-2 rounded-sm text-amber-100 border-2 border-amber-700/70 italic text-sm"
+                  style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.7)' }}
+                >
+                  ⎙ Print / PDF (questions only)
+                </button>
+              </div>
               <details
                 className="text-xs italic text-amber-700/85"
                 onToggle={(e) => setShowRawCode(e.currentTarget.open)}
@@ -280,6 +299,22 @@ function ShareTomeModal({ tome, onClose }) {
               >
                 <Download className="w-3 h-3" /> Download flashcards as CSV (Quizlet)
               </button>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => openPrintableTome(tome, { withAnswers: true })}
+                  className="text-xs italic text-amber-300 hover:text-amber-100 flex items-center gap-1"
+                >
+                  ⎙ Print / PDF (with answers)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openPrintableTome(tome, { withAnswers: false })}
+                  className="text-xs italic text-amber-300 hover:text-amber-100 flex items-center gap-1"
+                >
+                  ⎙ questions only
+                </button>
+              </div>
             </>
           )}
 

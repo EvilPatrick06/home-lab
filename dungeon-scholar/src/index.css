@@ -361,3 +361,19 @@ html[data-dyslexia="true"] body {
     outline: 2px solid Highlight;
   }
 }
+
+
+/* Print fallback (sugg-pdf-print-export): primary print path opens a clean
+ * standalone study sheet in a new window (services/printExport.js). This is a
+ * defensive @media print rule if a learner prints the app itself: hide the
+ * dungeon canvas + chrome so the printout is not a screenshot of game UI. */
+@media print {
+  canvas,
+  [data-print-hide="true"] {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+    color: #111 !important;
+  }
+}
