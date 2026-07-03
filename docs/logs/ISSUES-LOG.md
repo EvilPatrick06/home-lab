@@ -39,54 +39,6 @@ How to triage: [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md)
 
 **Related entries:** `RESOLVED-ISSUES.md` -> [2026-06-24] deploy-workflow filename convention, [2026-06-28] inconsistent push branch filters (same "convention swept later" hazard class).
 
-### [2026-07-02] Gitignored `SECURITY-LOG.md` is incompatible with the per-agent-worktree model: worktree appends are silently lost, main-checkout writes race unserialized
-
-- **Category:** config, debt
-- **Severity:** medium
-- **Domain:** both
-- **Discovered by:** overall-errors
-- **During:** cross-cutting scan of the automated-agent git workflow vs. the logging conventions
-
-**Description:**
-`docs/logs/SECURITY-LOG.md` is gitignored (`.gitignore:140`) and exists only in the main checkout working tree (`/home/patrick/home-lab/docs/logs/SECURITY-LOG.md`, actively written — mtime today). But since the 2026-06-22 incident every automated agent works in its own worktree at `/home/patrick/home-lab-trees/<agent-id>` (Rule 1, `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`), where the gitignored file does NOT exist. `docs/LOG-INSTRUCTIONS.md` directs ALL security entries (any domain) to `SECURITY-LOG.md` with no worktree guidance, which leaves two failure modes: (1) an agent that follows the instructions literally appends to `docs/logs/SECURITY-LOG.md` **inside its worktree** — the file is untracked, never rides the `auto/*` branch, is never merged by the integrator, and is deleted with the worktree: the security finding is **silently lost**; (2) an agent that instead writes directly to the main checkout's copy bypasses every safety mechanism that the worktree model added — no branch isolation, no union merge (the `.gitattributes` `SECURITY-LOG*` union rule is inert on an untracked file, as the workflow doc itself notes), and only an out-of-repo, undocumented lock (`/home/patrick/home-lab-locks/security-log.lock` exists on the host, so some agent tooling does flock the file — but no repo doc mentions it, so nothing guarantees every writer uses it) — so a security-logging agent that skips the undocumented lock can interleave with or clobber another (exactly the lost-update class the 2026-06-22 fix eliminated for the tracked logs). `AGENTS.md` (the "append-only logs … use a merge=union driver" sentence) even lists `SECURITY-LOG` among the union-protected logs, overstating the protection.
-
-**Expected behavior:** one documented, race-safe convention for security logging from automated agents — e.g. (a) each agent appends via a small helper that flocks the main-checkout file, or (b) agents write per-agent security fragments that a single consumer consolidates, or (c) the log is split like the other logs and tracked with entries kept value-free (the "never log the secret value" rule already targets this) so it rides branches + union merge like everything else.
-
-**Hypothesis / root cause:** the worktree/branch model (2026-06-22) was retrofitted onto the logging conventions, and `SECURITY-LOG.md` — the only *gitignored* active log — was overlooked because git-based protections (branch isolation + union merge) simply don't apply to it. Verified: `.gitignore:140`; file absent from a fresh worktree; present + recently modified in the main checkout; no guidance in `LOG-INSTRUCTIONS.md` / `AUTOMATED-AGENT-GIT-WORKFLOW.md` on which path a worktree agent should write.
-
-**Proposed fix / improvement:**
-- [ ] Decide the convention (flock-guarded append to the main-checkout file is the smallest change; the notify/board tooling already lives outside the repo similarly).
-- [ ] Document it in `docs/LOG-INSTRUCTIONS.md` (security section) and `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md` Rule 2 caveat.
-- [ ] Correct the `AGENTS.md` sentence that implies `SECURITY-LOG` gets union-merge protection.
-
-**Related files:** `.gitignore`, `docs/logs/SECURITY-LOG.md` (untracked), `docs/LOG-INSTRUCTIONS.md`, `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`, `AGENTS.md`
-
-**Related entries:** `RESOLVED-ISSUES.md` -> 2026-06-22/23 worktree-model entries (this is the one log the model doesn't cover).
-
-### [2026-07-02] `LOG-INSTRUCTIONS.md` grep-first dup-check + resolved-routing are stale: they omit the cross-cutting pointer logs (`ISSUES-LOG.md`, `SUGGESTIONS-LOG.md`) and `RESOLVED-ISSUES.md`
-
-- **Category:** config, docs
-- **Severity:** low
-- **Domain:** both
-- **Discovered by:** overall-errors
-- **During:** cross-cutting scan; followed the doc's own grep-first procedure and noticed it cannot find this log's entries
-
-**Description:**
-`docs/LOG-INSTRUCTIONS.md` predates (in three spots) the cross-cutting pointer-log model it elsewhere describes. (1) The canonical grep-first dedup command ("How to append", line ~210) enumerates seven logs but omits `docs/logs/ISSUES-LOG.md` and `docs/logs/SUGGESTIONS-LOG.md` — the exact logs the `overall-*` scanners write to. An agent following it verbatim will never see an already-logged cross-cutting entry and will re-log duplicates (the anti-dup rule defeats itself for the cross-cutting domain). (2) The Quick-reference says "grep all five tracked active logs" — there are seven tracked active logs. (3) The "After fixing a logged issue" routing lists only the three per-domain resolved archives (+ security) and says `Domain: both` entries file under the domain the fix touched — but actual practice (and `RESOLVED-ISSUES.md` itself, which carries a "## Cross-cutting resolved (overall-resolver)" section with entries since 2026-06-29) is to archive resolved pointer-log entries in `RESOLVED-ISSUES.md`. The doc never names `RESOLVED-ISSUES.md` as a valid destination, so doc and practice diverge; the "Which log goes where" table likewise omits it (and `RESOLVED-ISSUES-DNDAPP.md`'s cross-cutting sibling role).
-
-**Expected behavior:** the dedup grep covers all active tracked logs including both pointer logs; the Quick-reference count matches; the resolved-routing table names `RESOLVED-ISSUES.md` (cross-cutting section) as the archive for pointer-log entries, matching what `overall-resolver` already does.
-
-**Hypothesis / root cause:** the pointer-log `# Cross-cutting` sections were introduced (~2026-06-29, per the routing paragraphs added to `ISSUES-LOG.md`/`SUGGESTIONS-LOG.md` headers) after `LOG-INSTRUCTIONS.md`'s procedural sections were last swept; only the triage table was updated, not the grep command / quick-reference / resolved-routing.
-
-**Proposed fix / improvement:**
-- [ ] Add `docs/logs/ISSUES-LOG.md docs/logs/SUGGESTIONS-LOG.md` to the grep-first command.
-- [ ] Fix the "five tracked active logs" count and add `RESOLVED-ISSUES.md` to the after-fix routing (cross-cutting entries -> its `## Cross-cutting resolved` section).
-- [ ] While there, add `RESOLVED-ISSUES.md` to the "Which log goes where" table for completeness.
-
-**Related files:** `docs/LOG-INSTRUCTIONS.md`, `docs/logs/ISSUES-LOG.md`, `docs/logs/SUGGESTIONS-LOG.md`, `docs/logs/RESOLVED-ISSUES.md`
-
-**Related entries:** none (checked both pointer logs + per-domain logs for prior mentions).
-
 ### [2026-06-29] CI concurrency convention has gaps: dungeon-scholar-ci + four mechanical-guard workflows have no `concurrency:` group, so push bursts pile up redundant runs
 
 - **Category:** config, performance, debt
