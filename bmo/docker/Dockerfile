@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM python:3.11-slim-bookworm
+FROM python:3.11-slim-bookworm@sha256:721dc13fd1be0a771e54b72097634291d628d0007dee9da777e2ce676a9c998f
 ARG REQUIREMENTS=requirements.txt        # CI overrides with requirements-ci.txt
 RUN apt-get update && apt-get install -y --no-install-recommends \
       build-essential portaudio19-dev libsndfile1 ffmpeg vlc curl \

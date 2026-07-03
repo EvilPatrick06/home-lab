@@ -10,6 +10,7 @@ on:
       - ".github/actions/**"
       - "docs/**"
       - "scripts/check-ci-hygiene.sh"
+      - "scripts/check-md-links.sh"
       - ".nvmrc"
   pull_request:
     paths:
@@ -17,14 +18,20 @@ on:
       - ".github/actions/**"
       - "docs/**"
       - "scripts/check-ci-hygiene.sh"
+      - "scripts/check-md-links.sh"
       - ".nvmrc"
 
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   guards:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
@@ -33,6 +40,7 @@ jobs:
 
   zizmor:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
@@ -43,3 +51,44 @@ jobs:
           online-audits: "false"
           version: "1.26.1"
           advanced-security: "false"
+
+  # actionlint - workflow *correctness* linting (shellcheck over run: steps,
+  # invalid expression interpolations, bad needs:/matrix refs, unknown event
+  # keys). Complements the zizmor job (which covers workflow *security*). The
+  # binary is downloaded at a pinned version and verified against its published
+  # SHA-256 digest, so no mutable tag is trusted (mirrors the GUARD 2 pinning
+  # posture). See scripts/check-ci-hygiene.sh header note.
+  actionlint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      ACTIONLINT_VERSION: "1.7.12"
+      ACTIONLINT_SHA256: "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8"
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
+      - name: Download and verify actionlint
+        run: |
+          set -euo pipefail
+          url="https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          curl -fsSL "$url" -o actionlint.tar.gz
+          echo "${ACTIONLINT_SHA256}  actionlint.tar.gz" | sha256sum -c -
+          tar -xzf actionlint.tar.gz actionlint
+          chmod +x actionlint
+      - name: Run actionlint
+        run: ./actionlint -color
+
+  # markdown link-integrity - the tracked docs are the agent-coordination fabric,
+  # cross-linked by relative path; archiving/renaming rots inbound links silently.
+  # Runs OFFLINE (relative links only, no external fetch). WARN-ONLY for now while
+  # the pre-existing link backlog is triaged (the script exits 0 in that mode);
+  # drop --warn-only to enforce once cleared. See SUGGESTIONS-LOG md-link-check.
+  md-links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
+      - run: bash scripts/check-md-links.sh --warn-only

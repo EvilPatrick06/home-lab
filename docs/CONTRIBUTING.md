@@ -287,3 +287,59 @@ Two intentional spellings worth calling out so they are not "fixed" by drift:
   it deploys the dnd-app **web** build specifically, distinct from the Electron
   desktop release cut by `release.yml`. The project directory and its CI
   workflow use the `dnd-app` prefix; this one deliberately does not.
+
+Workflow **`name:` strings are load-bearing**: `workflow_run` consumers
+(`bmo-deploy.yml`, `ci-failure-triage.yml`) match against another workflow's
+display `name:`, not its filename. Renaming a referenced workflow silently
+severs the trigger — GitHub raises no error. `scripts/check-ci-hygiene.sh`
+(GUARD 6) now fails CI if a `workflow_run.workflows` entry does not resolve to a
+declared `name:`, but keep the coupling in mind when renaming.
+
+
+## Repo-wide tooling conventions
+
+Shared-tooling decisions that apply across the four code areas. Most are
+mechanically guarded by `scripts/check-ci-hygiene.sh` so they cannot drift.
+
+- **Shared config bases.** Lint/format defaults live in root `biome.base.json`
+  (every project's `biome.json` extends it); TS compiler defaults live in root
+  `tsconfig.base.json` (each project tsconfig extends it and overrides only
+  project-specific options — lib/jsx/allowJs/checkJs/strict/types/paths).
+  `dnd-app/mobile/tsconfig.json` extends `expo/tsconfig.base` instead, since it
+  is the only React Native / Expo project (see mobile-shared-src below).
+- **Biome tool version is single-sourced.** The three biome projects pin the
+  same `@biomejs/biome` version; the husky hook uses each project's local binary
+  rather than a hook-embedded version literal. GUARD 10 asserts the versions
+  match, so local pre-commit and CI never lint the same diff with different
+  binaries. `biome.base.json` changes must be valid for that pinned version.
+- **Node floor.** Root `.nvmrc` is authoritative; every `package.json` (incl.
+  `dnd-app/mobile`) declares `"engines": { "node": ">=22" }` matching it.
+- **`audit:ci` threshold.** All npm projects — including the internet-facing
+  `oracle-worker` and `dnd-app/mobile` — run `npm audit --omit=dev
+  --audit-level=moderate`. Do not loosen a project below `moderate`.
+- **Tooling-config file extension.** Build/test config files (Vite, Vitest,
+  Playwright, PostCSS) are authored in **TypeScript (`.ts`)** — the flagship
+  `dnd-app` convention (typed plugin options). `dungeon-scholar` historically
+  authored `vite.config.js` / `postcss.config.js` in plain JS; new tooling
+  configs should be `.ts`, and the dungeon-scholar configs may be migrated to
+  `.ts` when touched. (Decision recorded here rather than doing a bulk rename,
+  which would ride along unrelated config churn.)
+- **LICENSE copies.** Each package keeps its own `LICENSE` (they are
+  independently cloneable). GUARD 9 asserts every `*/LICENSE` is byte-identical
+  to the root `LICENSE`; a license/holder change must edit all copies in
+  lockstep.
+
+### `dnd-app/mobile` shared-source reuse (long-term approach)
+
+`dnd-app/mobile` type-checks against `dnd-app/src/shared/*` (the bridge
+protocol/types) via a **tsconfig path alias** (`@shared/*` → `../src/shared/*`),
+not TS project references or a workspace package. This is the deliberate
+long-term approach for the current layout: `src/shared` is physically part of
+the dnd-app project (compiled by its web/node tsconfigs), and both TS project
+references (require a standalone-buildable `composite` project + resolvable
+`@msgpack/msgpack` from dnd-app's node_modules, which the mobile CI job does not
+install) and a workspace-package extraction (135 relative importers, a
+`shared/` name collision with renderer UI components, and no root workspace
+tooling) are higher-blast-radius migrations that must be validated by a full
+dnd-app build + vitest run. Until that larger migration is undertaken
+interactively, the path-mapping is the standard, correct choice — keep it.

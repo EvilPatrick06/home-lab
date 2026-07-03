@@ -25,6 +25,7 @@ concurrency:
 jobs:
   gate:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
       has-secrets: ${{ steps.check.outputs.ok }}
     steps:

@@ -25,26 +25,22 @@
 *.PDF filter=lfs diff=lfs merge=lfs -text
 *.asar filter=lfs diff=lfs merge=lfs -text
 *.blockmap filter=lfs diff=lfs merge=lfs -text
-dnd-app/docs/phases/QA/screenshots/*.png filter=lfs diff=lfs merge=lfs -text
-dnd-app/docs/phases/QA/screenshots/*.jpg filter=lfs diff=lfs merge=lfs -text
-dnd-app/docs/phases/QA/screenshots/*.jpeg filter=lfs diff=lfs merge=lfs -text
-dnd-app/docs/phases/QA/screenshots/*.gif filter=lfs diff=lfs merge=lfs -text
-dnd-app/docs/phases/QA/screenshots/*.webp filter=lfs diff=lfs merge=lfs -text
-dungeon-scholar/docs/phases/QA/screenshots/*.png filter=lfs diff=lfs merge=lfs -text
-dungeon-scholar/docs/phases/QA/screenshots/*.jpg filter=lfs diff=lfs merge=lfs -text
-dungeon-scholar/docs/phases/QA/screenshots/*.jpeg filter=lfs diff=lfs merge=lfs -text
-dungeon-scholar/docs/phases/QA/screenshots/*.gif filter=lfs diff=lfs merge=lfs -text
-dungeon-scholar/docs/phases/QA/screenshots/*.webp filter=lfs diff=lfs merge=lfs -text
-bmo/docs/phases/QA/screenshots/*.png filter=lfs diff=lfs merge=lfs -text
-bmo/docs/phases/QA/screenshots/*.jpg filter=lfs diff=lfs merge=lfs -text
-bmo/docs/phases/QA/screenshots/*.jpeg filter=lfs diff=lfs merge=lfs -text
-bmo/docs/phases/QA/screenshots/*.gif filter=lfs diff=lfs merge=lfs -text
-bmo/docs/phases/QA/screenshots/*.webp filter=lfs diff=lfs merge=lfs -text
-bmo/docs/phases/QA/completed/screenshots/*.png filter=lfs diff=lfs merge=lfs -text
-bmo/docs/phases/QA/completed/screenshots/*.jpg filter=lfs diff=lfs merge=lfs -text
-bmo/docs/phases/QA/completed/screenshots/*.jpeg filter=lfs diff=lfs merge=lfs -text
-bmo/docs/phases/QA/completed/screenshots/*.gif filter=lfs diff=lfs merge=lfs -text
-bmo/docs/phases/QA/completed/screenshots/*.webp filter=lfs diff=lfs merge=lfs -text
+# QA-screenshot LFS: generic ** globs cover every project (dnd-app, dungeon-scholar,
+# bmo, and any future one) plus the bmo QA/completed/ variant, so a new phases/QA
+# dir or screenshot extension is LFS-tracked without editing this file. Mirrors the
+# **/docs/DESIGN-CONSTRAINTS.md idiom below.
+**/docs/phases/QA/screenshots/*.png filter=lfs diff=lfs merge=lfs -text
+**/docs/phases/QA/screenshots/*.jpg filter=lfs diff=lfs merge=lfs -text
+**/docs/phases/QA/screenshots/*.jpeg filter=lfs diff=lfs merge=lfs -text
+**/docs/phases/QA/screenshots/*.gif filter=lfs diff=lfs merge=lfs -text
+**/docs/phases/QA/screenshots/*.webp filter=lfs diff=lfs merge=lfs -text
+# The bmo QA flow also keeps a completed/ subdir of screenshots; cover it with
+# the same generic ** globs so archived QA shots stay LFS-tracked.
+**/docs/phases/QA/completed/screenshots/*.png filter=lfs diff=lfs merge=lfs -text
+**/docs/phases/QA/completed/screenshots/*.jpg filter=lfs diff=lfs merge=lfs -text
+**/docs/phases/QA/completed/screenshots/*.jpeg filter=lfs diff=lfs merge=lfs -text
+**/docs/phases/QA/completed/screenshots/*.gif filter=lfs diff=lfs merge=lfs -text
+**/docs/phases/QA/completed/screenshots/*.webp filter=lfs diff=lfs merge=lfs -text
 
 # --- Append-only log docs: union merge ---------------------------------------
 # Concurrent appends from parallel automated-agent branches (auto/<agent-id>)

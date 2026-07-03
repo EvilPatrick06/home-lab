@@ -15,6 +15,7 @@ Each project's own README has the details:
 - 📖 [`dnd-app/README.md`](./dnd-app/README.md)
 - 📖 [`bmo/README.md`](./bmo/README.md)
 - 📖 [`dungeon-scholar/README.md`](./dungeon-scholar/README.md)
+- 📖 [`oracle-worker/README.md`](./oracle-worker/README.md)
 
 ## Try it (no source build required)
 
@@ -100,7 +101,8 @@ Tool-specific instruction files: [`CLAUDE.md`](./CLAUDE.md), [`GEMINI.md`](./GEM
 - [`docs/SECURITY.md`](./docs/SECURITY.md) — posture, reporting, secret-handling
 - [`docs/CONTRIBUTING.md`](./docs/CONTRIBUTING.md) — branch / commit conventions
 - [`docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`](./docs/AUTOMATED-AGENT-GIT-WORKFLOW.md) — per-agent branch + worktree + integrator workflow
-- [`docs/CHANGELOG.md`](./docs/CHANGELOG.md) — release history
+- [`docs/AGENT-FLEET.md`](./docs/AGENT-FLEET.md) — registry of the scheduled agents (id, scope, branch, log targets)
+- [`docs/CHANGELOG.md`](./docs/CHANGELOG.md) — frozen release archive (<= v2.1.16); current notes on GitHub Releases
 
 **Active logs (split by domain — grep before opening a "new" bug):**
 - Bugs: [`docs/logs/ISSUES-LOG-DNDAPP.md`](./docs/logs/ISSUES-LOG-DNDAPP.md) · [`docs/logs/BMO-ISSUES-LOG.md`](./docs/logs/BMO-ISSUES-LOG.md) · [`docs/logs/ISSUES-LOG-DUNGEON-SCHOLAR.md`](./docs/logs/ISSUES-LOG-DUNGEON-SCHOLAR.md)

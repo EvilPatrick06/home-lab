@@ -21,12 +21,17 @@ if staged | grep -q '^dnd-app/'; then
     ( cd dnd-app && npx tsc --noEmit -p tsconfig.web.json ) || exit 1
   fi
 fi
+# dnd-app/mobile: its OWN biome + tsc floor. Mobile has a distinct biome.json
+# and an Expo/RN tsconfig that the dnd-app web tsconfig does not cover, so a
+# mobile-only change must be checked under mobile config, not the dnd-app block
+# above (which excludes dnd-app/mobile/** for exactly this reason).
 if staged | grep -q '^dnd-app/mobile/'; then
   MOB_STAGED=$(staged | grep '^dnd-app/mobile/' | sed 's#^dnd-app/mobile/##')
-  ( cd dnd-app/mobile && npx --yes @biomejs/biome@2.5.0 check --no-errors-on-unmatched $MOB_STAGED ) || exit 1
+  ( cd dnd-app/mobile && ./node_modules/.bin/biome check --no-errors-on-unmatched $MOB_STAGED ) || exit 1
+  ( cd dnd-app/mobile && npx tsc --noEmit ) || exit 1
 fi
 
-# dungeon-scholar: Biome on staged files (S10/S25). Run from INSIDE dungeon-scholar
+# dungeon-scholar: Biome + vitest on staged changes (S10/S25). Run from INSIDE dungeon-scholar
 # so its biome.json is the project root (same per-project scoping as the dnd-app
 # block above — avoids Biome's "nested root configuration" error that occurs when
 # biome runs from the repo root and discovers both subproject roots at once).
@@ -35,7 +40,9 @@ fi
 # `npx biome` must NOT be used: it resolves to an unrelated abandoned `biome`
 # package, not the linter, and aborts in non-interactive (hook) contexts.
 if staged | grep -q '^dungeon-scholar/'; then
-  ( cd dungeon-scholar && npx --yes @biomejs/biome@2.5.0 check --staged --no-errors-on-unmatched ) || exit 1
+  ( cd dungeon-scholar && npx --yes @biomejs/biome@2.5.1 check --staged --no-errors-on-unmatched ) || exit 1
+  echo "[pre-commit] dungeon-scholar changes staged - running its tests..."
+  ( cd dungeon-scholar && npm test --silent ) || exit 1
 fi
 
 # Secret scan across the staged set (folded in from the old .githooks shim).
@@ -48,16 +55,6 @@ else
   echo "[pre-commit] WARNING: gitleaks not installed - local secret scan SKIPPED." >&2
   echo "[pre-commit]   Install it (https://github.com/gitleaks/gitleaks) for local pre-commit scanning." >&2
   echo "[pre-commit]   The secret-scan CI workflow still runs on push/PR as the backstop." >&2
-fi
-
-# dungeon-scholar (VTT) pre-flight: when its files are staged, run its vitest
-# suite so a dungeon-scholar-only commit gets a local gate too (the husky hook
-# previously gated dnd-app alone). CI (.github/workflows/dungeon-scholar-ci.yml) is
-# authoritative; this is a fast local pre-flight. Escape hatch: git commit --no-verify.
-cd "$(git rev-parse --show-toplevel)" || exit 1
-if git diff --cached --name-only --diff-filter=ACMR | grep -q "^dungeon-scholar/"; then
-  echo "[pre-commit] dungeon-scholar changes staged - running its tests..."
-  ( cd dungeon-scholar && npm test --silent ) || exit 1
 fi
 
 # bmo/pi (Python) pre-flight: when pi files are staged, run ruff on the staged

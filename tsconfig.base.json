@@ -1,0 +1,12 @@
+{
+  "$comment": "Shared TypeScript compiler defaults for the whole repo, parallel to biome.base.json. Projects extend this and override only genuinely project-specific options (lib/jsx/allowJs/checkJs/types/paths/strict). Holds the settings that are identical across every tsconfig today so they cannot drift per-project. See SUGGESTIONS-LOG tsconfig.base.json entry.",
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true
+  }
+}

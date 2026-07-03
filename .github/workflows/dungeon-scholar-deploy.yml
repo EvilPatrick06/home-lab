@@ -21,6 +21,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
       pages: write  # zizmor: ignore[excessive-permissions] actions/configure-pages may enable Pages on first deploy; build deliberately gets NO id-token: write
@@ -58,6 +59,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       pages: write  # zizmor: ignore[excessive-permissions] required by actions/deploy-pages
       id-token: write  # zizmor: ignore[excessive-permissions] OIDC token minted only in this artifact-publishing job

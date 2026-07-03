@@ -14,6 +14,182 @@ How to triage: [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md)
 
 > Resolved cross-cutting / `Domain: both` entries moved out of `ISSUES-LOG.md` + `SUGGESTIONS-LOG.md`. Newest first.
 
+### [2026-07-02] `workflow_run` trigger lists are coupled to workflow `name:` strings with no drift guard — a rename silently disables the bmo auto-deploy (and the incoming CI-failure triage)
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Added check-ci-hygiene.sh GUARD 6: every workflow_run.workflows reference must resolve to a declared workflow name:, so a rename fails CI instead of silently severing the trigger. Noted in CONTRIBUTING.
+- **Branch:** auto/xcut-hygiene
+
+### [2026-06-29] CI concurrency convention has gaps: dungeon-scholar-ci + four mechanical-guard workflows have no `concurrency:` group, so push bursts pile up redundant runs
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Added concurrency: blocks to dungeon-scholar-ci, agent-docs-check, bmo-no-new-prints, ci-hygiene, dnd-e2e (cancel:true) and secret-scan (false). GUARD 7 now requires every push-triggered workflow to declare one.
+- **Branch:** auto/xcut-hygiene
+
+### [2026-07-02] The repo-wide canonical process doc lives at `dnd-app/docs/phases/INSTRUCTIONS.md` — every referencing doc needs a "despite its path" disclaimer
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Added top-level pointer docs/PHASE-EXECUTION.md (indexed in docs/README.md + root README) to the canonical dnd-app/docs/phases/INSTRUCTIONS.md; did NOT relocate (out-of-repo SKILL.md task defs cite the path).
+- **Branch:** auto/xcut-hygiene
+
+### [2026-07-02] `.husky/pre-commit`: dungeon-scholar gate is split into two non-adjacent blocks, and the second mislabels dungeon-scholar as "(VTT)"
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Merged the dungeon-scholar vitest pre-flight into the single staged() biome block; removed the duplicate and the wrong '(VTT)' label + stale note.
+- **Branch:** auto/xcut-hygiene
+
+### [2026-07-02] `.gitattributes` QA-screenshot LFS rules are copy-pasted per project × extension (15 lines); a fourth phases dir or new image extension silently bypasses LFS
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Collapsed the per-project QA-screenshot LFS lines into generic **/docs/phases/QA/screenshots + completed/screenshots globs (verified existing LFS-tracked shots still match).
+- **Branch:** auto/xcut-hygiene
+
+### [2026-07-02] Node-version floor is declared in `.nvmrc` + three `engines` fields, but `dnd-app/mobile/package.json` has no `engines` — the one lockfile without the guard
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Added engines.node>=22 to dnd-app/mobile/package.json; convention noted in CONTRIBUTING.
+- **Branch:** auto/xcut-hygiene
+
+### [2026-07-02] Root `README.md` "Each project's own README" pointer list omits `oracle-worker/README.md` (3 of 4 projects listed)
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Added oracle-worker/README.md to the root README per-project pointer list.
+- **Branch:** auto/xcut-hygiene
+
+### [2026-07-02] No markdown link-integrity check across the ~283 tracked docs, while the docs ARE the agent-coordination fabric and files are regularly relocated to `_archive/`
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Added scripts/check-md-links.sh (offline relative-link checker) + a warn-only md-links job in ci-hygiene.yml (pre-existing ~180-link backlog reported, not failing).
+- **Branch:** auto/xcut-hygiene
+
+### [2026-07-02] Biome version has no single source across the three biome projects + root husky hook — and has already drifted (dnd-app ^2.5.1 vs mobile ^2.5.0 vs dungeon-scholar/hook inline 2.5.0)
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Aligned all biome pins to 2.5.1 (mobile devDep, dungeon-scholar scripts); repointed husky mobile block at local binary; GUARD 10 asserts versions match.
+- **Branch:** auto/xcut-hygiene
+
+### [2026-07-02] `dnd-app/mobile` is the only JS project without an `engines.node` pin — the unswept tail of the resolved 2026-06-22 Node single-sourcing entry
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Added engines.node>=22 to dnd-app/mobile/package.json.
+- **Branch:** auto/xcut-hygiene
+
+### [2026-07-02] No in-repo registry of the scheduled-agent fleet — agent ids, scopes, branches, and log targets are only discoverable by cross-reading the workflow doc and log bylines
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Added docs/AGENT-FLEET.md (id/domain/kind/branch/log per agent); indexed in docs/README.md + root README.
+- **Branch:** auto/xcut-hygiene
+
+### [2026-06-29] Supply-chain pinning is uneven: GitHub Actions are SHA-pinned + Dependabot-tracked, but the bmo Docker base image is tag-floated and has NO `docker` Dependabot ecosystem
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Digest-pinned the bmo Docker base image and added a docker Dependabot ecosystem for /bmo/docker.
+- **Branch:** auto/xcut-hygiene
+
+### [2026-06-29] CI hygiene convention gap: 15 of 19 workflows declare no job `timeout-minutes`, so a hung step can burn the 6-hour default-runner ceiling under the high-churn agent model
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Added timeout-minutes to every workflow job lacking one; GUARD 8 now requires each job to declare a timeout.
+- **Branch:** auto/xcut-hygiene
+
+### [2026-06-29] dnd-app/mobile shares dnd-app src/shared via tsconfig path-mapping; TS project references evaluated and rejected
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Documented the chosen long-term approach (keep the tsconfig @shared/* path alias) in CONTRIBUTING mobile-shared-src note; no restructuring.
+- **Branch:** auto/xcut-hygiene
+
+### [2026-06-29] No shared `tsconfig.base.json` parallel to `biome.base.json` — TS compiler defaults are defined independently per project
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Added root tsconfig.base.json with shared compiler defaults; wired dnd-app web/node, dungeon-scholar, oracle-worker to extend it (mobile keeps expo base, documented).
+- **Branch:** auto/xcut-hygiene
+
+### [2026-06-29] `dnd-app` is the only JS project missing the canonical `typecheck` npm script that CONTRIBUTING documents and the other three define
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Added typecheck script to dnd-app/package.json and repointed the Makefile typecheck recipe at npm run typecheck.
+- **Branch:** auto/xcut-hygiene
+
+### [2026-06-29] `_archive/README.md` "What's inside" tree is stale — three of the five batch dirs are undocumented in the index
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Added the three missing batch dirs to _archive/README.md tree and noted the index-tracks-batches convention.
+- **Branch:** auto/xcut-hygiene
+
+### [2026-06-29] `audit:ci` vulnerability threshold diverges across projects — the security-sensitive oracle-worker uses the *loosest* level (`high`) while the rest use `moderate`
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Tightened oracle-worker audit:ci from high to --omit=dev --audit-level=moderate (did not loosen anything); switched its security-audit.yml job to npm run audit:ci.
+- **Branch:** auto/xcut-hygiene
+
+### [2026-06-29] Audit-coverage parity gap: `dnd-app/mobile` has no `npm audit` gate (no `audit:ci` script, absent from `security-audit.yml`); `make audit` also omits mobile + bmo
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Added audit:ci to dnd-app/mobile, a mobile-npm-audit job to security-audit.yml, and extended make audit to include mobile.
+- **Branch:** auto/xcut-hygiene
+
+### [2026-06-29] `dnd-app/mobile` has no local pre-commit floor — the husky hook's `^dnd-app/` block runs dnd-app's web checks, not mobile's own biome/tsc
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Added a dedicated dnd-app/mobile block to .husky/pre-commit running mobile's own biome + tsc.
+- **Branch:** auto/xcut-hygiene
+
+### [2026-06-29] CI hygiene lints workflows for *security* (zizmor) but not *correctness* — no `actionlint` job to catch shell/expression bugs
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Added an actionlint job to ci-hygiene.yml (pinned, SHA-256-verified binary) alongside zizmor; updated the check-ci-hygiene.sh header.
+- **Branch:** auto/xcut-hygiene
+
+### [2026-06-29] Repo-root `scripts/` has no README — the only shared-tooling dir without an index, while bmo/pi/scripts and dnd-app/scripts both already have one logged
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Added scripts/README.md (one-line-per-script index) and recorded the every-scripts-dir-has-an-index convention in CONTRIBUTING.
+- **Branch:** auto/xcut-hygiene
+
+### [2026-06-29] Build/tooling config file-extension convention diverges across the two Vite projects: dnd-app uses `.ts`, dungeon-scholar uses `.js`
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Recorded the TS-tooling-config convention in CONTRIBUTING; dungeon-scholar .js configs may migrate when touched (documented, not bulk-renamed).
+- **Branch:** auto/xcut-hygiene
+
+### [2026-06-29] `docs/README.md` index mislabels `CHANGELOG.md` as "Release history" and omits the living-changelog + per-project CHANGELOG convention
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Reworded docs/README.md + root README CHANGELOG rows to 'frozen archive (<= v2.1.16); current notes on GitHub Releases' and noted per-project CHANGELOGs.
+- **Branch:** auto/xcut-hygiene
+
+### [2026-06-29] Five byte-identical `LICENSE` files (root + each package) with no single source or drift guard
+
+- **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
+- **Date resolved:** 2026-07-03
+- **Resolution:** Added check-ci-hygiene.sh GUARD 9 asserting every */LICENSE matches root LICENSE; documented the per-package-copy convention in CONTRIBUTING.
+- **Branch:** auto/xcut-hygiene
+
+
 ### [2026-07-02] Gitignored `SECURITY-LOG.md` is incompatible with the per-agent-worktree model: worktree appends are silently lost, main-checkout writes race unserialized
 
 - **Resolved by:** overall-resolver (automated)

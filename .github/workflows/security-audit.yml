@@ -29,6 +29,7 @@ permissions:
 jobs:
   dnd-npm-audit:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: dnd-app
@@ -44,6 +45,7 @@ jobs:
 
   bmo-bandit-ide:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
@@ -73,6 +75,7 @@ jobs:
 
   dungeon-scholar-npm-audit:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: dungeon-scholar
@@ -88,6 +91,7 @@ jobs:
 
   oracle-worker-npm-audit:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: oracle-worker
@@ -98,5 +102,21 @@ jobs:
       - uses: ./.github/actions/setup-node-project
         with:
           working-directory: oracle-worker
-      - name: npm audit (high+)
-        run: npm audit --audit-level=high
+      - name: npm audit (production deps, moderate+; internet-facing worker)
+        run: npm run audit:ci
+
+  mobile-npm-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: dnd-app/mobile
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-node-project
+        with:
+          working-directory: dnd-app/mobile
+      - name: npm audit (production deps, moderate+; Expo/EAS toolchain)
+        run: npm run audit:ci

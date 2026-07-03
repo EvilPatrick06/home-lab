@@ -29,6 +29,7 @@
     "release:all": "npm run prerelease && npm run build:index && electron-vite build && npm run verify:build && electron-builder --win --linux --publish always",
     "release:cut": "node scripts/release/cut.mjs",
     "release:auto": "node scripts/release/auto-release.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.web.json && tsc --noEmit -p tsconfig.node.json",
     "check:release": "npm run lint && tsc --noEmit -p tsconfig.web.json && tsc --noEmit -p tsconfig.node.json && npm test",
     "build:index": "node scripts/build/build-chunk-index.mjs",
     "verify:build": "node scripts/build/verify-build.mjs",
