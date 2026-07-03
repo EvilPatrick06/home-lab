@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { EXAM_PRESETS, gradeExamItem, pickStratifiedSample, presetsForPool, summarizeExamResults } from './examSession.js';
+import {
+  EXAM_PRESETS,
+  gradeExamItem,
+  pickStratifiedSample,
+  presetsForPool,
+  summarizeExamResults,
+} from './examSession.js';
 
 const mc = (id, domain, correctIndex = 0) => ({
   id,

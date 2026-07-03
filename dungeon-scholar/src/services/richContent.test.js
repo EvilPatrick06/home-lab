@@ -265,7 +265,6 @@ describe('isDiagramLanguage', () => {
   });
 });
 
-
 describe('parseRichContent - diagram caption (sugg-diagram-a11y)', () => {
   it('captures an info-line caption after the language token', () => {
     const out = parseRichContent('```topology Core switch to two access switches\nA---B\n```');

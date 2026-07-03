@@ -49,9 +49,7 @@ export function makeReport({ itemId, itemType = 'quiz', reason = 'other', note =
 export function addReport(existing, report) {
   const list = Array.isArray(existing) ? existing.slice() : [];
   if (!report || !report.itemId) return list;
-  const dupeIdx = list.findIndex(
-    (r) => r && r.itemId === report.itemId && r.reason === report.reason && !r.resolved,
-  );
+  const dupeIdx = list.findIndex((r) => r && r.itemId === report.itemId && r.reason === report.reason && !r.resolved);
   if (dupeIdx >= 0) {
     list[dupeIdx] = { ...list[dupeIdx], note: report.note, reportedAt: report.reportedAt };
     return list;

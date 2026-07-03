@@ -130,10 +130,7 @@ function TomeEditor({ tome, onSave, onClose }) {
         </div>
         <div className="p-4 overflow-y-auto overscroll-contain flex-1 flex flex-col gap-3">
           {openReports.length > 0 && (
-            <div
-              className="p-3 rounded-sm border border-red-700/60"
-              style={{ background: 'rgba(127, 29, 29, 0.25)' }}
-            >
+            <div className="p-3 rounded-sm border border-red-700/60" style={{ background: 'rgba(127, 29, 29, 0.25)' }}>
               <div className="text-xs font-bold italic text-red-200 mb-2">
                 ⚑ {openReports.length} reader-reported problem{openReports.length === 1 ? '' : 's'}
               </div>

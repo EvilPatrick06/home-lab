@@ -362,7 +362,6 @@ html[data-dyslexia="true"] body {
   }
 }
 
-
 /* Print fallback (sugg-pdf-print-export): primary print path opens a clean
  * standalone study sheet in a new window (services/printExport.js). This is a
  * defensive @media print rule if a learner prints the app itself: hide the

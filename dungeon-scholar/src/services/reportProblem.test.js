@@ -3,9 +3,9 @@ import {
   addReport,
   makeReport,
   openReportCount,
+  REPORT_NOTE_MAX,
   reasonLabel,
   removeReport,
-  REPORT_NOTE_MAX,
   resolveReport,
 } from './reportProblem.js';
 

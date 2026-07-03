@@ -881,7 +881,10 @@ function QuizMode({
                 </p>
               )}
               {reportOpen && (
-                <div className="p-3 rounded-sm border border-amber-800/70" style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.6)' }}>
+                <div
+                  className="p-3 rounded-sm border border-amber-800/70"
+                  style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.6)' }}
+                >
                   <p className="text-[11px] italic text-amber-200 mb-2">What's wrong with this riddle?</p>
                   <div className="flex flex-wrap gap-2">
                     {REPORT_REASONS.map((reason) => (

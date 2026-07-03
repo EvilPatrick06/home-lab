@@ -1,21 +1,21 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import {
+  capNewCards,
   DESIRED_RETENTION,
   dueCount,
   FSRS_DEFAULT_WEIGHTS,
   filterDue,
-  capNewCards,
   getDesiredRetention,
+  getSchedulerWeights,
+  isCardDue,
   NEW_CARD_CAP_DEFAULT,
   normalizeNewCardCap,
   RETENTION_MAX,
   RETENTION_MIN,
-  setDesiredRetention,
-  getSchedulerWeights,
-  isCardDue,
   retrievability,
   SRS_RATINGS,
   scheduleCard,
+  setDesiredRetention,
   setSchedulerWeights,
   sortByDueness,
 } from './srs.js';
@@ -296,7 +296,6 @@ describe('desired-retention knob (SRS knobs)', () => {
   });
 
   it('higher retention yields shorter (or equal) intervals; lower yields longer', () => {
-    const card = { id: 'x' };
     const now = 1_000_000_000_000;
     const rate = (r) => {
       setDesiredRetention(r);
