@@ -12,6 +12,9 @@ const mockSignOut = vi.fn();
 const mockStartAutoRefresh = vi.fn();
 const mockStopAutoRefresh = vi.fn();
 const mockLogWarn = vi.fn();
+// PHASE-13 F2: reachable by default so the 08E breaker tests exercise the
+// reachable-but-failing backstop path unchanged.
+const mockProbe = vi.fn(() => Promise.resolve(true));
 
 vi.mock('../services/supabase.js', () => ({
   supabase: {
@@ -28,6 +31,7 @@ vi.mock('../services/supabase.js', () => ({
     },
   },
   isSupabaseConfigured: () => true,
+  probeSupabaseReachable: (...a) => mockProbe(...a),
 }));
 
 vi.mock('../services/logger.js', () => ({
@@ -45,6 +49,8 @@ describe('useAuth circuit breaker (PHASE-08 08E)', () => {
     mockStartAutoRefresh.mockReset();
     mockStopAutoRefresh.mockReset();
     mockLogWarn.mockReset();
+    mockProbe.mockReset();
+    mockProbe.mockResolvedValue(true);
   });
 
   it('quarantines a stale session when refresh keeps failing on an unreachable host', async () => {
@@ -77,6 +83,33 @@ describe('useAuth circuit breaker (PHASE-08 08E)', () => {
     await waitFor(() => expect(result.current.user?.id).toBe('live'));
     await waitFor(() => expect(mockStartAutoRefresh).toHaveBeenCalled());
     expect(mockSignOut).not.toHaveBeenCalled();
+    expect(mockLogWarn).not.toHaveBeenCalled();
+  });
+
+  it('quarantines without ever calling refreshSession when the probe says unreachable (PHASE-13 F2)', async () => {
+    mockGetSession.mockResolvedValue({
+      data: { session: { user: { id: 'stale', user_metadata: { user_name: 'pat' } } } },
+    });
+    mockProbe.mockResolvedValue(false);
+
+    const { result } = renderHook(() => useAuth());
+
+    await waitFor(() => expect(mockSignOut).toHaveBeenCalledWith({ scope: 'local' }), { timeout: 4000 });
+    // The whole point: GoTrue never gets a chance to run its internal retry burst.
+    expect(mockRefreshSession).not.toHaveBeenCalled();
+    expect(mockStartAutoRefresh).not.toHaveBeenCalled();
+    expect(result.current.user).toBeNull();
+    expect(mockLogWarn).toHaveBeenCalledTimes(1);
+  });
+
+  it('never probes on a signed-out load (PHASE-13 F2)', async () => {
+    mockGetSession.mockResolvedValue({ data: { session: null } });
+
+    renderHook(() => useAuth());
+
+    await waitFor(() => expect(mockStopAutoRefresh).toHaveBeenCalled());
+    expect(mockProbe).not.toHaveBeenCalled();
+    expect(mockRefreshSession).not.toHaveBeenCalled();
     expect(mockLogWarn).not.toHaveBeenCalled();
   });
 

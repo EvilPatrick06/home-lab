@@ -23,6 +23,27 @@ export function isSupabaseConfigured() {
   return supabase !== null;
 }
 
+// PHASE-13 F2: one-shot reachability probe run BEFORE the first refreshSession()
+// so GoTrue never spins its internal, console-logging retry burst against a host
+// we already know is down (the 08E breaker stays as the backstop for the
+// reachable-but-failing case). Single request, fast timeout, fully caught — a
+// failure is a boolean, never a console.error. `no-cors`: we only need
+// reach/no-reach, not the body/status; an opaque resolve === reachable, a throw
+// (network/abort) === unreachable.
+export async function probeSupabaseReachable(timeoutMs = 3000) {
+  if (!url) return false;
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    await fetch(`${url}/auth/v1/health`, { method: 'HEAD', mode: 'no-cors', signal: ctrl.signal });
+    return true;
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(t);
+  }
+}
+
 export async function signInWithGitHub() {
   if (!supabase) throw new Error('Supabase is not configured');
   return supabase.auth.signInWithOAuth({

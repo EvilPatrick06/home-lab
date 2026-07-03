@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { logWarn } from '../services/logger.js';
-import { isSupabaseConfigured, supabase } from '../services/supabase.js';
+import { isSupabaseConfigured, probeSupabaseReachable, supabase } from '../services/supabase.js';
 
 function projectUser(rawUser) {
   if (!rawUser) return null;
@@ -111,14 +111,25 @@ export function useAuth() {
 
     supabase.auth
       .getSession()
-      .then(({ data }) => {
+      .then(async ({ data }) => {
         if (!active) return;
         const session = data?.session ?? null;
         setUser(projectUser(session?.user));
         setLoading(false);
         // Only validate + arm the refresh ticker when a session is present.
-        if (session) armRefresh();
-        else stopRefresh();
+        if (session) {
+          // PHASE-13 F2: probe reachability before handing the host to GoTrue.
+          // Unreachable → quarantine immediately (one warn, local-first) so
+          // GoTrue's internal retry loop never gets to log a fetch-failure burst.
+          // Reachable → the existing armRefresh/breaker path is unchanged and
+          // remains the backstop if the host fails between probe and refresh.
+          const reachable = await probeSupabaseReachable();
+          if (!active || quarantined) return;
+          if (reachable) armRefresh();
+          else quarantine();
+        } else {
+          stopRefresh();
+        }
       })
       .catch((err) => {
         // A network-level failure on init (e.g. a stale persisted session GoTrue
