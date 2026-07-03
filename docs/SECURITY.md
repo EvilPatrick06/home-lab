@@ -17,7 +17,7 @@ If you find a security issue in this repo, please **do NOT** open a public GitHu
 
 | Component | Version | Status |
 |---|---|---|
-| `dnd-app` | v2.7.x (current: 2.7.1) | Supported |
+| `dnd-app` | v2.7.x (current: 2.7.2) | Supported |
 | `bmo` | Current master | Supported |
 | `dungeon-scholar` | Current master (deployed via Pages) | Supported |
 | Older `dnd-app` releases | — | Not supported; auto-update path nudges users to current |
