@@ -278,8 +278,20 @@ def sync_source(inbox: dict, source: str, items: list[Item]) -> dict:
     return inbox
 
 
-def mark_done(inbox: dict, item_id: str) -> bool:
-    """Done button: dismiss one item immediately, wherever it lives."""
+def mark_done(inbox: dict, item_id: str, source: str | None = None) -> bool:
+    """Done button: dismiss one item immediately.
+
+    When ``source`` is given, only that producer's copy of ``item_id`` is
+    removed. Item ids are unique WITHIN a source but NOT across sources (e.g.
+    several briefs all use id "overview"), so a source-scoped click clears
+    exactly the row that was clicked. With no ``source`` (older button
+    custom_ids that encoded only the id) it falls back to removing the first
+    match in any source."""
+    if source is not None:
+        if source in inbox and item_id in inbox[source]:
+            del inbox[source][item_id]
+            return True
+        # source vanished/renamed since render — fall through to a global sweep.
     for src in inbox:
         if item_id in inbox[src]:
             del inbox[src][item_id]

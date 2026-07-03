@@ -95,3 +95,93 @@ def test_counts_and_embed_collapse():
     agent_field = next(f for f in embed["fields"] if "🤖" in f["name"])
     assert agent_field["name"].endswith("· 1")
     assert agent_field["value"].count("APP QA Tester") == 1
+
+
+
+# ── regression: cross-source id collision must not produce duplicate custom_ids ─
+# Several producers post a brief with the SAME item id "overview"
+# (evening-winddown, morning-brief, weekly-digest). Encoding only the id in the
+# ✓ Done button custom_id produced three identical "board:done:overview" ids,
+# which Discord rejects with 400 "Component custom id cannot be duplicated" —
+# blanking/crash-looping the whole board. The button custom_id must be scoped by
+# source so every rendered component is unique, and mark_done(source=...) must
+# clear exactly the clicked row.
+import types as _types
+
+from bots.social import status_board_cog as _cog
+from services import status_board as _sb
+
+
+def _brief_row(source, iid="overview", title="brief"):
+    import time as _t
+    return {"category": "brief", "severity": "info", "title": title, "detail": "",
+            "since": _t.time(), "due": None, "url": None, "kind": "item",
+            "key": iid, "id": iid, "source": source}
+
+
+def _all_custom_ids(view):
+    out = []
+    walk = getattr(view, "walk_children", None)
+    if callable(walk):
+        for c in walk():
+            cid = getattr(c, "custom_id", None)
+            if cid:
+                out.append(cid)
+        return out
+
+    def rec(items):
+        for it in items or []:
+            cid = getattr(it, "custom_id", None)
+            if cid:
+                out.append(cid)
+            rec(getattr(it, "children", None))
+
+    rec(getattr(view, "children", None))
+    return out
+
+
+def test_same_id_across_sources_yields_unique_done_custom_ids():
+    rows = [_brief_row("evening-winddown", title="🌙 tomorrow"),
+            _brief_row("morning-brief", title="☀️ morning"),
+            _brief_row("weekly-digest", title="📈 week")]
+    state = _types.SimpleNamespace(collapse_info=False, muted={}, awaiting_page=0)
+    view = _cog.build_layout_safe(rows, state)
+    cids = _all_custom_ids(view)
+    done = [c for c in cids if c.startswith("board:done:")]
+    assert len(done) == 3, f"expected 3 Done buttons, got {done}"
+    assert len(set(cids)) == len(cids), f"duplicate custom_id(s) rendered: {cids}"
+
+
+def test_done_button_source_scoped_custom_id_and_routing():
+    b = _cog.DoneButton("overview", "morning-brief")
+    assert b.custom_id == "board:done:morning-brief~overview"
+    inbox = {"morning-brief": {"overview": _sb.Item(id="overview", source="morning-brief",
+                                                     category="brief", title="m")},
+             "weekly-digest": {"overview": _sb.Item(id="overview", source="weekly-digest",
+                                                    category="brief", title="w")}}
+    # source-scoped mark_done clears ONLY the clicked source's copy.
+    assert _sb.mark_done(inbox, "overview", "morning-brief") is True
+    assert "overview" not in inbox["morning-brief"]
+    assert "overview" in inbox["weekly-digest"]
+
+
+def test_mark_done_legacy_idonly_falls_back_to_global_sweep():
+    inbox = {"weekly-digest": {"overview": _sb.Item(id="overview", source="weekly-digest",
+                                                    category="brief", title="w")}}
+    # a legacy (source-less) click still clears the item.
+    assert _sb.mark_done(inbox, "overview", None) is True
+    assert "overview" not in inbox["weekly-digest"]
+
+
+def test_dedupe_guard_neutralises_leftover_duplicate_custom_ids():
+    # belt-and-braces: even if two buttons somehow share a custom_id, the guard
+    # disables the repeat so the payload stays valid (no 400).
+    view = _cog.discord.ui.LayoutView(timeout=None)
+    row = _cog.discord.ui.ActionRow(
+        _cog.discord.ui.Button(label="a", custom_id="board:x"),
+        _cog.discord.ui.Button(label="b", custom_id="board:x"))
+    view.add_item(row)
+    fixed = _cog._dedupe_custom_ids(view)
+    assert fixed == 1
+    cids = _all_custom_ids(view)
+    assert len(set(cids)) == len(cids), cids
