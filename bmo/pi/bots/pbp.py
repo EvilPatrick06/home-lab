@@ -1,6 +1,6 @@
 """PHASE-36 36B — the Discord-facing half of play-by-post.
 
-PbpManager turns the persisted turn queue (services.pbp_store) into turn announcements
+PbpManager turns the persisted turn queue (services.game.pbp_store) into turn announcements
 that actually ping (mention in message *content*, never an embed — embeds don't notify),
 a restart-safe reminder loop (every tick recomputes overdue-ness from disk, so nothing
 lives only in memory), and an opt-in auto-skip. The `/pbp` slash group lets players
@@ -17,7 +17,7 @@ import discord
 from discord import app_commands
 
 from services.bmo_logging import _s
-from services.pbp_store import PbpError, get_pbp_store
+from services.game.pbp_store import PbpError, get_pbp_store
 
 logger = logging.getLogger(__name__)
 

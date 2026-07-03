@@ -8,7 +8,7 @@ from services.bmo_logging import get_logger
 log = get_logger("build_rag_indexes")
 sys.path.insert(0, os.path.expanduser("~/home-lab/bmo/pi"))
 
-from services.rag_search import (
+from services.game.rag.rag_search import (
     build_index_from_markdown, build_index_from_text, save_index
 )
 

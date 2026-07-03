@@ -19,8 +19,8 @@ _PI_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _PI_DIR not in sys.path:
     sys.path.insert(0, _PI_DIR)
 
-import services.location_service as loc  # noqa: E402
-from services.location_service import LocationService  # noqa: E402
+import services.game.location_service as loc  # noqa: E402
+from services.game.location_service import LocationService  # noqa: E402
 
 
 # ── _location_is_pinned ────────────────────────────────────────────────────────

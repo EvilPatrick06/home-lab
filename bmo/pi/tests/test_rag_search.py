@@ -8,7 +8,7 @@ migration, the consumer dict contract, and domain isolation.
 
 import json
 
-from services.rag_search import (
+from services.game.rag.rag_search import (
     B,
     K1,
     Chunk,

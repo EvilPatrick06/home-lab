@@ -83,7 +83,7 @@ else:
 # D&D data paths + DM helpers were extracted to services/dnd_dm_data.py
 # (2026-06-22). Re-exported here so existing `from agent import ...` callers
 # (agents/dnd_dm.py, agents/encounter_agent.py, tests) keep working.
-from services.dnd_dm_data import (  # noqa: E402
+from services.game.dnd_dm_data import (  # noqa: E402
     DND_DATA_DIR,
     _build_dm_data_context,
     _calculate_encounter_difficulty,
@@ -337,7 +337,7 @@ def _get_rag_engine():
     """Lazy-load the local RAG search engine."""
     global _rag_engine
     if _rag_engine is None:
-        from services.rag_search import SearchEngine
+        from services.game.rag.rag_search import SearchEngine
         _rag_engine = SearchEngine()
         rag_dir = str(_P_DATA_DIR / "rag_data")
         for domain_name in ["dnd", "personal", "projects"]:

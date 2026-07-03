@@ -47,7 +47,7 @@ def _get_rag():
         parent = str(Path(__file__).resolve().parent.parent)
         if parent not in sys.path:
             sys.path.insert(0, parent)
-        from services.rag_search import SearchEngine
+        from services.game.rag.rag_search import SearchEngine
         _rag_engine = SearchEngine()
         for idx_file in RAG_DATA_DIR.glob("chunk-index-*.json"):
             _rag_engine.load_index_file(str(idx_file))
