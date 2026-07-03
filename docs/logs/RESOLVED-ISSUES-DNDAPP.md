@@ -12,6 +12,259 @@
 
 ---
 
+### [2026-07-02] Universal VTT (.uvtt/.dd2vtt) battlemap import/export — walls/doors/lights metadata interop with Dungeondraft, Dungeon Alchemist, Foundry
+
+- **Category:** future-idea
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** scheduled improvement-suggestion scan of `dnd-app/`
+
+**Description:**
+The app has native walls, doors, dynamic lighting, and fog-of-war, and PHASE-34 built an AI battlemap generator whose `BattlemapSpec` was deliberately designed "UVTT-adjacent (walls/portals/lights + grid resolution)" — with UVTT import/export explicitly called out as the cheap future path and "log to SUGGESTIONS-LOG-DNDAPP if desired" (see `docs/phases/completed/PHASE-34-battlemap-generation.md` §367/§401). It was never logged, and `grep -ri "uvtt\|dd2vtt\|dungeondraft" src/` finds no implementation. Today a DM who builds a map in Dungeondraft / Dungeon Alchemist must re-trace every wall, door, and light by hand in the in-app editor; the Universal VTT JSON format (an image plus grid size, colliders, portals, and lights) is the ecosystem-standard interchange that Foundry and Roll20 already consume.
+
+**Proposed fix / improvement:**
+- [ ] Import: parse `.uvtt`/`.dd2vtt`/`.df2vtt` (base64 image + `resolution`, `line_of_sight`, `portals`, `lights`) into the existing map + wall-layer + door + lighting-overlay model, mapping through/near `BattlemapSpec`.
+- [ ] Export: serialize the current map (background, walls, portals, lights, grid) back out to `.uvtt`, closing the round-trip PHASE-34 anticipated.
+- [ ] Wire into the DM map editor (`components/game/modals/dm-tools/DMMapEditor.tsx`) as an "Import map file…" action next to plain-image import, and reuse `upload-validation.ts` size/type guards for the embedded image.
+
+**Blocked by:** none
+
+**Related files:** `dnd-app/src/renderer/src/components/game/map/wall-layer.ts`, `dnd-app/src/renderer/src/components/game/map/lighting-overlay.ts`, `dnd-app/src/renderer/src/components/game/modals/dm-tools/DMMapEditor.tsx`, `dnd-app/docs/phases/completed/PHASE-34-battlemap-generation.md`
+
+**Related entries:** none (PHASE-34 completion note asked for this entry; first time logged)
+
+**Resolved [2026-07-03, dnd-features-batch] — PARTIAL:** Implemented the pure UVTT converter `src/renderer/src/services/io/uvtt.ts` (parse `.uvtt`/`.dd2vtt`/`.df2vtt` → internal grid/walls/doors/lights + image data-url; serialize the internal map back to UVTT; ARGB↔hex color mapping; portals↔door walls; round-trip) with 11 unit tests (`uvtt.test.ts`). DEFERRED: wiring an "Import map file…" action into `DMMapEditor.tsx` that applies the parsed result to the live map store + PixiJS layers, and an "Export .uvtt" action — that integration mutates live map state and needs visual/interactive verification, so it is left as a bounded follow-up on top of this converter.
+
+
+### [2026-07-02] Game chat has no transcript export — combat log exports CSV/JSON but the RP/narration chat (the actual story) cannot be saved
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** scheduled improvement-suggestion scan of `dnd-app/`
+
+**Description:**
+`CombatLogPanel.tsx` ships CSV + JSON export (`services/io/combat-log-export.ts`), but the game chat — player roleplay, DM/AI-DM narration, whispers, system messages rendered by `GameChatPanel.tsx` from `use-lobby-store` `ChatMessage[]` — has no export at all (`grep -i "export\|download" GameChatPanel.tsx` finds only the module `export default`). The AI DM produces end-of-session *recaps*, but the raw session transcript (the campaigns actual prose) is unrecoverable once the session ends. Groups that journal their campaigns, or want to feed a past session back to the AI DM or share it on Discord, have nothing to copy but scrollback.
+
+**Proposed fix / improvement:**
+- [ ] Add "Export transcript" (Markdown, plus optional JSON) to the chat panel header, mirroring the combat-log export UX: `# Session — <date>` then `**Speaker** (HH:MM): message`, with whispers marked and system messages toggleable.
+- [ ] Reuse the same blob-download path as `combat-log-export.ts`; factor a tiny shared `download-file` helper if desired.
+- [ ] Optional follow-up: a combined "session record" export that interleaves chat + combat-log by timestamp.
+
+**Blocked by:** none
+
+**Related files:** `dnd-app/src/renderer/src/components/game/bottom/GameChatPanel.tsx`, `dnd-app/src/renderer/src/stores/use-lobby-store.ts`, `dnd-app/src/renderer/src/services/io/combat-log-export.ts`, `dnd-app/src/renderer/src/components/game/sidebar/CombatLogPanel.tsx`
+
+**Related entries:** none found (grepped `transcript`, `chat export`, `session log` across active + resolved dnd-app logs)
+
+**Resolved [2026-07-03, dnd-features-batch] — DONE:** Added `src/renderer/src/services/io/chat-transcript-export.ts` (`exportChatTranscriptMarkdown` / `exportChatTranscriptJSON`, dice rolls & files rendered inline, system messages toggleable) mirroring the combat-log export path, wired an Export-transcript (Markdown) button into `GameChatPanel.tsx` reusing the same blob-download path, and added en+es `game.chatPanel.exportTranscript` i18n keys. 6 unit tests.
+
+
+### [2026-07-02] Dice roll statistics panel — per-player d20 distributions, crit/fumble counts, session luck summary from events the app already records
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** scheduled improvement-suggestion scan of `dnd-app/`
+
+**Description:**
+Every roll already flows through structured paths — the 3D dice roller, chat roll commands, group rolls, and the combat log slice — and `DMRollerModal.tsx` keeps a `rollHistory`, but nothing aggregates rolls into statistics. `grep -ri "statistics\|roll.stat" src/renderer` finds only `ShortRestPanel`. A small stats view (per-player d20 histogram, average vs expected, nat-1/nat-20 counts, rolls-per-session) is a beloved QoL feature in other VTTs (Foundrys Dice Stats modules, Roll20 API scripts), fits the existing combat-log data model, and gives the end-of-session recap fun material ("Gavin rolled four nat-20s").
+
+**Proposed fix / improvement:**
+- [ ] Accumulate roll events (die size, raw result, roller, purpose) into a lightweight session-scoped stats slice or derive on demand from the combat log entries that already carry roll payloads.
+- [ ] Render a "Dice stats" tab/modal (per-player histogram + crit/fumble tallies + session totals); DM sees all, players see their own.
+- [ ] Optional: include a one-line luck summary in the AI DM end-of-session recap context.
+
+**Blocked by:** none
+
+**Related files:** `dnd-app/src/renderer/src/stores/game/combat-log-slice.ts`, `dnd-app/src/renderer/src/components/game/dice3d/DiceRoller.tsx`, `dnd-app/src/renderer/src/components/game/modals/dm-tools/DMRollerModal.tsx`
+
+**Related entries:** none found (no prior dice/roll-statistics entry in active or resolved dnd-app logs)
+
+**Resolved [2026-07-03, dnd-features-batch] — DONE:** Added a pure `src/renderer/src/services/dice-stats.ts` (`computeDiceStats` → per-player d20 histograms, nat-20/nat-1 tallies, d20 average vs the expected 10.5, per-player + session luck, and a `luckSummaryLine` recap helper) computed from the `diceHistory` `DiceRollRecord[]` the store already records, with 10 unit tests. Added a Log/Stats tab toggle + histogram/stats view to `DiceHistory.tsx` (DM sees all; scoping to per-player-visibility is a UI follow-up) with en+es keys. Mixed-dice formulas are conservatively excluded from the d20 histogram (only pure-d20 rolls are attributed).
+
+
+### [2026-06-29] Global command palette (Ctrl/Cmd+K) is navigation-only — no fuzzy search over compendium content, characters, or campaigns
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (CommandPalette vs library-service/fuse.js)
+
+**Description:**
+`components/ui/CommandPalette.tsx` ships a global Ctrl/Cmd+K palette, but its command set is a fixed list of ~10 route jumps (`home`, `characters`, `createCharacter`, `makeCampaign`, `joinGame`, `library`, `bastions`, `calendar`, `settings`, `about`). It cannot search *entities*: you can jump to the Library page but not to a specific spell, monster, item, character, or saved campaign. The app already has the machinery — `fuse.js` is a dependency and `library-service.ts` already fuzzy-searches the 5e content set (used by `CompendiumModal`). A content-aware palette ("type fireball -> open the spell"; "type a character name -> open the sheet") would turn the palette from a menu shortcut into the app's primary fast-navigation surface. The in-game `GameCommandPalette.tsx` is similarly action-only (opens board modals), so neither palette reaches content.
+
+**Hypothesis / root cause:** the palette shipped (resolved 2026-06-24) as a minimal route launcher; entity indexing was never layered on.
+
+**Proposed fix / improvement:**
+- [ ] Feed `CommandPalette` a fuse index over compendium content + the user's characters/campaigns, alongside the existing route commands.
+- [ ] Group results (Pages / Spells / Monsters / Items / Characters) and route the selection to the right detail view.
+- [ ] Consider sharing the index with `GameCommandPalette` so in-session lookups hit the same search.
+
+**Related files:** `src/renderer/src/components/ui/CommandPalette.tsx`, `src/renderer/src/components/game/GameCommandPalette.tsx`, `src/renderer/src/services/library-service.ts`
+
+**Related entries:** resolved [2026-06-24] command palette `CommandPalette.tsx` (this builds on the already-shipped palette).
+
+**Resolved [2026-07-03, dnd-features-batch] — DONE:** Extended `CommandPalette.tsx` with debounced fuzzy content search over compendium content + the user's characters/campaigns via the existing `library-service.searchAllCategories` fuse index (the same one the Library page uses); results deep-link to `/library?entry=<id>&category=<cat>`. Homebrew is lazily loaded on open so user entries are covered. Added `commandPalette.categories.*` en+es keys and refreshed the palette placeholder/empty/hint copy. (GameCommandPalette sharing the index remains the noted optional follow-up.)
+
+
+### [2026-06-29] No single cross-target feature-parity matrix for the four renderer build targets (Electron desktop / web SPA / embed / Expo mobile)
+
+- **Category:** future-idea, docs, portability
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (build targets vs docs)
+
+**Description:**
+The same `src/renderer` is shipped to four targets — Electron desktop, the web SPA (`src/web/main.web.tsx`), the embeddable build (`main.embed.tsx`), and the Expo `mobile/` app — each reaching native/main-process capability through a different `window.api` shim (real preload, web shim, embed shim, mobile bridge). There is no one document mapping *which features actually work on which target*. `docs/WEB-VERSION-PLAN.md` covers only the web build's feasibility ("parity to desktop"); the existing `mobile/_shared` drift entry is about code-sync, not feature coverage. A contributor (or QA agent) has to read four shim files to learn that, e.g., the auto-updater, native crash capture, Bonjour LAN discovery, or local-Ollama paths are desktop-only.
+
+**Hypothesis / root cause:** the targets were added incrementally (desktop first, then web/embed/mobile), each with its own shim, and no consolidating parity doc was written as they accreted.
+
+**Proposed fix / improvement:**
+- [ ] Add `dnd-app/docs/TARGET-PARITY.md`: rows = features/capabilities (updater, crash capture, LAN/Bonjour, file IO, TURN, AI providers, TTS, etc.), columns = desktop / web / embed / mobile, cells = full / shimmed-noop / partial / N-A.
+- [ ] Seed it from the four `window.api` surfaces (`src/preload/index.ts` + the web/embed/mobile install-*-api shims) so each "noop shim" is one visible cell.
+- [ ] Link it from each target's section in `README.md` and from `WEB-VERSION-PLAN.md`.
+- [ ] Optional follow-up: a tiny script that diffs the shim method sets and flags a capability present on one target but silently missing on another.
+
+**Related files:** `src/preload/index.ts`, `src/web/install-web-api.ts`, `src/web/install-embed-api.ts`, `mobile/`, `docs/WEB-VERSION-PLAN.md`, `README.md`
+
+**Related entries:** [2026-06-28] mobile `_shared` sync-copy drift; [2026-06-28] mobile version pinned behind desktop.
+
+**Resolved [2026-07-03, dnd-features-batch] — DONE:** Added `dnd-app/docs/TARGET-PARITY.md` — a per-feature desktop / web / embed / mobile capability matrix (updater, crash capture, LAN/Bonjour, file IO, TURN, AI providers, Ollama, TTS, Discord, plugins, etc.) seeded from the four `window.api` shims with a full/partial/noop/N-A legend, linked from `README.md` and `docs/WEB-VERSION-PLAN.md`. (The optional shim-method-diff script remains a follow-up.)
+
+
+### [2026-06-29] a11y (jest-axe) harness only asserts on a synthetic fragment — real high-traffic components are still unguarded
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (a11y coverage)
+
+**Description:**
+`src/renderer/src/a11y/a11y-smoke.test.tsx` wires up jest-axe + vitest + happy-dom and proves the harness runs, but it only renders a hand-written accessible `<main>` fragment (heading + labeled input + button) and asserts zero violations. No *real* component is exercised, so the guard cannot catch an actual regression. The test's own comment flags this ("Expand coverage to high-traffic components … incrementally"); the harness seed itself is resolved, but the expansion is unlogged follow-up work and easy to forget.
+
+**Hypothesis / root cause:** the seed was deliberately non-blocking (prove the harness, defer triaging the real-component baseline) and the follow-up was left only as an in-code comment, not a tracked backlog item.
+
+**Proposed fix / improvement:**
+- [ ] Pick the highest-traffic surfaces first: the game table / `GameLayout`, the character sheet, the settings panels, and the most-used modals.
+- [ ] Render each in the happy-dom harness, snapshot the *current* axe violation set as a triaged baseline, and gate only on **new** violations (so pre-existing issues do not block CI but no new ones land).
+- [ ] File the triaged pre-existing violations as their own follow-ups in `ISSUES-LOG-DNDAPP.md`.
+
+**Related files:** `src/renderer/src/a11y/a11y-smoke.test.tsx`, `src/renderer/src/components/game/GameLayout.tsx`, `src/renderer/src/components/sheet/`, `src/renderer/src/components/settings/`
+
+**Related entries:** resolved [2026-06-23] a11y jest-axe harness seed.
+
+**Resolved [2026-07-03, dnd-features-batch] — PARTIAL:** Added `src/renderer/src/a11y/a11y-components.test.tsx` rendering real high-traffic components (`ShortcutReferenceModal`, `CombatLogPanel`) in the happy-dom + jest-axe harness with a triaged exact-baseline assertion helper (`expectAxeBaseline`) that gates on NEW violations while tolerating pre-existing ones; both components are currently axe-clean (empty baseline). DEFERRED: `GameLayout` and the character sheet — those pull in the PixiJS map canvas + deep store/provider graph that does not render in happy-dom without extensive mocking, which would sprawl this change; they are the next increment on top of this baseline pattern.
+
+
+### [2026-06-29] Keyboard-shortcut descriptions + ShortcutReferenceModal category labels are English-only — the one localized surface that still isn't
+
+- **Category:** UX, portability, future-idea
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (keyboard-shortcuts service vs the i18n surface)
+
+**Description:**
+The renderer chrome is fully bilingual (en/es, parity-gated in CI), but two keyboard-shortcut surfaces hardcode English. (1) `renderer/public/data/ui/keyboard-shortcuts.json` stores each binding's human label inline in an English `description` field ("End Turn", "Toggle Journal", "Open Dice Roller (Throw)", "Toggle Map Editor (DM)", …). (2) `ShortcutReferenceModal.tsx` renders `shortcut.description` raw — `<span>{shortcut.description}</span>` is the only string in that modal NOT passed through `t()`, while the title, category headers, and footer all are. The same English `description` also surfaces in `KeybindingEditor.tsx`. So a Spanish-locale user opens a fully-translated app, presses `/`, and reads a shortcut sheet whose every row label is English. Distinct from the 5e-*content* i18n gap (that entry is content data: monsters/spells); this is UI affordance metadata — but it is the same "chrome localized, data not" class and is not tracked in the active backlog.
+
+**Hypothesis / root cause:** the shortcut set was modeled as data (JSON) with an inline English label rather than an i18n key, and the modal trusts that label is display-ready so it skips `t()`.
+
+**Proposed fix / improvement:**
+- [ ] Replace (or shadow) the JSON `description` with an i18n key (e.g. `keyboardShortcuts.<action>`) resolved via `t()` in `ShortcutReferenceModal` + `KeybindingEditor`.
+- [ ] Add the keys to en/es locales so the existing locale-parity gate keeps them in sync.
+
+**Related files:** `src/renderer/public/data/ui/keyboard-shortcuts.json`, `src/renderer/src/components/game/modals/utility/ShortcutReferenceModal.tsx`, `src/renderer/src/components/settings/KeybindingEditor.tsx`, `src/renderer/src/services/keyboard-shortcuts.ts`
+
+**Related entries:** [2026-06-29] 5e content values English-only (same chrome-vs-data localization class).
+
+**Resolved [2026-07-03, dnd-features-batch] — DONE:** Added a `shortcutDescriptionKey(action)` helper in `services/keyboard-shortcuts.ts` and routed the shortcut `description` through `t(key, { defaultValue: description })` in both `ShortcutReferenceModal.tsx` and `KeybindingEditor.tsx`, and added a full `game.keyboardShortcuts.*` en+es key set for every action. The shortcut sheet is now localized; the raw JSON `description` stays as the graceful fallback. (The separate CATEGORY_ORDER/CATEGORY_LABELS single-source refactor — its own entry — was left untouched.)
+
+
+### [2026-06-29] Two different `usePanelResize` hooks coexist — `hooks/use-panel-resize.ts` is a stale, non-persisting duplicate left behind by the GameLayout decomposition
+
+- **Category:** debt
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** dnd-cleanup scheduled cleanup/reorg scan of `dnd-app/` (duplicate-basename sweep)
+
+**Description:**
+There are two hooks both named `usePanelResize`, with the same exported interface and the same default sizing constants, living in two places:
+- `src/renderer/src/components/game/game-layout/use-panel-resize.ts` (91 LOC) — the **canonical** one, created 2026-06-29 by the GameLayout god-file decomposition (commit "extract GameLayout panel-resize state+handlers into usePanelResize hook"). It **persists** bottom-bar height / sidebar width to `localStorage` via `SETTINGS_KEYS` (5 `localStorage` refs) and is consumed by `GameLayout.tsx` (re-exported from `game-layout/index.ts`).
+- `src/renderer/src/hooks/use-panel-resize.ts` (74 LOC) — the **older** pre-extraction copy, last touched 2026-04-23 in the monorepo reorg. It has **no persistence** (0 `localStorage` refs) and is imported by exactly one consumer, `components/game/bottom/DMBottomBar.tsx`.
+
+The decomposition added a second same-named hook instead of consolidating onto it, so the old copy is now dead-weight duplication. The sibling extraction `useFullscreen` exists in only one place (`game-layout/use-fullscreen.ts`), confirming the panel-resize duplicate is an oversight, not a deliberate split. There is also a real behavioral inconsistency: because `DMBottomBar` uses the non-persisting copy, the DM bottom bar's panel sizes do **not** survive a reload, while `GameLayout`'s identical-looking panels **do** — same UI affordance, two different persistence behaviors depending on which subtree renders it. Note the old copy carries its own test (`hooks/use-panel-resize.test.ts`) while the canonical persisted one has none, so the test suite is guarding the version that should be retired.
+
+**Hypothesis / root cause:** The GameLayout decomposition (rule-27 god-file extraction) created `game-layout/use-panel-resize.ts` as a fresh module and rewired `GameLayout`, but `DMBottomBar`'s pre-existing import of the old `hooks/use-panel-resize.ts` was never migrated, so the original file was left in place instead of deleted.
+
+**Proposed fix / improvement:**
+- [ ] Point `DMBottomBar.tsx` at the canonical `game-layout` hook (via `game-layout/index.ts`), confirming its prop/return usage matches (interfaces are equivalent).
+- [ ] Delete `src/renderer/src/hooks/use-panel-resize.ts` and move/retarget its test onto the canonical hook (the canonical persisted version currently has no test — net win for coverage).
+- [ ] Decide whether `DMBottomBar` *should* persist its panel sizes; if the old non-persisting behavior was intentional for that surface, keep one hook and parameterize persistence rather than forking the module.
+
+**Related files:** `src/renderer/src/hooks/use-panel-resize.ts`, `src/renderer/src/hooks/use-panel-resize.test.ts`, `src/renderer/src/components/game/game-layout/use-panel-resize.ts`, `src/renderer/src/components/game/bottom/DMBottomBar.tsx`, `src/renderer/src/components/game/GameLayout.tsx`, `src/renderer/src/components/game/game-layout/index.ts`
+
+**Related entries:** see RESOLVED-ISSUES-DNDAPP.md "GameLayout / PdfViewer god-file decomposition" (the extraction that created the canonical hook); [2026-06-25] "DO NOT dedupe the `shared/types/*` re-export shims" (the *opposite* case — that duplication is intentional; this one is not).
+
+**Resolved [2026-07-03, dnd-features-batch] — DONE:** Retargeted `DMBottomBar.tsx` to the canonical PERSISTED hook (`components/game/game-layout/use-panel-resize.ts`, via the game-layout barrel) and deleted the stale non-persisting duplicate `hooks/use-panel-resize.ts`. DECISION: DM bottom-bar panel sizes now PERSIST across reloads (the usual expectation, and matches GameLayout's identical panels — they share the same `SIDEBAR_WIDTH` localStorage key). Moved the hook's test onto the canonical module (`game-layout/use-panel-resize.test.ts`), so the persisted version is now the one under test.
+
+
+### [2026-06-28] `mobile/` version is pinned behind the desktop app (2.6.3 vs 2.6.4) with no shared version source
+
+- **Category:** config
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** dnd-cleanup scheduled cleanup/reorg scan of `dnd-app/`
+
+**Description:**
+`dnd-app/package.json` is `2.6.4`; `dnd-app/mobile/package.json` is `2.6.3`. The mobile Expo client embeds and reuses the desktop/web renderer logic, so a lagging version number is a quiet correctness/traceability hazard — a bug reproduced against "2.6.3 mobile" could actually be running 2.6.4 renderer code (or vice versa). There is no single version source the two manifests derive from, so they drift whenever a desktop release is cut without a matching mobile bump.
+
+**Hypothesis / root cause:** Desktop releases are cut by `scripts/release/cut.mjs` (which bumps the desktop manifest only); the mobile manifest is bumped by a separate manual/EAS step that lagged this cycle.
+
+**Proposed fix / improvement:**
+- [ ] Short term: bump `mobile/package.json` to match desktop (2.6.4) and note the coupling.
+- [ ] Longer term: have `cut.mjs` also bump `mobile/package.json` (and `app.config.ts` version) in the same release commit, or read both from one shared `version` constant, so they cannot diverge.
+
+**Related files:** `package.json`, `mobile/package.json`, `mobile/app.config.ts`, `scripts/release/cut.mjs`
+
+**Resolved [2026-07-03, dnd-features-batch] — DONE:** Bumped `mobile/package.json`, `mobile/package-lock.json`, and `mobile/app.config.ts` to `2.8.1` to match the desktop app, and taught `scripts/release/cut.mjs` to bump all three mobile manifests in lockstep with the desktop bump (same release commit), so mobile can no longer silently lag.
+
+
+### [2026-06-28] Mobile (Expo/React Native) target has no CI gate and no test suite — its lint/typecheck/build never run and Dependabot PRs land unverified
+
+- **Category:** debt, test, portability
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (CI-vs-target coverage sweep across `dnd-app/mobile`)
+
+**Description:**
+`dnd-app/mobile/` is a real, non-trivial target — six screens (`MainMenu`, `Characters`, `Library`, `JoinGame`, `GameSession`, `Settings`), a native bridge (`src/bridge/native-bridge.ts`, `EmbeddedWebView.tsx`), a storage adapter (`src/storage/storage-adapter.ts`), an embed loader, and a synced `_shared/` tree — totalling ~3,200 LOC. It defines `lint` and `typecheck` scripts in `mobile/package.json`, yet **no CI workflow runs any of them.** A repo-wide `grep` of `.github/workflows/` for `mobile` returns nothing but a `dependabot.yml` comment; the dnd-app gate (`dnd-app-ci.yml`) operates only on the parent package and never `cd`s into `mobile/`. Compounding this, the mobile project has its **own** Dependabot entry (`.github/dependabot.yml` -> `directory: /dnd-app/mobile`) that opens dependency-bump PRs — but with no CI those PRs have **zero** automated lint/typecheck/build verification, so the integrator's "patch/minor + green CI -> merge" rule (AUTOMATED-AGENT-GIT-WORKFLOW Rule 3B) has no green signal to gate on for mobile. The native surfaces (bridge, storage adapter) also have **zero tests** (`find mobile/src -name '*.test.*'` -> 0), unlike the heavily-tested desktop/web tree (856 test files). Net: mobile can break — type errors, lint regressions, a broken Expo build, or a bad dependency bump — and nothing catches it until a manual EAS build.
+
+**Hypothesis / root cause:** The mobile app was added as a later, separate Expo project with its own lockfile and toolchain (Metro/EAS) and was wired into Dependabot but never into the GitHub Actions gate; the main CI was hand-assembled as explicit parent-package steps (same pattern noted in the 2026-06-25 `dnd-app-ci` drift entry) so a new sibling target was easy to overlook.
+
+**Proposed fix / improvement:**
+- [ ] Add a `mobile-ci.yml` (or a `mobile` job in `dnd-app-ci.yml`) that runs `npm ci` + `npm run lint` + `npm run typecheck` in `dnd-app/mobile` on PRs touching `dnd-app/mobile/**` (non-blocking at first, like `dnd-e2e.yml`, then promote to required once stable).
+- [ ] Add at least a smoke test for the native bridge + storage adapter so the EAS-only surfaces have a regression guard.
+- [ ] Once a mobile CI job exists, ensure mobile Dependabot PRs are gated by it before the integrator auto-merges them.
+
+**Related files:** `dnd-app/mobile/package.json` (`lint`/`typecheck` scripts), `dnd-app/mobile/src/bridge/native-bridge.ts`, `dnd-app/mobile/src/bridge/EmbeddedWebView.tsx`, `dnd-app/mobile/src/storage/storage-adapter.ts`, `/.github/workflows/dnd-app-ci.yml`, `/.github/workflows/dnd-e2e.yml` (non-blocking pattern to mirror), `/.github/dependabot.yml` (mobile entry)
+
+**Related entries:** [2026-06-25] "dnd-app CI omits the doc/i18n drift guards…" (same root shape: CI assembled as an explicit step list, so new guards/targets never propagate in).
+
+---
+
+**Resolved [2026-07-03, dnd-features-batch] — DONE:** Verified already resolved on master: `.github/workflows/dnd-app-mobile-ci.yml` runs biome lint + tsc typecheck + an Expo config-resolve + a full `expo export:embed` bundle smoke on mobile-path PRs, and `security-audit.yml` has a `mobile-npm-audit` job. Mobile Dependabot PRs are now gated by this workflow. (No further change needed this run; entry closed so it stops surfacing in the active backlog.)
+
+
 ### [2026-07-02] Dead Windows code-signing leftovers — `scripts/sign.mjs` + `.env.signing.template` survive the v2.2.2 removal of the `win.sign` hook
 
 - **Category:** debt

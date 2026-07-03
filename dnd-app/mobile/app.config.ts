@@ -12,7 +12,7 @@ const config: ExpoConfig = {
   name: 'Dungeon Table Online',
   slug: 'dungeontableonline',
   owner: 'evilpatrick06s-team',
-  version: '2.6.3',
+  version: '2.8.1',
   updates: {
     url: 'https://u.expo.dev/e9d0028b-391b-47c0-bc16-a1eb22a10541'
   },

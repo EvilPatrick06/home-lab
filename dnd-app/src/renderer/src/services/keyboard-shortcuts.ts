@@ -166,6 +166,18 @@ export function getShortcutsByCategory(): Record<string, ShortcutDefinition[]> {
   return grouped
 }
 
+/**
+ * The i18n key for a shortcut's human-readable description. The shortcut set is
+ * data (keyboard-shortcuts.json) with an inline English `description`; this maps
+ * each `action` onto a `game.keyboardShortcuts.<action>` locale key so the
+ * shortcut sheet / keybinding editor render through `t()` like the rest of the
+ * chrome. Pass the raw `description` as the i18next `defaultValue` so a
+ * not-yet-translated action still shows its English label instead of the key.
+ */
+export function shortcutDescriptionKey(action: string): string {
+  return `game.keyboardShortcuts.${action}`
+}
+
 /** Format a shortcut's key combo for display (e.g., "Ctrl+Z"). */
 export function formatKeyCombo(shortcut: ShortcutDefinition): string {
   const parts: string[] = []

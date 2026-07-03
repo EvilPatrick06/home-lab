@@ -1083,7 +1083,8 @@
       "tokensTitle": "Tokens estimados de la conversación frente al presupuesto de historial de la IA: los mensajes antiguos que excedan el presupuesto no se envían al modelo",
       "tokens": "~{{used}} / {{max}} tokens",
       "tokensUsedOnly": "~{{used}} tokens",
-      "commandReference": "Referencia de comandos"
+      "commandReference": "Referencia de comandos",
+      "exportTranscript": "Exportar transcripción (Markdown)"
     },
     "commandAutocomplete": {
       "dmBadge": "DM"
@@ -1362,7 +1363,20 @@
       "noRolls": "Todavía no hay tiradas de dados.",
       "rollsWillAppear": "Las tiradas aparecerán aquí a medida que ocurran.",
       "crit": "¡CRÍTICO!",
-      "fumble": "PIFIA"
+      "fumble": "PIFIA",
+      "tabLog": "Registro",
+      "tabStats": "Estadísticas",
+      "statsTitle": "Estadísticas de dados",
+      "d20Rolls": "tiradas de d20",
+      "nat20": "20 naturales",
+      "nat1": "1 naturales",
+      "average": "Prom.",
+      "luck": "Suerte",
+      "expected": "esperado 10.5",
+      "noD20": "Aún no hay tiradas de d20 registradas.",
+      "luckyHot": "🔥 {{name}} está con buena racha",
+      "luckyCold": "🥶 {{name}} está con mala racha",
+      "histogramTitle": "distribución de d20"
     },
     "diceResult": {
       "natural20": "20 NATURAL - ¡CRÍTICO!",
@@ -4959,6 +4973,36 @@
       "entries": "{{count}} entradas",
       "diceTable": "Tabla de dados ({{die}})",
       "nestedTable": "Tabla anidada ({{count}} categorías)"
+    },
+    "keyboardShortcuts": {
+      "end-turn": "Terminar turno",
+      "cycle-tokens": "Alternar entre fichas",
+      "toggle-initiative": "Mostrar/ocultar panel de iniciativa",
+      "quick-action-1": "Ranura de barra 1",
+      "quick-action-2": "Ranura de barra 2",
+      "quick-action-3": "Ranura de barra 3",
+      "quick-action-4": "Ranura de barra 4",
+      "quick-action-5": "Ranura de barra 5",
+      "quick-action-6": "Ranura de barra 6",
+      "quick-action-7": "Ranura de barra 7",
+      "quick-action-8": "Ranura de barra 8",
+      "quick-action-9": "Ranura de barra 9",
+      "quick-action-10": "Ranura de barra 10",
+      "focus-chat": "Enfocar el chat",
+      "toggle-journal": "Mostrar/ocultar diario",
+      "zoom-in": "Acercar",
+      "zoom-out": "Alejar",
+      "zoom-fit": "Ajustar zoom",
+      "open-dice": "Abrir lanzador de dados (tirar)",
+      "toggle-map-editor": "Mostrar/ocultar editor de mapa (DM)",
+      "close-modal": "Cerrar ventana / Deseleccionar",
+      "show-shortcuts": "Mostrar referencia de atajos",
+      "undo": "Deshacer",
+      "redo": "Rehacer",
+      "open-player-notes": "Abrir mis notas (jugador)",
+      "open-inventory": "Abrir inventario / objetos (jugador)",
+      "toggle-measure": "Activar herramienta de medición (jugador)",
+      "center-on-me": "Centrar cámara en mi personaje"
     }
   },
   "levelup": {
@@ -5595,9 +5639,9 @@
     }
   },
   "commandPalette": {
-    "placeholder": "Escribe un comando o busca…",
-    "empty": "No hay acciones coincidentes",
-    "hint": "↑↓ para navegar · Enter para ejecutar · Esc para cerrar",
+    "placeholder": "Escribe un comando o busca conjuros, monstruos, objetos…",
+    "empty": "Sin acciones ni contenido que coincidan",
+    "hint": "↑↓ para navegar · Intro para abrir · Esc para cerrar",
     "actions": {
       "home": "Ir al inicio",
       "characters": "Ver personajes",
@@ -5611,6 +5655,34 @@
       "about": "Acerca de",
       "replayTour": "Repetir el recorrido de bienvenida",
       "openLog": "Abrir carpeta de registros"
+    },
+    "categories": {
+      "characters": "Personaje",
+      "campaigns": "Campaña",
+      "bastions": "Bastión",
+      "monsters": "Monstruo",
+      "creatures": "Criatura",
+      "npcs": "PNJ",
+      "companions": "Compañero",
+      "spells": "Conjuro",
+      "classes": "Clase",
+      "subclasses": "Subclase",
+      "species": "Especie",
+      "backgrounds": "Trasfondo",
+      "feats": "Dote",
+      "weapons": "Arma",
+      "armor": "Armadura",
+      "gear": "Equipo",
+      "tools": "Herramienta",
+      "magic-items": "Objeto mágico",
+      "conditions": "Condición",
+      "actions": "Acción",
+      "traps": "Trampa",
+      "hazards": "Peligro",
+      "deities": "Deidad",
+      "planes": "Plano",
+      "maps": "Mapa",
+      "rules": "Regla"
     }
   },
   "gameCommandPalette": {

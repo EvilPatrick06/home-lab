@@ -1083,7 +1083,8 @@
       "tokensTitle": "Estimated conversation tokens vs. the AI's conversation-history budget — older messages beyond the budget are not sent to the model",
       "tokens": "~{{used}} / {{max}} tokens",
       "tokensUsedOnly": "~{{used}} tokens",
-      "commandReference": "Command reference"
+      "commandReference": "Command reference",
+      "exportTranscript": "Export transcript (Markdown)"
     },
     "commandAutocomplete": {
       "dmBadge": "DM"
@@ -1362,7 +1363,20 @@
       "noRolls": "No dice rolls yet.",
       "rollsWillAppear": "Rolls will appear here as they happen.",
       "crit": "CRIT!",
-      "fumble": "FUMBLE"
+      "fumble": "FUMBLE",
+      "tabLog": "Log",
+      "tabStats": "Stats",
+      "statsTitle": "Dice Statistics",
+      "d20Rolls": "d20 rolls",
+      "nat20": "Nat 20s",
+      "nat1": "Nat 1s",
+      "average": "Avg",
+      "luck": "Luck",
+      "expected": "expected 10.5",
+      "noD20": "No d20 rolls recorded yet.",
+      "luckyHot": "🔥 {{name}} is rolling hot",
+      "luckyCold": "🥶 {{name}} is running cold",
+      "histogramTitle": "d20 distribution"
     },
     "diceResult": {
       "natural20": "NATURAL 20 - CRITICAL!",
@@ -4959,6 +4973,36 @@
       "entries": "{{count}} entries",
       "diceTable": "Dice table ({{die}})",
       "nestedTable": "Nested table ({{count}} categories)"
+    },
+    "keyboardShortcuts": {
+      "end-turn": "End Turn",
+      "cycle-tokens": "Cycle Through Tokens",
+      "toggle-initiative": "Toggle Initiative Panel",
+      "quick-action-1": "Hotbar Slot 1",
+      "quick-action-2": "Hotbar Slot 2",
+      "quick-action-3": "Hotbar Slot 3",
+      "quick-action-4": "Hotbar Slot 4",
+      "quick-action-5": "Hotbar Slot 5",
+      "quick-action-6": "Hotbar Slot 6",
+      "quick-action-7": "Hotbar Slot 7",
+      "quick-action-8": "Hotbar Slot 8",
+      "quick-action-9": "Hotbar Slot 9",
+      "quick-action-10": "Hotbar Slot 10",
+      "focus-chat": "Focus Chat Input",
+      "toggle-journal": "Toggle Journal",
+      "zoom-in": "Zoom In",
+      "zoom-out": "Zoom Out",
+      "zoom-fit": "Zoom to Fit",
+      "open-dice": "Open Dice Roller (Throw)",
+      "toggle-map-editor": "Toggle Map Editor (DM)",
+      "close-modal": "Close Modal / Deselect",
+      "show-shortcuts": "Show Shortcuts Reference",
+      "undo": "Undo",
+      "redo": "Redo",
+      "open-player-notes": "Open My Notes (player)",
+      "open-inventory": "Open Inventory / Items (player)",
+      "toggle-measure": "Activate Measure Tool (player)",
+      "center-on-me": "Center camera on my character"
     }
   },
   "levelup": {
@@ -5595,9 +5639,9 @@
     }
   },
   "commandPalette": {
-    "placeholder": "Type a command or search…",
-    "empty": "No matching actions",
-    "hint": "↑↓ to navigate · Enter to run · Esc to close",
+    "placeholder": "Type a command or search spells, monsters, items…",
+    "empty": "No matching actions or content",
+    "hint": "↑↓ to navigate · Enter to open · Esc to close",
     "actions": {
       "home": "Go to Home",
       "characters": "View Characters",
@@ -5611,6 +5655,34 @@
       "about": "About",
       "replayTour": "Replay welcome tour",
       "openLog": "Open log folder"
+    },
+    "categories": {
+      "characters": "Character",
+      "campaigns": "Campaign",
+      "bastions": "Bastion",
+      "monsters": "Monster",
+      "creatures": "Creature",
+      "npcs": "NPC",
+      "companions": "Companion",
+      "spells": "Spell",
+      "classes": "Class",
+      "subclasses": "Subclass",
+      "species": "Species",
+      "backgrounds": "Background",
+      "feats": "Feat",
+      "weapons": "Weapon",
+      "armor": "Armor",
+      "gear": "Gear",
+      "tools": "Tool",
+      "magic-items": "Magic Item",
+      "conditions": "Condition",
+      "actions": "Action",
+      "traps": "Trap",
+      "hazards": "Hazard",
+      "deities": "Deity",
+      "planes": "Plane",
+      "maps": "Map",
+      "rules": "Rule"
     }
   },
   "gameCommandPalette": {
