@@ -110,6 +110,13 @@ html[data-theme="light"] {
   --surface-known: 254, 243, 198;
   --surface-locked: 233, 231, 235;
   --text-accent-muted: #92400e; /* PHASE-10 F1: dark ink (~6.8:1 on #fafaf9) — the Phase-41 ramp inversion brightens amber-700 on light. */
+  /* PHASE-12 F1: light-only ink vars for the home Active-Tome panel pills. No :root
+     default on purpose — Dark falls back to the inline hex byte-for-byte
+     (var(--accent-gold-ink, #fcd34d) / var(--accent-purple-ink, #d8b4fe)).
+     Not reusing --text-accent-muted: it has a :root default (amber-700) that would
+     drift the pills' Dark colour away from their current fixed hexes. */
+  --accent-gold-ink: #92400e; /* amber-800 dark ink, >=4.5:1 on #fde68a/#fef3c6 */
+  --accent-purple-ink: #6b21a8; /* purple-800 dark ink, >=4.5:1 on #f3e8ff */
 }
 html[data-theme="light"] body {
   background: #fafaf9; /* stone-50 base — neutral warm off-white */
@@ -277,4 +284,13 @@ html[data-cvd="true"] {
  * !important is required to beat the inline color. */
 html[data-theme="light"] .biome-heading {
   color: var(--text-accent-muted) !important;
+}
+
+/* PHASE-12 F1: the home Active-Tome panel's "ACTIVE TOME" eyebrow (text-amber-600)
+ * and scrolls/riddles/trials meta strip (text-amber-300/80) are Tailwind ramp
+ * classes that stay bright gold on the lightened panel. Class-gate them to dark
+ * ink in light theme only (same mechanism as the PHASE-10 biome headings);
+ * Dark keeps the existing ramp colour. !important beats the Tailwind utility. */
+html[data-theme="light"] .active-tome-accent {
+  color: var(--accent-gold-ink) !important;
 }
