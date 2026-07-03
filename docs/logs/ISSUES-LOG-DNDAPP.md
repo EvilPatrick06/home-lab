@@ -67,6 +67,32 @@ The grouped Dependabot branch `dependabot/npm_and_yarn/dnd-app/mobile/npm-deps-a
 
 *(none currently logged)*
 
+### [2026-07-03] dnd-app/mobile Dependabot lightningcss 1.30.1 -> 1.31.1 breaks Metro bundle (react-native-css AST deserialize) — RESOLVED (declined + pinned)
+
+- **Category:** dependency / build
+- **Severity:** medium
+- **Domain:** dnd-app (mobile)
+- **Discovered by:** integrator (scheduled)
+- **During:** integrator run 2026-07-03 — Dependabot review of PR #62
+
+**Description:**
+Grouped Dependabot PR #62 (`dependabot/npm_and_yarn/dnd-app/mobile/npm-deps-32554d31cb`) bumped `lightningcss` 1.30.1 -> 1.31.1 in `/dnd-app/mobile` (direct devDependency + the `overrides` pin). CI red on `check` (mobile CI) and `mobile-npm-audit`. Two layered problems: (1) the committed `package-lock.json` was out of sync with `package.json` (`npm ci` -> `Missing: typescript@5.9.3 from lock file`, exit 1) — same class as the 2026-06-29 entry; and (2) the underlying bump is genuinely **breaking**.
+
+**Root cause:**
+`npm install` cleanly reconciles the lockfile (16/12 line delta) and `lint`, `tsc --noEmit`, and `expo config` all pass. But the **bundle smoke** (`npx expo export:embed`) fails:
+`global.css: failed to deserialize; expected an object-like struct named Specifier, found ()` thrown from `react-native-css/dist/commonjs/compiler/compiler.js`. `react-native-css@3.0.7` (its latest published version) consumes lightningcss's native serialized CSS AST; lightningcss 1.31.1 changed that serialization format, so the compiler cannot deserialize `global.css`. react-native-css's declared peer `lightningcss >=1.27.0` is too loose — 1.31.1 satisfies the range but is runtime-incompatible. No newer react-native-css exists to accommodate 1.31.1. This is exactly the NativeWind/lightningcss build-only breakage the mobile bundle-smoke gate was added to catch.
+
+**Resolution (fix-forward, this run):**
+- Declined the bump — kept the existing `lightningcss` 1.30.1 pin (package.json dependency + override). master unaffected.
+- Added a scoped `ignore: lightningcss` under the `/dnd-app/mobile` npm ecosystem in `.github/dependabot.yml` so Dependabot stops re-opening this breaking PR each week. Merged to master this run.
+- Closed PR #62 as won't-merge (breaking), branch left for Dependabot to clean up.
+
+**Follow-up (optional, for the dnd-app resolver):** revisit when `react-native-css` publishes a release compatible with lightningcss >=1.31; then drop the ignore rule and let the pin float forward.
+
+**Related files:** `.github/dependabot.yml`, `dnd-app/mobile/package.json`, `dnd-app/mobile/package-lock.json`, `.github/workflows/dnd-app-mobile-ci.yml`
+
+**Related entries:** PR https://github.com/EvilPatrick06/home-lab/pull/62 ; prior lockfile-sync entry [2026-06-29].
+
 ## Low
 
 *(none currently logged)*

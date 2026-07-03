@@ -37,6 +37,16 @@ updates:
     groups:
       npm-deps:
         patterns: ["*"]
+    # react-native-css@3.0.7 (its latest) deserializes lightningcss's native AST
+    # at Metro bundle time. lightningcss > 1.30.1 changed that serialization
+    # (fails with: 'expected an object-like struct named Specifier, found ()'),
+    # which breaks `expo export:embed` even though tsc/lint/npm-ci are green and
+    # the peer range (>=1.27.0) technically allows it. Held at 1.30.1 (see the
+    # package.json override) until a react-native-css release supports the newer
+    # format. Verified breaking in integrator run 2026-07-03 (PR #62). See
+    # docs/logs/ISSUES-LOG-DNDAPP.md.
+    ignore:
+      - dependency-name: "lightningcss"
     cooldown:
       default-days: 7
 
