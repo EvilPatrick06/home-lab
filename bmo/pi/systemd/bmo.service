@@ -22,6 +22,11 @@ RestartSec=5
 # (audio/worker python3 subprocesses + the adb helper) instead of only the main
 # process — prevents orphan children leaking across every restart.
 TimeoutStopSec=20
+# The TV worker's adb fork-server straddled service instances (survived three
+# stops on 2026-07-02, journal "Found left-over process") and can hold audio/
+# device handles across restarts -- tear it down explicitly after stop.
+# "-" prefix + "|| true": best-effort, never fails the unit (adb may be absent).
+ExecStopPost=-/bin/sh -c "command -v adb >/dev/null 2>&1 && adb kill-server || true"
 LimitNOFILE=65536
 StandardOutput=journal
 StandardError=journal

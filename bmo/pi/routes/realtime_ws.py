@@ -19,6 +19,8 @@ import secrets
 import threading
 import time
 
+import hmac
+
 from flask import request
 
 from services import chat_history
@@ -51,9 +53,9 @@ def _bmo_websocket_authorized(auth: object | None) -> bool:
         return True
     if a._bmo_client_is_trusted_localhost():
         return True
-    if (request.headers.get("Authorization", "") or "").strip() == f"Bearer {a.BMO_API_KEY}":
+    if hmac.compare_digest((request.headers.get("Authorization", "") or "").strip(), f"Bearer {a.BMO_API_KEY}"):
         return True
-    if isinstance(auth, dict) and auth.get("bmo_api_key") == a.BMO_API_KEY:
+    if isinstance(auth, dict) and hmac.compare_digest(str(auth.get("bmo_api_key") or ""), str(a.BMO_API_KEY)):
         return True
     # Owner authenticated at the Cloudflare Access edge (verified JWT in the
     # Cf-Access-Jwt-Assertion header or CF_Authorization cookie carried on the

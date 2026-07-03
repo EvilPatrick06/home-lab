@@ -65,8 +65,18 @@ class WindowsProxy:
         if not os.path.isabs(path):
             path = os.path.join(self.root, path)
         path = os.path.abspath(path)
-        # Allow paths under root
-        if not path.startswith(self.root):
+        # Containment at a path-COMPONENT boundary, not a bare string prefix:
+        # with root C:\Users\evilp a bare startswith() also admitted sibling
+        # dirs like C:\Users\evilp-backup (SECURITY-LOG 2026-07-02 -- same
+        # class as the dnd-app isPathInside fix, ported to the Python side).
+        root = os.path.abspath(self.root)
+        try:
+            inside = os.path.commonpath(
+                [os.path.normcase(root), os.path.normcase(path)]
+            ) == os.path.normcase(root)
+        except ValueError:  # e.g. different drives on Windows
+            inside = False
+        if not inside:
             raise ValueError(f"Path outside root: {path}")
         return path
 

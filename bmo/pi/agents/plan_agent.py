@@ -46,9 +46,9 @@ multiple steps or persistence.
 
 Examples (Round 3 #5, 2026-05-17):
   - "Set LEDs to purple breathing 40%" → POST /api/leds/state with
-    {state:"breathing", color:"purple", brightness:40}. NO script.
+    {{state:"breathing", color:"purple", brightness:40}}. NO script.
   - "Pause music" → POST /api/music/pause. NO script.
-  - "Activate movie scene" → POST /api/scene/activate {scene:"movie"}. NO script.
+  - "Activate movie scene" → POST /api/scene/activate {{scene:"movie"}}. NO script.
   - "Build a multi-step recurring routine" → use the routines API
     AND/OR a Python script that wires multiple endpoints together.
 

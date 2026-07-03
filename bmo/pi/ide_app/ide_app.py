@@ -4,6 +4,7 @@ A brand-new IDE built from scratch. Runs independently alongside
 the main BMO app (port 5000).
 """
 
+import hmac
 import os
 import secrets
 import subprocess
@@ -65,7 +66,7 @@ def _ide_token_from_request() -> str:
 def _ide_auth_ok() -> bool:
     if not BMO_IDE_TOKEN:
         return True
-    return _ide_token_from_request() == BMO_IDE_TOKEN
+    return hmac.compare_digest(_ide_token_from_request(), BMO_IDE_TOKEN)
 
 
 @app.before_request
