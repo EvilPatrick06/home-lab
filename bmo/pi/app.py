@@ -58,7 +58,7 @@ _PROCESS_STARTED_AT = datetime.now(timezone.utc)
 
 def _capture_running_commit():
     try:
-        from dev.dev_tools import git_command_args
+        from tools.dev_tools import git_command_args
         repo_root = os.path.dirname(os.path.abspath(__file__))
         result = git_command_args(["rev-parse", "HEAD"], repo_root)
         if isinstance(result, dict) and result.get("exit_code") == 0:
@@ -736,12 +736,12 @@ def init_services():
 
     # Dynamic location/timezone
     if BMO_CANARY:
-        from services.location_service import LocationService  # noqa: F401 — canary import check
+        from services.game.location_service import LocationService  # noqa: F401 — canary import check
         location_service = None
         log.info("[bmo]   Location: CANARY (import-only)")
     else:
         try:
-            from services.location_service import LocationService
+            from services.game.location_service import LocationService
             location_service = LocationService()
             location_service.start_polling()
             current_loc = location_service.get_location()
@@ -844,11 +844,11 @@ def init_services():
         from routes.tv_api import init_tv_remote  # noqa: F401 — canary import check
         from services.monitoring import HealthChecker  # noqa: F401 — canary import check
         from services.notification_service import NotificationService  # noqa: F401 — canary import check
-        from services.scene_service import SceneService  # noqa: F401 — canary import check
+        from services.game.scene_service import SceneService  # noqa: F401 — canary import check
         from services.list_service import ListService  # noqa: F401 — canary import check
         from services.alert_service import AlertService  # noqa: F401 — canary import check
         from services.routine_service import RoutineService  # noqa: F401 — canary import check
-        from services.personality_engine import PersonalityEngine  # noqa: F401 — canary import check
+        from services.game.personality_engine import PersonalityEngine  # noqa: F401 — canary import check
         log.info("[bmo] All services CANARY-checked (import-only) — boot validated.")
         return
 
@@ -1099,7 +1099,7 @@ def init_services():
     service_map["tv_power_off"] = _scene_tv_power_off
 
     try:
-        from services.scene_service import SceneService
+        from services.game.scene_service import SceneService
         scene_service = SceneService(services=service_map, socketio=socketio)
         service_map["scenes"] = scene_service
         if voice:
@@ -1153,7 +1153,7 @@ def init_services():
 
     # Personality engine
     try:
-        from services.personality_engine import PersonalityEngine
+        from services.game.personality_engine import PersonalityEngine
         personality_engine = PersonalityEngine(
             voice=voice,
             socketio=socketio,
@@ -2927,7 +2927,7 @@ def api_model_set():
 # module after import still see their own instance.
 
 def _games_registry():
-    from services.game_registry import get_registry
+    from services.game.game_registry import get_registry
     return get_registry()
 
 

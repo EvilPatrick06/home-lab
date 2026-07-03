@@ -10,7 +10,7 @@ from unittest.mock import AsyncMock, MagicMock
 import discord
 
 from bots.pbp import PbpManager, pbp_done, pbp_skip
-from services.pbp_store import PbpStore
+from services.game.pbp_store import PbpStore
 
 
 def _channel(cid=42, name="play-by-post"):

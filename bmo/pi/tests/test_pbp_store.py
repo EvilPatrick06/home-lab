@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from services.pbp_store import MAX_HISTORY, PbpError, PbpStore
+from services.game.pbp_store import MAX_HISTORY, PbpError, PbpStore
 
 
 def _participants(n=3):

@@ -29,44 +29,44 @@ The registered/routable count is 28 (the `create_*_agent()` calls in `agent.py` 
 
 | Agent | File | Role |
 |---|---|---|
-| **D&D DM** | `dnd_dm.py` | Dungeon Master brain. Narrates, adjudicates, voices NPCs. Uses Claude Opus. |
-| **Encounter** | `encounter_agent.py` | Builds combat encounters tuned to party level/composition. |
-| **Treasure** | `treasure_agent.py` | Generates loot tables + magic items by CR/party. |
-| **Lore** | `lore_agent.py` | Worldbuilding: factions, history, NPCs, places. |
-| **Rules** | `rules_agent.py` | Quick lookup + adjudication of 5e 2024 rules. |
-| **NPC Dialogue** | `npc_dialogue_agent.py` | In-character NPC voice acting + branching dialogue. |
-| **Session Recap** | `session_recap_agent.py` | End-of-session summary, "previously on..." intros. |
-| **VTT Sync** | `vtt_sync.py` | **Special:** bridge between BMO and dnd-app (HTTP callbacks). |
+| **D&D DM** | `dnd/dnd_dm.py` | Dungeon Master brain. Narrates, adjudicates, voices NPCs. Uses Claude Opus. |
+| **Encounter** | `dnd/encounter_agent.py` | Builds combat encounters tuned to party level/composition. |
+| **Treasure** | `dnd/treasure_agent.py` | Generates loot tables + magic items by CR/party. |
+| **Lore** | `dnd/lore_agent.py` | Worldbuilding: factions, history, NPCs, places. |
+| **Rules** | `dnd/rules_agent.py` | Quick lookup + adjudication of 5e 2024 rules. |
+| **NPC Dialogue** | `dnd/npc_dialogue_agent.py` | In-character NPC voice acting + branching dialogue. |
+| **Session Recap** | `dnd/session_recap_agent.py` | End-of-session summary, "previously on..." intros. |
+| **VTT Sync** | `dnd/vtt_sync.py` | **Special:** bridge between BMO and dnd-app (HTTP callbacks). |
 
 ### Everyday (8)
 
 | Agent | File | Role |
 |---|---|---|
-| **Calendar** | `calendar_agent.py` | Google Calendar read/write. |
-| **Weather** | `weather_agent.py` | Current + forecast weather. |
-| **Music** | `music_agent.py` | YouTube Music search/play/queue. |
-| **Timer** | `timer_agent.py` | Named countdown timers + alarms. |
-| **Alert** | `alert_agent.py` | System alerts, notification management. |
-| **Routine** | `routine_agent.py` | Scheduled recurring tasks (morning briefing, etc.). |
-| **List** | `list_agent.py` | Shopping lists, todos. |
-| **Smart Home** | `smart_home_agent.py` | Chromecast, TV, Hue lights via HA. |
+| **Calendar** | `home/calendar_agent.py` | Google Calendar read/write. |
+| **Weather** | `home/weather_agent.py` | Current + forecast weather. |
+| **Music** | `home/music_agent.py` | YouTube Music search/play/queue. |
+| **Timer** | `home/timer_agent.py` | Named countdown timers + alarms. |
+| **Alert** | `home/alert_agent.py` | System alerts, notification management. |
+| **Routine** | `home/routine_agent.py` | Scheduled recurring tasks (morning briefing, etc.). |
+| **List** | `home/list_agent.py` | Shopping lists, todos. |
+| **Smart Home** | `home/smart_home_agent.py` | Chromecast, TV, Hue lights via HA. |
 
 ### Dev / ops (12)
 
 | Agent | File | Role |
 |---|---|---|
-| **Code** | `code_agent.py` | Self-modification. Edits BMO code, restarts services. |
-| **Deploy** | `deploy_agent.py` | Git pull on Pi + systemctl restart via SSH. |
-| **Docs** | `docs_agent.py` | Reads/searches/writes project docs. |
-| **Design** | `design_agent.py` | UI/UX suggestions for the touchscreen kiosk. |
-| **Learning** | `learning_agent.py` | Meta-agent: notices patterns, writes learnings to `data/`. |
-| **Plan** | `plan_agent.py` | Breaks complex tasks into steps. |
-| **Research** | `research_agent.py` | Web research via tool calls. |
-| **Review** | `review_agent.py` | Code review on diffs. |
-| **Security** | `security_agent.py` | Audit + harden (scans for secrets, etc.). |
+| **Code** | `dev/code_agent.py` | Self-modification. Edits BMO code, restarts services. |
+| **Deploy** | `dev/deploy_agent.py` | Git pull on Pi + systemctl restart via SSH. |
+| **Docs** | `dev/docs_agent.py` | Reads/searches/writes project docs. |
+| **Design** | `dev/design_agent.py` | UI/UX suggestions for the touchscreen kiosk. |
+| **Learning** | `dev/learning_agent.py` | Meta-agent: notices patterns, writes learnings to `data/`. |
+| **Plan** | `dev/plan_agent.py` | Breaks complex tasks into steps. |
+| **Research** | `dev/research_agent.py` | Web research via tool calls. |
+| **Review** | `dev/review_agent.py` | Code review on diffs. |
+| **Security** | `dev/security_agent.py` | Audit + harden (scans for secrets, etc.). |
 | **Test** | `test_agent.py` | Runs pytest, interprets failures. |
-| **Cleanup** | `cleanup_agent.py` | Archive stale files, prune logs, clear caches. |
-| **Monitoring** | `monitoring_agent.py` | Reports on system/service health. |
+| **Cleanup** | `dev/cleanup_agent.py` | Archive stale files, prune logs, clear caches. |
+| **Monitoring** | `dev/monitoring_agent.py` | Reports on system/service health. |
 
 ## Routing (how user intent → agent)
 

@@ -19,7 +19,7 @@ import pytest
 # Mock the heavyweight imports the blueprint pulls in.
 _terminal_service_stub = MagicMock()
 _terminal_service_stub.TerminalManager = MagicMock
-sys.modules.setdefault("dev.terminal_service", _terminal_service_stub)
+sys.modules.setdefault("ide.terminal_service", _terminal_service_stub)
 
 
 @pytest.fixture()

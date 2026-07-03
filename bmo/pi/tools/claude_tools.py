@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import threading
 
-from dev.dev_tools import TOOL_DEFINITIONS
+from tools.dev_tools import TOOL_DEFINITIONS
 
 # Thread-local auto-approve flag — set by IDE autopilot mode
 _auto_approve_local = threading.local()
@@ -171,7 +171,7 @@ def claude_chat_with_tools(
                     cmd = result.get("command", "")
                     path = result.get("path", "")
                     print(f"  [autopilot] Auto-approving: {cmd or path}")
-                    from dev.dev_tools import execute_confirmed, write_file_confirmed
+                    from tools.dev_tools import execute_confirmed, write_file_confirmed
                     if name == "execute_command" and cmd:
                         result = execute_confirmed(cmd, args.get("cwd"))
                     elif name == "ssh_command" and cmd:

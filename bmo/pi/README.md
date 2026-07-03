@@ -147,7 +147,7 @@ from calendar_service import CalendarService              # ✗ bare (breaks pos
 
 from hardware.fan_control import FanController            # ✓
 from bots.discord_dm_bot import DMBot                     # ✓
-from dev.claude_tools import invoke                       # ✓
+from tools.claude_tools import invoke                     # ✓
 from wake.enroll_voice import enroll                      # ✓
 ```
 

@@ -1,6 +1,6 @@
 """routes/game_relay_ws.py — Socket.IO /game-namespace glue for the cloud relay.
 
-Phase 32b. A thin transport layer over `services.game_relay.GameRelay`:
+Phase 32b. A thin transport layer over `services.game.game_relay.GameRelay`:
 connect / join / relay / kick / disconnect handlers that translate Socket.IO
 events into GameRelay routing decisions and `emit()` the results to the right
 sockets. NO game logic lives here — all routing/authorization is in
@@ -38,7 +38,7 @@ from flask import request
 from flask_socketio import emit, join_room
 
 from services.bmo_logging import get_logger
-from services.game_relay import get_relay
+from services.game.game_relay import get_relay
 
 log = get_logger("game_relay_ws")
 

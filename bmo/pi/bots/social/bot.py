@@ -694,7 +694,7 @@ class SocialBot(commands.Bot):
 
         global _search_engine
         try:
-            from services.rag_search import SearchEngine
+            from services.game.rag.rag_search import SearchEngine
             import glob as _glob
             _search_engine = SearchEngine()
             loaded = []

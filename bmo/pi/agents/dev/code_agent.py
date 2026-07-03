@@ -255,7 +255,7 @@ class CodeAgent(BaseAgent):
 
     def _run_claude_native_tools(self, messages: list[dict], model: str) -> tuple[str, int, list[dict]]:
         """Run Code Agent via Claude Messages API with native tool use. Returns (final_text, tool_calls_made, pending_confirmations)."""
-        from dev.claude_tools import claude_chat_with_tools, tools_to_claude_format
+        from tools.claude_tools import claude_chat_with_tools, tools_to_claude_format
 
         available = set(self.get_available_tools())
         tools = tools_to_claude_format(available)

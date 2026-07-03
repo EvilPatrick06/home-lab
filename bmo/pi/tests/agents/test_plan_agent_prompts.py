@@ -7,8 +7,8 @@ examples raised KeyError: 'state' on 100% of design-phase requests since
 
 These tests must exercise the REAL prompt strings. Sibling test files
 (test_base_agent.py, test_app_endpoints.py, test_canary_mode.py) install
-`sys.modules["agents"] = MagicMock()` (and `agents.plan_agent` too) at
-import time and never remove them, so a plain `from agents.plan_agent import
+`sys.modules["agents"] = MagicMock()` (and `agents.dev.plan_agent` too) at
+import time and never remove them, so a plain `from agents.dev.plan_agent import
 DESIGN_PROMPT` picks up a MagicMock whenever this file runs after one of them
 in the same pytest process — `.format()` then returns a MagicMock and the
 regression check is silently vacuous. We snapshot/drop/restore every `agents*`
@@ -24,13 +24,13 @@ import pytest
 
 @pytest.fixture()
 def plan_agent():
-    """Yield the REAL agents.plan_agent module (bypassing sibling MagicMocks)."""
+    """Yield the REAL agents.dev.plan_agent module (bypassing sibling MagicMocks)."""
     snapshot = {k: v for k, v in sys.modules.items()
                 if k == "agents" or k.startswith("agents.")}
     for k in list(snapshot):
         del sys.modules[k]
     try:
-        yield importlib.import_module("agents.plan_agent")
+        yield importlib.import_module("agents.dev.plan_agent")
     finally:
         for k in [k for k in list(sys.modules)
                   if k == "agents" or k.startswith("agents.")]:

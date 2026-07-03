@@ -1,4 +1,4 @@
-"""Unit tests for services.game_registry (Phase 29f).
+"""Unit tests for services.game.game_registry (Phase 29f).
 
 Covers register/dedup/heartbeat-TTL/GC/SSE-subscribe paths. The clock is
 injected so GC behavior is deterministic without sleeping.
@@ -11,7 +11,7 @@ import time
 
 import pytest
 
-from services.game_registry import (
+from services.game.game_registry import (
     DEFAULT_TTL_SECONDS,
     GameRegistry,
     Subscription,

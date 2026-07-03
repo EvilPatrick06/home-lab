@@ -1,4 +1,4 @@
-"""Unit tests for services.game_relay (Phase 32a).
+"""Unit tests for services.game.game_relay (Phase 32a).
 
 Covers join (host election + existing-peer return), leave (host flag + room GC),
 route (broadcast / point-to-point / exclude target sets), and authorize (the
@@ -28,7 +28,7 @@ from flask import Flask  # noqa: E402
 from flask_socketio import SocketIO  # noqa: E402
 
 from routes.game_relay_ws import GAME_NS, register_game_relay  # noqa: E402
-from services.game_relay import (  # noqa: E402
+from services.game.game_relay import (  # noqa: E402
     GameRelay,
     get_relay,
     reset_relay_for_tests,

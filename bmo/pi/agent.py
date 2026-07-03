@@ -16,7 +16,7 @@ import requests
 import ollama as ollama_client
 
 from services.cloud_providers import cloud_chat, gemini_chat_stream, groq_llm_chat_stream, PRIMARY_MODEL, ROUTER_MODEL, DND_MODEL
-from dev.dev_tools import dispatch_tool
+from tools.dev_tools import dispatch_tool
 from services.voice.voice_personality import parse_response_tags
 from services.bmo_logging import get_logger, _s
 
@@ -83,7 +83,7 @@ else:
 # D&D data paths + DM helpers were extracted to services/dnd_dm_data.py
 # (2026-06-22). Re-exported here so existing `from agent import ...` callers
 # (agents/dnd_dm.py, agents/encounter_agent.py, tests) keep working.
-from services.dnd_dm_data import (  # noqa: E402
+from services.game.dnd_dm_data import (  # noqa: E402
     DND_DATA_DIR,
     _build_dm_data_context,
     _calculate_encounter_difficulty,
@@ -337,7 +337,7 @@ def _get_rag_engine():
     """Lazy-load the local RAG search engine."""
     global _rag_engine
     if _rag_engine is None:
-        from services.rag_search import SearchEngine
+        from services.game.rag.rag_search import SearchEngine
         _rag_engine = SearchEngine()
         rag_dir = str(_P_DATA_DIR / "rag_data")
         for domain_name in ["dnd", "personal", "projects"]:
@@ -620,10 +620,10 @@ class BmoAgent:
         # Initialize the multi-agent orchestrator
         from agents.orchestrator import AgentOrchestrator
         from agents.conversation import create_conversation_agent
-        from agents.code_agent import create_code_agent
-        from agents.dnd_dm import create_dnd_dm_agent
-        from agents.plan_agent import create_plan_agent
-        from agents.research_agent import create_research_agent
+        from agents.dev.code_agent import create_code_agent
+        from agents.dnd.dnd_dm import create_dnd_dm_agent
+        from agents.dev.plan_agent import create_plan_agent
+        from agents.dev.research_agent import create_research_agent
 
         self.orchestrator = AgentOrchestrator(
             services=self.services,
@@ -1051,7 +1051,7 @@ class BmoAgent:
 
     def _execute_pending_confirmation(self, speaker: str) -> dict:
         """Execute all pending destructive operations after user confirmation."""
-        from dev.dev_tools import execute_confirmed, write_file_confirmed
+        from tools.dev_tools import execute_confirmed, write_file_confirmed
 
         results_text = []
         for pc in self._pending_confirmations:

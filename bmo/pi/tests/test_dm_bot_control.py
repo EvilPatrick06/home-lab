@@ -422,7 +422,7 @@ def test_format_initiative_order():
 
 import datetime as _dt
 
-from agents import vtt_sync as _vs
+from agents.dnd import vtt_sync as _vs
 
 
 def _reset_vtt_state():
@@ -702,7 +702,7 @@ async def test_control_recap_last_mode_404_when_none(monkeypatch):
 def _pbp_bot(tmp_path):
     import discord
     from bots.pbp import PbpManager
-    from services.pbp_store import PbpStore
+    from services.game.pbp_store import PbpStore
 
     ch = MagicMock(spec=discord.TextChannel)
     ch.id = 42

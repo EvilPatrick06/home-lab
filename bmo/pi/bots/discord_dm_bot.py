@@ -41,7 +41,7 @@ if not discord.opus.is_loaded():
         print(f"[discord_dm] Opus not loaded (voice will fail until fixed): {e}")
 
 from services.cloud_providers import cloud_chat, DND_MODEL
-from services.dnd_engine import roll_dice
+from services.game.dnd_engine import roll_dice
 from services.voice.discord_tts import (
     VoiceSpec,
     apply_prosody,
@@ -49,7 +49,7 @@ from services.voice.discord_tts import (
     split_sentences,
     synthesize_chunk,
 )
-from agents.vtt_sync import (
+from agents.dnd.vtt_sync import (
     push_discord_message,
     push_discord_roll,
     push_player_join,
@@ -842,7 +842,7 @@ class DMBot(commands.Bot):
 
         # Load D&D RAG index
         try:
-            from services.rag_search import SearchEngine
+            from services.game.rag.rag_search import SearchEngine
             self._search_engine = SearchEngine()
             rag_dir = str(Path(__file__).resolve().parents[1] / "data" / "rag_data")
             index_path = os.path.join(rag_dir, "chunk-index-dnd.json")
@@ -855,7 +855,7 @@ class DMBot(commands.Bot):
             _log("RAG search init failed: %s", e)
 
         try:
-            from services.campaign_memory import CampaignMemory
+            from services.game.campaign_memory import CampaignMemory
             self._campaign_memory = CampaignMemory()
             _log("Campaign memory initialized")
         except Exception as e:

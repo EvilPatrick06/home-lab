@@ -236,7 +236,7 @@ Available agents to relay to: code, dnd_dm, music, smart_home, timer, calendar, 
 
     def get_tool_descriptions(self) -> str:
         """Generate formatted tool descriptions for the LLM prompt, filtered to available tools."""
-        from dev.dev_tools import TOOL_DEFINITIONS
+        from tools.dev_tools import TOOL_DEFINITIONS
 
         available = set(self.get_available_tools())
         lines = ["Available tools:"]
@@ -351,7 +351,7 @@ Available agents to relay to: code, dnd_dm, music, smart_home, timer, calendar, 
             else:
                 result = {"error": "MCP manager not available"}
         else:
-            from dev.dev_tools import dispatch_tool
+            from tools.dev_tools import dispatch_tool
             result = dispatch_tool(name, args, settings=settings)
 
         # 3. Run post-hooks — may add context

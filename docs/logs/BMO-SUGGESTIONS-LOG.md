@@ -197,6 +197,54 @@ Meanwhile the genuinely dev-only contents (`dev/benchmarks/`, `dev/diagnostics/`
 **Related files:** `bmo/pi/dev/terminal_service.py`, `bmo/pi/dev/file_watcher.py`, `bmo/pi/dev/dev_tools.py`, `bmo/pi/dev/claude_tools.py`, `bmo/pi/dev/ai-temp/README.md`, `bmo/pi/routes/ide.py`, `bmo/pi/ide_app/ide_app.py`, `bmo/pi/app.py`, `bmo/pi/agent.py`, `bmo/pi/agents/code_agent.py`
 
 **Related entries:** this log, 2026-06-28 "`pi/scripts/` has no README and ships two non-standard `*.router-deployed` / `*.reference` notify copies" (sibling "what here is operational vs. ad-hoc is unclear" smell).
+### [2026-06-29] Speaker identity is resolved every voice turn but dropped before the agent layer — `run_agent`/`agent.run` never receive `speaker`, so memory/lists/learning/personality stay single-user despite BMO already knowing who is talking
+
+- **Category:** future-idea (capability / UX)
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of the voice pipeline → orchestrator → agent dispatch path and the per-user state held by the memory/list/learning agents
+
+**Description:**
+Every voice turn already pays for speaker identification: `VoicePipeline.identify_speaker()` runs at `services/voice/voice_pipeline.py:436` (its own recorded latency stage, `_record_stage("identify_speaker", …)`), the result gates unregistered speakers (`if speaker == "unknown" and profiles: …ignore`), and the `speaker` string is threaded into the chat callbacks (`_chat_stream_callback(text, speaker)` / `_chat_callback(text, speaker)`) and on into `Orchestrator.handle(message, speaker, history, services, …)` (`agents/orchestrator.py:85`). **But the orchestrator uses `speaker` only for telemetry/UX emits** — the `agent_selected` SocketIO event and the plan-mode passthrough — and then calls `run_agent(agent_name, clean_message, history=history)` **without it**. `run_agent` / `agent.run(message, history, context)` have no `speaker`/`user` parameter, and `context` is `None` on the normal path, so the identified speaker is **discarded before any agent runs**. The downstream agents are correspondingly single-user: `agents/learning_agent.py` persists one global `profile` + `entries` blob (`get_profile()` returns `self._memory.get("profile", {})`, not a per-speaker map), and lists / memory / calendar / personality are likewise global. Net: the system spends inference resolving *who* is speaking, supports *multiple* enrolled voice profiles (`data/voice_profiles.json`, `services/voice/speaker_enrollment.py`), then throws that identity away — so "remember that I like X", "add eggs to my list", or a personalized greeting from any household member all read and write the same shared store, and BMO can never answer "what's on **my** calendar" differently per person even though it knows the speaker.
+
+**Hypothesis / root cause:** speaker-ID was built for the *gate* use case (ignore strangers / label the transcript line) first; threading it through the agent execution context and re-keying the per-user stores (learning/memory/lists) is a larger, separate piece of work that was never done, so `speaker` stops at the orchestrator boundary.
+
+**Proposed fix / improvement:**
+- [ ] Add an optional `speaker`/`user` field to the agent call path — either widen `run_agent(..., context=...)` to always pass `{"speaker": speaker}` from `Orchestrator.handle`, or add a first-class param — so agents can opt into per-user behavior without changing the router.
+- [ ] Re-key the genuinely user-scoped stores by speaker: `learning_agent` profile/entries, `list_service` lists, and the personalization the personality engine could use (e.g. per-user greeting), with a clear default/fallback bucket for `"unknown"` / single-user setups so nothing regresses when only one profile exists.
+- [ ] Keep it behavior-neutral by default (one enrolled profile → identical behavior to today) and gate the multi-user paths on `len(profiles) > 1`, so the feature only activates in actual multi-person households.
+- [ ] Add tests: speaker A's "remember X" must not surface for speaker B; unknown speaker falls back to the shared bucket.
+
+**Blocked by:** none (additive; the identity value is already computed and already reaches the orchestrator).
+
+**Related files:** `bmo/pi/services/voice/voice_pipeline.py:436` (`identify_speaker`), `:1448` (definition), `bmo/pi/agents/orchestrator.py:85` (`handle` — receives `speaker`), `:124` (`run_agent` — does not), `bmo/pi/agents/learning_agent.py` (global `profile`/`entries`), `bmo/pi/services/list_service.py`, `bmo/pi/services/voice/speaker_enrollment.py`, `bmo/pi/data/voice_profiles.json`.
+
+**Related entries:** Future-idea 2026-06-28 (agent-registration observability) is adjacent in that both concern the orchestrator/agent layer, but this is the un-flagged *speaker-context-not-propagated* gap, not a registration/observability one.
+
+### [2026-06-29] Tier-2 keyword router has example-assertion tests but no measured accuracy / confusion-matrix eval, so a newly-added keyword can silently steal routes among the ~28 agents' hand-maintained substring lists
+
+- **Category:** future-idea (DX / observability), UX
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** read-only review of `agents/router.py` Tier-2 keyword scoring and its test coverage in `tests/agents/test_0_routing_accuracy.py`
+
+**Description:**
+The Tier-2 keyword router (`agents/router._check_keywords`) scores each agent by raw substring hit count (`count = sum(1 for kw in keywords if kw in lower)`) and returns `max(scores, key=scores.get)`. The `KEYWORD_PATTERNS` map is ~28 agents' worth of hand-maintained substrings, several of them very generic — e.g. `lore` owns `"who is"`, `"what is a"`, `"history of"`; `rules` owns `"how does"`, `"can i"`, `"does this work"`. These collide easily with each other and with `conversation`, and ties are resolved by `max()` returning the **first** key in `KEYWORD_PATTERNS` insertion order (today `code` wins ties) — a determinism-by-declaration-order the existing tests explicitly tolerate (`test_0_routing_accuracy.py:123,146`: "either agent is a valid result"). Coverage is solid for the *cases someone thought to assert*, but it is pass/fail example assertions — **there is no aggregate accuracy number, no per-agent confusion matrix, and no labeled corpus**. So when someone adds a keyword to agent X that happens to be a substring of utterances meant for agent Y, nothing fails unless an assertion already pinned that exact X/Y pair. Per-tier *counters* exist (`bmo_router_tier_keyword_total`, etc., added in the resolved 2026-06-23 telemetry work) but they count *which tier fired*, not *whether the chosen agent was correct* — so misroutes, the single biggest voice-UX failure mode, remain unmeasured. The file name `test_0_routing_accuracy.py` promises an accuracy measurement the file does not actually compute.
+
+**Hypothesis / root cause:** the router grew agent-by-agent with each new agent appending its own keyword list; tests were added per agent as examples rather than as a corpus-driven accuracy gate, and the telemetry pass added tier counters but not an outcome/correctness signal.
+
+**Proposed fix / improvement:**
+- [ ] Convert the scattered example assertions into a single labeled corpus (`utterance → expected_agent`, dozens per agent incl. known-tricky generic phrases) and compute an **accuracy %** + a **confusion matrix** in the test, failing on a regression threshold and printing the top confused agent pairs — turning the existing telemetry/board metric into a measured DX gate.
+- [ ] Use the confusion output to find and tighten the genuinely collision-prone generic keywords (`"who is"`, `"what is a"`, `"how does"`, `"can i"`), e.g. require a longer/multi-word anchor or a minimum score margin before Tier-2 commits (fall through to default/Tier-3 on a weak single-keyword tie).
+- [ ] Optional closed loop: now that per-tier counters exist, periodically sample real (anonymized) routed utterances + chosen agent into the corpus so the eval reflects production phrasing, not just hand-written examples.
+
+**Blocked by:** none.
+
+**Related files:** `bmo/pi/agents/router.py` (`_check_keywords`, `KEYWORD_PATTERNS`, `route`), `bmo/pi/tests/agents/test_0_routing_accuracy.py`, `bmo/pi/services/metrics_counters.py`.
+
+**Related entries:** Resolved 2026-06-23 (router per-tier telemetry + Tier-3 re-enable) — that added *tier* counters; this is the un-addressed *routing-correctness* measurement gap on top of it.
 
 ### [2026-06-29] `app.py` is a 3,087-line half-decomposed Flask god-module — PHASE-16 extracted 7 blueprints but ~20 domains + 145 inline routes still live in it, with no tracking of what remains
 
@@ -274,26 +322,3 @@ Net: the fan path is the least-portable, least-testable, least-consistent hardwa
 
 ---
 
-### [2026-06-28] The D&D / game subsystem is ~11 flat files at `services/` top level (~200 KB) with no `services/game/` (or `services/dnd/`) subpackage — the largest un-grouped cluster, bigger than the calendar one already flagged
-
-- **Category:** future-idea (structure / DX)
-- **Severity:** low
-- **Domain:** bmo
-- **Discovered by:** bmo-cleanup
-- **During:** read-only scan of `bmo/pi/services/` clustering vs the `services/voice/` precedent
-
-**Description:**
-`services/` holds a large, obviously-cohesive D&D / multiplayer-game subsystem spread as ~11 sibling files interleaved alphabetically among the unrelated service modules: `dnd_engine.py` (20 KB), `dnd_dm_data.py` (11 KB), `game_registry.py` (16 KB), `game_relay.py` (18 KB), `campaign_memory.py` (19 KB), `scene_service.py` (21 KB), `location_service.py` (19 KB), `pbp_store.py` (13 KB), `personality_engine.py` (18 KB), `rag_search.py` (22 KB) and `build_rag_indexes.py` (30 KB) — together ~200 KB, the single biggest related cluster in the directory. `docs/SERVICES.md` even documents them as one functional group (dnd_engine/game_registry/game_relay rows), yet nothing in the tree expresses that grouping. The codebase already established the "pull a cohesive cluster into a subpackage" pattern with `services/voice/` (10 modules), and the calendar entry (this log, 2026-06-24) called the **calendar** group "the largest un-grouped one" — but the game cluster is materially larger and is the more impactful reorg target. Import fan-in is low and reorg-friendly (most modules have 1–2 importers; `rag_search` 6, `pbp_store` 4), so the move is mechanical and low-risk.
-
-**Hypothesis / root cause:** `services/` grew flat and only the voice subsystem was ever subpackaged; the D&D/game modules were each added independently as the dnd-app multiplayer + DM-engine features landed (Phases 29f/32 per SERVICES.md), so the cluster accreted without anyone introducing a `services/game/` home.
-
-**Proposed fix / improvement:**
-- [ ] Introduce `services/game/` (with `__init__.py` re-exporting the public surface) and `git mv` the cluster in as `engine.py`, `dm_data.py`, `registry.py`, `relay.py`, `campaign_memory.py`, `scene.py`, `location.py`, `pbp_store.py`, `personality_engine.py`, plus a nested `services/game/rag/` for `rag_search.py` + `build_rag_indexes.py` (the RAG retrieval pair). Update the ~20 intra-repo import sites atomically (or via thin shim re-exports) so `app.py`, `routes/`, the `dnd_dm`/`encounter`/`lore` agents and the dnd-data MCP server keep working.
-- [ ] Land it as a behavior-identical reorg gated by pytest + the CI 4-gate; sequence it AFTER (or alongside) the calendar-cluster move so the two land coherently and `docs/SERVICES.md` / `docs/ARCHITECTURE.md` can be updated once.
-- [ ] Promote the "cluster ≥3 related service modules into a subpackage" rule to an explicit convention in `docs/ARCHITECTURE.md` (the calendar entry proposed this; the game cluster is the strongest motivating example).
-
-**Related files:** `bmo/pi/services/{dnd_engine,dnd_dm_data,game_registry,game_relay,campaign_memory,scene_service,location_service,pbp_store,personality_engine,rag_search,build_rag_indexes}.py`; precedent `bmo/pi/services/voice/`; `bmo/pi/docs/SERVICES.md:59-62`, `bmo/pi/docs/ARCHITECTURE.md:84`.
-
-**Related entries:** Future-ideas 2026-06-24 (calendar OAuth → `services/calendar/`) — same subpackage-the-cluster idea; this entry is the larger sibling cluster that the calendar entry under-counted ("largest un-grouped one").
-
----

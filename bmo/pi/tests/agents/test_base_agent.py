@@ -21,10 +21,10 @@ _AGENT_MOCKS = [
     "agents.orchestrator",
     "agents.scratchpad",
     "agents.conversation",
-    "agents.code_agent",
-    "agents.dnd_dm",
-    "agents.plan_agent",
-    "agents.research_agent",
+    "agents.dev.code_agent",
+    "agents.dnd.dnd_dm",
+    "agents.dev.plan_agent",
+    "agents.dev.research_agent",
     "agents._registry",
     "rag_search",
     "agents.mcp_manager",
@@ -156,10 +156,10 @@ def bmo_agent(mock_orchestrator):
     """BmoAgent instance with all external calls mocked."""
     from agents.orchestrator import AgentOrchestrator
     from agents.conversation import create_conversation_agent
-    from agents.code_agent import create_code_agent
-    from agents.dnd_dm import create_dnd_dm_agent
-    from agents.plan_agent import create_plan_agent
-    from agents.research_agent import create_research_agent
+    from agents.dev.code_agent import create_code_agent
+    from agents.dnd.dnd_dm import create_dnd_dm_agent
+    from agents.dev.plan_agent import create_plan_agent
+    from agents.dev.research_agent import create_research_agent
 
     AgentOrchestrator.return_value = mock_orchestrator
     create_conversation_agent.return_value = MagicMock()

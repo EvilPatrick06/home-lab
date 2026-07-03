@@ -22,10 +22,10 @@ _EXTRA_MOCKS = [
     "agents.orchestrator",
     "agents.scratchpad",
     "agents.conversation",
-    "agents.code_agent",
-    "agents.dnd_dm",
-    "agents.plan_agent",
-    "agents.research_agent",
+    "agents.dev.code_agent",
+    "agents.dnd.dnd_dm",
+    "agents.dev.plan_agent",
+    "agents.dev.research_agent",
     "agents._registry",
     "voice_pipeline",
     "led_controller",
@@ -86,10 +86,10 @@ _mock_orchestrator.handle = MagicMock(
 sys.modules["agents.orchestrator"].AgentOrchestrator = MagicMock(return_value=_mock_orchestrator)
 sys.modules["agents.scratchpad"].SharedScratchpad = MagicMock()
 sys.modules["agents.conversation"].create_conversation_agent = MagicMock(return_value=MagicMock())
-sys.modules["agents.code_agent"].create_code_agent = MagicMock(return_value=MagicMock())
-sys.modules["agents.dnd_dm"].create_dnd_dm_agent = MagicMock(return_value=MagicMock())
-sys.modules["agents.plan_agent"].create_plan_agent = MagicMock(return_value=MagicMock())
-sys.modules["agents.research_agent"].create_research_agent = MagicMock(return_value=MagicMock())
+sys.modules["agents.dev.code_agent"].create_code_agent = MagicMock(return_value=MagicMock())
+sys.modules["agents.dnd.dnd_dm"].create_dnd_dm_agent = MagicMock(return_value=MagicMock())
+sys.modules["agents.dev.plan_agent"].create_plan_agent = MagicMock(return_value=MagicMock())
+sys.modules["agents.dev.research_agent"].create_research_agent = MagicMock(return_value=MagicMock())
 sys.modules["agents._registry"].create_all_agents = MagicMock(return_value=[])
 
 # voice_pipeline — needs _strip_markdown class method
