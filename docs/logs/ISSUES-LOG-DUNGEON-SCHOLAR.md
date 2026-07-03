@@ -53,42 +53,7 @@ The `auto/scholar-phase-executer` branch (head `1b3c00ed`) is a genuine, unmerge
 
 ## Medium
 
-### [2026-07-02] Cloud-sync sign-in reconciliation trusts client clocks — cross-device skew can silently drop the newer save without the MergeChooser
-
-- **Category:** bug
-- **Severity:** medium
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-errors
-- **During:** automated error scan (manual review of the cloud-sync reconciliation path)
-
-**Description:**
-`pushSave` (`src/services/cloudSync.js`) stamps `updated_at` from the pushing device’s clock (`new Date().toISOString()`), and the sign-in reconciliation in `src/hooks/usePlayerState.js` (~line 378) decides “has the cloud changed since my last sync?” by comparing that cross-device timestamp against the locally recorded `lastSyncedAt`: `cloudTime <= lastSyncTime` ⇒ “cloud unchanged.” Both sides of that comparison come from *different devices’ wall clocks*. If device B (clock behind) pushes newer work after device A’s last sync, A can compute `cloudTime <= lastSyncTime` and misclassify B’s newer save as “nothing new”:
-
-- A dirty → A pushes its local state over B’s newer cloud save with **no MergeChooser** (silent lost update);
-- A clean → A keeps playing on stale local state and its next dirty push overwrites B’s work.
-
-`pushSave` is an unconditional upsert with no optimistic-concurrency guard (no `WHERE updated_at = <expected>` / no DB-side `now()`), so nothing server-side catches the lost update either. Mitigations that keep this medium rather than high: the Realtime subscription applies B’s push live when A is online at that moment; `semanticHashState` suppresses false chooser prompts only when contents match (it does not rescue divergent content); and the loss window is bounded by the clock skew relative to the gap between syncs. But devices with minutes of skew (common on machines without NTP, VMs, phones with manual time) syncing in close succession can silently lose the smaller session’s work.
-
-**Reproduction (if bug):**
-1. Device A signs in, plays, syncs (A’s `lastSyncedAt` = A-clock T0).
-2. Device B (clock set a few minutes behind A) plays offline-from-A’s-perspective (A not running), pushes at real time > T0 but B-clock stamp < T0.
-3. Device A opens the app with local dirty changes and signs in / resumes session.
-4. Observed: A pushes over B’s save without showing the MergeChooser; B’s session is gone on next pull.
-
-**Expected behavior (if bug):** Newer cloud content is never silently discarded/overwritten due to clock disagreement — either timestamps are server-authoritative, or content divergence (not wall-clock ordering) drives the chooser.
-
-**Hypothesis / root cause:** last-write-wins reconciliation keyed on client-generated `updated_at`; no server-side timestamping or compare-and-swap on the `saves` row.
-
-**Proposed fix / improvement:**
-- [ ] Make `updated_at` server-authoritative: DB default/trigger `now()` on the `saves` table (drop the client-supplied value), and have `pushSave` `.select(updated_at)` the stored value back — the existing “record exactly what’s in the cloud” return contract already anticipates this.
-- [ ] Optionally add optimistic concurrency: include the last-seen `updated_at` in the upsert (`WHERE updated_at = expected` via RPC) and route a mismatch to the MergeChooser instead of overwriting.
-- [ ] Fall back to the existing `semanticHashState` divergence check (not timestamp ordering) when deciding the “cloud unchanged” fast path.
-
-**Blocked by:** none
-
-**Related files:** `dungeon-scholar/src/services/cloudSync.js` (pushSave), `dungeon-scholar/src/hooks/usePlayerState.js` (sign-in reconciliation ~lines 330–410), `dungeon-scholar/docs/supabase-setup.md` (saves table DDL)
-
-**Related entries:** none (grep: no prior skew/LWW entry in the dungeon-scholar logs)
+*(none currently logged)*
 
 
 ## Low

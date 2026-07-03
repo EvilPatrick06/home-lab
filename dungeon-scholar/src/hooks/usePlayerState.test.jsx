@@ -308,6 +308,68 @@ describe('usePlayerState — smart sign-in merge using sync meta', () => {
     expect(result.current[2].mergeRequired).toBe(false);
   });
 
+  it('CLOCK SKEW: dirty + cloud stamp OLDER than lastSync but a different stored value → chooser, never a silent overwrite', async () => {
+    // Regression for ISSUES-LOG-DUNGEON-SCHOLAR 2026-07-02: device B (clock
+    // behind) pushed newer work whose stamp sorts BEFORE this device's
+    // lastSyncedAt. The old `cloudTime <= lastSyncTime` ordering classified
+    // that as "cloud unchanged" and a dirty sign-in pushed straight over B's
+    // save. Identity comparison must instead see a changed cloud and route
+    // divergent content to the MergeChooser.
+    localStorage.setItem('dungeon-scholar:save:v1', JSON.stringify({ level: 5, totalXp: 100, library: [{ id: 'a' }] }));
+    localStorage.setItem(
+      'dungeon-scholar:sync:v1',
+      JSON.stringify({ lastSyncedAt: '2026-04-29T10:00:00Z', dirty: true }),
+    );
+
+    pullSave.mockResolvedValueOnce({
+      data: { level: 9, totalXp: 500, library: [{ id: 'a' }, { id: 'b' }] },
+      updatedAt: '2026-04-29T09:55:00Z', // sorts before lastSyncedAt, but is a DIFFERENT stored stamp
+      schemaVer: 1,
+    });
+
+    const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
+    await waitFor(() => expect(result.current[2].mergeRequired).toBe(true));
+    expect(pushSave).not.toHaveBeenCalled();
+  });
+
+  it('CLOCK SKEW: clean + cloud stamp older but different → silently takes the cloud save', async () => {
+    localStorage.setItem('dungeon-scholar:save:v1', JSON.stringify({ level: 5, totalXp: 100, library: [{ id: 'a' }] }));
+    localStorage.setItem(
+      'dungeon-scholar:sync:v1',
+      JSON.stringify({ lastSyncedAt: '2026-04-29T10:00:00Z', dirty: false }),
+    );
+
+    pullSave.mockResolvedValueOnce({
+      data: { level: 9, totalXp: 500, library: [{ id: 'a' }, { id: 'b' }] },
+      updatedAt: '2026-04-29T09:55:00Z',
+      schemaVer: 1,
+    });
+
+    const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
+    await waitFor(() => expect(result.current[0].level).toBe(9));
+    expect(result.current[2].mergeRequired).toBe(false);
+    expect(pushSave).not.toHaveBeenCalled();
+  });
+
+  it('FORMAT DRIFT: same instant serialized differently (client `...Z` vs PostgREST `+00:00`) still counts as unchanged — dirty pushes, no chooser', async () => {
+    localStorage.setItem('dungeon-scholar:save:v1', JSON.stringify({ level: 6, totalXp: 150, library: [{ id: 'a' }] }));
+    localStorage.setItem(
+      'dungeon-scholar:sync:v1',
+      JSON.stringify({ lastSyncedAt: '2026-04-29T10:00:00.000Z', dirty: true }),
+    );
+
+    pullSave.mockResolvedValueOnce({
+      data: { level: 5, totalXp: 100, library: [{ id: 'a' }] },
+      updatedAt: '2026-04-29T10:00:00+00:00', // same instant, different serialization
+      schemaVer: 1,
+    });
+    pushSave.mockResolvedValue({ updatedAt: '2026-04-29T10:05:00+00:00' });
+
+    const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
+    await waitFor(() => expect(pushSave).toHaveBeenCalled());
+    expect(result.current[2].mergeRequired).toBe(false);
+  });
+
   it('local and cloud are byte-identical → no chooser even when never synced before', async () => {
     // Same state on both sides, but no prior sync meta exists. Previously
     // this hit the "!lastSync" branch and forced the MergeChooser despite
