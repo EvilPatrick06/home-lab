@@ -24,7 +24,11 @@
 // descriptions, plus the code + diagram blocks for technical answers
 // and a visual hint that $...$ is a math expression.
 
-const FENCE_RE = /```([a-z0-9_-]*)\n?([\s\S]*?)```/gi;
+// Capture group 1 = language token; group 2 = the REST of the info line
+// (an optional caption, e.g. ```topology Core switch to two access switches);
+// group 3 = the fenced body. The caption gives diagram fences a screen-reader
+// text alternative (sugg-diagram-a11y).
+const FENCE_RE = /```([a-z0-9_-]*)([^\n]*)\n?([\s\S]*?)```/gi;
 // Single regex that alternates between every inline form. Order matters:
 // inline-code first so a code span containing asterisks/dollar-signs
 // stays literal; bold (\*\*) before italic (\*); image (\!\[\]\(\)) before
@@ -76,11 +80,16 @@ export function parseRichContent(text) {
     if (m.index > lastIdx) {
       pushTextish(text.slice(lastIdx, m.index), nodes);
     }
-    nodes.push({
+    const codeNode = {
       type: 'code',
       language: (m[1] || '').toLowerCase(),
-      content: m[2],
-    });
+      content: m[3],
+    };
+    // Only attach a caption when the info line carried one, so plain fences
+    // keep their minimal { type, language, content } shape (back-compatible).
+    const captionText = (m[2] || '').trim();
+    if (captionText) codeNode.caption = captionText;
+    nodes.push(codeNode);
     lastIdx = m.index + m[0].length;
   }
   if (lastIdx < text.length) {

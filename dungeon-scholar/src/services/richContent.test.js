@@ -264,3 +264,28 @@ describe('isDiagramLanguage', () => {
     expect(isDiagramLanguage(undefined)).toBe(false);
   });
 });
+
+
+describe('parseRichContent - diagram caption (sugg-diagram-a11y)', () => {
+  it('captures an info-line caption after the language token', () => {
+    const out = parseRichContent('```topology Core switch to two access switches\nA---B\n```');
+    expect(out[0]).toEqual({
+      type: 'code',
+      language: 'topology',
+      caption: 'Core switch to two access switches',
+      content: 'A---B\n',
+    });
+  });
+
+  it('omits the caption field for a plain fence (back-compatible shape)', () => {
+    const out = parseRichContent('```bash\nls -la\n```');
+    expect(out[0]).toEqual({ type: 'code', language: 'bash', content: 'ls -la\n' });
+    expect('caption' in out[0]).toBe(false);
+  });
+
+  it('trims caption whitespace and tolerates an empty info line', () => {
+    const out = parseRichContent('```flow   \nX\n```');
+    expect('caption' in out[0]).toBe(false);
+    expect(out[0].language).toBe('flow');
+  });
+});

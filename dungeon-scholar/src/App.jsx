@@ -66,6 +66,7 @@ import { todayDateStr } from './services/devotion.js';
 import { notificationPermission, showStudyReminder } from './services/notifications.js';
 import { PETS } from './services/pets.js';
 import { SPELLS } from './services/spells.js';
+import { updateDueBadge } from './services/appBadge.js';
 import { dueCount, setDesiredRetention } from './services/srs.js';
 
 const LibraryScreen = lazyWithReload(() => import('./features/library/LibraryScreen.jsx'));
@@ -197,6 +198,16 @@ export default function DungeonScholarApp() {
     studyRemindedRef.current = true;
     const due = lib.reduce((sum, t) => sum + dueCount(t.progress?.cardProgress || {}, t.data?.flashcards || []), 0);
     showStudyReminder({ dueCount: due });
+  }, [playerState.library]);
+
+  // sugg-pwa-badging: reflect the total due-card count across the library onto
+  // the installed PWA icon (App Badging API). Feature-detected + no-ops where
+  // unsupported (iOS Safari / Firefox). Recomputed whenever the library or its
+  // per-tome progress changes so the glanceable count stays fresh.
+  useEffect(() => {
+    const lib = playerState.library || [];
+    const due = lib.reduce((sum, t) => sum + dueCount(t.progress?.cardProgress || {}, t.data?.flashcards || []), 0);
+    updateDueBadge(due);
   }, [playerState.library]);
 
   // Phase 34b QA P10: apply theme to the root element. Re-evaluates on

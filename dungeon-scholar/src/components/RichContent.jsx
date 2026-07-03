@@ -247,9 +247,32 @@ export default function RichContent({ text, className, style, as: BlockTag = 'di
     } else if (n.type === 'code') {
       flushRun();
       const diagram = isDiagramLanguage(n.language);
+      // sugg-diagram-a11y: text-diagram fences (ascii/topology/flow/diagram)
+      // are glyph art a screen reader would read character-by-character. Wrap
+      // them as a single role="img" unit with an aria-label — the author's
+      // caption when present (```topology Core to two access switches), else a
+      // generic "ASCII diagram" label. A visible caption is also rendered.
+      const diagramLabel = diagram ? n.caption || 'ASCII diagram' : undefined;
       children.push(
-        <pre key={`c${i}`} style={styleForFence(n.language)}>
+        <pre
+          key={`c${i}`}
+          style={styleForFence(n.language)}
+          {...(diagram ? { role: 'img', 'aria-label': diagramLabel } : {})}
+        >
           {n.language && <span style={LANG_TAG_STYLE}>{diagram ? 'diagram' : n.language}</span>}
+          {diagram && n.caption && (
+            <span
+              style={{
+                display: 'block',
+                fontStyle: 'italic',
+                fontSize: '0.8em',
+                opacity: 0.75,
+                marginBottom: '0.4em',
+              }}
+            >
+              {n.caption}
+            </span>
+          )}
           <code
             style={{
               background: 'transparent',
