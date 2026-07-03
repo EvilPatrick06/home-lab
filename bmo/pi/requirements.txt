@@ -7,6 +7,14 @@
 --extra-index-url https://www.piwheels.org/simple
 --extra-index-url https://download.pytorch.org/whl/cpu
 
+# openwakeword is installed separately with --no-deps (see install scripts,
+# Dockerfile, and CI workflow). Its metadata hard-requires tflite-runtime on
+# Linux, but bmo runs it with inference_framework="onnx" (onnxruntime) and
+# never uses the tflite backend. tflite-runtime is abandoned at cp311 (final
+# release 2.14.0, no wheels for py3.12+), so pinning it blocked the Python
+# bump. openwakeword's real runtime deps (onnxruntime, scipy, scikit-learn,
+# requests, tqdm) stay resolved below.
+
 aiofiles==25.1.0
     # via androidtvremote2
 aiohappyeyeballs==2.6.2
@@ -233,7 +241,6 @@ numpy==2.4.6
     #   scipy
     #   soundfile
     #   soxr
-    #   tflite-runtime
 oauthlib==3.3.1
     # via requests-oauthlib
 ollama==0.6.2
@@ -241,11 +248,8 @@ ollama==0.6.2
 onnxruntime==1.26.0
     # via
     #   faster-whisper
-    #   openwakeword
     #   piper-tts
 opencv-python-headless==4.13.0.92
-    # via -r requirements.in
-openwakeword==0.6.0
     # via -r requirements.in
 ordered-set==4.1.0
     # via flask-limiter
@@ -336,7 +340,6 @@ requests==2.34.2
     #   -r requirements.in
     #   casttube
     #   google-api-core
-    #   openwakeword
     #   pooch
     #   requests-oauthlib
     #   ytmusicapi
@@ -357,12 +360,10 @@ rpi-gpio==0.7.1
 scikit-learn==1.8.0
     # via
     #   librosa
-    #   openwakeword
 scipy==1.17.1
     # via
     #   -r requirements.in
     #   librosa
-    #   openwakeword
     #   resemblyzer
     #   scikit-learn
 shellingham==1.5.4
@@ -393,8 +394,6 @@ sympy==1.14.0
     # via torch
 tabulate==0.10.0
     # via edge-tts
-tflite-runtime==2.14.0
-    # via openwakeword
 threadpoolctl==3.6.0
     # via scikit-learn
 tokenizers==0.23.1
@@ -405,7 +404,6 @@ tqdm==4.67.3
     # via
     #   faster-whisper
     #   huggingface-hub
-    #   openwakeword
 typer==0.25.1
     # via huggingface-hub
 typing==3.7.4.3
