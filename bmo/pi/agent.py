@@ -47,15 +47,23 @@ _IS_PI = platform.machine().startswith("aarch64") or platform.machine().startswi
 
 # Ollama options for LOCAL fallback only (cloud APIs handle primary inference)
 if _IS_PI:
+    # num_thread: cap local inference to 3 of the Pi's 4 cores (BMO-ISSUES
+    # 2026-06-29 thermal entry). A 4-core Ollama burst drives the SoC to ~85C
+    # and active throttling even with the fan curve saturated; leaving one
+    # core idle bounds peak package heat and keeps the voice pipeline /
+    # monitoring responsive during fallback. Override: BMO_LOCAL_NUM_THREAD.
+    _LOCAL_NUM_THREAD = int(os.environ.get("BMO_LOCAL_NUM_THREAD", "3") or 3)
     OLLAMA_OPTIONS = {
         "num_ctx": 8192,
         "num_predict": 1024,
         "temperature": 0.8,
+        "num_thread": _LOCAL_NUM_THREAD,
     }
     OLLAMA_PLAN_OPTIONS = {
         "num_ctx": 4096,
         "num_predict": 256,
         "temperature": 0.5,
+        "num_thread": _LOCAL_NUM_THREAD,
     }
 else:
     OLLAMA_OPTIONS = {
@@ -147,10 +155,15 @@ def _local_chat(messages: list[dict], options: dict | None = None) -> str:
         # quickly after the request. Default 5min keep-alive was eating
         # ~3.7GB RAM per gemma3:4b load and driving Pi RAM warnings.
         # 30s is enough for follow-up turns to stay warm without pinning.
+        # Thermal admission gate (BMO-ISSUES 2026-06-29): when the SoC is
+        # already at/above the monitoring CRITICAL threshold, briefly wait for
+        # cooldown and, if still hot, clamp num_predict so this CPU-bound
+        # burst is short instead of sustained. No-op on cool/dev machines.
+        from services.thermal_gate import gate_local_llm_options
         response = ollama_client.chat(
             model=LOCAL_MODEL,
             messages=messages,
-            options=options or OLLAMA_OPTIONS,
+            options=gate_local_llm_options(options or OLLAMA_OPTIONS),
             keep_alive="30s",
         )
         return response["message"]["content"]
