@@ -1,0 +1,49 @@
+# Weekly "what shipped" digest -> BMO board Briefs (no-LLM replacement for the
+# weekly-shipped-digest Claude task). Deterministic git/gh only.
+#
+# Board access rides the existing Tailscale-SSH path; DORMANT BY DESIGN - without
+# TS_OAUTH secrets the digest is skipped and the run lands GREEN.
+# See docs/SCHEDULED-TASK-MIGRATION.md.
+name: weekly-shipped-digest
+on:
+  schedule:
+    - cron: '0 23 * * 0'   # ~Sun 17:00 America/Denver (cron is UTC; DST shifts +-1h)
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: weekly-shipped-digest
+  cancel-in-progress: false
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check board access (dormant-green if absent)
+        id: gate
+        env:
+          HAS_ID: ${{ secrets.TS_OAUTH_CLIENT_ID != '' }}
+          HAS_SECRET: ${{ secrets.TS_OAUTH_SECRET != '' }}
+        run: |
+          ok=false; [ "$HAS_ID" = "true" ] && [ "$HAS_SECRET" = "true" ] && ok=true
+          echo "ok=$ok" >> "$GITHUB_OUTPUT"
+          [ "$ok" = "true" ] || echo "::notice::weekly-shipped-digest skipped - TS_OAUTH secrets not configured."
+      - name: Checkout (full history for RESOLVED log diff)
+        if: steps.gate.outputs.ok == 'true'
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Join tailnet (ephemeral)
+        if: steps.gate.outputs.ok == 'true'
+        uses: tailscale/github-action@306e68a486fd2350f2bfc3b19fcd143891a4a2d8 # v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+          ping: bmo.tail31b5d9.ts.net
+      - name: Build & post digest
+        if: steps.gate.outputs.ok == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/scripts/shipped-digest.sh
