@@ -160,6 +160,27 @@ def _tv_cmd(action, timeout=None, **kwargs):
         return {"error": "TV command failed"}
 
 
+# Error substrings that indicate the TV pairing/cert is genuinely no longer
+# accepted (needs a fresh pair via the TV tab) vs. the TV simply being
+# unreachable/off. An off TV yields timeout/connection-refused; a de-paired or
+# cert-rejected TV yields an SSL/auth/pairing-class error. We only nudge the
+# operator to re-pair for the latter (BMO-ISSUES 2026-06-29).
+_TV_PAIRING_ERROR_MARKERS = (
+    "pair",        # "Need to pair again", "pairing required"
+    "cert",        # certificate rejected / invalid
+    "ssl",         # TLS handshake / cert-verify failures
+    "author",      # unauthorized / not authorized
+    "handshake",
+)
+
+
+def _tv_error_needs_pairing(error) -> bool:
+    """True if the connect error looks like a lapsed/rejected pairing (re-pair
+    needed) rather than an unreachable/powered-off TV (auto-recovers)."""
+    text = str(error or "").lower()
+    return any(marker in text for marker in _TV_PAIRING_ERROR_MARKERS)
+
+
 def init_tv_remote():
     """Try to connect to TV using existing certs (persistent worker)."""
     global _tv_remote
@@ -192,8 +213,23 @@ def init_tv_remote():
         STATE.tv_is_on = result.get("is_on")
         log.info(f"[tv] Connected to TV at {TV_IP} (is_on={STATE.tv_is_on})")
     else:
-        log.info("[tv] Connection failed: %s — try pairing via the TV tab",
-                 _s(result.get("error", "?")))
+        # Certs ARE persisted (tv_cert.pem/tv_key.pem live under bmo/pi/ and
+        # survive reboots), so a boot-time connect failure is almost always the
+        # expected "TV powered off / unreachable" case, not a lapsed pairing.
+        # Only an auth/cert-class error actually needs re-pairing; a
+        # timeout/connection-refused just means the TV is off. Classify so the
+        # common off-TV case is quiet DEBUG noise instead of an every-boot
+        # "Connection failed" line that reads like a real error
+        # (BMO-ISSUES 2026-06-29 TV/ADB pairing). The 60s background reconnect
+        # below silently recovers once the TV wakes.
+        err = _s(result.get("error", "?"))
+        if _tv_error_needs_pairing(result.get("error", "")):
+            log.info("[tv] Pairing appears lapsed (%s) - re-pair via the TV tab", err)
+        else:
+            log.debug(
+                "[tv] TV unreachable at %s (%s) - likely powered off; "
+                "will auto-reconnect when it wakes", TV_IP, err,
+            )
 
     # Background task: retry TV connection every 60s if not connected
     def _tv_bg_reconnect():
