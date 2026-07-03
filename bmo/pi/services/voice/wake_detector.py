@@ -239,6 +239,8 @@ class WakeDetector:
                             continue
 
                         log.info("[wake] Porcupine detected 'hey BMO'!")
+                        self._p._wake_last_score = None
+                        self._p._wake_last_engine = "porcupine"
                         self._p._emit("status", {"state": "listening"})
                         # Drain audio queue
                         while not self._p._audio_queue.empty():
@@ -326,6 +328,10 @@ class WakeDetector:
                         log.info(f"[wake] OWW score: {key}={score:.4f} (threshold={WAKE_OWW_THRESHOLD})")
                     if score > WAKE_OWW_THRESHOLD:
                         log.info(f"[wake] OWW triggered: {key}={score:.3f}")
+                        # Stash score/engine so _on_wake can join it to the turn
+                        # outcome for the wake-feedback store (false-accept rate).
+                        self._p._wake_last_score = float(score)
+                        self._p._wake_last_engine = "openwakeword"
                         triggered = True
                         break
 

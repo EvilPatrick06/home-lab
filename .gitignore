@@ -94,6 +94,7 @@ bmo/pi/data/memory/
 bmo/pi/data/*.db
 bmo/pi/data/alarms.json
 bmo/pi/data/alert_history.json
+bmo/pi/data/wake_events.jsonl
 bmo/pi/data/*.migrated-to-deploy-*.bak
 # Generic derived-suffix coverage (SECURITY-LOG 2026-07-02): migration/backup
 # tooling derives sidecar names from protected runtime files, and each new

@@ -12,6 +12,90 @@
 
 ---
 
+### [2026-07-02] No TTS phrase cache — recurring quips/timer/greeting utterances re-hit Fish Audio (RESOLVED)
+
+- **Category:** future-idea (UX / reliability), performance
+- **Severity:** low (resolved)
+- **Domain:** bmo
+
+**Description:** Every recurring utterance (quips, timer/notification announcements, greetings) re-hit Fish Audio, adding latency and going silent during API outages, with no cache layer in the TTS path.
+
+**Resolution [2026-07-03, auto/bmo-features-batch]:** Verified an on-disk TTS phrase cache is **already implemented** in `services/voice/voice_pipeline.py` (added after this scan): content-addressed key `sha256(text + speaker)` (`_tts_cache_key`), write-through on successful synthesis (`_tts_cache_put` from `_cloud_speak`/`_bmo_speak`/`_prewarm_tts_cache`), read-before-synthesize in `speak()` (a cache hit plays the file and skips every provider — so BMO keeps primary-voice quality while Fish Audio is timing out), bounded LRU eviction (`_tts_cache_evict`, `TTS_CACHE_MAX_MB=200`), and startup pre-warm of the fixed phrase set (`TTS_PREWARM_PHRASES`). This item added the missing **regression tests** locking in all of that: `tests/test_tts_cache.py` (8) — key stability/collision, put/get, size-bounded + LRU-keeps-recent eviction, and the cache-hit short-circuit in `speak()`. No code change needed; behavior confirmed correct + now guarded.
+
+---
+
+### [2026-07-02] Wake-word quality has no feedback loop — false-accept/reject rates unknowable, threshold tuned blind (RESOLVED)
+
+- **Category:** future-idea (observability / UX)
+- **Severity:** low (resolved)
+- **Domain:** bmo
+
+**Description:** Near-threshold wake scores went only to text logs; nothing recorded whether a wake led to a real command, so false-accept/reject rates were unmeasurable and `WAKE_OWW_THRESHOLD`/`PORCUPINE_SENSITIVITY` were hand-set with no measured basis.
+
+**Resolution [2026-07-03, auto/bmo-features-batch]:** Added `services/wake_events.py` — an append-only, line-bounded JSONL store (`data/wake_events.jsonl`, cap `BMO_WAKE_EVENTS_MAX`) that records one `(ts, engine, score, outcome)` per wake, plus `stats(window_hours)` computing rolling false-accept rate, wakes/day, and a per-outcome breakdown. Outcomes are joined from the turn result: `empty`/`no_intent` = probable false accept, `command`/`interrupted` = not. Wired: `wake_detector` stashes `_wake_last_score`/`_wake_last_engine` at the OWW/Porcupine trigger; `voice_pipeline._on_wake` calls `_record_wake_outcome()` after the turn; `/api/health/full` now surfaces a `wake` stats block. Tests: `tests/test_wake_events.py` (9) — record shape, false-accept classification, rolling-window math, wakes/day extrapolation, line-count bound, swallowed write failure. **Live verification needed:** the store fills only from real on-device wakes (the store + stats + wiring are pytest-green; the numbers populate once the Pi runs the wake loop). No restart landed by this agent.
+
+---
+
+### [2026-07-02] Notification TTS announcements have no quiet-hours gate — a 3 a.m. phone notification speaks aloud (RESOLVED)
+
+- **Category:** future-idea (UX)
+- **Severity:** low (resolved)
+- **Domain:** bmo
+
+**Description:** Three surfaces had uncoordinated night policies: the wake listener muted the mic in bedtime mode, the personality engine had a private `_is_sleep_hours()`, but `notification_service` spoke phone notifications aloud at any hour with no time-of-day check.
+
+**Resolution [2026-07-03, auto/bmo-features-batch]:** Added `services/quiet_hours.py` — one shared bedtime policy with `may_speak(kind)`: True unless quiet hours are in effect (bedtime scene active OR the current hour falls in the configured window) and `kind` is not on the critical-override allow-list (`alarm`/`timer`/`emergency`/`critical` always speak). Window is configurable via `BMO_QUIET_HOURS_START`/`_END`/`_ENABLED` (env) with a `settings.json` `quiet_hours` fallback, default 23:00→07:00, wrapping-window aware. Wired: `notification_service._handle_notification` stores the notification but skips the announcement during quiet hours; `personality_engine._is_sleep_hours` now also defers to `quiet_hours.is_quiet_now` so a bedtime scene silences quips too. Tests: `tests/test_quiet_hours.py` (14) — window/env config, wrapping window, critical bypass, bedtime-scene override, and the notification-service store-not-speak path. Takes effect on next deploy/restart; no restart landed by this agent.
+
+---
+
+### [2026-06-29] Speaker identity resolved every voice turn but dropped before the agent layer (RESOLVED — plumbing; per-speaker data model follow-up)
+
+- **Category:** future-idea (capability / UX)
+- **Severity:** medium (resolved — first version)
+- **Domain:** bmo
+
+**Description:** `identify_speaker()` runs every turn and reaches `Orchestrator.handle`, but `run_agent`/`agent.run` never received the speaker, so memory/lists/learning stayed single-user despite BMO knowing who is talking.
+
+**Resolution [2026-07-03, auto/bmo-features-batch]:** Plumbed the identified speaker through the agent layer. `Orchestrator.handle` now passes `context={"speaker": speaker}` into `run_agent`. Added `BaseAgent.speaker_bucket(context)` + a `DEFAULT_USER` constant: it returns the named speaker, or `DEFAULT_USER` for blank/`unknown` — the fallback that keeps single-user setups behaving exactly as before. First consumer: `learning_agent` now stamps each saved fact/entry with the speaker bucket and filters recall to `{active speaker, shared/default}`, so speaker A's "remember X" does not surface for speaker B, while the default bucket still sees everything. Tests: `tests/agents/test_speaker_context.py` (7) — bucket fallback semantics, orchestrator threads the speaker into context, learning-agent per-speaker isolation + shared-fact visibility. **Follow-up (data layer, deferred as noted in the original entry):** re-keying the *full* per-user stores (lists, calendar, the memory `profile`/`preferences` blobs) by bucket, and gating multi-user paths on `len(profiles) > 1`, is the larger data-model work — the seam (`speaker_bucket`) is now in place for it. New follow-up entry filed in BMO-SUGGESTIONS-LOG.
+
+---
+
+### [2026-06-29] Tier-2 keyword router has no measured accuracy / confusion-matrix eval (RESOLVED)
+
+- **Category:** future-idea (DX / observability), UX
+- **Severity:** low (resolved)
+- **Domain:** bmo
+
+**Description:** The Tier-2 keyword router had example-assertion tests but no aggregate accuracy number, no confusion matrix, and no labeled corpus, so a new keyword that is a substring of another agent's utterances could silently steal routes without failing a test.
+
+**Resolution [2026-07-03, auto/bmo-features-batch]:** Added a labeled corpus (`tests/agents/fixtures/router_corpus.json`, 35 prefix-free utterance→expected-agent cases across 12 agents incl. tricky generic phrases) and a confusion-matrix eval harness (`tests/agents/test_router_eval.py`): routes every case through the real router, computes overall accuracy (currently 100%), builds an expected→got confusion matrix, and **fails below a 0.90 accuracy floor** while printing the top confused agent pairs + misrouted utterances so a keyword collision is immediately visible. Also guards that no agent is a route black-hole and that the matrix is diagonal-heavy. Extend the corpus when adding an agent/keyword. Complements the existing per-tier telemetry counters (which measure *which tier fired*, not *whether the route was correct*).
+
+---
+
+### [2026-06-29] ~5.4 MB of committed RAG chunk-index JSON with no freshness guard (RESOLVED — DECISION: keep tracked + guard)
+
+- **Category:** debt (repo-hygiene / portability)
+- **Severity:** low (resolved)
+- **Domain:** bmo
+
+**Description:** `data/rag_data/*.json` (~5.4 MB, `chunk-index-dnd.json` alone 5.5 MB) are tracked, machine-generated, regenerable from `data/5e-references/`, and had no drift/freshness guard — neither cleanly gitignored-and-rebuilt nor documented-and-guarded.
+
+**Resolution [2026-07-03, auto/bmo-features-batch] — DECISION: Option B (keep tracked + document + freshness guard).** Rationale: the 8 GB Pi loads RAG at boot with no build step, and Option A (gitignore + rebuild-on-deploy) would re-chunk the 3.6 MB `5e-references` corpus during every deploy — extra deploy time and a parse dependency on a memory-constrained box that already OOM-wedges under load. Committing the prebuilt index avoids that; the only cost is silent drift, which the guard now makes visible. Implemented: `save_index` stamps a `sourceHash`; `build_rag_indexes.py` passes it (DND ← hash of `5e-references/`; the inline-KB indexes ← hash of the generator file); `services/rag_freshness.py` recomputes and reports `fresh`/`stale`/`legacy`/`missing`/`unknown` (legacy = the historical no-hash snapshot, does **not** fail the guard). Documented in `bmo/docs/SERVICES.md` with the "rerun `build_rag_indexes.py` after editing `5e-references`" instruction. Tests: `tests/test_rag_freshness.py` (10) — deterministic source hash, stale-on-drift, legacy doesn't fail, `save_index` round-trip. The 5 committed indexes remain `legacy` (no hash) until next rebuild — intended; they only turn `fresh`/`stale` once regenerated.
+
+---
+
+### [2026-06-29] `auto/bmo-phase-maker` (tip `2b41551c`) won't merge — duplicate PHASE-14/15 (RESOLVED)
+
+- **Category:** integration / merge-conflict (duplicate work)
+- **Severity:** n/a (resolved)
+- **Domain:** bmo
+
+**Description:** A stale second `auto/bmo-phase-maker` run re-authored PHASE-14/15 from the same QA report under different slugs, conflicting with the already-merged canonical pair.
+
+**Resolution [2026-07-03, auto/bmo-features-batch]:** Reconciled. The **merged pair is canonical**; the second run's improvements were verified already captured in the completed docs on master — PHASE-14 serves fonts from the already-allowlisted `cdn.jsdelivr.net` (no CSP widening) and PHASE-15 reuses the existing `/api/chat/clear` flow plus a bounded per-message delete. `2b41551c` carried only duplicate phase docs (no code), and its branch (`auto/bmo-phase-maker`) has **no remaining remote/local ref** — already deleted, so nothing left to delete. Recorded a reconciliation note in `bmo/docs/phases/PHASE-INDEX.md`. Docs-only resolution; no code/test change.
+
+---
+
 ### [2026-06-29] onnxruntime GPU device-discovery warnings spam wake-model loads on the Pi
 
 - **Category:** debt

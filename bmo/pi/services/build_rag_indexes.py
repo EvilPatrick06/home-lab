@@ -42,7 +42,8 @@ def build_dnd():
 
     if all_chunks:
         path = os.path.join(RAG_DIR, "chunk-index-dnd.json")
-        save_index(all_chunks, path)
+        from services.rag_freshness import source_hash as _rag_source_hash
+        save_index(all_chunks, path, source_hash=_rag_source_hash("dir", REF_DIR))
         log.info(f"  Saved {len(all_chunks)} D&D chunks -> {path}")
     return len(all_chunks)
 
@@ -364,7 +365,8 @@ def build_domain(name, markdown_text, source_name):
     chunks = build_index_from_text(markdown_text, source_name, name)
     if chunks:
         path = os.path.join(RAG_DIR, f"chunk-index-{name}.json")
-        save_index(chunks, path)
+        from services.rag_freshness import source_hash as _rag_source_hash
+        save_index(chunks, path, source_hash=_rag_source_hash("file", os.path.abspath(__file__)))
         log.info(f"  Saved {len(chunks)} chunks -> {path}")
     else:
         log.info(f"  ! No chunks generated for {name}")

@@ -345,6 +345,14 @@ class NotificationService:
 
         # Announce via TTS
         if self.voice:
+            # Quiet-hours gate (shared bedtime policy): store the
+            # notification (done above) but skip the spoken announcement at
+            # night. Critical kinds bypass; a plain notification does not.
+            from services import quiet_hours
+            _scene_svc = getattr(self.voice, "_scene_service", None)
+            if not quiet_hours.may_speak("notification", scene_service=_scene_svc):
+                log.info("[notify] Quiet hours — stored, not announced: %s", _s(title))
+                return
             announcement = self._format_announcement(app, title, body, device)
             # Scrub long digit sequences (codes, phone numbers, OTPs) from TTS
             import re as _re

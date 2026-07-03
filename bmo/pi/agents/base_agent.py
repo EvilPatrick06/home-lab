@@ -76,6 +76,14 @@ class AgentResult:
     failed: bool = False                          # Round 4 #1: agent caught its own error; suppress Approve/Cancel UI
 
 
+# Fallback user bucket for the single-user / "unknown"-speaker case. Speaker
+# identity is resolved every voice turn (VoicePipeline.identify_speaker) and now
+# threaded into the agent context ({"speaker": ...}); user-scoped stores key on
+# BaseAgent.speaker_bucket(context), which returns this constant when no speaker
+# is present, so single-profile setups behave exactly as before.
+DEFAULT_USER = "default"
+
+
 class BaseAgent:
     """Base class for all BMO agents.
 
@@ -110,6 +118,22 @@ class BaseAgent:
 
         reply = self.llm_call(messages)
         return AgentResult(text=reply, agent_name=self.config.name)
+
+    @staticmethod
+    def speaker_bucket(context: dict | None) -> str:
+        """Resolve the per-speaker storage bucket from the agent context.
+
+        Returns the identified speaker when the orchestrator threaded one in,
+        else DEFAULT_USER. An "unknown"/blank speaker also maps to DEFAULT_USER
+        so unregistered voices and single-user setups share one bucket and
+        nothing regresses. This is the seam per-speaker stores key on; wiring the
+        full per-speaker data model (learning/lists re-keyed by bucket) is the
+        follow-up tracked in BMO-SUGGESTIONS-LOG.
+        """
+        speaker = (context or {}).get("speaker") if context else None
+        if not speaker or str(speaker).strip().lower() in {"", "unknown", "none"}:
+            return DEFAULT_USER
+        return str(speaker).strip()
 
     def _build_system_prompt(self, context: dict | None = None) -> str:
         """Build the full system prompt. Subclasses can override to add context."""

@@ -41,7 +41,10 @@ class LearningAgent(BaseAgent):
         self._memory = self._load_memory()
 
     def run(self, message: str, history: list[dict], context: dict | None = None) -> AgentResult:
-        memory_context = self._format_memory()
+        # Per-speaker bucket (threaded in by the orchestrator); DEFAULT_USER for
+        # single-user / unknown-speaker turns so behavior is unchanged there.
+        bucket = self.speaker_bucket(context)
+        memory_context = self._format_memory(bucket)
         prompt = SYSTEM_PROMPT.format(memory_context=memory_context or "No memories saved yet.")
 
         messages = [{"role": "system", "content": prompt}]
@@ -53,8 +56,8 @@ class LearningAgent(BaseAgent):
         # Check if the LLM wants to save something
         lower = message.lower()
         if any(kw in lower for kw in ["remember", "save this", "don't forget", "keep in mind"]):
-            # Extract and save the memory
-            self._save_from_message(message, reply)
+            # Extract and save the memory, attributed to the active speaker.
+            self._save_from_message(message, reply, bucket)
 
         return AgentResult(text=reply, agent_name=self.config.name)
 
@@ -107,8 +110,15 @@ class LearningAgent(BaseAgent):
         except Exception as e:
             print(f"[learning] Failed to save memory: {e}")
 
-    def _format_memory(self) -> str:
-        """Format memory for the system prompt."""
+    def _format_memory(self, bucket: str | None = None) -> str:
+        """Format memory for the system prompt.
+
+        When a speaker bucket is given, facts are filtered to that speaker
+        plus the shared (unattributed / DEFAULT_USER) facts, so speaker A's
+        "remember X" does not surface for speaker B. With no bucket (or the
+        default bucket) every fact is shown — identical to the prior single-user
+        behavior.
+        """
         parts = []
 
         # Profile
@@ -129,8 +139,14 @@ class LearningAgent(BaseAgent):
                 else:
                     parts.append(f"  {category}: {values}")
 
-        # Facts (last 20)
-        facts = self._memory.get("facts", [])
+        # Facts (last 20) — filtered to the active speaker + shared facts.
+        from agents.base_agent import DEFAULT_USER
+        all_facts = self._memory.get("facts", [])
+        if bucket and bucket != DEFAULT_USER:
+            facts = [f for f in all_facts
+                     if f.get("speaker", DEFAULT_USER) in (bucket, DEFAULT_USER)]
+        else:
+            facts = all_facts
         if facts:
             parts.append("Known facts:")
             for fact in facts[-20:]:
@@ -138,8 +154,13 @@ class LearningAgent(BaseAgent):
                 text = fact.get("text", "")
                 parts.append(f"  [{cat}] {text}")
 
-        # Legacy entries
-        entries = self._memory.get("entries", [])
+        # Legacy entries — same speaker filtering as facts.
+        _all_entries = self._memory.get("entries", [])
+        if bucket and bucket != DEFAULT_USER:
+            entries = [e for e in _all_entries
+                       if e.get("speaker", DEFAULT_USER) in (bucket, DEFAULT_USER)]
+        else:
+            entries = _all_entries
         if entries and not facts:
             parts.append("Remembered:")
             for entry in entries[-20:]:
@@ -156,8 +177,10 @@ class LearningAgent(BaseAgent):
 
         return "\n".join(parts) if parts else ""
 
-    def _save_from_message(self, message: str, reply: str):
-        """Extract and save a memory from the user's message."""
+    def _save_from_message(self, message: str, reply: str, bucket: str | None = None):
+        """Extract and save a memory from the user's message, per speaker."""
+        from agents.base_agent import DEFAULT_USER
+        bucket = bucket or DEFAULT_USER
         lower = message.lower()
 
         # Determine category
@@ -174,16 +197,17 @@ class LearningAgent(BaseAgent):
             "category": category,
             "added_at": __import__("time").strftime("%Y-%m-%d"),
             "source": "conversation",
+            "speaker": bucket,
         }
 
         if "facts" not in self._memory:
             self._memory["facts"] = []
         self._memory["facts"].append(fact)
 
-        # Also save to legacy entries for backward compat
+        # Also save to legacy entries for backward compat (speaker-stamped too).
         if "entries" not in self._memory:
             self._memory["entries"] = []
-        self._memory["entries"].append({"category": category, "text": message[:200], "source": "user"})
+        self._memory["entries"].append({"category": category, "text": message[:200], "source": "user", "speaker": bucket})
 
         self._save_memory()
         print(f"[learning] Saved fact: [{category}] {message[:80]}")
