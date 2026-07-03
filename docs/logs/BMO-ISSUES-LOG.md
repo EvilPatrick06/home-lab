@@ -257,3 +257,24 @@ A first `auto/bmo-phase-maker` run was merged to `master` earlier this same inte
 **Related files:** `bmo/docs/phases/PHASE-INDEX.md`, `bmo/docs/phases/PHASE-14-*.md`, `bmo/docs/phases/PHASE-15-*.md`, branch `auto/bmo-phase-maker` (tip `2b41551c`)
 
 ---
+
+### [2026-07-03] `test_ram_floor_blocks_and_never_launches` is timing-flaky — intermittently reddens master pushes
+
+- **Category:** test / flaky (timing-sensitive)
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** integrator
+- **During:** daily integration (2026-07-03 run) — the same tree passed on `auto/integrator` CI, then failed on the `master` push CI minutes later under machine load
+
+**Description:**
+`bmo/pi/tests/test_run_check.py::test_ram_floor_blocks_and_never_launches` asserts `elapsed >= 2` against `RUN_CHECK_TIMEOUT_S=2` with `RUN_CHECK_POLL_INTERVAL_S=1`. The wall-clock margin is zero, so on a loaded runner the measured `time.monotonic()` delta can land a few ms under 2.0 and the assert fails with "gate should have waited for the full timeout before giving up" (1 failed, 1539 passed). It is non-deterministic: green on the branch run, red on the master push run for the identical commit tree. Not a regression from the 2026-07-03 integrator merge (that merge only touched a dnd-app test file + two READMEs, nothing near run-check).
+
+**Root cause:** brittle exact-boundary timing assertion (`elapsed >= 2` with a 2 s timeout and 1 s poll) has no tolerance for scheduler jitter / process-startup overhead measurement skew under CPU pressure.
+
+**Proposed fix / improvement (bmo owner):**
+- [ ] Loosen the lower-bound assertion to allow small negative jitter (e.g. `elapsed >= TIMEOUT_S - 0.25`) or raise `RUN_CHECK_TIMEOUT_S` for this test and keep a comfortable margin.
+- [ ] Optionally assert the timeout upper bound too (did not run *and* returned promptly after the timeout) rather than an exact floor.
+
+**Related files:** `bmo/pi/tests/test_run_check.py` (`test_ram_floor_blocks_and_never_launches`), `bmo/pi/scripts/run-check.sh`
+
+---
