@@ -1,0 +1,9 @@
+[Unit]
+Description=Record a per-producer board-decision nudge (event-driven; replaces the polling board-decision-relay)
+
+[Service]
+Type=oneshot
+User=patrick
+WorkingDirectory=/home/patrick/home-lab-deploy/bmo/pi
+ExecStart=/home/patrick/home-lab-deploy/bmo/pi/scripts/board-decision-nudge.sh
+Nice=15
