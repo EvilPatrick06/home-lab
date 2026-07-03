@@ -131,7 +131,7 @@ export function extractSkills(modifiers: DdbModifiers | undefined): SkillProfici
     const allMods = Object.values(modifiers).flat()
     for (const mod of allMods) {
       if (!mod.subType) continue
-      const skillKey = mod.subType.replace(/-/g, '-')
+      const skillKey = mod.subType
 
       if (mod.type === 'expertise') {
         expertise.add(skillKey)
