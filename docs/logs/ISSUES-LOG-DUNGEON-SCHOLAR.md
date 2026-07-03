@@ -93,33 +93,6 @@ The `auto/scholar-phase-executer` branch (head `1b3c00ed`) is a genuine, unmerge
 
 ## Low
 
-### [2026-07-02] Entry chunk grew to 638 kB — exceeds the 500 kB warning the manualChunks split was added to stay under
-
-> **2026-07-02 evening (scholar-errors):** does NOT reproduce on current `master` (`4c7bcd82`, no dungeon-scholar code change since the morning scan): fresh `npm ci` + `vite build` (vite 8.1.0) emits **no** “larger than 500 kB” warning and the entry chunk is **`index-CW6viw_r.js` 434.89 kB (129.99 kB gzip)** — under the budget, with katex (257.77 kB) / vendor-react (182.16 kB) / vendor-icons split out as designed. The morning measurement (638 kB) could not be reconstructed from this tree; treat this entry as unconfirmed — re-measure before spending effort on it, and close it if a second clean build agrees. The companion bundle-size-budget suggestion remains the durable fix for silent drift either way.
-
-- **Category:** performance
-- **Severity:** low
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-errors
-- **During:** automated error scan (production build)
-
-**Description:**
-A fresh production build emits Vite's "Some chunks are larger than 500 kB after minification" warning: `dist/assets/index-*.js` is **638.36 kB** (181.97 kB gzip). The `manualChunks` splitter in `vite.config.js` carries a comment saying it exists "so the initial bundle drops below the 500 KB warning" — that claim has drifted: react (182 kB) and lucide vendors are split out and katex (258 kB) auto-splits via lazy import, but the remaining entry chunk (App shell + eagerly-imported services/game modules) has outgrown the budget as phases 03–11 landed. Screens are `React.lazy`-loaded, so the growth is concentrated in what App.jsx and the service/game layer import eagerly.
-
-**Hypothesis / root cause:** steady feature growth in eagerly-imported `src/services/` + `src/game/` modules (all imported by the App shell) with no bundle-size gate to flag the crossing; the vite.config comment was true when written, is stale now.
-
-**Proposed fix / improvement:**
-- [ ] Audit the entry-chunk composition (`vite build` with a visualizer or `--debug`) and move heavy, screen-specific eager imports behind the existing lazy-screen boundaries (or add `manualChunks` entries for large stable vendor/game-content modules).
-- [ ] Update or remove the stale "drops below the 500 KB warning" comment.
-- [ ] Longer-term: the already-logged CI bundle-size budget suggestion would have caught this crossing automatically.
-
-**Blocked by:** none
-
-**Related files:** `dungeon-scholar/vite.config.js` (build.rollupOptions.output.manualChunks), `dungeon-scholar/src/App.jsx`
-
-**Related entries:** SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md [2026-06-29] "CI has no test-coverage floor and no bundle-size budget, despite 'keep the initial bundle small' being a stated design value"
-
-
 ### [2026-06-29] `auto/scholar-phase-maker` (tip `850f8404`) won't merge — competing PHASE-06 + PHASE-03 amendment vs the already-merged run
 
 - **Category:** integration / merge-conflict (duplicate work)
