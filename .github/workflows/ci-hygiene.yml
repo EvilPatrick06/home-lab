@@ -12,6 +12,8 @@ on:
       - "scripts/check-ci-hygiene.sh"
       - "scripts/check-md-links.sh"
       - ".nvmrc"
+      - "**/package.json"
+      - ".husky/pre-commit"
   pull_request:
     paths:
       - ".github/workflows/**"
@@ -20,6 +22,8 @@ on:
       - "scripts/check-ci-hygiene.sh"
       - "scripts/check-md-links.sh"
       - ".nvmrc"
+      - "**/package.json"
+      - ".husky/pre-commit"
 
 permissions:
   contents: read
