@@ -680,7 +680,7 @@ def _discover_agents():
             'display_name': 'Conversation Agent',
             'icon': '💬', 'tier': 'flash', 'status': 'idle',
         })
-    print(f'[ide] Discovered {len(_agent_info)} agents')
+    log.info('Discovered %d agents', len(_agent_info))
 
 
 @app.route('/api/agents')

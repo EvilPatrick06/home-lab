@@ -260,7 +260,7 @@ jobs:
           printf '  %s\n' "${EXPECTED[@]}"
           PRESENT=$(gh release view "$GITHUB_REF_NAME" --repo "$REPO" --json assets --jq '.assets[].name')
           echo "Present assets:"
-          echo "$PRESENT" | sed 's/^/  /'
+          echo "$PRESENT" | awk '{ print "  " $0 }'
           MISSING=()
           for asset in "${EXPECTED[@]}"; do
             if ! echo "$PRESENT" | grep -qFx "$asset"; then

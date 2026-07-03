@@ -2235,7 +2235,7 @@ def start_dm_bot() -> Optional[threading.Thread]:
 
 if __name__ == "__main__":
     if not BOT_TOKEN:
-        print(f"{LOG_PREFIX} ERROR: Set DISCORD_DM_BOT_TOKEN environment variable")
+        _log("ERROR: Set DISCORD_DM_BOT_TOKEN environment variable")
         raise SystemExit(1)
 
     _log("Starting standalone DM bot (model: %s)", DM_MODEL)
