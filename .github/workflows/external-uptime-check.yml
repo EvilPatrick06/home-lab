@@ -1,6 +1,6 @@
-# External uptime check → BMO board 🚨 Incidents, with a bmo-independent GitHub
+# External uptime check -> BMO board Incidents, with a bmo-independent GitHub
 # Issue fallback. no-LLM replacement for the external-uptime-check Claude task.
-# The probe runs on the GitHub runner (off-tailnet) — that external vantage is
+# The probe runs on the GitHub runner (off-tailnet) - that external vantage is
 # the whole point. Board post is dormant-green without TS_OAUTH; the fallback
 # issue path needs no secret. See docs/SCHEDULED-TASK-MIGRATION.md.
 name: external-uptime-check
@@ -27,7 +27,7 @@ jobs:
         run: |
           ok=false; [ "$HAS_ID" = "true" ] && [ "$HAS_SECRET" = "true" ] && ok=true
           echo "ok=$ok" >> "$GITHUB_OUTPUT"
-          [ "$ok" = "true" ] || echo "::notice::board post unavailable (no TS_OAUTH) — alerts route to the GitHub-issue fallback."
+          [ "$ok" = "true" ] || echo "::notice::board post unavailable (no TS_OAUTH) - alerts route to the GitHub-issue fallback."
       - name: Checkout (probe scripts)
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
@@ -44,3 +44,4 @@ jobs:
         env:
           BOARD_OK: ${{ steps.gate.outputs.ok }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/scripts/uptime-check.sh

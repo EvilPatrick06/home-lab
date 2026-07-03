@@ -1,11 +1,11 @@
 # Remote half of stale-branch-pruner: prune merged auto/* branches on origin.
 # The local worktree/lock/notify.log cleanup stays on bmo as a cron
-# (bmo/pi/scripts/stale-local-cleanup.sh) — a runner can't touch the Pi's
+# (bmo/pi/scripts/stale-local-cleanup.sh) - a runner can't touch the Pi's
 # working trees. See docs/SCHEDULED-TASK-MIGRATION.md.
 name: stale-branch-pruner
 on:
   schedule:
-    - cron: '0 10 * * 0'   # ~Sun 04:00 America/Denver (cron is UTC; DST shifts ±1h)
+    - cron: '0 10 * * 0'   # ~Sun 04:00 America/Denver (cron is UTC; DST shifts +-1h)
   workflow_dispatch:
 permissions:
   contents: write
@@ -23,4 +23,5 @@ jobs:
           persist-credentials: false
       - name: Prune merged auto/* remote branches
         env:
-          GH_TOKEN: ${{ secrets
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/scripts/prune-merged-branches.sh

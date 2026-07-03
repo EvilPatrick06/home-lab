@@ -1,13 +1,13 @@
-# Weekly "what shipped" digest → BMO board 📋 Briefs (no-LLM replacement for the
+# Weekly "what shipped" digest -> BMO board Briefs (no-LLM replacement for the
 # weekly-shipped-digest Claude task). Deterministic git/gh only.
 #
-# Board access rides the existing Tailscale-SSH path; DORMANT BY DESIGN — without
+# Board access rides the existing Tailscale-SSH path; DORMANT BY DESIGN - without
 # TS_OAUTH secrets the digest is skipped and the run lands GREEN.
 # See docs/SCHEDULED-TASK-MIGRATION.md.
 name: weekly-shipped-digest
 on:
   schedule:
-    - cron: '0 23 * * 0'   # ~Sun 17:00 America/Denver (cron is UTC; DST shifts ±1h)
+    - cron: '0 23 * * 0'   # ~Sun 17:00 America/Denver (cron is UTC; DST shifts +-1h)
   workflow_dispatch:
 permissions:
   contents: read
@@ -27,7 +27,7 @@ jobs:
         run: |
           ok=false; [ "$HAS_ID" = "true" ] && [ "$HAS_SECRET" = "true" ] && ok=true
           echo "ok=$ok" >> "$GITHUB_OUTPUT"
-          [ "$ok" = "true" ] || echo "::notice::weekly-shipped-digest skipped — TS_OAUTH secrets not configured."
+          [ "$ok" = "true" ] || echo "::notice::weekly-shipped-digest skipped - TS_OAUTH secrets not configured."
       - name: Checkout (full history for RESOLVED log diff)
         if: steps.gate.outputs.ok == 'true'
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
@@ -46,4 +46,4 @@ jobs:
         if: steps.gate.outputs.ok == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ba
+        run: bash .github/scripts/shipped-digest.sh

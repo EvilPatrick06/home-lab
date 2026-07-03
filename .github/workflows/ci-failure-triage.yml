@@ -1,13 +1,12 @@
-# CI-failure → board incident (no-LLM replacement for the ci-failure-triage Claude task).
+# CI-failure -> board incident (no-LLM replacement for the ci-failure-triage Claude task).
 #
-# The moment a monitored CI workflow FAILS on master, surface a keyed 🚨 Incident
-# on the BMO status board; the moment that same workflow goes GREEN again, the
-# incident self-clears. Deterministic — failed workflow name + run URL only, no
-# LLM root-cause prose (that was the point of moving it off Claude).
+# The moment a monitored CI workflow FAILS on master, surface a keyed incident on
+# the BMO status board; when that workflow goes GREEN again, the incident
+# self-clears. Deterministic - failed workflow name + run URL only, no LLM prose.
 #
 # Board access rides the existing Tailscale-SSH path (identical to bmo / deploy):
 # join the tailnet with TS_OAUTH_CLIENT_ID/TS_OAUTH_SECRET, then run notify-board
-# over Tailscale SSH. DORMANT BY DESIGN — without those secrets the post step is
+# over Tailscale SSH. DORMANT BY DESIGN - without those secrets the post step is
 # skipped and the run lands GREEN. See docs/SCHEDULED-TASK-MIGRATION.md.
 name: ci-failure-triage
 # zizmor: ignore[dangerous-triggers] workflow_run is intentional and branch-gated; the board step is env-plumbed and skips without TS_OAUTH secrets.
@@ -38,7 +37,6 @@ jobs:
   board:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    # Only the default branch, and only terminal success/failure conclusions.
     if: >
       github.event.workflow_run.head_branch == 'master' &&
       (github.event.workflow_run.conclusion == 'failure' ||
@@ -52,7 +50,7 @@ jobs:
         run: |
           ok=false; [ "$HAS_ID" = "true" ] && [ "$HAS_SECRET" = "true" ] && ok=true
           echo "ok=$ok" >> "$GITHUB_OUTPUT"
-          [ "$ok" = "true" ] || echo "::notice::ci-failure-triage board post skipped — TS_OAUTH secrets not configured."
+          [ "$ok" = "true" ] || echo "::notice::ci-failure-triage board post skipped - TS_OAUTH secrets not configured."
       - name: Checkout (board helper scripts)
         if: steps.gate.outputs.ok == 'true'
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
@@ -73,4 +71,4 @@ jobs:
           WF_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
           WF_URL: ${{ github.event.workflow_run.html_url }}
           WF_SHA: ${{ github.event.workflow_run.head_sha }}
-   
+        run: bash .github/scripts/ci-failure-board.sh
