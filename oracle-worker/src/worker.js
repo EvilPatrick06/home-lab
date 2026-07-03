@@ -196,8 +196,16 @@ export default {
       return new Response("Forbidden", { status: 403 });
     }
     const referer = request.headers.get("Referer");
-    if (referer && !referer.startsWith(allowedOrigin)) {
-      return new Response("Forbidden", { status: 403 });
+    if (referer) {
+      let refererOrigin;
+      try {
+        refererOrigin = new URL(referer).origin;
+      } catch {
+        return new Response("Forbidden", { status: 403 });
+      }
+      if (refererOrigin !== allowedOrigin) {
+        return new Response("Forbidden", { status: 403 });
+      }
     }
 
     // Optional shared-secret gate. Off by default; if the owner sets the
