@@ -172,3 +172,32 @@ def test_health_full_calendar_token_missing(client, monkeypatch, tmp_path):
     assert cfg["calendar_token"] is False
     assert cfg["calendar_token_expiry"] is None
     assert cfg["calendar_token_ttl_s"] is None
+
+
+# ── BMO-SUGGESTIONS 2026-06-28: agent_init on /api/health/full ───────────────
+def test_health_full_surfaces_failed_agent_as_degraded(client):
+    import app as bmo
+    bmo.health_checker = None
+    bmo.agent_init_status = {
+        "music": {"ok": True, "error": None},
+        "weather": {"ok": False, "error": "RuntimeError(bad key)"},
+    }
+    try:
+        body = client.get("/api/health/full").get_json()
+        assert "agent_init" in body
+        assert body["overall"] == "degraded"
+        assert "weather" in body["degraded_init_agents"]
+        assert "music" not in body["degraded_init_agents"]
+    finally:
+        bmo.agent_init_status = {}
+
+
+def test_health_full_all_agents_ok_not_degraded_by_agents(client):
+    import app as bmo
+    bmo.health_checker = None
+    bmo.agent_init_status = {"music": {"ok": True, "error": None}}
+    try:
+        body = client.get("/api/health/full").get_json()
+        assert body["degraded_init_agents"] == []
+    finally:
+        bmo.agent_init_status = {}

@@ -666,3 +666,45 @@ class TestInputDeviceGuard:
              patch.object(pipeline, "_emit") as mock_emit:
             pipeline._follow_up_loop_guarded()  # must not raise
         mock_emit.assert_any_call("conversation_mode", {"active": False})
+
+
+# ── BMO-ISSUES 2026-06-29: Fish Audio timeout must not leave BMO mute ─────────
+# speak() TTS chain is cache -> Piper BMO -> Fish Audio -> edge-tts -> generic
+# Piper. If Fish Audio (cloud) times out, the assistant must still speak via a
+# local fallback rather than going silent. These drive speak() with the
+# provider-specific methods stubbed and assert the fall-through order.
+class TestTTSFallbackChain:
+    def _prep(self, pipeline, monkeypatch):
+        # auto mode, cache miss, no bedtime suppression, TTS enabled
+        pipeline._tts_provider = "auto"
+        pipeline._bmo_tts_enabled = True
+        pipeline._scene_service = None
+        monkeypatch.setattr(pipeline, "_tts_cache_get", lambda *a, **k: None)
+        monkeypatch.setattr(pipeline, "_mute_mic", lambda *a, **k: None)
+        monkeypatch.setattr(pipeline, "_emit", lambda *a, **k: None)
+
+    def test_fish_failure_falls_through_to_edge(self, pipeline, monkeypatch):
+        import services.voice.voice_pipeline as vpmod
+        self._prep(pipeline, monkeypatch)
+        # Skip the Piper-BMO stage so Fish Audio is the first synth attempt.
+        monkeypatch.setattr(vpmod, "PIPER_BMO_AVAILABLE", False)
+        calls = []
+        monkeypatch.setattr(pipeline, "_cloud_speak",
+                            lambda *a, **k: (_ for _ in ()).throw(TimeoutError("fish timeout")))
+        monkeypatch.setattr(pipeline, "_edge_speak", lambda *a, **k: calls.append("edge"))
+        monkeypatch.setattr(pipeline, "_local_speak", lambda *a, **k: calls.append("local"))
+        pipeline.speak("hello there")
+        assert calls == ["edge"], "Fish timeout must fall through to edge-tts"
+
+    def test_fish_and_edge_failure_falls_through_to_local(self, pipeline, monkeypatch):
+        import services.voice.voice_pipeline as vpmod
+        self._prep(pipeline, monkeypatch)
+        monkeypatch.setattr(vpmod, "PIPER_BMO_AVAILABLE", False)
+        calls = []
+        monkeypatch.setattr(pipeline, "_cloud_speak",
+                            lambda *a, **k: (_ for _ in ()).throw(TimeoutError("fish")))
+        monkeypatch.setattr(pipeline, "_edge_speak",
+                            lambda *a, **k: (_ for _ in ()).throw(RuntimeError("edge down")))
+        monkeypatch.setattr(pipeline, "_local_speak", lambda *a, **k: calls.append("local"))
+        pipeline.speak("hello there")
+        assert calls == ["local"], "Fish+edge failure must reach local Piper (never mute)"

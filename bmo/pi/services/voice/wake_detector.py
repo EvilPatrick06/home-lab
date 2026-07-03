@@ -32,6 +32,7 @@ from services.voice.voice_pipeline import (
     WAKE_VARIANTS,
     _get_native_input_rate,
     _get_wake_model_paths,
+    _quiet_onnxruntime,
     log,
 )
 
@@ -53,6 +54,9 @@ class WakeDetector:
                 # None); not an ERROR traceback every boot.
                 log.info("[wake] no wake-word ONNX models found — using energy+STT fallback")
                 return None
+            # Quiet onnxruntime GPU-probe warnings before the first
+            # InferenceSession is created (BMO-ISSUES 2026-06-29).
+            _quiet_onnxruntime()
             try:
                 self._p._wake_model = Model(
                     wakeword_models=paths,

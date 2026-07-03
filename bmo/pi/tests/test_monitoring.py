@@ -645,3 +645,98 @@ class TestPhase10HealthTruth:
         checker._process_state_transitions()
         assert "svc_bmo" not in checker._notify_last_fingerprint
         assert any("recovered" in c["body"].lower() for c in calls)
+
+
+# ── BMO-ISSUES 2026-06-29: Fish Audio TTS timeouts must not fire CRITICAL ─────
+# Fish Audio TTS has a working local fallback (edge-tts -> Piper), so a flapping
+# endpoint should surface at WARNING, not device-CRITICAL (which also flips the
+# OLED error face + is the loudest alert). Services WITHOUT a local fallback
+# (e.g. gemini_api) stay CRITICAL on the same failure.
+class TestFishAudioHasFallbackRetier:
+    def _run_http_check(self, tmp_path, name, exc):
+        import requests as _rq
+        checker = _make_checker(tmp_path)
+        alerts = []
+        checker._emit_alert = lambda level, svc, msg: alerts.append((level, svc, msg))
+        session = MagicMock()
+        session.get.side_effect = exc
+        checker._session = session
+        checker._check_http_service(name, {"url": "https://x", "timeout": 5})
+        return alerts
+
+    def test_fish_audio_timeout_is_warning_not_critical(self, tmp_path):
+        import requests as _rq
+        alerts = self._run_http_check(
+            tmp_path, "fish_audio_api", _rq.exceptions.Timeout()
+        )
+        assert alerts, "expected an alert"
+        assert all(a[0] == mon_module.Severity.WARNING for a in alerts), alerts
+        assert not [a for a in alerts if a[0] == mon_module.Severity.CRITICAL]
+
+    def test_fish_audio_connection_error_is_warning(self, tmp_path):
+        import requests as _rq
+        alerts = self._run_http_check(
+            tmp_path, "fish_audio_api", _rq.exceptions.ConnectionError()
+        )
+        assert alerts
+        assert all(a[0] == mon_module.Severity.WARNING for a in alerts), alerts
+
+    def test_no_fallback_service_still_critical_on_timeout(self, tmp_path):
+        import requests as _rq
+        alerts = self._run_http_check(
+            tmp_path, "gemini_api", _rq.exceptions.Timeout()
+        )
+        criticals = [a for a in alerts if a[0] == mon_module.Severity.CRITICAL]
+        assert criticals, "a fallback-less cloud API must stay CRITICAL"
+
+    def test_repeated_fish_timeout_dedupes_discord(self, tmp_path):
+        """Belt-and-suspenders: a flapping Fish endpoint that emits the same
+        WARNING repeatedly only sends ONE Discord webhook (state-change dedupe
+        on the alert fingerprint), so it cannot spam."""
+        checker = _make_checker(tmp_path)
+        checker._service_status["fish_audio_api"] = {"status": "down"}
+        sent = []
+        with patch.object(mon_module, "_send_discord_webhook",
+                          lambda level, svc, msg: sent.append((level, svc, msg)) or True):
+            for _ in range(5):
+                checker._send_discord_if_allowed(
+                    mon_module.Severity.WARNING, "fish_audio_api",
+                    "🔊 Fish Audio API (text-to-speech) is not responding "
+                    "(timed out after 5s)",
+                )
+        assert len(sent) == 1, "repeated identical WARNING must dedupe to one webhook"
+
+
+# ── BMO-SUGGESTIONS 2026-06-29: fan-down-while-hot escalation ────────────────
+class TestFanDownThermalEscalation:
+    def test_cool_box_fan_down_is_not_escalated(self, tmp_path, monkeypatch):
+        checker = _make_checker(tmp_path)
+        monkeypatch.setattr(mon_module, "_read_cpu_temp", lambda: 45.0)
+        checker._service_status["pi_power"] = {"throttle_flags": "0x0"}
+        sev, note = checker._fan_down_thermal()
+        assert sev is None and note == ""
+
+    def test_hot_box_fan_down_is_warning(self, tmp_path, monkeypatch):
+        checker = _make_checker(tmp_path)
+        monkeypatch.setattr(mon_module, "_read_cpu_temp", lambda: 72.0)
+        checker._service_status["pi_power"] = {"throttle_flags": "0x0"}
+        sev, note = checker._fan_down_thermal()
+        assert sev == mon_module.Severity.WARNING
+        assert "fan DOWN" in note
+
+    def test_critical_temp_fan_down_is_critical(self, tmp_path, monkeypatch):
+        checker = _make_checker(tmp_path)
+        monkeypatch.setattr(mon_module, "_read_cpu_temp", lambda: 82.0)
+        checker._service_status["pi_power"] = {"throttle_flags": "0x0"}
+        sev, note = checker._fan_down_thermal()
+        assert sev == mon_module.Severity.CRITICAL
+
+    def test_throttling_now_fan_down_is_critical_even_if_temp_read_fails(self, tmp_path, monkeypatch):
+        checker = _make_checker(tmp_path)
+        def _boom():
+            raise OSError("no zone")
+        monkeypatch.setattr(mon_module, "_read_cpu_temp", _boom)
+        checker._service_status["pi_power"] = {"throttle_flags": "0x4"}
+        sev, note = checker._fan_down_thermal()
+        assert sev == mon_module.Severity.CRITICAL
+        assert "THROTTLING" in note

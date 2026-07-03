@@ -43,14 +43,56 @@ _AGENT_SPECS: tuple[tuple[str, str], ...] = (
 )
 
 
-def create_all_agents(scratchpad: SharedScratchpad, services: dict[str, Any], socketio: Any = None) -> list:
-    """Create every non-core agent; a failure in one never drops the rest."""
+def _agent_key(module_name: str, factory_name: str) -> str:
+    """Readable per-agent key for status/metrics (e.g. music for
+    create_music_agent). Falls back to the module tail."""
+    name = factory_name
+    if name.startswith("create_"):
+        name = name[len("create_"):]
+    if name.endswith("_agent"):
+        name = name[: -len("_agent")]
+    return name or module_name.rsplit(".", 1)[-1]
+
+
+def create_all_agents(
+    scratchpad: SharedScratchpad,
+    services: dict[str, Any],
+    socketio: Any = None,
+    status_out: dict[str, dict] | None = None,
+) -> list:
+    """Create every non-core agent; a failure in one never drops the rest.
+
+    When status_out is provided it is populated with a per-agent
+    {agent_key: {ok: bool, error: str | None}} map (mirrors the service-side
+    service_init_status) so a silently-dropped agent surfaces on
+    /api/health/full and degrades health instead of only printing to stdout. On
+    failure we also bump a Prometheus counter and log through the structured
+    logger. BMO-SUGGESTIONS 2026-06-28.
+    """
+    from services.bmo_logging import get_logger
+
+    log = get_logger("registry")
     agents = []
     for module_name, factory_name in _AGENT_SPECS:
+        key = _agent_key(module_name, factory_name)
         try:
             module = importlib.import_module(module_name)
             factory = getattr(module, factory_name)
             agents.append(factory(scratchpad, services, socketio))
+            if status_out is not None:
+                status_out[key] = {"ok": True, "error": None}
         except Exception as e:  # ImportError, AttributeError, ctor errors alike
-            print(f"[registry] FAILED to create agent {module_name}.{factory_name}: {e!r} — continuing without it")
+            print(f"[registry] FAILED to create agent {module_name}.{factory_name}: {e!r} - continuing without it")
+            try:
+                from services import metrics_counters
+
+                metrics_counters.incr("bmo_agent_init_failed_total")
+            except Exception:
+                pass
+            try:
+                log.exception("[registry] FAILED to create agent %s.%s", module_name, factory_name)
+            except Exception:
+                pass
+            if status_out is not None:
+                status_out[key] = {"ok": False, "error": repr(e)}
     return agents

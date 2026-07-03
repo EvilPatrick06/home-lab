@@ -82,3 +82,40 @@ def test_factory_exception_is_isolated_too(registry, monkeypatch, capsys):
     out = capsys.readouterr().out
     assert "[registry] FAILED" in out
     assert "agents._fake_raise" in out
+
+
+# ── BMO-SUGGESTIONS 2026-06-28: agent-registration failures are observable ───
+def test_status_out_records_ok_and_failure(registry, monkeypatch):
+    good = types.ModuleType("agents._fake_ok3")
+    good.create_ok3 = lambda sp, sv, so=None: MagicMock()  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, "agents._fake_ok3", good)
+    monkeypatch.setattr(
+        registry,
+        "_AGENT_SPECS",
+        (("agents._fake_ok3", "create_ok3"), ("agents._fake_missing2", "create_missing2")),
+    )
+    status: dict = {}
+    result = registry.create_all_agents(MagicMock(), {}, None, status_out=status)
+    assert len(result) == 1
+    # ok3 -> ok True; missing2 -> ok False with an error string
+    assert status["ok3"]["ok"] is True
+    assert status["missing2"]["ok"] is False
+    assert status["missing2"]["error"]
+
+
+def test_failure_increments_metric(registry, monkeypatch):
+    from services import metrics_counters
+
+    metrics_counters.reset()
+    monkeypatch.setattr(
+        registry,
+        "_AGENT_SPECS",
+        (("agents._fake_missing3", "create_missing3"),),
+    )
+    registry.create_all_agents(MagicMock(), {}, None, status_out={})
+    assert metrics_counters.get_all().get("bmo_agent_init_failed_total", 0) >= 1
+
+
+def test_agent_key_derivation(registry):
+    assert registry._agent_key("agents.music_agent", "create_music_agent") == "music"
+    assert registry._agent_key("agents.npc_dialogue_agent", "create_npc_dialogue_agent") == "npc_dialogue"

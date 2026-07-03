@@ -122,3 +122,35 @@ def test_pair_finish_timeout_returns_503(client, monkeypatch):
     r = client.post("/api/tv/pair/finish", json={"pin": "1234"})
     assert r.status_code == 503
     assert r.get_json().get("unreachable") is True
+
+
+# ── BMO-ISSUES 2026-06-29: TV/ADB pairing boot-noise classification ──────────
+# Certs persist across reboots, so a boot-time connect failure is normally the
+# expected "TV powered off" case (auto-recovers via the 60s reconnect), not a
+# lapsed pairing. Only auth/cert-class errors should nudge the operator to
+# re-pair; unreachable/off errors stay quiet DEBUG.
+class TestTVPairingErrorClassification:
+    def test_unreachable_errors_do_not_need_pairing(self):
+        for err in (
+            "",
+            "timed out",
+            "[Errno 111] Connection refused",
+            "Connection lost",
+            "No route to host",
+            "TimeoutError",
+        ):
+            assert tv_api._tv_error_needs_pairing(err) is False, err
+
+    def test_auth_cert_errors_need_pairing(self):
+        for err in (
+            "Need to pair again",
+            "pairing required",
+            "certificate verify failed",
+            "SSL: CERTIFICATE_VERIFY_FAILED",
+            "Not authorized",
+            "TLS handshake failed",
+        ):
+            assert tv_api._tv_error_needs_pairing(err) is True, err
+
+    def test_none_error_is_not_pairing(self):
+        assert tv_api._tv_error_needs_pairing(None) is False

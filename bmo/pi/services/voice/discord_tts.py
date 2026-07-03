@@ -169,6 +169,14 @@ def _get_piper_voice():
             if _PIPER_VOICE is None:
                 from piper import PiperVoice
 
+                # Quiet onnxruntime GPU-probe warnings before the Piper
+                # InferenceSession is created (BMO-ISSUES 2026-06-29).
+                try:
+                    from services.voice.voice_pipeline import _quiet_onnxruntime
+
+                    _quiet_onnxruntime()
+                except Exception:
+                    pass
                 _PIPER_VOICE = PiperVoice.load(_piper_model_path())
     return _PIPER_VOICE
 

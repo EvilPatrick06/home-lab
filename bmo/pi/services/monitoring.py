@@ -666,6 +666,17 @@ class HealthChecker:
     _DEGRADED_NOT_CRITICAL = {
         "google_calendar",
     }
+    # Cloud APIs that have a working LOCAL fallback, so an outage does NOT make
+    # the assistant non-functional. Fish Audio TTS falls back through
+    # edge-tts -> local Piper (voice_pipeline.speak chain), so a flapping Fish
+    # endpoint should NOT fire a device-level CRITICAL (which also flips the
+    # OLED to an error face + is the loudest alert). We emit these at WARNING on
+    # timeout/connection-error instead -- still surfaced + Discord-notified
+    # (state-change deduped), but not CRITICAL. BMO-ISSUES 2026-06-29
+    # (Fish Audio TTS timeouts raise CRITICALs while a local fallback exists).
+    _HAS_LOCAL_FALLBACK_SERVICES = {
+        "fish_audio_api",
+    }
     # bmo-kiosk is deliberately disabled on headless/mic-less hosts; treat a
     # disabled unit as info (not a per-cycle "restart me" WARNING). An
     # enabled-but-failed kiosk still alerts (this only covers disabled/masked).
@@ -727,8 +738,13 @@ class HealthChecker:
                 "message": f"Timeout after {timeout}s",
                 "response_time": None,
             }
+            level = (
+                Severity.WARNING
+                if name in self._HAS_LOCAL_FALLBACK_SERVICES
+                else Severity.CRITICAL
+            )
             self._emit_alert(
-                Severity.CRITICAL, name,
+                level, name,
                 f"{label} is not responding (timed out after {timeout}s)",
             )
 
@@ -739,8 +755,13 @@ class HealthChecker:
                 "message": "Connection refused",
                 "response_time": None,
             }
+            level = (
+                Severity.WARNING
+                if name in self._HAS_LOCAL_FALLBACK_SERVICES
+                else Severity.CRITICAL
+            )
             self._emit_alert(
-                Severity.CRITICAL, name,
+                level, name,
                 f"{label} is DOWN — connection refused. Service may have crashed.",
             )
 
@@ -1231,6 +1252,11 @@ class HealthChecker:
                     }
                     severity = Severity.CRITICAL if svc in self._CRITICAL_SERVICES else Severity.WARNING
                     label = self._service_label(key)
+                    fan_note = ""
+                    if svc == "bmo-fan":
+                        fan_sev, fan_note = self._fan_down_thermal()
+                        if fan_sev is not None:
+                            severity = fan_sev
                     # `failed` means systemd hit StartLimitBurst and gave up
                     # auto-restarting (won't recover on its own). Louder alert
                     # so it's distinguishable from a transient `activating`.
@@ -1246,6 +1272,8 @@ class HealthChecker:
                             severity = Severity.CRITICAL
                     else:
                         msg = f"⚙️ {label} is {state} — run: sudo systemctl restart {svc}"
+                        if fan_note:
+                            msg = f"{msg} [{fan_note}]"
                     self._emit_alert(severity, key, msg)
             except Exception as e:
                 self._service_status[key] = {
@@ -1254,6 +1282,36 @@ class HealthChecker:
                 }
 
     # ── Network Interface Checks ─────────────────────────────────────
+
+    # Fan-down-while-hot correlation (BMO-SUGGESTIONS 2026-06-29 fan fail-safe).
+    # bmo-fan is normally optional (a disabled unit is info, not a warning),
+    # but a fan DOWN while the SoC is hot or throttling is a real thermal-safety
+    # problem, not cosmetic. Escalate that specific combination.
+    _FAN_HOT_WARN_C = 70.0      # matches the pi_cpu_temp WARNING threshold
+    _FAN_HOT_CRIT_C = 80.0      # matches the pi_cpu_temp CRITICAL threshold
+
+    def _fan_down_thermal(self):
+        # Return (severity, note) when bmo-fan being down is thermally dangerous
+        # right now, else (None, empty). Reads temp + throttle flags fresh.
+        try:
+            temp = _read_cpu_temp()
+        except Exception:
+            temp = None
+        throttled_now = False
+        try:
+            flags = self._service_status.get("pi_power", {}).get("throttle_flags")
+            if isinstance(flags, str):
+                throttled_now = bool(int(flags, 16) & 0x4)
+        except Exception:
+            throttled_now = False
+        degc = "\u00b0C"
+        if temp is not None and temp >= self._FAN_HOT_CRIT_C:
+            return Severity.CRITICAL, f"CPU {temp:.1f}{degc} with the fan DOWN"
+        if throttled_now:
+            return Severity.CRITICAL, "CPU THROTTLING NOW with the fan DOWN"
+        if temp is not None and temp >= self._FAN_HOT_WARN_C:
+            return Severity.WARNING, f"CPU {temp:.1f}{degc} with the fan DOWN"
+        return None, ""
 
     def _check_network(self):
         """Check network interfaces are up and have IP addresses."""

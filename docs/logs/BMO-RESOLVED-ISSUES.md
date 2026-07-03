@@ -12,6 +12,90 @@
 
 ---
 
+### [2026-06-29] onnxruntime GPU device-discovery warnings spam wake-model loads on the Pi
+
+- **Category:** debt
+- **Severity:** low (resolved)
+- **Domain:** bmo (Pi infra)
+
+**Description:** Every wake-word / voice-model load logged a pair of onnxruntime `[W:onnxruntime ... GetGpuDevices] Failed to detect devices under "/sys/class/drm/cardN"` warnings (headless Pi has no GPU), cluttering the journal and burying real errors.
+
+**Resolution [2026-07-03, bmo-fixes-batch, commit 2eebfcb8]:** Added `services/voice/voice_pipeline._quiet_onnxruntime()` — raises onnxruntime's default logger severity to ERROR (3) once, before the openWakeWord and Piper InferenceSessions are built (called from `wake_detector.load_wake_model` and `discord_tts._get_piper_voice`). Idempotent + import-guarded (strict no-op off-Pi / in CI), configurable via `BMO_ONNX_LOG_SEVERITY`. Regression tests (`tests/test_onnx_log_quiet.py`, 4) inject a fake onnxruntime module and assert the severity is set once with the right value. Takes effect the next time a wake/TTS model is created (no restart needed for correctness).
+
+---
+
+### [2026-06-29] Intermittent Fish Audio TTS timeouts raised CRITICAL monitor alerts (assistant has a local fallback)
+
+- **Category:** config, performance
+- **Severity:** low (resolved)
+- **Domain:** bmo
+
+**Description:** The health monitor fired `[CRITICAL] fish_audio_api ... timed out after 5s` when Fish Audio (cloud TTS) flapped, even though the `speak()` chain already falls through Piper BMO → Fish Audio → edge-tts → local Piper, so the assistant is never actually mute. A flapping endpoint therefore spammed the loudest alert tier (which also flips the OLED to an error face) for a degraded-but-covered path.
+
+**Resolution [2026-07-03, bmo-fixes-batch, commit f6644d40]:** Verified the TTS fallback chain and added `_HAS_LOCAL_FALLBACK_SERVICES` in `services/monitoring.py`; `fish_audio_api` timeout/connection errors now emit at **WARNING** (mirrors the `google_calendar` degraded-not-critical treatment), not CRITICAL. The existing Discord state-change fingerprint dedupe already collapses repeats to a single webhook, so a flapping API neither spams nor leaves BMO silent. Regression tests: the re-tier + dedupe (`tests/test_monitoring.py`) and the `speak()` Fish→edge→local fall-through (`tests/test_voice_pipeline.py`).
+
+---
+
+### [2026-06-29] TV/ADB integration "Connection failed" logged on every startup (expected powered-off TV, not a lapsed pairing)
+
+- **Category:** config
+- **Severity:** low (resolved)
+- **Domain:** bmo
+
+**Description:** On essentially every boot the TV controller logged `[tv] Connection failed: ... — try pairing via the TV tab`. Investigation: pairing already **persists** across reboots (`tv_cert.pem`/`tv_key.pem` live under `bmo/pi/` and survive), and the TV is powered off much of the day, so the every-boot failure was the expected "TV unreachable" case (auto-recovered by the 60s background reconnect), just logged in a way that read like a real error.
+
+**Resolution [2026-07-03, bmo-fixes-batch, commit 5f00c868]:** Persistence was not broken, so the sound choice was to demote the noise. `routes/tv_api.py` now classifies the connect error: timeout / connection-refused (TV off) → quiet DEBUG; auth/cert/pairing-class error (pairing genuinely lapsed) → INFO "re-pair via the TV tab" nudge. Regression tests cover the classifier (`tests/test_tv_api.py`). On-device note: the DEBUG-vs-INFO split can only be fully observed on a live boot with the TV off vs de-paired; the code is pytest-green.
+
+---
+
+### [2026-06-29] `bmo-fan` controller was unobservable with no thermal fail-safe
+
+- **Category:** future-idea (reliability + observability)
+- **Severity:** medium (resolved)
+- **Domain:** bmo
+
+**Description:** The one service guarding thermal safety was the least defensive/observable: on an I2C loop error it held the last (possibly low) duty instead of failing hot, the unit had no watchdog (a wedged loop went unnoticed), and monitoring treated a down fan as blanket "optional → info" even while the SoC was hot/throttling.
+
+**Resolution [2026-07-03, bmo-fixes-batch, commit bb8a15f0]:** Made the fan fail HOT + observable. `hardware/fan_control.py`: on any loop I2C error, drive full duty (255) before reopening the bus; on a clean stop while warm (or temp unreadable), leave the fan at full duty rather than zeroing it; guard `import smbus` so the module imports off-Pi; emit systemd `WATCHDOG=1` each successful tick + `READY=1` at startup (python3-systemd, no-op if absent). `systemd/bmo-fan.service`: `Type=notify` + `WatchdogSec=30` (10× the 3s poll) + StartLimit, so a wedged loop is restarted. `services/monitoring.py`: escalate a down `bmo-fan` to WARNING/CRITICAL when the SoC is hot (≥70/≥80 °C) or currently throttling, annotating the alert with the correlated cause. Regression tests: fail-hot duty paths, warm/cool/unreadable shutdown policy, fan-down-while-hot escalation. **NEEDS RESTART** to install the `Type=notify` unit change (code is pytest-green); the hardware cooling-capacity half stays with the separate active thermal entry.
+
+---
+
+### [2026-06-28] Agent-registration failures were observability-invisible
+
+- **Category:** future-idea (reliability + observability)
+- **Severity:** medium (resolved)
+- **Domain:** bmo
+
+**Description:** A specialized agent that failed to register (bad refactor, missing dep, ctor raising) silently vanished from the orchestrator with only a stdout print — no metric, no structured log, no health surface — unlike services, which have `service_init_status` + degraded health.
+
+**Resolution [2026-07-03, bmo-fixes-batch, commit dba20e0b]:** Mirrored the service pattern for agents. `agents/_registry.create_all_agents` now takes `status_out` and records `{agent_key: {ok, error}}` per agent, bumps `bmo_agent_init_failed_total`, and logs via the structured logger on failure (stdout line kept for compat). `BmoAgent` threads the status dict through and stashes it as `agent_init_status`; `app.py` copies it to a module global. `/api/health/full` now returns `agent_init` + `degraded_init_agents` and flips `overall` to `degraded` when any agent failed to register. Regression tests: status recording, metric increment, key derivation, and the health-endpoint degraded surface.
+
+---
+
+### [2026-06-28] `pi/scripts/` had no README; the `notify*.sh.*` reference copies read as orphans
+
+- **Category:** future-idea (docs/clarity)
+- **Severity:** low (resolved)
+- **Domain:** bmo
+
+**Description:** `pi/scripts/` had no README, and the two non-standard `notify.sh.router-deployed` / `notify-sms.sh.reference` copies (odd non-`.sh` extensions, zero references) read as dead artifacts a later cleanup pass might delete, though they are intentional reference copies of the live `~/.claude-tools/` notify router.
+
+**Resolution [2026-07-03, bmo-fixes-batch, commit ab0f00d0]:** Added `bmo/pi/scripts/README.md` documenting the notify convention prominently (live router = `~/.claude-tools/notify.sh`; `.router-deployed` = the board-router source of truth, `.reference` = the SMS failsafe reference, `notify-board` = the board producer they route to), plus a one-line purpose + where-it-runs column (Pi/CI/agent/one-off) for every script.
+
+---
+
+### [2026-07-02] `.env.template` had drifted from the code
+
+- **Category:** future-idea (docs/hygiene)
+- **Severity:** low (resolved)
+- **Domain:** bmo
+
+**Description:** 40+ operator-facing `BMO_*` knobs the app reads were undocumented in `.env.template`, several template keys were referenced nowhere (`CF_ACCOUNT_ID`, `CF_TUNNEL_ID`, `PI_IP`, `PI_SSH_ALIAS`, `PI_WEB_HOST`), and the header cited a nonexistent `bmo.sh` wrapper.
+
+**Resolution [2026-07-03, bmo-fixes-batch, commit 3c2d6fea]:** Fixed the header (no shell wrapper sources the file), dropped the five zero-reference dead keys, and documented the operator-useful undocumented knobs (bind/ports, logging, model failover, wake threshold, IDE surface, per-route rate limits, size/quota caps, personalization). Added `tests/test_env_template_drift.py`: a drift guard that scans `bmo/pi/` for `BMO_*` env reads and fails if any is neither in the template nor on an explicit internal/derived allowlist (each with a reason), and asserts the dead keys + `bmo.sh` reference stay gone. Left (larger/optional, noted): de-duplicating `setup-bmo.sh` section-7 inline `.env` heredoc.
+
+---
+
 ### [2026-07-02] Plan agent design phase always crashes — `DESIGN_PROMPT.format()` KeyError `'state'` from unescaped braces in the 38e endpoint examples
 
 - **Category:** bug

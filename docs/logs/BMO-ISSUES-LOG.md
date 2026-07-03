@@ -71,7 +71,6 @@ The paths centralization (`services/paths.py`, commit `4346536b`) defaulted `BMO
 ## Medium
 
 
-
 ### [2026-06-29] social-bot YouTube playback failing — `HTTP 403 Forbidden` + "Video unavailable" (likely yt-dlp staleness)
 
 - **Category:** bug, config
@@ -165,74 +164,6 @@ Impact: journal noise (`Found left-over process ... Ignoring` × 7 lines today),
 **Related files:** `bmo/pi/systemd/bmo.service`, `bmo/pi/services/tv_worker.py` (adb spawner), `bmo/pi/scripts/deploy.sh` (unit install / daemon-reload ordering)
 
 **Related entries:** BMO-RESOLVED-ISSUES [2026-06-29] "`bmo.service` `KillMode=process` leaked orphan children" (this is its follow-up: fix present but not observed effective). [2026-07-02] ffplay 120s playback hang (Medium) — possible consumer of the leaked device handle. [2026-06-29] TV/ADB startup connection failure (source of the adb process).
-
----
-
-### [2026-06-29] TV/ADB integration fails to connect on every startup (`[tv] Connection failed -- try pairing via the TV tab`)
-
-- **Category:** config
-- **Severity:** low
-- **Domain:** bmo
-- **Discovered by:** bmo-errors
-- **During:** scheduled error scan -- `bmo.service` journal (16x in the retained ~7-day window, ~1 per startup)
-
-**Description:**
-On essentially every boot, the TV controller logs `[tv] Connection failed:  -- try pairing via the TV tab` (occasionally `Need to pair again`). It degrades gracefully (just no TV control) but recurs on every startup and is the source of the long-lived `adb` process that the `KillMode=process` issue then orphans.
-
-**Hypothesis / root cause:** The ADB pairing/token with the TV is not persisted across reboots (or has lapsed), so the startup connect attempt always fails until someone re-pairs via the TV tab. Operational state, not necessarily a code bug -- but if pairing is expected to persist, the token store/reconnect path is broken.
-
-**Proposed fix / improvement:**
-- [ ] Confirm whether TV pairing is meant to persist; if so, fix the ADB key/token persistence + auto-reconnect. If the TV is intentionally unpaired, lower this log line below WARNING so it stops looking like an error each boot.
-
-**Related files:** TV/ADB controller under `bmo/pi/services/` or `bmo/pi/` (search `[tv]` / `adb`)
-
-**Related entries:** [2026-06-29] `bmo.service` uses `KillMode=process` (the orphaned `adb` process)
-
----
-
-### [2026-06-29] Intermittent Fish Audio TTS timeouts raise CRITICAL monitor alerts (no voice output while firing)
-
-- **Category:** config, performance
-- **Severity:** low
-- **Domain:** bmo
-- **Discovered by:** bmo-errors
-- **During:** scheduled error scan -- `bmo.service` monitor alerts (Jun 29 13:52, 13:53, 15:00)
-
-**Description:**
-The health monitor fired `[CRITICAL] fish_audio_api: Fish Audio API (text-to-speech) is not responding (timed out after 5s)` three times on Jun 29. When it fires, the primary TTS path is unavailable, so BMO produces no spoken output until it recovers. Clustered on a single day so far -- may be a transient upstream/network incident rather than a standing problem, but the user-facing impact (silent assistant) warrants visibility.
-
-**Hypothesis / root cause:** Transient Fish Audio API/network latency exceeding the 5s health-probe timeout. Verify whether the same timeout also aborts real TTS requests (vs. just the probe), and whether there is a local/offline TTS fallback when Fish Audio is down.
-
-**Proposed fix / improvement:**
-- [ ] Confirm whether a TTS fallback engine engages when Fish Audio times out; if not, add one (or a retry/backoff) so the assistant is not silent.
-- [ ] Consider dedup/rate-limiting the CRITICAL alert and/or raising the probe timeout if 5s is too tight for this endpoint.
-
-**Related files:** `bmo/pi/services/voice/voice_pipeline.py` (Fish Audio TTS path), `bmo/pi/services/monitoring.py` (`fish_audio_api` check)
-
----
-### [2026-06-29] onnxruntime GPU device-discovery warnings spam wake-model loads on the Pi
-
-- **Category:** debt
-- **Severity:** low
-- **Domain:** bmo (Pi infra)
-- **Discovered by:** bmo-errors
-- **During:** scheduled error scan — `bmo.service` journal (recurring, Jun 29)
-
-**Description:**
-Every wake-word / voice-model load logs a pair of onnxruntime warnings trying to enumerate non-existent GPUs on the headless Pi:
-
-```
-[W:onnxruntime:Default, device_discovery.cc:283 GetGpuDevices] Failed to detect devices under "/sys/class/drm/card1": ... Failed to open file: ".../device/vendor"
-```
-
-Harmless (CPU execution provider is used regardless) but it recurs on every model init and clutters the journal, making real errors harder to spot.
-
-**Hypothesis / root cause:** onnxruntime's default device discovery probes `/sys/class/drm/cardN` which don't exist on the Pi. Suppressible by lowering onnxruntime's log severity (e.g. `SessionOptions.log_severity_level = 3`) or setting the provider explicitly to CPU.
-
-**Proposed fix / improvement:**
-- [ ] Set onnxruntime session log severity to ERROR (or pin CPUExecutionProvider) where the wake/openwakeword models are created.
-
-**Related files:** `bmo/pi/services/voice/` (wake detector / model init), `bmo/pi/wake/`
 
 ---
 
