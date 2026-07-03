@@ -48,7 +48,18 @@ vi.mock('../storage/book-storage', () => ({
   loadBookData: vi.fn(),
   readBookFile: vi.fn(),
   removeBook: vi.fn(),
-  saveBookData: vi.fn()
+  saveBookData: vi.fn(),
+  // Faithful re-implementation of the real predicate (src/main/storage/book-storage.ts)
+  // so the BOOK_IMPORT handler's book-id guard resolves against the mock. Without this
+  // export the handler threw "No isSafeBookId export is defined on the mock" (regression
+  // from baf05530, which added the guard but left this mock untouched).
+  isSafeBookId: (bookId: unknown): bookId is string =>
+    typeof bookId === 'string' &&
+    bookId.length > 0 &&
+    !bookId.includes('/') &&
+    !bookId.includes('\\') &&
+    !bookId.includes('..') &&
+    !bookId.includes('\0')
 }))
 
 vi.mock('../storage/character-storage', () => ({
