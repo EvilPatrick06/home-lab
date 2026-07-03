@@ -4,6 +4,7 @@ import RichContent from '../../components/RichContent.jsx';
 import { normalizeTomeData } from '../../game/tome.js';
 import { useDialogA11y } from '../../hooks/useDialogA11y.js';
 import { reasonLabel } from '../../services/reportProblem.js';
+import { bumpRevision } from '../../services/tomeVersion.js';
 
 // S15: in-app tome content editor (flashcards + quiz). Emits the same shape
 // normalizeTomeData accepts, so edited tomes round-trip through the app.
@@ -75,7 +76,10 @@ function TomeEditor({ tome, onSave, onClose }) {
       setErr('A tome needs at least one valid flashcard or quiz question.');
       return;
     }
-    onSave(normalizeTomeData({ ...data, flashcards, quiz: outQuiz }));
+    // sugg-tome-versioning: every author save bumps the tome's revision (and
+    // stamps updatedAt) so a shared copy signals "a newer version is available"
+    // to learners who already imported an earlier one.
+    onSave(bumpRevision(normalizeTomeData({ ...data, flashcards, quiz: outQuiz })));
   };
 
   const tabBtn = (id, label, Icon) => (

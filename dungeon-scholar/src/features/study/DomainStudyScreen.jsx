@@ -5,6 +5,7 @@ import { todayDateStr } from '../../services/devotion.js';
 import { computeExamPace } from '../../services/examPace.js';
 import { computeExamPrediction } from '../../services/examPrediction.js';
 import { computeMilestones, computeRetentionCurve } from '../../services/forgettingCurve.js';
+import { buildStudyPlan } from '../../services/studyPlan.js';
 import {
   pickWeakestDomain,
   WEAK_DOMAIN_ACCURACY_THRESHOLD,
@@ -164,6 +165,18 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
     [isCombined, weights, stats],
   );
 
+  // sugg-study-plan: compose exam pace + prediction + weakest domain into a
+  // single actionable "what to study today" recommendation.
+  const studyPlan = useMemo(
+    () =>
+      buildStudyPlan({
+        examPace,
+        prediction: examPrediction ? { predictedScore: examPrediction.predictedPct } : null,
+        weakestDomain,
+      }),
+    [examPace, examPrediction, weakestDomain],
+  );
+
   // 26h: memory-forecast aggregation. Build a flat list of SRS states
   // for every flashcard in scope (single tome or combined). Cards
   // without state are null entries — the helper filters them out of
@@ -197,6 +210,28 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
 
   return (
     <div className="space-y-6">
+      {/* sugg-study-plan: today's prioritized recommendation. */}
+      <div
+        className="p-4 rounded-sm"
+        style={{
+          background:
+            'linear-gradient(135deg, rgba(var(--surface-emerald, 6, 78, 59), 0.5) 0%, rgba(var(--surface-deep, 10, 6, 4), 0.9) 100%)',
+          border: '2px solid rgba(16, 185, 129, 0.5)',
+        }}
+      >
+        <div className="flex items-center gap-2 mb-2">
+          <Target className="w-5 h-5 text-emerald-300" />
+          <h3 className="text-sm font-bold italic text-emerald-200 tracking-wider">Today's Study Plan</h3>
+        </div>
+        <p className="text-xs italic text-emerald-100 mb-2">{studyPlan.headline}</p>
+        <ul className="flex flex-col gap-1">
+          {studyPlan.actions.map((a, i) => (
+            <li key={i} className="text-[11px] italic text-amber-100/85 flex items-start gap-1">
+              <span className="text-emerald-400">•</span> {a}
+            </li>
+          ))}
+        </ul>
+      </div>
       <div
         className="p-6 rounded-sm relative"
         style={{

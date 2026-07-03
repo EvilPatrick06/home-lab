@@ -1,4 +1,4 @@
-import { ArrowLeft, Check, ChevronRight, Flag, Flame, Loader2, Wand2, X } from 'lucide-react';
+import { ArrowLeft, Check, ChevronRight, Flag, Flame, Loader2, Mic, Wand2, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import RichContent from '../../components/RichContent.jsx';
 import { BloomBadge, DifficultyStars } from '../../components/ui/badges.jsx';
@@ -6,6 +6,7 @@ import { FilteredModeBanner } from '../../components/ui/FilteredModeBanner.jsx';
 import { gradeAnswer } from '../../services/oracleGrader.js';
 import { addReport, makeReport, REPORT_REASONS, reasonLabel } from '../../services/reportProblem.js';
 import { loadSession, SESSION_KIND, saveSession } from '../../services/sessionResume.js';
+import { speechRecognitionSupported, startDictation } from '../../services/speech.js';
 import { speak, ttsSupported } from '../../services/tts.js';
 
 function QuizMode({
@@ -62,6 +63,29 @@ function QuizMode({
   // sugg-report-problem: inline defect reporter shown after answering.
   const [reportOpen, setReportOpen] = useState(false);
   const [reported, setReported] = useState(false);
+  // sugg-speech-input: optional mic dictation for the free-text answer.
+  const [listening, setListening] = useState(false);
+  const dictationRef = useRef(null);
+  const speechOk = speechRecognitionSupported();
+  const toggleDictation = () => {
+    if (listening) {
+      dictationRef.current?.stop();
+      setListening(false);
+      return;
+    }
+    const handle = startDictation({
+      onResult: (text, { isFinal }) => {
+        if (text) setTextAnswer(text);
+        if (isFinal) setListening(false);
+      },
+      onError: () => setListening(false),
+      onEnd: () => setListening(false),
+    });
+    if (handle) {
+      dictationRef.current = handle;
+      setListening(true);
+    }
+  };
   // Pre-shuffled deck comes from App level (stable across re-renders / cloud
   // sync). Fall back to the raw quiz array if a parent hasn't provided one.
   // Phase 39a: sessionDeck (when set by a resume) overrides the parent's
@@ -714,6 +738,18 @@ function QuizMode({
               }}
               autoFocus
             />
+            {speechOk && (
+              <button
+                type="button"
+                onClick={toggleDictation}
+                aria-pressed={listening}
+                aria-label={listening ? 'Stop dictation' : 'Dictate answer'}
+                className={`px-3 py-2 rounded-sm text-xs italic border-2 flex items-center gap-1 ${listening ? 'border-red-400 text-red-200' : 'border-purple-500 text-purple-200'}`}
+                style={{ background: 'rgba(var(--surface-purple, 31, 12, 41), 0.6)' }}
+              >
+                <Mic className="w-4 h-4" /> {listening ? 'Listening... (tap to stop)' : 'Dictate'}
+              </button>
+            )}
             <button
               onClick={submitFillBlankWithOracle}
               disabled={!textAnswer.trim() || grading}
