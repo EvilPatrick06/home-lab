@@ -307,7 +307,7 @@ function HomeScreen({
             {dailyGoalStatus.goal}
           </span>
           {(playerState.streakFreezeTokens ?? 0) > 0 && (
-            <span className="text-cyan-200">
+            <span className="text-cyan-300">
               ❄ {playerState.streakFreezeTokens} ward{playerState.streakFreezeTokens === 1 ? '' : 's'}
             </span>
           )}

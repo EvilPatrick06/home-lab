@@ -25,6 +25,9 @@ export function reasonLabel(reason) {
 }
 
 // Build a normalized report record. Returns null when there is no item to flag.
+/**
+ * @param {{ itemId?: any, itemType?: string, reason?: string, note?: any, now?: number }} [arg]
+ */
 export function makeReport({ itemId, itemType = 'quiz', reason = 'other', note = '', now = Date.now() } = {}) {
   const id = itemId == null ? '' : String(itemId);
   if (!id) return null;

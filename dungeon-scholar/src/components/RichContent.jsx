@@ -53,7 +53,7 @@ function MathRender({ expr, fallbackStyle }) {
         }
       })
       .catch(() => {
-        /* offline — keep fallback */
+        /* offline - keep fallback */
       });
     return () => {
       mounted = false;
@@ -199,7 +199,7 @@ export default function RichContent({ text, className, style, as: BlockTag = 'di
         </a>,
       );
     } else if (n.type === 'image') {
-      // Phase 38e: ![alt](url) — already URL-validated by the parser.
+      // Phase 38e: ![alt](url) - already URL-validated by the parser.
       // Renders inline-block so a short alt text isn't visually
       // disconnected from the surrounding prose.
       runBuffer.push(
@@ -222,7 +222,7 @@ export default function RichContent({ text, className, style, as: BlockTag = 'di
         />,
       );
     } else if (n.type === 'math') {
-      // Phase 36d / 38f: $inline math$ — full KaTeX typesetting via
+      // Phase 36d / 38f: $inline math$ - full KaTeX typesetting via
       // lazy-loaded module. Styled-span placeholder renders immediately
       // (matches the Phase 36d look) and is replaced once KaTeX finishes
       // loading. Module + CSS are imported only when the first math node
@@ -249,10 +249,11 @@ export default function RichContent({ text, className, style, as: BlockTag = 'di
       const diagram = isDiagramLanguage(n.language);
       // sugg-diagram-a11y: text-diagram fences (ascii/topology/flow/diagram)
       // are glyph art a screen reader would read character-by-character. Wrap
-      // them as a single role="img" unit with an aria-label — the author's
+      // them as a single role="img" unit with an aria-label - the author's
       // caption when present (```topology Core to two access switches), else a
       // generic "ASCII diagram" label. A visible caption is also rendered.
-      const diagramLabel = diagram ? n.caption || 'ASCII diagram' : undefined;
+      const caption = /** @type {any} */ (n).caption;
+      const diagramLabel = diagram ? caption || 'ASCII diagram' : undefined;
       children.push(
         <pre
           key={`c${i}`}
@@ -260,7 +261,7 @@ export default function RichContent({ text, className, style, as: BlockTag = 'di
           {...(diagram ? { role: 'img', 'aria-label': diagramLabel } : {})}
         >
           {n.language && <span style={LANG_TAG_STYLE}>{diagram ? 'diagram' : n.language}</span>}
-          {diagram && n.caption && (
+          {diagram && caption && (
             <span
               style={{
                 display: 'block',
@@ -270,7 +271,7 @@ export default function RichContent({ text, className, style, as: BlockTag = 'di
                 marginBottom: '0.4em',
               }}
             >
-              {n.caption}
+              {caption}
             </span>
           )}
           <code

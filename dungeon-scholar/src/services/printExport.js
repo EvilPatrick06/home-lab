@@ -34,8 +34,8 @@ const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 /**
  * Build a printable HTML study sheet for a tome.
- * @param {object} tome — library entry ({ data }) or raw tome-data.
- * @param {{ withAnswers?: boolean }} [opts] — include the answer key.
+ * @param {object} tome - library entry ({ data }) or raw tome-data.
+ * @param {{ withAnswers?: boolean }} [opts] - include the answer key.
  * @returns {string} a full standalone HTML document.
  */
 export function buildPrintableHtml(tome, { withAnswers = true } = {}) {
