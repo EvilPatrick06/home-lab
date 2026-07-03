@@ -160,10 +160,25 @@ function isQuotaExceeded(err: unknown): boolean {
 }
 
 /**
- * Persist one snapshot payload, evicting the oldest stored versions one at a
- * time and retrying until the write fits or no history remains. Returns true on
- * success. Unlike the previous single-shot retry this drains as many old
- * versions as needed, so a large snapshot can still save on a near-full store.
+ * Persist one snapshot payload to localStorage, evicting the oldest evictable
+ * stored versions one at a time and retrying until the write fits or nothing
+ * evictable remains. Returns true on success. Unlike the previous single-shot
+ * retry this drains as many old versions as needed, so a large snapshot can
+ * still save on a near-full store.
+ *
+ * Eviction must respect the IndexedDB body store (bodies normally live there;
+ * this localStorage path is the fallback for when IndexedDB is unavailable or
+ * failing):
+ *
+ * - Only versions whose body actually lives in localStorage are evicted.
+ *   Removing an IndexedDB-resident version frees zero localStorage quota, so a
+ *   fallback triggered by a mid-session IDB outage would otherwise drain the
+ *   ENTIRE version manifest (destroying all restore metadata) without ever
+ *   making the write fit. When nothing evictable remains, give up and let the
+ *   caller fail loud instead.
+ * - An evicted body is removed via removeSnapshot() — BOTH backends (IndexedDB
+ *   best-effort + localStorage) — never a raw localStorage.removeItem, which
+ *   would orphan any IndexedDB copy forever.
  */
 function persistSnapshotWithEviction(campaignId: string, versionId: string, serialized: string): boolean {
   try {
@@ -172,14 +187,23 @@ function persistSnapshotWithEviction(campaignId: string, versionId: string, seri
   } catch (err) {
     if (!isQuotaExceeded(err)) return false
   }
+
+  const hasLocalBody = (v: SaveVersion): boolean => {
+    try {
+      return localStorage.getItem(versionDataKey(campaignId, v.id)) !== null
+    } catch {
+      return false
+    }
+  }
+
   let versions = loadVersionList(campaignId)
   while (versions.length > 0) {
-    const oldest = [...versions].sort((a, b) => a.timestamp - b.timestamp)[0]
-    try {
-      localStorage.removeItem(versionDataKey(campaignId, oldest.id))
-    } catch {
-      // ignore removal errors
-    }
+    // Oldest-first among the versions that would actually free localStorage
+    // quota; IndexedDB-resident versions keep their manifest entry and body.
+    const evictable = versions.filter(hasLocalBody).sort((a, b) => a.timestamp - b.timestamp)
+    if (evictable.length === 0) return false
+    const oldest = evictable[0]
+    removeSnapshot(campaignId, oldest.id)
     versions = versions.filter((v) => v.id !== oldest.id)
     persistVersionList(campaignId, versions)
     try {
