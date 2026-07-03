@@ -171,10 +171,11 @@ fast path, not a replacement.
 
 **Still needs orchestrator-side work (out of this repo):**
 
-- The **dispatch-side poller** (section 3) that reads the outbox and `send_message`s
-  into the originating session. Must run where sessions live.
+- ~~The **dispatch-side poller** (section 3)~~ **— superseded by section 5.** The
+  polling relay (`board-decision-relay`, `*/15`) is retired; producers now
+  self-consume their own decisions via `board-pending-decisions.sh` and a
+  `systemd.path` nudge makes it prompt. See section 5.
 - Each resolver / phase-executer **`SKILL.md`** must export its session id and pass
-  `--session-id` when it posts a WAIT-class item (section 1).
-- **Deploy/restart** to make the buttons live on the Pi: the board cog change ships
-  via the normal bmo deploy (`bmo/pi/scripts/deploy.sh` from the deploy checkout) and
-  a `bmo-social-bot` restart — a separate, approved step (not done here).
+  `--session-id` when it posts a WAIT-class item (section 1), and read
+  `board-pending-decisions.sh <source>` at run start (section 5).
+- **Deploy/restart** to make t

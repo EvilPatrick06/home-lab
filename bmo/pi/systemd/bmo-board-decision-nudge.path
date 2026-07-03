@@ -1,0 +1,13 @@
+[Unit]
+Description=Watch the BMO board decisions outbox for new Approve/Deny/Other clicks (event replacement for the board-decision-relay poll)
+After=bmo.service
+
+[Path]
+# Fires bmo-board-decision-nudge.service on every append the board bot makes when
+# a user clicks Approve/Deny/Other. systemd watches the parent dir until the file
+# first appears, so this is correct even before the first-ever click.
+PathModified=/home/patrick/home-lab-deploy/bmo/pi/data/board_decisions_outbox.jsonl
+Unit=bmo-board-decision-nudge.service
+
+[Install]
+WantedBy=paths.target
