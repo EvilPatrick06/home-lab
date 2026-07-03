@@ -29,6 +29,7 @@ Active logs are **fully domain-split** for issues + suggestions. Security stays 
 | [`BMO-RESOLVED-ISSUES.md`](./BMO-RESOLVED-ISSUES.md) | git | Archive of completed BMO entries (issues + suggestions). |
 | [`RESOLVED-ISSUES-DNDAPP.md`](./RESOLVED-ISSUES-DNDAPP.md) | git | Archive of completed dnd-app entries (issues + suggestions). |
 | [`RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`](./RESOLVED-ISSUES-DUNGEON-SCHOLAR.md) | git | Archive of completed dungeon-scholar entries (issues + suggestions). |
+| [`RESOLVED-ISSUES.md`](./RESOLVED-ISSUES.md) | git | **Archive of completed cross-cutting / repo-wide entries** moved out of the pointer logs (`ISSUES-LOG.md` / `SUGGESTIONS-LOG.md`) — see its `## Cross-cutting resolved` section. |
 | [`RESOLVED-SECURITY-ISSUES.md`](./RESOLVED-SECURITY-ISSUES.md) | **gitignored** | Archive of completed entries moved out of `SECURITY-LOG.md`. |
 
 **Triage rule:**
@@ -207,7 +208,7 @@ Multiple categories allowed: `Category: bug, security` is fine.
 
 1. **Grep first** — is this already logged in any of the active logs?
    ```bash
-   grep -i "<keyword>" docs/logs/BMO-ISSUES-LOG.md docs/logs/ISSUES-LOG-DNDAPP.md docs/logs/ISSUES-LOG-DUNGEON-SCHOLAR.md docs/logs/BMO-SUGGESTIONS-LOG.md docs/logs/SUGGESTIONS-LOG-DNDAPP.md docs/logs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md docs/logs/SECURITY-LOG.md
+   grep -i "<keyword>" docs/logs/BMO-ISSUES-LOG.md docs/logs/ISSUES-LOG-DNDAPP.md docs/logs/ISSUES-LOG-DUNGEON-SCHOLAR.md docs/logs/ISSUES-LOG.md docs/logs/BMO-SUGGESTIONS-LOG.md docs/logs/SUGGESTIONS-LOG-DNDAPP.md docs/logs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md docs/logs/SUGGESTIONS-LOG.md docs/logs/SECURITY-LOG.md
    ```
    If found, don't duplicate. Add a dated comment under the existing entry OR just read and move on.
 
@@ -238,7 +239,8 @@ Multiple categories allowed: `Category: bug, security` is fine.
    - From `BMO-ISSUES-LOG.md` / `BMO-SUGGESTIONS-LOG.md` → [`BMO-RESOLVED-ISSUES.md`](./BMO-RESOLVED-ISSUES.md) *(tracked)*
    - From `ISSUES-LOG-DNDAPP.md` / `SUGGESTIONS-LOG-DNDAPP.md` → [`RESOLVED-ISSUES-DNDAPP.md`](./RESOLVED-ISSUES-DNDAPP.md) *(tracked)*
    - From `ISSUES-LOG-DUNGEON-SCHOLAR.md` / `SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` → [`RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`](./RESOLVED-ISSUES-DUNGEON-SCHOLAR.md) *(tracked)*
-   - For `Domain: both` entries, file under the domain whose codebase the fix actually touched (and reference the sibling resolved log in the entry).
+   - From the cross-cutting pointer logs `ISSUES-LOG.md` / `SUGGESTIONS-LOG.md` (repo-wide/structural `Domain: both` entries) → [`RESOLVED-ISSUES.md`](./RESOLVED-ISSUES.md), its `## Cross-cutting resolved (overall-resolver)` section *(tracked)*.
+   - For `Domain: both` entries that were **mirrored** into per-domain logs, file under the domain whose codebase the fix actually touched (and reference the sibling resolved log in the entry).
    - From `SECURITY-LOG.md` → [`RESOLVED-SECURITY-ISSUES.md`](./RESOLVED-SECURITY-ISSUES.md) *(gitignored — same privacy reason as the active security log)*
 3. Append fix details to the entry:
    ```markdown
@@ -258,6 +260,17 @@ The active logs stay lean; the resolved files preserve history for postmortems a
 ### Security entries
 
 **All security entries go in [`SECURITY-LOG.md`](./SECURITY-LOG.md), regardless of domain.** That file is gitignored so concerns and incident details stay local. Security is the only category that's NOT split by domain — keeping a single security log makes it easier to audit attack-surface across the whole repo at once.
+
+**Worktree agents: write security entries to the MAIN checkout, under the lock.** Because `SECURITY-LOG.md` (and `RESOLVED-SECURITY-ISSUES.md`) are gitignored, they exist ONLY in the main checkout's working tree (`/home/patrick/home-lab/docs/logs/`). They are absent from the per-agent worktrees under `/home/patrick/home-lab-trees/<agent-id>`, never ride `auto/*` branches, and are never merged by the integrator — the `.gitattributes` `SECURITY-LOG*` union rule is inert on an untracked file. An automated agent must therefore NEVER append a security entry inside its worktree (it would be silently lost when the worktree is reset). Instead, append directly to the main checkout's file, serialized through the shared lock so concurrent writers cannot interleave or clobber each other:
+
+```bash
+flock /home/patrick/home-lab-locks/security-log.lock \
+  bash -c 'cat >> /home/patrick/home-lab/docs/logs/SECURITY-LOG.md <<EOF
+<your entry>
+EOF'
+```
+
+(Any read-modify-write of the file — including moving a resolved entry into `RESOLVED-SECURITY-ISSUES.md` — must happen under the same flock.) The dedup grep in "How to append" should likewise target the main-checkout path for the security logs when run from a worktree.
 
 Log items like:
 - Missing input validation
@@ -346,12 +359,13 @@ Keeping instructions here (stable, low-churn) and the logs separate (frequently-
 - design-gotcha / durable info (knowledge) — any domain → that domain's `docs/DESIGN-CONSTRAINTS.md` (NOT a suggestions log)
 - security (any flavor, any domain) → `docs/logs/SECURITY-LOG.md` *(gitignored)*
 
-**Before fix:** grep all five tracked active logs (above) + `SECURITY-LOG.md`; log if not already present.
+**Before fix:** grep all seven tracked active logs (above — incl. the two cross-cutting pointer logs) + `SECURITY-LOG.md`; log if not already present.
 
 **After fix:** move entry → matching resolved log:
 - BMO entries (issues + suggestions) → `BMO-RESOLVED-ISSUES.md`
 - dnd-app entries (issues + suggestions) → `RESOLVED-ISSUES-DNDAPP.md`
 - dungeon-scholar entries (issues + suggestions) → `RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`
+- cross-cutting pointer-log entries → `RESOLVED-ISSUES.md` (its Cross-cutting resolved section)
 - security entries → `RESOLVED-SECURITY-ISSUES.md` (gitignored)
 - Always add commit SHA + resolution.
 

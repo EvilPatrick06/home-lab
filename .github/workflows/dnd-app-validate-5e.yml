@@ -2,8 +2,11 @@
 name: dnd-app validate 5e
 
 on:
+  # No branch filter on push: this correctness gate must run on auto/<agent-id>
+  # branch pushes too, so the integrator's "merge only green branches" check
+  # sees a real signal instead of a silently-missing run (path filters +
+  # cancel-in-progress concurrency keep per-branch cost bounded).
   push:
-    branches: [master]
     paths:
       - 'dnd-app/**'
       - '.github/workflows/dnd-app-validate-5e.yml'
