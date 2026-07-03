@@ -119,6 +119,90 @@ The root README's Projects table correctly lists all four shipping units includi
 **Related files:** `README.md`, `oracle-worker/README.md`
 
 **Related entries:** none found.
+### [2026-07-02] No markdown link-integrity check across the ~283 tracked docs, while the docs ARE the agent-coordination fabric and files are regularly relocated to `_archive/`
+
+- **Category:** future-idea, docs
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** cross-cutting review of docs/CI hygiene — what validates the repo's documentation layer itself.
+
+**Description:**
+The repo carries ~283 tracked markdown files outside `node_modules`/`_archive` (repo-root docs, `docs/`, per-project `docs/`, log files, phase plans), densely cross-referenced by **relative links** — `LOG-INSTRUCTIONS.md` alone links a dozen sibling logs and per-domain `DESIGN-CONSTRAINTS.md` files, `AUTOMATED-AGENT-GIT-WORKFLOW.md` links INSTRUCTIONS.md/BMO-DEPLOY.md/BOARD-APPROVAL-BRIDGE.md, and every log entry links related entries and files. These docs are not passive prose: they are the operating instructions the scheduled-agent fleet reads every run, so a broken pointer degrades agent behavior, not just reading experience. Yet **no CI job validates any markdown link** (`grep -ril "markdown\|lychee\|link" .github/workflows/` → no link-check hits): `ci-hygiene.yml` lints workflows, `agent-docs-check.yml` guards only the AGENTS.md sync block. Meanwhile the repo's own housekeeping conventions *systematically create* dead links: completed-docs batches are relocated into dated `_archive/` dirs (five batches so far), resolved log entries are cut from active logs and pasted into `RESOLVED-*` files, and docs get renamed in reorgs — each a chance for the many inbound relative links to silently rot.
+
+**Hypothesis / root cause:** doc hygiene grew guards for *content drift* (agent-docs sync) and *workflow lint* (zizmor), but link integrity was never in scope; nothing forces a link pass when a doc is archived or an entry is moved.
+
+**Proposed fix / improvement:**
+- [ ] Add a link-check job (e.g. SHA-pinned `lychee` in `--offline` mode, or a small script) to `ci-hygiene.yml`, checking **relative/internal links only** (offline mode avoids external-URL flakiness), scoped to tracked `*.md` excluding `_archive/**` and `node_modules`.
+- [ ] Optionally warn-only for the first run to triage the existing backlog of dead links, then flip to enforcing.
+- [ ] Note the convention in `docs/CONTRIBUTING.md`: relocating/renaming a doc includes fixing inbound links (the CI job then enforces it).
+
+**Related files:** `.github/workflows/ci-hygiene.yml`, `docs/LOG-INSTRUCTIONS.md`, `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`, `_archive/README.md`, `docs/CONTRIBUTING.md`
+
+**Related entries:** SUGGESTIONS-LOG.md -> [2026-06-29] `_archive/README.md` "What's inside" tree is stale (same "archive batches outrun the docs that point at them" mechanism); SUGGESTIONS-LOG.md -> [2026-06-29] actionlint gate (same "add one cheap standing guard instead of relying on authoring-time care" pattern).
+
+### [2026-07-02] Biome version has no single source across the three biome projects + root husky hook — and has already drifted (dnd-app ^2.5.1 vs mobile ^2.5.0 vs dungeon-scholar/hook inline 2.5.0)
+
+- **Category:** future-idea, config
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** cross-cutting review of shared-tooling version pinning (follow-up angle to the biome.base.json/tsconfig.base.json convention entries).
+
+**Description:**
+`biome.base.json` gives the three biome projects one source of truth for lint/format *rules*, but the biome *tool version* is pinned independently in four places and is already inconsistent: `dnd-app` devDependency `^2.5.1`, `dnd-app/mobile` devDependency `^2.5.0`, `dungeon-scholar` inline `npx --yes @biomejs/biome@2.5.0` in three script strings (no devDependency — logged per-project in SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md 2026-06-29), and — the cross-cutting part — the **repo-root `.husky/pre-commit`** hard-codes `npx --yes @biomejs/biome@2.5.0` for the dungeon-scholar block. The root-hook pin lives outside any package.json, so Dependabot cannot see or bump it: when dungeon-scholar's biome does move (e.g. via the logged devDependency fix), the hook silently keeps linting staged files with the *old* version, so local pre-commit and CI can disagree about the same diff. A rules-shared/version-diverged setup also means the shared `biome.base.json` can adopt syntax or defaults from a newer biome that one project's older binary rejects.
+
+**Hypothesis / root cause:** each project adopted biome from its own scaffold at whatever version was current; `biome.base.json` unified the config layer later, but nothing unifies (or guards) the binary version, and the husky hook inherited dungeon-scholar's inline-pin workaround verbatim.
+
+**Proposed fix / improvement:**
+- [ ] After dungeon-scholar gains a `@biomejs/biome` devDependency (already-logged per-project fix), repoint the husky dungeon-scholar block at the project-local binary (like the dnd-app block does) so no version literal lives in the hook.
+- [ ] Align the three projects on one biome minor (Dependabot's grouped npm bumps then keep them moving together) and note in `docs/CONTRIBUTING.md` that `biome.base.json` changes must be valid for the oldest pinned biome — or add a tiny `check-ci-hygiene.sh` guard asserting the three declared biome versions match.
+
+**Related files:** `.husky/pre-commit`, `biome.base.json`, `dnd-app/package.json`, `dnd-app/mobile/package.json`, `dungeon-scholar/package.json`, `scripts/check-ci-hygiene.sh`
+
+**Related entries:** SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md -> [2026-06-29] Pin Biome as a devDependency (the per-project half of this); SUGGESTIONS-LOG.md -> [2026-06-29] No shared `tsconfig.base.json` (same "shared config, per-project drift" family).
+
+### [2026-07-02] `dnd-app/mobile` is the only JS project without an `engines.node` pin — the unswept tail of the resolved 2026-06-22 Node single-sourcing entry
+
+- **Category:** config, debt
+- **Severity:** info
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** cross-cutting audit of the Node-version pinning convention (`.nvmrc` + `engines.node`) across the four npm projects.
+
+**Description:**
+The resolved 2026-06-22 "Pin one Node version for the whole monorepo" entry (RESOLVED-ISSUES.md) added the root `.nvmrc` (22) and `engines.node: >=22` to `dnd-app`, `dungeon-scholar`, and `oracle-worker` — but `dnd-app/mobile/package.json` declares **no `engines` field** (verified across all four package.json files). CI is unaffected (`dnd-app-mobile-ci.yml` uses the shared `setup-node-project` composite, which honors `.nvmrc`), so this is purely the local-developer half of the convention: `npm` inside `dnd-app/mobile` never warns/errs on an unsupported Node the way it does in the sibling projects. One more instance of the recurring "mobile was retrofitted later and misses a repo-wide convention" pattern already logged for audit coverage and the husky pre-commit floor.
+
+**Hypothesis / root cause:** the 2026-06-22 sweep enumerated the then-wired npm projects; mobile joined the tooling conventions later (Makefile/CI retrofit) and the engines back-fill was never done.
+
+**Proposed fix / improvement:**
+- [ ] Add `"engines": { "node": ">=22" }` to `dnd-app/mobile/package.json`, matching its three siblings.
+
+**Related files:** `dnd-app/mobile/package.json`, `.nvmrc`, `dnd-app/package.json`, `dungeon-scholar/package.json`, `oracle-worker/package.json`
+
+**Related entries:** RESOLVED-ISSUES.md -> [2026-06-22] Pin one Node version for the whole monorepo (this closes its missed corner); SUGGESTIONS-LOG.md -> [2026-06-29] mobile audit-coverage parity gap + mobile pre-commit floor (same mobile-parity pattern).
+
+### [2026-07-02] No in-repo registry of the scheduled-agent fleet — agent ids, scopes, branches, and log targets are only discoverable by cross-reading the workflow doc and log bylines
+
+- **Category:** future-idea, docs
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** cross-cutting docs/DX review — establishing "which agent covers what" required reconstructing the fleet from scattered references.
+
+**Description:**
+The repo is operated by a sizable fleet of scheduled agents — per-domain suggestors/error-scanners/cleaners (`overall-suggestor`, `overall-errors`, `overall-cleanup`, `scholar-suggestor`, ...), the seven resolvers/phase-executers enumerated in `AUTOMATED-AGENT-GIT-WORKFLOW.md` Rule 5, QA testers (`app-qa-tester`, `scholar-qa-tester`), the `integrator`, and the phase-maker — but **no single in-repo document lists the fleet**. The workflow doc names the seven Rule-5 agents and gives agent-id *examples*; every other id is only discoverable by grepping `Discovered by:`/`Resolved by:` bylines in the logs or `auto/*` branch names. The canonical definitions (each agent's scheduled-task SKILL.md) live orchestrator-side, outside the repo, so from inside the repo there is no answer to: which agents exist? which is scanner vs. resolver (log-only vs. code-writing)? which log does each feed? what cadence? This costs real coordination: the suggestor/scanner agents are explicitly told not to re-log what sibling agents cover — a judgment that requires knowing the sibling scopes; humans triaging the board or a left-behind `auto/<id>` branch must reverse-engineer what that agent is; and new agents get named without a namespace overview.
+
+**Hypothesis / root cause:** the fleet grew agent-by-agent in the orchestrator's scheduled-task definitions; the repo docs only ever absorbed the subsets a specific rule needed (Rule 5's seven, the integrator), never a fleet-wide index — and since the SKILL.md sources are out-of-repo, no file was the natural home.
+
+**Proposed fix / improvement:**
+- [ ] Add a small `docs/AGENT-FLEET.md` (or a section in `AUTOMATED-AGENT-GIT-WORKFLOW.md`): one table row per agent id — domain, kind (suggestor / errors / cleanup / resolver / phase-maker / phase-executer / QA / integrator), branch (`auto/<id>`), which log(s) it writes or resolves, cadence, and AUTO-APPROVE vs WAIT behavior where applicable. Keep it to stable coordination facts (id/scope/log routing) so it doesn't try to mirror the out-of-repo SKILL.md details.
+- [ ] Link it from `docs/README.md` and `LOG-INSTRUCTIONS.md` ("who writes entries"), and note the convention that adding a scheduled agent adds a row.
+
+**Related files:** `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`, `docs/LOG-INSTRUCTIONS.md`, `docs/README.md`, `docs/GLOSSARY.md`
+
+**Related entries:** SUGGESTIONS-LOG.md -> [2026-06-29] repo-root `scripts/` has no README (same missing-index pattern, applied to the agent fleet instead of a script dir).
+
 
 ### [2026-06-29] Supply-chain pinning is uneven: GitHub Actions are SHA-pinned + Dependabot-tracked, but the bmo Docker base image is tag-floated and has NO `docker` Dependabot ecosystem
 
