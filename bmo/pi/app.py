@@ -442,6 +442,19 @@ if _sio_mode not in ("gevent", "threading", "eventlet"):
     _sio_mode = "gevent"
 socketio = SocketIO(app, async_mode=_sio_mode, cors_allowed_origins="*")
 
+# ── Transport source gate (SECURITY-LOG 2026-06-29, resolved 2026-07-02) ────
+# Reject requests whose SOCKET peer address is neither loopback nor the
+# tailnet: the physical-LAN leg of the wildcard bind is plain HTTP, so a
+# client authenticating there would put the shared BMO_API_KEY on the wire in
+# cleartext. Installed AFTER flask-socketio wraps app.wsgi_app so it fronts
+# both the HTTP routes and the socket.io transport. The check ignores
+# X-Forwarded-For (tunnel traffic arrives from loopback and must pass).
+# Escape hatches: BMO_SOURCE_GATE=off / BMO_EXTRA_SOURCE_CIDRS — see
+# source_gate.py.
+from source_gate import install_source_gate
+
+install_source_gate(app)
+
 # QA #28 (2026-05-17): unified face state machine. Initialized before
 # init_services() runs so _sync_expression can hand off cleanly. Singleton
 # accessed as services.face_state.FACE; emits `face_state` SocketIO events.
