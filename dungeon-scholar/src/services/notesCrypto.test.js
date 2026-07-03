@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
+  clampIterations,
   clearKeyCache,
   decryptPayload,
   deriveKey,
   encryptPayload,
   KDF_ITERATIONS,
   MAX_KDF_ITERATIONS,
+  MIN_KDF_ITERATIONS,
 } from './notesCrypto.js';
 
 // Most tests use a low iteration count to keep the suite fast — the KDF cost is
@@ -135,5 +137,33 @@ describe('notesCrypto', () => {
 
   it('exports a clearKeyCache that does not throw', () => {
     expect(() => clearKeyCache()).not.toThrow();
+  });
+});
+
+// A note blob's declared iter rides inside importable/shareable tomes, so a
+// hostile blob can declare iter=1. decryptPayload deliberately still reads it
+// (the user must be able to open notes they already hold), but the weak count
+// must not survive a re-save: TomeNotes re-encrypts through clampIterations.
+describe('clampIterations (re-encryption KDF floor)', () => {
+  it('mirrors sealedTome: floor 100k, ceiling 2M', () => {
+    expect(MIN_KDF_ITERATIONS).toBe(100_000);
+    expect(MAX_KDF_ITERATIONS).toBe(2_000_000);
+  });
+
+  it('reuses a sane declared count unchanged (keeps the passphrase key cache warm)', () => {
+    expect(clampIterations(KDF_ITERATIONS)).toBe(KDF_ITERATIONS);
+    expect(clampIterations(MIN_KDF_ITERATIONS)).toBe(MIN_KDF_ITERATIONS);
+    expect(clampIterations(MAX_KDF_ITERATIONS)).toBe(MAX_KDF_ITERATIONS);
+  });
+
+  it('upgrades a below-floor count to the production default', () => {
+    expect(clampIterations(1)).toBe(KDF_ITERATIONS);
+    expect(clampIterations(99_999)).toBe(KDF_ITERATIONS);
+  });
+
+  it('replaces junk / out-of-band values with the production default', () => {
+    for (const v of [undefined, null, 'lots', 1.5, -1, 0, 2_000_001, 1e12]) {
+      expect(clampIterations(v)).toBe(KDF_ITERATIONS);
+    }
   });
 });

@@ -392,7 +392,7 @@ function FlashcardsMode({
             <button
               onClick={() => rate(SRS_RATINGS.again)}
               className="py-3 rounded-sm font-bold border-2 border-red-400 text-red-200 italic"
-              style={{ background: 'rgba(127, 29, 29, 0.55)' }}
+              style={{ background: 'rgba(var(--surface-red-raised, 127, 29, 29), 0.55)' }}
               title="I forgot completely — show this scroll again soon"
             >
               ⚔ Again
@@ -400,7 +400,7 @@ function FlashcardsMode({
             <button
               onClick={() => rate(SRS_RATINGS.hard)}
               className="py-3 rounded-sm font-bold border-2 border-amber-500 text-amber-200 italic"
-              style={{ background: 'rgba(146, 64, 14, 0.55)' }}
+              style={{ background: 'rgba(var(--surface-amber-raised, 146, 64, 14), 0.55)' }}
               title="Recalled with struggle — short interval"
             >
               ⚔ Hard

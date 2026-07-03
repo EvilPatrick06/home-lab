@@ -148,7 +148,7 @@ function BestiaryScreen({ playerState, setScreen }) {
                           </div>
                         )}
                         {isBoss && seen && (
-                          <div className="text-[10px] italic mt-2" style={{ color: meta.accent }}>
+                          <div className="text-[10px] italic mt-2 biome-accent-text" style={{ color: meta.accent }}>
                             ✦ Lore tiers: {defeats >= 1 ? 'base' : '—'}
                             {' · '}
                             {defeats >= 5 ? 'expanded' : `expanded @ 5 (${defeats}/5)`}

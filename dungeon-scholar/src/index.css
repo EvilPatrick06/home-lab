@@ -93,6 +93,11 @@
   --surface-danger: 80, 20, 20;
   --surface-known: 31, 17, 8;
   --surface-locked: 15, 12, 18;
+  /* 2026-06-29 light-theme follow-up: flashcard SRS rating-button backgrounds
+     (red-900/amber-800-tier raised surfaces; light flips to the -200 tier so the
+     ramp-inverted text-red-200/text-amber-200 labels stay readable). */
+  --surface-red-raised: 127, 29, 29;
+  --surface-amber-raised: 146, 64, 14;
   /* PHASE-10 F1: theme-aware muted accent-label token. Dark default = the amber-700 ramp value (byte-identical to the prior text-amber-700 labels); light flips to dark ink. */
   --text-accent-muted: var(--color-amber-700);
 }
@@ -109,6 +114,8 @@ html[data-theme="light"] {
   --surface-danger: 254, 202, 202;
   --surface-known: 254, 243, 198;
   --surface-locked: 233, 231, 235;
+  --surface-red-raised: 254, 202, 202;
+  --surface-amber-raised: 253, 230, 138;
   --text-accent-muted: #92400e; /* PHASE-10 F1: dark ink (~6.8:1 on #fafaf9) — the Phase-41 ramp inversion brightens amber-700 on light. */
   /* PHASE-12 F1: light-only ink vars for the home Active-Tome panel pills. No :root
      default on purpose — Dark falls back to the inline hex byte-for-byte
@@ -293,4 +300,10 @@ html[data-theme="light"] .biome-heading {
  * Dark keeps the existing ramp colour. !important beats the Tailwind utility. */
 html[data-theme="light"] .active-tome-accent {
   color: var(--accent-gold-ink) !important;
+}
+
+/* 2026-06-30 follow-up: non-heading inline biome-accent text (Bestiary boss
+   lore-tier hint) - same non-inverting-hex family as .biome-heading. */
+html[data-theme="light"] .biome-accent-text {
+  color: var(--text-accent-muted) !important;
 }

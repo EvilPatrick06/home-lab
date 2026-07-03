@@ -179,7 +179,7 @@ function RunHistoryScreen({ playerState, setScreen }) {
                 <span className="text-base">🎯</span>
                 <h3 className="text-sm font-bold italic text-purple-200 tracking-wider">Accuracy by Domain</h3>
                 <div className="flex-1 h-px bg-linear-to-r from-purple-700/40 to-transparent" />
-                <span className="text-[10px] italic text-amber-700">
+                <span className="text-[10px] italic text-accent-muted">
                   {totalAnswered} answered · {domainStats.length} domain{domainStats.length === 1 ? '' : 's'}
                 </span>
               </div>
@@ -229,7 +229,7 @@ function RunHistoryScreen({ playerState, setScreen }) {
                 })}
               </div>
               {domainStats.some((b) => b.domain === 'Uncategorized') && (
-                <div className="text-[10px] italic text-amber-700/80 mt-3">
+                <div className="text-[10px] italic text-accent-muted-80 mt-3">
                   ✦ "Uncategorized" entries come from older tomes that lack per-question domain tags. New tomes will
                   populate the heatmap automatically.
                 </div>
@@ -247,7 +247,7 @@ function RunHistoryScreen({ playerState, setScreen }) {
                 border: '1px solid rgba(var(--surface-amber-strong, 120, 53, 15), 0.3)',
               }}
             >
-              <span className="text-amber-700 mr-1">Sort by:</span>
+              <span className="text-accent-muted mr-1">Sort by:</span>
               {[
                 { k: 'date', label: 'Date' },
                 { k: 'difficulty', label: 'Difficulty' },
@@ -304,12 +304,12 @@ function RunHistoryScreen({ playerState, setScreen }) {
                         </span>
                         {boss && <span className="text-xs text-purple-300 italic">vs {boss.name}</span>}
                         {run.modifiers?.length > 0 && (
-                          <span className="text-xs text-amber-700 italic">
+                          <span className="text-xs text-accent-muted italic">
                             ⚜ {run.modifiers.length} curse{run.modifiers.length === 1 ? '' : 's'}
                           </span>
                         )}
                       </div>
-                      <div className="text-xs text-amber-700 italic mt-0.5">{dateLabel}</div>
+                      <div className="text-xs text-accent-muted italic mt-0.5">{dateLabel}</div>
                     </div>
                     <div className="flex flex-wrap gap-3 text-xs">
                       <span className="text-amber-300">
@@ -358,14 +358,14 @@ function RunHistoryScreen({ playerState, setScreen }) {
                           <div className="text-[11px] italic flex items-center gap-3 flex-wrap">
                             {avgDiff !== null && (
                               <span className="flex items-center gap-1.5">
-                                <span className="text-amber-700">Avg difficulty:</span>
+                                <span className="text-accent-muted">Avg difficulty:</span>
                                 <DifficultyStars value={avgDiff} />
                                 <span className="text-amber-200 tabular-nums">({avgDiff.toFixed(1)})</span>
                               </span>
                             )}
                             {bloomEntries.length > 0 && (
                               <span className="flex items-center gap-1.5 flex-wrap">
-                                <span className="text-amber-700">Bloom's mix:</span>
+                                <span className="text-accent-muted">Bloom's mix:</span>
                                 {bloomEntries.map(([level, count]) => (
                                   <span key={level} className="flex items-center gap-1">
                                     <BloomBadge level={level} />
@@ -378,7 +378,7 @@ function RunHistoryScreen({ playerState, setScreen }) {
                         );
                       })()}
                       {(run.questionLog || []).length === 0 ? (
-                        <div className="text-xs text-amber-700 italic">
+                        <div className="text-xs text-accent-muted italic">
                           No per-question log was captured for this delve.
                         </div>
                       ) : (
@@ -403,7 +403,7 @@ function RunHistoryScreen({ playerState, setScreen }) {
                           return (
                             <>
                               {(mobCount > 0 || bossCount > 0) && (
-                                <div className="text-[10px] uppercase tracking-wider text-amber-700 italic">
+                                <div className="text-[10px] uppercase tracking-wider text-accent-muted italic">
                                   {mobCount > 0 ? (
                                     <span>
                                       🗡 {mobCount} foe{mobCount === 1 ? '' : 's'}
@@ -431,7 +431,7 @@ function RunHistoryScreen({ playerState, setScreen }) {
                                     )}
                                     <div className="flex-1 min-w-0">
                                       <div className="text-amber-100/80 truncate">{q.prompt}</div>
-                                      <div className="text-amber-700 flex flex-wrap gap-x-1.5 gap-y-1 items-center">
+                                      <div className="text-accent-muted flex flex-wrap gap-x-1.5 gap-y-1 items-center">
                                         {renderBadge(q)}
                                         {q.type ? <span>· type: {q.type}</span> : null}
                                         {typeof q.difficulty === 'number' ? (

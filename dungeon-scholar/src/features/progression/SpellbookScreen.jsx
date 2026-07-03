@@ -42,7 +42,7 @@ export function SpellbookContent({ playerState, onEquipSpell, onUnequipSpell }) 
           <span className="text-base">✦</span>
           <h4 className="text-xs font-bold italic text-amber-200 tracking-wider">Cast Slots</h4>
           <div className="flex-1 h-px bg-linear-to-r from-amber-700/40 to-transparent" />
-          <span className="text-[10px] italic text-amber-700">
+          <span className="text-[10px] italic text-accent-muted">
             {pendingSlot !== null
               ? `Choose a spell for slot ${'ZXC'[pendingSlot]}…`
               : 'Click empty slot then a spell · click filled slot to clear'}
@@ -69,7 +69,7 @@ export function SpellbookContent({ playerState, onEquipSpell, onUnequipSpell }) 
                   <div className="text-[10px] uppercase tracking-wider text-sky-300">
                     [{'ZXC'[i]}] · Slot {i + 1}
                   </div>
-                  <div className={def ? 'text-amber-200 truncate' : 'text-amber-700/60 truncate'}>
+                  <div className={def ? 'text-amber-200 truncate' : 'text-accent-muted-60 truncate'}>
                     {def ? `${def.name} · ${def.cost} mana` : isPending ? 'Pick a spell below…' : '— Empty —'}
                   </div>
                 </div>

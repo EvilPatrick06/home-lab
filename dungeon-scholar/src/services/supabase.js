@@ -92,7 +92,7 @@ export function warnIfBaseMismatch() {
     logWarn(
       'Base path mismatch',
       `${mismatch}. GitHub OAuth sign-in will fail (redirectTo = origin + base). ` +
-        'Fix: set VITE_BASE (deploy.yml / .env.local) or vite.config.js base to "/<repo-name>/", ' +
+        'Fix: set VITE_BASE (dungeon-scholar-deploy.yml / .env.local) or vite.config.js base to "/<repo-name>/", ' +
         'and list the same URL in Supabase → Authentication → URL Configuration.',
     );
   }

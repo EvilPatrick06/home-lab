@@ -1,7 +1,7 @@
 // PHASE-01 (F1a) — resilient React.lazy for the GitHub-Pages web build.
 //
 // Every screen but Home is React.lazy in App.jsx, each emitted as a
-// content-hashed chunk. When deploy.yml republishes mid-session the already
+// content-hashed chunk. When dungeon-scholar-deploy.yml republishes mid-session the already
 // loaded tab still references the PREVIOUS build chunk names; the new tree no
 // longer ships them (and the SW cleanupOutdatedCaches purges the old precache),
 // so the next lazy-route navigation throws "Failed to fetch dynamically

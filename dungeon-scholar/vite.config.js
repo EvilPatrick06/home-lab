@@ -7,7 +7,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 // match. Default is /dungeon-scholar/ — the public repo name in the README.
 // The owner's actual fork is at /home-lab/ (this monorepo), so for that
 // deploy we set VITE_BASE=/home-lab/ as a repo secret picked up by
-// .github/workflows/deploy.yml. Forks should either rename their repo to
+// .github/workflows/dungeon-scholar-deploy.yml. Forks should either rename their repo to
 // dungeon-scholar (zero-config) or set VITE_BASE to their own repo path.
 const BASE = process.env.VITE_BASE || '/dungeon-scholar/'
 
@@ -120,7 +120,11 @@ export default defineConfig({
         },
       },
       injectManifest: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+        // woff2: KaTeX's Vite-emitted font files. The precached KaTeX CSS references
+        // them same-origin, so without precache entries math falls back to serif
+        // fonts offline. woff2 only (~350 KB): browsers pick the first woff2 source
+        // in KaTeX's @font-face stacks, so the woff/ttf fallbacks never load.
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
       },
     }),
   ],

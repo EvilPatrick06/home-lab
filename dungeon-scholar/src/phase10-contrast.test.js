@@ -70,3 +70,45 @@ describe('PHASE-10 F2 — danger buttons route through --surface-red', () => {
     expect(read('features/home/HomeScreen.jsx')).not.toContain("rgba(41, 12, 12, 0.7)' }}");
   });
 });
+
+// 2026-06-30 follow-up round (ISSUES-LOG "Light-theme muted accent-label
+// wash-out persists on non-enumerated screens"): same static-guard style as
+// PHASE-10 F1/F2 above, extended to the screens QA run-4 did not enumerate.
+describe('2026-06-30 follow-up — muted-accent conversion on non-enumerated screens', () => {
+  const screens = [
+    'features/progression/AscensionScreen.jsx',
+    'features/progression/RunHistoryScreen.jsx',
+    'features/progression/SpellbookScreen.jsx',
+    'features/progression/CalendarScreen.jsx',
+    'features/progression/StableScreen.jsx',
+    'features/progression/CraftingScreen.jsx',
+  ];
+  for (const rel of screens) {
+    it(`${rel} uses the muted-accent utility and carries no raw text-amber-700`, () => {
+      const src = read(rel);
+      expect(src).toMatch(/text-accent-muted/);
+      expect(src).not.toMatch(/text-amber-700/);
+    });
+  }
+
+  it('App.jsx (home-hero subtitle + card corner glyphs) carries no raw text-amber-700', () => {
+    expect(read('App.jsx')).not.toMatch(/text-amber-700/);
+  });
+
+  it('Bestiary boss lore-tier hint darkens via .biome-accent-text in light theme', () => {
+    expect(read('features/progression/BestiaryScreen.jsx')).toMatch(/biome-accent-text/);
+    expect(css).toMatch(/html\[data-theme="light"\]\s*\.biome-accent-text/);
+  });
+
+  it('flashcard SRS rating buttons route through the raised surface triplets', () => {
+    const src = read('features/study/FlashcardsMode.jsx');
+    expect(src).toContain('rgba(var(--surface-red-raised, 127, 29, 29), 0.55)');
+    expect(src).toContain('rgba(var(--surface-amber-raised, 146, 64, 14), 0.55)');
+    for (const t of ['--surface-red-raised', '--surface-amber-raised']) {
+      const first = css.indexOf(`${t}:`);
+      expect(first, `${t} missing`).toBeGreaterThan(-1);
+      // declared twice: dark :root value + light-theme override
+      expect(css.indexOf(`${t}:`, first + 1), `${t} has no light override`).toBeGreaterThan(-1);
+    }
+  });
+});
