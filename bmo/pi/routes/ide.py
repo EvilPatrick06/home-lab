@@ -90,6 +90,32 @@ def _ide_safe_path(raw_path: str) -> str:
     raise PermissionError(f"path outside IDE sandbox: {resolved}")
 
 
+def _scrub_result(result):
+    """Strip exception/stack-trace text from a dev_tools result dict before it
+    is returned to the client (CWE-209, py/stack-trace-exposure).
+
+    The dev_tools helpers (read_file, git_command_args, grep_files, ...) put
+    ``str(e)`` into their ``error``/``output`` fields on failure. That text can
+    carry filesystem paths and internal stack detail, so we log the full value
+    server-side and replace it with a generic message. Non-error results pass
+    through unchanged.
+    """
+    if not isinstance(result, dict):
+        return result
+    if result.get("error"):
+        log.warning("[ide] tool error (redacted from client): %s",
+                    _s(str(result.get("error"))))
+        result = dict(result)
+        result["error"] = "operation failed"
+    if result.get("exit_code", 0) not in (0, None):
+        out = result.get("output", "") or ""
+        if isinstance(out, str) and out.startswith("Error:"):
+            log.warning("[ide] tool output (redacted from client): %s", _s(out))
+            result = dict(result)
+            result["output"] = "command failed"
+    return result
+
+
 # Terminal manager (lazy init)
 _terminal_mgr = None
 
@@ -284,7 +310,7 @@ def api_ide_tree():
         return jsonify({"error": "path outside IDE sandbox",
                         "sandbox_roots": list(_IDE_ALLOWED_ROOTS)}), 403
     from dev.dev_tools import list_directory
-    listing = list_directory(path)
+    listing = _scrub_result(list_directory(path))
     if isinstance(listing, dict):
         listing["sandbox_roots"] = list(_IDE_ALLOWED_ROOTS)
         listing["resolved_path"] = path
@@ -351,6 +377,7 @@ def api_ide_file_read():
         except TypeError:
             # offset support landed later in dev_tools; fall back if unavailable.
             result = read_file(path, limit=limit)
+    result = _scrub_result(result)
     if isinstance(result, dict) and "error" not in result:
         result["language"] = _detect_language(path)
     return jsonify(result)
@@ -398,7 +425,7 @@ def api_ide_file_edit():
     except PermissionError as e:
         return fail(log, e, 403, "path outside IDE sandbox")
     from dev.dev_tools import edit_file
-    result = edit_file(path, data.get("old_string", ""), data.get("new_string", ""))
+    result = _scrub_result(edit_file(path, data.get("old_string", ""), data.get("new_string", "")))
     if result.get("success"):
         watcher = _get_file_watcher()
         watcher.notify_change(path)
@@ -556,7 +583,7 @@ def api_ide_search():
             "pattern": pattern, "path": path, "file_glob": file_glob,
         }))
     from dev.dev_tools import grep_files
-    return jsonify(grep_files(pattern, path, file_glob))
+    return jsonify(_scrub_result(grep_files(pattern, path, file_glob)))
 
 
 @ide_bp.route("/js-error", methods=["POST"])
@@ -581,7 +608,7 @@ def api_ide_find():
     if machine == "win":
         return jsonify(_proxy_to_windows("find_files", {"path": path, "pattern": f"*{pattern}*"}))
     from dev.dev_tools import find_files
-    return jsonify(find_files(f"**/*{pattern}*", path))
+    return jsonify(_scrub_result(find_files(f"**/*{pattern}*", path)))
 
 
 # ── IDE Git API ──────────────────────────────────────────────────────
@@ -599,8 +626,8 @@ def api_ide_git_status():
     except PermissionError as e:
         return fail(log, e, 403, "path outside IDE sandbox")
     from dev.dev_tools import git_command_args
-    branch_result = git_command_args(["rev-parse", "--abbrev-ref", "HEAD"], repo)
-    status_result = git_command_args(["status", "--porcelain"], repo)
+    branch_result = _scrub_result(git_command_args(["rev-parse", "--abbrev-ref", "HEAD"], repo))
+    status_result = _scrub_result(git_command_args(["status", "--porcelain"], repo))
     branch = ""
     if branch_result.get("exit_code", 1) == 0:
         branch = branch_result.get("output", "").strip()
@@ -628,7 +655,7 @@ def api_ide_git_stage():
     if not path or path.startswith("-"):
         return jsonify({"error": "invalid path"}), 400
     from dev.dev_tools import git_command_args
-    return jsonify(git_command_args(["add", "--", path], repo))
+    return jsonify(_scrub_result(git_command_args(["add", "--", path], repo)))
 
 
 @ide_bp.route("/git/unstage", methods=["POST"])
@@ -643,7 +670,7 @@ def api_ide_git_unstage():
     if not path or path.startswith("-"):
         return jsonify({"error": "invalid path"}), 400
     from dev.dev_tools import git_command_args
-    return jsonify(git_command_args(["restore", "--staged", "--", path], repo))
+    return jsonify(_scrub_result(git_command_args(["restore", "--staged", "--", path], repo)))
 
 
 @ide_bp.route("/git/commit", methods=["POST"])
@@ -658,7 +685,7 @@ def api_ide_git_commit():
     except PermissionError as e:
         return fail(log, e, 403, "path outside IDE sandbox")
     from dev.dev_tools import git_command_args
-    return jsonify(git_command_args(["commit", "-m", msg], repo))
+    return jsonify(_scrub_result(git_command_args(["commit", "-m", msg], repo)))
 
 
 @ide_bp.route("/git/log")
@@ -674,7 +701,7 @@ def api_ide_git_log():
     except (TypeError, ValueError):
         count = 20
     from dev.dev_tools import git_command_args
-    result = git_command_args(["log", "--oneline", "-n", str(count)], repo)
+    result = _scrub_result(git_command_args(["log", "--oneline", "-n", str(count)], repo))
     commits = []
     for line in (result.get("output", "") or "").splitlines():
         parts = line.split(" ", 1)
@@ -695,7 +722,7 @@ def api_ide_git_diff():
     if path and not path.startswith("-"):
         args.extend(["--", path])
     from dev.dev_tools import git_command_args
-    return jsonify(git_command_args(args, repo))
+    return jsonify(_scrub_result(git_command_args(args, repo)))
 
 
 @ide_bp.route("/git/checkout", methods=["POST"])
@@ -710,7 +737,7 @@ def api_ide_git_checkout():
     except PermissionError as e:
         return fail(log, e, 403, "path outside IDE sandbox")
     from dev.dev_tools import git_command_args
-    return jsonify(git_command_args(["checkout", branch], repo))
+    return jsonify(_scrub_result(git_command_args(["checkout", branch], repo)))
 
 
 @ide_bp.route("/git/branches")
@@ -721,7 +748,7 @@ def api_ide_git_branches():
     except PermissionError as e:
         return fail(log, e, 403, "path outside IDE sandbox")
     from dev.dev_tools import git_command_args
-    result = git_command_args(["branch", "-a"], repo)
+    result = _scrub_result(git_command_args(["branch", "-a"], repo))
     branches = []
     current = ""
     for line in (result.get("output", "") or "").splitlines():
@@ -743,7 +770,7 @@ def api_ide_git_push():
     except PermissionError as e:
         return fail(log, e, 403, "path outside IDE sandbox")
     from dev.dev_tools import git_command_args
-    return jsonify(git_command_args(["push"], repo))
+    return jsonify(_scrub_result(git_command_args(["push"], repo)))
 
 
 @ide_bp.route("/git/pull", methods=["POST"])
@@ -755,7 +782,7 @@ def api_ide_git_pull():
     except PermissionError as e:
         return fail(log, e, 403, "path outside IDE sandbox")
     from dev.dev_tools import git_command_args
-    return jsonify(git_command_args(["pull"], repo))
+    return jsonify(_scrub_result(git_command_args(["pull"], repo)))
 
 
 @ide_bp.route("/git/fetch", methods=["POST"])
@@ -767,7 +794,7 @@ def api_ide_git_fetch():
     except PermissionError as e:
         return fail(log, e, 403, "path outside IDE sandbox")
     from dev.dev_tools import git_command_args
-    return jsonify(git_command_args(["fetch", "--all"], repo))
+    return jsonify(_scrub_result(git_command_args(["fetch", "--all"], repo)))
 
 
 @ide_bp.route("/git/stash", methods=["POST"])
@@ -795,7 +822,7 @@ def api_ide_git_stash():
         args = ["stash", "drop", f"stash@{{{idx}}}"]
     else:
         return jsonify({"error": "Invalid action"}), 400
-    return jsonify(git_command_args(args, repo))
+    return jsonify(_scrub_result(git_command_args(args, repo)))
 
 
 @ide_bp.route("/git/branch/create", methods=["POST"])
@@ -810,7 +837,7 @@ def api_ide_git_branch_create():
     except PermissionError as e:
         return fail(log, e, 403, "path outside IDE sandbox")
     from dev.dev_tools import git_command_args
-    return jsonify(git_command_args(["checkout", "-b", name], repo))
+    return jsonify(_scrub_result(git_command_args(["checkout", "-b", name], repo)))
 
 
 @ide_bp.route("/git/branch/delete", methods=["POST"])
@@ -825,7 +852,7 @@ def api_ide_git_branch_delete():
     except PermissionError as e:
         return fail(log, e, 403, "path outside IDE sandbox")
     from dev.dev_tools import git_command_args
-    return jsonify(git_command_args(["branch", "-d", name], repo))
+    return jsonify(_scrub_result(git_command_args(["branch", "-d", name], repo)))
 
 
 # ── IDE Agent Jobs API ───────────────────────────────────────────────

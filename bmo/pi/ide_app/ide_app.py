@@ -523,23 +523,31 @@ def run_file():
     if ext not in (".py", ".sh", ".js", ".ts"):
         return jsonify({"error": f"Unsupported file type: {ext}"}), 400
 
+    # Argument-injection guard: _resolve_path returns an os.path.realpath,
+    # which is always absolute, so the file argument can never be parsed as an
+    # interpreter option (a leading '-'). Assert the invariant defensively and
+    # pass the path after a '--' end-of-options terminator where the runner
+    # supports it, so a crafted filename can never become a flag.
+    if not os.path.isabs(resolved):
+        return jsonify({"error": "invalid path"}), 400
+
     run_dir = os.path.dirname(resolved) or "."
     # Use argv lists only (no shell) — see SECURITY-LOG.md B602
     if "test" in name.lower():
         if ext == ".py":
-            cmd: list[str] = ["pytest", "-v", resolved]
+            cmd: list[str] = ["pytest", "-v", "--", resolved]
         elif ext in (".js", ".ts"):
-            cmd = ["npx", "vitest", "run", resolved]
+            cmd = ["npx", "vitest", "run", "--", resolved]
         else:
             return jsonify({"error": f"Test run not defined for {ext}"}), 400
     elif ext == ".py":
-        cmd = ["python3", resolved]
+        cmd = ["python3", "--", resolved]
     elif ext == ".sh":
-        cmd = ["bash", resolved]
+        cmd = ["bash", "--", resolved]
     elif ext == ".js":
-        cmd = ["node", resolved]
+        cmd = ["node", "--", resolved]
     else:  # .ts
-        cmd = ["npx", "tsx", resolved]
+        cmd = ["npx", "tsx", "--", resolved]
 
     try:
         result = subprocess.run(
@@ -729,12 +737,13 @@ def agent_chat():
             response_text = "BMO didn't respond in time. The main app might be busy."
             agent_used = 'system'
 
-    except Exception as e:
-        # Fallback — BMO app not reachable, use a simple echo
+    except Exception as e:  # noqa: BLE001
+        # Fallback: BMO app not reachable. Log the real error server-side;
+        # never surface exception text to the client (CWE-209).
+        log.exception("[ide.agent] proxy to BMO main app failed")
         response_text = (
-            f"*BMO main app not reachable on port 5000.* "
-            f"Make sure `bmo.service` is running.\n\n"
-            f"Error: {str(e)[:200]}"
+            "*BMO main app not reachable on port 5000.* "
+            "Make sure `bmo.service` is running."
         )
         agent_used = 'system'
 
