@@ -14,6 +14,7 @@ import type { Campaign } from '../types/campaign'
 import { GAME_SYSTEMS } from '../types/game-system'
 import type { MonsterStatBlock } from '../types/monster'
 import { logger } from '../utils/logger'
+import { isWebBuild } from '../utils/platform'
 import AdventureManager from './campaign-detail/AdventureManager'
 import NPCManager from './campaign-detail/CampaignNpcManager'
 import CampaignVersionHistory from './campaign-detail/CampaignVersionHistory'
@@ -328,7 +329,12 @@ export default function CampaignDetailPage(): JSX.Element {
           <Button variant="secondary" onClick={() => setShowSeedPackApply(true)}>
             {t('pages.campaignDetailPage.applySeedPack')}
           </Button>
-          <CampaignVersionHistory campaignId={campaign.id} />
+          {/* WEB-API-1 (PHASE-60) — Campaign Version History is backed by the
+              Electron main-process `.versions/` snapshots (window.api.listCampaignVersions
+              / restoreCampaignVersion). The web build's window.api shim has no
+              equivalent, so the panel would present a permanently-failing affordance
+              there. Gate it off on web until web-side versioning exists. */}
+          {!isWebBuild() && <CampaignVersionHistory campaignId={campaign.id} />}
           <Button
             variant="secondary"
             onClick={async () => {

@@ -223,8 +223,14 @@ export function createWebApi() {
       await idbWipeAll()
       return ok
     },
-    listCharacterVersions: (_id: string) => Promise.resolve([] as unknown[]),
-    restoreCharacterVersion: (_id: string, _fileName: string) => Promise.resolve(null),
+    // WEB-API-1 (PHASE-60) — the web build has no `.versions/` snapshot store
+    // (those come from the Electron main process, which the web build does not
+    // run), so version history is empty and restore has nothing to restore.
+    // Return the `{ success, data }` StorageResult envelope the call sites
+    // destructure (NOT a bare `[]`/`null`, which throws on `.success`), so the
+    // panels degrade cleanly to an empty state instead of erroring.
+    listCharacterVersions: (_id: string) => Promise.resolve({ success: true, data: [] as unknown[] }),
+    restoreCharacterVersion: (_id: string, _fileName: string) => Promise.resolve({ success: false }),
 
     // Campaign storage
     saveCampaign: (campaign: Dict) => saveEntity('campaigns', campaign),
@@ -234,6 +240,13 @@ export function createWebApi() {
       await idbDelete('campaigns', id)
       return ok
     },
+    // WEB-API-1 (PHASE-60) — campaign-version parity stubs, same rationale as the
+    // character-version stubs above. The panel itself is gated off on web
+    // (CampaignDetailPage), so these are a defensive parity floor: any code that
+    // reaches them gets a clean empty-history / restore-unavailable envelope
+    // instead of a `TypeError: window.api.listCampaignVersions is not a function`.
+    listCampaignVersions: (_id: string) => Promise.resolve({ success: true, data: [] as unknown[] }),
+    restoreCampaignVersion: (_id: string, _fileName: string) => Promise.resolve({ success: false }),
 
     // Bastion storage
     saveBastion: (bastion: Dict) => saveEntity('bastions', bastion),

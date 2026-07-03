@@ -120,4 +120,21 @@ grep -n 'hostNamePlaceholder\|defaultHostName' en.json es.json   # 465, 6449 (es
 
 ## Completed
 
-> _Not yet implemented — authored 2026-06-29 by phase-maker from the 2026-06-29 v2.7.0 WEB QA report. Value-only `es.json` consistency edits (+ a documented localization decision for "Dungeon Master"); desktop benefits identically (shared locale table). To be implemented by the phase-executer per INSTRUCTIONS.md. 62A is a straight unify; 62B carries an owner localization decision (translate vs documented keep-English) per the PHASE-57 brand policy._
+> _Implemented 2026-07-03 on branch `auto/dnd-phases-5862`._
+>
+> - **62A** — unified the Spanish app title: set `es.json` `pages.mainMenuPage.appTitle` to
+>   "Mesa virtual de D&D" (was the English "D&D Virtual Tabletop"), matching the About page
+>   (`pages.aboutPage.appTitle`) and `webEditionNote`. `en.json` unchanged (value-only edit,
+>   parity preserved). Updated the wordmark note in `i18n/README.md` to record that the es
+>   product name is "Mesa virtual de D&D" on every primary surface, so it is not re-flagged.
+> - **62B** — applied the **existing keep-English brand policy** (per PHASE-57 / the i18n
+>   README "Locale conventions" section): the four "Dungeon Master" `es` keys
+>   (`game.chatPanel.dungeonMaster`, `lobby.characterSelector.dungeonMaster`,
+>   `campaign.hostNamePrompt.hostNamePlaceholder`, `pages.campaignDetailPage.defaultHostName`)
+>   are **kept English** — consistent with the ~15 other "Dungeon Master" occurrences already
+>   kept English in es.json. Rather than translate a subset (which would create the lone-outlier
+>   inconsistency the policy exists to avoid), the decision is documented in `i18n/README.md`
+>   (the keep-English note now explicitly names PHASE-62 and these four surfaces). No es value
+>   changes for the DM term.
+> - Verified via gate: i18n parity green (6633 keys es==en), generated-keys regenerated,
+>   `tsc` web clean, biome clean, i18n vitest green. Live Español web (visual) left for QA.

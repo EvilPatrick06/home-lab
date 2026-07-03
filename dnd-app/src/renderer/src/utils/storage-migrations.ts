@@ -37,7 +37,10 @@ const STATIC_RENAMES: ReadonlyArray<readonly [string, string]> = [
 const PREFIX_RENAMES: ReadonlyArray<readonly [string, string]> = [
   ['lobby-chat-', 'dnd-vtt-lobby-chat-'],
   ['macro-storage-', 'dnd-vtt-macro-storage-'],
-  ['builder-draft-', 'dnd-vtt-builder-draft-']
+  ['builder-draft-', 'dnd-vtt-builder-draft-'],
+  // WEB-STORAGE-1 (PHASE-59) — the residual bare per-character player-notes key
+  // missed by the original PHASE-56 sweep.
+  ['player-notes-', 'dnd-vtt-player-notes-']
 ]
 
 function migrateOne(store: Storage, from: string, to: string): void {

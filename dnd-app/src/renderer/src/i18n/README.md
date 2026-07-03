@@ -92,11 +92,35 @@ make the locale *less* consistent, not more.
 - **"Dungeon Master" (es)** — kept in English everywhere in `locales/es.json`
   (e.g. `lobby.*.hostNamePlaceholder`, `*.dungeonMaster`, the AI-DM strings, the
   Join-Game subtitle `pages.*.joinGameDescription`, `soloPrep*`, `defaultHostName`,
-  `webLocalAiNotice` — ~15 occurrences). "Dungeon Master" is a recognized term of
-  art in Spanish-language D&D play, so the es locale keeps it English across the
-  board. If this is ever localized (e.g. to "Director de juego" / "DM"), change
+  `webLocalAiNotice`, `campaign.hostNamePrompt.hostNamePlaceholder`,
+  `game.chatPanel.dungeonMaster`, `lobby.characterSelector.dungeonMaster`,
+  `pages.campaignDetailPage.defaultHostName` — ~15+ occurrences). "Dungeon Master"
+  is a recognized term of art in Spanish-language D&D play, so the es locale keeps
+  it English across the board. **PHASE-62 (WEB-I18N-11) re-affirmed this keep-English
+  decision** for the chat / lobby / host-name / default-host surfaces rather than
+  translating to "Director de Juego" / "Máster". If this is ever localized, change
   **every** occurrence together — never a single string, which would create the
   lone-outlier inconsistency this policy exists to avoid.
-- **"D&D Virtual Tabletop" wordmark** — the product wordmark is the intentional
-  brand and stays English on every surface (menu hero, About header), in all
-  locales. It is not subject to translation.
+- **"D&D Virtual Tabletop" wordmark / product name** — the underlying "D&D"
+  wordmark is the intentional brand and stays as-is. The *product name* around it,
+  however, is localized to one consistent per-locale form: under **es** the product
+  reads **"Mesa virtual de D&D"** on every primary surface — the main-menu hero
+  (`pages.mainMenuPage.appTitle`), the About header (`pages.aboutPage.appTitle`),
+  and the web-edition note (`pages.aboutPage.webEditionNote`). **PHASE-62
+  (WEB-I18N-10) unified the main-menu title onto this Spanish product name** so it
+  no longer disagreed with the About page. `en` keeps "D&D Virtual Tabletop".
+
+## Web build storage — shared origin (portability note)
+
+The web build is served under a **path** (`/DungeonTableOnline/`) on the **shared
+origin** `bmo.mybmoai.work`, and browser storage is partitioned per-origin (not
+per-path), so the VTT's `localStorage`/IndexedDB co-mingles with unrelated BMO-app
+keys in one partition. **This is accepted-as-is** (WEB-STORAGE-1 / PHASE-59): the
+chosen mitigation is **namespacing, not partitioning** — every VTT `localStorage`
+key carries the `dnd-vtt-*` / `dndapp:*` prefix (PHASE-56 migration + the PHASE-59
+`player-notes-` → `dnd-vtt-player-notes-` completion in
+`utils/storage-migrations.ts`), so keys never collide with the BMO apps even
+though they share a partition. True per-app isolation would require the web build
+its own subdomain (a deployment change — Vite `base` + Pi serve path + Cloudflare
+tunnel), deferred as an owner decision; namespacing is sufficient to prevent
+collisions today.

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { useT } from '../i18n'
+import { i18n, useT } from '../i18n'
 
 interface AvailabilityResponse {
   userId: string
@@ -16,7 +16,19 @@ interface SessionSchedule {
   responses: AvailabilityResponse[]
 }
 
-const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+// WEB-I18N-9 — the active i18next language as a BCP-47 tag for Intl formatters,
+// so the month label, weekday headers, and selected-day detail follow the
+// locale instead of being pinned to English. Defaults to 'en-US'.
+function activeLocale(): string {
+  return i18n.language || 'en-US'
+}
+
+// Locale-aware short weekday names, Sunday-first to match `Date.getDay()`
+// (0 = Sunday). Computed over a reference week; 2023-01-01 is a Sunday.
+function weekdayHeaders(locale: string): string[] {
+  const fmt = new Intl.DateTimeFormat(locale, { weekday: 'short' })
+  return Array.from({ length: 7 }, (_, i) => fmt.format(new Date(2023, 0, 1 + i)))
+}
 
 function getDaysInMonth(year: number, month: number): number {
   return new Date(year, month + 1, 0).getDate()
@@ -26,8 +38,8 @@ function getFirstDayOfMonth(year: number, month: number): number {
   return new Date(year, month, 1).getDay()
 }
 
-function formatMonthYear(year: number, month: number): string {
-  return new Date(year, month).toLocaleDateString('en-US', {
+function formatMonthYear(year: number, month: number, locale: string): string {
+  return new Date(year, month).toLocaleDateString(locale, {
     month: 'long',
     year: 'numeric'
   })
@@ -54,6 +66,11 @@ const AVAILABILITY_LABEL_KEYS: Record<AvailabilityResponse['available'], string>
 export default function CalendarPage(): JSX.Element {
   const { t } = useT()
   const navigate = useNavigate()
+  // react-i18next re-renders this component on a language change, so `locale`
+  // is re-read fresh each render; the memo recomputes the weekday headers
+  // whenever the resolved locale actually changes.
+  const locale = activeLocale()
+  const daysOfWeek = useMemo(() => weekdayHeaders(locale), [locale])
   const today = new Date()
   const [currentYear, setCurrentYear] = useState(today.getFullYear())
   const [currentMonth, setCurrentMonth] = useState(today.getMonth())
@@ -159,7 +176,7 @@ export default function CalendarPage(): JSX.Element {
             >
               &larr;
             </button>
-            <h2 className="text-xl font-semibold text-fg">{formatMonthYear(currentYear, currentMonth)}</h2>
+            <h2 className="text-xl font-semibold text-fg">{formatMonthYear(currentYear, currentMonth, locale)}</h2>
             <button
               onClick={goToNextMonth}
               className="px-3 py-1.5 rounded-lg border border-border hover:bg-surface-2 text-gray-300 cursor-pointer transition-colors"
@@ -170,8 +187,8 @@ export default function CalendarPage(): JSX.Element {
 
           {/* Day-of-week headers */}
           <div className="grid grid-cols-7 gap-1 mb-1">
-            {DAYS_OF_WEEK.map((dow) => (
-              <div key={dow} className="text-center text-xs text-gray-500 font-medium py-1">
+            {daysOfWeek.map((dow, i) => (
+              <div key={`dow-${i}`} className="text-center text-xs text-gray-500 font-medium py-1">
                 {dow}
               </div>
             ))}
@@ -237,7 +254,7 @@ export default function CalendarPage(): JSX.Element {
           {selectedDay ? (
             <div className="bg-surface/50 border border-gray-800 rounded-lg p-5">
               <h3 className="text-lg font-semibold mb-3 text-fg">
-                {new Date(`${selectedDay}T00:00:00`).toLocaleDateString('en-US', {
+                {new Date(`${selectedDay}T00:00:00`).toLocaleDateString(locale, {
                   weekday: 'long',
                   month: 'long',
                   day: 'numeric'

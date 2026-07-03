@@ -25,9 +25,14 @@ export default function AboutPage(): JSX.Element {
   const { t } = useT()
   const navigate = useNavigate()
   // On the web build the renderer is a Vite/React SPA, not Electron, so relabel the
-  // first tech-stack entry to the actual web runtime; desktop keeps the default const.
+  // first tech-stack entry to the actual web runtime and drop the desktop-only
+  // `electron-vite` build-tooling entry (the web edition is built with plain Vite,
+  // already represented by the "Vite / Web runtime" card); desktop keeps the default const.
   const techStack = isWebBuild()
-    ? [{ name: 'Vite', detailKey: 'pages.aboutPage.techWebRuntime' } as const, ...TECH_STACK.slice(1)]
+    ? [
+        { name: 'Vite', detailKey: 'pages.aboutPage.techWebRuntime' } as const,
+        ...TECH_STACK.slice(1).filter((entry) => entry.name !== 'electron-vite')
+      ]
     : TECH_STACK
   const FEATURES = [
     t('pages.aboutPage.featureCharacterBuilder'),
@@ -392,7 +397,9 @@ export default function AboutPage(): JSX.Element {
               <div className="text-xs font-semibold text-gray-500 uppercase mb-1">
                 {t('pages.aboutPage.openSourceLabel')}
               </div>
-              <p className="text-xs text-gray-500 leading-relaxed">{t('pages.aboutPage.openSourceLibraries')}</p>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                {isWebBuild() ? t('pages.aboutPage.openSourceLibrariesWeb') : t('pages.aboutPage.openSourceLibraries')}
+              </p>
             </div>
           </div>
         </div>
