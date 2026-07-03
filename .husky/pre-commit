@@ -9,9 +9,21 @@ staged() { git diff --cached --name-only --diff-filter=ACMR; }
 # Biome treat the git root as the project root and reject dnd-app/biome.json as a
 # nested root config ("Found a nested root configuration"). biome --staged still
 # resolves repo-root-relative staged paths via git from within the subdir.
+# NOTE (2026-07-02 integrator fix-forward): biome --staged from dnd-app breaks when
+# dnd-app/mobile files are staged - mobile/biome.json is a second root config and
+# Biome 2.x aborts with "nested root configuration". Pass explicit staged paths per
+# project instead (dnd-app excluding mobile; mobile with its own pinned biome), which
+# keeps traversal from discovering the other root. CI stays authoritative.
 if staged | grep -q '^dnd-app/'; then
-  ( cd dnd-app && ./node_modules/.bin/biome check --staged --no-errors-on-unmatched ) || exit 1
-  ( cd dnd-app && npx tsc --noEmit -p tsconfig.web.json ) || exit 1
+  DND_STAGED=$(staged | grep '^dnd-app/' | grep -v '^dnd-app/mobile/' | sed 's#^dnd-app/##')
+  if [ -n "$DND_STAGED" ]; then
+    ( cd dnd-app && ./node_modules/.bin/biome check --no-errors-on-unmatched $DND_STAGED ) || exit 1
+    ( cd dnd-app && npx tsc --noEmit -p tsconfig.web.json ) || exit 1
+  fi
+fi
+if staged | grep -q '^dnd-app/mobile/'; then
+  MOB_STAGED=$(staged | grep '^dnd-app/mobile/' | sed 's#^dnd-app/mobile/##')
+  ( cd dnd-app/mobile && npx --yes @biomejs/biome@2.5.0 check --no-errors-on-unmatched $MOB_STAGED ) || exit 1
 fi
 
 # dungeon-scholar: Biome on staged files (S10/S25). Run from INSIDE dungeon-scholar

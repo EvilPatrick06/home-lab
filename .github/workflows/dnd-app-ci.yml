@@ -62,6 +62,16 @@ jobs:
         run: npm run sync:doc-counts -- --check
       - name: IPC-surface drift guard
         run: npm run gen:ipc-surface -- --check
+      # mobile/src/_shared is a committed sync copy of src/shared (Metro/EAS
+      # bundle it in-tree). Guarded here (not only in the path-filtered mobile
+      # CI) because the drift originates from DESKTOP-side src/shared changes.
+      - name: Mobile shared-copy drift guard
+        run: node mobile/scripts/sync-shared.mjs --check
+      # The committed resources/chunk-index.json is byte-reproducible from the
+      # tracked bmo/pi/data/5e-references markdown (no wall-clock stamp), so a
+      # fresh rebuild must match it exactly. Skips itself when sources are absent.
+      - name: Chunk-index drift guard
+        run: npm run build:index -- --check
       - name: Tests
         run: npm test
       # Build smoke (folded in from the former ci.yml) — catches Vite config /
