@@ -30,38 +30,82 @@ _AGENT_MOCKS = [
     "agents.mcp_manager",
 ]
 
-for _mod in _AGENT_MOCKS:
-    if _mod not in sys.modules:
+# sys.modules keys this file owns/mutates. Snapshotted + restored per test so
+# (a) a prior test that imported the REAL agents.* package cannot leak real
+# modules into our (previously guarded) install -- that leak made
+# AgentOrchestrator the real class instead of a MagicMock, so
+# `bmo_agent.orchestrator.handle.return_value = ...` raised AttributeError -- and
+# (b) our MagicMock stubs cannot leak out to later test files. `agent` is
+# included because agent.py binds AgentOrchestrator at import time and must be
+# re-imported against fresh mocks.
+_OWNED_MODULE_KEYS = _AGENT_MOCKS + ["agent"]
+
+
+def _install_agent_mocks():
+    """Force the MagicMock stubs into sys.modules, OVERWRITING any real modules a
+    prior test may have imported. Unconditional (no `not in sys.modules` guard)
+    so test ordering cannot poison us, then purge any cached `agent` module so it
+    re-imports against these fresh mocks."""
+    for _mod in _AGENT_MOCKS:
         sys.modules[_mod] = MagicMock()
 
-# cloud_providers constants
-sys.modules["cloud_providers"].PRIMARY_MODEL = "gemini-pro"
-sys.modules["cloud_providers"].ROUTER_MODEL = "gemini-flash"
-sys.modules["cloud_providers"].DND_MODEL = "claude-opus"
-sys.modules["cloud_providers"].cloud_chat = MagicMock(return_value="mock cloud response")
-sys.modules["cloud_providers"].gemini_chat_stream = MagicMock(return_value=iter(["chunk"]))
-sys.modules["cloud_providers"].groq_llm_chat_stream = MagicMock(return_value=iter(["chunk"]))
+    sys.modules["cloud_providers"].PRIMARY_MODEL = "gemini-pro"
+    sys.modules["cloud_providers"].ROUTER_MODEL = "gemini-flash"
+    sys.modules["cloud_providers"].DND_MODEL = "claude-opus"
+    sys.modules["cloud_providers"].cloud_chat = MagicMock(return_value="mock cloud response")
+    sys.modules["cloud_providers"].gemini_chat_stream = MagicMock(return_value=iter(["chunk"]))
+    sys.modules["cloud_providers"].groq_llm_chat_stream = MagicMock(return_value=iter(["chunk"]))
 
-# dev_tools
-sys.modules["dev_tools"].MAX_TOOL_CALLS_PER_TURN = 5
-sys.modules["dev_tools"].get_tool_descriptions = MagicMock(return_value="")
-sys.modules["dev_tools"].dispatch_tool = MagicMock(return_value={"result": "ok"})
+    sys.modules["dev_tools"].MAX_TOOL_CALLS_PER_TURN = 5
+    sys.modules["dev_tools"].get_tool_descriptions = MagicMock(return_value="")
+    sys.modules["dev_tools"].dispatch_tool = MagicMock(return_value={"result": "ok"})
 
-# voice_personality — parse_response_tags must return dict with clean_text
-sys.modules["voice_personality"].parse_response_tags = MagicMock(
-    side_effect=lambda text: {"clean_text": text, "face": None, "led": None}
-)
+    sys.modules["voice_personality"].parse_response_tags = MagicMock(
+        side_effect=lambda text: {"clean_text": text, "face": None, "led": None}
+    )
 
-# agents.settings
-_mock_settings = MagicMock()
-_mock_settings.get = MagicMock(side_effect=lambda key, default=None: default)
-_mock_settings.on_change = MagicMock()
-_mock_settings.start_watching = MagicMock()
-sys.modules["agents.settings"].init_settings = MagicMock(return_value=_mock_settings)
-sys.modules["agents.settings"].get_settings = MagicMock(return_value=_mock_settings)
+    _mock_settings = MagicMock()
+    _mock_settings.get = MagicMock(side_effect=lambda key, default=None: default)
+    _mock_settings.on_change = MagicMock()
+    _mock_settings.start_watching = MagicMock()
+    sys.modules["agents.settings"].init_settings = MagicMock(return_value=_mock_settings)
+    sys.modules["agents.settings"].get_settings = MagicMock(return_value=_mock_settings)
 
-# agents._registry
-sys.modules["agents._registry"].create_all_agents = MagicMock(return_value=[])
+    sys.modules["agents._registry"].create_all_agents = MagicMock(return_value=[])
+
+    # agent.py binds AgentOrchestrator at import; drop any cached copy so it
+    # re-imports against the mocks just installed above.
+    sys.modules.pop("agent", None)
+
+
+# NOTE: deliberately NOT installed at module (collection) time. Every agent /
+# agents.* / cloud_providers import in this file is deferred into a fixture or
+# test body (only sys / unittest.mock / pytest are imported at top level), so no
+# module-top code needs the stubs. Installing them at collection time would
+# replace sys.modules["agents"] with a MagicMock and break collection of sibling
+# files that do `from agents import ...` at their module top (an order-dependent
+# ImportError). Instead the autouse fixture below installs them at EXECUTION
+# time per test and restores originals on teardown.
+
+
+@pytest.fixture(autouse=True)
+def _agent_module_isolation():
+    """Snapshot the sys.modules keys this file owns, install fresh MagicMock
+    stubs before every test (defeating any real-module leak from a prior test
+    file), then restore the originals afterward (so our stubs do not leak to
+    later files). Makes the suite order-independent at collection AND execution
+    time."""
+    saved = {k: sys.modules.get(k) for k in _OWNED_MODULE_KEYS}
+    _install_agent_mocks()
+    try:
+        yield
+    finally:
+        for k in _OWNED_MODULE_KEYS:
+            v = saved[k]
+            if v is None:
+                sys.modules.pop(k, None)
+            else:
+                sys.modules[k] = v
 
 
 # ── Helper: build a mock orchestrator ────────────────────────────────
