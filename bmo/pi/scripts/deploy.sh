@@ -143,16 +143,68 @@ cleanup_canary() {
 }
 trap cleanup_canary EXIT INT TERM
 
-# poll_health URL TIMEOUT — curl the URL once/sec up to TIMEOUT; 0 = healthy.
+# poll_health URL TIMEOUT [PID] — curl the URL once/sec up to TIMEOUT.
+#   return 0 = healthy; 1 = timed out; 2 = the given PID exited before /health
+#   went green (fast-fail, so a canary that dies binding the port is RED
+#   immediately instead of burning the whole timeout — BMO-ISSUES-LOG 2026-07-02).
 poll_health() {
-  local url="$1" timeout="$2" i
+  local url="$1" timeout="$2" pid="${3:-}" i
   for ((i = 0; i < timeout; i++)); do
+    if [ -n "$pid" ] && ! kill -0 "$pid" 2>/dev/null; then
+      return 2
+    fi
     if curl -sf "$url" >/dev/null 2>&1; then
       return 0
     fi
     sleep 1
   done
   return 1
+}
+
+# canary_port_listeners — PIDs holding a LISTEN socket on CANARY_PORT (best-effort;
+# needs ss). Exact port match so :5002 never matches :50020.
+canary_port_listeners() {
+  ss -tlnp 2>/dev/null     | awk -v port=":$CANARY_PORT" '$1=="LISTEN" && $4 ~ port"$"'     | grep -oE 'pid=[0-9]+' | cut -d= -f2 | sort -u
+}
+
+# port_in_use — true if anything holds a LISTEN socket on CANARY_PORT (or, if ss
+# is unavailable, answers /health there).
+port_in_use() {
+  if command -v ss >/dev/null 2>&1; then
+    ss -tln 2>/dev/null       | awk -v port=":$CANARY_PORT" '$1=="LISTEN" && $4 ~ port"$"{f=1} END{exit !f}'       && return 0
+    return 1
+  fi
+  curl -sf "http://localhost:$CANARY_PORT/health" >/dev/null 2>&1
+}
+
+# _looks_like_canary PID — only true for OUR deploy-checkout canary: an app.py
+# process with BMO_CANARY set in its environment. Guards the reap below so we
+# never signal an unrelated listener that merely happens to hold the port.
+_looks_like_canary() {
+  local pid="$1"
+  tr '\0' ' ' < "/proc/$pid/cmdline" 2>/dev/null | grep -q "app.py" || return 1
+  tr '\0' '\n' < "/proc/$pid/environ" 2>/dev/null | grep -qx "BMO_CANARY=1" || return 1
+  return 0
+}
+
+# reap_stale_canary — TERM/KILL any leftover canary squatting CANARY_PORT (e.g.
+# one orphaned/reparented by an earlier deploy whose EXIT trap never fired on
+# SIGKILL — SECURITY-LOG 2026-07-02). Returns non-zero (without touching it) if
+# the port is held by something that is NOT a canary.
+reap_stale_canary() {
+  local pid rc=0
+  for pid in $(canary_port_listeners); do
+    if _looks_like_canary "$pid"; then
+      log "reaping stale canary pid $pid squatting port $CANARY_PORT (likely orphaned by an interrupted deploy)"
+      kill -TERM "$pid" 2>/dev/null || true
+      for _ in $(seq 1 5); do kill -0 "$pid" 2>/dev/null || break; sleep 1; done
+      kill -KILL "$pid" 2>/dev/null || true
+    else
+      log "port $CANARY_PORT held by non-canary pid $pid — refusing to touch it"
+      rc=1
+    fi
+  done
+  return $rc
 }
 
 # install_board_cli — (re)generate the standalone notify-board CLI at
@@ -341,6 +393,21 @@ if [ "$SERVICES_ONLY" -eq 0 ]; then
       run "BMO_CANARY=1 BMO_PORT=$CANARY_PORT $VENV_PY app.py > $CANARY_LOG 2>&1 &"
     else
       mkdir -p "$(dirname "$CANARY_LOG")"
+      # Pre-launch guard (BMO-ISSUES-LOG / SECURITY-LOG 2026-07-02): the canary
+      # port MUST be free before we launch. A leaked/orphaned canary (or any
+      # squatter) answering /health here would false-green Gate 7 against a
+      # FOREIGN listener while the real canary dies binding the port — the deploy
+      # would then restart live services having validated nothing. Reap a stale
+      # canary if that is what is holding it; abort if it is anything else.
+      if port_in_use "$CANARY_PORT"; then
+        log "canary port $CANARY_PORT already in use before launch — attempting to reap a stale canary"
+        reap_stale_canary || { log "canary port $CANARY_PORT occupied by a non-canary listener — aborting deploy"; rollback; }
+        for _ in $(seq 1 10); do port_in_use "$CANARY_PORT" || break; sleep 1; done
+        if port_in_use "$CANARY_PORT"; then
+          log "canary port $CANARY_PORT still in use after reap — aborting to avoid gating against a foreign listener"
+          rollback
+        fi
+      fi
       # Close the flock fd (9) in the canary so a slow/leaked canary can't keep
       # holding /tmp/bmo-deploy.lock after this deploy exits (would block every
       # future deploy with "another deploy is running").
@@ -348,12 +415,31 @@ if [ "$SERVICES_ONLY" -eq 0 ]; then
         && BMO_CANARY=1 BMO_PORT="$CANARY_PORT" "$VENV_PY" app.py \
              > "$CANARY_LOG" 2>&1 9>&- ) &
       CANARY_PID=$!
-      if poll_health "http://localhost:$CANARY_PORT/health" "$CANARY_TIMEOUT"; then
-        log "canary /health green"
-      else
+      poll_rc=0
+      poll_health "http://localhost:$CANARY_PORT/health" "$CANARY_TIMEOUT" "$CANARY_PID" || poll_rc=$?
+      if [ "$poll_rc" -eq 2 ]; then
+        log "canary (pid $CANARY_PID) exited before /health went green — see $CANARY_LOG"
+        rollback
+      elif [ "$poll_rc" -ne 0 ]; then
         log "canary /health RED — see $CANARY_LOG"
         rollback
       fi
+      # Post-green verification: the canary we launched must (a) still be alive and
+      # (b) report the TARGET commit on /health — otherwise we went green against a
+      # foreign listener, not the code we are deploying. The /health `commit` field
+      # is a 12-char prefix; it degrades to empty in a non-git env, so only enforce
+      # the match when the canary actually reported one.
+      if ! kill -0 "$CANARY_PID" 2>/dev/null; then
+        log "canary (pid $CANARY_PID) died immediately after going green — see $CANARY_LOG"
+        rollback
+      fi
+      canary_commit="$(curl -sf "http://localhost:$CANARY_PORT/health" 2>/dev/null \
+        | "$VENV_PY" -c 'import sys, json; print(json.load(sys.stdin).get("commit") or "")' 2>/dev/null || true)"
+      if [ -n "$canary_commit" ] && [ "$canary_commit" != "${TARGET:0:${#canary_commit}}" ]; then
+        log "canary /health commit '$canary_commit' != target ${TARGET:0:12} — refusing to proceed (gated against wrong code)"
+        rollback
+      fi
+      log "canary /health green (commit ${canary_commit:-unknown})"
       cleanup_canary
     fi
   fi

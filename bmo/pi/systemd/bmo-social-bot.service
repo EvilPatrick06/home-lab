@@ -15,6 +15,7 @@ WatchdogSec=120
 TimeoutStartSec=120
 User=patrick
 WorkingDirectory=/home/patrick/home-lab-deploy/bmo/pi
+Environment=BMO_HOME=/home/patrick/home-lab-deploy/bmo/pi
 EnvironmentFile=/home/patrick/home-lab-deploy/bmo/pi/.env
 ExecStart=/home/patrick/home-lab-deploy/bmo/pi/venv/bin/python -m bots.discord_social_bot
 Restart=on-failure

@@ -13,6 +13,7 @@ WorkingDirectory=/home/patrick/home-lab-deploy/bmo/pi
 Environment=PATH=/home/patrick/home-lab-deploy/bmo/pi/venv/bin:/usr/local/bin:/usr/bin:/bin
 Environment=PYTHONUNBUFFERED=1
 Environment=XDG_RUNTIME_DIR=/run/user/1000
+Environment=BMO_HOME=/home/patrick/home-lab-deploy/bmo/pi
 EnvironmentFile=/home/patrick/home-lab-deploy/bmo/pi/.env
 ExecStart=/home/patrick/home-lab-deploy/bmo/pi/venv/bin/python app.py
 Restart=on-failure

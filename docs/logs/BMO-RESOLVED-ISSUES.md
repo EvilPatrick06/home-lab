@@ -12,6 +12,35 @@
 
 ---
 
+### [2026-07-02] deploy.sh canary gate could false-green off a stale listener on the canary port
+
+- **Resolved by:** bmo-resolver  **Branch:** `auto/bmo-resolver` (integrator merges)
+- **Fix:** hardened `deploy.sh` Gate 7. Pre-launch guard reaps a stale/orphaned canary squatting `$CANARY_PORT` (only if verifiably OUR canary — `app.py` with `BMO_CANARY=1` in its environ) and aborts if a non-canary listener holds the port; `poll_health` is now PID-aware so a canary that dies binding the port fast-fails RED (rc 2) instead of gating against a foreign listener or burning the timeout; and post-green verification asserts the launched `$CANARY_PID` is still alive and `/health`'s `commit` matches `$TARGET` before the restart gate.
+- **Verified:** `pytest test_deploy_script.py test_canary_mode.py test_shell_scripts.py` → 64 passed / 6 skipped; `bash -n` + `shellcheck -S error` clean.
+- **Related files:** `bmo/pi/scripts/deploy.sh`.
+- **Activation:** effective on next deploy (no restart needed; deploy.sh is invoked fresh by CI).
+
+---
+
+### [2026-07-02] `setup-bmo.sh` Tailwind compile step pointed at pre-reorg paths (fresh-Pi build failed / frozen CSS)
+
+- **Resolved by:** bmo-resolver  **Branch:** `auto/bmo-resolver` (integrator merges)
+- **Fix:** the compile step now `cd`s to `~/home-lab/bmo/pi/web` (where `static/` + `templates/` live after the monorepo reorg) and `git mv`d `pi/tailwind.config.js` → `pi/web/tailwind.config.js` so its `./templates/**` + `./static/js/**` content globs resolve. A scratch rebuild from the corrected tree produced a populated 28 KB stylesheet containing the custom classes (`bg-surface-dark` etc.) — vs the near-empty CSS the zero-match config would have emitted.
+- **Note:** did NOT overwrite the committed `web/static/css/tailwind.css` (46 KB); regenerating the served artifact would drop classes and risk a visual regression, so a rebuild/diff/refresh is left as a reviewable follow-up.
+- **Verified:** `bash -n bmo/setup-bmo.sh` OK; scratch `tailwindcss --minify` build succeeded (28633 bytes, custom classes present).
+- **Related files:** `bmo/setup-bmo.sh`, `bmo/pi/web/tailwind.config.js` (moved).
+
+---
+
+### [2026-07-02] `monitor_status_full.json` missing from .gitignore
+
+- **Resolved by:** bmo-resolver  **Branch:** `auto/bmo-resolver` (integrator merges)
+- **Fix:** added `bmo/pi/data/monitor_status_full.json` to `.gitignore` beside its siblings `monitor_state.json` / `monitor_alert_state.json`, so the continuously-rewritten monitor dump no longer leaves the deploy checkout's working tree permanently dirty.
+- **Verified:** entry present in `.gitignore`; the untracked-file line clears from `git status` in a running-monitor checkout.
+- **Related files:** `.gitignore`.
+
+---
+
 ### [2026-06-29] Calendar service shared one non-thread-safe `httplib2` connection across concurrent reads — serialized under a lock
 
 - **Resolved by:** bmo-resolver  **Branch:** `auto/bmo-resolver` (integrator merges)

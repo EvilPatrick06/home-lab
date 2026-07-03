@@ -102,6 +102,7 @@ bmo/pi/data/monitor_state.json
 bmo/pi/data/board_inbox.json
 bmo/pi/data/status_board_state.json
 bmo/pi/data/monitor_alert_state.json
+bmo/pi/data/monitor_status_full.json
 bmo/pi/data/music_history.json
 bmo/pi/data/notes.json
 bmo/pi/data/play_counts.json
