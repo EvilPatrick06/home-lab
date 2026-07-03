@@ -40,6 +40,10 @@
 | 15 | [`PHASE-15-chat-transcript-management.md`](./completed/PHASE-15-chat-transcript-management.md) | bmo | — | done |
 | 16 | [`PHASE-16-chat-agent-action-execution-truth.md`](./completed/PHASE-16-chat-agent-action-execution-truth.md) | bmo | — | done |
 | 17 | [`PHASE-17-dashboard-health-signal-ux-truth.md`](./completed/PHASE-17-dashboard-health-signal-ux-truth.md) | bmo | — | done |
+| 18 | [`PHASE-18-plan-agent-prompt-format-crash.md`](./PHASE-18-plan-agent-prompt-format-crash.md) | bmo | — | pending |
+| 19 | [`PHASE-19-destructive-and-noop-control-actions.md`](./PHASE-19-destructive-and-noop-control-actions.md) | bmo | — | pending |
+| 20 | [`PHASE-20-dashboard-layout-music-notifications-ux.md`](./PHASE-20-dashboard-layout-music-notifications-ux.md) | bmo | 17 (soft) | pending |
+| 21 | [`PHASE-21-docs-auth-surface-and-csp-truth.md`](./PHASE-21-docs-auth-surface-and-csp-truth.md) | bmo | — | pending |
 
 > **Provenance of this batch:** PHASE-01..03 were consolidated from
 > `QA/QA-report-2026-06-24.md` (now in `QA/completed/`) by the bmo phase-maker on
@@ -163,3 +167,32 @@
 > **Conversation-agent personality deflections** (intended BMO personality). The
 > bmo-phase-executer updates the Status column (`pending` -> `in progress` ->
 > `done`) as it ships each plan.
+> **Provenance of this batch (18-21):** PHASE-18..21 were consolidated from
+> `QA/QA-report-2026-07-02.md` (run 4, live deploy `4c7bcd82`, now in
+> `QA/completed/`) by the bmo phase-maker on 2026-07-02, verified against
+> `origin/master@b1128097`. Layer split: **18** = the headline **High** — the
+> Plan agent crashes on every request (`KeyError: 'state'` from unescaped
+> literal braces in `DESIGN_PROMPT`, a regression of the 2026-05-17 Phase 39
+> fix class; bug -> auto-implement) plus the missing prompt-render unit test
+> that let it ship. **19** = destructive & no-op control-action truth (calendar
+> Del with no confirm; the silent-play "Unmute" CTA that cannot fix volume-0;
+> camera-offline raw-exception leak + the Snap toast painted *behind* the
+> same-z-index camera overlay; OLED expression POST claiming success while
+> disabled). **20** = dashboard layout/music/notification-history UX (header
+> unshrinkable at 375 px — finishes 17B by adding `min-w-0` at the flex-group
+> level; bottom-nav overflow affordance; `formatTime` missing an hours branch;
+> the Queue panel binding a `musicState.queue` field no code path populates;
+> Home-Upcoming vs Week now-forward consistency; bell history seeded from
+> `/api/alerts/history`). **21** = docs/config truth (the "localhost + LAN are
+> exempt" claim — stale twice over now that the transport source gate rejects
+> plain-LAN peers; the README `bmo-ide` service-table row for a unit that does
+> not exist; the Places-loader CSP contradiction). Dependencies are **soft** —
+> disjoint files (18 = `plan_agent.py`+tests; 19 = `app.py`/`system_api.py`/
+> frontend; 20 = frontend only; 21 = docs + CSP): any order; 18->19->20->21
+> (high->medium->low) recommended. 20 lists 17 as a soft dependency only because
+> it extends 17B's header work. **Not re-planned as code phases:** the
+> **Pi-TZ vs location-config mismatch** (owner action item — the report itself
+> notes either side could be the stale one) and the **`/ide` AudioContext
+> console flood** (unverified — likely a headless-test-browser artifact; re-check
+> in a real browser next run). The bmo-phase-executer updates the Status column
+> (`pending` -> `in progress` -> `done`) as it ships each plan.

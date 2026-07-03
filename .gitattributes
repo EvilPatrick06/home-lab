@@ -40,6 +40,11 @@ bmo/docs/phases/QA/screenshots/*.jpg filter=lfs diff=lfs merge=lfs -text
 bmo/docs/phases/QA/screenshots/*.jpeg filter=lfs diff=lfs merge=lfs -text
 bmo/docs/phases/QA/screenshots/*.gif filter=lfs diff=lfs merge=lfs -text
 bmo/docs/phases/QA/screenshots/*.webp filter=lfs diff=lfs merge=lfs -text
+bmo/docs/phases/QA/completed/screenshots/*.png filter=lfs diff=lfs merge=lfs -text
+bmo/docs/phases/QA/completed/screenshots/*.jpg filter=lfs diff=lfs merge=lfs -text
+bmo/docs/phases/QA/completed/screenshots/*.jpeg filter=lfs diff=lfs merge=lfs -text
+bmo/docs/phases/QA/completed/screenshots/*.gif filter=lfs diff=lfs merge=lfs -text
+bmo/docs/phases/QA/completed/screenshots/*.webp filter=lfs diff=lfs merge=lfs -text
 
 # --- Append-only log docs: union merge ---------------------------------------
 # Concurrent appends from parallel automated-agent branches (auto/<agent-id>)
