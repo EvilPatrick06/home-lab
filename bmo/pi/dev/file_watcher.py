@@ -10,6 +10,25 @@ import threading
 import time
 
 
+_ALLOWED_ROOTS = [
+    os.path.realpath(os.path.expanduser("~")),
+    "/tmp",
+]
+
+
+def _safe_path(raw: str) -> str:
+    """Resolve *raw* and confine it to _ALLOWED_ROOTS; raise PermissionError
+    when it escapes. Fed to os.path.getmtime so CodeQL sees a realpath+
+    allowed-root barrier before the sink (py/path-injection, CWE-22)."""
+    if not raw:
+        raise PermissionError("path is required")
+    resolved = os.path.realpath(os.path.expanduser(raw))
+    for root in _ALLOWED_ROOTS:
+        if resolved == root or resolved.startswith(root + os.sep):
+            return resolved
+    raise PermissionError(f"path outside watch sandbox: {resolved}")
+
+
 class FileWatcher:
     """Watches files for changes and notifies via callback."""
 
@@ -28,18 +47,21 @@ class FileWatcher:
 
     def watch(self, path: str):
         """Start watching a file."""
-        path = os.path.expanduser(path)
         try:
+            path = _safe_path(path)
             mtime = os.path.getmtime(path)
-        except OSError:
-            mtime = 0
+        except (OSError, PermissionError):
+            return
         with self._lock:
             self._watched[path] = mtime
         self._ensure_running()
 
     def unwatch(self, path: str):
         """Stop watching a file."""
-        path = os.path.expanduser(path)
+        try:
+            path = _safe_path(path)
+        except PermissionError:
+            return
         with self._lock:
             self._watched.pop(path, None)
 
@@ -48,7 +70,10 @@ class FileWatcher:
 
         This bypasses polling so the UI updates instantly.
         """
-        path = os.path.expanduser(path)
+        try:
+            path = _safe_path(path)
+        except PermissionError:
+            return
         try:
             mtime = os.path.getmtime(path)
         except OSError:

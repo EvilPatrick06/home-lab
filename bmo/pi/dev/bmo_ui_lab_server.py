@@ -20,6 +20,10 @@ from flask import Flask, Response, jsonify, render_template, request
 from flask_socketio import SocketIO
 from ytmusicapi import YTMusic
 
+from services.bmo_logging import fail, get_logger
+
+log = get_logger("ui_lab")
+
 # ── App Setup ────────────────────────────────────────────────────────
 
 _PI_ROOT = str(Path(__file__).resolve().parent.parent)
@@ -1300,9 +1304,8 @@ def api_music_album(browse_id):
             "year": album.get("year", ""),
             "tracks": tracks,
         })
-    except Exception as e:
-        print(f"[music] Album fetch error: {e}")
-        return jsonify({"error": str(e)}), 500
+    except Exception as e:  # noqa: BLE001
+        return fail(log, e, 500)
 
 
 @app.route("/api/music/playlist/<browse_id>")
@@ -1330,9 +1333,8 @@ def api_music_playlist(browse_id):
             "trackCount": pl.get("trackCount", len(tracks)),
             "tracks": tracks,
         })
-    except Exception as e:
-        print(f"[music] Playlist fetch error: {e}")
-        return jsonify({"error": str(e)}), 500
+    except Exception as e:  # noqa: BLE001
+        return fail(log, e, 500)
 
 
 @app.route("/api/music/search/playlists")
@@ -1583,8 +1585,9 @@ def api_music_lyrics(video_id):
             "lyrics": lyrics_data.get("lyrics", ""),
             "source": lyrics_data.get("source", ""),
         })
-    except Exception as e:
-        return jsonify({"lyrics": None, "error": str(e)})
+    except Exception as e:  # noqa: BLE001
+        log.exception("lyrics fetch failed")
+        return jsonify({"lyrics": None, "error": "lyrics unavailable"})
 
 
 # ── TV Remote API ────────────────────────────────────────────────────
@@ -1680,8 +1683,8 @@ def api_tv_key():
         try:
             _tv_remote.send_key_command(mapped)
             return jsonify({"ok": True})
-        except Exception as e:
-            return jsonify({"error": str(e)}), 500
+        except Exception as e:  # noqa: BLE001
+            return fail(log, e, 500)
     return jsonify({"error": "TV not connected — pair first"}), 503
 
 
@@ -1696,8 +1699,8 @@ def api_tv_launch():
         try:
             _tv_remote.send_launch_app_command(url)
             return jsonify({"ok": True})
-        except Exception as e:
-            return jsonify({"error": str(e)}), 500
+        except Exception as e:  # noqa: BLE001
+            return fail(log, e, 500)
     return jsonify({"error": "TV not connected — pair first"}), 503
 
 
@@ -1707,8 +1710,8 @@ def api_tv_power():
         try:
             _tv_remote.send_key_command("POWER")
             return jsonify({"ok": True})
-        except Exception as e:
-            return jsonify({"error": str(e)}), 500
+        except Exception as e:  # noqa: BLE001
+            return fail(log, e, 500)
     return jsonify({"error": "TV not connected — pair first"}), 503
 
 
@@ -1722,8 +1725,8 @@ def api_tv_volume():
         try:
             _tv_remote.send_key_command(key)
             return jsonify({"ok": True})
-        except Exception as e:
-            return jsonify({"error": str(e)}), 500
+        except Exception as e:  # noqa: BLE001
+            return fail(log, e, 500)
     return jsonify({"error": "TV not connected — pair first"}), 503
 
 
@@ -1763,9 +1766,8 @@ def api_tv_pair_start():
 
         _tv_run(_start())
         return jsonify({"ok": True, "message": "Check your TV for a PIN code"})
-    except Exception as e:
-        print(f"[tv] Pairing start failed: {e}")
-        return jsonify({"error": str(e)}), 500
+    except Exception as e:  # noqa: BLE001
+        return fail(log, e, 500)
 
 
 @app.route("/api/tv/pair/finish", methods=["POST"])
@@ -1791,10 +1793,9 @@ def api_tv_pair_finish():
         _tv_run(_finish())
         print(f"[tv] Paired and connected to TV at {TV_IP}!")
         return jsonify({"ok": True, "message": "Paired and connected!"})
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         _tv_pairing_remote = None
-        print(f"[tv] Pairing finish failed: {e}")
-        return jsonify({"error": str(e)}), 500
+        return fail(log, e, 500)
 
 
 # ── Camera API (REAL laptop webcam) ──────────────────────────────────

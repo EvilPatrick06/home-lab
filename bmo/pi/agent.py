@@ -18,9 +18,12 @@ import ollama as ollama_client
 from services.cloud_providers import cloud_chat, gemini_chat_stream, groq_llm_chat_stream, PRIMARY_MODEL, ROUTER_MODEL, DND_MODEL
 from dev.dev_tools import dispatch_tool
 from services.voice.voice_personality import parse_response_tags
+from services.bmo_logging import get_logger, _s
 
 CODE_AGENT_RESUME_FILE = str(_P_DATA_DIR / "code_agent_resume.json")
 from agents.settings import init_settings
+
+log = get_logger("agent")
 
 # ── Cloud API Configuration ──────────────────────────────────────────
 # Primary AI brain: Cloud APIs (Gemini Pro, Claude Opus, Groq, Fish Audio)
@@ -953,7 +956,7 @@ class BmoAgent:
                                     _relay_fired = True
                                     target_agent = relay_match.group(1).strip()
                                     relay_message = relay_match.group(2).strip() or user_message
-                                    print(f"[stream] Relay detected mid-stream → {target_agent}: {relay_message[:80]}")
+                                    log.info("[stream] Relay detected mid-stream -> %s", _s(target_agent))
 
                                     def _run_relay(agent_name, msg, hist):
                                         try:
@@ -1175,7 +1178,7 @@ class BmoAgent:
                 cmd = json.loads(match.strip())
                 commands.append(cmd)
             except json.JSONDecodeError:
-                print(f"[agent] Failed to parse command: {match}")
+                log.warning("[agent] Failed to parse command block (%d chars)", len(match))
 
         # Remove fenced command blocks from the display text
         text = re.sub(fenced_pattern, "", response, flags=re.DOTALL)
@@ -1249,7 +1252,7 @@ class BmoAgent:
             # in `result` -- and skip the crash traceback (this is not a bug).
             return {"action": action, "success": False, "error": str(e)}
         except Exception as e:
-            print(f"[agent] Command failed: {action} — {e}")
+            log.warning("[agent] Command failed: %s (%s)", _s(action), type(e).__name__)
             return {"action": action, "success": False, "error": str(e)}
 
     def _get_handler(self, action: str):

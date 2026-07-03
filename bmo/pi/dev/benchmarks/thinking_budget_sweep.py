@@ -43,9 +43,11 @@ def run_prompt(prompt, budget):
     if budget is not None:
         payload["generationConfig"]["thinkingConfig"] = {"thinkingBudget": budget}
 
-    url = f"{base}/models/gemini-3-flash-preview:generateContent?key={key}"
+    url = f"{base}/models/gemini-3-flash-preview:generateContent"
     t0 = time.time()
-    r = requests.post(url, json=payload, timeout=30)
+    r = requests.post(
+        url, json=payload, headers={"x-goog-api-key": key}, timeout=30
+    )
     elapsed = time.time() - t0
 
     data = r.json()

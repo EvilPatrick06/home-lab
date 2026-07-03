@@ -48,7 +48,8 @@ def main() -> None:
 
     print()
     print("[synth] Generating 'hey beemo' via Piper...")
-    tmp = tempfile.mktemp(suffix=".wav")
+    _tmp_fd, tmp = tempfile.mkstemp(suffix=".wav")
+    os.close(_tmp_fd)
     if not os.path.isfile(_PIPER_ONNX):
         print(f"[synth] SKIP: Piper model not found at {_PIPER_ONNX}")
     else:
