@@ -190,19 +190,32 @@ class MuteButton(discord.ui.DynamicItem[discord.ui.Button], template=r"board:mut
         await _respond(interaction, cog)
 
 
-class DoneButton(discord.ui.DynamicItem[discord.ui.Button], template=r"board:done:(?P<iid>.+)"):
-    def __init__(self, iid: str, label: str = "✓ Done"):
-        self.iid = iid
+class DoneButton(discord.ui.DynamicItem[discord.ui.Button],
+                 template=r"board:done:(?P<src>[^~]*)~(?P<iid>.+)"):
+    """✓ Done for a brief/attention row. The custom_id encodes source~id because
+    item ids are only unique WITHIN a producer — several briefs share id
+    "overview", and encoding the id alone produced duplicate custom_ids that
+    Discord rejects (400: "custom id cannot be duplicated"), which crash-looped
+    the whole board render. Scoping by source keeps every button unique and
+    removes exactly the clicked row. A bare (source-less) legacy custom_id is
+    still accepted via the empty `src` group and falls back to a global sweep."""
+
+    def __init__(self, iid: str, source: str = "", label: str = "✓ Done"):
+        self.iid, self.source = iid, source
+        cid = f"board:done:{source}~{iid}"
+        if len(cid) > _CID_MAX:                    # keep under Discord's 100 cap
+            cid = f"board:done:~{iid}"
+            self.source = ""
         super().__init__(discord.ui.Button(label=label, style=discord.ButtonStyle.success,
-                                           custom_id=f"board:done:{iid}"))
+                                           custom_id=cid))
 
     @classmethod
     async def from_custom_id(cls, interaction, item, match):
-        return cls(match["iid"])
+        return cls(match["iid"], match["src"])
 
     async def callback(self, interaction: discord.Interaction):
         inbox = sb.load_inbox()
-        sb.mark_done(inbox, self.iid)
+        sb.mark_done(inbox, self.iid, self.source or None)
         sb.save_inbox(inbox)
         await _respond(interaction, _cog(interaction))
 
@@ -523,12 +536,69 @@ def _degraded_view(note: str | None = None) -> discord.ui.LayoutView:
     return view
 
 
+def _iter_buttons(view: "discord.ui.LayoutView"):
+    """Yield every discord.ui.Button anywhere in the view's component tree.
+
+    discord.py's LayoutView.walk_children() recurses the whole tree (Containers,
+    ActionRows, nested items); we filter to Buttons (the only components that
+    carry a custom_id that can collide). Falls back to a manual recursion if the
+    walk API is ever unavailable."""
+    walk = getattr(view, "walk_children", None)
+    if callable(walk):
+        for comp in walk():
+            if isinstance(comp, discord.ui.Button):
+                yield comp
+        return
+
+    def _rec(node):
+        if isinstance(node, discord.ui.Button):
+            yield node
+        for child in getattr(node, "children", []) or []:
+            yield from _rec(child)
+
+    for child in getattr(view, "children", []) or []:
+        yield from _rec(child)
+
+
+def _dedupe_custom_ids(view: "discord.ui.LayoutView") -> int:
+    """Fail-safe: guarantee no two buttons in the view share a custom_id.
+
+    Discord rejects the ENTIRE message with 400 "Component custom id cannot be
+    duplicated" if any two components collide, which crash-loops the board. The
+    scoped custom_id scheme (source~id) prevents the known collisions, but this
+    is a belt-and-braces guard so an unforeseen duplicate (a new producer, a
+    schema drift) degrades a single button instead of blanking the whole board.
+    Any repeat custom_id is disabled and given a unique, inert id so the payload
+    stays valid; returns how many were neutralised (0 in the normal case)."""
+    seen = set()
+    fixed = 0
+    for i, btn in enumerate(_iter_buttons(view)):
+        cid = getattr(btn, "custom_id", None)
+        if not cid:
+            continue
+        if cid in seen:
+            btn.custom_id = f"board:dup:{i}"     # unique + matches no handler
+            btn.disabled = True
+            fixed += 1
+        else:
+            seen.add(cid)
+    if fixed:
+        log.warning("board render: neutralised %d duplicate custom_id(s)", fixed)
+    return fixed
+
+
 def build_layout_safe(rows: list[dict], state: sb.BoardState) -> discord.ui.LayoutView:
     """NEVER-raise wrapper around build_layout. Any exception (corrupt rows,
     component-budget overflow, API drift) degrades to a tiny valid view instead
-    of crash-looping the reconcile loop."""
+    of crash-looping the reconcile loop. Also runs a duplicate-custom_id guard
+    so a collision can never 400 the whole board send."""
     try:
-        return build_layout(rows, state)
+        view = build_layout(rows, state)
+        try:
+            _dedupe_custom_ids(view)
+        except Exception:  # pragma: no cover — guard must never itself crash
+            log.exception("board custom_id dedupe guard failed (non-fatal)")
+        return view
     except Exception:
         log.exception("board layout build failed — rendering degraded view")
         try:
@@ -686,7 +756,7 @@ def build_layout(rows: list[dict], state: sb.BoardState) -> discord.ui.LayoutVie
                 if cat == "incident":
                     btns.append(MuteButton(r["key"], label=f"🔕 {idx}"))
                 else:
-                    btns.append(DoneButton(r["id"], label=f"✓ {idx}"))
+                    btns.append(DoneButton(r["id"], r.get("source") or "", label=f"✓ {idx}"))
             if cat == "brief":
                 btns.append(ClearBriefsButton())
             elif cat == "incident" and len(crows) > 1:
