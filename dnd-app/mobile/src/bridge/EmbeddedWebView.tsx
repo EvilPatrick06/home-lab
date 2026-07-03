@@ -1,6 +1,14 @@
 import { resolveEmbedEntry } from '@app/embed/embed-loader'
 import type { BridgeEndpoint } from '@shared/bridge'
-import { forwardRef, type ReactElement, useEffect, useImperativeHandle, useRef, useState } from 'react'
+import {
+  type ComponentRef,
+  forwardRef,
+  type ReactElement,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState
+} from 'react'
 import { ActivityIndicator, BackHandler, View } from 'react-native'
 import { WebView, type WebViewMessageEvent, type WebViewNavigation } from 'react-native-webview'
 import { createNativeBridge } from './native-bridge'
@@ -29,7 +37,10 @@ export const EmbeddedWebView = forwardRef<EmbeddedWebViewHandle, Props>(function
   { route, onBridgeReady },
   ref
 ): ReactElement {
-  const webRef = useRef<WebView>(null)
+  // react-native-webview v14 exposes WebView as a function component, so the
+  // instance ref is its imperative handle (goBack/injectJavaScript/...), typed
+  // via ComponentRef<typeof WebView> rather than the component value itself.
+  const webRef = useRef<ComponentRef<typeof WebView>>(null)
   const bridgeRef = useRef<ReturnType<typeof createNativeBridge> | null>(null)
   const canGoBackRef = useRef(false)
   const [uri, setUri] = useState<string | null>(null)

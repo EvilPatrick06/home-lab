@@ -1,3 +1,35 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css";
+
+@import "nativewind/theme";
+
+/*
+ * Tailwind 4 auto-detects sources, but this app keeps its className usage under
+ * ./App.tsx and ./src, so scope the scan explicitly (equivalent to the old
+ * tailwind.config.js `content` array). NativeWind v5 is CSS-first: there is no
+ * JS preset/config; nativewind/theme above supplies the RN preset.
+ */
+@source "./App.tsx";
+@source "./src/**/*.{ts,tsx}";
+
+/*
+ * Semantic color tokens mirrored from the desktop/web globals.css so the native
+ * UI matches the embedded WebView visually. Declared as CSS variables under
+ * @theme (Tailwind 4 CSS-first) so they generate bg, text and border color
+ * (e.g. --color-base -> bg-base / text-base / border-base). These replace the
+ * old tailwind.config.js theme.extend.colors block.
+ */
+@theme {
+  --color-base: #030712;
+  --color-surface: #111827;
+  --color-surface-2: #1f2937;
+  --color-border: #374151;
+  --color-fg: #f3f4f6;
+  --color-muted: #9ca3af;
+  --color-accent: #fbbf24;
+  --color-accent-strong: #f59e0b;
+  --color-danger: #ef4444;
+  --color-success: #22c55e;
+  --color-warning: #eab308;
+}
