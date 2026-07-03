@@ -365,6 +365,110 @@ The app is an installable offline PWA and can export the player save as JSON, bu
 
 # Low-severity polish / info
 
+### [2026-07-02] `router/screens.js` gating predicates are dead code — every production call site uses the raw arrays instead
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** scheduled cleanup/structure scan of dungeon-scholar/
+
+**Description:**
+`src/router/screens.js` describes itself as "the single source of truth for … screens and their gating rules" and exports three Set-backed predicates — `isValidScreen`, `screenRequiresCourseSet`, `screenSealedGated`. No production code calls any of them (only `screens.test.js` does): `useHashRoute.js:14` re-derives its own `const SCREEN_SET = new Set(SCREENS)` instead of `isValidScreen`, and `App.jsx` uses linear `COURSE_SET_GATED.includes(screen)` (~line 758) and `SEALED_GATED.includes(screen)` (~line 1896) instead of the predicates. The registry centralized the *data* as intended, but its intended API surface is unused, so gating is expressed in two idioms (private-Set predicate vs. raw-array `.includes`) and a future gating change has both to keep straight.
+
+**Proposed fix / improvement:**
+- [ ] Pick one idiom: switch the three call sites to the predicates (`useHashRoute` drops its local `SCREEN_SET`; `App.jsx` swaps the two `.includes` checks), OR delete the predicates and export the Sets directly.
+- [ ] Point `screens.test.js` at whatever survives.
+
+**Related files:** `src/router/screens.js`, `src/router/useHashRoute.js`, `src/App.jsx`, `src/router/screens.test.js`
+
+**Related entries:** RESOLVED [2026-06-23] "`App.jsx` screen-router: render the ~22 `screen ===` branches through the `router/screens.js` registry" (the refactor that created the registry).
+
+---
+
+### [2026-07-02] `usePlayerActions.js` (1,336 lines) is the next god-file after the two already logged — seven-plus unrelated concern groups in one hook
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** scheduled cleanup/structure scan of dungeon-scholar/
+
+**Description:**
+The [2026-06-28] god-component entry covers `DungeonExplore.jsx` and `App.jsx` (and notes `tileRenderer.js` 1,576 as next-largest). The next hand-written logic module after those is `src/features/player/usePlayerActions.js` at 1,336 lines — a single hook mixing at least seven separable concern groups: (1) generic progress plumbing (`updateProgress`/`updateTomeProgress`/`updateCardProgress`/`setCardSuspended`), (2) economy + equipment (`awardXP`/`awardGold`/`purchaseItem`/`equipItem`/`unequipSlot`), (3) pets (`equipPet`/`awardPetXp`), (4) spell + potion loadouts, (5) crafting/bestiary/harvest records, (6) achievements + titles + ascension + daily reward, (7) the ~156-line `recordAnswer` SRS pipeline plus vault removal, and (8) three quest systems (daily/weekly/story chains, each with claim + claim-all). Any new player-facing action lands here by default, so the file grows every phase; the 526-line test covers slices but the hook is one indivisible unit to consumers.
+
+**Hypothesis / root cause:** Same organic accretion as App.jsx — "the player actions hook" became the default home for every mutation.
+
+**Proposed fix / improvement:**
+- [ ] Carve cohesive sub-hooks (e.g. `useEconomyActions`, `useLoadoutActions`, `useQuestActions`, `useAnswerRecording`) composed *inside* `usePlayerActions` so the public API consumed by App.jsx is unchanged.
+- [ ] Move pure helpers (quest-status derivations, achievement checks) into `src/game/` / `src/services/` where their siblings already live, and split the test alongside.
+
+**Related files:** `src/features/player/usePlayerActions.js`, `src/features/player/usePlayerActions.test.jsx`
+
+**Related entries:** [2026-06-28] "Extract logic/content out of the two god-component files".
+
+---
+
+### [2026-07-02] Study-mode screens have no behavioral co-located tests — ExamMode's is a typeof-only smoke whose comment is no longer true
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** scheduled cleanup/structure scan of dungeon-scholar/
+
+**Description:**
+The six study-mode screens are among the largest UI files in the tree (`ExamMode.jsx` 1,171, `DomainStudyScreen.jsx` 1,132, `QuizMode.jsx` 881, `ChatMode.jsx` 736, `LabMode.jsx` 534, `FlashcardsMode.jsx` 463), yet Quiz/Chat/Flashcards/Lab/DomainStudy have **no co-located test at all**, and `ExamMode.test.jsx` is a 10-line smoke asserting only `typeof ExamMode === 'function'`. That smoke's comment claims ExamMode "was the only study mode lacking a co-located test" — inaccurate today: no other mode screen has one (only `MistakeVault` and `oracleSources` in that folder do), so the comment actively misleads about coverage. The logic services underneath are well tested (`examSession`, `examPace`, `srs`, `oracleGrader`, …), but screen-level behavior — exam timers and resume, flag-for-review, keyboard shortcuts, answer-flow wiring into `usePlayerActions` — is exercised only indirectly. Distinct from the [2026-06-29] CI coverage-floor entry (that is a metric budget; this is the concrete missing test family the metric would expose).
+
+**Proposed fix / improvement:**
+- [ ] Add mount-level render smokes per mode (render with a minimal tome fixture; first card/riddle visible) — cheap and catches import/hook-order breakage.
+- [ ] Then behavioral tests for the two highest-risk flows: practice-exam resume (`examSession` wiring) and timer expiry.
+- [ ] Fix or delete the misleading comment in `ExamMode.test.jsx`.
+
+**Related files:** `src/features/study/ExamMode.test.jsx`, `src/features/study/QuizMode.jsx`, `src/features/study/ChatMode.jsx`, `src/features/study/FlashcardsMode.jsx`, `src/features/study/LabMode.jsx`, `src/features/study/DomainStudyScreen.jsx`
+
+**Related entries:** [2026-06-29] "CI has no test-coverage floor and no bundle-size budget…".
+
+---
+
+### [2026-07-02] QA-report multi-run filename convention is ad hoc and lexically missorts (`-2` sorts before the first run)
+
+- **Category:** docs
+- **Severity:** info
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** scheduled cleanup/structure scan of dungeon-scholar/
+
+**Description:**
+`docs/phases/QA/INSTRUCTIONS.md` (~lines 172/188) prescribes one `QA-report-YYYY-MM-DD.md` per pass, with no rule for same-day reruns. In practice reruns appended ad-hoc suffixes: `QA/completed/` holds `QA-report-2026-06-24.md` + `-2`/`-3` and `QA-report-2026-06-29.md` + `-2`…`-5`. Because `-` (0x2D) sorts before `.` (0x2E), the unsuffixed first run sorts *after* all its reruns in directory listings (…-29-2 … -29-5, then …-29.md), so a day's chronology reads backwards and "the latest report" is not the last file.
+
+**Proposed fix / improvement:**
+- [ ] Codify the rerun scheme in `QA/INSTRUCTIONS.md` — e.g. every run gets a run number (`QA-report-YYYY-MM-DD-1.md`, `-2`, …).
+- [ ] Optionally `git mv` the two unsuffixed first-run files to `-1` for clean sorting (update the references in `PHASE-INDEX.md` and the logs that cite them).
+
+**Related files:** `dungeon-scholar/docs/phases/QA/INSTRUCTIONS.md`, `dungeon-scholar/docs/phases/QA/completed/`
+
+---
+
+### [2026-07-02] This log has two `# Low-severity polish / info` headers (union-merge artifact) and the second holds mis-sectioned future-idea entries
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** scheduled cleanup/structure scan of dungeon-scholar/
+
+**Description:**
+`docs/logs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` contains the section header `# Low-severity polish / info` twice (~lines 366 and 652 at `b1128097`). This is the documented union-merge caveat (AUTOMATED-AGENT-GIT-WORKFLOW.md Rule 2: concurrent branches can duplicate section headers). The entries under the second copy (PWA App Badging, speech-to-text voice input, daily study goal + streak-freeze, etc.) are all `Category: future-idea` from scholar-suggestor, so they are additionally mis-sectioned — they belong under `# Future ideas`. Consequence: "insert at top of section" has two competing anchors and section-scoped reading is unreliable. Precedent: bmo-resolver fixed the same artifact class in `BMO-ISSUES-LOG.md` ("Removed the duplicated copy of the section").
+
+**Proposed fix / improvement:**
+- [ ] One small structural pass (resolver or human, in a quiet window to avoid racing parallel appends): move the future-idea entries under `# Future ideas`, delete the duplicate header, keep entry text byte-identical.
+
+**Related files:** `docs/logs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`
+
+---
+
+
 ### [2026-07-02] `docs/phases/PHASE-INDEX.md` — broken links for completed PHASE-01/02, a mislabeled PHASE-10 link, and provenance narrative crowding out the index
 
 - **Category:** docs
