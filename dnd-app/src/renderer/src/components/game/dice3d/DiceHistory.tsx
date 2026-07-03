@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useT } from '../../../i18n'
+import { computeDiceStats } from '../../../services/dice-stats'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { DiceRollRecord } from '../../../types/game-state'
 
@@ -7,10 +8,100 @@ interface DiceHistoryProps {
   onClose?: () => void
 }
 
+type View = 'log' | 'stats'
+
+function DiceStatsView({ history }: { history: DiceRollRecord[] }): JSX.Element {
+  const { t } = useT()
+  const stats = useMemo(() => computeDiceStats(history), [history])
+
+  if (stats.totalD20 === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full text-center">
+        <p className="text-xs text-gray-500">{t('game.diceHistory.noD20')}</p>
+      </div>
+    )
+  }
+
+  const maxBar = Math.max(1, ...stats.perPlayer.flatMap((p) => Object.values(p.d20Histogram)))
+
+  return (
+    <div className="space-y-3">
+      {/* Session luck callouts */}
+      {stats.luckiest && (
+        <div className="text-[11px] text-accent">
+          {t('game.diceHistory.luckyHot', { name: stats.luckiest.rollerName })} ({stats.luckiest.d20Average.toFixed(1)})
+        </div>
+      )}
+      {stats.unluckiest && stats.unluckiest.rollerName !== stats.luckiest?.rollerName && (
+        <div className="text-[11px] text-red-400">
+          {t('game.diceHistory.luckyCold', { name: stats.unluckiest.rollerName })} (
+          {stats.unluckiest.d20Average.toFixed(1)})
+        </div>
+      )}
+
+      {stats.perPlayer
+        .filter((p) => p.d20Count > 0)
+        .map((p) => (
+          <div key={p.rollerName} className="rounded-lg border border-border/40 bg-surface-2/30 p-2">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-semibold text-gray-200 truncate">{p.rollerName}</span>
+              <span className="text-[10px] text-gray-500">
+                {p.d20Count} {t('game.diceHistory.d20Rolls')}
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-1 text-[10px] mb-1.5">
+              <span className="text-gray-400">
+                {t('game.diceHistory.average')}:{' '}
+                <span className="font-mono text-gray-200">{p.d20Average.toFixed(1)}</span>
+              </span>
+              <span className="text-accent">
+                {t('game.diceHistory.nat20')}: <span className="font-mono">{p.nat20}</span>
+              </span>
+              <span className="text-red-400">
+                {t('game.diceHistory.nat1')}: <span className="font-mono">{p.nat1}</span>
+              </span>
+            </div>
+            {/* d20 face histogram (1..20) */}
+            <div
+              className="flex items-end gap-[1px] h-12"
+              role="img"
+              aria-label={t('game.diceHistory.histogramTitle')}
+              title={t('game.diceHistory.histogramTitle')}
+            >
+              {Array.from({ length: 20 }, (_, i) => i + 1).map((face) => {
+                const count = p.d20Histogram[face] ?? 0
+                const heightPct = (count / maxBar) * 100
+                return (
+                  <div
+                    key={face}
+                    className="flex-1 flex flex-col justify-end items-center h-full"
+                    title={`${face}: ${count}`}
+                  >
+                    <div
+                      className={`w-full rounded-sm ${
+                        face === 20 ? 'bg-amber-500' : face === 1 ? 'bg-red-500' : 'bg-gray-500'
+                      }`}
+                      style={{ height: `${heightPct}%`, minHeight: count > 0 ? '2px' : '0' }}
+                    />
+                  </div>
+                )
+              })}
+            </div>
+            <div className="flex justify-between text-[8px] text-gray-600 mt-0.5">
+              <span>1</span>
+              <span>20</span>
+            </div>
+          </div>
+        ))}
+    </div>
+  )
+}
+
 export default function DiceHistory({ onClose }: DiceHistoryProps): JSX.Element {
   const { t } = useT()
   const diceHistory: DiceRollRecord[] = useGameStore((s) => s.diceHistory)
   const [filterPlayer, setFilterPlayer] = useState<string | null>(null)
+  const [view, setView] = useState<View>('log')
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const playerNames = useMemo(() => {
@@ -24,12 +115,12 @@ export default function DiceHistory({ onClose }: DiceHistoryProps): JSX.Element 
     return diceHistory.filter((r) => r.rollerName === filterPlayer)
   }, [diceHistory, filterPlayer])
 
-  // Auto-scroll to bottom on new entries
+  // Auto-scroll to bottom on new entries (log view only)
   useEffect(() => {
-    if (scrollRef.current) {
+    if (view === 'log' && scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
     }
-  }, [])
+  }, [view])
 
   const formatTime = useCallback((ts: number) => {
     return new Date(ts).toLocaleTimeString(undefined, {
@@ -62,8 +153,30 @@ export default function DiceHistory({ onClose }: DiceHistoryProps): JSX.Element 
         </div>
       </div>
 
-      {/* Player filter */}
-      {playerNames.length > 1 && (
+      {/* Log / Stats tabs */}
+      <div className="shrink-0 flex gap-1 px-3 py-1.5 border-b border-border">
+        <button
+          onClick={() => setView('log')}
+          className={`px-2.5 py-0.5 text-xs font-semibold rounded cursor-pointer transition-colors ${
+            view === 'log' ? 'bg-amber-600 text-white' : 'bg-surface-2 text-muted hover:text-gray-200 hover:bg-gray-700'
+          }`}
+        >
+          {t('game.diceHistory.tabLog')}
+        </button>
+        <button
+          onClick={() => setView('stats')}
+          className={`px-2.5 py-0.5 text-xs font-semibold rounded cursor-pointer transition-colors ${
+            view === 'stats'
+              ? 'bg-amber-600 text-white'
+              : 'bg-surface-2 text-muted hover:text-gray-200 hover:bg-gray-700'
+          }`}
+        >
+          {t('game.diceHistory.tabStats')}
+        </button>
+      </div>
+
+      {/* Player filter (log view) */}
+      {view === 'log' && playerNames.length > 1 && (
         <div className="shrink-0 flex gap-1 px-3 py-2 border-b border-border flex-wrap">
           <button
             onClick={() => setFilterPlayer(null)}
@@ -91,9 +204,11 @@ export default function DiceHistory({ onClose }: DiceHistoryProps): JSX.Element 
         </div>
       )}
 
-      {/* Roll list */}
+      {/* Body */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-2 min-h-0 space-y-1">
-        {filtered.length === 0 ? (
+        {view === 'stats' ? (
+          <DiceStatsView history={diceHistory} />
+        ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <p className="text-xs text-gray-500">{t('game.diceHistory.noRolls')}</p>
             <p className="text-xs text-gray-600 mt-1">{t('game.diceHistory.rollsWillAppear')}</p>

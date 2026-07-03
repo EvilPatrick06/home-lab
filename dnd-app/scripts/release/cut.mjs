@@ -130,6 +130,47 @@ if (existsSync(lockPath)) {
   console.log(`✓ dnd-app/package-lock.json: → ${version}`)
 }
 
+// Bump the mobile (Expo) manifests in lockstep so mobile can never lag the
+// desktop app again (the drift that shipped 2.6.3 mobile against 2.6.4 desktop).
+// mobile/package.json, its lockfile, AND app.config.ts's `version:` string are
+// all kept on the same X.Y.Z. Missing files / no-match are non-fatal (logged).
+const mobilePkgPath = join(DND_APP_ROOT, 'mobile', 'package.json')
+const mobileLockPath = join(DND_APP_ROOT, 'mobile', 'package-lock.json')
+const mobileConfigPath = join(DND_APP_ROOT, 'mobile', 'app.config.ts')
+
+if (existsSync(mobilePkgPath)) {
+  const mpkg = JSON.parse(readFileSync(mobilePkgPath, 'utf-8'))
+  const mprev = mpkg.version
+  mpkg.version = version
+  writeFileSync(mobilePkgPath, `${JSON.stringify(mpkg, null, 2)}\n`)
+  console.log(`✓ dnd-app/mobile/package.json: ${mprev} → ${version}`)
+} else {
+  console.log('! version-sync: dnd-app/mobile/package.json not found — skipped')
+}
+
+if (existsSync(mobileLockPath)) {
+  const mlock = JSON.parse(readFileSync(mobileLockPath, 'utf-8'))
+  mlock.version = version
+  if (mlock.packages?.['']) {
+    mlock.packages[''].version = version
+  }
+  writeFileSync(mobileLockPath, `${JSON.stringify(mlock, null, 2)}\n`)
+  console.log(`✓ dnd-app/mobile/package-lock.json: → ${version}`)
+}
+
+if (existsSync(mobileConfigPath)) {
+  const before = readFileSync(mobileConfigPath, 'utf-8')
+  const after = before.replace(/(version:\s*')\d+\.\d+\.\d+(')/, `$1${version}$2`)
+  if (after === before) {
+    console.log('! version-sync: no version match in dnd-app/mobile/app.config.ts — skipped (check the regex if the config format changed)')
+  } else {
+    writeFileSync(mobileConfigPath, after)
+    console.log(`✓ version-sync: dnd-app/mobile/app.config.ts → v${version}`)
+  }
+} else {
+  console.log('! version-sync: dnd-app/mobile/app.config.ts not found — skipped')
+}
+
 // Keep the version strings in the READMEs in sync so they never drift from
 // package.json again. Each entry: file + a regex whose FIRST capture group is
 // the literal to replace with the new `vX.Y.Z`. Missing files / no-match are
@@ -176,7 +217,8 @@ sh(
   'git add dnd-app/package.json dnd-app/package-lock.json dnd-app/README.md README.md ' +
     'bmo/README.md bmo/pi/README.md docs/ARCHITECTURE.md bmo/docs/AGENTS.md ' +
     'AGENTS.md GEMINI.md .cursorrules docs/GLOSSARY.md docs/SECURITY.md bmo/docs/ARCHITECTURE.md ' +
-    'dnd-app/docs/IPC-SURFACE.md dnd-app/docs/PLUGIN-SYSTEM.md'
+    'dnd-app/docs/IPC-SURFACE.md dnd-app/docs/PLUGIN-SYSTEM.md ' +
+    'dnd-app/mobile/package.json dnd-app/mobile/package-lock.json dnd-app/mobile/app.config.ts'
 )
 sh(`git commit -m "chore(release): bump dnd-app to ${tag}"`)
 sh(`git tag ${tag}`)

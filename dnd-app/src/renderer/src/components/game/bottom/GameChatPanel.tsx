@@ -13,6 +13,7 @@ import { useT } from '../../../i18n'
 import { routePlayerMessageToAiDm } from '../../../services/ai-dm-routing'
 import { speakNarrationThroughBmo } from '../../../services/bmo-narration'
 import { type CommandContext, executeCommand } from '../../../services/chat-commands'
+import { exportChatTranscriptJSON, exportChatTranscriptMarkdown } from '../../../services/io/chat-transcript-export'
 import { lookupContent } from '../../../services/library/content-index'
 import { useNetworkStore } from '../../../stores/network-store'
 import { useAiDmStore } from '../../../stores/use-ai-dm-store'
@@ -330,6 +331,19 @@ export default function ChatPanel({
     trigger3dDice({ formula: result.formula, rolls: result.rolls, total: result.total, rollerName: playerName })
   }
 
+  const handleExportTranscript = (format: 'md' | 'json'): void => {
+    if (chatMessages.length === 0) return
+    const data = format === 'md' ? exportChatTranscriptMarkdown(chatMessages) : exportChatTranscriptJSON(chatMessages)
+    const mime = format === 'md' ? 'text/markdown' : 'application/json'
+    const blob = new Blob([data], { type: mime })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `chat-transcript-${new Date().toISOString().slice(0, 10)}.${format}`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const handleAutocompleteSelect = (command: string): void => {
     setInput(command)
     inputRef.current?.focus()
@@ -540,6 +554,23 @@ export default function ChatPanel({
             title={t('game.chatPanel.commandReference')}
           >
             ?
+          </button>
+          {/* Export transcript — Markdown (mirrors combat-log export). */}
+          <button
+            onClick={() => handleExportTranscript('md')}
+            disabled={chatMessages.length === 0}
+            className="px-1.5 py-1.5 text-xs rounded-lg bg-surface-2 hover:bg-gray-700 text-muted hover:text-gray-200
+              transition-colors cursor-pointer border border-border disabled:opacity-50 disabled:cursor-not-allowed"
+            title={t('game.chatPanel.exportTranscript')}
+            aria-label={t('game.chatPanel.exportTranscript')}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
+              <path
+                fillRule="evenodd"
+                d="M10 2a.75.75 0 0 1 .75.75v8.69l2.22-2.22a.75.75 0 1 1 1.06 1.06l-3.5 3.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 1 1 1.06-1.06l2.22 2.22V2.75A.75.75 0 0 1 10 2ZM3.5 14.75a.75.75 0 0 1 .75.75v.5c0 .414.336.75.75.75h10a.75.75 0 0 0 .75-.75v-.5a.75.75 0 0 1 1.5 0v.5A2.25 2.25 0 0 1 15.75 18h-10A2.25 2.25 0 0 1 3.5 15.75v-.5a.75.75 0 0 1 .75-.75Z"
+                clipRule="evenodd"
+              />
+            </svg>
           </button>
           {/* PHASE-32 32E — X-Card (opt-in; off by default ⇒ absent for existing campaigns). */}
           {campaign?.aiDm?.enabled && campaign?.sessionZero?.xCardEnabled && <XCardButton />}

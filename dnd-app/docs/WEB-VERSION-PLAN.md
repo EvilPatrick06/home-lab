@@ -4,6 +4,9 @@
 > desktop Electron app, auto-deployed whenever the app changes, drivable by
 > Claude-for-Chrome for automated QA.
 
+> **See also:** [`TARGET-PARITY.md`](./TARGET-PARITY.md) — the per-feature
+> desktop / web / embed / mobile capability matrix.
+
 ## Feasibility verdict: HIGH
 
 The renderer (`src/renderer`) is a clean Vite + React + Tailwind SPA:

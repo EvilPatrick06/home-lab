@@ -154,7 +154,7 @@ npm run circular               # dpdm circular-deps report
 npm run check:release          # mirror the CI preflight gates before cutting a tag
 ```
 
-Current baseline: **862 test files**, lint + both tsc projects clean.
+Current baseline: **866 test files**, lint + both tsc projects clean.
 
 ## Multiplayer architecture (Phase 29)
 
@@ -231,7 +231,7 @@ dnd-app/
 │   └── submit/                   Anthropic Batch API submission (per-system pipeline convention — see docs/PLUGIN-SYSTEM.md; empty until a new content system is generated)
 │
 ├── docs/                         IPC-SURFACE, PLUGIN-SYSTEM, RELEASE, DESIGN-CONSTRAINTS, ASSET-OFFLOAD,
-│   │                             DEPENDENCIES, LLAMA-SERVER, SEED-PACKS, UI-LAYERS, WEB-VERSION-PLAN
+│   │                             DEPENDENCIES, LLAMA-SERVER, SEED-PACKS, UI-LAYERS, WEB-VERSION-PLAN, TARGET-PARITY
 │   └── phases/                   open-work plans (see PHASE-INDEX.md)
 ├── resources/                    icons + installer.nsh + chunk-index.json (+ ollama bundle on Windows CI)
 ├── package.json

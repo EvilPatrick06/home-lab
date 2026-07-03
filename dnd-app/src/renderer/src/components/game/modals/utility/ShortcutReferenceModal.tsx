@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useT } from '../../../../i18n'
 import type { ShortcutDefinition } from '../../../../services/keyboard-shortcuts'
-import { formatKeyCombo, getShortcutsByCategory } from '../../../../services/keyboard-shortcuts'
+import { formatKeyCombo, getShortcutsByCategory, shortcutDescriptionKey } from '../../../../services/keyboard-shortcuts'
 
 interface ShortcutReferenceModalProps {
   onClose: () => void
@@ -91,7 +91,9 @@ export default function ShortcutReferenceModal({ onClose }: ShortcutReferenceMod
                       key={shortcut.action}
                       className="flex items-center justify-between py-1.5 px-3 rounded-lg hover:bg-surface-2/50 transition-colors"
                     >
-                      <span className="text-sm text-gray-300">{shortcut.description}</span>
+                      <span className="text-sm text-gray-300">
+                        {t(shortcutDescriptionKey(shortcut.action), { defaultValue: shortcut.description })}
+                      </span>
                       <KeyCombo shortcut={shortcut} />
                     </div>
                   ))}

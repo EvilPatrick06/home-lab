@@ -5,7 +5,8 @@ import {
   formatKeyCombo,
   getShortcutsByCategory,
   hasConflict,
-  type ShortcutDefinition
+  type ShortcutDefinition,
+  shortcutDescriptionKey
 } from '../../services/keyboard-shortcuts'
 import { type KeyCombo, useAccessibilityStore } from '../../stores/use-accessibility-store'
 
@@ -102,7 +103,9 @@ export function KeybindingEditor(): JSX.Element {
                 key={shortcut.action}
                 className="flex items-center justify-between py-1.5 px-2 rounded hover:bg-surface-2/50"
               >
-                <span className="text-sm text-gray-300">{shortcut.description}</span>
+                <span className="text-sm text-gray-300">
+                  {t(shortcutDescriptionKey(shortcut.action), { defaultValue: shortcut.description })}
+                </span>
                 <div className="flex items-center gap-2">
                   <kbd
                     className={`px-2 py-1 text-xs border rounded font-mono min-w-[60px] text-center ${
