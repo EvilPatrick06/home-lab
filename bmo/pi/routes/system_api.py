@@ -133,6 +133,13 @@ def api_health_full():
     if failed_agents and payload["overall"] in ("ok", "unknown"):
         payload["overall"] = "degraded"
     payload["degraded_init_agents"] = failed_agents
+    # Wake-word feedback rolling stats (false-accept rate + wakes/day) so the
+    # wake threshold can be tuned on measured data, not blind. Best-effort.
+    try:
+        from services import wake_events
+        payload["wake"] = wake_events.stats(window_hours=24.0)
+    except Exception:
+        payload["wake"] = {}
     # Pass through any additional keys the checker emits (forward-compat)
     # but document the canonical set above.
     for k, v in raw.items():

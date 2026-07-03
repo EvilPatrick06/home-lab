@@ -67,8 +67,23 @@ Service modules in `bmo/pi/services/` — business logic used by agents + Flask 
 |---|---|
 | `cloud_providers.py` | LLM provider abstraction: Anthropic, Gemini, OpenAI, Groq. |
 | `rag_search.py` | Retrieval over pre-built chunk indexes in `data/rag_data/`. |
-| `build_rag_indexes.py` | Offline script to rebuild RAG indexes. |
+| `build_rag_indexes.py` | Offline script to rebuild RAG indexes. Stamps each index with a `sourceHash` for the freshness guard. |
+| `rag_freshness.py` | Freshness guard for the committed RAG indexes (see note below). |
 | `personality_engine.py` | Injects personality from `data/personality/{quips,adventure_time_quotes}.json`. |
+
+> **RAG index tracking (decision, 2026-07-03).** The ~5.4 MB of generated RAG
+> chunk-index JSONs under `data/rag_data/*.json` are **intentionally committed to
+> git** (not gitignored-and-rebuilt-on-deploy). Rationale: the 8 GB Pi loads RAG
+> at boot with no build step, and rebuilding `chunk-index-dnd.json` means
+> re-chunking the 3.6 MB `data/5e-references/` corpus during every deploy — extra
+> deploy time and a parse/embedding dependency on a memory-constrained box that
+> already OOM-wedges under load. Committing the prebuilt index avoids that. To
+> close the *silent-drift* cost of committing, `save_index` stamps a `sourceHash`
+> and `services/rag_freshness.py` (guarded by `tests/test_rag_freshness.py`)
+> surfaces a `stale` status when `data/5e-references/` changes without a rebuild.
+> **After editing `data/5e-references/`, rerun `services/build_rag_indexes.py`**
+> to refresh the index (and its `sourceHash`). The guard is the check surface;
+> a preflight/CI hook can call `rag_freshness.check_freshness()` to fail on drift.
 
 ### Infrastructure (5)
 

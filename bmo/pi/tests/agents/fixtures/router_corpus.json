@@ -1,0 +1,50 @@
+{
+  "_comment": "Labeled corpus for the Tier-2 keyword router confusion-matrix eval. Each entry is an utterance (no explicit !prefix) and the agent it should route to via KEYWORD_PATTERNS. Kept in sync by hand as keywords change; a route regression here surfaces a keyword collision (a new keyword silently stealing another agent's routes). See test_router_eval.py.",
+  "cases": [
+    {"utterance": "read the file at src/main.py", "expected": "code"},
+    {"utterance": "help me debug this crash", "expected": "code"},
+    {"utterance": "fix the bug in the parser", "expected": "code"},
+    {"utterance": "run npm install for me", "expected": "code"},
+    {"utterance": "what does this code do", "expected": "code"},
+
+    {"utterance": "roll initiative for the party", "expected": "dnd_dm"},
+    {"utterance": "start a campaign in the forgotten realms", "expected": "dnd_dm"},
+    {"utterance": "be the dm for tonight", "expected": "dnd_dm"},
+    {"utterance": "make a saving throw against poison", "expected": "dnd_dm"},
+
+    {"utterance": "play some jazz music", "expected": "music"},
+    {"utterance": "skip song please", "expected": "music"},
+    {"utterance": "pause music now", "expected": "music"},
+    {"utterance": "what's playing right now", "expected": "music"},
+
+    {"utterance": "turn on the kitchen lights", "expected": "smart_home"},
+    {"utterance": "cast to tv the living room", "expected": "smart_home"},
+    {"utterance": "set the lights to rainbow mode", "expected": "smart_home"},
+    {"utterance": "open netflix on the tv", "expected": "smart_home"},
+
+    {"utterance": "set a timer for ten minutes", "expected": "timer"},
+    {"utterance": "cancel alarm for the morning", "expected": "timer"},
+    {"utterance": "wake me up at seven", "expected": "timer"},
+
+    {"utterance": "add event to my calendar for friday", "expected": "calendar"},
+    {"utterance": "what's on my schedule this week", "expected": "calendar"},
+    {"utterance": "delete event from tomorrow", "expected": "calendar"},
+
+    {"utterance": "what's the weather today", "expected": "weather"},
+    {"utterance": "will it rain later", "expected": "weather"},
+    {"utterance": "give me the forecast", "expected": "weather"},
+
+    {"utterance": "run a security audit on the app", "expected": "security"},
+    {"utterance": "check vulnerabilities in the deps", "expected": "security"},
+
+    {"utterance": "run the tests for the module", "expected": "test"},
+    {"utterance": "show me the test coverage", "expected": "test"},
+
+    {"utterance": "search for the latest on rust async", "expected": "research"},
+    {"utterance": "look up the population of tokyo", "expected": "research"},
+
+    {"utterance": "check health of the server", "expected": "monitoring"},
+    {"utterance": "what's the disk space left", "expected": "monitoring"},
+    {"utterance": "show cpu usage right now", "expected": "monitoring"}
+  ]
+}

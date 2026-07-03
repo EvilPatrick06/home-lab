@@ -391,6 +391,17 @@ class PersonalityEngine:
         return self._settings.get("enabled", True)
 
     def _is_sleep_hours(self) -> bool:
+        # Quip suppression uses the personality engine's own sleep_hours window
+        # (default [0, 7]) AND the shared quiet-hours policy, so an active
+        # bedtime scene or the global quiet window also silences quips — one
+        # bedtime policy across every speak surface (notifications, quips, wake).
+        try:
+            from services import quiet_hours
+            scene_svc = getattr(self._voice, "_scene_service", None) if self._voice else None
+            if quiet_hours.is_quiet_now(scene_service=scene_svc):
+                return True
+        except Exception:
+            pass
         sleep = self._settings.get("sleep_hours", [0, 7])
         if len(sleep) != 2:
             return False

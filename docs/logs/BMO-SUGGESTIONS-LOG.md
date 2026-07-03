@@ -20,6 +20,27 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-07-03] Speaker context is now plumbed to the agent layer, but the full per-speaker DATA MODEL is still unbuilt — lists/calendar/personality + the memory `profile`/`preferences` blobs remain single-user
+
+- **Category:** future-idea (capability)
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-features-batch (follow-up to the resolved 2026-06-29 speaker-context plumbing)
+
+**Description:**
+The 2026-06-29 "speaker dropped before the agent layer" entry is resolved for the **plumbing**: `Orchestrator.handle` now passes `context={"speaker": speaker}`, `BaseAgent.speaker_bucket(context)` resolves the per-speaker bucket (with a `DEFAULT_USER` fallback for unknown/single-user), and `learning_agent` uses it to attribute + filter saved facts per speaker. What is **not** yet done is re-keying the remaining genuinely user-scoped stores by that bucket: `list_service` lists, calendar, the personality engine's per-user greeting, and the learning agent's `profile`/`preferences` blobs (still global maps, only `facts`/`entries` are speaker-stamped today). The seam is in place — this is the larger data-layer piece deliberately deferred.
+
+**Proposed fix / improvement:**
+- [ ] Re-key `learning_agent.profile`/`preferences`, `list_service`, and calendar reads/writes by `speaker_bucket`, migrating the existing global blob into the `DEFAULT_USER` bucket so nothing regresses.
+- [ ] Gate the multi-user code paths on `len(profiles) > 1` so single-profile households behave identically to today.
+- [ ] Add per-store isolation tests mirroring the learning-agent ones (speaker A's list ≠ speaker B's).
+
+**Blocked by:** none (additive; the `speaker_bucket` seam already exists).
+
+**Related files:** `bmo/pi/agents/base_agent.py` (`speaker_bucket`, `DEFAULT_USER`), `bmo/pi/agents/learning_agent.py`, `bmo/pi/services/list_service.py`, `bmo/pi/services/personality_engine.py`.
+
+**Related entries:** BMO-RESOLVED-ISSUES [2026-06-29] "Speaker identity resolved every voice turn but dropped before the agent layer" (the plumbing this builds on).
+
 ### [2026-07-02] `agent.py`'s `BmoAgent` is an 80-method god-class — 50 embedded `_handle_*` device-command handlers (music, audio/BT, scenes, ...) live inside the LLM-routing brain, the un-logged remainder after the D&D-helper extraction
 
 - **Category:** debt
@@ -97,72 +118,6 @@ Two related docs-hygiene finds. (1) `bmo/docs/STATUS-BOARD-MIGRATION.md` contain
 **Related entries:** none prior on the status-board docs; complements the 2026-07-02 `.env.template` drift entry (same "docs drifted from reality" family).
 
 ---
-
-### [2026-07-02] No TTS phrase cache — every recurring utterance (quips, timer/notification announcements, greetings) re-hits Fish Audio, adding latency and going silent with it during the logged API timeouts
-
-- **Category:** future-idea (UX / reliability), performance
-- **Severity:** low
-- **Domain:** bmo
-- **Discovered by:** bmo-suggestor
-- **During:** Scheduled improvement-suggestion scan of the voice/TTS path
-
-**Description:**
-`services/voice/speech_output.py` synthesizes every utterance fresh — there is no cache layer anywhere in the TTS worker (`grep -i cache` finds nothing). Yet a large share of what BMO says is *deterministic, recurring text*: personality quips and Adventure Time quotes come from static JSON (`data/personality/quips.json`, `adventure_time_quotes.json`), time-of-day greetings, timer/routine completions, and notification announcement templates (`notification_service._format_announcement`) all repeat with identical or near-identical strings. Each replay pays full Fish Audio round-trip latency and depends on the API being up — and BMO-ISSUES-LOG already records CRITICAL Fish Audio timeout windows where the assistant goes silent. The Piper fallback (`piper_bmo` in `speech_output.py:74`) keeps *some* voice during outages but at a different/lower voice quality.
-
-**Proposed fix / improvement:**
-- [ ] Add a content-addressed disk cache keyed on `hash(provider + voice_id + text)` → WAV under `data/` (gitignored), checked before synthesis in `tts_worker`; write-through on successful synthesis, with a size/LRU cap.
-- [ ] Optionally pre-warm it at startup from the static quip/quote JSON and the fixed announcement templates.
-- [ ] Result: recurring phrases play instantly, keep primary-voice quality even while Fish Audio is timing out, and reduce API usage; novel sentences behave exactly as today.
-
-**Blocked by:** —
-
-**Related files:** `bmo/pi/services/voice/speech_output.py`, `bmo/pi/services/personality_engine.py`, `bmo/pi/data/personality/quips.json`, `bmo/pi/services/notification_service.py`
-
-**Related entries:** BMO-ISSUES-LOG [2026-06-29] "Intermittent Fish Audio TTS timeouts raise CRITICAL monitor alerts"
-
-### [2026-07-02] Wake-word quality has no feedback loop — near-threshold scores go only to text logs, and nothing records whether a wake actually led to a real command, so false-accept/false-reject rates are unknowable and the threshold is tuned blind
-
-- **Category:** future-idea (observability / UX)
-- **Severity:** low
-- **Domain:** bmo
-- **Discovered by:** bmo-suggestor
-- **During:** Scheduled improvement-suggestion scan of the wake pipeline
-
-**Description:**
-`services/voice/wake_detector.py` logs openwakeword scores above 0.04 and Porcupine RMS diagnostics to the app log (lines ~320–323), but no wake event is persisted as *data*: there is no record of score-at-trigger, and — more importantly — no linkage to the outcome of the turn that followed (STT returned empty / router found no intent / user said "never mind" vs. a real command executed). That outcome signal is the ground truth for false accepts, and it already exists downstream in the pipeline; it is just never joined back to the wake event. Meanwhile the training tooling is already in the tree (`wake/record_wake_clips.py`, `wake/clips/`, `wake/enroll_voice.py`), so the raw material for retraining/tuning exists but nothing feeds it. `WAKE_OWW_THRESHOLD` / `PORCUPINE_SENSITIVITY` are hand-set constants with no measured basis — the same "no measured accuracy eval" gap already logged for the Tier-2 keyword router, one layer down the stack.
-
-**Proposed fix / improvement:**
-- [ ] Persist a small wake-event record (ts, engine, score, and the turn outcome: transcribed-command / empty-STT / no-intent / interrupted) via `metrics_counters` or a JSONL in `data/`.
-- [ ] Surface rolling false-accept rate (wakes with empty/no-intent turns) and wakes-per-day on `/api/health/full` / the status board.
-- [ ] Optionally: keep the trailing audio snippet for scored-but-rejected near-misses (with a privacy-conscious cap) to feed `record_wake_clips.py`-style retraining, and document a threshold-tuning procedure based on the measured rates.
-
-**Blocked by:** —
-
-**Related files:** `bmo/pi/services/voice/wake_detector.py`, `bmo/pi/wake/record_wake_clips.py`, `bmo/pi/services/metrics_counters.py`, `bmo/pi/services/voice/voice_metrics.py`
-
-**Related entries:** BMO-SUGGESTIONS-LOG [2026-06-29] "Tier-2 keyword router has example-assertion tests but no measured accuracy / confusion-matrix eval"
-
-### [2026-07-02] Notification TTS announcements have no quiet-hours gate — bedtime mode mutes the mic and the personality engine sleeps, but a 3 a.m. phone notification still speaks aloud; each TTS surface hand-rolls (or lacks) its own night policy
-
-- **Category:** future-idea (UX)
-- **Severity:** low
-- **Domain:** bmo
-- **Discovered by:** bmo-suggestor
-- **During:** Scheduled improvement-suggestion scan of the notification path
-
-**Description:**
-Three surfaces can make BMO speak or stay quiet at night, and each has a different, uncoordinated policy: the wake listener suppresses the *mic* in bedtime mode (`wake_detector.py:234` "Suppressed (bedtime mode) — mic muted"), the personality engine has its own `_is_sleep_hours()` gate for quips (`personality_engine.py:393`), but `notification_service._handle_notification` → `self.voice.speak(announcement, ...)` (line ~357) goes straight to TTS after blocklist + dedup with no time-of-day / bedtime check at all (no `sleep`/`night`/`quiet` logic anywhere in the module). So a Discord ping or email arriving overnight is announced out loud in the room. As-read caveat: gating may conceivably happen inside the voice layer, but no such check was found in `speech_output.py` either — it plays whatever is queued.
-
-**Proposed fix / improvement:**
-- [ ] Extract one shared quiet-hours/bedtime policy (single source: settings_store + the existing bedtime flag) with a `may_speak(kind)` check.
-- [ ] Apply it in `notification_service` (store the notification silently, skip only the announcement), and refactor `personality_engine` + wake bedtime handling to consume the same policy instead of private copies.
-- [ ] Allow a critical-override class (e.g. monitoring CRITICAL alerts) to bypass, and consider a morning "while you slept" digest for suppressed announcements.
-
-**Blocked by:** —
-
-**Related files:** `bmo/pi/services/notification_service.py`, `bmo/pi/services/personality_engine.py`, `bmo/pi/services/voice/wake_detector.py`, `bmo/pi/services/settings_store.py`
-
-**Related entries:** —
 
 ### [2026-07-02] The kiosk frontend is a two-file god-module — `index.html` (2,492 lines of inline Alpine markup) + `bmo.js` (4,837 lines) with no module split or JS tests, the frontend twin of the already-logged Python god-module pattern
 
@@ -243,55 +198,6 @@ Meanwhile the genuinely dev-only contents (`dev/benchmarks/`, `dev/diagnostics/`
 
 **Related entries:** this log, 2026-06-28 "`pi/scripts/` has no README and ships two non-standard `*.router-deployed` / `*.reference` notify copies" (sibling "what here is operational vs. ad-hoc is unclear" smell).
 
-### [2026-06-29] Speaker identity is resolved every voice turn but dropped before the agent layer — `run_agent`/`agent.run` never receive `speaker`, so memory/lists/learning/personality stay single-user despite BMO already knowing who is talking
-
-- **Category:** future-idea (capability / UX)
-- **Severity:** medium
-- **Domain:** bmo
-- **Discovered by:** bmo-suggestor
-- **During:** read-only review of the voice pipeline → orchestrator → agent dispatch path and the per-user state held by the memory/list/learning agents
-
-**Description:**
-Every voice turn already pays for speaker identification: `VoicePipeline.identify_speaker()` runs at `services/voice/voice_pipeline.py:436` (its own recorded latency stage, `_record_stage("identify_speaker", …)`), the result gates unregistered speakers (`if speaker == "unknown" and profiles: …ignore`), and the `speaker` string is threaded into the chat callbacks (`_chat_stream_callback(text, speaker)` / `_chat_callback(text, speaker)`) and on into `Orchestrator.handle(message, speaker, history, services, …)` (`agents/orchestrator.py:85`). **But the orchestrator uses `speaker` only for telemetry/UX emits** — the `agent_selected` SocketIO event and the plan-mode passthrough — and then calls `run_agent(agent_name, clean_message, history=history)` **without it**. `run_agent` / `agent.run(message, history, context)` have no `speaker`/`user` parameter, and `context` is `None` on the normal path, so the identified speaker is **discarded before any agent runs**. The downstream agents are correspondingly single-user: `agents/learning_agent.py` persists one global `profile` + `entries` blob (`get_profile()` returns `self._memory.get("profile", {})`, not a per-speaker map), and lists / memory / calendar / personality are likewise global. Net: the system spends inference resolving *who* is speaking, supports *multiple* enrolled voice profiles (`data/voice_profiles.json`, `services/voice/speaker_enrollment.py`), then throws that identity away — so "remember that I like X", "add eggs to my list", or a personalized greeting from any household member all read and write the same shared store, and BMO can never answer "what's on **my** calendar" differently per person even though it knows the speaker.
-
-**Hypothesis / root cause:** speaker-ID was built for the *gate* use case (ignore strangers / label the transcript line) first; threading it through the agent execution context and re-keying the per-user stores (learning/memory/lists) is a larger, separate piece of work that was never done, so `speaker` stops at the orchestrator boundary.
-
-**Proposed fix / improvement:**
-- [ ] Add an optional `speaker`/`user` field to the agent call path — either widen `run_agent(..., context=...)` to always pass `{"speaker": speaker}` from `Orchestrator.handle`, or add a first-class param — so agents can opt into per-user behavior without changing the router.
-- [ ] Re-key the genuinely user-scoped stores by speaker: `learning_agent` profile/entries, `list_service` lists, and the personalization the personality engine could use (e.g. per-user greeting), with a clear default/fallback bucket for `"unknown"` / single-user setups so nothing regresses when only one profile exists.
-- [ ] Keep it behavior-neutral by default (one enrolled profile → identical behavior to today) and gate the multi-user paths on `len(profiles) > 1`, so the feature only activates in actual multi-person households.
-- [ ] Add tests: speaker A's "remember X" must not surface for speaker B; unknown speaker falls back to the shared bucket.
-
-**Blocked by:** none (additive; the identity value is already computed and already reaches the orchestrator).
-
-**Related files:** `bmo/pi/services/voice/voice_pipeline.py:436` (`identify_speaker`), `:1448` (definition), `bmo/pi/agents/orchestrator.py:85` (`handle` — receives `speaker`), `:124` (`run_agent` — does not), `bmo/pi/agents/learning_agent.py` (global `profile`/`entries`), `bmo/pi/services/list_service.py`, `bmo/pi/services/voice/speaker_enrollment.py`, `bmo/pi/data/voice_profiles.json`.
-
-**Related entries:** Future-idea 2026-06-28 (agent-registration observability) is adjacent in that both concern the orchestrator/agent layer, but this is the un-flagged *speaker-context-not-propagated* gap, not a registration/observability one.
-
-### [2026-06-29] Tier-2 keyword router has example-assertion tests but no measured accuracy / confusion-matrix eval, so a newly-added keyword can silently steal routes among the ~28 agents' hand-maintained substring lists
-
-- **Category:** future-idea (DX / observability), UX
-- **Severity:** low
-- **Domain:** bmo
-- **Discovered by:** bmo-suggestor
-- **During:** read-only review of `agents/router.py` Tier-2 keyword scoring and its test coverage in `tests/agents/test_0_routing_accuracy.py`
-
-**Description:**
-The Tier-2 keyword router (`agents/router._check_keywords`) scores each agent by raw substring hit count (`count = sum(1 for kw in keywords if kw in lower)`) and returns `max(scores, key=scores.get)`. The `KEYWORD_PATTERNS` map is ~28 agents' worth of hand-maintained substrings, several of them very generic — e.g. `lore` owns `"who is"`, `"what is a"`, `"history of"`; `rules` owns `"how does"`, `"can i"`, `"does this work"`. These collide easily with each other and with `conversation`, and ties are resolved by `max()` returning the **first** key in `KEYWORD_PATTERNS` insertion order (today `code` wins ties) — a determinism-by-declaration-order the existing tests explicitly tolerate (`test_0_routing_accuracy.py:123,146`: "either agent is a valid result"). Coverage is solid for the *cases someone thought to assert*, but it is pass/fail example assertions — **there is no aggregate accuracy number, no per-agent confusion matrix, and no labeled corpus**. So when someone adds a keyword to agent X that happens to be a substring of utterances meant for agent Y, nothing fails unless an assertion already pinned that exact X/Y pair. Per-tier *counters* exist (`bmo_router_tier_keyword_total`, etc., added in the resolved 2026-06-23 telemetry work) but they count *which tier fired*, not *whether the chosen agent was correct* — so misroutes, the single biggest voice-UX failure mode, remain unmeasured. The file name `test_0_routing_accuracy.py` promises an accuracy measurement the file does not actually compute.
-
-**Hypothesis / root cause:** the router grew agent-by-agent with each new agent appending its own keyword list; tests were added per agent as examples rather than as a corpus-driven accuracy gate, and the telemetry pass added tier counters but not an outcome/correctness signal.
-
-**Proposed fix / improvement:**
-- [ ] Convert the scattered example assertions into a single labeled corpus (`utterance → expected_agent`, dozens per agent incl. known-tricky generic phrases) and compute an **accuracy %** + a **confusion matrix** in the test, failing on a regression threshold and printing the top confused agent pairs — turning the existing telemetry/board metric into a measured DX gate.
-- [ ] Use the confusion output to find and tighten the genuinely collision-prone generic keywords (`"who is"`, `"what is a"`, `"how does"`, `"can i"`), e.g. require a longer/multi-word anchor or a minimum score margin before Tier-2 commits (fall through to default/Tier-3 on a weak single-keyword tie).
-- [ ] Optional closed loop: now that per-tier counters exist, periodically sample real (anonymized) routed utterances + chosen agent into the corpus so the eval reflects production phrasing, not just hand-written examples.
-
-**Blocked by:** none.
-
-**Related files:** `bmo/pi/agents/router.py` (`_check_keywords`, `KEYWORD_PATTERNS`, `route`), `bmo/pi/tests/agents/test_0_routing_accuracy.py`, `bmo/pi/services/metrics_counters.py`.
-
-**Related entries:** Resolved 2026-06-23 (router per-tier telemetry + Tier-3 re-enable) — that added *tier* counters; this is the un-addressed *routing-correctness* measurement gap on top of it.
-
 ### [2026-06-29] `app.py` is a 3,087-line half-decomposed Flask god-module — PHASE-16 extracted 7 blueprints but ~20 domains + 145 inline routes still live in it, with no tracking of what remains
 
 - **Category:** future-idea (structure / DX), debt
@@ -314,27 +220,6 @@ The Tier-2 keyword router (`agents/router._check_keywords`) scores each agent by
 
 **Related entries:** Future-ideas 2026-06-28 (`services/monitoring.py` god-class) and the resolved `VoicePipeline` / social-bot / DM-bot decompositions — same oversized-module-behind-a-stable-surface pattern; this is the route-layer instance and the only one that is explicitly mid-migration.
 
-### [2026-06-29] ~5.4 MB of machine-generated RAG chunk-index JSON is committed to git (`data/rag_data/*.json`), regenerable from tracked sources and with no drift/freshness guard
-
-- **Category:** debt (repo-hygiene / portability)
-- **Severity:** low
-- **Domain:** bmo
-- **Discovered by:** bmo-cleanup
-- **During:** read-only scan of the largest tracked data artifacts under `bmo/pi/data/`
-
-**Description:**
-`bmo/pi/data/rag_data/` holds five tracked, machine-generated RAG indexes totalling **~5.4 MB** — `chunk-index-dnd.json` alone is **5.5 MB** (the single largest file in the bmo tree), plus `chunk-index-{anime,games,movies,music}.json`. They are **not** gitignored (`git check-ignore` returns non-zero; `git ls-files` lists all five) and are produced by the tracked offline script `services/build_rag_indexes.py`, which `save_index()`s them into `RAG_DIR` from the tracked `data/5e-references/` (3.6 MB, 62 files) and the other knowledge sources. `docs/SERVICES.md:70` describes `build_rag_indexes.py` as an "offline script to rebuild RAG indexes," so the artifacts are reproducible from sources already in the repo. Two smells follow: (1) **repo bloat** — a 5.4 MB regenerable blob is carried in every clone/worktree (this scanner's own `git worktree add` checked out 6,406 files including it), and a regenerated index is a 5 MB churning diff whenever it is rebuilt; (2) **silent drift** — each index carries a frozen `"createdAt": "2026-03-06T..."` snapshot with no check that it still matches the current `data/5e-references/` content, so edits to the source markdown leave the committed index stale until someone remembers to rerun the script (the only commit touching `chunk-index-dnd.json` is the original monorepo-reorg import, i.e. it has never been regenerated in-tree). This is hygiene/debt, not a bug — RAG works today — but it is the kind of large committed generated artifact that is usually either gitignored-and-rebuilt or, if intentionally committed, documented + freshness-checked, and here it is neither.
-
-**Hypothesis / root cause:** the indexes were generated once and committed alongside the source references during the monorepo reorg (so the Pi could load RAG without a build step), but no decision was recorded about whether they should be tracked, and no regeneration/freshness step was wired, so they sit as a frozen 5 MB snapshot.
-
-**Proposed fix / improvement (pick one, deliberately):**
-- [ ] **Option A — stop tracking, rebuild on deploy.** Add `bmo/pi/data/rag_data/*.json` to `.gitignore`, `git rm --cached` them, and have `build_rag_indexes.py` run as a deploy/first-boot step (`scripts/deploy.sh` or `setup-bmo.sh`). Only if the rebuild cost + any embedding-model dependency is acceptable on the Pi — verify before choosing this.
-- [ ] **Option B — keep tracked, but document + guard.** If they are committed on purpose (Pi can't cheaply rebuild), record that in `bmo/docs/SERVICES.md` / `DESIGN-CONSTRAINTS.md` ("these indexes are intentionally committed; rebuild with `build_rag_indexes.py` after editing `data/5e-references/`") and add a small preflight/CI freshness check comparing each index's source-hash/`createdAt` against `data/5e-references/` so a stale index is surfaced instead of drifting silently.
-- [ ] Either way, note that `build_rag_indexes.py:15` resolves `RAG_DIR` via the hardcoded `~/home-lab/...` path — that portability angle is already covered by the path-centralization entry (BMO-RESOLVED 2026-06-24, `BMO_ROOT`/`paths.py`); cross-referenced here, not re-logged.
-
-**Related files:** `bmo/pi/data/rag_data/chunk-index-dnd.json` (5.5 MB) + `chunk-index-{anime,games,movies,music}.json`; generator `bmo/pi/services/build_rag_indexes.py:15,44,366`; sources `bmo/pi/data/5e-references/` (tracked); `bmo/pi/docs/SERVICES.md:70`; `bmo/.gitignore`.
-
-**Related entries:** Debt (BMO-RESOLVED 2026-06-24) "~860 KB of orphaned vendored frontend assets in `web/static/`" — same large-tracked-artifacts-that-should-not-be-in-git smell (there the fix was deletion; here it is gitignore-and-rebuild or document-and-guard). Future-idea 2026-06-28 (`services/game/` subpackage incl. a `rag/` home for `rag_search.py`+`build_rag_indexes.py`) — that is about the RAG *code* location; this entry is about the generated RAG *data* artifacts, distinct.
 ### [2026-06-29] `hardware/fan_control.py` is the one hardware module left out of the off-Pi sim/test/logging parity — unguarded `import smbus`, no `SimFanController`, bare `print()`, and an undocumented `smbus`-vs-`smbus2` / system-python-vs-venv split
 
 - **Category:** future-idea (portability, DX)

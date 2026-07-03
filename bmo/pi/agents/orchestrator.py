@@ -116,8 +116,14 @@ class AgentOrchestrator:
         if agent_name == "plan" and self.mode == OrchestratorMode.NORMAL:
             return self._enter_plan_mode(clean_message, speaker, history)
 
-        # Run the selected agent
-        result = self.run_agent(agent_name, clean_message, history=history)
+        # Run the selected agent. Thread the identified speaker into the agent
+        # context so per-speaker behavior (memory/lists/learning) can key off
+        # it; agents that ignore context are unaffected. "unknown"/blank falls
+        # back to the shared default-user bucket downstream.
+        result = self.run_agent(
+            agent_name, clean_message, history=history,
+            context={"speaker": speaker},
+        )
 
         return self._result_to_dict(result, speaker)
 

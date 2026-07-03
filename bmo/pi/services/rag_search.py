@@ -533,14 +533,22 @@ def build_index_from_text(text: str, source_name: str, domain: str,
     return chunks
 
 
-def save_index(chunks: list[Chunk], path: str) -> None:
-    """Save chunk index to JSON file (version 2 = content-stable ids)."""
+def save_index(chunks: list[Chunk], path: str, source_hash: str | None = None) -> None:
+    """Save chunk index to JSON file (version 2 = content-stable ids).
+
+    If source_hash is given it is stamped as sourceHash so the RAG
+    freshness guard (services/rag_freshness.py) can detect when the generating
+    source has drifted from the committed index. Callers that omit it produce a
+    legacy-shaped index (guard reports "legacy", never falsely "stale").
+    """
     os.makedirs(os.path.dirname(path), exist_ok=True)
     data = {
         "version": 2,
         "createdAt": __import__("datetime").datetime.now().isoformat(),
         "chunks": [c.to_dict() for c in chunks],
     }
+    if source_hash is not None:
+        data["sourceHash"] = source_hash
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f)
 

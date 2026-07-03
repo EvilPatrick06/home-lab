@@ -410,11 +410,36 @@ class VoicePipeline:
     def _on_wake(self):
         """Called when wake word is detected. Records, transcribes, processes, then listens for follow-ups."""
         response_text = self._process_one_turn(is_follow_up=False)
+        # Feedback: join the wake score/engine to the turn outcome so
+        # false-accept/reject rates become measurable (wake_events store).
+        self._record_wake_outcome(response_text)
         if not response_text:
             return
 
         # Enter follow-up conversation mode — no wake word needed
         self._follow_up_loop()
+
+    def _record_wake_outcome(self, response_text) -> None:
+        """Persist the wake event + its turn outcome (best-effort).
+
+        response_text is None (no speech/empty STT -> probable false accept),
+        "" (user said goodbye -> interrupted), or a real response (command).
+        """
+        try:
+            from services import wake_events
+            if response_text is None:
+                outcome = "empty"
+            elif response_text == "":
+                outcome = "interrupted"
+            else:
+                outcome = "command"
+            wake_events.record_wake(
+                engine=getattr(self, "_wake_last_engine", "unknown") or "unknown",
+                score=getattr(self, "_wake_last_score", None),
+                outcome=outcome,
+            )
+        except Exception:
+            pass
 
     def start_conversation(self):
         """Enter conversation mode programmatically (from alarms, notifications, etc.).

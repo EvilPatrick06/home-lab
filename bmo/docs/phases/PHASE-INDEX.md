@@ -137,6 +137,20 @@
 > action). The bmo-phase-executer updates the Status column (`pending` ->
 > `in progress` -> `done`) as it ships each plan.
 
+> **PHASE-14/15 duplicate-authoring reconciliation (2026-07-03).** A stale
+> second `auto/bmo-phase-maker` run (tip `2b41551c`) re-authored these same
+> two phases from the same `QA-report-2026-06-28-3` under different slugs
+> (`PHASE-14-ide-csp-and-tab-doc-truth.md` / `PHASE-15-chat-history-hygiene.md`),
+> which is why it would not merge (duplicate PHASE-14/15 index rows). The
+> **merged pair above is canonical**; the second run's improvements are already
+> captured here — PHASE-14's CSP fix serves the fonts from the already-allowlisted
+> `cdn.jsdelivr.net` (no CSP widening), and PHASE-15 reuses the existing
+> `/api/chat/clear` flow plus a new bounded per-message delete endpoint. Nothing
+> unique to `2b41551c` remains unported (it carried only the duplicate phase
+> docs, no code), and it has **no remaining remote/local branch** — the stale
+> `auto/bmo-phase-maker` ref was already deleted, so there is nothing left to
+> delete. Resolves BMO-ISSUES-LOG [2026-06-29] `auto/bmo-phase-maker` won't-merge.
+
 
 > **Provenance of this batch (16-17):** PHASE-16..17 were consolidated from the
 > two 2026-06-29 QA passes (`QA/QA-report-2026-06-29.md`, run 1, live `605e712f`,
