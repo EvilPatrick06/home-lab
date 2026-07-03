@@ -375,10 +375,31 @@ export function usePlayerState(defaultState, user = null) {
           return;
         }
 
-        const cloudTime = cloud.updatedAt ? new Date(cloud.updatedAt).getTime() : 0;
-        const lastSyncTime = new Date(lastSync).getTime();
+        // "Has the cloud changed since this device last synced?" is decided
+        // by comparing cloud.updated_at against the recorded lastSyncedAt for
+        // IDENTITY, never for ordering. Every lastSyncedAt this hook records
+        // is a value that was actually stored on the cloud row (pushSave's
+        // read-back, a pullSave, or a Realtime payload), so "same stamp"
+        // means nobody has pushed since. The previous
+        // `cloudTime <= lastSyncTime` ordering compared stamps minted by
+        // DIFFERENT devices' wall clocks: a device with a behind clock could
+        // push newer work that then looked "not newer" here, and a dirty
+        // sign-in on this device would silently overwrite it with no
+        // MergeChooser (ISSUES-LOG-DUNGEON-SCHOLAR 2026-07-02 clock-skew
+        // entry). Epoch-equality is accepted alongside string equality only
+        // because the same stored instant can round-trip in different
+        // serializations (client ISO `...Z` vs PostgREST `+00:00`); clock
+        // skew changes the instant itself, so this cannot reintroduce the
+        // ordering bug.
+        const sameInstant = (a, b) => {
+          if (!a || !b) return false;
+          if (a === b) return true;
+          const ta = new Date(a).getTime();
+          return Number.isFinite(ta) && ta === new Date(b).getTime();
+        };
+        const cloudUnchanged = sameInstant(cloud.updatedAt, lastSync);
 
-        if (cloudTime <= lastSyncTime) {
+        if (cloudUnchanged) {
           if (wasDirty) {
             const { updatedAt } = await pushSave(user.id, local);
             lastKnownCloudUpdatedAtRef.current = updatedAt;

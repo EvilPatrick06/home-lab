@@ -38,20 +38,31 @@ export async function checkRlsExposure(userId) {
  * Upsert the player state for a user. Caller is responsible for
  * ensuring `userId` matches the authenticated user.
  *
- * Returns { updatedAt } — the timestamp now stored on the row, so the
- * caller can record exactly what's in the cloud without depending on
- * client clock skew.
+ * Returns { updatedAt } — the timestamp actually stored on the row (read
+ * back from the upsert, server-authoritative when the touch trigger from
+ * docs/supabase-setup.md is installed), so the caller can record exactly
+ * what's in the cloud without depending on client clock skew.
  */
 export async function pushSave(userId, blob) {
-  const updatedAt = new Date().toISOString();
-  const { error } = await supabase.from('saves').upsert({
-    user_id: userId,
-    data: blob,
-    updated_at: updatedAt,
-    schema_ver: CURRENT_SCHEMA_VER,
-  });
+  // The client stamp is only a fallback for deployments whose `saves` table
+  // lacks the server-side touch trigger (docs/supabase-setup.md): with the
+  // trigger installed the DB overwrites it with its own now(), and the
+  // .select() read-back below returns that authoritative stored value.
+  // Stamps minted by different devices' wall clocks must never be compared
+  // for ordering — see the sign-in reconciliation in usePlayerState.js.
+  const clientStamp = new Date().toISOString();
+  const { data, error } = await supabase
+    .from('saves')
+    .upsert({
+      user_id: userId,
+      data: blob,
+      updated_at: clientStamp,
+      schema_ver: CURRENT_SCHEMA_VER,
+    })
+    .select('updated_at');
   if (error) throw error;
-  return { updatedAt };
+  const stored = Array.isArray(data) && data.length > 0 ? data[0]?.updated_at : null;
+  return { updatedAt: stored || clientStamp };
 }
 
 /**

@@ -53,11 +53,37 @@ create policy "own save"    on saves    for all
 
 -- Enable Realtime so signed-in clients receive cross-device live updates.
 alter publication supabase_realtime add table saves;
+
+-- Make saves.updated_at SERVER-authoritative. Without this trigger the
+-- column keeps whatever stamp the pushing device's wall clock minted, and a
+-- device with a skewed clock can make its newer save look older than another
+-- device's last sync. The app compares stamps for identity (not ordering),
+-- so it works either way — but the trigger removes client clocks from the
+-- picture entirely and is strongly recommended.
+create or replace function public.touch_saves_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at := now();
+  return new;
+end
+$$;
+
+create trigger saves_touch_updated_at
+  before insert or update on saves
+  for each row execute function public.touch_saves_updated_at();
 ```
 
 If you set up the project before this Realtime line existed, run that single
 `alter publication ...` statement on its own in the SQL editor — it's a no-op
 if the table is already in the publication.
+
+Likewise, if you set up the project before the `touch_saves_updated_at`
+trigger existed, run the `create or replace function ... create trigger ...`
+block above once in the SQL editor. Existing rows need no backfill: the
+trigger re-stamps each row on its next write, and the client records whatever
+stamp the row actually holds.
 
 ## 3. Register a GitHub OAuth app
 
