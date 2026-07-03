@@ -156,7 +156,9 @@ export interface FactionReputation {
 export interface ChunkIndex {
   /** 1 = positional ids (legacy, migrated at load); 2 = content-stable hash ids (PHASE-24 24A). */
   version: number
-  createdAt: string
+  /** Wall-clock stamp on runtime (userData) rebuilds only; the committed/bundled
+   *  index omits it so regeneration is deterministic (byte-reproducible). */
+  createdAt?: string
   sources: ChunkSource[]
   chunks: Chunk[]
 }

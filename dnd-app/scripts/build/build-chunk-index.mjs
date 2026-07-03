@@ -275,9 +275,11 @@ for (const source of SOURCES) {
   })
 }
 
+// No wall-clock createdAt stamp: the index must be byte-reproducible from its
+// sources so regenerating unchanged content is diff-free and the --check
+// drift gate below can byte-compare against the committed file.
 const index = {
   version: 2,
-  createdAt: new Date().toISOString(),
   sources: sourceStats,
   chunks: allChunks
 }
@@ -288,7 +290,24 @@ if (!existsSync(outDir)) {
 }
 
 const outPath = join(outDir, 'chunk-index.json')
-writeFileSync(outPath, JSON.stringify(index))
+const serialized = JSON.stringify(index)
+
+// `--check` drift gate: verify the committed index is byte-identical to a
+// fresh rebuild (mirrors gen:ipc-surface --check / sync:doc-counts --check).
+// When the source markdown is absent this script already exited 0 above,
+// so the gate degrades to a skip rather than a false failure.
+if (process.argv.includes('--check')) {
+  const committed = existsSync(outPath) ? readFileSync(outPath, 'utf-8') : null
+  if (committed !== serialized) {
+    console.error(`chunk-index drift: ${outPath} does not match a fresh rebuild from ${refsBase}.`)
+    console.error('Run `npm run build:index` and commit the result.')
+    process.exit(1)
+  }
+  console.log(`chunk-index check OK — ${allChunks.length} chunks, byte-identical to ${outPath}`)
+  process.exit(0)
+}
+
+writeFileSync(outPath, serialized)
 
 console.log(`Done — ${allChunks.length} chunks indexed → ${outPath}`)
 for (const s of sourceStats) {
