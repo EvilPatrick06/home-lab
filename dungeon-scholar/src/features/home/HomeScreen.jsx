@@ -33,6 +33,8 @@ import { ModeCard } from '../../components/ui/ModeCard.jsx';
 import { OrnatePanel } from '../../components/ui/OrnatePanel.jsx';
 import { ACHIEVEMENTS } from '../../game/achievements.js';
 import { todayDateStr } from '../../services/devotion.js';
+import { goalStatus } from '../../services/dailyGoal.js';
+import { todayDateStr } from '../../services/devotion.js';
 import { dueCount } from '../../services/srs.js';
 import AudioPanel from './AudioPanel.jsx';
 import ThemePanel from './ThemePanel.jsx';
@@ -67,8 +69,11 @@ function HomeScreen({
   onToggleDyslexiaFont,
   onSetRetention,
   onSetNewCardCap,
+  onSetDailyGoal,
 }) {
   const reviewsDue = dueCount(tomeProgress?.cardProgress || {}, courseSet?.flashcards || []);
+  // sugg-daily-goal: today's progress toward the configurable daily target.
+  const dailyGoalStatus = goalStatus(playerState.dailyProgress, todayDateStr(), playerState.dailyGoal ?? 20);
   if (!courseSet) {
     return (
       <div className="space-y-6">
@@ -278,6 +283,9 @@ function HomeScreen({
           onSetRetention={onSetRetention}
           newCardCap={playerState.newCardCap ?? 20}
           onSetNewCardCap={onSetNewCardCap}
+          dailyGoal={playerState.dailyGoal ?? 20}
+          onSetDailyGoal={onSetDailyGoal}
+          streakFreezeTokens={playerState.streakFreezeTokens ?? 0}
         />
       </div>
     );
@@ -286,6 +294,32 @@ function HomeScreen({
   return (
     <div className="space-y-6">
       <AudioInviteBanner />
+      {/* sugg-daily-goal: daily study-goal progress bar. */}
+      <div
+        className="p-3 rounded-sm"
+        style={{
+          background: 'rgba(var(--surface-amber, 41, 24, 12), 0.6)',
+          border: '1px solid rgba(245, 158, 11, 0.35)',
+        }}
+      >
+        <div className="flex items-center justify-between text-xs italic text-amber-200 mb-1">
+          <span>
+            {dailyGoalStatus.met ? '✦ Daily goal reached!' : 'Daily goal'} — {dailyGoalStatus.count}/{dailyGoalStatus.goal}
+          </span>
+          {(playerState.streakFreezeTokens ?? 0) > 0 && (
+            <span className="text-cyan-200">❄ {playerState.streakFreezeTokens} ward{playerState.streakFreezeTokens === 1 ? '' : 's'}</span>
+          )}
+        </div>
+        <div className="h-2 rounded-sm overflow-hidden" style={{ background: 'rgba(0,0,0,0.4)' }}>
+          <div
+            className="h-full transition-all"
+            style={{
+              width: `${Math.round(dailyGoalStatus.fraction * 100)}%`,
+              background: dailyGoalStatus.met ? '#34d399' : '#f59e0b',
+            }}
+          />
+        </div>
+      </div>
       <div
         className="p-6 rounded-sm relative"
         style={{
@@ -654,6 +688,9 @@ function HomeScreen({
           onSetRetention={onSetRetention}
           newCardCap={playerState.newCardCap ?? 20}
           onSetNewCardCap={onSetNewCardCap}
+          dailyGoal={playerState.dailyGoal ?? 20}
+          onSetDailyGoal={onSetDailyGoal}
+          streakFreezeTokens={playerState.streakFreezeTokens ?? 0}
         />
       </CollapsibleGroup>
     </div>

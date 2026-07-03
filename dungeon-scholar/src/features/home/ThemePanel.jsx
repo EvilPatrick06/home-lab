@@ -34,6 +34,9 @@ function ThemePanel({
   onSetRetention,
   newCardCap = 20,
   onSetNewCardCap,
+  dailyGoal = 20,
+  onSetDailyGoal,
+  streakFreezeTokens = 0,
 }) {
   const retentionPct = Math.round((Number(desiredRetention) || 0.9) * 100);
   const opts = [
@@ -191,6 +194,28 @@ function ThemePanel({
         />
         <p className="text-[10px] italic text-amber-700/80 mt-1">
           ⓘ Caps how many never-seen cards enter a session so a large import doesn't flood you (default 20).
+        </p>
+      </div>
+
+      {/* sugg-daily-goal: configurable daily study target + streak-freeze count. */}
+      <div className="mt-4 pt-3 border-t border-amber-900/40">
+        <h4 className="text-xs font-bold text-amber-300 italic mb-2">Daily goal</h4>
+        <label htmlFor="ds-daily-goal" className="text-[11px] italic text-amber-200 block mb-1">
+          Items to study per day
+        </label>
+        <input
+          id="ds-daily-goal"
+          type="number"
+          min={1}
+          max={500}
+          value={dailyGoal}
+          onChange={(e) => onSetDailyGoal?.(Number(e.target.value))}
+          className="w-24 p-2 rounded-sm text-amber-50 italic border-2 border-amber-700"
+          style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
+        />
+        <p className="text-[10px] italic text-amber-700/80 mt-1">
+          ⓘ Any answered riddle or reviewed scroll counts toward today's goal. ❄ Streak-freeze wards held:{' '}
+          {streakFreezeTokens} (each forgives one missed day).
         </p>
       </div>
     </OrnatePanel>

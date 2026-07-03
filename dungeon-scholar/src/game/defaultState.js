@@ -41,6 +41,12 @@ export const DEFAULT_STATE = {
   // spacing + a sans face via data-dyslexia on the root.
   textScale: 100,
   dyslexiaFont: false,
+  // sugg-daily-goal: configurable daily study target + today's progress
+  // ({ date, count }) + a streak-freeze token count that forgives one missed
+  // day (distinct from the per-answer correctness streak).
+  dailyGoal: 20,
+  dailyProgress: null,
+  streakFreezeTokens: 0,
   // Library system
   library: [],
   activeTomeId: null,

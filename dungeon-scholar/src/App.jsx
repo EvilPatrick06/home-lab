@@ -1039,6 +1039,7 @@ export default function DungeonScholarApp() {
         onToggleDyslexiaFont={(on) => setPlayerState((prev) => ({ ...prev, dyslexiaFont: !!on }))}
         onSetRetention={(r) => setPlayerState((prev) => ({ ...prev, desiredRetention: Math.min(0.97, Math.max(0.8, Number(r) || 0.9)) }))}
         onSetNewCardCap={(n) => setPlayerState((prev) => ({ ...prev, newCardCap: Math.min(999, Math.max(0, Math.floor(Number(n) || 0))) }))}
+        onSetDailyGoal={(n) => setPlayerState((prev) => ({ ...prev, dailyGoal: Math.min(500, Math.max(1, Math.floor(Number(n) || 20))) }))}
         onSetTheme={(t) => {
           // Phase 46h: every theme switch surfaces an Undo toast (Ctrl+Z
           // compatible — the global hotkey from 45d invokes the active
