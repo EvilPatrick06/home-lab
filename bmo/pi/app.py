@@ -477,6 +477,7 @@ calendar = None
 music = None
 music_init_error = None
 service_init_status = {}   # name -> {ok: bool, error: str|None, reinit: bool} (surfaced on /api/health/full)
+agent_init_status = {}     # agent_key -> {ok: bool, error: str|None} (surfaced on /api/health/full)
 _service_reinit_last = {}  # name -> epoch of last bounded re-init attempt
 
 
@@ -824,6 +825,13 @@ def init_services():
     else:
         log.info("[bmo]   Creating agent...")
         agent = BmoAgent(services=service_map, socketio=socketio)
+        # Surface per-agent registration health (mirrors service_init_status)
+        # so a dropped specialized agent degrades /api/health/full.
+        try:
+            global agent_init_status
+            agent_init_status = dict(getattr(agent, "agent_init_status", {}) or {})
+        except Exception:
+            pass
         log.info("[bmo]   Agent: OK")
 
     if BMO_CANARY:

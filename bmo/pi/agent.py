@@ -646,12 +646,18 @@ class BmoAgent:
         # Register all remaining specialized agents (per-agent failures are logged and
         # skipped inside create_all_agents). PHASE-15 15A — a broken _registry module
         # itself now logs loudly instead of silently dropping all 23 specialized agents.
+        # Per-agent registration status (mirrors service_init_status) so a
+        # silently-dropped specialized agent degrades /api/health/full instead
+        # of only printing to stdout. BMO-SUGGESTIONS 2026-06-28.
+        self.agent_init_status: dict[str, dict] = {}
         try:
             from agents._registry import create_all_agents
         except ImportError as e:
             print(f"[agent] FAILED to import agents._registry — running with core agents only: {e!r}")
         else:
-            extra_agents = create_all_agents(scratchpad, self.services, self.socketio)
+            extra_agents = create_all_agents(
+                scratchpad, self.services, self.socketio, status_out=self.agent_init_status
+            )
             self.orchestrator.register_agents(extra_agents)
 
         # Initialize MCP manager if servers are configured

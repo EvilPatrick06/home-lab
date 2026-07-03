@@ -119,6 +119,20 @@ def api_health_full():
     if failed and payload["overall"] in ("ok", "unknown"):
         payload["overall"] = "degraded"
     payload["degraded_init_services"] = failed
+    # Per-agent registration status (mirrors service_init above): a specialized
+    # agent that failed to register degrades health instead of silently
+    # vanishing. BMO-SUGGESTIONS 2026-06-28.
+    try:
+        payload["agent_init"] = getattr(_app(), "agent_init_status", {}) or {}
+    except Exception:
+        payload["agent_init"] = {}
+    failed_agents = [
+        k for k, v in payload["agent_init"].items()
+        if isinstance(v, dict) and v.get("ok") is False
+    ]
+    if failed_agents and payload["overall"] in ("ok", "unknown"):
+        payload["overall"] = "degraded"
+    payload["degraded_init_agents"] = failed_agents
     # Pass through any additional keys the checker emits (forward-compat)
     # but document the canonical set above.
     for k, v in raw.items():
