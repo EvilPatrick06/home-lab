@@ -1,9 +1,10 @@
-import { ArrowLeft, Check, ChevronRight, Flame, Loader2, Wand2, X } from 'lucide-react';
+import { ArrowLeft, Check, ChevronRight, Flag, Flame, Loader2, Wand2, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import RichContent from '../../components/RichContent.jsx';
 import { BloomBadge, DifficultyStars } from '../../components/ui/badges.jsx';
 import { FilteredModeBanner } from '../../components/ui/FilteredModeBanner.jsx';
 import { gradeAnswer } from '../../services/oracleGrader.js';
+import { addReport, makeReport, REPORT_REASONS, reasonLabel } from '../../services/reportProblem.js';
 import { loadSession, SESSION_KIND, saveSession } from '../../services/sessionResume.js';
 import { speak, ttsSupported } from '../../services/tts.js';
 
@@ -58,6 +59,9 @@ function QuizMode({
   // Reset to null on every next() so the picker re-appears.
   const [confidence, setConfidence] = useState(null);
   const [showHint, setShowHint] = useState(false);
+  // sugg-report-problem: inline defect reporter shown after answering.
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reported, setReported] = useState(false);
   // Pre-shuffled deck comes from App level (stable across re-renders / cloud
   // sync). Fall back to the raw quiz array if a parent hasn't provided one.
   // Phase 39a: sessionDeck (when set by a resume) overrides the parent's
@@ -354,10 +358,21 @@ function QuizMode({
     setShowHint(false);
   }, [index]);
 
+  const submitReport = (reason) => {
+    if (!q?.id) return;
+    const report = makeReport({ itemId: q.id, itemType: 'quiz', reason });
+    if (!report) return;
+    updateTomeProgress((prev) => ({ reportedProblems: addReport(prev.reportedProblems, report) }));
+    setReportOpen(false);
+    setReported(true);
+  };
+
   const next = () => {
     setAnswered(null);
     setTextAnswer('');
     setConfidence(null);
+    setReportOpen(false);
+    setReported(false);
     setIndex((index + 1) % questions.length);
     // Phase 35d QA P3: bump the user-facing counter only on explicit
     // advance, never on index restoration. This is what keeps "Riddle X of N"
@@ -849,6 +864,47 @@ function QuizMode({
                 )}
               </div>
             )}
+            {/* sugg-report-problem: flag a defective riddle for the author. */}
+            <div className="flex flex-col gap-2">
+              {!reportOpen && !reported && (
+                <button
+                  type="button"
+                  onClick={() => setReportOpen(true)}
+                  className="self-start px-3 py-1.5 rounded-sm text-[11px] italic border border-amber-800/70 text-amber-400/80 hover:text-amber-200 flex items-center gap-1"
+                >
+                  <Flag className="w-3 h-3" /> Report a problem with this riddle
+                </button>
+              )}
+              {reported && (
+                <p className="self-start text-[11px] italic text-emerald-300 flex items-center gap-1">
+                  <Check className="w-3 h-3" /> Reported — thank you. The tome author can review it.
+                </p>
+              )}
+              {reportOpen && (
+                <div className="p-3 rounded-sm border border-amber-800/70" style={{ background: 'rgba(var(--surface-deep, 10, 6, 4), 0.6)' }}>
+                  <p className="text-[11px] italic text-amber-200 mb-2">What's wrong with this riddle?</p>
+                  <div className="flex flex-wrap gap-2">
+                    {REPORT_REASONS.map((reason) => (
+                      <button
+                        key={reason}
+                        type="button"
+                        onClick={() => submitReport(reason)}
+                        className="px-2.5 py-1 rounded-sm text-[11px] italic border border-amber-700 text-amber-100 hover:border-amber-400"
+                      >
+                        {reasonLabel(reason)}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setReportOpen(false)}
+                      className="px-2.5 py-1 rounded-sm text-[11px] italic text-amber-500 hover:text-amber-300"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
             <button
               onClick={next}
               className="w-full py-3 font-bold rounded-sm text-amber-50 border-2 border-purple-400 italic"

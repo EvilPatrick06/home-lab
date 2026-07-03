@@ -211,6 +211,10 @@ export const blankTomeProgress = () => ({
   // { startedAt, durationSec, totalCount, answered, correct, scorePct,
   //   byDomain: { [domain]: { total, answered, correct } }, status }.
   practiceExams: [],
+  // sugg-report-problem: learner-flagged defective questions for this tome.
+  // Each entry: { id, itemId, itemType, reason, note, reportedAt, resolved }.
+  // The tome author reviews/resolves these in the Tome Editor.
+  reportedProblems: [],
 });
 
 // === Run History (Phase 10) ===
