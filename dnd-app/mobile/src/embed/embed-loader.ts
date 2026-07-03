@@ -46,6 +46,17 @@ async function writeBinary(path: string, data: Uint8Array): Promise<void> {
   })
 }
 
+/**
+ * Zip-slip guard: reject archive entry names that could escape CACHE_DIR.
+ * Mirrors the desktop plugin-installer hardening — no absolute paths, no
+ * drive letters, no backslashes, and no `.`/`..`/empty path segments.
+ */
+function isSafeEntryPath(relPath: string): boolean {
+  if (!relPath || relPath.startsWith('/') || relPath.includes('\\')) return false
+  if (/^[a-zA-Z]:/.test(relPath)) return false
+  return relPath.split('/').every((seg) => seg !== '' && seg !== '.' && seg !== '..')
+}
+
 async function ensureLocalEmbed(): Promise<string> {
   const existing = await FileSystem.getInfoAsync(INDEX_PATH)
   if (existing.exists) return CACHE_DIR
@@ -61,7 +72,13 @@ async function ensureLocalEmbed(): Promise<string> {
 
   for (const [relPath, data] of Object.entries(files)) {
     if (relPath.endsWith('/')) continue
+    if (!isSafeEntryPath(relPath)) {
+      throw new Error(`embed zip entry escapes cache dir: ${relPath}`)
+    }
     const out = `${CACHE_DIR}${relPath}`
+    if (!out.startsWith(CACHE_DIR)) {
+      throw new Error(`embed zip entry escapes cache dir: ${relPath}`)
+    }
     const slash = out.lastIndexOf('/')
     if (slash > CACHE_DIR.length) {
       await FileSystem.makeDirectoryAsync(out.slice(0, slash), { intermediates: true }).catch(() => {})
