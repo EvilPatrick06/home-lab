@@ -19,6 +19,9 @@ New entries go at the TOP of their section (newest first).
 
 ---
 
+> **RESOLVED 2026-07-03 (`auto/scholar-features-batch`, owner-approved backlog batch):** The following FEATURE suggestions were implemented and their full entries moved to [`RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`](./RESOLVED-ISSUES-DUNGEON-SCHOLAR.md) (2026-07-03 batch entry): Tome → CSV/Quizlet export; cloze/text-occlusion cards; user-tunable desired-retention + daily new-card cap; tome revision/versioning; confidence-calibration (was already built); printable/PDF export; daily study goal + streak-freeze; text-size / dyslexia-font settings; PWA App Badging; diagram text-alternative (a11y); Windows High-Contrast / forced-colors; report-a-problem; cross-tome practice exam (tested core); exam-countdown study plan; speech-to-text dictation. Also **PHASE-11D** (practice-exam preset de-dup). A few larger tails (cloze author-affordance, tome-version import-merge UI, full cross-tome timed ExamMode flow) landed their tested pure cores with the remaining UI wiring noted as follow-up. The original entries below are retained for history but are CLOSED.
+
+
 # Future ideas
 
 ### [2026-07-02] Broaden sign-in beyond GitHub-only OAuth (Google + email magic link)
