@@ -713,30 +713,6 @@ The decomposition added a second same-named hook instead of consolidating onto i
 
 ---
 
-### [2026-06-28] `mobile/src/_shared/` is a committed sync copy of `src/shared/` with no `--check` drift guard — it can silently diverge
-
-- **Category:** debt, portability
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-suggestor
-- **During:** dnd-app tree review (mobile shared-code sync mechanism)
-
-**Description:**
-`mobile/scripts/sync-shared.mjs` copies the canonical `dnd-app/src/shared` tree into `dnd-app/mobile/src/_shared` (so Metro/EAS, which only upload the mobile project dir, can bundle the bridge protocol/types in-tree). That copy is **committed to git** (not gitignored — `git check-ignore` confirms `mobile/src/_shared/constants.ts` is tracked) and is marked "Generated — do not edit." The problem: `sync-shared.mjs` has **only** a write mode — `grep` finds no `--check` / diff / drift / `exit(1)` path — and **no CI runs it** (see the sibling "mobile has no CI gate" entry). So if a contributor edits `src/shared/**` and forgets to re-run `npm run sync-shared`, the committed `_shared/` copy goes stale with nothing to catch it; the mobile build then bundles an out-of-date bridge protocol/types against the live desktop/web bridge. This is the exact failure mode the repo already guards elsewhere with `--check` modes (`sync:doc-counts -- --check`) and the open ask for one on `gen:ipc-surface` (2026-06-25 entry) — the same pattern is simply missing here.
-
-**Hypothesis / root cause:** `sync-shared.mjs` was modeled on `sync-embed.mjs` as a pre-build copy step ("Run before bundling/builds"), so a verify/`--check` mode was never needed for the build path; committing the generated output (for EAS) then created a drift surface that a check-mode would normally cover.
-
-**Proposed fix / improvement:**
-- [ ] Add a `--check` flag to `mobile/scripts/sync-shared.mjs` that re-copies to a temp dir and diffs against the committed `_shared/`, exiting non-zero on drift.
-- [ ] Run `sync-shared -- --check` in the mobile CI job (per the sibling entry) so a stale `_shared/` fails the gate.
-- [ ] Alternatively, stop committing `_shared/` and generate it fresh in the EAS prebuild (`prebuild`/`build:embed` already run sync steps) so there is nothing to drift — weigh against EAS upload-scope constraints first.
-
-**Related files:** `dnd-app/mobile/scripts/sync-shared.mjs`, `dnd-app/mobile/src/_shared/` (committed generated copy), `dnd-app/src/shared/` (canonical source), `dnd-app/scripts/build/sync-doc-counts.mjs` (existing `--check` pattern to mirror)
-
-**Related entries:** [2026-06-28] "Mobile (Expo/React Native) target has no CI gate…"; [2026-06-25] "dnd-app CI omits the doc/i18n drift guards … and `gen:ipc-surface` has no `--check` mode".
-
----
-
 ### [2026-06-25] DO NOT "dedupe" the `shared/types/*` <-> `renderer/src/types/*` re-export shims — the duplicate basenames are an intentional process-boundary split
 
 - **Category:** design-gotcha

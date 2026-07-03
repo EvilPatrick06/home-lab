@@ -42,11 +42,13 @@ import {
   type BookConfig,
   type BookData,
   importBook,
+  isSafeBookId,
   listImportedBooks,
   loadBookConfig,
   loadBookData,
   readBookFile,
   removeBook,
+  saveBookBytes,
   saveBookConfig,
   saveBookData
 } from './book-storage'
@@ -170,6 +172,57 @@ describe('book-storage', () => {
       const result = await removeBook('ghost')
       expect(result).toEqual({ success: true })
       expect((await loadBookConfig()).map((c) => c.id)).toEqual(['only'])
+    })
+  })
+
+  describe('book id traversal guard', () => {
+    const evilIds = ['../../evil', '..\\evil', 'a/b', 'a\\b', 'nul\0byte', '']
+
+    it('isSafeBookId accepts slugs and UUIDs, rejects traversal shapes', () => {
+      expect(isSafeBookId('phb-2024')).toBe(true)
+      expect(isSafeBookId('3f2504e0-4f89-11d3-9a0c-0305e82c3301')).toBe(true)
+      for (const id of evilIds) {
+        expect(isSafeBookId(id)).toBe(false)
+      }
+      expect(isSafeBookId(undefined)).toBe(false)
+      expect(isSafeBookId(42)).toBe(false)
+    })
+
+    it('saveBookBytes rejects a traversal bookId without writing anything', async () => {
+      const bytes = new TextEncoder().encode('%PDF-1.4 evil').buffer as ArrayBuffer
+      const res = await saveBookBytes('../../evil', 'Evil', '.pdf', bytes)
+      expect(res.success).toBe(false)
+      expect(res.error).toBe('Invalid book id')
+      expect(existsSync(join(resolveUserData(), '..', '..', 'evil.pdf'))).toBe(false)
+      expect(await loadBookConfig()).toEqual([])
+    })
+
+    it('saveBookBytes writes a valid id inside the books dir and registers config', async () => {
+      const bytes = new TextEncoder().encode('%PDF-1.4 ok').buffer as ArrayBuffer
+      const res = await saveBookBytes('book-ok', 'Synced Tome', '.pdf', bytes)
+      expect(res.success).toBe(true)
+      expect(existsSync(join(BOOKS_DIR(), 'book-ok.pdf'))).toBe(true)
+      const configs = await loadBookConfig()
+      expect(configs).toHaveLength(1)
+      expect(configs[0]).toMatchObject({ id: 'book-ok', title: 'Synced Tome', type: 'custom' })
+      expect(configs[0].path).toBe(join(BOOKS_DIR(), 'book-ok.pdf'))
+    })
+
+    it('saveBookData / loadBookData reject traversal ids without touching disk', async () => {
+      const res = await saveBookData('../escape', { bookmarks: [], annotations: [] })
+      expect(res.success).toBe(false)
+      expect(res.error).toBe('Invalid book id')
+      // loadBookData swallows the guard error into the empty default shape
+      expect(await loadBookData('../escape')).toEqual({ bookmarks: [], annotations: [] })
+      expect(existsSync(join(resolveUserData(), '..', 'escape-data.json'))).toBe(false)
+    })
+
+    it('importBook rejects a traversal bookId', async () => {
+      const source = join(resolveUserData(), 'source.pdf')
+      writeFileSync(source, '%PDF-1.4 src')
+      const res = await importBook(source, 'Evil', '../../evil')
+      expect(res.success).toBe(false)
+      expect(res.error).toBe('Invalid book id')
     })
   })
 

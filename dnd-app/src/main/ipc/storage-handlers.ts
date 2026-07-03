@@ -17,6 +17,7 @@ import {
   type BookConfig,
   type BookData,
   importBook,
+  isSafeBookId,
   loadBookConfig,
   loadBookData,
   readBookFile,
@@ -451,6 +452,9 @@ export function registerStorageHandlers(): void {
     if (!isPathAllowed(sourcePath)) {
       throw new Error('Invalid source path: not a dialog-selected file')
     }
+    if (!isSafeBookId(bookId)) {
+      throw new Error('Invalid book id')
+    }
     return importBook(sourcePath, title, bookId)
   })
 
@@ -470,17 +474,28 @@ export function registerStorageHandlers(): void {
   })
 
   handle(IPC_CHANNELS.BOOK_LOAD_DATA, async (_event, bookId: string) => {
+    if (!isSafeBookId(bookId)) {
+      throw new Error('Invalid book id')
+    }
     return loadBookData(bookId)
   })
 
   handle(
     IPC_CHANNELS.BOOK_SAVE_BYTES,
     async (_event, bookId: string, title: string, ext: string, bytes: ArrayBuffer) => {
+      // bookId arrives from a remote peer's sync manifest — reject traversal
+      // payloads before any path join (mirrors CAMPAIGN/CHARACTER_RESTORE_VERSION).
+      if (!isSafeBookId(bookId)) {
+        throw new Error('Invalid book id')
+      }
       return saveBookBytes(bookId, title, ext, bytes)
     }
   )
 
   handle(IPC_CHANNELS.BOOK_SAVE_DATA, async (_event, bookId: string, data: BookData) => {
+    if (!isSafeBookId(bookId)) {
+      throw new Error('Invalid book id')
+    }
     return saveBookData(bookId, data)
   })
 }
