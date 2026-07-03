@@ -21,6 +21,10 @@ vi.mock('node:child_process', () => ({
   }))
 }))
 
+vi.mock('node:fs/promises', () => ({
+  rm: vi.fn(async () => undefined)
+}))
+
 vi.mock('node:fs', () => ({
   existsSync: vi.fn(() => false),
   createWriteStream: vi.fn(() => ({
@@ -41,12 +45,15 @@ const mockFetch = vi.fn()
 vi.stubGlobal('fetch', mockFetch)
 
 import { execSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import { existsSync } from 'node:fs'
+import { rm } from 'node:fs/promises'
 import {
   CURATED_MODELS,
   checkOllamaUpdate,
   deleteModel,
   detectOllama,
+  downloadOllama,
   ensureOllamaUsesDedicatedGpu,
   getOllamaVersion,
   getPerformanceTier,
@@ -202,6 +209,81 @@ describe('ollama-manager', () => {
   })
 
   // ── installOllama ──
+
+  describe('downloadOllama (SECURITY 2026-07-02 — SHA-256 verified)', () => {
+    const realPlatform = process.platform
+    const BYTES = new TextEncoder().encode('fake-installer-bytes')
+    const GOOD_SHA = createHash('sha256').update(BYTES).digest('hex')
+
+    function installerResponse(): unknown {
+      let sent = false
+      return {
+        ok: true,
+        headers: { get: () => String(BYTES.length) },
+        body: {
+          getReader: () => ({
+            read: async () => {
+              if (sent) return { done: true, value: undefined }
+              sent = true
+              return { done: false, value: BYTES }
+            }
+          })
+        }
+      }
+    }
+
+    function manifestResponse(sha: string): unknown {
+      return {
+        ok: true,
+        text: async () => `abc123\n${sha}  ./OllamaSetup.exe\ndef456  ./other.zip\n`
+      }
+    }
+
+    beforeEach(() => {
+      Object.defineProperty(process, 'platform', { value: 'win32', configurable: true })
+    })
+    afterEach(() => {
+      Object.defineProperty(process, 'platform', { value: realPlatform, configurable: true })
+    })
+
+    it('downloads, verifies against the published sha256sum.txt, and returns the path', async () => {
+      mockFetch.mockResolvedValueOnce(installerResponse()).mockResolvedValueOnce(manifestResponse(GOOD_SHA))
+
+      const path = await downloadOllama()
+      expect(path).toContain('OllamaSetup.exe')
+      // Installer + checksum manifest come from the SAME latest release.
+      expect(String(mockFetch.mock.calls[0][0])).toBe(
+        'https://github.com/ollama/ollama/releases/latest/download/OllamaSetup.exe'
+      )
+      expect(String(mockFetch.mock.calls[1][0])).toBe(
+        'https://github.com/ollama/ollama/releases/latest/download/sha256sum.txt'
+      )
+      expect(rm).not.toHaveBeenCalled()
+    })
+
+    it('fails closed and deletes the download on checksum MISMATCH', async () => {
+      mockFetch.mockResolvedValueOnce(installerResponse()).mockResolvedValueOnce(manifestResponse('0'.repeat(64)))
+
+      await expect(downloadOllama()).rejects.toThrow(/SHA-256|checksum/i)
+      expect(rm).toHaveBeenCalledWith(expect.stringContaining('OllamaSetup.exe'), { force: true })
+    })
+
+    it('fails closed when the checksum manifest is unreachable', async () => {
+      mockFetch.mockResolvedValueOnce(installerResponse()).mockResolvedValueOnce({ ok: false, status: 404 })
+
+      await expect(downloadOllama()).rejects.toThrow(/checksum manifest/i)
+      expect(rm).toHaveBeenCalled()
+    })
+
+    it('fails closed when the manifest lacks an OllamaSetup.exe entry', async () => {
+      mockFetch
+        .mockResolvedValueOnce(installerResponse())
+        .mockResolvedValueOnce({ ok: true, text: async () => 'deadbeef  ./something-else.zip\n' })
+
+      await expect(downloadOllama()).rejects.toThrow(/no OllamaSetup\.exe entry/i)
+      expect(rm).toHaveBeenCalled()
+    })
+  })
 
   describe('installOllama', () => {
     // The Windows path-validation guards only run when platform === 'win32', so spoof it.

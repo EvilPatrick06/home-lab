@@ -12,6 +12,47 @@
 
 ---
 
+### [2026-07-02] BMO_HOME never wired into the live units — `services/paths.py` points 24 live modules at the dev tree, splitting runtime state across two checkouts and breaking sandboxed writes
+
+- **Category:** bug, config
+- **Original severity:** high
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** scheduled error scan — noticed the live app's MCP child running from `/home/patrick/home-lab` while every service runs from `/home/patrick/home-lab-deploy`
+
+**Description:**
+The paths centralization (`services/paths.py`, commit `4346536b`) defaulted `BMO_ROOT` to `~/home-lab/bmo/pi` "so existing installs are byte-for-byte unaffected", with an explicit checklist item to wire `BMO_HOME` through the systemd units. The deploy decoupling then moved all services to the dedicated checkout `/home/patrick/home-lab-deploy` — but `BMO_HOME` was never set anywhere: not in `/etc/systemd/system/bmo.service` (verified), not in the deploy checkout's `.env` (verified), not in the repo units. So every module importing `services.paths` (24 non-test modules: `services/chat_history.py`, `services/alert_service.py`, `services/notification_service.py`, `services/list_service.py`, `services/music_service.py`, `agents/memory.py`, `agents/settings.py`, `routes/chat_api.py`, `services/voice/voice_pipeline.py`, …) resolves `DATA_DIR` to the **dev tree**, while cwd/module-relative code (e.g. `services/monitoring.py` `_PI_ROOT`) uses the **deploy checkout**. Three observed consequences on the live box:
+
+1. **Split-brain runtime state.** Dev tree `data/` holds the newer `recent_chat.json` (Jun 30), `lists.json`/`notes.json` (Jun 29), `alert_history.json` (Jul 2 — written by unsandboxed callers such as the notify-board CLI / agent sessions), while the deploy checkout holds the live `monitor_state.json` / `location_cache.json` (Jul 2). Neither tree has a complete current state set, and `bmo-backup.service` (ExecStart in the deploy checkout) backs up only one of them.
+2. **Sandboxed writes fail silently.** `bmo.service` runs `ProtectSystem=strict` with `ReadWritePaths=` covering only the deploy checkout's `data/`+`config/` (+`~/.cache`), so live in-process writes to dev-tree paths are blocked. Journal 2026-06-30 10:54 (under bmo.service): `notify.sh`/`notify-sms.sh` repeatedly hit `Read-only file system` on `notify.log` and `pending.txt` — i.e. the monitor's SMS/alert delivery path fails from inside the service.
+3. **Deploy-isolation violation (live code from the dev tree).** The live app (deploy checkout, pid 834157) spawns its MCP child from the dev tree: `python3 /home/patrick/home-lab/bmo/pi/mcp_servers/dnd_data_server.py` (pid 834213, ppid 834157) — `agents/settings.py:100` builds the path from `BMO_ROOT`, and `mcp_servers/mcp_settings.json` hardcodes `/home/patrick/home-lab/...` absolute paths. Integrator/agent churn in the shared dev tree therefore changes code the LIVE assistant executes — exactly what the deploy decoupling (`docs/BMO-DEPLOY.md`) exists to prevent. `dnd_data_server.py:27-37`'s expanduser defaults likewise read the dev tree's 5e/RAG data.
+
+**Expected behavior:** All live services and their children resolve every code and data path inside `/home/patrick/home-lab-deploy`; the dev tree is never read or executed by live services.
+
+**Hypothesis / root cause (confirmed):** The 2026-06-24 "BMO root path hardcoded" resolution shipped `paths.py` + call-site migration + CI ratchet but the final checklist step — "Wire `BMO_HOME` through the Docker image and systemd unit `Environment=`" — was never done. The later deploy-checkout migration silently turned the "unaffected" default into a wrong-tree default.
+
+**Proposed fix / improvement:**
+- [ ] Set `Environment=BMO_HOME=/home/patrick/home-lab-deploy/bmo/pi` in `bmo/pi/systemd/bmo.service`, `bmo-dm-bot.service`, `bmo-social-bot.service` (and any unit importing app code), and have deploy.sh install the updated units (or write `BMO_HOME` into the deploy `.env`).
+- [ ] Make `mcp_servers/mcp_settings.json` paths derive from `BMO_ROOT` (or template them at deploy time); replace `dnd_data_server.py`'s expanduser defaults with `services.paths`.
+- [ ] One-time reconcile of the two `data/` trees into the canonical (deploy) one so chat history / lists / notes / alert history are whole again; confirm `bmo-backup` targets the canonical tree.
+- [ ] Add a health/canary assertion that `BMO_ROOT` sits inside the running checkout, to catch this drift class permanently.
+- ⏳ NOTE: the unit-file/env fix needs a service restart to take effect — restart stays gated per the workflow (needs-restart approval).
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/services/paths.py:13`, `bmo/pi/agents/settings.py:100,111`, `bmo/pi/mcp_servers/mcp_settings.json`, `bmo/pi/mcp_servers/dnd_data_server.py:27-37`, `bmo/pi/systemd/bmo.service`, `bmo/pi/scripts/deploy.sh`, `docs/BMO-DEPLOY.md`
+
+**Related entries:** BMO-RESOLVED-ISSUES 2026-06-24 "BMO root path `~/home-lab/bmo/pi` is hardcoded across ~40 Python files" (this is its unfinished final step, now load-bearing).
+
+**Update [2026-07-02, bmo-resolver]:** Code + config landed on `auto/bmo-resolver` (integrator merges): `services/paths.py` now defaults `BMO_ROOT` to the checkout the code actually runs from (`Path(__file__).parent.parent`) instead of a fixed `~/home-lab/bmo/pi`, structurally removing the split-brain when `BMO_HOME` is unset; `Environment=BMO_HOME=/home/patrick/home-lab-deploy/bmo/pi` added to `bmo.service`, `bmo-dm-bot.service`, `bmo-social-bot.service`; `mcp_servers/dnd_data_server.py` standalone defaults now derive from its own location; and `app.py` gained a boot-time drift guard (hard-fails the canary, warns a live boot) asserting `BMO_ROOT` equals the running checkout. `mcp_settings.json` left as-is — it is NOT loaded at runtime (only a doc-comment reference; the live MCP config is generated by `agents/settings.py` from `services.paths`), so its stale absolute paths are inert; flagged as a removal candidate. **Still gated / OPEN:** the systemd-unit change needs a `bmo.service` (+ bots) restart to take effect (board `restart-bmo`), and the one-time reconcile of the two `data/` trees plus `bmo-backup` target confirmation are operational follow-ups. Kept open until the restart + reconcile land.
+
+- **Resolved by:** bmo-resolver (code) + user-approved recovery session (deploy/restart/reconcile)
+- **Commit:** `4c7bcd82` (merge of `auto/bmo-resolver` into master)
+- **Resolution:** `services/paths.py` now defaults `BMO_ROOT` to the checkout the code actually runs from; `Environment=BMO_HOME=/home/patrick/home-lab-deploy/bmo/pi` wired into `bmo.service`, `bmo-dm-bot.service`, `bmo-social-bot.service`; `mcp_servers/dnd_data_server.py` standalone defaults derive from its own location; `app.py` gained a boot-time BMO_ROOT drift guard (hard-fails the canary, warns a live boot). The gated follow-ups landed tonight: the merge was deployed, the three bmo services were restarted onto the single deploy checkout (MCP child now spawns from `/home/patrick/home-lab-deploy`), and the split `data/` trees were reconciled into the canonical deploy tree (chat history / lists / notes / alert history whole again; `bmo-backup` targets the canonical tree).
+- **Date resolved:** 2026-07-02
+
+---
+
 ### [2026-07-02] deploy.sh canary gate could false-green off a stale listener on the canary port
 
 - **Resolved by:** bmo-resolver  **Branch:** `auto/bmo-resolver` (integrator merges)

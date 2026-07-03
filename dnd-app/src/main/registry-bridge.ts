@@ -22,7 +22,7 @@
 
 import { BrowserWindow } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc-channels'
-import { getBmoAccessHeadersIfTrusted, getBmoBaseUrl } from './bmo-config'
+import { getBmoAccessHeadersForUrl, getBmoBaseUrl } from './bmo-config'
 
 // Time-box every registry fetch. Without this, a request to an unreachable Pi
 // hangs for the full OS TCP timeout — tens of seconds on Windows — stalling
@@ -78,19 +78,34 @@ export type RegistryPushEvent =
   | { type: 'removed'; inviteCode: string }
   | { type: 'error'; error: string }
 
+// SECURITY 2026-07-02: an override must at least parse as an http(s) URL —
+// anything else silently falls back to the resolved base. Renderer-supplied
+// overrides are additionally restricted to KNOWN Pi bases at the IPC layer
+// (registry-handlers.ts → sanitizeRendererBaseOverride).
 function baseUrl(override?: string): string {
   const raw = (override ?? '').trim()
-  if (raw) return raw.replace(/\/+$/, '')
+  if (raw) {
+    try {
+      const u = new URL(raw)
+      if (u.protocol === 'http:' || u.protocol === 'https:') return raw.replace(/\/+$/, '')
+    } catch {
+      // not a URL — ignore the override
+    }
+  }
   return getBmoBaseUrl()
 }
 
-async function fetchWithTimeout(input: string, init: RequestInit = {}): Promise<Response> {
+/** Time-boxed fetch of `base + path`. Credential headers are computed from the
+ * ACTUAL fetch target (`base`) — never from the resolved base — so a base
+ * override can never carry the CF-Access service token to an untrusted host
+ * (SECURITY 2026-07-02). */
+async function fetchWithTimeout(base: string, path: string, init: RequestInit = {}): Promise<Response> {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), REGISTRY_TIMEOUT_MS)
   try {
-    return await fetch(input, {
+    return await fetch(`${base}${path}`, {
       ...init,
-      headers: { ...getBmoAccessHeadersIfTrusted(), ...(init.headers ?? {}) },
+      headers: { ...getBmoAccessHeadersForUrl(base), ...(init.headers ?? {}) },
       signal: controller.signal
     })
   } finally {
@@ -104,7 +119,7 @@ export async function announceGame(
 ): Promise<{ ok: boolean; error?: string }> {
   const base = baseUrl(baseOverride)
   try {
-    const resp = await fetchWithTimeout(`${base}/api/games`, {
+    const resp = await fetchWithTimeout(base, '/api/games', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -126,7 +141,7 @@ export async function updateGame(
 ): Promise<{ ok: boolean; error?: string }> {
   const base = baseUrl(baseOverride)
   try {
-    const resp = await fetchWithTimeout(`${base}/api/games/${encodeURIComponent(inviteCode)}`, {
+    const resp = await fetchWithTimeout(base, `/api/games/${encodeURIComponent(inviteCode)}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(patch)
@@ -141,7 +156,7 @@ export async function updateGame(
 export async function heartbeatGame(inviteCode: string, baseOverride?: string): Promise<{ ok: boolean }> {
   const base = baseUrl(baseOverride)
   try {
-    const resp = await fetchWithTimeout(`${base}/api/games/${encodeURIComponent(inviteCode)}/heartbeat`, {
+    const resp = await fetchWithTimeout(base, `/api/games/${encodeURIComponent(inviteCode)}/heartbeat`, {
       method: 'POST'
     })
     return { ok: resp.ok }
@@ -153,7 +168,7 @@ export async function heartbeatGame(inviteCode: string, baseOverride?: string): 
 export async function deregisterGame(inviteCode: string, baseOverride?: string): Promise<{ ok: boolean }> {
   const base = baseUrl(baseOverride)
   try {
-    const resp = await fetchWithTimeout(`${base}/api/games/${encodeURIComponent(inviteCode)}`, {
+    const resp = await fetchWithTimeout(base, `/api/games/${encodeURIComponent(inviteCode)}`, {
       method: 'DELETE'
     })
     return { ok: resp.ok }
@@ -165,7 +180,7 @@ export async function deregisterGame(inviteCode: string, baseOverride?: string):
 export async function listGames(clientId: string | null, baseOverride?: string): Promise<RegistryGameEntryRaw[]> {
   const base = baseUrl(baseOverride)
   const params = clientId ? `?client_id=${encodeURIComponent(clientId)}` : ''
-  const resp = await fetchWithTimeout(`${base}/api/games${params}`)
+  const resp = await fetchWithTimeout(base, `/api/games${params}`)
   if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
   const data = (await resp.json()) as { games?: RegistryGameEntryRaw[] }
   return data.games ?? []

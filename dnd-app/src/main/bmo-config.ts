@@ -171,3 +171,86 @@ export function getBmoAccessHeadersIfTrusted(): Record<string, string> {
   if (!isBmoBaseSecretTrusted()) return {}
   return getBmoAccessHeaders()
 }
+
+// ── Renderer baseOverride validation (SECURITY 2026-07-02) ────────────────
+// The TURN/registry IPC surface accepts an optional `baseOverride` from the
+// renderer. Taken verbatim it is a token-leak/SSRF primitive: a compromised
+// renderer could aim a main-process fetch at an arbitrary host and — because
+// the old gate (getBmoAccessHeadersIfTrusted) evaluated trust against the
+// RESOLVED base rather than the actual fetch target — exfiltrate the CF-Access
+// service token to it. Two rules close the hole:
+//   1. A renderer override may only SELECT among the KNOWN Pi bases this
+//      process already resolved (settings / mDNS / env / default) — never
+//      introduce an arbitrary URL (sanitizeRendererBaseOverride).
+//   2. Credential headers are computed from the ACTUAL fetch target
+//      (getBmoAccessHeadersForUrl / isUrlSecretTrusted), never from the
+//      resolved base alone.
+
+function normalizeBaseForCompare(u: string): string | null {
+  const s = u.trim().replace(/\/+$/, '')
+  if (!s) return null
+  try {
+    const url = new URL(s)
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return null
+    return s
+  } catch {
+    return null
+  }
+}
+
+/** Every Pi base URL this process could legitimately target right now. */
+function knownBmoBases(): string[] {
+  const candidates = [userOverrideUrl, discoveredBmoUrl, process.env.BMO_PI_URL, BMO_PI_URL_DEFAULT, resolvedBmoBaseUrl]
+  const out: string[] = []
+  for (const c of candidates) {
+    if (!c) continue
+    const n = normalizeBaseForCompare(c)
+    if (n && !out.includes(n)) out.push(n)
+  }
+  return out
+}
+
+/**
+ * Whether `url` — the ACTUAL fetch target — may receive credentials (the
+ * CF-Access service token). True only for a KNOWN Pi base that is also
+ * secret-trusted under the same rule as isBmoBaseSecretTrusted(): the user
+ * explicitly typed it, or it is https (the tunnel / an explicit https Pi). An
+ * auto-discovered http LAN host stays untrusted, and an arbitrary URL —
+ * however well-formed — is never trusted.
+ */
+export function isUrlSecretTrusted(url: string): boolean {
+  const n = normalizeBaseForCompare(url)
+  if (!n) return false
+  if (!knownBmoBases().includes(n)) return false
+  if (userOverrideUrl && n === normalizeBaseForCompare(userOverrideUrl)) return true
+  try {
+    return new URL(n).protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
+/**
+ * CF-Access headers gated on the trust of the ACTUAL fetch target (see
+ * isUrlSecretTrusted). Use this instead of getBmoAccessHeadersIfTrusted()
+ * whenever the fetch target can differ from getBmoBaseUrl() (any baseOverride
+ * path — turn-bridge.ts / registry-bridge.ts).
+ */
+export function getBmoAccessHeadersForUrl(url: string): Record<string, string> {
+  if (!isUrlSecretTrusted(url)) return {}
+  return getBmoAccessHeaders()
+}
+
+/**
+ * Validate a renderer-supplied base override: returns the normalized override
+ * when it is one of the KNOWN Pi bases, else undefined (callers fall back to
+ * the resolved base). Keeps the renderer able to pin a specific already-known
+ * Pi target while making "fetch an attacker URL from the main process"
+ * unexpressable over IPC.
+ */
+export function sanitizeRendererBaseOverride(override: unknown): string | undefined {
+  if (typeof override !== 'string') return undefined
+  const n = normalizeBaseForCompare(override)
+  if (!n) return undefined
+  return knownBmoBases().includes(n) ? n : undefined
+}

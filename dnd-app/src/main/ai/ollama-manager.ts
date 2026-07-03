@@ -1,5 +1,7 @@
 import { execFile, execSync, spawn } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import { createWriteStream, existsSync } from 'node:fs'
+import { rm } from 'node:fs/promises'
 import { join, relative, resolve } from 'node:path'
 import { app } from 'electron'
 import { getOllamaUrl, listOllamaModels } from './clients/ollama-client'
@@ -210,7 +212,17 @@ export async function downloadOllama(onProgress?: (percent: number) => void): Pr
         "then restart this app — it'll auto-detect the installed binary."
     )
   }
-  const url = 'https://ollama.com/download/OllamaSetup.exe'
+  // SECURITY 2026-07-02 — integrity-pin the installer before it is ever
+  // executed. `ollama.com/download/OllamaSetup.exe` redirects to the latest
+  // GitHub release asset, so fetch the installer AND Ollama's published
+  // per-release checksum manifest (sha256sum.txt) from the SAME `latest`
+  // release, hash the downloaded bytes, and fail closed on any mismatch —
+  // mirroring the plugin-installer `expectedChecksum` / CI gitleaks-pin
+  // pattern. No in-repo pin to maintain: the expected hash travels with each
+  // upstream release. If Ollama ever stops publishing sha256sum.txt this
+  // throws (fail closed) and the manual path (ollama.com/download) still works.
+  const url = 'https://github.com/ollama/ollama/releases/latest/download/OllamaSetup.exe'
+  const checksumUrl = 'https://github.com/ollama/ollama/releases/latest/download/sha256sum.txt'
   const tempDir = app.getPath('temp')
   const destPath = join(tempDir, 'OllamaSetup.exe')
 
@@ -222,6 +234,7 @@ export async function downloadOllama(onProgress?: (percent: number) => void): Pr
   const contentLength = parseInt(res.headers.get('content-length') || '0', 10)
   let downloaded = 0
 
+  const hash = createHash('sha256')
   const fileStream = createWriteStream(destPath)
   const reader = res.body.getReader()
 
@@ -230,6 +243,7 @@ export async function downloadOllama(onProgress?: (percent: number) => void): Pr
     if (done) break
 
     fileStream.write(Buffer.from(value))
+    hash.update(value)
     downloaded += value.length
 
     if (contentLength > 0 && onProgress) {
@@ -243,7 +257,49 @@ export async function downloadOllama(onProgress?: (percent: number) => void): Pr
     fileStream.on('error', reject)
   })
 
+  await verifyInstallerChecksum(destPath, hash.digest('hex'), checksumUrl)
+
   return destPath
+}
+
+/**
+ * SECURITY 2026-07-02 — fetch the release's `sha256sum.txt` and compare its
+ * `OllamaSetup.exe` entry against the digest of the bytes we actually wrote.
+ * Deletes the downloaded installer and throws on ANY failure (manifest
+ * unreachable, no entry, mismatch) — fail closed; the installer is never left
+ * on disk unverified.
+ */
+async function verifyInstallerChecksum(destPath: string, actualSha256: string, checksumUrl: string): Promise<void> {
+  let expected: string | undefined
+  try {
+    const res = await fetch(checksumUrl)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const manifest = await res.text()
+    // Manifest lines look like: "<64-hex>  ./OllamaSetup.exe"
+    for (const line of manifest.split('\n')) {
+      const m = line.trim().match(/^([0-9a-f]{64})\s+\.?\/?OllamaSetup\.exe$/i)
+      if (m) {
+        expected = m[1].toLowerCase()
+        break
+      }
+    }
+  } catch (err) {
+    await rm(destPath, { force: true }).catch(() => undefined)
+    throw new Error(
+      `Could not fetch the Ollama release checksum manifest (${err instanceof Error ? err.message : String(err)}). ` +
+        'Download aborted — retry, or install manually from https://ollama.com/download.'
+    )
+  }
+  if (!expected) {
+    await rm(destPath, { force: true }).catch(() => undefined)
+    throw new Error(
+      'The Ollama release checksum manifest has no OllamaSetup.exe entry — cannot verify the download. Aborted.'
+    )
+  }
+  if (expected !== actualSha256.toLowerCase()) {
+    await rm(destPath, { force: true }).catch(() => undefined)
+    throw new Error('Ollama installer failed SHA-256 verification (checksum mismatch). Download aborted.')
+  }
 }
 
 /**

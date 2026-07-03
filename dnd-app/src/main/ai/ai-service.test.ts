@@ -32,7 +32,8 @@ vi.mock('node:fs', () => ({
   existsSync: vi.fn(() => false),
   readFileSync: vi.fn(() => '{}'),
   writeFileSync: vi.fn(),
-  renameSync: vi.fn()
+  renameSync: vi.fn(),
+  chmodSync: vi.fn()
 }))
 
 // Phase 17d (NET-10) — configure now writes asynchronously via fs/promises.
@@ -293,7 +294,7 @@ vi.mock('./web-search', () => ({
 
 // ── Imports (after mocks) ──
 
-import { existsSync, readFileSync } from 'node:fs'
+import { chmodSync, existsSync, readFileSync } from 'node:fs'
 import { rename, writeFile } from 'node:fs/promises'
 import { BrowserWindow } from 'electron'
 import { saveConversation } from '../storage/ai-conversation-storage'
@@ -355,10 +356,12 @@ describe('ai-service', () => {
       await configure({ provider: 'ollama', model: 'mistral', ollamaUrl: 'http://gpu-server:11434' })
 
       expect(setOllamaUrl).toHaveBeenCalledWith('http://gpu-server:11434')
+      // Cloud API keys can persist in plaintext when safeStorage is unavailable,
+      // so the config file must be written owner-only (SECURITY 2026-07-02).
       expect(writeFile).toHaveBeenCalledWith(
         expect.stringMatching(/ai-config\.json\..*\.tmp$/),
         expect.stringContaining('mistral'),
-        'utf-8'
+        { encoding: 'utf-8', mode: 0o600 }
       )
       expect(rename).toHaveBeenCalledWith(
         expect.stringMatching(/ai-config\.json\..*\.tmp$/),
@@ -381,6 +384,20 @@ describe('ai-service', () => {
   // 03G: disk reads moved out of getConfig() into loadConfigFromDisk() (the single
   // startup load point). getConfig() is now a pure in-memory snapshot.
   describe('loadConfigFromDisk', () => {
+    it('self-heals a pre-existing config to owner-only perms on load (SECURITY 2026-07-02)', () => {
+      vi.mocked(existsSync).mockReturnValueOnce(true)
+      vi.mocked(readFileSync).mockReturnValueOnce(JSON.stringify({ provider: 'ollama', model: 'm' }))
+
+      loadConfigFromDisk()
+      expect(chmodSync).toHaveBeenCalledWith(expect.stringContaining('ai-config.json'), 0o600)
+    })
+
+    it('does not chmod when no config file exists', () => {
+      vi.mocked(existsSync).mockReturnValueOnce(false)
+      loadConfigFromDisk()
+      expect(chmodSync).not.toHaveBeenCalled()
+    })
+
     it('loads config from disk if file exists', () => {
       vi.mocked(existsSync).mockReturnValueOnce(true)
       vi.mocked(readFileSync).mockReturnValueOnce(
