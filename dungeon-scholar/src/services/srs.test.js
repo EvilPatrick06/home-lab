@@ -1,9 +1,16 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import {
   DESIRED_RETENTION,
   dueCount,
   FSRS_DEFAULT_WEIGHTS,
   filterDue,
+  capNewCards,
+  getDesiredRetention,
+  NEW_CARD_CAP_DEFAULT,
+  normalizeNewCardCap,
+  RETENTION_MAX,
+  RETENTION_MIN,
+  setDesiredRetention,
   getSchedulerWeights,
   isCardDue,
   retrievability,
@@ -269,5 +276,91 @@ describe('isCardDue — suspended cards', () => {
   });
   it('still schedules a non-suspended due card', () => {
     expect(isCardDue({ stability: 2, reps: 3, dueAt: 0 }, Date.now())).toBe(true);
+  });
+});
+
+describe('desired-retention knob (SRS knobs)', () => {
+  afterEach(() => setDesiredRetention(DESIRED_RETENTION));
+
+  it('defaults to the FSRS 0.9 value', () => {
+    expect(getDesiredRetention()).toBe(DESIRED_RETENTION);
+    expect(DESIRED_RETENTION).toBe(0.9);
+  });
+
+  it('clamps to the sane [0.8, 0.97] range and ignores non-finite input', () => {
+    expect(setDesiredRetention(0.5)).toBe(RETENTION_MIN);
+    expect(setDesiredRetention(1.5)).toBe(RETENTION_MAX);
+    expect(setDesiredRetention(0.92)).toBe(0.92);
+    expect(setDesiredRetention(Number.NaN)).toBe(0.92); // unchanged
+    expect(setDesiredRetention('nope')).toBe(0.92);
+  });
+
+  it('higher retention yields shorter (or equal) intervals; lower yields longer', () => {
+    const card = { id: 'x' };
+    const now = 1_000_000_000_000;
+    const rate = (r) => {
+      setDesiredRetention(r);
+      const s = scheduleCard(null, SRS_RATINGS.good, now);
+      return s.dueAt - now;
+    };
+    const high = rate(0.95);
+    const mid = rate(0.9);
+    const low = rate(0.85);
+    expect(high).toBeLessThanOrEqual(mid);
+    expect(low).toBeGreaterThanOrEqual(mid);
+  });
+
+  it('changing retention does not rewrite stored stability/difficulty (future-only rescale)', () => {
+    const now = 1_000_000_000_000;
+    setDesiredRetention(0.9);
+    const s1 = scheduleCard(null, SRS_RATINGS.good, now);
+    setDesiredRetention(0.95);
+    const s2 = scheduleCard(null, SRS_RATINGS.good, now);
+    // Same rating from the same prior state => identical stability/difficulty;
+    // only the derived dueAt interval differs with retention.
+    expect(s2.stability).toBe(s1.stability);
+    expect(s2.difficulty).toBe(s1.difficulty);
+  });
+});
+
+describe('daily new-card cap (SRS knobs)', () => {
+  const cards = Array.from({ length: 10 }, (_, i) => ({ id: `c${i}` }));
+  // First 3 are "learned" (have reps), rest are new (absent state = new).
+  const map = {
+    c0: { stability: 5, reps: 3, dueAt: 0 },
+    c1: { stability: 5, reps: 2, dueAt: 0 },
+    c2: { stability: 5, reps: 1, dueAt: 0 },
+  };
+
+  it('normalizeNewCardCap clamps and defaults', () => {
+    expect(normalizeNewCardCap(undefined)).toBe(NEW_CARD_CAP_DEFAULT);
+    expect(normalizeNewCardCap(Number.NaN)).toBe(NEW_CARD_CAP_DEFAULT);
+    expect(normalizeNewCardCap(-5)).toBe(0);
+    expect(normalizeNewCardCap(5)).toBe(5);
+    expect(normalizeNewCardCap(5000)).toBe(999);
+    expect(normalizeNewCardCap(3.9)).toBe(3);
+  });
+
+  it('admits all review cards + only `cap` new cards', () => {
+    const out = capNewCards(cards, map, 2);
+    // 3 review cards (c0..c2) always pass, plus 2 new (c3, c4).
+    expect(out.map((c) => c.id)).toEqual(['c0', 'c1', 'c2', 'c3', 'c4']);
+  });
+
+  it('never caps review cards even when cap is 0', () => {
+    const out = capNewCards(cards, map, 0);
+    expect(out.map((c) => c.id)).toEqual(['c0', 'c1', 'c2']);
+  });
+
+  it('accounts for new cards already seen today', () => {
+    const out = capNewCards(cards, map, 5, { alreadySeenToday: 3 });
+    // budget = 5 - 3 = 2 new cards.
+    expect(out.filter((c) => Number(c.id.slice(1)) >= 3).length).toBe(2);
+  });
+
+  it('does not mutate the input deck', () => {
+    const copy = cards.slice();
+    capNewCards(cards, map, 1);
+    expect(cards).toEqual(copy);
   });
 });

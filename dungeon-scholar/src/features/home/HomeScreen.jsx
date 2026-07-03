@@ -63,6 +63,10 @@ function HomeScreen({
   onSetTheme,
   onSetLocale,
   onToggleColorblind,
+  onSetTextScale,
+  onToggleDyslexiaFont,
+  onSetRetention,
+  onSetNewCardCap,
 }) {
   const reviewsDue = dueCount(tomeProgress?.cardProgress || {}, courseSet?.flashcards || []);
   if (!courseSet) {
@@ -266,6 +270,14 @@ function HomeScreen({
           onSetLocale={onSetLocale}
           colorblind={!!playerState.colorblind}
           onToggleColorblind={onToggleColorblind}
+          textScale={playerState.textScale ?? 100}
+          onSetTextScale={onSetTextScale}
+          dyslexiaFont={!!playerState.dyslexiaFont}
+          onToggleDyslexiaFont={onToggleDyslexiaFont}
+          desiredRetention={playerState.desiredRetention ?? 0.9}
+          onSetRetention={onSetRetention}
+          newCardCap={playerState.newCardCap ?? 20}
+          onSetNewCardCap={onSetNewCardCap}
         />
       </div>
     );
@@ -634,6 +646,14 @@ function HomeScreen({
           onSetLocale={onSetLocale}
           colorblind={!!playerState.colorblind}
           onToggleColorblind={onToggleColorblind}
+          textScale={playerState.textScale ?? 100}
+          onSetTextScale={onSetTextScale}
+          dyslexiaFont={!!playerState.dyslexiaFont}
+          onToggleDyslexiaFont={onToggleDyslexiaFont}
+          desiredRetention={playerState.desiredRetention ?? 0.9}
+          onSetRetention={onSetRetention}
+          newCardCap={playerState.newCardCap ?? 20}
+          onSetNewCardCap={onSetNewCardCap}
         />
       </CollapsibleGroup>
     </div>

@@ -30,6 +30,17 @@ export const DEFAULT_STATE = {
   // accuracy bars / analytics use a CVD-safe blue-orange scale (paired with a
   // tier label) instead of red-green. Applied via data-cvd on the root.
   colorblind: false,
+  // SRS knobs (services SRS knobs). desiredRetention is the FSRS target-recall
+  // knob (0.8-0.97, default 0.9) applied via setDesiredRetention on load;
+  // newCardCap limits how many NEW (never-reviewed) cards enter a review
+  // session (default 20, Anki's default) so a large import doesn't flood.
+  desiredRetention: 0.9,
+  newCardCap: 20,
+  // Reading-comfort (text-scale): font scale percent (90-130, default 100)
+  // applied via the root --text-scale property; dyslexiaFont adds letter/word
+  // spacing + a sans face via data-dyslexia on the root.
+  textScale: 100,
+  dyslexiaFont: false,
   // Library system
   library: [],
   activeTomeId: null,

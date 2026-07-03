@@ -5,7 +5,7 @@ import { BloomBadge, DifficultyStars } from '../../components/ui/badges.jsx';
 import { FilteredModeBanner } from '../../components/ui/FilteredModeBanner.jsx';
 import { isOcclusionCard } from '../../services/occlusion.js';
 import { loadSession, SESSION_KIND, saveSession } from '../../services/sessionResume.js';
-import { filterDue, SRS_RATINGS, scheduleCard, sortByDueness } from '../../services/srs.js';
+import { capNewCards, filterDue, SRS_RATINGS, scheduleCard, sortByDueness } from '../../services/srs.js';
 import { speak, ttsSupported } from '../../services/tts.js';
 
 function FlashcardsMode({
@@ -49,7 +49,11 @@ function FlashcardsMode({
   useEffect(() => {
     if (reviewMode) {
       const map = tomeProgress?.cardProgress || {};
-      setReviewDeck(sortByDueness(filterDue(baseDeck, map), map));
+      // SRS knobs: cap the number of NEW (never-reviewed) cards admitted per
+      // review session so a freshly-imported large tome doesn't flood the
+      // queue. Review (already-learned) cards are never capped. Default 20.
+      const due = sortByDueness(filterDue(baseDeck, map), map);
+      setReviewDeck(capNewCards(due, map, playerState?.newCardCap));
       setIndex(0);
       setReviewed(0);
       setFlipped(false);

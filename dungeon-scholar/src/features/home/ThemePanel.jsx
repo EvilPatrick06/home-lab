@@ -26,7 +26,16 @@ function ThemePanel({
   onSetLocale,
   colorblind = false,
   onToggleColorblind,
+  textScale = 100,
+  onSetTextScale,
+  dyslexiaFont = false,
+  onToggleDyslexiaFont,
+  desiredRetention = 0.9,
+  onSetRetention,
+  newCardCap = 20,
+  onSetNewCardCap,
 }) {
+  const retentionPct = Math.round((Number(desiredRetention) || 0.9) * 100);
   const opts = [
     { id: 'dark', label: '🌙 Dark', desc: 'The default dungeon palette.' },
     { id: 'light', label: '☀ Light', desc: 'Parchment-light pages, panels, and text. Full light theme.' },
@@ -114,6 +123,74 @@ function ThemePanel({
         </select>
         <p className="text-[10px] italic text-amber-700/80 mt-2">
           ⓘ Translations cover app menus only; tome content stays as written.
+        </p>
+      </div>
+
+      {/* Reading comfort: font scale + optional dyslexia-friendly font. Applied
+          via the root --text-scale custom property + a data-dyslexia flag. */}
+      <div className="mt-4 pt-3 border-t border-amber-900/40">
+        <label htmlFor="ds-text-scale" className="text-xs font-bold text-amber-300 flex items-center gap-2 italic mb-2">
+          Text size — {textScale}%
+        </label>
+        <input
+          id="ds-text-scale"
+          type="range"
+          min={90}
+          max={130}
+          step={5}
+          value={textScale}
+          onChange={(e) => onSetTextScale?.(Number(e.target.value))}
+          className="w-full accent-amber-400"
+        />
+        <button
+          type="button"
+          onClick={() => onToggleDyslexiaFont?.(!dyslexiaFont)}
+          aria-pressed={dyslexiaFont}
+          className={`mt-3 w-full text-left p-3 rounded-sm border-2 italic transition ${dyslexiaFont ? 'border-amber-300 text-amber-100' : 'border-amber-700 text-amber-200 hover:border-amber-500'}`}
+          style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
+        >
+          <span className="text-sm font-bold">Reading-comfort font {dyslexiaFont ? '— On' : '— Off'}</span>
+          <span className="block text-[10px] italic text-amber-200/70 mt-0.5">
+            Adds extra letter/word spacing and a sans-serif face for easier reading.
+          </span>
+        </button>
+        <p className="text-[10px] italic text-amber-700/80 mt-2">ⓘ Affects study text across the app.</p>
+      </div>
+
+      {/* SRS study-load knobs: desired retention + daily new-card cap. */}
+      <div className="mt-4 pt-3 border-t border-amber-900/40">
+        <h4 className="text-xs font-bold text-amber-300 italic mb-2">Study load (spaced repetition)</h4>
+        <label htmlFor="ds-retention" className="text-[11px] italic text-amber-200 block mb-1">
+          Desired retention — {retentionPct}%
+        </label>
+        <input
+          id="ds-retention"
+          type="range"
+          min={80}
+          max={97}
+          step={1}
+          value={retentionPct}
+          onChange={(e) => onSetRetention?.(Number(e.target.value) / 100)}
+          className="w-full accent-amber-400"
+        />
+        <p className="text-[10px] italic text-amber-700/80 mt-1 mb-3">
+          ⓘ Higher = more reviews, stronger recall (good near an exam). Lower = fewer reviews.
+        </p>
+        <label htmlFor="ds-newcap" className="text-[11px] italic text-amber-200 block mb-1">
+          New cards per review session
+        </label>
+        <input
+          id="ds-newcap"
+          type="number"
+          min={0}
+          max={999}
+          value={newCardCap}
+          onChange={(e) => onSetNewCardCap?.(Number(e.target.value))}
+          className="w-24 p-2 rounded-sm text-amber-50 italic border-2 border-amber-700"
+          style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
+        />
+        <p className="text-[10px] italic text-amber-700/80 mt-1">
+          ⓘ Caps how many never-seen cards enter a session so a large import doesn't flood you (default 20).
         </p>
       </div>
     </OrnatePanel>
