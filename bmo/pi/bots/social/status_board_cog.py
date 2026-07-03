@@ -15,10 +15,17 @@ group button (Ack-all incidents / Clear-all briefs). Awaiting-approval agent
 items that carry an originating session id get ✅ Approve / ✖️ Deny buttons
 whose click is relayed back to that session (decisions outbox). Non-actionable
 agent info FYIs are filtered out.
+
+Awaiting-approval rows are PAGINATED (◀ Prev / Next ▶, page size
+BOARD_AWAITING_PER_PAGE, adapted down to the component budget; the page persists
+in BoardState) so any backlog stays strictly under Discord's 40-component cap,
+and the whole render path is fail-safe: build_layout_safe / build_current_view
+never raise — any error degrades to a tiny valid fallback view.
 """
 from __future__ import annotations
 
 import asyncio
+import logging
 import os
 import subprocess
 import time
@@ -27,6 +34,8 @@ import discord
 from discord.ext import commands, tasks
 
 from services import status_board as sb
+
+log = logging.getLogger("status_board")
 
 RECONCILE_SECONDS = int(os.environ.get("BOARD_RECONCILE_S", "60"))
 STATUS_CHANNEL_ID = int(os.environ.get("DISCORD_STATUS_CHANNEL_ID", "0"))
@@ -271,7 +280,7 @@ class PingOwnerButton(discord.ui.DynamicItem[discord.ui.Button], template=r"boar
     confirms ephemerally to the clicker."""
 
     def __init__(self):
-        super().__init__(discord.ui.Button(label="Ping the owner", emoji="\U0001F6CE\uFE0F",
+        super().__init__(discord.ui.Button(label="Ping the owner", emoji="\U0001F6CE️",
                                            style=discord.ButtonStyle.primary,
                                            custom_id="board:pingmc"))
 
@@ -446,7 +455,87 @@ class OtherButton(discord.ui.DynamicItem[discord.ui.Button],
         await interaction.response.send_modal(DecisionModal(self.iid, self.sid))
 
 
+class AwaitingPageButton(discord.ui.DynamicItem[discord.ui.Button],
+                         template=r"board:apage:(?P<step>prev|next)"):
+    """◀ Prev / Next ▶ nav for the paginated awaiting-approval rows. The page
+    index lives in BoardState (persisted), so re-renders keep the page;
+    build_layout clamps it against the current item count each render."""
+
+    def __init__(self, step: str, disabled: bool = False):
+        self.step = step
+        label = "◀ Prev" if step == "prev" else "Next ▶"
+        super().__init__(discord.ui.Button(label=label, style=discord.ButtonStyle.secondary,
+                                           custom_id=f"board:apage:{step}", disabled=disabled))
+
+    @classmethod
+    async def from_custom_id(cls, interaction, item, match):
+        return cls(match["step"])
+
+    async def callback(self, interaction: discord.Interaction):
+        cog = _cog(interaction)
+        if cog:
+            try:
+                page = int(getattr(cog.state, "awaiting_page", 0) or 0)
+            except (TypeError, ValueError):
+                page = 0
+            cog.state.awaiting_page = max(0, page + (1 if self.step == "next" else -1))
+            cog.state.save()
+        await _respond(interaction, cog)
+
+
 # ── Layout ───────────────────────────────────────────────────────────────────
+
+def _add_section(view: discord.ui.LayoutView, item) -> bool:
+    """Fit-check add: try to add a top-level component to the view, swallowing
+    the ValueError discord.py raises on component-budget overflow so an
+    over-budget section is skipped/truncated instead of crash-looping the
+    reconciler. Returns True if the item was added."""
+    try:
+        view.add_item(item)
+        return True
+    except ValueError:
+        log.warning("board section skipped: component budget overflow")
+        return False
+
+
+def _reserved_tail(rows: list[dict], current_cat: str) -> int:
+    """Minimum component footprint of the non-empty sections AFTER current_cat
+    (a Container + one TextDisplay each) plus the global Refresh/Info ActionRow,
+    so an earlier section's buttons can never crowd later sections (e.g. Info)
+    off the board entirely."""
+    reserve = 3  # global ActionRow + Refresh + Info-toggle buttons
+    seen = False
+    for cat, _label in SECTIONS:
+        if cat == current_cat:
+            seen = True
+            continue
+        if seen and any(r.get("category") == cat for r in rows):
+            reserve += 2
+    return reserve
+
+
+def _degraded_view(note: str | None = None) -> discord.ui.LayoutView:
+    """Tiny, always-valid fallback view so the board can ALWAYS render."""
+    view = discord.ui.LayoutView(timeout=None)
+    view.add_item(discord.ui.TextDisplay(
+        note or ("⚠️ **BMO Status Board** — the board hit a rendering error and is "
+                 "showing this fallback view. It will recover on the next update cycle.")))
+    return view
+
+
+def build_layout_safe(rows: list[dict], state: sb.BoardState) -> discord.ui.LayoutView:
+    """NEVER-raise wrapper around build_layout. Any exception (corrupt rows,
+    component-budget overflow, API drift) degrades to a tiny valid view instead
+    of crash-looping the reconcile loop."""
+    try:
+        return build_layout(rows, state)
+    except Exception:
+        log.exception("board layout build failed — rendering degraded view")
+        try:
+            return _degraded_view()
+        except Exception:  # pragma: no cover — belt and braces
+            return discord.ui.LayoutView(timeout=None)
+
 
 def build_layout(rows: list[dict], state: sb.BoardState) -> discord.ui.LayoutView:
     rows = [r for r in rows if not (r.get("category") == "agent" and r.get("severity") == "info")]
@@ -471,20 +560,20 @@ def build_layout(rows: list[dict], state: sb.BoardState) -> discord.ui.LayoutVie
     if info_n:
         bits.append(f"💡 {info_n}")
     summary = " · ".join(bits) if bits else "🟢 All clear"
-    view.add_item(discord.ui.Container(
-        discord.ui.TextDisplay(f"## 📟 BMO Status Board\n{summary}　·　Updated <t:{int(time.time())}:R>"),
-        accent_colour=_colour(worst)))
-    comp += 2
+    if _add_section(view, discord.ui.Container(
+            discord.ui.TextDisplay(f"## 📟 BMO Status Board\n{summary}　·　Updated <t:{int(time.time())}:R>"),
+            accent_colour=_colour(worst))):
+        comp += 2
 
     for cat, label in SECTIONS:
         crows = [r for r in rows if r["category"] == cat]
         if not crows:
             continue
         if cat == "info" and state.collapse_info:
-            view.add_item(discord.ui.Container(
-                discord.ui.TextDisplay(f"### {label} · {len(crows)} — hidden (tap Info to show)"),
-                accent_colour=_colour("info")))
-            comp += 2
+            if _add_section(view, discord.ui.Container(
+                    discord.ui.TextDisplay(f"### {label} · {len(crows)} — hidden (tap Info to show)"),
+                    accent_colour=_colour("info"))):
+                comp += 2
             continue
         crows.sort(key=lambda r: sb.SEV_ORDER.index(r["severity"]))
         if cat == "agent":
@@ -503,35 +592,65 @@ def build_layout(rows: list[dict], state: sb.BoardState) -> discord.ui.LayoutVie
                         discord.ui.TextDisplay("\n".join(glines)[:MAX_SECTION_CHARS])]
             sect_comp = 1 + len(children)
             # Awaiting approve/deny items (those carrying an originating session
-            # id) additionally get per-item Approve/Deny buttons. A click relays
-            # the decision back to the session that posted the item (via the
-            # decisions outbox) and removes the entry. Items without a session id
-            # (e.g. in-app permission asks) keep the existing in-chat path — no
-            # buttons. Budget-guarded like the other interactive sections.
+            # id) additionally get per-item Approve/Deny/Other buttons, PAGINATED
+            # so an arbitrarily large backlog can never overflow Discord's
+            # 40-component cap. Page size starts at BOARD_AWAITING_PER_PAGE
+            # (default 5) and adapts DOWN so the total component count stays
+            # strictly under the budget while later sections (Today/Info) keep
+            # their minimum footprint (_reserved_tail). The current page lives
+            # in BoardState (persisted), so re-renders keep the page; each
+            # button custom_id still encodes item_id + session_id, so a click on
+            # ANY page routes to the right item. Items without a session id
+            # (e.g. in-app permission asks) keep the existing in-chat path.
             awaiting = [r for r in crows if sb.is_approval_row(r)]
-            alines, arows = [], []
-            for idx, r in enumerate(awaiting, 1):
-                # Each ActionRow now carries 3 buttons (Approve/Deny/Other) =
-                # 4 components (the row + its 3 buttons); budget accordingly.
-                if comp + sect_comp + 1 + len(arows) * 4 + 4 >= COMPONENT_BUDGET:
-                    break
-                alines.append(f"`{idx}` " + _line(r, compact=len(awaiting) > 6))
-                arows.append(discord.ui.ActionRow(
-                    ApproveButton(r["id"], r.get("session_id") or "", label=f"✅ Approve {idx}"),
-                    DenyButton(r["id"], r.get("session_id") or "", label=f"✖️ Deny {idx}"),
-                    OtherButton(r["id"], r.get("session_id") or "", label=f"✏️ Other {idx}")))
-            if alines:
-                children.append(discord.ui.TextDisplay(
-                    "**Awaiting your decision — Approve / Deny / ✏️ Other "
-                    "(a click is relayed to the agent):**\n"
-                    + "\n".join(alines)))
-                sect_comp += 1
-                for ar in arows:
-                    children.append(ar)
-                    sect_comp += 4
-            view.add_item(discord.ui.Container(*children,
-                          accent_colour=_colour(sb.worst_severity(crows))))
-            comp += sect_comp
+            if awaiting:
+                per_page = max(1, int(getattr(sb, "AWAITING_PER_PAGE", 5) or 5))
+                # Room left for the awaiting block: 1 for its TextDisplay, then
+                # 4 per item row (ActionRow + 3 buttons) and 3 for the nav row
+                # (ActionRow + Prev + Next) when more than one page is needed.
+                avail = COMPONENT_BUDGET - comp - sect_comp - _reserved_tail(rows, cat) - 1
+                if per_page >= len(awaiting) and avail >= len(awaiting) * 4:
+                    eff = len(awaiting)                       # single page, no nav
+                else:
+                    eff = min(per_page, max(0, (avail - 3) // 4))
+                if eff > 0:
+                    total_pages = -(-len(awaiting) // eff)    # ceil div
+                    page = sb.clamp_page(getattr(state, "awaiting_page", 0), len(awaiting), eff)
+                    try:
+                        state.awaiting_page = page            # persist the clamped page
+                    except Exception:
+                        pass
+                    alines, arows = [], []
+                    for offset, r in enumerate(sb.page_slice(awaiting, page, eff)):
+                        idx = page * eff + offset + 1         # global numbering across pages
+                        alines.append(f"`{idx}` " + _line(r, compact=len(awaiting) > 6))
+                        arows.append(discord.ui.ActionRow(
+                            ApproveButton(r["id"], r.get("session_id") or "", label=f"✅ Approve {idx}"),
+                            DenyButton(r["id"], r.get("session_id") or "", label=f"✖️ Deny {idx}"),
+                            OtherButton(r["id"], r.get("session_id") or "", label=f"✏️ Other {idx}")))
+                    head = ("**Awaiting your decision — Approve / Deny / ✏️ Other "
+                            "(a click is relayed to the agent):**")
+                    if total_pages > 1:
+                        head += f"\n_page {page + 1}/{total_pages} · {len(awaiting)} total_"
+                    children.append(discord.ui.TextDisplay(
+                        (head + "\n" + "\n".join(alines))[:MAX_SECTION_CHARS]))
+                    sect_comp += 1
+                    for ar in arows:
+                        children.append(ar)
+                        sect_comp += 4
+                    if total_pages > 1:
+                        children.append(discord.ui.ActionRow(
+                            AwaitingPageButton("prev", disabled=page <= 0),
+                            AwaitingPageButton("next", disabled=page >= total_pages - 1)))
+                        sect_comp += 3
+                else:
+                    children.append(discord.ui.TextDisplay(
+                        f"**{len(awaiting)} item(s) awaiting your decision** — the board is "
+                        "too full to show their buttons; clear some items above."))
+                    sect_comp += 1
+            if _add_section(view, discord.ui.Container(*children,
+                            accent_colour=_colour(sb.worst_severity(crows)))):
+                comp += sect_comp
             continue
         interactive = cat in INTERACTIVE
         compact = len(crows) > 12
@@ -550,10 +669,19 @@ def build_layout(rows: list[dict], state: sb.BoardState) -> discord.ui.LayoutVie
         if chunk:
             children.append(discord.ui.TextDisplay("\n".join(chunk)))
         sect_comp = 1 + len(children)
-        if interactive and comp + sect_comp < COMPONENT_BUDGET:
+        # Truncate text chunks that would overflow the budget (keep the header
+        # at minimum) so a huge section shrinks instead of raising.
+        max_sect = COMPONENT_BUDGET - comp - _reserved_tail(rows, cat)
+        while len(children) > 1 and sect_comp > max_sect:
+            children.pop()
+            sect_comp -= 1
+        # Reserve the minimum footprint of the later sections so this section's
+        # buttons can never crowd them off the board.
+        budget = COMPONENT_BUDGET - _reserved_tail(rows, cat)
+        if interactive and comp + sect_comp < budget:
             btns: list[discord.ui.Item] = []
             for idx, r in enumerate(crows, 1):
-                if comp + sect_comp + len(btns) + 2 >= COMPONENT_BUDGET:
+                if comp + sect_comp + len(btns) + 2 >= budget:
                     break
                 if cat == "incident":
                     btns.append(MuteButton(r["key"], label=f"🔕 {idx}"))
@@ -571,13 +699,14 @@ def build_layout(rows: list[dict], state: sb.BoardState) -> discord.ui.LayoutVie
                 and comp + sect_comp + 2 <= COMPONENT_BUDGET:
             children.append(discord.ui.ActionRow(PingOwnerButton()))
             sect_comp += 2
-        view.add_item(discord.ui.Container(*children, accent_colour=_colour(sb.worst_severity(crows))))
-        comp += sect_comp
+        if _add_section(view, discord.ui.Container(*children,
+                        accent_colour=_colour(sb.worst_severity(crows)))):
+            comp += sect_comp
 
     glob = [RefreshButton()]
     if any(r["category"] == "info" for r in rows):
         glob.append(ToggleInfoButton())
-    view.add_item(discord.ui.ActionRow(*glob))
+    _add_section(view, discord.ui.ActionRow(*glob))
     return view
 
 
@@ -629,7 +758,7 @@ class StatusBoardCog(commands.Cog):
     async def cog_load(self):
         for dyn in (MuteButton, DoneButton, RefreshButton, AckAllButton,
                     ToggleInfoButton, ClearBriefsButton, PingOwnerButton,
-                    ApproveButton, DenyButton, OtherButton):
+                    ApproveButton, DenyButton, OtherButton, AwaitingPageButton):
             self.bot.add_dynamic_items(dyn)
         self.loop.start()
 
@@ -638,7 +767,16 @@ class StatusBoardCog(commands.Cog):
 
     def build_current_view(self) -> discord.ui.LayoutView:
         """Re-derive truth from local state (fast, no subprocess) and render. Used
-        by button responses and the periodic loop. Does NOT edit the message."""
+        by button responses and the periodic loop. Does NOT edit the message.
+        FAIL-SAFE: never raises — any error degrades to a tiny valid view so the
+        reconcile loop and button responses can never crash-loop on a render."""
+        try:
+            return self._build_current_view()
+        except Exception:
+            log.exception("board state derivation failed — rendering degraded view")
+            return _degraded_view()
+
+    def _build_current_view(self) -> discord.ui.LayoutView:
         monitor = sb._read_json(sb.MONITOR_STATE) if os.path.exists(sb.MONITOR_STATE) else {}
         labels = dict(LABELS)
         messages = {}
@@ -679,13 +817,14 @@ class StatusBoardCog(commands.Cog):
         self.state.updated = now
         self.state.save()
         self._last_rows = rows
-        return build_layout(rows, self.state)
+        return build_layout_safe(rows, self.state)
 
     @staticmethod
     def _hash(rows: list, state: sb.BoardState) -> str:
         parts = [f"{r['category']}|{r['severity']}|{r['title']}|{r.get('detail','')}|{r.get('since')}|{r.get('due')}"
                  for r in rows]
-        return repr((sorted(parts), state.collapse_info, sorted(state.muted)))
+        return repr((sorted(parts), state.collapse_info, sorted(state.muted),
+                     getattr(state, "awaiting_page", 0)))
 
     @tasks.loop(seconds=RECONCILE_SECONDS)
     async def loop(self):
@@ -694,8 +833,7 @@ class StatusBoardCog(commands.Cog):
             self._mc_down = await asyncio.to_thread(_mc_down)
             await self.render_to_message()
         except Exception:
-            import logging
-            logging.getLogger("status_board").exception("board reconcile failed (retry next cycle)")
+            log.exception("board reconcile failed (retry next cycle)")
 
     @loop.before_loop
     async def _before(self):
