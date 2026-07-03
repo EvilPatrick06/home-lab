@@ -332,7 +332,8 @@ class CodeAgent(BaseAgent):
                 name = tc.get("tool", "")
                 args = tc.get("args", {})
 
-                print(f"[code_agent] Tool call #{tool_calls_made}: {name}({json.dumps(args)[:100]})")
+                # Log tool name + arg KEYS only; arg values may hold secrets (CWE-312).
+                print(f"[code_agent] Tool call #{tool_calls_made}: {name}(keys={sorted(args) if isinstance(args, dict) else '?'})")
                 self._emit_progress(name, "running")
                 result = self.dispatch_tool(name, args)
 

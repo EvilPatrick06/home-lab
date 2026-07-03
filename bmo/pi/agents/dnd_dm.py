@@ -321,7 +321,8 @@ Reply with a SHORT plan (2-4 sentences max). Available directives:
 
         try:
             plan = self.llm_call(plan_messages, OLLAMA_PLAN_OPTIONS)
-            print(f"[dm-plan] {plan[:200]}")
+            # The DM plan text can echo user campaign content; log length only (CWE-312).
+            print(f"[dm-plan] plan generated ({len(plan)} chars)")
 
             extras = []
 

@@ -7,6 +7,7 @@ one extra `dirname` each vs app.py to keep `bmo/pi/config` (+ legacy `bmo/config
 identically. google-auth + requests stay function-local imports as before.
 """
 
+import html
 import json
 import logging
 import os
@@ -337,7 +338,17 @@ def _calendar_auth_html(success: bool, message: str) -> str:
     title = "Calendar Authorized" if success else "Calendar Authorization Failed"
     status_color = "#22c55e" if success else "#ef4444"
     event_payload = "true" if success else "false"
-    safe_message = (message or "").replace("<", "&lt;").replace(">", "&gt;")
+    # Text context (<p>): full HTML-escape so a reflected OAuth `error` value
+    # cannot inject markup (CWE-79 / py/reflective-xss).
+    safe_message = html.escape(message or "")
+    # Script context: json.dumps escapes quotes but NOT `</script>` or `<`, so
+    # a `</script>...` payload could break out of the <script> block. Escape
+    # `<`/`>` to \u00XX, which stay valid JSON string content.
+    js_message = (
+        json.dumps(message or "")
+        .replace("<", "\\u003c")
+        .replace(">", "\\u003e")
+    )
     return f"""<!doctype html>
 <html lang="en">
   <head>
@@ -385,7 +396,7 @@ def _calendar_auth_html(success: bool, message: str) -> str:
     <script>
       try {{
         if (window.opener && !window.opener.closed) {{
-          window.opener.postMessage({{ type: "bmo-calendar-auth", ok: {event_payload}, message: {json.dumps(message)} }}, "*");
+          window.opener.postMessage({{ type: "bmo-calendar-auth", ok: {event_payload}, message: {js_message} }}, "*");
         }}
       }} catch (e) {{}}
       setTimeout(() => window.close(), 1200);

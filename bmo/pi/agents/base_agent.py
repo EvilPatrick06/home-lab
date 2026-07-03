@@ -271,7 +271,9 @@ Available agents to relay to: code, dnd_dm, music, smart_home, timer, calendar, 
                 if "tool" in tc:
                     calls.append(tc)
             except json.JSONDecodeError:
-                print(f"[{self.config.name}] Failed to parse tool_call: {match[:100]}")
+                # Do not log the raw tool_call text: it can carry user/model
+                # secrets (CWE-312). Log only its length.
+                print(f"[{self.config.name}] Failed to parse tool_call ({len(match)} chars)")
         return calls
 
     def strip_tool_calls(self, text: str) -> str:

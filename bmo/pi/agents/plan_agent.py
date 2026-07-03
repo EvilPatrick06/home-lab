@@ -200,7 +200,8 @@ class PlanAgent(BaseAgent):
                 tool_calls_made += 1
                 name = tc.get("tool", "")
                 args = tc.get("args", {})
-                print(f"[plan_agent] Tool call #{tool_calls_made}: {name}({json.dumps(args)[:100]})")
+                # Log tool name + arg KEYS only; arg values may hold secrets (CWE-312).
+                print(f"[plan_agent] Tool call #{tool_calls_made}: {name}(keys={sorted(args) if isinstance(args, dict) else '?'})")
                 result = self.dispatch_tool(name, args)
                 tool_results.append({"tool": name, "result": result})
 

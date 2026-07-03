@@ -641,11 +641,24 @@ def api_dnd_sessions():
     return jsonify(sessions)
 
 
+def _safe_session_path(date: str) -> str | None:
+    """Resolve a DnD session log path from a URL `<date>` segment, jailed to
+    DND_LOG_DIR. Returns the realpath'd path, or None if it escapes the log
+    dir (CWE-22). The `<date>` string converter already forbids `/`, but a
+    realpath+containment check is the explicit barrier CodeQL and reviewers
+    can see, and it also rejects any decoded/`..` trickery."""
+    base = os.path.realpath(chat_history.DND_LOG_DIR)
+    resolved = os.path.realpath(os.path.join(base, f"session_{date}.json"))
+    if resolved == base or not resolved.startswith(base + os.sep):
+        return None
+    return resolved
+
+
 @chat_bp.route("/api/dnd/sessions/<date>")
 def api_dnd_session_get(date):
     """Get a specific DnD session log by date."""
-    fpath = os.path.join(chat_history.DND_LOG_DIR, f"session_{date}.json")
-    if not os.path.exists(fpath):
+    fpath = _safe_session_path(date)
+    if fpath is None or not os.path.exists(fpath):
         return jsonify({"error": f"No session found for {date}"}), 404
     try:
         with open(fpath, encoding="utf-8") as f:
@@ -659,8 +672,8 @@ def api_dnd_session_get(date):
 def api_dnd_session_restore(date):
     """Restore a DnD session into the agent's conversation history."""
     agent = _app().agent
-    fpath = os.path.join(chat_history.DND_LOG_DIR, f"session_{date}.json")
-    if not os.path.exists(fpath):
+    fpath = _safe_session_path(date)
+    if fpath is None or not os.path.exists(fpath):
         return jsonify({"error": f"No session found for {date}"}), 404
     try:
         with open(fpath, encoding="utf-8") as f:
