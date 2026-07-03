@@ -64,6 +64,117 @@ New entries go at the TOP of their section (newest first).
 
 ---
 
+### [2026-07-02] Second-window player/projector display for in-person tables — put the player view of the map on a TV while the DM keeps the control window
+
+- **Category:** future-idea, UX
+- **Severity:** info
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** scheduled improvement scan of dnd-app/
+
+**Description:**
+The app has a strong player-facing presentation layer (`SceneModeOverlay.tsx` full-bleed cinematic scenes, fog-of-war player filtering in `stores/game/fog-slice.ts`, `network-state-filter.ts` stripping DM-only data), but it all renders in the ONE window. There is no way to run an in-person table where the DM's laptop drives a TV/projector showing the players' view of the battlemap while the DM keeps the full control UI on their own screen. Every comparable VTT (Foundry via popout modules, Owlbear Rodeo second screen, Fantasy Grounds) supports this, and Electron makes it unusually cheap: a second chromeless `BrowserWindow` on the extended display loading the same renderer in a "player-view" mode (a spectator-permission rendering path already exists) with camera/zoom optionally slaved to the DM window.
+
+**Proposed fix / improvement:**
+- [ ] Add a "Player display" toggle (DM only) that opens a second frameless BrowserWindow on a chosen display (Electron `screen` API) rendering the existing player/spectator view of the current map + scene overlay.
+- [ ] Reuse the spectator network path locally (loopback state feed or shared store) so DM-only layers (hidden tokens, DM notes, full fog) never paint there.
+- [ ] Camera options: follow-DM, follow-active-token, or free.
+- [ ] Web/embed targets can degrade to a popout browser window of the existing web SPA in spectator mode.
+
+**Blocked by:** none
+
+**Related files:** `src/main/index.ts` (window creation), `src/renderer/src/components/game/overlays/scene/SceneModeOverlay.tsx`, `src/renderer/src/stores/network-store/network-state-filter.ts`, `src/renderer/src/stores/game/fog-slice.ts`
+
+**Related entries:** none
+
+### [2026-07-02] Map ping + center-camera gestures — no way to say "look HERE" on the battlemap
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** scheduled improvement scan of dnd-app/
+
+**Description:**
+Grep across the renderer finds "ping" only as the network keepalive message (`network/message-types`, `client-handlers.ts` case 'ping') — there is no map ping gesture, and no camera-focus verb at all (no `centerOnToken` / `panTo` / follow-token anywhere). During play the DM cannot flash a marker at a map location that all connected players see ("the trap is here"), and players cannot ping to answer "where is your character?". Likewise nothing recenters a player's viewport on their token or on the active-initiative token when their turn starts — on a large map a distracted player is simply lost. This is a small, high-frequency quality-of-life gap: the multiplayer plumbing (broadcast message types, per-player permissions) and the Pixi overlay layer needed to draw an animated ripple already exist.
+
+**Proposed fix / improvement:**
+- [ ] Alt/long-press-click on the map broadcasts a `map-ping` message (position + sender color); all clients render a ~2s animated ripple + optional sound, DM setting to disable player pings.
+- [ ] Double-click a ping (or a "focus" variant, e.g. Alt+Shift-click) additionally pans remote viewports to the pinged location (respecting a per-player "allow camera pull" setting).
+- [ ] "Center on my token" hotkey + auto-center-on-active-token option when initiative advances.
+
+**Blocked by:** none
+
+**Related files:** `src/renderer/src/network/message-types.ts`, `src/renderer/src/stores/network-store/client-handlers.ts`, `src/renderer/src/components/game/map/map-canvas/`, `src/renderer/src/stores/game/initiative-slice.ts`
+
+**Related entries:** none
+
+### [2026-07-02] Screen-reader battlefield access — the Pixi map canvas is invisible to assistive tech; add a textual battlefield summary / aria-live turn narrator
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** scheduled improvement scan of dnd-app/
+
+**Description:**
+The app has real accessibility investment — a screen-reader mode in `use-accessibility-store.ts`, aria-live regions in chat/dice components, a jest-axe harness — but the battlemap itself is a PixiJS canvas, which exposes NOTHING to a screen reader: token positions, movement, fog reveals, AoE placement and door states are all purely visual. A blind or low-vision player can chat and roll dice but cannot answer "who is adjacent to me?" or "how far is the ogre?". The game store already holds everything needed to answer those questions textually (token coords, grid size, initiative order, conditions), so this is a presentation gap, not a data gap.
+
+**Proposed fix / improvement:**
+- [ ] "Describe battlefield" panel/hotkey (visible when screen-reader mode is on): a generated text summary — per-token grid position, distance + direction from the player's token, conditions, door/wall highlights of the immediate area.
+- [ ] aria-live turn narrator: on initiative advance / token move / AoE placement, announce a one-line description ("Ogre moves 15 ft closer, now 10 ft north of you").
+- [ ] Keyboard token cursor: arrow-key iterate over tokens with each announced, reusing the existing keybinding system.
+
+**Blocked by:** none
+
+**Related files:** `src/renderer/src/stores/use-accessibility-store.ts`, `src/renderer/src/components/game/map/map-canvas/`, `src/renderer/src/stores/game/initiative-slice.ts`, `src/renderer/src/a11y/a11y-smoke.test.tsx`
+
+**Related entries:** SUGGESTIONS-LOG-DNDAPP [2026-06-29] a11y (jest-axe) harness only asserts on a synthetic fragment (complementary — that covers DOM components; this covers the canvas)
+
+### [2026-07-02] Automatic scheduled local backups with rotation — the app nudges about stale backups but never just makes one itself
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** scheduled improvement scan of dnd-app/
+
+**Description:**
+Backup support today is: manual export (`services/io/import-export.ts`), an optional cloud path (`CloudBackupSection`), and a 14-day staleness NAG (`services/backup/backup-staleness.ts` -> on-launch nudge). The app knows the user hasn't backed up, has atomic-write + snapshot machinery in the main process (`storage/atomic-write.ts`, `storage/snapshot.ts`), and full filesystem access — yet it still asks the human to do the export by hand. For a desktop app holding campaigns that represent months of play, silent automatic local backups are strictly better than reminders: an on-quit (or every-N-hours) auto-export of campaigns/characters/settings to a configurable folder with N-copy rotation (e.g. keep 10, prune oldest), surfaced in Settings next to the existing cloud backup section. The staleness nudge then only fires if auto-backup is disabled AND stale.
+
+**Proposed fix / improvement:**
+- [ ] Main-process auto-backup job: on app quit + every N hours while running, write the same archive the manual export produces to `<userData>/backups/` (or user-chosen dir), rotate to a configurable count.
+- [ ] Settings toggle + folder picker + "restore from backup" list in the existing backup/cloud section; record last-auto-backup time so `backupStaleness` counts it.
+- [ ] Skip when nothing changed since the last backup (cheap dirty flag from the save queue).
+
+**Blocked by:** none
+
+**Related files:** `src/renderer/src/services/backup/backup-staleness.ts`, `src/renderer/src/services/io/import-export.ts`, `src/main/storage/snapshot.ts`, `src/main/storage/save-queue.ts`, `src/renderer/src/components/settings/CloudBackupSection.tsx`
+
+**Related entries:** none
+
+### [2026-07-02] Printable spell/item cards — PrintSheet covers the character sheet but prepared spells and magic items have no card/handout output
+
+- **Category:** future-idea
+- **Severity:** info
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** scheduled improvement scan of dnd-app/
+
+**Description:**
+`sheet/shared/PrintSheet.tsx` gives the character sheet a print path, but there is no way to print or export the things players actually reference mid-turn at a physical table: spell cards for a character's prepared/known spells, or cards for magic items/attuned gear. All the data is local and structured (spellbooks, items, homebrew included), so a print-stylesheet grid of poker-size cards (name, casting time, range, components, duration, rules text, upcast note) is a data-to-CSS exercise — no new data, no network. Useful for in-person play (pairs with the second-window/projector idea) and as a PDF export for remote players.
+
+**Proposed fix / improvement:**
+- [ ] "Print spell cards" action on the sheet's spellcasting section: renders selected/prepared spells as a CSS-grid card layout in a print window (reuse the PrintSheet pattern), 9 cards per page, browser print-to-PDF for free.
+- [ ] Same for inventory: selected items/attunements as cards.
+- [ ] Card-back option with class/school color for easy sorting.
+
+**Blocked by:** none
+
+**Related files:** `src/renderer/src/components/sheet/shared/PrintSheet.tsx`, `src/renderer/src/components/sheet/5e/SpellcastingSection5e.tsx`, `src/renderer/src/services/character/`
+
+**Related entries:** SUGGESTIONS-LOG-DNDAPP [2026-07-02] Second-window player/projector display (both serve in-person tables)
+
 ### [2026-07-02] Dead Windows code-signing leftovers — `scripts/sign.mjs` + `.env.signing.template` survive the v2.2.2 removal of the `win.sign` hook
 
 - **Category:** debt
