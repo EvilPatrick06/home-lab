@@ -5,6 +5,14 @@ import { useGameStore } from '../../../../stores/use-game-store'
 import type { Handout, HandoutPage } from '../../../../types/game-state'
 import ModalFormFooter from '../shared/ModalFormFooter'
 
+// Only render an <img> src whose scheme is a known-safe image source. Handout
+// content can arrive from an imported/shared campaign, so a hostile value like
+// `javascript:` or `data:text/html` must never reach the src sink (XSS, CWE-79).
+const SAFE_IMAGE_SRC = /^(?:data:image\/|blob:|https?:)/i
+function isSafeImageSrc(src: string): boolean {
+  return SAFE_IMAGE_SRC.test(src.trim())
+}
+
 interface HandoutModalProps {
   onClose: () => void
   onShareHandout?: (handout: Handout) => void
@@ -182,7 +190,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                 onChange={handleFileUpload}
                 className="w-full text-xs text-muted file:me-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:bg-gray-700 file:text-gray-300 file:cursor-pointer hover:file:bg-gray-600"
               />
-              {content && (
+              {content && isSafeImageSrc(content) && (
                 <div className="border border-border/50 rounded p-1">
                   <img
                     src={content}

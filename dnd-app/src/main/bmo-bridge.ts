@@ -492,7 +492,7 @@ function getBearerToken(req: IncomingMessage): string | null {
   const raw = req.headers.authorization
   if (!raw) return null
   const value = Array.isArray(raw) ? raw[0] : raw
-  const m = value.match(/^Bearer\s+(.+)$/i)
+  const m = value.match(/^Bearer\s+(\S.*)$/i)
   return m ? m[1].trim() : null
 }
 
