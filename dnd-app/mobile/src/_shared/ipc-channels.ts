@@ -214,6 +214,9 @@ export const IPC_CHANNELS = {
   // === Settings ===
   SAVE_SETTINGS: 'storage:save-settings',
   LOAD_SETTINGS: 'storage:load-settings',
+  // OS file association (.dndvtt) open handlers
+  FILE_OPEN_REQUEST: 'file:open-request',
+  FILE_CONSUME_PENDING: 'file:consume-pending',
 
   // === Audio: Custom Tracks ===
   AUDIO_UPLOAD_CUSTOM: 'audio:upload-custom',
@@ -233,6 +236,8 @@ export const IPC_CHANNELS = {
   // === Storage: Character Versions ===
   CHARACTER_VERSIONS: 'storage:character-versions',
   CHARACTER_RESTORE_VERSION: 'storage:character-restore-version',
+  CAMPAIGN_VERSIONS: 'storage:campaign-versions',
+  CAMPAIGN_RESTORE_VERSION: 'storage:campaign-restore-version',
 
   // === App Info ===
   APP_VERSION: 'app:version',
@@ -315,6 +320,7 @@ export const IPC_CHANNELS = {
   BOOK_READ_FILE: 'book:read-file',
   BOOK_LOAD_DATA: 'book:load-data',
   BOOK_SAVE_DATA: 'book:save-data',
+  BOOK_SAVE_BYTES: 'book:save-bytes',
 
   // === Discord Integration ===
   DISCORD_GET_CONFIG: 'discord:get-config',
