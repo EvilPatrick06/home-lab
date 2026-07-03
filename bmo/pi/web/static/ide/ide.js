@@ -426,7 +426,7 @@
       acc = acc ? `${acc}/${part}` : part;
       const path = acc;
       if (i > 0) html += '<span class="separator">/</span>';
-      html += `<span class="crumb" data-path="${path}">${part || '/'}</span>`;
+      html += `<span class="crumb" data-path="${escapeHtml(path)}">${escapeHtml(part || '/')}</span>`;
     });
     bc.innerHTML = html;
     bc.querySelectorAll('.crumb').forEach(el => {
@@ -1632,7 +1632,7 @@
             <h3>Workspace</h3>
             <label class="settings-row">
               <span>Working Directory</span>
-              <input type="text" id="setting-workdir" value="${state.currentPath}" class="settings-input settings-input-wide">
+              <input type="text" id="setting-workdir" value="${escapeHtml(state.currentPath)}" class="settings-input settings-input-wide">
             </label>
           </div>
           <button id="settings-apply" class="btn-primary" style="margin-top:12px;width:100%;">Apply</button>
