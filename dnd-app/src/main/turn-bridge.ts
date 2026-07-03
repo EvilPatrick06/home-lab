@@ -13,7 +13,7 @@
  * still covers a dead-ended join).
  */
 
-import { getBmoAccessHeadersIfTrusted, getBmoBaseUrl } from './bmo-config'
+import { getBmoAccessHeadersForUrl, getBmoBaseUrl } from './bmo-config'
 
 export interface TurnCredentials {
   username: string
@@ -25,9 +25,20 @@ export interface TurnCredentials {
 
 const TURN_TIMEOUT_MS = 5_000
 
+// SECURITY 2026-07-02: an override must at least parse as an http(s) URL —
+// anything else silently falls back to the resolved base. Renderer-supplied
+// overrides are additionally restricted to KNOWN Pi bases at the IPC layer
+// (registry-handlers.ts → sanitizeRendererBaseOverride).
 function baseUrl(override?: string): string {
   const raw = (override ?? '').trim()
-  if (raw) return raw.replace(/\/+$/, '')
+  if (raw) {
+    try {
+      const u = new URL(raw)
+      if (u.protocol === 'http:' || u.protocol === 'https:') return raw.replace(/\/+$/, '')
+    } catch {
+      // not a URL — ignore the override
+    }
+  }
   return getBmoBaseUrl()
 }
 
@@ -37,7 +48,9 @@ export async function fetchTurnCredentials(baseOverride?: string): Promise<TurnC
   const timer = setTimeout(() => controller.abort(), TURN_TIMEOUT_MS)
   try {
     const resp = await fetch(`${base}/api/turn-credentials`, {
-      headers: getBmoAccessHeadersIfTrusted(),
+      // Trust is computed from the ACTUAL fetch target (base), not the resolved
+      // base — an override never inherits the resolved base's secret trust.
+      headers: getBmoAccessHeadersForUrl(base),
       signal: controller.signal
     })
     if (!resp.ok) return null

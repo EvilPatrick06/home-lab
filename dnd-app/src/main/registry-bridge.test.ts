@@ -212,3 +212,30 @@ describe('registry-bridge polling live feed', () => {
     expect(fetchMock.mock.calls.length).toBe(callsAfterFirst)
   })
 })
+
+describe('baseOverride validation at the bridge layer (SECURITY 2026-07-02)', () => {
+  it('ignores a non-URL override and falls back to the resolved base', async () => {
+    fetchMock.mockResolvedValueOnce(jsonOk({ games: [] }))
+    await listGames(null, 'not a url')
+    expect(String(fetchMock.mock.calls[0][0])).toBe('https://bmo.mybmoai.work/api/games')
+  })
+
+  it('ignores a non-http(s) override and falls back to the resolved base', async () => {
+    fetchMock.mockResolvedValueOnce(jsonOk({ games: [] }))
+    await listGames(null, 'file:///etc/passwd')
+    expect(String(fetchMock.mock.calls[0][0])).toBe('https://bmo.mybmoai.work/api/games')
+  })
+
+  it('honors a well-formed http(s) override with trailing slashes stripped (direct main-process callers)', async () => {
+    fetchMock.mockResolvedValueOnce(jsonOk({ games: [] }))
+    await listGames(null, 'http://pi.local:5000/')
+    expect(String(fetchMock.mock.calls[0][0])).toBe('http://pi.local:5000/api/games')
+  })
+
+  it('never attaches CF-Access headers to an override host that is not secret-trusted', async () => {
+    fetchMock.mockResolvedValueOnce(jsonOk({ games: [] }))
+    await listGames(null, 'http://pi.local:5000')
+    const init = fetchMock.mock.calls[0][1] as RequestInit
+    expect(init.headers).toEqual({})
+  })
+})

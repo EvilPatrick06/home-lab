@@ -281,3 +281,43 @@ describe('getBmoAccessHeadersIfTrusted (LAN credential-leak guard)', () => {
     })
   })
 })
+
+describe('baseOverride trust / sanitization (SECURITY 2026-07-02)', () => {
+  it('sanitizeRendererBaseOverride accepts only KNOWN Pi bases', async () => {
+    const mod = await loadFresh()
+    expect(mod.sanitizeRendererBaseOverride(mod.BMO_PI_URL_DEFAULT)).toBe(mod.BMO_PI_URL_DEFAULT)
+    expect(mod.sanitizeRendererBaseOverride('https://evil.example')).toBeUndefined()
+    expect(mod.sanitizeRendererBaseOverride('file:///etc/passwd')).toBeUndefined()
+    expect(mod.sanitizeRendererBaseOverride('not a url')).toBeUndefined()
+    expect(mod.sanitizeRendererBaseOverride(42)).toBeUndefined()
+    expect(mod.sanitizeRendererBaseOverride(undefined)).toBeUndefined()
+  })
+
+  it('a discovered http LAN base is selectable as an override but NOT secret-trusted', async () => {
+    const mod = await loadFresh()
+    mod.setDiscoveredBmoUrl('http://192.168.1.50:5000')
+    expect(mod.sanitizeRendererBaseOverride('http://192.168.1.50:5000')).toBe('http://192.168.1.50:5000')
+    expect(mod.isUrlSecretTrusted('http://192.168.1.50:5000')).toBe(false)
+    expect(mod.getBmoAccessHeadersForUrl('http://192.168.1.50:5000')).toEqual({})
+  })
+
+  it('the https tunnel default is secret-trusted; an arbitrary https host never is', async () => {
+    const mod = await loadFresh()
+    expect(mod.isUrlSecretTrusted(mod.BMO_PI_URL_DEFAULT)).toBe(true)
+    expect(mod.isUrlSecretTrusted('https://evil.example')).toBe(false)
+  })
+
+  it('a user-typed http base is secret-trusted (explicit user choice) and normalizes trailing slashes', async () => {
+    const mod = await loadFresh()
+    mod.applyBmoBaseUrlFromSettings({ bmoPiBaseUrl: 'http://pi.local:5000' })
+    expect(mod.isUrlSecretTrusted('http://pi.local:5000')).toBe(true)
+    expect(mod.sanitizeRendererBaseOverride('http://pi.local:5000/')).toBe('http://pi.local:5000')
+  })
+
+  it('env BMO_PI_URL is a known base; trusted only when https', async () => {
+    process.env.BMO_PI_URL = 'http://env-pi.local:5000'
+    const mod = await loadFresh()
+    expect(mod.sanitizeRendererBaseOverride('http://env-pi.local:5000')).toBe('http://env-pi.local:5000')
+    expect(mod.isUrlSecretTrusted('http://env-pi.local:5000')).toBe(false)
+  })
+})
