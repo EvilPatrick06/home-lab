@@ -503,5 +503,48 @@ if [ "$REQS_CHANGED" -eq 1 ]; then
   restart_main=1
   restart_bots=1
 fi
+units=()
+[ "$restart_main" -eq 1 ] && units+=("bmo")
+[ "$restart_bots" -eq 1 ] && units+=("bmo-dm-bot" "bmo-social-bot")
+[ "$restart_fan" -eq 1 ]  && units+=("bmo-fan")
 
-units=
+if [ "${#units[@]}" -eq 0 ]; then
+  log "no service-affecting changes"
+  # Code now matches TARGET and no restart was needed — advance the marker.
+  [ "$DRY_RUN" -eq 0 ] && printf '%s\n' "$TARGET" > "$DEPLOYED_MARKER"
+  exit 0
+fi
+
+RESTART_UNITS="${units[*]}"
+log "restarting: $RESTART_UNITS"
+# shellcheck disable=SC2086  # intentional word-splitting of the unit list
+run sudo systemctl restart $RESTART_UNITS
+
+# Record the SHA the services are now running on, so the next deploy compares
+# against what is actually running (not just the tree HEAD).
+[ "$DRY_RUN" -eq 0 ] && printf '%s\n' "$TARGET" > "$DEPLOYED_MARKER"
+
+# ── Gate 9: Health gate ─────────────────────────────────────────────────────--
+if [ "$DRY_RUN" -eq 0 ]; then
+  if [ "$restart_main" -eq 1 ]; then
+    if ! poll_health "http://localhost:5000/health" "$HEALTH_TIMEOUT"; then
+      log "live /health RED after restart"
+      rollback
+    fi
+    log "live /health green"
+  fi
+  for unit in "${units[@]}"; do
+    run systemctl is-active --quiet "$unit" || { log "$unit not active"; rollback; }
+  done
+else
+  # Under --dry-run, still echo the is-active checks for visibility.
+  if [ "$restart_main" -eq 1 ]; then
+    log "would poll http://localhost:5000/health (up to ${HEALTH_TIMEOUT}s)"
+  fi
+  for unit in "${units[@]}"; do
+    run systemctl is-active --quiet "$unit"
+  done
+fi
+
+# ── Gate 10: Success ────────────────────────────────────────────────────────--
+log "OK: ${OLD_SHA:0:8} → ${TARGET:0:8}; restarted: $RESTART_UNITS; canary+health green."
