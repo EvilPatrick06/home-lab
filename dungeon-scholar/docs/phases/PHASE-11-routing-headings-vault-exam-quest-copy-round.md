@@ -303,7 +303,7 @@ grep -n 'await' dungeon-scholar/src/features/quests/QuestBoard.jsx
 - **Info-only / QA-process items** — the prior-QA "QA Throwaway Tome" residue (banished during the run; an action item for QA *tooling*, not the app), the import-robustness reconfirmation (Phase-04 holds on both import paths), and the empty `screenshots/` folder (a CDP capture-host limitation, not an app defect) need no plan.
 - **No light-theme/contrast, auth/sync, or performance work** — those belong to PHASE-10, PHASE-02/08, and PHASE-08 respectively.
 
-## Completed (partial — F4/11D gated for approval)
+## Completed (all sub-phases — F4/11D landed 2026-07-03)
 
 > 2026-06-30 on `auto/scholar-phase-executer` (layered on the prior run's PHASE-10 commit). Bug/correctness/a11y/copy sub-phases auto-implemented; the lone non-bug UX sub-phase (11D / F4) is posted to the status board (`PHASE-11D`, session-stamped) awaiting approve/deny per the auto-approve=bug / gate=non-bug-UX policy — so this plan stays in the active backlog (NOT moved to `completed/`) until 11D is decided.
 
@@ -311,5 +311,5 @@ grep -n 'await' dungeon-scholar/src/features/quests/QuestBoard.jsx
 - **11B (F2, done)** — ChatMode "⚜ MODE OF INQUIRY ⚜" `div`→`<h2>`; `sr-only` `<h2>` added to FlashcardsMode (Flashcards) and QuizMode (Quiz) main returns. Guarded by `src/features/phase11Guards.test.js`.
 - **11C (F3, done)** — `MistakeVault.jsx`: empty-vault heading/flavor reworded to describe the vault ("The Vault Stands Empty"); `!courseSet` branch untouched. `MistakeVault.test.jsx` +1 copy test.
 - **11E (F5, done)** — `QuestBoard.jsx`: verb agreement `await{totalClaimable === 1 ? 's' : ''} thy hand` ("1 reward awaits" / "N rewards await"). Guarded in phase11Guards.test.js.
-- **11D (F4, GATED — not implemented)** — preset de-dup is "a genuine UX ambiguity, not a bug" (plan's words) → gated. On approval: add a tested `presetsForPool(poolLen)` helper in `services/examSession.js` collapsing equal-`effective` presets and map `ExamMode.jsx` over it.
+- **11D (F4, done — 2026-07-03, `auto/scholar-features-batch`, owner-approved)** — added `presetsForPool(poolLen)` in `services/examSession.js`: maps `EXAM_PRESETS` to `{ ...preset, effective }` and de-dupes by `effective` count, keeping the first (shortest-timer) survivor per distinct length; `ExamMode.jsx` maps over it instead of `EXAM_PRESETS` (removed the now-unused import). 8 new unit tests assert no two returned cards share an `effective`+`minutes` pair.
 - Targeted tests pass (24: router, vault, guards). CI gates test+build on push.

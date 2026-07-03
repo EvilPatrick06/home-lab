@@ -32,8 +32,30 @@ export const DECAY = -0.5;
 export const FACTOR = 0.9 ** (1 / DECAY) - 1;
 
 // Target retention used to convert stability -> next interval. 0.9 = the FSRS
-// default (review when recall probability drops to ~90%).
+// default (review when recall probability drops to ~90%). This is the FSRS
+// "desired retention" knob, exposed to the learner (SRS knobs): closer to an
+// exam a learner rationally wants higher retention (more reviews, higher
+// recall), a casual learner lower. setDesiredRetention swaps the active value;
+// it only rescales FUTURE intervals -- stored per-card state is untouched, so
+// changing it never rewrites history. Kept exported for back-compat (default).
 export const DESIRED_RETENTION = 0.9;
+export const RETENTION_MIN = 0.8;
+export const RETENTION_MAX = 0.97;
+
+let activeRetention = DESIRED_RETENTION;
+
+// Set the active desired-retention. Clamps to [RETENTION_MIN, RETENTION_MAX]
+// and ignores non-finite input (returns the value actually applied).
+export function setDesiredRetention(r) {
+  const n = Number(r);
+  if (!Number.isFinite(n)) return activeRetention;
+  activeRetention = clamp(n, RETENTION_MIN, RETENTION_MAX);
+  return activeRetention;
+}
+
+export function getDesiredRetention() {
+  return activeRetention;
+}
 
 // Canonical FSRS-5 default weights (w0..w18).
 export const FSRS_DEFAULT_WEIGHTS = [
@@ -118,8 +140,9 @@ function stabilityShortTerm(S, rating) {
 }
 
 function intervalDays(S) {
-  // I = (S / FACTOR) * (DESIRED_RETENTION^(1/DECAY) - 1).
-  const days = (S / FACTOR) * (DESIRED_RETENTION ** (1 / DECAY) - 1);
+  // I = (S / FACTOR) * (retention^(1/DECAY) - 1). Reads the active desired
+  // retention so the learner's knob rescales the next interval.
+  const days = (S / FACTOR) * (activeRetention ** (1 / DECAY) - 1);
   return Math.max(1, Math.round(days));
 }
 
@@ -209,4 +232,58 @@ export function sortByDueness(cards, cardProgressMap, _now = Date.now()) {
 export function filterDue(cards, cardProgressMap, now = Date.now()) {
   const map = cardProgressMap && typeof cardProgressMap === 'object' ? cardProgressMap : {};
   return (Array.isArray(cards) ? cards : []).filter((c) => c && typeof c.id === 'string' && isCardDue(map[c.id], now));
+}
+
+// ── Daily new-card cap (SRS knobs) ──────────────────────────────────────────
+//
+// Importing a large tome floods the due queue with hundreds of NEW (never-
+// reviewed) cards at once — the classic overwhelm-then-abandon failure mode
+// every mature SRS mitigates with a new-cards/day limit (Anki defaults to 20).
+// These pure helpers let a study session admit at most N new cards while never
+// capping review (already-learned) cards, which should always all come due.
+
+export const NEW_CARD_CAP_DEFAULT = 20;
+export const NEW_CARD_CAP_MIN = 0;
+export const NEW_CARD_CAP_MAX = 999;
+
+// Clamp/normalize a user-supplied new-card cap. Non-finite -> default.
+export function normalizeNewCardCap(n) {
+  const v = Number(n);
+  if (!Number.isFinite(v)) return NEW_CARD_CAP_DEFAULT;
+  return Math.min(NEW_CARD_CAP_MAX, Math.max(NEW_CARD_CAP_MIN, Math.floor(v)));
+}
+
+// A card is "new" when it has no reps recorded yet (never reviewed).
+function isNewCard(state) {
+  return isNew(state);
+}
+
+/**
+ * Apply a daily new-card cap to a due-ordered deck. Review cards (already
+ * learned) pass through untouched and keep their order; new cards beyond the
+ * cap are dropped from THIS session's queue (they surface on a future day when
+ * the cap frees up). `alreadySeenToday` lets a caller account for new cards
+ * already studied earlier the same day so the cap is a true daily budget.
+ *
+ * @param {Array} deck — cards ({ id }), ideally already due-sorted.
+ * @param {object} cardProgressMap — { [id]: srsState }.
+ * @param {number} cap — max new cards to admit (see normalizeNewCardCap).
+ * @param {{ alreadySeenToday?: number }} [opts]
+ * @returns {Array} the admitted subset (a new array; input not mutated).
+ */
+export function capNewCards(deck, cardProgressMap, cap, { alreadySeenToday = 0 } = {}) {
+  const list = Array.isArray(deck) ? deck : [];
+  const map = cardProgressMap && typeof cardProgressMap === 'object' ? cardProgressMap : {};
+  const limit = normalizeNewCardCap(cap);
+  let budget = Math.max(0, limit - Math.max(0, Math.floor(alreadySeenToday)));
+  const out = [];
+  for (const card of list) {
+    if (!card || typeof card.id !== 'string') continue;
+    if (isNewCard(map[card.id])) {
+      if (budget <= 0) continue; // over the daily new-card budget — defer
+      budget -= 1;
+    }
+    out.push(card);
+  }
+  return out;
 }

@@ -8,23 +8,27 @@
 //   **bold**                  →  bold (Phase 35e)
 //   *italic*                  →  italic (Phase 35e)
 //   [text](url)               →  link (Phase 35e)
-//   ![alt](url)               →  image (Phase 38e — restricted to data:
+//   ![alt](url)               →  image (Phase 38e - restricted to data:
 //                                 URLs and a handful of trusted hosts;
 //                                 unsafe sources fall back to text)
-//   $math$                    →  inline math (Phase 36d — styled, NOT
+//   $math$                    →  inline math (Phase 36d - styled, NOT
 //                                 KaTeX-rendered; the dollar signs are
 //                                 stripped and the contents render in a
 //                                 monospace italic span)
 //   everything else           →  plain text (newlines preserved by the
 //                                 renderer via white-space: pre-line)
 //
-// Intentionally narrow — no headings, lists, tables, or real LaTeX
+// Intentionally narrow - no headings, lists, tables, or real LaTeX
 // typesetting. The AI should keep prose readable; this just unlocks
 // the common inline emphasis + links + safe images that show up in
 // descriptions, plus the code + diagram blocks for technical answers
 // and a visual hint that $...$ is a math expression.
 
-const FENCE_RE = /```([a-z0-9_-]*)\n?([\s\S]*?)```/gi;
+// Capture group 1 = language token; group 2 = the REST of the info line
+// (an optional caption, e.g. ```topology Core switch to two access switches);
+// group 3 = the fenced body. The caption gives diagram fences a screen-reader
+// text alternative (sugg-diagram-a11y).
+const FENCE_RE = /```([a-z0-9_-]*)([^\n]*)\n?([\s\S]*?)```/gi;
 // Single regex that alternates between every inline form. Order matters:
 // inline-code first so a code span containing asterisks/dollar-signs
 // stays literal; bold (\*\*) before italic (\*); image (\!\[\]\(\)) before
@@ -40,11 +44,11 @@ const INLINE_TOKEN_RE =
 // pixel-exfil surface. The production CSP `img-src` (vite.config.js) already
 // blocks every remote host except GitHub avatars (which tome images never
 // use), so the old https host allowlist was dead code in prod. data:image/*
-// base64 is the single canonical remote-image trust set — matched in
+// base64 is the single canonical remote-image trust set - matched in
 // occlusion.js's isAllowedOcclusionImage and permitted by the CSP's `data:`.
 function isSafeImageUrl(url) {
   if (typeof url !== 'string' || url.length === 0) return false;
-  // Pure-binary image formats only — SVG excluded (<svg> can carry inline
+  // Pure-binary image formats only - SVG excluded (<svg> can carry inline
   // <script>). Restrictive base64 payload class (a-z A-Z 0-9 + / =) so
   // non-base64 garbage falls through to the literal-text fallback.
   return /^data:image\/(png|jpe?g|gif|webp);base64,[a-zA-Z0-9+/=]+$/i.test(url);
@@ -66,8 +70,25 @@ function isSafeLinkUrl(url) {
   }
 }
 
+/**
+ * @typedef {Object} RichNode
+ * @property {string} type
+ * @property {string} [content]
+ * @property {string} [language]
+ * @property {string} [caption]
+ * @property {string} [href]
+ * @property {string} [label]
+ * @property {string} [src]
+ * @property {string} [alt]
+ */
+
+/**
+ * @param {string} text
+ * @returns {RichNode[]}
+ */
 export function parseRichContent(text) {
   if (typeof text !== 'string' || text.length === 0) return [];
+  /** @type {RichNode[]} */
   const nodes = [];
   const fenceRe = new RegExp(FENCE_RE.source, 'gi');
   let lastIdx = 0;
@@ -76,11 +97,16 @@ export function parseRichContent(text) {
     if (m.index > lastIdx) {
       pushTextish(text.slice(lastIdx, m.index), nodes);
     }
-    nodes.push({
+    const codeNode = {
       type: 'code',
       language: (m[1] || '').toLowerCase(),
-      content: m[2],
-    });
+      content: m[3],
+    };
+    // Only attach a caption when the info line carried one, so plain fences
+    // keep their minimal { type, language, content } shape (back-compatible).
+    const captionText = (m[2] || '').trim();
+    if (captionText) codeNode.caption = captionText;
+    nodes.push(codeNode);
     lastIdx = m.index + m[0].length;
   }
   if (lastIdx < text.length) {
@@ -124,7 +150,7 @@ function pushTextish(slice, nodes) {
     } else if (m[6]) {
       // Phase 36d: $inline math$. The dollar signs are stripped; the
       // contents render in a monospaced italic span so the formula is
-      // visually distinct from prose. NOT real LaTeX rendering — adding
+      // visually distinct from prose. NOT real LaTeX rendering - adding
       // KaTeX would balloon the bundle. Authors should keep formulas
       // simple (subscripts/superscripts in plain text work fine).
       nodes.push({ type: 'math', content: m[6].slice(1, -1) });

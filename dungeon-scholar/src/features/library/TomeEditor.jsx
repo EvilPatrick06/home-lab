@@ -3,6 +3,8 @@ import { useState } from 'react';
 import RichContent from '../../components/RichContent.jsx';
 import { normalizeTomeData } from '../../game/tome.js';
 import { useDialogA11y } from '../../hooks/useDialogA11y.js';
+import { reasonLabel } from '../../services/reportProblem.js';
+import { bumpRevision } from '../../services/tomeVersion.js';
 
 // S15: in-app tome content editor (flashcards + quiz). Emits the same shape
 // normalizeTomeData accepts, so edited tomes round-trip through the app.
@@ -21,6 +23,8 @@ function TomeEditor({ tome, onSave, onClose }) {
   );
   const [err, setErr] = useState('');
   const [preview, setPreview] = useState(false);
+  // sugg-report-problem: learner-flagged defects for this tome (author review).
+  const openReports = (tome?.progress?.reportedProblems || []).filter((r) => r && !r.resolved);
 
   const setCard = (i, patch) => setCards((cs) => cs.map((c, j) => (j === i ? { ...c, ...patch } : c)));
   const setQ = (i, patch) => setQuiz((qs) => qs.map((q, j) => (j === i ? { ...q, ...patch } : q)));
@@ -72,7 +76,10 @@ function TomeEditor({ tome, onSave, onClose }) {
       setErr('A tome needs at least one valid flashcard or quiz question.');
       return;
     }
-    onSave(normalizeTomeData({ ...data, flashcards, quiz: outQuiz }));
+    // sugg-tome-versioning: every author save bumps the tome's revision (and
+    // stamps updatedAt) so a shared copy signals "a newer version is available"
+    // to learners who already imported an earlier one.
+    onSave(bumpRevision(normalizeTomeData({ ...data, flashcards, quiz: outQuiz })));
   };
 
   const tabBtn = (id, label, Icon) => (
@@ -126,6 +133,22 @@ function TomeEditor({ tome, onSave, onClose }) {
           </button>
         </div>
         <div className="p-4 overflow-y-auto overscroll-contain flex-1 flex flex-col gap-3">
+          {openReports.length > 0 && (
+            <div className="p-3 rounded-sm border border-red-700/60" style={{ background: 'rgba(127, 29, 29, 0.25)' }}>
+              <div className="text-xs font-bold italic text-red-200 mb-2">
+                ⚑ {openReports.length} reader-reported problem{openReports.length === 1 ? '' : 's'}
+              </div>
+              <ul className="flex flex-col gap-1">
+                {openReports.map((r) => (
+                  <li key={r.id} className="text-[11px] italic text-amber-100/85">
+                    <span className="text-red-300">{reasonLabel(r.reason)}</span> — item{' '}
+                    <code className="text-amber-300">{r.itemId}</code>
+                    {r.note ? <span className="text-amber-200/70">: {r.note}</span> : null}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           {tab === 'flashcards' && (
             <>
               {cards.map((c, i) => (

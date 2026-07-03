@@ -307,3 +307,72 @@ html[data-theme="light"] .active-tome-accent {
 html[data-theme="light"] .biome-accent-text {
   color: var(--text-accent-muted) !important;
 }
+
+/* ── Reading comfort: font scale + dyslexia-friendly font (sugg-text-scale) ──
+ * The App root effect sets --text-scale (0.9–1.3) and data-dyslexia on <html>.
+ * Scaling the root font-size scales every rem-based text run (Tailwind's text
+ * utilities are rem-based) without disturbing fixed pixel layout. Default 1. */
+:root {
+  --text-scale: 1;
+}
+html {
+  font-size: calc(100% * var(--text-scale, 1));
+}
+/* Optional dyslexia-friendly reading mode: a sans-serif stack with extra
+ * letter/word spacing and a taller line-height for the study prose. Scoped to
+ * the body so it restyles content without touching icon fonts. */
+html[data-dyslexia="true"] body {
+  font-family: "Atkinson Hyperlegible", "Segoe UI", Verdana, Tahoma, sans-serif;
+  letter-spacing: 0.03em;
+  word-spacing: 0.08em;
+  line-height: 1.6;
+}
+
+/* ── Windows High Contrast / forced-colors support (sugg-forced-colors) ──
+ * Under an OS forced-colors setting, honor the user's chosen system colors
+ * rather than the hardcoded parchment/amber palette, and make sure focus rings,
+ * borders, and interactive affordances remain visible (they must not rely on
+ * color alone). Browsers already map most text/background to system keywords;
+ * these rules fix the app's custom-property-driven surfaces + focus ring and
+ * keep gradient/box-shadow "buttons" legible as bordered controls. */
+@media (forced-colors: active) {
+  /* Keep the app readable: let the system paint text/canvas, and force a
+   * visible outline on every focusable element using the Highlight keyword. */
+  *:focus,
+  *:focus-visible {
+    outline-color: Highlight !important;
+  }
+  /* Buttons and interactive tiles that lean on gradients/box-shadows get a
+   * system border so they read as controls when background colors are dropped. */
+  button,
+  [role="button"],
+  a {
+    border: 1px solid ButtonText;
+  }
+  button {
+    forced-color-adjust: none;
+    color: ButtonText;
+    background: ButtonFace;
+  }
+  /* Selected/active states shouldn't be conveyed by color alone; the aria-pressed
+   * controls already carry state, but reinforce with a system highlight border. */
+  [aria-pressed="true"],
+  [aria-selected="true"] {
+    outline: 2px solid Highlight;
+  }
+}
+
+/* Print fallback (sugg-pdf-print-export): primary print path opens a clean
+ * standalone study sheet in a new window (services/printExport.js). This is a
+ * defensive @media print rule if a learner prints the app itself: hide the
+ * dungeon canvas + chrome so the printout is not a screenshot of game UI. */
+@media print {
+  canvas,
+  [data-print-hide="true"] {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+    color: #111 !important;
+  }
+}

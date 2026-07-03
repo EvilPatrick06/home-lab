@@ -62,11 +62,12 @@ import {
 import { getTitle, SPECIAL_TITLES, xpForLevel } from './game/titles.js';
 import { blankTomeProgress, decodeTomeShareCode, quizImportReport, shuffleArray } from './game/tome.js';
 import { snapshotBaselines, TUTORIAL_STEPS, tutorialAutoConditionMet } from './game/tutorial.js';
+import { updateDueBadge } from './services/appBadge.js';
 import { todayDateStr } from './services/devotion.js';
 import { notificationPermission, showStudyReminder } from './services/notifications.js';
 import { PETS } from './services/pets.js';
 import { SPELLS } from './services/spells.js';
-import { dueCount } from './services/srs.js';
+import { dueCount, setDesiredRetention } from './services/srs.js';
 
 const LibraryScreen = lazyWithReload(() => import('./features/library/LibraryScreen.jsx'));
 
@@ -199,6 +200,16 @@ export default function DungeonScholarApp() {
     showStudyReminder({ dueCount: due });
   }, [playerState.library]);
 
+  // sugg-pwa-badging: reflect the total due-card count across the library onto
+  // the installed PWA icon (App Badging API). Feature-detected + no-ops where
+  // unsupported (iOS Safari / Firefox). Recomputed whenever the library or its
+  // per-tome progress changes so the glanceable count stays fresh.
+  useEffect(() => {
+    const lib = playerState.library || [];
+    const due = lib.reduce((sum, t) => sum + dueCount(t.progress?.cardProgress || {}, t.data?.flashcards || []), 0);
+    updateDueBadge(due);
+  }, [playerState.library]);
+
   // Phase 34b QA P10: apply theme to the root element. Re-evaluates on
   // explicit preference change AND on OS preference change (when 'system').
   useEffect(() => {
@@ -240,6 +251,22 @@ export default function DungeonScholarApp() {
   useEffect(() => {
     document.documentElement.setAttribute('data-cvd', playerState.colorblind ? 'true' : 'false');
   }, [playerState.colorblind]);
+
+  // SRS knobs: apply the learner's desired-retention to the module-level FSRS
+  // scheduler on load and whenever it changes. Only rescales future intervals;
+  // stored per-card state is untouched (see services/srs.js).
+  useEffect(() => {
+    setDesiredRetention(playerState.desiredRetention ?? 0.9);
+  }, [playerState.desiredRetention]);
+
+  // Reading comfort (text-scale): reflect font scale + dyslexia-friendly font
+  // onto the root element. --text-scale is consumed by the app chrome / rich
+  // content; data-dyslexia toggles letter/word spacing + a sans face (index.css).
+  useEffect(() => {
+    const scale = Math.min(130, Math.max(90, Number(playerState.textScale) || 100)) / 100;
+    document.documentElement.style.setProperty('--text-scale', String(scale));
+    document.documentElement.setAttribute('data-dyslexia', playerState.dyslexiaFont ? 'true' : 'false');
+  }, [playerState.textScale, playerState.dyslexiaFont]);
 
   // 25e2: Clear the Domain Study filter whenever the player navigates away
   // from Quiz/Flashcards. The filter is a per-launch decision, not sticky
@@ -1008,6 +1035,19 @@ export default function DungeonScholarApp() {
           setPlayerState((prev) => ({ ...prev, locale: loc }));
         }}
         onToggleColorblind={(on) => setPlayerState((prev) => ({ ...prev, colorblind: !!on }))}
+        onSetTextScale={(n) =>
+          setPlayerState((prev) => ({ ...prev, textScale: Math.min(130, Math.max(90, Number(n) || 100)) }))
+        }
+        onToggleDyslexiaFont={(on) => setPlayerState((prev) => ({ ...prev, dyslexiaFont: !!on }))}
+        onSetRetention={(r) =>
+          setPlayerState((prev) => ({ ...prev, desiredRetention: Math.min(0.97, Math.max(0.8, Number(r) || 0.9)) }))
+        }
+        onSetNewCardCap={(n) =>
+          setPlayerState((prev) => ({ ...prev, newCardCap: Math.min(999, Math.max(0, Math.floor(Number(n) || 0))) }))
+        }
+        onSetDailyGoal={(n) =>
+          setPlayerState((prev) => ({ ...prev, dailyGoal: Math.min(500, Math.max(1, Math.floor(Number(n) || 20))) }))
+        }
         onSetTheme={(t) => {
           // Phase 46h: every theme switch surfaces an Undo toast (Ctrl+Z
           // compatible — the global hotkey from 45d invokes the active

@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { EXAM_PRESETS, gradeExamItem, pickStratifiedSample, summarizeExamResults } from './examSession.js';
+import {
+  EXAM_PRESETS,
+  gradeExamItem,
+  pickStratifiedSample,
+  presetsForPool,
+  summarizeExamResults,
+} from './examSession.js';
 
 const mc = (id, domain, correctIndex = 0) => ({
   id,
@@ -194,5 +200,53 @@ describe('summarizeExamResults', () => {
 
   it('returns zeros for an empty input', () => {
     expect(summarizeExamResults([], [])).toEqual({ total: 0, answered: 0, correct: 0, scorePct: 0, byDomain: {} });
+  });
+});
+
+describe('presetsForPool (PHASE-11D — collapse clamp-equal presets)', () => {
+  const effs = (pool) => presetsForPool(pool).map((p) => p.effective);
+
+  it('keeps all three presets distinct when the pool is large enough', () => {
+    const out = presetsForPool(90);
+    expect(out.map((p) => p.effective)).toEqual([30, 60, 90]);
+    expect(out.map((p) => p.id)).toEqual(['short', 'standard', 'full']);
+  });
+
+  it('collapses Standard + Full when a 45-riddle tome clamps both to 45', () => {
+    const out = presetsForPool(45);
+    // Short → 30 (distinct), Standard → 45, Full → 45 (clamp-equal, collapsed).
+    expect(out.map((p) => p.effective)).toEqual([30, 45]);
+    // The surviving card for the 45 length is the shorter-timer Standard.
+    expect(out.map((p) => p.id)).toEqual(['short', 'standard']);
+  });
+
+  it('keeps Short distinct but collapses Standard/Full at pool 30... ', () => {
+    // pool = 30: Short → 30, Standard → 30, Full → 30 all clamp equal.
+    expect(effs(30)).toEqual([30]);
+  });
+
+  it('collapses everything to one card on a tiny tome', () => {
+    expect(effs(10)).toEqual([10]);
+    expect(presetsForPool(10).map((p) => p.id)).toEqual(['short']);
+  });
+
+  it('never returns two cards with the same effective+minutes pair', () => {
+    for (const pool of [0, 5, 10, 29, 30, 31, 45, 59, 60, 89, 90, 200]) {
+      const out = presetsForPool(pool);
+      const keys = out.map((p) => `${p.effective}|${p.minutes}`);
+      expect(new Set(keys).size).toBe(keys.length);
+      // effective is monotonically distinct too
+      const es = out.map((p) => p.effective);
+      expect(new Set(es).size).toBe(es.length);
+    }
+  });
+
+  it('preserves the original preset fields (label, minutes) on survivors', () => {
+    const out = presetsForPool(90);
+    expect(out[0]).toMatchObject({ id: 'short', label: 'Short Mock', minutes: 30, effective: 30 });
+  });
+
+  it('is a pure map over EXAM_PRESETS by default', () => {
+    expect(presetsForPool(1000).length).toBe(EXAM_PRESETS.length);
   });
 });

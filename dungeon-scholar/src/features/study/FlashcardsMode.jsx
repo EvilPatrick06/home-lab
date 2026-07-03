@@ -3,9 +3,10 @@ import { useEffect, useMemo, useState } from 'react';
 import OcclusionCard from '../../components/OcclusionCard.jsx';
 import { BloomBadge, DifficultyStars } from '../../components/ui/badges.jsx';
 import { FilteredModeBanner } from '../../components/ui/FilteredModeBanner.jsx';
+import { expandClozeDeck } from '../../services/cloze.js';
 import { isOcclusionCard } from '../../services/occlusion.js';
 import { loadSession, SESSION_KIND, saveSession } from '../../services/sessionResume.js';
-import { filterDue, SRS_RATINGS, scheduleCard, sortByDueness } from '../../services/srs.js';
+import { capNewCards, filterDue, SRS_RATINGS, scheduleCard, sortByDueness } from '../../services/srs.js';
 import { speak, ttsSupported } from '../../services/tts.js';
 
 function FlashcardsMode({
@@ -42,14 +43,20 @@ function FlashcardsMode({
   // branch must not hand the raw courseSet array to component state, and an
   // unstable identity would re-fire the cards memo + session effects every render.
   const baseDeck = useMemo(
-    () => (cardsProp?.length ? cardsProp : courseSet.flashcards || []).slice(),
+    // sugg-cloze-cards: expand any {{c1::...}} cloze cards into one study item
+    // per masked cluster at deck build (non-cloze cards pass through unchanged).
+    () => expandClozeDeck((cardsProp?.length ? cardsProp : courseSet.flashcards || []).slice()),
     [cardsProp, courseSet],
   );
 
   useEffect(() => {
     if (reviewMode) {
       const map = tomeProgress?.cardProgress || {};
-      setReviewDeck(sortByDueness(filterDue(baseDeck, map), map));
+      // SRS knobs: cap the number of NEW (never-reviewed) cards admitted per
+      // review session so a freshly-imported large tome doesn't flood the
+      // queue. Review (already-learned) cards are never capped. Default 20.
+      const due = sortByDueness(filterDue(baseDeck, map), map);
+      setReviewDeck(capNewCards(due, map, playerState?.newCardCap));
       setIndex(0);
       setReviewed(0);
       setFlipped(false);

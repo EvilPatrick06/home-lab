@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { deckTextToTome, detectDelimiter, parseDelimited } from './deckImport.js';
+import { csvQuoteField, deckTextToTome, detectDelimiter, exportTomeCsv, parseDelimited } from './deckImport.js';
 
 describe('detectDelimiter', () => {
   it('picks tab when tabs are present (Quizlet export)', () => {
@@ -100,5 +100,66 @@ describe('deckTextToTome mixed-delimiter robustness (PHASE-04 04B)', () => {
   it('leaves pure CSV and pure TSV unchanged', () => {
     expect(deckTextToTome('a,b\nc,d').count).toBe(2);
     expect(deckTextToTome('a\tb\nc\td').count).toBe(2);
+  });
+});
+
+describe('csvQuoteField (RFC-4180)', () => {
+  it('leaves plain fields bare', () => {
+    expect(csvQuoteField('hello')).toBe('hello');
+    expect(csvQuoteField('')).toBe('');
+    expect(csvQuoteField(null)).toBe('');
+    expect(csvQuoteField(undefined)).toBe('');
+  });
+  it('quotes fields with commas, quotes, or newlines and doubles quotes', () => {
+    expect(csvQuoteField('a,b')).toBe('"a,b"');
+    expect(csvQuoteField('say "hi"')).toBe('"say ""hi"""');
+    expect(csvQuoteField('line1\nline2')).toBe('"line1\nline2"');
+  });
+});
+
+describe('exportTomeCsv', () => {
+  const tome = {
+    data: {
+      flashcards: [
+        { id: 'a', front: 'SYN', back: 'first handshake', domain: 'TCP' },
+        { id: 'b', front: 'Port, 443', back: 'HTTPS' },
+        { id: 'c', front: 'quote "x"', back: 'line\nbreak', domain: 'Misc' },
+      ],
+    },
+  };
+
+  it('emits a header + one CRLF-separated row per card', () => {
+    const csv = exportTomeCsv(tome);
+    const lines = csv.split('\r\n');
+    expect(lines[0]).toBe('term,definition,domain');
+    expect(lines[1]).toBe('SYN,first handshake,TCP');
+    expect(lines[2]).toBe('"Port, 443",HTTPS,');
+    expect(lines[3]).toBe('"quote ""x""","line\nbreak",Misc');
+  });
+
+  it('can omit the header', () => {
+    const csv = exportTomeCsv({ data: { flashcards: [{ front: 'x', back: 'y' }] } }, { header: false });
+    expect(csv).toBe('x,y,');
+  });
+
+  it('accepts a raw tome-data object as well as a library entry', () => {
+    const csv = exportTomeCsv({ flashcards: [{ front: 'a', back: 'b', domain: 'D' }] });
+    expect(csv.split('\r\n')[1]).toBe('a,b,D');
+  });
+
+  it('skips empty cards and returns just the header for an empty tome', () => {
+    expect(exportTomeCsv({ data: { flashcards: [] } })).toBe('term,definition,domain');
+    expect(exportTomeCsv({ data: {} })).toBe('term,definition,domain');
+  });
+
+  it('round-trips cleanly back through deckTextToTome', () => {
+    const csv = exportTomeCsv(tome);
+    const res = deckTextToTome(csv);
+    expect(res.ok).toBe(true);
+    expect(res.tome.flashcards.map((c) => [c.front, c.back, c.domain || ''])).toEqual([
+      ['SYN', 'first handshake', 'TCP'],
+      ['Port, 443', 'HTTPS', ''],
+      ['quote "x"', 'line\nbreak', 'Misc'],
+    ]);
   });
 });

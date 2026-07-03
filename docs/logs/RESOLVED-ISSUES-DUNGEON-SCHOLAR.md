@@ -13,6 +13,42 @@
 
 ---
 
+### [2026-07-03] Dungeon-scholar feature backlog batch — 15 approved suggestions + PHASE-11D
+
+> **Resolved 2026-07-03 (`auto/scholar-features-batch`, approved backlog batch):** Owner approved the whole dungeon-scholar FEATURE backlog. Implemented on `auto/scholar-features-batch` as tested, gate-green (lint / typecheck / test / build) first versions. Each item below is moved here from `SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`.
+
+- **Category:** feature / suggestion (approved backlog)
+- **Severity:** n/a (enhancement)
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **Resolved by:** scholar-features-batch (cowork session)
+
+**Items landed:**
+
+1. **sugg-csv-export** — `exportTomeCsv`/`csvQuoteField` in `services/deckImport.js` emit RFC-4180 `term,definition,domain` rows that round-trip through the importer; `ShareTomeModal` gains a Download-CSV action.
+2. **sugg-cloze-cards** — `services/cloze.js` parses Anki `{{c1::answer}}` (and bare `{{answer}}`, `::hint`) cloze spans and expands one study item per masked cluster; `FlashcardsMode` expands cloze cards at deck build. (Author "make cloze" text-wrap affordance left as a small follow-up.)
+3. **sugg-srs-knobs** — `services/srs.js` exposes `setDesiredRetention` (clamped 0.8–0.97, future-only rescale) + `capNewCards`/`normalizeNewCardCap` (default 20); `FlashcardsMode` review queue caps new cards; `ThemePanel` Study-load controls.
+4. **sugg-tome-versioning** — `services/tomeVersion.js` adds a monotonic `revision` + `compareTomeVersions`/`importDecision`; `TomeEditor` bumps revision on save. (Import-side "newer available, merge?" MergeChooser wiring left as follow-up — the compare/decide core is tested.)
+5. **sugg-confidence-calibration** — already implemented in-app (`DomainStudyScreen` Confidence Calibration section reads per-tome `confidenceStats`); verified present, no new code needed.
+6. **sugg-pdf-print-export** — `services/printExport.js` builds a clean standalone study sheet (questions-only or with answers, HTML-escaped) and opens the browser print/Save-as-PDF path; `ShareTomeModal` actions + defensive `@media print` CSS.
+7. **sugg-daily-goal** — `services/dailyGoal.js` adds a configurable daily target (default 20) + rollover progress + a distinct streak-freeze token (`evaluateStreakFreeze` forgives one missed day); `HomeScreen` progress bar, `ThemePanel` setting, `recordAnswer` bumps progress.
+8. **sugg-text-scale** — `--text-scale` root scaling (90–130%) + a dyslexia-friendly font toggle in `ThemePanel`, applied via App root effect + `index.css`.
+9. **sugg-pwa-badging** — `services/appBadge.js` (feature-detected App Badging) sets the installed-icon badge to total library due-card count; App effect wires it, degrades gracefully.
+10. **sugg-diagram-a11y** — `richContent` parses an optional caption from a diagram fence info line; `RichContent` renders diagram fences as a single `role="img"` + `aria-label` unit (caption or generic "ASCII diagram").
+11. **sugg-forced-colors** — `@media (forced-colors: active)` block in `index.css` honoring Windows High Contrast (system colors, visible focus/borders, non-color-only affordances).
+12. **sugg-report-problem** — `services/reportProblem.js` (make/add/resolve/remove, deduped) stores per-tome defect reports on `progress.reportedProblems`; `QuizMode` post-answer reporter with reason picker; `TomeEditor` author review panel.
+13. **sugg-cross-tome-exam** — `services/crossTomeExam.js` pools quiz across tomes + weak-domain sampling weights (weaker domains over-sampled) reusing `pickStratifiedSample`; pure tested core. (Full timed cross-tome ExamMode UI flow left as follow-up.)
+14. **sugg-study-plan** — `services/studyPlan.js` composes exam pace + prediction + weakest domain into a daily "what to study today" recommendation, rendered in `DomainStudyScreen`.
+15. **sugg-speech-input** — `services/speech.js` feature-detected Web Speech dictation; `QuizMode` free-text answer gets an optional mic button (hidden where unsupported).
+
+**PHASE-11D (F4):** `presetsForPool` in `services/examSession.js` collapses practice-exam presets that clamp to the same effective riddle count on small tomes (keeps the shortest-timer survivor); `ExamMode` maps over it instead of `EXAM_PRESETS`. Guaranteed no two cards share an `effective`+`minutes` pair.
+
+**Notes / on-device caveats:** UI-visual changes (ThemePanel sliders, HomeScreen goal bar, QuizMode report/mic, print sheet, forced-colors/high-contrast rendering, PWA badge) verified via unit tests + full build; not manually exercised on a device — a visual QA pass is worthwhile. Speech + PWA-badging + forced-colors are feature-detected and degrade silently where unsupported.
+
+**Deferred / partial:** cloze author-affordance, tome-version import-merge UI, and the full cross-tome timed ExamMode flow are the coherent-but-larger tails; their tested pure cores landed and the remaining UI wiring is noted above.
+
+---
+
 ### [2026-06-29] `auto/scholar-phase-maker` (tip `850f8404`) won't merge — competing PHASE-06 + PHASE-03 amendment vs the already-merged run
 
 > **Resolved 2026-07-03 (scholar-debt-batch, approved backlog batch):** Reconciled on `master`, which already carries the **canonical split** — `PHASE-06-vault-redeemed-unlock-gate.md` + `PHASE-07-import-toast-exam-copy.md` both in `docs/phases/completed/` (the split 06/07 won; the stale combined `PHASE-06-vault-title-import-activation-exam-copy.md` does not exist on master). The stale `auto/scholar-phase-maker` branch (tip `850f8404`) is **already gone** — no local or remote ref points to it; commit `850f8404` is now an orphaned/dangling object (`git branch -a --contains 850f8404` = empty), so there was nothing to delete. `PHASE-INDEX.md` was reconciled (rows 01/02/10 links fixed) and a phase-maker rule added (INSTRUCTIONS.md + PHASE-INDEX pointer) to **check the index for an existing plan from the same QA report before authoring**, closing the duplicate-number race that caused this. No app code change.

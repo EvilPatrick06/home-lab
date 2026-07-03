@@ -3,6 +3,7 @@ import { findItem, RECIPES, sanctumAtCap } from '../../game/items.js';
 import { DAILY_QUEST_POOL, getCounterValue, STORY_CHAINS, WEEKLY_QUEST_POOL } from '../../game/quests.js';
 import { TITLES, xpForLevel } from '../../game/titles.js';
 import { blankTomeProgress, generateTomeId, normalizeTomeData } from '../../game/tome.js';
+import { recordDailyProgress } from '../../services/dailyGoal.js';
 import { DAILY_REWARDS, evaluateClaim, todayDateStr } from '../../services/devotion.js';
 import { findPet, petLevelFromXp } from '../../services/pets.js';
 import { isSealedTome } from '../../services/sealedTome.js';
@@ -609,6 +610,10 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
       // +1 gold per correct answer (Phase 6). Silent — no per-answer notif.
       const newGold = (prev.gold || 0) + (correct ? 1 : 0);
       let next = { ...prev, totalAnswered: newAnswered, totalCorrect: newCorrect, gold: newGold };
+
+      // sugg-daily-goal: every answered item counts toward today's study goal
+      // (rolls over at a new calendar day). Distinct from the correctness streak.
+      next.dailyProgress = recordDailyProgress(prev.dailyProgress, todayDateStr(), 1);
 
       // I2: real cross-mode correct-answer streak. Increment on a correct
       // answer, reset to 0 on a wrong one; record the best streak reached in
