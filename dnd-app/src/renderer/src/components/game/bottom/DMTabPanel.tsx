@@ -411,7 +411,7 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
                 }`}
               >
                 <span>{tab.icon}</span>
-                <span>{tab.label}</span>
+                <span>{t(`game.dmTabPanel.tabs.${tab.id}`, { defaultValue: tab.label })}</span>
               </button>
             </div>
           )

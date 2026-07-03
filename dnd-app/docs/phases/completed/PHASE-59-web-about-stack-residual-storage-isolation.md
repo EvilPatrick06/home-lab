@@ -111,4 +111,18 @@ grep -n "library-recent\|lobby-chat-\|dnd-vtt-" utils/storage-migrations.ts   # 
 
 ## Completed
 
-> _Not yet implemented — authored 2026-06-29 by phase-maker from the 2026-06-29 WEB QA report. To be implemented by the phase-executer per INSTRUCTIONS.md (web-build-only; desktop unchanged). 59A is a direct continuation of PHASE-57 57A; 59B completes PHASE-56's storage namespacing and records the shared-origin owner decision._
+> _Implemented 2026-07-03 on branch `auto/dnd-phases-5862`._
+>
+> - **59A** — extended the web `techStack` override in `pages/AboutPage.tsx:29-36` to also
+>   filter out the trailing `electron-vite` build-tooling entry on web (`entry.name !== "electron-vite"`).
+>   Added `pages.aboutPage.openSourceLibrariesWeb` (en+es, no "Electron") and render it under
+>   `isWebBuild()` at `AboutPage.tsx:395` (the desktop `openSourceLibraries` string is unchanged).
+>   Desktop About shows both entries + the Electron mention as before.
+> - **59B** — namespaced the residual bare key: `PlayerNotesPanel.tsx:28` `STORAGE_PREFIX`
+>   is now `dnd-vtt-player-notes-`, and `utils/storage-migrations.ts` migrates the legacy
+>   `player-notes-` prefix on read (added to `PREFIX_RENAMES`) so existing notes survive.
+>   The shared-origin isolation trade-off is **documented + accepted-as-is** (namespacing, not
+>   partitioning) in `src/renderer/src/i18n/README.md` (new "Web build storage — shared origin"
+>   note); the dedicated-subdomain option is recorded as a deferred owner/deployment decision.
+> - Verified via gate: `tsc` web+node clean, biome clean, i18n parity green. Live web About
+>   (visual) verification left for QA.

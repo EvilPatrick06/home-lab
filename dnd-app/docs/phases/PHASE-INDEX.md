@@ -73,11 +73,11 @@
 | 55 | PHASE-55-web-asset-base-path.md | dnd-app | — | implemented auto/dnd-phase-executer — pending merge+release |
 | 56 | PHASE-56-web-i18n-branding-storage.md | dnd-app | — | implemented auto/dnd-phase-executer — pending merge+release |
 | 57 | PHASE-57-web-about-framing-spanish-i18n.md | dnd-app | 45, 56 | implemented auto/dnd-phase-executer — pending merge+release |
-| 58 | PHASE-58-web-spanish-i18n-data-labels.md | dnd-app | — (sibling 56, 57) | pending |
-| 59 | PHASE-59-web-about-stack-residual-storage-isolation.md | dnd-app | 56, 57 | pending |
-| 60 | PHASE-60-web-campaign-version-history-api-parity.md | dnd-app | — | pending |
-| 61 | PHASE-61-web-deploy-asset-retention-sweep-precision.md | cross | 44 (lineage) | pending |
-| 62 | PHASE-62-web-i18n-brand-terminology-consistency.md | dnd-app | — (sibling 57, 58) | pending |
+| 58 | PHASE-58-web-spanish-i18n-data-labels.md | dnd-app | — (sibling 56, 57) | done |
+| 59 | PHASE-59-web-about-stack-residual-storage-isolation.md | dnd-app | 56, 57 | done |
+| 60 | PHASE-60-web-campaign-version-history-api-parity.md | dnd-app | — | done |
+| 61 | PHASE-61-web-deploy-asset-retention-sweep-precision.md | cross | 44 (lineage) | done |
+| 62 | PHASE-62-web-i18n-brand-terminology-consistency.md | dnd-app | — (sibling 57, 58) | done |
 
 ## Scope allocation (what each phase absorbed from the 2026-06-10 audit)
 

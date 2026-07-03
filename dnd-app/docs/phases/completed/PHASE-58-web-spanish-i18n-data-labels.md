@@ -189,4 +189,22 @@ grep -n "DAYS_OF_WEEK\|toLocaleDateString\|'en-US'\|formatMonthYear" pages/Calen
 
 ## Completed
 
-> _Not yet implemented — authored 2026-06-29 by phase-maker from the 2026-06-29 WEB QA report. To be implemented by the phase-executer per INSTRUCTIONS.md (web-affecting i18n; desktop benefits from 58A/58C/58D, unaffected by 58B casing)._
+> _Implemented 2026-07-03 on branch `auto/dnd-phases-5862`._
+>
+> - **58A** — added `game.dmTabPanel.tabs.<id>` keys (13, en+es) and render
+>   `t(\`game.dmTabPanel.tabs.${tab.id}\`, { defaultValue: tab.label })` at
+>   `components/game/bottom/DMTabPanel.tsx:414`. `dm-tabs.json` unchanged (id keys the lookup).
+> - **58B** — added `game.mapEditorRightPanel.tabs.<id>` keys (8, en+es; en `npcs: "NPCs"`),
+>   render `t(\`game.mapEditorRightPanel.tabs.${tab}\`)` and dropped the `capitalize` class at
+>   `components/game/modals/dm-tools/MapEditorRightPanel.tsx:110-120`.
+> - **58C** — added `library.groups.<id>` (10) + `library.categories.<id>` (~60) keys (en+es);
+>   routed `LibraryCategoryGrid.tsx:21,36` and the three `def?.label`/`catDef?.label` reads in
+>   `LibraryPage.tsx` (search placeholder, recently-viewed chip, item-list `categoryLabel`) through
+>   `t()` with `defaultValue` fallback. `types/library.ts` `LIBRARY_GROUPS` labels kept as fallbacks.
+> - **58D** — `CalendarPage.tsx` now derives a BCP-47 locale from `i18n.language`
+>   (`activeLocale()`), computes weekday headers via `Intl.DateTimeFormat(locale, {weekday:"short"})`
+>   (`weekdayHeaders()`), and passes `locale` to `formatMonthYear` + the selected-day
+>   `toLocaleDateString`. Static English `DAYS_OF_WEEK` removed.
+> - Verified via gate: `tsc -p tsconfig.web.json` clean, `tsc -p tsconfig.node.json` clean,
+>   biome clean, i18n parity green (6633 keys es==en), vitest for i18n + touched pages green.
+>   generated-keys.ts regenerated. Live Español web verification (visual) left for QA.

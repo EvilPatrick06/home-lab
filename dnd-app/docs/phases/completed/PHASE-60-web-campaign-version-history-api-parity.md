@@ -95,4 +95,20 @@ sed -n '224,238p' src/web/web-api.ts                                            
 
 ## Completed
 
-> _Not yet implemented — authored 2026-06-29 by phase-maker from the 2026-06-29 v2.7.0 WEB QA report. To be implemented by the phase-executer per INSTRUCTIONS.md (web-only; desktop unaffected). Default fix is 60A option (A) — gate the panel behind `!isWebBuild()`._
+> _Implemented 2026-07-03 on branch `auto/dnd-phases-5862`._
+>
+> - **60A (option A)** — gated the render: `CampaignDetailPage.tsx` now imports `isWebBuild`
+>   from `utils/platform.ts` and renders `{!isWebBuild() && <CampaignVersionHistory .../>}`
+>   (was ungated). The panel no longer appears on web, so there is no permanently-failing
+>   affordance. Desktop still renders + uses the real Electron preload/main implementation.
+> - **60A (option B, belt-and-suspenders) + 60B** — also added envelope-returning stubs to
+>   `createWebApi()` in `src/web/web-api.ts`: `listCampaignVersions`/`restoreCampaignVersion`
+>   now exist (return `{ success: true, data: [] }` / `{ success: false }`), and the pre-existing
+>   character-version stubs (`listCharacterVersions`/`restoreCharacterVersion`) were corrected
+>   from the bare `[]`/`null` shape to the same `{ success, data }` envelope the call sites
+>   destructure — removing the latent `null.success` throw on web character restore. So even if
+>   any code reaches these methods, it gets a clean empty-history / restore-unavailable result
+>   instead of `TypeError: window.api.listCampaignVersions is not a function`.
+> - Verified via gate: `tsc -p tsconfig.web.json` clean, `tsc -p tsconfig.node.json` clean,
+>   biome clean, `CampaignVersionHistory` vitest green (mocks window.api; unaffected). Live web
+>   (open campaign → no error toast) verification left for QA.

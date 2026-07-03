@@ -18,7 +18,9 @@ export default function LibraryCategoryGrid({
     <div className="space-y-8">
       {LIBRARY_GROUPS.filter((g) => g.categories.length > 0).map((group) => (
         <section key={group.id}>
-          <h2 className="text-lg font-bold text-gray-200 mb-3 border-b border-gray-800 pb-2">{group.label}</h2>
+          <h2 className="text-lg font-bold text-gray-200 mb-3 border-b border-gray-800 pb-2">
+            {t(`library.groups.${group.id}`, { defaultValue: group.label })}
+          </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {group.categories.map((cat) => {
               const total = totalCounts?.[cat.id] ?? 0
@@ -33,7 +35,7 @@ export default function LibraryCategoryGrid({
                 >
                   <span className="text-2xl">{cat.icon}</span>
                   <span className="text-sm font-medium text-gray-200 group-hover:text-accent transition-colors">
-                    {cat.label}
+                    {t(`library.categories.${cat.id}`, { defaultValue: cat.label })}
                   </span>
                   {(total > 0 || hbCount > 0) && (
                     <span className="text-xs text-gray-500">

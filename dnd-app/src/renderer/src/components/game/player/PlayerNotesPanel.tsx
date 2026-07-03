@@ -25,7 +25,11 @@ interface PlayerNotesPanelProps {
   onClose: () => void
 }
 
-const STORAGE_PREFIX = 'player-notes-'
+// WEB-STORAGE-1 — namespaced under the shared `dnd-vtt-*` prefix (completing the
+// PHASE-56 storage-namespacing migration) so player notes do not write bare keys
+// onto the origin the web build shares with unrelated BMO apps. Existing bare
+// `player-notes-*` keys are migrated on read by utils/storage-migrations.ts.
+const STORAGE_PREFIX = 'dnd-vtt-player-notes-'
 
 function loadNotes(characterId: string): PlayerNote[] {
   try {

@@ -77,4 +77,19 @@ ssh patrick@bmo 'ls /home/patrick/web-apps/DungeonTableOnline/assets/index.web-*
 
 ## Completed
 
-> _Not yet implemented — authored 2026-06-29 by phase-maker from the 2026-06-29 v2.7.0 WEB QA report. Two report premises were corrected during authoring (verify-don't-rebuild): the deploy already prunes on a bounded 24h window (`dnd-web-deploy.yml`, PHASE-44 lineage), and the service worker precaches only the app shell (not hashed chunks), so the "unbounded growth" and "stale precache" risks do not apply. The single residual — an mtime-only (reference-blind) prune predicate — is low severity; the default disposition is the small reference-aware hardening in 61A plus the documenting comment. To be implemented by the phase-executer per INSTRUCTIONS.md (deploy-workflow only; no app code)._
+> _Implemented 2026-07-03 on branch `auto/dnd-phases-5862`._
+>
+> - **61A** — made the retention prune reference-aware in `.github/workflows/dnd-web-deploy.yml`
+>   (the "Rsync build to the Pi" step) via the touch-current-generation approach: after the
+>   `rsync -az` overlay, the step now enumerates the basenames in the local `dist-web/assets/`
+>   (the current module graph) and `touch -c`es the matching files on the Pi, so the current
+>   generation is always younger than the grace window and the age sweep
+>   (`find -mmin +${RETENTION_MINUTES}`) can never match a still-referenced chunk — even one
+>   rsync skipped re-transferring because it was byte-identical. `RETENTION_MINUTES=1440` (24h)
+>   and the no-`--delete` rsync are preserved (PHASE-44 in-flight-session invariant intact).
+> - The workflow comment was updated to record the two corrected premises (bounded retention;
+>   SW precaches shell only, hashed assets cache-first/immutable under per-version caches evicted
+>   on activate) so they are not re-filed as "unbounded growth" / "stale precache".
+> - Deploy-workflow only; no app source. Verified: YAML/shell-syntax reviewed; the live effect
+>   (a referenced chunk survives past the window; an orphaned old chunk is pruned) is verified by
+>   the next deploy run on the Pi serve dir — left for the deploy/integrator pass.

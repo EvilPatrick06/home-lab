@@ -111,11 +111,11 @@ export default function MapEditorRightPanel({
           <button
             key={tab}
             onClick={() => setRightPanel(tab)}
-            className={`px-2 py-0.5 text-xs rounded capitalize transition-colors cursor-pointer ${
+            className={`px-2 py-0.5 text-xs rounded transition-colors cursor-pointer ${
               rightPanel === tab ? 'bg-amber-600 text-white' : 'text-gray-500 hover:text-gray-300'
             }`}
           >
-            {tab}
+            {t(`game.mapEditorRightPanel.tabs.${tab}`)}
           </button>
         ))}
       </div>

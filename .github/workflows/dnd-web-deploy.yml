@@ -96,8 +96,28 @@ jobs:
         # until it reloads. Deleting them mid-session 404s those lazy imports
         # and hard-crashes the SPA to its error boundary. We overlay the new
         # build (new hashed files appear; index.html is rewritten to point at
-        # them) and let a bounded retention sweep prune genuinely-stale assets
-        # after a grace window, so the serve dir does not grow unbounded.
+        # them) and let a bounded, REFERENCE-AWARE retention sweep prune
+        # genuinely-stale assets after a grace window, so the serve dir does not
+        # grow unbounded.
+        #
+        # Retention is bounded (RETENTION_MINUTES, below) - the serve dir holds
+        # roughly one grace-window's worth of deploys, NOT every build ever, so
+        # it is self-limiting (not additive-without-pruning).
+        #
+        # The service worker (src/renderer/public/sw.js) precaches ONLY the app
+        # shell + manifest - never the hashed assets/* chunks. Hashed assets are
+        # fetched cache-first (immutable-by-hash) under per-version cache
+        # namespaces that `activate` evicts, so no precache manifest can pin a
+        # returning PWA user to a stale chunk hash.
+        #
+        # WEB-DEPLOY-1 (PHASE-61) - the age sweep alone was reference-BLIND: a
+        # chunk byte-identical across >24h of builds keeps its content hash, so
+        # rsync's size+mtime quick-check can SKIP re-transferring it, leaving the
+        # Pi copy's mtime aged past the window - the sweep would then delete a
+        # STILL-REFERENCED current chunk (404-ing a live SPA). Fix: after rsync,
+        # explicitly refresh the mtime of every asset THIS build shipped, so the
+        # current generation is always "young" and the age sweep can never match
+        # it, regardless of whether rsync re-transferred the byte-identical file.
         env:
           # Grace window (minutes) old hashed assets survive a redeploy. Must
           # comfortably exceed a normal play session's "next lazy navigation"
@@ -109,9 +129,24 @@ jobs:
           $SSH patrick@bmo.tail31b5d9.ts.net "mkdir -p $DEST/assets"
           # Overlay the new build (rewrites index.html + adds new hashed chunks).
           rsync -az -e "$SSH" dist-web/ patrick@bmo.tail31b5d9.ts.net:$DEST/
-          # Bounded retention sweep: prune ONLY hashed files under assets/ that
-          # are older than the grace window AND were not part of this deploy
-          # (rsync just refreshed the current generation's mtimes). index.html
-          # and the freshly-synced current chunks are never touched.
+          # Reference-aware guard: refresh the mtime of every asset this build
+          # just shipped so the CURRENT generation is never older than the grace
+          # window (even a byte-identical chunk rsync skipped re-transferring).
+          # The basenames in the local dist-web/assets/ ARE the current module
+          # graph, so touching their Pi counterparts excludes exactly the
+          # referenced files from the age sweep below - no separate manifest diff.
+          if [ -d dist-web/assets ]; then
+            CURRENT_ASSETS="$(cd dist-web/assets && find . -maxdepth 1 -type f -printf '%f\n')"
+            if [ -n "$CURRENT_ASSETS" ]; then
+              printf '%s\n' "$CURRENT_ASSETS" \
+                | $SSH patrick@bmo.tail31b5d9.ts.net \
+                    "cd $DEST/assets && xargs -r -I{} touch -c -- '{}' && echo 'refreshed mtimes for current-generation assets'"
+            fi
+          fi
+          # Bounded, reference-aware retention sweep: prune ONLY hashed files
+          # under assets/ older than the grace window. The current generation was
+          # just mtime-refreshed above, so it can never match
+          # `-mmin +${RETENTION_MINUTES}` - only genuinely-superseded, past-grace
+          # chunks are removed. index.html is not under assets/, never touched.
           $SSH patrick@bmo.tail31b5d9.ts.net \
             "find $DEST/assets -type f -mmin +${RETENTION_MINUTES} -delete -print | sed 's/^/pruned stale asset: /' || true"

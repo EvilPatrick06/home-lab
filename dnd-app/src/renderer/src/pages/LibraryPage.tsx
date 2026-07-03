@@ -617,7 +617,11 @@ export default function LibraryPage(): JSX.Element {
           onChange={(e) => setSearch(e.target.value)}
           placeholder={
             selectedCategory
-              ? t('pages.libraryPage.searchCategory', { category: catDef?.label ?? selectedCategory })
+              ? t('pages.libraryPage.searchCategory', {
+                  category: t(`library.categories.${selectedCategory}`, {
+                    defaultValue: catDef?.label ?? selectedCategory
+                  })
+                })
               : t('pages.libraryPage.searchAll')
           }
           className="w-full max-w-md bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
@@ -743,7 +747,11 @@ export default function LibraryPage(): JSX.Element {
                               <span className="text-xs font-medium text-gray-200 group-hover:text-accent transition-colors truncate w-full">
                                 {item.name}
                               </span>
-                              <span className="text-xs text-gray-500">{def?.label ?? item.category}</span>
+                              <span className="text-xs text-gray-500">
+                                {t(`library.categories.${item.category}`, {
+                                  defaultValue: def?.label ?? item.category
+                                })}
+                              </span>
                             </button>
                           )
                         })}
@@ -779,7 +787,9 @@ export default function LibraryPage(): JSX.Element {
               loading={loading}
               onSelectItem={handleSelectItem}
               onCreateNew={handleCreateButton}
-              categoryLabel={catDef?.label ?? selectedCategory}
+              categoryLabel={
+                catDef ? t(`library.categories.${catDef.id}`, { defaultValue: catDef.label }) : selectedCategory
+              }
               category={selectedCategory}
               favorites={favorites}
               onToggleFavorite={toggleFavorite}
