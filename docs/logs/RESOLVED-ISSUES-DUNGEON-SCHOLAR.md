@@ -13,6 +13,45 @@
 
 ---
 
+### [2026-07-02] Cloud-sync sign-in reconciliation trusts client clocks — cross-device skew can silently drop the newer save without the MergeChooser
+> **Resolved 2026-07-02 (scholar-resolver, auto-approved bug fix):** Sign-in reconciliation (`usePlayerState.js`) now decides "has the cloud changed since my last sync?" by comparing `cloud.updated_at` against the recorded `lastSyncedAt` for **identity** (string equality, with epoch-equality accepted only for serialization drift of the same instant) instead of wall-clock **ordering** — every `lastSyncedAt` the hook records is a stamp that was actually stored on the cloud row, so "same stamp" means nobody pushed since, regardless of device clock skew. A skewed-but-different stamp now routes to apply-cloud (clean) or the MergeChooser (dirty + divergent content) instead of a silent overwrite. `pushSave` (`cloudSync.js`) now reads back the stored `updated_at` via `.select()` — server-authoritative once the new `touch_saves_updated_at` before-insert/update trigger (added to `docs/supabase-setup.md`, with a run-once migration note for existing projects) is installed; without the trigger it echoes the client stamp, i.e. today's behavior, so the client change is backward-compatible. Regression tests added: dirty + older-but-different cloud stamp → chooser (the exact silent-loss scenario), clean + older-but-different → applies cloud, same-instant format drift (`...Z` vs `+00:00`) → still "unchanged" (dirty pushes, no false chooser), plus pushSave server-stamp read-back/fallback tests. Lint 0 errors, tsc green, cloudSync + usePlayerState suites 46/46, full vitest suite green. The optional optimistic-concurrency upsert (compare-and-swap via RPC) was deliberately NOT taken: identity comparison + server stamps close the described loss window without a schema/API change; it can ride a future entry if the remaining sub-second race (two devices pushing near-simultaneously while both offline-signed-out) ever matters. Code on `auto/scholar-resolver`.
+
+- **Category:** bug
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error scan (manual review of the cloud-sync reconciliation path)
+
+**Description:**
+`pushSave` (`src/services/cloudSync.js`) stamps `updated_at` from the pushing device’s clock (`new Date().toISOString()`), and the sign-in reconciliation in `src/hooks/usePlayerState.js` (~line 378) decides “has the cloud changed since my last sync?” by comparing that cross-device timestamp against the locally recorded `lastSyncedAt`: `cloudTime <= lastSyncTime` ⇒ “cloud unchanged.” Both sides of that comparison come from *different devices’ wall clocks*. If device B (clock behind) pushes newer work after device A’s last sync, A can compute `cloudTime <= lastSyncTime` and misclassify B’s newer save as “nothing new”:
+
+- A dirty → A pushes its local state over B’s newer cloud save with **no MergeChooser** (silent lost update);
+- A clean → A keeps playing on stale local state and its next dirty push overwrites B’s work.
+
+`pushSave` is an unconditional upsert with no optimistic-concurrency guard (no `WHERE updated_at = <expected>` / no DB-side `now()`), so nothing server-side catches the lost update either. Mitigations that keep this medium rather than high: the Realtime subscription applies B’s push live when A is online at that moment; `semanticHashState` suppresses false chooser prompts only when contents match (it does not rescue divergent content); and the loss window is bounded by the clock skew relative to the gap between syncs. But devices with minutes of skew (common on machines without NTP, VMs, phones with manual time) syncing in close succession can silently lose the smaller session’s work.
+
+**Reproduction (if bug):**
+1. Device A signs in, plays, syncs (A’s `lastSyncedAt` = A-clock T0).
+2. Device B (clock set a few minutes behind A) plays offline-from-A’s-perspective (A not running), pushes at real time > T0 but B-clock stamp < T0.
+3. Device A opens the app with local dirty changes and signs in / resumes session.
+4. Observed: A pushes over B’s save without showing the MergeChooser; B’s session is gone on next pull.
+
+**Expected behavior (if bug):** Newer cloud content is never silently discarded/overwritten due to clock disagreement — either timestamps are server-authoritative, or content divergence (not wall-clock ordering) drives the chooser.
+
+**Hypothesis / root cause:** last-write-wins reconciliation keyed on client-generated `updated_at`; no server-side timestamping or compare-and-swap on the `saves` row.
+
+**Proposed fix / improvement:**
+- [ ] Make `updated_at` server-authoritative: DB default/trigger `now()` on the `saves` table (drop the client-supplied value), and have `pushSave` `.select(updated_at)` the stored value back — the existing “record exactly what’s in the cloud” return contract already anticipates this.
+- [ ] Optionally add optimistic concurrency: include the last-seen `updated_at` in the upsert (`WHERE updated_at = expected` via RPC) and route a mismatch to the MergeChooser instead of overwriting.
+- [ ] Fall back to the existing `semanticHashState` divergence check (not timestamp ordering) when deciding the “cloud unchanged” fast path.
+
+**Blocked by:** none
+
+**Related files:** `dungeon-scholar/src/services/cloudSync.js` (pushSave), `dungeon-scholar/src/hooks/usePlayerState.js` (sign-in reconciliation ~lines 330–410), `dungeon-scholar/docs/supabase-setup.md` (saves table DDL)
+
+**Related entries:** none (grep: no prior skew/LWW entry in the dungeon-scholar logs)
+
+
 ### [2026-07-02] Entry chunk grew to 638 kB — exceeds the 500 kB warning the manualChunks split was added to stay under
 > **Resolved 2026-07-02 (scholar-bug-resolver, re-measure per the entry's own 2026-07-02-evening note):** Second clean build agrees the budget is met — fresh worktree off origin/master (e1972fe0), `npm ci` + `vite build` (vite 8.1.0, launched via the `run-check.sh` admission gate): **no** "larger than 500 kB" warning; entry chunk `index-CGtb9UCo.js` **435.46 kB** (130.20 kB gzip), with katex (257.77 kB), vendor-react (182.16 kB) and vendor-icons (24.67 kB) split out as designed. Matches the 2026-07-02 evening scan (434.89 kB), so closing per the entry's instruction ("close it if a second clean build agrees"). The morning 638 kB figure could not be reproduced from any clean tree — most plausibly a stale/dirty build tree or a pre-manualChunks artifact measured during the morning scan. No code change needed; the vite.config.js manualChunks comment is currently accurate. The companion CI bundle-size-budget suggestion (SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md 2026-06-29) stays open as the durable guard against real drift.
 
