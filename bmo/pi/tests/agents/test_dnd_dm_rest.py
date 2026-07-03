@@ -1,8 +1,8 @@
 """PHASE-15 15B/15C — DM rest resolution persistence + no inert tools grant.
 
-Imports the REAL ``agents.dnd_dm`` (sibling files mock the ``agents`` package and ``agent``
+Imports the REAL ``agents.dnd.dnd_dm`` (sibling files mock the ``agents`` package and ``agent``
 core at import time). The fixture snapshots/pops the conflicting sys.modules entries, stubs
-the heavy ``agent`` core + ``agents.vtt_sync`` (dnd_dm imports names from both), imports
+the heavy ``agent`` core + ``agents.dnd.vtt_sync`` (dnd_dm imports names from both), imports
 dnd_dm fresh against a tmp gamestate path, then restores the snapshot.
 """
 
@@ -46,12 +46,12 @@ def dnd_dm(tmp_path):
     agent_stub.GAMESTATE_FILE = str(gamestate_file)
     sys.modules["agent"] = agent_stub
 
-    vtt_stub = types.ModuleType("agents.vtt_sync")
+    vtt_stub = types.ModuleType("agents.dnd.vtt_sync")
     vtt_stub.push_discord_message = MagicMock()
-    sys.modules["agents.vtt_sync"] = vtt_stub
+    sys.modules["agents.dnd.vtt_sync"] = vtt_stub
 
     try:
-        module = importlib.import_module("agents.dnd_dm")
+        module = importlib.import_module("agents.dnd.dnd_dm")
         module._GAMESTATE_FILE_FOR_TEST = gamestate_file  # convenience handle for assertions
         yield module
     finally:

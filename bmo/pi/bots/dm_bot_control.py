@@ -20,8 +20,8 @@ from discord.ext import commands
 # Typed aiohttp app key (replaces the plain-string bot key; silences NotAppKeyWarning).
 BOT_KEY = web.AppKey("bot", commands.Bot)
 
-from agents import vtt_sync
-from agents.vtt_sync import request_vtt_state, validate_sync_config, vtt_state
+from agents.dnd import vtt_sync
+from agents.dnd.vtt_sync import request_vtt_state, validate_sync_config, vtt_state
 from bots.discord_dm_bot import (
     DUNGEON_CHANNEL_NAME,
     _candidate_guilds,

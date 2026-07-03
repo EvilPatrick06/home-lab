@@ -620,10 +620,10 @@ class BmoAgent:
         # Initialize the multi-agent orchestrator
         from agents.orchestrator import AgentOrchestrator
         from agents.conversation import create_conversation_agent
-        from agents.code_agent import create_code_agent
-        from agents.dnd_dm import create_dnd_dm_agent
-        from agents.plan_agent import create_plan_agent
-        from agents.research_agent import create_research_agent
+        from agents.dev.code_agent import create_code_agent
+        from agents.dnd.dnd_dm import create_dnd_dm_agent
+        from agents.dev.plan_agent import create_plan_agent
+        from agents.dev.research_agent import create_research_agent
 
         self.orchestrator = AgentOrchestrator(
             services=self.services,

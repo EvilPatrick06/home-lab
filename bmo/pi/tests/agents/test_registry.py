@@ -117,5 +117,5 @@ def test_failure_increments_metric(registry, monkeypatch):
 
 
 def test_agent_key_derivation(registry):
-    assert registry._agent_key("agents.music_agent", "create_music_agent") == "music"
-    assert registry._agent_key("agents.npc_dialogue_agent", "create_npc_dialogue_agent") == "npc_dialogue"
+    assert registry._agent_key("agents.home.music_agent", "create_music_agent") == "music"
+    assert registry._agent_key("agents.dnd.npc_dialogue_agent", "create_npc_dialogue_agent") == "npc_dialogue"

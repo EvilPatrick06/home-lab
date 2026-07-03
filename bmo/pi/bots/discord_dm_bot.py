@@ -49,7 +49,7 @@ from services.voice.discord_tts import (
     split_sentences,
     synthesize_chunk,
 )
-from agents.vtt_sync import (
+from agents.dnd.vtt_sync import (
     push_discord_message,
     push_discord_roll,
     push_player_join,

@@ -12,7 +12,7 @@ import re
 import random
 import datetime
 
-from agents.vtt_sync import push_discord_message
+from agents.dnd.vtt_sync import push_discord_message
 from agents.base_agent import AgentConfig, AgentResult, BaseAgent
 
 # Re-use the existing DM data functions from agent.py

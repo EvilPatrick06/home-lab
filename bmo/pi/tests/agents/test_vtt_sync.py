@@ -8,8 +8,8 @@ no real backoff (time.sleep is mocked).
 
 from unittest.mock import MagicMock
 
-from agents import vtt_sync
-from agents.vtt_sync import _post_to_vtt, _send_with_retry
+from agents.dnd import vtt_sync
+from agents.dnd.vtt_sync import _post_to_vtt, _send_with_retry
 
 
 def _resp(status: int) -> MagicMock:

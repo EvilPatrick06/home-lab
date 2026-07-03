@@ -422,7 +422,7 @@ def test_format_initiative_order():
 
 import datetime as _dt
 
-from agents import vtt_sync as _vs
+from agents.dnd import vtt_sync as _vs
 
 
 def _reset_vtt_state():
