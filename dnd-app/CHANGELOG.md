@@ -1,9 +1,27 @@
 # Changelog
 
-All notable changes to the D&D Virtual Tabletop are documented here.
+> **Retired — this file is no longer maintained.**
+>
+> Manual changelog upkeep stopped around **v2.2.2**; the automated phase/release
+> cadence took over and the release helper (`scripts/release/cut.mjs`) does not
+> append here. As of **v2.6.x** this file is roughly fourteen releases stale, so
+> rather than leave a changelog that lies (or fabricate the missing history),
+> release notes now live at the **canonical sources** below:
+>
+> - **Per-release notes & downloads:** [GitHub Releases](https://github.com/EvilPatrick06/home-lab/releases)
+> - **Full version history:** git tags — `git tag -l "v*"` (each `vX.Y.Z` tag is
+>   the exact commit `cut.mjs` shipped)
+>
+> `CHANGELOG.md` is also excluded from the packaged app (`package.json#build.files`),
+> so nothing in the product reads it. The entries below are frozen as a historical
+> archive of the **≤ v2.2.2** era and are not updated.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+---
+
+_The format below is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)._
+
+## Historical archive (≤ v2.2.2)
 
 ## [2.2.2]
 

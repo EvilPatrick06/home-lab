@@ -2,31 +2,57 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "ignoreExportsUsedInFile": true,
   "entry": [
+    // ── True process entry points (knip resolves the import graph from these) ──
     "electron.vite.config.ts",
     "src/main/index.ts",
     "src/preload/index.ts",
     "src/renderer/src/main.tsx",
+    "src/web/main.web.tsx",
+    // Tooling glob: every script is a standalone entry (CLI / build / one-off).
+    // NOTE: this glob also exempts scripts/** from dead-code detection — retired
+    // one-off scripts under scripts/ are NOT flagged by knip. Audit scripts/
+    // manually (see scripts/README.md) rather than relying on `npm run dead-code`.
     "scripts/**/*.ts",
     "scripts/**/*.mjs",
+
+    // ── Type-only modules ─────────────────────────────────────────────────────
+    // Ambient/exported type surfaces consumed only via `import type` across the
+    // codebase; knip cannot always trace type-only edges, so they are declared
+    // as entries to avoid false \"unused file\" reports.
     "src/renderer/src/types/**/*.ts",
     "src/shared/types/**/*.ts",
-    "src/shared/ipc-schemas.ts",
     "src/renderer/src/systems/types.ts",
     "src/renderer/src/stores/game/types.ts",
     "src/renderer/src/services/game-actions/types.ts",
     "src/renderer/src/components/game/map/map-canvas/types.ts",
     "src/main/ai/types.ts",
-    "src/renderer/src/services/plugin-system/plugin-api.ts",
-    "src/renderer/src/services/plugin-system/plugin-registry-data.ts",
-    "src/renderer/src/network/index.ts",
+
+    // ── Zod / IPC schema + message-type modules ───────────────────────────────
+    // Schemas and network message contracts imported via path aliases and
+    // (de)serialized dynamically; kept as entries so a refactor that drops one
+    // static importer does not silently mark the contract dead.
+    "src/shared/ipc-schemas.ts",
     "src/renderer/src/network/schemas.ts",
     "src/renderer/src/network/message-types.ts",
+
+    // ── Barrel index re-exports (consumed only via alias/barrel edges) ────────
+    "src/renderer/src/network/index.ts",
     "src/main/discord-integration/index.ts",
     "src/renderer/src/components/library/index.ts",
     "src/renderer/src/components/game/game-layout/index.ts",
     "src/renderer/src/services/chat-commands/index.ts",
     "src/renderer/src/types/data/index.ts",
     "src/renderer/src/constants/index.ts",
+
+    // ── Plugin-system API surface (loaded dynamically by content-pack runtime) ─
+    "src/renderer/src/services/plugin-system/plugin-api.ts",
+    "src/renderer/src/services/plugin-system/plugin-registry-data.ts",
+
+    // ── Data/const + feature modules reached only via dynamic or alias imports ─
+    // Each was orphaned from the static graph by a refactor but is still live at
+    // runtime. Re-audit periodically: drop one entry, run `npm run dead-code`;
+    // if knip now reports it unused it was masking dead code (remove the module);
+    // if a NEW unreachable appears elsewhere the entry was load-bearing (restore).
     "src/renderer/src/constants/damage-types.ts",
     "src/renderer/src/pages/library/library-constants.ts",
     "src/renderer/src/services/combat/damage-resolver.ts",
@@ -34,8 +60,7 @@
     "src/renderer/src/services/combat/combat-resolver.ts",
     "src/renderer/src/services/io/combat-log-export.ts",
     "src/renderer/src/components/game/map/map-overlay-effects.ts",
-    "src/main/ai/context/context-builder.ts",
-    "src/web/main.web.tsx"
+    "src/main/ai/context/context-builder.ts"
   ],
   "ignore": [
     "src/renderer/public/pdf.worker.min.mjs",
