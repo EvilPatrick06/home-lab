@@ -116,6 +116,8 @@ grep -n 'hostNamePlaceholder\|defaultHostName' en.json es.json   # 465, 6449 (es
 
 > The character-card race/class/alignment **data-noun** leak (still reproducing under Español in v2.7.0) is **owned by PHASE-56 56E / PHASE-57 WEB-I18N-5** (data-driven, not an i18n string) — execute it there, not here, to avoid double-authoring the same fix.
 
+> **Carry-forward (recorded 2026-07-02, from WEB-QA-report-2026-07-02-v2.7.1):** the es same-English-value key count crept **163 -> 168** since v2.7.0 (5 new same-value strings; keyed parity still perfect at 6,541/6,541). During the 62B pass, diff the same-value key set against the v2.7.0 baseline and confirm the 5 additions are deliberate keep-English strings (most same-value keys are intentional proper nouns / dice syntax). No new sub-phase -- fold into 62B's policy application.
+
 ## Completed
 
 > _Not yet implemented — authored 2026-06-29 by phase-maker from the 2026-06-29 v2.7.0 WEB QA report. Value-only `es.json` consistency edits (+ a documented localization decision for "Dungeon Master"); desktop benefits identically (shared locale table). To be implemented by the phase-executer per INSTRUCTIONS.md. 62A is a straight unify; 62B carries an owner localization decision (translate vs documented keep-English) per the PHASE-57 brand policy._
