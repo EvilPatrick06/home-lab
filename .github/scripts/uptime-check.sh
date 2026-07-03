@@ -38,7 +38,7 @@ check() {
   fi
 }
 
-declare -a DOWN
+DOWN=()   # assigned-empty (SET) array: safe under set -u even when nothing is down
 r=$(check "https://bmo.mybmoai.work/DungeonTableOnline/" 200)
 [ "${r%% *}" = "DOWN" ] && DOWN+=("game|https://bmo.mybmoai.work/DungeonTableOnline/|$r")
 r=$(check "https://bmo.mybmoai.work/" access)
@@ -47,8 +47,7 @@ r=$(check "https://bmo.mybmoai.work/" access)
 board_failed=0
 if [ "$BOARD_OK" = "true" ]; then
   board clear external-uptime || board_failed=1
-  for d in "${DOWN[@]:-}"; do
-    [ -n "$d" ] || continue
+  for d in "${DOWN[@]}"; do
     IFS='|' read -r slug url reason <<<"$d"
     board set external-uptime "$slug" incident "External: $url $reason" \
       --detail "$reason (probed from GitHub Actions)" --severity critical || board_failed=1
