@@ -12,9 +12,10 @@ precedent in [`../components/README.md`](../components/README.md).
 | Group | Purpose | Modules |
 |---|---|---|
 | **cloud / auth / persistence** | Local + remote save state, auth, sync, resume | `supabase.js`, `cloudSync.js`, `backfill.js`, `persistence.js`, `sessionResume.js` |
-| **exam / SRS engine** | Scheduling, pacing, prediction, grading | `examPace.js`, `examPrediction.js`, `examSession.js`, `srs.js`, `forgettingCurve.js`, `weakDomain.js`, `oracleGrader.js` |
+| **exam / SRS engine** | Scheduling, pacing, prediction, grading, study artifacts | `examPace.js`, `examPrediction.js`, `examSession.js`, `srs.js`, `forgettingCurve.js`, `weakDomain.js`, `oracleGrader.js`, `leech.js`, `occlusion.js`, `certificate.js`, `accuracyPalette.js` |
 | **game systems** | In-world progression systems | `pets.js`, `spells.js`, `devotion.js` |
-| **platform / UI infra** | Cross-cutting app infrastructure | `logger.js`, `notifications.js`, `i18n.js`, `tts.js`, `timerAnnounce.js`, `importLimits.js`, `notesCrypto.js`, `richContent.js`, `sealedTome.js` |
+| **import / library** | Deck ingestion + bulk library operations | `deckImport.js`, `libraryBulk.js`, `importLimits.js` |
+| **platform / UI infra** | Cross-cutting app infrastructure | `logger.js`, `notifications.js`, `i18n.js`, `tts.js`, `timerAnnounce.js`, `notesCrypto.js`, `richContent.js`, `sealedTome.js`, `pwaUpdate.js`, `shortcuts.js` |
 
 ## Placement rule
 

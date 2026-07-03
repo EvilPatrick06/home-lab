@@ -25,6 +25,16 @@
   "include": [
     "src"
   ],
+  // Documented checkJs exclusions (see SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md,
+  // "tsconfig.json excludes ALL test files..."). These are an INTENTIONAL,
+  // documented type-coverage gap, not an oversight:
+  //   - **/*.test.js(x): the Vitest/happy-dom test surface is deliberately kept
+  //     out of the JSDoc typecheck to keep  fast and green; the
+  //     tests still run under Vitest, which is their gate. A future test-inclusive
+  //     pass would need @testing-library / vitest type coverage before it could go green.
+  //   - src/sw.js: the service worker runs in a WebWorker global scope that this
+  //     config's default DOM lib does not model, so it is excluded rather than
+  //     mis-typed against DOM globals.
   "exclude": [
     "node_modules",
     "dist",

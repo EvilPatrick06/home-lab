@@ -182,11 +182,16 @@ dungeon-scholar/
 │   │   ├── tutorial/              WelcomeModal, TutorialPanel
 │   │   └── player/                usePlayerActions hook (all player-state mutators)
 │   ├── components/                Shared components (RichContent, ErrorBoundary, ...)
+│   │   ├── dungeon/               Canvas crawler subsystem — DungeonExplore render loop,
+│   │   │                          tileRenderer, dungeonLogic, input/state hooks, map data
 │   │   └── ui/                    Presentation primitives (OrnatePanel, badges, modals, ...)
 │   ├── router/                    useHashRoute — hash-based navigation
 │   ├── services/                  FSRS (srs), oracle grader, session resume, devotion, ...
+│   │   └── locales/               en/es i18n string bundles
+│   ├── utils/                     Cross-cutting helpers (date, lazyWithReload, ...)
 │   ├── hooks/  audio/  prompts/   Custom hooks, sound engine, AI prompt templates
 │   ├── main.jsx                   React entry
+│   ├── sw.js                      Service worker (injectManifest PWA offline cache)
 │   └── index.css                  Tailwind directives
 ├── docs/
 ├── index.html

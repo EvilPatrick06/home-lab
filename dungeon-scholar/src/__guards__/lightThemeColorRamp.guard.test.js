@@ -10,8 +10,9 @@ import { describe, expect, it } from 'vitest';
 // surface triplet + focus tokens exist in BOTH the dark `:root` defaults and
 // the light override.
 
-const here = dirname(fileURLToPath(import.meta.url));
-const css = readFileSync(join(here, 'index.css'), 'utf8');
+// This guard lives in src/__guards__/; srcRoot points at src/ (one level up).
+const srcRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
+const css = readFileSync(join(srcRoot, 'index.css'), 'utf8');
 
 // The 14 color families + 11 ramp steps the build script mirrors. Kept in sync
 // with the generator in the PHASE-41 plan / index.css comment header.
@@ -77,7 +78,7 @@ function sliceRootBlock(source, marker) {
   }
 }
 
-const jsxFiles = collectJsx(here);
+const jsxFiles = collectJsx(srcRoot);
 const usedPairs = new Set();
 for (const f of jsxFiles) {
   const text = readFileSync(f, 'utf8');

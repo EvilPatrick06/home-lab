@@ -8,8 +8,9 @@ import { describe, expect, it } from 'vitest';
 // or composite rgba(), so we assert the source no longer carries the failing
 // classes/literals on the named surfaces and that the theme tokens exist.
 
-const here = dirname(fileURLToPath(import.meta.url));
-const read = (rel) => readFileSync(join(here, rel), 'utf8');
+// This guard lives in src/__guards__/; srcRoot points at src/ (one level up).
+const srcRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
+const read = (rel) => readFileSync(join(srcRoot, rel), 'utf8');
 const css = read('index.css');
 
 describe('PHASE-10 F1 — --text-accent-muted token + utilities', () => {
