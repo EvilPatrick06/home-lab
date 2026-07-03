@@ -51,18 +51,25 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version-file: bmo/pi/.python-version
-      - name: Install bandit
-        run: pip install 'bandit[toml]>=1.8.0'
+      - name: Install pinned audit tools (hash-verified)
+        # SECURITY 2026-07-02 — bandit was installed with a floating `>=` and
+        # pip-audit fully unpinned, so any newly published release (or a
+        # compromised transitive dep) was auto-adopted at run time. Install the
+        # pip-compile'd, hash-pinned manifest instead (--require-hashes fails
+        # closed on any artifact drift), matching the repo's pin-and-verify
+        # posture (SHA-pinned actions, hash-verified gitleaks). Update path:
+        # bmo/pi/requirements-audit.in (Dependabot's pip ecosystem watches
+        # /bmo/pi and keeps the compiled pins current).
+        run: pip install --require-hashes -r bmo/pi/requirements-audit.txt
       - name: bandit on ide_app (high severity and up)
         run: bandit -r bmo/pi/ide_app --severity-level=high
       - name: bandit on full bmo/pi (informational, high severity)
         continue-on-error: true
         run: bandit -r bmo/pi --severity-level=high
       - name: pip-audit on bmo (informational)
+        # pip-audit itself comes from the hash-pinned install step above.
         continue-on-error: true
-        run: |
-          pip install pip-audit
-          pip-audit -r bmo/pi/requirements.txt
+        run: pip-audit -r bmo/pi/requirements.txt
 
   dungeon-scholar-npm-audit:
     runs-on: ubuntu-latest

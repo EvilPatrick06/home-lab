@@ -1,0 +1,14 @@
+# CI security-scanner toolchain for .github/workflows/security-audit.yml.
+# SECURITY 2026-07-02 — the workflow used to `pip install` bandit (floating
+# `>=`) and pip-audit (fully unpinned) from PyPI at run time, escaping the
+# repo's pin-and-verify supply-chain posture (SHA-pinned actions, hash-pinned
+# gitleaks). This file is compiled to hash-pinned requirements-audit.txt:
+#   PIP_CONFIG_FILE=/dev/null pip-compile --generate-hashes --no-strip-extras \
+#     --allow-unsafe --index-url https://pypi.org/simple \
+#     --output-file=requirements-audit.txt requirements-audit.in
+# (PIP_CONFIG_FILE=/dev/null + explicit index so a piwheels-configured Pi does
+# not leak ARM-rebuild wheel hashes into a file consumed by x86 CI runners.)
+# Update path: bump here (or let Dependabot's pip ecosystem regenerate), then
+# re-run pip-compile with --generate-hashes.
+bandit[toml]
+pip-audit

@@ -74,6 +74,22 @@ jobs:
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
           ping: bmo.tail31b5d9.ts.net
+      - name: Pin the Pi SSH host key (strict verification, no TOFU)
+        # SECURITY 2026-07-02 — GitHub-hosted runners are ephemeral, so the
+        # previous `accept-new` setting re-trusted whatever host key the far
+        # end presented on EVERY run (trust-on-first-use with no memory).
+        # Pre-seed the Pi's real host public keys (public data — safe to
+        # commit) and require strict verification. If the Pi's host keys are
+        # ever regenerated, refresh these lines from a trusted machine:
+        #   ssh-keyscan bmo.tail31b5d9.ts.net
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          cat >> ~/.ssh/known_hosts <<'PINNED'
+          bmo.tail31b5d9.ts.net ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJy8vlvv7Tv1ojwlJP3myUOK/F/SFzIja7fv0mwaufPT
+          bmo.tail31b5d9.ts.net ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDj8VYqYX5cOhFbUsGosKzvQRQFmLR293W6zJKx4mC2nm2UukoHlDHq+Ji6LW2x3+tHsOp6txDgDee+5rU3Cq2ffsWYpr4wrP1oyQrOylDHlhTsbdYeEnVbWFjEnBZtOTKF3LsrYXnpV+rcRvSaBfH62omJkznMl1XxTEXEd+oygkK5KR0/ZT9aSoP62nvspoYiiKuFVNsxIcAou/DEMWD5KRZdpDWXaj7d+Xuug13JcGF6Dy0oloFXp2K7HrAuXEORvwpQf/q1Jf6eIEt8KNNdiJP8t/cg2hi2tc6g5jA8X4An4piMux4B5ds5PwClcCx0fbUty+mOrQyAQfr6jeQdR961C4fySfsx/wlJ5Hu3fWSnGaVFR63El/UtGVZeZwH08LYB2bo9DuRsWf9h3WwOOnQpaWoAVyw6VLebMAmM/S/fB1Q7gBE98KKyLVAxZ4EL3Rg/SusgsABHlANbVnjjb2/COnVZ9uSLTT4gkgmFrf0up11V5cppqop3qgq8Trs=
+          bmo.tail31b5d9.ts.net ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBOmkUfxj7JJJsbIXNOuhx+u4QD7F0aFpWpzh3BiBRyyAFUCOWhMY5jS0yjsLYrUMDs4cezo73lGoFptFObdBuPA=
+          PINNED
       - name: Rsync build to the Pi (retain old hashed chunks)
         # NO --delete: an active browser session keeps importing the PREVIOUS
         # build's content-hashed chunks (e.g. assets/InGamePage-<oldhash>.js)
@@ -88,7 +104,7 @@ jobs:
           # gap so in-flight sessions can finish/reload. 1440 = 24h.
           RETENTION_MINUTES: "1440"
         run: |
-          SSH='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new'
+          SSH='ssh -o BatchMode=yes -o StrictHostKeyChecking=yes'
           DEST=/home/patrick/web-apps/DungeonTableOnline
           $SSH patrick@bmo.tail31b5d9.ts.net "mkdir -p $DEST/assets"
           # Overlay the new build (rewrites index.html + adds new hashed chunks).
