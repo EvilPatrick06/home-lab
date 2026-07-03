@@ -83,7 +83,7 @@ if os.environ.get("GEMINI_API_KEY"):
               {"role":"user","content":ctx}]
         overview=gemini_chat(msgs, model=os.environ.get("BRIEF_MODEL","gemini-2.0-flash"), temperature=0.7, max_tokens=180).strip()
     except Exception as ex:
-        sys.stderr.write("gemini winddown failed: %s\n"%str(ex)[:160])
+        sys.stderr.write("gemini winddown failed: %s\n"%str(ex).replace(os.environ.get("GEMINI_API_KEY") or "\0","***")[:160])
         overview=None
 if not overview:
     overview="Tomorrow: %s. %s pending CI. Rest up."%(("%d event(s)"%len(tomo_lines)) if tomo_lines else "clear", fails if fails not in ("?","") else "0")
