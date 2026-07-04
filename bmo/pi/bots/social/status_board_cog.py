@@ -324,11 +324,16 @@ class PingOwnerButton(discord.ui.DynamicItem[discord.ui.Button], template=r"boar
             # a failure here must not break the ephemeral acknowledgement below.
             if OWNER_ID and interaction.channel is not None:
                 try:
-                    await interaction.channel.send(
+                    ping_msg = await interaction.channel.send(
                         f"<@{OWNER_ID}> 🎮 A player is asking you to bring the "
                         f"Minecraft server back up (port {MC_PORT} is not responding).",
                         delete_after=600,
                         allowed_mentions=discord.AllowedMentions(users=True))
+                    # Track it so it can be deleted the moment the MC server is
+                    # detected back UP, instead of waiting out the 10-min timer.
+                    if cog is not None:
+                        cog.state.mc_ping_msgs.append([interaction.channel.id, ping_msg.id])
+                        cog.state.save()
                 except discord.HTTPException:
                     pass
             msg = ("🛎️ The owner has been pinged (SMS + Discord) to bring the Minecraft server back up."
@@ -915,10 +920,32 @@ class StatusBoardCog(commands.Cog):
     async def loop(self):
         try:
             self._cached_extra = await asyncio.to_thread(_deploy_adapter)
+            was_down = self._mc_down
             self._mc_down = await asyncio.to_thread(_mc_down)
+            # MC recovery (down -> up): self-clean the channel by deleting any
+            # owner-ping @-mention(s) we posted, rather than waiting out their
+            # 10-minute delete_after fallback.
+            if was_down and not self._mc_down:
+                await self._clear_mc_ping_messages()
             await self.render_to_message()
         except Exception:
             log.exception("board reconcile failed (retry next cycle)")
+
+    async def _clear_mc_ping_messages(self):
+        """Delete every tracked owner-ping @-mention message (best-effort) and
+        clear the stored ids. Called when the MC server is detected back UP so
+        the channel self-cleans on recovery. Missing/already-deleted messages
+        (the 10-min delete_after fallback may have fired first) are ignored."""
+        pending = list(self.state.mc_ping_msgs)
+        self.state.mc_ping_msgs = []
+        self.state.save()
+        for chan_id, msg_id in pending:
+            try:
+                channel = self.bot.get_channel(chan_id) or await self.bot.fetch_channel(chan_id)
+                msg = await channel.fetch_message(msg_id)
+                await msg.delete()
+            except (discord.HTTPException, discord.NotFound, AttributeError):
+                pass
 
     @loop.before_loop
     async def _before(self):

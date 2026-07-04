@@ -8,6 +8,8 @@ the cooldown/debounce decision, and that notify.sh is invoked with the stable
 import time
 import types
 
+import discord
+
 from bots.social import status_board_cog as cog
 from services import status_board as sb
 
@@ -144,12 +146,25 @@ class _FakeResponse:
         pass
 
 
+class _FakeMessage:
+    def __init__(self, mid):
+        self.id = mid
+        self.deleted = False
+
+    async def delete(self):
+        self.deleted = True
+
+
 class _FakeChannel:
-    def __init__(self):
+    def __init__(self, cid=555):
+        self.id = cid
         self.sent = []
+        self._next_id = 1000
 
     async def send(self, content, **kw):
         self.sent.append((content, kw))
+        self._next_id += 1
+        return _FakeMessage(self._next_id)
 
 
 class _FakeClient:
@@ -179,13 +194,16 @@ async def test_callback_fires_notify_and_owner_mention_when_down(monkeypatch):
     monkeypatch.setattr(cog, "_send_owner_mc_ping", fake_send_owner)
     monkeypatch.setattr(cog, "OWNER_ID", "123456789")
 
-    fake_cog = types.SimpleNamespace(_mc_down=True, _mc_ping_until=0.0)
+    fake_state = types.SimpleNamespace(mc_ping_msgs=[], save=lambda: None)
+    fake_cog = types.SimpleNamespace(_mc_down=True, _mc_ping_until=0.0, state=fake_state)
     channel = _FakeChannel()
     interaction = _FakeInteraction(fake_cog, channel)
 
     await cog.PingOwnerButton().callback(interaction)
 
     assert fired["notify"] == 1                       # owner alert (SMS/push) fired
+    # the @-mention message id is tracked so MC recovery can delete it early.
+    assert fake_state.mc_ping_msgs == [[channel.id, channel.sent and 1001]]
     assert channel.sent, "owner was not @-mentioned in the channel"
     assert "<@123456789>" in channel.sent[0][0]       # real Discord ping to owner
     assert fake_cog._mc_ping_until > 0                # cooldown armed (anti-spam)
@@ -207,3 +225,104 @@ async def test_callback_does_not_notify_when_server_up(monkeypatch):
 
     assert fired["notify"] == 0        # server up → no owner alert
     assert not channel.sent            # and no @-mention
+
+
+# ── recovery: MC back UP deletes the tracked owner-ping @-mention early ───────
+
+class _FakeBot:
+    """Minimal bot: resolves a channel that can fetch/delete a tracked message."""
+    def __init__(self, channel):
+        self._channel = channel
+
+    def get_channel(self, cid):
+        return self._channel if cid == self._channel.id else None
+
+
+class _FetchChannel:
+    def __init__(self, cid, messages):
+        self.id = cid
+        self._messages = messages          # msg_id -> _FakeMessage
+
+    async def fetch_message(self, mid):
+        msg = self._messages.get(mid)
+        if msg is None:
+            # real discord raises NotFound (a subclass of HTTPException) here.
+            resp = types.SimpleNamespace(status=404, reason="Not Found")
+            raise discord.NotFound(resp, "Unknown Message")
+        return msg
+
+
+def _cog_with_state(bot, mc_ping_msgs):
+    inst = cog.StatusBoardCog.__new__(cog.StatusBoardCog)
+    inst.bot = bot
+    inst.state = types.SimpleNamespace(mc_ping_msgs=list(mc_ping_msgs),
+                                       save=lambda: None)
+    return inst
+
+
+async def test_clear_mc_ping_messages_deletes_and_clears():
+    # A tracked ping message exists; recovery must delete it and empty the list.
+    msg = _FakeMessage(2001)
+    channel = _FetchChannel(555, {2001: msg})
+    inst = _cog_with_state(_FakeBot(channel), [[555, 2001]])
+
+    await inst._clear_mc_ping_messages()
+
+    assert msg.deleted is True                     # the @-mention was removed
+    assert inst.state.mc_ping_msgs == []           # and its id was cleared
+
+
+async def test_clear_mc_ping_messages_best_effort_on_missing():
+    # The 10-min delete_after may have already fired; a missing message must not
+    # raise, and the stored id is still cleared.
+    channel = _FetchChannel(555, {})               # fetch will raise
+    inst = _cog_with_state(_FakeBot(channel), [[555, 9999]])
+
+    await inst._clear_mc_ping_messages()           # must not raise
+
+    assert inst.state.mc_ping_msgs == []
+
+
+async def test_loop_recovery_transition_invokes_clear(monkeypatch):
+    # A down->up transition in the reconcile loop must trigger the clear path.
+    inst = cog.StatusBoardCog.__new__(cog.StatusBoardCog)
+    inst._mc_down = True                           # previous tick: server down
+    cleared = {"n": 0}
+
+    async def fake_clear():
+        cleared["n"] += 1
+
+    async def fake_render():
+        pass
+
+    inst._clear_mc_ping_messages = fake_clear
+    inst.render_to_message = fake_render
+    monkeypatch.setattr(cog, "_deploy_adapter", lambda: [])
+    monkeypatch.setattr(cog, "_mc_down", lambda: False)   # this tick: server up
+
+    # call the loop body directly (unwrap the tasks.loop decorator)
+    await cog.StatusBoardCog.loop.coro(inst)
+
+    assert cleared["n"] == 1                        # recovery -> clear fired once
+    assert inst._mc_down is False
+
+
+async def test_loop_no_clear_while_still_down(monkeypatch):
+    inst = cog.StatusBoardCog.__new__(cog.StatusBoardCog)
+    inst._mc_down = True
+    cleared = {"n": 0}
+
+    async def fake_clear():
+        cleared["n"] += 1
+
+    async def fake_render():
+        pass
+
+    inst._clear_mc_ping_messages = fake_clear
+    inst.render_to_message = fake_render
+    monkeypatch.setattr(cog, "_deploy_adapter", lambda: [])
+    monkeypatch.setattr(cog, "_mc_down", lambda: True)    # still down
+
+    await cog.StatusBoardCog.loop.coro(inst)
+
+    assert cleared["n"] == 0                        # no transition -> no clear
