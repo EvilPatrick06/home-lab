@@ -924,6 +924,9 @@ class HealthChecker:
             return
 
         if not containers:
+            # No containers at all: still reconcile so any leftover docker_*
+            # entries (e.g. from a prior scan) are pruned, not left stale.
+            self._prune_stale_docker_entries(set())
             return
 
         for name in containers:
@@ -1007,6 +1010,44 @@ class HealthChecker:
                     "message": str(e),
                     "response_time": None,
                 }
+
+        # Reconcile: prune any docker_* entries whose container no longer
+        # exists in `docker ps -a`. Transient/one-off containers (watchtower
+        # recreations, one-off `docker run`) that have since vanished would
+        # otherwise leave a permanent `docker_<name>` ghost in monitor state —
+        # and one caught mid-exit as "down" becomes a false, never-clearing
+        # board incident. Removing the key here lets the status board close the
+        # derived incident on its next reconcile.
+        self._prune_stale_docker_entries(set(containers))
+
+    def _prune_stale_docker_entries(self, current_containers: set) -> None:
+        """Drop docker_<name> entries for containers not in the current scan.
+
+        Keeps the monitored set in sync with reality: a container that no
+        longer exists gets its live status, its persisted prev-status, and any
+        pending Discord/feed de-dupe fingerprint cleared, so no stale "down"
+        ghost survives to drive a false board incident.
+        """
+        live = {f"docker_{n}" for n in current_containers}
+        stale = [
+            key
+            for key in list(self._service_status)
+            if key.startswith("docker_") and key not in live
+        ]
+        # _prev_status is loaded from disk and survives restarts, so a ghost can
+        # live there even if it was never seen this process. Prune it too.
+        stale_prev = [
+            key
+            for key in list(self._prev_status)
+            if key.startswith("docker_") and key not in live
+        ]
+        for key in stale:
+            self._service_status.pop(key, None)
+        for key in set(stale) | set(stale_prev):
+            self._prev_status.pop(key, None)
+            self._discord_last_fingerprint.pop(key, None)
+            self._notify_last_fingerprint.pop(key, None)
+            log.info("[monitor] pruned stale docker entry: %s", key)
 
     # ── Pi-hole Health Check ─────────────────────────────────────────
 
