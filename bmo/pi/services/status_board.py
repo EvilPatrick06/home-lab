@@ -423,6 +423,7 @@ class BoardState:
     pinged_critical: list = field(default_factory=list)  # critical keys already pinged
     board_v2: bool = False                             # is the live board a Components-V2 msg?
     awaiting_page: int = 0                             # current awaiting-approval page (persisted)
+    mc_ping_msgs: list = field(default_factory=list)   # [[channel_id, message_id], ...] owner-ping @-mentions to clear on MC recovery
 
     @classmethod
     def load(cls) -> "BoardState":
@@ -437,7 +438,8 @@ class BoardState:
             return cls(d.get("board_message_id"), d.get("channel_id"), inc,
                        d.get("updated", 0.0), d.get("muted", {}),
                        d.get("collapse_info", False), d.get("pinged_critical", []),
-                       d.get("board_v2", False), page)
+                       d.get("board_v2", False), page,
+                       d.get("mc_ping_msgs", []))
         except Exception:
             return cls()
 
@@ -447,7 +449,8 @@ class BoardState:
              "incidents": {k: asdict(v) for k, v in self.incidents.items()},
              "updated": time.time(), "muted": self.muted,
              "collapse_info": self.collapse_info, "pinged_critical": self.pinged_critical,
-             "board_v2": self.board_v2, "awaiting_page": self.awaiting_page}
+             "board_v2": self.board_v2, "awaiting_page": self.awaiting_page,
+             "mc_ping_msgs": self.mc_ping_msgs}
         with open(BOARD_STATE, "w", encoding="utf-8") as f:
             json.dump(d, f, indent=2)
 
