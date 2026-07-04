@@ -440,6 +440,109 @@ class TestMockHardwareIntegration:
 
 # ── Circuit-breaker for repeatedly-failing subsystems (QA #6, 2026-05-17) ─────
 
+# GHOST DOCKER RECONCILIATION TESTS (2026-07 false-incident fix)
+
+class TestDockerGhostReconciliation:
+    # A docker_<name> entry for a container that no longer exists in
+    # `docker ps -a` must be pruned each scan -- otherwise a transient
+    # container caught mid-exit as 'down' becomes a permanent, never-clearing
+    # board incident (the container is gone, so it can never recover).
+
+    @staticmethod
+    def _inspect_running(name):
+        return MagicMock(
+            returncode=0,
+            stdout='{"running":true,"status":"running","restarts":0}',
+            stderr='',
+        )
+
+    def test_ghost_docker_entry_pruned_from_state(self, tmp_path):
+        checker = _make_checker(tmp_path)
+        checker._service_status = {
+            'docker_crazy_shaw': {
+                'status': 'down',
+                'last_check': time.time(),
+                'message': 'State: exited',
+                'response_time': None,
+            },
+        }
+        checker._prev_status = {'docker_crazy_shaw': 'down'}
+        checker._discord_last_fingerprint = {'docker_crazy_shaw': 'fp'}
+        checker._notify_last_fingerprint = {'docker_crazy_shaw': 'fp'}
+
+        ps_result = MagicMock(returncode=0, stdout='bmo-ollama' + chr(10), stderr='')
+
+        with patch('subprocess.run') as mock_run:
+            mock_run.side_effect = [
+                ps_result,
+                self._inspect_running('bmo-ollama'),
+                MagicMock(returncode=0, stdout='', stderr=''),
+            ]
+            checker._check_docker_containers()
+
+        assert 'docker_crazy_shaw' not in checker._service_status
+        assert 'docker_crazy_shaw' not in checker._prev_status
+        assert 'docker_crazy_shaw' not in checker._discord_last_fingerprint
+        assert 'docker_crazy_shaw' not in checker._notify_last_fingerprint
+        assert checker._service_status['docker_bmo-ollama']['status'] == 'up'
+
+    def test_no_containers_still_prunes_ghost(self, tmp_path):
+        checker = _make_checker(tmp_path)
+        checker._service_status = {
+            'docker_crazy_shaw': {
+                'status': 'down',
+                'last_check': time.time(),
+                'message': 'State: exited',
+                'response_time': None,
+            },
+        }
+        checker._prev_status = {'docker_crazy_shaw': 'down'}
+
+        empty_ps = MagicMock(returncode=0, stdout=chr(10), stderr='')
+        with patch('subprocess.run') as mock_run:
+            mock_run.side_effect = [empty_ps]
+            checker._check_docker_containers()
+
+        assert 'docker_crazy_shaw' not in checker._service_status
+        assert 'docker_crazy_shaw' not in checker._prev_status
+
+    def test_pruned_ghost_leaves_no_board_incident(self, tmp_path):
+        import services.status_board as sb
+
+        state = sb.BoardState()
+        state.incidents['docker_crazy_shaw'] = sb.Incident(
+            'docker_crazy_shaw', 'crazy_shaw', 'infra',
+            'critical', 'State: exited', time.time(),
+        )
+
+        checker = _make_checker(tmp_path)
+        checker._service_status = {
+            'docker_crazy_shaw': {
+                'status': 'down', 'last_check': time.time(),
+                'message': 'State: exited', 'response_time': None,
+            },
+        }
+        checker._prev_status = {'docker_crazy_shaw': 'down'}
+
+        ps_result = MagicMock(returncode=0, stdout='bmo-ollama' + chr(10), stderr='')
+        with patch('subprocess.run') as mock_run:
+            mock_run.side_effect = [
+                ps_result,
+                self._inspect_running('bmo-ollama'),
+                MagicMock(returncode=0, stdout='', stderr=''),
+            ]
+            checker._check_docker_containers()
+
+        monitor_state = {
+            k: v.get('status', 'unknown')
+            for k, v in checker._service_status.items()
+        }
+        rows = sb.derive_incidents(monitor_state)
+        sb.reconcile_incidents(state, rows)
+
+        assert 'docker_crazy_shaw' not in state.incidents
+
+
 class TestCircuitBreaker:
     def test_no_history_means_circuit_closed(self, tmp_path):
         checker = _make_checker(tmp_path)
