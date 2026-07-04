@@ -143,16 +143,19 @@ async def _respond(interaction: discord.Interaction, cog) -> None:
 
 def _send_owner_mc_ping() -> bool:
     """Fire notify.sh to alert the owner that a friend wants the Minecraft
-    server back up. notify.sh routes to the board (its own SMS failsafe handles
-    a dark board); we just invoke the stable `<sev> <subject> <body>` signature
-    and tag it for the actionable 'Needs you' section. Returns True if the
-    notifier was invoked."""
+    server back up. A friend clicking this button is looking AT the board, so a board-only
+    notice would be a no-op for the owner. We set NOTIFY_FORCE_SMS=1 so
+    notify.sh takes its SMS/phone-push path (the canonical owner-alert route)
+    and reaches the owner even when they are away from the board, while still
+    tagging the actionable 'Needs you' category. Returns True if the notifier
+    was invoked."""
     if not os.path.exists(NOTIFY_SH):
         return False
     try:
-        env = dict(os.environ, NOTIFY_BOARD_CATEGORY="attention")
+        env = dict(os.environ, NOTIFY_BOARD_CATEGORY="attention",
+                   NOTIFY_FORCE_SMS="1")  # reach the owner off-board (SMS/push)
         subprocess.run([NOTIFY_SH, "warn", "Minecraft server down",
-                        "\U0001F3AE A friend is asking you to bring the Minecraft server back up."],
+                        "\U0001F3AE A player is asking you to bring the Minecraft server back up."],
                        timeout=30, check=False, env=env)
         return True
     except Exception:
@@ -316,7 +319,19 @@ class PingOwnerButton(discord.ui.DynamicItem[discord.ui.Button], template=r"boar
             sent = await asyncio.to_thread(_send_owner_mc_ping)
             if cog is not None:
                 cog._mc_ping_until = now + MC_PING_COOLDOWN
-            msg = ("🛎️ The owner has been pinged to bring the Minecraft server back up."
+            # Also @-mention the owner in-channel so they get a real Discord ping
+            # (not just the ephemeral confirmation the clicker sees). Best-effort:
+            # a failure here must not break the ephemeral acknowledgement below.
+            if OWNER_ID and interaction.channel is not None:
+                try:
+                    await interaction.channel.send(
+                        f"<@{OWNER_ID}> 🎮 A player is asking you to bring the "
+                        f"Minecraft server back up (port {MC_PORT} is not responding).",
+                        delete_after=600,
+                        allowed_mentions=discord.AllowedMentions(users=True))
+                except discord.HTTPException:
+                    pass
+            msg = ("🛎️ The owner has been pinged (SMS + Discord) to bring the Minecraft server back up."
                    if sent else "⚠️ Couldn't reach the notifier — please tell the owner directly.")
         try:
             await interaction.response.send_message(msg, ephemeral=True)
