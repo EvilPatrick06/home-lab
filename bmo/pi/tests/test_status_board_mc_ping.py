@@ -109,6 +109,9 @@ def test_send_owner_mc_ping_invokes_notify(monkeypatch, tmp_path):
     assert calls["argv"][2] == "Minecraft server down"
     # routed to the actionable 'Needs you' section, not a non-actionable FYI.
     assert calls["env"]["NOTIFY_BOARD_CATEGORY"] == "attention"
+    # forces the real owner alert (SMS/phone push) rather than a board-only
+    # notice the owner might never see — this is the whole point of the ping.
+    assert calls["env"]["NOTIFY_FORCE_SMS"] == "1"
 
 
 def test_send_owner_mc_ping_false_when_notifier_missing(monkeypatch, tmp_path):
@@ -126,3 +129,81 @@ def test_send_owner_mc_ping_false_when_notifier_missing(monkeypatch, tmp_path):
 # sanity: the MC info row uses a severity the renderer knows about.
 def test_mc_row_severity_known():
     assert "warning" in sb.SEV_DOT
+
+
+# ── callback: a real click actually pings the owner (SMS + Discord) ───────────
+
+class _FakeResponse:
+    def __init__(self):
+        self.messages = []
+
+    async def send_message(self, msg, ephemeral=False):
+        self.messages.append((msg, ephemeral))
+
+    async def defer(self):
+        pass
+
+
+class _FakeChannel:
+    def __init__(self):
+        self.sent = []
+
+    async def send(self, content, **kw):
+        self.sent.append((content, kw))
+
+
+class _FakeClient:
+    def __init__(self, cog):
+        self._cog = cog
+
+    def get_cog(self, name):
+        return self._cog
+
+
+class _FakeInteraction:
+    def __init__(self, cog, channel):
+        self.client = _FakeClient(cog)
+        self.channel = channel
+        self.response = _FakeResponse()
+
+
+async def test_callback_fires_notify_and_owner_mention_when_down(monkeypatch):
+    # MC down, cold cooldown → a click must invoke the notify path AND @-mention
+    # the owner in the channel (not merely show an ephemeral confirmation).
+    fired = {"notify": 0}
+
+    def fake_send_owner():
+        fired["notify"] += 1
+        return True
+
+    monkeypatch.setattr(cog, "_send_owner_mc_ping", fake_send_owner)
+    monkeypatch.setattr(cog, "OWNER_ID", "123456789")
+
+    fake_cog = types.SimpleNamespace(_mc_down=True, _mc_ping_until=0.0)
+    channel = _FakeChannel()
+    interaction = _FakeInteraction(fake_cog, channel)
+
+    await cog.PingOwnerButton().callback(interaction)
+
+    assert fired["notify"] == 1                       # owner alert (SMS/push) fired
+    assert channel.sent, "owner was not @-mentioned in the channel"
+    assert "<@123456789>" in channel.sent[0][0]       # real Discord ping to owner
+    assert fake_cog._mc_ping_until > 0                # cooldown armed (anti-spam)
+    assert interaction.response.messages             # clicker still gets an ack
+    assert interaction.response.messages[0][1] is True  # and it is ephemeral
+
+
+async def test_callback_does_not_notify_when_server_up(monkeypatch):
+    fired = {"notify": 0}
+    monkeypatch.setattr(cog, "_send_owner_mc_ping",
+                        lambda: fired.__setitem__("notify", fired["notify"] + 1) or True)
+    monkeypatch.setattr(cog, "OWNER_ID", "123456789")
+
+    fake_cog = types.SimpleNamespace(_mc_down=False, _mc_ping_until=0.0)
+    channel = _FakeChannel()
+    interaction = _FakeInteraction(fake_cog, channel)
+
+    await cog.PingOwnerButton().callback(interaction)
+
+    assert fired["notify"] == 0        # server up → no owner alert
+    assert not channel.sent            # and no @-mention
