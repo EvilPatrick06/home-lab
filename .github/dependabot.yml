@@ -3,6 +3,16 @@
 # adds the scheduled VERSION updates that the integrator Dependabot-review job
 # (docs/AUTOMATED-AGENT-GIT-WORKFLOW.md 3B) is written to consume. Each ecosystem
 # is grouped into a single PR, matching the grouped pip/npm bumps relied on today.
+#
+# MAJOR-VERSION HOLDS: a few dependencies are pinned below a known-breaking major
+# so the grouped weekly PR is not blocked (red / unmergeable) by a bump that is a
+# maintainer migration decision rather than a routine update. Each hold is scoped
+# to semver-major only (minor/patch still flow) and is flagged for manual review:
+#   - typescript: held below 7.x across all JS projects. TS 7 is the native
+#     (Go) compiler rewrite — a repo-wide migration, not a drop-in bump.
+#   - electron (dnd-app): held below 43.x. A desktop-runtime (Chromium/Node ABI)
+#     major deserves human eyes before shipping the installer.
+# Remove the relevant hold when the migration is done deliberately.
 version: 2
 updates:
   - package-ecosystem: pip
@@ -27,10 +37,14 @@ updates:
     # pre-commit pin). A per-directory Dependabot bump touches only ONE of those
     # package.json files, so it structurally cannot satisfy GUARD 10 and lands
     # the grouped PR red on the guards check every biome release. Held here so
-    # biome is instead bumped manually across all three projects at once. See
-    # docs/logs/ISSUES-LOG-DNDAPP.md.
+    # biome is instead bumped manually across all three projects at once.
+    # typescript/electron: semver-major holds (see file header).
     ignore:
       - dependency-name: "@biomejs/biome"
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "electron"
+        update-types: ["version-update:semver-major"]
     cooldown:
       default-days: 7
 
@@ -52,13 +66,15 @@ updates:
     # which breaks `expo export:embed` even though tsc/lint/npm-ci are green and
     # the peer range (>=1.27.0) technically allows it. Held at 1.30.1 (see the
     # package.json override) until a react-native-css release supports the newer
-    # format. Verified breaking in integrator run 2026-07-03 (PR #62). See
-    # docs/logs/ISSUES-LOG-DNDAPP.md.
+    # format. Verified breaking in integrator run 2026-07-03 (PR #62).
     # @biomejs/biome: single-sourced across all three JS projects (GUARD 10);
     # bumped manually in lockstep, never per-directory by Dependabot.
+    # typescript: semver-major hold (see file header).
     ignore:
       - dependency-name: "lightningcss"
       - dependency-name: "@biomejs/biome"
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
     cooldown:
       default-days: 7
 
@@ -71,8 +87,11 @@ updates:
         patterns: ["*"]
     # @biomejs/biome: single-sourced across all three JS projects (GUARD 10);
     # bumped manually in lockstep, never per-directory by Dependabot.
+    # typescript: semver-major hold (see file header).
     ignore:
       - dependency-name: "@biomejs/biome"
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
     cooldown:
       default-days: 7
 
@@ -83,6 +102,13 @@ updates:
     groups:
       npm-deps:
         patterns: ["*"]
+    # typescript: semver-major hold (see file header). NOTE: @cloudflare/workers-types
+    # 4.x -> 5.x and wrangler have a peer-range knot (wrangler pins ^4.2026070x
+    # which no 4.x release satisfies) — deliberately NOT ignored here; it needs a
+    # maintainer decision on the Cloudflare toolchain jump, not an auto-hold.
+    ignore:
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
     cooldown:
       default-days: 7
 
