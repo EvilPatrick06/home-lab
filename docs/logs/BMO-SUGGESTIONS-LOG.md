@@ -20,6 +20,89 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-07-15] `bmo/docs/AGENTS.md` "Adding a new agent" recipe has drifted from the real code on all four steps — flat module path, wrong base-class API (`async invoke` vs sync `run`), a `REGISTRY` dict that doesn't exist, and regex keywords the router would treat as never-matching substrings
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** scheduled cleanup/structure scan (docs-vs-code cross-check after the agents/ family-subpackage move)
+
+**Description:**
+The catalog tables in `bmo/docs/AGENTS.md` were updated for the agents/ regrouping (they correctly show `dnd/…`, `home/…`, `dev/…` paths), but the "Adding a new agent" recipe (`AGENTS.md:131-158`) was not, and every one of its four steps now misleads:
+1. Step 1 says create `bmo/pi/agents/my_agent.py` — agents live in family subpackages (`agents/home/`, `agents/dnd/`, `agents/dev/`) since the 2026-06-29 regrouping; a new flat module would be the lone exception.
+2. The example subclass defines `async def invoke(self, user_msg, context)` returning a dict — `BaseAgent`'s real interface is the synchronous `run(message: str, history: list[dict], context: dict | None) -> AgentResult` (`agents/base_agent.py:108`); an agent written from the doc's template would never be called.
+3. Step 2 shows `from agents.my_agent import MyAgent` + `REGISTRY["my_agent"] = MyAgent` — `agents/_registry.py` has no `REGISTRY` dict; registration is a `_AGENT_SPECS` tuple of `("agents.<family>.<module>", "create_<name>_agent")` factory-name pairs with per-entry import isolation (PHASE-15 15A), so the doc's mechanism doesn't exist and would also bypass the one-bad-agent-doesn't-kill-all guarantee.
+4. Step 3 shows regex-style keywords (`r"\bmy\s+thing\b"`) — `KEYWORD_PATTERNS` values are plain substrings matched via `kw in lower` in `router._check_keywords`, so a regex string with `\b`/`\s` would literally never match any utterance.
+
+Net: the one how-to a future contributor (or the code agent itself) would follow to extend the agent system produces a non-loading, non-routing agent.
+
+**Hypothesis / root cause:** the regrouping pass updated the catalog tables (its stated checklist item) but nobody re-read the prose recipe below them; the recipe also predates the `_AGENT_SPECS` isolation rework and the substring router, so it has drifted through at least three refactors unnoticed.
+
+**Proposed fix / improvement:**
+- [ ] Rewrite the recipe by transcribing a real, recent, small agent (e.g. `agents/home/weather_agent.py` + its `_AGENT_SPECS` row + its `KEYWORD_PATTERNS` list) so every step is copy-paste true: family-subpackage path, `create_*_agent()` factory, `run(...) -> AgentResult`, plain-substring keywords.
+- [ ] Add one sentence noting keywords are substrings (not regexes) and pointing at `tests/agents/test_0_routing_accuracy.py` for the routing assertions a new agent should extend.
+- [ ] Optional guard: a tiny doc-truth test asserting the recipe's registry snippet stays in sync (e.g. grep AGENTS.md for `_AGENT_SPECS` once rewritten), in the spirit of the existing doc-truth phases.
+
+**Blocked by:** none
+
+**Related files:** `bmo/docs/AGENTS.md:131-158` ("Adding a new agent"), `bmo/pi/agents/base_agent.py:108` (`run`), `bmo/pi/agents/_registry.py` (`_AGENT_SPECS`), `bmo/pi/agents/router.py:55` (`KEYWORD_PATTERNS`)
+
+**Related entries:** BMO-RESOLVED [2026-06-29] "`agents/` is a 40-file flat package…" (the move whose doc follow-through stopped at the tables); BMO-RESOLVED [2026-06-23] "`bmo/docs/AGENTS.md` opening line ('5 specialized AI agents') contradicts…" (same doc, earlier drift — this doc rots fast and has no truth-test).
+
+---
+
+### [2026-07-15] PHASE-18 is already fully implemented on master (bmo-resolver, 2026-07-02) but still sits in the active phases folder with Status "pending" — the numeric-order phase queue now has a stale no-op phase gating 19–21
+
+- **Category:** docs, debt
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** scheduled cleanup/structure scan (active-phases vs resolved-log cross-check)
+
+**Description:**
+`bmo/docs/phases/PHASE-18-plan-agent-prompt-format-crash.md` prescribes three things: escape the unescaped braces in `DESIGN_PROMPT`, add a rendering unit test, and audit the other agent prompt templates. All three landed on master out-of-band via `auto/bmo-resolver` on 2026-07-02 (BMO-RESOLVED-ISSUES "[2026-07-02] Plan agent design phase always crashes — `DESIGN_PROMPT.format()` KeyError `'state'`…"): `agents/dev/plan_agent.py:49,51` now carry `{{state:…}}` / `{{scene:"movie"}}`, `tests/agents/test_plan_agent_prompts.py` exists and deliberately exercises the REAL prompt strings, and the resolution note documents the full template audit. Yet the phase file remains in the **active** `bmo/docs/phases/` folder and `PHASE-INDEX.md:43` still lists row 18 as `pending`. Since phases execute in numeric order, the phase-executer's next run would pick up PHASE-18 first and re-execute (or at best re-verify) an already-landed fix before reaching the genuinely pending PHASE-19–21 — wasted run, and the index misstates reality either way.
+
+**Hypothesis / root cause:** two independent agents covered the same defect from different queues — the phase-maker authored PHASE-18 from the QA report while bmo-errors/bmo-resolver fixed the same finding from the issues log — and nothing in either workflow reconciles a resolver fix against pending phase docs.
+
+**Proposed fix / improvement:**
+- [ ] Verify-only pass (the phase's own cheap checks: render both prompts, run `test_plan_agent_prompts.py`), then move `PHASE-18-…md` to `completed/` with a short "superseded by bmo-resolver 2026-07-02 (see BMO-RESOLVED-ISSUES entry)" note appended, and flip `PHASE-INDEX.md` row 18 to `done`.
+- [ ] Process nit for the phase-maker/resolver docs: when a resolver lands a fix that a pending phase file covers, annotate/close that phase in the same change (one-line rule in `bmo/docs/phases/INSTRUCTIONS.md` or the resolver instructions) so the queue can't hold zombie phases.
+
+**Blocked by:** none
+
+**Related files:** `bmo/docs/phases/PHASE-18-plan-agent-prompt-format-crash.md`, `bmo/docs/phases/PHASE-INDEX.md:43`, `bmo/pi/agents/dev/plan_agent.py:49,51`, `bmo/pi/tests/agents/test_plan_agent_prompts.py`
+
+**Related entries:** BMO-RESOLVED-ISSUES [2026-07-02] "Plan agent design phase always crashes — `DESIGN_PROMPT.format()` KeyError `'state'`…" (the landed fix PHASE-18 duplicates).
+
+---
+
+### [2026-07-15] `pi/tests/` is an 86-file flat directory while the source it covers is now subpackaged — only `tests/agents/` mirrors a source package, so test discovery for any given module is grep-only
+
+- **Category:** debt, future-idea (structure / DX)
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** scheduled cleanup/structure scan (test-tree layout vs the post-regrouping source layout)
+
+**Description:**
+`bmo/pi/tests/` holds **86 flat `test_*.py` modules** plus a single subdir (`tests/agents/`, 9 files). Meanwhile the source tree those tests cover has been progressively subpackaged — `services/voice/`, `services/game/`, `services/calendar/`, `routes/`, `bots/social/` (+ games), `hardware/`, `ide/`, `tools/`, `agents/{home,dnd,dev}/` — so the test tree no longer mirrors the code tree anywhere except `agents/`. Consequences are mild but constant: locating the tests for a module is a grep exercise (voice tests `test_voice_pipeline.py`/`test_tts_cache.py`/`test_discord_tts.py`/`test_audio_output.py`/… sit interleaved with deploy, calendar, board and bot tests in one directory listing), related tests can't be run as a directory (`pytest tests/voice/`), and the flat dir keeps growing (~1 new file per feature). This is the same un-grouped-cluster smell already logged — and since fixed — for the flat `agents/` package and the `services/` game cluster; `tests/agents/` itself proves the mirrored-subdir convention works in this suite.
+
+**Hypothesis / root cause:** tests were added one file per feature into the historically flat dir; the source-side regroupings moved code but never their tests, and pytest's recursive discovery means nothing ever forced the split.
+
+**Proposed fix / improvement:**
+- [ ] Introduce mirroring subdirs incrementally, one domain per small PR (`tests/voice/`, `tests/game/`, `tests/routes/`, `tests/bots/`, `tests/board/`…), `git mv` only — no content changes; pytest discovery is recursive so `pytest.ini` needs at most a glance (no `testpaths` pinning today).
+- [ ] Keep `conftest.py` at `tests/` root (fixtures stay shared); add an `__init__.py` per new subdir matching the existing `tests/agents/__init__.py` pattern.
+- [ ] Do it opportunistically per-domain (e.g. whenever a domain's tests are next touched) rather than big-bang, to keep multi-agent branch conflicts near zero.
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/tests/` (86 flat files), `bmo/pi/tests/agents/` (the working precedent), `bmo/pi/pytest.ini`, `bmo/pi/tests/conftest.py`
+
+**Related entries:** BMO-RESOLVED [2026-06-29] "`agents/` is a 40-file flat package with no sub-grouping…" and [2026-06-28] "The D&D / game subsystem is ~11 flat files at `services/` top level…" — the source-side halves of the same pattern; this is the test-side remainder.
+
+---
+
 ### [2026-07-03] Speaker context is now plumbed to the agent layer, but the full per-speaker DATA MODEL is still unbuilt — lists/calendar/personality + the memory `profile`/`preferences` blobs remain single-user
 
 - **Category:** future-idea (capability)
