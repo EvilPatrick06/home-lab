@@ -32,35 +32,6 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Medium
 
-### [2026-07-15] sync:doc-counts CI gate is drifted on master (86 vs 92 bmo pytest files) — next dnd-app push goes red
-
-- **Category:** config
-- **Severity:** medium
-- **Domain:** dnd-app
-- **Discovered by:** dnd-errors
-- **During:** scheduled dnd-app error scan 2026-07-15 (ran every repo guard script against master `9748d383`)
-
-**Description:**
-`npm run sync:doc-counts -- --check` (a blocking step in `dnd-app-ci.yml`, line 63) currently FAILS on master: root `README.md` says "86 pytest files" and `bmo/README.md` says "full suite (86 test files)", but `bmo/pi/tests` now contains **92** `test_*.py` files. dnd-app CI is path-filtered to `dnd-app/**` + `bmo/pi/data/5e/**` + the workflow file, so the bmo-only commits that added the tests never ran this gate — the drift landed silently and will instead fail the **next** push that touches `dnd-app/**` (any resolver/phase `auto/*` branch or master push), red through no fault of its own change.
-
-**Reproduction (if bug):**
-1. `cd dnd-app && node scripts/build/sync-doc-counts.mjs --check` on master `9748d383`
-2. Observed: `DRIFT in README.md for /[\d,]+ pytest files/` + `DRIFT in bmo/README.md for /full suite \([\d,]+ test files\)/`, exit 1.
-
-**Expected behavior (if bug):** the check passes on master; doc counts stay in sync with the tree.
-
-**Hypothesis / root cause:** the 2026-07-04 bmo status-board fixes (`5133f66b`, `82a2ad2f`, `6c9b8991` and siblings) added 6 pytest files under `bmo/pi/tests/` without running `npm --prefix dnd-app run sync:doc-counts`. Structural cause: the gate asserts counts over **bmo** files but only runs on **dnd-app** path changes, so cross-domain drift is invisible until an unrelated dnd-app push detonates it.
-
-**Proposed fix / improvement:**
-- [ ] Run `npm --prefix dnd-app run sync:doc-counts` and commit the regenerated README.md + bmo/README.md counts (86 → 92).
-- [ ] Structural: either add `bmo/pi/tests/**` (and the synced README paths) to `dnd-app-ci.yml` push/pull_request path filters, or move the bmo-count assertions out of the dnd-app gate into a bmo-side check, so the domain that causes the drift is the one that goes red.
-
-**Blocked by:** none
-
-**Related files:** `dnd-app/scripts/build/sync-doc-counts.mjs`, `.github/workflows/dnd-app-ci.yml`, `README.md`, `bmo/README.md`
-
-**Related entries:** SUGGESTIONS-LOG-DNDAPP "extend sync:doc-counts --check" future-idea (same script).
-
 ### [2026-06-29] dnd-app/mobile Dependabot npm-deps bump fails `npm ci` — package-lock.json out of sync with package.json
 
 - **Category:** config
@@ -124,58 +95,5 @@ Grouped Dependabot PR #62 (`dependabot/npm_and_yarn/dnd-app/mobile/npm-deps-3255
 
 ## Low
 
-### [2026-07-15] sync-doc-counts.mjs: 3 agent-count regexes no longer match anything (silently inert)
-
-- **Category:** config, docs
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-errors
-- **During:** scheduled dnd-app error scan 2026-07-15
-
-**Description:**
-`node dnd-app/scripts/build/sync-doc-counts.mjs --check` warns `NO MATCH` for three sites: `/\b\d+ AI-agent roles\b/` in `bmo/README.md`, `/\b\d+ specialized AI agents\b/` in `bmo/docs/AGENTS.md`, and `/\b\d+ AI agents\b/` in `bmo/pi/README.md`. The prose in those docs was reworded (e.g. bmo/README.md now says "5 specialized AI agents", not "N AI-agent roles"), so the agent-count auto-sync for those docs is dead code — the counts there can silently drift and the script only warns, it does not fail.
-
-**Expected behavior (if bug):** every sync site either matches its doc or is removed/updated, so agent-count edits propagate everywhere.
-
-**Hypothesis / root cause:** doc rewording landed without updating the regex list in `sync-doc-counts.mjs`; NO MATCH is warn-level by design so nothing went red.
-
-**Proposed fix / improvement:**
-- [ ] Update the three regexes to the current phrasing (or delete sites for phrases that no longer exist).
-- [ ] Consider promoting NO MATCH to a failure in `--check` mode so stale sites can't accumulate.
-
-**Blocked by:** none
-
-**Related files:** `dnd-app/scripts/build/sync-doc-counts.mjs`, `bmo/README.md`, `bmo/docs/AGENTS.md`, `bmo/pi/README.md`
-
-**Related entries:** [2026-07-15] sync:doc-counts CI gate drifted on master (same script, this run).
-
-### [2026-07-15] Chat transcript export: header date is UTC while message times are local — wrong session date for evening exports
-
-- **Category:** bug
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-errors
-- **During:** scheduled dnd-app error scan 2026-07-15 (review of the v2.8.2 chat-transcript-export feature)
-
-**Description:**
-`exportChatTranscriptMarkdown()` builds the header as `# Session — ${new Date().toISOString().slice(0, 10)}` (UTC calendar date) but renders each message time with `getHours()`/`getMinutes()` (local time). For any user west of UTC exporting during an evening session (the typical D&D slot), the header shows **tomorrow's** date relative to the local times listed under it — e.g. a 20:30 EST export on July 14 is titled `# Session — 2026-07-15` with messages stamped `(20:30)`.
-
-**Reproduction (if bug):**
-1. Set system TZ to `America/New_York`, system clock 20:30 on 2026-07-14.
-2. Export a chat transcript (GameChatPanel → export Markdown).
-3. Observed: header `# Session — 2026-07-15`; message lines show local times from the evening of the 14th.
-
-**Expected behavior (if bug):** header date and message timestamps use the same clock (local), so the title matches the session's actual local date.
-
-**Hypothesis / root cause:** `toISOString()` is UTC by definition; the local-time `timeFor()` helper and the UTC date label were written independently in `chat-transcript-export.ts`.
-
-**Proposed fix / improvement:**
-- [ ] Derive the label from local date parts (e.g. `getFullYear/getMonth/getDate`, or `toLocaleDateString('en-CA')`) — mirror whatever `combat-log-export.ts` does for consistency.
-- [ ] Add a unit test with a mocked TZ/clock covering the evening-west-of-UTC case.
-
-**Blocked by:** none
-
-**Related files:** `dnd-app/src/renderer/src/services/io/chat-transcript-export.ts`, `dnd-app/src/renderer/src/services/io/chat-transcript-export.test.ts`
-
-**Related entries:** none
+*(none currently logged)*
 

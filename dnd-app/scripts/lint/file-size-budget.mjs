@@ -27,7 +27,16 @@ const ROOT = join(import.meta.dirname, '..', '..')
  */
 const BUDGETS = {
   'src/renderer/src/components/game/GameLayout.tsx': 1290,
-  'src/renderer/src/components/library/PdfViewer.tsx': 1236
+  'src/renderer/src/components/library/PdfViewer.tsx': 1236,
+  // Enrolled 2026-07-15 (approved backlog item): frozen at their then-current
+  // line counts so the main-process AI layer, web shim, and largest store can
+  // no longer grow unbounded. Lower each budget as decomposition lands
+  // (ai-service.ts already has an approved decompose backlog entry).
+  'src/main/ai/ai-service.ts': 1694,
+  'src/main/ai/ai-schemas.ts': 1622,
+  'src/main/ipc/ai-handlers.ts': 1209,
+  'src/web/web-api.ts': 1190,
+  'src/renderer/src/stores/network-store/index.ts': 1007
 }
 
 let failed = false
