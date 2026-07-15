@@ -22,6 +22,15 @@ updates:
     groups:
       npm-deps:
         patterns: ["*"]
+    # @biomejs/biome is single-sourced across dnd-app, dnd-app/mobile and
+    # dungeon-scholar (CI GUARD 10 in scripts/check-ci-hygiene.sh + the husky
+    # pre-commit pin). A per-directory Dependabot bump touches only ONE of those
+    # package.json files, so it structurally cannot satisfy GUARD 10 and lands
+    # the grouped PR red on the guards check every biome release. Held here so
+    # biome is instead bumped manually across all three projects at once. See
+    # docs/logs/ISSUES-LOG-DNDAPP.md.
+    ignore:
+      - dependency-name: "@biomejs/biome"
     cooldown:
       default-days: 7
 
@@ -45,8 +54,11 @@ updates:
     # package.json override) until a react-native-css release supports the newer
     # format. Verified breaking in integrator run 2026-07-03 (PR #62). See
     # docs/logs/ISSUES-LOG-DNDAPP.md.
+    # @biomejs/biome: single-sourced across all three JS projects (GUARD 10);
+    # bumped manually in lockstep, never per-directory by Dependabot.
     ignore:
       - dependency-name: "lightningcss"
+      - dependency-name: "@biomejs/biome"
     cooldown:
       default-days: 7
 
@@ -57,6 +69,10 @@ updates:
     groups:
       npm-deps:
         patterns: ["*"]
+    # @biomejs/biome: single-sourced across all three JS projects (GUARD 10);
+    # bumped manually in lockstep, never per-directory by Dependabot.
+    ignore:
+      - dependency-name: "@biomejs/biome"
     cooldown:
       default-days: 7
 
