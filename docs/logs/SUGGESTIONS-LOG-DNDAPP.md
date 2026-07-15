@@ -64,6 +64,72 @@ New entries go at the TOP of their section (newest first).
 
 ---
 
+### [2026-07-15] `docs/README.md` reference-doc index omits `TARGET-PARITY.md` (added 2026-07-03) — the index has no drift guard
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** scheduled cleanup/structure scan of `dnd-app/`
+
+**Description:**
+`dnd-app/docs/README.md` ("reference-doc index") maps every top-level doc under `dnd-app/docs/` to topic + living-spec/historical status — but it lists only 10 of the 11 docs. `TARGET-PARITY.md` (the desktop/web/embed/mobile per-feature capability matrix, added 2026-07-03 per RESOLVED-ISSUES-DNDAPP) is missing: it is linked from `README.md:234` and `docs/WEB-VERSION-PLAN.md:7`, but a reader starting from the docs index never discovers it. This is exactly the drift the index was created to prevent (2026-06-29 entry), and it happened within a day of the index being written because nothing enforces index completeness.
+
+**Hypothesis / root cause:** `TARGET-PARITY.md` landed in the dnd-features-batch run of 2026-07-03; that run updated `README.md` and `WEB-VERSION-PLAN.md` cross-links but not the doc index, and no check compares `ls dnd-app/docs/*.md` against the index rows.
+
+**Proposed fix / improvement:**
+- [ ] Add a `TARGET-PARITY.md` row to the index table (Topic: per-feature desktop/web/embed/mobile capability matrix; Status: Living spec — update when a shim gains/loses a method).
+- [ ] Optional drift guard: extend `src/renderer/src/test/codebase-integrity.test.ts` (or `scripts/build/sync-doc-counts.mjs --check`) to assert every `dnd-app/docs/*.md` (excluding README itself) has a row in the index.
+
+**Related files:** `dnd-app/docs/README.md`, `dnd-app/docs/TARGET-PARITY.md`
+
+**Related entries:** [2026-06-29] `dnd-app/docs/` has 10 reference docs but no `docs/README.md` index (resolved — the index this entry patches)
+
+### [2026-07-15] `stores/` mixes three slice-dir naming layouts (`bastion-store/`+shim vs `network-store/` no-shim vs plain `game/`/`builder/`/`level-up/`) and `components/levelup` drops the hyphen `stores/level-up` uses
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** scheduled cleanup/structure scan of `dnd-app/`
+
+**Description:**
+`src/renderer/src/stores/` has grown three coexisting conventions for slice-based stores: (1) `bastion-store/` — dir carries a `-store` suffix AND keeps a thin root shim `use-bastion-store.ts` re-exporting it to preserve import paths; (2) `network-store/` — dir carries the suffix but has NO shim, and its extra test `use-network-store.test.ts` sits at `stores/` root named after a source file that does not exist (it imports `./network-store`, whose own `index.test.ts` + `index.cloud.test.ts` already live inside the dir — so this one test breaks the otherwise-universal "test beside the file it tests" rule); (3) `game/`, `builder/`, `level-up/` — no suffix, no shim, consumers import the dir directly. Separately, the level-up feature is spelled two ways across sibling trees: `components/levelup/` (no hyphen) vs `stores/level-up/` (hyphen) — the only compound-word component dir, so grep for one spelling misses the other. None of this is broken; it is naming drift from three refactor generations that makes the store layout harder to learn than it needs to be.
+
+**Hypothesis / root cause:** each slice-extraction refactor picked its own convention: bastion kept a compatibility shim, network dropped the shim but kept the suffix (and left its pre-split root test file behind), and the later game/builder/level-up splits dropped both.
+
+**Proposed fix / improvement:**
+- [ ] Pick one convention (suggest: plain dir name, no `-store` suffix, no shim — the majority pattern) and rename `bastion-store/` → `bastion/`, `network-store/` → `network/` with import updates; delete `use-bastion-store.ts` once imports are migrated (it is a pure re-export).
+- [ ] Fold `use-network-store.test.ts` into `network-store/` (e.g. as `index.session.test.ts` or merged into `index.test.ts`) so the test sits beside its subject.
+- [ ] Rename `components/levelup/` → `components/level-up/` to match `stores/level-up/` and `use-level-up-store.ts`.
+- [ ] NOTE: do NOT extend this to the `shared/types` ↔ `renderer/types` re-export shims — those duplicates are an intentional process-boundary split (see 2026-06-25 design-gotcha).
+
+**Related files:** `src/renderer/src/stores/bastion-store/`, `src/renderer/src/stores/use-bastion-store.ts`, `src/renderer/src/stores/network-store/`, `src/renderer/src/stores/use-network-store.test.ts`, `src/renderer/src/stores/game/`, `src/renderer/src/stores/builder/`, `src/renderer/src/stores/level-up/`, `src/renderer/src/components/levelup/`
+
+**Related entries:** [2026-06-25] DO NOT "dedupe" the `shared/types/*` <-> `renderer/src/types/*` re-export shims; the approved-but-open "helper-suffix rename" backlog item (different files, same naming-consistency family)
+
+### [2026-07-15] No state-management reference doc — 20+ flat Zustand stores + 5 slice dirs + a store registry (`register-stores.ts` / `store-accessors.ts`) are undocumented as an architecture
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** scheduled cleanup/structure scan of `dnd-app/`
+
+**Description:**
+`src/renderer/src/stores/` is the app's single biggest architectural surface — ~20 flat `use-*-store.ts` Zustand stores, five slice-composed store dirs (`game/` alone has 24 slices), a registration layer (`register-stores.ts`) and a cross-store access indirection (`store-accessors.ts`), plus persistence via `utils/storage-migrations.ts` — yet no doc under `dnd-app/docs/` describes any of it. The docs index covers IPC, UI z-layers, plugins, seed packs, etc., but a contributor (or agent) touching state has to reverse-engineer: when to make a new store vs a slice, how slices compose into a store dir, why `store-accessors.ts` exists (presumably to avoid circular imports between stores), which stores persist and how their schemas migrate, and what the re-export-shim convention is (`use-bastion-store.ts`, `chat-commands.ts`). The naming-drift entry logged today is a direct symptom of this being tribal knowledge.
+
+**Hypothesis / root cause:** the store layer grew store-by-store across phases (PHASE-27 world-state store, etc.) and each phase doc described only its own store; no consolidated living spec was ever extracted.
+
+**Proposed fix / improvement:**
+- [ ] Add `dnd-app/docs/STATE-MANAGEMENT.md` (living spec, ~1 page + tables): store inventory (name → domain → persisted?), the slice-dir pattern and when to use it, `register-stores.ts` / `store-accessors.ts` contract (incl. the circular-import rule it enforces), persistence + migration flow, and the thin re-export-shim convention.
+- [ ] Add its row to `docs/README.md` index.
+
+**Related files:** `src/renderer/src/stores/register-stores.ts`, `src/renderer/src/stores/store-accessors.ts`, `src/renderer/src/utils/storage-migrations.ts`, `dnd-app/docs/README.md`
+
+**Related entries:** [2026-07-15] `stores/` mixes three slice-dir naming layouts (today, same scan)
+
+
 ### [2026-07-02] `PLUGIN-SYSTEM.md` release checklist points to nonexistent `dnd-app/docs/DATA-FLOW.md` — the real file lives at repo-root `docs/DATA-FLOW.md`
 
 - **Category:** docs
