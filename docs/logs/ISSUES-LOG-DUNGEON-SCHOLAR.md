@@ -58,6 +58,60 @@ The `auto/scholar-phase-executer` branch (head `1b3c00ed`) is a genuine, unmerge
 
 ## Low
 
+### [2026-07-15] oracle-worker Dependabot group PR #64 red — workers-types v4→v5 major bump breaks `npm ci` against wrangler 4.x peer range
+
+- **Category:** config
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error scan (CI status sweep of scholar-domain workflows)
+
+**Description:**
+`oracle-worker CI` is red on Dependabot PR **#64** (`build(deps-dev): bump the npm-deps group in /oracle-worker with 2 updates`, opened 2026-07-10; runs 29064958933 / 29064960187 fail in ~19s). The failing step is `./.github/actions/setup-node-project` → `npm ci` in `oracle-worker/`. Reproduced locally from `pull/64/head` (git archive → clean `npm ci`): the group bump takes `@cloudflare/workers-types` `^4.20260629.1` → **`^5.20260703.1` (a MAJOR bump inside a "deps-dev" group PR)** while also bumping `wrangler` `^4.105.0` → `^4.107.0`. `wrangler@4.107.0` declares `peerOptional @cloudflare/workers-types@"^4.20260701.1"`, so the PR lockfile is internally inconsistent and `npm ci` dies with `ETARGET — No matching version found for @cloudflare/workers-types@^4.20260701.1` (the 4.x peer target is not in the v5-updated lock). Typecheck/build/test steps never run.
+
+**Hypothesis / root cause:** Dependabot grouped a major `workers-types` bump with a minor `wrangler` bump; wrangler 4.x still pins its optional peer to workers-types 4.x. Not an app-code problem — the PR itself is unmergeable as generated. Per AUTOMATED-AGENT-GIT-WORKFLOW.md Rule 3B this is correctly a leave-for-manual-review (major + red), but left un-diagnosed it will recur every weekly Dependabot run.
+
+**Proposed fix / improvement:**
+- [ ] Close/ignore the major half: add a Dependabot `ignore` (or `versions: [">=5"]` constraint) for `@cloudflare/workers-types` in `oracle-worker` until wrangler declares v5 peer support, so the group PR regenerates as the mergeable wrangler-only bump.
+- [ ] Alternative: drop the standalone `@cloudflare/workers-types` devDep entirely and generate runtime types via `wrangler types` (Cloudflare-recommended for wrangler ≥3.66), removing the peer-range coupling for good.
+- [ ] Re-check `oracle-worker/tsconfig.json` `types` after whichever path is taken.
+
+**Blocked by:** upstream wrangler peer-range (if waiting for v5 support).
+
+**Related files:** `oracle-worker/package.json`, `oracle-worker/package-lock.json`, `.github/workflows/oracle-worker-ci.yml`, `.github/actions/setup-node-project/action.yml`
+
+**Related entries:** none (first oracle-worker dependency-CI entry in this log).
+
+---
+
+### [2026-07-15] Main-checkout `dungeon-scholar/node_modules` is prod-only — `npm run lint`/`typecheck` broken there, and bare `npx biome`/`npx tsc` silently run the WRONG registry packages
+
+- **Category:** config
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error scan (running the standard check suite)
+
+**Description:**
+`/home/patrick/home-lab/dungeon-scholar/node_modules` (the main checkout on bmo) currently contains only production deps — `.bin/` has 24 entries (`vite`, `vitest`, …) and **no `@biomejs/biome` and no `typescript`**, despite both being devDependencies. Consequences observed this run: (1) `npm run lint` / `npm run typecheck` cannot work in the main checkout; (2) far worse, a bare `npx biome check src` **silently downloads the deprecated `biome` registry package** (not `@biomejs/biome`) and crashes with `Cannot find module ./util/assign` from its ancient `fs-extra`, and `npx tsc` resolves to the `tsc` **squatter package** ("This is not the tsc command you are looking for"). Any agent that runs npx-based checks from the main checkout gets confusing failures — or, worse, could mistake the squatter output for a real toolchain result. Earlier scholar-errors runs (2026-07-02) ran `biome check src` successfully there, so this is drift, likely from a prod-only install (`npm ci --omit=dev` / audit tooling) pruning dev deps at some point after 2026-07-02.
+
+**Reproduction:**
+1. `cd /home/patrick/home-lab/dungeon-scholar`
+2. `ls node_modules/.bin | grep -c biome` → 0; `npx biome --version` → MODULE_NOT_FOUND crash from the wrong package.
+
+**Expected behavior:** dev toolchain (`biome`, `tsc`) resolvable in the main checkout, or agents consistently `npm ci` in their own worktrees before checks (this run did the latter — checks were green: 945/945 tests, tsc clean, build + bundle budget OK).
+
+**Hypothesis / root cause:** a prod-scoped npm invocation in the main checkout pruned devDependencies; bare `npx` then falls through to same-named registry packages — a known npx foot-gun.
+
+**Proposed fix / improvement:**
+- [ ] Re-run a full `npm ci` in the main checkout `dungeon-scholar/` (or document that the main checkout is prod-only and agents MUST `npm ci` in their worktree).
+- [ ] Prefer `npm run lint` / `./node_modules/.bin/biome` over bare `npx biome` in agent instructions/scripts so a missing local install fails loudly instead of fetching a same-named registry package.
+
+**Related files:** `dungeon-scholar/package.json`, `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md` (worktree setup section)
+
+**Related entries:** none.
+
+
 ### [2026-06-29] `auto/scholar-phase-executer` won't merge — collides with already-merged scholar-resolver (App.jsx imports, LibraryScreen bulk-tag) + PHASE-INDEX status rows
 
 - **Category:** integration / merge-conflict
@@ -96,6 +150,8 @@ The integrator merged `auto/scholar-resolver` into `master` cleanly first; `auto
 > **Partly resolved 2026-06-29 (scholar-resolver):** The mechanical half shipped on `auto/scholar-resolver`. Swept the dead code (`noUnusedImports` / `noUnusedVariables` / `noUnusedFunctionParameters`, 22 files) and the safe cosmetic rewrites (`useOptionalChain` / `useTemplate`, 29 files) via targeted `biome check --write --unsafe --only=…`, dropping the tree from 287 → 157 warnings, then **promoted `noUnusedImports` to `"error"`** in `biome.json` so dead imports can no longer silently return (lint gate stays green; full suite 749 tests green). **Still open below:** the ~91 `useExhaustiveDependencies` warnings.
 
 > **2026-07-02 (scholar-errors):** count drifting UP — `biome check src` now reports 161 warnings total, `useExhaustiveDependencies` at **133** (was ~91), plus a handful of `noUnusedVariables`/`noUnusedFunctionParameters` returned post-sweep (`App.jsx` x4, `QuestBoard.jsx`, `DungeonExplore.jsx`, `usePlayerActions.js`, `ShopScreen.jsx`, `QuizMode.jsx`) — phases 08–11 added hooks/vars without dep hygiene. The triage below is getting more expensive the longer it waits.
+
+> **2026-07-15 (scholar-errors):** drift continues — full sweep in a fresh worktree (`npm ci`, biome 2.5.1): **187 diagnostics** (185 warnings + 2 infos; was 161 on 07-02). `useExhaustiveDependencies` **134** (App.jsx 39, DungeonExplore.jsx 55, usePlayerState.js 13, FlashcardsMode.jsx 6, usePlayerActions.js 6). Post-sweep regressions: `useOptionalChain` back at **16** (was 0 after the 06-29 sweep), `noUnusedVariables` 6 / `noUnusedFunctionParameters` 4 persist (App.jsx x4: `totalDungeonRunsAttempted`, `canAscend`, `trackModeUseDaily`, `claimableStoryStepCount`; QuestBoard `claimedSteps`; DungeonExplore `streak`), plus newly-surfaced `noImportantStyles` 18 (all `src/index.css`), `noAssignInExpressions` 4 (while-regex idiom in cloze.js/richContent.js/one guard — benign), `noGlobalIsFinite` 1 (`tome.js:239` `formatDuration`). Everything else green this run: 945/945 tests, tsc clean, build OK (known PWA warn), bundle 439.4/600 KB.
 
 **Description:**
 The remaining warnings are `useExhaustiveDependencies` (latent stale-closure / missed-rerender risks), concentrated in `App.jsx` (~34), `components/dungeon/DungeonExplore.jsx` (~25), `hooks/usePlayerState.js` (~12), `features/player/usePlayerActions.js` (~6). They were deliberately NOT auto-fixed: there is no component-level behavioral/interaction test coverage for these hooks, so a blind dependency-array rewrite can introduce an infinite render loop or a perf regression that neither lint, the unit suite, nor build would catch. Each site needs per-hook judgment (add the real missing dep vs. annotate an intentional omission with `// biome-ignore` + reason).
