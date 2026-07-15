@@ -18,9 +18,9 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260629.1",
-    "typescript": "^6.0.3",
-    "wrangler": "^4.105.0"
+    "@cloudflare/workers-types": "^5.20260708.1",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.107.1"
   },
   "overrides": {
     "ws": "^8.21.0",
