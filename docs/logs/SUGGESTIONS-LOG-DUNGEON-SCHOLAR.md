@@ -24,6 +24,95 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-07-15] Per-user FSRS weight fitting from a persisted review log
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement scan of dungeon-scholar
+
+**Description:**
+`services/srs.js` implements FSRS-5 with the published default 19-weight vector and already exposes `setSchedulerWeights()` — its header comment explicitly anticipates fitting weights per-user "from the recorded review history". But no review history is recorded anywhere: a grep for `reviewLog`/`reviewHistory` across `src/` returns nothing, and per-card state keeps only aggregates (`stability, difficulty, reps, lapses, lastReview, dueAt`), which cannot reconstruct the (elapsed, rating) event sequence weight-fitting needs. This is the missing data layer for the single biggest scheduler-quality win FSRS offers. Distinct from the resolved desired-retention / new-card-cap entry (user-facing knobs) — this is data-driven personalization of the scheduler itself.
+
+**Proposed fix / improvement:**
+- [ ] Record a compact append-only review log per flashcard rating (cardId, ts, rating, elapsed days, prior stability) with a size cap / ring buffer to protect localStorage + cloud-save size, and a save-schema bump.
+- [ ] Fit weights offline (on-idle or Web Worker; even a coarse descent over a few of the 19 params captures most of the gain), persist per save, apply via `setSchedulerWeights()`.
+- [ ] Surface a small Ledger stat ("scheduler personalized from N reviews").
+
+**Blocked by:** nothing hard; needs the review log to accumulate before fitting is meaningful.
+
+**Related files:** `src/services/srs.js`, `src/hooks/usePlayerState.js`, `src/services/persistence.js`
+
+### [2026-07-15] Card-level "merge both" option for diverged saves — MergeChooser is all-or-nothing
+
+- **Category:** future-idea, UX
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement scan of dungeon-scholar
+
+**Description:**
+`services/cloudSync.js` stores the whole player state as a single blob row, and `usePlayerState`'s sign-in / realtime reconciliation surfaces divergence via `MergeChooser` — which forces picking local OR cloud wholesale. The most common real divergence (studied on the phone offline, also studied on the desktop) therefore always discards one device's entire session. Most of the state merges mechanically without any user decision: per-card SRS progress (take the side with the later `lastReview`), mistake-vault union, `max()` for monotonic counters (XP, longestStreak), achievements/titles union, tome library union by id+revision (reusing the tome-versioning comparison that already landed). A third "Merge both" button applying a field-wise semantic merge would turn guaranteed session loss into no loss in the common case, keeping the existing chooser for genuinely conflicting scalars.
+
+**Proposed fix / improvement:**
+- [ ] Pure `mergeSaves(local, cloud)` in `src/services/` with per-field strategies (later-lastReview per card, union, max) + thorough tests.
+- [ ] Wire as a third `MergeChooser` option; fields with no safe strategy fall back to the newer side and are listed in the preview.
+
+**Related files:** `src/services/cloudSync.js`, `src/hooks/usePlayerState.js`, `src/components/ui/MergeChooser.jsx`
+
+### [2026-07-15] Touch swipe gestures for mobile flashcard flipping/grading
+
+- **Category:** UX, future-idea
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement scan of dungeon-scholar
+
+**Description:**
+Desktop flashcards have full keyboard bindings (`services/shortcuts.js`: Space/Enter flip, 1–4 rate, arrows navigate), but on mobile — a first-class platform (installable PWA; README says "Works on desktop and mobile") — the modes are tap-only on small buttons: a grep for `onTouch`/`pointerdown`/`gesture` across `src/features/study/` returns nothing. The standard mobile SRS interaction (Anki/AnkiDroid) is tap-to-flip + directional swipe to rate (e.g. left = Again, right = Good, up = Easy, down = Hard), which roughly doubles review throughput one-handed. Pointer-events based with a visual drag hint; keep the buttons (a11y + discoverability) and respect `prefers-reduced-motion` for the card-fling animation.
+
+**Proposed fix / improvement:**
+- [ ] Pointer-event swipe handling in `FlashcardsMode.jsx` (threshold + axis lock + drag feedback), mapped to the same rate handlers the 1–4 keys call.
+- [ ] Document the gestures in the `?` shortcut help (mobile section) and a one-time coach-mark.
+
+**Related files:** `src/features/study/FlashcardsMode.jsx`, `src/services/shortcuts.js`
+
+### [2026-07-15] End-of-session recap screen (cards seen, accuracy, weakest domain, next-due preview)
+
+- **Category:** UX, future-idea
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement scan of dungeon-scholar
+
+**Description:**
+Finishing a Flashcards/Quiz session just returns to the menu — a grep for `sessionSummary`/`recap` across `src/` returns nothing. `ScholarsLedger` is the global analytics dashboard, but there is no moment-of-completion recap, a well-proven reinforcement surface in study apps: N cards reviewed, session accuracy, domains touched with the weakest highlighted, misses with a one-tap CTA into the existing `MistakeVault`, and a next-due teaser ("12 scrolls due tomorrow"). All the data already exists in-session (answers, confidence, `weakDomain` service, SRS dueAt). Fits the theme as a "spoils of the delve" tally and gives the daily-goal/streak mechanics a natural place to celebrate completion.
+
+**Proposed fix / improvement:**
+- [ ] Small recap component shown on session end (skippable), fed from in-session answer records.
+- [ ] CTAs: review misses (MistakeVault), study weakest domain, done.
+
+**Related files:** `src/features/study/FlashcardsMode.jsx`, `src/features/study/QuizMode.jsx`, `src/services/weakDomain.js`, `src/features/study/MistakeVault.jsx`
+
+### [2026-07-15] Backlog-aware review pacing after a study gap (spread overdue reviews instead of flooding)
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement scan of dungeon-scholar
+
+**Description:**
+New-card introduction is now capped (resolved 2026-07-03 batch), but the *review* queue is not: coming back from a two-week break drops every overdue card into one session — the classic post-vacation wall that drives SRS abandonment. FSRS provides per-card retrievability, so a backlog can be triaged safely: serve the most-at-risk cards first and postpone the rest (rewriting `dueAt` only for cards whose projected retention is still high — the safe direction) spread over N days. This is what Anki's "easy days"/postpone helpers and newer FSRS tooling do natively. `sortByDueness` in `srs.js` already orders the queue; this extends it with retrievability triage plus an explicit, user-confirmed spread action.
+
+**Proposed fix / improvement:**
+- [ ] Detect backlog on queue build (due count > k× recent daily average).
+- [ ] Offer "spread over N days": sort by retrievability, keep the at-risk head today, postpone the high-retention tail with recomputed `dueAt`.
+- [ ] One-line in-app explanation so the rescheduling never feels like data loss.
+
+**Related files:** `src/services/srs.js`, `src/services/studyPlan.js`, `src/hooks/usePlayerState.js`
+
 ### [2026-07-02] Broaden sign-in beyond GitHub-only OAuth (Google + email magic link)
 
 - **Category:** future-idea, UX
