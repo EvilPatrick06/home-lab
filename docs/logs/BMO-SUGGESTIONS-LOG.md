@@ -102,6 +102,93 @@ Net: the one how-to a future contributor (or the code agent itself) would follow
 **Related entries:** BMO-RESOLVED [2026-06-29] "`agents/` is a 40-file flat package with no sub-grouping…" and [2026-06-28] "The D&D / game subsystem is ~11 flat files at `services/` top level…" — the source-side halves of the same pattern; this is the test-side remainder.
 
 ---
+### [2026-07-15] Kiosk chat shows a single opaque "thinking" state while the voice path already streams — expose the existing sentence/chunk streaming to the web chat as incremental `chat_partial` SocketIO events
+
+- **Category:** UX, future-idea
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** scheduled improvement scan — read-only review of the chat delivery path (kiosk SocketIO vs. voice pipeline)
+
+**Description:**
+The kiosk chat is fire-and-wait: `bmo.js sendChat()` emits one `chat_message` (`web/static/js/bmo.js:1273`), sets `status="thinking"` behind a stuck-state watchdog (`_chatWatchdog`, `bmo.js:126,1278-1284`), and renders nothing until the single final `chat_response` arrives from `routes/realtime_ws.py:_finish_chat_response`. Meanwhile the **voice** path already has true streaming infrastructure: `VoicePipeline._chat_stream_callback` returns a generator of text chunks and `speech_output.stream_and_speak` speaks sentence-by-sentence as the LLM produces them (`services/voice/voice_pipeline.py:209-216,540-552`). So a long Code-Agent or D&D answer that streams audibly on the speaker sits behind an opaque amber "BMO is thinking!" spinner on the kiosk — the surface with a screen is the one that shows nothing incremental. The gap is plumbing, not capability: reuse the same streaming callback in `on_chat_message`, emit incremental `chat_partial` events (append-to-last-bubble on the client), and finish with the existing `chat_response` for persistence/TTS so history, pending-stub finalization (`chat_history.finalize_pending_assistant`), and multi-tab broadcast semantics stay unchanged.
+
+**Proposed fix / improvement:**
+- [ ] In `routes/realtime_ws.py`, when the agent path supports it, iterate the same chunk generator the voice pipeline uses and `socketio.emit("chat_partial", {"pending_id":…, "delta":…})` per chunk; keep the final `chat_response` exactly as today.
+- [ ] In `bmo.js`, on `chat_partial` append the delta into the pending assistant bubble and re-arm the watchdog (chunks are a natural liveness signal); `chat_response` finalizes the bubble.
+- [ ] Leave TTS on the final-response path (kiosk TTS already runs from `_finish_chat_response`) so nothing double-speaks.
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/routes/realtime_ws.py`, `bmo/pi/web/static/js/bmo.js`, `bmo/pi/services/voice/voice_pipeline.py`, `bmo/pi/services/voice/speech_output.py`
+
+**Related entries:** BMO-SUGGESTIONS-LOG [2026-07-02] kiosk two-file god-module (any `bmo.js` change lands in the same flat file until that split happens)
+
+### [2026-07-15] "What BMO remembers" is invisible and unmanageable from the kiosk — `/api/memory` GET/POST/DELETE endpoints exist with ZERO frontend callers, and learning-agent facts have no UI either
+
+- **Category:** UX, future-idea
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** scheduled improvement scan — read-only review of the auto-memory subsystem (`agents/memory.py`) and its HTTP/UI surface
+
+**Description:**
+BMO persists durable knowledge in two places — per-project auto-memory MD files (`agents/memory.py`, `data/memory/<md5>/MEMORY.md`, auto-loaded into the system prompt) and the learning agent's facts/profile blobs — but neither is visible anywhere a user can look. `app.py` already exposes a full CRUD surface at `/api/memory` (GET `app.py:2805`, POST `:2817`, DELETE `:2835`), yet grepping `api/memory` across `web/static/js/bmo.js` + `web/templates/index.html` finds **no callers**: the endpoints are dead surface. The only way to see or correct what BMO has memorized (a wrong "user preference", a stale decision, a fact attributed to the wrong speaker) is to SSH in and hand-edit MD5-named directories. A small "Memory" panel in kiosk settings — list per-project memories + learning-agent facts (per speaker, once the per-speaker data model lands), view/edit/delete — would make the memory system trustworthy and debuggable, and it is mostly wiring to endpoints that already exist. Privacy angle too: a household voice assistant that silently accumulates facts should let the household see and delete them.
+
+**Proposed fix / improvement:**
+- [ ] Add a kiosk settings sub-panel that lists memory projects (needs a small `/api/memory/list` addition — the current GET is single-project), renders `MEMORY.md`, and wires edit/clear to the existing POST/DELETE.
+- [ ] Surface learning-agent facts in the same panel (grouped by speaker bucket) with per-fact delete.
+- [ ] Show "memory loaded" provenance in chat (subtle indicator when auto-memory was injected into the prompt) so users learn the feature exists.
+
+**Blocked by:** none (per-speaker grouping is nicer after the per-speaker data-model entry, but a single-user panel needs nothing)
+
+**Related files:** `bmo/pi/agents/memory.py`, `bmo/pi/app.py` (memory routes ~2805-2846), `bmo/pi/web/static/js/bmo.js`, `bmo/pi/web/templates/index.html`
+
+**Related entries:** BMO-SUGGESTIONS-LOG [2026-07-03] per-speaker DATA MODEL still unbuilt (the facts/profile blobs this panel would display)
+
+### [2026-07-15] Two append-only JSONL data files grow without cap or compaction — `board_decisions_outbox.jsonl` (cursor-consumed, never truncated) and `logs/unknown_notifications.jsonl` — while `wake_events.jsonl` already demonstrates the keep-tail cap pattern
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** scheduled improvement scan — read-only sweep of JSONL writers under `services/` / `agents/`
+
+**Description:**
+Inventory of JSONL writers: `services/wake_events.py` caps itself (`BMO_WAKE_EVENTS_MAX=5000`, keep-tail rewrite at `wake_events.py:64-73`) — good. But `services/status_board.py:BOARD_DECISIONS` (`board_decisions_outbox.jsonl`) is append-only by design ("reading the append-only outbox never blocks a concurrent bot write") and its consumer (`scripts/board-pending-decisions.sh`) advances **per-producer byte-offset cursors** without ever compacting the file — every Approve/Deny click since the bridge shipped lives in the file forever, and the byte-offset cursors make naive truncation unsafe. `services/notification_service.py:UNKNOWN_NOTIF_LOG` (`data/logs/unknown_notifications.jsonl`, appended at `:563`) has no cap at all — the in-memory history is bounded (`MAX_HISTORY=100`) but the on-disk log is not. Growth is slow, so this is hygiene rather than a live bug — but both files ride the daily state backup (`backup-state.sh` tars all of `data/`), so unbounded files inflate every archive. Precedent for periodic trimming already exists in `scripts/stale-local-cleanup.sh` (notify.log tail-trim).
+
+**Proposed fix / improvement:**
+- [ ] Compact the decisions outbox by dropping lines already consumed by **all** known cursors and rebasing cursor offsets atomically (or switch cursors to record-count so truncation is safe).
+- [ ] Cap `unknown_notifications.jsonl` with the same keep-tail rewrite `wake_events.py` uses (shared-helper candidate).
+- [ ] Hook both into `stale-local-cleanup.sh` (weekly) rather than hot paths.
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/services/status_board.py`, `bmo/pi/scripts/board-pending-decisions.sh`, `bmo/pi/services/notification_service.py`, `bmo/pi/services/wake_events.py`, `bmo/pi/scripts/stale-local-cleanup.sh`
+
+**Related entries:** none found (greps: jsonl / rotation / unbounded)
+
+### [2026-07-15] `run-check.sh` admission gate is observability-blind — queue waits and EX_TEMPFAIL(75) timeouts go only to stderr, so agent runtime lost to queueing and refused heavy checks are invisible to the board/metrics
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** scheduled improvement scan — read-only review of the heavy-check admission gate added after the 2026-07 OOM
+
+**Description:**
+`bmo/pi/scripts/run-check.sh` is the mandatory funnel for every heavy local `tsc`/`vitest`/build run by every scheduled agent on the Pi, and it can (by design) hold a job up to `RUN_CHECK_TIMEOUT_S` (900s default) or refuse it with exit 75. All of that is reported only as `log()` lines on stderr inside whichever agent transcript invoked it (`run-check.sh:160-171`) — no counter, no notify, no board surface. Consequences: (a) sustained RAM pressure that makes every agent burn 10+ minutes queueing per check is indistinguishable from healthy operation unless someone reads individual transcripts; (b) a repeated-timeout pattern (exit 75) — the "the Pi can no longer fit its own workload" early-warning signal — never reaches `monitoring.py` or the status board; (c) tuning `RUN_CHECK_RAM_FLOOR_MB`/`MAX_CONCURRENCY` is guesswork with no wait-time distribution to look at. The repo already has the natural sink: `services/metrics_counters.py` feeds the Prometheus `/metrics` endpoint, but a bash script can't call it — a tiny append-to-file record per admission (waited_s, outcome) that `monitoring.py` tails, plus a `notify.sh warn` after N consecutive timeouts, closes the gap.
+
+**Proposed fix / improvement:**
+- [ ] Have `run-check.sh` append one small record per admission attempt (ts, waited_s, outcome=admitted|timeout, cmd summary) to a capped data file.
+- [ ] Teach `monitoring.py`/the board to read it: warn on consecutive timeouts or rising median wait; expose `bmo_run_check_wait_seconds` + timeout counters via the existing `/metrics`.
+- [ ] Cap the file per the `wake_events.py` keep-tail pattern.
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/scripts/run-check.sh`, `bmo/pi/services/monitoring.py`, `bmo/pi/services/metrics_counters.py`, `bmo/pi/tests/test_run_check.py`
+
+**Related entries:** BMO-ISSUES-LOG [2026-07-03] `test_ram_floor_blocks_and_never_launches` timing-flaky (same script, unrelated test-margin issue)
 
 ### [2026-07-03] Speaker context is now plumbed to the agent layer, but the full per-speaker DATA MODEL is still unbuilt — lists/calendar/personality + the memory `profile`/`preferences` blobs remain single-user
 
