@@ -129,6 +129,51 @@ New entries go at the TOP of their section (newest first).
 
 **Related entries:** [2026-07-15] `stores/` mixes three slice-dir naming layouts (today, same scan)
 
+### [2026-07-15] Live-play undo/redo covers only DM map-editor terrain edits — accidental token deletes, HP edits, and initiative changes during a session are unrecoverable
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** scheduled improvement scan of dnd-app/
+
+**Description:**
+The app has a clean undo core (`services/undo-manager.ts` — module-level stacks, `UndoableAction {undo, redo}`, Ctrl+Z/Ctrl+Shift+Z wired in `use-game-shortcuts.ts`), but only TWO call sites ever `push()`: the DM map editor's terrain flows (`modals/dm-tools/map-editor-handlers.ts` `pushTerrainUndo`) and one chat-command site (`services/chat-commands/commands-utils.ts`). The code acknowledges this itself: commands-utils.ts says the stack holds "terrain/fog/token pushes; the player Ctrl+Z stays a no-op until more push() call sites", and `use-game-shortcuts.ts` gates undo to `isDM` because "every pushed action is a DM map mutation". So the mutations that actually hurt when done by accident mid-session — dragging a token to the wrong square, deleting a token, fat-fingering an HP/condition change, reordering or removing an initiative entry, an errant fog reveal — have no undo at all, for DM or players. `MAX_HISTORY` is also a modest 20. Other VTTs treat token-move undo as table stakes; here the store slices are already centralized (`map-token-slice`, `initiative-slice`, `conditions-slice`, `fog-slice`), so each action's inverse is cheap to capture at the slice boundary.
+
+**Proposed fix / improvement:**
+- [ ] Push `UndoableAction`s from the live-session mutation paths: token move/delete/place (`map-token-slice` setters used by `map-event-handlers.ts`), HP/condition edits, initiative add/remove/reorder, manual fog paint outside the editor.
+- [ ] Scope-tag actions (`'map-edit' | 'session'`) so a player Ctrl+Z can undo their OWN last action (their token move) without touching DM state; DM undo stays global. Network path: emit the same message the original action used, so peers converge.
+- [ ] Raise `MAX_HISTORY` (20 → ~100; actions are tiny closures) and show a toast on undo/redo naming the action (`description` field already exists).
+- [ ] Optional: surface a small "recent actions" list in the DM toolbar for click-to-undo of an action that is no longer top-of-stack.
+
+**Blocked by:** none
+
+**Related files:** `src/renderer/src/services/undo-manager.ts`, `src/renderer/src/hooks/use-game-shortcuts.ts`, `src/renderer/src/services/chat-commands/commands-utils.ts`, `src/renderer/src/components/game/modals/dm-tools/map-editor-handlers.ts`, `src/renderer/src/stores/game/map-token-slice.ts`, `src/renderer/src/stores/game/initiative-slice.ts`
+
+**Related entries:** none
+
+### [2026-07-15] Pixi map renders continuously at full frame rate even when nothing moves — no render-on-demand, no hidden-tab pause, no viewport culling
+
+- **Category:** future-idea, performance
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** scheduled improvement scan of dnd-app/
+
+**Description:**
+`map-pixi-setup.ts` initializes the Pixi `Application` with defaults (`antialias: true`, `resolution: devicePixelRatio`) — meaning the default always-on ticker re-renders the full scene every frame, forever, even when the map is completely static (typical VTT state: minutes of talking between moves). There is no `visibilitychange` handling anywhere in the map layer (repo grep finds it only in `sync-engine.ts`), so a minimized/background window keeps burning GPU/CPU; and no culling of any kind (`grep -ri cull` over `components/game/map` is empty), so offscreen tokens/walls/regions on large maps are drawn every frame too. Several overlays legitimately animate per-frame (`fog-overlay.ts` alpha interpolation, `weather-overlay`, `light-animation`, `combat-animations`, `token-animation`), but they are the exception, and each already registers its ticker callback explicitly — which is exactly the hook needed for demand-driven rendering. On a DM laptop running a 3–4 hour session (often alongside Discord + browser), an idle-but-rendering battlemap is the app's single biggest avoidable battery/thermals cost; it also matters for the low-power web/embed + mobile WebView targets.
+
+**Proposed fix / improvement:**
+- [ ] Demand-driven ticker: keep a module-level "animation refcount" (fog interpolation active, weather on, combat/token tween running, camera pan/zoom inertia); when zero, `app.ticker.stop()` and re-render once per state change (`app.render()` on store subscription / interaction events); `start()` when any animator registers. The existing per-overlay ticker registration points make the refcount cheap to wire.
+- [ ] `document.visibilitychange`: pause the ticker (and skip per-frame overlay work) while hidden; single render on return.
+- [ ] Viewport culling for the heavy static layers (tokens, walls, pins, regions): set `cullable`/manual `visible` toggling from the camera rect on pan/zoom end — Pixi v8 supports `cullArea` on containers.
+- [ ] Optional Settings toggle "reduce power usage" that also drops `resolution` to 1 and `antialias` off on battery (Electron exposes `powerMonitor.on-battery`).
+
+**Blocked by:** none
+
+**Related files:** `src/renderer/src/components/game/map/map-pixi-setup.ts`, `src/renderer/src/components/game/map/fog-overlay.ts`, `src/renderer/src/components/game/map/weather-overlay.ts`, `src/renderer/src/components/game/map/light-animation.ts`, `src/renderer/src/components/game/map/token-animation.ts`, `src/renderer/src/components/game/map/map-canvas/`
+
+**Related entries:** none
 
 ### [2026-07-02] `PLUGIN-SYSTEM.md` release checklist points to nonexistent `dnd-app/docs/DATA-FLOW.md` — the real file lives at repo-root `docs/DATA-FLOW.md`
 
