@@ -27,6 +27,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
+import re
 import subprocess
 import time
 
@@ -107,16 +108,59 @@ def _colour(sev: str) -> discord.Colour:
     return discord.Colour(sb.SEV_COLOR.get(sev, 0x808080))
 
 
+def _rel_ts(ts: float) -> str:
+    """Plain relative-time string for the V2 board.
+
+    Discord's dynamic ``<t:unix:R>`` tokens render ONLY in classic message
+    content / embeds — inside a Components-V2 TextDisplay they show as the
+    literal token — so the board computes the relative string itself
+    (e.g. ``13h ago``, ``in 5h``, ``just now``).
+    """
+    try:
+        delta = time.time() - float(ts)
+    except (TypeError, ValueError):
+        return ""
+    future = delta < 0
+    delta = abs(delta)
+    if delta < 45:
+        return "just now"
+    for unit, secs in (("d", 86400), ("h", 3600), ("m", 60)):
+        if delta >= secs:
+            n = int(delta // secs)
+            return f"in {n}{unit}" if future else f"{n}{unit} ago"
+    return "just now"
+
+
+def _safe_v2(text: str) -> str:
+    """Neutralize producer text so a brief renders cleanly in a V2 TextDisplay.
+
+    Two hazards this removes:
+      * raw ``<t:unix:R>`` tokens a producer may embed — they never render in
+        V2, so strip them (per-item ages already come from ``_rel_ts``);
+      * an UNCLOSED inline-code backtick (e.g. a reauth command truncated
+        mid-snippet by ``str(ex)[:120]``) — a lone backtick opens a code span
+        that swallows every following brief line, so their ``**bold**`` titles
+        and ``<t:...>`` tokens show literally. Balance it so the snippet stays
+        one clean inline-code span and the code-block bleed stops.
+    """
+    if not text:
+        return text
+    text = re.sub(r"<t:\d+(?::[tTdDfFR])?>", "", text)
+    if text.count("`") % 2:
+        text += "`"
+    return text
+
+
 def _line(r: dict, compact: bool = False, detail_max: int = 180) -> str:
-    title = r["title"].strip()
+    title = _safe_v2(r["title"].strip())
     line = f"{sb.SEV_DOT[r['severity']]} **[{title}]({r['url']})**" if r.get("url") \
         else f"{sb.SEV_DOT[r['severity']]} **{title}**"
     if r.get("due"):
-        line += f" · due <t:{int(r['due'])}:R>"
+        line += f" · due {_rel_ts(r['due'])}"
     elif r.get("since"):
-        line += f" · <t:{int(r['since'])}:R>"
+        line += f" · {_rel_ts(r['since'])}"
     if r.get("detail") and not compact:
-        line += f"\n　{r['detail'].strip()[:detail_max]}"
+        line += f"\n　{_safe_v2(r['detail'].strip()[:detail_max])}"
     return line
 
 
@@ -651,7 +695,7 @@ def build_layout(rows: list[dict], state: sb.BoardState) -> discord.ui.LayoutVie
         bits.append(f"💡 {info_n}")
     summary = " · ".join(bits) if bits else "🟢 All clear"
     if _add_section(view, discord.ui.Container(
-            discord.ui.TextDisplay(f"## 📟 BMO Status Board\n{summary}　·　Updated <t:{int(time.time())}:R>"),
+            discord.ui.TextDisplay(f"## 📟 BMO Status Board\n{summary}　·　Updated {_rel_ts(time.time())}"),
             accent_colour=_colour(worst))):
         comp += 2
 
