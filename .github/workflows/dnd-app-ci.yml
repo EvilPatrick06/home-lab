@@ -14,6 +14,13 @@ on:
       # dnd-app's 5e JSON against the bmo mirror, so a bmo-side-only edit must
       # also re-run this gate or a divergence would slip through.
       - 'bmo/pi/data/5e/**'
+      # sync:doc-counts --check (a blocking step below) asserts bmo pytest-file
+      # counts into the synced READMEs, so bmo-side test additions and edits to
+      # the synced docs must re-run this gate or the drift lands silently and
+      # detonates on the next unrelated dnd-app push (ISSUES-LOG-DNDAPP 2026-07-15).
+      - 'bmo/pi/tests/**'
+      - 'README.md'
+      - 'bmo/README.md'
       - '.github/workflows/dnd-app-ci.yml'
   pull_request:
     paths:
@@ -22,6 +29,13 @@ on:
       # dnd-app's 5e JSON against the bmo mirror, so a bmo-side-only edit must
       # also re-run this gate or a divergence would slip through.
       - 'bmo/pi/data/5e/**'
+      # sync:doc-counts --check (a blocking step below) asserts bmo pytest-file
+      # counts into the synced READMEs, so bmo-side test additions and edits to
+      # the synced docs must re-run this gate or the drift lands silently and
+      # detonates on the next unrelated dnd-app push (ISSUES-LOG-DNDAPP 2026-07-15).
+      - 'bmo/pi/tests/**'
+      - 'README.md'
+      - 'bmo/README.md'
       - '.github/workflows/dnd-app-ci.yml'
 
 concurrency:

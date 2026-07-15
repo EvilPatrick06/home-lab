@@ -1,20 +1,16 @@
 import { useEffect } from 'react'
 import { useT } from '../../../../i18n'
 import type { ShortcutDefinition } from '../../../../services/keyboard-shortcuts'
-import { formatKeyCombo, getShortcutsByCategory, shortcutDescriptionKey } from '../../../../services/keyboard-shortcuts'
+import {
+  formatKeyCombo,
+  getShortcutsByCategory,
+  SHORTCUT_CATEGORIES,
+  shortcutDescriptionKey
+} from '../../../../services/keyboard-shortcuts'
 
 interface ShortcutReferenceModalProps {
   onClose: () => void
 }
-
-const CATEGORY_LABELS: Record<string, string> = {
-  combat: 'Combat',
-  navigation: 'Navigation',
-  tools: 'Tools',
-  general: 'General'
-}
-
-const CATEGORY_ORDER = ['combat', 'navigation', 'tools', 'general']
 
 function KeyCombo({ shortcut }: { shortcut: ShortcutDefinition }): JSX.Element {
   const combo = formatKeyCombo(shortcut)
@@ -75,15 +71,13 @@ export default function ShortcutReferenceModal({ onClose }: ShortcutReferenceMod
 
         {/* Shortcut Categories */}
         <div className="p-5 space-y-5 max-h-[70vh] overflow-y-auto">
-          {CATEGORY_ORDER.map((categoryKey) => {
+          {SHORTCUT_CATEGORIES.map((categoryKey) => {
             const shortcuts = grouped[categoryKey]
             if (!shortcuts || shortcuts.length === 0) return null
             return (
               <div key={categoryKey}>
                 <h3 className="text-sm font-semibold text-accent/80 uppercase tracking-wider mb-2">
-                  {CATEGORY_LABELS[categoryKey]
-                    ? t(`game.shortcutReferenceModal.categories.${categoryKey}`)
-                    : categoryKey}
+                  {t(`game.shortcutReferenceModal.categories.${categoryKey}`, { defaultValue: categoryKey })}
                 </h3>
                 <div className="space-y-1">
                   {shortcuts.map((shortcut) => (

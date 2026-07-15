@@ -48,7 +48,15 @@ export function exportChatTranscriptMarkdown(messages: ChatMessage[], options: T
   const { includeSystem = true } = options
   const visible = messages.filter((m) => includeSystem || !m.isSystem)
 
-  const dateLabel = new Date().toISOString().slice(0, 10)
+  // LOCAL calendar date, not toISOString() (UTC): message times below use the
+  // local clock (getHours/getMinutes), so the header must too — otherwise an
+  // evening session west of UTC is titled with tomorrow's date.
+  const now = new Date()
+  const dateLabel = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, '0'),
+    String(now.getDate()).padStart(2, '0')
+  ].join('-')
   const lines: string[] = [`# Session — ${dateLabel}`, '']
 
   if (visible.length === 0) {

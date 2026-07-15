@@ -12,6 +12,148 @@
 
 ---
 
+### [2026-07-15] sync:doc-counts CI gate is drifted on master (86 vs 92 bmo pytest files) — next dnd-app push goes red
+
+- **Category:** config
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** dnd-errors
+- **During:** scheduled dnd-app error scan 2026-07-15 (ran every repo guard script against master `9748d383`)
+
+**Description:**
+`npm run sync:doc-counts -- --check` (a blocking step in `dnd-app-ci.yml`, line 63) currently FAILS on master: root `README.md` says "86 pytest files" and `bmo/README.md` says "full suite (86 test files)", but `bmo/pi/tests` now contains **92** `test_*.py` files. dnd-app CI is path-filtered to `dnd-app/**` + `bmo/pi/data/5e/**` + the workflow file, so the bmo-only commits that added the tests never ran this gate — the drift landed silently and will instead fail the **next** push that touches `dnd-app/**` (any resolver/phase `auto/*` branch or master push), red through no fault of its own change.
+
+**Reproduction (if bug):**
+1. `cd dnd-app && node scripts/build/sync-doc-counts.mjs --check` on master `9748d383`
+2. Observed: `DRIFT in README.md for /[\d,]+ pytest files/` + `DRIFT in bmo/README.md for /full suite \([\d,]+ test files\)/`, exit 1.
+
+**Expected behavior (if bug):** the check passes on master; doc counts stay in sync with the tree.
+
+**Hypothesis / root cause:** the 2026-07-04 bmo status-board fixes (`5133f66b`, `82a2ad2f`, `6c9b8991` and siblings) added 6 pytest files under `bmo/pi/tests/` without running `npm --prefix dnd-app run sync:doc-counts`. Structural cause: the gate asserts counts over **bmo** files but only runs on **dnd-app** path changes, so cross-domain drift is invisible until an unrelated dnd-app push detonates it.
+
+**Proposed fix / improvement:**
+- [ ] Run `npm --prefix dnd-app run sync:doc-counts` and commit the regenerated README.md + bmo/README.md counts (86 → 92).
+- [ ] Structural: either add `bmo/pi/tests/**` (and the synced README paths) to `dnd-app-ci.yml` push/pull_request path filters, or move the bmo-count assertions out of the dnd-app gate into a bmo-side check, so the domain that causes the drift is the one that goes red.
+
+**Blocked by:** none
+
+**Related files:** `dnd-app/scripts/build/sync-doc-counts.mjs`, `.github/workflows/dnd-app-ci.yml`, `README.md`, `bmo/README.md`
+
+**Related entries:** SUGGESTIONS-LOG-DNDAPP "extend sync:doc-counts --check" future-idea (same script).
+
+**Resolution [2026-07-15, dnd-resolver]:** The count regeneration itself had already landed on master (`dedf1f2f`, 86→92) before this run. This run fixed the structural cause: added `bmo/pi/tests/**`, `README.md`, and `bmo/README.md` to the `dnd-app-ci.yml` push/pull_request path filters, so the domain that causes the drift re-runs the gate instead of detonating an unrelated later dnd-app push. `sync:doc-counts --check` verified clean on `auto/dnd-resolver`.
+
+### [2026-07-15] sync-doc-counts.mjs: 3 agent-count regexes no longer match anything (silently inert)
+
+- **Category:** config, docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-errors
+- **During:** scheduled dnd-app error scan 2026-07-15
+
+**Description:**
+`node dnd-app/scripts/build/sync-doc-counts.mjs --check` warns `NO MATCH` for three sites: `/\b\d+ AI-agent roles\b/` in `bmo/README.md`, `/\b\d+ specialized AI agents\b/` in `bmo/docs/AGENTS.md`, and `/\b\d+ AI agents\b/` in `bmo/pi/README.md`. The prose in those docs was reworded (e.g. bmo/README.md now says "5 specialized AI agents", not "N AI-agent roles"), so the agent-count auto-sync for those docs is dead code — the counts there can silently drift and the script only warns, it does not fail.
+
+**Expected behavior (if bug):** every sync site either matches its doc or is removed/updated, so agent-count edits propagate everywhere.
+
+**Hypothesis / root cause:** doc rewording landed without updating the regex list in `sync-doc-counts.mjs`; NO MATCH is warn-level by design so nothing went red.
+
+**Proposed fix / improvement:**
+- [ ] Update the three regexes to the current phrasing (or delete sites for phrases that no longer exist).
+- [ ] Consider promoting NO MATCH to a failure in `--check` mode so stale sites can't accumulate.
+
+**Blocked by:** none
+
+**Related files:** `dnd-app/scripts/build/sync-doc-counts.mjs`, `bmo/README.md`, `bmo/docs/AGENTS.md`, `bmo/pi/README.md`
+
+**Related entries:** [2026-07-15] sync:doc-counts CI gate drifted on master (same script, this run).
+
+**Resolution [2026-07-15, dnd-resolver]:** Deleted the three stale sites (bmo/README.md 'AI-agent roles', bmo/docs/AGENTS.md 'specialized AI agents', bmo/pi/README.md 'AI agents') — those phrasings no longer exist in the docs. Deliberately did NOT retarget them to the reworded prose: the AGENT_CALL_RE counting basis yields 5 after the agents/services reorg while bmo/docs/AGENTS.md prose claims 28 routable, so rewiring would have synced a number of disputed accuracy — that discrepancy is a bmo-domain question for a bmo-side pass. `--check` now runs with zero NO MATCH warnings. NO MATCH stays warn-level per the script header (a doc rename must not block a release); promoting it to a failure remains an open option.
+
+### [2026-07-15] Chat transcript export: header date is UTC while message times are local — wrong session date for evening exports
+
+- **Category:** bug
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-errors
+- **During:** scheduled dnd-app error scan 2026-07-15 (review of the v2.8.2 chat-transcript-export feature)
+
+**Description:**
+`exportChatTranscriptMarkdown()` builds the header as `# Session — ${new Date().toISOString().slice(0, 10)}` (UTC calendar date) but renders each message time with `getHours()`/`getMinutes()` (local time). For any user west of UTC exporting during an evening session (the typical D&D slot), the header shows **tomorrow's** date relative to the local times listed under it — e.g. a 20:30 EST export on July 14 is titled `# Session — 2026-07-15` with messages stamped `(20:30)`.
+
+**Reproduction (if bug):**
+1. Set system TZ to `America/New_York`, system clock 20:30 on 2026-07-14.
+2. Export a chat transcript (GameChatPanel → export Markdown).
+3. Observed: header `# Session — 2026-07-15`; message lines show local times from the evening of the 14th.
+
+**Expected behavior (if bug):** header date and message timestamps use the same clock (local), so the title matches the session's actual local date.
+
+**Hypothesis / root cause:** `toISOString()` is UTC by definition; the local-time `timeFor()` helper and the UTC date label were written independently in `chat-transcript-export.ts`.
+
+**Proposed fix / improvement:**
+- [ ] Derive the label from local date parts (e.g. `getFullYear/getMonth/getDate`, or `toLocaleDateString('en-CA')`) — mirror whatever `combat-log-export.ts` does for consistency.
+- [ ] Add a unit test with a mocked TZ/clock covering the evening-west-of-UTC case.
+
+**Blocked by:** none
+
+**Related files:** `dnd-app/src/renderer/src/services/io/chat-transcript-export.ts`, `dnd-app/src/renderer/src/services/io/chat-transcript-export.test.ts`
+
+**Related entries:** none
+
+**Resolution [2026-07-15, dnd-resolver]:** Header now derives from LOCAL date parts (getFullYear/getMonth/getDate), matching the local-clock `timeFor()` message stamps. Added a unit test with fake timers + a runtime TZ switch to America/New_York covering the evening-west-of-UTC case (20:30 local on 07-14 must title '# Session — 2026-07-14', not the UTC 07-15).
+
+### [2026-06-29] file-size-budget ratchet guards only 2 of ~7 hand-written 1000+ LOC modules — the main-process / web / store monoliths can still grow unbounded
+
+- **Category:** debt
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** dnd-cleanup scheduled cleanup/reorg scan of `dnd-app/` (largest-file sweep vs the size ratchet)
+
+**Description:**
+`scripts/lint/file-size-budget.mjs` (wired into `dnd-app-ci.yml` as `lint:file-size`) is a good pattern — it gives a god-file a hard LOC ceiling so CI fails if it grows, forcing extraction rather than budget-raising. But its `BUDGETS` map currently contains **only two** files: `GameLayout.tsx` (1290) and `PdfViewer.tsx` (1236). Meanwhile a largest-file sweep shows several other hand-written modules already over 1000 LOC that are **not** budgeted, so they can grow without limit:
+- `src/main/ai/ai-service.ts` — 1681 LOC (already logged as a god file mid-decomposition; entangled in a known circular dep)
+- `src/main/ai/ai-schemas.ts` — 1622 LOC
+- `src/main/ipc/ai-handlers.ts` — 1209 LOC
+- `src/web/web-api.ts` — 1177 LOC
+- `src/renderer/src/stores/network-store/index.ts` — 1007 LOC
+
+(The two larger files above these — `i18n/generated-keys.ts` 6601 and `preload/index.d.ts` 1383 — are generated and correctly out of scope.) So the ratchet protects the two renderer UI monoliths but leaves the main-process AI layer, the web API shim, and the largest Zustand store free to accrete. The script's own header even says "To add a file to the ratchet: set its budget to the file's CURRENT line count," so extending it is the intended, cheap follow-up — it just was never done for these.
+
+**Hypothesis / root cause:** The budget file was introduced specifically by the GameLayout/PdfViewer decomposition (see RESOLVED-ISSUES-DNDAPP "GameLayout / PdfViewer god-file decomposition") and seeded with exactly those two files; no pass has since enrolled the other large modules, so the ratchet's coverage is incidental to that one effort rather than systematic.
+
+**Proposed fix / improvement:**
+- [ ] Add the five modules above to `BUDGETS` at their current LOC (a freeze-in-place ceiling), so none can grow further; lower each as decomposition proceeds (same discipline already used for the two UI files).
+- [ ] Consider deriving the ratchet from a glob + threshold (e.g. flag any non-generated hand-written `.ts`/`.tsx` over N LOC that lacks an explicit budget) so newly-grown monoliths get caught automatically instead of needing manual enrollment.
+- [ ] Pair the `ai-service.ts` / `ai-schemas.ts` / `ai-handlers.ts` budgets with the already-open `ai-service.ts` decompose work so the ceilings ratchet down as that lands.
+
+**Related files:** `scripts/lint/file-size-budget.mjs`, `src/main/ai/ai-service.ts`, `src/main/ai/ai-schemas.ts`, `src/main/ipc/ai-handlers.ts`, `src/web/web-api.ts`, `src/renderer/src/stores/network-store/index.ts`, `.github/workflows/dnd-app-ci.yml`
+
+**Related entries:** RESOLVED-ISSUES-DNDAPP "GameLayout / PdfViewer god-file decomposition" + "the size ratchet" (introduced the budget); RESOLVED-ISSUES-DNDAPP [2026-06-23] "`ai-service.ts` is a ~1,740-LOC god file" (the still-open decompose this should ratchet).
+
+**Resolution [2026-07-15, dnd-resolver — approved 2026-07-04 via board]:** Enrolled all five modules in BUDGETS, frozen at current LOC (ai-service.ts 1694, ai-schemas.ts 1622, ai-handlers.ts 1209, web-api.ts 1190, network-store/index.ts 1007) with a comment tying them to the still-open decompose work so the ceilings ratchet DOWN as that lands. The glob-derived auto-enrollment idea is left as a possible follow-up.
+
+### [2026-06-29] ShortcutReferenceModal hardcodes CATEGORY_ORDER + English CATEGORY_LABELS, duplicating the category list that already lives in the shortcut type
+
+- **Category:** debt, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** dnd-app tree review (ShortcutReferenceModal)
+
+**Description:**
+`ShortcutReferenceModal.tsx` keeps a hardcoded `CATEGORY_ORDER = ['combat','navigation','tools','general']` plus a hardcoded English `CATEGORY_LABELS` map, separate from the canonical category union on `ShortcutDefinition.category` in `keyboard-shortcuts.ts`. The `CATEGORY_LABELS` map is used only as a truthiness guard before falling back to the raw category key, so if a new shortcut category is ever added to the union + JSON, the modal will (a) not render it in the ordered list at all unless `CATEGORY_ORDER` is also edited, and (b) display the untranslated raw key if it slips through. Three spots (union, ORDER, LABELS) must stay in lockstep by hand. Minor today (the union is small and TS-typed), but a quiet maintenance trap.
+
+**Hypothesis / root cause:** category presentation metadata (order + label) was inlined in the view instead of co-located with the category definition.
+
+**Proposed fix / improvement:**
+- [ ] Derive ordered categories from a single source (e.g. an exported `SHORTCUT_CATEGORIES` ordered array in `keyboard-shortcuts.ts`) and map labels via i18n keys.
+- [ ] Or drive the modal off `getShortcutsByCategory()` keys with one explicit order array kept next to the union.
+
+**Related files:** `src/renderer/src/components/game/modals/utility/ShortcutReferenceModal.tsx`, `src/renderer/src/services/keyboard-shortcuts.ts`
+
+**Resolution [2026-07-15, dnd-resolver — approved 2026-07-04 via board]:** Added exported `SHORTCUT_CATEGORIES` (ordered, `as const`) + derived `ShortcutCategory` type in keyboard-shortcuts.ts; `ShortcutDefinition.category`, the modal's section order, and the i18n label keys all derive from it. Deleted the modal's hardcoded CATEGORY_ORDER/CATEGORY_LABELS; labels use `t(..., { defaultValue: categoryKey })` so a new category renders its raw key instead of vanishing.
+
 ### [2026-07-02] Universal VTT (.uvtt/.dd2vtt) battlemap import/export — walls/doors/lights metadata interop with Dungeondraft, Dungeon Alchemist, Foundry
 
 - **Category:** future-idea

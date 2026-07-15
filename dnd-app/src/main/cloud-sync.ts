@@ -85,6 +85,24 @@ function campaignRelPaths(campaignId: string): string[] {
 }
 
 /**
+ * True when a tar entry path belongs to the campaign being restored. Restore
+ * archives are produced by backupCampaignToDrive from campaignRelPaths(), so
+ * every legitimate member sits under one of those four prefixes. Anything else
+ * (settings.json, discord/*, plugins/*, campaigns/<OTHER-id>/...) would extract
+ * over sibling files in the userData ROOT — node-tar only blocks ".." and
+ * absolute paths, not well-formed relative entries — so we allowlist instead of
+ * trusting the remote bytes. Exported for tests.
+ */
+export function isCampaignScopedTarEntry(entryPath: string, campaignId: string): boolean {
+  // tar entry paths are POSIX-relative and may carry a leading "./".
+  const rel = entryPath.replace(/^(\.\/)+/, '')
+  if (rel === '') return false
+  // campaignRelPaths uses platform separators; tar entries use "/".
+  const allowed = campaignRelPaths(campaignId).map((a) => a.replaceAll('\\', '/'))
+  return allowed.some((a) => rel === a || rel.startsWith(`${a}/`))
+}
+
+/**
  * Check if the Rclone remote is reachable and configured (drives "Check Status").
  */
 export async function checkRemoteStatus(): Promise<RcloneStatus> {
@@ -245,9 +263,27 @@ export async function restoreCampaignFromDrive(campaignId: string): Promise<Clou
         Readable.fromWeb(res.body as Parameters<typeof Readable.fromWeb>[0]),
         createWriteStream(archivePath)
       )
-      // tar defaults strip leading "/" and ".." segments, so extraction is
-      // jailed to userData even though the archive is our own.
-      await tarExtract({ file: archivePath, cwd: userData })
+      // tar defaults strip leading "/" and ".." segments (jailed to userData),
+      // and the filter confines extraction to THIS campaign's own subtree so a
+      // poisoned or mismatched archive cannot overwrite sibling userData files
+      // (settings.json secrets, discord config, other campaigns, plugins).
+      const skipped: string[] = []
+      await tarExtract({
+        file: archivePath,
+        cwd: userData,
+        preservePaths: false,
+        filter: (entryPath) => {
+          const ok = isCampaignScopedTarEntry(entryPath, campaignId)
+          if (!ok) skipped.push(entryPath)
+          return ok
+        }
+      })
+      if (skipped.length > 0) {
+        logToFile(
+          'WARN',
+          `Cloud restore for ${campaignId}: skipped ${skipped.length} archive entr${skipped.length === 1 ? 'y' : 'ies'} outside the campaign subtree: ${skipped.slice(0, 10).join(', ')}`
+        )
+      }
       logToFile('INFO', `Cloud restore completed for ${campaignId}`)
       return { success: true, message: 'Campaign restored from Google Drive', details: { campaignId } }
     } finally {

@@ -4,6 +4,13 @@ import shortcutsJson from '@data/ui/keyboard-shortcuts.json'
 import { type KeyCombo, useAccessibilityStore } from '../stores/use-accessibility-store'
 import { load5eKeyboardShortcuts } from './data-provider'
 
+/** Ordered category list — the single source for the category union, the
+ * reference modal's section order, and the i18n label keys
+ * (`game.shortcutReferenceModal.categories.<category>`). Add a category HERE
+ * (plus its locale strings); everything else derives from it. */
+export const SHORTCUT_CATEGORIES = ['combat', 'navigation', 'tools', 'general'] as const
+export type ShortcutCategory = (typeof SHORTCUT_CATEGORIES)[number]
+
 export interface ShortcutDefinition {
   key: string // e.g., 'Space', 'Escape', 'd', '1'-'9'
   ctrl?: boolean
@@ -11,7 +18,7 @@ export interface ShortcutDefinition {
   alt?: boolean
   action: string // identifier like 'end-turn', 'open-dice', etc.
   description: string // human-readable
-  category: 'combat' | 'navigation' | 'tools' | 'general'
+  category: ShortcutCategory
 }
 
 export const DEFAULT_SHORTCUTS: ShortcutDefinition[] = shortcutsJson as ShortcutDefinition[]

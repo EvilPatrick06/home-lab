@@ -149,13 +149,10 @@ const sites = [
   { path: join(REPO_ROOT, 'docs/ARCHITECTURE.md'), re: /\b\d+ AI agents\b/g, replace: () => `${bmoAgents} AI agents` },
   { path: join(REPO_ROOT, 'bmo/README.md'), re: /\b\d+-agent router\b/g, replace: () => `${bmoAgents}-agent router` },
   { path: join(REPO_ROOT, 'bmo/README.md'), re: /\b\d+ specialized AI agents\b/g, replace: () => `${bmoAgents} specialized AI agents` },
-  { path: join(REPO_ROOT, 'bmo/README.md'), re: /\b\d+ AI-agent roles\b/g, replace: () => `${bmoAgents} AI-agent roles` },
-  { path: join(REPO_ROOT, 'bmo/docs/AGENTS.md'), re: /\b\d+ specialized AI agents\b/g, replace: () => `${bmoAgents} specialized AI agents` },
   // AGENTS.md (cross-tool rules) + GEMINI.md + bmo/pi/README.md structure map.
   { path: join(REPO_ROOT, 'AGENTS.md'), re: /\b\d+ AI agents\b/g, replace: () => `${bmoAgents} AI agents` },
   { path: join(REPO_ROOT, 'GEMINI.md'), re: /\b\d+ AI agents\b/g, replace: () => `${bmoAgents} AI agents` },
   { path: join(REPO_ROOT, 'AGENTS.md'), re: /\b\d+ registered AI agents\b/g, replace: () => `${bmoAgents} registered AI agents` },
-  { path: join(REPO_ROOT, 'bmo/pi/README.md'), re: /\b\d+ AI agents\b/g, replace: () => `${bmoAgents} AI agents` },
   // GLOSSARY + SECURITY + bmo ARCHITECTURE claims (made dynamic 2026-06-10).
   { path: join(REPO_ROOT, 'docs/GLOSSARY.md'), re: /BMO has \d+\./, replace: () => `BMO has ${bmoAgents}.` },
   {

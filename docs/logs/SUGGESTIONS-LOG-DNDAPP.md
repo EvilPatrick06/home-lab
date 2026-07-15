@@ -19,6 +19,19 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+> **2026-07-15 (dnd-resolver) — board-decisions intake (first run on the new outbox).**
+> 23 approve clicks from ~2026-07-04 were fetched this run. Most were already
+> implemented by intervening runs (chat-transcript export, dice stats, palette
+> content search, UVTT converter, TARGET-PARITY doc, a11y real-component baseline,
+> shortcut-description i18n, panel-resize dedupe, knip audit, builder excludes,
+> scripts/ + docs/ indexes, mobile CI gate / version pin / shared drift guard,
+> CHANGELOG retirement, sign.mjs / .gitkeep / submit-script deletions) — see
+> RESOLVED-ISSUES-DNDAPP. Two were implemented this run (file-size ratchet
+> coverage, ShortcutReferenceModal category single-source; moved to RESOLVED).
+> ONE remains approved-and-open: **5e content localization** (the 2026-06-29
+> entry below) — a large content/data effort that joins the eight approved
+> 2026-06-24 items still awaiting a dedicated focused run.
+
 > **2026-06-28 (dnd-phase-executer) — RESOLVED: PHASE-53B TURN credential model -> option (b) ephemeral REST creds, IMPLEMENTED.** (Supersedes the "DECISION NEEDED" note below.) coturn on bmo switched to `--use-auth-secret` (static secret stored off-repo at `/home/patrick/.secrets/turn_shared_secret`, launcher `/home/patrick/bmo-coturn-run.sh`); new Pi relay endpoint `GET /api/turn-credentials` (`bmo/pi/routes/turn_api.py`) mints time-limited HMAC creds; the app fetches them via the main-process `turn-bridge` + `window.api.turn` and layers a `turn:<host>:3478` candidate onto the self-host ICE set (`network/peer-manager.ts:ensureEphemeralTurn`; `forceRelay` stays false; a user TURN override still wins). Verified: STUN binding + a minted-cred TURN Allocate both succeed against live coturn; tsc/vitest/pytest green. NO repo-visible credential (the Phase-20c removal stands). Pending: integrator merge -> relay restart to activate the endpoint -> next dnd-app release (v2.6.4) ships the app wiring.
 
 
@@ -351,54 +364,6 @@ Backup support today is: manual export (`services/io/import-export.ts`), an opti
 **Related files:** `src/renderer/src/components/sheet/shared/PrintSheet.tsx`, `src/renderer/src/components/sheet/5e/SpellcastingSection5e.tsx`, `src/renderer/src/services/character/`
 
 **Related entries:** SUGGESTIONS-LOG-DNDAPP [2026-07-02] Second-window player/projector display (both serve in-person tables)
-
-### [2026-06-29] file-size-budget ratchet guards only 2 of ~7 hand-written 1000+ LOC modules — the main-process / web / store monoliths can still grow unbounded
-
-- **Category:** debt
-- **Severity:** medium
-- **Domain:** dnd-app
-- **Discovered by:** dnd-cleanup
-- **During:** dnd-cleanup scheduled cleanup/reorg scan of `dnd-app/` (largest-file sweep vs the size ratchet)
-
-**Description:**
-`scripts/lint/file-size-budget.mjs` (wired into `dnd-app-ci.yml` as `lint:file-size`) is a good pattern — it gives a god-file a hard LOC ceiling so CI fails if it grows, forcing extraction rather than budget-raising. But its `BUDGETS` map currently contains **only two** files: `GameLayout.tsx` (1290) and `PdfViewer.tsx` (1236). Meanwhile a largest-file sweep shows several other hand-written modules already over 1000 LOC that are **not** budgeted, so they can grow without limit:
-- `src/main/ai/ai-service.ts` — 1681 LOC (already logged as a god file mid-decomposition; entangled in a known circular dep)
-- `src/main/ai/ai-schemas.ts` — 1622 LOC
-- `src/main/ipc/ai-handlers.ts` — 1209 LOC
-- `src/web/web-api.ts` — 1177 LOC
-- `src/renderer/src/stores/network-store/index.ts` — 1007 LOC
-
-(The two larger files above these — `i18n/generated-keys.ts` 6601 and `preload/index.d.ts` 1383 — are generated and correctly out of scope.) So the ratchet protects the two renderer UI monoliths but leaves the main-process AI layer, the web API shim, and the largest Zustand store free to accrete. The script's own header even says "To add a file to the ratchet: set its budget to the file's CURRENT line count," so extending it is the intended, cheap follow-up — it just was never done for these.
-
-**Hypothesis / root cause:** The budget file was introduced specifically by the GameLayout/PdfViewer decomposition (see RESOLVED-ISSUES-DNDAPP "GameLayout / PdfViewer god-file decomposition") and seeded with exactly those two files; no pass has since enrolled the other large modules, so the ratchet's coverage is incidental to that one effort rather than systematic.
-
-**Proposed fix / improvement:**
-- [ ] Add the five modules above to `BUDGETS` at their current LOC (a freeze-in-place ceiling), so none can grow further; lower each as decomposition proceeds (same discipline already used for the two UI files).
-- [ ] Consider deriving the ratchet from a glob + threshold (e.g. flag any non-generated hand-written `.ts`/`.tsx` over N LOC that lacks an explicit budget) so newly-grown monoliths get caught automatically instead of needing manual enrollment.
-- [ ] Pair the `ai-service.ts` / `ai-schemas.ts` / `ai-handlers.ts` budgets with the already-open `ai-service.ts` decompose work so the ceilings ratchet down as that lands.
-
-**Related files:** `scripts/lint/file-size-budget.mjs`, `src/main/ai/ai-service.ts`, `src/main/ai/ai-schemas.ts`, `src/main/ipc/ai-handlers.ts`, `src/web/web-api.ts`, `src/renderer/src/stores/network-store/index.ts`, `.github/workflows/dnd-app-ci.yml`
-
-**Related entries:** RESOLVED-ISSUES-DNDAPP "GameLayout / PdfViewer god-file decomposition" + "the size ratchet" (introduced the budget); RESOLVED-ISSUES-DNDAPP [2026-06-23] "`ai-service.ts` is a ~1,740-LOC god file" (the still-open decompose this should ratchet).
-
-### [2026-06-29] ShortcutReferenceModal hardcodes CATEGORY_ORDER + English CATEGORY_LABELS, duplicating the category list that already lives in the shortcut type
-
-- **Category:** debt, UX
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** dnd-suggestor
-- **During:** dnd-app tree review (ShortcutReferenceModal)
-
-**Description:**
-`ShortcutReferenceModal.tsx` keeps a hardcoded `CATEGORY_ORDER = ['combat','navigation','tools','general']` plus a hardcoded English `CATEGORY_LABELS` map, separate from the canonical category union on `ShortcutDefinition.category` in `keyboard-shortcuts.ts`. The `CATEGORY_LABELS` map is used only as a truthiness guard before falling back to the raw category key, so if a new shortcut category is ever added to the union + JSON, the modal will (a) not render it in the ordered list at all unless `CATEGORY_ORDER` is also edited, and (b) display the untranslated raw key if it slips through. Three spots (union, ORDER, LABELS) must stay in lockstep by hand. Minor today (the union is small and TS-typed), but a quiet maintenance trap.
-
-**Hypothesis / root cause:** category presentation metadata (order + label) was inlined in the view instead of co-located with the category definition.
-
-**Proposed fix / improvement:**
-- [ ] Derive ordered categories from a single source (e.g. an exported `SHORTCUT_CATEGORIES` ordered array in `keyboard-shortcuts.ts`) and map labels via i18n keys.
-- [ ] Or drive the modal off `getShortcutsByCategory()` keys with one explicit order array kept next to the union.
-
-**Related files:** `src/renderer/src/components/game/modals/utility/ShortcutReferenceModal.tsx`, `src/renderer/src/services/keyboard-shortcuts.ts`
 
 ### [2026-06-29] 5e *content* values (monster/spell/species/class/alignment names + descriptions) are English-only — only the UI chrome is bilingual
 

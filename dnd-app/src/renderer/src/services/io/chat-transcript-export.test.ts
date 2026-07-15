@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { ChatMessage } from '../../stores/use-lobby-store'
 import { exportChatTranscriptJSON, exportChatTranscriptMarkdown } from './chat-transcript-export'
 
@@ -12,6 +12,32 @@ const base: ChatMessage = {
 }
 
 describe('chat-transcript-export', () => {
+  it('titles the session with the LOCAL calendar date, not the UTC date', () => {
+    // Evening-west-of-UTC case: 2026-07-14 20:30 EST is 2026-07-15 01:30 UTC.
+    // vitest.config sets TZ=America/New_York for the suite via the mocked clock below.
+    const prevTz = process.env.TZ
+    process.env.TZ = 'America/New_York' // node (Linux) picks this up at runtime
+    const vi_now = new Date(2026, 6, 14, 20, 30, 0) // local 2026-07-14 20:30
+    const { useFakeTimers, setSystemTime, useRealTimers } = vi
+    useFakeTimers()
+    setSystemTime(vi_now)
+    try {
+      const md = exportChatTranscriptMarkdown([base])
+      const expected = '# Session — 2026-07-14'
+      expect(md.split('\n')[0]).toBe(expected)
+      // Regression guard: whenever local date differs from the UTC date, the
+      // header must follow the local one.
+      const utcDate = vi_now.toISOString().slice(0, 10)
+      if (utcDate !== '2026-07-14') {
+        expect(md).not.toContain(utcDate)
+      }
+    } finally {
+      useRealTimers()
+      if (prevTz === undefined) delete process.env.TZ
+      else process.env.TZ = prevTz
+    }
+  })
+
   it('returns a placeholder heading when there are no messages', () => {
     const md = exportChatTranscriptMarkdown([])
     expect(md).toContain('# Session —')
