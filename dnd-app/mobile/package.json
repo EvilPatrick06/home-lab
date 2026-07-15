@@ -1,6 +1,6 @@
 {
   "name": "dnd-vtt-mobile",
-  "version": "2.8.2",
+  "version": "2.8.3",
   "private": true,
   "description": "Dungeon Table Online — React Native (Expo) Android client. Embeds the in-game renderer (PixiJS map + Three.js dice) in a WebView and reuses the desktop/web TypeScript logic over a typed window.api bridge.",
   "main": "index.ts",
