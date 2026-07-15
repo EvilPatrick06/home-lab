@@ -326,6 +326,65 @@ The app is an installable offline PWA and can export the player save as JSON, bu
 
 # Low-severity polish / info
 
+### [2026-07-15] PHASE-11 plan file marked done but never moved to `completed/` (PHASE-INDEX links inconsistent)
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** automated cleanup/structure scan of `dungeon-scholar/docs`
+
+**Description:**
+`docs/phases/PHASE-INDEX.md` row 11 reads `done — F1/F2/F3/F5 + F4/11D (11D landed 2026-07-03, owner-approved)`, but the plan file still sits at `docs/phases/PHASE-11-routing-headings-vault-exam-quest-copy-round.md` instead of `completed/`. The index header and `INSTRUCTIONS.md` both say finished plans move to `completed/`, and every other done phase (01-10, 12, 13) lives there. Cosmetic second half: rows 12/13 display bare `PHASE-12-…`/`PHASE-13-…` link text (hrefs correctly point into `./completed/`), while rows 01-10 display the `completed/PHASE-NN-…` form.
+
+**Hypothesis / root cause:** PHASE-11 finished in two stages (main F-items, then 11D on 2026-07-03); whichever run flipped the status to done skipped the file move. Rows 12/13 were appended later with just the filename as link text.
+
+**Proposed fix / improvement:**
+- [ ] `git mv docs/phases/PHASE-11-routing-headings-vault-exam-quest-copy-round.md docs/phases/completed/` and point row 11 at `./completed/…`.
+- [ ] Normalize rows 12/13 link text to the `completed/PHASE-NN-…` form used by rows 01-10.
+
+**Related files:** `dungeon-scholar/docs/phases/PHASE-11-routing-headings-vault-exam-quest-copy-round.md`, `dungeon-scholar/docs/phases/PHASE-INDEX.md`
+
+### [2026-07-15] `services/crossTomeExam.js` is an unwired module — zero production imports; its follow-up exists only in the resolved archive
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** automated cleanup/structure scan of `dungeon-scholar/src` (import-graph sweep)
+
+**Description:**
+`src/services/crossTomeExam.js` is imported by nothing except its own test — a repo-wide grep finds no other reference. It landed in the 2026-07-03 owner-approved feature batch as the tested pure core of the cross-tome practice exam, with the "full timed cross-tome ExamMode UI flow" explicitly noted as follow-up — but that note lives only in `RESOLVED-ISSUES-DUNGEON-SCHOLAR.md` (batch item 13), which active-backlog greps do not surface. Net effect: a shipped-but-unreachable feature core that no user can trigger and no active log tracks. (The batch named two other partial tails — cloze author-affordance, tome-version import-merge UI — but `cloze.js` and `tomeVersion.js` ARE wired into production imports; only `crossTomeExam.js` is fully dark.)
+
+**Hypothesis / root cause:** The batch closed the original suggestion when the pure core merged; the UI-wiring remainder was recorded in the archive entry instead of being re-filed as an active item, so it fell out of the visible backlog.
+
+**Proposed fix / improvement:**
+- [ ] Wire the UI: an "All tomes / weak domains" preset on the exam entry point that builds its pool via `crossTomeExam.js` (weak-domain over-sampling is already implemented there).
+- [ ] Until wired, THIS entry is the active-log tracker for that follow-up, so it cannot be lost in the archive. If the feature is instead abandoned, delete the module + test rather than carrying dead code.
+
+**Related files:** `src/services/crossTomeExam.js`, `src/services/crossTomeExam.test.js`, `docs/logs/RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`
+
+### [2026-07-15] `services/README.md` concern-taxonomy and `features/README.md` folder table went stale after the 2026-07-03 feature batch
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** automated cleanup/structure scan of `dungeon-scholar/src` (README vs `ls` diff)
+
+**Description:**
+`src/services/README.md` states its purpose is to record the concern taxonomy "so new modules land in the right conceptual group", but its table covers only the pre-batch module set: the nine services added 2026-07-03 — `appBadge.js`, `cloze.js`, `crossTomeExam.js`, `dailyGoal.js`, `printExport.js`, `reportProblem.js`, `speech.js`, `studyPlan.js`, `tomeVersion.js` — appear in `ls src/services` but in no concern group. Similarly, `src/features/README.md`'s `progression/` row omits `ScholarsLedger.jsx` and `CertificateModal.jsx`, which live in that folder.
+
+**Hypothesis / root cause:** The feature batch added modules without updating the two placement-rule READMEs; nothing gates README/table parity.
+
+**Proposed fix / improvement:**
+- [ ] Slot the nine services into groups (suggested: exam/SRS engine → `cloze`, `crossTomeExam`, `studyPlan`, `dailyGoal`, `printExport`; platform/UI infra → `appBadge`, `speech`, `reportProblem`; import/library → `tomeVersion` — editor's call, the point is table == `ls`).
+- [ ] Add `ScholarsLedger` and `CertificateModal` to the `progression/` row in `features/README.md`.
+- [ ] Optional: a tiny guard test diffing the README module list against `ls src/services/*.js` would keep this from drifting again.
+
+**Related files:** `src/services/README.md`, `src/features/README.md`
+
+
 ### [2026-07-02] `router/screens.js` gating predicates are dead code — every production call site uses the raw arrays instead
 
 - **Category:** debt
