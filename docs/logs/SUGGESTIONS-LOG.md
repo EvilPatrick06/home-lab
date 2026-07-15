@@ -12,6 +12,75 @@ How to triage: [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md)
 
 ## Cross-cutting / repo-wide suggestions
 
+
+### [2026-07-15] Agent-worktree garbage collection never fires — 57 worktrees / ~16 GB of merged branches accumulate because `stale-local-cleanup.sh` keys on deleted *local* branches that nothing in the pipeline ever deletes
+
+- **Category:** future-idea, config, debt
+- **Severity:** medium
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** scheduled cross-cutting repo scan (2026-07-15); noticed 57 entries in `git worktree list` vs only 12 remote branches.
+
+**Description:**
+The fleet's local garbage collection is a no-op for the dominant staleness case. Today `/home/patrick/home-lab-trees` holds **57 worktrees totaling ~16 GB** (disk at 65%), of which ~50 sit on `auto/*` branches that are already **merged into `origin/master` and deleted on origin**. The weekly cron (`bmo/pi/scripts/stale-local-cleanup.sh`, Sun 04:00) removes a worktree dir only when (a) git no longer tracks it as a live worktree AND (b) the **local** branch `refs/heads/auto/<name>` is gone. Neither ever becomes true: the integrator deletes only the **remote** branch (`git push origin :<branch>` per AUTOMATED-AGENT-GIT-WORKFLOW.md Rule 3A — local `-D`/worktree-remove is "if applicable" and the integrator runs in the main checkout where these branches aren't visible as its own), and a local branch checked out in its worktree cannot be deleted anyway. `bmo/pi/data/logs/cron-cleanup.log` confirms: every run prints only "worktrees pruned / local cleanup done" — zero removals ever. Two additional worktrees are invisible to the cleaner entirely because they live outside `$TREES`: `/home/patrick/wt-dnd-phase-maker` (`auto/dnd-phase-maker`) and `/home/patrick/home-lab/.claude/worktrees/ai-p6-roadmap`; the `docfix` worktree (`tmp/docfix`, merged) also escapes the cleaner's hardcoded `br="auto/$(basename "$d")"` naming assumption. On the shared 8 GB Pi that also hosts run-check.sh-gated heavy jobs, unbounded checkout growth is a real resource risk (each worktree is a ~6,600-file full checkout).
+
+**Hypothesis / root cause:** the cleanup script's staleness predicate ("local branch deleted") models a branch-deletion step that no actor performs; the integrator's cleanup contract and the cron's predicate were written independently and never reconciled. Verified empirically: `git merge-base --is-ancestor` shows ~50 worktree branches merged into `origin/master` with no matching `origin/` ref, yet all survive every weekly cleanup.
+
+**Proposed fix / improvement:**
+- [ ] Change `stale-local-cleanup.sh` staleness test to: branch is an ancestor of `origin/master` (merged) AND has no `refs/remotes/origin/<branch>` counterpart AND worktree is clean (no uncommitted/unpushed work) AND dir mtime > N days — then `git worktree remove --force` + `git branch -D`. Keep the never-touch-master guarantee.
+- [ ] Drop the `auto/$(basename)` naming assumption — read the actual checked-out branch via `git -C "$d" branch --show-current` (also covers `tmp/*` and future prefixes).
+- [ ] Either scan known out-of-convention locations (or better: log a warning when `git worktree list` reports a worktree outside `$TREES`, so path-convention drift like `~/wt-dnd-phase-maker` surfaces instead of silently escaping GC).
+- [ ] Add a test to `bmo/pi/tests/` (the script is currently exercised only by shellcheck/`bash -n`, not behaviorally).
+
+**Blocked by:** none.
+
+**Related files:** `bmo/pi/scripts/stale-local-cleanup.sh`, `.github/workflows/stale-branch-pruner.yml`, `.github/scripts/prune-merged-branches.sh`, `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`
+
+**Related entries:** RESOLVED-ISSUES.md [2026-06-29] "CI hygiene convention gap…" (same fleet-hygiene family); docs/SCHEDULED-TASK-MIGRATION.md documents the local/remote pruner split this entry closes the gap in.
+
+### [2026-07-15] `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md` has TWO "Rule 4" sections — numbering forked, so every "Rule 4" cross-reference in the canonical agent-process doc is ambiguous
+
+- **Category:** future-idea, docs
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** scheduled cross-cutting repo scan (2026-07-15); reading the workflow doc end-to-end.
+
+**Description:**
+The canonical git-mechanics doc every automated agent is required to follow contains duplicate rule numbering: `## Rule 4 — Auto-diagnose, don't just report symptoms` (line ~279) and `## Rule 4 — Heavy local checks go through the admission gate (run-check.sh)` (line ~389), with Rules 5 and 6 sitting between them (order on the page: 1, 2, 3, 4, 5, 6, 4). Any doc, scheduled-task SKILL.md, board note, or commit message that cites "workflow doc Rule 4" is now ambiguous between root-cause diagnosis and the run-check admission gate — in a repo whose coordination fabric is precisely these cross-referenced rule numbers (e.g. INSTRUCTIONS.md rules are cited by number throughout). Likely cause: the two sections landed on parallel `auto/*` branches that each appended "the next rule number" and union-style integration kept both.
+
+**Proposed fix / improvement:**
+- [ ] Renumber the second "Rule 4" (admission gate) to "Rule 7" (or fold it under Rule 4 as 4b) and sweep referencing docs/SKILL definitions for citations that relied on the old number (`grep -rn "Rule 4" docs/ */docs .github` and the scheduled-task definitions).
+- [ ] Consider a one-line check in `scripts/check-ci-hygiene.sh` or `agent-docs-check.yml`: duplicate `^## Rule <n>` headings in the workflow doc fail CI, so parallel-append numbering collisions get caught at integration time.
+
+**Blocked by:** none.
+
+**Related files:** `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`, `scripts/check-agent-instructions.sh`, `.github/workflows/agent-docs-check.yml`
+
+**Related entries:** RESOLVED-ISSUES.md [2026-07-02] "The repo-wide canonical process doc lives at dnd-app/docs/phases/INSTRUCTIONS.md…" (same doc-fabric family).
+
+### [2026-07-15] Shared JS dev-toolchain versions drift between the independently-Dependabot'd projects (vitest ^4.0.18 in dnd-app vs ^4.1.9 in dungeon-scholar today) — add a cross-project version-skew report instead of more one-time fixes
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** scheduled cross-cutting repo scan (2026-07-15); comparing shared devDependencies across the four package.json roots.
+
+**Description:**
+The repo has four independent npm roots (dnd-app, dnd-app/mobile, dungeon-scholar, oracle-worker) sharing a common toolchain (biome, typescript, vitest, vite). Each root gets its own Dependabot bumps that merge on their own schedule, so shared-tool versions drift *structurally*, not accidentally. Current skew: **vitest `^4.0.18` (dnd-app) vs `^4.1.9` (dungeon-scholar)**; typescript ranges also differ in style (`^6.0.3` ×3 vs `~6.0.3` in mobile — tilde will pin mobile to 6.0.x while the others float to 6.x). This is the same class as the twice-fixed biome drift (RESOLVED-ISSUES.md 2026-06-23 "Biome engine version drift…", re-logged and re-resolved 2026-07-02 "Biome version has no single source…") — one-time alignment fixes decay within weeks because nothing watches for recurrence. The projects deliberately have no npm workspace (Makefile header), so a mechanical single source is off the table; a *report* is the portable alternative.
+
+**Proposed fix / improvement:**
+- [ ] Add a small script (e.g. `scripts/check-toolchain-skew.sh` or a step in `ci-hygiene.yml`) that extracts an allowlist of shared dev deps (biome, typescript, vitest, vite) from the four package.json files and warns (non-blocking) when specifiers diverge beyond patch range — surfacing skew at PR time instead of via periodic rediscovery.
+- [ ] Optionally add Dependabot `groups` per root for these packages so their bumps travel together and converge faster.
+- [ ] Decide intentionally whether mobile's `~6.0.3` typescript tilde is deliberate (Expo constraint) and comment it if so — otherwise normalize to the repo's `^` convention.
+
+**Blocked by:** none.
+
+**Related files:** `dnd-app/package.json`, `dnd-app/mobile/package.json`, `dungeon-scholar/package.json`, `oracle-worker/package.json`, `.github/dependabot.yml`, `.github/workflows/ci-hygiene.yml`
+
+**Related entries:** RESOLVED-ISSUES.md [2026-06-23] biome engine drift; [2026-07-02] biome single-source; [2026-07-02 resolved] node-version single-sourcing (same "shared toolchain, many roots" family).
+
 ### [2026-07-02] Agent-instruction drift guard's byte-for-byte SYNC mechanism is dormant — no file carries `SYNC:agents` markers, so the guard reduces to a substring check while five instruction files restate the project map independently
 
 - **Category:** debt, config
