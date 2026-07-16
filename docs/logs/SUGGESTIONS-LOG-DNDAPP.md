@@ -77,6 +77,116 @@ New entries go at the TOP of their section (newest first).
 
 ---
 
+### [2026-07-15] One-click AoE spell resolution — template → group saves → auto full/half damage is three disconnected manual tools for the human DM
+
+- **Category:** UX
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** scheduled improvement-suggestion scan of `dnd-app/`
+
+**Description:**
+Resolving a player's Fireball is the single most common multi-target action in 5e play, and the app has every ingredient but no pipeline. `services/combat/aoe-targeting.ts` computes covered tokens ("for damage application", per its own header), `AoETemplateModal.tsx` places the template, `GroupRollModal.tsx` streams live per-player save results to the host, and `/hphalf` exists explicitly (its description: "Halve a character's current HP (e.g., after a successful save for half damage)"). But nothing connects them: the DM places a template, opens the group-roll modal, reads results, then edits each target's HP by hand. Meanwhile the *AI* paths already have the full loop — `monster-turn-executor.ts:207-219` rolls saves and applies `halfOnSave` automatically, and the AI DM's `cast_spell` (`spell-effect-actions.ts`) tracks save DC/area — so the human DM is strictly worse-equipped than the AI for the same action.
+
+**Proposed fix / improvement:**
+- [ ] Add a "Resolve as spell/effect" step to the AoE template flow: after placement, pre-select the covered tokens (via `computeAoETargets`) and open a save request (reuse the GroupRollModal streaming path for PCs; auto-roll for DM-controlled creatures via `getCreatureSaveMod`).
+- [ ] One damage entry (formula or fixed) rolled once, then applied per target: full on fail, half on save (option for none-on-save / Evasion), through the existing damage-resolver so resistances apply.
+- [ ] Post a one-line summary to the combat log (targets, save results, damage dealt each).
+
+**Blocked by:** none
+
+**Related files:** `src/renderer/src/services/combat/aoe-targeting.ts`, `src/renderer/src/components/game/modals/mechanics/AoETemplateModal.tsx`, `src/renderer/src/components/game/modals/combat/GroupRollModal.tsx`, `src/renderer/src/services/chat-commands/commands-player-hp.ts`, `src/renderer/src/services/game-actions/spell-effect-actions.ts`, `src/renderer/src/services/combat/monster-turn-executor.ts`
+
+**Related entries:** [2026-07-15] Live-play undo/redo (a mis-applied mass damage is exactly the mistake undo would also help with)
+
+### [2026-07-15] In-app push-to-talk voice chat over the existing WebRTC peer mesh — the only VTT surface with zero voice path on web/embed/mobile
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** scheduled improvement-suggestion scan of `dnd-app/`
+
+**Description:**
+The app already maintains WebRTC peer connections to every player (peerjs data channels, plus a TURN relay path with ephemeral creds), but no target has any player-voice capability: there is no `getUserMedia` anywhere under `src/renderer`, `VoiceCastSection.tsx` is NPC *TTS* voice casting (not player audio), and the Discord integration (`main/discord-integration/discord-service.ts`) is text webhooks / bot DMs only — and per `docs/TARGET-PARITY.md` Discord integration is N/A on web SPA, embed, and mobile. So a remote table must run a separate voice app, and a browser/mobile player invited via the web target may have none arranged at all. Adding an opt-in audio track (push-to-talk default, mute-all for the DM) onto the *already established* peer connections is the cheap version of this — no new signaling, no new infra, and the TURN fallback already exists for NAT-hostile pairs.
+
+**Proposed fix / improvement:**
+- [ ] Opt-in "table voice" toggle in the lobby: adds a `getUserMedia` audio track to each existing peer connection (renegotiation), push-to-talk keybind via the existing shortcut system.
+- [ ] Speaking indicator on player cards; DM mute controls; capability-gate cleanly on embed if the host frame denies mic permission (update TARGET-PARITY row).
+- [ ] Explicitly out of scope: video, recording, and any server-mixed audio — P2P mesh audio only, matching the existing data-channel topology.
+
+**Blocked by:** none (TURN relay for media follows the same path as data)
+
+**Related files:** `src/renderer/src/network/peer-manager.ts`, `src/renderer/src/components/lobby/PlayerCard.tsx`, `src/main/discord-integration/discord-service.ts`, `docs/TARGET-PARITY.md`
+
+**Related entries:** none
+
+### [2026-07-15] Map editor has no copy/paste or reusable room prefabs — recurring structures are repainted tile by tile
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** scheduled improvement-suggestion scan of `dnd-app/`
+
+**Description:**
+`DMMapEditor.tsx` / `map-editor-handlers.ts` offer per-cell terrain, wall, door, light, and region tools, but no way to select a rectangular region and copy/paste it — within a floor, across floors, or across maps — and no library of saved "prefabs" (a 10x10 inn common room with walls+door+hearth light; a standard corridor junction; a guard post). A DM building a dungeon of repeating rooms redraws every one by hand. Grep confirms no `copy`/`paste`/`stamp`/`prefab` concept anywhere in the editor. UVTT import (shipped 2026-07-02) covers whole-map interop, but not intra-editor reuse of pieces.
+
+**Proposed fix / improvement:**
+- [ ] Rectangular region select in the editor → Copy/Paste (carries terrain, walls, doors, lights, regions relative to anchor; rotate in 90° steps on paste).
+- [ ] "Save selection as prefab" with a name + thumbnail; prefab palette panel to stamp them onto any map/floor.
+- [ ] Store prefabs app-level (not per-campaign) so they carry across campaigns; JSON export/import so they can be shared like homebrew.
+
+**Blocked by:** none
+
+**Related files:** `src/renderer/src/components/game/modals/dm-tools/DMMapEditor.tsx`, `src/renderer/src/components/game/modals/dm-tools/map-editor-handlers.ts`, `src/renderer/src/services/io/uvtt.ts`
+
+**Related entries:** [2026-07-02] Universal VTT import/export (resolved — whole-map interop; this is the intra-editor complement)
+
+### [2026-07-15] No real-world "next session" scheduling — the app tracks a fictional calendar but never when the humans actually meet next
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** scheduled improvement-suggestion scan of `dnd-app/`
+
+**Description:**
+The app has rich *in-fiction* time (CalendarPage, InGameCalendarModal, moon/weather) and an end-of-session flow (`EndOfSessionModal.tsx` — AI recap into the journal), but zero concept of the real-world next session: no `nextSession` field anywhere, nothing on the campaign, nothing in the lobby. "When are we playing next?" is the most-asked question of any campaign, and the app already owns the two natural surfaces for it (end-of-session, campaign detail/lobby) plus a delivery channel (the Discord webhook in `discord-service.ts:sendViaWebhook`).
+
+**Proposed fix / improvement:**
+- [ ] Optional "next session" date/time picker in EndOfSessionModal (and editable on CampaignDetailPage); stored on the campaign.
+- [ ] Countdown banner on CampaignDetailPage + lobby ("Next session: Sat Jul 18, 19:00 — in 3 days"); session-start recap modal can reference it.
+- [ ] Optional one-click Discord announce through the existing webhook config; `.ics` file download so players can drop it into their calendars (pure client-side generation, no new deps).
+
+**Blocked by:** none
+
+**Related files:** `src/renderer/src/components/game/modals/utility/EndOfSessionModal.tsx`, `src/renderer/src/pages/CampaignDetailPage.tsx`, `src/main/discord-integration/discord-service.ts`
+
+**Related entries:** none
+
+### [2026-07-15] Tokens can only be moved by pointer drag — no keyboard cell-by-cell movement (input half of the map accessibility gap)
+
+- **Category:** UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** scheduled improvement-suggestion scan of `dnd-app/`
+
+**Description:**
+`map-event-handlers.ts` implements keyboard *camera* pan (WASD/arrows, `setupKeyboardPan`) but token movement itself is pointer-drag only. There is no "select token → arrow keys step it one cell (5 ft) → Enter to commit" path. That hurts three groups at once: motor-impaired users who can't do precise drags, anyone wanting exact tactical placement (drags overshoot on small cells at low zoom), and it is the *input* half of the already-logged screen-reader battlefield gap (the 2026-07-02 entry covers describing the map textually — but a blind player still couldn't *move* without drag). The movement machinery to reuse exists: `movement-overlay.ts` path/speed budget, `pathfinder.ts`, and the customizable keybinding system (`use-accessibility-store.ts:customKeybindings`).
+
+**Proposed fix / improvement:**
+- [ ] With a token selected and the map focused: arrow keys (or numpad incl. diagonals) step a pending move cell-by-cell through the existing movement-overlay validation (speed budget, walls, difficult terrain); Enter commits, Esc cancels.
+- [ ] Announce each step via the existing aria-live channel ("north 5 ft — 15 ft remaining") so it composes with the screen-reader entry.
+- [ ] Register the keys in the keyboard-shortcuts data so they show in ShortcutReferenceModal and are rebindable.
+
+**Blocked by:** none
+
+**Related files:** `src/renderer/src/components/game/map/map-event-handlers.ts`, `src/renderer/src/components/game/map/movement-overlay.ts`, `src/renderer/src/services/map/pathfinder.ts`, `src/renderer/src/stores/use-accessibility-store.ts`
+
+**Related entries:** [2026-07-02] Screen-reader battlefield access (output half of the same gap)
+
 ### [2026-07-15] `docs/README.md` reference-doc index omits `TARGET-PARITY.md` (added 2026-07-03) — the index has no drift guard
 
 - **Category:** docs
