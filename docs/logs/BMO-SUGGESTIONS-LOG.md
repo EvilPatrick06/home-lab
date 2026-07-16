@@ -20,6 +20,96 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-07-15] No per-provider cloud API usage/cost accounting — every paid Claude/Gemini/Groq/Fish/Vision call flows through `cloud_providers.py` yet records nothing, so spend, quota burn, and per-agent attribution are invisible
+
+- **Category:** future-idea
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** scheduled improvement-suggestion scan of the bmo tree
+
+**Description:**
+`services/cloud_providers.py` is the single funnel for every paid external call — `gemini_chat`/`gemini_chat_stream`, `claude_chat`, `cloud_chat`, `groq_llm_chat`/`_stream`, `groq_stt`, `fish_audio_tts`, `google_vision_detect`/`describe` — and the provider responses already carry usage metadata (Anthropic `usage.input_tokens`/`output_tokens`, Gemini `usageMetadata`, Groq usage fields; Fish TTS is billable by submitted characters, STT by audio seconds), but none of it is captured. `services/metrics_counters.py` already exists as a thread-safe counter sink and `/metrics` + `/api/metrics/voice` are established surfaces, so the plumbing is 90% there. Today there is no way to answer "what did BMO cost this week?", no early warning before a provider quota/rate limit trips (the Discord-429 issue shows how invisible rate pressure bites), and no attribution of which of the ~28 agents burns the tokens.
+
+**Proposed fix / improvement:**
+- [ ] Capture usage at the `cloud_providers` funnel into `metrics_counters` — per provider+model: calls, tokens in/out, STT audio seconds, TTS characters, error/ratelimit counts; pass an optional `caller=` tag so agents can be attributed at the router/`llm_call` layer.
+- [ ] Add a small static price table (env-overridable) to derive an estimated daily/weekly cost.
+- [ ] Expose via `/api/metrics/cloud` + a dashboard tile next to the voice-latency metrics.
+- [ ] Optional: warn-level `notify.sh` alert when the daily estimate crosses a configurable budget.
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/services/cloud_providers.py`, `bmo/pi/services/metrics_counters.py`, `bmo/pi/services/monitoring.py`, `bmo/pi/services/status_board.py`
+
+**Related entries:** [2026-07-15] `run-check.sh` admission gate is observability-blind (same "instrument the existing funnel" pattern)
+
+### [2026-07-15] CampaignMemory retrieval doesn't scale with campaign age — search is `LIKE` over player notes only, and `build_dm_context` dumps EVERY NPC + location into the DM prompt unbounded
+
+- **Category:** future-idea
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** scheduled improvement-suggestion scan of the bmo tree
+
+**Description:**
+`services/game/campaign_memory.py` persists sessions/NPCs/locations/plot-threads/notes/inventory in SQLite, but its only search is `search_notes` — a `LIKE %query%` over `player_notes` alone; NPCs, locations, plot threads, and session summaries are not searchable at all. Meanwhile `build_dm_context(campaign)` aggregates the last-5 session summaries plus **all** NPCs and **all** discovered locations (with descriptions) into every DM system prompt. That is fine at session 3 and linearly worse forever after: a long-running campaign bloats every voice-DM turn with mostly-irrelevant entities — token cost, latency, and context dilution (the model attends less to the entities that actually matter in the current scene). SQLite ships FTS5, so a proper retrieval layer needs no new dependency.
+
+**Proposed fix / improvement:**
+- [ ] Add an FTS5 virtual table (or contentless index) across npcs/locations/plot_threads/player_notes/session summaries, populated in `_init_db`/on write.
+- [ ] Add `retrieve(campaign, query, k)` returning typed top-k hits; wire `lore_agent`/`npc_dialogue_agent` lookups through it.
+- [ ] Make `build_dm_context` budget-capped: top-k per section ranked by relevance to the recent transcript/current scene (recency fallback), with an env-tunable size budget; keep today's full dump behind an explicit flag for small campaigns.
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/services/game/campaign_memory.py` (`search_notes`, `build_dm_context`), `bmo/pi/agents/dnd/dnd_dm.py`, `bmo/pi/agents/dnd/lore_agent.py`, `bmo/pi/agents/dnd/npc_dialogue_agent.py`
+
+**Related entries:** none
+
+### [2026-07-15] `dnd_engine`'s mechanical combat layer is built and tested but unwired — only `roll_dice` has a production caller; InitiativeTracker, SpellSlotTracker, attack/save/concentration/encounter-difficulty math all sit dormant
+
+- **Category:** future-idea
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** scheduled improvement-suggestion scan of the bmo tree
+
+**Description:**
+`services/game/dnd_engine.py` implements a full deterministic 5e mechanics kernel — `roll_dice`, `calculate_attack`, `calculate_damage`, `resolve_saving_throw`, `check_concentration`, `calculate_encounter_difficulty`, condition helpers, an `InitiativeTracker` (turn order, HP, damage/heal, conditions) and a `SpellSlotTracker` — but a repo-wide grep finds exactly one production import: `roll_dice` in `bots/discord_dm_bot.py`. Everything else is referenced only by tests. The DM agent keeps its own ad-hoc `_gamestate` dict, `vtt_sync` formats initiative embeds straight from VTT pushes, and encounter difficulty is narrated by LLM without the deterministic math. The layer that would make the voice DM *mechanically consistent* (auto-applied damage, concentration prompts when a concentrating caster takes hits, spell-slot bookkeeping, voice-driven initiative advance) is decorative code that green tests make look load-bearing.
+
+**Proposed fix / improvement:**
+- [ ] Decide the intended owner of combat mechanics: wire the kernel in, or the LLM+VTT own it and the kernel shrinks.
+- [ ] If wiring in: make `InitiativeTracker` the DM agent's combat state ("next turn", "the goblin takes 7"), route VTT initiative pushes through the same tracker so Discord/kiosk/VTT share one source of truth, hook `check_concentration` on damage application, and feed `calculate_encounter_difficulty` into `encounter_agent` output.
+- [ ] If not: trim the unused kernel (keep `roll_dice`) so the test suite stops implying coverage of behavior no user can reach.
+
+**Blocked by:** a product decision (which is exactly why this is logged rather than implemented)
+
+**Related files:** `bmo/pi/services/game/dnd_engine.py`, `bmo/pi/agents/dnd/dnd_dm.py`, `bmo/pi/agents/dnd/vtt_sync.py`, `bmo/pi/agents/dnd/encounter_agent.py`, `bmo/pi/bots/discord_dm_bot.py`
+
+**Related entries:** none
+
+### [2026-07-15] First-party MCP surface stops at lists + 5e data — campaign memory, smart home, and monitoring state have no MCP server, so granted agents fall back to raw filesystem reads
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** scheduled improvement-suggestion scan of the bmo tree
+
+**Description:**
+`mcp_servers/` has a reusable `_stdio_server.py` base and exactly two first-party servers (`bmo_lists_server.py`, `dnd_data_server.py`). `mcp_settings.json` shows the gap concretely: the `smart_home` agent is granted only `mcp__filesystem__read_file`/`list_directory` — i.e. it reads state files raw instead of going through a typed, permission-gated surface; `CampaignMemory` (SQLite) is not reachable via MCP at all; monitoring/status-board state likewise. The conventions a new server needs are already established by `bmo_lists` (read tools open, writes behind `require_confirmation`), so each additional server is mostly schema + glue, and would benefit both BMO's own agents and any external Claude session pointed at the Pi.
+
+**Proposed fix / improvement:**
+- [ ] `campaign_memory` server: NPC/location/plot/note/session reads + confirmed writes over `services/game/campaign_memory.py`.
+- [ ] `smart_home` server: device list/status reads, device commands behind `require_confirmation`, replacing the filesystem-read grant.
+- [ ] Optional read-only `bmo_status` server: health-check summary, voice metrics, board state.
+- [ ] Wire per-agent grants in `mcp_settings.json` `agent_tools` (dnd agents → campaign_memory; smart_home → smart_home; dev-meta agents → bmo_status).
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/mcp_servers/_stdio_server.py`, `bmo/pi/mcp_servers/mcp_settings.json`, `bmo/pi/services/game/campaign_memory.py`, `bmo/pi/services/smart_home.py`
+
+**Related entries:** none
+
 ### [2026-07-15] `bmo/docs/AGENTS.md` "Adding a new agent" recipe has drifted from the real code on all four steps — flat module path, wrong base-class API (`async invoke` vs sync `run`), a `REGISTRY` dict that doesn't exist, and regex keywords the router would treat as never-matching substrings
 
 - **Category:** docs
