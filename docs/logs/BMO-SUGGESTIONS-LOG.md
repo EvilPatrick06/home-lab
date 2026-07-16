@@ -492,3 +492,7 @@ Net: the fan path is the least-portable, least-testable, least-consistent hardwa
 
 ---
 
+
+## 2026-07-15 — agents/home SYSTEM_PROMPTs carry unescaped literal braces (latent .format() footgun)
+- **Category:** observation | **Severity:** low | **Source:** bmo-phase-executer (PHASE-18 18A audit)
+- `bmo/pi/agents/home/calendar_agent.py`, `smart_home_agent.py`, `timer_agent.py`, `weather_agent.py`, `music_agent.py`: each `SYSTEM_PROMPT` contains literal `{...}` JSON examples and is used **raw** (never `.format()`ed) — correct today, but any future refactor that formats these templates (as every `agents/dev/*` sibling does) reproduces the PHASE-18 `KeyError` class. Suggest doubling the braces proactively or extending the PHASE-18 render-guard pattern to these modules when next touched.

@@ -17,7 +17,9 @@ so the constants under test are the genuine strings from agents/plan_agent.py.
 """
 
 import importlib
+import string
 import sys
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -53,3 +55,46 @@ def test_redesign_prompt_formats_cleanly(plan_agent):
     assert isinstance(redesign_prompt, str)  # guard: not a MagicMock
     out = redesign_prompt.format(current_plan="plan", feedback="feedback")
     assert "plan" in out and "feedback" in out
+
+
+def test_explore_prompt_formats_cleanly(plan_agent):
+    explore_prompt = plan_agent.EXPLORE_PROMPT
+    assert isinstance(explore_prompt, str)  # guard: not a MagicMock
+    out = explore_prompt.format(task="find the LED routes", tool_list="- read_file")
+    # The tool_call example must survive as literal single-brace JSON.
+    assert '{"tool": "tool_name", "args": {"param1": "value1"}}' in out
+    assert "find the LED routes" in out
+
+
+def test_every_prompt_constant_formats_cleanly(plan_agent):
+    """Generic guard: every module-level *_PROMPT string in plan_agent must
+    .format() cleanly with exactly its declared placeholders, so a future
+    template (or edit) with an unescaped literal brace fails CI here."""
+    constants = {name: val for name, val in vars(plan_agent).items()
+                 if name.endswith("_PROMPT") and isinstance(val, str)}
+    assert len(constants) >= 3, "expected EXPLORE/DESIGN/REDESIGN at minimum"
+    for name, tpl in constants.items():
+        fields = {f for _, f, _, _ in string.Formatter().parse(tpl) if f}
+        try:
+            tpl.format(**{f: "x" for f in fields})
+        except (KeyError, IndexError, ValueError) as e:
+            pytest.fail(f"{name} does not render cleanly ({e!r}) — unescaped literal brace?")
+
+
+def test_design_smoke_no_keyerror(plan_agent):
+    """_design() end-to-end with a mocked LLM + scratchpad: the KeyError path is
+    dead and the rendered prompt reaches the LLM with the examples intact."""
+    scratchpad = MagicMock()
+    scratchpad.read = MagicMock(return_value="")
+    agent = plan_agent.create_plan_agent(scratchpad, services={})
+    agent.llm_call = MagicMock(return_value="## Plan: Add a header comment")
+
+    result = agent.run("add a header comment", [], {"phase": "design"})
+
+    assert result.text == "## Plan: Add a header comment"
+    assert result.scratchpad_writes == ["Plan"]
+    scratchpad.write.assert_called_once_with("Plan", "## Plan: Add a header comment")
+    sys_msg = agent.llm_call.call_args[0][0][0]
+    assert sys_msg["role"] == "system"
+    assert '{state:"breathing", color:"purple", brightness:40}' in sys_msg["content"]
+    assert "add a header comment" in sys_msg["content"]

@@ -2,6 +2,10 @@
 
 > Authored 2026-07-02 from `bmo/docs/phases/QA/QA-report-2026-07-02.md` (run 4, live deploy `4c7bcd82`). Order/dependencies: [`PHASE-INDEX.md`](./PHASE-INDEX.md). Execute per [`INSTRUCTIONS.md`](./INSTRUCTIONS.md).
 
+> **Re-anchor 2026-07-15 (rule 3):** two drifts since authoring, verified against `origin/master@d6699d52`:
+> 1. **Path:** `bmo/pi/agents/plan_agent.py` moved to `bmo/pi/agents/dev/plan_agent.py` (`596f7f0e`, flat `agents/` grouped into `dnd/ home/ dev/` subpackages). All file citations below read accordingly.
+> 2. **18A already landed:** the log-resolver batch `a291bbd1` escaped both DESIGN_PROMPT brace literals (now `:49`/`:51` in the moved file) and added `tests/agents/test_plan_agent_prompts.py` with DESIGN/REDESIGN render tests. The F1 repro is silent at HEAD. **Remaining scope executed by this phase = the rest of 18B:** EXPLORE_PROMPT render test, the generic every-`*_PROMPT`-constant guard, and the `_design()` mocked-LLM smoke test.
+
 ## Goal
 
 Fix the report's single **HIGH** finding: the Plan agent crashes on **every** request. Selecting the Plan agent in the chat agent picker and sending any task returns the generic "I had trouble building that plan — try a different phrasing…" bubble; the plan review/approve/cancel flow is unreachable. The server log shows an unhandled `KeyError: 'state'` from `plan_agent.py` `_design()` on every attempt.
@@ -123,3 +127,8 @@ EOF
 
 - **Friendlier failure copy in the chat bubble** when an agent throws (the generic "I had trouble building that plan…" hides the real error class) — worth a log entry (`docs/logs/BMO-SUGGESTIONS-LOG.md`), not this fix.
 - **Switching prompt templating away from `str.format`** — see 18A step 3.
+
+## Completed
+
+- **18A** — already landed pre-phase via the log-resolver batch `a291bbd1` (braces escaped at `bmo/pi/agents/dev/plan_agent.py:49,51`; F1 repro silent). Re-verified 2026-07-15 at `origin/master@d6699d52`; audit re-run across `bmo/pi/agents/`: every `.format()`-rendered template (router `CLASSIFICATION_PROMPT`, all `dev/*` `SYSTEM_PROMPT`s, code_agent, plan_agent x3) renders cleanly. Note: `agents/home/{calendar,smart_home,timer,weather,music}_agent.py` `SYSTEM_PROMPT`s contain unescaped literal braces but are never `.format()`ed (used raw) — no defect today; logged as a latent-footgun suggestion in `docs/logs/BMO-SUGGESTIONS-LOG.md`.
+- **18B** — completed the test coverage in `bmo/pi/tests/agents/test_plan_agent_prompts.py` (DESIGN/REDESIGN render tests pre-existed from `a291bbd1`): added `test_explore_prompt_formats_cleanly` (EXPLORE example survives as single-brace JSON), `test_every_prompt_constant_formats_cleanly` (generic guard over every module-level `*_PROMPT` via `string.Formatter`), and `test_design_smoke_no_keyerror` (`_design()` end-to-end with mocked LLM + scratchpad: `AgentResult.text`, `scratchpad_writes=["Plan"]`, rendered system prompt carries the single-braced examples). Negative check performed: un-escaping one brace fails 3/5 tests; restored, 5/5 green, ruff clean.
