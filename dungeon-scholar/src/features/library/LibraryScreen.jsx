@@ -251,7 +251,7 @@ function LibraryScreen({
             </button>
             <button
               onClick={onImport}
-              className="px-4 py-2 rounded-sm text-sm font-bold text-amber-950 border-2 border-amber-300 flex items-center gap-2 italic"
+              className="px-4 py-2 rounded-sm text-sm font-bold btn-gold-ink border-2 border-amber-300 flex items-center gap-2 italic"
               style={{
                 background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
                 boxShadow: '0 0 15px rgba(245, 158, 11, 0.4)',
@@ -458,13 +458,13 @@ function LibraryScreen({
                         : 'rgba(10,6,4,0.7)',
                     }}
                   >
-                    {selectedIds.has(tome.id) && <Check className="w-4 h-4 text-amber-950" aria-hidden="true" />}
+                    {selectedIds.has(tome.id) && <Check className="w-4 h-4 btn-gold-ink" aria-hidden="true" />}
                   </button>
                 )}
 
                 {isActive && (
                   <div
-                    className="absolute top-3 right-3 text-xs px-3 py-1 rounded-sm text-amber-950 font-bold tracking-wider"
+                    className="absolute top-3 right-3 text-xs px-3 py-1 rounded-sm btn-gold-ink font-bold tracking-wider"
                     style={{
                       background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
                       boxShadow: '0 0 10px rgba(245, 158, 11, 0.5)',
@@ -655,7 +655,7 @@ function LibraryScreen({
                     {!isActive && (
                       <button
                         onClick={() => onSwitch(tome.id)}
-                        className="flex-1 min-w-[120px] py-2 rounded-sm text-sm font-bold text-amber-950 border-2 border-amber-300 italic"
+                        className="flex-1 min-w-[120px] py-2 rounded-sm text-sm font-bold btn-gold-ink border-2 border-amber-300 italic"
                         style={{
                           background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
                           boxShadow: '0 0 12px rgba(245, 158, 11, 0.4)',
@@ -667,7 +667,7 @@ function LibraryScreen({
                     {isActive && (
                       <button
                         onClick={() => setScreen('home')}
-                        className="flex-1 min-w-[120px] py-2 rounded-sm text-sm font-bold text-amber-950 border-2 border-amber-300 italic"
+                        className="flex-1 min-w-[120px] py-2 rounded-sm text-sm font-bold btn-gold-ink border-2 border-amber-300 italic"
                         style={{
                           background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
                           boxShadow: '0 0 12px rgba(245, 158, 11, 0.4)',

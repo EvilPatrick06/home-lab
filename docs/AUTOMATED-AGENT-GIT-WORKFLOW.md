@@ -73,6 +73,14 @@ git fetch origin --quiet
 git rebase origin/master      # your OWN branch onto master — allowed (see "never rebase shared state")
 ```
 
+> **JS toolchain note (2026-07-15):** run `npm ci` in YOUR worktree before any
+> JS checks, and invoke tools via `npm run <script>` or `./node_modules/.bin/…`
+> — never bare `npx biome` / `npx tsc`. When the local install is missing, bare
+> `npx` silently downloads the same-named REGISTRY packages (the deprecated
+> `biome` squatter, the joke `tsc` package) and reports garbage instead of
+> failing loudly. (Observed 2026-07-15 when the main checkout drifted to a
+> prod-only install.)
+
 ### Work, commit, push — only on your own branch
 
 ```bash

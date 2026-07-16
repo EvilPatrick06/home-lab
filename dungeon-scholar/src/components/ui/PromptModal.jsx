@@ -237,7 +237,7 @@ function PromptViewer({ org, examTarget, setExamTarget, finalPrompt, copied, onC
       <div className="p-4 border-t border-amber-700/50 flex gap-2">
         <button
           onClick={onCopy}
-          className="flex-1 py-3 font-bold rounded-sm flex items-center justify-center gap-2 text-amber-950 border-2 border-amber-300 italic"
+          className="flex-1 py-3 font-bold rounded-sm flex items-center justify-center gap-2 btn-gold-ink border-2 border-amber-300 italic"
           style={{
             background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
             boxShadow: '0 0 20px rgba(245, 158, 11, 0.5)',

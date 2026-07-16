@@ -78,7 +78,7 @@ describe('AccountPanel — destructive flows (Phase-30 QA gap)', () => {
     // Step 2: type the github login to enable the permanent-delete button.
     fireEvent.change(screen.getByRole('textbox'), { target: { value: 'pat' } });
     // Step 3: confirm.
-    fireEvent.click(screen.getByText(/Permanently delete account/i));
+    fireEvent.click(screen.getByText(/Yes, delete account data/i));
 
     await waitFor(() => expect(deleteAccount).toHaveBeenCalledWith('u1'));
     expect(signOut).toHaveBeenCalledTimes(1);
@@ -92,7 +92,7 @@ describe('AccountPanel — destructive flows (Phase-30 QA gap)', () => {
 
     fireEvent.click(screen.getByText(/^Delete account$/i));
     fireEvent.change(screen.getByRole('textbox'), { target: { value: 'pat' } });
-    fireEvent.click(screen.getByText(/Permanently delete account/i));
+    fireEvent.click(screen.getByText(/Yes, delete account data/i));
 
     await waitFor(() => expect(deleteAccount).toHaveBeenCalledWith('u1'));
     // signOut runs only AFTER a successful deleteAccount — the throw skips it.
@@ -100,6 +100,6 @@ describe('AccountPanel — destructive flows (Phase-30 QA gap)', () => {
     expect(onAfterDeleteAccount).not.toHaveBeenCalled();
     expect(onClose).not.toHaveBeenCalled();
     // The account-confirm UI is still mounted (panel stayed open).
-    expect(screen.getByText(/Permanently delete account/i)).toBeInTheDocument();
+    expect(screen.getByText(/Yes, delete account data/i)).toBeInTheDocument();
   });
 });

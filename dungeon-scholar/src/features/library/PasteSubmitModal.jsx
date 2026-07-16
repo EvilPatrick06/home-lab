@@ -35,7 +35,7 @@ const ACCENTS = {
     btnBg: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
     btnShadow: '0 0 20px rgba(245, 158, 11, 0.5)',
     btnBorder: 'border-amber-300',
-    btnText: 'text-amber-950',
+    btnText: 'btn-gold-ink',
   },
 };
 

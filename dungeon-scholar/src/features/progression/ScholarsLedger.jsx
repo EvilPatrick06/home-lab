@@ -5,9 +5,9 @@ import { RecordTile } from '../../components/ui/RecordTile.jsx';
 import { getTitle } from '../../game/titles.js';
 import { barColor, tierLabel } from '../../services/accuracyPalette.js';
 import { isTomeMastered, tomeMasteryPct } from '../../services/certificate.js';
+import { dueCountExpanded } from '../../services/cloze.js';
 import { LEECH_LAPSE_THRESHOLD, listLeeches } from '../../services/leech.js';
 import { isSealedTome } from '../../services/sealedTome.js';
-import { dueCount } from '../../services/srs.js';
 import CertificateModal from './CertificateModal.jsx';
 
 // S2: Scholar's Ledger — a learner-facing analytics view aggregating the
@@ -17,7 +17,7 @@ function ScholarsLedger({ playerState, setScreen, scholarName, onSuspendCard, on
   const unsealed = (t) => !isSealedTome(t.data);
   const cardsReviewed = lib.reduce((s, t) => s + (t.progress?.cardsReviewed || 0), 0);
   const due = lib.reduce(
-    (s, t) => s + (unsealed(t) ? dueCount(t.progress?.cardProgress || {}, t.data?.flashcards || []) : 0),
+    (s, t) => s + (unsealed(t) ? dueCountExpanded(t.progress?.cardProgress || {}, t.data?.flashcards || []) : 0),
     0,
   );
   const inRotation = lib.reduce((s, t) => s + Object.keys(t.progress?.cardProgress || {}).length, 0);
@@ -263,7 +263,7 @@ function ScholarsLedger({ playerState, setScreen, scholarName, onSuspendCard, on
                 <div className="text-amber-200/70 tabular-nums">{d.pct}%</div>
                 <button
                   onClick={() => setCertTome(d)}
-                  className="px-3 py-1 rounded-sm border-2 border-amber-300 text-amber-950 font-bold italic text-xs flex items-center gap-1"
+                  className="px-3 py-1 rounded-sm border-2 border-amber-300 btn-gold-ink font-bold italic text-xs flex items-center gap-1"
                   style={{ background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 50%, #b45309 100%)' }}
                 >
                   <Award className="w-3 h-3" /> Certificate

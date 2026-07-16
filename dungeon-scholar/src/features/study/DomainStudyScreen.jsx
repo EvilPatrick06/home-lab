@@ -1,6 +1,7 @@
 import { ArrowLeft, BookOpen, Brain, Calendar, Flame, Scroll, Swords, Target, TrendingUp } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { rampForPct, tierLabel } from '../../services/accuracyPalette.js';
+import { dueCountExpanded } from '../../services/cloze.js';
 import { todayDateStr } from '../../services/devotion.js';
 import { computeExamPace } from '../../services/examPace.js';
 import { computeExamPrediction } from '../../services/examPrediction.js';
@@ -165,6 +166,15 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
     [isCombined, weights, stats],
   );
 
+  // issue-studyplan-duecount (2026-07-15): the plan's first-priority "clear
+  // N due reviews" action was unreachable because no dueCount was ever passed.
+  // Count the selected scope over the cloze-EXPANDED deck (issue-cloze-due-
+  // count) so the number matches what the review queue actually serves.
+  const planDueCount = useMemo(() => {
+    const tomes = isCombined ? library : selectedTome ? [selectedTome] : [];
+    return tomes.reduce((s, t) => s + dueCountExpanded(t.progress?.cardProgress || {}, t.data?.flashcards || []), 0);
+  }, [isCombined, library, selectedTome]);
+
   // sugg-study-plan: compose exam pace + prediction + weakest domain into a
   // single actionable "what to study today" recommendation.
   const studyPlan = useMemo(
@@ -173,8 +183,9 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
         examPace,
         prediction: examPrediction ? { predictedScore: examPrediction.predictedPct } : null,
         weakestDomain,
+        dueCount: planDueCount,
       }),
-    [examPace, examPrediction, weakestDomain],
+    [examPace, examPrediction, weakestDomain, planDueCount],
   );
 
   // 26h: memory-forecast aggregation. Build a flat list of SRS states

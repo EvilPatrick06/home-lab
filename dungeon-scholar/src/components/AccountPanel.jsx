@@ -327,7 +327,8 @@ export function AccountPanel({
         {confirmKind === 'account' && (
           <div className="flex flex-col gap-3">
             <p className="text-sm text-amber-200 italic">
-              This deletes thy account and cloud save. Local progress remains. Type{' '}
+              This deletes thy cloud save and profile. Local progress remains. Thy sign-in record (GitHub identity) is
+              kept by the cloud keeper until removed there — see the setup scroll for the manual purge rite. Type{' '}
               <code className="text-red-300">{user.githubLogin}</code> to confirm.
             </p>
             <input
@@ -340,7 +341,7 @@ export function AccountPanel({
               disabled={busy || typedConfirm !== user.githubLogin}
               className="w-full px-3 py-2 rounded-sm border-2 border-red-800 text-red-300 italic text-sm hover:bg-red-900/30 disabled:opacity-50"
             >
-              Permanently delete account
+              Yes, delete account data
             </button>
             <button
               onClick={() => {

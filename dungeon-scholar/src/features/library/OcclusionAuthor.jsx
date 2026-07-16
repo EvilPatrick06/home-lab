@@ -208,7 +208,7 @@ function OcclusionAuthor({ onClose, onCreate }) {
             onClick={create}
             disabled={!image || masks.length === 0}
             data-autofocus
-            className="px-4 py-2 rounded-sm border-2 border-amber-300 text-amber-950 font-bold italic flex items-center gap-2 disabled:opacity-40"
+            className="px-4 py-2 rounded-sm border-2 border-amber-300 btn-gold-ink font-bold italic flex items-center gap-2 disabled:opacity-40"
             style={{ background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 50%, #b45309 100%)' }}
           >
             <Check className="w-4 h-4" /> Inscribe Tome

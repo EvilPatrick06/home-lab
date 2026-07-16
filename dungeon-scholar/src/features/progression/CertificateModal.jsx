@@ -107,7 +107,7 @@ function CertificateModal({ scholarName, tomeTitle, title, masteryPct, onClose }
             onClick={() => downloadDataUrl(dataUrl, filename)}
             disabled={!dataUrl}
             data-autofocus
-            className="px-4 py-2 rounded-sm border-2 border-amber-300 text-amber-950 font-bold italic flex items-center gap-2 disabled:opacity-40"
+            className="px-4 py-2 rounded-sm border-2 border-amber-300 btn-gold-ink font-bold italic flex items-center gap-2 disabled:opacity-40"
             style={{ background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 50%, #b45309 100%)' }}
           >
             <Download className="w-4 h-4" /> Download PNG

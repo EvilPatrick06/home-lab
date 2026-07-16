@@ -125,6 +125,17 @@ html[data-theme="light"] {
   --accent-gold-ink: #92400e; /* amber-800 dark ink, >=4.5:1 on #fde68a/#fef3c6 */
   --accent-purple-ink: #6b21a8; /* purple-800 dark ink, >=4.5:1 on #f3e8ff */
 }
+/* issue-light-theme-gold-buttons (2026-07-15, owner-approved): non-inverting ink
+ * for the app-wide gold action-button family. The gold gradient
+ * (linear-gradient(#fde047, #f59e0b)) is a fixed inline style that does NOT
+ * re-theme, so its label must not ride the inverted amber ramp (text-amber-950
+ * flips to near-white on light, giving light-on-gold). #451a03 is the Tailwind
+ * amber-950 hex — byte-identical to the previous dark-theme rendering — and is
+ * the same ink ChatMode already hardcodes inline for its gold toggle pills. */
+.btn-gold-ink {
+  color: #451a03;
+}
+
 html[data-theme="light"] body {
   background: #fafaf9; /* stone-50 base — neutral warm off-white */
 }

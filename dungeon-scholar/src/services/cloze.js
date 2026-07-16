@@ -9,6 +9,8 @@
 // span into a study item, mirroring how services/occlusion.js derives per-region
 // cards. Kept pure + unit-testable; the study/import layers consume the output.
 
+import { dueCount } from './srs.js';
+
 // Matches {{c<N>::answer}} or {{c<N>::answer::hint}} or bare {{answer}}.
 // Group 1 = optional cluster number (c1 -> "1"); rest is the payload.
 const CLOZE_RE = /\{\{(?:c(\d+)::)?([^{}]*?)\}\}/g;
@@ -106,4 +108,15 @@ export function expandClozeDeck(cards) {
     else if (c) out.push(c);
   }
   return out;
+}
+
+// issue-cloze-due-count (2026-07-15): due-count over the EXPANDED deck. SRS
+// ratings are keyed on the expanded `<id>_cN` items (FlashcardsMode expands at
+// deck build), so counting over the RAW flashcards makes every cloze source
+// card permanently "due" (its raw id never gains a progress entry) and counts
+// a multi-cluster card as 1 instead of N. Every due-count surface must count
+// the same items the review queue actually serves — use this, not raw
+// dueCount, wherever the card list may contain cloze cards.
+export function dueCountExpanded(cardProgressMap, cards, now = Date.now()) {
+  return dueCount(cardProgressMap, expandClozeDeck(cards), now);
 }

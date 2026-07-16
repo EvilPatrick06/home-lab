@@ -49,3 +49,20 @@ describe('buildStudyPlan', () => {
     expect(plan.headline).toContain('Exam day');
   });
 });
+
+describe('past-exam state (issue-studyplan-past-headline)', () => {
+  it("gives the past-exam state its own headline instead of 'No exam scheduled'", () => {
+    const plan = buildStudyPlan({ examPace: { status: 'past', daysRemaining: -3 } });
+    expect(plan.headline).toBe('Exam date passed - set a new goal');
+    expect(plan.actions.join(' ')).toMatch(/new exam date/i);
+  });
+
+  it('never renders negative days in the on-track headline after the exam date', () => {
+    const plan = buildStudyPlan({
+      examPace: { status: 'past', daysRemaining: -3 },
+      prediction: { predictedScore: 90 },
+    });
+    expect(plan.headline).toBe('On track - keep it up');
+    expect(plan.headline).not.toMatch(/-3/);
+  });
+});
