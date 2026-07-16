@@ -23,6 +23,12 @@ paths = [
   # so a secret inlined in any OTHER minified bundle (e.g. a frontend prod build)
   # is still caught by the gate.
   '''bmo/pi/web/static/js/.*\.min\.js$''',
+  # Same vendored bundles at their PRE-REORG historical path. The 2026-06
+  # reorg moved BMO-setup/pi/static/ -> bmo/pi/web/static/; the weekly
+  # full-history sweep still re-hits xterm.min.js's "FourKeyMap" false
+  # positive at the old path (commits 4aa30d38, a8982df1), so allowlist it
+  # too. History-only: the file no longer exists in the current tree.
+  '''BMO-setup/pi/static/js/.*\.min\.js$''',
   # Natural-language LLM prompt text (not a secret store): the generic-api-key
   # rule false-matched the prose "Cloud KMS key management".
   '''dungeon-scholar/src/prompts/google\.js$''',
