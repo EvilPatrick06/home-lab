@@ -234,3 +234,52 @@ The root `Makefile` presents itself as the uniform fan-out for the whole monorep
 
 **Related entries:** RESOLVED-ISSUES.md -> [2026-06-29] `_archive/README.md` stale-tree entry and the docs/superpowers archive entries (same completed-doc-lingering pattern).
 
+
+### [2026-07-15] Repo-wide onboarding/architecture docs never absorbed oracle-worker (or dnd-app/mobile) — ARCHITECTURE, DATA-FLOW, SETUP, COMMANDS, GLOSSARY, and copilot-instructions still describe a three-project repo
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+- **During:** scheduled cross-cutting cleanup scan (2026-07-15); comparing the repo-wide `docs/` set and the five agent-instruction files against the actual project set.
+
+**Description:**
+The mechanical surfaces fully absorbed the fourth project: `Makefile` fans out to oracle-worker for install/lint/typecheck/test/build/audit, `.github/dependabot.yml` and `oracle-worker-ci.yml`/`oracle-worker-deploy.yml` cover it, `.husky/pre-commit` has an oracle-worker pre-flight block, and `docs/LOG-INSTRUCTIONS.md` has an explicit oracle-worker triage edge-case. The *human-facing repo-wide docs* did not: `docs/ARCHITECTURE.md` is titled "dnd-app + bmo + dungeon-scholar", opens with "How the three projects relate", and its Project-boundaries table has exactly three rows (no oracle-worker, no mobile); `docs/DATA-FLOW.md` has zero oracle-worker mentions; `docs/SETUP.md` ("Full clone-to-running guide") has no oracle-worker or dnd-app/mobile setup section (zero "mobile" hits); `docs/COMMANDS.md` has per-directory sections for dnd-app/bmo/dungeon-scholar but none for oracle-worker or mobile; `docs/GLOSSARY.md` has no Oracle/oracle-worker entry. Worst is `.github/copilot-instructions.md`: its "Monorepo Layout" block lists only three projects (plus `_archive`/`docs`), asserts "Three domains.", and is the ONLY one of the five agent-instruction files with zero oracle-worker mentions — so Copilot PR review is working from a project map that predates the fourth project. The root `README.md` got the equivalent fix on 2026-07-02 (RESOLVED-ISSUES.md: "Root README pointer list omits oracle-worker"), but the sweep stopped at README; the rest of the doc set kept the three-project worldview.
+
+**Hypothesis / root cause:** oracle-worker (and the mobile npm root) were added after the repo-wide docs were written; each integration touchpoint (CI, Makefile, dependabot, hooks, log triage) was updated when it broke or was scanned, but nothing forces the prose docs to enumerate the project set, so they silently aged. Same convention-without-mechanism family as the dormant SYNC:agents guard.
+
+**Proposed fix / improvement:**
+- [ ] Add an oracle-worker row (runtime: Cloudflare Worker, wrangler; talks to: dungeon-scholar Oracle proxy) and a dnd-app/mobile note to `docs/ARCHITECTURE.md`'s boundaries table, and retitle/reword the "three projects" framing.
+- [ ] Add oracle-worker + mobile sections (or one-line pointers to their READMEs) to `docs/SETUP.md` and `docs/COMMANDS.md`; add Oracle / oracle-worker to `docs/GLOSSARY.md`; mention the oracle-worker hop in `docs/DATA-FLOW.md` where dungeon-scholar's Oracle flow appears.
+- [ ] Update `.github/copilot-instructions.md`'s Monorepo Layout + "Three domains" claim to the real project set (four projects + mobile), and fold this file into whichever SYNC-marker/pointer fix the 2026-07-02 drift-guard entry lands on so it cannot silently age again.
+
+**Blocked by:** none.
+
+**Related files:** `docs/ARCHITECTURE.md`, `docs/DATA-FLOW.md`, `docs/SETUP.md`, `docs/COMMANDS.md`, `docs/GLOSSARY.md`, `.github/copilot-instructions.md`, `oracle-worker/README.md`
+
+**Related entries:** RESOLVED-ISSUES.md -> [2026-07-02] "Root README.md pointer list omits oracle-worker/README.md" (this is the rest of that sweep); SUGGESTIONS-LOG.md -> [2026-07-02] SYNC:agents drift-guard entry (copilot-instructions is its worst live instance).
+
+### [2026-07-15] Two contradictory bmo deploy runbooks — `bmo/docs/DEPLOY.md` still teaches the pre-decoupling "pull the shared dev tree" model that `docs/BMO-DEPLOY.md` was written to replace, with no cross-links and `docs/COMMANDS.md` deep-linking only the stale one
+
+- **Category:** docs
+- **Severity:** medium
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+- **During:** scheduled cross-cutting cleanup scan (2026-07-15); reviewing `docs/` organization for duplicated/contradictory runbooks spanning repo-wide docs and per-project docs.
+
+**Description:**
+The repo has two deploy runbooks for the same process that describe different models. `docs/BMO-DEPLOY.md` (canonical per its own header and per `AUTOMATED-AGENT-GIT-WORKFLOW.md`'s deploy note) documents the decoupled model: `deploy.sh` fetch+`reset --hard`s a dedicated deploy-owned checkout at `/home/patrick/home-lab-deploy`, precisely so the shared dev/integrator tree can never pollute a deploy. `bmo/docs/DEPLOY.md` (263 lines, zero mentions of `home-lab-deploy` or BMO-DEPLOY.md) still describes deploys as operating on the shared dev tree: "fetches, ff-only merges" in `~/home-lab`, a "raw fallback" of `ssh … "cd ~/home-lab && git pull && sudo systemctl restart bmo"` (mutating the tree ~16 scheduled agents and the integrator coordinate on — exactly the failure mode the decoupling exists to prevent), and dependency updates via `cd ~/home-lab/bmo/pi && ./venv/bin/pip install …` (the dev tree's venv, no longer necessarily what the live services run). Neither doc links the other, so a reader landing on either has no signal a second, disagreeing runbook exists — and the repo-wide cheat sheet `docs/COMMANDS.md` deep-links ONLY the stale one ("BMO deploy: ../bmo/docs/DEPLOY.md"). The offline link checker (`check-md-links.sh`) can't catch this: every link resolves; the drift is semantic. This is a one-process-two-homes docs-organization failure spanning `docs/` and `bmo/docs/`.
+
+**Hypothesis / root cause:** PHASE-42 introduced `deploy.sh` and partially updated `bmo/docs/DEPLOY.md` (it does recommend the script), but the later deploy-decoupling work (`/home/patrick/home-lab-deploy`, documented in the new top-level `docs/BMO-DEPLOY.md`) never swept the older per-project runbook, and no "one home per runbook" convention exists to force the merge.
+
+**Proposed fix / improvement:**
+- [ ] Make `docs/BMO-DEPLOY.md` the single deploy runbook. Rewrite `bmo/docs/DEPLOY.md` as a short pointer to it, keeping only the genuinely bmo-local dev ergonomics (partial-restart table, hot-reload loop) — updated to state they apply to on-Pi *development*, not deploys, and that live services run from the deploy checkout.
+- [ ] Delete/replace the "raw fallback" `git pull` in `~/home-lab` guidance (the shared dev tree must not be a deploy path) and fix the pip-update section to target the checkout the services actually run from.
+- [ ] Point `docs/COMMANDS.md`'s "BMO deploy" link at `docs/BMO-DEPLOY.md`, and cross-link the two docs.
+- [ ] Optionally note the convention in `docs/CONTRIBUTING.md`: a process gets ONE canonical runbook; per-project docs point, they do not restate.
+
+**Blocked by:** none.
+
+**Related files:** `bmo/docs/DEPLOY.md`, `docs/BMO-DEPLOY.md`, `docs/COMMANDS.md`, `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`, `bmo/pi/scripts/deploy.sh`
+
+**Related entries:** BMO-ISSUES-LOG.md -> [2026-07-15] deploy-isolation violation (live MCP child spawned from the dev tree — the runtime cousin of this docs split); RESOLVED-ISSUES.md -> the deploy-decoupling introduction entry.
