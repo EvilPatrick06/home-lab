@@ -37,6 +37,8 @@
 | 12 | [`PHASE-12-light-theme-active-tome-panel-accent-contrast.md`](./completed/PHASE-12-light-theme-active-tome-panel-accent-contrast.md) | dungeon-scholar | — | done |
 | 13 | [`PHASE-13-deeplink-reset-race-auth-refresh-reachability-probe.md`](./completed/PHASE-13-deeplink-reset-race-auth-refresh-reachability-probe.md) | dungeon-scholar | — | done |
 | 14 | [`completed/PHASE-14-sealed-export-strip-occlusion-fallback-qa-docs-round.md`](./completed/PHASE-14-sealed-export-strip-occlusion-fallback-qa-docs-round.md) | dungeon-scholar | — | done |
+| 15 | [`PHASE-15-supabase-outage-stale-token-purge-backend-decision.md`](./PHASE-15-supabase-outage-stale-token-purge-backend-decision.md) | dungeon-scholar | — | pending |
+| 16 | [`PHASE-16-devotion-streak-stat-light-theme-tome-card-chip-sweep.md`](./PHASE-16-devotion-streak-stat-light-theme-tome-card-chip-sweep.md) | dungeon-scholar | — | pending |
 
 
 > **Provenance narrative moved.** The per-run `Source (NN)` provenance blockquotes
