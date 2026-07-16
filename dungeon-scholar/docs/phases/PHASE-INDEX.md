@@ -33,7 +33,7 @@
 | 08 | [`completed/PHASE-08-routing-hero-exam-jank-oracle-sources-auth-circuit-breaker.md`](./completed/PHASE-08-routing-hero-exam-jank-oracle-sources-auth-circuit-breaker.md) | dungeon-scholar | — | done |
 | 09 | [`completed/PHASE-09-user-facing-date-format-consistency.md`](./completed/PHASE-09-user-facing-date-format-consistency.md) | dungeon-scholar | — | done |
 | 10 | [`completed/PHASE-10-light-theme-accent-text-danger-button-contrast.md`](./completed/PHASE-10-light-theme-accent-text-danger-button-contrast.md) | dungeon-scholar | — | done |
-| 11 | [`PHASE-11-routing-headings-vault-exam-quest-copy-round.md`](./PHASE-11-routing-headings-vault-exam-quest-copy-round.md) | dungeon-scholar | — | done — F1/F2/F3/F5 + F4/11D (11D landed 2026-07-03, owner-approved) |
+| 11 | [`completed/PHASE-11-routing-headings-vault-exam-quest-copy-round.md`](./completed/PHASE-11-routing-headings-vault-exam-quest-copy-round.md) | dungeon-scholar | — | done — F1/F2/F3/F5 + F4/11D (11D landed 2026-07-03, owner-approved) |
 | 12 | [`PHASE-12-light-theme-active-tome-panel-accent-contrast.md`](./completed/PHASE-12-light-theme-active-tome-panel-accent-contrast.md) | dungeon-scholar | — | done |
 | 13 | [`PHASE-13-deeplink-reset-race-auth-refresh-reachability-probe.md`](./completed/PHASE-13-deeplink-reset-race-auth-refresh-reachability-probe.md) | dungeon-scholar | — | done |
 
