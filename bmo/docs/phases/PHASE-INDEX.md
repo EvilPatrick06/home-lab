@@ -44,6 +44,10 @@
 | 19 | [`PHASE-19-destructive-and-noop-control-actions.md`](./PHASE-19-destructive-and-noop-control-actions.md) | bmo | — | pending |
 | 20 | [`PHASE-20-dashboard-layout-music-notifications-ux.md`](./PHASE-20-dashboard-layout-music-notifications-ux.md) | bmo | 17 (soft) | pending |
 | 21 | [`PHASE-21-docs-auth-surface-and-csp-truth.md`](./PHASE-21-docs-auth-surface-and-csp-truth.md) | bmo | — | pending |
+| 22 | [`PHASE-22-chat-model-quota-fallback.md`](./PHASE-22-chat-model-quota-fallback.md) | bmo | — | pending |
+| 23 | [`PHASE-23-calendar-reauth-flow-truth.md`](./PHASE-23-calendar-reauth-flow-truth.md) | bmo | — | pending |
+| 24 | [`PHASE-24-control-state-truth.md`](./PHASE-24-control-state-truth.md) | bmo | 19, 20 (soft) | pending |
+| 25 | [`PHASE-25-dashboard-hygiene-copy-round.md`](./PHASE-25-dashboard-hygiene-copy-round.md) | bmo | 17, 20, 24 (soft) | pending |
 
 > **Provenance of this batch:** PHASE-01..03 were consolidated from
 > `QA/QA-report-2026-06-24.md` (now in `QA/completed/`) by the bmo phase-maker on
@@ -209,4 +213,37 @@
 > notes either side could be the stale one) and the **`/ide` AudioContext
 > console flood** (unverified — likely a headless-test-browser artifact; re-check
 > in a real browser next run). The bmo-phase-executer updates the Status column
+> (`pending` -> `in progress` -> `done`) as it ships each plan.
+
+> **Provenance of this batch (22-25):** PHASE-22..25 were consolidated from
+> `QA/QA-report-2026-07-15.md` (run 5, live deploy `d6699d52`, runtime identical
+> to `e03664fa`, now in `QA/completed/`) by the bmo phase-maker on 2026-07-15,
+> verified against `origin/master@f2300ac8`. Layer split: **22** = the headline
+> **High** — Plan-tier agents are pinned to `gemini-3.1-pro` whose free-tier
+> quota is 0, with no 429 fallback (quota ladder Pro->Flash->local, stop
+> poisoning the global cloud flag on 4xx, structured chat-error events +
+> cause-specific copy). **23** = the second **High** — the in-dashboard calendar
+> re-auth is broken end-to-end (dead OOB manual mode replaced with the
+> paste-redirect-URL flow, popup-failure surfacing, needs-auth vs offline copy
+> split, refresh-flood circuit breaker, `[cal] recovered` gating); registering
+> the loopback/CF redirect URIs on the OAuth client is an **owner console
+> action**, called out in the plan. **24** = control-surface state truth (the
+> LED mode/enabled contract desync; the TV worker`s empty-string errors that
+> 200 through every truthiness check + disconnected-remote affordance; status
+> summary as-of stamps and the localStorage pill seed). **25** = the low/info
+> hygiene round (health-pill detail popover, quip-vs-pending-request interleave
+> + retiring the no-timers nudge, playlist view-count-as-tracks mapping, the
+> `yt3.ggpht.com` img-src CSP gap, the form-less Wi-Fi password input, and the
+> copy nit batch: alarm-toast culprit, whole-header tap-target, chrome-flags
+> caveat). Dependencies are **soft** — 24 touches `app.py`/`bmo.js` lines near
+> pending 19/20 work and 25A/25F share header lines with 20A, so re-anchor and
+> coordinate; any order lands. 22->23->24->25 (high->high->medium->low) is the
+> recommended order. **Not re-planned as code phases:** the calendar token
+> reauth itself and the OAuth redirect-URI registration (owner actions; the
+> latter is called out in PHASE-23), the Pi thermal margin / PSU
+> "throttled since boot" flags (hardware/owner item — 24C only makes reporting
+> honest), and the re-verified findings already planned in pending phases: the
+> Unmute CTA (19B), OLED-disabled face acks (19D), the always-empty Queue panel
+> (20C), narrow-viewport header/nav (20A/20B), and the Places-loader CSP
+> contradiction (21C). The bmo-phase-executer updates the Status column
 > (`pending` -> `in progress` -> `done`) as it ships each plan.
