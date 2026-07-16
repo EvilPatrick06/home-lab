@@ -40,7 +40,7 @@
 | 15 | [`PHASE-15-chat-transcript-management.md`](./completed/PHASE-15-chat-transcript-management.md) | bmo | — | done |
 | 16 | [`PHASE-16-chat-agent-action-execution-truth.md`](./completed/PHASE-16-chat-agent-action-execution-truth.md) | bmo | — | done |
 | 17 | [`PHASE-17-dashboard-health-signal-ux-truth.md`](./completed/PHASE-17-dashboard-health-signal-ux-truth.md) | bmo | — | done |
-| 18 | [`PHASE-18-plan-agent-prompt-format-crash.md`](./PHASE-18-plan-agent-prompt-format-crash.md) | bmo | — | pending |
+| 18 | [`PHASE-18-plan-agent-prompt-format-crash.md`](./completed/PHASE-18-plan-agent-prompt-format-crash.md) | bmo | — | done |
 | 19 | [`PHASE-19-destructive-and-noop-control-actions.md`](./PHASE-19-destructive-and-noop-control-actions.md) | bmo | — | pending |
 | 20 | [`PHASE-20-dashboard-layout-music-notifications-ux.md`](./PHASE-20-dashboard-layout-music-notifications-ux.md) | bmo | 17 (soft) | pending |
 | 21 | [`PHASE-21-docs-auth-surface-and-csp-truth.md`](./PHASE-21-docs-auth-surface-and-csp-truth.md) | bmo | — | pending |

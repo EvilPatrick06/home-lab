@@ -127,3 +127,8 @@ EOF
 
 - **Friendlier failure copy in the chat bubble** when an agent throws (the generic "I had trouble building that plan…" hides the real error class) — worth a log entry (`docs/logs/BMO-SUGGESTIONS-LOG.md`), not this fix.
 - **Switching prompt templating away from `str.format`** — see 18A step 3.
+
+## Completed
+
+- **18A** — already landed pre-phase via the log-resolver batch `a291bbd1` (braces escaped at `bmo/pi/agents/dev/plan_agent.py:49,51`; F1 repro silent). Re-verified 2026-07-15 at `origin/master@d6699d52`; audit re-run across `bmo/pi/agents/`: every `.format()`-rendered template (router `CLASSIFICATION_PROMPT`, all `dev/*` `SYSTEM_PROMPT`s, code_agent, plan_agent x3) renders cleanly. Note: `agents/home/{calendar,smart_home,timer,weather,music}_agent.py` `SYSTEM_PROMPT`s contain unescaped literal braces but are never `.format()`ed (used raw) — no defect today; logged as a latent-footgun suggestion in `docs/logs/BMO-SUGGESTIONS-LOG.md`.
+- **18B** — completed the test coverage in `bmo/pi/tests/agents/test_plan_agent_prompts.py` (DESIGN/REDESIGN render tests pre-existed from `a291bbd1`): added `test_explore_prompt_formats_cleanly` (EXPLORE example survives as single-brace JSON), `test_every_prompt_constant_formats_cleanly` (generic guard over every module-level `*_PROMPT` via `string.Formatter`), and `test_design_smoke_no_keyerror` (`_design()` end-to-end with mocked LLM + scratchpad: `AgentResult.text`, `scratchpad_writes=["Plan"]`, rendered system prompt carries the single-braced examples). Negative check performed: un-escaping one brace fails 3/5 tests; restored, 5/5 green, ruff clean.
