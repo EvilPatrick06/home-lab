@@ -9,6 +9,7 @@
 // campaign, feed a past session back to the AI DM, or share it on Discord.
 
 import type { ChatMessage } from '../../stores/use-lobby-store'
+import { localDateStamp } from '../../utils/local-date'
 
 export interface TranscriptExportOptions {
   /** Include `isSystem` messages (joins/leaves/rolls-as-system). Default true. */
@@ -51,12 +52,7 @@ export function exportChatTranscriptMarkdown(messages: ChatMessage[], options: T
   // LOCAL calendar date, not toISOString() (UTC): message times below use the
   // local clock (getHours/getMinutes), so the header must too — otherwise an
   // evening session west of UTC is titled with tomorrow's date.
-  const now = new Date()
-  const dateLabel = [
-    now.getFullYear(),
-    String(now.getMonth() + 1).padStart(2, '0'),
-    String(now.getDate()).padStart(2, '0')
-  ].join('-')
+  const dateLabel = localDateStamp()
   const lines: string[] = [`# Session — ${dateLabel}`, '']
 
   if (visible.length === 0) {

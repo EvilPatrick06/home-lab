@@ -25,6 +25,7 @@ import { is5eCharacter } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
 import type { LibraryCategory } from '../../../types/library'
 import { renderChatContent } from '../../../utils/chat-links'
+import { localDateStamp } from '../../../utils/local-date'
 import { sanitizeStreamPreview } from '../../../utils/stream-preview'
 import { trigger3dDice } from '../dice3d'
 import DiceResult from '../dice3d/DiceResult'
@@ -339,7 +340,7 @@ export default function ChatPanel({
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `chat-transcript-${new Date().toISOString().slice(0, 10)}.${format}`
+    a.download = `chat-transcript-${localDateStamp()}.${format}`
     a.click()
     URL.revokeObjectURL(url)
   }

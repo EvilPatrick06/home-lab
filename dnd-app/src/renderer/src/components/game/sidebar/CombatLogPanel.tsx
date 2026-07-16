@@ -3,6 +3,7 @@ import { useT } from '../../../i18n'
 import { exportCombatLogCSV, exportCombatLogJSON } from '../../../services/io/combat-log-export'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { CombatLogEntry } from '../../../types/game-state'
+import { localDateStamp } from '../../../utils/local-date'
 import { EmptyState } from '../../ui'
 
 // ---------------------------------------------------------------------------
@@ -310,7 +311,7 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `combat-log-${new Date().toISOString().slice(0, 10)}.${ext}`
+    a.download = `combat-log-${localDateStamp()}.${ext}`
     a.click()
     URL.revokeObjectURL(url)
   }

@@ -939,4 +939,32 @@ describe('MemoryManager recap cache + Q&A log (PHASE-31 31B/31C)', () => {
     await mgr.clearQaLog()
     expect(await mgr.getQaLog()).toEqual([])
   })
+
+  describe('getSessionLogId — local date, cached per sitting (ISSUES-LOG 2026-07-15)', () => {
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('returns the LOCAL calendar date, not the UTC toISOString slice', () => {
+      // 01:30 UTC — in any TZ west of UTC this is still the previous evening,
+      // so the local date parts are what a session played "tonight" expects.
+      vi.useFakeTimers()
+      const now = new Date('2026-07-15T01:30:00Z')
+      vi.setSystemTime(now)
+      const expected = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+      const mgr = new MemoryManager('c-sid')
+      expect(mgr.getSessionLogId()).toBe(expected)
+    })
+
+    it('is stable across calls and does NOT roll over when the sitting crosses midnight (no split)', () => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2026-07-15T05:00:00Z'))
+      const mgr = new MemoryManager('c-sid2')
+      const first = mgr.getSessionLogId()
+      // Advance several hours across any midnight boundary — the id must not change,
+      // so every message + the end-of-session summary land in ONE file.
+      vi.setSystemTime(new Date('2026-07-15T20:00:00Z'))
+      expect(mgr.getSessionLogId()).toBe(first)
+    })
+  })
 })

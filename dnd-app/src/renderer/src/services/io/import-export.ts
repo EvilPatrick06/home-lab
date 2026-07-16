@@ -7,6 +7,7 @@
 
 import { migrateCharacter5eToRefs } from '../../../../shared/migrations/v4-character-refs'
 import { MAX_READ_FILE_SIZE, MAX_WRITE_CONTENT_SIZE } from '../../constants/app-constants'
+import { localDateStamp } from '../../utils/local-date'
 import { logger } from '../../utils/logger'
 
 const JSON_FILTER = [{ name: 'JSON Files', extensions: ['json'] }]
@@ -364,7 +365,7 @@ export async function exportAllData(): Promise<BackupStats | null> {
     books: { config: safeConfig, data: bookData }
   }
 
-  const dateStamp = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
+  const dateStamp = localDateStamp() // YYYY-MM-DD (local)
   const filePath = await window.api.showSaveDialog({
     title: 'Export All Data',
     defaultPath: `dnd-vtt-backup-${dateStamp}.dndbackup`,

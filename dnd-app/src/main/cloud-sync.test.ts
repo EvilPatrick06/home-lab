@@ -1,10 +1,10 @@
 import { existsSync } from 'node:fs'
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { create as tarCreate, extract as tarExtract } from 'tar'
 import { afterEach, describe, expect, it } from 'vitest'
-import { isCampaignScopedTarEntry } from './cloud-sync'
+import { isCampaignScopedTarEntry, isSafeRestoreTarEntry } from './cloud-sync'
 
 const CID = 'camp-123'
 
@@ -74,7 +74,8 @@ describe('restore extraction confinement (tar round-trip)', () => {
       file: archive,
       cwd: dest,
       preservePaths: false,
-      filter: (entryPath) => isCampaignScopedTarEntry(entryPath, CID)
+      filter: (entryPath, entry) =>
+        isSafeRestoreTarEntry(entryPath, entry && 'type' in entry ? entry.type : undefined, CID)
     })
 
     expect(existsSync(join(dest, 'campaigns', `${CID}.json`))).toBe(true)
@@ -82,5 +83,46 @@ describe('restore extraction confinement (tar round-trip)', () => {
     expect(existsSync(join(dest, 'settings.json'))).toBe(false)
     expect(existsSync(join(dest, 'discord', 'config.json'))).toBe(false)
     expect(existsSync(join(dest, 'campaigns', 'OTHER.json'))).toBe(false)
+  })
+})
+
+describe('isSafeRestoreTarEntry — symlink/hardlink rejection (SECURITY-LOG 2026-07-15)', () => {
+  it('rejects symlink and hardlink entries even when the entry path is campaign-scoped', () => {
+    const scoped = `campaigns/${CID}/notes.txt`
+    expect(isSafeRestoreTarEntry(scoped, 'File', CID)).toBe(true)
+    expect(isSafeRestoreTarEntry(scoped, 'SymbolicLink', CID)).toBe(false)
+    expect(isSafeRestoreTarEntry(scoped, 'Link', CID)).toBe(false)
+  })
+
+  let dirs: string[] = []
+  afterEach(async () => {
+    await Promise.all(dirs.map((d) => rm(d, { recursive: true, force: true })))
+    dirs = []
+  })
+
+  it('does not extract a campaign-scoped symlink whose target escapes userData', async () => {
+    const src = await mkdtemp(join(tmpdir(), 'vtt-tar-sym-src-'))
+    const dest = await mkdtemp(join(tmpdir(), 'vtt-tar-sym-dest-'))
+    dirs.push(src, dest)
+
+    await mkdir(join(src, 'campaigns', CID), { recursive: true })
+    await writeFile(join(src, 'campaigns', `${CID}.json`), '{"ok":true}')
+    // A symlink inside the campaign subtree pointing at a sibling secret file.
+    await symlink('../../settings.json', join(src, 'campaigns', CID, 'leak.txt'))
+
+    const archive = join(src, 'symlink.tar.gz')
+    await tarCreate({ file: archive, cwd: src, gzip: true }, [`campaigns/${CID}.json`, `campaigns/${CID}/leak.txt`])
+
+    await tarExtract({
+      file: archive,
+      cwd: dest,
+      preservePaths: false,
+      filter: (entryPath, entry) =>
+        isSafeRestoreTarEntry(entryPath, entry && 'type' in entry ? entry.type : undefined, CID)
+    })
+
+    expect(existsSync(join(dest, 'campaigns', `${CID}.json`))).toBe(true)
+    // The symlink entry must have been skipped, not planted in the campaign dir.
+    expect(existsSync(join(dest, 'campaigns', CID, 'leak.txt'))).toBe(false)
   })
 })

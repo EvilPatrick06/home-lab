@@ -1,6 +1,9 @@
-import { describe, expect, it } from 'vitest'
+import { mkdir, rm, symlink, writeFile } from 'node:fs/promises'
+import { join } from 'node:path'
+import { app } from 'electron'
+import { afterEach, describe, expect, it } from 'vitest'
 import type { FileReadResult } from './file-reader'
-import { formatFileContent, hasFileReadTag, parseFileRead, stripFileRead } from './file-reader'
+import { formatFileContent, hasFileReadTag, parseFileRead, readRequestedFile, stripFileRead } from './file-reader'
 
 describe('file-reader', () => {
   describe('hasFileReadTag', () => {
@@ -70,6 +73,38 @@ I'll check it for you.`
       expect(result).toContain('Let me read that file.')
       expect(result).toContain("I'll check it for you.")
       expect(result).not.toContain('FILE_READ')
+    })
+  })
+
+  describe('readRequestedFile — symlink containment (SECURITY-LOG 2026-07-15)', () => {
+    const userData = app.getPath('userData')
+    const campaignsDir = join(userData, 'campaigns', 'sec-test')
+    const secretPath = join(userData, 'ai-config.json')
+    const created: string[] = [join(userData, 'campaigns', 'sec-test'), secretPath]
+
+    afterEach(async () => {
+      for (const c of created) await rm(c, { recursive: true, force: true }).catch(() => undefined)
+    })
+
+    it('reads a real file inside an allowed dir (positive control)', async () => {
+      await mkdir(campaignsDir, { recursive: true })
+      const real = join(campaignsDir, 'notes.txt')
+      await writeFile(real, 'campaign notes')
+      const res = await readRequestedFile(real)
+      expect(res.success).toBe(true)
+      expect(res.content).toBe('campaign notes')
+    })
+
+    it('denies a symlink inside an allowed dir that targets an out-of-tree secret', async () => {
+      await mkdir(campaignsDir, { recursive: true })
+      await writeFile(secretPath, '{"anthropicApiKey":"sk-SECRET"}')
+      const link = join(campaignsDir, 'leak.txt')
+      await rm(link, { force: true }).catch(() => undefined)
+      await symlink(secretPath, link)
+      const res = await readRequestedFile(link)
+      expect(res.success).toBe(false)
+      expect(res.content).toBeUndefined()
+      expect(res.error).toMatch(/Access denied/)
     })
   })
 

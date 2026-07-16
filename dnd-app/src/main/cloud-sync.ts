@@ -103,6 +103,20 @@ export function isCampaignScopedTarEntry(entryPath: string, campaignId: string):
 }
 
 /**
+ * True when a restore tar entry is safe to extract: campaign-scoped AND not a
+ * link. Symlink/hardlink entries are rejected outright — even a campaign-scoped
+ * entry PATH can carry a linkpath escaping the subtree, and a symlink landing in
+ * an AI-readable dir is then followed by the AI [FILE_READ] consumer to leak
+ * arbitrary files (SECURITY-LOG 2026-07-15). Mirrors the plugin installer's
+ * isSymbolicLink() reject. `entryType` is the node-tar ReadEntry.type. Exported
+ * for tests.
+ */
+export function isSafeRestoreTarEntry(entryPath: string, entryType: string | undefined, campaignId: string): boolean {
+  if (entryType === 'SymbolicLink' || entryType === 'Link') return false
+  return isCampaignScopedTarEntry(entryPath, campaignId)
+}
+
+/**
  * Check if the Rclone remote is reachable and configured (drives "Check Status").
  */
 export async function checkRemoteStatus(): Promise<RcloneStatus> {
@@ -272,8 +286,11 @@ export async function restoreCampaignFromDrive(campaignId: string): Promise<Clou
         file: archivePath,
         cwd: userData,
         preservePaths: false,
-        filter: (entryPath) => {
-          const ok = isCampaignScopedTarEntry(entryPath, campaignId)
+        filter: (entryPath, entry) => {
+          // The filter param is Stats | ReadEntry; only ReadEntry carries the
+          // tar entry `type` (File/SymbolicLink/Link/...).
+          const entryType = entry && 'type' in entry ? entry.type : undefined
+          const ok = isSafeRestoreTarEntry(entryPath, entryType, campaignId)
           if (!ok) skipped.push(entryPath)
           return ok
         }

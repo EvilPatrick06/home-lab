@@ -1270,7 +1270,7 @@ async function handleStreamCompletion(
 
     try {
       const memMgr = getMemoryManager(request.campaignId)
-      const sessionId = new Date().toISOString().slice(0, 10)
+      const sessionId = memMgr.getSessionLogId()
       const logEntry = `[${request.senderName ?? 'Player'}]: ${request.message}\n[AI DM]: ${displayText.slice(0, 500)}`
       memMgr.appendSessionLog(sessionId, logEntry).catch(() => {})
       // Persist NPC attitude shifts to world-state memory so an NPC the AI just
@@ -1597,7 +1597,7 @@ export async function generateSessionSummary(campaignId: string): Promise<string
   if (summary) {
     try {
       const memMgr = getMemoryManager(campaignId)
-      const sessionId = new Date().toISOString().slice(0, 10)
+      const sessionId = memMgr.getSessionLogId()
       await memMgr.appendSessionLog(sessionId, `\n--- SESSION SUMMARY ---\n${summary}\n`)
     } catch {
       // Non-fatal

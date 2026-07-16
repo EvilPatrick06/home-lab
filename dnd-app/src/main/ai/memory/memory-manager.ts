@@ -24,6 +24,19 @@ import type { FactionReputation, NPCPersonality, WorldStateSummary } from '../ty
 const MAX_MEMORY_FILE_SIZE = 1 * 1024 * 1024 // 1 MB per ai-context file
 const MAX_TOTAL_MEMORY_SIZE = 10 * 1024 * 1024 // 10 MB across the ai-context dir
 
+/**
+ * Local calendar date stamp (YYYY-MM-DD) from LOCAL date parts. NOT
+ * toISOString(), which is UTC — an evening session west of UTC would file under
+ * tomorrow's date, and a per-message UTC id splits a sitting at 00:00 UTC.
+ * (ISSUES-LOG-DNDAPP 2026-07-15)
+ */
+function localDateStamp(d: Date = new Date()): string {
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
 // PHASE-31 31C — private campaign Q&A history, capped at the most recent N exchanges.
 const QA_LOG_CAP = 50
 export interface QaLogEntry {
@@ -123,6 +136,9 @@ interface RulingsEntry {
 
 export class MemoryManager {
   private basePath: string
+  // Session-history log id for the current sitting — derived ONCE (local date)
+  // and cached so a session never splits across files. (ISSUES-LOG 2026-07-15)
+  private sessionLogId?: string
 
   constructor(campaignId: string) {
     this.basePath = path.join(app.getPath('userData'), 'campaigns', campaignId, 'ai-context')
@@ -280,6 +296,19 @@ export class MemoryManager {
   }
 
   // --- Session History ---
+  /**
+   * The session-history log id for the CURRENT sitting. Derived ONCE from the
+   * LOCAL calendar date and cached, so every message AND the end-of-session
+   * summary land in ONE file even if the sitting crosses local/UTC midnight.
+   * Replaces the per-call `new Date().toISOString().slice(0, 10)` (UTC) ids
+   * that mis-attributed evening sessions to tomorrow and split a sitting at
+   * 00:00 UTC. (ISSUES-LOG-DNDAPP 2026-07-15)
+   */
+  getSessionLogId(): string {
+    if (!this.sessionLogId) this.sessionLogId = localDateStamp()
+    return this.sessionLogId
+  }
+
   async appendSessionLog(sessionId: string, text: string): Promise<void> {
     await this.ensureDir()
     const histDir = path.join(this.basePath, 'session-history')

@@ -4,7 +4,7 @@
  * for injection back into the conversation.
  */
 
-import { readFile, stat } from 'node:fs/promises'
+import { lstat, readFile, realpath, stat } from 'node:fs/promises'
 import { isAbsolute, relative, resolve, sep } from 'node:path'
 import { app } from 'electron'
 import { logSecurityEvent } from '../security-log'
@@ -84,7 +84,25 @@ export async function readRequestedFile(filePath: string): Promise<FileReadResul
   }
 
   try {
-    const info = await stat(resolved)
+    // The isAiReadAllowed check above is purely LEXICAL. Without following the
+    // link, a symlink planted inside an allowed dir (e.g. via a poisoned
+    // cloud-restore archive) would let a prompt-injected [FILE_READ] read its
+    // out-of-tree target — cleartext cloud API keys in ai-config.json, the
+    // Discord token, arbitrary host files — and exfiltrate them to the AI
+    // provider. lstat catches a leaf symlink; realpath + re-check catches a
+    // symlinked ancestor directory. (SECURITY-LOG 2026-07-15.)
+    const linkInfo = await lstat(resolved)
+    if (linkInfo.isSymbolicLink()) {
+      logSecurityEvent('ai.file_read.denied', { path: resolved, reason: 'symlink' })
+      return { success: false, path: resolved, error: 'Access denied: symlinks are not permitted' }
+    }
+    const realResolved = await realpath(resolved)
+    if (realResolved !== resolved && !isAiReadAllowed(realResolved)) {
+      logSecurityEvent('ai.file_read.denied', { path: resolved, reason: 'symlink-escape' })
+      return { success: false, path: resolved, error: 'Access denied: AI reads restricted to game data' }
+    }
+
+    const info = await stat(realResolved)
 
     if (!info.isFile()) {
       return { success: false, path: resolved, error: 'Path is not a file' }
@@ -98,7 +116,7 @@ export async function readRequestedFile(filePath: string): Promise<FileReadResul
       }
     }
 
-    const buffer = await readFile(resolved)
+    const buffer = await readFile(realResolved)
 
     // Binary detection: check for null bytes in the first 8KB
     const checkLength = Math.min(buffer.length, 8192)
