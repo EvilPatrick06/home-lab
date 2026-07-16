@@ -94,7 +94,7 @@ function QuestCard({ q, onClaim }) {
         ) : q.claimable ? (
           <button
             onClick={() => onClaim(q.id)}
-            className="px-3 py-1.5 rounded-sm text-xs font-bold text-amber-950 border-2 border-amber-300 italic flex items-center gap-1 hover:scale-105 active:scale-95 transition"
+            className="px-3 py-1.5 rounded-sm text-xs font-bold btn-gold-ink border-2 border-amber-300 italic flex items-center gap-1 hover:scale-105 active:scale-95 transition"
             style={{
               background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
               boxShadow: '0 0 12px rgba(245, 158, 11, 0.5)',
@@ -142,7 +142,7 @@ function QuestSection({ tagline, subtitle, emptyMsg, quests, onClaim, onClaimAll
         {claimableCount > 0 && (
           <button
             onClick={onClaimAll}
-            className="px-4 py-2 rounded-sm text-sm font-bold border-2 border-amber-300 italic flex items-center gap-2 text-amber-950"
+            className="px-4 py-2 rounded-sm text-sm font-bold border-2 border-amber-300 italic flex items-center gap-2 btn-gold-ink"
             style={{
               background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
               boxShadow: '0 0 20px rgba(245, 158, 11, 0.5)',
@@ -317,7 +317,7 @@ function StoryStepCard({
             ) : claimable && isCurrent ? (
               <button
                 onClick={onClaim}
-                className="px-3 py-1.5 rounded-sm text-xs font-bold text-amber-950 border-2 border-amber-300 italic flex items-center gap-1"
+                className="px-3 py-1.5 rounded-sm text-xs font-bold btn-gold-ink border-2 border-amber-300 italic flex items-center gap-1"
                 style={{
                   background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
                   boxShadow: '0 0 12px rgba(245, 158, 11, 0.5)',
@@ -533,7 +533,7 @@ function QuestBoard({
             <span>{t.icon}</span>
             {t.label}
             {t.claimable > 0 && (
-              <span className="bg-amber-500 text-amber-950 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border border-amber-300 animate-pulse">
+              <span className="bg-amber-500 btn-gold-ink text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border border-amber-300 animate-pulse">
                 {t.claimable}
               </span>
             )}

@@ -514,7 +514,7 @@ function LabMode({
                 </div>
                 <button
                   onClick={continueAfterGrade}
-                  className="px-4 py-2 rounded-sm text-sm font-bold italic border-2 border-amber-300 text-amber-950 flex items-center gap-2"
+                  className="px-4 py-2 rounded-sm text-sm font-bold italic border-2 border-amber-300 btn-gold-ink flex items-center gap-2"
                   style={{
                     background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
                     boxShadow: '0 0 12px rgba(245, 158, 11, 0.5)',

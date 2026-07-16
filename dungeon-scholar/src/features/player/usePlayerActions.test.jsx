@@ -524,3 +524,65 @@ describe('usePlayerActions — questionStats item analysis', () => {
     expect(result.current.playerState.library[0].progress.questionStats || {}).toEqual({});
   });
 });
+
+describe('streak-freeze wards (issue-streak-freeze-wards)', () => {
+  const daysAgo = (n) => {
+    const d = new Date(`${todayDateStr()}T00:00:00`);
+    d.setDate(d.getDate() - n);
+    const p = (x) => String(x).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+  };
+
+  it('meeting the daily goal earns exactly one ward on the crossing answer', () => {
+    const { result } = makeHook({ dailyGoal: 2 });
+    act(() => {
+      result.current.actions.recordAnswer(true, { id: 'q1' });
+    });
+    expect(result.current.playerState.streakFreezeTokens).toBe(0);
+    act(() => {
+      result.current.actions.recordAnswer(false, { id: 'q2' }); // wrong answers count toward the goal too
+    });
+    expect(result.current.playerState.streakFreezeTokens).toBe(1);
+    act(() => {
+      result.current.actions.recordAnswer(true, { id: 'q3' }); // past the goal: no second ward today
+    });
+    expect(result.current.playerState.streakFreezeTokens).toBe(1);
+  });
+
+  it('the ward count caps at 3', () => {
+    const { result } = makeHook({ dailyGoal: 1, streakFreezeTokens: 3 });
+    act(() => {
+      result.current.actions.recordAnswer(true, { id: 'q1' });
+    });
+    expect(result.current.playerState.streakFreezeTokens).toBe(3);
+  });
+
+  it('a held ward forgives a single missed devotion day: streak continues, ward is spent', () => {
+    const { result } = makeHook({ loginStreak: 4, lastClaimedDate: daysAgo(2), streakFreezeTokens: 1 });
+    let res;
+    act(() => {
+      res = result.current.actions.claimDailyReward();
+    });
+    expect(res.ok).toBe(true);
+    expect(result.current.playerState.loginStreak).toBe(5);
+    expect(result.current.playerState.streakFreezeTokens).toBe(0);
+  });
+
+  it('without a ward the same one-day lapse still resets the streak', () => {
+    const { result } = makeHook({ loginStreak: 4, lastClaimedDate: daysAgo(2), streakFreezeTokens: 0 });
+    act(() => {
+      result.current.actions.claimDailyReward();
+    });
+    expect(result.current.playerState.loginStreak).toBe(1);
+    expect(result.current.playerState.streakFreezeTokens).toBe(0);
+  });
+
+  it('a gap larger than one missed day breaks the streak even with wards held', () => {
+    const { result } = makeHook({ loginStreak: 4, lastClaimedDate: daysAgo(3), streakFreezeTokens: 2 });
+    act(() => {
+      result.current.actions.claimDailyReward();
+    });
+    expect(result.current.playerState.loginStreak).toBe(1);
+    expect(result.current.playerState.streakFreezeTokens).toBe(2); // nothing spent on an unforgivable gap
+  });
+});

@@ -62,7 +62,7 @@ export function ConfirmModal({
           <button
             onClick={onConfirm}
             aria-label={confirmLabel}
-            className={`flex-1 py-3 rounded-sm font-bold italic border-2 ${confirmIsDanger ? 'border-red-300 text-amber-50' : 'border-amber-300 text-amber-950'}`}
+            className={`flex-1 py-3 rounded-sm font-bold italic border-2 ${confirmIsDanger ? 'border-red-300 text-amber-50' : 'border-amber-300 btn-gold-ink'}`}
             style={{
               background: confirmIsDanger
                 ? 'linear-gradient(to bottom, #dc2626 0%, #991b1b 100%)'

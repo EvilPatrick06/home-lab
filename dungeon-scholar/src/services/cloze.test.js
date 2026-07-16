@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { expandClozeCard, expandClozeDeck, hasCloze, parseClozeSpans, renderClozeText } from './cloze.js';
+import { dueCountExpanded, expandClozeCard, expandClozeDeck, hasCloze, parseClozeSpans, renderClozeText } from './cloze.js';
 
 describe('hasCloze', () => {
   it('detects cloze spans', () => {
@@ -75,5 +75,29 @@ describe('expandClozeDeck', () => {
     const out = expandClozeDeck(deck);
     expect(out).toHaveLength(3);
     expect(out.map((c) => c.id)).toEqual(['a_c1', 'a_c2', 'b']);
+  });
+});
+
+describe('dueCountExpanded (issue-cloze-due-count)', () => {
+  const cards = [
+    { id: 'a', front: 'handshake: SYN -> {{c1::SYN-ACK}} -> {{c2::ACK}}', back: '' },
+    { id: 'b', front: 'plain', back: 'card' },
+  ];
+
+  it('an unrated 2-cluster cloze card contributes 2 (plus 1 for the plain card)', () => {
+    expect(dueCountExpanded({}, cards)).toBe(3); // a_c1 + a_c2 + b
+  });
+
+  it('a rated-out cloze card contributes 0 — progress is consulted on the expanded ids, not the raw id', () => {
+    const rated = {
+      stability: 10,
+      difficulty: 5,
+      reps: 3,
+      lapses: 0,
+      lastReview: Date.now(),
+      dueAt: Date.now() + 7 * 86400000,
+    };
+    const map = { a_c1: rated, a_c2: rated, b: rated };
+    expect(dueCountExpanded(map, cards)).toBe(0);
   });
 });

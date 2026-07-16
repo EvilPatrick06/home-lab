@@ -86,6 +86,19 @@ function QuizMode({
       setListening(true);
     }
   };
+  // issue-quiz-dictation-leak (2026-07-15): abort any live dictation on
+  // unmount so the mic (and the browser's mic-in-use indicator) is released
+  // the moment this screen goes away — and so onResult/onEnd can no longer
+  // setState on an unmounted component. Every other resource here (timers,
+  // sessions) already cleans up on unmount; the dictation handle was the
+  // exception.
+  useEffect(
+    () => () => {
+      dictationRef.current?.abort();
+      dictationRef.current = null;
+    },
+    [],
+  );
   // Pre-shuffled deck comes from App level (stable across re-renders / cloud
   // sync). Fall back to the raw quiz array if a parent hasn't provided one.
   // Phase 39a: sessionDeck (when set by a resume) overrides the parent's

@@ -3,7 +3,13 @@ import { findItem, RECIPES, sanctumAtCap } from '../../game/items.js';
 import { DAILY_QUEST_POOL, getCounterValue, STORY_CHAINS, WEEKLY_QUEST_POOL } from '../../game/quests.js';
 import { TITLES, xpForLevel } from '../../game/titles.js';
 import { blankTomeProgress, generateTomeId, normalizeTomeData } from '../../game/tome.js';
-import { recordDailyProgress } from '../../services/dailyGoal.js';
+import {
+  evaluateStreakFreeze,
+  goalStatus,
+  normalizeFreezeTokens,
+  recordDailyProgress,
+  STREAK_FREEZE_MAX,
+} from '../../services/dailyGoal.js';
 import { DAILY_REWARDS, evaluateClaim, todayDateStr } from '../../services/devotion.js';
 import { findPet, petLevelFromXp } from '../../services/pets.js';
 import { isSealedTome } from '../../services/sealedTome.js';
@@ -338,7 +344,21 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
       loginStreak: playerState.loginStreak,
     });
     if (!res.ok) return res;
-    const { newStreak, cycleDay } = res;
+    let { newStreak, cycleDay } = res;
+    // issue-streak-freeze-wards (2026-07-15): a held ward forgives exactly ONE
+    // missed day. evaluateClaim resets a lapsed streak to 1; when the gap was
+    // exactly 2 days (one missed), a real streak existed, and a ward is held,
+    // restore the continuation and spend the ward (pure decision delegated to
+    // services/dailyGoal.js evaluateStreakFreeze).
+    const priorWards = normalizeFreezeTokens(playerState.streakFreezeTokens);
+    const freeze = evaluateStreakFreeze(playerState.lastClaimedDate, today, priorWards);
+    const wardSpent = newStreak === 1 && (playerState.loginStreak || 0) >= 1 && freeze.forgiven;
+    let wardsLeft = priorWards;
+    if (wardSpent) {
+      newStreak = (playerState.loginStreak || 0) + 1;
+      cycleDay = ((newStreak - 1) % 7) + 1;
+      wardsLeft = freeze.tokensLeft;
+    }
     const reward = DAILY_REWARDS[cycleDay - 1];
     if (!reward) return { ok: false, reason: 'Reward table missing.' };
     const claimedAt = Date.now();
@@ -357,6 +377,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
         lastClaimedDate: today,
         lastClaimedAt: claimedAt, // M13: monotone fence stamp
         loginStreak: newStreak,
+        streakFreezeTokens: wardsLeft,
         longestLoginStreak: Math.max(prev.longestLoginStreak || 0, newStreak),
         totalLogins: (prev.totalLogins || 0) + 1,
         cycleDay,
@@ -365,7 +386,7 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
     setTimeout(
       () =>
         showNotif(
-          `Day ${cycleDay} claimed: +${reward.gold} gold, +${reward.xp} XP, +${reward.devotion} devotion`,
+          `${wardSpent ? '\u2744 A ward shattered to preserve thy streak! ' : ''}Day ${cycleDay} claimed: +${reward.gold} gold, +${reward.xp} XP, +${reward.devotion} devotion`,
           'success',
         ),
       50,
@@ -604,6 +625,18 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
   //   accumulate distinct vault entries. Dungeon mode passes the full
   //   quiz item — same shape as Quiz.
   const recordAnswer = (correct, item, extra = {}) => {
+    // issue-streak-freeze-wards: ward-earn notif decision (best-effort, from
+    // the render-time state; the authoritative token bump happens inside the
+    // updater below so the updater stays pure and prev-based).
+    const wardGoalNow = playerState.dailyGoal ?? 20;
+    const wardBeforeNow = goalStatus(playerState.dailyProgress, todayDateStr(), wardGoalNow);
+    const willEarnWard =
+      !wardBeforeNow.met &&
+      wardBeforeNow.count + 1 >= wardBeforeNow.goal &&
+      normalizeFreezeTokens(playerState.streakFreezeTokens) < STREAK_FREEZE_MAX;
+    if (willEarnWard) {
+      setTimeout(() => showNotif('\u2744 Daily goal met \u2014 a streak-freeze ward is thine!', 'success'), 50);
+    }
     setPlayerState((prev) => {
       const newAnswered = prev.totalAnswered + 1;
       const newCorrect = prev.totalCorrect + (correct ? 1 : 0);
@@ -614,6 +647,17 @@ export function usePlayerActions({ playerState, setPlayerState, showNotif, user 
       // sugg-daily-goal: every answered item counts toward today's study goal
       // (rolls over at a new calendar day). Distinct from the correctness streak.
       next.dailyProgress = recordDailyProgress(prev.dailyProgress, todayDateStr(), 1);
+
+      // issue-streak-freeze-wards (2026-07-15): MEETING the daily goal is the
+      // earn path for streak-freeze wards (cap STREAK_FREEZE_MAX) — the half
+      // of sugg-daily-goal the 2026-07-03 batch never wired. Awarded exactly
+      // on the crossing answer (not-met -> met), so at most one ward per day.
+      const wardGoal = prev.dailyGoal ?? 20;
+      const goalBefore = goalStatus(prev.dailyProgress, todayDateStr(), wardGoal);
+      const goalAfter = goalStatus(next.dailyProgress, todayDateStr(), wardGoal);
+      if (!goalBefore.met && goalAfter.met) {
+        next.streakFreezeTokens = Math.min(STREAK_FREEZE_MAX, normalizeFreezeTokens(prev.streakFreezeTokens) + 1);
+      }
 
       // I2: real cross-mode correct-answer streak. Increment on a correct
       // answer, reset to 0 on a wrong one; record the best streak reached in

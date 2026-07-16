@@ -81,7 +81,7 @@ export function TextInputModal({
             onClick={submit}
             disabled={!value.trim()}
             aria-label={confirmLabel}
-            className="flex-1 py-3 rounded-sm font-bold italic border-2 border-amber-300 text-amber-950 disabled:opacity-50"
+            className="flex-1 py-3 rounded-sm font-bold italic border-2 border-amber-300 btn-gold-ink disabled:opacity-50"
             style={{
               background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
               boxShadow: '0 0 18px rgba(245, 158, 11, 0.5)',

@@ -152,3 +152,21 @@ The app also probes for this at runtime: if a signed-in user can read another
 user's row, a red **"Cloud misconfiguration"** banner appears at the top of the
 screen. Note the banner can only fire once a *second* user's row exists in the
 table — the SQL check above is the reliable one.
+
+## 9. Account deletion — what the app can and cannot delete
+
+The in-app "Delete account" action runs with the anon/publishable key, so it can
+only delete the user's **data rows** (`saves` + `profiles`) and sign out. The
+`auth.users` record itself — the GitHub OAuth identity, email, and sign-in
+metadata — **cannot be deleted from the browser** (that requires the
+service-role Admin API, which must never ship in frontend code).
+
+Until a server-side delete exists, honor erasure requests manually:
+Dashboard → Authentication → Users → select the user → **Delete user**. The
+`on delete cascade` foreign keys from step 2 then remove any remaining
+`profiles`/`saves` rows automatically.
+
+Durable fix (future work): a small authenticated Edge Function that verifies the
+caller's JWT and calls `auth.admin.deleteUser(auth.uid())` with the service-role
+key, invoked from the app's delete flow. Track this in the security log before
+promising "permanent" deletion in the UI again.

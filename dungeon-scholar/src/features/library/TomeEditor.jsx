@@ -296,7 +296,7 @@ function TomeEditor({ tome, onSave, onClose }) {
           </button>
           <button
             onClick={save}
-            className="flex-1 py-3 font-bold rounded-sm flex items-center justify-center gap-2 text-amber-950 border-2 border-amber-300 italic"
+            className="flex-1 py-3 font-bold rounded-sm flex items-center justify-center gap-2 btn-gold-ink border-2 border-amber-300 italic"
             style={{ background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)' }}
           >
             <Check className="w-4 h-4" /> Save changes

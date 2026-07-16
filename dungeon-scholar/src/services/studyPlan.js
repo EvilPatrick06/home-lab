@@ -42,7 +42,11 @@ export function buildStudyPlan({ examPace = null, prediction = null, weakestDoma
     headline = 'Exam day - final review';
     actions.push('Do a light confidence pass over your weakest domains; avoid cramming new material.');
   } else if (examPace && examPace.status === 'past') {
-    headline = 'No exam scheduled';
+    // issue-studyplan-past-headline (2026-07-15): the screen rendering this
+    // plan also shows "Exam was N days ago" for this state — don't contradict
+    // it with the no-exam copy.
+    headline = 'Exam date passed - set a new goal';
+    actions.push('Set a new exam date for a tailored plan, or keep reviewing to hold your gains.');
   }
 
   // 3) Target the weakest domain.
@@ -57,7 +61,9 @@ export function buildStudyPlan({ examPace = null, prediction = null, weakestDoma
     onTrack = prediction.predictedScore >= threshold;
     if (onTrack) {
       headline =
-        days != null ? `On track - keep it up (${days} day${days === 1 ? '' : 's'} to go)` : 'On track - keep it up';
+        days != null && days >= 0
+          ? `On track - keep it up (${days} day${days === 1 ? '' : 's'} to go)`
+          : 'On track - keep it up';
     } else {
       headline = 'Below your target - focus your reviews';
       actions.push(

@@ -63,7 +63,7 @@ export function ModeCard({ title, desc, icon, color, onClick, featured, disabled
 
       {featured && (
         <div
-          className="absolute top-3 right-3 text-xs px-3 py-1 rounded-sm text-amber-950 font-bold tracking-wider"
+          className="absolute top-3 right-3 text-xs px-3 py-1 rounded-sm btn-gold-ink font-bold tracking-wider"
           style={{
             background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
             boxShadow: '0 0 10px rgba(245, 158, 11, 0.5)',

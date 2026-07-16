@@ -34,7 +34,7 @@ import { OrnatePanel } from '../../components/ui/OrnatePanel.jsx';
 import { ACHIEVEMENTS } from '../../game/achievements.js';
 import { goalStatus } from '../../services/dailyGoal.js';
 import { todayDateStr } from '../../services/devotion.js';
-import { dueCount } from '../../services/srs.js';
+import { dueCountExpanded } from '../../services/cloze.js';
 import AudioPanel from './AudioPanel.jsx';
 import ThemePanel from './ThemePanel.jsx';
 
@@ -70,7 +70,7 @@ function HomeScreen({
   onSetNewCardCap,
   onSetDailyGoal,
 }) {
-  const reviewsDue = dueCount(tomeProgress?.cardProgress || {}, courseSet?.flashcards || []);
+  const reviewsDue = dueCountExpanded(tomeProgress?.cardProgress || {}, courseSet?.flashcards || []);
   // sugg-daily-goal: today's progress toward the configurable daily target.
   const dailyGoalStatus = goalStatus(playerState.dailyProgress, todayDateStr(), playerState.dailyGoal ?? 20);
   if (!courseSet) {
@@ -110,7 +110,7 @@ function HomeScreen({
             {playerState.library.length > 0 && (
               <button
                 onClick={onOpenLibrary}
-                className="px-6 py-3 font-bold rounded-sm flex items-center gap-2 transition text-amber-950 border-2 border-amber-300 italic"
+                className="px-6 py-3 font-bold rounded-sm flex items-center gap-2 transition btn-gold-ink border-2 border-amber-300 italic"
                 style={{
                   background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 50%, #b45309 100%)',
                   boxShadow: '0 0 20px rgba(245, 158, 11, 0.5)',

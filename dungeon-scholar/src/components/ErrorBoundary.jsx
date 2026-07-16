@@ -88,7 +88,7 @@ export default class ErrorBoundary extends React.Component {
               onClick={() => {
                 if (typeof window !== 'undefined') window.location.reload();
               }}
-              className="px-4 py-2 rounded-sm text-sm font-bold italic border-2 border-amber-300 text-amber-950"
+              className="px-4 py-2 rounded-sm text-sm font-bold italic border-2 border-amber-300 btn-gold-ink"
               style={{ background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)' }}
             >
               Reload
@@ -133,7 +133,7 @@ export default class ErrorBoundary extends React.Component {
         <div className="flex gap-2 flex-wrap">
           <button
             onClick={this.resetError}
-            className="px-4 py-2 rounded-sm text-sm font-bold italic border-2 border-amber-300 text-amber-950"
+            className="px-4 py-2 rounded-sm text-sm font-bold italic border-2 border-amber-300 btn-gold-ink"
             style={{ background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)' }}
           >
             ← Return to Hearth
