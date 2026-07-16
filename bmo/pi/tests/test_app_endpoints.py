@@ -867,3 +867,83 @@ class TestVoiceInterrupt:
             fake.interrupt.assert_called_once()
         finally:
             bmo_app_module.voice = original
+
+
+# ── /DungeonTableOnline serving headers (PHASE-63) ────────────────────
+
+class TestWebappServingHeaders:
+    """PHASE-63: immutable caching for hashed VTT assets + route-scoped CSP.
+
+    63A — assets/** (content-hashed) serve `public, max-age=31536000, immutable`;
+    every stable-named path (index.html, sw.js, data/**) keeps revalidating and
+    the SPA fallback stays no-cache HTML.
+    63B — VTT HTML carries the scoped `_VTT_CSP`; kiosk HTML keeps the
+    site-wide policy (regression guard for the `setdefault` override contract).
+    """
+
+    @pytest.fixture
+    def webapp_dist(self, client, tmp_path, monkeypatch):
+        """Point the webapp blueprint at a temp serve dir with a mini build."""
+        import routes.webapp_api as webapp_api
+
+        (tmp_path / "assets").mkdir()
+        (tmp_path / "data").mkdir()
+        (tmp_path / "index.html").write_text("<!doctype html><title>VTT</title>")
+        (tmp_path / "assets" / "app-CCwwQIPA.js").write_text("export{}")
+        (tmp_path / "data" / "srd.json").write_text("{}")
+        (tmp_path / "sw.js").write_text("// sw")
+        # _DIST_DIR is read at call time inside the view functions, so a
+        # module-attribute patch redirects serving without re-import.
+        monkeypatch.setattr(webapp_api, "_DIST_DIR", str(tmp_path))
+        return tmp_path
+
+    def test_hashed_asset_is_immutable_long_cached(self, client, webapp_dist):
+        r = client.get("/DungeonTableOnline/assets/app-CCwwQIPA.js")
+        assert r.status_code == 200
+        assert r.headers["Cache-Control"] == "public, max-age=31536000, immutable"
+
+    def test_index_html_stays_no_cache(self, client, webapp_dist):
+        r = client.get("/DungeonTableOnline/")
+        assert r.status_code == 200
+        assert "text/html" in r.content_type
+        assert r.headers["Cache-Control"] == "no-cache"
+
+    def test_deep_link_fallback_is_no_cache_html(self, client, webapp_dist):
+        r = client.get("/DungeonTableOnline/settings")
+        assert r.status_code == 200
+        assert "text/html" in r.content_type
+        assert r.headers["Cache-Control"] == "no-cache"
+
+    def test_assets_miss_falls_back_no_cache_html(self, client, webapp_dist):
+        # A miss under assets/ must NOT pick up the immutable header: the
+        # fallback is HTML and _cache_policy's HTML branch assigns no-cache.
+        r = client.get("/DungeonTableOnline/assets/gone-DEADBEEF.js")
+        assert r.status_code == 200
+        assert "text/html" in r.content_type
+        assert r.headers["Cache-Control"] == "no-cache"
+
+    def test_stable_named_files_not_long_cached(self, client, webapp_dist):
+        for path in ("/DungeonTableOnline/sw.js", "/DungeonTableOnline/data/srd.json"):
+            r = client.get(path)
+            assert r.status_code == 200, path
+            assert "immutable" not in r.headers.get("Cache-Control", ""), path
+
+    def test_vtt_html_carries_scoped_csp(self, client, webapp_dist):
+        import routes.webapp_api as webapp_api
+
+        # Index route and SPA fallback both flow through _serve_index().
+        for path in ("/DungeonTableOnline/", "/DungeonTableOnline/settings"):
+            r = client.get(path)
+            csp = r.headers.get("Content-Security-Policy", "")
+            assert csp == webapp_api._VTT_CSP, path
+            assert "unsafe-eval" not in csp, path
+            assert "cdn.jsdelivr.net" not in csp, path
+
+    def test_kiosk_html_keeps_sitewide_csp(self, client):
+        # Regression guard for the setdefault override contract: non-VTT HTML
+        # must still get the kiosk/IDE policy from _cache_policy.
+        r = client.get("/bmo")
+        assert "text/html" in r.content_type
+        csp = r.headers.get("Content-Security-Policy", "")
+        assert "'unsafe-eval'" in csp
+        assert "https://cdn.jsdelivr.net" in csp
