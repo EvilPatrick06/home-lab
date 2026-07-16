@@ -59,6 +59,8 @@ Every Google Calendar cache refresh has failed since 2026-07-08 00:57 (first hit
 
 **Blocked by:** human reauth (browser + credentials).
 
+**Update [2026-07-15, bmo-resolver]:** Fixed the wrong-tree reauth hint on `auto/bmo-resolver`: `services/calendar/service.py` now tells the operator to reauth from the DEPLOY checkout (`cd ~/home-lab-deploy/bmo/pi && ./venv/bin/python services/reauth_calendar.py`) where the live token lives, not the dev tree. **Still OPEN:** the actual token restore needs human reauth (browser + code paste — agents cannot do it), and the 5-minutely `invalid_grant` retry back-off + OAuth-consent-publish check remain unimplemented this run (the back-off touches the live refresh loop and needs a service restart to take effect).
+
 **Related files:** `bmo/pi/services/calendar/service.py:165-178,384`, `bmo/pi/services/reauth_calendar.py`, `bmo/pi/config/token.json` (deploy checkout), `bmo/pi/services/monitoring.py` (google_calendar check)
 
 **Related entries:** [2026-07-02] "BMO_HOME never wired into the live units" (the dev-tree reauth hint is another symptom of the same dev-tree path assumption).
@@ -166,6 +168,8 @@ Commit `ed0717e7` bumped `bmo/pi/.python-version` to 3.14 and the Docker base im
 
 **Blocked by:** owner decision on the upgrade path.
 
+**Update [2026-07-15, bmo-resolver]:** The broken-rebuild-path half is fixed on `auto/bmo-resolver`: `scripts/install-venv.sh` no longer hard-defaults to `python3.14`; it now prefers the pinned `.python-version` interpreter and falls back to the newest `python3.x` actually present (…3.13/3.12/3.11/python3), so a documented venv rebuild on a Pi without 3.14 no longer dies at `command not found`. **Still WAIT (owner decision, on the board):** the interpreter/lockfile skew itself — install 3.14 on the Pi + recompile under 3.14, OR make CI test 3.11 too — is a genuine upgrade-path call, gated for approval.
+
 **Related files:** `bmo/pi/.python-version`, `bmo/pi/scripts/install-venv.sh:6`, `bmo/pi/requirements.txt:2`, `.github/workflows/bmo-pi-pytest.yml:42`, `bmo/docker/Dockerfile:2`
 
 ---
@@ -239,25 +243,6 @@ Jun 29 03:13:48 [monitor][CRITICAL] pi_power: THROTTLED NOW — CPU frequency re
 
 ## Low
 
-### [2026-07-15] New board-decision runtime files not gitignored — `data/board_decisions_outbox.jsonl` + `data/nudges/` leave the deploy checkout permanently dirty
-
-- **Category:** config
-- **Severity:** low
-- **Domain:** bmo
-- **Discovered by:** bmo-errors
-- **During:** scheduled error scan — `git status` of `/home/patrick/home-lab-deploy`
-
-**Description:**
-The board-approval bridge / nudge work writes `bmo/pi/data/board_decisions_outbox.jsonl` and `bmo/pi/data/nudges/` at runtime, but `.gitignore` does not cover them (it enumerates specific data files; the sibling `vtt_sync_outbox.jsonl` has an entry at `.gitignore:124`, these do not). Both currently show as untracked (`??`) in the deploy checkout. Consequences: the deploy checkout is never `git status`-clean (dirty-tree checks/canaries can false-positive), any `git clean -fd` in either checkout would DELETE live runtime state (pending board decisions / nudges), and an agent could accidentally commit runtime data.
-
-**Proposed fix / improvement:**
-- [ ] Add `bmo/pi/data/board_decisions_outbox.jsonl` and `bmo/pi/data/nudges/` to `.gitignore` (mirror the `vtt_sync_outbox.jsonl` pattern).
-
-**Related files:** `.gitignore:124`, `bmo/pi/data/board_decisions_outbox.jsonl` (runtime), `docs/BOARD-APPROVAL-BRIDGE.md`
-
-**Update [2026-07-15, bmo-errors]:** The class is growing — the deploy checkout now also shows untracked `bmo/pi/data/board_decisions_cursor.<agent-id>` (×7, written by the outbox consumers, all active today) and a `bmo/pi/data/dm_session_state.json.pre-reconcile-20260715` backup from today's DM-state reconcile. Whatever ignore fix lands should cover `board_decisions_cursor.*` and `*.pre-reconcile-*` too.
-
----
 
 ### [2026-07-02] `bmo.service` stop still leaves child processes behind after the KillMode fix — stale `adb` server survives three restarts and lives in the current cgroup
 
