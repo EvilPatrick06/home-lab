@@ -284,3 +284,13 @@ button:active, [role="button"]:active {
 /* Toggle switch transitions */
 button .translate-x-4 { transform: translateX(1rem); }
 button .translate-x-0\.5 { transform: translateX(0.125rem); }
+
+/* PHASE-20 20B: at phone widths compress the bottom tab bar so all 8 tabs
+   fit in the viewport (icon-only, narrower min-width) instead of relying on
+   an invisible horizontal scroll. Lives here because the purged Tailwind
+   build has no responsive breakpoint variants (hand-written CSS is exempt
+   from the purge). 8 tabs x 46px = 368px fits a 375px viewport. */
+@media (max-width: 600px) {
+  nav button.tab-btn { min-width: 46px; }
+  nav button.tab-btn .tab-label { display: none; }
+}

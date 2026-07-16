@@ -192,3 +192,14 @@ grep -n 'BMO_DISABLE_OLED' bmo/pi/app.py | head
 
 - **Undo (restore-deleted-event) support** — would need a new backend endpoint + Google Calendar re-insert semantics; the arming confirm covers the QA risk. Log as a future-idea if desired.
 - **The banner trigger condition itself** — intentional per Phase 39c; unchanged.
+
+## Completed
+
+Implemented 2026-07-15 (owner-approved via the status board) on `auto/bmo-phase-executer`.
+
+- **Pre-state drift (rule 3):** the 19C backend None-guard on `/api/camera/describe` had already landed at HEAD (`bmo/pi/app.py:1439-1440` + `tests/test_camera_describe_guard.py`) before this run — only the classifier-fallback half of 19C step 1 remained; implemented as planned.
+- **19A** — two-step confirm in `deleteCalEvent` (`bmo/pi/web/static/js/bmo.js:2151-2166`; state at `:220-221`) + armed "Sure?" button with forced visibility and `@click.away` disarm (`bmo/pi/web/templates/index.html:1162-1169`). Sweep found no other `calendar/delete` callers.
+- **19B** — `fixSilentPlayback()` resolves muted and/or volume-0 (30% floor) with outcome/error toasts (`bmo/pi/web/static/js/bmo.js:2344-2372`); banner CTA rewired + state-matched label (`index.html:36-39`). Frontend-only two-call fix (plan default).
+- **19C** — NoneType/describe_scene classifier fallback so a mid-flight teardown can't leak raw text (`bmo/pi/app.py:1475-1479`); toast container raised to inline `z-index:60` above the z-50 camera/snap overlays (`index.html:2098-2100`); Snap/Describe/Motion disabled + dimmed while `!cameraActive` (`index.html:2118-2131`). Pytest: teardown-fallback test added (`tests/test_camera_describe_guard.py::test_describe_teardown_never_leaks_raw_nonetype`).
+- **19D** — POST `/api/oled/expression` returns `applied`/`disabled` truthfully (`bmo/pi/app.py:1760-1768`); face picker toasts "Face display is disabled on this device" on `applied: false` (`bmo/pi/web/static/js/bmo.js:2312-2320`). Step 3 (persistent Face-section hint) skipped as the plan marked it optional — the toast covers the QA finding without new health plumbing. Pytest: `tests/test_oled_expression_truth.py` (disabled + applied paths).
+- **Verification:** targeted pytest 13 passed (describe-guard, oled-truth, security-headers); `ruff check` clean; `node --check bmo.js` clean. Frontend acceptance walk rides the owner-run deploy (rule 6).

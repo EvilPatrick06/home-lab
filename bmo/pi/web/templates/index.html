@@ -33,28 +33,35 @@
   <div x-show="systemAudioMuted" x-cloak
        class="bg-amber-700 text-amber-50 px-4 py-2 text-center text-sm shrink-0 flex items-center justify-center gap-3">
     <span x-text="(volumeLevels?.system === 0 && !volumeLevels?.muted) ? '🔈 Master volume is 0% — playback will produce no sound.' : '🔇 System audio is muted — playback will produce no sound.'"></span>
-    <button @click="fetch('/api/audio/unmute',{method:'POST'}).then(()=>fetchControlsData())"
-            class="underline font-semibold">Unmute</button>
+    <!-- PHASE-19 19B: the CTA fixes whichever condition triggered the banner
+         (unmute and/or restore volume), with a label to match. -->
+    <button @click="fixSilentPlayback()" class="underline font-semibold"
+            x-text="volumeLevels?.muted ? 'Unmute' : 'Raise volume'"></button>
   </div>
 
   <!-- Top Bar -->
   <header class="h-[60px] shrink-0 bg-surface flex items-center justify-between px-4 text-base border-b border-surface-light z-10 relative"
           @click="tab = 'calendar'">
-    <div class="flex items-center gap-3">
-      <span x-text="clock" class="font-mono text-accent-light text-lg whitespace-nowrap"></span>
-      <span x-text="dateStr" class="text-text-muted text-sm"></span>
+    <!-- PHASE-20 20A: min-w-0 on both flex groups lets the header actually
+         shrink (17B's truncate on the leaf span never engaged because the
+         groups kept min-width:auto); shrink-0 pins the must-reach controls
+         (pill, temp, bell, status dot) so the flexible text yields first and
+         the bell stays tappable at 375 px. -->
+    <div class="flex items-center gap-3 min-w-0 overflow-hidden">
+      <span x-text="clock" class="font-mono text-accent-light text-lg whitespace-nowrap shrink-0"></span>
+      <span x-text="dateStr" class="text-text-muted text-sm truncate min-w-0"></span>
     </div>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-3 min-w-0">
       <!-- QA #6: live overall-health pill -->
-      <span :class="healthPillClass()" class="px-2 py-0.5 rounded-full text-xs font-medium"
+      <span :class="healthPillClass()" class="px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap shrink-0"
             x-text="healthSummary" @click.stop></span>
-      <span x-show="weather.temperature !== null" class="text-text-muted text-sm">
+      <span x-show="weather.temperature !== null" class="text-text-muted text-sm whitespace-nowrap shrink-0">
         <span x-text="weather.temperature + '°F'"></span>
         <span x-text="weatherIcon(weather.icon)" class="ml-1 text-base"></span>
       </span>
       <span x-show="locationLabel" class="text-text-dim text-xs truncate min-w-0" x-text="locationLabel"></span>
       <!-- Notification bell -->
-      <div class="relative" @click.stop="showNotifications = !showNotifications; unreadNotifications = 0; ideCompletedJobCount = 0">
+      <div class="relative shrink-0" @click.stop="showNotifications = !showNotifications; unreadNotifications = 0; ideCompletedJobCount = 0">
         <span class="text-text-muted cursor-pointer text-lg">&#x1F514;</span>
         <span x-show="unreadNotifications > 0 || ideCompletedJobCount > 0"
               class="absolute -top-1 -right-1 bg-accent text-surface-dark text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center"
@@ -81,7 +88,7 @@
           <div x-show="notificationHistory.length === 0" class="px-3 py-4 text-sm text-text-dim text-center">No notifications</div>
         </div>
       </div>
-      <span class="w-2.5 h-2.5 rounded-full" :class="statusColor"></span>
+      <span class="w-2.5 h-2.5 rounded-full shrink-0" :class="statusColor"></span>
     </div>
   </header>
 
@@ -188,10 +195,11 @@
         <div class="h-6 bg-surface rounded w-32 mb-2"></div>
         <div class="h-3 bg-surface rounded w-44"></div>
       </div>
-      <!-- Next Events card -->
-      <div x-show="calEvents.length > 0" class="bg-surface-light rounded-xl px-3 py-2">
+      <!-- Next Events card. PHASE-20 20E: now-forward only (agrees with the
+           Week view) — a long-finished event no longer stays pinned all day. -->
+      <div x-show="upcomingCalEvents().length > 0" class="bg-surface-light rounded-xl px-3 py-2">
         <div class="text-xs text-text-dim uppercase tracking-wider mb-1">Upcoming</div>
-        <template x-for="(event, i) in calEvents.slice(0, 3)" :key="event.id || i">
+        <template x-for="(event, i) in upcomingCalEvents()" :key="event.id || i">
           <div class="flex items-center gap-2 py-0.5 cursor-pointer" @click="tab = 'calendar'">
             <div class="w-1 h-6 bg-accent rounded-full shrink-0"></div>
             <div class="flex-1 min-w-0">
@@ -698,24 +706,28 @@
       <!-- Queue Overlay -->
       <div x-show="showQueue" class="absolute inset-0 z-20 bg-surface-dark flex flex-col">
         <div class="flex items-center justify-between mb-1 shrink-0">
-          <h3 class="text-base font-medium text-text-muted">Queue (<span x-text="(musicState.queue || []).length"></span> songs)</h3>
+          <!-- PHASE-20 20C: the panel reads queueView (GET /api/music/queue —
+               the visible current+upcoming slice; get_queue hides already-played
+               entries, so the copy reads "Up next"). musicState.queue was never
+               populated by any code path, so the old binding was always empty. -->
+          <h3 class="text-base font-medium text-text-muted">Up next (<span x-text="(queueView.queue || []).length"></span> songs)</h3>
           <button @click="showQueue = false" class="text-sm text-text-dim hover:text-text">Close</button>
         </div>
         <div class="flex-1 overflow-y-auto space-y-0.5 min-h-0">
-          <template x-if="(musicState.queue || []).length === 0">
-            <p class="text-sm text-text-dim text-center py-6">Queue is empty -- search for songs to add</p>
+          <template x-if="(queueView.queue || []).length === 0">
+            <p class="text-sm text-text-dim text-center py-6">Nothing queued next -- search for songs to add</p>
           </template>
-          <template x-for="(qSong, qi) in (musicState.queue || [])" :key="'q'+qi">
+          <template x-for="(qSong, qi) in (queueView.queue || [])" :key="'q'+qi">
             <div class="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg group"
-                 :class="qi === musicState.queue_index ? 'bg-accent/15 border border-accent/30' : 'bg-surface-light hover:bg-accent/10'">
+                 :class="qi === queueView.queue_index ? 'bg-accent/15 border border-accent/30' : 'bg-surface-light hover:bg-accent/10'">
               <span class="text-xs text-text-dim w-4 text-right shrink-0" x-text="qi + 1"></span>
               <img :src="qSong.thumbnail" class="w-9 h-9 rounded object-cover shrink-0" x-show="qSong.thumbnail" referrerpolicy="no-referrer">
               <div class="flex-1 min-w-0 cursor-pointer" @click="playSong(qSong)">
-                <div class="text-sm truncate" :class="qi === musicState.queue_index ? 'text-accent font-medium' : ''" x-text="qSong.title"></div>
+                <div class="text-sm truncate" :class="qi === queueView.queue_index ? 'text-accent font-medium' : ''" x-text="qSong.title"></div>
                 <div class="text-xs text-text-muted truncate" x-text="qSong.artist"></div>
               </div>
               <span class="text-xs text-text-dim shrink-0" x-text="qSong.duration"></span>
-              <button x-show="qi !== musicState.queue_index" @click.stop="removeFromQueue(qi)"
+              <button x-show="qi !== queueView.queue_index" @click.stop="removeFromQueue(qi)"
                       class="w-6 h-6 shrink-0 flex items-center justify-center rounded-full text-text-dim hover:text-red-400 hover:bg-red-900/30 opacity-0 group-hover:opacity-100 transition-all"
                       title="Remove from queue">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
@@ -723,7 +735,7 @@
                 </svg>
               </button>
               <!-- Equalizer icon for currently playing -->
-              <div x-show="qi === musicState.queue_index && musicState.is_playing" class="flex items-end gap-[2px] h-3 shrink-0 w-6 justify-center">
+              <div x-show="qi === queueView.queue_index && musicState.is_playing" class="flex items-end gap-[2px] h-3 shrink-0 w-6 justify-center">
                 <span class="w-[2px] bg-accent rounded-full animate-[eq1_0.6s_ease-in-out_infinite]" style="height:8px"></span>
                 <span class="w-[2px] bg-accent rounded-full animate-[eq2_0.7s_ease-in-out_infinite]" style="height:12px"></span>
                 <span class="w-[2px] bg-accent rounded-full animate-[eq3_0.5s_ease-in-out_infinite]" style="height:6px"></span>
@@ -889,8 +901,10 @@
               <span x-text="formatTime(musicState.duration)"></span>
             </div>
           </div>
-          <!-- Transport controls -->
-          <div class="flex items-center gap-2">
+          <!-- Transport controls. PHASE-20 20D: flex-wrap lets the
+               History/Lyrics/Queue text buttons wrap to a second line instead
+               of clipping at the card edge at 1024x600. -->
+          <div class="flex items-center gap-2 flex-wrap">
             <button @click="musicCmd('shuffle')" class="w-12 h-12 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
                     :class="musicState.shuffle ? 'text-accent' : 'text-text-dim'">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -946,7 +960,7 @@
                     class="flex items-center gap-1.5 bg-surface-light text-text-muted text-base rounded-lg px-4 py-2.5 hover:bg-white/10 transition-colors">
               Lyrics
             </button>
-            <button @click="showQueue = true"
+            <button @click="showQueue = true; fetchQueue()"
                     class="flex items-center gap-1.5 bg-surface-light text-text-muted text-base rounded-lg px-4 py-2.5 hover:bg-white/10 transition-colors relative">
               Queue
               <span x-show="musicState.queue_length > 1"
@@ -1145,7 +1159,14 @@
               <div class="flex items-center gap-1">
                 <span x-show="event.recurring || (event.recurrence && event.recurrence.length > 0)" class="text-sm text-text-dim">&#x1F501;</span>
                 <span x-show="event.all_day" class="text-sm text-accent bg-accent/10 px-1.5 rounded">All Day</span>
-                <button @click.stop="deleteCalEvent(event.id)" class="text-sm text-red-400 hover:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity px-1">Del</button>
+                <!-- PHASE-19 19A: two-step confirm — first tap arms ("Sure?",
+                     stays visible), second tap within 4 s deletes; tapping
+                     elsewhere disarms. -->
+                <button @click.stop="deleteCalEvent(event.id)"
+                        @click.away="if (confirmingDeleteId === event.id) confirmingDeleteId = null"
+                        class="text-sm text-red-400 hover:text-red-300 transition-opacity px-1"
+                        :class="confirmingDeleteId === event.id ? 'opacity-100 font-semibold' : 'opacity-0 group-hover:opacity-100'"
+                        x-text="confirmingDeleteId === event.id ? 'Sure?' : 'Del'"></button>
               </div>
             </div>
             <div class="text-sm text-text-muted mt-0.5" x-text="event.start + (event.end && !event.all_day ? ' — ' + event.end : '')"></div>
@@ -1158,7 +1179,10 @@
           <button @click="startCalendarAuth()" class="px-3 py-1.5 bg-accent/80 hover:bg-accent text-black rounded text-sm font-semibold">Authorize Calendar</button>
         </div>
         <div x-show="getFilteredCalEvents().length === 0 && !calNeedsAuth && !calOffline && calDays === 1" class="text-center text-text-muted py-8">It looks like you are free today 🎉</div>
-        <div x-show="getFilteredCalEvents().length === 0 && !calNeedsAuth && !calOffline && calDays !== 1" class="text-center text-text-muted py-8">No events</div>
+        <!-- PHASE-20 20E: Week/Month/Year are now-forward by design — say so
+             instead of a bare "No events" that contradicts Home. -->
+        <div x-show="getFilteredCalEvents().length === 0 && !calNeedsAuth && !calOffline && calDays !== 1" class="text-center text-text-muted py-8"
+             x-text="calDays === 7 ? 'No more events this week' : calDays === 31 ? 'No more events this month' : 'No more events this year'"></div>
       </div>
     </div>
 
@@ -2061,12 +2085,16 @@
   </div>
 
   <!-- Bottom Tab Bar -->
+  <!-- PHASE-20 20B: at phone widths bmo.css compresses the tabs (icon-only,
+       narrower min-width via .tab-btn/.tab-label) so all 8 fit with no
+       invisible horizontal scroll. Purged Tailwind has no breakpoint
+       variants, so the media query lives in hand-written bmo.css. -->
   <nav class="h-[60px] shrink-0 bg-surface border-t border-surface-light flex overflow-x-auto z-10 relative">
     <template x-for="t in tabs" :key="t.id">
-      <button @click="if(t.id === 'ide') { window.location.href = '/ide'; return; } tab = t.id" class="flex-1 min-w-[70px] flex flex-col items-center justify-center gap-0.5 transition-colors"
+      <button @click="if(t.id === 'ide') { window.location.href = '/ide'; return; } tab = t.id" class="tab-btn flex-1 min-w-[70px] flex flex-col items-center justify-center gap-0.5 transition-colors"
               :class="tab === t.id ? 'text-accent' : 'text-text-dim'">
         <span class="text-2xl" x-text="t.icon"></span>
-        <span class="text-[11px] font-medium" x-text="t.label"></span>
+        <span class="tab-label text-[11px] font-medium" x-text="t.label"></span>
       </button>
     </template>
   </nav>
@@ -2077,9 +2105,14 @@
        accent-green look. -->
   <div x-show="notification && !alertFired" x-transition
        :class="notificationType === 'error' ? 'bg-rose-600 text-white' : 'bg-accent text-surface-dark'"
-       class="fixed top-0 left-0 right-0 px-4 py-2 text-sm font-medium text-center z-50 cursor-pointer"
+       class="fixed top-0 left-0 right-0 px-4 py-2 text-sm font-medium text-center cursor-pointer"
+       style="z-index:60"
        @click="notification = null" x-text="notification">
   </div>
+  <!-- PHASE-19 19C: toasts sit at z-index 60 (inline style — z-[60] isn't in
+       the purged Tailwind build) so they render ABOVE the z-50 camera overlay
+       and snap preview; previously any toast fired while the camera overlay
+       was open was painted behind it (equal z-50, later DOM sibling wins). -->
 
   <!-- Camera Overlay (accessed from chat). Round 4 #5/#6 (2026-05-17):
        no enter transition — snap to fully opaque immediately so the
@@ -2098,9 +2131,19 @@
       <div x-show="visionResult" class="absolute bottom-0 left-0 right-0 bg-surface-dark/80 p-3 text-sm max-h-[40%] overflow-y-auto break-words whitespace-pre-wrap" x-text="visionResult"></div>
     </div>
     <div class="flex gap-2 p-2 justify-center border-t border-surface-light shrink-0">
-      <button @click="cameraSnap()" class="bg-surface-light hover:bg-accent/20 px-4 py-2 rounded-lg text-sm">Snap</button>
-      <button @click="cameraDescribe()" class="bg-surface-light hover:bg-accent/20 px-4 py-2 rounded-lg text-sm">Describe</button>
-      <button @click="toggleMotion()" class="px-4 py-2 rounded-lg text-sm"
+      <!-- PHASE-19 19C: while the camera is offline the capture controls are
+           disabled + dimmed, mirroring the "Camera offline" label's condition
+           (inline style — opacity-40/cursor-not-allowed aren't in the purged
+           Tailwind build). -->
+      <button @click="cameraSnap()" :disabled="!cameraActive"
+              :style="!cameraActive ? 'opacity:.4;cursor:not-allowed' : ''"
+              class="bg-surface-light hover:bg-accent/20 px-4 py-2 rounded-lg text-sm">Snap</button>
+      <button @click="cameraDescribe()" :disabled="!cameraActive"
+              :style="!cameraActive ? 'opacity:.4;cursor:not-allowed' : ''"
+              class="bg-surface-light hover:bg-accent/20 px-4 py-2 rounded-lg text-sm">Describe</button>
+      <button @click="toggleMotion()" :disabled="!cameraActive"
+              :style="!cameraActive ? 'opacity:.4;cursor:not-allowed' : ''"
+              class="px-4 py-2 rounded-lg text-sm"
               :class="motionEnabled ? 'bg-accent text-surface-dark' : 'bg-surface-light'">Motion</button>
       <!-- Round 3 #12: explicitly switch to chat tab on close so the user
            doesn't accidentally land somewhere else if a tab button click

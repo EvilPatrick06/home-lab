@@ -41,11 +41,13 @@ You **do not fix anything** and you **do not edit any existing repo or Pi files*
 
 ## 3. Environment setup
 
-0. **Request all access you'll need up front, in one batch** — so the user grants once. You need **a browser you can drive** (Claude-for-Chrome / the in-browser driver is ideal — the dashboard is a JS SPA, so DOM-aware driving + direct console reads beat pixel-clicking). If the dashboard is best reached on the Pi's LAN/localhost, you may also need terminal access to confirm service state read-only. Ask for what you need before testing; if denied, note it and mark dependent areas "Could not test."
+0. **Request all access you'll need up front, in one batch** — so the user grants once. You need **a browser you can drive** (Claude-for-Chrome / the in-browser driver is ideal — the dashboard is a JS SPA, so DOM-aware driving + direct console reads beat pixel-clicking). If the dashboard is best reached on the Pi's loopback, you may also need terminal access to confirm service state read-only. Ask for what you need before testing; if denied, note it and mark dependent areas "Could not test."
 1. **Fetch current source (context only):** `git -C /home/patrick/home-lab fetch origin && git -C /home/patrick/home-lab log -1 --oneline`.
 2. **Open bmo's dashboard.** The bmo admin dashboard is **`/bmo`** (the bare root `/` redirects to the VTT — out of scope):
-   - **On the Pi / LAN:** `http://bmo.local:5000/bmo` or `http://127.0.0.1:5000/bmo` (localhost + LAN are exempt from the API-key gate; the kiosk uses this).
-   - **Off-LAN (external):** `https://bmo.mybmoai.work/bmo` — but this sits behind **Cloudflare Access** (a sign-in wall) and, when `BMO_API_KEY` hardening is enabled, also an API-key gate. If you can't pass CF Access, test from the LAN/localhost path and note the external-auth surface under "Could not test" (or verify the gate logic in `bmo/pi/app.py` read-only).
+   - **On the Pi (loopback):** `http://127.0.0.1:5000/bmo` — loopback is the **only** key-gate-exempt surface (the kiosk uses this; `_bmo_client_is_trusted_localhost` in `bmo/pi/app.py` trusts a loopback peer with no forwarding headers, nothing else).
+   - **Plain LAN is refused by design:** `http://bmo.local:5000/bmo` from another machine is rejected outright by the **transport source gate** (`bmo/pi/source_gate.py`, installed in `app.py`) — it drops non-loopback/non-tailnet peers *before* routing so the shared `BMO_API_KEY` never crosses the plain-HTTP LAN leg in cleartext. Expect a refusal here; that is correct behavior, not a finding. (Owner escape hatches: `BMO_SOURCE_GATE=off`, `BMO_EXTRA_SOURCE_CIDRS`.)
+   - **Tailnet:** passes the source gate, but needs the `Authorization: Bearer $BMO_API_KEY` header when `BMO_API_KEY` is set — this is how a non-Pi LAN/remote client is *supposed* to connect.
+   - **Off-LAN (external):** `https://bmo.mybmoai.work/bmo` — behind **Cloudflare Access** (a sign-in wall) plus the API-key gate when enabled. If you can't pass CF Access, test from the Pi's loopback path and note the external-auth surface under "Could not test" (or verify the gate logic in `bmo/pi/app.py` read-only).
    - **Web IDE:** `/ide` (standalone full-page). The dashboard **"IDE" tab is an intentional full-page redirect to `/ide`** (`window.location.href='/ide'`), not an embedded in-tab editor (see `DESIGN-CONSTRAINTS.md` “Two IDE implementations coexist”) — so test the redirect + the standalone page, not an in-place panel. (`bmo/README.md` also mentions an experimental editor at `http://bmo.local:5001` — verify which is live; note any mismatch as a finding.)
    - There is no version-tag/installer; record the date + the `origin/master` short SHA you cross-checked against, plus any build/asset-mtime stamp the page exposes (`/bmo` cache-busts static assets by mtime).
 3. **Open DevTools (F12) and keep the Console in view.** Read it after anything that plausibly logs — a tab switch, a socket.io action, a music/TV command, a camera call, a render-heavy panel — and at least once per tab. Watch for JS errors, failed `/api/*` requests, socket.io/WebSocket errors, CSP violations, Alpine warnings, and unhandled rejections. The dashboard is realtime (socket.io) — watch for connection-state churn (`cf_expired`, `offline`). A clean-looking UI with a noisy console is still a finding.
@@ -88,7 +90,7 @@ The web IDE (xterm terminal + editor). The dashboard **"IDE" tab redirects (full
 ### 4.9 Cross-cutting surfaces
 - **Notifications & realtime:** the socket.io connection, the notification history panel, the offline / `cf_expired` banners and their recovery.
 - **Voice:** where the mic is attached and the dashboard exposes voice enroll/profiles, exercise them; otherwise verify the controls + degrade-gracefully behavior.
-- **Auth surface (read-only-ish):** confirm the localhost/LAN path is open and the external path is gated (CF Access / API key). Don't try to defeat the gate — verify it behaves.
+- **Auth surface (read-only-ish):** confirm loopback is open, a plain-LAN peer is **refused** (the transport source gate — expected, not a finding), a tailnet client needs the Bearer key when `BMO_API_KEY` is set, and the external path is gated (CF Access / API key). Don't try to defeat the gates — verify they behave.
 
 ---
 
@@ -110,7 +112,7 @@ When something's wrong, **reproduce it** with clean steps. Cross-check the sourc
 - Don't **edit, fix, delete, or mutate** any **existing** repo file or the Pi's live files/services/data — no SSH edits, no `systemctl restart`, no deploys, no `pi/.env` changes. The **only** writing you do is creating your report + screenshots in `bmo/docs/phases/QA/`, which you then **commit and push — staging *only* that folder.**
 - Don't write into the repo's issue/suggestion logs (`docs/logs/BMO-ISSUES-LOG.md`, `docs/logs/BMO-SUGGESTIONS-LOG.md`) — those belong to editing agents. Your report is your own separate file in the QA folder.
 - Don't leave real-world side effects running — cancel test timers/alarms, delete test calendar/list/note entries, stop test audio, return LEDs/face to a sane state (rule 5).
-- Don't try to defeat Cloudflare Access / the API-key gate; verify it behaves and test from the LAN/localhost path.
+- Don't try to defeat Cloudflare Access / the API-key gate / the transport source gate; verify they behave and test from the Pi's loopback path (plain-LAN peers are refused by design).
 
 ---
 
