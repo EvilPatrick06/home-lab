@@ -78,7 +78,7 @@
 | 60 | PHASE-60-web-campaign-version-history-api-parity.md | dnd-app | — | done |
 | 61 | PHASE-61-web-deploy-asset-retention-sweep-precision.md | cross | 44 (lineage) | done |
 | 62 | PHASE-62-web-i18n-brand-terminology-consistency.md | dnd-app | — (sibling 57, 58) | done |
-| 63 | PHASE-63-web-serving-cache-immutable-csp-scope.md | bmo | — | pending |
+| 63 | PHASE-63-web-serving-cache-immutable-csp-scope.md | bmo | — | done |
 | 64 | PHASE-64-autosave-orphan-engine-settings-truth.md | dnd-app | — | pending |
 | 65 | PHASE-65-qa-i18n-same-value-metric-pinning.md | dnd-app | — | pending |
 
