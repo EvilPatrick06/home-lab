@@ -172,7 +172,8 @@ class CalendarService:
                     if "invalid_grant" in err or "invalid_scope" in err:
                         raise RuntimeError(
                             "Google Calendar refresh failed (token revoked or expired). "
-                            "Re-authorize: `cd ~/home-lab/bmo/pi && ./venv/bin/python services/reauth_calendar.py` "
+                            "Re-authorize from the DEPLOY checkout (the live token lives there): "
+                            "`cd ~/home-lab-deploy/bmo/pi && ./venv/bin/python services/reauth_calendar.py` "
                             "(paste code) or run `services/authorize_calendar.py` in a browser session."
                         ) from e
                     raise

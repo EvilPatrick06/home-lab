@@ -12,6 +12,18 @@
 
 ---
 
+### [2026-07-15] New board-decision runtime files not gitignored — deploy checkout left permanently dirty (RESOLVED)
+
+- **Category:** config
+- **Severity:** low (resolved)
+- **Domain:** bmo
+
+**Description:** The board-approval bridge / nudge work wrote `bmo/pi/data/board_decisions_outbox.jsonl`, `bmo/pi/data/board_decisions_cursor.*` (×7), `bmo/pi/data/nudges/`, and `*.pre-reconcile-*` backups at runtime, none covered by `.gitignore` — so the deploy checkout was never `git status`-clean (dirty-tree canaries false-positive) and a `git clean -fd` would have deleted live pending board decisions / cursors / nudges.
+
+**Resolution [2026-07-15, bmo-resolver]:** Added `bmo/pi/data/board_decisions_outbox.jsonl`, `bmo/pi/data/board_decisions_cursor.*`, `bmo/pi/data/nudges/`, and `bmo/pi/data/*.pre-reconcile-*` to `.gitignore` (mirroring the `vtt_sync_outbox.jsonl` pattern) on `auto/bmo-resolver`. Covers the class-growth follow-up (cursor files + reconcile backups) from the bmo-errors update in one set of globs. No restart needed.
+
+---
+
 ### [2026-07-02] No TTS phrase cache — recurring quips/timer/greeting utterances re-hit Fish Audio (RESOLVED)
 
 - **Category:** future-idea (UX / reliability), performance

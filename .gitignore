@@ -122,6 +122,12 @@ bmo/pi/data/recent_chat.seeded-backup-*.json
 bmo/pi/data/*.orphan-bak-*
 bmo/pi/data/voice_canary_status.json
 bmo/pi/data/vtt_sync_outbox.jsonl
+# Board-approval bridge / nudge runtime state (BMO-ISSUES 2026-07-15) — never commit;
+# a git clean must never delete pending board decisions / cursors / nudges / reconcile backups.
+bmo/pi/data/board_decisions_outbox.jsonl
+bmo/pi/data/board_decisions_cursor.*
+bmo/pi/data/nudges/
+bmo/pi/data/*.pre-reconcile-*
 bmo/pi/data/dnd_sessions/
 # Per-user cloud-account sync store: blobs + manifest.db under data/sync/<discord_id>/
 # (data/*.db above already covers data/accounts.db). Runtime USER data — never commit.

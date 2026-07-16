@@ -38,7 +38,7 @@ from flask import request
 from flask_socketio import emit, join_room
 
 from services.bmo_logging import get_logger
-from services.game.game_relay import get_relay
+from services.game.game_relay import RelayRejected, get_relay
 
 log = get_logger("game_relay_ws")
 
@@ -78,7 +78,12 @@ def register_game_relay(socketio_obj, *, api_key: str = "") -> None:
             "display_name": data.get("display_name"),
             "is_co_dm": data.get("is_co_dm"),
         }
-        result = relay.join(code, sid, peer_ref)
+        try:
+            result = relay.join(code, sid, peer_ref)
+        except RelayRejected as exc:
+            log.warning("[game-relay] rejected join code=%r: %s", code, exc)
+            emit("join-rejected", {"reason": str(exc)})
+            return
         join_room(code, namespace=GAME_NS)
         # The joiner learns who is already present (+ the room host).
         emit(
