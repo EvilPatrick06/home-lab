@@ -32,6 +32,45 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Medium
 
+### [2026-07-15] AI DM session-history log keyed by per-message UTC date — evening sessions west of UTC file under tomorrow's date and split at 00:00 UTC
+
+- **Category:** bug
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** dnd-errors
+- **During:** scheduled error scan — followed up the resolved chat-transcript UTC-header bug (RESOLVED-ISSUES-DNDAPP 2026-07-15) to check for the same class elsewhere
+
+**Description:**
+The AI DM's per-session memory log is keyed by `const sessionId = new Date().toISOString().slice(0, 10)` — the **UTC** calendar date — computed fresh **per message** in `ai-service.ts` (~line 1273, message append path) and again in `generateSessionSummary()` (~line 1600). `memory-manager.appendSessionLog(sessionId, …)` writes to `session-history/<sessionId>.md`. Three consequences for a user west of UTC (the typical US evening D&D slot):
+
+1. **Wrong date attribution:** a session played 7–11 pm MDT (01:00–05:00 UTC next day) files its entire log under tomorrow's date.
+2. **Mid-session split:** a session that crosses 00:00 UTC (e.g. starts 5 pm MDT = 23:00 UTC) is silently split across two `session-history/*.md` files, because the id is recomputed on every message.
+3. **Recap reads a partial log:** `listSessionLogDates()` sorts dates and the "Previously on…" session-start recap (`recap-context.ts` → `getSessionLog(latest date)`) consumes only the **latest** file — after a split, the recap is grounded on just the post-midnight tail of the previous session. `generateSessionSummary()` can likewise append the end-of-session summary under a *different* sessionId than the messages it summarizes.
+
+This is exactly the UTC-vs-local class fixed on 2026-07-15 for the chat-transcript export header (commit bed62439), but in the main-process AI memory path.
+
+**Reproduction (if bug):**
+1. Set system TZ to e.g. America/Denver; start an AI DM session at 5:30 pm local (23:30 UTC).
+2. Exchange messages past 6:00 pm local (00:00 UTC).
+3. Observe `<campaign>/session-history/`: two files (`<day>.md`, `<day+1>.md`) for one session; the next session's recap only sees the second file.
+
+**Expected behavior (if bug):** one session log per real session (or at least per LOCAL calendar date), stable for the whole sitting; the summary lands in the same log as its session's messages.
+
+**Hypothesis / root cause:** `toISOString()` is UTC by definition, and the id is derived per call instead of once per session (e.g. at conversation open, or from local date parts like the transcript-header fix).
+
+**Proposed fix / improvement:**
+- [ ] Derive the session id once per app session/conversation open (cache it on the conversation or memory manager) instead of per message, so a sitting never splits.
+- [ ] Use LOCAL date parts (`getFullYear/getMonth/getDate`, mirroring the chat-transcript-export.ts fix) for the id.
+- [ ] Consider a one-time migration/merge is NOT needed (old files remain readable); just note the change in the memory docs.
+- [ ] Unit test with fake timers + TZ override (same pattern as the transcript-header test added by dnd-resolver 2026-07-15) covering the 23:xx-UTC boundary.
+
+**Blocked by:** none
+
+**Related files:** `dnd-app/src/main/ai/ai-service.ts` (both `toISOString().slice(0, 10)` sites), `dnd-app/src/main/ai/memory/memory-manager.ts` (`appendSessionLog`, `getSessionLog`, `listSessionLogDates`), `dnd-app/src/main/ai/context/recap-context.ts`
+
+**Related entries:** RESOLVED-ISSUES-DNDAPP [2026-07-15] "Chat transcript export: header date is UTC while message times are local" (same bug class, renderer side)
+
+
 ### [2026-06-29] dnd-app/mobile Dependabot npm-deps bump fails `npm ci` — package-lock.json out of sync with package.json
 
 - **Category:** config
@@ -95,5 +134,69 @@ Grouped Dependabot PR #62 (`dependabot/npm_and_yarn/dnd-app/mobile/npm-deps-3255
 
 ## Low
 
-*(none currently logged)*
+### [2026-07-15] Remaining UTC-date leaks in user-facing renderer spots — export filenames, Timeline milestone default, import/export dateStamp
+
+- **Category:** bug
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-errors
+- **During:** scheduled error scan — sweep for `toISOString().slice(0, 10)` after the transcript-header UTC fix
+
+**Description:**
+The 2026-07-15 fix made the chat-transcript **header** use the local date, but several sibling user-facing spots still stamp the **UTC** date, so for an evening session west of UTC they show tomorrow's date — and in the transcript case the filename now disagrees with the (fixed, local) header inside the file:
+
+- `GameChatPanel.tsx` ~line 342: `chat-transcript-<UTC date>.md/json` download filename (mismatches the local header inside the exported file).
+- `CombatLogPanel.tsx` ~line 313: `combat-log-<UTC date>.<ext>` download filename.
+- `TimelineCard.tsx` lines ~27 and ~51: the **default date prefilled into a new campaign milestone** is the UTC date — an evening-created milestone defaults to tomorrow. This one is persisted user data, not just a filename.
+- `services/io/import-export.ts` ~line 367: `dateStamp` used in export bundle naming.
+- `ErrorBoundary.tsx` ~line 95: bug-report default filename (cosmetic).
+
+**Reproduction (if bug):**
+1. Set TZ to America/Denver, local time 8 pm on the 14th (02:00 UTC on the 15th).
+2. Export a chat transcript → file `chat-transcript-2026-07-15.md` whose header reads `# Session — 2026-07-14`; add a Timeline milestone → date field prefilled `2026-07-15`.
+
+**Expected behavior (if bug):** user-facing dates default to the LOCAL calendar date, consistent with the transcript header fix.
+
+**Hypothesis / root cause:** same class as the resolved header bug — `toISOString()` is UTC; these call sites were written independently and were not covered by the header fix.
+
+**Proposed fix / improvement:**
+- [ ] Add a tiny shared `localDateStamp()` helper (local `getFullYear/getMonth/getDate`, zero-padded) and use it at all five sites.
+- [ ] Optionally add a forbidden-patterns lint for `toISOString().slice(0, 10)` in renderer user-facing code to stop the class recurring (main-process machine-facing ids exempt as appropriate).
+
+**Blocked by:** none
+
+**Related files:** `dnd-app/src/renderer/src/components/game/bottom/GameChatPanel.tsx`, `dnd-app/src/renderer/src/components/game/sidebar/CombatLogPanel.tsx`, `dnd-app/src/renderer/src/pages/campaign-detail/TimelineCard.tsx`, `dnd-app/src/renderer/src/services/io/import-export.ts`, `dnd-app/src/renderer/src/components/ui/ErrorBoundary.tsx`
+
+**Related entries:** RESOLVED-ISSUES-DNDAPP [2026-07-15] chat-transcript UTC header (same class); active entry above "AI DM session-history log keyed by per-message UTC date" (main-process sibling)
+
+### [2026-07-15] DiceHistory log never auto-scrolls on new rolls — effect comment promises it but deps don't include the history
+
+- **Category:** bug, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-errors
+- **During:** scheduled error scan — review of the v2.8.2 dice-stats feature surface
+
+**Description:**
+In `DiceHistory.tsx` the effect commented "Auto-scroll to bottom on new entries (log view only)" runs only on `[view]` (and before v2.8.2, only on mount — `[]`), so it fires when the user switches Log/Stats tabs but **never when a new roll arrives**. With the panel open during play, new rolls append below the fold and the log stays scrolled to older entries; the roll count in the header updates but the visible list doesn't follow. Longstanding (pre-dates the Stats tab); the v2.8.2 refactor kept the stale behavior and the now-misleading comment.
+
+**Reproduction (if bug):**
+1. Open the dice history panel; roll enough dice to overflow the scroll area.
+2. Scroll to the bottom, then roll again several times.
+3. Observed: the list does not scroll to reveal the new entries (only re-opening or switching tabs snaps to bottom).
+
+**Expected behavior (if bug):** the log follows new entries (at least when already at/near the bottom — the usual chat-log convention to avoid yanking a user who scrolled up).
+
+**Hypothesis / root cause:** effect deps are `[view]`; the effect body doesn't reference the history so neither biome's exhaustive-deps nor tests catch it.
+
+**Proposed fix / improvement:**
+- [ ] Depend on `filtered.length` (or last entry id) + `view`, and only snap when the user was already near the bottom (`scrollHeight - scrollTop - clientHeight < threshold`).
+- [ ] Align the comment with the behavior.
+
+**Blocked by:** none
+
+**Related files:** `dnd-app/src/renderer/src/components/game/dice3d/DiceHistory.tsx`
+
+**Related entries:** RESOLVED-ISSUES-DNDAPP [2026-07-03] dice-stats feature entry (surface this rode in on)
+
 
