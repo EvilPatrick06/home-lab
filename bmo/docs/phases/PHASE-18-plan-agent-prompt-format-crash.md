@@ -2,6 +2,10 @@
 
 > Authored 2026-07-02 from `bmo/docs/phases/QA/QA-report-2026-07-02.md` (run 4, live deploy `4c7bcd82`). Order/dependencies: [`PHASE-INDEX.md`](./PHASE-INDEX.md). Execute per [`INSTRUCTIONS.md`](./INSTRUCTIONS.md).
 
+> **Re-anchor 2026-07-15 (rule 3):** two drifts since authoring, verified against `origin/master@d6699d52`:
+> 1. **Path:** `bmo/pi/agents/plan_agent.py` moved to `bmo/pi/agents/dev/plan_agent.py` (`596f7f0e`, flat `agents/` grouped into `dnd/ home/ dev/` subpackages). All file citations below read accordingly.
+> 2. **18A already landed:** the log-resolver batch `a291bbd1` escaped both DESIGN_PROMPT brace literals (now `:49`/`:51` in the moved file) and added `tests/agents/test_plan_agent_prompts.py` with DESIGN/REDESIGN render tests. The F1 repro is silent at HEAD. **Remaining scope executed by this phase = the rest of 18B:** EXPLORE_PROMPT render test, the generic every-`*_PROMPT`-constant guard, and the `_design()` mocked-LLM smoke test.
+
 ## Goal
 
 Fix the report's single **HIGH** finding: the Plan agent crashes on **every** request. Selecting the Plan agent in the chat agent picker and sending any task returns the generic "I had trouble building that plan — try a different phrasing…" bubble; the plan review/approve/cancel flow is unreachable. The server log shows an unhandled `KeyError: 'state'` from `plan_agent.py` `_design()` on every attempt.
