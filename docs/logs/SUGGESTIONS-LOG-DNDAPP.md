@@ -77,6 +77,53 @@ New entries go at the TOP of their section (newest first).
 
 ---
 
+### [2026-07-15] `utils/dice-utils.ts` re-implements the dice parser/roller that `services/dice/dice-engine.ts` owns — two byte-identical regexes, one surviving importer
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** scheduled cleanup/reorganization scan of the dnd-app tree
+
+**Description:**
+`services/dice/dice-service.ts` documents itself as the app's dice chokepoint ("All dice rolls in the app should go through this service…") layered over the pure `services/dice/dice-engine.ts`, which owns `parseDiceFormula` (regex `/^(\d*)d(\d+)([+-]\d+)?$/`), `rollDice`, `rollDiceFormula`, and the extended `NdMkhX`/`klX` expression parser. `utils/dice-utils.ts` (38 LOC) independently re-implements `parseDiceFormula` with the byte-identical regex plus its own `rollDice`/`rollDiceFormula` and its own `ParsedDice`/`DiceRollResult` interfaces. Even `chat-commands/command-dice-utils.ts` correctly delegates to dice-service ("Dice helpers (delegate to dice-service)"); the utils copy is the odd one out and has exactly ONE non-test importer left: `components/game/modals/dm-tools/RollerQuickDice.tsx`. Two independent copies of the same grammar mean a future rule change (count/sides caps, new modifier syntax, kh/kl support) can silently diverge between the DM quick roller and every other roll path.
+
+**Hypothesis / root cause:** `utils/dice-utils.ts` predates the `services/dice/` extraction; migration re-pointed all callers except RollerQuickDice and nothing flagged the residual copy (knip sees it as used because one importer remains).
+
+**Proposed fix / improvement:**
+- [ ] Re-point `RollerQuickDice.tsx` at `services/dice/dice-engine` (pure, side-effect-free — preserves the quick roller's current local-only behavior) or `dice-service` if 3D/broadcast is wanted there.
+- [ ] Delete `utils/dice-utils.ts` + `utils/dice-utils.test.ts` (or reduce the module to a one-line re-export shim of dice-engine if import churn matters), folding any unique test cases into `dice-engine.test.ts`.
+
+**Blocked by:** none
+
+**Related files:** `dnd-app/src/renderer/src/utils/dice-utils.ts`, `dnd-app/src/renderer/src/services/dice/dice-engine.ts`, `dnd-app/src/renderer/src/services/dice/dice-service.ts`, `dnd-app/src/renderer/src/components/game/modals/dm-tools/RollerQuickDice.tsx`, `dnd-app/src/renderer/src/services/chat-commands/command-dice-utils.ts`
+
+**Related entries:** none (grep for "dice-utils" across active logs found nothing)
+
+### [2026-07-15] file-size ratchet guards only 7 hand-enrolled files — the 800–950-LOC tier (MapCanvas, use-ai-dm-store, effect-actions, LibraryPage, data-provider) can still grow unbounded; the approved "auto-enrollment" follow-up was never logged
+
+- **Category:** debt, future-idea
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** scheduled cleanup/reorganization scan of the dnd-app tree
+
+**Description:**
+`scripts/lint/file-size-budget.mjs` (wired into dnd-app-ci.yml) fails CI when a `BUDGETS`-listed file exceeds its ceiling, but enrollment is entirely manual. The 2026-07-15 dnd-resolver run enrolled the 1000+-LOC tier (ai-service 1694, ai-schemas 1622, ai-handlers 1209, web-api 1190, network-store/index 1007, joining GameLayout 1290 / PdfViewer 1236) and its resolution note explicitly left "the glob-derived auto-enrollment idea … as a possible follow-up" — but that follow-up lives only inside a RESOLVED-ISSUES-DNDAPP resolution paragraph, i.e. nowhere greppable in the active backlog. Meanwhile the next tier sits just under the enrolled files and is unguarded: `components/game/map/MapCanvas.tsx` (950), `stores/use-ai-dm-store.ts` (925), `services/game-actions/effect-actions.ts` (925), `pages/LibraryPage.tsx` (848), `services/data-provider/index.ts` (840). Any of these can absorb the next feature and sail past 1200 LOC without CI noticing — exactly the failure mode the ratchet exists to prevent.
+
+**Hypothesis / root cause:** The budget file was seeded per-effort (GameLayout/PdfViewer decomposition, then the approved 2026-07-15 enrollment); nothing makes enrollment systematic, so coverage always lags file growth by one manual pass.
+
+**Proposed fix / improvement:**
+- [ ] Extend `file-size-budget.mjs` with a global default ceiling: scan `src/**/*.{ts,tsx}` (excluding `*.test.*`, generated files like `i18n/generated-keys.ts`, and `*.d.ts`) and fail on any UNBUDGETED file above a threshold (e.g. 800 LOC), so new god-files auto-enroll instead of waiting for a manual pass.
+- [ ] Freeze the five files above into `BUDGETS` at their current LOC as grandfathered ceilings (same discipline as the existing entries), lowering them as decomposition lands.
+
+**Blocked by:** none
+
+**Related files:** `dnd-app/scripts/lint/file-size-budget.mjs`, `dnd-app/src/renderer/src/components/game/map/MapCanvas.tsx`, `dnd-app/src/renderer/src/stores/use-ai-dm-store.ts`, `dnd-app/src/renderer/src/services/game-actions/effect-actions.ts`, `dnd-app/src/renderer/src/pages/LibraryPage.tsx`, `dnd-app/src/renderer/src/services/data-provider/index.ts`
+
+**Related entries:** RESOLVED-ISSUES-DNDAPP [2026-07-15] file-size ratchet coverage (this is its explicitly-deferred follow-up); RESOLVED-ISSUES-DNDAPP "GameLayout / PdfViewer god-file decomposition"
+
+
 ### [2026-07-15] `docs/README.md` reference-doc index omits `TARGET-PARITY.md` (added 2026-07-03) — the index has no drift guard
 
 - **Category:** docs
