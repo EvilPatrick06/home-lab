@@ -79,3 +79,62 @@ How to triage: [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md)
 
 **Related entries:** [2026-07-02] `.gitignore` agent-lock globs entry (SUGGESTIONS-LOG.md) — same 2026-06 redesign left-over class
 
+
+### [2026-07-15] Fallback-identity agent commits are all misattributed to `dnd-e2e-harness` — the main checkout's repo-local `user.name`/`user.email` is the shared default for every agent worktree
+
+- **Category:** config, debt
+- **Severity:** medium
+- **Domain:** both
+- **Discovered by:** overall-errors
+- **During:** scheduled cross-cutting error scan — agent-fleet git machinery check
+
+**Description:**
+`/home/patrick/home-lab/.git/config` sets `user.name = dnd-e2e-harness` / `user.email = dnd-e2e-harness@automated.local` (repo-local; no `--global` identity exists on the Pi). Every agent worktree under `/home/patrick/home-lab-trees/` shares the main repo's `.git/config`, so any automated agent that does not set an explicit per-commit identity commits as **dnd-e2e-harness** — 177 commits on `master` since 2026-06-20 carry that identity, including integrator consolidation merges (`integrator: merge auto/…`), the `chore(release): bump dnd-app to v2.8.3` release commit, dnd-resolver fixes, a Dependabot fix-forward, and an overall-errors log append (`71c00b01`). `git log` provenance no longer answers "which agent did this" — exactly the audit trail the agent-id convention in `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md` exists to provide (and what a postmortem like the 2026-06-22 worktree incident needs). Compounding: the agents that DO set an identity use at least six inconsistent email domains (`@bmo.local`, `@home-lab.local`, `@local`, `@auto.local`, `@automated.local`, `@agents.local`), so per-agent history greps are unreliable even for the well-behaved ones.
+
+**Reproduction (if bug):**
+1. `cd /home/patrick/home-lab && git config --show-origin --get-all user.name` → `file:.git/config  dnd-e2e-harness`
+2. `git log --format="%ae" --since=2026-06-20 origin/master | sort | uniq -c | sort -rn` → 177× `dnd-e2e-harness@automated.local` spanning integrator/release/resolver/scanner commits
+
+**Expected behavior (if bug):** each automated commit is attributed to the agent-id that made it (one canonical email domain); the shared fallback is neutral, not another agent's name.
+
+**Hypothesis / root cause:** an earlier dnd-e2e harness setup ran `git config user.name/user.email` in the main checkout (repo-local, not `--worktree` or per-command `-c`); since worktrees inherit `.git/config`, that identity became the silent fleet-wide fallback.
+
+**Proposed fix / improvement:**
+- [ ] Replace the main checkout's repo-local identity with a neutral one (e.g. `home-lab-automation <automation@home-lab.local>`) — or remove it and let commits fail loudly when no identity is set
+- [ ] Add to `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md` setup: agents commit with `git -c user.name=<agent-id> -c user.email=<agent-id>@home-lab.local commit …` (pick ONE canonical domain) or set `--worktree` config at worktree creation
+- [ ] Optional drift guard: flag new `master` commits carrying the fallback identity
+
+**Blocked by:** none
+
+**Related files:** `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`
+
+**Related entries:** none
+
+### [2026-07-15] ISSUES-LOG.md carries a truncated duplicate of today's secret-scan entry — a single commit appended the same entry header twice
+
+- **Category:** docs, debt
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-errors
+- **During:** scheduled cross-cutting error scan — log-integrity check
+
+**Description:**
+The cross-cutting pointer log `docs/logs/ISSUES-LOG.md` contains the 2026-07-15 entry "Weekly full-history secret-scan sweep is permanently red…" **twice back-to-back**: a truncated copy (header + metadata + Description paragraph only, ending mid-entry with no Reproduction/fix sections) immediately followed by the complete copy. Both copies were introduced by the SAME commit (`71c00b01`, this morning's overall-errors run) — a malformed append by that run, not a union-merge artifact. The stray fragment inflates grep hits for the finding, risks a resolver double-processing or half-reading it, and once the real entry is moved to `RESOLVED-ISSUES.md` the orphaned fragment will linger as a phantom open issue.
+
+**Reproduction (if bug):**
+1. `grep -n "^### .2026-07-15. Weekly full-history" docs/logs/ISSUES-LOG.md` → two hits (lines ~19 and ~29)
+2. `git show 71c00b01 -- docs/logs/ISSUES-LOG.md | grep -c "^+### .2026-07-15. Weekly full-history"` → `2`
+
+**Expected behavior (if bug):** one canonical entry per finding.
+
+**Hypothesis / root cause:** the 2026-07-15 overall-errors run inserted its drafted entry twice while editing (draft retained above the final paste) and committed without re-reading the section.
+
+**Proposed fix / improvement:**
+- [ ] Delete the truncated first copy so exactly one canonical entry remains; when resolving the secret-scan finding itself, verify no fragment is left behind
+
+**Blocked by:** none
+
+**Related files:** `docs/logs/ISSUES-LOG.md`
+
+**Related entries:** [2026-07-15] Weekly full-history secret-scan sweep is permanently red (the duplicated entry itself)
+
