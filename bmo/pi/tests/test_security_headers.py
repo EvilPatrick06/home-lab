@@ -68,3 +68,15 @@ def test_html_cache_policy(client):
 def test_games_api_cors(client):
     r = client.get("/api/games")
     assert r.headers.get("Access-Control-Allow-Origin") == "*"
+
+
+def test_csp_allows_google_places(client):
+    # PHASE-21 21C: bmo.js injects the Google Maps/Places loader for calendar
+    # location autocomplete. The CSP must host-scope-allowlist the script +
+    # connect + img origins, or every add-form open trips a script-src
+    # violation and the feature silently rots (the 2026-07-02 QA finding).
+    # Pin the allowlist so future CSP edits are deliberate.
+    r = client.get("/__no_such_route__")
+    csp = r.headers.get("Content-Security-Policy", "")
+    assert "https://maps.googleapis.com" in csp  # loader (script-src) + XHR (connect-src)
+    assert "https://maps.gstatic.com" in csp  # static assets (script-src/img-src)

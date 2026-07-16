@@ -122,7 +122,7 @@ Optional sub-app:
 
 | Service | What | Port |
 |---|---|---|
-| `bmo-ide` | Embedded web IDE — **experimental, loopback-only** (the production IDE is `/ide` on the `bmo` service, :5000) | 5001 |
+| `ide_app` (:5001) | **Not installed as a service** — experimental/diverged second IDE, pending cutover/retirement (see `docs/DESIGN-CONSTRAINTS.md` 47-56). The production IDE is `/ide` on the `bmo` service, :5000. | — |
 
 Status: `systemctl status bmo bmo-fan bmo-kiosk bmo-dm-bot bmo-social-bot`.
 
@@ -213,7 +213,7 @@ A set of specialized AI agents (28 routable) — see the [docs index](./docs/REA
 
 ```bash
 cd pi
-./venv/bin/python -m pytest                                # full suite (93 test files)
+./venv/bin/python -m pytest                                # full suite (94 test files)
 ./venv/bin/python -m pytest tests/test_game_registry.py    # single file
 ./venv/bin/python -m pytest -m "not live"                  # skip tests hitting real APIs
 ./venv/bin/python -m pytest -m "not hardware"              # skip Pi-hardware tests
@@ -225,7 +225,7 @@ cd pi
 
 ```bash
 cd pi
-# edit code locally (or via the embedded IDE on :5001)
+# edit code locally (or via the production /ide editor on :5000)
 ./venv/bin/python -m pytest tests/                         # validate
 sudo systemctl restart bmo                                 # reload running service
 journalctl -u bmo -f                                       # tail logs

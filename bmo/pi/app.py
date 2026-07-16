@@ -184,7 +184,13 @@ def _cache_policy(response):
             # static.cloudflareinsights.com serves the CF Web Analytics beacon that
             # Cloudflare auto-injects on the tunnel; allow it (+ its RUM endpoint in
             # connect-src below) so it loads instead of being CSP-blocked.
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.jsdelivr.net https://cdn.socket.io https://static.cloudflareinsights.com; "
+            # 2026-07-15 (PHASE-21 21C): allow the Google Maps/Places JS loader
+            # (maps.googleapis.com) that bmo.js injects for calendar location
+            # autocomplete — the feature had rotted silently because every
+            # add-form open tripped a script-src violation. Host-scoped, plus
+            # maps.gstatic.com (static assets) and the matching connect-src/
+            # img-src entries below, per Google's Places-JS CSP guidance.
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.jsdelivr.net https://cdn.socket.io https://static.cloudflareinsights.com https://maps.googleapis.com https://maps.gstatic.com; "
             "worker-src 'self' blob: https://cdn.jsdelivr.net; "
             # 2026-06-29 (PHASE-14 14A): allow the Google Fonts stylesheet
             # origin so /ide's JetBrains Mono / Inter webfonts load instead of
@@ -199,7 +205,10 @@ def _cache_policy(response):
             "img-src 'self' data: blob: "
             "https://yt3.googleusercontent.com "
             "https://lh3.googleusercontent.com "
-            "https://i.ytimg.com; "
+            "https://i.ytimg.com "
+            # PHASE-21 21C: Places widget sprites + logos.
+            "https://maps.googleapis.com "
+            "https://maps.gstatic.com; "
             # 2026-06-29 (PHASE-14 14A): fonts.gstatic.com serves the actual
             # JetBrains Mono / Inter font files the /ide Google Fonts stylesheet pulls.
             "font-src 'self' data: https://cdn.jsdelivr.net https://fonts.gstatic.com; "
@@ -207,7 +216,8 @@ def _cache_policy(response):
             # (fetch of a 1x1 data: PNG) succeed instead of falling back to the
             # slower HTMLImage path. The Electron build's CSP already allows it.
             # cloudflareinsights.com is the CF Web Analytics RUM beacon endpoint.
-            "connect-src 'self' data: ws: wss: https://cloudflareinsights.com; "
+            # PHASE-21 21C: maps.googleapis.com — Places autocomplete XHR.
+            "connect-src 'self' data: ws: wss: https://cloudflareinsights.com https://maps.googleapis.com; "
             "frame-ancestors 'self'; "
             "base-uri 'self'; "
             "object-src 'none'",
@@ -1462,6 +1472,11 @@ def api_camera_describe():
                 description = "Vision unavailable: camera hardware not detected."
             elif "frame" in err_text:
                 description = "Vision unavailable: couldn't capture a camera frame."
+            elif "nonetype" in err_text or "describe_scene" in err_text:
+                # PHASE-19 19C: a mid-flight camera teardown (service went away
+                # after the route guard passed) raises the NoneType
+                # AttributeError — never leak that raw text to the UI.
+                description = "Vision unavailable: camera hardware not detected."
             else:
                 description = f"Vision failed: {str(e)[:120]}"
         socketio.emit("vision_result", {"description": description})
@@ -1743,7 +1758,14 @@ def api_oled_expression_set():
     data = request.get_json(silent=True) or {}
     expression = data.get("expression", "idle")
     _sync_expression(expression)
-    return jsonify({"ok": True, "expression": expression})
+    # PHASE-19 19D: report whether the face actually applied the expression.
+    # With BMO_DISABLE_OLED (oled_face is None) the face part of the sync is a
+    # no-op — the old unconditional success echo was immediately contradicted
+    # by GET. ok stays true (nothing *failed*; LEDs may still have synced).
+    if oled_face is None:
+        return jsonify({"ok": True, "applied": False, "disabled": True,
+                        "expression": expression})
+    return jsonify({"ok": True, "applied": True, "expression": expression})
 
 
 # ── Phase 31f LED + face plural aliases (QA #21, 2026-05-17) ──────────

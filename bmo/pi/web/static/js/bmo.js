@@ -199,6 +199,10 @@ function bmo() {
     musicMostPlayed: [],
     showHistory: false,
     showQueue: false,
+    // PHASE-20 20C: the queue panel's data — populated from GET /api/music/queue
+    // (musicState never carries a `queue` array, so binding it left the panel
+    // permanently "empty"). queue_index in this payload is re-based to 0.
+    queueView: { queue: [], queue_index: 0 },
     albumView: null,
 
     // TTS output
@@ -212,6 +216,9 @@ function bmo() {
 
     // Calendar
     calEvents: [],
+    // PHASE-19 19A: two-step calendar-delete confirm state (4 s window).
+    confirmingDeleteId: null,
+    _confirmDeleteTimer: null,
     calOffline: false,
     calNeedsAuth: false,  // PHASE-11 11B: calendar unauthorized/down
     calAuthUrl: '',
@@ -549,6 +556,9 @@ function bmo() {
       this.fetchLists();
       this.fetchRoutines();
       this.fetchAlerts();
+      // PHASE-20 20F: rehydrate the bell dropdown from server-side alert
+      // history so the nightly kiosk reload doesn't wipe the trail.
+      this.seedNotificationHistory();
 
       // QA #6 (2026-05-17): poll /api/health/full so the header pill reflects
       // overall subsystem status. CF Access expiry / network outage detected
@@ -763,6 +773,9 @@ function bmo() {
           this.miniPlayerHidden = false;
         }
         this.musicState = data;
+        // PHASE-20 20C: keep the open queue panel in sync with backend
+        // queue mutations (adds from chat/bots, autoplay advancing, etc.).
+        if (this.showQueue) this.fetchQueue();
         // Don't let music_state override the settings slider — settings API is source of truth
       });
       this.socket.on('next_event', (data) => { this.nextEvent = data; });
@@ -1783,6 +1796,16 @@ function bmo() {
       } catch {}
     },
 
+    async fetchQueue() {
+      // PHASE-20 20C: the queue panel reads GET /api/music/queue (the visible
+      // current+upcoming slice, queue_index re-based to 0).
+      try {
+        const res = await fetch('/api/music/queue');
+        const data = await res.json();
+        if (data && Array.isArray(data.queue)) this.queueView = data;
+      } catch {}
+    },
+
     async addToQueue(song) {
       await fetch('/api/music/queue/add', {
         method: 'POST',
@@ -1790,16 +1813,20 @@ function bmo() {
         body: JSON.stringify({ song }),
       });
       this.fetchMusicState();
+      if (this.showQueue) this.fetchQueue();
       this.showNotification(`Added to queue: ${song.title}`);
     },
 
     async removeFromQueue(index) {
+      // The on-screen index is the visible index (relative to the current
+      // song) — exactly what /api/music/queue/remove's handler expects.
       await fetch('/api/music/queue/remove', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ index }),
       });
       this.fetchMusicState();
+      if (this.showQueue) this.fetchQueue();
     },
 
     async playQueueItem(index) {
@@ -1874,6 +1901,16 @@ function bmo() {
     },
 
     // ── Calendar ──────────────────────────────────────────────
+
+    upcomingCalEvents() {
+      // PHASE-20 20E: the Home "Upcoming" card now agrees with the Week view's
+      // now-forward semantics — drop events that have already ended (an
+      // in-progress event still shows: end >= now). Previously calEvents
+      // .slice(0, 3) kept a long-finished event pinned all day.
+      const now = Date.now();
+      const endMs = (e) => new Date(e.end_iso || e.end || e.start_iso || e.start).getTime();
+      return this.calEvents.filter((e) => endMs(e) >= now).slice(0, 3);
+    },
 
     getFilteredCalEvents() {
       // Uses the ISO fields (e.start is a display string, NOT a date — comparing it to
@@ -2138,6 +2175,18 @@ function bmo() {
 
     async deleteCalEvent(eventId) {
       if (!eventId) return;
+      // PHASE-19 19A: two-step confirm — the first tap arms the row (button
+      // reads "Sure?", auto-disarms after 4 s), only a second tap within the
+      // window deletes. A single accidental tap on the wall-mounted touch
+      // display can no longer destroy a real Google Calendar event.
+      if (this.confirmingDeleteId !== eventId) {
+        this.confirmingDeleteId = eventId;
+        clearTimeout(this._confirmDeleteTimer);
+        this._confirmDeleteTimer = setTimeout(() => { this.confirmingDeleteId = null; }, 4000);
+        return;
+      }
+      clearTimeout(this._confirmDeleteTimer);
+      this.confirmingDeleteId = null;
       try {
         await fetch(`/api/calendar/delete/${eventId}`, { method: 'DELETE' });
         this.editingEvent = null;
@@ -2277,9 +2326,49 @@ function bmo() {
           body: JSON.stringify({ expression }),
         });
         if (!res.ok) { this.showNotification('Could not set face', 'error'); return; }
+        // PHASE-19 19D: the endpoint now reports whether the expression was
+        // actually applied — with BMO_DISABLE_OLED it's a no-op, so say so
+        // instead of toasting a false "Face set to happy".
+        let data = {};
+        try { data = await res.json(); } catch {}
+        if (data && data.applied === false) {
+          this.showNotification('Face display is disabled on this device');
+          return;
+        }
         this.showNotification(`Face set to ${expression}`, 'success');
       } catch {
         this.showNotification('Could not set face', 'error');
+      }
+    },
+
+    async fixSilentPlayback() {
+      // PHASE-19 19B: the silent-play banner fires for wpctl-muted OR
+      // system volume == 0 (both can hold at once) — fix whichever condition
+      // actually triggered it, with feedback either way. Previously the CTA
+      // only called /api/audio/unmute, a silent no-op in the volume-0 case.
+      const v = this.volumeLevels || {};
+      const fixed = [];
+      try {
+        if (v.muted) {
+          const res = await fetch('/api/audio/unmute', { method: 'POST' });
+          if (!res.ok) throw new Error('unmute failed');
+          fixed.push('Unmuted');
+        }
+        if (v.system === 0) {
+          // 30% floor matches the alarm-warning convention (_warnIfAlarmSilent).
+          const res = await fetch('/api/volume', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ category: 'system', level: 30 }),
+          });
+          if (!res.ok) throw new Error('volume restore failed');
+          fixed.push('volume restored to 30%');
+        }
+        await this.fetchControlsData();
+        this.showNotification(fixed.length ? fixed.join(', ') : 'Audio is already audible');
+      } catch (e) {
+        this.fetchControlsData();
+        this.showNotification('Could not fix audio: ' + (e.message || 'request failed'), 'error');
       }
     },
 
@@ -3199,8 +3288,12 @@ function bmo() {
 
     formatTime(sec) {
       if (!sec || sec < 0) return '0:00';
-      const m = Math.floor(sec / 60);
+      // PHASE-20 20C: hours branch (mirrors formatCountdown) — a 3h20m track
+      // used to render as "200:00" while History showed "3:20:01".
+      const h = Math.floor(sec / 3600);
+      const m = Math.floor((sec % 3600) / 60);
       const s = Math.floor(sec % 60);
+      if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
       return `${m}:${s.toString().padStart(2, '0')}`;
     },
 
@@ -4769,6 +4862,26 @@ function bmo() {
       } catch (e) {
         console.warn('[bmo] Failed to fetch alerts:', e);
       }
+    },
+
+    async seedNotificationHistory() {
+      // PHASE-20 20F: seed the bell dropdown from the persisted alert history
+      // (data/alert_history.json via GET /api/alerts/history) on load. Scoped
+      // to the last 10 proactive alerts — a full server-side toast journal is
+      // out of scope. Seeded items are history: never bump the unread badge,
+      // and never clobber toasts that already arrived this session.
+      try {
+        const res = await fetch('/api/alerts/history?limit=10');
+        const data = await res.json();
+        const alerts = data.alerts || [];
+        if (!alerts.length || this.notificationHistory.length > 0) return;
+        const options = this.timezone ? { timeZone: this.timezone } : {};
+        this.notificationHistory = alerts.map((a) => ({
+          text: a.body ? `${a.title}: ${a.body}` : (a.title || ''),
+          time: a.timestamp ? new Date(a.timestamp * 1000).toLocaleTimeString('en-US', options) : '',
+          type: 'info',
+        })).filter((n) => n.text);
+      } catch {}
     },
 
     showAlertToast(alert) {

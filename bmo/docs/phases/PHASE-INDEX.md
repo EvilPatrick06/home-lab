@@ -41,9 +41,9 @@
 | 16 | [`PHASE-16-chat-agent-action-execution-truth.md`](./completed/PHASE-16-chat-agent-action-execution-truth.md) | bmo | — | done |
 | 17 | [`PHASE-17-dashboard-health-signal-ux-truth.md`](./completed/PHASE-17-dashboard-health-signal-ux-truth.md) | bmo | — | done |
 | 18 | [`PHASE-18-plan-agent-prompt-format-crash.md`](./completed/PHASE-18-plan-agent-prompt-format-crash.md) | bmo | — | done |
-| 19 | [`PHASE-19-destructive-and-noop-control-actions.md`](./PHASE-19-destructive-and-noop-control-actions.md) | bmo | — | pending |
-| 20 | [`PHASE-20-dashboard-layout-music-notifications-ux.md`](./PHASE-20-dashboard-layout-music-notifications-ux.md) | bmo | 17 (soft) | pending |
-| 21 | [`PHASE-21-docs-auth-surface-and-csp-truth.md`](./PHASE-21-docs-auth-surface-and-csp-truth.md) | bmo | — | pending |
+| 19 | [`PHASE-19-destructive-and-noop-control-actions.md`](./completed/PHASE-19-destructive-and-noop-control-actions.md) | bmo | — | done |
+| 20 | [`PHASE-20-dashboard-layout-music-notifications-ux.md`](./completed/PHASE-20-dashboard-layout-music-notifications-ux.md) | bmo | 17 (soft) | done |
+| 21 | [`PHASE-21-docs-auth-surface-and-csp-truth.md`](./completed/PHASE-21-docs-auth-surface-and-csp-truth.md) | bmo | — | done |
 
 > **Provenance of this batch:** PHASE-01..03 were consolidated from
 > `QA/QA-report-2026-06-24.md` (now in `QA/completed/`) by the bmo phase-maker on

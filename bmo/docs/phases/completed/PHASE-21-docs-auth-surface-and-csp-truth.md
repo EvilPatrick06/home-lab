@@ -132,3 +132,12 @@ sed -n '31,56p' bmo/pi/web/static/js/bmo.js
 - **Actually cutting over / retiring `bmo/pi/ide_app/`** — the standing DESIGN-CONSTRAINTS 47-56 decision; this phase only makes the docs stop lying about it.
 - **Pi OS timezone / location-config reconciliation** — owner action item recorded in the QA report (see PHASE-20's out-of-scope note).
 - **Broader CSP hardening** (dropping `unsafe-eval` etc.) — separate security work; only the Places contradiction is in scope.
+
+## Completed
+
+Implemented 2026-07-15 (owner-approved via the status board) on `auto/bmo-phase-executer`.
+
+- **21A** — QA instructions auth surface rewritten to HEAD's two-layer reality: loopback = only key-gate-exempt surface; plain LAN refused by the transport source gate (with owner escape hatches named); tailnet = Bearer when `BMO_API_KEY` set; external = CF Access + key gate (`bmo/docs/phases/QA/INSTRUCTIONS.md:47-50`, plus `:44`, the §4.9 auth-surface bullet, and the "Don't defeat the gates" rule now *expecting* the LAN refusal). Repo-wide sweep (`LAN.*exempt|exempt.*LAN`): remaining hits are this plan's own findings text, a QA-report historical record, and SERVICES.md's (accurate) key-gate-exemption sentence — no stale claims left.
+- **21B** — README service table row now reads `ide_app` (:5001) — **not installed as a service**, pending cutover/retirement per DESIGN-CONSTRAINTS 47-56 (`bmo/README.md:125`); `:228` comment now points at the production `/ide` on :5000. `:18`/`:42` prose and `:153` (`VTT_SYNC_URL`, different host) untouched as directed.
+- **21C** — **Restore path taken (plan default; the board approval carried no contrary instruction).** CSP allowlists added host-scoped: `maps.googleapis.com` + `maps.gstatic.com` in `script-src`, both in `img-src`, `maps.googleapis.com` in `connect-src` (`bmo/pi/app.py:187-220`). Pinned by `tests/test_security_headers.py::test_csp_allows_google_places`. In-browser console/autocomplete check rides the owner-run deploy (needs the live key).
+- **Verification:** targeted pytest 13 passed (incl. the new CSP pin); `ruff check` clean; grep sweeps above.
