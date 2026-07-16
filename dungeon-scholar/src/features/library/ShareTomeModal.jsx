@@ -86,7 +86,7 @@ function ShareTomeModal({ tome, onClose }) {
     setSealBusy(true);
     setSealError('');
     try {
-      const envelope = await sealTome(tome.data, sealPass);
+      const envelope = await sealTome(stripLocalOnlyTomeFields(tome.data), sealPass);
       downloadTomeJson({ data: envelope }, { suffix: '-sealed' });
       setSealPass('');
       setSealConfirm('');

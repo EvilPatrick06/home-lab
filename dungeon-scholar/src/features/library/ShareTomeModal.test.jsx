@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { isSealedTome } from '../../services/sealedTome.js';
+import { isSealedTome, unsealTome } from '../../services/sealedTome.js';
 import ShareTomeModal from './ShareTomeModal.jsx';
 
 // PHASE-41 41C: the seal-for-proctored-use export. We assert the download by
@@ -134,6 +134,30 @@ describe('ShareTomeModal — seal for proctored use', () => {
     expect(screen.queryByRole('alert')).toBeNull();
     expect(screen.getByLabelText('Proctor passphrase')).toHaveValue('');
     expect(screen.getByLabelText('Confirm passphrase')).toHaveValue('');
+  });
+
+  it('strips local-only fields (notes) from the payload before sealing (PHASE-14 14A)', async () => {
+    const tome = makePlainTome();
+    // A legacy library entry imported before the strip landed can still carry
+    // an injected data.notes — the seal path must not exfiltrate it.
+    tome.data.notes = [{ id: 'n1', text: 'super secret local note' }];
+    render(<ShareTomeModal tome={tome} onClose={vi.fn()} />);
+
+    fireEvent.change(screen.getByLabelText('Proctor passphrase'), { target: { value: 'correct horse battery' } });
+    fireEvent.change(screen.getByLabelText('Confirm passphrase'), { target: { value: 'correct horse battery' } });
+    fireEvent.click(screen.getByRole('button', { name: /seal & download/i }));
+
+    await waitFor(() => expect(URL.createObjectURL).toHaveBeenCalledTimes(1));
+
+    const envelope = JSON.parse(await blobTexts[0]);
+    expect(isSealedTome(envelope)).toBe(true);
+
+    // Decrypt the actually-produced envelope: the payload must carry no notes
+    // while the real tome content survives intact.
+    const decrypted = await unsealTome(envelope, 'correct horse battery');
+    expect(decrypted.notes).toBeUndefined();
+    expect(decrypted.flashcards).toHaveLength(2);
+    expect(decrypted.metadata.title).toBe('Cryptography Primer');
   });
 
   it('shows the static "already sealed" note and no seal form for a sealed tome', () => {
