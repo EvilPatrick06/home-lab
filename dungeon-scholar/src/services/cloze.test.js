@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { dueCountExpanded, expandClozeCard, expandClozeDeck, hasCloze, parseClozeSpans, renderClozeText } from './cloze.js';
+import {
+  dueCountExpanded,
+  expandClozeCard,
+  expandClozeDeck,
+  hasCloze,
+  parseClozeSpans,
+  renderClozeText,
+} from './cloze.js';
 
 describe('hasCloze', () => {
   it('detects cloze spans', () => {

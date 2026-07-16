@@ -1,8 +1,8 @@
 import { ArrowLeft, BookOpen, Brain, Calendar, Flame, Scroll, Swords, Target, TrendingUp } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { rampForPct, tierLabel } from '../../services/accuracyPalette.js';
-import { todayDateStr } from '../../services/devotion.js';
 import { dueCountExpanded } from '../../services/cloze.js';
+import { todayDateStr } from '../../services/devotion.js';
 import { computeExamPace } from '../../services/examPace.js';
 import { computeExamPrediction } from '../../services/examPrediction.js';
 import { computeMilestones, computeRetentionCurve } from '../../services/forgettingCurve.js';

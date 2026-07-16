@@ -63,11 +63,11 @@ import { getTitle, SPECIAL_TITLES, xpForLevel } from './game/titles.js';
 import { blankTomeProgress, decodeTomeShareCode, quizImportReport, shuffleArray } from './game/tome.js';
 import { snapshotBaselines, TUTORIAL_STEPS, tutorialAutoConditionMet } from './game/tutorial.js';
 import { updateDueBadge } from './services/appBadge.js';
+import { dueCountExpanded } from './services/cloze.js';
 import { todayDateStr } from './services/devotion.js';
 import { notificationPermission, showStudyReminder } from './services/notifications.js';
 import { PETS } from './services/pets.js';
 import { SPELLS } from './services/spells.js';
-import { dueCountExpanded } from './services/cloze.js';
 import { setDesiredRetention } from './services/srs.js';
 
 const LibraryScreen = lazyWithReload(() => import('./features/library/LibraryScreen.jsx'));
@@ -197,7 +197,10 @@ export default function DungeonScholarApp() {
     const lib = playerState.library || [];
     if (lib.length === 0) return;
     studyRemindedRef.current = true;
-    const due = lib.reduce((sum, t) => sum + dueCountExpanded(t.progress?.cardProgress || {}, t.data?.flashcards || []), 0);
+    const due = lib.reduce(
+      (sum, t) => sum + dueCountExpanded(t.progress?.cardProgress || {}, t.data?.flashcards || []),
+      0,
+    );
     showStudyReminder({ dueCount: due });
   }, [playerState.library]);
 
@@ -207,7 +210,10 @@ export default function DungeonScholarApp() {
   // per-tome progress changes so the glanceable count stays fresh.
   useEffect(() => {
     const lib = playerState.library || [];
-    const due = lib.reduce((sum, t) => sum + dueCountExpanded(t.progress?.cardProgress || {}, t.data?.flashcards || []), 0);
+    const due = lib.reduce(
+      (sum, t) => sum + dueCountExpanded(t.progress?.cardProgress || {}, t.data?.flashcards || []),
+      0,
+    );
     updateDueBadge(due);
   }, [playerState.library]);
 

@@ -327,9 +327,8 @@ export function AccountPanel({
         {confirmKind === 'account' && (
           <div className="flex flex-col gap-3">
             <p className="text-sm text-amber-200 italic">
-              This deletes thy cloud save and profile. Local progress remains. Thy sign-in
-              record (GitHub identity) is kept by the cloud keeper until removed there — see
-              the setup scroll for the manual purge rite. Type{' '}
+              This deletes thy cloud save and profile. Local progress remains. Thy sign-in record (GitHub identity) is
+              kept by the cloud keeper until removed there — see the setup scroll for the manual purge rite. Type{' '}
               <code className="text-red-300">{user.githubLogin}</code> to confirm.
             </p>
             <input

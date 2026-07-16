@@ -32,9 +32,9 @@ import { CollapsibleGroup } from '../../components/ui/CollapsibleGroup.jsx';
 import { ModeCard } from '../../components/ui/ModeCard.jsx';
 import { OrnatePanel } from '../../components/ui/OrnatePanel.jsx';
 import { ACHIEVEMENTS } from '../../game/achievements.js';
+import { dueCountExpanded } from '../../services/cloze.js';
 import { goalStatus } from '../../services/dailyGoal.js';
 import { todayDateStr } from '../../services/devotion.js';
-import { dueCountExpanded } from '../../services/cloze.js';
 import AudioPanel from './AudioPanel.jsx';
 import ThemePanel from './ThemePanel.jsx';
 

@@ -5,9 +5,9 @@ import { RecordTile } from '../../components/ui/RecordTile.jsx';
 import { getTitle } from '../../game/titles.js';
 import { barColor, tierLabel } from '../../services/accuracyPalette.js';
 import { isTomeMastered, tomeMasteryPct } from '../../services/certificate.js';
+import { dueCountExpanded } from '../../services/cloze.js';
 import { LEECH_LAPSE_THRESHOLD, listLeeches } from '../../services/leech.js';
 import { isSealedTome } from '../../services/sealedTome.js';
-import { dueCountExpanded } from '../../services/cloze.js';
 import CertificateModal from './CertificateModal.jsx';
 
 // S2: Scholar's Ledger — a learner-facing analytics view aggregating the

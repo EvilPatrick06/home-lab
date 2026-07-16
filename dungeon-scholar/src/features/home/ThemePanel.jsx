@@ -214,9 +214,8 @@ function ThemePanel({
           style={{ background: 'rgba(var(--surface-amber, 41, 24, 12), 0.7)' }}
         />
         <p className="text-[10px] italic text-amber-700/80 mt-1">
-          ⓘ Any answered riddle or reviewed scroll counts toward today's goal — meet it to earn a
-          streak-freeze ward (up to 3). ❄ Wards held: {streakFreezeTokens} (each forgives one missed
-          devotion day).
+          ⓘ Any answered riddle or reviewed scroll counts toward today's goal — meet it to earn a streak-freeze ward (up
+          to 3). ❄ Wards held: {streakFreezeTokens} (each forgives one missed devotion day).
         </p>
       </div>
     </OrnatePanel>
