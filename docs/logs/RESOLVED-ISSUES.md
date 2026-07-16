@@ -14,6 +14,14 @@ How to triage: [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md)
 
 > Resolved cross-cutting / `Domain: both` entries moved out of `ISSUES-LOG.md` + `SUGGESTIONS-LOG.md`. Newest first.
 
+### [2026-07-15] Weekly full-history secret-scan sweep is permanently red — gitleaks allowlist covers only the CURRENT vendored-bundle path, not its pre-reorg historical path
+
+- **Resolved by:** overall-resolver (automated; auto-approve bug/security class)
+- **Date resolved:** 2026-07-15
+- **Resolution:** The weekly `secret-scan.yml` full-history sweep failed every scheduled run because the `generic-api-key` rule false-matched the minified identifier `FourKeyMap` in the vendored `xterm.min.js` at its **pre-reorg historical path** `BMO-setup/pi/static/js/xterm.min.js` (commits `4aa30d38`, `a8982df1`), which `.gitleaks.toml` only allowlisted at the current path `bmo/pi/web/static/js/.*\.min\.js$`. Fix: (1) added `'''BMO-setup/pi/static/js/.*\.min\.js$'''` to the `.gitleaks.toml` allowlist so the history sweep no longer re-hits the moved bundle; (2) added `-v` to both gitleaks steps (`--redact` still masks values) so any future red names its file/rule/commit; (3) added `workflow_dispatch:` so the sweep can be re-run on demand. Verified locally with pinned gitleaks 8.28.0: full-history scan of 1921 commits now reports **no leaks found** (exit 0), and the working-tree scan stays green. Not a real secret — no rotation. Also removed the truncated duplicate of this entry that a prior run had left in `ISSUES-LOG.md` (the "ISSUES-LOG.md carries a truncated duplicate" log-integrity entry is resolved by this same cleanup — no fragment left behind).
+- **Branch:** auto/overall-resolver
+- **Related files:** `.gitleaks.toml`, `.github/workflows/secret-scan.yml`
+
 ### [2026-07-02] `workflow_run` trigger lists are coupled to workflow `name:` strings with no drift guard — a rename silently disables the bmo auto-deploy (and the incoming CI-failure triage)
 
 - **Resolved by:** overall-resolver (automated, cross-cutting hygiene sweep)
