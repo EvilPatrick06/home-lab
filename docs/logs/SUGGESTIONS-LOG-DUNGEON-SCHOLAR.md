@@ -24,6 +24,118 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-07-15] Migrate persistence from localStorage to IndexedDB (async storage adapter)
+
+- **Category:** future-idea, portability
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement-suggestion scan of the dungeon-scholar tree
+
+**Description:**
+The whole app persists through synchronous `localStorage` (`services/persistence.js` — the `dungeon-scholar:save:v1` blob, the sync meta key, and the snapshot ring buffer capped at ~1.5 MB precisely because of quota). localStorage is a ~5 MB total, string-only, synchronous store, and the data model has outgrown it: occlusion cards embed base64 `data:image/*` payloads directly in tome `flashcards` (`services/occlusion.js`), a single tome import may legitimately be up to 2 MB (`services/importLimits.js` MAX_TOME_IMPORT_BYTES), and the save blob carries the full library. A handful of occlusion-heavy tomes exhausts the quota; today's answer is graceful failure (`isQuotaExceededError`, "export thy journal" copy, snapshot pruning) rather than more room. Every debounced save also `JSON.stringify`s the entire state on the main thread — cost grows linearly with library size.
+
+**Proposed fix / improvement:**
+- [ ] Add a small async storage adapter (IndexedDB-backed, `idb-keyval`-style — no heavy dependency needed) behind the existing `persistence.js` API; keep localStorage as fallback for environments without IDB.
+- [ ] One-time migration on boot: read the v1 localStorage save, write to IDB, keep the localStorage copy as a read-only fallback for one release, then clear.
+- [ ] Store tomes (esp. occlusion images) as separate records instead of one monolithic blob so a save touch doesn't rewrite megabytes.
+- [ ] Raise/retire the snapshot ring-buffer byte cap accordingly.
+
+**Blocked by:** none, but touches the save path — wants a careful phase with the existing MergeChooser/cloud-sync reconciliation tests kept green.
+
+**Related files:** `src/services/persistence.js`, `src/hooks/usePlayerState.js`, `src/services/occlusion.js`, `src/services/importLimits.js`
+
+**Related entries:** [2026-06-23] Local autosave-snapshot ring buffer (resolved — its quota cap is a symptom of this); [2026-07-02] player-save export (resolved)
+
+### [2026-07-15] Compress cloud-sync payloads and share codes with CompressionStream
+
+- **Category:** future-idea, performance
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement-suggestion scan of the dungeon-scholar tree
+
+**Description:**
+`cloudSync.pushSave` upserts the entire player-state JSON blob to Supabase on every sync, and `encodeTomeShareCode` share codes carry a whole tome as text — `ShareTomeModal` even has a `SHARE_LARGE_THRESHOLD` (50 KB) beyond which it steers users away from the paste path because the raw code misbehaves in chat apps/textareas. JSON study content compresses ~3-5x with gzip. The `CompressionStream`/`DecompressionStream` API is now baseline in all evergreen browsers (Chrome 80+, Safari 16.4+, Firefox 113+), so both surfaces could shrink substantially with no dependency: smaller Supabase rows + less upload on every debounced sync (matters on mobile), and many more tomes fitting under the pasteable share-code threshold. Base64 occlusion images compress less, but text-heavy tomes (the common case) benefit most.
+
+**Proposed fix / improvement:**
+- [ ] Version the wire format (e.g. `TOME-V2:` prefix = gzip+base64; `schema_ver` bump or a `compressed` column/flag for Supabase) so old clients/codes keep decoding.
+- [ ] Feature-detect `CompressionStream`; fall back to the current uncompressed path when absent.
+- [ ] Keep import-side size checks applied to the *decompressed* size (zip-bomb guard, mirroring the existing `checkImportSize` + PBKDF2-iteration-band defensive style in `sealedTome.js`).
+
+**Blocked by:** none
+
+**Related files:** `src/services/cloudSync.js`, `src/game/tome.js`, `src/features/library/ShareTomeModal.jsx`, `src/services/importLimits.js`
+
+**Related entries:** [2026-06-29] Tome schema versioning + update propagation for shared tomes (open — same wire-format-versioning concern)
+
+### [2026-07-15] Duplicate-card detection on tome import / re-import
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement-suggestion scan of the dungeon-scholar tree
+
+**Description:**
+None of the import paths (share code, JSON file, CSV/Quizlet via `services/deckImport.js`, paste) detect content that already exists in the library — `grep -n "dedup\|duplicate" src/services/deckImport.js src/game/tome.js` comes back empty. Importing the same CSV twice, or importing a shared tome that overlaps a starter deck, silently creates parallel cards with fresh ids; the SRS then schedules both copies independently, inflating due counts and splitting review history across twins. Anki solves this with note-content dedupe at import time. With tome sharing, CSV round-trip export (`downloadTomeCsv`), and the shared-tome update-propagation idea all live, accidental re-import is a realistic everyday event.
+
+**Proposed fix / improvement:**
+- [ ] Compute a normalized content hash per card (trimmed/lowercased front+back; for quiz items, question+answer set) at import time.
+- [ ] When an incoming tome overlaps an existing tome above some threshold, prompt: skip duplicates / import anyway / replace (preserving existing per-card SRS progress by mapping old ids to matching hashes).
+- [ ] Reuse the same hash check inside a single tome to flag author-side accidental duplicates in `TomeEditor`.
+
+**Blocked by:** none
+
+**Related files:** `src/services/deckImport.js`, `src/game/tome.js`, `src/features/library/LibraryScreen.jsx`, `src/features/library/TomeEditor.jsx`
+
+**Related entries:** [2026-06-29] Tome schema versioning + update propagation for shared tomes (open — replace/merge flow would share the id-mapping machinery)
+
+### [2026-07-15] Extended-time accommodation multiplier for practice exams
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement-suggestion scan of the dungeon-scholar tree
+
+**Description:**
+Timed practice exams (`ExamMode.jsx`, `services/examSession.js`, pace tracking in `services/examPace.js`) run at a single fixed duration. Real certification vendors (CompTIA, ISC2, Pearson VUE generally) grant approved test-takers extended-time accommodations — commonly 1.25x, 1.5x, or 2x ("time and a half", "double time"). A learner who will sit the real exam with an accommodation currently cannot rehearse under their actual conditions, which undercuts the practice exam's core promise of realistic pacing; the exam-pace feedback and readiness prediction (`examPrediction.js`) are likewise calibrated to the wrong clock for them. This is a small, learning-relevant accessibility win: one settings field and a multiplier where the timer + pace math read the duration.
+
+**Proposed fix / improvement:**
+- [ ] Add an exam-time multiplier setting (1x / 1.25x / 1.5x / 2x) in settings or the exam-start screen, persisted with the save.
+- [ ] Apply it where exam duration is derived (`examSession.js`), and feed the adjusted budget into `examPace.js` pace warnings so "on pace" reflects the accommodated clock.
+- [ ] Label runs in run history / prediction with the multiplier so readiness stats aren't silently mixed across clocks.
+
+**Blocked by:** none
+
+**Related files:** `src/features/study/ExamMode.jsx`, `src/services/examSession.js`, `src/services/examPace.js`, `src/services/examPrediction.js`
+
+**Related entries:** none found (grep "extended|accommodation|multiplier" across the scholar logs is clean)
+
+### [2026-07-15] SRS card browser — filter/sort every card by scheduler state with bulk actions
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement-suggestion scan of the dungeon-scholar tree
+
+**Description:**
+Per-card scheduler state is rich (FSRS difficulty/stability/interval, `lapses`, `reps`, `dueAt`, `suspended` in `services/srs.js`) but the only windows into it are narrow: the Leeches panel (`services/leech.js` — chronic-lapse cards only, per-card suspend/resume) and the per-question item-analysis stats. There is no place to see *all* cards of a tome (or the library) sorted/filtered by due date, ease, lapse count, or suspension — Anki's card Browser, the standard tool for curating a collection. Without it, questions like "what exactly is due tomorrow?", "which cards have I never seen?", or "suspend this whole domain until after the exam" require guesswork. The suspend primitive (`setCardSuspended`) and search plumbing already exist; this is mostly a read-model + list UI over data the app already tracks.
+
+**Proposed fix / improvement:**
+- [ ] A Card Browser screen (per-tome, later cross-library): virtualized list with columns for front-preview, domain, due date, interval, lapses, state (new/learning/review/suspended), sortable + filterable.
+- [ ] Bulk actions on a selection: suspend/resume, reset scheduling, jump-to-edit in TomeEditor (reusing the Leeches panel's per-card actions).
+- [ ] Entry points: Scholar's Ledger (next to Leeches) and the tome detail view.
+
+**Blocked by:** none
+
+**Related files:** `src/services/srs.js`, `src/services/leech.js`, `src/features/progression/ScholarsLedger.jsx`, `src/features/library/TomeEditor.jsx`
+
+**Related entries:** [2026-06-24] Leech detection (resolved — this generalizes its panel); [2026-06-22] No search / term-lookup across cards (resolved — complementary read path)
+
+
 ### [2026-07-15] Per-user FSRS weight fitting from a persisted review log
 
 - **Category:** future-idea
