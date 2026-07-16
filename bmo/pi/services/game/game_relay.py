@@ -22,6 +22,8 @@ SocketIO glue that calls `emit()` lives in `app.py`.
 
 from __future__ import annotations
 
+import os
+import re
 import threading
 from typing import Any
 
@@ -29,6 +31,34 @@ from typing import Any
 # non-host emitting one of these is a spoof attempt (injecting fake authoritative
 # state) and is rejected by `authorize`.
 HOST_ONLY_TYPES: frozenset[str] = frozenset({"sync:delta", "game:state-update"})
+
+
+# --- Resource ceilings (SECURITY-LOG 2026-07-15) ---------------------------
+# The anonymous /game relay join is an unauthenticated allocator: join() creates
+# a room for any code and appends peers with no ceiling, so a remote client can
+# loop join with random codes to exhaust Pi memory. Cap total rooms + peers-per-
+# room and sanity-check the code. Ceilings are generous relative to real usage
+# (a handful of rooms; a table of players), so legitimate multiplayer never trips
+# them; override via env for unusual deployments.
+MAX_ROOMS: int = int(os.environ.get("BMO_RELAY_MAX_ROOMS", "500"))
+MAX_PEERS_PER_ROOM: int = int(os.environ.get("BMO_RELAY_MAX_PEERS_PER_ROOM", "64"))
+MAX_CODE_LEN: int = 128
+# Reject only clearly-illegitimate codes (empty, whitespace/control chars, or
+# absurdly long). Deliberately charset-permissive: the invite-code format is
+# opaque and defined app-side, so no real code is ever refused.
+_CODE_BAD_CHARS = re.compile(r"[\s\x00-\x1f\x7f]")
+
+
+class RelayRejected(Exception):
+    """Raised by GameRelay.join when a join is refused (bad code / at capacity).
+
+    The SocketIO glue turns this into a `join-rejected` event; no room/peer state
+    is allocated for a rejected join.
+    """
+
+
+def _valid_code(code: str) -> bool:
+    return bool(code) and len(code) <= MAX_CODE_LEN and not _CODE_BAD_CHARS.search(code)
 
 
 class Room:
@@ -78,10 +108,14 @@ class GameRelay:
         can ship it to the new client; `is_host` says whether this join claimed
         the host slot.
         """
+        if not _valid_code(code):
+            raise RelayRejected("invalid invite code")
         ref = self._normalize_peer(peer_ref)
         with self._lock:
             room = self._rooms.get(code)
             if room is None:
+                if len(self._rooms) >= MAX_ROOMS:
+                    raise RelayRejected("relay at capacity")
                 room = Room()
                 self._rooms[code] = room
             # -- Stable client-id reconciliation (MP-EN-1) --
@@ -113,6 +147,8 @@ class GameRelay:
                     old_pid = str(stale.get("peer_id") or "")
                     if old_pid and old_pid != ref.get("peer_id"):
                         superseded_peer_id = old_pid
+            if sid not in room.peers and len(room.peers) >= MAX_PEERS_PER_ROOM:
+                raise RelayRejected("room full")
             existing = [dict(p) for s, p in room.peers.items() if s != sid]
             # Preserve a peer's original join order across a same-sid re-join so a
             # reconnecting co-DM keeps its seniority; only mint a fresh seq for a

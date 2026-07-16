@@ -663,3 +663,47 @@ def test_ws_reconnect_emits_superseding_peer_left_then_joined(ws_app) -> None:
     assert "peer-left" in names and "peer-joined" in names
     assert _first(host_rcv, "peer-left")["peer_id"] == "cloud-old"
     assert _first(host_rcv, "peer-joined")["peer_id"] == "cloud-new"
+
+
+# --- Resource ceilings / code validation (SECURITY-LOG 2026-07-15) ---------
+
+from services.game.game_relay import RelayRejected  # noqa: E402
+from services.game import game_relay as _gr_mod  # noqa: E402
+
+
+def _min_ref(role="player", cid="c"):
+    return {"peer_id": "p-" + cid, "client_id": cid, "role": role, "display_name": "n"}
+
+
+def test_join_rejects_empty_and_whitespace_code(relay):
+    with pytest.raises(RelayRejected):
+        relay.join("", "s1", _min_ref("host"))
+    with pytest.raises(RelayRejected):
+        relay.join("has space", "s1", _min_ref("host"))
+
+
+def test_join_rejects_overlong_code(relay):
+    with pytest.raises(RelayRejected):
+        relay.join("A" * 200, "s1", _min_ref("host"))
+
+
+def test_join_enforces_room_cap(relay, monkeypatch):
+    monkeypatch.setattr(_gr_mod, "MAX_ROOMS", 1)
+    relay.join("ROOMONE", "s1", _min_ref("host"))
+    with pytest.raises(RelayRejected):
+        relay.join("ROOMTWO", "s2", _min_ref("host"))
+    assert relay.room_count() == 1
+
+
+def test_join_enforces_peer_cap(relay, monkeypatch):
+    monkeypatch.setattr(_gr_mod, "MAX_PEERS_PER_ROOM", 1)
+    relay.join("ROOMONE", "s1", _min_ref("host", cid="host-cid"))
+    with pytest.raises(RelayRejected):
+        relay.join("ROOMONE", "s2", _min_ref("player", cid="player-cid"))
+
+
+def test_reconnect_supersede_not_rejected_at_peer_cap(relay, monkeypatch):
+    monkeypatch.setattr(_gr_mod, "MAX_PEERS_PER_ROOM", 1)
+    relay.join("ROOMONE", "s1", {"peer_id": "p1", "client_id": "cid", "role": "host"})
+    relay.join("ROOMONE", "s2", {"peer_id": "p2", "client_id": "cid", "role": "host"})
+    assert len(relay.peers_for("ROOMONE")) == 1

@@ -3,7 +3,23 @@
 # does not pull the CUDA+nvidia stack (~4+ GB) from PyPI — Pi 5 has no GPU.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-PY="${1:-python3.14}"
+# Interpreter selection. An explicit arg wins. Otherwise prefer the pinned
+# .python-version interpreter, but fall back to the newest python3.x actually
+# present on this host so a Pi without python3.14 (BMO-ISSUES 2026-07-15) still
+# rebuilds instead of dying on "python3.14: command not found". The interpreter/
+# lockfile skew itself is tracked separately (owner decision); this only stops
+# the hard default from breaking a documented venv rebuild.
+pick_python() {
+  local pinned="python3.14"
+  [ -f .python-version ] && pinned="python$(sed -n '1p' .python-version | tr -d '[:space:]')"
+  local cand
+  for cand in "$pinned" python3.14 python3.13 python3.12 python3.11 python3; do
+    if command -v "$cand" >/dev/null 2>&1; then echo "$cand"; return 0; fi
+  done
+  echo "python3"
+}
+PY="${1:-$(pick_python)}"
+echo "[install-venv] using interpreter: $PY ($("$PY" --version 2>&1 || echo unavailable))"
 test -f requirements.txt
 rm -rf venv
 "$PY" -m venv venv
