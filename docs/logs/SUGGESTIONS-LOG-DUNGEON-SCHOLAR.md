@@ -415,25 +415,6 @@ The app is an installable offline PWA and can export the player save as JSON, bu
 
 # Low-severity polish / info
 
-### [2026-07-15] PHASE-11 plan file marked done but never moved to `completed/` (PHASE-INDEX links inconsistent)
-
-- **Category:** debt
-- **Severity:** low
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-cleanup
-- **During:** automated cleanup/structure scan of `dungeon-scholar/docs`
-
-**Description:**
-`docs/phases/PHASE-INDEX.md` row 11 reads `done — F1/F2/F3/F5 + F4/11D (11D landed 2026-07-03, owner-approved)`, but the plan file still sits at `docs/phases/PHASE-11-routing-headings-vault-exam-quest-copy-round.md` instead of `completed/`. The index header and `INSTRUCTIONS.md` both say finished plans move to `completed/`, and every other done phase (01-10, 12, 13) lives there. Cosmetic second half: rows 12/13 display bare `PHASE-12-…`/`PHASE-13-…` link text (hrefs correctly point into `./completed/`), while rows 01-10 display the `completed/PHASE-NN-…` form.
-
-**Hypothesis / root cause:** PHASE-11 finished in two stages (main F-items, then 11D on 2026-07-03); whichever run flipped the status to done skipped the file move. Rows 12/13 were appended later with just the filename as link text.
-
-**Proposed fix / improvement:**
-- [ ] `git mv docs/phases/PHASE-11-routing-headings-vault-exam-quest-copy-round.md docs/phases/completed/` and point row 11 at `./completed/…`.
-- [ ] Normalize rows 12/13 link text to the `completed/PHASE-NN-…` form used by rows 01-10.
-
-**Related files:** `dungeon-scholar/docs/phases/PHASE-11-routing-headings-vault-exam-quest-copy-round.md`, `dungeon-scholar/docs/phases/PHASE-INDEX.md`
-
 ### [2026-07-15] `services/crossTomeExam.js` is an unwired module — zero production imports; its follow-up exists only in the resolved archive
 
 - **Category:** debt

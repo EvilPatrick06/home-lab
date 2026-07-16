@@ -13,6 +13,33 @@
 
 ---
 
+### [2026-07-15] scholar-resolver run — owner-approved gold-button contrast fix + auto-approved bug batch + config/docs cleanup
+
+> **Resolved 2026-07-15 (`auto/scholar-resolver`):** one board-APPROVED WAIT item plus this run's auto-approve (bug/config) class, implemented gate-green (biome / tsc / vitest / build). Entries moved here from `ISSUES-LOG-DUNGEON-SCHOLAR.md` / `SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`.
+
+- **Category:** bug / config / docs batch
+- **Severity:** medium and below
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors / scholar-cleanup / integrator QA
+- **Resolved by:** scholar-resolver
+
+**Items landed:**
+
+1. **issue-light-theme-gold-buttons (OWNER-APPROVED via board)** — closes ISSUES [2026-06-29] "Light-theme secondary surfaces not covered by Phase 03": new non-inverting `.btn-gold-ink` token in `index.css` (`#451a03`, byte-identical to the dark-theme rendering of `text-amber-950`) applied across the app-wide gold action-button family (~20 components: WelcomeModal, HomeScreen, LabMode, ChatMode, ConfirmModal, PromptModal, TextInputModal, ModeCard, ErrorBoundary, TomeNotes, Library screens/modals, ShopScreen, ScholarsLedger, CertificateModal, QuestBoard). Static guard `src/__guards__/goldButtonInk.guard.test.js` forbids pairing ramp-inverted `text-amber-950` with the fixed gold gradient so the family cannot regress silently.
+2. **Cloze cards inflate every due-count surface (ISSUES [2026-07-15], bug, medium)** — `dueCountExpanded()` in `services/cloze.js` counts over the cloze-EXPANDED deck; swapped in at all four surfaces (App.jsx study-reminder + PWA badge, HomeScreen `reviewsDue`, ScholarsLedger) so a reviewed-out cloze card stops counting as permanently due and an unrated N-cluster card counts as N. Unit tests per the entry's spec.
+3. **Streak-freeze wards were display-only (ISSUES [2026-07-15], bug, medium)** — wired both missing halves of the 2026-07-03 batch item: meeting the daily study goal now EARNS one ward (cap `STREAK_FREEZE_MAX` = 3, at most one per day, on the crossing answer, with notif) in `recordAnswer`; `claimDailyReward` consults `evaluateStreakFreeze` and spends a held ward to forgive exactly ONE missed devotion day (streak continues, decremented count persisted; larger gaps still break). ThemePanel copy now states the earn path instead of promising an unreachable mechanic; the HomeScreen ward badge is reachable. Hook tests cover earn / one-per-day / cap / forgive / no-ward reset / hard-break.
+4. **`buildStudyPlan` never given `dueCount` + contradictory past-exam headline (ISSUES [2026-07-15], bug, low)** — `DomainStudyScreen` computes the selected scope's cloze-expanded due count and passes it, making the plan's first-priority "clear N due reviews" action reachable; `status === 'past'` gets its own headline ("Exam date passed - set a new goal") consistent with the screen's "Exam was N days ago" copy, and the on-track headline can no longer render negative days-to-go.
+5. **QuizMode dictation leak (ISSUES [2026-07-15], bug, low)** — unmount cleanup effect aborts the live `SpeechRecognition` handle: mic (and browser mic indicator) released immediately, no setState on an unmounted component.
+6. **Main-checkout `node_modules` prod-only (ISSUES [2026-07-15], config, low)** — full `npm ci` re-run in `/home/patrick/home-lab/dungeon-scholar` restored the dev toolchain (biome/tsc); `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md` now warns that bare `npx biome` / `npx tsc` silently fall through to same-named registry squatter packages and prescribes `npm run` scripts / local `./node_modules/.bin` paths.
+7. **PHASE-11 plan file never moved to `completed/` (SUGGESTIONS [2026-07-15], debt, low)** — `git mv` done; `PHASE-INDEX.md` row 11 repointed and rows 12/13 link text normalized to the `completed/PHASE-NN-…` form used by rows 01–10 (master's new PHASE-14 row kept).
+8. **Account-deletion copy scope-down (interim half of SECURITY-LOG [2026-07-15] auth.users entry)** — AccountPanel no longer promises "Permanently delete account": copy + button now describe the data-row delete the anon client can actually perform, and `docs/supabase-setup.md` §9 documents the manual dashboard purge + cascade FKs. The service-role Edge Function half is board-gated (`sec-account-deletion-edge-fn`); the security-log entry stays open for it.
+
+**Gated this run (board, not implemented):** oracle-worker `@cloudflare/workers-types` v4→v5 Dependabot knot (`issue-oracle-worker-workers-types`) — `.github/dependabot.yml` carries a deliberate "needs a maintainer decision" note for it, so the proposed ignore-hold was left to the owner; the ISSUES entry stays open with a GATED annotation.
+
+**Notes:** items 1–5 + 8 are UI/behavior changes verified by unit tests + full gate, not manually exercised on a device; the QA agent's next pass will cover them visually. This run also recovered and completed in-progress work from an interrupted earlier session (stale-lock takeover): the approved gold-button implementation was found uncommitted in the worktree, audited, and finished rather than discarded.
+
+---
+
 ### [2026-07-03] Dungeon-scholar feature backlog batch — 15 approved suggestions + PHASE-11D
 
 > **Resolved 2026-07-03 (`auto/scholar-features-batch`, approved backlog batch):** Owner approved the whole dungeon-scholar FEATURE backlog. Implemented on `auto/scholar-features-batch` as tested, gate-green (lint / typecheck / test / build) first versions. Each item below is moved here from `SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`.
