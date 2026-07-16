@@ -1,6 +1,7 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
 import { i18n } from '../../i18n'
 import { isChunkLoadError } from '../../utils/lazy-with-reload'
+import { localDateStamp } from '../../utils/local-date'
 import { logger } from '../../utils/logger'
 
 interface Props {
@@ -92,7 +93,7 @@ export default class ErrorBoundary extends Component<Props, State> {
 
       const path = await window.api.showSaveDialog({
         title: i18n.t('ui.errorBoundary.saveBugReport'),
-        defaultPath: `dnd-vtt-bug-report-${new Date().toISOString().slice(0, 10)}.txt`,
+        defaultPath: `dnd-vtt-bug-report-${localDateStamp()}.txt`,
         filters: [{ name: i18n.t('ui.errorBoundary.textFilesFilter'), extensions: ['txt'] }]
       })
       if (path) {

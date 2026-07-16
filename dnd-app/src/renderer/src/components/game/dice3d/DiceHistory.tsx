@@ -115,12 +115,26 @@ export default function DiceHistory({ onClose }: DiceHistoryProps): JSX.Element 
     return diceHistory.filter((r) => r.rollerName === filterPlayer)
   }, [diceHistory, filterPlayer])
 
-  // Auto-scroll to bottom on new entries (log view only)
+  // Auto-scroll to follow NEW entries (log view only). The old deps were
+  // `[view]`, so this fired on Log/Stats tab switches but NEVER when a roll
+  // arrived — the log stayed put while new rolls appended below the fold.
+  // Depend on `filtered.length` so a new roll re-runs it, and only snap when the
+  // user is already at/near the bottom, so someone who scrolled up to read older
+  // rolls isn't yanked back down (standard chat-log behavior).
+  // (ISSUES-LOG-DNDAPP 2026-07-15)
+  const prevLenRef = useRef(filtered.length)
   useEffect(() => {
-    if (view === 'log' && scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    const el = scrollRef.current
+    const grew = filtered.length > prevLenRef.current
+    prevLenRef.current = filtered.length
+    if (view !== 'log' || !el) return
+    const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80
+    // Snap when (re)entering the log view, or when a new entry arrives while the
+    // user is already near the bottom.
+    if (!grew || nearBottom) {
+      el.scrollTop = el.scrollHeight
     }
-  }, [view])
+  }, [view, filtered.length])
 
   const formatTime = useCallback((ts: number) => {
     return new Date(ts).toLocaleTimeString(undefined, {

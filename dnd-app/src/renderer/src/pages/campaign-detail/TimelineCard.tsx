@@ -12,6 +12,7 @@ type _TimelineItem = TimelineItem
 type _TimelineItemType = TimelineItemType
 
 import type { Campaign, TimelineMilestone } from '../../types/campaign'
+import { localDateStamp } from '../../utils/local-date'
 
 interface TimelineCardProps {
   campaign: Campaign
@@ -24,7 +25,7 @@ export default function TimelineCard({ campaign, saveCampaign }: TimelineCardPro
   const [newMilestone, setNewMilestone] = useState({
     title: '',
     description: '',
-    date: new Date().toISOString().slice(0, 10),
+    date: localDateStamp(),
     category: 'custom' as TimelineMilestone['category']
   })
 
@@ -48,7 +49,7 @@ export default function TimelineCard({ campaign, saveCampaign }: TimelineCardPro
       milestones: [...(campaign.milestones ?? []), milestone],
       updatedAt: new Date().toISOString()
     })
-    setNewMilestone({ title: '', description: '', date: new Date().toISOString().slice(0, 10), category: 'custom' })
+    setNewMilestone({ title: '', description: '', date: localDateStamp(), category: 'custom' })
     setShowAdd(false)
   }
 
