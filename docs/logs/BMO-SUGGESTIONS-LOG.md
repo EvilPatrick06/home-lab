@@ -20,6 +20,95 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-07-15] Three RESOLVED log entries are duplicated back into the active logs — union-merge resurrection of resolver cuts leaves the `dev/`, `agents/`, and `BMO_HOME` entries listed as both open and resolved at once
+
+- **Category:** debt, docs
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** scheduled cleanup/structure scan (systematic `comm` diff of `^### [` headers in each active log vs `BMO-RESOLVED-ISSUES.md`)
+
+**Description:**
+Three entries currently exist **verbatim in BOTH an active log and `BMO-RESOLVED-ISSUES.md`** (where they carry full Resolution blocks):
+1. [2026-06-29] "`agents/` is a 40-file flat package…" — active `docs/logs/BMO-SUGGESTIONS-LOG.md:314`, resolved `docs/logs/BMO-RESOLVED-ISSUES.md:96` (Resolution 2026-07-03, `auto/bmo-reorg-batch`).
+2. [2026-06-29] "`dev/` is a misleading mixed bag…" — active `BMO-SUGGESTIONS-LOG.md:343`, resolved `BMO-RESOLVED-ISSUES.md:129` (Resolution 2026-07-03; the move landed as `0e3f849d`).
+3. [2026-07-02] "BMO_HOME never wired into the live units…" — active `docs/logs/BMO-ISSUES-LOG.md:70`, resolved `BMO-RESOLVED-ISSUES.md:374` (fully resolved including the deploy/restart follow-ups).
+
+The active copies carry **no** Resolution fields, so every scanner/resolver/human grepping the active logs re-triages long-finished work — today's AGENTS.md-drift entry already had to cite the agents/ item as "BMO-RESOLVED" while its supposedly-open twin sat 260 lines below in the same file. `LOG-INSTRUCTIONS.md` "After fixing" step 1 explicitly requires cutting the entry from the active log precisely because leftovers "clutter grep results and obscure what's still open."
+
+**Hypothesis / root cause:** the cuts DID happen — `c75e69ba` (2026-07-03, "mark 3 reorg suggestions resolved") and `fc4640c1` (2026-07-02, "move resolved BMO_HOME split-brain entry") both show up in `git log -S` as removing this text — yet the entries are back on master. The log files use the `merge=union` driver (`.gitattributes`, workflow Rule 2), and union resolution keeps BOTH sides' lines when a parallel branch's hunks overlap the edited region, i.e. it can silently UNDO a deletion made on one branch when another branch touched nearby lines before integration. This is the Rule 2 caveat ("union merge concatenates; it does not reason… when an agent does a structural edit [cutting a resolved entry]… let the integrator flag anything that looks off") observed in the wild — except nothing actually flags it, so the resurrections sat unnoticed for ~12 days. (Exact resurrecting merge commits not traced per-entry; the mechanism fits all three.)
+
+**Proposed fix / improvement:**
+- [ ] Re-cut the three active copies (pure deletion; the canonical copies with Resolution blocks already live in `BMO-RESOLVED-ISSUES.md`, so nothing needs pasting).
+- [ ] Make resurrection mechanically detectable instead of luck-based: a small check (pytest or an integrator post-merge step) that intersects `grep '^### \['` headers of each active log with its resolved log and reports any overlap — the exact `comm -12` this scan ran.
+- [ ] Docs: add this concrete failure mode to the Rule 2 caveat in `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md` and/or LOG-INSTRUCTIONS "After fixing" — after the integrator merges, a resolver that cut an entry should verify (one grep on master) that the cut survived, because union merges can resurrect deleted log lines.
+
+**Blocked by:** none
+
+**Related files:** `docs/logs/BMO-SUGGESTIONS-LOG.md:314,343`, `docs/logs/BMO-ISSUES-LOG.md:70`, `docs/logs/BMO-RESOLVED-ISSUES.md:96,129,374`, `.gitattributes` (`merge=union` globs), `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md` (Rule 2 caveat), `docs/LOG-INSTRUCTIONS.md` ("After fixing")
+
+**Related entries:** [2026-07-02] "`STATUS-BOARD-MIGRATION.md` carries a duplicated '## F…' section (union-merge artifact)…" (sibling union-merge concatenation artifact, in a regular doc); [2026-07-15] "PHASE-18 is already fully implemented… but still sits in the active phases folder" (sibling done-work-still-listed-as-open smell).
+
+---
+
+### [2026-07-15] RAG freshness guard is inert — `rag_freshness.py` points at `services/build_rag_indexes.py`, which moved to `services/game/rag/` the same day the guard landed, and `check_freshness()` has ZERO runtime callers, so the promised CI/preflight/health drift check never fires
+
+- **Category:** debt (borders bug — a shipped guard that cannot perform its stated function)
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** scheduled cleanup/structure scan (tracing `data/rag_data/` committed-artifact hygiene into its freshness guard)
+
+**Description:**
+`services/rag_freshness.py` (added 2026-07-03, `4f719e42`, implementing decision "Option B": keep the ~5.4 MB machine-generated `data/rag_data/*.json` committed, but add a guard that makes source-vs-index drift *visible*). Three gaps together make the guard dead code in production:
+1. **Dangling generator path.** `_GENERATOR` (`rag_freshness.py:38-40`) resolves to `<pi>/services/build_rag_indexes.py`, but the builder was moved to `services/game/rag/build_rag_indexes.py` by the game-subpackage regroup `486118f3` — the **same day**. The path no longer exists, so `compute_source_hash_for_index()` returns `None` and the four inline-KB indexes (`anime`/`games`/`movies`/`music`) report `"unknown"` forever. `"unknown"` is deliberately non-failing, so drift in those KBs is permanently silent — exactly what Option B was built to prevent. Worse, `build_domain()` stamps `sourceHash` from the builder's REAL location (`_rag_source_hash("file", os.path.abspath(__file__))`, `build_rag_indexes.py:368`), so even a fresh rebuild produces an index the checker can never verify (stored = hash of real file, current = None).
+2. **No caller.** `check_freshness()` is imported only by `tests/test_rag_freshness.py`. The module docstring promises "a CI/preflight check and a health field", but `config_preflight.py`, `monitoring.py`, `app.py`, `routes/`, and `.github/workflows/` contain no reference — nothing consults the guard, so even the correctly-wired `chunk-index-dnd.json` check runs nowhere outside the unit tests.
+3. **Stale operator instruction.** The docstring tells the operator to rebuild via `services/build_rag_indexes.py` (the old path).
+
+**Hypothesis / root cause:** `4f719e42` (guard) and `486118f3` (game/rag regroup) landed the same day on different branches. The regroup updated *import* sites, but `_GENERATOR` is built with `os.path.join(..., "services", "build_rag_indexes.py")` — not an import — so an import-driven rename sweep missed it. The preflight/health wiring reads as planned-but-never-implemented (the docstring describes it in the present tense; no commit ever added a call site).
+
+**Proposed fix / improvement:**
+- [ ] Fix `_GENERATOR` to the real path — better, derive it from the module itself (`importlib.util.find_spec("services.game.rag.build_rag_indexes").origin`) so the next relocation can't silently re-kill the guard — and fix the docstring's rebuild path.
+- [ ] Actually wire `check_freshness()` where the docstring promises: `config_preflight.py` (warn-level) and/or a field in the monitoring/health payload; alternatively a step in `bmo-pi-pytest.yml`.
+- [ ] Add a cheap test asserting every `INDEX_SOURCES` source path exists on disk (catches future moves at CI time instead of by "unknown"-forever).
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/services/rag_freshness.py:38-47` (`_GENERATOR`, `INDEX_SOURCES`), `bmo/pi/services/game/rag/build_rag_indexes.py:45,368` (stamping), `bmo/pi/services/config_preflight.py`, `bmo/pi/services/monitoring.py`, `bmo/pi/tests/test_rag_freshness.py`
+
+**Related entries:** none active (the underlying keep-indexes-tracked decision is recorded in the resolved log / the module docstring as `sugg-rag-json-tracked`).
+
+---
+
+### [2026-07-15] `pi/README.md` directory tree still shows the four relocated production modules under `dev/` — the 2026-07-03 dev/→ide/+tools/ move updated one README line but left the repo's own map pointing at the old layout
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** scheduled cleanup/structure scan (docs-vs-tree cross-check after confirming the `0e3f849d` relocation)
+
+**Description:**
+Commit `0e3f849d` moved `terminal_service.py`/`file_watcher.py` → `pi/ide/` and `dev_tools.py`/`claude_tools.py` → `pi/tools/` (closing the resolved "`dev/` is a misleading mixed bag" gotcha), but it touched `pi/README.md` by only one line — and the README's directory tree (the file's centerpiece) still:
+- lists all four moved files under `dev/` (`pi/README.md` ~lines 69-72: "`dev/` Dev tools — NOT used in production / `claude_tools.py, dev_tools.py, file_watcher.py, terminal_service.py`"), and
+- has **no** top-level entries at all for the new `ide/` and `tools/` packages.
+
+So the repo's own map sends anyone (human or code-agent — `agents/dev/code_agent.py` feeds directory context from docs like this) looking for the IDE terminal / file-watcher / agent-tool primitives into a folder that no longer contains them, while the two packages that DO contain production runtime code are invisible. `pi/ide/__init__.py`'s docstring explicitly frames the move as ending the "dev/ is non-prod, safe to skip" confusion — the README tree quietly re-creates the confusion one level up.
+
+**Hypothesis / root cause:** the relocation commit's README edit was a targeted one-liner; nobody re-rendered the full tree block. Same pattern as today's AGENTS.md entry: refactors here update code + the nearest doc line, and the surrounding prose/tree drifts.
+
+**Proposed fix / improvement:**
+- [ ] Update the tree: drop the four filenames from the `dev/` block (leaving `bmo_ui_lab_server.py`, `benchmarks/`, `diagnostics/`, `ai-temp/` — after which "NOT used in production" is finally true), and add `ide/` (terminal_service, file_watcher — production IDE runtime) and `tools/` (dev_tools, claude_tools — agent tool primitives) entries.
+- [ ] While in the file, spot-check the rest of the tree against `ls` for other post-refactor drift (it long predates several moves; e.g. verify the `routes/`, `services/game/`, and `agents/` family-subpackage blocks match reality).
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/README.md:69-72` (tree block), `bmo/pi/ide/__init__.py` (move rationale docstring), `bmo/pi/tools/__init__.py`
+
+**Related entries:** [2026-07-15] "`bmo/docs/AGENTS.md` 'Adding a new agent' recipe has drifted…" (same refactor-outruns-docs pattern, same day); BMO-RESOLVED [2026-06-29] "`dev/` is a misleading mixed bag…" (the move this README never caught up with).
+
+---
+
 ### [2026-07-15] `bmo/docs/AGENTS.md` "Adding a new agent" recipe has drifted from the real code on all four steps — flat module path, wrong base-class API (`async invoke` vs sync `run`), a `REGISTRY` dict that doesn't exist, and regex keywords the router would treat as never-matching substrings
 
 - **Category:** docs
