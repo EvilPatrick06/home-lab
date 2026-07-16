@@ -47,3 +47,37 @@ describe('OcclusionCard render-boundary image validation', () => {
     expect(queryByText('?')).toBeNull();
   });
 });
+
+// PHASE-14 14B: the rejected-image fallback must still teach — flip reveals the
+// region answers as plain text (masks are validated independently of the image),
+// while the unflipped state keeps them hidden so recall is still being tested.
+describe('OcclusionCard rejected-image fallback answer reveal', () => {
+  it('reveals the mask answers as text on flip when the image is rejected', () => {
+    const { container, getByText } = render(
+      <OcclusionCard card={{ image: 'https://evil.example/x.png', masks }} flipped={true} />,
+    );
+    expect(imgs(container)).toHaveLength(0);
+    const answer = getByText('hippocampus');
+    expect(answer.tagName).toBe('LI'); // text list, not a positioned overlay
+    expect(getByText(/rate thy recall/i)).toBeTruthy();
+  });
+
+  it('does not leak answers (or the reveal hint) in the unflipped rejected-image state', () => {
+    const { container, queryByText, getByText } = render(
+      <OcclusionCard card={{ image: 'https://evil.example/x.png', masks }} flipped={false} />,
+    );
+    expect(imgs(container)).toHaveLength(0);
+    expect(queryByText('hippocampus')).toBeNull();
+    expect(getByText(/flip to reveal the answers as text/i)).toBeTruthy();
+  });
+
+  it('keeps the allowlisted-image flip behavior unchanged (positioned overlay, no text list)', () => {
+    const { container, getByText } = render(
+      <OcclusionCard card={{ image: DATA_IMG, masks, front: 'Label the region' }} flipped={true} />,
+    );
+    expect(imgs(container)).toHaveLength(1);
+    expect(getByText('hippocampus').tagName).toBe('SPAN'); // overlay span, not a fallback list item
+    expect(container.querySelector('ul')).toBeNull();
+    expect(getByText('✦ Revealed — rate thy recall')).toBeTruthy();
+  });
+});

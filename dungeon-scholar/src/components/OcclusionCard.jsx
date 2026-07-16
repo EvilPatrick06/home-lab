@@ -24,6 +24,16 @@ function OcclusionCard({ card, flipped }) {
         ) : (
           <div className="text-xs italic text-red-300 border border-red-800 rounded-sm px-3 py-2">
             Image unavailable — occlusion images must be embedded (data:image) images.
+            {flipped && masks.length > 0 && (
+              <ul
+                className="mt-2 text-sm not-italic text-left list-disc list-inside"
+                style={{ lineHeight: 1.4, color: '#bbf7d0' }}
+              >
+                {masks.map((m, i) => (
+                  <li key={i}>{m.answer || '—'}</li>
+                ))}
+              </ul>
+            )}
           </div>
         )}
         {imageOk &&
@@ -48,7 +58,13 @@ function OcclusionCard({ card, flipped }) {
           ))}
       </div>
       <div className="text-center text-xs text-accent-muted mt-3 italic">
-        {flipped ? '✦ Revealed — rate thy recall' : '~ Name each masked region, then flip ~'}
+        {imageOk
+          ? flipped
+            ? '✦ Revealed — rate thy recall'
+            : '~ Name each masked region, then flip ~'
+          : flipped
+            ? '✦ Answers revealed as text — rate thy recall'
+            : '~ Image unavailable — flip to reveal the answers as text ~'}
       </div>
     </div>
   );

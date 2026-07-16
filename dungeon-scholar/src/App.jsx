@@ -60,7 +60,13 @@ import {
   STORY_CHAINS,
 } from './game/quests.js';
 import { getTitle, SPECIAL_TITLES, xpForLevel } from './game/titles.js';
-import { blankTomeProgress, decodeTomeShareCode, quizImportReport, shuffleArray } from './game/tome.js';
+import {
+  blankTomeProgress,
+  decodeTomeShareCode,
+  quizImportReport,
+  shuffleArray,
+  stripLocalOnlyTomeFields,
+} from './game/tome.js';
 import { snapshotBaselines, TUTORIAL_STEPS, tutorialAutoConditionMet } from './game/tutorial.js';
 import { updateDueBadge } from './services/appBadge.js';
 import { todayDateStr } from './services/devotion.js';
@@ -945,7 +951,7 @@ export default function DungeonScholarApp() {
     const entry = playerState.library.find((t) => t.id === tomeId);
     if (!entry || !isSealedTome(entry.data)) return { ok: false, reason: 'not-sealed' };
     try {
-      const tome = await unsealTome(entry.data, passphrase);
+      const tome = stripLocalOnlyTomeFields(await unsealTome(entry.data, passphrase));
       setUnsealedTomes((prev) => ({ ...prev, [tomeId]: tome }));
       return { ok: true };
     } catch (err) {
