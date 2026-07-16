@@ -34,8 +34,8 @@
 | 09 | [`completed/PHASE-09-user-facing-date-format-consistency.md`](./completed/PHASE-09-user-facing-date-format-consistency.md) | dungeon-scholar | — | done |
 | 10 | [`completed/PHASE-10-light-theme-accent-text-danger-button-contrast.md`](./completed/PHASE-10-light-theme-accent-text-danger-button-contrast.md) | dungeon-scholar | — | done |
 | 11 | [`completed/PHASE-11-routing-headings-vault-exam-quest-copy-round.md`](./completed/PHASE-11-routing-headings-vault-exam-quest-copy-round.md) | dungeon-scholar | — | done — F1/F2/F3/F5 + F4/11D (11D landed 2026-07-03, owner-approved) |
-| 12 | [`PHASE-12-light-theme-active-tome-panel-accent-contrast.md`](./completed/PHASE-12-light-theme-active-tome-panel-accent-contrast.md) | dungeon-scholar | — | done |
-| 13 | [`PHASE-13-deeplink-reset-race-auth-refresh-reachability-probe.md`](./completed/PHASE-13-deeplink-reset-race-auth-refresh-reachability-probe.md) | dungeon-scholar | — | done |
+| 12 | [`completed/PHASE-12-light-theme-active-tome-panel-accent-contrast.md`](./completed/PHASE-12-light-theme-active-tome-panel-accent-contrast.md) | dungeon-scholar | — | done |
+| 13 | [`completed/PHASE-13-deeplink-reset-race-auth-refresh-reachability-probe.md`](./completed/PHASE-13-deeplink-reset-race-auth-refresh-reachability-probe.md) | dungeon-scholar | — | done |
 | 14 | [`PHASE-14-sealed-export-strip-occlusion-fallback-qa-docs-round.md`](./PHASE-14-sealed-export-strip-occlusion-fallback-qa-docs-round.md) | dungeon-scholar | — | pending |
 
 
