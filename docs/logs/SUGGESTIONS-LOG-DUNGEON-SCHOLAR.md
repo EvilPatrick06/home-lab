@@ -415,6 +415,71 @@ The app is an installable offline PWA and can export the player save as JSON, bu
 
 # Low-severity polish / info
 
+### [2026-07-15] `dungeon-scholar/README.md` Project-structure section drifted — workflow path/branch wrong, ExamMode missing from the study row, design-gotcha pointer routes to the wrong doc
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** automated cleanup/structure scan of `dungeon-scholar/` (README vs tree/workflow diff)
+
+**Description:**
+Four concrete drifts in `dungeon-scholar/README.md`:
+1. The Project-structure diagram's first row places `.github/workflows/dungeon-scholar-deploy.yml` *inside* the `dungeon-scholar/` tree — no `dungeon-scholar/.github` directory exists; both workflows (`dungeon-scholar-ci.yml`, `dungeon-scholar-deploy.yml`) live at the repo root `.github/workflows/`.
+2. The same row says the deploy runs "on push to main"; the workflow actually triggers on `branches: [master]`.
+3. The `study/` row lists "Flashcards / Quiz / Lab / Chat / MistakeVault / DomainStudy" — it omits `ExamMode` (a headline study mode, 1,176 lines) and the `oracleSources` helper that `src/features/README.md` does list.
+4. "Known limitations + future-ideas" routes "Future-ideas + design-gotchas" to `SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`, but per `docs/logs/LOG-INSTRUCTIONS.md` the durable design-gotcha home is now `dungeon-scholar/docs/DESIGN-CONSTRAINTS.md` (the suggestions log holds future-ideas only).
+
+**Hypothesis / root cause:** The tree diagram is hand-maintained; the workflow row predates the repo-root workflow layout (or assumed a `main` default branch), the study row predates ExamMode's arrival, and the log-pointer predates the design-gotcha split into per-domain DESIGN-CONSTRAINTS docs.
+
+**Proposed fix / improvement:**
+- [ ] Move the workflow row out of the `dungeon-scholar/` tree in the diagram (or note it as repo-root) and correct "main" → "master".
+- [ ] Add `ExamMode` (and `oracleSources`) to the `study/` row.
+- [ ] Split the pointer: future-ideas → `SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`, design-gotchas → `docs/DESIGN-CONSTRAINTS.md`.
+
+**Related files:** `dungeon-scholar/README.md`, `.github/workflows/dungeon-scholar-deploy.yml`, `dungeon-scholar/docs/DESIGN-CONSTRAINTS.md`
+
+### [2026-07-15] `features/README.md` placement-rule paragraph still cites `phase11Guards.test.js here` — the file was relocated and renamed a batch ago
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** automated cleanup/structure scan of `dungeon-scholar/src` (README cross-reference sweep)
+
+**Description:**
+`src/features/README.md`'s closing placement rule reads "Repo-wide convention-guard tests (e.g. `phase11Guards.test.js` here) are the exception — see `../__guards__/README.md`". That suite no longer exists in `src/features/`: the owner-approved test-org batch (`97138c8b`) moved it to `src/__guards__/studyModeHeadingsQuestVerb.guard.test.js` — precisely because phase-named suites at structural roots were flagged as an anti-pattern (QA-report-2026-07-02). So the README's one concrete example (a) names a file that isn't there and (b) models the phase-number naming the guards README it links to explicitly retired. Distinct from the earlier [2026-07-15] entry on this file's *folder table* (missing `ScholarsLedger`/`CertificateModal`) — same file, different paragraph; cheapest fixed together.
+
+**Hypothesis / root cause:** The batch that relocated/renamed the guard suites updated `__guards__/README.md` but missed the back-reference in `features/README.md`.
+
+**Proposed fix / improvement:**
+- [ ] Reword to reference the current reality, e.g. "(these live in [`../__guards__/`](../__guards__/README.md), e.g. `studyModeHeadingsQuestVerb.guard.test.js` — originally `phase11Guards.test.js` here)".
+
+**Related files:** `src/features/README.md`, `src/__guards__/README.md`, `src/__guards__/studyModeHeadingsQuestVerb.guard.test.js`
+
+**Related entries:** [2026-07-15] "`services/README.md` concern-taxonomy and `features/README.md` folder table went stale after the 2026-07-03 feature batch".
+
+### [2026-07-15] Untested minority of `src/hooks/`: `useOAuthCallback`, `useRlsProbe`, `useAppModals` (plus `components/dungeon/useDungeonState`) have no co-located tests
+
+- **Category:** debt
+- **Severity:** info
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** automated cleanup/structure scan of `dungeon-scholar/src` (test-parity sweep)
+
+**Description:**
+Every other module in `src/hooks/` carries a co-located suite (`useAuth` + its circuit-breaker suite, `useAppSurfaces`, `useDialogA11y`, `usePlayerState`), but three do not: `useOAuthCallback.js` (15 lines — consumes the Supabase OAuth `?code=` redirect on mount), `useRlsProbe.js` (26 lines — post-sign-in probe for RLS misconfiguration feeding `RlsWarningBanner`, with an `active`-flag cleanup worth pinning), and `useAppModals.js` (28 lines — the app-modal visibility registry, whose "modals are NOT mutually exclusive" semantics are stated only in a comment). In `components/dungeon/`, `useDungeonState.js` (74 lines) is likewise the only untested member of the delve triad's support files (`useDungeonInput`, `dungeonLogic`, `tileRenderer`, `dungeonMap` all have suites). Honest caveat: all four are thin glue over well-tested services (`supabase.js`, `cloudSync.js`), so this is parity/regression-pinning, not a coverage hole in logic — hence `info`. Distinct from the [2026-07-02] study-mode-screens entry (screens, not hooks) and the [2026-06-29] CI coverage-floor entry (metric budget).
+
+**Hypothesis / root cause:** Three of the four were extracted from the `App.jsx` god-component during de-godding; the extractions moved code but did not add hook-level suites since the underlying services were already tested.
+
+**Proposed fix / improvement:**
+- [ ] Add small suites pinning: `useOAuthCallback` calls `consumeOAuthCallback` once on mount and logs (not throws) on rejection; `useRlsProbe` resets on sign-out and ignores stale async results after unmount; `useAppModals` allows concurrent open modals; `useDungeonState` initial-state/reset behavior.
+- [ ] Or fold into whatever suite lands for the coverage-floor entry — no urgency on its own.
+
+**Related files:** `src/hooks/useOAuthCallback.js`, `src/hooks/useRlsProbe.js`, `src/hooks/useAppModals.js`, `src/components/dungeon/useDungeonState.js`
+
+**Related entries:** [2026-07-02] "Study-mode screens have no behavioral co-located tests"; [2026-06-29] "CI has no test-coverage floor and no bundle-size budget".
+
 ### [2026-07-15] PHASE-11 plan file marked done but never moved to `completed/` (PHASE-INDEX links inconsistent)
 
 - **Category:** debt
