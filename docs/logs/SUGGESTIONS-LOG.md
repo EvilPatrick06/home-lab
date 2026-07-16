@@ -12,6 +12,70 @@ How to triage: [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md)
 
 ## Cross-cutting / repo-wide suggestions
 
+### [2026-07-15] External uptime probe covers only the bmo.mybmoai.work surfaces — the dungeon-scholar GitHub Pages site and the oracle-worker endpoint (2 of the repo's 3 public products) have no outage detection
+
+- **Category:** future-idea, config
+- **Severity:** medium
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** scheduled cross-cutting repo scan (2026-07-15); comparing the `.github/scripts/uptime-check.sh` probe list against the repo's deployed public surfaces.
+
+**Description:**
+`external-uptime-check.yml` → `uptime-check.sh` probes exactly two URLs, both on the Pi-fronted domain: `https://bmo.mybmoai.work/DungeonTableOnline/` (mode 200) and the root (mode access). Meanwhile the repo operates two other always-public production surfaces with zero uptime coverage: the dungeon-scholar app at `https://evilpatrick06.github.io/home-lab/` (deployed by `dungeon-scholar-deploy.yml`) and the `dungeon-scholar-oracle` Cloudflare Worker (`oracle-worker-deploy.yml`) that the live site's Oracle grading depends on at runtime. A Pages misdeployment (e.g. a bad `VITE_BASE` build serving 404s — the exact fork/base-path subtlety dungeon-scholar's README documents) or a Worker outage/rate-limiter regression is invisible to the incident machinery — no board 🚨 incident, no bmo-independent fallback GitHub issue — until a human notices. The probe harness (self-clearing board incidents, issue fallback, CF bot-challenge handling) is already built; extending coverage is roughly one `check` line per URL. Pages/Cloudflare platform outages are rare, but the failure mode that matters is *our own bad deploys* — which the deploy workflows can green-light while the served site is broken (Pages serves the artifact; nothing validates what it serves).
+
+**Proposed fix / improvement:**
+- [ ] Add probes to `uptime-check.sh`: the dungeon-scholar Pages URL in mode 200, and an oracle-worker endpoint that answers an unauthenticated request cheaply (add a tiny `/healthz` route in `oracle-worker/src/worker.js` if none exists; pick something that consumes no Groq quota or rate-limit budget — an OPTIONS preflight or a deliberate 405-with-CORS-headers also works with a matching probe mode).
+- [ ] For the Pages probe, consider asserting content, not just status (e.g. `curl -s | grep -q` a known title string), so a 200 that serves a broken-base-path shell still alarms.
+- [ ] Use distinct board slugs (`scholar-pages`, `oracle-worker`) so incidents set/clear independently of the bmo ones.
+
+**Blocked by:** none.
+
+**Related files:** `.github/scripts/uptime-check.sh`, `.github/workflows/external-uptime-check.yml`, `oracle-worker/src/worker.js`, `.github/workflows/dungeon-scholar-deploy.yml`
+
+**Related entries:** SUGGESTIONS-LOG.md [2026-07-02] shell-lint entry (names `uptime-check.sh` among the unattended scheduled shell); grepped all active logs for "uptime" — probe *coverage* is not logged anywhere.
+
+### [2026-07-15] The tracked agent logs have a strict shared entry format that nothing validates — add a log-lint guard (duplicate headers, truncated entries, invalid Category/Severity/Domain) so union-merge damage and malformed appends are caught at CI time
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** scheduled cross-cutting repo scan (2026-07-15); reviewing log integrity after today's duplicate-entry finding.
+
+**Description:**
+The whole agent fleet coordinates through `docs/logs/*.md`: ~16 scanners append entries, resolvers *parse* them to drive the Rule-5 autonomy split (a `Category: bug` line auto-implements with no human gate), and the union-merge driver guarantees concurrent appends concatenate without any structural check — with a documented caveat that it "can produce odd ordering or duplicate section headers" (AUTOMATED-AGENT-GIT-WORKFLOW Rule 2). Malformations are no longer hypothetical: today's ISSUES-LOG.md carries a truncated duplicate of the secret-scan entry (single-commit malformed append, logged by overall-errors), and nothing would have flagged the union-merge variant either. Because resolver behavior keys off the metadata lines, a duplicated or half-pasted entry is not just cosmetic — it risks double-processing, phantom open issues after resolution, and misrouted autonomy decisions. LOG-INSTRUCTIONS' "Housekeeping (periodic)" section assigns dedup/staleness sweeps to "someone, roughly monthly" — a manual convention with no mechanical backing, the same failure family as the dormant SYNC markers and the recurring biome drift. `ci-hygiene.yml` (GUARDs 1–10) is the repo's established home for turning exactly this kind of convention into a check.
+
+**Proposed fix / improvement:**
+- [ ] Add `scripts/check-log-format.sh`, wired into `ci-hygiene.yml` (warn-only first run, then enforcing), asserting per tracked log: no duplicate `### [` entry headers; every `### [YYYY-MM-DD]` entry carries `**Category:**` / `**Severity:**` / `**Domain:**` lines whose values come from the LOG-INSTRUCTIONS vocabulary; no top-level section heading appears twice (the union-merge caveat case).
+- [ ] Failure output names log + line number so the offending agent can fix forward on its branch.
+- [ ] Optionally: make the LOG-INSTRUCTIONS monthly housekeeping sweep real — a recurring task (e.g. for overall-resolver) that collapses duplicates and demotes >6-month stale entries, so that section stops being aspirational.
+
+**Blocked by:** none.
+
+**Related files:** `scripts/check-ci-hygiene.sh`, `.github/workflows/ci-hygiene.yml`, `docs/LOG-INSTRUCTIONS.md`, `docs/logs/`, `.gitattributes`
+
+**Related entries:** ISSUES-LOG.md [2026-07-15] "truncated duplicate of today's secret-scan entry" (the concrete instance this guard would have caught — that entry fixes the instance, this one proposes the mechanism); SUGGESTIONS-LOG.md [2026-07-02] dormant SYNC markers + [2026-07-15] biome re-drift (same convention-without-mechanical-backing family).
+
+### [2026-07-15] Repo-wide convention guards are CI-only — no Makefile target runs `check-ci-hygiene.sh` / `check-agent-instructions.sh` / `check-md-links.sh` locally, so every guard violation costs a full push→red-CI→fix-forward round trip
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** scheduled cross-cutting repo scan (2026-07-15); comparing the Makefile's advertised "uniform entry point" coverage against the CI gate set.
+
+**Description:**
+The root Makefile mirrors the per-project CI gates (`lint typecheck test build audit`), but the repo's own convention guards — the ten GUARDs in `scripts/check-ci-hygiene.sh`, the agent-instruction sync check, and the markdown link-integrity check — run only in `ci-hygiene.yml` / `agent-docs-check.yml`. `make all` passing says nothing about whether a push goes red on the guards. For the agent fleet this bites doubly: an agent adding a workflow, a docs file, or a version bump can run every documented local check green, push its `auto/*` branch, and only learn from the red hygiene job that the new doc isn't indexed in `docs/README.md` (GUARD 4), the action isn't SHA-pinned (GUARD 2), or the biome pins disagree (GUARD 10) — one CI round trip per violation, plus fix-forward commits cluttering the branch before the integrator sees it. All three scripts are dependency-free bash (git/grep), so local execution is free; they are simply not surfaced through the entry point everything else uses.
+
+**Proposed fix / improvement:**
+- [ ] Add a `guards` target (`bash scripts/check-ci-hygiene.sh && bash scripts/check-agent-instructions.sh && bash scripts/check-md-links.sh --warn-only`), include it in `make all`, and document it in `help`.
+- [ ] Mention `make guards` in `docs/CONTRIBUTING.md` and the agent-instruction files' pre-push guidance so automated agents run it before pushing their branch.
+
+**Blocked by:** none.
+
+**Related files:** `Makefile`, `scripts/check-ci-hygiene.sh`, `scripts/check-agent-instructions.sh`, `scripts/check-md-links.sh`, `docs/CONTRIBUTING.md`
+
+**Related entries:** SUGGESTIONS-LOG.md [2026-07-15] "`make install` bootstraps only the four npm projects" (same "uniform entry point has coverage gaps" family).
 
 ### [2026-07-15] Agent-worktree garbage collection never fires — 57 worktrees / ~16 GB of merged branches accumulate because `stale-local-cleanup.sh` keys on deleted *local* branches that nothing in the pipeline ever deletes
 
