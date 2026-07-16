@@ -63,6 +63,8 @@ Every Google Calendar cache refresh has failed since 2026-07-08 00:57 (first hit
 
 **Related entries:** [2026-07-02] "BMO_HOME never wired into the live units" (the dev-tree reauth hint is another symptom of the same dev-tree path assumption).
 
+**Update [2026-07-15, bmo-errors]:** A re-auth attempt was observed FAILING today: the web UI's auth-status poller hit `/api/calendar/auth/status` every ~2 s from 18:17:11 to ~18:23 and every probe still returned `invalid_grant` — the token remains dead after the attempt (failures continue as of 19:42). Side-observation for the "back off the failure path" fix item: each status poll forces a live Google token-endpoint round trip (`api_calendar_auth_status` sets `calendar._service = None` then calls `get_next_event()`, `routes/calendar_api.py:408-425`) and logs a full two-part traceback, so one ~6-min wait window added ~180 Google OAuth hits + thousands of journal lines.
+
 ---
 
 ### [2026-07-02] BMO_HOME never wired into the live units — `services/paths.py` points 24 live modules at the dev tree, splitting runtime state across two checkouts and breaking sandboxed writes
@@ -102,6 +104,42 @@ The paths centralization (`services/paths.py`, commit `4346536b`) defaulted `BMO
 ---
 
 ## Medium
+
+### [2026-07-15] Status board writes get rate-limited by Discord — 1,566 message-edit 429s in one night (Jul 12) and recurring ~8-min channel-topic 429 stalls; no debounce between health flaps and Discord PATCHes
+
+- **Category:** bug, performance
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** scheduled error scan — `bmo-social-bot.service` journal Jul 8–15 + `status_board_cog.py` read
+
+**Description:**
+Two related rate-limit patterns on the status-board channel (`1478859146810888242`):
+
+1. **Message-edit storm.** On Jul 12 00:06–~02:30 — the same window as the fish_audio outage/flap (168 monitor warnings + repeated down→RECOVERY cycles that night) — the board's pinned-message PATCH (`channels/<id>/messages/<id>`) drew **1,566 consecutive HTTP 429s**, one every ~6 s for ~2.5 h, each logging `We are being rate limited ... Retrying in ~2.5 seconds`. discord.py block-retried every time, so the bot spent the night in a self-sustaining 429→retry→429 cycle against the same message.
+2. **Channel-topic stalls (ongoing).** `render_to_message()` also PATCHes the channel topic whenever the rendered count summary changes (`status_board_cog.py:1016`). Discord caps channel edits at ~2 per 10 min, so an extra change gets a 429 with `Retrying in ~480 s` — 10 such events on Jul 15 alone (09:38–18:23), 15 in the last 7 days. discord.py sleeps out that retry *inside* `await channel.edit(...)`, which runs under `self._lock` in `render_to_message()`, so for up to ~8 min per event the board message, critical-incident pings, and presence updates are all frozen.
+
+**Reproduction (if bug):**
+1. `journalctl -u bmo-social-bot.service --since 2026-07-12 --until 2026-07-13 | grep -c "rate limited"` → 1,570.
+2. `journalctl -u bmo-social-bot.service --since -24h | grep "rate limited"` → topic-PATCH 429s with ~480 s retries.
+
+**Expected behavior:** Health flapping reaches the board only at the rate Discord permits; a rate-limited topic update is skipped/deferred, never blocking the whole render path for minutes; no multi-hour 429 storms.
+
+**Hypothesis / root cause:** `render_to_message()` (60 s `tasks.loop`) writes to Discord whenever its row-hash / topic string changes, with no debounce, no minimum interval, and no flap-damping between the monitor and the board. A flapping health check changes the hash nearly every cycle; sustained edit pressure exhausts Discord's buckets, and blocking retries plus the next cycle's edit keep the pressure on (storm mechanism inferred from journal timing — the Jul 11–12 fish_audio flap is the correlated trigger). Secondary suspect for the repeating topic 429s: the guard `channel.topic != topic` compares against discord.py's *cached* topic, which can go stale after a dropped/failed edit, making the loop re-attempt the same PATCH every cycle (speculative — needs a gateway-cache check).
+
+**Proposed fix / improvement:**
+- [ ] Debounce Discord writes: minimum interval between `msg.edit()` calls (≥60 s) and between `channel.edit(topic=…)` calls (≥10 min — Discord's own cap), coalescing intermediate changes.
+- [ ] Move the topic PATCH out of the lock-held render path (own task + cooldown) so a 429 retry can never stall board renders / critical pings.
+- [ ] Add flap-damping upstream (skip re-render for a check that flipped >N times in M minutes) or render only damped severity into the topic.
+- [ ] After K consecutive 429s on the board message, skip edits for a cool-off window instead of letting discord.py block-retry indefinitely.
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/bots/social/status_board_cog.py:963-1024` (loop / `render_to_message` / topic edit), `bmo/pi/services/status_board.py:528-549` (`render_topic`), `bmo/pi/services/monitoring.py` (flap source)
+
+**Related entries:** BMO-RESOLVED [2026-06-22] "Location provider order wastes a guaranteed-failing request (ipapi 429)" — same "no backoff against a known-limited endpoint" class.
+
+---
 
 ### [2026-07-15] Python 3.11→3.14 bump landed for CI/Docker but the Pi cannot follow — no `python3.14` on the host, live venvs still 3.11.2, `install-venv.sh` default now fails
 
@@ -216,6 +254,8 @@ The board-approval bridge / nudge work writes `bmo/pi/data/board_decisions_outbo
 - [ ] Add `bmo/pi/data/board_decisions_outbox.jsonl` and `bmo/pi/data/nudges/` to `.gitignore` (mirror the `vtt_sync_outbox.jsonl` pattern).
 
 **Related files:** `.gitignore:124`, `bmo/pi/data/board_decisions_outbox.jsonl` (runtime), `docs/BOARD-APPROVAL-BRIDGE.md`
+
+**Update [2026-07-15, bmo-errors]:** The class is growing — the deploy checkout now also shows untracked `bmo/pi/data/board_decisions_cursor.<agent-id>` (×7, written by the outbox consumers, all active today) and a `bmo/pi/data/dm_session_state.json.pre-reconcile-20260715` backup from today's DM-state reconcile. Whatever ignore fix lands should cover `board_decisions_cursor.*` and `*.pre-reconcile-*` too.
 
 ---
 
