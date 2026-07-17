@@ -157,3 +157,47 @@ The 2026-07-16 integrator run merged `origin/auto/bmo-resolver` (merge commit `8
 **Related files:** `scripts/check-md-links.sh`, `.github/workflows/ci-hygiene.yml`, `docs/logs/RESOLVED-ISSUES.md` (line ~78), `dungeon-scholar/docs/phases/completed/`, `bmo/docs/phases/`
 
 **Related entries:** RESOLVED-ISSUES [2026-07-02] md-link-check (reporter shipped, triage half dropped); SUGGESTIONS-LOG [2026-07-15] guards-not-in-Makefile (same guard-visibility family)
+
+
+### [2026-07-17] `bmo/pi/data/5e/spells.json` is a sixth shared-5e mirror file that the sync script + CI byte-equality guard never covered — stale since before the monorepo reorg, DM engine missing 4 spells the VTT has
+
+- **Category:** bug, config
+- **Severity:** medium
+- **Domain:** both
+- **Discovered by:** overall-errors
+- **During:** scheduled cross-cutting error scan — verifying the dnd-app ↔ bmo shared-5e seam
+
+**Description:**
+The dnd-app ↔ bmo shared-5e machinery (`bmo/pi/scripts/sync-shared-5e-json.sh` + `dnd-app/scripts/audit/shared-5e-sync.test.ts`) declares "the five 5e JSON files that must match" — but `bmo/pi/data/5e/` contains **six** files. The sixth, `spells.json` (consumed by `bmo/pi/bots/discord_dm_bot.py` and covered by `bmo/pi/tests/test_library_api.py`), mirrors `dnd-app/src/renderer/public/data/5e/spells/spells.json` in structure but is a strict stale subset: 391 vs 395 spells, missing `blade-of-disaster`, `find-greater-steed`, `intellect-fortress`, `spirit-shroud`; the 391 common spells are field-identical (verified 2026-07-17 by JSON compare), so this is pure copy-drift, not an intentionally different dataset. Neither side has changed since the 2026-04-23 monorepo reorg commit `f96bad8f` — the two copies were checked in **already diverged**, so the seam guard has been structurally blind to this file from day one. Net effect: the Discord DM engines spell library silently lacks 4 spells the VTT ships, and any future dnd-app spell edits will widen the gap with no CI signal.
+
+
+### [2026-07-17] `bmo/pi/data/5e/spells.json` is a sixth shared-5e mirror file that the sync script + CI byte-equality guard never covered — stale since before the monorepo reorg, DM engine missing 4 spells the VTT has
+
+- **Category:** bug, config
+- **Severity:** medium
+- **Domain:** both
+- **Discovered by:** overall-errors
+- **During:** scheduled cross-cutting error scan — verifying the dnd-app ↔ bmo shared-5e seam
+
+**Description:**
+The dnd-app ↔ bmo shared-5e machinery (`bmo/pi/scripts/sync-shared-5e-json.sh` + `dnd-app/scripts/audit/shared-5e-sync.test.ts`) declares "the five 5e JSON files that must match" — but `bmo/pi/data/5e/` contains **six** files. The sixth, `spells.json` (consumed by `bmo/pi/bots/discord_dm_bot.py` and covered by `bmo/pi/tests/test_library_api.py`), mirrors `dnd-app/src/renderer/public/data/5e/spells/spells.json` in structure but is a strict stale subset: 391 vs 395 spells, missing `blade-of-disaster`, `find-greater-steed`, `intellect-fortress`, `spirit-shroud`; the 391 common spells are field-identical (verified 2026-07-17 by JSON compare), so this is pure copy-drift, not an intentionally different dataset. Neither side has changed since the 2026-04-23 monorepo reorg commit `f96bad8f` — the two copies were checked in **already diverged**, so the seam guard has been structurally blind to this file from day one. Net effect: the Discord DM engine's spell library silently lacks 4 spells the VTT ships, and any future dnd-app spell edits will widen the gap with no CI signal.
+
+**Reproduction (if bug):**
+1. `cmp dnd-app/src/renderer/public/data/5e/spells/spells.json bmo/pi/data/5e/spells.json` → differ
+2. JSON-compare ids: dnd-app 395, bmo 391; only-in-dnd-app = the 4 spells above; only-in-bmo = none; 0 field diffs on common ids
+3. `grep spells bmo/pi/scripts/sync-shared-5e-json.sh dnd-app/scripts/audit/shared-5e-sync.test.ts` → no coverage
+
+**Expected behavior (if bug):** every 5e JSON file duplicated across the dnd-app ↔ bmo boundary is either covered by the sync script + byte-equality CI test, or explicitly documented as an independent dataset.
+
+**Hypothesis / root cause:** the five-file sync list was written from whichever files were known-shared at the time; `spells.json` was copied to the bmo side earlier (pre-reorg) from an older dnd-app snapshot and never joined the sync list, so both the script and the test inherited the omission.
+
+**Proposed fix / improvement:**
+- [ ] Add the pair `spells/spells.json → spells.json` to `bmo/pi/scripts/sync-shared-5e-json.sh` and to `PAIRS` in `dnd-app/scripts/audit/shared-5e-sync.test.ts`, then run the sync (brings the 4 missing spells to the DM engine)
+- [ ] Sanity-check `discord_dm_bot.py` / `test_library_api.py` against the updated file (count assertions, if any, may pin 391)
+- [ ] While there, assert in the test that `bmo/pi/data/5e/` contains no files beyond the declared pairs, so a future seventh mirror can't repeat this
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/data/5e/spells.json`, `dnd-app/src/renderer/public/data/5e/spells/spells.json`, `bmo/pi/scripts/sync-shared-5e-json.sh`, `dnd-app/scripts/audit/shared-5e-sync.test.ts`, `bmo/pi/bots/discord_dm_bot.py`
+
+**Related entries:** SUGGESTIONS-LOG.md [2026-07-17] shared-5e pre-commit auto-sync idea (same seam; that entry hardens the five known pairs, this one is the uncovered sixth file)
