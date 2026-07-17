@@ -111,6 +111,84 @@ Root `AGENTS.md` is the repo's canonical AI-agent instruction file (with `CLAUDE
 **Related files:** `scripts/README.md`, `scripts/claude-tools/push-with-deploy-key.sh`, `docs/PUSH-RESILIENCE.md`, `scripts/check-ci-hygiene.sh`
 
 **Related entries:** RESOLVED-ISSUES.md [2026-06-29] "Repo-root scripts/ has no README" (this is the parity tail of that fix); SUGGESTIONS-LOG.md [2026-07-02] shell-lint entry (same "shared shell tooling under-covered" family).
+### [2026-07-17] The automation fleet's canonical definitions and host tooling live outside git with no backup or drift story — BACKUP.md's "everything that matters is in this repo" is false for the ~30 orchestrator-side SKILL.md task defs, `~/.claude-tools/`, and the gitignored security logs
+
+- **Category:** portability, docs
+- **Severity:** medium
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** scheduled cross-cutting repo scan (2026-07-17); comparing `docs/BACKUP.md`'s scope claims against the assets that exist only on the Pi.
+
+**Description:**
+`docs/BACKUP.md` opens "Primary backup = git… Everything that matters is in this repo." Three fleet-critical asset classes contradict that today:
+
+1. **Orchestrator-side SKILL.md definitions** for the ~30 scheduled agents. `docs/AGENT-FLEET.md` states plainly that "the canonical per-agent definitions (each agent's SKILL.md) live orchestrator-side, outside the repo" — i.e. the operating logic of the entire scanner/resolver/phase/QA/integrator fleet is in files no git repo tracks and no documented backup covers.
+2. **`/home/patrick/.claude-tools/` host tooling** the fleet and its alerting depend on: `notify.sh`, `notify-sms.sh`, `reply-watcher.py`, `watchdog.sh`. Its only versioning is ad-hoc `.bak-20260622` / `.bak-board-cutover` copies sitting next to the live files. Exactly one of the four has an in-repo counterpart (`scripts/claude-tools/watchdog.sh`) and that copy **already differs byte-wise from the live `~/.claude-tools/watchdog.sh`** (verified 2026-07-17, `diff -q` non-empty) with nothing checking sync in either direction; the other three have no in-repo counterpart at all.
+3. **The gitignored security logs** (`docs/logs/SECURITY-LOG.md`, `docs/logs/RESOLVED-SECURITY-ISSUES.md`) exist only in the main checkout's working tree (per AUTOMATED-AGENT-GIT-WORKFLOW.md Rule 2's own caveat), yet BACKUP.md's otherwise-careful "What's NOT backed up via git" inventory never lists them — so their non-backup is an accident of omission, not a documented choice. The whole security backlog is one errant `rm`/disk failure from gone.
+
+Net effect: a Pi disk failure loses the fleet's behavioral definitions, the alerting pipeline, and the security backlog simultaneously, while the repo's backup doc asserts git covers everything that matters. Minor related nit while here: BACKUP.md's dnd-app restore steps say `cp ../.env.example .env  # if present` — no repo-root `.env.example` exists (only `dungeon-scholar/.env.example`; bmo uses `.env.template`), so the restore recipe references a file that was never there.
+
+**Hypothesis / root cause:** BACKUP.md predates the 2026-06 agent-fleet buildout; the SKILL definitions, `.claude-tools` scripts, and gitignored security logs all accreted host-side afterward, and nothing prompted a revisit of the backup doc's scope claim. The `.bak` files show the author already feels the missing-VCS pain and is hand-rolling versioning.
+
+**Proposed fix / improvement:**
+- [ ] Pick a home for the orchestrator-side SKILL definitions + `~/.claude-tools/`: a private git repo (they reference host paths/phone numbers, so the public home-lab repo may be the wrong place), or a scheduled rsync/restic job to off-Pi storage. Document whichever in BACKUP.md.
+- [ ] Resolve the duplicated `watchdog.sh`: either make `scripts/claude-tools/watchdog.sh` canonical and deploy from it (add a drift check like the repo's other `--check` guards), or delete the in-repo copy — two silently-diverging copies is the worst state.
+- [ ] Add the two gitignored security logs to a scheduled (encrypted, off-host) backup — they are gitignored for confidentiality, not disposability — and list them in BACKUP.md's inventory either way.
+- [ ] Fix the `cp ../.env.example` line in BACKUP.md's restore steps to point at what actually exists per project.
+
+**Blocked by:** none (the "where do private defs live" call is the user's, but inventorying + documenting can start immediately).
+
+**Related files:** `docs/BACKUP.md`, `docs/AGENT-FLEET.md`, `scripts/claude-tools/watchdog.sh`, `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md` (Rule 2 security-log caveat)
+
+**Related entries:** ISSUES-LOG.md [2026-07-15] worktree-accumulation entry (same host-hygiene family); SUGGESTIONS-LOG.md [2026-07-02] shell-lint entry (covers `claude-tools` lint coverage, not backup/drift). Grepped all active logs for "backup", "claude-tools", "notify.sh", "SKILL" — no prior entry covers this.
+
+### [2026-07-17] Shared-5e mirror sync is manual-then-red-CI — the repo-root pre-commit hook could auto-run `sync-shared-5e-json.sh` (or fail fast) when the five source files are staged
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** scheduled cross-cutting repo scan (2026-07-17); reviewing the dnd-app ↔ bmo shared-data seam against the repo-root pre-commit hook's per-project fan-out.
+
+**Description:**
+The five 5e JSON files duplicated across the dnd-app ↔ bmo boundary stay in sync only if someone *remembers* to run `bmo/pi/scripts/sync-shared-5e-json.sh` after editing the dnd-app source files. The guard, `dnd-app/scripts/audit/shared-5e-sync.test.ts`, is deliberate and works — but it fires **after push**: `dnd-app-ci.yml` path-triggers on `bmo/pi/data/5e/**` precisely so divergence goes red in CI. So the standard failure loop for the forgotten-sync case is edit → commit (all local checks green) → push → red dnd-app CI on the byte-equality test → fix-forward commit — one full CI round trip for a mechanical 5-file copy. Meanwhile the repo-root `.husky/pre-commit` already fans out staged-path-scoped checks per project (dnd-app biome/tsc, mobile, dungeon-scholar, bmo ruff, oracle-worker tests, gitleaks); it just has no block for this seam. A block that detects staged changes to any of the five source files (`hazards/conditions.json`, `encounters/encounter-presets.json`, `encounters/random-tables.json`, `equipment/magic-items.json`, `world/treasure-tables.json` under `dnd-app/src/renderer/public/data/5e/`) and auto-runs the sync script + `git add`s the bmo mirror (or, more conservatively, byte-diffs the five pairs and fails with "run sync-shared-5e-json.sh") converts that push→red-CI→fix-forward round trip into a commit-time auto-fix. Direct edits on the bmo side should fail loudly instead, since dnd-app is the declared source of truth.
+
+**Hypothesis / root cause:** the sync test was added CI-side to backstop a manual script, and — unlike biome/ruff/gitleaks, which all got both a local pre-commit floor *and* an authoritative CI gate — this seam never got the local half.
+
+**Proposed fix / improvement:**
+- [ ] Add a 5e-mirror block to `.husky/pre-commit`: on staged source-side changes, run `bmo/pi/scripts/sync-shared-5e-json.sh` and stage the mirror files; on staged bmo-side-only changes to those five files, fail with a pointer at the source-of-truth rule.
+- [ ] Keep `shared-5e-sync.test.ts` unchanged as the authoritative backstop (`git commit --no-verify` escape hatch remains, matching the hook's existing philosophy).
+
+**Blocked by:** none.
+
+**Related files:** `.husky/pre-commit`, `bmo/pi/scripts/sync-shared-5e-json.sh`, `dnd-app/scripts/audit/shared-5e-sync.test.ts`, `.github/workflows/dnd-app-ci.yml`
+
+**Related entries:** SUGGESTIONS-LOG.md [2026-07-15] "Repo-wide convention guards are CI-only" (same push→red-CI→fix-forward cost class; that entry covers the three `scripts/*.sh` guards and never mentions this mirror — grepped "5e"/"sync-shared" across active logs, no prior entry).
+
+### [2026-07-17] Per-agent overlap-guard lock convention (`/home/patrick/home-lab-locks/<agent-id>.lock`) exists only inside out-of-repo SKILL.md prompts — document it in-repo and ship a shared helper so thresholds and stale-handling can't drift per agent
+
+- **Category:** future-idea, docs
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-suggestor
+- **During:** scheduled cross-cutting repo scan (2026-07-17); noticing this agent's own lock/overlap-guard instructions have no in-repo counterpart to cite.
+
+**Description:**
+Every scheduled agent hand-rolls the same overlap guard from prose repeated in its own orchestrator-side SKILL.md: mkdir the lock dir, skip the run if `/home/patrick/home-lab-locks/<agent-id>.lock` is younger than N hours, treat older as stale and continue, remove on exit. But the only in-repo mentions of `/home/patrick/home-lab-locks/` at all are the *security-log flock* examples (AUTOMATED-AGENT-GIT-WORKFLOW.md ~line 147, LOG-INSTRUCTIONS.md ~line 267); the general per-agent run-lock convention appears in no repo doc — not in the workflow doc's rules and not in AGENT-FLEET.md, which records each agent's id/branch/logs but says nothing about locks. Consequences for a ~30-agent fleet: (a) the staleness threshold and semantics are private to each prompt, so nothing establishes a fleet standard or catches drift as prompts are edited; (b) a crashed agent leaves a lock whose handling rules live only in that agent's out-of-repo prompt; (c) every new agent copy-pastes ~6 lines of lock bash with mutation risk; (d) lock cleanup is only glancingly covered ("local worktree/lock/notify.log cleanup stays on bmo as a cron", per the stale-branch-pruner.yml comment) with no in-repo statement of when a lock is prunable. ~30 reimplementations of the same 6 lines is exactly the shared-tooling case the monorepo otherwise handles well.
+
+**Hypothesis / root cause:** the lock convention was born inside the scheduled-task prompt templates during the 2026-06 fleet buildout (same era as the `.gitignore` in-repo-lock leftovers) and, since the locks deliberately live outside the repo, no repo doc ever became their home.
+
+**Proposed fix / improvement:**
+- [ ] Add `scripts/claude-tools/agent-lock.sh` with `acquire <agent-id> [max-age-hours]` (exit 0 = proceed, non-zero = overlapping run; stale locks auto-replaced) and `release <agent-id>`, defaulting to one fleet-standard threshold.
+- [ ] Document the convention — path, default threshold, stale rule, who prunes and when — in AUTOMATED-AGENT-GIT-WORKFLOW.md (alongside the worktree setup it always accompanies) and add a note to AGENT-FLEET.md.
+- [ ] Migrate SKILL.md prompts to "call the helper" opportunistically as each is next edited; no big-bang rewrite needed.
+
+**Blocked by:** none in-repo (SKILL.md prompt updates are orchestrator-side, i.e. the user's).
+
+**Related files:** `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`, `docs/AGENT-FLEET.md`, `scripts/claude-tools/`, `.github/workflows/stale-branch-pruner.yml`
+
+**Related entries:** SUGGESTIONS-LOG.md [2026-07-02] `.gitignore` agent-lock globs entry (stale remnants of the *old* in-repo lock convention; this entry is about the *current* out-of-repo one being undocumented); [2026-07-17] fleet-assets backup entry above (same "canonical knowledge lives only in out-of-repo prompts" root cause).
+
 ### [2026-07-15] External uptime probe covers only the bmo.mybmoai.work surfaces — the dungeon-scholar GitHub Pages site and the oracle-worker endpoint (2 of the repo's 3 public products) have no outage detection
 
 - **Category:** future-idea, config
