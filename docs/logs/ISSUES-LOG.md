@@ -69,3 +69,91 @@ How to triage: [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md)
 **Related files:** `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`
 
 **Related entries:** none
+
+
+### [2026-07-17] Integrator merged `auto/bmo-resolver` while its branch CI was red — master `bmo / pi pytest` red >24h, bmo deploys skipped (Rule 3A check races late pushes)
+
+- **Category:** bug
+- **Severity:** high
+- **Domain:** both
+- **Discovered by:** overall-errors
+- **During:** scheduled cross-cutting error scan — CI/integrator machinery check
+
+**Description:**
+The 2026-07-16 integrator run merged `origin/auto/bmo-resolver` (merge commit `87f25757`) even though the branch tip `18b822fe` had a **red** `bmo / pi pytest` run: the branch was pushed 05:54:34Z, its pytest run 29475160732 concluded **failure at 05:58:15Z**, and the integrator batch landed on master at ~06:09:50Z — ≥11 minutes after the failure was final. Result: master run 29475949981 red (`test_env_template_drift` — `BMO_RELAY_MAX_ROOMS`/`BMO_RELAY_MAX_PEERS_PER_ROOM` read in `game_relay.py` but absent from `.env.template`/allowlist), every subsequent `bmo / deploy` skipped, and 73 bmo files stranded undeployed >24h. The *symptom* (red gate + blocked deploy) is logged in BMO-ISSUES-LOG [2026-07-17] and a fix branch (`auto/bot-commands-fix`, `5faa5c22`) is in flight; THIS entry is the repo-wide process hole: `AUTOMATED-AGENT-GIT-WORKFLOW.md` Rule 3A says red or missing CI → leave the branch behind + report, but the integrator merged it anyway.
+
+**Reproduction (if bug):**
+1. `gh run view 29475160732 --json createdAt,updatedAt,conclusion` → failure, final 05:58:15Z, branch `auto/bmo-resolver`, sha `18b822fe`
+2. `git log -1 --format=%ci bbb766a3` (integrator batch tip) → 2026-07-16 00:09:50 -0600 (06:09:50Z)
+3. `gh run list --workflow bmo-pi-pytest.yml --branch master` → 29475949981 failure on `bbb766a3`; all later `bmo-deploy.yml` runs `skipped`
+
+**Expected behavior (if bug):** the integrator verifies the branch **tip sha** has a green, completed CI conclusion at merge time; red or still-pending → branch left behind + reported.
+
+**Hypothesis / root cause:** TOCTOU between the integrator CI check and late agent pushes — plausibly the integrator snapshotted CI status before/while the `18b822fe` run was executing (05:54–05:58Z) and matched runs by *branch* (latest completed run = the previous commit green) instead of pinning to the branch **head sha**, then merged the newer tip. Speculation as to mechanism; the merged-while-red fact is confirmed by timestamps.
+
+**Proposed fix / improvement:**
+- [ ] In the integrator check, resolve `origin/<branch>` to a sha first, then require green via `gh run list --commit <sha>` (or `gh api .../commits/<sha>/check-runs`) — treat pending/missing as NOT clean (per Rule 3A) and re-check the sha immediately before `git merge`
+- [ ] Optionally: ignore branches pushed within the last N minutes (settling window) to avoid racing in-flight CI
+- [ ] Update the integrator SKILL.md wording to require sha-pinned, completed-conclusion checks
+
+**Blocked by:** none (integrator logic lives in its scheduled-task definition, orchestrator-side)
+
+**Related files:** `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`, `.github/workflows/bmo-pi-pytest.yml`, `.github/workflows/bmo-deploy.yml`
+
+**Related entries:** BMO-ISSUES-LOG [2026-07-17] master pytest red / env-template drift (the domain symptom + code fix); ISSUES-LOG-DUNGEON-SCHOLAR unmergeable `auto/scholar-phase-executer` branch (other integrator edge)
+
+
+### [2026-07-17] Orphaned agent stashes accumulate in the shared repo — 7 stashes back to 2026-06-22, incl. crashed-run WIP and "parked" deploy-unblock edits nothing ever un-parks
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-errors
+- **During:** scheduled cross-cutting error scan — shared git-state check
+
+**Description:**
+`git stash list` in `/home/patrick/home-lab` shows 7 stashes spanning 2026-06-22 → 2026-07-17, created by different agents on different branches (`WIP on master` ×3, `WIP on auto/dnd-errors`, `WIP on auto/bmo-resolver`, `On auto/scholar-resolver: stale-apkg-wip-from-crashed-run-1782339939`, `On master: deploy-unblock: local mobile-dep edits parked 2026-06-28…`). The stash stack is repo-global (shared by the main checkout and all ~57 worktrees), so this is unowned cross-agent state: nobody knows which stashes are safe to drop, at least one is explicitly from a **crashed run**, and one "parked" stash from the 2026-06-28 deploy-unblock has sat 19 days with no owner or expiry. Risks: silently lost work (an agent stashes, crashes, never pops), and an agent popping another agent WIP into the wrong tree. Neither `AUTOMATED-AGENT-GIT-WORKFLOW.md` nor any janitor (cron `stale-local-cleanup.sh`) addresses stashes.
+
+**Hypothesis / root cause:** agents use `git stash` as a crash-safe park mechanism, but the workflow doc defines no stash convention (never-stash / pop-before-exit / label-with-agent-id), and no cleanup covers the stash reflog — same "2026-06 redesign left-over" class as the worktree/lock-glob entries.
+
+**Proposed fix / improvement:**
+- [ ] Add a stash rule to `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md` (prefer commit-on-own-branch over stash; if stashing, label `<agent-id>: …` and pop/drop before run end)
+- [ ] One-time triage of the 7 current stashes (inspect `git stash show -p`; salvage or drop), ideally by the resolver after user approval
+- [ ] Extend the weekly cleanup to warn (board/notify) when stashes older than N days exist
+
+**Blocked by:** none
+
+**Related files:** `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`, `bmo/pi/scripts/stale-local-cleanup.sh`
+
+**Related entries:** ISSUES-LOG [2026-07-15] worktree accumulation; SUGGESTIONS-LOG [2026-07-16] stale-local-cleanup no-op (same unowned-shared-state family)
+
+
+### [2026-07-17] Dead-relative-link backlog has no active tracking entry and is growing (≈180 → 190) — md-links CI job is warn-only with no path to enforcing; `completed/` phase-archive moves keep minting new dead links
+
+- **Category:** debt, docs
+- **Severity:** medium
+- **Domain:** both
+- **Discovered by:** overall-errors
+- **During:** scheduled cross-cutting error scan — ran `scripts/check-md-links.sh` on master tip
+
+**Description:**
+`bash scripts/check-md-links.sh` on master tip reports **190 dead relative links** (48 dungeon-scholar/docs, 43 bmo/docs, 41 docs/logs, 21 docs/LOG-INSTRUCTIONS.md, 12 docs/README.md, plus others). The original tracking entry ([2026-07-02] md-link-check) was moved to `RESOLVED-ISSUES.md` when the warn-only `md-links` job shipped in `ci-hygiene.yml` — but the resolution only added the *reporter*; the "~180-link backlog triage, then flip to enforcing" half now has **no active log entry anywhere**, so it is invisible to the resolver fleet, and the backlog has grown ~10 links since. Dominant generator: phase docs moved into `docs/phases/completed/` keep links written relative to their original location (`./PHASE-INDEX.md`, `./INSTRUCTIONS.md`, `./QA/completed/QA-report-*.md`), so every phase-archive step mints several new dead links — warn-only CI never pushes back. The script header calls these docs "the agent-coordination fabric"; 190 rotten links degrade agent navigation, not just human reading.
+
+**Reproduction (if bug):**
+1. `bash scripts/check-md-links.sh` → `FAILED — 190 dead relative link(s)`
+2. `grep -n "warn-only" .github/workflows/ci-hygiene.yml` → the CI job passes `--warn-only`
+
+**Expected behavior (if bug):** backlog shrinks toward 0 under an owned triage item, then the CI job drops `--warn-only`; archive moves rewrite (or avoid) location-relative links.
+
+**Hypothesis / root cause:** resolution of the 2026-07-02 entry closed the tracking item at "reporter shipped" instead of splitting off the triage/enforce half; and the phase-completion workflow (all three projects) moves files without fixing their relative links.
+
+**Proposed fix / improvement:**
+- [ ] Triage the 190-link backlog (bulk is mechanical: `completed/` files needing `../` prefixes), then flip the ci-hygiene md-links job to enforcing
+- [ ] Fix the generator: phase-archive instructions (per-project INSTRUCTIONS.md) should require re-running `check-md-links.sh` after moving a file, or the mover should rewrite `./`-relative links
+- [ ] Until enforcing, have the job fail only on *newly added* dead links (baseline count), so the backlog cannot grow silently again
+
+**Blocked by:** none
+
+**Related files:** `scripts/check-md-links.sh`, `.github/workflows/ci-hygiene.yml`, `docs/logs/RESOLVED-ISSUES.md` (line ~78), `dungeon-scholar/docs/phases/completed/`, `bmo/docs/phases/`
+
+**Related entries:** RESOLVED-ISSUES [2026-07-02] md-link-check (reporter shipped, triage half dropped); SUGGESTIONS-LOG [2026-07-15] guards-not-in-Makefile (same guard-visibility family)
