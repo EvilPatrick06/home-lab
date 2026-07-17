@@ -77,6 +77,99 @@ New entries go at the TOP of their section (newest first).
 
 ---
 
+### [2026-07-17] `services/` root is a 29-file flat sprawl beside 16 feature dirs — calendar/weather and audio clusters are dir-ready, and two dir-based services keep their tests at the root
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** scheduled cleanup/reorganization scan of the dnd-app tree
+
+**Description:**
+`src/renderer/src/services/` mixes 16 feature directories (`dice/`, `combat/`, `chat-commands/`, `game-actions/`, `data-provider/`, …) with 29 loose non-test `.ts` modules at the root, so the directory listing no longer communicates the service architecture. Two clusters are already coherent features living as root files: **calendar/weather** — `calendar-service.ts`, `calendar-types.ts`, `calendar-weather.ts`, `weather-mechanics.ts` (plus `utils/dawn-recharge.ts`, which is calendar-time logic stranded in `utils/`) — and **audio** — `sound-manager.ts`, `sound-playback.ts`, `playlist-manager.ts`. Related: the executor pair `game-action-executor.ts` / `trigger-action-executor.ts` sits at the root while the actions they execute live in `game-actions/`. Separately, test placement is inconsistent for dir-based services: `data-provider.test.ts` and `chat-commands.test.ts` sit at the services root while their implementations live in `data-provider/index.ts` and `chat-commands/index.ts` — every other feature dir (e.g. `chat-commands/index.test.ts`, `dice/`) keeps tests inside the dir. New contributors get two conventions for "where does a service live" and two for "where does its test live".
+
+**Hypothesis / root cause:** services were extracted into dirs one refactor at a time (dice, combat, chat-commands…) and the flat root is simply everything that predates or postdates those passes; nothing (lint rule or doc) states when a service earns a directory.
+
+**Proposed fix / improvement:**
+- [ ] Create `services/calendar/` (move `calendar-service.ts`, `calendar-types.ts`, `calendar-weather.ts`, `weather-mechanics.ts`, and consider `utils/dawn-recharge.ts`) and `services/audio/` (move `sound-manager.ts`, `sound-playback.ts`, `playlist-manager.ts`), tests alongside; mechanical import-path churn only, verified by tsc + vitest + biome.
+- [ ] Move `data-provider.test.ts` → `data-provider/index.test.ts` and `chat-commands.test.ts` → `chat-commands/index.test.ts` to match the dir-internal test convention.
+- [ ] Consider relocating `game-action-executor.ts` / `trigger-action-executor.ts` into `game-actions/`.
+- [ ] Add a one-paragraph convention note (README or the future state/architecture doc): a service with ≥3 modules or a types+impl+test triple gets a directory; tests live next to implementations.
+
+**Blocked by:** none
+
+**Related files:** `dnd-app/src/renderer/src/services/` (root listing), `dnd-app/src/renderer/src/services/calendar-service.ts`, `dnd-app/src/renderer/src/services/calendar-weather.ts`, `dnd-app/src/renderer/src/services/weather-mechanics.ts`, `dnd-app/src/renderer/src/services/sound-manager.ts`, `dnd-app/src/renderer/src/services/sound-playback.ts`, `dnd-app/src/renderer/src/services/playlist-manager.ts`, `dnd-app/src/renderer/src/services/data-provider.test.ts`, `dnd-app/src/renderer/src/services/chat-commands.test.ts`, `dnd-app/src/renderer/src/utils/dawn-recharge.ts`
+
+**Related entries:** complements [2026-07-15] "`stores/` mixes three slice-dir naming layouts" (same drift pattern, different layer) and [2026-07-15] "No state-management reference doc" (the convention note could live in that doc); no existing entry covers `services/` layout (grep "services root"/"calendar-service"/"sound-manager" across active logs found nothing)
+
+### [2026-07-17] Six audit/maintenance devDependencies (jscpd, license-checker, lockfile-lint, npm-check-updates, oxlint, type-coverage) are installed but wired to nothing — kept invisible by knip `ignoreDependencies`
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** scheduled cleanup/reorganization scan of the dnd-app tree
+
+**Description:**
+`knip.json#ignoreDependencies` lists seven packages. One is a knip false-positive that IS used (`dpdm`, invoked by path from `scripts/check-circular.mjs` — documented in RESOLVED-ISSUES-DNDAPP, must stay). The other six — `jscpd` (copy-paste detector), `license-checker`, `lockfile-lint`, `npm-check-updates`, `oxlint`, `type-coverage` — have **zero invocation paths anywhere**: no `package.json` script, nothing under `scripts/`, nothing in `.github/workflows/*`. They are presumably ad-hoc tools someone runs manually, but unlike ad-hoc *scripts* (which `scripts/README.md`'s "Wired vs ad-hoc" section deliberately tracks), ad-hoc *dependencies* are documented nowhere — and because they sit in `ignoreDependencies`, the dead-code gate will never surface them again. Cost while unwired: `npm ci` install weight, Dependabot bump noise (each gets PRs forever), and six packages of supply-chain surface for tools that may never run.
+
+**Hypothesis / root cause:** the 2026-06/07 knip-baseline effort needed exit-0 and moved installed-but-unreferenced tools into `ignoreDependencies` instead of deciding wire-vs-prune per tool; the decision was deferred and is now invisible to tooling.
+
+**Proposed fix / improvement:**
+- [ ] Per tool, decide: **wire it** (e.g. `lockfile-lint` and `license-checker` are natural non-blocking CI steps; `jscpd` could back a duplication budget like the file-size ratchet), **prune it** (`npm-check-updates` is arguably redundant with Dependabot; `oxlint` overlaps biome), or **keep as documented ad-hoc**.
+- [ ] Whatever remains ad-hoc: add a "dev-tool dependencies (ad-hoc)" note to `scripts/README.md`'s Wired-vs-ad-hoc section naming each tool and its manual invocation, and a comment in `knip.json` pointing there.
+
+**Blocked by:** none (per-tool wire-vs-prune is a small owner judgment, but a documented-ad-hoc default is safe)
+
+**Related files:** `dnd-app/knip.json`, `dnd-app/package.json` (devDependencies), `dnd-app/scripts/README.md`, `.github/workflows/dnd-app-ci.yml`
+
+**Related entries:** RESOLVED-ISSUES-DNDAPP knip-baseline entries (source of the `ignoreDependencies` list and the `dpdm` false-positive note); no active-log entry covers the six unwired tools (grep "jscpd"/"oxlint"/"npm-check-updates" across active logs found nothing)
+
+### [2026-07-17] `scripts/README.md` sub-area table documents a `submit/` directory that no longer exists on disk
+
+- **Category:** docs
+- **Severity:** info
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** scheduled cleanup/reorganization scan of the dnd-app tree
+
+**Description:**
+The "Sub-areas" table in `dnd-app/scripts/README.md` has a row for `submit/` ("Per-system Anthropic Batch API submission. **Currently empty** — the phase-era `submit-*-batch.ts` scripts were retired…"). The retirement was deliberate (the 2026-07-15 board-decisions intake note records "submit-script deletions"), but since git does not track empty directories, deleting the last file removed the directory itself — `ls dnd-app/scripts/` today shows no `submit/` at all. "Currently empty" is therefore wrong in a way that costs a reader a confused `ls`: the README asserts a directory that isn't there. Tiny, but this README's stated purpose is to be the accurate index that keeps script rot visible, so it should not itself drift.
+
+**Hypothesis / root cause:** the row was worded while the directory still existed (or was assumed to persist); nobody re-checked after git pruned the empty dir.
+
+**Proposed fix / improvement:**
+- [ ] Reword the row to past tense: "`submit/` (retired — directory removed; git history retains the phase-era `submit-*-batch.ts` scripts; intended per-`<system-id>` layout documented in `docs/PLUGIN-SYSTEM.md`)" — or, if the placeholder layout should stay visible on disk, restore the dir with a `.gitkeep` instead.
+
+**Blocked by:** none
+
+**Related files:** `dnd-app/scripts/README.md`, `dnd-app/docs/PLUGIN-SYSTEM.md`
+
+**Related entries:** same drift family as [2026-07-15] "`docs/README.md` reference-doc index omits `TARGET-PARITY.md`" (indexes with no drift guard); no existing entry mentions the `submit/` row (grep "submit" in this log matches only the intake note)
+
+### [2026-07-17] 5e monster data dirs misspell plurals — `undead/mummys/` (whose only file is correctly named `mummies.json`) and `undead/lichs/` vs correctly-pluralized siblings
+
+- **Category:** debt
+- **Severity:** info
+- **Domain:** dnd-app
+- **Discovered by:** dnd-cleanup
+- **During:** scheduled cleanup/reorganization scan of the dnd-app tree
+
+**Description:**
+Under `src/renderer/public/data/5e/dm/npcs/monsters/undead/`, sibling type-directories are correctly pluralized (`zombies/`, `skeletons/`, `specters/`, `wraiths/`, `ghosts/`) but two are not: `mummys/` (should be `mummies` — the directory's single file is already `mummies.json`, so the tree literally contains `mummys/mummies.json`) and `lichs/` (standard plural `liches`; holds `lich.json`, `demilich.json`, `dracolich.json`). These directory names are load-bearing: `monsters/index.json` references them in four `path` strings (lines ~1500–1518). The elemental genie dirs (`daos/`, `djinnis/`, `efreetis/`, `marids/`) are a separate style call — 5e's own plurals are dao/djinn/efreet/marids — but those are at least consistent with each other; `mummys`/`lichs` are plain misspellings in an otherwise carefully organized content tree.
+
+**Hypothesis / root cause:** hand-created directories during initial content authoring; nothing validates directory-name spelling, and `validate:5e` only checks that referenced paths exist, so a consistently-misspelled path passes.
+
+**Proposed fix / improvement:**
+- [ ] `git mv mummys mummies && git mv lichs liches`, update the four `path` values in `dm/npcs/monsters/index.json`, then run `npm run validate:5e` + `npm run validate:content`.
+- [ ] First verify nothing else builds these paths: grep confirms zero references in `src/**/*.ts{,x}`, `scripts/`, and `resources/chunk-index.json`; also confirm whether `scripts/build/build-data-architecture.ts` / `build-blank-jsons.ts` regenerate or consume `index.json`, and check that saved campaign/homebrew data stores monster **ids**, not file paths, before renaming.
+
+**Blocked by:** none
+
+**Related files:** `dnd-app/src/renderer/public/data/5e/dm/npcs/monsters/undead/mummys/`, `dnd-app/src/renderer/public/data/5e/dm/npcs/monsters/undead/lichs/`, `dnd-app/src/renderer/public/data/5e/dm/npcs/monsters/index.json`, `dnd-app/scripts/audit/check-5e-cross-refs.mjs`
+
+**Related entries:** none (grep "mummys"/"lichs" across active logs found nothing)
+
 ### [2026-07-15] `utils/dice-utils.ts` re-implements the dice parser/roller that `services/dice/dice-engine.ts` owns — two byte-identical regexes, one surviving importer
 
 - **Category:** debt
