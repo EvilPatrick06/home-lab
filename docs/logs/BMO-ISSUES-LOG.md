@@ -140,6 +140,38 @@ The paths centralization (`services/paths.py`, commit `4346536b`) defaulted `BMO
 
 ## Medium
 
+### [2026-07-17] Anthropic API credit balance exhausted — D&D DM primary model `claude-opus-4.6` 400-fails on every call; silent fallback, no alerting for a dead paid provider
+
+- **Category:** config
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** scheduled error scan — bmo.service journal Jul 17
+
+**Description:**
+Jul 17 01:13:20: `[claude] API error 400: {"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API..."}` followed by `[public-dm] model claude-opus-4.6 failed`. The public-dm chain fell back to the next candidate (no `all DM models failed` line — the request was served), but until credits are topped up **every** Claude call across the tree will 400: the D&D DM paths (`routes/chat_api.py` — `[dnd-dm]`, `[public-dm]`, `[public-tool]`) all try Claude first via `_dnd_model_candidates()`, so each DM request now pays a wasted Anthropic round-trip (~0.4 s observed) before degrading to the Gemini-quality fallback. First occurrence in the journal (1 hit in 7 days), so this is fresh exhaustion, not a stale key. Nothing monitors or alerts on it: `services/monitoring.py` has a dedicated CRITICAL check for the Google Calendar token but no check for a paid LLM provider being hard-down — the DM quietly runs on the fallback model until a human reads the journal. (Related, pre-existing: BMO-SUGGESTIONS-LOG entry proposing per-provider cost/usage tracking in `services/cloud_providers.py`.)
+
+**Reproduction (if bug):**
+1. Any `/api/dnd/public/dm` (or desktop dnd-dm) request while the Anthropic account balance is exhausted.
+2. Journal shows the 400 + `model claude-opus-4.6 failed`; response comes from the fallback model.
+
+**Expected behavior:** primary DM model available; if a paid provider is hard-down (billing/auth — a persistent, non-transient failure class), the monitor should raise a WARNING/CRITICAL like it does for the calendar token instead of degrading silently.
+
+**Hypothesis / root cause:** Anthropic account ran out of credits (billing/ops, not code). The silent-degrade is by design of the fallback chain; the gap is that billing-class 400s are treated like any transient error.
+
+**Proposed fix / improvement:**
+- [ ] Top up / auto-reload Anthropic credits (human action).
+- [ ] In `services/cloud_providers.py`, classify Anthropic 400 `invalid_request_error` mentioning credit balance (and 401/403) as a persistent provider-down condition; surface it to `services/monitoring.py` as a health check so the board/alerts show "Claude provider down (billing)" instead of silence.
+- [ ] Optional: short-circuit further Claude attempts for a cooldown once billing exhaustion is seen, saving the wasted round-trip per DM call.
+
+**Blocked by:** none (top-up is a human action)
+
+**Related files:** `bmo/pi/services/cloud_providers.py`, `bmo/pi/routes/chat_api.py:340-360`, `bmo/pi/services/monitoring.py`
+
+**Related entries:** BMO-SUGGESTIONS-LOG — cloud provider cost/usage tracking (`services/cloud_providers.py`)
+
+---
+
 ### [2026-07-17] Startup Ollama warm-up pins gemma3:4b with `keep_alive=-1` ("Forever") — regresses the Round-3 #36 unload fix; ~3.3 GB of model weights permanently parked in swap
 
 - **Category:** performance, config
@@ -306,6 +338,37 @@ Jun 29 03:13:48 [monitor][CRITICAL] pi_power: THROTTLED NOW — CPU frequency re
 
 
 ## Low
+
+### [2026-07-17] Deploy canary boots `app.py` without the service `.env` — preflight always screams `0/8 providers configured; MISSING REQUIRED: primary LLM (Gemini)` and the canary gate can never catch real config regressions
+
+- **Category:** bug, debt
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** scheduled error scan — reading `data/logs/deploy-canary.log` after tonight's 01:13 deploy
+
+**Description:**
+`scripts/deploy.sh` launches the canary as `cd $REPO_ROOT/bmo/pi && BMO_CANARY=1 BMO_PORT=$CANARY_PORT $VENV_PY app.py` — bare environment. But `app.py` never loads `.env` itself; in live operation the providers come from systemd's `EnvironmentFile=/home/patrick/home-lab-deploy/bmo/pi/.env` (`systemd/bmo.service:17`). Result: every canary boot logs `[ERROR] Config preflight: 0/8 providers configured; MISSING REQUIRED: primary LLM (Gemini) ... bmo-dm-bot cannot connect; bmo-social-bot cannot connect` (see `deploy-canary.log`, Jul 17 01:12:59) even though the live service then starts fine at 7/8. Two consequences: (a) the canary log's loudest ERROR line is always a false alarm — noise that will mislead anyone (human or agent) diagnosing a genuinely failed deploy; (b) the canary gate validates imports + `/health` only and can never detect an actual provider-config regression, because it always sees an empty environment — and if preflight is ever made blocking, every deploy would go red.
+
+**Reproduction (if bug):**
+1. Run any deploy (or read any past `data/logs/deploy-canary.log`).
+2. Observe the `0/8 providers ... MISSING REQUIRED` ERROR despite a healthy live start seconds later.
+
+**Expected behavior:** the canary boots with the same env the live unit gets, so its preflight output reflects reality (7/8 with only vision/OCR degraded) and can meaningfully gate on required keys.
+
+**Hypothesis / root cause:** canary launch in `deploy.sh` (~line 453) predates / ignores the systemd `EnvironmentFile` wiring; nothing exports the `.env` into the canary subshell.
+
+**Proposed fix / improvement:**
+- [ ] In the canary subshell: `set -a; . "$REPO_ROOT/bmo/pi/.env"; set +a` before launching `app.py` (both the dry-run echo and the real launch), or have `app.py` fall back to dotenv-loading when `BMO_CANARY=1`.
+- [ ] Then consider letting the canary fail red on `MISSING REQUIRED` so config regressions are caught before live units restart.
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/scripts/deploy.sh:429-456`, `bmo/pi/app.py`, `bmo/pi/systemd/bmo.service:17`, `bmo/pi/services/config_preflight.py`
+
+**Related entries:** none
+
+---
 
 
 ### [2026-07-17] `test_calendar_expiry_message_names_access_token` reads `services/monitoring.py` cwd-relative — fails whenever pytest runs from outside `bmo/pi`
