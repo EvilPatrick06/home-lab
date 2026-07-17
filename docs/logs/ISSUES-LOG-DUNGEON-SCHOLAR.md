@@ -53,7 +53,66 @@ The `auto/scholar-phase-executer` branch (head `1b3c00ed`) is a genuine, unmerge
 
 ## Medium
 
+### [2026-07-17] Devotion calendar preview ignores streak-freeze wards — shows "Streak broken / Day 1" then the claim awards a different day's reward
+
+- **Category:** bug, UX
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error scan (review of the 2026-07-15 issue-streak-freeze-wards resolver batch, commit `8ee516e9`)
+
+**Description:**
+`CalendarScreen.jsx` previews the next claim with `computeNextClaim(today, lastClaimedDate, streak)` and comments that it "Shares computeNextClaim with the actual claim path (17E) so preview <-> claim never diverge" — but the actual claim path no longer matches. Since `8ee516e9` (issue-streak-freeze-wards), `claimDailyReward` (`usePlayerActions.js` ~L335-397) additionally consults `evaluateStreakFreeze` and, when the player missed exactly one day while holding a ward, overrides the reset: streak continues (`loginStreak + 1`) and the ward is spent. `computeNextClaim` and `devotionStatus` (both in `services/devotion.js`) know nothing about wards, so for a ward-holding player with a 2-day gap the calendar shows all of the following wrong: the banner reads "Streak broken — start anew at Day 1" (a ward guarantees continuation), the 7-day grid highlights Day 1 as next, and the previewed reward (Day 1: 30 gold / 10 XP) differs from what the claim actually pays out (e.g. Day 5: 150 gold / 75 XP + item). The Current Streak stat also shows the pre-forgiveness value with no hint a ward will preserve it. The claim itself behaves correctly — only every pre-claim surface lies.
+
+**Reproduction (if bug):**
+1. Have `loginStreak: 4`, `streakFreezeTokens: 1`, `lastClaimedDate` = day-before-yesterday (gap of exactly 2).
+2. Open the Devotion Calendar (`CalendarScreen`).
+3. Observed: banner says "Streak broken — start anew at Day 1", Day 1 tile is highlighted as next.
+4. Press "Claim Today's Devotion".
+5. Observed: ward is spent, streak becomes 5, Day 5 reward (150 gold / 75 XP / foresight scroll) is granted — not the previewed Day 1 reward.
+
+**Expected behavior (if bug):** the preview and the claim agree. With a held ward and a one-day lapse the calendar should indicate the streak will be preserved (e.g. "A ward will shatter to preserve thy streak — Day 5 awaits"), highlight the actual next cycle day, and show that day's reward.
+
+**Hypothesis / root cause:** the 2026-07-15 fix wired `evaluateStreakFreeze` only into the write path (`claimDailyReward`); the read paths (`computeNextClaim`, `devotionStatus`, and their `CalendarScreen` call sites) were not updated, breaking the 17E "single decision source for preview and claim" invariant the code comment still asserts.
+
+**Proposed fix / improvement:**
+- [ ] Teach the pure layer about wards: e.g. extend `computeNextClaim(today, lastClaimedDate, currentStreak, freezeTokens)` (or add a wrapper in `dailyGoal.js`/`devotion.js`) that applies the same forgiveness rule as `claimDailyReward`, and have BOTH `claimDailyReward` and `CalendarScreen` consume it — restoring one decision source.
+- [ ] Add a `willUseWard` flag to `devotionStatus` (or a new status like `'preserved'`) so the banner copy can say a ward will be spent instead of "Streak broken".
+- [ ] Unit tests: preview cycleDay/streak equals claim result for the gap-2-with-ward case; banner status for ward-holding lapse.
+
+**Blocked by:** none
+
+**Related files:** `dungeon-scholar/src/features/progression/CalendarScreen.jsx` (~L16-18, L120-126, L154-157), `dungeon-scholar/src/features/player/usePlayerActions.js` (~L335-397), `dungeon-scholar/src/services/devotion.js` (`computeNextClaim`, `devotionStatus`), `dungeon-scholar/src/services/dailyGoal.js` (`evaluateStreakFreeze`)
+
+**Related entries:** RESOLVED-ISSUES-DUNGEON-SCHOLAR.md 2026-07-15 batch item "Streak-freeze wards were display-only" (the fix that introduced the divergence)
+
+
 ## Low
+
+### [2026-07-17] Two parallel "days between YYYY-MM-DD strings" helpers with divergent edge semantics — `devotion.dayDiff` (local, Infinity) vs `dailyGoal.daysBetween` (UTC, null) — both run in the same claim flow
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors
+- **During:** automated error scan (review of the devotion/daily-goal claim flow)
+
+**Description:**
+`services/devotion.js` exports `dayDiff(a, b)` (parses `` `${a}T00:00:00` `` in LOCAL time, returns `Infinity` for missing input) and `services/dailyGoal.js` exports `daysBetween(a, b)` (parses `` `${a}T00:00:00Z` `` in UTC, returns `null` for non-string/invalid input). Both compute the calendar-day gap between two local `YYYY-MM-DD` strings, and since the 2026-07-15 ward fix BOTH run on the same pair of dates inside one operation: `claimDailyReward` -> `evaluateClaim` -> `computeNextClaim` -> `dayDiff`, and `claimDailyReward` -> `evaluateStreakFreeze` -> `daysBetween`. Today the two implementations agree for well-formed inputs (`Math.round` absorbs DST skew in the local variant), but the duplicated logic with different timezone bases and different missing-input sentinels is exactly the drift class the S22 consolidation (`utils/date.js` as canonical date-helper home) was created to eliminate — a future edit to one (say, accepting Date objects, or changing the sentinel) silently desynchronizes the streak-continuation and ward-forgiveness decisions that must stay in lockstep (see the related preview-divergence bug logged today).
+
+**Hypothesis / root cause:** the 2026-07-03 features batch added `dailyGoal.js` with its own private `daysBetween` instead of reusing/relocating `devotion.dayDiff`; S22 consolidated `todayDateStr` into `utils/date.js` but never covered the day-diff helpers.
+
+**Proposed fix / improvement:**
+- [ ] Move one canonical `dayDiff(a, b)` into `src/utils/date.js` (pick one timezone base; UTC parse of plain dates is the simpler-correct one for pure calendar math), with an explicit documented sentinel for invalid input.
+- [ ] Re-export/consume it from `devotion.js` and `dailyGoal.js` (same pattern as the existing `todayDateStr` re-export); delete the private copies.
+- [ ] Keep both modules' existing tests passing against the shared impl.
+
+**Blocked by:** none
+
+**Related files:** `dungeon-scholar/src/services/devotion.js` (`dayDiff`), `dungeon-scholar/src/services/dailyGoal.js` (`daysBetween`), `dungeon-scholar/src/utils/date.js`
+
+**Related entries:** ISSUES-LOG-DUNGEON-SCHOLAR.md [2026-07-17] "Devotion calendar preview ignores streak-freeze wards" (same flow); RESOLVED-ISSUES-DUNGEON-SCHOLAR.md [2026-06-22] "No shared src/utils/ module — date, shuffle, and duration helpers are duplicated across files" (S22)
+
 
 ### [2026-07-17] oracle-worker: `max_tokens` clamp has no floor — negative/fractional client values are forwarded to Groq verbatim
 
