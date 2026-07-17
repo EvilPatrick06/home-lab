@@ -24,6 +24,131 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-07-17] Import a tome directly from a URL (paste-a-link + share-link deeplink)
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement-suggestion scan of dungeon-scholar
+
+**Description:**
+Today a tome reaches another user only as a downloaded `.json` file, a paste, or a share code (`ImportCodeModal`) — there is no way to import from a URL. Authors who host a tome on a gist / raw GitHub / any static host cannot hand out a simple link; recipients must download-then-import. A "paste a URL" field in the import flow, plus a hash-route deeplink (e.g. `#/import?url=<encoded>`) that pre-opens the import confirm, would make sharing one click and composes with the existing PWA share-target. `grep -rn "fetch(" src/features/library src/services/deckImport.js` confirms no remote fetch exists in the import path.
+
+**Proposed fix / improvement:**
+- [ ] Add a URL input to `ImportDeckModal`/`ImportCodeModal` that `fetch()`es the JSON (CORS permitting), then feeds the existing `deckImport.js` validation + `importLimits.js` size caps.
+- [ ] Add an import deeplink route handled in `useHashRoute`/`App.jsx` that opens the same confirm dialog (never auto-imports — user must confirm, since the URL is untrusted input).
+- [ ] Reuse the tome-revision merge path (`tomeVersion.js`) when the id already exists locally.
+
+**Related files:** `src/features/library/ImportCodeModal.jsx`, `src/features/library/ImportDeckModal.jsx`, `src/services/deckImport.js`, `src/router/useHashRoute.js`
+
+### [2026-07-17] Render share codes as QR codes for desktop→phone tome transfer
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement-suggestion scan of dungeon-scholar
+
+**Description:**
+Share codes exist (`ShareTomeModal`) but moving a tome from a desktop to a phone means retyping or messaging yourself a long code. Rendering the share code (or a share-link URL, if the URL-import idea lands) as a QR code in `ShareTomeModal` makes the cross-device path camera-scan simple — a natural fit for a mobile-installable PWA. A tiny dependency-free QR encoder (or a ~1 kB lib) keeps the bundle budget intact; render to canvas so it also works offline.
+
+**Proposed fix / improvement:**
+- [ ] Add a "Show QR" toggle in `ShareTomeModal` that renders the share code/link to a canvas QR.
+- [ ] Respect the existing bundle-size budget (`scripts/check-bundle-budget.mjs`) — lazy-load the encoder with the modal chunk.
+
+**Related files:** `src/features/library/ShareTomeModal.jsx`, `scripts/check-bundle-budget.mjs`
+
+### [2026-07-17] Answer-choice elimination (strike-through) in ExamMode / QuizMode
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement-suggestion scan of dungeon-scholar
+
+**Description:**
+Real certification exam UIs (Pearson VUE et al.) let candidates strike through answer options they have ruled out — a core test-taking technique the practice exam cannot rehearse today. ExamMode already has flag-for-review + a navigator grid (S13), but no per-option elimination. Adding a right-click / long-press / dedicated-key "eliminate" toggle that dims and strikes an option (per question, session-local, not persisted) would make practice materially closer to the real testing experience.
+
+**Proposed fix / improvement:**
+- [ ] Session-local `eliminated: {questionIdx: Set<optionIdx>}` state in `ExamMode` (and optionally `QuizMode`); toggle via context-menu/long-press plus a keyboard shortcut listed in `ShortcutHelpModal`.
+- [ ] Visual: strike-through + reduced opacity, but keep the option selectable (eliminating is a hint, not a lock), with `aria-pressed` for screen readers.
+
+**Related files:** `src/features/study/ExamMode.jsx`, `src/features/study/QuizMode.jsx`, `src/components/ui/ShortcutHelpModal.jsx`
+
+### [2026-07-17] One-click "Ask the Oracle to explain" handoff from a missed question
+
+- **Category:** future-idea, UX
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement-suggestion scan of dungeon-scholar
+
+**Description:**
+When a learner misses a question in QuizMode / ExamMode review / the MistakeVault, the static `explanation` field is the end of the road — if it does not click, the learner must open ChatMode and retype the whole question by hand. The app already has an Oracle chat per tome; there is no context handoff (`grep -rn "askOracle" src/features/study/QuizMode.jsx` — none). A small "Ask the Oracle about this riddle" button on a missed question that opens ChatMode pre-seeded with the question, the options, the learner's wrong pick, and the correct answer ("explain why B is right and my answer C is wrong") would turn every miss into a targeted tutoring moment — arguably the highest-leverage learning feature available given the pieces already built. Degrades gracefully: without Oracle config, hide the button (same gate ChatMode already uses).
+
+**Proposed fix / improvement:**
+- [ ] Add a handoff affordance in QuizMode wrong-answer feedback, ExamMode results review, and MistakeVault entries.
+- [ ] Route to ChatMode with a prefilled prompt (question stem + options + user answer + correct answer + tome domain); keep the prompt template in `src/prompts/_shared.js` so per-provider prompt packs can tune it.
+- [ ] Hide when Oracle is unconfigured (reuse the existing oracle-availability gate).
+
+**Related files:** `src/features/study/QuizMode.jsx`, `src/features/study/ExamMode.jsx`, `src/features/study/MistakeVault.jsx`, `src/features/study/ChatMode.jsx`, `src/prompts/_shared.js`
+
+### [2026-07-17] Local multi-profile support (multiple scholars on one device)
+
+- **Category:** future-idea, portability
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement-suggestion scan of dungeon-scholar
+
+**Description:**
+The save is a single fixed key (`dungeon-scholar:save:v1` in `services/persistence.js`) — one device = one scholar. A shared family/classroom computer, or one person separating two cert tracks with independent streaks/quests/SRS state, has no path today short of browser profiles. A lightweight profile switcher (namespaced storage keys + a profile picker surface) would cover this. Interacts with cloud sync (each local profile maps to at most one signed-in account) and is a natural prerequisite-sibling of the already-logged IndexedDB migration — if that lands, design the store keying with a profile dimension from the start.
+
+**Proposed fix / improvement:**
+- [ ] Namespace persistence keys by profile id (`dungeon-scholar:save:v1:<profileId>`, default profile keeps the legacy key for back-compat).
+- [ ] Minimal profile picker (create / rename / switch / delete-with-confirm) reachable from `AccountPanel` or the home screen.
+- [ ] Define the cloud-sync rule: sign-in binds to the ACTIVE profile only; switching profiles signs out (or scopes the session) to prevent cross-profile save clobbering via the MergeChooser.
+
+**Related files:** `src/services/persistence.js`, `src/hooks/usePlayerState.js`, `src/components/AccountPanel.jsx`, `src/services/cloudSync.js`
+
+### [2026-07-17] Offline queue for Oracle free-text grading (grade-on-reconnect)
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement-suggestion scan of dungeon-scholar
+
+**Description:**
+The Oracle is network-only by design (never SW-cached), so free-text answers studied offline fall back to local string matching — fine — but the richer AI grade is simply lost forever for those answers. An opt-in queue that records offline free-text answers (question id + given answer + local-grade result) and re-grades them when connectivity returns could deliver a "the Oracle has reviewed thy offline answers" digest: corrections where local matching mis-graded, which then feed the MistakeVault / SRS state. `grep -rn "navigator.onLine" src/services/oracleGrader.js` — no offline handling exists in the grader path today.
+
+**Proposed fix / improvement:**
+- [ ] Persist a small bounded queue (cap + FIFO eviction) of offline free-text answers in the save.
+- [ ] On reconnect (online event / next launch), batch-grade via the existing `oracleGrader.js` path; where the verdict differs from the local grade, surface a review digest and optionally adjust the card's SRS/mistake state.
+- [ ] Make it opt-in and clearly bounded — silent background API spend should never surprise the user.
+
+**Related files:** `src/services/oracleGrader.js`, `src/services/persistence.js`, `src/features/study/MistakeVault.jsx`
+
+### [2026-07-17] Focus mode — study-only toggle that hides the gamification chrome
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-suggestor
+- **During:** scheduled improvement-suggestion scan of dungeon-scholar
+
+**Description:**
+The D&D wrapper is the app's identity, but in the final cram days before a real exam some users want the SRS engine without the XP toasts, gold, quests, pets, and dungeon framing — and right now the theme/audio panels offer no such dial. A "Focus mode" toggle (persisted preference) that suppresses gamification surfaces and reward toasts while leaving study modes, SRS, stats, and the study plan untouched would widen the audience (it is also the obvious answer to "can I use this for serious study?" skepticism) at low cost, since screens are already routed centrally through `router/screens.js` and toasts flow through a common path in `usePlayerActions`.
+
+**Proposed fix / improvement:**
+- [ ] Add a persisted `focusMode` preference (ThemePanel or AccountPanel toggle).
+- [ ] Gate progression screens/nav entries (Shop, Quests, Pets, Dungeon, etc.) and reward/XP toasts behind it; keep flashcards/quiz/exam/vault/stats/plan visible.
+- [ ] Keep earning XP/gold silently in the background so toggling back never costs progress.
+
+**Related files:** `src/router/screens.js`, `src/features/player/usePlayerActions.js`, `src/features/home/ThemePanel.jsx`, `src/App.jsx`
+
+
 ### [2026-07-15] Migrate persistence from localStorage to IndexedDB (async storage adapter)
 
 - **Category:** future-idea, portability
