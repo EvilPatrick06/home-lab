@@ -32,6 +32,36 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Medium
 
+### [2026-07-17] UVTT importer ignores `resolution.map_origin` — cropped Dungeondraft exports would import with every wall/door/light offset from the image
+
+- **Category:** bug
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** dnd-errors
+- **During:** scheduled error scan of the dnd-app tree (review of the 2026-07-03 UVTT converter)
+
+**Description:**
+`parseUvtt()` in `src/renderer/src/services/io/uvtt.ts` reads `resolution.pixels_per_grid` and `resolution.map_size` but never reads `resolution.map_origin`. In the Universal VTT format `map_origin` is "usually 0" (per the Arkenforge format description) but is NON-zero when a tool exports a cropped/selected region — Dungeondraft emits the crop's world-space origin there while `line_of_sight` / `objects_line_of_sight` / `portals` / `lights` coordinates stay in world grid units. Established importers subtract it (e.g. FoundryVTT's dd-import computes `(point - map_origin) * pixels_per_grid`). Because `parseUvtt()` copies `a.x/a.y` (and portal `bounds`, light `position`) straight into `WallSegment`/`LightSource` grid coordinates, any file with a non-zero `map_origin` imports with the whole wall/door/light layer displaced by `map_origin` grid cells relative to the background image (which is always drawn from 0,0). `uvtt.test.ts` (11 tests) only ever uses `map_origin: { x: 0, y: 0 }`, so the gap is uncovered.
+
+**Reproduction (if bug):**
+1. In Dungeondraft, export a *selected region* (not the full map) as `.dd2vtt` — the file gets a non-zero `resolution.map_origin`.
+2. Run the file through `parseUvttString()`.
+3. Observed (by code inspection): wall/door/light coordinates keep their absolute values; the image data-url has no offset — everything LOS-related is shifted by `map_origin` cells off the artwork.
+
+**Expected behavior (if bug):** walls, portals, and lights land on the drawn geometry — i.e. `x - map_origin.x`, `y - map_origin.y` applied to every parsed point.
+
+**Hypothesis / root cause:** `map_origin` simply unhandled in `parseUvtt()`; the UVTT "spec" page doesn't state the reference frame explicitly (only "usually 0"), so the crop/world-coordinate behavior above is inferred from Dungeondraft exports + the Foundry importer convention — verify against a real cropped `.dd2vtt` before/while fixing (flagged as partly speculative).
+
+**Proposed fix / improvement:**
+- [ ] Subtract `map.resolution.map_origin` (default `{0,0}`) from every parsed wall endpoint, portal bound, and light position in `parseUvtt()`.
+- [ ] Add a unit test with a non-zero `map_origin` fixture asserting the shift (and that round-trip export re-emits origin `{0,0}` with rebased coordinates).
+
+**Blocked by:** none — but note the converter is currently orphaned dead code (no DMMapEditor wiring yet, per the 2026-07-15 WEB QA report), so today's user impact is nil; this becomes a silent map-corruption bug the moment the deferred "Import map file…" integration lands. Fix before/with that wiring.
+
+**Related files:** `dnd-app/src/renderer/src/services/io/uvtt.ts`, `dnd-app/src/renderer/src/services/io/uvtt.test.ts`
+
+**Related entries:** RESOLVED-ISSUES-DNDAPP [2026-07-02] Universal VTT import/export (PARTIAL — converter only); ISSUES-LOG-DNDAPP [2026-07-17] knip baseline (uvtt orphan note)
+
 ### [2026-07-17] Committed `pdf.worker.min.mjs` is pdfjs 6.0.227 but the lockfile pins pdfjs-dist 6.1.200 — every `npm ci` regenerates it and leaves the tree dirty; a build from a stale checkout would hit the pdfjs API/Worker version-match error
 
 - **Category:** config
@@ -155,6 +185,68 @@ Grouped Dependabot PR #62 (`dependabot/npm_and_yarn/dnd-app/mobile/npm-deps-3255
 **Related entries:** PR https://github.com/EvilPatrick06/home-lab/pull/62 ; prior lockfile-sync entry [2026-06-29].
 
 ## Low
+
+### [2026-07-17] Shared game timer counts wall-clock by `setInterval` ticks — Electron background throttling pauses/slows it, and each multiplayer peer drifts independently
+
+- **Category:** bug
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-errors
+- **During:** scheduled error scan of the dnd-app tree (renderer interval audit)
+
+**Description:**
+The DM turn/game timer is tick-based: `TimerOverlay.tsx` runs `setInterval(tickTimer, 1000)` and `stores/game/timer-slice.ts` decrements `timerSeconds` by 1 per callback. Two consequences: **(a)** the main `BrowserWindow` does not set `backgroundThrottling: false` (checked `src/main/index.ts` webPreferences), so when the DM minimizes/occludes the window Chromium throttles hidden-page timers (and applies intensive throttling — ~1 wake/min — once hidden >5 min); the countdown then effectively pauses instead of tracking wall-clock, and a "2:00" timer can take far longer than 2 minutes of real time. **(b)** In multiplayer the host sends a single `dm:timer-start {seconds}` (`use-game-network.ts:66`) and every client then ticks *locally*, so peers drift apart from each other and from the host by their own throttling/jitter. Contrast: `WebSearchApprovalPrompt`'s `Countdown` does this correctly — it stores a deadline timestamp and recomputes `deadline - Date.now()` each tick, so throttling only affects display refresh, never correctness.
+
+**Reproduction (if bug):**
+1. Start a 2-minute timer (TimerModal), minimize the app for a minute.
+2. Restore — the remaining time is (well) more than `120 - 60` seconds; with the window hidden >5 min the timer barely advances.
+3. In a 2-peer session, compare the two overlays after a few minutes — the displayed values disagree.
+
+**Expected behavior (if bug):** the timer tracks wall clock regardless of window visibility, and all peers show (approximately) the same remaining time.
+
+**Hypothesis / root cause:** decrement-per-callback treats `setInterval` as a reliable 1 Hz clock; it isn't under Chromium timer throttling. Root fix is deadline-based state: store `timerEndsAt = Date.now() + seconds*1000` (host also broadcasting the deadline, not the duration) and derive `timerSeconds` from `Math.ceil((timerEndsAt - Date.now())/1000)` on each render tick.
+
+**Proposed fix / improvement:**
+- [ ] Change `timer-slice.ts` to store an absolute `timerEndsAt` (keep `timerSeconds` as a derived display value for compatibility).
+- [ ] `TimerOverlay` interval recomputes from `Date.now()` (pattern already in `WebSearchApprovalPrompt.Countdown`).
+- [ ] Broadcast the deadline (or start-timestamp + duration) in `dm:timer-start` so late/throttled peers converge.
+- [ ] Unit test: mock `Date.now()` forward 30 s across a single tick → display drops 30 s, not 1 s.
+
+**Blocked by:** none
+
+**Related files:** `dnd-app/src/renderer/src/stores/game/timer-slice.ts`, `dnd-app/src/renderer/src/components/game/overlays/TimerOverlay.tsx`, `dnd-app/src/renderer/src/hooks/use-game-network.ts`, `dnd-app/src/main/index.ts`
+
+**Related entries:** [2026-07-17] TimerOverlay progress bar hardcodes a 120 s denominator (same component; fix together)
+
+### [2026-07-17] TimerOverlay progress bar hardcodes a 120 s denominator — any timer over 2 minutes shows a pinned-full bar (the 5-minute preset ships in TimerModal)
+
+- **Category:** UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-errors
+- **During:** scheduled error scan of the dnd-app tree (renderer interval audit)
+
+**Description:**
+`TimerOverlay.tsx` renders the progress bar width as `(timerSeconds / 120) * 100`%. The starting duration is user-chosen — `TimerModal.tsx` offers 30 s / 1 m / 2 m / **5 m** presets and `effect-actions.ts` / chat commands can start arbitrary durations — but the bar always assumes a 120 s total. A 300 s timer computes 250% → visually clamped by `overflow-hidden` to a full, motionless bar for the first 3 minutes, then drains over the final 2; a 30 s timer starts at 25% instead of full. The denominator should be the timer's initial duration (not currently stored in `timer-slice.ts` — only the live `timerSeconds` is).
+
+**Reproduction (if bug):**
+1. TimerModal → 5 m preset → start.
+2. Observed: bar sits at 100% (no motion) until 2:00 remains; also never starts full for sub-2-minute timers.
+
+**Expected behavior (if bug):** bar starts full and drains linearly to 0 over the chosen duration.
+
+**Hypothesis / root cause:** `120` was the assumed default duration when the overlay was written; the slice never records the starting duration, so the component had nothing else to divide by.
+
+**Proposed fix / improvement:**
+- [ ] Add `timerTotalSeconds` to `timer-slice.ts` (set in `startTimer`, cleared in `stopTimer`).
+- [ ] `width: min(100, timerSeconds / timerTotalSeconds * 100)%`.
+- [ ] Fold into the deadline-based refactor in the sibling entry (same files, one PR).
+
+**Blocked by:** none
+
+**Related files:** `dnd-app/src/renderer/src/components/game/overlays/TimerOverlay.tsx`, `dnd-app/src/renderer/src/stores/game/timer-slice.ts`, `dnd-app/src/renderer/src/components/game/modals/utility/TimerModal.tsx`
+
+**Related entries:** [2026-07-17] Shared game timer counts wall-clock by `setInterval` ticks (same component; fix together)
 
 ### [2026-07-17] knip dead-code baseline red again — root knip scans `mobile/` + embed/bridge entry points missing from `knip.json`, so `npm run dead-code` exits 1 and the CI gate can never ratchet to blocking
 
