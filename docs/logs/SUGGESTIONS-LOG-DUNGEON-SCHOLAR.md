@@ -527,6 +527,138 @@ The app is an installable offline PWA and can export the player save as JSON, bu
 
 # Low-severity polish / info
 
+### [2026-07-17] `docs/oracle-setup.md` top half documents an obsolete DIY Anthropic worker stub that contradicts the shipped Groq `oracle-worker/` — and the client's `ORACLE_MODEL` field is dead config the bundled worker ignores
+
+- **Category:** docs, debt
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** scheduled cleanup/structure scan of the dungeon-scholar tree
+
+**Description:**
+`dungeon-scholar/docs/oracle-setup.md` leads with a "Worker stub" section (~lines 17–66) telling the reader to hand-write a Cloudflare Worker that forwards to `https://api.anthropic.com/v1/messages` with an `x-api-key` from `ANTHROPIC_API_KEY`, and a "Notes" bullet stating "The client sends `model: claude-sonnet-4-6`" as if the worker forwards that model upstream. But the repo has shipped a ready-made **Groq**-backed proxy for some time (`oracle-worker/` — `GROQ_API_KEY`, default model `llama-3.3-70b-versatile`, RateLimiter Durable Object, origin/token gates), which the SAME doc's later "Bundled worker env vars" section describes. The two halves contradict each other: a fork operator following the doc top-to-bottom builds an Anthropic stub the repo doesn't use, and nothing tells them the DIY section is the legacy path. Compounding it, the client constant `ORACLE_MODEL = 'claude-sonnet-4-6'` (`src/services/oracleGrader.js:8`, sent in the POST body by both `oracleGrader.js:186` and `ChatMode.jsx:334`) is **ignored by the bundled worker** — `oracle-worker/src/worker.js:176` builds its own upstream body from `env.ORACLE_MODEL || DEFAULT_MODEL` and discards the client's `model` field. So the client-side constant (and its "claude-sonnet-4-20250514 retired" comment) is dead config that misleads readers into thinking the Oracle runs on Claude when the canonical deploy runs on Groq/Llama.
+
+**Hypothesis / root cause:** `oracle-setup.md` predates the `oracle-worker/` package; when the bundled Groq worker landed, the "Bundled worker env vars" section was appended but the original DIY-Anthropic stub and its Notes were never rewritten. The client `ORACLE_MODEL` constant survived from the same pre-Groq era because the worker tolerates (ignores) it.
+
+**Proposed fix / improvement:**
+- [ ] Restructure `oracle-setup.md`: lead with the bundled `oracle-worker/` as THE path (deploy steps, env vars, secrets), and either delete the DIY Anthropic stub or demote it to a clearly-labeled "roll your own against a different provider" appendix with the model note corrected.
+- [ ] Fix the "The client sends `model: claude-sonnet-4-6`" note — state that the bundled worker ignores the client `model` field and the model is chosen worker-side via `ORACLE_MODEL`.
+- [ ] In the client, either stop sending the ignored `model` field (grader + ChatMode) or rename/comment `ORACLE_MODEL` to make clear it is a legacy hint the canonical worker overrides.
+
+**Blocked by:** none
+
+**Related files:** `dungeon-scholar/docs/oracle-setup.md`, `oracle-worker/src/worker.js`, `oracle-worker/README.md`, `src/services/oracleGrader.js`, `src/features/study/ChatMode.jsx`
+
+**Related entries:** ISSUES-LOG-DUNGEON-SCHOLAR.md [2026-07-15] oracle-worker Dependabot PR #64 (only other oracle-worker entry; unrelated)
+
+### [2026-07-17] `oracle-worker/` has zero unit tests — `npm test` is an `exit 0` placeholder that CI runs and reports green
+
+- **Category:** debt
+- **Severity:** medium
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** scheduled cleanup/structure scan of the dungeon-scholar tree
+
+**Description:**
+`oracle-worker/src/worker.js` is 300 lines of security-sensitive logic — per-IP + tenant-wide rate limiting via the RateLimiter Durable Object with an in-isolate backstop, the `ORACLE_PROXY_TOKEN` shared-secret gate, the Origin/Referer cross-check, CORS handling, `max_tokens`/message-count clamps, and env-var fallbacks (`ALLOWED_ORIGIN`, `ORACLE_MODEL`). Its `package.json` test script is literally `echo "(oracle-worker) no unit tests yet" && exit 0`, and `.github/workflows/oracle-worker-ci.yml` runs `npm test` — so CI's "tests" step is structurally green regardless of behavior. Every enforcement path (limit math, header checks, clamp boundaries) is unguarded against regression; this is the one deployable in the dungeon-scholar domain with literally no test coverage, in contrast to the front end's per-module co-located suites.
+
+**Proposed fix / improvement:**
+- [ ] Add a small vitest (or `node:test`) suite exercising the pure decision logic: origin/referer acceptance matrix, token-gate on/off, max_tokens + message clamps, rate-limit accounting (the DO class can be tested as a plain class with a stubbed storage), and the env-fallback defaults.
+- [ ] Replace the placeholder test script so `npm test` actually runs the suite; CI needs no change (`oracle-worker-ci.yml` already calls it).
+- [ ] Optional: wrangler's `unstable_dev`/miniflare for one end-to-end smoke (OPTIONS preflight + a mocked upstream POST).
+
+**Blocked by:** none
+
+**Related files:** `oracle-worker/src/worker.js`, `oracle-worker/package.json`, `.github/workflows/oracle-worker-ci.yml`, `oracle-worker/README.md`
+
+**Related entries:** [2026-07-02] Playwright e2e smoke suite for dungeon-scholar (open — same "gap in the test story" family, different layer)
+
+### [2026-07-17] `PromptModal` is feature-specific (imports `ORG_PROMPTS`) but lives in `components/ui/` — and `components/README.md` cites it as an example of a *generic* modal
+
+- **Category:** debt, docs
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** scheduled cleanup/structure scan of the dungeon-scholar tree
+
+**Description:**
+`src/components/ui/PromptModal.jsx` imports `ORG_PROMPTS` from `src/prompts/index.js` and implements the org-prompt browser/copier (vendor prompt picker, exam-target templating, copy-to-clipboard) — app-specific business content, not a presentational primitive. That violates the placement rule `components/README.md` itself documents ("`src/components/ui/` — generic, app-agnostic presentational modals and primitives … No app-specific business state"), and the README even lists `PromptModal` in its example list of generic modals, teaching the wrong pattern. The name is also a known confusion source: `TextInputModal.jsx`'s header comment has to explain "PromptModal is a different feature (org/prompt viewer)" because `PromptModal` sounds like the `window.prompt` replacement (which is what `TextInputModal` actually is). Single production consumer: `App.jsx:1962`.
+
+**Proposed fix / improvement:**
+- [ ] Relocate to a feature folder — `src/features/prompts/` (next to the data it renders is `src/prompts/`, so alternatively co-locate as `src/features/library/OrgPromptsModal.jsx` if a new one-file folder feels heavy) — and rename to something unambiguous like `OrgPromptsModal`.
+- [ ] Update the one import in `App.jsx`, the test file name, and the `components/README.md` example list (drop it from the "generic" examples).
+- [ ] The TextInputModal disambiguation comment can then be simplified.
+
+**Blocked by:** none
+
+**Related files:** `src/components/ui/PromptModal.jsx`, `src/components/ui/PromptModal.test.jsx`, `src/components/README.md`, `src/App.jsx`, `src/components/ui/TextInputModal.jsx`, `src/prompts/index.js`
+
+**Related entries:** RESOLVED-ISSUES-DUNGEON-SCHOLAR.md — the misfiled `DungeonExplore.test.js` → `game/dungeonMap.test.js` relocation (same "file lives under the wrong name/home" family)
+
+### [2026-07-17] Duplicated legacy clipboard-copy fallback in `PromptModal` and `ShareTomeModal` — extract a shared `utils/clipboard.js`
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** scheduled cleanup/structure scan of the dungeon-scholar tree
+
+**Description:**
+Two components hand-roll the same copy-to-clipboard dance independently: `src/components/ui/PromptModal.jsx:14-40` (`copyToClipboard`: off-screen `<textarea>` + deprecated `document.execCommand('copy')`, then `navigator.clipboard.writeText` as the fallback) and `src/features/library/ShareTomeModal.jsx:~110-130` (same textarea/`execCommand` + clipboard-API fallback inline). Both try the deprecated API FIRST and the modern async Clipboard API second — inverted from current best practice (feature-detect `navigator.clipboard` first, `execCommand` only as legacy fallback). Any future fix (e.g. Safari clipboard-permission quirks) must be made twice, and a third copy will appear the next time a feature needs "Copy" (the CSV-export / share-code family keeps growing).
+
+**Proposed fix / improvement:**
+- [ ] Extract one `copyTextToClipboard(text): Promise<boolean>` into `src/utils/clipboard.js` (next to `date.js` / `lazyWithReload.js`), trying `navigator.clipboard.writeText` first with the textarea/`execCommand` path as fallback.
+- [ ] Point both modals at it; co-locate a `clipboard.test.js` covering both branches (jsdom exercises the fallback naturally).
+
+**Blocked by:** none
+
+**Related files:** `src/components/ui/PromptModal.jsx`, `src/features/library/ShareTomeModal.jsx`, `src/utils/`
+
+**Related entries:** RESOLVED-ISSUES-DUNGEON-SCHOLAR.md — PromptModal copy-behavior act() warning entry (same code path)
+
+### [2026-07-17] i18n (S7) migration stalled: 13 catalog keys, two importing modules, everything else hardcoded English — the `es` locale is effectively decorative
+
+- **Category:** debt, docs
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** scheduled cleanup/structure scan of the dungeon-scholar tree
+
+**Description:**
+`src/services/i18n.js` is a clean minimal `t()` foundation with locale parity tests, but adoption froze at the seed: `locales/en.js` holds 13 keys (three nav labels, three generic actions, ledger strings), and only two production modules import i18n at all (`App.jsx`, `features/home/ThemePanel.jsx`). Every other user-facing string across ~40 screens/modals is hardcoded English. The header comment says "Migrate strings here incrementally," but no increment has happened since S7 landed — meanwhile new screens keep adding hardcoded strings, so the gap widens each phase. The maintained-but-unused `es.js` catalog (16 lines, parity-tested) signals Spanish support that doesn't meaningfully exist: a user selecting Español would get 13 translated chrome strings in an otherwise English app.
+
+**Proposed fix / improvement:**
+- [ ] Decide the direction explicitly: (a) resume the migration with a per-phase quota or "new/touched strings must go through `t()`" convention (a `__guards__` grep-style test could enforce no new raw strings in touched files), or (b) declare i18n out of scope for now in `docs/DESIGN-CONSTRAINTS.md`, park `es.js`, and stop paying the parity-test upkeep.
+- [ ] Either way, document the current 13-key status in `src/services/README.md` so contributors don't assume the app is localized.
+
+**Blocked by:** an owner decision on whether localization is a real goal
+
+**Related files:** `src/services/i18n.js`, `src/services/locales/en.js`, `src/services/locales/es.js`, `src/services/i18n.localeParity.test.js`, `src/App.jsx`, `src/features/home/ThemePanel.jsx`
+
+**Related entries:** none found (grep "i18n|locale" across the scholar logs is clean)
+
+### [2026-07-17] Untested data/content modules: four `src/game/` files (`achievements`, `bestiary`, `starterDecks`, `defaultState`) and three small services (`accuracyPalette`, `shortcuts`, `pwaUpdate`) have no co-located tests
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-cleanup
+- **During:** scheduled cleanup/structure scan of the dungeon-scholar tree
+
+**Description:**
+The co-located-test convention is near-universal in `src/game/` and `src/services/`, but seven modules fall outside it: `game/achievements.js` (227 lines — achievement definitions + unlock predicates), `game/bestiary.js` (201 — creature/boss content), `game/starterDecks.js` (277 — the bundled starter tome content), `game/defaultState.js` (148 — the canonical new-player state shape that persistence/migrations/backfills all assume), `services/accuracyPalette.js` (94), `services/shortcuts.js` (58 — the keyboard-binding map several study modes consume), and `services/pwaUpdate.js` (36). The content-heavy ones (`starterDecks`, `bestiary`, `achievements`) would benefit most from cheap shape-validation tests (every deck card has front/back/domain; every achievement has an id/predicate; ids unique) — the same class of guard that caught real data bugs in dnd-app's 5e validation. `defaultState` deserves a shape-contract test because `persistence.js` migrations and `backfill.js` both key off its fields. This complements the [2026-07-15] entry covering the untested minority of `src/hooks/` — the hooks entry explicitly scoped itself to hooks; this covers the remaining untested non-hook modules.
+
+**Proposed fix / improvement:**
+- [ ] Add shape/invariant tests for the four `game/` data modules (unique ids, required fields, cross-references resolve — e.g. bestiary boss pools reference real biomes, starter-deck domains are non-empty strings).
+- [ ] `defaultState.test.js`: assert the state contract fields that `persistence.js`/`backfill.js`/`usePlayerState.js` read (schemaVer/backfillVer present, library array, etc.).
+- [ ] Small behavior tests for `accuracyPalette` (threshold boundaries) and `shortcuts` (binding-map completeness/no duplicate keys); `pwaUpdate` (36 lines, browser-API glue) is lowest value — a smoke import test or an explicit "excluded, DOM-glue" note in `services/README.md` is enough.
+
+**Blocked by:** none
+
+**Related files:** `src/game/achievements.js`, `src/game/bestiary.js`, `src/game/starterDecks.js`, `src/game/defaultState.js`, `src/services/accuracyPalette.js`, `src/services/shortcuts.js`, `src/services/pwaUpdate.js`
+
+**Related entries:** [2026-07-15] Untested minority of `src/hooks/` (open — sibling entry, hooks half of the same gap)
+
 ### [2026-07-15] `dungeon-scholar/README.md` Project-structure section drifted — workflow path/branch wrong, ExamMode missing from the study row, design-gotcha pointer routes to the wrong doc
 
 - **Category:** docs
