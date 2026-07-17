@@ -100,7 +100,12 @@ vi.mock('../ai/ai-service', () => ({
   wasContextTruncated: vi.fn(() => false),
   getLastTokenEstimate: vi.fn(() => 0),
   getLastAssistantContextChunkIds: vi.fn(() => []),
-  getConversationManager: mocked.getConversationManagerMock,
+  getConversationManager: mocked.getConversationManagerMock
+}))
+
+// Extracted from ai-service on 2026-07-17 (file-size-budget) — the handlers now
+// import these from the dedicated module, so mock THAT path.
+vi.mock('../ai/session-summary', () => ({
   generateSessionSummary: vi.fn(async () => 'summary'),
   generateSessionStartRecap: mocked.generateSessionStartRecapMock
 }))

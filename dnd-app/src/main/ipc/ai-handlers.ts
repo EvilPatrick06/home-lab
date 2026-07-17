@@ -34,7 +34,6 @@ import {
 } from '../../shared/ipc-schemas'
 import { isValidUUID } from '../../shared/utils/uuid'
 import { validateStatChanges } from '../ai/ai-schemas'
-import type { AiConnectionStatus, StreamResult } from '../ai/ai-service'
 import * as aiService from '../ai/ai-service'
 import {
   type GameStateSnapshot,
@@ -78,6 +77,7 @@ import {
 } from '../ai/ollama-manager'
 import { fateCheck } from '../ai/oracle'
 import { getSceneMemorySettings, setSceneMemoryEnabled } from '../ai/scene-memory'
+import { generateSessionStartRecap, generateSessionSummary } from '../ai/session-summary'
 import type {
   AiChatRequest,
   AiConfig,
@@ -115,7 +115,7 @@ import { handle, withArgsSchema } from './_safe'
 // Ensure imported types are used for type-safety
 type _ValidatedAiChatRequest = ValidatedAiChatRequest
 type _ValidatedAiConfig = ValidatedAiConfig
-type _StreamResult = StreamResult
+type _StreamResult = aiService.StreamResult
 type _DmAction = DmAction
 type _CuratedModel = CuratedModel
 type _InstalledModelInfo = InstalledModelInfo
@@ -411,7 +411,7 @@ export function registerAiHandlers(): void {
   // comment anticipated). Seeds the renderer badge; transitions arrive via AI_CONNECTION_STATUS_CHANGED.
   handle(
     IPC_CHANNELS.AI_CONNECTION_STATUS,
-    async (): Promise<{ status: AiConnectionStatus; consecutiveFailures: number }> => ({
+    async (): Promise<{ status: aiService.AiConnectionStatus; consecutiveFailures: number }> => ({
       status: aiService.getConnectionStatus(),
       consecutiveFailures: aiService.getConsecutiveFailures()
     })
@@ -463,7 +463,7 @@ export function registerAiHandlers(): void {
   handle(IPC_CHANNELS.AI_GENERATE_END_OF_SESSION_RECAP, async (_event, campaignId: string) => {
     try {
       sanitizeCampaignId(campaignId) // PHASE-13 13A — generateSessionSummary reads/writes the conversation file
-      const summary = await aiService.generateSessionSummary(campaignId)
+      const summary = await generateSessionSummary(campaignId)
       if (summary) {
         return { success: true, data: summary }
       }
@@ -485,7 +485,7 @@ export function registerAiHandlers(): void {
     const parsed = SessionStartRecapRequestSchema.safeParse(payload)
     if (!parsed.success) return { success: false, error: 'Invalid recap request' }
     sanitizeCampaignId(parsed.data.campaignId)
-    const data = await aiService.generateSessionStartRecap(parsed.data.campaignId, parsed.data.force ?? false)
+    const data = await generateSessionStartRecap(parsed.data.campaignId, parsed.data.force ?? false)
     if (!data) return { success: false, error: 'No campaign history yet to recap.' }
     return { success: true, data }
   })
@@ -527,7 +527,7 @@ export function registerAiHandlers(): void {
       return { success: false, error: saveResult.error, summary: null }
     }
     // Generate a session summary alongside the save
-    const summary = await aiService.generateSessionSummary(campaignId).catch(() => null)
+    const summary = await generateSessionSummary(campaignId).catch(() => null)
     return { success: true, summary }
   })
 
