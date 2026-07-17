@@ -13,7 +13,7 @@ import { randomBytes } from 'node:crypto'
 import { createServer } from 'node:http'
 import { shell } from 'electron'
 import type { AccountLoginResult } from '../../shared/account-types'
-import { getBmoBaseUrl } from '../bmo-config'
+import { getBmoSecretBaseUrl } from '../bmo-config'
 import { logToFile } from '../log'
 import { fetchMe } from './account-client'
 import * as session from './account-session'
@@ -94,7 +94,12 @@ export async function startLogin(): Promise<AccountLoginResult> {
         return
       }
       const returnTo = encodeURIComponent(`http://127.0.0.1:${port}/cb?state=${expectedState}`)
-      void shell.openExternal(`${getBmoBaseUrl()}/api/auth/discord/start?return_to=${returnTo}`)
+      // SECURITY: the OAuth START must target only a secret-trusted BMO base (https tunnel
+      // default or an explicit user override) — never an auto-discovered http LAN host. A
+      // spoofed _bmo._tcp mDNS peer would otherwise become the login authority, read the
+      // state nonce out of return_to, and inject its own JWT into the loopback /cb
+      // (login-CSRF / session fixation). See SECURITY-LOG [2026-07-17].
+      void shell.openExternal(`${getBmoSecretBaseUrl()}/api/auth/discord/start?return_to=${returnTo}`)
     })
   })
 }

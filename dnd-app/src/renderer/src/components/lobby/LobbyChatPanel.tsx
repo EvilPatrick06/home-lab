@@ -9,9 +9,21 @@ function formatTime(timestamp: number): string {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
+// SECURITY [2026-07-17] — the inline <img> renders a PEER-supplied mimeType/fileData as a
+// data: URL. Constrain the inline path to script-inert raster types (notably excluding
+// image/svg+xml as defense-in-depth); anything else falls through to the download card.
+const INLINE_IMAGE_MIME_TYPES = new Set([
+  'image/png',
+  'image/jpeg',
+  'image/gif',
+  'image/webp',
+  'image/avif',
+  'image/bmp'
+])
+
 const FileAttachment = memo(function FileAttachment({ msg }: { msg: ChatMessage }): JSX.Element {
   const { t } = useT()
-  const isImage = msg.mimeType?.startsWith('image/')
+  const isImage = !!msg.mimeType && INLINE_IMAGE_MIME_TYPES.has(msg.mimeType.toLowerCase())
 
   if (isImage && msg.fileData && msg.mimeType) {
     return (

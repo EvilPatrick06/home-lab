@@ -272,13 +272,26 @@ const RoleChangePayloadSchema = z.object({
   role: z.enum(['player', 'spectator'])
 })
 
+// SECURITY [2026-07-17] — chat:file size/shape caps were sender-side only (ChatInput's
+// 5MB/2MB checks), which a modified peer simply skips; the host relayed and every client
+// stored/rendered the payload unchecked. Since both the host relay (host-handlers) and the
+// client receive path (client-manager / host-connection) validate through PAYLOAD_SCHEMAS,
+// bounding the schema enforces the cap on EVERY inbound hop. 7_000_000 base64 chars
+// ≈ the sender-side 5 MB image ceiling.
+export const MAX_CHAT_FILE_DATA_B64 = 7_000_000
 const ChatFilePayloadSchema = z.object({
-  fileName: z.string(),
-  fileType: z.string(),
-  fileData: z.string(),
-  mimeType: z.string(),
-  senderId: z.string(),
-  senderName: z.string()
+  fileName: z.string().min(1).max(255),
+  fileType: z.enum(['image', 'character', 'campaign', 'file']),
+  fileData: z
+    .string()
+    .max(MAX_CHAT_FILE_DATA_B64)
+    .regex(/^[A-Za-z0-9+/]*={0,2}$/, 'fileData must be base64'),
+  mimeType: z
+    .string()
+    .max(100)
+    .regex(/^[\w.+-]+\/[\w.+-]+$/, 'mimeType must look like type/subtype'),
+  senderId: z.string().max(100),
+  senderName: z.string().max(100)
 })
 
 const SlowModePayloadSchema = z.object({

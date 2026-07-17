@@ -139,6 +139,13 @@ export class MemoryManager {
   // Session-history log id for the current sitting — derived ONCE (local date)
   // and cached so a session never splits across files. (ISSUES-LOG 2026-07-15)
   private sessionLogId?: string
+  // Timestamp of the last session-history append — used to detect that a NEW
+  // sitting has started. Managers are process-lifetime singletons, so the cached
+  // id must roll over across multi-day uptime. (ISSUES-LOG 2026-07-17)
+  private lastSessionLogAppendMs?: number
+
+  /** An append gap this long means the previous sitting ended and a new one began. */
+  private static readonly SESSION_SITTING_GAP_MS = 6 * 60 * 60 * 1000
 
   constructor(campaignId: string) {
     this.basePath = path.join(app.getPath('userData'), 'campaigns', campaignId, 'ai-context')
@@ -305,11 +312,34 @@ export class MemoryManager {
    * 00:00 UTC. (ISSUES-LOG-DNDAPP 2026-07-15)
    */
   getSessionLogId(): string {
+    // ISSUES-LOG-DNDAPP 2026-07-17 — without invalidation, a Tuesday sitting's cached
+    // id would swallow a Thursday sitting whenever the main process stays up between
+    // sittings (app left open, sleep/wake). A long gap since the last append = a new
+    // sitting, so re-derive the id from today's local date.
+    if (
+      this.sessionLogId !== undefined &&
+      this.lastSessionLogAppendMs !== undefined &&
+      Date.now() - this.lastSessionLogAppendMs > MemoryManager.SESSION_SITTING_GAP_MS
+    ) {
+      this.sessionLogId = undefined
+      this.lastSessionLogAppendMs = undefined
+    }
     if (!this.sessionLogId) this.sessionLogId = localDateStamp()
     return this.sessionLogId
   }
 
+  /**
+   * Mark the current sitting as ended (called after the end-of-session summary is
+   * written) so the NEXT session starts a fresh dated log even if the process —
+   * and this cached manager — lives on. (ISSUES-LOG-DNDAPP 2026-07-17)
+   */
+  endSessionSitting(): void {
+    this.sessionLogId = undefined
+    this.lastSessionLogAppendMs = undefined
+  }
+
   async appendSessionLog(sessionId: string, text: string): Promise<void> {
+    this.lastSessionLogAppendMs = Date.now()
     await this.ensureDir()
     const histDir = path.join(this.basePath, 'session-history')
     await fs.mkdir(histDir, { recursive: true })

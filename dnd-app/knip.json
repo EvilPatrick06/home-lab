@@ -8,6 +8,14 @@
     "src/preload/index.ts",
     "src/renderer/src/main.tsx",
     "src/web/main.web.tsx",
+    // Embed build target: index.embed.html loads this via vite.embed.config.ts;
+    // it pulls the whole web-bridge chain (install-embed-api -> bridge-api ->
+    // bridge-transport -> src/shared/bridge/*), which is invisible to knip
+    // without this entry. (ISSUES-LOG-DNDAPP 2026-07-17)
+    "src/web/main.embed.tsx",
+    // Service worker: registered at runtime by URL (src/web/register-sw.ts), so
+    // no static import edge exists. (ISSUES-LOG-DNDAPP 2026-07-17)
+    "src/renderer/public/sw.js",
     // Tooling glob: every script is a standalone entry (CLI / build / one-off).
     // NOTE: this glob also exempts scripts/** from dead-code detection — retired
     // one-off scripts under scripts/ are NOT flagged by knip. Audit scripts/
@@ -63,7 +71,10 @@
     "src/main/ai/context/context-builder.ts"
   ],
   "ignore": [
-    "src/renderer/public/pdf.worker.min.mjs",
+    // mobile/ is a SEPARATE npm project (own lockfile, own CI: dnd-app-mobile-ci.yml)
+    // unreachable from the desktop entry graph by design — exclude it instead of
+    // swelling the baseline with 40 false "unused file" rows. (ISSUES-LOG-DNDAPP 2026-07-17)
+    "mobile/**",
     "**/*.d.ts"
   ],
   "ignoreDependencies": [

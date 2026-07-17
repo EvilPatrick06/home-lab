@@ -314,4 +314,58 @@ describe('validateNetworkMessage', () => {
     )
     expect(result.success).toBe(false)
   })
+
+  // SECURITY [2026-07-17] — inbound chat:file caps (previously sender-side only).
+  describe('chat:file payload caps', () => {
+    const filePayload = (overrides: Record<string, unknown> = {}) => ({
+      fileName: 'map.png',
+      fileType: 'image',
+      fileData: 'aGVsbG8=',
+      mimeType: 'image/png',
+      senderId: 'peer-123',
+      senderName: 'Alice',
+      ...overrides
+    })
+
+    it('accepts a valid chat:file payload', () => {
+      const result = validateNetworkMessage(makeMessage({ type: 'chat:file', payload: filePayload() }))
+      expect(result.success).toBe(true)
+    })
+
+    it('rejects fileData over the base64 ceiling (modified peer skipping sender caps)', () => {
+      const oversized = 'A'.repeat(7_000_001)
+      const result = validateNetworkMessage(
+        makeMessage({ type: 'chat:file', payload: filePayload({ fileData: oversized }) })
+      )
+      expect(result.success).toBe(false)
+    })
+
+    it('rejects non-base64 fileData', () => {
+      const result = validateNetworkMessage(
+        makeMessage({ type: 'chat:file', payload: filePayload({ fileData: 'not base64!!' }) })
+      )
+      expect(result.success).toBe(false)
+    })
+
+    it('rejects a malformed mimeType', () => {
+      const result = validateNetworkMessage(
+        makeMessage({ type: 'chat:file', payload: filePayload({ mimeType: 'image/png;base64,x onerror=' }) })
+      )
+      expect(result.success).toBe(false)
+    })
+
+    it('rejects an unknown fileType', () => {
+      const result = validateNetworkMessage(
+        makeMessage({ type: 'chat:file', payload: filePayload({ fileType: 'weird' }) })
+      )
+      expect(result.success).toBe(false)
+    })
+
+    it('rejects an overlong fileName', () => {
+      const result = validateNetworkMessage(
+        makeMessage({ type: 'chat:file', payload: filePayload({ fileName: 'a'.repeat(256) }) })
+      )
+      expect(result.success).toBe(false)
+    })
+  })
 })

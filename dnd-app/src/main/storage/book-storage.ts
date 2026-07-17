@@ -198,12 +198,25 @@ export async function importBook(
   }
 }
 
+/**
+ * Ceiling on a single book read — bounds the main-process Buffer allocation
+ * (SECURITY [2026-07-17]: readBookFile previously read the whole target with no
+ * size check, an unbounded allocation shipped over IPC). 512 MB comfortably
+ * covers the core reference PDFs while capping abuse.
+ */
+const MAX_BOOK_FILE_BYTES = 512 * 1024 * 1024
+
 export async function readBookFile(filePath: string): Promise<{ success: boolean; data?: Buffer; error?: string }> {
   try {
     // Only allow reading PDF files from known locations
     const ext = extname(filePath).toLowerCase()
     if (ext !== '.pdf') {
       return { success: false, error: 'Only PDF files are supported' }
+    }
+
+    const { size } = await stat(filePath)
+    if (size > MAX_BOOK_FILE_BYTES) {
+      return { success: false, error: 'Book file too large' }
     }
 
     const data = await readFile(filePath)

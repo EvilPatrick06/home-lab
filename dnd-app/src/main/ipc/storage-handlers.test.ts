@@ -36,7 +36,9 @@ vi.mock('../../shared/ipc-channels', () => ({
     DELETE_HOMEBREW: 'storage:delete-homebrew',
     SAVE_SETTINGS: 'storage:save-settings',
     LOAD_SETTINGS: 'storage:load-settings',
-    BOOK_IMPORT: 'storage:book-import'
+    BOOK_IMPORT: 'storage:book-import',
+    BOOK_ADD: 'storage:book-add',
+    BOOK_READ_FILE: 'storage:book-read-file'
   }
 }))
 
@@ -245,6 +247,67 @@ describe('storage-handlers', () => {
     it('accepts a userData-subtree path without dialog registration', async () => {
       const handler = bookImportHandler()
       const res = await handler({}, '/tmp/test-userdata/books/x.pdf', 'Book', 'b1')
+      expect(res).toEqual({ success: true })
+    })
+  })
+
+  describe('BOOK_READ_FILE allowlist enforcement (SECURITY 2026-07-17)', () => {
+    const bookReadHandler = (): any => {
+      registerStorageHandlers()
+      return mockHandle.mock.calls.find((call) => call[0] === IPC_CHANNELS.BOOK_READ_FILE)![1]
+    }
+
+    it('rejects an absolute .pdf path outside userData (no ".." needed to escape)', async () => {
+      const { readBookFile } = await import('../storage/book-storage')
+      const handler = bookReadHandler()
+      const res = await handler({}, '/home/victim/secret.pdf')
+      expect(res).toEqual({ success: false, error: 'Invalid book file path: outside app storage' })
+      expect(vi.mocked(readBookFile)).not.toHaveBeenCalled()
+    })
+
+    it('still reads a userData-subtree book path (positive control)', async () => {
+      const { readBookFile } = await import('../storage/book-storage')
+      vi.mocked(readBookFile).mockResolvedValue({ success: true, data: Buffer.from('pdf-bytes') })
+      const handler = bookReadHandler()
+      const res = await handler({}, '/tmp/test-userdata/books/b1.pdf')
+      expect(res.success).toBe(true)
+      expect(new Uint8Array(res.data)).toEqual(new Uint8Array(Buffer.from('pdf-bytes')))
+    })
+
+    it('still rejects traversal payloads (existing lexical guard)', async () => {
+      const handler = bookReadHandler()
+      const res = await handler({}, '/tmp/test-userdata/../etc/x.pdf')
+      expect(res).toEqual({ success: false, error: 'Invalid book file path' })
+    })
+  })
+
+  describe('BOOK_ADD path validation (SECURITY 2026-07-17)', () => {
+    const bookAddHandler = (): any => {
+      registerStorageHandlers()
+      return mockHandle.mock.calls.find((call) => call[0] === IPC_CHANNELS.BOOK_ADD)![1]
+    }
+
+    const base = { title: 'Book', type: 'custom' as const, addedAt: '2026-07-17T00:00:00Z' }
+
+    it('rejects a config whose path points outside app storage', async () => {
+      const { addBook } = await import('../storage/book-storage')
+      const handler = bookAddHandler()
+      const res = await handler({}, { ...base, id: 'b1', path: '/home/victim/anything.pdf' })
+      expect(res).toEqual({ success: false, error: 'Invalid book path: outside app storage' })
+      expect(vi.mocked(addBook)).not.toHaveBeenCalled()
+    })
+
+    it('rejects an unsafe book id', async () => {
+      const handler = bookAddHandler()
+      const res = await handler({}, { ...base, id: '../evil', path: '/tmp/test-userdata/books/x.pdf' })
+      expect(res).toEqual({ success: false, error: 'Invalid book id' })
+    })
+
+    it('accepts a userData-subtree book path', async () => {
+      const { addBook } = await import('../storage/book-storage')
+      vi.mocked(addBook).mockResolvedValue({ success: true })
+      const handler = bookAddHandler()
+      const res = await handler({}, { ...base, id: 'b1', path: '/tmp/test-userdata/books/b1.pdf' })
       expect(res).toEqual({ success: true })
     })
   })

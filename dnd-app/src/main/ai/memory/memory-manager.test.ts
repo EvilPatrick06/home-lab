@@ -966,5 +966,42 @@ describe('MemoryManager recap cache + Q&A log (PHASE-31 31B/31C)', () => {
       vi.setSystemTime(new Date('2026-07-15T20:00:00Z'))
       expect(mgr.getSessionLogId()).toBe(first)
     })
+
+    // ISSUES-LOG-DNDAPP 2026-07-17 — the cached id must NOT swallow a later sitting
+    // when the process (and the singleton manager) stays up for days.
+    it('starts a fresh dated log after endSessionSitting() even days later (no restart)', async () => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2026-07-14T20:00:00'))
+      const mgr = new MemoryManager('c-sid3')
+      const day1 = mgr.getSessionLogId()
+      await mgr.appendSessionLog(day1, 'day-1 message')
+      mgr.endSessionSitting() // end-of-session summary closes the sitting
+      vi.setSystemTime(new Date('2026-07-16T19:00:00'))
+      const day3 = mgr.getSessionLogId()
+      expect(day3).not.toBe(day1)
+      expect(day3).toBe('2026-07-16')
+    })
+
+    it('rolls over via the sitting-gap heuristic when no summary was ever generated', async () => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2026-07-14T20:00:00'))
+      const mgr = new MemoryManager('c-sid4')
+      const day1 = mgr.getSessionLogId()
+      await mgr.appendSessionLog(day1, 'day-1 message')
+      // No endSessionSitting() (user never triggered a summary). Two days later a
+      // new sitting starts — the >6h append gap must refresh the id.
+      vi.setSystemTime(new Date('2026-07-16T19:00:00'))
+      expect(mgr.getSessionLogId()).toBe('2026-07-16')
+    })
+
+    it('does NOT roll over mid-sitting while appends are frequent, even across midnight', async () => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2026-07-14T22:00:00'))
+      const mgr = new MemoryManager('c-sid5')
+      const id = mgr.getSessionLogId()
+      await mgr.appendSessionLog(id, 'before midnight')
+      vi.setSystemTime(new Date('2026-07-15T01:30:00')) // 3.5h later, same sitting
+      expect(mgr.getSessionLogId()).toBe(id)
+    })
   })
 })

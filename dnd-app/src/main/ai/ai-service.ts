@@ -1599,6 +1599,10 @@ export async function generateSessionSummary(campaignId: string): Promise<string
       const memMgr = getMemoryManager(campaignId)
       const sessionId = memMgr.getSessionLogId()
       await memMgr.appendSessionLog(sessionId, `\n--- SESSION SUMMARY ---\n${summary}\n`)
+      // The summary closes the sitting — the next session gets a fresh dated log
+      // even though the manager singleton lives for the whole process.
+      // (ISSUES-LOG-DNDAPP 2026-07-17)
+      memMgr.endSessionSitting()
     } catch {
       // Non-fatal
     }

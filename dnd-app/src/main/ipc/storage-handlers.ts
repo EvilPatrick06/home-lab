@@ -436,6 +436,21 @@ export function registerStorageHandlers(): void {
   })
 
   handle(IPC_CHANNELS.BOOK_ADD, async (_event, config: BookConfig) => {
+    // SECURITY [2026-07-17] — config arrives from the renderer (and via cloud sync), and the
+    // stored `path` is later fed to BOOK_READ_FILE, so it must never be an arbitrary host
+    // location. Books legitimately live under userData (books/, core_books/), which
+    // isPathAllowed covers; a just-dialog-picked path passes via its TTL entry.
+    if (!isSafeBookId(config?.id)) {
+      throw new Error('Invalid book id')
+    }
+    if (
+      typeof config.path !== 'string' ||
+      config.path.includes('..') ||
+      config.path.includes('\0') ||
+      !isPathAllowed(config.path)
+    ) {
+      throw new Error('Invalid book path: outside app storage')
+    }
     return addBook(config)
   })
 
@@ -462,6 +477,13 @@ export function registerStorageHandlers(): void {
     // Phase 17a (NET-13) — reject traversal / null-byte payloads before reading.
     if (typeof filePath !== 'string' || filePath.includes('..') || filePath.includes('\0')) {
       throw new Error('Invalid book file path')
+    }
+    // SECURITY [2026-07-17] — a plain ABSOLUTE path contains no '..', so the lexical guard
+    // alone let the renderer read any .pdf on the host. Mirror BOOK_IMPORT / fs:read and
+    // require the dialog/userData allowlist (books/ and core_books/ live under userData,
+    // so every legitimately-registered book still passes).
+    if (!isPathAllowed(filePath)) {
+      throw new Error('Invalid book file path: outside app storage')
     }
     const result = await readBookFile(filePath)
     if (result.success && result.data) {

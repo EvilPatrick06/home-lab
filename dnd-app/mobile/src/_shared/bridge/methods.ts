@@ -33,9 +33,14 @@ export const BRIDGE_RPC = {
   getVersion: 'app.getVersion'
 } as const
 
-export type BridgeRpcMethod = (typeof BRIDGE_RPC)[keyof typeof BRIDGE_RPC]
-
-/** Coordination events. `ui:*` flow web → native; `cmd:*` flow native → web. */
+/**
+ * Coordination events. `ui:*` flow web → native; `cmd:*` flow native → web.
+ *
+ * @public — consumed by the MOBILE project (mobile/src/screens/GameSessionScreen.tsx
+ * via its synced `_shared` copy of this file), which is outside the desktop knip
+ * graph (`mobile/**` is knip-ignored as a separate npm project). Do NOT delete as
+ * "unused"; the tag keeps knip from flagging it. (ISSUES-LOG-DNDAPP 2026-07-17)
+ */
 export const BRIDGE_EVENT = {
   // web → native (the WebView asks the shell to do something native)
   openCharacterSheet: 'ui:openCharacterSheet',
@@ -46,5 +51,3 @@ export const BRIDGE_EVENT = {
   rollDice: 'cmd:rollDice',
   leaveSession: 'cmd:leaveSession'
 } as const
-
-export type BridgeEventName = (typeof BRIDGE_EVENT)[keyof typeof BRIDGE_EVENT]

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { UpdateStatus } from './updater'
 
 // Mock electron before importing the module
@@ -75,22 +75,30 @@ describe('UpdateStatus type', () => {
 })
 
 describe('registerUpdateHandlers', () => {
+  // ISSUES-LOG-DNDAPP 2026-07-17 — hoist the heavy dynamic imports (./updater pulls
+  // electron-updater) into beforeAll so the module-graph transform/import cost lands
+  // in the setup budget, not inside the first test's 15s timeout. On a loaded host
+  // (parallel agent checks on bmo) the in-test import blew the per-test budget
+  // (138ms in isolation -> >15s under contention); same load-sensitive-flake class
+  // as the 2026-06-22 CharacterSheet5ePage / bmo-bridge fixes.
+  let ipcMain: typeof import('electron')['ipcMain']
+  let registerUpdateHandlers: typeof import('./updater')['registerUpdateHandlers']
+
+  beforeAll(async () => {
+    ;({ ipcMain } = await import('electron'))
+    ;({ registerUpdateHandlers } = await import('./updater'))
+  })
+
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it('registers IPC handlers without throwing', async () => {
-    const { ipcMain } = await import('electron')
-    const { registerUpdateHandlers } = await import('./updater')
-
     expect(() => registerUpdateHandlers()).not.toThrow()
     expect(ipcMain.handle).toHaveBeenCalled()
   })
 
   it('registers handlers for APP_VERSION, UPDATE_CHECK, UPDATE_DOWNLOAD, UPDATE_INSTALL', async () => {
-    const { ipcMain } = await import('electron')
-    const { registerUpdateHandlers } = await import('./updater')
-
     registerUpdateHandlers()
 
     const registeredChannels = vi.mocked(ipcMain.handle).mock.calls.map(([channel]) => channel)
@@ -101,9 +109,6 @@ describe('registerUpdateHandlers', () => {
   })
 
   it('APP_VERSION handler returns a semver-like string', async () => {
-    const { ipcMain } = await import('electron')
-    const { registerUpdateHandlers } = await import('./updater')
-
     registerUpdateHandlers()
 
     const handleCalls = vi.mocked(ipcMain.handle).mock.calls

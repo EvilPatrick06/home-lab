@@ -29,3 +29,10 @@ mobile/.expo/
 mobile/android/
 mobile/ios/
 mobile/dist/
+
+# Postinstall-generated pdfjs worker (copied from node_modules/pdfjs-dist by
+# scripts/build/postinstall.mjs on every install). Was previously COMMITTED and
+# drifted from the locked pdfjs-dist version whenever Dependabot bumped the lock
+# without regenerating it (ISSUES-LOG-DNDAPP 2026-07-17): every npm ci left the
+# tree dirty, and a stale checkout paired mismatched API/Worker versions at runtime.
+src/renderer/public/pdf.worker.min.mjs

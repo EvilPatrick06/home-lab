@@ -1,8 +1,9 @@
 name: dnd-app CI
 
 # Phase 28e.2 — gate dnd-app changes on lint + forbidden-patterns + tsc (both
-# configs) + tests + build smoke + circular + audit. dead-code runs non-blocking
-# until the knip baseline is clean. (Absorbed the former ci.yml's build smoke +
+# configs) + tests + build smoke + circular + audit. dead-code (knip) became a
+# BLOCKING gate on 2026-07-17 once the baseline reached exit 0 (mobile/ ignored
+# as a separate project, embed/sw entries declared, dotenv pruned). (Absorbed the former ci.yml's build smoke +
 # artifact verify on 2026-05-30, then deleted ci.yml — this is now THE everyday
 # dnd-app gate; tag-push release gating still lives in release.yml.)
 
@@ -115,9 +116,11 @@ jobs:
       - name: No skipped tests (28e.7)
         run: |
           ! grep -rE --include='*.ts' --include='*.tsx' '\b(it|describe|test)\.(skip|todo)\b|\b(xit|xdescribe|xtest)\b' src/
+      # Blocking since 2026-07-17 — baseline is exit 0 (ISSUES-LOG-DNDAPP knip entry).
+      # If this ever needs a new exemption, follow the drop-one-entry audit note in
+      # dnd-app/knip.json rather than re-adding continue-on-error.
       - name: Dead code (knip)
         run: npm run dead-code
-        continue-on-error: true
       # Informational: surfaces the "bump Electron before EOL" reminder on every
       # run. Non-blocking (continue-on-error) — a near-/past-EOL Electron warns
       # but never fails the build. See docs/DEPENDENCIES.md → "Electron upgrade
