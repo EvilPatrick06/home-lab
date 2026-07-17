@@ -212,7 +212,7 @@ markupsafe==3.0.3
     #   flask
     #   jinja2
     #   werkzeug
-mcp==1.27.2
+mcp==1.28.1
     # via -r requirements.in
 mdurl==0.1.2
     # via markdown-it-py
