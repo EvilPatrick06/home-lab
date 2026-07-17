@@ -20,6 +20,108 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-07-17] `docs/SERVICES.md` documents the pre-subpackaging services layout — a nonexistent `calendar_service.py`, eight undocumented top-level modules, and no note that the D&D/RAG/scene cluster moved to `services/game/`
+
+- **Category:** docs
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** scheduled cleanup/structure scan (systematic diff of `docs/SERVICES.md` module names vs `ls pi/services/`)
+
+**Description:**
+`docs/SERVICES.md` got a subpackage note for `services/voice/` ("These modules live in the `services/voice/` subpackage…", line ~9) but was never updated for the two later moves, so three whole sections describe a layout that no longer exists:
+
+1. **Calendar section lists modules by wrong/stale names.** It documents `calendar_service.py` ("Google Calendar read/write via OAuth") — no such file exists anywhere in the tree; the implementation is `services/calendar/service.py` (package: `service.py`, `authorize.py`, `reauth.py`, `oauth_config.py`). It also presents `authorize_calendar.py` / `reauth_calendar.py` as the implementations when both are now 17-line compatibility shims that forward into `services/calendar/`.
+2. **The D&D + AI/RAG + scenes sections document `services/game/` modules as top-level.** `dnd_engine.py`, `campaign_memory.py`, `game_registry.py`, `game_relay.py`, `scene_service.py`, `location_service.py`, `personality_engine.py` live in `services/game/`, and `rag_search.py` + `build_rag_indexes.py` in `services/game/rag/` — the doc gives no equivalent of the voice-cluster subpackage note, so every import path a reader derives (`services.dnd_engine`, `services.rag_search`, …) is wrong.
+3. **Eight real top-level service modules are absent from the doc entirely:** `config_preflight.py`, `identity.py`, `metrics_counters.py`, `paths.py`, `quiet_hours.py`, `status_board.py`, `thermal_gate.py`, `wake_events.py`. Several are load-bearing (`paths.py` is imported by 26 non-test modules; `config_preflight.py` is the boot-time secrets gate) — exactly the modules a newcomer needs the index for.
+
+This is the SERVICES.md twin of the already-logged `pi/README.md` tree drift (2026-07-15) and `docs/AGENTS.md` recipe drift (2026-07-15): the docs index promotes SERVICES.md as step 2 of the "Start here" reading order, so the drift is front-loaded onto exactly the readers with no way to spot it.
+
+**Hypothesis / root cause:** the calendar-package and game-subpackage moves (and the paths/preflight/status_board/etc. additions) each updated code + tests but not SERVICES.md; only the first (voice) move established the "add a subpackage note" habit.
+
+**Proposed fix / improvement:**
+- [ ] Update the Calendar section: document `services/calendar/` (service/authorize/reauth/oauth_config) as the implementation, and mark `authorize_calendar.py`/`reauth_calendar.py` as operator-entry-point shims (they are referenced by runbooks, so they should stay listed — but as shims).
+- [ ] Add a `services/game/` (+ `game/rag/`) subpackage note mirroring the voice note, and move the D&D / AI-RAG / scene rows under it (also picking up the currently-undocumented `dnd_dm_data.py`, `pbp_store.py` if absent).
+- [ ] Add rows for the eight missing top-level modules (`config_preflight`, `identity`, `metrics_counters`, `paths`, `quiet_hours`, `status_board`, `thermal_gate`, `wake_events`).
+- [ ] While in the file, re-verify the "(N)" per-section counts, which have also drifted.
+
+**Related files:** `bmo/docs/SERVICES.md`, `bmo/pi/services/calendar/{service,authorize,reauth,oauth_config}.py`, `bmo/pi/services/{authorize_calendar,reauth_calendar}.py` (shims), `bmo/pi/services/game/`, `bmo/pi/services/game/rag/`, `bmo/pi/services/{config_preflight,identity,metrics_counters,paths,quiet_hours,status_board,thermal_gate,wake_events}.py`, `bmo/docs/README.md` (reading order)
+
+**Related entries:** [2026-07-15] `pi/README.md` directory-tree drift; [2026-07-15] `bmo/docs/AGENTS.md` "Adding a new agent" recipe drift
+
+### [2026-07-17] `docs/SYSTEMD.md` unit inventory is two units and one count behind reality — the `bmo-board-decision-nudge` `.service`+`.path` pair is undocumented and the "12 unit files total" claim is false (14 exist)
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** scheduled cleanup/structure scan (diff of `docs/SYSTEMD.md` unit table vs `ls pi/systemd/`)
+
+**Description:**
+`docs/SYSTEMD.md:3` states BMO's runtime is "9 systemd services plus 3 timers (12 unit files total)". `bmo/pi/systemd/` actually contains **14** unit files: 10 `.service`, 3 `.timer`, and 1 `.path`. The gap is the **`bmo-board-decision-nudge.service` + `bmo-board-decision-nudge.path`** pair (the path-activated nudger behind `scripts/board-decision-nudge.sh`, part of the board-approval bridge) — neither appears anywhere in SYSTEMD.md, and `.path` units aren't mentioned as a unit type at all. A path-activated unit is exactly the kind of thing an operator won't guess exists from `systemctl list-units` habit, so the doc that exists to inventory the units is the right place for it. (The doc also doesn't mention the two `logrotate.d-*` files shipped in the same dir, which are not unit files but are installed from there — a one-line note would prevent "what are these?" churn.)
+
+**Hypothesis / root cause:** the board-decision-nudge feature added its units + script + board wiring but not a SYSTEMD.md row; the summary count at line 3 is hand-maintained and silently went stale with it.
+
+**Proposed fix / improvement:**
+- [ ] Add a `bmo-board-decision-nudge.service` + `.path` row to the unit table (what triggers it — path-watch on the board decisions outbox — and what it runs).
+- [ ] Correct the line-3 summary (or reword to avoid a hand-maintained count, e.g. "the unit files in `bmo/pi/systemd/`").
+- [ ] Optional: one line noting `logrotate.d-bmo` / `logrotate.d-bmo-bots.example` live in the same dir and are installed to `/etc/logrotate.d/`.
+
+**Related files:** `bmo/docs/SYSTEMD.md:3` (stale count), `bmo/pi/systemd/bmo-board-decision-nudge.service`, `bmo/pi/systemd/bmo-board-decision-nudge.path`, `bmo/pi/scripts/board-decision-nudge.sh`, `bmo/pi/systemd/logrotate.d-bmo`
+
+**Related entries:** [2026-07-02] STATUS-BOARD docs missing from the `bmo/docs/README.md` index (same "new feature skipped the docs index" pattern)
+
+### [2026-07-17] `web/static/ide/sw.js` is an orphaned push-notification service worker — never registered by any page, no push backend exists, and its icon path points at a nonexistent file
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** scheduled cleanup/structure scan (reference-tracing the production IDE asset trio `ide.css`/`ide.js`/`sw.js`)
+
+**Description:**
+`bmo/pi/web/static/ide/sw.js` (a "BMO IDE — Service Worker for Push Notifications") is dead code on all three ends:
+1. **Never registered.** No `navigator.serviceWorker.register` / `sw.js` reference exists in `web/templates/ide.html`, `web/static/ide/ide.js` (2,661 lines), or anywhere else in the tree — a service worker that is never registered never runs. (The `sw.js` hits in `routes/webapp_api.py` / `test_app_endpoints.py` are the *dnd-app web build's* service worker, unrelated.)
+2. **No server half.** `routes/ide.py` has no Web-Push/VAPID/subscription endpoint of any kind, so even a registered worker would never receive a push event.
+3. **Broken asset reference.** Its default notification icon `'/static/ide/bmo-icon.png'` does not exist (`web/static/ide/` holds only `ide.css`, `ide.js`, `sw.js`).
+
+`git log` shows it untouched since the April monorepo reorg (`f96bad8f`) — an aspirational feature stub that never got wired up. Same class as the ~860 KB orphaned vendored assets already found and deleted from `web/static/` (BMO-RESOLVED 2026-06-24); that sweep verified `sw.js` didn't precache the vendor files but didn't check whether `sw.js` itself was referenced.
+
+**Hypothesis / root cause:** IDE push notifications were started (worker side only), abandoned before the registration + backend halves landed, and the file survived the later orphan-asset sweep because it looks structural.
+
+**Proposed fix / improvement:**
+- [ ] Delete `web/static/ide/sw.js` (after a final `grep -rn "static/ide/sw" --include="*"` for safety), OR — if IDE push notifications are actually wanted — log a proper future-idea covering the missing registration call + push-subscription backend and keep the worker.
+- [ ] Note: the experimental `ide_app/` twin has no `sw.js` copy, so nothing else depends on it.
+
+**Related files:** `bmo/pi/web/static/ide/sw.js`, `bmo/pi/web/static/ide/ide.js`, `bmo/pi/web/templates/ide.html`, `bmo/pi/routes/ide.py`
+
+**Related entries:** [2026-06-24, resolved] ~860 KB of orphaned vendored frontend assets in `web/static/`
+
+### [2026-07-17] `data/5e-references/` mixes directory casing — `MM2025/Markdown` vs `DMG2024/markdown` + `PHB2024/markdown` — forcing a case-insensitive workaround in the RAG builder and making doc examples wrong for one book in three
+
+- **Category:** debt, docs
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-cleanup
+- **During:** scheduled cleanup/structure scan (naming-consistency pass over `pi/data/`)
+
+**Description:**
+The three 5e reference books use inconsistent casing for their content subdirectory: `DMG2024/markdown/` and `PHB2024/markdown/` (lowercase) but `MM2025/Markdown/` (capitalized, with further `Appendices/`/`Bestiary/`/`NPCs/` children). Consequences today are small but real:
+- `services/game/rag/build_rag_indexes.py:29-36` carries an explicit workaround — it scans each book dir for an entry where `entry.lower() == "markdown"` ("Find the markdown subdirectory (case-insensitive)") instead of a plain path join.
+- The MCP server's tool docs teach lowercase paths (`dnd_data_server.py:156`: "e.g. `'PHB2024/markdown/03-character-classes.md'`"), so the natural analogous guess for the Monster Manual (`MM2025/markdown/...`) 404s on the case-sensitive Pi filesystem; a client must list first to discover the odd one out.
+- Any future consumer that path-joins `"<book>/markdown"` directly (script, test, doc example) silently skips MM2025 — the failure mode is "no MM chunks", not an error.
+
+Nothing references the literal `MM2025/Markdown` string in code (verified by grep), and the RAG chunk indexes store their own paths, so a rename is cheap now and only gets more expensive as consumers accumulate.
+
+**Hypothesis / root cause:** the MM2025 book was imported from a differently-cased source tree (its children are also capitalized) and the builder was patched around it rather than normalizing the import.
+
+**Proposed fix / improvement:**
+- [ ] `git mv bmo/pi/data/5e-references/MM2025/Markdown bmo/pi/data/5e-references/MM2025/markdown` (two-step mv via a temp name — case-only renames need it on case-insensitive checkouts). Leave the `Appendices/`/`Bestiary/`/`NPCs/` children as-is (they're content-organizational, not a convention shared across books).
+- [ ] Rebuild/spot-check `chunk-index-dnd.json` paths afterwards (the committed index may embed the old casing) and re-run `pytest tests/test_rag_freshness.py` + the dnd_data_server listing to confirm MM2025 still resolves.
+- [ ] Then simplify `build_rag_indexes.py` to a plain `os.path.join(book_dir, "markdown")` and drop the case-insensitive scan.
+
+**Related files:** `bmo/pi/data/5e-references/MM2025/Markdown/`, `bmo/pi/data/5e-references/{DMG2024,PHB2024}/markdown/`, `bmo/pi/services/game/rag/build_rag_indexes.py:29-36`, `bmo/pi/mcp_servers/dnd_data_server.py:156`, `bmo/pi/data/rag_data/chunk-index-dnd.json`
+
 ### [2026-07-15] Three RESOLVED log entries are duplicated back into the active logs — union-merge resurrection of resolver cuts leaves the `dev/`, `agents/`, and `BMO_HOME` entries listed as both open and resolved at once
 
 - **Category:** debt, docs
