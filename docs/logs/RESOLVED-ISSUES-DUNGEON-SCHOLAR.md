@@ -13,6 +13,29 @@
 
 ---
 
+### [2026-07-17] scholar-resolver run — auto-approved bug/security batch (oracle-worker hardening, CSV formula-injection guard, notes passphrase floor, test standards-mode)
+
+> **Resolved 2026-07-17 (`auto/scholar-resolver`):** this run's auto-approve (bug/security) class, implemented gate-green (biome / tsc / vitest / build). Entries moved here from `ISSUES-LOG-DUNGEON-SCHOLAR.md`; the three security-log twins moved to `RESOLVED-SECURITY-ISSUES.md` (main checkout).
+
+- **Category:** bug / security batch
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** scholar-errors / scholar-security
+- **Resolved by:** scholar-resolver
+
+**Items landed:**
+
+1. **oracle-worker `max_tokens` clamp has no floor (ISSUES [2026-07-17], bug)** — the clamp bounded only the top, so truthy negative/fractional values (`-5`, `0.5`) were forwarded to Groq verbatim, burning a rate-limit slot to earn an opaque 400. Now `Math.min(Math.max(1, Math.floor(Number(body.max_tokens)) || 1000), MAX_OUTPUT_TOKENS)` — floored, integer-coerced, defaulted — before the upstream call (`oracle-worker/src/worker.js`).
+2. **oracle-worker Groq `fetch` unwrapped (ISSUES [2026-07-17], bug)** — a network-level rejection (DNS/TLS/reset) escaped the handler as a runtime 500 with NO CORS headers, which browsers surface as an opaque CORS failure. The upstream call + `groqResponse.json()` now sit in one try/catch returning `corsJson(..., { error: "Upstream error" }, 502)`, matching the existing `!ok` path's shape.
+3. **RateLimiter per-IP counters never evicted (ISSUES [2026-07-17] performance/debt + SECURITY-LOG [2026-07-17] twin)** — both layers grew one permanent entry per distinct client IP forever (internet-facing memory / DO-SQLite storage bloat). In-memory: `isolateBackstop` now deletes Map keys whose newest hit is older than the minute window. Durable Object: a self-rescheduling daily `alarm()` sweeps `ip:*` rows from past day windows (`storage.list` + batched `delete`); enforcement semantics unchanged — a returning IP re-creates a fresh zeroed counter, the existing cold path.
+4. **Vitest KaTeX quirks-mode stderr noise (ISSUES [2026-07-17], test)** — the happy-dom test document had no doctype AND happy-dom 20.x doesn't implement `document.compatMode`, so KaTeX-rendering suites warned on every run and tests exercised a layout mode production never uses. `src/test-setup.js` now inserts a real `<!DOCTYPE html>` and defines `compatMode = 'CSS1Compat'`; verified the warning is gone from `RichContent.test.jsx` / `App.test.jsx` runs.
+5. **Tome CSV export formula injection, CWE-1236 (SECURITY-LOG [2026-07-16], security)** — `csvQuoteField` now apostrophe-neutralizes fields whose value would open a spreadsheet formula (leading `=` `+` `-` `@` TAB CR, with an escape-the-escape rule for already-apostrophed triggers), and `deckTextToTome` strips exactly one sentinel apostrophe on import so exported decks round-trip byte-identically. Unit tests cover the neutralization matrix + a hostile-tome round-trip (`deckImport.test.js`).
+6. **Private-notes create flow accepted a 1-character passphrase (SECURITY-LOG [2026-07-16], security)** — `TomeNotes.handleCreate` now enforces the same floor as sealed tomes via a shared exported `MIN_PASSPHRASE_LEN = 8` (`sealedTome.js`, its inline check switched to the constant), with `minLength` on both password inputs and the modal copy stating the minimum. Regression tests: too-short rejected + existing flows on >=8-char passphrases (`TomeNotes.test.jsx`).
+
+**Verification:** dungeon-scholar `biome check` clean, `tsc --noEmit` green, full vitest suite green, `vite build` green (via the run-check.sh admission gate); oracle-worker has no unit-test harness (tracked separately on the board as `sugg-oracle-worker-tests`) — its fixes were validated by review + the worker CI typecheck/build gate.
+
+---
+
 ### [2026-07-15] scholar-resolver run — owner-approved gold-button contrast fix + auto-approved bug batch + config/docs cleanup
 
 > **Resolved 2026-07-15 (`auto/scholar-resolver`):** one board-APPROVED WAIT item plus this run's auto-approve (bug/config) class, implemented gate-green (biome / tsc / vitest / build). Entries moved here from `ISSUES-LOG-DUNGEON-SCHOLAR.md` / `SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`.

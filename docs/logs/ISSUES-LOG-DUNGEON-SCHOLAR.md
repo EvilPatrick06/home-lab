@@ -55,88 +55,6 @@ The `auto/scholar-phase-executer` branch (head `1b3c00ed`) is a genuine, unmerge
 
 ## Low
 
-### [2026-07-17] oracle-worker: `max_tokens` clamp has no floor — negative/fractional client values are forwarded to Groq verbatim
-
-- **Category:** bug
-- **Severity:** low
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-errors
-- **During:** automated error scan (oracle-worker request-handling review)
-
-**Description:**
-`oracle-worker/src/worker.js:270` clamps the client-requested output budget with `Math.min(Number(body.max_tokens) || 1000, MAX_OUTPUT_TOKENS)`. The clamp only bounds the TOP: any truthy negative or fractional number passes through — `max_tokens: -5` → `Math.min(-5, 2048)` = `-5`, `max_tokens: 0.5` → `0.5` — and is forwarded to Groq, which rejects non-positive/non-integer values with a 400. The request still consumed a Durable-Object rate-limit slot (counters increment before the Groq call) and the client sees only the generic "Upstream error", so a malformed caller burns quota and gets an unhelpful diagnostic instead of a 400 from our own input validation, where every other malformed-input case (non-string content, oversized payload) is already rejected.
-
-**Reproduction (if bug):**
-1. POST to the worker from the allowed origin with a valid messages array and `"max_tokens": -5`.
-2. Worker forwards `max_tokens: -5` to Groq.
-3. Observed: Groq 400 → worker replies `{ error: "Upstream error" }` with status 400; the DO per-IP/global counters were already incremented.
-
-**Expected behavior (if bug):** invalid `max_tokens` is normalized (or rejected with a specific 400) before the upstream call, like the other input caps — e.g. `Math.min(Math.max(1, Math.floor(Number(body.max_tokens) || 1000)), MAX_OUTPUT_TOKENS)`.
-
-**Hypothesis / root cause:** the clamp was written to bound COST (upper bound) and the lower/integer bound was never considered because the app's own frontend always sends a sane integer.
-
-**Proposed fix / improvement:**
-- [ ] Floor + integer-coerce the value: `Math.min(Math.max(1, Math.floor(n)), MAX_OUTPUT_TOKENS)` with the existing `|| 1000` default.
-- [ ] (Optional) reject non-numeric `max_tokens` types with the same `Invalid request.` 400 used for non-string content.
-
-**Blocked by:** none
-
-**Related files:** `oracle-worker/src/worker.js` (line 270)
-
-**Related entries:** none
-
-### [2026-07-17] oracle-worker: Groq upstream `fetch` is not wrapped in try/catch — a network throw returns a CORS-less 500 the browser cannot read
-
-- **Category:** bug
-- **Severity:** low
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-errors
-- **During:** automated error scan (oracle-worker request-handling review)
-
-**Description:**
-`oracle-worker/src/worker.js:273` calls `await fetch(GROQ_URL, …)` with no try/catch. `fetch` REJECTS (rather than resolving with `!ok`) on network-level failures — DNS failure, TLS error, connection reset, upstream timeout. The rejection propagates out of the exported `fetch` handler, so the Workers runtime replies with a generic `500 Internal Server Error` that carries NO `Access-Control-Allow-Origin` header. The browser client therefore sees an opaque CORS failure instead of a readable error body, and the failure mode is indistinguishable (client-side) from a misconfigured worker. The non-ok path directly below (`if (!groqResponse.ok)`) already handles this class of problem properly — generic message, CORS headers, upstream status — but only for failures that produce an HTTP response. Same gap applies to `groqResponse.json()` on a malformed upstream body (`worker.js:296`).
-
-**Reproduction (if bug):**
-1. Make Groq unreachable from the worker (e.g. simulate a DNS/connect failure in a local `wrangler dev` run).
-2. POST a valid Oracle request from the allowed origin.
-3. Observed: runtime 500 with no CORS headers → the frontend's fetch rejects with a TypeError (CORS), not a readable `{ error }` JSON.
-
-**Expected behavior (if bug):** network-level upstream failures return the same shape as HTTP upstream failures: `corsJson(allowedOrigin, { error: "Upstream error" }, 502)`.
-
-**Hypothesis / root cause:** the upstream error handling was designed around `groqResponse.ok` (HTTP-level failures); the promise-rejection failure mode of `fetch` was never exercised because Groq has been reliably reachable.
-
-**Proposed fix / improvement:**
-- [ ] Wrap the upstream call + JSON parse in try/catch and return `corsJson(allowedOrigin, { error: "Upstream error" }, 502)` on throw.
-
-**Blocked by:** none
-
-**Related files:** `oracle-worker/src/worker.js` (lines 273–296)
-
-**Related entries:** none
-
-### [2026-07-17] oracle-worker RateLimiter DO: per-IP counter rows are never pruned — storage grows unboundedly with distinct client IPs
-
-- **Category:** performance, debt
-- **Severity:** low
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-errors
-- **During:** automated error scan (oracle-worker request-handling review)
-
-**Description:**
-The `RateLimiter` Durable Object (`oracle-worker/src/worker.js:78-155`) stores one row per distinct client IP (`ip:<ip>`) and resets the counters IN PLACE when the minute/day window rolls over — but nothing ever DELETES a row. Every IP that ever hits the Oracle leaves a permanent record in the DO's SQLite storage: no alarm, no TTL, no sweep. The same pattern exists in miniature in the per-isolate `isolateHits` Map (`worker.js:41-56`): per-IP timestamp arrays are filtered on access, but an IP's map entry is never evicted, so the Map grows monotonically for the isolate's lifetime. Growth is slow (bounded in practice by `globalPerDay: 2000` requests/day, so ≤ ~2000 new IP rows/day worst-case) and each row is tiny, so this is not an active problem — but it is unbounded by design, is invisible until it matters (Workers free-plan DO storage caps), and stale rows also make any future "list current limiters" debugging noisier.
-
-**Hypothesis / root cause:** the DO was added to make counters durable across isolates/POPs; retention was never scoped because the window-rollover reset made rows LOOK self-cleaning (values reset, keys persist).
-
-**Proposed fix / improvement:**
-- [ ] Add a DO `alarm()` (e.g. daily) that iterates `storage.list({ prefix: "ip:" })` and deletes rows whose `dayWindow` is older than the current one.
-- [ ] In `isolateBackstop`, delete the Map entry when the filtered hits array is empty.
-
-**Blocked by:** none
-
-**Related files:** `oracle-worker/src/worker.js` (lines 41–56, 78–155)
-
-**Related entries:** none
-
 ### [2026-07-17] Comments in `vite.config.js` + `tsconfig.json` lost their backtick-quoted tokens at authoring — "Enable via  (v8 provider)", "keep  fast and green"
 
 - **Category:** docs
@@ -163,36 +81,6 @@ Both were introduced verbatim in commit `97138c8b` (2026-07-03, "chore(dungeon-s
 **Related files:** `dungeon-scholar/vite.config.js` (lines 150–156), `dungeon-scholar/tsconfig.json` (line 26)
 
 **Related entries:** none
-
-### [2026-07-17] Vitest stderr noise: "KaTeX doesn't work in quirks mode" — happy-dom test document has no doctype, so KaTeX-rendering tests run in quirks mode
-
-- **Category:** test
-- **Severity:** low
-- **Domain:** dungeon-scholar
-- **Discovered by:** scholar-errors
-- **During:** automated error scan (full vitest run, 2026-07-17 — 89 files / 960 tests green)
-
-**Description:**
-Every test file that renders KaTeX content (`src/components/RichContent.test.jsx`, `src/App.test.jsx`) emits `Warning: KaTeX doesn't work in quirks mode. Make sure your website has a suitable doctype.` on stderr. The happy-dom document Vitest creates has no `<!DOCTYPE html>`, so `document.compatMode` is `BackCompat` and KaTeX warns. Two costs: (a) the warnings are standing stderr noise that trains readers to ignore test stderr — the repo has previously used clean stderr as a signal (PromptModal `act()` warnings entry); (b) KaTeX genuinely lays out differently in quirks mode, so any future assertion about rendered math geometry/markup would be exercising a mode the production app (which has a proper doctype in `index.html`) never runs in. Tests currently pass — this is noise + latent-fidelity, not a failure.
-
-**Reproduction (if bug):**
-1. `npm run test` in `dungeon-scholar/`.
-2. Observe the KaTeX quirks-mode warning in the stderr blocks of `RichContent.test.jsx` and `App.test.jsx`.
-
-**Expected behavior (if bug):** test document standards mode matches production; no KaTeX warning.
-
-**Hypothesis / root cause:** happy-dom initializes an empty document without a doctype and nothing in `src/test-setup.js` sets one.
-
-**Proposed fix / improvement:**
-- [ ] In `src/test-setup.js`, ensure a doctype before tests run (e.g. `document.implementation`-based doctype insert, or happy-dom's settings/`window.happyDOM` API, or render via a full `<!DOCTYPE html>` document template).
-- [ ] Confirm the warning disappears from the vitest run.
-
-**Blocked by:** none
-
-**Related files:** `dungeon-scholar/src/test-setup.js`, `dungeon-scholar/src/components/RichContent.test.jsx`, `dungeon-scholar/src/App.test.jsx`
-
-**Related entries:** [2026-06-28] PromptModal copy tests fire async copy outside `act()` (React warnings) — same "test stderr should stay clean" rationale (resolved log).
-
 
 ### [2026-07-15] oracle-worker Dependabot group PR #64 red — workers-types v4→v5 major bump breaks `npm ci` against wrangler 4.x peer range
 

@@ -150,13 +150,15 @@ export function deckTextToTome(text, { title, delimiter } = {}) {
   const flashcards = [];
   let skipped = 0;
   for (const r of rows) {
-    const front = (r[0] || '').trim();
-    const back = (r[1] || '').trim();
+    // stripFormulaSentinel undoes the exporter's formula-injection escape so
+    // an exported deck re-imports to the original card text.
+    const front = stripFormulaSentinel((r[0] || '').trim());
+    const back = stripFormulaSentinel((r[1] || '').trim());
     if (!front || !back) {
       skipped++;
       continue; // need both sides
     }
-    const domain = (r[2] || '').trim();
+    const domain = stripFormulaSentinel((r[2] || '').trim());
     const card = {
       id: `imp_${flashcards.length}_${Math.random().toString(36).slice(2, 8)}`,
       front,
@@ -202,11 +204,35 @@ export function deckTextToTome(text, { title, delimiter } = {}) {
 // spreadsheet, a study group's doc) reads — the data-ownership inverse of the
 // import feature.
 
+// Spreadsheet formula-injection guard (CWE-1236, 2026-07-17). RFC-4180 quoting
+// does NOT stop Excel / LibreOffice / Sheets from evaluating a cell whose text
+// begins with a formula-trigger character — the quotes are consumed as CSV
+// structure and the cell value still starts with `=`/`+`/`-`/`@` (or a leading
+// TAB/CR). Tome content is attacker-influenceable (shared tomes / pasted JSON
+// reach the exporter verbatim), so a trigger-leading field is neutralized with
+// the canonical spreadsheet treat-as-text escape: a single leading apostrophe.
+// An already-apostrophe-escaped trigger (`'=…`) gets one MORE apostrophe so the
+// import-side strip below reverses the export exactly (no content corruption).
+const FORMULA_TRIGGER_RE = /^'*[=+\-@\t\r]/;
+
+function neutralizeFormulaTrigger(s) {
+  return FORMULA_TRIGGER_RE.test(s) ? `'${s}` : s;
+}
+
+// Inverse of neutralizeFormulaTrigger, applied to imported fields so an
+// exported deck round-trips byte-identically through deckTextToTome: strip ONE
+// leading apostrophe when (and only when) what follows is an (optionally still
+// apostrophe-escaped) formula-trigger character.
+function stripFormulaSentinel(s) {
+  return s.replace(/^'(?='*[=+\-@\t\r])/, '');
+}
+
 // Quote a single CSV field per RFC-4180: wrap in double quotes and double any
 // embedded quote WHEN the field contains a comma, quote, CR, or LF. Otherwise
-// emit it bare. Non-strings coerce to string first.
+// emit it bare. Non-strings coerce to string first. Fields that would open a
+// spreadsheet formula are apostrophe-neutralized first (see above).
 export function csvQuoteField(value) {
-  const s = value == null ? '' : String(value);
+  const s = neutralizeFormulaTrigger(value == null ? '' : String(value));
   if (/[",\r\n]/.test(s)) {
     return `"${s.replace(/"/g, '""')}"`;
   }

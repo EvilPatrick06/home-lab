@@ -52,6 +52,14 @@ function isolateBackstop(ip) {
   if (hits.length >= ISOLATE_BACKSTOP_PER_MINUTE) return false;
   hits.push(now);
   isolateHits.set(ip, hits);
+  // Evict idle IPs so the Map doesn't accumulate one permanent key per distinct
+  // client IP for the isolate's lifetime (unbounded-growth fix, 2026-07-17).
+  // A returning IP simply re-creates a fresh entry (the normal cold path).
+  for (const [k, v] of isolateHits) {
+    if (k !== ip && (v.length === 0 || v[v.length - 1] <= minuteAgo)) {
+      isolateHits.delete(k);
+    }
+  }
   return true;
 }
 
@@ -74,6 +82,11 @@ function corsJson(allowedOrigin, obj, status) {
 // run without interleaving for the same object, so read-modify-write of the
 // stored counters is atomic — no lost updates under concurrency.
 // ---------------------------------------------------------------------------
+// How often the DO alarm sweeps stale per-IP rows (once a day is plenty: rows
+// are tiny and the sweep only exists to stop unbounded growth, not for
+// enforcement — window rollover already resets the counter values in place).
+const IP_ROW_SWEEP_INTERVAL_MS = 86400000;
+
 export class RateLimiter {
   constructor(state) {
     this.state = state;
@@ -84,6 +97,14 @@ export class RateLimiter {
     const now = Date.now();
     const minuteWindow = Math.floor(now / 60000);
     const dayWindow = Math.floor(now / 86400000);
+
+    // Storage-growth guard (2026-07-17): schedule a daily alarm that deletes
+    // per-IP rows whose day window has passed. Without it every distinct
+    // client IP leaves a permanent `ip:<addr>` row in the DO's SQLite storage.
+    const existingAlarm = await this.state.storage.getAlarm();
+    if (existingAlarm === null) {
+      await this.state.storage.setAlarm(now + IP_ROW_SWEEP_INTERVAL_MS);
+    }
 
     const decision = await this.state.storage.transaction(async (txn) => {
       // Global counters.
@@ -151,6 +172,23 @@ export class RateLimiter {
     return new Response(JSON.stringify(decision), {
       headers: { "Content-Type": "application/json" },
     });
+  }
+
+  // Daily sweep: drop per-IP rows from past day windows. Enforcement is
+  // unaffected — a returning IP re-creates a fresh zeroed counter, which is
+  // already the cold-start path. The global counter row is never deleted.
+  async alarm() {
+    const dayWindow = Math.floor(Date.now() / 86400000);
+    const rows = await this.state.storage.list({ prefix: "ip:" });
+    const stale = [];
+    for (const [key, value] of rows) {
+      if (!value || value.dayWindow !== dayWindow) stale.push(key);
+    }
+    // storage.delete accepts up to 128 keys per call.
+    for (let i = 0; i < stale.length; i += 128) {
+      await this.state.storage.delete(stale.slice(i, i + 128));
+    }
+    await this.state.storage.setAlarm(Date.now() + IP_ROW_SWEEP_INTERVAL_MS);
   }
 }
 
@@ -267,29 +305,46 @@ export default {
     }
 
     // Clamp the output budget so a client can't request a huge generation.
-    const maxTokens = Math.min(Number(body.max_tokens) || 1000, MAX_OUTPUT_TOKENS);
+    // Bounded BOTH ways: Math.min alone let truthy negative/fractional values
+    // (e.g. -5, 0.5) through to Groq verbatim, which 400s them AFTER the
+    // request already consumed a rate-limit slot. Floor + a lower bound of 1
+    // normalizes them before the upstream call (2026-07-17 fix).
+    const requestedTokens = Math.floor(Number(body.max_tokens)) || 1000;
+    const maxTokens = Math.min(Math.max(1, requestedTokens), MAX_OUTPUT_TOKENS);
 
-    // Call Groq
-    const groqResponse = await fetch(GROQ_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${env.GROQ_API_KEY}`,
-      },
-      body: JSON.stringify({ model, messages, max_tokens: maxTokens }),
-    });
+    // Call Groq. fetch() REJECTS (rather than resolving !ok) on network-level
+    // failures — DNS, TLS, connection reset — and an unhandled rejection here
+    // would surface as a runtime 500 with NO CORS headers, which the browser
+    // reports as an opaque CORS error. Catch it and answer in the same shape
+    // as an HTTP-level upstream failure (2026-07-17 fix). groqResponse.json()
+    // is inside the same guard for a malformed upstream body.
+    let groqResponse;
+    let groqData;
+    try {
+      groqResponse = await fetch(GROQ_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${env.GROQ_API_KEY}`,
+        },
+        body: JSON.stringify({ model, messages, max_tokens: maxTokens }),
+      });
 
-    if (!groqResponse.ok) {
-      // Do NOT echo the raw upstream body to the browser — it can carry request
-      // IDs, org/account identifiers, and provider-specific error schema useful
-      // for fingerprinting. Log it server-side; return a generic message + the
-      // upstream status code only.
-      const errText = await groqResponse.text();
-      console.error("Oracle upstream error", groqResponse.status, errText);
-      return corsJson(allowedOrigin, { error: "Upstream error" }, groqResponse.status);
+      if (!groqResponse.ok) {
+        // Do NOT echo the raw upstream body to the browser — it can carry request
+        // IDs, org/account identifiers, and provider-specific error schema useful
+        // for fingerprinting. Log it server-side; return a generic message + the
+        // upstream status code only.
+        const errText = await groqResponse.text();
+        console.error("Oracle upstream error", groqResponse.status, errText);
+        return corsJson(allowedOrigin, { error: "Upstream error" }, groqResponse.status);
+      }
+
+      groqData = await groqResponse.json();
+    } catch (err) {
+      console.error("Oracle upstream fetch failed", err?.message || err);
+      return corsJson(allowedOrigin, { error: "Upstream error" }, 502);
     }
-
-    const groqData = await groqResponse.json();
 
     // Translate Groq response -> Anthropic-shape so the frontend doesn't change
     const text = groqData.choices?.[0]?.message?.content || "";

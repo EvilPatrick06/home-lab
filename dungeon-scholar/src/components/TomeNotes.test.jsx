@@ -22,8 +22,8 @@ describe('TomeNotes', () => {
     const onSave = vi.fn();
     render(<TomeNotes tome={makeTome()} onSave={onSave} onClose={() => {}} />);
 
-    fireEvent.change(screen.getByLabelText('Passphrase'), { target: { value: 'hunter2' } });
-    fireEvent.change(screen.getByLabelText('Confirm passphrase'), { target: { value: 'hunter2' } });
+    fireEvent.change(screen.getByLabelText('Passphrase'), { target: { value: 'hunter2hunter2' } });
+    fireEvent.change(screen.getByLabelText('Confirm passphrase'), { target: { value: 'hunter2hunter2' } });
     fireEvent.click(screen.getByRole('button', { name: /inscribe private notes/i }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalledTimes(1));
@@ -41,11 +41,23 @@ describe('TomeNotes', () => {
     const onSave = vi.fn();
     render(<TomeNotes tome={makeTome()} onSave={onSave} onClose={() => {}} />);
 
-    fireEvent.change(screen.getByLabelText('Passphrase'), { target: { value: 'one' } });
-    fireEvent.change(screen.getByLabelText('Confirm passphrase'), { target: { value: 'two' } });
+    fireEvent.change(screen.getByLabelText('Passphrase'), { target: { value: 'one-passphrase' } });
+    fireEvent.change(screen.getByLabelText('Confirm passphrase'), { target: { value: 'two-passphrase' } });
     fireEvent.click(screen.getByRole('button', { name: /inscribe private notes/i }));
 
     await screen.findByText(/passphrases do not match/i);
+    expect(onSave).not.toHaveBeenCalled();
+  });
+
+  it('rejects a passphrase shorter than the shared minimum (entropy floor)', async () => {
+    const onSave = vi.fn();
+    render(<TomeNotes tome={makeTome()} onSave={onSave} onClose={() => {}} />);
+
+    fireEvent.change(screen.getByLabelText('Passphrase'), { target: { value: 'a' } });
+    fireEvent.change(screen.getByLabelText('Confirm passphrase'), { target: { value: 'a' } });
+    fireEvent.click(screen.getByRole('button', { name: /inscribe private notes/i }));
+
+    await screen.findByText(/at least 8 characters/i);
     expect(onSave).not.toHaveBeenCalled();
   });
 

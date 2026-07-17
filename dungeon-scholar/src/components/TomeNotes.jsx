@@ -2,6 +2,7 @@ import { AlertTriangle, Lock, Save, ScrollText, Trash2, Unlock, X } from 'lucide
 import { useEffect, useState } from 'react';
 import { useDialogA11y } from '../hooks/useDialogA11y.js';
 import { clampIterations, clearKeyCache, decryptPayload, encryptPayload } from '../services/notesCrypto.js';
+import { MIN_PASSPHRASE_LEN } from '../services/sealedTome.js';
 
 // Phase 40F: per-tome encrypted private notes modal.
 //
@@ -72,6 +73,14 @@ export default function TomeNotes({ tome, onSave, onClose }) {
     setCreateError('');
     if (!createPass) {
       setCreateError('Choose a passphrase to seal these notes.');
+      return;
+    }
+    // Passphrase-entropy floor (SECURITY-LOG 2026-07-16): these notes are
+    // AES-256-GCM encrypted AND ride cloud sync, so a 1-char passphrase would
+    // be brute-forced offline in milliseconds regardless of the PBKDF2 work
+    // factor. Mirrors the sealed-tome flow's shared MIN_PASSPHRASE_LEN floor.
+    if (createPass.length < MIN_PASSPHRASE_LEN) {
+      setCreateError(`The passphrase must be at least ${MIN_PASSPHRASE_LEN} characters.`);
       return;
     }
     if (createPass !== confirmPass) {
@@ -170,7 +179,8 @@ export default function TomeNotes({ tome, onSave, onClose }) {
           {mode === 'create' && (
             <form onSubmit={handleCreate}>
               <p className="text-sm text-amber-100/85 mb-3 italic">
-                Inscribe private notes for this tome. They are encrypted with a passphrase only you hold.
+                Inscribe private notes for this tome. They are encrypted with a passphrase only you hold (at least{' '}
+                {MIN_PASSPHRASE_LEN} characters).
               </p>
               <p className="text-xs mb-4 flex items-start gap-2 italic" style={{ color: '#fca5a5' }}>
                 <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true" />
@@ -181,6 +191,7 @@ export default function TomeNotes({ tome, onSave, onClose }) {
                 <input
                   type="password"
                   autoComplete="new-password"
+                  minLength={MIN_PASSPHRASE_LEN}
                   value={createPass}
                   onChange={(e) => setCreatePass(e.target.value)}
                   data-autofocus
@@ -194,6 +205,7 @@ export default function TomeNotes({ tome, onSave, onClose }) {
                 <input
                   type="password"
                   autoComplete="new-password"
+                  minLength={MIN_PASSPHRASE_LEN}
                   value={confirmPass}
                   onChange={(e) => setConfirmPass(e.target.value)}
                   aria-label="Confirm passphrase"

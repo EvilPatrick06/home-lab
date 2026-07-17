@@ -115,6 +115,19 @@ describe('csvQuoteField (RFC-4180)', () => {
     expect(csvQuoteField('say "hi"')).toBe('"say ""hi"""');
     expect(csvQuoteField('line1\nline2')).toBe('"line1\nline2"');
   });
+  it('neutralizes spreadsheet formula-trigger characters with a leading apostrophe (CWE-1236)', () => {
+    expect(csvQuoteField('=1+1')).toBe("'=1+1");
+    expect(csvQuoteField('=HYPERLINK("https://x","y")')).toBe('"\'=HYPERLINK(""https://x"",""y"")"');
+    expect(csvQuoteField('+5 bonus')).toBe("'+5 bonus");
+    expect(csvQuoteField('-2 penalty')).toBe("'-2 penalty");
+    expect(csvQuoteField('@handle')).toBe("'@handle");
+    expect(csvQuoteField('\tleading tab')).toBe("'\tleading tab");
+    // An already-escaped trigger gains one more apostrophe so import strips back.
+    expect(csvQuoteField("'=cmd")).toBe("''=cmd");
+    // Non-leading triggers are untouched.
+    expect(csvQuoteField('1+1=2')).toBe('1+1=2');
+    expect(csvQuoteField("plain 'quote")).toBe("plain 'quote");
+  });
 });
 
 describe('exportTomeCsv', () => {
@@ -160,6 +173,30 @@ describe('exportTomeCsv', () => {
       ['SYN', 'first handshake', 'TCP'],
       ['Port, 443', 'HTTPS', ''],
       ['quote "x"', 'line\nbreak', 'Misc'],
+    ]);
+  });
+
+  it('formula-trigger cards export inert and still round-trip to the original text', () => {
+    const hostile = {
+      flashcards: [
+        { front: '=HYPERLINK("https://attacker.example","x")', back: '-5 modifier', domain: '@net' },
+        { front: "'=already escaped", back: '+1d4', domain: 'Misc' },
+      ],
+    };
+    const csv = exportTomeCsv(hostile);
+    // No emitted CELL starts with a live formula trigger (leading quote is CSV
+    // structure; the cell VALUE starts with the inert apostrophe).
+    for (const line of csv.split('\r\n').slice(1)) {
+      for (const cell of parseDelimited(line, ',')[0]) {
+        expect(/^[=+\-@\t\r]/.test(cell)).toBe(false);
+      }
+    }
+    // Round-trip restores the original card text byte-for-byte.
+    const res = deckTextToTome(csv);
+    expect(res.ok).toBe(true);
+    expect(res.tome.flashcards.map((c) => [c.front, c.back, c.domain])).toEqual([
+      ['=HYPERLINK("https://attacker.example","x")', '-5 modifier', '@net'],
+      ["'=already escaped", '+1d4', 'Misc'],
     ]);
   });
 });

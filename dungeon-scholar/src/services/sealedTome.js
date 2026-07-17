@@ -26,6 +26,12 @@ export function isValidIterations(n) {
   return Number.isInteger(n) && n >= MIN_PBKDF2_ITERATIONS && n <= MAX_PBKDF2_ITERATIONS;
 }
 
+// Minimum passphrase length for user-chosen encryption passphrases. Shared
+// with the private-notes create flow (TomeNotes.jsx) so the two passphrase
+// surfaces cannot drift apart again — the KDF work factor is only as strong as
+// the entropy of the secret it stretches (SECURITY-LOG 2026-07-16).
+export const MIN_PASSPHRASE_LEN = 8;
+
 // Random-byte counts for the per-tome salt + AES-GCM IV.
 const SALT_BYTES = 16;
 const IV_BYTES = 12;
@@ -123,7 +129,7 @@ export async function sealTome(tomeData, passphrase) {
   const contentCount = (tomeData.flashcards?.length || 0) + (tomeData.quiz?.length || 0) + (tomeData.labs?.length || 0);
   if (contentCount === 0) throw new Error('empty-tome');
 
-  if (typeof passphrase !== 'string' || passphrase.length < 8) {
+  if (typeof passphrase !== 'string' || passphrase.length < MIN_PASSPHRASE_LEN) {
     throw new Error('weak-passphrase');
   }
 
