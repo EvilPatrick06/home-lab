@@ -20,6 +20,97 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-07-17] Main `bmo.service` is the only long-running unit without a systemd watchdog — the bot/fan zombie-liveness fix (`sd_watchdog` + `Type=notify`) never reached the biggest, most zombie-prone process
+
+- **Category:** future-idea
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** scheduled improvement scan — read-only review of `systemd/*.service` liveness coverage vs `bots/sd_watchdog.py`
+
+**Description:**
+The zombie-liveness work landed a reusable, dependency-free sd_notify helper (`bots/sd_watchdog.py`: `notify_ready`, `run_watchdog(is_healthy)`) and wired `Type=notify` + `WatchdogSec` into `bmo-dm-bot.service` (WatchdogSec=120), `bmo-social-bot.service`, and `bmo-fan.service` (WatchdogSec=30, python3-systemd variant). But the main `bmo.service` — Flask + SocketIO + the entire voice pipeline, the largest process with the most threads/greenlets and the documented history of stuck states (chat watchdog on the kiosk, TTS/queue stalls, the left-over-process saga in the unit's own comments) — is still `Type=simple` / `Restart=on-failure`: systemd only restarts it if the process *exits*. A deadlocked SocketIO event loop, a wedged wake-word thread, or a hung audio subsystem keeps the PID alive and green while every surface (kiosk, voice, API) is dead; `Restart=on-failure` never fires and `monitoring.py`'s `systemctl is-active` probe reports healthy. This is precisely the gap the resolved 2026-06-two-bots entry called "the complementary liveness path that crash-restart cannot catch" — closed for the bots, still open for the flagship unit.
+
+**Proposed fix / improvement:**
+- [ ] Add `Type=notify` + a conservative `WatchdogSec` (e.g. 120–300s) to `bmo.service`, call `sd_watchdog.notify_ready()` once app boot completes, and run a periodic watchdog pinger.
+- [ ] Define `is_healthy()` from cheap in-process signals: wake/voice loop thread alive (or intentionally disabled), SocketIO background loop responsive, and optionally a loopback `GET /api/health` self-probe with a short timeout.
+- [ ] `sd_watchdog` is asyncio-based for the bots; the Flask side needs a small thread-based twin (or reuse via a dedicated thread + loop). Keep it no-op without `NOTIFY_SOCKET` so dev runs are unaffected.
+- [ ] Rollout note: the unit-file change is a WAIT-class restart-gated deploy (same as the fan/bot watchdog rollouts — see BMO-RESOLVED 2026-07-03 fan entry precedent).
+
+**Blocked by:** none (unit change needs the usual gated restart to take effect)
+
+**Related files:** `bmo/pi/systemd/bmo.service`, `bmo/pi/bots/sd_watchdog.py`, `bmo/pi/app.py`, `bmo/pi/services/monitoring.py`
+
+**Related entries:** BMO-RESOLVED-ISSUES [2026-06] "Discord-bot zombie liveness" (`9077d9cd`); BMO-RESOLVED-ISSUES [2026-07-03] fan fail-hot + watchdog entry
+
+### [2026-07-17] Wake-word feedback loop measures false-accepts but nothing ACTS on the data — threshold stays a hand-set env var and false-accept audio is discarded instead of becoming hard negatives for retraining
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** scheduled improvement scan — read-only review of `services/wake_events.py` consumers and the wake tuning path
+
+**Description:**
+The 2026-07-02 fix made wake quality *measurable*: `services/wake_events.py` persists one record per wake (ts, engine, score, outcome ∈ command/empty/no_intent/interrupted) with rolling false-accept stats for the health surface. But the loop stops at measurement — nothing consumes the data to improve the detector. `WAKE_OWW_THRESHOLD` is still a static env read (`BMO_WAKE_THRESHOLD`, default 0.05, `services/voice/voice_pipeline.py:64`; compared at `wake_detector.py:329`), tuned by a human editing `.env` and restarting. Yet the recorded per-wake *scores joined to outcomes* are exactly the data needed to do better: the score distribution of `command` wakes vs `empty`/`no_intent` wakes directly yields a suggested threshold (pick the value that keeps ~all true accepts while cutting the false-accept tail). Separately, the audio of a false-accept wake — the most valuable training signal for an openWakeWord model — is thrown away; only positives exist (`wake/clips/hey_bmo_*.wav`, `wake/record_wake_clips.py`), so the `hey_bmo.onnx` model can never learn the household's specific false-trigger sounds (TV, names that sound like "BMO", music).
+
+**Proposed fix / improvement:**
+- [ ] Add a `suggest_threshold()` analysis to `wake_events.py` (pure function over the JSONL: score histograms per outcome → recommended threshold + expected FA/FR trade-off) and surface it on the health/metrics endpoint and the status board — human applies it via `.env`.
+- [ ] Opt-in false-accept clip retention: when a wake resolves to `empty`/`no_intent`, keep the already-captured wake-window audio (capped ring, e.g. 50 clips) under `data/wake_negatives/` for offline hard-negative retraining next to the positive clips.
+- [ ] (Later) bounded auto-adaptation: allow the pipeline to nudge the effective threshold within a configured safe band based on the rolling FA rate, always logging the applied value.
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/services/wake_events.py`, `bmo/pi/services/voice/wake_detector.py`, `bmo/pi/services/voice/voice_pipeline.py`, `bmo/pi/wake/record_wake_clips.py`, `bmo/pi/wake/clips/`
+
+**Related entries:** BMO-RESOLVED-ISSUES [2026-07-02] "Wake-word quality has no feedback loop" (this is the actuation half that entry deferred)
+
+### [2026-07-17] State backups never leave the Pi — `backup-state.sh` writes to `$HOME/bmo-backups` on the same disk it is protecting, while an rclone `gdrive:` remote already on the box makes offsite replication a small addition
+
+- **Category:** future-idea, portability
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** scheduled improvement scan — read-only review of the backup path (`backup-state.sh`, `bmo-backup*.{service,timer}`) vs `routes/rclone_api.py`
+
+**Description:**
+`bmo-backup.timer` → `scripts/backup-state.sh` tars the runtime state (`data/` etc.) to `DEST="${BMO_BACKUP_DIR:-$HOME/bmo-backups}"` and keeps the newest 14 — and `bmo-backup-verify.timer` even restore-verifies archives. But every copy lives on the same physical disk as the live state: an SD/SSD death, filesystem corruption, or a lost/damaged Pi destroys the primary AND all 14 backups simultaneously — the backup system protects against bad writes, not against the failure mode Pis are famous for. Meanwhile the box *already has* rclone with a working `gdrive:` remote, used by `routes/rclone_api.py` for VTT campaign backups ("rclone + the gdrive: remote already live on the Pi"), so 3-2-1 coverage needs no new tooling or credentials: after a successful local archive, `rclone copyto` the newest archive to a fixed `gdrive:` folder and prune the remote by count. Caveat worth designing for: the archive contains personal household state (chat history, memory, lists, calendar caches), so the offsite copy should be encrypted (an `rclone crypt` wrapper remote, or `age`-encrypt the tarball before upload).
+
+**Proposed fix / improvement:**
+- [ ] Extend `backup-state.sh` (or add a small `backup-offsite.sh` step in `bmo-backup.service`) to upload the newest archive via the existing rclone remote, best-effort with a clear non-zero exit + log line on failure.
+- [ ] Encrypt before/at upload (`rclone crypt` remote or `age` with a key kept off the archive path).
+- [ ] Remote retention: keep last N (e.g. 7) by list+delete, mirroring the local `KEEP` logic.
+- [ ] Let `monitoring.py`/status board surface "last successful offsite backup age" so a silently failing upload gets noticed (same spirit as the existing backup-verify unit).
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/scripts/backup-state.sh`, `bmo/pi/systemd/bmo-backup.service`, `bmo/pi/systemd/bmo-backup-verify.service`, `bmo/pi/routes/rclone_api.py`, `bmo/docs/DISASTER-RECOVERY.md`
+
+**Related entries:** BMO-SUGGESTIONS [2026-07-15] JSONL growth entry (unbounded files inflate these same archives)
+
+### [2026-07-17] GameRelay rooms are process-memory only — every `bmo` restart (i.e. every deploy) silently dissolves live VTT multiplayer rooms, with no restart notice, roster snapshot, or verified client auto-rejoin
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-suggestor
+- **During:** scheduled improvement scan — read-only review of `services/game/game_relay.py` + `routes/game_relay_ws.py` lifecycle behavior
+
+**Description:**
+`GameRelay` is an explicit in-memory router: `self._rooms: dict[str, Room]` plus sid indexes, no persistence anywhere in the module (grep: zero save/load/persist hits). The design handles *client-side* drops well — MP-EN-1 reconciles a reconnect by stable `client_id`, and host re-election promotes the oldest co-DM — but a *server-side* restart wipes every room, roster, and host assignment at once. Since deploys restart `bmo.service`, any live multiplayer session riding the cloud relay at deploy time is dissolved mid-game; whether the table recovers gracefully depends entirely on whether every dnd-app client auto-re-emits `join` with the same invite code after Socket.IO reconnects (unverified here — the dnd-app side owns that behavior; if it doesn't, players see a dead session and must manually re-join/re-share). Nothing tells peers "the relay is restarting" vs "the host left", and there is no metric counting rooms killed by restarts, so the blast radius is invisible.
+
+**Proposed fix / improvement:**
+- [ ] First, verify the dnd-app client behavior: does the relay client re-`join` with its previous code+client_id on Socket.IO reconnect? If yes, most of this reduces to documentation + a metric; if no, add auto-rejoin there (dnd-app side).
+- [ ] Emit a best-effort `relay-restarting` event to all `/game` rooms from a graceful-shutdown hook, so clients can distinguish restart from host-drop and show "reconnecting…" instead of tearing down.
+- [ ] Optionally snapshot the room table (code → peer refs) to `data/` on shutdown and honor rejoins against the snapshot for a short grace window after boot — the MP-EN-1 client_id reconciliation already provides the identity key.
+- [ ] Count `rooms_active` at shutdown + `rooms_lost_to_restart` into `metrics_counters` so deploy timing can respect live tables.
+
+**Blocked by:** dnd-app client verification (first checkbox) before any server-side work is sized
+
+**Related files:** `bmo/pi/services/game/game_relay.py`, `bmo/pi/routes/game_relay_ws.py`, `bmo/pi/services/metrics_counters.py`
+
+**Related entries:** none (relay restart lifecycle previously unlogged)
+
 ### [2026-07-15] Three RESOLVED log entries are duplicated back into the active logs — union-merge resurrection of resolver cuts leaves the `dev/`, `agents/`, and `BMO_HOME` entries listed as both open and resolved at once
 
 - **Category:** debt, docs
