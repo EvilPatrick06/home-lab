@@ -12,6 +12,105 @@ How to triage: [`LOG-INSTRUCTIONS.md`](./LOG-INSTRUCTIONS.md)
 
 ## Cross-cutting / repo-wide suggestions
 
+### [2026-07-17] Root README "Try it" URL for dungeon-scholar 404s — it links the fork-only `…github.io/dungeon-scholar/` base while the monorepo deploys to `…github.io/home-lab/`
+
+- **Category:** bug, docs
+- **Severity:** medium
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+- **During:** scheduled cross-cutting cleanup scan (2026-07-17); cross-checking repo-root README claims against the deploy configs and the live URLs.
+
+**Description:**
+Root `README.md`'s "Try it (no source build required)" table tells end users to open `https://EvilPatrick06.github.io/dungeon-scholar/` — verified today to return GitHub Pages' "Site not found" 404. The real live site is `https://evilpatrick06.github.io/home-lab/` (verified HTTP 200, app loads): `dungeon-scholar-deploy.yml` builds with `VITE_BASE: /home-lab/`, and `dungeon-scholar/README.md` states the correct URL in three places, including an explicit note that the zero-config `/dungeon-scholar/` base in `vite.config.js` is for *forks renamed to dungeon-scholar*, not this repo. So the repo front page's entry point for one of its three public products is broken. No existing guard can catch this: `scripts/check-md-links.sh` is offline/relative-only by design, and the proposed uptime probes (2026-07-15 entry) watch the deployed site, not what the README links to.
+
+**Reproduction (if bug):**
+1. Root README → "Try it" → dungeon-scholar link
+2. `https://evilpatrick06.github.io/dungeon-scholar/` → GitHub Pages 404 ("There isn't a GitHub Pages site here")
+3. `https://evilpatrick06.github.io/home-lab/` → 200, Dungeon Scholar loads
+
+**Expected behavior (if bug):** the README's user-facing link opens the deployed app.
+
+**Hypothesis / root cause:** the Try-it row was written against the zero-config `/dungeon-scholar/` base (or an earlier standalone-repo assumption) and never swept when the monorepo deploy pinned `VITE_BASE=/home-lab/`; dungeon-scholar's own README got the correct URL (its line 159 note even explains the two bases) but the root README did not.
+
+**Proposed fix / improvement:**
+- [ ] Point the root README Try-it link (text + href) at `https://evilpatrick06.github.io/home-lab/`; grep the repo for any other `github.io/dungeon-scholar` reference in active docs while at it.
+- [ ] Optional guard: external URLs are invisible to `check-md-links.sh`, so fold "the README's public product URLs respond 200" into the uptime-probe extension proposed on 2026-07-15, or a periodic external-link check.
+
+**Blocked by:** none.
+
+**Related files:** `README.md`, `dungeon-scholar/README.md`, `.github/workflows/dungeon-scholar-deploy.yml`, `dungeon-scholar/vite.config.js`, `scripts/check-md-links.sh`
+
+**Related entries:** SUGGESTIONS-LOG.md [2026-07-15] external-uptime-probe coverage entry (its Pages probe would watch the same URL this link must point at).
+
+### [2026-07-17] `dungeon-scholar/docs/` breaks the per-project docs-dir conventions — the only project docs dir with no README index and the only one with lowercase doc filenames (`oracle-setup.md`, `supabase-setup.md`)
+
+- **Category:** docs
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+- **During:** scheduled cross-cutting cleanup scan (2026-07-17); comparing the three per-project `docs/` directories against each other and repo-wide `docs/`.
+
+**Description:**
+Two established conventions hold everywhere except `dungeon-scholar/docs/`. (1) **Index README:** repo-wide `docs/` has `README.md` (with a CI parity guard), `dnd-app/docs/` and `bmo/docs/` each carry an index `README.md`, and even the `scripts/` dirs carry index READMEs by stated convention — but `dungeon-scholar/docs/` has none, so its five docs (`DESIGN-CONSTRAINTS.md`, `QA-CHECKLIST.md`, `oracle-setup.md`, `supabase-setup.md`, `phases/`) are only discoverable by listing the dir. (2) **Naming case:** every other tracked doc across `docs/`, `dnd-app/docs/`, `bmo/docs/` uses UPPER-KEBAB names; `oracle-setup.md` and `supabase-setup.md` are the only lowercase outliers, which hurts glob/grep symmetry (e.g. a case-sensitive `ls *SETUP*`/convention-based tooling misses them). Neither is a functional problem; both make the "each project stands on its own with one set of conventions" claim (root README) slightly untrue.
+
+**Hypothesis / root cause:** dungeon-scholar's docs dir grew out of two setup guides written early (lowercase, blog-style names) before the repo-wide docs conventions solidified; no guard covers per-project docs dirs (the docs-index parity GUARD covers only repo-wide `docs/README.md`).
+
+**Proposed fix / improvement:**
+- [ ] Add `dungeon-scholar/docs/README.md` — a small index table mirroring `dnd-app/docs/README.md`'s format (doc → what it covers, plus a `phases/` pointer).
+- [ ] Optionally rename `oracle-setup.md` → `ORACLE-SETUP.md` and `supabase-setup.md` → `SUPABASE-SETUP.md` via `git mv`, sweeping referencing docs (dungeon-scholar README, oracle-worker README/wrangler comments, resolved-log pointers stay historical); `check-md-links.sh` will catch any missed relative link.
+- [ ] If the rename is done, note the UPPER-KEBAB convention once in `docs/CONTRIBUTING.md` so the next per-project doc follows it.
+
+**Blocked by:** none.
+
+**Related files:** `dungeon-scholar/docs/`, `dnd-app/docs/README.md`, `bmo/docs/README.md`, `docs/CONTRIBUTING.md`, `scripts/check-md-links.sh`
+
+**Related entries:** RESOLVED-ISSUES.md [2026-06-23] "No index for the flat docs/ directory; add docs/README.md" (this extends the same convention to the one project dir that never got it).
+
+### [2026-07-17] `bmo/docs/AGENTS.md` name-collides with the AGENTS.md agent-instruction convention — a runtime-agent *catalog* wearing the filename AI tools auto-discover as scoped *instructions*
+
+- **Category:** docs, future-idea
+- **Severity:** low
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+- **During:** scheduled cross-cutting cleanup scan (2026-07-17); reviewing filename conventions spanning the repo-root agent-instruction fabric and per-project docs.
+
+**Description:**
+Root `AGENTS.md` is the repo's canonical AI-agent instruction file (with `CLAUDE.md`/`GEMINI.md`/`.cursorrules`/copilot-instructions as guarded secondaries). `bmo/docs/AGENTS.md` is something entirely different: the catalog of BMO's 28 routable runtime agents. The collision has two costs. (1) Several AI coding tools (the emerging AGENTS.md standard used by Codex-style agents; Cursor also reads nested rule files) auto-discover *nested* `AGENTS.md` files as directory-scoped instructions — a tool working under `bmo/` can ingest a 28-row agent catalog as if it were directives (the file's blockquote pointing at the real process docs only partially mitigates this). (2) Humans and agents grepping for the instruction file get two very different hits (`AGENTS.md` vs `bmo/docs/AGENTS.md`), and the drift-guard's file list has to be read carefully to see that only the root one is covered. The bmo logs show this doc already rots fast (three drift entries since 2026-06); making its name self-describing would also stop future confusion about which "AGENTS.md" an entry means.
+
+**Hypothesis / root cause:** `bmo/docs/AGENTS.md` predates the repo's adoption of root `AGENTS.md` as the instruction-file convention; nobody revisited the older filename when the convention landed.
+
+**Proposed fix / improvement:**
+- [ ] `git mv bmo/docs/AGENTS.md bmo/docs/AGENT-CATALOG.md` (or `BMO-AGENTS.md`), sweep active references (`bmo/docs/README.md` index, bmo README, any SKILL/board pointers; `check-md-links.sh` catches missed relative links; historical logs stay as-is).
+- [ ] Until/unless renamed: add a first-line note "This is the BMO runtime-agent catalog, NOT an AI-tool instruction file — instructions live at repo root `AGENTS.md`" so auto-discovering tools and readers are redirected explicitly.
+
+**Blocked by:** none.
+
+**Related files:** `bmo/docs/AGENTS.md`, `AGENTS.md`, `bmo/docs/README.md`, `scripts/check-agent-instructions.sh`
+
+**Related entries:** BMO-SUGGESTIONS-LOG.md [2026-07-15] "bmo/docs/AGENTS.md 'Adding a new agent' recipe has drifted…" (the doc's content-rot sibling; this entry is about its *name*); SUGGESTIONS-LOG.md [2026-07-02] SYNC:agents drift-guard entry (the instruction-file fabric the collision muddies).
+
+### [2026-07-17] `scripts/README.md` index omits `claude-tools/push-with-deploy-key.sh` — the dir's own "one line per script" convention has a gap the week after it was stated
+
+- **Category:** docs
+- **Severity:** info
+- **Domain:** both
+- **Discovered by:** overall-cleanup
+- **During:** scheduled cross-cutting cleanup scan (2026-07-17); checking the shared-tooling index READMEs against their dirs.
+
+**Description:**
+`scripts/README.md` declares the convention "every `scripts/` dir carries a one-line-per-script index README" and tables four scripts — but the dir contains five: `claude-tools/push-with-deploy-key.sh` (the off-Pi push fallback documented in `docs/PUSH-RESILIENCE.md`) has no row, while its sibling `claude-tools/watchdog.sh` does. So the one script designed for *outage* use — exactly when a responder is skimming indexes under time pressure — is the one not discoverable from the index. Trivial fix, but worth logging because the index is the repo's stated discovery mechanism and nothing mechanical asserts README↔dir parity for script dirs (the docs-index parity guard covers `docs/README.md` only).
+
+**Hypothesis / root cause:** `push-with-deploy-key.sh` landed with the PUSH-RESILIENCE work after the README was written, and no guard asserts scripts-README parity.
+
+**Proposed fix / improvement:**
+- [ ] Add the row: purpose (push to origin via the dedicated write deploy key when bmo/origin-push is down; see `docs/PUSH-RESILIENCE.md`) and trigger (manual/automation fallback, not cron).
+- [ ] Optionally extend a ci-hygiene GUARD: every tracked `*.sh` under `scripts/` (recursive) appears by name in `scripts/README.md` — same one-liner shape as the existing docs-index parity guard.
+
+**Blocked by:** none.
+
+**Related files:** `scripts/README.md`, `scripts/claude-tools/push-with-deploy-key.sh`, `docs/PUSH-RESILIENCE.md`, `scripts/check-ci-hygiene.sh`
+
+**Related entries:** RESOLVED-ISSUES.md [2026-06-29] "Repo-root scripts/ has no README" (this is the parity tail of that fix); SUGGESTIONS-LOG.md [2026-07-02] shell-lint entry (same "shared shell tooling under-covered" family).
 ### [2026-07-15] External uptime probe covers only the bmo.mybmoai.work surfaces — the dungeon-scholar GitHub Pages site and the oracle-worker endpoint (2 of the repo's 3 public products) have no outage detection
 
 - **Category:** future-idea, config
@@ -122,6 +221,8 @@ The canonical git-mechanics doc every automated agent is required to follow cont
 **Related files:** `docs/AUTOMATED-AGENT-GIT-WORKFLOW.md`, `scripts/check-agent-instructions.sh`, `.github/workflows/agent-docs-check.yml`
 
 **Related entries:** RESOLVED-ISSUES.md [2026-07-02] "The repo-wide canonical process doc lives at dnd-app/docs/phases/INSTRUCTIONS.md…" (same doc-fabric family).
+
+> **Comment (2026-07-17, overall-cleanup):** same doc, same numbering-fabric problem in a second spot: Rule 3’s subsections appear on the page as A, B, D, C (“D. Auto-cut a dnd-app release” was inserted before “C. Report”). The A→D order matches execution flow, but the out-of-sequence lettering reads like a merge artifact and makes “Rule 3C/3D” citations easy to mis-scan. Whoever renumbers the duplicate Rule 4 should re-letter these (or reorder C last) in the same sweep.
 
 ### [2026-07-15] Shared JS dev-toolchain versions drift between the independently-Dependabot'd projects (vitest ^4.0.18 in dnd-app vs ^4.1.9 in dungeon-scholar today) — add a cross-project version-skew report instead of more one-time fixes
 
