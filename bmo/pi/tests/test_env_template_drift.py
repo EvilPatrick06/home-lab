@@ -81,6 +81,8 @@ _INTENTIONALLY_UNDOCUMENTED = {
     "BMO_PUBLIC_DM_RATE_LIMIT": "public-DM tuning; safe default",
     "BMO_PUBLIC_TOOL_MAX_BODY_BYTES": "public-tool tuning; safe default",
     "BMO_PUBLIC_TOOL_MAX_CONTEXT_LEN": "public-tool tuning; safe default",
+    "BMO_RELAY_MAX_ROOMS": "game-relay capacity cap; safe default",
+    "BMO_RELAY_MAX_PEERS_PER_ROOM": "game-relay capacity cap; safe default",
 }
 
 
