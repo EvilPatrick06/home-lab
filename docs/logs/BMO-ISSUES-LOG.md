@@ -30,6 +30,39 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## High
 
+### [2026-07-17] master `bmo / pi pytest` red since Jul 16 — env-template drift test fails on new `BMO_RELAY_*` knobs, blocking every health-gated bmo deploy (73 bmo files undeployed >24h)
+
+- **Category:** bug, test, config
+- **Severity:** high
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** scheduled error scan — `gh run list` for bmo-deploy/bmo-pi-pytest + local pytest repro on master tip
+
+**Description:**
+`bmo / pi pytest` has been RED on `master` since the Jul 16 00:11 integrator push (run 29475949981: `1 failed, 1658 passed`), and stays red on every subsequent trigger (v2.9.0 tag run 29475987987, dependabot mcp-bump runs). Because `bmo-deploy.yml` gates on a **green** pytest run for a master push, every `bmo / deploy` run since is `skipped` — so the 73 bmo files that landed on master Jul 16 (incl. the approved phases 19–21 web-UI work: `bmo/pi/web/static/js/bmo.js`, `templates/index.html`, CSS, `test_security_headers.py`, …) have been sitting **undeployed for >24 h** while the live Pi runs `f2300ac8` (Jul 15 20:07).
+
+**Reproduction (if bug):**
+1. `gh run list --workflow bmo-deploy.yml -L 8` → all `skipped`.
+2. `gh run list --workflow bmo-pi-pytest.yml -L 8` → `failure` on master/v2.9.0/dependabot.
+3. Local: `run-check.sh venv/bin/python -m pytest bmo/pi/tests -q` on master tip → `FAILED tests/test_env_template_drift.py::test_no_env_drift_between_code_and_template`.
+
+**Expected behavior:** master pytest green; bmo-deploy runs after each bmo-touching master push; deploy checkout tracks master.
+
+**Hypothesis / root cause (confirmed):** commit `18b822fe` ("fix(bmo): cap /game relay resources + gitignore board state + venv/calendar hint fixes", authored on `auto/bmo-resolver`) added `os.environ.get("BMO_RELAY_MAX_ROOMS")` / `("BMO_RELAY_MAX_PEERS_PER_ROOM")` reads in `bmo/pi/services/game/game_relay.py:43-44` but never added the two knobs to `bmo/.env.template` or to `_INTENTIONALLY_UNDOCUMENTED` in `tests/test_env_template_drift.py` — exactly what the drift test guards. Secondary process failure: the branch's own CI was already red (run 29475160732, `failure`, ~17 min before the integrator's master push), yet the branch was merged anyway — the integrator either raced a still-running check or did not treat the red `bmo / pi pytest` as blocking (Rule 3A says red/missing CI → leave behind + report).
+
+**Proposed fix / improvement:**
+- [ ] Add `BMO_RELAY_MAX_ROOMS` + `BMO_RELAY_MAX_PEERS_PER_ROOM` to `bmo/.env.template` (they are operator knobs with defaults 500/64) — or allowlist with a reason.
+- [ ] Once master is green, verify the next `bmo / deploy` actually runs and the deploy checkout advances past `f2300ac8`.
+- [ ] Check the integrator's CI-green gate: why did a branch whose latest run was `failure` get merged? (Race window vs. wrong-workflow check.)
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/services/game/game_relay.py:43-44`, `bmo/.env.template`, `bmo/pi/tests/test_env_template_drift.py`, `.github/workflows/bmo-deploy.yml`, `.github/workflows/bmo-pi-pytest.yml`
+
+**Related entries:** [2026-07-03] flaky `test_ram_floor_blocks_and_never_launches` (other master-reddening test class); BMO-RESOLVED context: deploy decoupling (`docs/BMO-DEPLOY.md`).
+
+---
+
 *(none currently logged)*
 
 ### [2026-07-15] Google Calendar integration down since Jul 8 — refresh token `invalid_grant`, auto-refresh cannot recover, monitor fires CRITICAL hourly
@@ -106,6 +139,37 @@ The paths centralization (`services/paths.py`, commit `4346536b`) defaulted `BMO
 ---
 
 ## Medium
+
+### [2026-07-17] Startup Ollama warm-up pins gemma3:4b with `keep_alive=-1` ("Forever") — regresses the Round-3 #36 unload fix; ~3.3 GB of model weights permanently parked in swap
+
+- **Category:** performance, config
+- **Severity:** medium
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** scheduled error scan — investigating 3.6 GB/5.1 GB swap usage (`llama-server` VmSwap ≈ 3.3 GB)
+
+**Description:**
+`app.py:1187-1191` warms up the local model at startup with `_ollama.generate(model=LOCAL_MODEL, prompt="", keep_alive=-1)` ("brenpoly pattern: preloads into RAM"). This directly contradicts `agent.py:157-170`, which deliberately passes `keep_alive="30s"` *so the model unloads* — the Round-3 #36 fix that "freed 3.7GB" (see BMO-RESOLVED 38g). Observed live: `docker exec bmo-ollama ollama ps` → `gemma3:4b  3.4 GB  100% CPU  UNTIL Forever`; the container's `llama-server` has been resident ~30 h with ~0.8 GB RSS + **3.3 GB VmSwap**; system swap sits at 3.6/5.1 GB. Net effect is worst-of-both-worlds on the 8 GB Pi: the pinned weights cost RAM/swap headroom permanently (this box already OOM'd under concurrent heavy jobs — that's why `run-check.sh` exists), while the warm-up's latency benefit is defeated anyway because the idle weights get swapped out, so the first local fallback after a long idle still has to page ~3.3 GB back in from NVMe. The pin recurs at every `bmo.service` (re)start; an intervening agent fallback call (30s keep_alive) would unload it, but the next restart re-pins.
+
+**Reproduction (if bug):**
+1. `docker exec bmo-ollama ollama ps` → `UNTIL Forever`.
+2. `awk '/VmSwap/' /proc/<llama-server-pid>/status` → ~3.3 GB.
+
+**Expected behavior:** one coherent policy — either the model unloads when idle (the #36 decision) or it is intentionally pinned with documented RAM/swap budgeting; not a startup pin that silently overrides the unload policy.
+
+**Hypothesis / root cause:** the warm-up was added for first-response latency without reconciling it with agent.py's #36 unload policy; `keep_alive=-1` on the warm-up wins until some later call passes a different value, and after any restart the pin returns.
+
+**Proposed fix / improvement:**
+- [ ] Pick one policy: drop `keep_alive=-1` from the warm-up (warm with the same `"30s"` agent.py uses — still pre-pulls weights into page cache), or intentionally pin and document/budget it.
+- [ ] If a warm-up pin is kept, gate it behind an env knob (documented in `.env.template`) so the 8 GB Pi can opt out.
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/app.py:1187-1191`, `bmo/pi/agent.py:157-170`, `bmo/docker/` (ollama container)
+
+**Related entries:** BMO-RESOLVED "38g (perf + RAM) #36 keep_alive=30s so models unload; freed 3.7GB"; [2026-06-29] Pi thermal throttling during local-LLM fallback (same local-inference resource class).
+
+---
 
 ### [2026-07-15] Status board writes get rate-limited by Discord — 1,566 message-edit 429s in one night (Jul 12) and recurring ~8-min channel-topic 429 stalls; no debounce between health flaps and Discord PATCHes
 
@@ -243,6 +307,59 @@ Jun 29 03:13:48 [monitor][CRITICAL] pi_power: THROTTLED NOW — CPU frequency re
 
 ## Low
 
+
+### [2026-07-17] `test_calendar_expiry_message_names_access_token` reads `services/monitoring.py` cwd-relative — fails whenever pytest runs from outside `bmo/pi`
+
+- **Category:** test
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** scheduled error scan — local full-suite run invoked from $HOME (worktree tests path) → 1 extra failure vs CI
+
+**Description:**
+`tests/test_monitoring.py:716` does `open("services/monitoring.py", ...)` — a cwd-relative path. CI passes because its cwd is `bmo/pi`; invoking the same suite with an absolute tests path from any other cwd fails with `FileNotFoundError`. It is the only cwd-dependent test in the suite (the other 1657 pass from an arbitrary cwd), so agents/humans running targeted checks from repo root or a worktree get a spurious red.
+
+**Expected behavior:** the test locates the source file relative to its own location, independent of cwd.
+
+**Hypothesis / root cause:** source-scanning test written assuming pytest is always launched from `bmo/pi`.
+
+**Proposed fix / improvement:**
+- [ ] `src_path = Path(__file__).resolve().parents[1] / "services" / "monitoring.py"` (and audit the file for sibling cwd-relative opens).
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/tests/test_monitoring.py:713-720`
+
+---
+
+### [2026-07-17] social-bot `/ask` has no fallback when the cloud LLM is quota-exhausted — Gemini 429 surfaces to the user as a generic failure while the local model sits idle
+
+- **Category:** bug, UX
+- **Severity:** low
+- **Domain:** bmo
+- **Discovered by:** bmo-errors
+- **During:** scheduled error scan — `bmo-social-bot.service` journal Jul 16
+
+**Description:**
+Jul 16 23:47: `[social_bot] ERROR: Ask command failed: 429 Client Error: Too Many Requests ... gemini-3-pro-preview:generateContent`, and the user got `"Beep boop... something went wrong! Try again?"`. The main assistant handles exactly this condition by falling back to local inference (7 such `Cloud LLM failed (429 ...) falling back to local` events in the bmo.service journal in the same 72 h — the shared Gemini quota is being exhausted daily), but the social bot's `/ask` path (`bots/social/bot.py` ~1590-1624) calls the cloud provider directly with no fallback or 429-specific handling — so whenever the shared quota is spent, `/ask` is simply down even though a working local path exists in the same codebase.
+
+**Reproduction (if bug):**
+1. Exhaust the Gemini quota (happens naturally most days per the journal).
+2. `/ask` in Discord → generic failure message.
+
+**Expected behavior:** `/ask` degrades like the main agent (local fallback), or at least tells the user it's a temporary quota limit rather than a generic error.
+
+**Hypothesis / root cause:** `/ask` predates (or bypassed) the agent's cloud→local fallback chain; the generic `except Exception` at `bot.py:1622-1624` flattens quota exhaustion into "something went wrong".
+
+**Proposed fix / improvement:**
+- [ ] Route `/ask` through the same fallback chain the main agent uses (or catch 429/quota errors and retry on the local model).
+- [ ] Distinct user-facing message for quota-limited vs. genuine errors.
+
+**Blocked by:** none
+
+**Related files:** `bmo/pi/bots/social/bot.py:1590-1624`
+
+---
 
 ### [2026-07-02] `bmo.service` stop still leaves child processes behind after the KillMode fix — stale `adb` server survives three restarts and lives in the current cgroup
 
