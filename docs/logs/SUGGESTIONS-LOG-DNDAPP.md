@@ -77,6 +77,94 @@ New entries go at the TOP of their section (newest first).
 
 ---
 
+### [2026-07-17] No campaign duplicate / save-as-template — running the same module for a second group means export→import plus hand-stripping play history
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** scheduled improvement-suggestion scan of dnd-app/
+
+**Description:**
+`use-campaign-store.ts` has `duplicateRole` but no campaign-level clone. A DM who wants to (a) run the same prepped module for a second group, or (b) keep a reusable one-shot template, has only the export→import path (`services/io/campaign-io.ts`) — which preserves *everything*, including journal entries, session logs, and player rosters, so they must manually strip play history after import. The valuable half of a clone is exactly that selective reset: keep prep (maps, NPCs, shops, quests, handouts, roll tables, AI-DM config minus keys), drop play state (session logs, journals, player characters/roles, initiative, fog reveals).
+
+**Proposed fix / improvement:**
+- [ ] Add "Duplicate campaign…" to the campaign list/detail UI, backed by a `duplicateCampaign(id, opts)` store action (new id + inviteCode, name "Copy of …").
+- [ ] Options checklist at minimum: "include play history (journals/session logs)" and "include players", both default off — that makes the same action serve clone-for-second-group AND save-as-template.
+- [ ] Reuse `campaign-io.ts` gather/restore internals (incl. its `redactCampaignSecrets` behavior for AI keys) rather than a second serializer.
+
+**Blocked by:** none
+
+**Related files:** `src/renderer/src/stores/use-campaign-store.ts`, `src/renderer/src/services/io/campaign-io.ts`, `src/renderer/src/pages/CampaignDetailPage.tsx`
+
+**Related entries:** none
+
+### [2026-07-17] Encounter Builder gives only static CR math — the combat engine it sits on could Monte-Carlo the encounter and forecast real outcomes
+
+- **Category:** future-idea
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** scheduled improvement-suggestion scan of dnd-app/
+
+**Description:**
+`EncounterBuilderModal.tsx` + `services/combat/encounter-cr-calculator.ts` implement the DMG XP-budget/CR difficulty bands — which are famously unreliable (action economy, burst damage, and save-or-lose effects routinely make "Medium" encounters TPK-adjacent). Uniquely among VTTs, this app already owns everything needed to do better: `attack-resolver.ts`, `damage-resolver.ts`, `effect-resolver-5e.ts`, `monster-turn-planner.ts`/`monster-turn-executor.ts`, `spell-slot-manager.ts`, `death-mechanics.ts` are all pure-ish TS services with tests. Running N simulated fights (even with crude PC policies: attack nearest, use best slot) would let the builder report "estimated rounds: 4–6, expected PC downs: 1.2, TPK risk: 3%" next to the static band.
+
+**Proposed fix / improvement:**
+- [ ] A `simulate-encounter.ts` service that pits the builder's monster list against the party roster for N=200–500 runs in a Web Worker (keep the UI thread free; show a progress bar).
+- [ ] Surface percentile outcomes in EncounterBuilderModal beside the CR band; label it clearly as a heuristic (crude PC policy) so it guides rather than promises.
+- [ ] Start with martial auto-attack policies only; spellcaster policy can iterate later — even that beats static XP math.
+
+**Blocked by:** none
+
+**Related files:** `src/renderer/src/components/game/modals/dm-tools/EncounterBuilderModal.tsx`, `src/renderer/src/services/combat/encounter-cr-calculator.ts`, `src/renderer/src/services/combat/monster-turn-planner.ts`, `src/renderer/src/services/combat/attack-resolver.ts`
+
+**Related entries:** [2026-07-15] One-click AoE spell resolution (same "the engine can automate more of the DM's math" theme)
+
+### [2026-07-17] User-authored campaign content (journal, DM/player notes, handouts, quest log, pins, recaps) has no unified search — each panel searches only itself
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** scheduled improvement-suggestion scan of dnd-app/
+
+**Description:**
+"Where did I write about the innkeeper?" currently has no answer. `JournalPanel.tsx` has a local search box; DM notes (`DMNotepad`/`DMNotesModal`), player notes (`PlayerNotesPanel`), handouts (`HandoutModal`), the quest log (`QuestLogPanel`), map pins (`PinCreateModal`), and saved session recaps each hold prose in separate stores with per-panel (or no) filtering. The command palette's content search covers *compendium content, characters, and campaigns* (see RESOLVED 2026-06-29 palette entry) — not user-authored text. Mid-session, a DM greps their own campaign by opening five panels in turn. All of this state is already client-side in Zustand stores, and Fuse.js is already a dependency (`CompendiumModal.tsx` uses it), so a cross-store index is cheap.
+
+**Proposed fix / improvement:**
+- [ ] A "Search campaign notes" palette scope (or dedicated modal) that fuses journal entries, DM + player notes, handout titles/bodies, quest entries, pin labels, and saved recaps into one Fuse index built lazily on open.
+- [ ] Results deep-link: selecting one opens the owning panel/modal scrolled to the entry.
+- [ ] Respect visibility: players only search content they can already see (their notes, shared journal, revealed handouts/quests).
+
+**Blocked by:** none
+
+**Related files:** `src/renderer/src/components/game/GameCommandPalette.tsx`, `src/renderer/src/components/game/sidebar/JournalPanel.tsx`, `src/renderer/src/components/game/bottom/QuestLogPanel.tsx`, `src/renderer/src/components/game/modals/dm-tools/HandoutModal.tsx`
+
+**Related entries:** RESOLVED [2026-06-29] Global command palette content search (compendium/characters/campaigns — this entry is the user-content half it left out)
+
+### [2026-07-17] Imported image battlemaps need manual grid size/offset fiddling — no auto grid detection or click-two-corners alignment wizard
+
+- **Category:** future-idea, UX
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** dnd-suggestor
+- **During:** scheduled improvement-suggestion scan of dnd-app/
+
+**Description:**
+UVTT/dd2vtt import carries grid metadata, but a plain image battlemap (the common case: a PNG from Reddit/Patreon) drops the DM into `GridSettingsModal`/`GridControlPanel` to eyeball cell size and offset by trial and error — the classic first-five-minutes VTT frustration. No `detectGrid`/auto-align code exists in the renderer (grep). Two well-known fixes, both client-side: (a) a cheap alignment wizard — "click the top-left and bottom-right corners of any one grid square" → cellSize + offset computed exactly; (b) optional auto-detect via edge-projection (FFT/autocorrelation of row/column pixel sums finds the grid period) with the wizard as fallback. (`AiMapAnalysisModal` is tactical-state analysis, not image analysis — unrelated.)
+
+**Proposed fix / improvement:**
+- [ ] Step-1: add the two-click alignment wizard to the map-image import flow and to GridSettingsModal ("Align grid…"); exact, zero-dependency, works on every map.
+- [ ] Step-2 (optional): autocorrelation-based detection on a downscaled canvas as a pre-fill; keep the wizard as the correction path.
+- [ ] Prefill the "grid squares" dimensions in CreateMapModal/ResizeMapModal from the result.
+
+**Blocked by:** none
+
+**Related files:** `src/renderer/src/components/game/modals/dm-tools/GridSettingsModal.tsx`, `src/renderer/src/components/game/dm/GridControlPanel.tsx`, `src/renderer/src/components/game/modals/dm-tools/CreateMapModal.tsx`, `src/renderer/src/services/io/uvtt.ts`
+
+**Related entries:** RESOLVED [2026-07-02] Universal VTT import/export (solves this only for UVTT files, not plain images)
+
 ### [2026-07-15] `utils/dice-utils.ts` re-implements the dice parser/roller that `services/dice/dice-engine.ts` owns — two byte-identical regexes, one surviving importer
 
 - **Category:** debt
