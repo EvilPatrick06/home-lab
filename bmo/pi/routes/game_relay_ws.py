@@ -38,7 +38,7 @@ from flask import request
 from flask_socketio import emit, join_room
 
 from services.bmo_logging import get_logger
-from services.game.game_relay import RelayRejected, get_relay
+from services.game.game_relay import RelayRejected, get_relay, message_too_large
 
 log = get_logger("game_relay_ws")
 
@@ -117,6 +117,13 @@ def register_game_relay(socketio_obj, *, api_key: str = "") -> None:
         data = data or {}
         message = data.get("message")
         if not isinstance(message, dict):
+            return
+        # Bound the payload before authorize/route: the namespace is anonymous +
+        # internet-reachable and route() fans out to the whole room, so an
+        # oversized dict is a server-amplified DoS (SECURITY-LOG 2026-07-16).
+        if message_too_large(message):
+            log.warning("[game-relay] rejected oversized relay type=%s", message.get("type"))
+            emit("relay-rejected", {"type": message.get("type"), "reason": "too-large"})
             return
         target = data.get("target_peer_id")
         exclude = data.get("exclude_peer_id")

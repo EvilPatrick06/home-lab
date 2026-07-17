@@ -984,6 +984,11 @@ def _settings_key_blocked_for_http(key):
     k = (key or "").strip().lower()
     if k == "hooks" or k.startswith("hooks."):
         return True
+    # mcp.servers.*.command / .args feed the stdio launcher (subprocess spawn),
+    # so a settings write to them is an executable-value -> RCE sink exactly like
+    # hooks.* (SECURITY-LOG 2026-07-16). Block them over HTTP too.
+    if k == "mcp.servers" or k.startswith("mcp.servers."):
+        return True
     return any(marker in k for marker in _SETTINGS_HTTP_SECRET_MARKERS)
 
 

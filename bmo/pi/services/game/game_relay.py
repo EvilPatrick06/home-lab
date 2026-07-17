@@ -22,6 +22,7 @@ SocketIO glue that calls `emit()` lives in `app.py`.
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import threading
@@ -43,6 +44,13 @@ HOST_ONLY_TYPES: frozenset[str] = frozenset({"sync:delta", "game:state-update"})
 MAX_ROOMS: int = int(os.environ.get("BMO_RELAY_MAX_ROOMS", "500"))
 MAX_PEERS_PER_ROOM: int = int(os.environ.get("BMO_RELAY_MAX_PEERS_PER_ROOM", "64"))
 MAX_CODE_LEN: int = 128
+# Per-message payload ceiling for the anonymous relay. The /game namespace is
+# open (api_key="") and internet-reachable, and route() fans one peer message
+# out to up to MAX_PEERS_PER_ROOM others, so an unbounded ~1 MB dict is a
+# server-amplified memory/bandwidth DoS (SECURITY-LOG 2026-07-16). Real traffic
+# (state deltas, chat, dm events) is a few KB; the default is generous so legit
+# play never trips it. Override via env for unusual deployments.
+MAX_MSG_BYTES: int = int(os.environ.get("BMO_RELAY_MAX_MSG_BYTES", "131072"))
 # Reject only clearly-illegitimate codes (empty, whitespace/control chars, or
 # absurdly long). Deliberately charset-permissive: the invite-code format is
 # opaque and defined app-side, so no real code is ever refused.
@@ -59,6 +67,19 @@ class RelayRejected(Exception):
 
 def _valid_code(code: str) -> bool:
     return bool(code) and len(code) <= MAX_CODE_LEN and not _CODE_BAD_CHARS.search(code)
+
+
+def message_too_large(message: Any) -> bool:
+    """True if a relayed message exceeds MAX_MSG_BYTES once serialized.
+
+    Bounds the anonymous relay's per-message payload so a single peer cannot push
+    a ~1 MB dict that route() then amplifies across the room (SECURITY-LOG
+    2026-07-16). Serialization failures (non-JSON-able junk) count as too-large.
+    """
+    try:
+        return len(json.dumps(message, separators=(",", ":"))) > MAX_MSG_BYTES
+    except (TypeError, ValueError):
+        return True
 
 
 class Room:

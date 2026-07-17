@@ -29,8 +29,10 @@ from flask_socketio import SocketIO  # noqa: E402
 
 from routes.game_relay_ws import GAME_NS, register_game_relay  # noqa: E402
 from services.game.game_relay import (  # noqa: E402
+    MAX_MSG_BYTES,
     GameRelay,
     get_relay,
+    message_too_large,
     reset_relay_for_tests,
 )
 
@@ -707,3 +709,17 @@ def test_reconnect_supersede_not_rejected_at_peer_cap(relay, monkeypatch):
     relay.join("ROOMONE", "s1", {"peer_id": "p1", "client_id": "cid", "role": "host"})
     relay.join("ROOMONE", "s2", {"peer_id": "p2", "client_id": "cid", "role": "host"})
     assert len(relay.peers_for("ROOMONE")) == 1
+
+
+# ── payload-size cap (SECURITY-LOG 2026-07-16) ─────────────────────────────
+
+
+def test_message_too_large_rejects_oversized_payload() -> None:
+    small = {"type": "chat", "payload": {"text": "hi"}}
+    assert message_too_large(small) is False
+    big = {"type": "chat", "payload": {"blob": "A" * (MAX_MSG_BYTES + 1)}}
+    assert message_too_large(big) is True
+
+
+def test_message_too_large_rejects_unserializable() -> None:
+    assert message_too_large({"bad": object()}) is True

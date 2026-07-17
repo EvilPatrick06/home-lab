@@ -201,3 +201,15 @@ def test_health_full_all_agents_ok_not_degraded_by_agents(client):
         assert body["degraded_init_agents"] == []
     finally:
         bmo.agent_init_status = {}
+
+
+def test_settings_http_blocks_mcp_servers_keys():
+    # mcp.servers.*.command/.args feed the stdio launcher -> settings->RCE sink,
+    # so they must be blocked over HTTP like hooks.* (SECURITY-LOG 2026-07-16).
+    from routes.system_api import _settings_key_blocked_for_http
+    assert _settings_key_blocked_for_http("mcp.servers.evil.command") is True
+    assert _settings_key_blocked_for_http("mcp.servers.evil.args") is True
+    assert _settings_key_blocked_for_http("mcp.servers") is True
+    # Unrelated mcp toggles are still writable; hooks.* still blocked.
+    assert _settings_key_blocked_for_http("mcp.enabled") is False
+    assert _settings_key_blocked_for_http("hooks.foo") is True

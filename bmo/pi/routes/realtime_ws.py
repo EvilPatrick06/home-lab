@@ -15,9 +15,11 @@ How it wires up:
 - `on_disconnect` defers IDE per-client cleanup to routes.ide.cleanup_client_session.
 """
 
+import os
 import secrets
 import threading
 import time
+from urllib.parse import urlsplit
 
 import hmac
 
@@ -46,6 +48,29 @@ def _app():
     return app
 
 
+def _origin_is_allowed(origin: str, host: str, allowed: set[str]) -> bool:
+    """Pure CSWSH check: is a browser handshake Origin acceptable for an
+    ambient-cookie-authenticated socket? Same-site (Origin host == Host),
+    explicitly allowlisted, or absent (native/non-browser client) → yes.
+    """
+    origin = (origin or "").strip()
+    if not origin:
+        return True  # native client: no browser, no ambient-cookie CSRF vector
+    o_host = urlsplit(origin).netloc.lower()
+    host = (host or "").strip().lower()
+    if o_host and host and o_host == host:
+        return True
+    return origin.lower() in allowed or (bool(o_host) and o_host in allowed)
+
+
+def _ws_cookie_origin_allowed() -> bool:
+    """Request-context wrapper around _origin_is_allowed for the CF-cookie path."""
+    if os.environ.get("BMO_WS_ORIGIN_CHECK", "").strip().lower() == "off":
+        return True
+    allowed = {x.strip().lower() for x in os.environ.get("BMO_WS_ALLOWED_ORIGINS", "").split(",") if x.strip()}
+    return _origin_is_allowed(request.headers.get("Origin", ""), request.headers.get("Host", ""), allowed)
+
+
 def _bmo_websocket_authorized(auth: object | None) -> bool:
     """HTTP Bearer, Cloudflare Access JWT, and/or Socket.IO `auth: { bmo_api_key: ... }` for non-local clients."""
     a = _app()
@@ -61,7 +86,16 @@ def _bmo_websocket_authorized(auth: object | None) -> bool:
     # Cf-Access-Jwt-Assertion header or CF_Authorization cookie carried on the
     # socket.io handshake) -- same trust the REST front door grants (app.py:382).
     if a._cf_access_authenticated():
-        return True
+        # CSWSH guard (SECURITY-LOG 2026-07-15): the CF-Access cookie is ambient,
+        # so a cross-site page in the owner's authenticated browser could open a
+        # privileged socket (PTY/IDE/realtime) on the cookie alone. Accept the
+        # cookie path only for a same-site / allowlisted / originless handshake;
+        # bearer + auth-dict above are not cross-site-forgeable and stay exempt.
+        if _ws_cookie_origin_allowed():
+            return True
+        log.warning("[ws] Rejected CF-cookie socket from cross-site origin: %r",
+                    request.headers.get("Origin"))
+        return False
     return False
 
 

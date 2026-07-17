@@ -7,6 +7,7 @@ os.getloadavg is patched for Windows compatibility.
 
 import sys
 import time
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 # ── Inject a mock psutil before importing monitoring ──────────────────────────
@@ -713,7 +714,8 @@ class TestPhase10HealthTruth:
         # The relabeled monitor messages must say "Access token" so they read as
         # the live access-token / last-refresh delta — distinct from config-
         # preflight's on-disk credential-file expiry figure.
-        src = open("services/monitoring.py", encoding="utf-8").read()
+        src_path = Path(__file__).resolve().parents[1] / "services" / "monitoring.py"
+        src = src_path.read_text(encoding="utf-8")
         assert "Access token expired" in src
         assert '"Token expired and refresh token is missing"' not in src
 

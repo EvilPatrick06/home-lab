@@ -458,7 +458,16 @@ def _bmo_optional_api_key():
 _sio_mode = os.environ.get("BMO_SOCKETIO_ASYNC_MODE", "gevent")
 if _sio_mode not in ("gevent", "threading", "eventlet"):
     _sio_mode = "gevent"
-socketio = SocketIO(app, async_mode=_sio_mode, cors_allowed_origins="*")
+# max_http_buffer_size bounds a single transport frame. The default is ~1 MB;
+# cap it to 256 KB so the anonymous /game relay cannot be fed an oversized
+# payload for room-wide fan-out (SECURITY-LOG 2026-07-16). The per-message
+# MAX_MSG_BYTES check in game_relay is the app-level backstop below this.
+socketio = SocketIO(
+    app,
+    async_mode=_sio_mode,
+    cors_allowed_origins="*",
+    max_http_buffer_size=262144,
+)
 
 # ── Transport source gate (SECURITY-LOG 2026-06-29, resolved 2026-07-02) ────
 # Reject requests whose SOCKET peer address is neither loopback nor the
@@ -1184,11 +1193,14 @@ def init_services():
 
     log.info("[bmo] All services initialized!")
 
-    # Warm up Ollama models at startup (brenpoly pattern: keep_alive=-1 preloads into RAM)
+    # Warm up Ollama at startup (pre-pulls weights into page cache) using the
+    # SAME keep_alive as agent.py (30s) so the model still UNLOADS when idle —
+    # keep_alive=-1 ("Forever") regressed the Round-3 #36 unload fix and parked
+    # ~3.3 GB in swap on the 8 GB Pi (BMO-ISSUES 2026-07-17).
     try:
         import ollama as _ollama
         from agent import LOCAL_MODEL
-        _ollama.generate(model=LOCAL_MODEL, prompt="", keep_alive=-1)
+        _ollama.generate(model=LOCAL_MODEL, prompt="", keep_alive="30s")
         log.info(f"[bmo]   Ollama model warmed up: {LOCAL_MODEL}")
     except Exception:
         log.exception("[bmo]   Ollama warmup skipped")

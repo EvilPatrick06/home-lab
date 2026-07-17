@@ -83,6 +83,9 @@ _INTENTIONALLY_UNDOCUMENTED = {
     "BMO_PUBLIC_TOOL_MAX_CONTEXT_LEN": "public-tool tuning; safe default",
     "BMO_RELAY_MAX_ROOMS": "game-relay capacity cap; safe default",
     "BMO_RELAY_MAX_PEERS_PER_ROOM": "game-relay capacity cap; safe default",
+    "BMO_RELAY_MAX_MSG_BYTES": "game-relay per-message payload cap; safe default",
+    "BMO_WS_ORIGIN_CHECK": "CSWSH origin-check escape hatch (off disables); default on",
+    "BMO_WS_ALLOWED_ORIGINS": "extra allowlisted WS origins beyond same-site; empty default",
 }
 
 

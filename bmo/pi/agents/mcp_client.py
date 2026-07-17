@@ -53,6 +53,15 @@ def _validate_stdio_command(command: str, args: list) -> list[str]:
         raise ValueError(f"mcp stdio command not allowlisted: {command}")
     if not isinstance(args, list) or not all(isinstance(a, str) for a in args):
         raise ValueError("mcp stdio args must be a list of strings")
+    # An allowlisted interpreter is only safe when it runs a SCRIPT, not inline
+    # code: python3 -c / node -e / deno eval turn the interpreter into an
+    # arbitrary-code sink (SECURITY-LOG 2026-07-16). Reject inline-eval flags and
+    # a bare "-" (stdin program). The legit built-in servers pass a script path
+    # or an npx -y package spec, none of which use these.
+    _INLINE_EVAL_ARGS = {"-c", "-e", "--eval", "-p", "--print", "eval", "-"}
+    for a in args:
+        if a in _INLINE_EVAL_ARGS:
+            raise ValueError(f"mcp stdio inline-eval arg not allowed: {a!r}")
     return [command, *args]
 
 

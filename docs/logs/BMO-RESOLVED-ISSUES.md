@@ -12,6 +12,56 @@
 
 ---
 
+### [2026-07-17] master `bmo / pi pytest` red since Jul 16 — env-template drift on `BMO_RELAY_*` knobs blocked every deploy (RESOLVED)
+
+- **Category:** bug, test, config
+- **Severity:** high (resolved)
+- **Domain:** bmo
+
+**Resolution [2026-07-17, bmo-resolver]:** Already fixed on master by commit `5faa5c22` ("test(bmo): document new bot env knobs + relay caps for env-drift gate"), which added `BMO_RELAY_MAX_ROOMS` + `BMO_RELAY_MAX_PEERS_PER_ROOM` to the drift-test allowlist. Verified this run: `test_env_template_drift` is green on `origin/master`, `bmo / pi pytest` has been green on the last several master runs, and `bmo / deploy` has run `success` again (the deploy checkout is no longer stalled). No further code change needed.
+
+---
+
+### [2026-07-17] Startup Ollama warm-up pinned gemma3:4b with `keep_alive=-1` — regressed the #36 unload fix, parked ~3.3 GB in swap (RESOLVED)
+
+- **Category:** performance, config
+- **Severity:** medium (resolved)
+- **Domain:** bmo
+
+**Resolution [2026-07-17, bmo-resolver]:** `app.py` startup warm-up now uses `keep_alive="30s"` (matching `agent.py`'s #36 unload policy) instead of `-1` ("Forever"), so the warm-up still pre-pulls weights into page cache but the model unloads when idle instead of permanently occupying ~3.3 GB of RAM/swap on the 8 GB Pi. Takes effect on the next service (re)start via normal auto-deploy.
+
+---
+
+### [2026-07-17] `test_calendar_expiry_message_names_access_token` read `services/monitoring.py` cwd-relative (RESOLVED)
+
+- **Category:** test
+- **Severity:** low (resolved)
+- **Domain:** bmo
+
+**Resolution [2026-07-17, bmo-resolver]:** `tests/test_monitoring.py` now resolves the source via `Path(__file__).resolve().parents[1] / "services" / "monitoring.py"` instead of a cwd-relative `open("services/monitoring.py")`, so the test passes from any cwd (repo root, worktree, `$HOME`). Verified: previously red from `$HOME`, now green.
+
+---
+
+### [2026-07-17] social-bot `/ask` had no graceful handling when the cloud LLM was quota-exhausted (RESOLVED)
+
+- **Category:** bug, UX
+- **Severity:** low (resolved)
+- **Domain:** bmo
+
+**Resolution [2026-07-17, bmo-resolver]:** `_ai_respond` (`bots/social/bot.py`) now catches any quota/429 error (typed `CloudRateLimitError` OR a raw provider 429 whose text was not wrapped) via a new `_is_quota_error` helper, falls back to the lighter model once, and — if that is also quota-exhausted — re-raises as `CloudRateLimitError` so `/ask` shows the friendly "rate-limited, try again" message instead of the generic "something went wrong". Satisfies the entry's "at least tell the user it's a temporary quota limit" bar. (A full local-inference fallback in the social-bot process remains a larger future option, logged separately if pursued.)
+
+---
+
+### [2026-07-03] `test_ram_floor_blocks_and_never_launches` timing-flaky exact-boundary assert (RESOLVED)
+
+- **Category:** test / flaky
+- **Severity:** low (resolved)
+- **Domain:** bmo
+
+**Resolution [2026-07-17, bmo-resolver]:** Loosened the lower-bound assertion from `elapsed >= 2` to `elapsed >= 2 - 0.25` (against the 2 s `RUN_CHECK_TIMEOUT_S`), tolerating scheduler/measurement jitter under load that intermittently landed a few ms under 2.0 and reddened master pushes. Still asserts the gate waited ~the full timeout without running the command.
+
+---
+
 ### [2026-07-15] New board-decision runtime files not gitignored — deploy checkout left permanently dirty (RESOLVED)
 
 - **Category:** config

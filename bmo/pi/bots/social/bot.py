@@ -430,6 +430,18 @@ def _record_assistant(channel_id: int, text: str) -> None:
     history.append({"role": "assistant", "content": text})
 
 
+def _is_quota_error(exc: Exception) -> bool:
+    """True for a rate-limit / quota-exhaustion error from any cloud path.
+
+    Catches both the typed CloudRateLimitError and a raw provider 429 whose text
+    was not wrapped, so /ask can degrade to a friendly quota message either way.
+    """
+    if isinstance(exc, CloudRateLimitError):
+        return True
+    t = str(exc).lower()
+    return any(m in t for m in ("429", "too many requests", "quota", "rate limit", "resource_exhausted"))
+
+
 async def _ai_respond(channel_id: int, user_text: str) -> str:
     if _is_blocked_topic(user_text):
         polite = ("BMO is just a fun chat companion! I don't have access to "
@@ -464,14 +476,26 @@ async def _ai_respond(channel_id: int, user_text: str) -> str:
         response = await loop.run_in_executor(
             None, lambda: cloud_chat(messages, model=PRIMARY_MODEL, temperature=0.85, max_tokens=1024)
         )
-    except CloudRateLimitError:
-        # Primary model throttled — fall back to a lighter/higher-quota model once
-        # before surfacing the rate-limit to the caller (bot-commands-fix).
-        logger.warning("Primary model %s rate-limited; falling back to %s",
-                       PRIMARY_MODEL, ASK_FALLBACK_MODEL)
-        response = await loop.run_in_executor(
-            None, lambda: cloud_chat(messages, model=ASK_FALLBACK_MODEL, temperature=0.85, max_tokens=1024)
-        )
+    except Exception as primary_exc:
+        # Primary throttled/quota-exhausted — fall back to a lighter/higher-quota
+        # model once. A raw 429 (not wrapped as CloudRateLimitError) previously
+        # escaped as a generic "something went wrong" while a working fallback
+        # existed (BMO-ISSUES 2026-07-17); normalize any quota error so the
+        # caller's rate-limit branch shows the friendly message instead.
+        if not _is_quota_error(primary_exc):
+            raise
+        logger.warning("Primary model %s rate-limited (%s); falling back to %s",
+                       PRIMARY_MODEL, type(primary_exc).__name__, ASK_FALLBACK_MODEL)
+        try:
+            response = await loop.run_in_executor(
+                None, lambda: cloud_chat(messages, model=ASK_FALLBACK_MODEL, temperature=0.85, max_tokens=1024)
+            )
+        except Exception as fallback_exc:
+            if _is_quota_error(fallback_exc):
+                # Both models are quota-exhausted — surface as a typed rate-limit
+                # so /ask tells the user it's temporary, not a generic failure.
+                raise CloudRateLimitError(str(fallback_exc)) from fallback_exc
+            raise
     response = response.strip()
     _record_assistant(channel_id, response)
     return response

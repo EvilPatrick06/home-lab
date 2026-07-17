@@ -256,6 +256,20 @@ def _log_public_dm_breach(request_limit):  # noqa: ARG001 — flask-limiter call
         pass
 
 
+# ONE shared per-IP bucket across ALL five anonymous public LLM endpoints (SECURITY-LOG
+# 2026-07-16). A bare per-route @limiter.limit partitions by endpoint, giving each
+# route its own counter (~5x the intended per-IP ceiling); shared_limit with a fixed
+# scope makes /dm + /battlemap + /analyze-map + /recap + /qa draw from the same bucket.
+_public_dm_limit = limiter.shared_limit(
+    RATE_LIMIT_PUBLIC_DM, scope="public_dm",
+    key_func=_public_client_ip, on_breach=_log_public_dm_breach,
+)
+_public_dm_daily_limit = limiter.shared_limit(
+    RATE_LIMIT_PUBLIC_DM_DAILY, scope="public_dm_daily",
+    key_func=_public_client_ip, on_breach=_log_public_dm_breach,
+)
+
+
 def _cap_json(value, cap: int) -> str:
     try:
         return json.dumps(value, separators=(",", ":"))[:cap]
@@ -302,8 +316,8 @@ def _build_public_dm_messages(message, history, context):
 
 
 @chat_bp.route("/api/dnd/public/dm", methods=["POST"])
-@limiter.limit(RATE_LIMIT_PUBLIC_DM, key_func=_public_client_ip, on_breach=_log_public_dm_breach)
-@limiter.limit(RATE_LIMIT_PUBLIC_DM_DAILY, key_func=_public_client_ip, on_breach=_log_public_dm_breach)
+@_public_dm_limit
+@_public_dm_daily_limit
 def api_dnd_public_dm():
     client_ip = _public_client_ip()
 
@@ -478,8 +492,8 @@ def _extract_json(text):
 
 
 @chat_bp.route("/api/dnd/public/battlemap", methods=["POST"])
-@limiter.limit(RATE_LIMIT_PUBLIC_DM, key_func=_public_client_ip, on_breach=_log_public_dm_breach)
-@limiter.limit(RATE_LIMIT_PUBLIC_DM_DAILY, key_func=_public_client_ip, on_breach=_log_public_dm_breach)
+@_public_dm_limit
+@_public_dm_daily_limit
 def api_dnd_public_battlemap():
     data, err = _public_tool_body()
     if err:
@@ -505,8 +519,8 @@ def api_dnd_public_battlemap():
 
 
 @chat_bp.route("/api/dnd/public/analyze-map", methods=["POST"])
-@limiter.limit(RATE_LIMIT_PUBLIC_DM, key_func=_public_client_ip, on_breach=_log_public_dm_breach)
-@limiter.limit(RATE_LIMIT_PUBLIC_DM_DAILY, key_func=_public_client_ip, on_breach=_log_public_dm_breach)
+@_public_dm_limit
+@_public_dm_daily_limit
 def api_dnd_public_analyze_map():
     data, err = _public_tool_body()
     if err:
@@ -525,8 +539,8 @@ def api_dnd_public_analyze_map():
 
 
 @chat_bp.route("/api/dnd/public/recap", methods=["POST"])
-@limiter.limit(RATE_LIMIT_PUBLIC_DM, key_func=_public_client_ip, on_breach=_log_public_dm_breach)
-@limiter.limit(RATE_LIMIT_PUBLIC_DM_DAILY, key_func=_public_client_ip, on_breach=_log_public_dm_breach)
+@_public_dm_limit
+@_public_dm_daily_limit
 def api_dnd_public_recap():
     data, err = _public_tool_body()
     if err:
@@ -547,8 +561,8 @@ def api_dnd_public_recap():
 
 
 @chat_bp.route("/api/dnd/public/qa", methods=["POST"])
-@limiter.limit(RATE_LIMIT_PUBLIC_DM, key_func=_public_client_ip, on_breach=_log_public_dm_breach)
-@limiter.limit(RATE_LIMIT_PUBLIC_DM_DAILY, key_func=_public_client_ip, on_breach=_log_public_dm_breach)
+@_public_dm_limit
+@_public_dm_daily_limit
 def api_dnd_public_qa():
     data, err = _public_tool_body()
     if err:

@@ -155,3 +155,17 @@ def test_public_dm_rate_limited(client, monkeypatch):
     codes = [_post(client, ip, {"message": "go"}).status_code for _ in range(8)]
     assert 429 in codes  # per-minute cap kicks in
     assert codes.count(200) <= 6
+
+
+def test_public_llm_endpoints_share_one_ip_bucket(client, monkeypatch):
+    # All five anonymous public LLM endpoints must draw from ONE shared per-IP
+    # bucket, not five independent ones (SECURITY-LOG 2026-07-16). Exhaust /dm,
+    # then a sibling endpoint from the SAME IP must also be 429.
+    _patch_cloud_chat(monkeypatch, lambda *a, **k: "ok")
+    ip = "203.0.113.201"
+    codes = [_post(client, ip, {"message": "go"}).status_code for _ in range(7)]
+    assert 429 in codes  # /dm minute bucket exhausted
+    # A different endpoint, same IP, same minute → shares the bucket → 429.
+    r = client.post("/api/dnd/public/recap", json={"messages": []},
+                    headers={"CF-Connecting-IP": ip})
+    assert r.status_code == 429
