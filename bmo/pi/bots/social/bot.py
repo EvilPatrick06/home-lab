@@ -69,7 +69,7 @@ except ImportError:
     voice_recv = None
     HAS_VOICE_RECV = False
 
-from services.cloud_providers import cloud_chat, fish_audio_tts, groq_stt
+from services.cloud_providers import cloud_chat, fish_audio_tts, groq_stt, CloudRateLimitError
 
 # ── Data Directory + SQLite ──────────────────────────────────────────
 
@@ -153,6 +153,8 @@ except Exception as _e:
 BOT_TOKEN = os.environ.get("DISCORD_SOCIAL_BOT_TOKEN", "")
 GUILD_ID = os.environ.get("DISCORD_GUILD_ID", "")
 PRIMARY_MODEL = os.environ.get("BMO_PRIMARY_MODEL", "gemini-3-pro")
+# Lighter / higher-quota model used when PRIMARY_MODEL is rate-limited (429).
+ASK_FALLBACK_MODEL = os.environ.get("BMO_ASK_FALLBACK_MODEL", "gemini-3-flash")
 TWITCH_CLIENT_ID = os.environ.get("TWITCH_CLIENT_ID", "")
 TWITCH_CLIENT_SECRET = os.environ.get("TWITCH_CLIENT_SECRET", "")
 STEAM_API_KEY = os.environ.get("STEAM_API_KEY", "")
@@ -458,9 +460,18 @@ async def _ai_respond(channel_id: int, user_text: str) -> str:
     messages.extend(list(history))
 
     loop = asyncio.get_running_loop()
-    response = await loop.run_in_executor(
-        None, lambda: cloud_chat(messages, model=PRIMARY_MODEL, temperature=0.85, max_tokens=1024)
-    )
+    try:
+        response = await loop.run_in_executor(
+            None, lambda: cloud_chat(messages, model=PRIMARY_MODEL, temperature=0.85, max_tokens=1024)
+        )
+    except CloudRateLimitError:
+        # Primary model throttled — fall back to a lighter/higher-quota model once
+        # before surfacing the rate-limit to the caller (bot-commands-fix).
+        logger.warning("Primary model %s rate-limited; falling back to %s",
+                       PRIMARY_MODEL, ASK_FALLBACK_MODEL)
+        response = await loop.run_in_executor(
+            None, lambda: cloud_chat(messages, model=ASK_FALLBACK_MODEL, temperature=0.85, max_tokens=1024)
+        )
     response = response.strip()
     _record_assistant(channel_id, response)
     return response
@@ -589,6 +600,26 @@ FFMPEG_OPTIONS = {
     "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
     "options": "-vn",
 }
+
+# YouTube's googlevideo CDN 403s audio requests whose User-Agent doesn't match the
+# client yt-dlp used to mint the URL — and FFmpeg's default "Lavf/…" UA is exactly
+# that mismatch. We forward the UA from yt-dlp's http_headers to FFmpeg here so the
+# stream fetch is accepted (the real fix for the googlevideo 403s).
+YTDLP_FALLBACK_UA = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+)
+
+
+def _ffmpeg_ua_prefix(info: Optional[dict]) -> str:
+    """Build a `-user_agent "…" ` FFmpeg before_options prefix from the UA yt-dlp
+    used for this URL, so the googlevideo fetch UA matches and isn't 403'd. Falls
+    back to a browser UA when the info dict carries no http_headers."""
+    ua = ""
+    if info:
+        ua = (info.get("http_headers") or {}).get("User-Agent", "")
+    ua = (ua or YTDLP_FALLBACK_UA).replace('"', "")
+    return f'-user_agent "{ua}" '
 
 
 class SocialBot(commands.Bot):
@@ -1244,15 +1275,20 @@ async def _start_playing(queue: MusicQueue, track: dict, guild_id: int, text_cha
         if not track.get("thumbnail"):
             track["thumbnail"] = info.get("thumbnail", "")
 
-    # FFmpeg options — with optional seek
+    # FFmpeg options — with optional seek. Prefix the UA yt-dlp minted the URL
+    # with so googlevideo doesn't 403 the FFmpeg stream fetch (bot-commands-fix).
+    ua_prefix = _ffmpeg_ua_prefix(info)
     if seek_to > 0:
         ffmpeg_opts = {
-            "before_options": f"-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 -ss {int(seek_to)}",
+            "before_options": f"{ua_prefix}-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 -ss {int(seek_to)}",
             "options": "-vn",
         }
         queue.start_time = time.time() - seek_to
     else:
-        ffmpeg_opts = FFMPEG_OPTIONS
+        ffmpeg_opts = {
+            "before_options": f"{ua_prefix}-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
+            "options": "-vn",
+        }
         queue.start_time = time.time()
     queue.pause_offset = 0.0
 
@@ -1619,6 +1655,10 @@ async def _ask_cmd(interaction: discord.Interaction, question: str) -> None:
             if queue.voice_client and queue.voice_client.is_connected() and not queue.voice_client.is_playing():
                 tts_text = response[:200] if len(response) > 200 else response
                 await _bot.speak_in_vc(interaction.guild.id, tts_text)
+    except CloudRateLimitError:
+        await interaction.followup.send(
+            "I'm getting *way* too many questions right now and I'm rate-limited. "
+            "Give me a moment and try again!")
     except Exception as e:
         logger.error("Ask command failed: %s", e)
         await interaction.followup.send("Beep boop... something went wrong! Try again?")
@@ -3728,7 +3768,7 @@ async def _musicquiz_cmd(interaction: discord.Interaction) -> None:
 
     # Extract mystery track audio
     loop = asyncio.get_running_loop()
-    audio_url, _ = await loop.run_in_executor(
+    audio_url, _qinfo = await loop.run_in_executor(
         None, lambda: _extract_audio_url(mystery["webpage_url"]))
 
     if not audio_url:
@@ -3747,7 +3787,7 @@ async def _musicquiz_cmd(interaction: discord.Interaction) -> None:
 
     start_offset = random.randint(15, 60)
     quiz_opts = {
-        "before_options": f"-ss {start_offset}",
+        "before_options": f"{_ffmpeg_ua_prefix(_qinfo)}-ss {start_offset}",
         "options": "-vn -t 15",
     }
     source = discord.FFmpegPCMAudio(audio_url, **quiz_opts)
@@ -3895,10 +3935,11 @@ async def _guessthemovie_cmd(interaction: discord.Interaction,
             # Audio mode — search YouTube for movie soundtrack/scene
             loop = asyncio.get_running_loop()
             audio_url = None
+            _qinfo = None
             for suffix in ["movie soundtrack", "movie scene", "movie theme song"]:
                 search_query = f"ytsearch1:{title} {suffix}"
                 try:
-                    audio_url, _ = await loop.run_in_executor(
+                    audio_url, _qinfo = await loop.run_in_executor(
                         None, lambda q=search_query: _extract_audio_url(q))
                     if audio_url:
                         break
@@ -3935,7 +3976,7 @@ async def _guessthemovie_cmd(interaction: discord.Interaction,
 
             start_offset = random.randint(10, 45)
             source = discord.FFmpegPCMAudio(audio_url,
-                before_options=f"-ss {start_offset}", options="-vn -t 15")
+                before_options=f"{_ffmpeg_ua_prefix(_qinfo)}-ss {start_offset}", options="-vn -t 15")
             source = discord.PCMVolumeTransformer(source, volume=queue.volume)
             vc.play(source, after=after_clip)
 
@@ -4076,10 +4117,11 @@ async def _guesstheshow_cmd(interaction: discord.Interaction,
             # Audio mode — search YouTube for TV show theme/scene
             loop = asyncio.get_running_loop()
             audio_url = None
+            _qinfo = None
             for suffix in ["tv show theme song", "tv show intro", "tv soundtrack"]:
                 search_query = f"ytsearch1:{title} {suffix}"
                 try:
-                    audio_url, _ = await loop.run_in_executor(
+                    audio_url, _qinfo = await loop.run_in_executor(
                         None, lambda q=search_query: _extract_audio_url(q))
                     if audio_url:
                         break
@@ -4116,7 +4158,7 @@ async def _guesstheshow_cmd(interaction: discord.Interaction,
 
             start_offset = random.randint(5, 30)
             source = discord.FFmpegPCMAudio(audio_url,
-                before_options=f"-ss {start_offset}", options="-vn -t 15")
+                before_options=f"{_ffmpeg_ua_prefix(_qinfo)}-ss {start_offset}", options="-vn -t 15")
             source = discord.PCMVolumeTransformer(source, volume=queue.volume)
             vc.play(source, after=after_clip)
 
@@ -4275,10 +4317,11 @@ async def _guesstheanime_cmd(interaction: discord.Interaction,
         else:
             # Audio mode — search YouTube for anime opening/scene clip
             audio_url = None
+            _qinfo = None
             for suffix in ["anime opening", "anime ost", "anime theme"]:
                 search_query = f"ytsearch1:{display_title} {suffix}"
                 try:
-                    audio_url, _ = await loop.run_in_executor(
+                    audio_url, _qinfo = await loop.run_in_executor(
                         None, lambda q=search_query: _extract_audio_url(q))
                     if audio_url:
                         break
@@ -4319,7 +4362,7 @@ async def _guesstheanime_cmd(interaction: discord.Interaction,
 
             start_offset = random.randint(5, 30)
             clip_opts = {
-                "before_options": f"-ss {start_offset}",
+                "before_options": f"{_ffmpeg_ua_prefix(_qinfo)}-ss {start_offset}",
                 "options": "-vn -t 15",
             }
             source = discord.FFmpegPCMAudio(audio_url, **clip_opts)
@@ -4475,10 +4518,11 @@ async def _guessthegame_cmd(interaction: discord.Interaction,
             # Audio mode — search YouTube for game OST/soundtrack
             loop = asyncio.get_running_loop()
             audio_url = None
+            _qinfo = None
             for suffix in ["game soundtrack ost", "game theme music", "game ost"]:
                 search_query = f"ytsearch1:{title} {suffix}"
                 try:
-                    audio_url, _ = await loop.run_in_executor(
+                    audio_url, _qinfo = await loop.run_in_executor(
                         None, lambda q=search_query: _extract_audio_url(q))
                     if audio_url:
                         break
@@ -4515,7 +4559,7 @@ async def _guessthegame_cmd(interaction: discord.Interaction,
 
             start_offset = random.randint(10, 45)
             source = discord.FFmpegPCMAudio(audio_url,
-                before_options=f"-ss {start_offset}", options="-vn -t 15")
+                before_options=f"{_ffmpeg_ua_prefix(_qinfo)}-ss {start_offset}", options="-vn -t 15")
             source = discord.PCMVolumeTransformer(source, volume=queue.volume)
             vc.play(source, after=after_clip)
 
@@ -4581,22 +4625,28 @@ async def _guessthegame_cmd(interaction: discord.Interaction,
 # ── Phase 6: Anime Additions ─────────────────────────────────────────
 
 
-def _waifu_pics_get(endpoint: str) -> str:
+def _nekos_best_get(category: str) -> str:
+    # waifu.pics is dead (DNS no longer resolves); nekos.best serves the same kind
+    # of SFW anime art and has dedicated "waifu" and "husbando" categories.
     import requests as req
-    r = req.get(f"https://api.waifu.pics/sfw/{endpoint}", timeout=10)
+    # nekos.best is behind Cloudflare and 403s the default python-requests UA
+    # (and challenges browser UAs); a plain custom app UA is accepted.
+    r = req.get(f"https://nekos.best/api/v2/{category}",
+                headers={"User-Agent": "BMO-Discord-Bot/1.0"}, timeout=10)
     r.raise_for_status()
-    return r.json().get("url", "")
+    results = r.json().get("results", [])
+    return results[0].get("url", "") if results else ""
 
 
-async def _waifu_pics(endpoint: str) -> str:
+async def _nekos_best(category: str) -> str:
     loop = asyncio.get_running_loop()
-    return await loop.run_in_executor(None, lambda: _waifu_pics_get(endpoint))
+    return await loop.run_in_executor(None, lambda: _nekos_best_get(category))
 
 
 @app_commands.command(name="waifu", description="Get a random waifu image!")
 async def _waifu_cmd(interaction: discord.Interaction) -> None:
     try:
-        url = await _waifu_pics("waifu")
+        url = await _nekos_best("waifu")
     except Exception as e:
         await interaction.response.send_message(f"Couldn't fetch waifu: {e}", ephemeral=True)
         return
@@ -4608,8 +4658,7 @@ async def _waifu_cmd(interaction: discord.Interaction) -> None:
 @app_commands.command(name="husbando", description="Get a random husbando image!")
 async def _husbando_cmd(interaction: discord.Interaction) -> None:
     try:
-        # waifu.pics doesn't have a husbando endpoint, so use neko as alt
-        url = await _waifu_pics("neko")
+        url = await _nekos_best("husbando")
     except Exception as e:
         await interaction.response.send_message(f"Couldn't fetch husbando: {e}", ephemeral=True)
         return
@@ -4620,7 +4669,7 @@ async def _husbando_cmd(interaction: discord.Interaction) -> None:
 
 def _animequote_get() -> dict:
     import requests as req
-    r = req.get("https://animechan.io/api/v1/quotes/random", timeout=10)
+    r = req.get("https://api.animechan.io/v1/quotes/random", timeout=10)
     r.raise_for_status()
     return r.json()
 
@@ -4774,25 +4823,26 @@ async def _schedule_cmd(interaction: discord.Interaction) -> None:
 
 
 def _reddit_get(subreddit: str) -> list:
+    # reddit's public .json endpoints now 403 datacenter/bot traffic, so fetch via
+    # meme-api.com, which proxies reddit and returns clean SFW image posts.
     import requests as req
     r = req.get(
-        f"https://www.reddit.com/r/{subreddit}/hot.json?limit=50",
+        f"https://meme-api.com/gimme/{subreddit}/50",
         headers={"User-Agent": "BMO-Bot/1.0"},
         timeout=10,
     )
     r.raise_for_status()
-    posts = r.json().get("data", {}).get("children", [])
+    memes = r.json().get("memes", [])
     image_posts = []
-    for p in posts:
-        pdata = p.get("data", {})
-        if pdata.get("over_18"):
+    for pdata in memes:
+        if pdata.get("nsfw") or pdata.get("spoiler"):
             continue
         url = pdata.get("url", "")
         if any(url.lower().endswith(ext) for ext in (".jpg", ".jpeg", ".png", ".gif")):
             image_posts.append({
                 "title": pdata.get("title", "Untitled"),
                 "url": url,
-                "permalink": f"https://reddit.com{pdata.get('permalink', '')}",
+                "permalink": pdata.get("postLink", ""),
                 "author": pdata.get("author", "unknown"),
                 "ups": pdata.get("ups", 0),
             })

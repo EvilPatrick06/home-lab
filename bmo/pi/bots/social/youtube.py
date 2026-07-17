@@ -13,11 +13,30 @@ from bots.social.utils import _format_duration
 logger = logging.getLogger("social_bot")
 
 
+# YouTube player clients yt-dlp extracts audio with, made env-configurable so the
+# owner can retarget it when YouTube shifts, WITHOUT a code change. The default
+# keeps android_vr FIRST: it is the only client that yields downloadable audio on
+# this headless Pi (the web/ios/tv clients require a PO token / JS runtime we don't
+# have, and return "Requested format is not available"). The 403s YouTube throws on
+# googlevideo audio fetches are fixed not by dropping android_vr but by forwarding
+# the matching User-Agent to FFmpeg (see bot.py _ffmpeg_ua_prefix). web_safari is
+# kept as a secondary fallback. Override via BMO_YTDLP_PLAYER_CLIENT (comma-sep).
+import os as _os
+
+_YTDLP_PLAYER_CLIENT = _os.environ.get("BMO_YTDLP_PLAYER_CLIENT", "android_vr,web_safari")
+
+
+def _ytdlp_extractor_args() -> dict:
+    clients = [c.strip() for c in _YTDLP_PLAYER_CLIENT.split(",") if c.strip()]
+    return {"youtube": {"player_client": clients}}
+
+
 def _search_youtube(query: str) -> Optional[dict]:
     import yt_dlp
     opts = {
         "format": "bestaudio/best",
         "quiet": True,
+        "extractor_args": _ytdlp_extractor_args(),
         "no_warnings": True,
         "noplaylist": True,
         "default_search": "ytsearch1",
@@ -50,6 +69,7 @@ def _search_youtube_multi(query: str, max_results: int = 5) -> list[dict]:
     import yt_dlp
     opts = {
         "quiet": True,
+        "extractor_args": _ytdlp_extractor_args(),
         "no_warnings": True,
         "noplaylist": True,
         "default_search": f"ytsearch{max_results}",
@@ -86,6 +106,7 @@ def _extract_track_info(url: str) -> Optional[dict]:
     opts = {
         "format": "bestaudio/best",
         "quiet": True,
+        "extractor_args": _ytdlp_extractor_args(),
         "no_warnings": True,
         "noplaylist": True,
     }
@@ -110,7 +131,8 @@ def _extract_track_info(url: str) -> Optional[dict]:
 def _extract_audio_url(url: str) -> tuple[Optional[str], dict]:
     """Extract audio URL and full metadata from a video URL."""
     import yt_dlp
-    opts = {"format": "bestaudio/best", "quiet": True, "no_warnings": True}
+    opts = {"format": "bestaudio/best", "quiet": True, "no_warnings": True,
+            "extractor_args": _ytdlp_extractor_args()}
     try:
         with yt_dlp.YoutubeDL(opts) as ydl:
             info = ydl.extract_info(url, download=False)
@@ -134,6 +156,7 @@ def _extract_playlist_tracks(url: str) -> tuple[str, list[dict]]:
     import yt_dlp
     opts = {
         "quiet": True,
+        "extractor_args": _ytdlp_extractor_args(),
         "no_warnings": True,
         "noplaylist": False,
         "extract_flat": True,

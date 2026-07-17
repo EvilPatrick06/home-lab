@@ -23,6 +23,25 @@ _fish_session = requests.Session()
 _gemini_session = requests.Session()
 _claude_session = requests.Session()
 
+
+class CloudRateLimitError(Exception):
+    """Raised when a cloud LLM provider returns HTTP 429 (rate/quota exceeded)
+    and retries were exhausted. Callers (e.g. the social bot /ask command) catch
+    this to show a friendly 'try again in a moment' message and/or fall back to a
+    lighter model, instead of surfacing a raw HTTPError as a generic failure."""
+
+
+def _retry_after_seconds(resp, default: float = 2.0) -> float:
+    """Parse a Retry-After header (delta-seconds form) into a float, clamped to a
+    sane range; fall back to `default` when absent/unparseable."""
+    try:
+        ra = resp.headers.get("Retry-After") if resp is not None else None
+        if ra:
+            return max(0.0, min(float(int(ra)), 30.0))
+    except (TypeError, ValueError):
+        pass
+    return default
+
 # ── API Keys (from environment / .env) ─────────────────────────────────────
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
@@ -165,7 +184,18 @@ def gemini_chat(messages: list[dict], model: str = "",
             r.raise_for_status()
             break
         except requests.exceptions.HTTPError as e:
-            if r.status_code >= 500 and attempt < 2:
+            # Retry transient 5xx AND 429 rate-limits (preview models throttle
+            # hard). Honour Retry-After when present, capped so a Discord
+            # interaction is never blocked for long. Exhausted 429s surface as a
+            # typed CloudRateLimitError so callers can degrade gracefully.
+            status = r.status_code
+            if status == 429:
+                if attempt < 2:
+                    time.sleep(min(_retry_after_seconds(r, 2.0 * (attempt + 1)), 8.0))
+                    last_err = e
+                    continue
+                raise CloudRateLimitError("Gemini rate limit (429) after retries") from e
+            if status >= 500 and attempt < 2:
                 time.sleep(1 * (attempt + 1))
                 last_err = e
                 continue
